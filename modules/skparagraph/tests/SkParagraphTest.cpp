@@ -7724,3 +7724,93 @@ UNIX_ONLY_TEST(SkParagraph_RtlEllipsis2, reporter) {
             return true;
         });
 };
+
+UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_TextEditingFunctionality.png");
+    const char* text =
+            "This is a very long sentence to test if the text will properly wrap "
+            "around and go to the next line. Sometimes, short sentence. Longer "
+            "sentences are okay too because they are nessecary. Very short. "
+            "This is a very long sentence to test if the text will properly wrap "
+            "around and go to the next line. Sometimes, short sentence. Longer "
+            "sentences are okay too because they are nessecary. Very short. ";
+
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setMaxLines(3);
+    TestParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto lineNumber = paragraph->getLineNumberAt(0);
+    REPORTER_ASSERT(reporter, lineNumber == 0);
+    lineNumber = paragraph->getLineNumberAt(len / 2);
+    REPORTER_ASSERT(reporter, lineNumber == 1);
+    lineNumber = paragraph->getLineNumberAt(len - 1);
+    REPORTER_ASSERT(reporter, lineNumber == -1);
+    lineNumber = paragraph->getLineNumberAt(len + 10);
+    REPORTER_ASSERT(reporter, lineNumber == -1);
+
+    LineMetrics lineMetrics;
+    auto foundMetrics = paragraph->getLineMetricsAt(0, &lineMetrics);
+    REPORTER_ASSERT(reporter, foundMetrics && lineMetrics.fLineNumber == 0);
+    foundMetrics = paragraph->getLineMetricsAt(1, &lineMetrics);
+    REPORTER_ASSERT(reporter, foundMetrics && lineMetrics.fLineNumber == 1);
+    foundMetrics = paragraph->getLineMetricsAt(3, &lineMetrics);
+    REPORTER_ASSERT(reporter, !foundMetrics);
+    foundMetrics = paragraph->getLineMetricsAt(10, &lineMetrics);
+    REPORTER_ASSERT(reporter, !foundMetrics);
+
+    std::vector<LineMetrics> metrics;
+    paragraph->getLineMetrics(metrics);
+    auto actualText = paragraph->getActualTextRange(0, false);
+    REPORTER_ASSERT(reporter, actualText.end == metrics[0].fEndExcludingWhitespaces);
+    actualText = paragraph->getActualTextRange(1, false);
+    REPORTER_ASSERT(reporter, actualText.end == metrics[1].fEndExcludingWhitespaces);
+    actualText = paragraph->getActualTextRange(2, false);
+    REPORTER_ASSERT(reporter, actualText.end == metrics[2].fEndExcludingWhitespaces);
+
+    Paragraph::GlyphClusterInfo glyphInfo;
+    auto foundCluster = paragraph->getGlyphClusterAt(0, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundCluster && glyphInfo.fClusterTextRange.start == 0);
+    foundCluster = paragraph->getGlyphClusterAt(len / 2, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundCluster && glyphInfo.fClusterTextRange.start == len / 2);
+    foundCluster = paragraph->getGlyphClusterAt(len, &glyphInfo);
+    REPORTER_ASSERT(reporter, !foundCluster);
+
+    auto foundClosest = paragraph->getClosestGlyphClusterAt(0, 10, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 0 &&
+                                              glyphInfo.fClusterTextRange.end == 1);
+    foundClosest = paragraph->getClosestGlyphClusterAt(TestCanvasWidth / 2, 20, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 61 &&
+                                              glyphInfo.fClusterTextRange.end == 62);
+    foundClosest = paragraph->getClosestGlyphClusterAt(TestCanvasWidth + 10, 30, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 230 &&
+                                              glyphInfo.fClusterTextRange.end == 231);
+
+    auto font = paragraph->getFontAt(10);
+    REPORTER_ASSERT(reporter, font.getTypeface() != nullptr);
+    SkString fontFamily;
+    font.getTypeface()->getFamilyName(&fontFamily);
+    REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
+
+    auto fonts = paragraph->getFonts();
+    REPORTER_ASSERT(reporter, fonts.size() == 1);
+    REPORTER_ASSERT(reporter, fonts[0].fTextRange.start == 0 && fonts[0].fTextRange.end == len);
+    REPORTER_ASSERT(reporter, fonts[0].fFont.getTypeface() != nullptr);
+    font.getTypeface()->getFamilyName(&fontFamily);
+    REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
+}

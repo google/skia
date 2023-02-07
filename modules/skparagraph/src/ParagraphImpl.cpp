@@ -736,7 +736,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-    ensureUTF16Mapping();
+    this->ensureUTF16Mapping();
 
     if (start >= end || start > SkToSizeT(fUTF8IndexForUTF16Index.size()) || end == 0) {
         return results;
@@ -822,7 +822,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         return {0, Affinity::kDownstream};
     }
 
-    ensureUTF16Mapping();
+    this->ensureUTF16Mapping();
 
     for (auto& line : fLines) {
         // Let's figure out if we can stop looking
@@ -1160,6 +1160,92 @@ void ParagraphImpl::visit(const Visitor& visitor) {
         visitor(lineNumber, nullptr);   // signal end of line
         lineNumber += 1;
     }
+}
+
+int ParagraphImpl::getLineNumberAt(TextIndex codeUnitIndex) const {
+    for (auto i = 0; i < fLines.size(); ++i) {
+        auto& line = fLines[i];
+        if (line.text().contains({codeUnitIndex, codeUnitIndex})) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+bool ParagraphImpl::getLineMetricsAt(int lineNumber, LineMetrics* lineMetrics) const {
+    if (lineNumber < 0 || lineNumber >= fLines.size()) {
+        return false;
+    }
+    auto& line = fLines[lineNumber];
+    if (lineMetrics) {
+        *lineMetrics = line.getMetrics();
+    }
+    return true;
+}
+
+TextRange ParagraphImpl::getActualTextRange(int lineNumber, bool includeSpaces) const {
+    if (lineNumber < 0 || lineNumber >= fLines.size()) {
+        return EMPTY_TEXT;
+    }
+    auto& line = fLines[lineNumber];
+    return includeSpaces ? line.text() : line.trimmedText();
+}
+
+bool ParagraphImpl::getGlyphClusterAt(TextIndex codeUnitIndex, GlyphClusterInfo* glyphInfo) {
+    for (auto i = 0; i < fLines.size(); ++i) {
+        auto& line = fLines[i];
+        if (!line.text().contains({codeUnitIndex, codeUnitIndex})) {
+            continue;
+        }
+        for (auto c = line.clustersWithSpaces().start; c < line.clustersWithSpaces().end; ++c) {
+            auto& cluster = fClusters[c];
+            if (cluster.contains(codeUnitIndex)) {
+                std::vector<TextBox> boxes;
+                line.getRectsForRange(cluster.textRange(),
+                                      RectHeightStyle::kTight,
+                                      RectWidthStyle::kTight,
+                                      boxes);
+                if (boxes.size() > 0) {
+                    if (glyphInfo) {
+                        *glyphInfo = {boxes[0].rect, cluster.textRange(), boxes[0].direction};
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    return false;
+}
+
+bool ParagraphImpl::getClosestGlyphClusterAt(SkScalar dx,
+                                             SkScalar dy,
+                                             GlyphClusterInfo* glyphInfo) {
+    auto res = this->getGlyphPositionAtCoordinate(dx, dy);
+    auto textIndex = res.position + (res.affinity == Affinity::kDownstream ? 0 : 1);
+    GlyphClusterInfo gci;
+    if (this->getGlyphClusterAt(textIndex, glyphInfo ? glyphInfo : &gci)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+SkFont ParagraphImpl::getFontAt(TextIndex codeUnitIndex) const {
+    for (auto& run : fRuns) {
+        if (run.textRange().contains({codeUnitIndex, codeUnitIndex})) {
+            return run.font();
+        }
+    }
+    return SkFont();
+}
+
+std::vector<Paragraph::FontInfo> ParagraphImpl::getFonts() const {
+    std::vector<FontInfo> results;
+    for (auto& run : fRuns) {
+        results.emplace_back(run.font(), run.textRange());
+    }
+    return results;
 }
 
 }  // namespace textlayout

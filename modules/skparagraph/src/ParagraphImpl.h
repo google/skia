@@ -207,6 +207,16 @@ public:
 
     void visit(const Visitor&) override;
 
+    int getLineNumberAt(TextIndex codeUnitIndex) const override;
+    bool getLineMetricsAt(int lineNumber, LineMetrics* lineMetrics) const override;
+    TextRange getActualTextRange(int lineNumber, bool includeSpaces) const override;
+    bool getGlyphClusterAt(TextIndex codeUnitIndex, GlyphClusterInfo* glyphInfo) override;
+    bool getClosestGlyphClusterAt(SkScalar dx,
+                                  SkScalar dy,
+                                  GlyphClusterInfo* glyphInfo) override;
+    SkFont getFontAt(TextIndex codeUnitIndex) const override;
+    std::vector<FontInfo> getFonts() const override;
+
     InternalLineMetrics getEmptyMetrics() const { return fEmptyMetrics; }
     InternalLineMetrics getStrutMetrics() const { return fStrutMetrics; }
 

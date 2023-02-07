@@ -95,6 +95,72 @@ public:
     using Visitor = std::function<void(int lineNumber, const VisitorInfo*)>;
     virtual void visit(const Visitor&) = 0;
 
+    // Editing API
+    virtual int getLineNumberAt(TextIndex codeUnitIndex) const = 0;
+
+    /* Returns line metrics info for the line
+     *
+     * @param lineNumber    a line number
+     * @param lineMetrics   an address to return the info (in case of null just skipped)
+     * @return              true if the line is found; false if not
+     */
+    virtual bool getLineMetricsAt(int lineNumber, LineMetrics* lineMetrics) const = 0;
+
+    /* Returns the visible text on the line (excluding a possible ellipsis)
+     *
+     * @param lineNumber    a line number
+     * @param includeSpaces indicates if the whitespaces should be included
+     * @return              the range of the text that is shown in the line
+     */
+    virtual TextRange getActualTextRange(int lineNumber, bool includeSpaces) const = 0;
+
+    struct GlyphClusterInfo {
+        SkRect fBounds;
+        TextRange fClusterTextRange;
+        TextDirection fGlyphClusterPosition;
+    };
+
+    /** Finds a glyph cluster for text index
+     *
+     * @param codeUnitIndex   a text index
+     * @param glyphInfo       a glyph cluster info filled if not null
+     * @return                true if glyph cluster was found; false if not
+     */
+    virtual bool getGlyphClusterAt(TextIndex codeUnitIndex, GlyphClusterInfo* glyphInfo) = 0;
+
+    /** Finds the closest glyph cluster for a visual text position
+     *
+     * @param dx              x coordinate
+     * @param dy              y coordinate
+     * @param glyphInfo       a glyph cluster info filled if not null
+     * @return
+     */
+    virtual bool getClosestGlyphClusterAt(SkScalar dx,
+                                          SkScalar dy,
+                                          GlyphClusterInfo* glyphInfo) = 0;
+
+    struct FontInfo {
+        FontInfo(const SkFont font, const TextRange textRange)
+            : fFont(font), fTextRange(textRange) { }
+        virtual ~FontInfo() = default;
+        FontInfo(const FontInfo& ) = default;
+        SkFont fFont;
+        TextRange fTextRange;
+    };
+
+    /** Returns the font that is used to shape the text at the position
+     *
+     * @param codeUnitIndex   text index
+     * @return                font info or an empty font info if the text is not found
+     */
+    virtual SkFont getFontAt(TextIndex codeUnitIndex) const = 0;
+
+    /** Returns the information about all the fonts used to shape the paragraph text
+     *
+     * @return                a list of fonts and text ranges
+     */
+    virtual std::vector<FontInfo> getFonts() const = 0;
+
 protected:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
