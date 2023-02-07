@@ -367,7 +367,7 @@ const {
 #include "src/gpu/ganesh/GrProxyProvider.h"
 
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
-        const GrFPArgs& args) const {
+        const GrFPArgs& args, const MatrixRec& mRec) const {
     auto ctx = args.fContext;
     SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorInfo->colorType());
     if (dstColorType == kUnknown_SkColorType) {
@@ -376,18 +376,13 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 
     auto dstCS = ref_or_srgb(args.fDstColorInfo->colorSpace());
 
-    const auto& vm    = args.fMatrixProvider.localToDevice();
-    const auto* lm    = args.fLocalMatrix;
-    const auto totalM = lm ? SkMatrix::Concat(vm, *lm) : vm;
-
     auto info = CachedImageInfo::Make(fTile,
-                                      totalM,
+                                      mRec.totalMatrix(),
                                       dstColorType,
                                       dstCS.get(),
                                       ctx->priv().caps()->maxTextureSize(),
                                       args.fSurfaceProps);
-    SkMatrix inv;
-    if (!info.success || (lm && !lm->invert(&inv))) {
+    if (!info.success) {
         return nullptr;
     }
 
@@ -438,9 +433,15 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     const GrSamplerState sampler(static_cast<GrSamplerState::WrapMode>(fTmx),
                                  static_cast<GrSamplerState::WrapMode>(fTmy),
                                  fFilter);
-    inv.postScale(info.tileScale.width(), info.tileScale.height());
-    return GrTextureEffect::Make(
-            std::move(view), kPremul_SkAlphaType, inv, sampler, *ctx->priv().caps());
+    auto fp = GrTextureEffect::Make(std::move(view),
+                                    kPremul_SkAlphaType,
+                                    SkMatrix::I(),
+                                    sampler,
+                                    *ctx->priv().caps());
+    SkMatrix scale = SkMatrix::Scale(info.tileScale.width(), info.tileScale.height());
+    bool success;
+    std::tie(success, fp) = mRec.apply(std::move(fp), scale);
+    return success ? std::move(fp) : nullptr;
 }
 #endif
 

@@ -33,9 +33,8 @@ SkShaderBase::GradientType SkLocalMatrixShader::asGradient(GradientInfo* info,
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    return as_SB(fWrappedShader)->asFragmentProcessor(GrFPArgs::ConcatLocalMatrix(args,
-                                                                                  fLocalMatrix));
+        const GrFPArgs& args, const MatrixRec& mRec) const {
+    return as_SB(fWrappedShader)->asFragmentProcessor(args, mRec.concat(fLocalMatrix));
 }
 #endif
 
@@ -160,7 +159,8 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 
 protected:
@@ -192,15 +192,14 @@ private:
 
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(
-        const GrFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(const GrFPArgs& args,
+                                                                      const MatrixRec& mRec) const {
     SkMatrix ctmInv;
     if (!fCTM.invert(&ctmInv)) {
         return nullptr;
     }
 
-    auto ctmProvider = SkMatrixProvider(fCTM);
-    auto base = as_SB(fProxyShader)->asFragmentProcessor(args.withNewMatrixProvider(ctmProvider));
+    auto base = as_SB(fProxyShader)->asRootFragmentProcessor(args, fCTM);
     if (!base) {
         return nullptr;
     }

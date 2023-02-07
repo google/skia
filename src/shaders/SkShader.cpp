@@ -23,6 +23,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -79,6 +80,33 @@ SkShaderBase::MatrixRec::apply(skvm::Builder* p,
                      fTotalMatrixIsValid,
                      /*ctmApplied=*/true};
 }
+
+#if SK_SUPPORT_GPU
+GrFPResult SkShaderBase::MatrixRec::apply(std::unique_ptr<GrFragmentProcessor> fp,
+                                          const SkMatrix& postInv) const {
+    // FP matrices work differently than SkRasterPipeline and SkVM. The starting coordinates
+    // provided to the root SkShader's FP are already in local space. So we never apply the inverse
+    // CTM.
+    SkASSERT(!fCTMApplied);
+    SkMatrix total;
+    if (!fPendingLocalMatrix.invert(&total)) {
+        return {false, std::move(fp)};
+    }
+    total = SkMatrix::Concat(postInv, total);
+    // GrMatrixEffect returns 'fp' if total worked out to identity.
+    return {true, GrMatrixEffect::Make(total, std::move(fp))};
+}
+
+SkShaderBase::MatrixRec SkShaderBase::MatrixRec::applied() const {
+    // We mark the CTM as "not applied" because we *never* apply the CTM for FPs. Their starting
+    // coords are local, not device, coords.
+    return MatrixRec{fCTM,
+                     fTotalLocalMatrix,
+                     /*pendingLocalMatrix=*/SkMatrix::I(),
+                     fTotalMatrixIsValid,
+                     /*ctmApplied=*/false};
+}
+#endif
 
 SkShaderBase::MatrixRec SkShaderBase::MatrixRec::concat(const SkMatrix& m) const {
     return {fCTM,
@@ -152,7 +180,13 @@ SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkShaderBase::asFragmentProcessor(const GrFPArgs&) const {
+std::unique_ptr<GrFragmentProcessor>
+SkShaderBase::asRootFragmentProcessor(const GrFPArgs& args, const SkMatrix& ctm) const {
+    return this->asFragmentProcessor(args, MatrixRec(ctm));
+}
+
+std::unique_ptr<GrFragmentProcessor> SkShaderBase::asFragmentProcessor(const GrFPArgs&,
+                                                                       const MatrixRec&) const {
     return nullptr;
 }
 #endif

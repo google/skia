@@ -350,22 +350,22 @@ sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
-std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    const auto& lm = args.fLocalMatrix ? *args.fLocalMatrix : SkMatrix::I();
-    SkMatrix lmInverse;
-    if (!lm.invert(&lmInverse)) {
-        return nullptr;
-    }
-
+std::unique_ptr<GrFragmentProcessor>
+SkImageShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
     SkTileMode tileModes[2] = {fTileModeX, fTileModeY};
     const SkRect* subset = needs_subset(fImage.get(), fSubset) ? &fSubset : nullptr;
     auto fp = as_IB(fImage.get())->asFragmentProcessor(args.fContext,
                                                        fSampling,
                                                        tileModes,
-                                                       lmInverse,
+                                                       SkMatrix::I(),
                                                        subset);
     if (!fp) {
+        return nullptr;
+    }
+
+    bool success;
+    std::tie(success, fp) = mRec.apply(std::move(fp));
+    if (!success) {
         return nullptr;
     }
 

@@ -18,6 +18,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/shaders/SkShaderBase.h"
 #endif
 
 class GrClip;
@@ -72,7 +73,8 @@ public:
      *  pixel's filtered coverage must only depend on the unfiltered mask value for that pixel and
      *  not on surrounding values.
      */
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args,
+                                                             const SkMatrix& ctm) const;
 
     /**
      *  Returns true iff asFragmentProcessor() will return a processor
@@ -171,7 +173,9 @@ protected:
     SkMaskFilterBase() {}
 
 #if SK_SUPPORT_GPU
-    virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&) const;
+    using MatrixRec = SkShaderBase::MatrixRec;
+    virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&,
+                                                                       const MatrixRec&) const;
     virtual bool onHasFragmentProcessor() const;
 #endif
 

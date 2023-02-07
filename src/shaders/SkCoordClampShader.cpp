@@ -29,7 +29,8 @@ public:
             : fShader(std::move(shader)), fSubset(subset) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 
 protected:
@@ -108,7 +109,7 @@ skvm::Color SkShader_CoordClamp::program(skvm::Builder* p,
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
-        const GrFPArgs& args) const {
+        const GrFPArgs& args, const MatrixRec& mRec) const {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
             "uniform shader c;"
             "uniform float4 s;"
@@ -116,9 +117,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
                 "return c.eval(clamp(p, s.LT, s.RB));"
             "}");
 
-    auto child_args = args;
-    child_args.fLocalMatrix = nullptr;
-    auto fp = as_SB(fShader)->asFragmentProcessor(child_args);
+    auto fp = as_SB(fShader)->asFragmentProcessor(args, mRec.applied());
     if (!fp) {
         return nullptr;
     }
@@ -136,13 +135,9 @@ std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
                         flags,
                         "c", std::move(fp),
                         "s", fSubset);
-    if (args.fLocalMatrix) {
-        if (SkMatrix inv; args.fLocalMatrix->invert(&inv)) {
-            return GrMatrixEffect::Make(inv, std::move(fp));
-        }
-        return nullptr;
-    }
-    return fp;
+    bool success;
+    std::tie(success, fp) = mRec.apply(std::move(fp));
+    return success ? std::move(fp) : nullptr;
 }
 #endif  // SK_SUPPORT_GPU
 

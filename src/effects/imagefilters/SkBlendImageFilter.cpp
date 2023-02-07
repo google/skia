@@ -26,7 +26,6 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkImageFilter_Base.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -328,7 +327,7 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
                                              kPremul_SkAlphaType);
 
         SkSurfaceProps props{}; // default OK; blend-image filters don't render text
-        GrFPArgs args(rContext, SkMatrixProvider(SkMatrix::I()), &info.colorInfo(), props);
+        GrFPArgs args(rContext, &info.colorInfo(), props);
 
         fp = as_BB(fBlender)->asFragmentProcessor(std::move(fgFP), std::move(fp), args);
     }

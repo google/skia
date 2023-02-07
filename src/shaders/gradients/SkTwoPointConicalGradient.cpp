@@ -61,7 +61,8 @@ public:
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const skgpu::graphite::KeyContext&,
@@ -377,8 +378,8 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/gradients/GrGradientShader.h"
 
-std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
-        const GrFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor>
+SkTwoPointConicalGradient::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
     // The 2 point conical gradient can reject a pixel so it does change opacity even if the input
     // was opaque. Thus, all of these layout FPs disable that optimization.
     std::unique_ptr<GrFragmentProcessor> fp;
@@ -526,7 +527,11 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
                                 "fx", focalData.fFocalX);
         } break;
     }
-    return GrGradientShader::MakeGradientFP(*this, args, std::move(fp), matrix.getMaybeNull());
+    return GrGradientShader::MakeGradientFP(*this,
+                                            args,
+                                            mRec,
+                                            std::move(fp),
+                                            matrix.getMaybeNull());
 }
 
 #endif

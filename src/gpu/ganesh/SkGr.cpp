@@ -428,7 +428,7 @@ static inline bool skpaint_to_grpaint_impl(
         GrRecordingContext* context,
         const GrColorInfo& dstColorInfo,
         const SkPaint& skPaint,
-        const SkMatrixProvider& matrixProvider,
+        const SkMatrix& ctm,
         std::optional<std::unique_ptr<GrFragmentProcessor>> shaderFP,
         SkBlender* primColorBlender,
         const SkSurfaceProps& surfaceProps,
@@ -436,7 +436,7 @@ static inline bool skpaint_to_grpaint_impl(
     // Convert SkPaint color to 4f format in the destination color space
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), dstColorInfo);
 
-    GrFPArgs fpArgs(context, matrixProvider, &dstColorInfo, surfaceProps);
+    GrFPArgs fpArgs(context, &dstColorInfo, surfaceProps);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -447,7 +447,7 @@ static inline bool skpaint_to_grpaint_impl(
             paintFP = std::move(*shaderFP);
         } else {
             if (const SkShaderBase* shader = as_SB(skPaint.getShader())) {
-                paintFP = shader->asFragmentProcessor(fpArgs);
+                paintFP = shader->asFragmentProcessor(fpArgs, SkShaderBase::MatrixRec(ctm));
                 if (paintFP == nullptr) {
                     return false;
                 }
@@ -558,7 +558,7 @@ static inline bool skpaint_to_grpaint_impl(
 
     SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
     if (maskFilter) {
-        if (auto mfFP = maskFilter->asFragmentProcessor(fpArgs)) {
+        if (auto mfFP = maskFilter->asFragmentProcessor(fpArgs, ctm)) {
             grPaint->setCoverageFragmentProcessor(std::move(mfFP));
         }
     }
@@ -617,13 +617,13 @@ static inline bool skpaint_to_grpaint_impl(
 bool SkPaintToGrPaint(GrRecordingContext* context,
                       const GrColorInfo& dstColorInfo,
                       const SkPaint& skPaint,
-                      const SkMatrixProvider& matrixProvider,
+                      const SkMatrix& ctm,
                       const SkSurfaceProps& surfaceProps,
                       GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context,
                                    dstColorInfo,
                                    skPaint,
-                                   matrixProvider,
+                                   ctm,
                                    /*shaderFP=*/std::nullopt,
                                    /*primColorBlender=*/nullptr,
                                    surfaceProps,
@@ -634,14 +634,14 @@ bool SkPaintToGrPaint(GrRecordingContext* context,
 bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,
                                    const SkPaint& skPaint,
-                                   const SkMatrixProvider& matrixProvider,
+                                   const SkMatrix& ctm,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
                                    const SkSurfaceProps& surfaceProps,
                                    GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context,
                                    dstColorInfo,
                                    skPaint,
-                                   matrixProvider,
+                                   ctm,
                                    std::move(shaderFP),
                                    /*primColorBlender=*/nullptr,
                                    surfaceProps,
@@ -653,14 +653,14 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
 bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                const GrColorInfo& dstColorInfo,
                                const SkPaint& skPaint,
-                               const SkMatrixProvider& matrixProvider,
+                               const SkMatrix& ctm,
                                SkBlender* primColorBlender,
                                const SkSurfaceProps& surfaceProps,
                                GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context,
                                    dstColorInfo,
                                    skPaint,
-                                   matrixProvider,
+                                   ctm,
                                    /*shaderFP=*/std::nullopt,
                                    primColorBlender,
                                    surfaceProps,

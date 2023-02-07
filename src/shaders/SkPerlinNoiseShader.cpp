@@ -301,7 +301,8 @@ public:
     };
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 
     skvm::Color program(skvm::Builder*,
@@ -583,7 +584,6 @@ public:
             std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
             GrSurfaceProxyView permutationsView,
             GrSurfaceProxyView noiseView,
-            const SkMatrix& matrix,
             const GrCaps& caps) {
         static constexpr GrSamplerState kRepeatXSampler = {GrSamplerState::WrapMode::kRepeat,
                                                            GrSamplerState::WrapMode::kClamp,
@@ -594,9 +594,13 @@ public:
         auto noiseFP = GrTextureEffect::Make(std::move(noiseView), kPremul_SkAlphaType,
                                              SkMatrix::I(), kRepeatXSampler, caps);
 
-        return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
-                new GrPerlinNoise2Effect(type, numOctaves, stitchTiles, std::move(paintingData),
-                                         std::move(permutationsFP), std::move(noiseFP))));
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrPerlinNoise2Effect(type,
+                                         numOctaves,
+                                         stitchTiles,
+                                         std::move(paintingData),
+                                         std::move(permutationsFP),
+                                         std::move(noiseFP)));
     }
 
     const char* name() const override { return "PerlinNoise"; }
@@ -694,7 +698,7 @@ std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcesso
                                              stitchTiles ? &tileSize : nullptr));
 
     GrTest::TestAsFPArgs asFPArgs(d);
-    return as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    return as_SB(shader)->asRootFragmentProcessor(asFPArgs.args(), GrTest::TestMatrix(d->fRandom));
 }
 #endif
 
@@ -924,25 +928,22 @@ void GrPerlinNoise2Effect::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilde
 /////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(
-        const GrFPArgs& args) const {
+        const GrFPArgs& args, const MatrixRec& mRec) const {
     SkASSERT(args.fContext);
 
-    const auto& localMatrix = args.fLocalMatrix ? *args.fLocalMatrix : SkMatrix::I();
-    const auto  paintMatrix = SkMatrix::Concat(args.fMatrixProvider.localToDevice(), localMatrix);
+    const SkMatrix& totalMatrix = mRec.totalMatrix();
 
     // Either we don't stitch tiles, either we have a valid tile size
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
 
-    std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData =
-        std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
-                                                                  fSeed,
-                                                                  fBaseFrequencyX,
-                                                                  fBaseFrequencyY,
-                                                                  paintMatrix);
+    auto paintingData = std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
+                                                                                fSeed,
+                                                                                fBaseFrequencyX,
+                                                                                fBaseFrequencyY,
+                                                                                totalMatrix);
 
-    SkMatrix m = args.fMatrixProvider.localToDevice();
-    m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);
-    m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
+    // Like shadeSpan, we start from device space. We will account for that below with a device
+    // space effect.
 
     auto context = args.fContext;
 
@@ -969,14 +970,16 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             context, noiseBitmap, /*label=*/"PerlinNoiseShader_FragmentProcessor_NoiseView"));
 
     if (permutationsView && noiseView) {
-        return GrPerlinNoise2Effect::Make(fType,
-                                          fNumOctaves,
-                                          fStitchTiles,
-                                          std::move(paintingData),
-                                          std::move(permutationsView),
-                                          std::move(noiseView),
-                                          m,
-                                          *context->priv().caps());
+        return GrFragmentProcessor::DeviceSpace(
+                GrMatrixEffect::Make(SkMatrix::Translate(1 - totalMatrix.getTranslateX(),
+                                                         1 - totalMatrix.getTranslateY()),
+                                     GrPerlinNoise2Effect::Make(fType,
+                                                                fNumOctaves,
+                                                                fStitchTiles,
+                                                                std::move(paintingData),
+                                                                std::move(permutationsView),
+                                                                std::move(noiseView),
+                                                                *context->priv().caps())));
     }
     return nullptr;
 }

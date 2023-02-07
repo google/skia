@@ -29,7 +29,6 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/utils/SkRandom.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
@@ -820,17 +819,15 @@ static SkPath create_path_47() {
     return path;
 }
 
-static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
-            GrRecordingContext* rContext) {
-
+static std::unique_ptr<GrFragmentProcessor>
+create_linear_gradient_processor(GrRecordingContext* rContext, const SkMatrix& ctm) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
         pts, colors, nullptr, std::size(colors), SkTileMode::kClamp);
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
-    SkMatrixProvider matrixProvider(SkMatrix::I());
     SkSurfaceProps props; // default props for testing
-    return as_SB(shader)->asFragmentProcessor({rContext, matrixProvider, &colorInfo, props});
+    return as_SB(shader)->asRootFragmentProcessor({rContext, &colorInfo, props}, ctm);
 }
 
 static void test_path(GrRecordingContext* rContext,
@@ -885,7 +882,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests,
         test_path(ctx, sdc.get(), createPath());
     }
     SkMatrix nonInvertibleMatrix = SkMatrix::Scale(0, 0);
-    std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
+    std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx, SkMatrix()));
     test_path(ctx, sdc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage,
               std::move(fp));
     test_path(ctx, sdc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);

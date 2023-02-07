@@ -94,8 +94,8 @@ SkShaderBase::GradientType SkLinearGradient::asGradient(GradientInfo* info,
 #include "src/gpu/ganesh/gradients/GrGradientShader.h"
 
 std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    return GrGradientShader::MakeLinear(*this, args);
+        const GrFPArgs& args, const MatrixRec& mRec) const {
+    return GrGradientShader::MakeLinear(*this, args, mRec);
 }
 
 #endif

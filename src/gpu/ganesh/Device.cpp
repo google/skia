@@ -98,7 +98,7 @@ std::unique_ptr<GrFragmentProcessor> make_inverse_rrect_fp(const SkMatrix& viewM
 bool init_vertices_paint(GrRecordingContext* rContext,
                          const GrColorInfo& colorInfo,
                          const SkPaint& skPaint,
-                         const SkMatrixProvider& matrixProvider,
+                         const SkMatrix& ctm,
                          sk_sp<SkBlender> blender,
                          bool hasColors,
                          const SkSurfaceProps& props,
@@ -107,12 +107,12 @@ bool init_vertices_paint(GrRecordingContext* rContext,
         return SkPaintToGrPaintWithBlend(rContext,
                                          colorInfo,
                                          skPaint,
-                                         matrixProvider,
+                                         ctm,
                                          blender.get(),
                                          props,
                                          grPaint);
     } else {
-        return SkPaintToGrPaint(rContext, colorInfo, skPaint, matrixProvider, props, grPaint);
+        return SkPaintToGrPaint(rContext, colorInfo, skPaint, ctm, props, grPaint);
     }
 }
 
@@ -368,8 +368,11 @@ void Device::drawPaint(const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawPaint", fContext.get());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                          this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+    if (!SkPaintToGrPaint(this->recordingContext(),
+                          fSurfaceDrawContext->colorInfo(),
+                          paint,
+                          this->localToDevice(),
+                          fSurfaceDrawContext->surfaceProps(),
                           &grPaint)) {
         return;
     }
@@ -395,11 +398,11 @@ void Device::drawPoints(SkCanvas::PointMode mode,
             // Probably a dashed line. Draw as a path.
             GrPaint grPaint;
             if (SkPaintToGrPaint(this->recordingContext(),
-                                  fSurfaceDrawContext->colorInfo(),
-                                  paint,
-                                  this->asMatrixProvider(),
-                                  fSurfaceDrawContext->surfaceProps(),
-                                  &grPaint)) {
+                                 fSurfaceDrawContext->colorInfo(),
+                                 paint,
+                                 this->localToDevice(),
+                                 fSurfaceDrawContext->surfaceProps(),
+                                 &grPaint)) {
                 SkPath path;
                 path.setIsVolatile(true);
                 path.moveTo(pts[0]);
@@ -421,7 +424,7 @@ void Device::drawPoints(SkCanvas::PointMode mode,
             if (SkPaintToGrPaint(this->recordingContext(),
                                  fSurfaceDrawContext->colorInfo(),
                                  paint,
-                                 this->asMatrixProvider(),
+                                 this->localToDevice(),
                                  fSurfaceDrawContext->surfaceProps(),
                                  &grPaint)) {
                 fSurfaceDrawContext->drawStrokedLine(this->clip(),
@@ -468,8 +471,12 @@ void Device::drawPoints(SkCanvas::PointMode mode,
 #endif
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                          *matrixProvider, fSurfaceDrawContext->surfaceProps(), &grPaint)) {
+    if (!SkPaintToGrPaint(this->recordingContext(),
+                          fSurfaceDrawContext->colorInfo(),
+                          paint,
+                          matrixProvider->localToDevice(),
+                          fSurfaceDrawContext->surfaceProps(),
+                          &grPaint)) {
         return;
     }
 
@@ -499,8 +506,11 @@ void Device::drawRect(const SkRect& rect, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                          this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+    if (!SkPaintToGrPaint(this->recordingContext(),
+                          fSurfaceDrawContext->colorInfo(),
+                          paint,
+                          this->localToDevice(),
+                          fSurfaceDrawContext->surfaceProps(),
                           &grPaint)) {
         return;
     }
@@ -571,8 +581,11 @@ void Device::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     SkASSERT(!style.pathEffect());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                          this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+    if (!SkPaintToGrPaint(this->recordingContext(),
+                          fSurfaceDrawContext->colorInfo(),
+                          paint,
+                          this->localToDevice(),
+                          fSurfaceDrawContext->surfaceProps(),
                           &grPaint)) {
         return;
     }
@@ -602,8 +615,11 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
                                             fSurfaceDrawContext->chooseAA(paint),
                                             *fSurfaceDrawContext->caps()->shaderCaps())) {
             GrPaint grPaint;
-            if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                                  this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+            if (!SkPaintToGrPaint(this->recordingContext(),
+                                  fSurfaceDrawContext->colorInfo(),
+                                  paint,
+                                  this->localToDevice(),
+                                  fSurfaceDrawContext->surfaceProps(),
                                   &grPaint)) {
                 return;
             }
@@ -643,8 +659,11 @@ void Device::drawRegion(const SkRegion& region, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                          this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+    if (!SkPaintToGrPaint(this->recordingContext(),
+                          fSurfaceDrawContext->colorInfo(),
+                          paint,
+                          this->localToDevice(),
+                          fSurfaceDrawContext->surfaceProps(),
                           &grPaint)) {
         return;
     }
@@ -665,8 +684,11 @@ void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                          this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+    if (!SkPaintToGrPaint(this->recordingContext(),
+                          fSurfaceDrawContext->colorInfo(),
+                          paint,
+                          this->localToDevice(),
+                          fSurfaceDrawContext->surfaceProps(),
                           &grPaint)) {
         return;
     }
@@ -688,8 +710,11 @@ void Device::drawArc(const SkRect& oval,
         return;
     }
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                          this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+    if (!SkPaintToGrPaint(this->recordingContext(),
+                          fSurfaceDrawContext->colorInfo(),
+                          paint,
+                          this->localToDevice(),
+                          fSurfaceDrawContext->surfaceProps(),
                           &grPaint)) {
         return;
     }
@@ -712,8 +737,11 @@ void Device::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool path
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawPath", fContext.get());
     if (!paint.getMaskFilter()) {
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                              this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+        if (!SkPaintToGrPaint(this->recordingContext(),
+                              fSurfaceDrawContext->colorInfo(),
+                              paint,
+                              this->localToDevice(),
+                              fSurfaceDrawContext->surfaceProps(),
                               &grPaint)) {
             return;
         }
@@ -895,7 +923,7 @@ void Device::drawViewLattice(GrSurfaceProxyView view,
     if (!SkPaintToGrPaintReplaceShader(this->recordingContext(),
                                        fSurfaceDrawContext->colorInfo(),
                                        *paint,
-                                       this->asMatrixProvider(),
+                                       this->localToDevice(),
                                        /*shaderFP=*/nullptr,
                                        fSurfaceDrawContext->surfaceProps(),
                                        &grPaint)) {
@@ -952,7 +980,7 @@ void Device::drawVertices(const SkVertices* vertices,
     if (!init_vertices_paint(fContext.get(),
                              fSurfaceDrawContext->colorInfo(),
                              paint,
-                             this->asMatrixProvider(),
+                             this->localToDevice(),
                              std::move(blender),
                              info.hasColors(),
                              fSurfaceDrawContext->surfaceProps(),
@@ -976,7 +1004,7 @@ void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPain
     if (!init_vertices_paint(fContext.get(),
                              fSurfaceDrawContext->colorInfo(),
                              paint,
-                             this->asMatrixProvider(),
+                             this->localToDevice(),
                              std::move(blender),
                              SkMeshSpecificationPriv::HasColors(*mesh.spec()),
                              fSurfaceDrawContext->surfaceProps(),
@@ -1022,15 +1050,18 @@ void Device::drawAtlas(const SkRSXform xform[],
         if (!SkPaintToGrPaintWithBlend(this->recordingContext(),
                                        fSurfaceDrawContext->colorInfo(),
                                        paint,
-                                       this->asMatrixProvider(),
+                                       this->localToDevice(),
                                        blender.get(),
                                        fSurfaceDrawContext->surfaceProps(),
                                        &grPaint)) {
             return;
         }
     } else {
-        if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(),
-                              paint, this->asMatrixProvider(), fSurfaceDrawContext->surfaceProps(),
+        if (!SkPaintToGrPaint(this->recordingContext(),
+                              fSurfaceDrawContext->colorInfo(),
+                              paint,
+                              this->localToDevice(),
+                              fSurfaceDrawContext->surfaceProps(),
                               &grPaint)) {
             return;
         }

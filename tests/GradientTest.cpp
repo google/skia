@@ -31,7 +31,6 @@
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/shaders/SkShaderBase.h"
@@ -440,15 +439,14 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, SkToBool(gradient));
     // And it shouldn't crash when creating a fragment processor
 
-    SkMatrixProvider provider(SkMatrix::I());
     GrColorInfo dstColorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType,
                              SkColorSpace::MakeSRGB());
     SkSurfaceProps props;
     GrMockOptions options;
     auto context = GrDirectContext::MakeMock(&options);
 
-    GrFPArgs args(context.get(), provider, &dstColorInfo, props);
-    as_SB(gradient)->asFragmentProcessor(args);
+    GrFPArgs args(context.get(), &dstColorInfo, props);
+    as_SB(gradient)->asRootFragmentProcessor(args, SkMatrix::I());
 }
 
 // "Interesting" fuzzer values.

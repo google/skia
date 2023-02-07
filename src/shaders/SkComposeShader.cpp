@@ -34,7 +34,8 @@ public:
             , fMode(mode) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -161,10 +162,10 @@ skvm::Color SkShader_Blend::program(skvm::Builder* p,
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
-std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    auto fpA = as_SB(fDst)->asFragmentProcessor(args);
-    auto fpB = as_SB(fSrc)->asFragmentProcessor(args);
+std::unique_ptr<GrFragmentProcessor>
+SkShader_Blend::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
+    auto fpA = as_SB(fDst)->asFragmentProcessor(args, mRec);
+    auto fpB = as_SB(fSrc)->asFragmentProcessor(args, mRec);
     if (!fpA || !fpB) {
         // This is unexpected. Both src and dst shaders should be valid. Just fail.
         return nullptr;

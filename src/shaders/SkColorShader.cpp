@@ -40,7 +40,8 @@ public:
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -82,7 +83,8 @@ public:
     bool isConstant() const override { return true; }
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const skgpu::graphite::KeyContext&,
@@ -217,13 +219,13 @@ skvm::Color SkColor4Shader::program(skvm::Builder* p,
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/SkGr.h"
 
-std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
-        const GrFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const GrFPArgs& args,
+                                                                        const MatrixRec&) const {
     return GrFragmentProcessor::MakeColor(SkColorToPMColor4f(fColor, *args.fDstColorInfo));
 }
 
-std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
-        const GrFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const GrFPArgs& args,
+                                                                         const MatrixRec&) const {
     SkColorSpaceXformSteps steps{ fColorSpace.get(),                kUnpremul_SkAlphaType,
                                   args.fDstColorInfo->colorSpace(), kUnpremul_SkAlphaType };
     SkColor4f color = fColor;

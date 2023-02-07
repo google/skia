@@ -344,13 +344,10 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
 }
 
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
-        : fMatrixProvider(TestMatrix(d->fRandom))
-        , fColorInfoStorage(std::make_unique<GrColorInfo>(
-                  GrColorType::kRGBA_8888, kPremul_SkAlphaType, TestColorSpace(d->fRandom)))
-        , fArgs(d->context(),
-                fMatrixProvider,
-                fColorInfoStorage.get(),
-                fSurfaceProps) {}
+        : fColorInfoStorage(std::make_unique<GrColorInfo>(GrColorType::kRGBA_8888,
+                                                          kPremul_SkAlphaType,
+                                                          TestColorSpace(d->fRandom)))
+        , fArgs(d->context(), fColorInfoStorage.get(), fSurfaceProps) {}
 
 TestAsFPArgs::~TestAsFPArgs() {}
 

@@ -97,10 +97,9 @@ skvm::Color SkColorFilterShader::program(skvm::Builder* p,
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
-
-std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    auto shaderFP = as_SB(fShader)->asFragmentProcessor(args);
+std::unique_ptr<GrFragmentProcessor>
+SkColorFilterShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
+    auto shaderFP = as_SB(fShader)->asFragmentProcessor(args, mRec);
     if (!shaderFP) {
         return nullptr;
     }

@@ -37,6 +37,10 @@ class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 }
 
+#if SK_SUPPORT_GPU
+using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
+#endif
+
 class SkShaderBase : public SkShader {
 public:
     ~SkShaderBase() override;
@@ -186,10 +190,10 @@ public:
     };
 
     /**
-     * This is used to accumulate matrices, starting with the CTM, when building up SkRasterPipeline
-     * and SkVM by walking the SkShader tree. It avoids adding a matrix multiply for each individual
-     * matrix. It also handles the reverse matrix concatenation order required by Android Framework,
-     * see b/256873449.
+     * This is used to accumulate matrices, starting with the CTM, when building up
+     * SkRasterPipeline, SkVM, and GrFragmentProcessor by walking the SkShader tree. It avoids
+     * adding a matrix multiply for each individual matrix. It also handles the reverse matrix
+     * concatenation order required by Android Framework, see b/256873449.
      *
      * This also tracks the dubious concept of a "total matrix", which includes all the matrices
      * encountered during traversal to the current shader, including ones that have already been
@@ -207,7 +211,7 @@ public:
     public:
         MatrixRec() = default;
 
-        MatrixRec(const SkMatrix& ctm);
+        explicit MatrixRec(const SkMatrix& ctm);
 
         /**
          * Returns a new MatrixRec that represents the existing total and pending matrix
@@ -233,6 +237,31 @@ public:
                                                              skvm::Coord* local,  // inout
                                                              skvm::Uniforms*,
                                                              const SkMatrix& postInv = {}) const;
+
+#if SK_SUPPORT_GPU
+        /**
+         * Produces an FP that muls its input coords by the inverse of the pending matrix and then
+         * samples the passed FP with those coordinates. 'postInv' is an additional matrix to
+         * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
+         * GrFPResult's bool will be false and the passed FP will be returned to the caller in the
+         * GrFPResult.
+         */
+        GrFPResult SK_WARN_UNUSED_RESULT apply(std::unique_ptr<GrFragmentProcessor>,
+                                               const SkMatrix& postInv = {}) const;
+        /**
+         * A parent FP may need to create a FP for its child by calling
+         * SkShaderBase::asFragmentProcessor() and then pass the result to the apply() above.
+         * This comes up when the parent needs to ensure pending matrices are applied before the
+         * child because the parent is going to manipulate the coordinates *after* any pending
+         * matrix and pass the resulting coords to the child. This function gets a MatrixRec that
+         * reflects the state after this MatrixRec has bee applied but it does not apply it!
+         * Example:
+         * auto childFP = fChild->asFragmentProcessor(args, mrec.applied());
+         * childFP = MakeAWrappingFPThatModifiesChildsCoords(std::move(childFP));
+         * auto [success, parentFP] = mrec.apply(std::move(childFP));
+         */
+        MatrixRec applied() const;
+#endif
 
         /** Call to indicate that the mapping from shader to device space is not known. */
         void markTotalMatrixInvalid() { fTotalMatrixIsValid = false; }
@@ -303,19 +332,20 @@ public:
 
 #if SK_SUPPORT_GPU
     /**
-     *  Returns a GrFragmentProcessor that implements the shader for the GPU backend. nullptr is
-     *  returned if there is no GPU implementation.
+     * Call on the root SkShader to produce a GrFragmentProcessor.
      *
-     *  The GPU device does not call SkShader::createContext(), instead we pass the view matrix,
-     *  local matrix, and filter quality directly.
-     *
-     *  The GrRecordingContext may be used by the to create textures that are required by the
-     *  returned processor.
-     *
-     *  The returned GrFragmentProcessor should expect an unpremultiplied input color and
-     *  produce a premultiplied output.
+     * The returned GrFragmentProcessor expects an unpremultiplied input color and produces a
+     * premultiplied output.
      */
-    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const;
+    std::unique_ptr<GrFragmentProcessor> asRootFragmentProcessor(const GrFPArgs&,
+                                                                 const SkMatrix& ctm) const;
+    /**
+     * Virtualized implementation of above. Any pending matrix in the MatrixRec should be applied
+     * to the coords if the SkShader uses its coordinates. This can be done by calling
+     * MatrixRec::apply() to wrap a GrFragmentProcessor in a GrMatrixEffect.
+     */
+    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                                     const MatrixRec&) const;
 #endif
 
     /**
@@ -373,7 +403,7 @@ public:
      * Called at the root of a shader tree to build a VM that produces color. The device coords
      * should be initialized to the centers of device space pixels being shaded and the inverse of
      * ctm should be the transform of those coords to local space.
-     **/
+     */
     SK_WARN_UNUSED_RESULT
     skvm::Color rootProgram(skvm::Builder*,
                             skvm::Coord device,
@@ -387,7 +417,7 @@ public:
      * Virtualized implementation of above. A note on the local coords param: it must be transformed
      * by the inverse of the "pending" matrix in MatrixRec to be put in the correct space for this
      * shader. This is done by calling MatrixRec::apply().
-     **/
+     */
     virtual skvm::Color program(skvm::Builder*,
                                 skvm::Coord device,
                                 skvm::Coord local,

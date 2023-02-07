@@ -64,7 +64,6 @@ public:
     const GrFPArgs& args() const { return fArgs; }
 
 private:
-    SkMatrixProvider fMatrixProvider;
     std::unique_ptr<GrColorInfo> fColorInfoStorage;
     SkSurfaceProps fSurfaceProps;
     GrFPArgs fArgs;

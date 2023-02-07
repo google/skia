@@ -18,7 +18,8 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
-
+// This shouldn't be needed but IWYU needs both (identical) defs of GrFPResult.
+#include "src/shaders/SkShaderBase.h"
 #include <memory>
 #include <utility>
 

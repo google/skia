@@ -37,7 +37,7 @@ class GrSurfaceProxyView;
 class SkBitmap;
 class SkBlender;
 class SkIDChangeListener;
-class SkMatrixProvider;
+class SkMatrix;
 class SkPaint;
 class SkSurfaceProps;
 enum class GrColorType;
@@ -92,7 +92,7 @@ static constexpr GrSamplerState::WrapMode SkTileModeToWrapMode(SkTileMode tileMo
 bool SkPaintToGrPaint(GrRecordingContext*,
                       const GrColorInfo& dstColorInfo,
                       const SkPaint& skPaint,
-                      const SkMatrixProvider& matrixProvider,
+                      const SkMatrix& ctm,
                       const SkSurfaceProps& surfaceProps,
                       GrPaint* grPaint);
 
@@ -102,7 +102,7 @@ bool SkPaintToGrPaint(GrRecordingContext*,
 bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
                                    const GrColorInfo& dstColorInfo,
                                    const SkPaint& skPaint,
-                                   const SkMatrixProvider& matrixProvider,
+                                   const SkMatrix& ctm,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
                                    const SkSurfaceProps& surfaceProps,
                                    GrPaint* grPaint);
@@ -112,7 +112,7 @@ bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
 bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                const GrColorInfo& dstColorInfo,
                                const SkPaint& skPaint,
-                               const SkMatrixProvider& matrixProvider,
+                               const SkMatrix& ctm,
                                SkBlender* primColorBlender,
                                const SkSurfaceProps& surfaceProps,
                                GrPaint* grPaint);

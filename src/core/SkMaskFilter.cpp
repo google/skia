@@ -30,6 +30,7 @@
 #include <memory>
 
 #if SK_SUPPORT_GPU
+#include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
@@ -331,13 +332,9 @@ SkMaskFilterBase::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor>
-SkMaskFilterBase::asFragmentProcessor(const GrFPArgs& args) const {
-    auto fp = this->onAsFragmentProcessor(args);
-    if (fp) {
-        SkASSERT(this->hasFragmentProcessor());
-    } else {
-        SkASSERT(!this->hasFragmentProcessor());
-    }
+SkMaskFilterBase::asFragmentProcessor(const GrFPArgs& args, const SkMatrix& ctm) const {
+    auto fp = this->onAsFragmentProcessor(args, MatrixRec(ctm));
+    SkASSERT(SkToBool(fp) == this->hasFragmentProcessor());
     return fp;
 }
 bool SkMaskFilterBase::hasFragmentProcessor() const {
@@ -345,7 +342,7 @@ bool SkMaskFilterBase::hasFragmentProcessor() const {
 }
 
 std::unique_ptr<GrFragmentProcessor>
-SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&) const {
+SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&, const MatrixRec&) const {
     return nullptr;
 }
 bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }

@@ -26,7 +26,8 @@ public:
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const skgpu::graphite::KeyContext&,
@@ -154,7 +155,7 @@ skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms
 #include "src/gpu/ganesh/gradients/GrGradientShader.h"
 
 std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
-        const GrFPArgs& args) const {
+        const GrFPArgs& args, const MatrixRec& mRec) const {
     // On some devices they incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
     // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). So to work around this we pass in (sqrt(x^2
     // + y^2) + x) as the second parameter to atan2 in these cases. We let the device handle the
@@ -184,7 +185,7 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
                              "bias", fTBias,
                              "scale", fTScale,
                              "useAtanWorkaround", GrSkSLFP::Specialize(useAtanWorkaround));
-    return GrGradientShader::MakeGradientFP(*this, args, std::move(fp));
+    return GrGradientShader::MakeGradientFP(*this, args, mRec, std::move(fp));
 }
 
 #endif
