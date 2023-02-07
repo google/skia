@@ -393,46 +393,7 @@ SkGlyphDigest* RemoteStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType
         digestPtr = fSentGlyphs.set(packedGlyphID, SkGlyphDigest{0, *glyph});
     }
 
-    // We don't have to do any more if the glyph is marked as kDrop because it was isEmpty().
-    if (digestPtr->action(actionType) == GlyphAction::kUnset) {
-        GlyphAction action = GlyphAction::kReject;
-        switch (actionType) {
-            case kPath: {
-                glyph->setPath(&fAlloc, fContext.get());
-                if (glyph->path() != nullptr) {
-                    action = GlyphAction::kAccept;
-                }
-                break;
-            }
-            case kDrawable: {
-                glyph->setDrawable(&fAlloc, fContext.get());
-                if (glyph->drawable() != nullptr) {
-                    action = GlyphAction::kAccept;
-                }
-                break;
-            }
-            case kMask: {
-                if (digestPtr->fitsInAtlasInterpolated()) {
-                    action = GlyphAction::kAccept;
-                }
-                break;
-            }
-            case kSDFT: {
-                if (digestPtr->fitsInAtlasDirect() &&
-                    digestPtr->maskFormat() == SkMask::Format::kSDF_Format) {
-                    action = GlyphAction::kAccept;
-                }
-                break;
-            }
-            case kDirectMask: {
-                if (digestPtr->fitsInAtlasDirect()) {
-                    action = GlyphAction::kAccept;
-                }
-                break;
-            }
-        }
-        digestPtr->setAction(actionType, action);
-    }
+    digestPtr->setActionFor(actionType, glyph, fContext.get(), &fAlloc);
 
     return digestPtr;
 }

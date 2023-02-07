@@ -363,14 +363,8 @@ public:
     skglyph::GlyphAction action(skglyph::ActionType actionType) const {
         return static_cast<skglyph::GlyphAction>((fActions >> actionType) & 0b11);
     }
-    void setAction(skglyph::ActionType actionType, skglyph::GlyphAction action) {
-        using namespace skglyph;
-        SkASSERT(action != GlyphAction::kUnset);
-        SkASSERT(this->action(actionType) == GlyphAction::kUnset);
-        const uint32_t mask = 0b11 << actionType;
-        fActions &= ~mask;
-        fActions |= SkTo<uint32_t>(action) << actionType;
-    }
+
+    void setActionFor(skglyph::ActionType, SkGlyph*, SkScalerContext*, SkArenaAlloc*);
 
     uint16_t maxDimension() const {
         return std::max(fWidth, fHeight);
@@ -392,6 +386,15 @@ public:
     static bool FitsInAtlas(const SkGlyph& glyph);
 
 private:
+    void setAction(skglyph::ActionType actionType, skglyph::GlyphAction action) {
+        using namespace skglyph;
+        SkASSERT(action != GlyphAction::kUnset);
+        SkASSERT(this->action(actionType) == GlyphAction::kUnset);
+        const uint32_t mask = 0b11 << actionType;
+        fActions &= ~mask;
+        fActions |= SkTo<uint32_t>(action) << actionType;
+    }
+
     static_assert(SkPackedGlyphID::kEndData == 20);
     static_assert(SkMask::kCountMaskFormats <= 8);
     static_assert(SkTo<int>(skglyph::GlyphAction::kSize) <= 4);

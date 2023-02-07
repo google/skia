@@ -427,6 +427,52 @@ SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
         , fWidth{SkTo<uint16_t>(glyph.width())}
         , fHeight{SkTo<uint16_t>(glyph.height())} {}
 
+void SkGlyphDigest::setActionFor(skglyph::ActionType actionType,
+                                 SkGlyph* glyph,
+                                 SkScalerContext* context,
+                                 SkArenaAlloc* alloc) {
+    // We don't have to do any more if the glyph is marked as kDrop because it was isEmpty().
+    if (this->action(actionType) == GlyphAction::kUnset) {
+        GlyphAction action = GlyphAction::kReject;
+        switch (actionType) {
+            case kPath: {
+                glyph->setPath(alloc, context);
+                if (glyph->path() != nullptr) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kDrawable: {
+                glyph->setDrawable(alloc, context);
+                if (glyph->drawable() != nullptr) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kMask: {
+                if (this->fitsInAtlasInterpolated()) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kSDFT: {
+                if (this->fitsInAtlasDirect() &&
+                    this->maskFormat() == SkMask::Format::kSDF_Format) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kDirectMask: {
+                if (this->fitsInAtlasDirect()) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+        }
+        this->setAction(actionType, action);
+    }
+}
+
 bool SkGlyphDigest::FitsInAtlas(const SkGlyph& glyph) {
     return glyph.maxDimension() <= kSkSideTooBigForAtlas;
 }

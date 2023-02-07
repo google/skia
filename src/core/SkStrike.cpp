@@ -96,7 +96,7 @@ SkGlyph* SkStrike::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& fromG
     } else {
         SkGlyph* glyph = fAlloc.make<SkGlyph>(toID);
         fMemoryIncrease += glyph->setMetricsAndImage(&fAlloc, fromGlyph) + sizeof(SkGlyph);
-        (void)this->addGlyph(glyph);
+        (void)this->addGlyphAndDigest(glyph);
         return glyph;
     }
 }
@@ -258,129 +258,47 @@ SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
     return fGlyphForIndex[digest.index()];
 }
 
-SkGlyphDigest* SkStrike::digestPtr(SkPackedGlyphID packedGlyphID) {
-    SkGlyphDigest* digest = fDigestForPackedGlyphID.find(packedGlyphID);
-
-    if (digest != nullptr) {
-        return digest;
+SkGlyphDigest* SkStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType actionType) {
+    SkGlyphDigest* digestPtr = fDigestForPackedGlyphID.find(packedGlyphID);
+    if (digestPtr != nullptr && digestPtr->action(actionType) != GlyphAction::kUnset) {
+        return digestPtr;
     }
 
-    SkGlyph* glyph = fAlloc.make<SkGlyph>(fScalerContext->makeGlyph(packedGlyphID, &fAlloc));
-    fMemoryIncrease += sizeof(SkGlyph);
-    return this->addGlyph(glyph);
+    SkGlyph* glyph;
+    if (digestPtr != nullptr) {
+        glyph = fGlyphForIndex[digestPtr->index()];
+    } else {
+        glyph = fAlloc.make<SkGlyph>(fScalerContext->makeGlyph(packedGlyphID, &fAlloc));
+        fMemoryIncrease += sizeof(SkGlyph);
+        digestPtr = this->addGlyphAndDigest(glyph);
+    }
+
+    digestPtr->setActionFor(actionType, glyph, fScalerContext.get(), &fAlloc);
+
+    return digestPtr;
 }
 
 SkGlyphDigest SkStrike::pathDigest(SkGlyphID glyphID) {
-    SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
-    if (digestPtr->pathAction() != GlyphAction::kUnset) {
-        return *digestPtr;
-    }
-
-    GlyphAction action;
-    if (digestPtr->isEmpty()) {
-        action = GlyphAction::kDrop;
-    } else {
-        SkGlyph* glyph = fGlyphForIndex[digestPtr->index()];
-        this->preparePath(glyph);
-        if (glyph->path() != nullptr) {
-            action = GlyphAction::kAccept;
-        } else {
-            action = GlyphAction::kReject;
-        }
-    }
-
-    digestPtr->setPathAction(action);
-    return *digestPtr;
+    return *this->digestPtr(SkPackedGlyphID{glyphID}, kPath);
 }
 
 SkGlyphDigest SkStrike::drawableDigest(SkGlyphID glyphID) {
-    SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
-    if (digestPtr->drawableAction() != GlyphAction::kUnset) {
-        return *digestPtr;
-    }
-
-    GlyphAction action;
-    if (digestPtr->isEmpty()) {
-        action = GlyphAction::kDrop;
-    } else {
-        SkGlyph* glyph = fGlyphForIndex[digestPtr->index()];
-        this->prepareDrawable(glyph);
-        if (glyph->drawable()  != nullptr) {
-            action = GlyphAction::kAccept;
-        } else {
-            action = GlyphAction::kReject;
-        }
-    }
-
-    digestPtr->setDrawableAction(action);
-    return *digestPtr;
+    return *this->digestPtr(SkPackedGlyphID{glyphID}, kDrawable);
 }
 
 SkGlyphDigest SkStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
-    SkGlyphDigest* const digestPtr = this->digestPtr(packedGlyphID);
-    if (digestPtr->directMaskAction() != GlyphAction::kUnset) {
-        return *digestPtr;
-    }
-
-    GlyphAction action;
-    if (digestPtr->isEmpty()) {
-        action = GlyphAction::kDrop;
-    } else {
-        if (digestPtr->fitsInAtlasDirect()) {
-            action = GlyphAction::kAccept;
-        } else {
-            action = GlyphAction::kReject;
-        }
-    }
-
-    digestPtr->setDirectMaskAction(action);
-    return *digestPtr;
+    return *this->digestPtr(packedGlyphID, kDirectMask);
 }
 
 SkGlyphDigest SkStrike::sdftDigest(SkGlyphID glyphID) {
-    SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
-    if (digestPtr->SDFTAction() != GlyphAction::kUnset) {
-        return *digestPtr;
-    }
-
-    GlyphAction action;
-    if (digestPtr->isEmpty()) {
-        action = GlyphAction::kDrop;
-    } else {
-        if (digestPtr->fitsInAtlasDirect() &&
-            digestPtr->maskFormat() == SkMask::Format::kSDF_Format) {
-            action = GlyphAction::kAccept;
-        } else {
-            action = GlyphAction::kReject;
-        }
-    }
-
-    digestPtr->setSDFTAction(action);
-    return *digestPtr;
+    return *this->digestPtr(SkPackedGlyphID{glyphID}, kSDFT);
 }
 
 SkGlyphDigest SkStrike::maskDigest(SkGlyphID glyphID) {
-    SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
-    if (digestPtr->maskAction() != GlyphAction::kUnset) {
-        return *digestPtr;
-    }
-
-    GlyphAction action;
-    if (digestPtr->isEmpty()) {
-        action = GlyphAction::kDrop;
-    } else {
-        if (digestPtr->fitsInAtlasDirect()) {
-            action = GlyphAction::kAccept;
-        } else {
-            action = GlyphAction::kReject;
-        }
-    }
-
-    digestPtr->setMaskAction(action);
-    return *digestPtr;
+    return *this->digestPtr(SkPackedGlyphID{glyphID}, kMask);
 }
 
-SkGlyphDigest* SkStrike::addGlyph(SkGlyph* glyph) {
+SkGlyphDigest* SkStrike::addGlyphAndDigest(SkGlyph* glyph) {
     size_t index = fGlyphForIndex.size();
     SkGlyphDigest digest = SkGlyphDigest{index, *glyph};
     SkGlyphDigest* newDigest = fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
