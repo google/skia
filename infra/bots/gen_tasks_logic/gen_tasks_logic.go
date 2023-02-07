@@ -2183,8 +2183,6 @@ func (b *jobBuilder) bazelBuild() {
 			cmd = append(cmd, "--bazel_arg=--config=for_linux_x64_with_rbe")
 			cmd = append(cmd, "--bazel_arg=--jobs=100")
 			cmd = append(cmd, "--bazel_arg=--remote_download_minimal")
-			// https://bazel.build/docs/user-manual#build-runfile-manifests
-			cmd = append(cmd, "--bazel_arg=--nobuild_runfile_manifests", "--bazel_arg=--nobuild_runfile_links")
 		} else {
 			panic("unsupported Bazel host " + host)
 		}

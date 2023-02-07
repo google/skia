@@ -80,16 +80,13 @@ rbe_known_good_tests:
 
 iwyu_rbe:
 	bazelisk build //:skia_public --config=for_linux_x64_with_rbe \
-		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
+		--config=enforce_iwyu --remote_download_minimal
 	bazelisk build //modules/skottie:skottie_tool_gpu --config=for_linux_x64_with_rbe \
-		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
+		--config=enforce_iwyu --remote_download_minimal
 	bazelisk build //tests/... --config=for_linux_x64_with_rbe \
-		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
+		--config=enforce_iwyu --remote_download_minimal
 
 iwyu:
-	bazelisk build //:skia_public --config=enforce_iwyu \
-		--nobuild_runfile_manifests
-	bazelisk build //modules/skottie:skottie_tool_gpu --config=enforce_iwyu \
-		--nobuild_runfile_manifests
-	bazelisk build //tests/... --config=enforce_iwyu \
-		--nobuild_runfile_manifests
+	bazelisk build //:skia_public --config=enforce_iwyu
+	bazelisk build //modules/skottie:skottie_tool_gpu --config=enforce_iwyu
+	bazelisk build //tests/... --config=enforce_iwyu
