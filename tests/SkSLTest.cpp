@@ -499,7 +499,7 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, Negation,                        "folding/
 // TODO(skia:13035): This test fails on Nvidia GPUs on OpenGL but passes Vulkan. Re-enable the test
 // on Vulkan when granular GPU backend selection is supported.
 SKSL_TEST(VM,            kApiLevel_T, PreserveSideEffects,             "folding/PreserveSideEffects.rts")
-SKSL_TEST(VM + GPU,      kApiLevel_T, SelfAssignment,                  "folding/SelfAssignment.rts")
+SKSL_TEST(RP + VM + GPU, kApiLevel_T, SelfAssignment,                  "folding/SelfAssignment.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructFieldFolding,              "folding/StructFieldFolding.rts")
 SKSL_TEST(VM + GPU,      kApiLevel_T, StructFieldNoFolding,            "folding/StructFieldNoFolding.rts")
@@ -534,7 +534,7 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithUnnecessaryBlocks,              
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, NoInline,                                         "inliner/NoInline.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitEvaluationsCannotInlineRightHandSide, "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      StaticSwitchInline,                               "inliner/StaticSwitch.sksl")
-SKSL_TEST(VM + GPU,      kApiLevel_T, StructsCanBeInlinedSafely,                        "inliner/StructsCanBeInlinedSafely.sksl")
+SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructsCanBeInlinedSafely,                        "inliner/StructsCanBeInlinedSafely.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, SwizzleCanBeInlinedDirectly,                      "inliner/SwizzleCanBeInlinedDirectly.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryResultsCannotBeInlined,                    "inliner/TernaryResultsCannotBeInlined.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryTestCanBeInlined,                          "inliner/TernaryTestCanBeInlined.sksl")
@@ -608,7 +608,7 @@ SKSL_TEST(GPU_ES3,           kNever,      ArrayCast,                       "shar
 SKSL_TEST(GPU_ES3,           kNever,      ArrayComparison,                 "shared/ArrayComparison.sksl")
 SKSL_TEST(GPU_ES3,           kNever,      ArrayConstructors,               "shared/ArrayConstructors.sksl")
 SKSL_TEST(RP + VM + GPU_ES3, kNever,      ArrayFollowedByScalar,           "shared/ArrayFollowedByScalar.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, ArrayTypes,                      "shared/ArrayTypes.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ArrayTypes,                      "shared/ArrayTypes.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Assignment,                      "shared/Assignment.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
@@ -673,7 +673,7 @@ SKSL_TEST(RP + GPU_ES3,      kNever,      ScalarConversionConstructorsES3, "shar
 SKSL_TEST(VM + GPU,          kApiLevel_T, ScopedSymbol,                    "shared/ScopedSymbol.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(RP + VM + GPU_ES3, kNever,      StaticSwitch,                    "shared/StaticSwitch.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
 // TODO(skia:13920): This test currently exposes a bug in SPIR-V codegen.
 // SKSL_TEST(GPU_ES3,        kNever,      StructComparison,                "shared/StructComparison.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, StructsInFunctions,              "shared/StructsInFunctions.sksl")

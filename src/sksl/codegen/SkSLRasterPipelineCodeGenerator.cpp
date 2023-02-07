@@ -239,6 +239,7 @@ public:
     [[nodiscard]] bool pushConstructorMatrixResize(const ConstructorMatrixResize& c);
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
     [[nodiscard]] bool pushExpression(const Expression& e, bool usesResult = true);
+    [[nodiscard]] bool pushFieldAccess(const FieldAccess& e);
     [[nodiscard]] bool pushFunctionCall(const FunctionCall& e);
     [[nodiscard]] bool pushIndexExpression(const IndexExpression& i);
     [[nodiscard]] bool pushIntrinsic(const FunctionCall& c);
@@ -1224,6 +1225,9 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
         case Expression::Kind::kConstructorSplat:
             return this->pushConstructorSplat(e.as<ConstructorSplat>());
 
+        case Expression::Kind::kFieldAccess:
+            return this->pushFieldAccess(e.as<FieldAccess>());
+
         case Expression::Kind::kFunctionCall:
             return this->pushFunctionCall(e.as<FunctionCall>());
 
@@ -1763,6 +1767,15 @@ bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
         return unsupported();
     }
     fBuilder.push_duplicates(c.type().slotCount() - 1);
+    return true;
+}
+
+bool Generator::pushFieldAccess(const FieldAccess& f) {
+    std::unique_ptr<LValue> lvalue = LValue::Make(f);
+    if (!lvalue) {
+        return unsupported();
+    }
+    lvalue->push(this);
     return true;
 }
 
