@@ -17,6 +17,5 @@
    17. copy_constant                  $1 = 0x3F800000 (1.0)
    18. copy_slot_unmasked             color(3) = $1
    19. label                          label 0x00000003
-   20. copy_4_slots_unmasked          $0..3 = color
-   21. copy_4_slots_unmasked          [main].result = $0..3
-   22. load_src                       src.rgba = [main].result
+   20. copy_4_slots_unmasked          [main].result = color
+   21. load_src                       src.rgba = [main].result

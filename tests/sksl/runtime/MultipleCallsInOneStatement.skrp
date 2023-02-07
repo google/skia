@@ -1,17 +1,17 @@
     1. store_src_rg                   pos = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  x = 0x00000005 (7.006492e-45)
-    4. copy_slot_unmasked             $0 = x
-    5. copy_slot_unmasked             [get].result = $0
+    4. copy_slot_unmasked             [get].result = x
+    5. copy_slot_unmasked             $0 = [get].result
     6. label                          label 0x00000000
     7. copy_constant                  x = 0x00000003 (4.203895e-45)
-    8. copy_slot_unmasked             $1 = x
-    9. copy_slot_unmasked             [get].result = $1
+    8. copy_slot_unmasked             [get].result = x
+    9. copy_slot_unmasked             $1 = [get].result
    10. label                          label 0x00000001
    11. add_int                        $0 += $1
    12. copy_constant                  x = 0x00000002 (2.802597e-45)
-   13. copy_slot_unmasked             $1 = x
-   14. copy_slot_unmasked             [get].result = $1
+   13. copy_slot_unmasked             [get].result = x
+   14. copy_slot_unmasked             $1 = [get].result
    15. label                          label 0x00000002
    16. add_int                        $0 += $1
    17. copy_slot_unmasked             ten = $0

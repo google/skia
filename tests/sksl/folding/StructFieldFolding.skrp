@@ -1,17 +1,16 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  _6_two = 0x00000002 (2.802597e-45)
-    4. copy_slot_unmasked             $0 = _6_two
-    5. copy_slot_unmasked             _8_flatten1 = $0
-    6. store_condition_mask           $8 = CondMask
-    7. copy_slot_unmasked             $9 = _8_flatten1
-    8. copy_constant                  $10 = 0x00000002 (2.802597e-45)
-    9. cmpeq_int                      $9 = equal($9, $10)
-   10. copy_4_constants               $0..3 = colorRed
-   11. merge_condition_mask           CondMask = $8 & $9
-   12. copy_4_constants               $4..7 = colorGreen
-   13. copy_4_slots_masked            $0..3 = Mask($4..7)
-   14. label                          label 0x00000000
-   15. load_condition_mask            CondMask = $8
-   16. copy_4_slots_unmasked          [main].result = $0..3
-   17. load_src                       src.rgba = [main].result
+    4. copy_slot_unmasked             _8_flatten1 = _6_two
+    5. store_condition_mask           $8 = CondMask
+    6. copy_slot_unmasked             $9 = _8_flatten1
+    7. copy_constant                  $10 = 0x00000002 (2.802597e-45)
+    8. cmpeq_int                      $9 = equal($9, $10)
+    9. copy_4_constants               $0..3 = colorRed
+   10. merge_condition_mask           CondMask = $8 & $9
+   11. copy_4_constants               $4..7 = colorGreen
+   12. copy_4_slots_masked            $0..3 = Mask($4..7)
+   13. label                          label 0x00000000
+   14. load_condition_mask            CondMask = $8
+   15. copy_4_slots_unmasked          [main].result = $0..3
+   16. load_src                       src.rgba = [main].result

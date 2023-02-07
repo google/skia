@@ -6,9 +6,8 @@
     6. copy_constant                  $0 = 0x3F800000 (1.0)
     7. copy_slot_unmasked             gUninitialized = $0
     8. label                          label 0x00000000
-    9. zero_slot_unmasked             $0 = 0
-   10. copy_slot_unmasked             $1 = gInitializedFromOther
-   11. zero_slot_unmasked             $2 = 0
-   12. copy_slot_unmasked             $3 = gUninitialized
-   13. copy_4_slots_unmasked          [main].result = $0..3
-   14. load_src                       src.rgba = [main].result
+    9. zero_slot_unmasked             [main].result(0) = 0
+   10. copy_slot_unmasked             [main].result(1) = gInitializedFromOther
+   11. zero_slot_unmasked             [main].result(2) = 0
+   12. copy_slot_unmasked             [main].result(3) = gUninitialized
+   13. load_src                       src.rgba = [main].result

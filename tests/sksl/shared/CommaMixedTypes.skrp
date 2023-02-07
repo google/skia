@@ -9,6 +9,5 @@
     9. copy_slot_unmasked             result(2) = $0
    10. copy_constant                  $0 = colorGreen(3)
    11. copy_slot_unmasked             result(3) = $0
-   12. copy_4_slots_unmasked          $0..3 = result
-   13. copy_4_slots_unmasked          [main].result = $0..3
-   14. load_src                       src.rgba = [main].result
+   12. copy_4_slots_unmasked          [main].result = result
+   13. load_src                       src.rgba = [main].result

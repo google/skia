@@ -1,16 +1,15 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_2_slots_unmasked          $0..1 = coords
-    4. copy_2_slots_unmasked          x = $0..1
-    5. label                          label 0x00000000
-    6. copy_2_slots_unmasked          $0..1 = coords
-    7. copy_2_slots_unmasked          x₁ = $0..1
-    8. copy_2_slots_unmasked          coords = $0..1
-    9. label                          label 0x00000001
-   10. zero_2_slots_unmasked          $0..1 = 0
-   11. copy_2_slots_unmasked          x₂ = $0..1
-   12. copy_2_slots_unmasked          coords = $0..1
-   13. label                          label 0x00000002
-   14. copy_4_constants               $0..3 = colorGreen
-   15. copy_4_slots_unmasked          [main].result = $0..3
-   16. load_src                       src.rgba = [main].result
+    3. copy_2_slots_unmasked          x = coords
+    4. label                          label 0x00000000
+    5. copy_2_slots_unmasked          x₁ = coords
+    6. copy_2_slots_unmasked          $0..1 = x₁
+    7. copy_2_slots_unmasked          coords = $0..1
+    8. label                          label 0x00000001
+    9. zero_2_slots_unmasked          $0..1 = 0
+   10. copy_2_slots_unmasked          x₂ = $0..1
+   11. copy_2_slots_unmasked          coords = $0..1
+   12. label                          label 0x00000002
+   13. copy_4_constants               $0..3 = colorGreen
+   14. copy_4_slots_unmasked          [main].result = $0..3
+   15. load_src                       src.rgba = [main].result

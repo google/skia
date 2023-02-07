@@ -492,10 +492,7 @@ public:
         fInstructions.push_back({BuilderOp::copy_slot_masked, {dst.index, src.index}, dst.count});
     }
 
-    void copy_slots_unmasked(SlotRange dst, SlotRange src) {
-        SkASSERT(dst.count == src.count);
-        fInstructions.push_back({BuilderOp::copy_slot_unmasked, {dst.index, src.index}, dst.count});
-    }
+    void copy_slots_unmasked(SlotRange dst, SlotRange src);
 
     void copy_constant(Slot slot, int constantValue) {
         fInstructions.push_back({BuilderOp::copy_constant, {slot}, constantValue});

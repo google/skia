@@ -318,6 +318,29 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
         this->zero_slots_unmasked({destinationSlot, 1});
         return;
     }
+
+    // If the last instruction is pushing a slot, we can just copy that slot.
+    if (lastInstruction.fOp == BuilderOp::push_slots) {
+        // Get the last slot.
+        Slot sourceSlot = lastInstruction.fSlotA + lastInstruction.fImmA - 1;
+        lastInstruction.fImmA--;
+        if (lastInstruction.fImmA == 0) {
+            fInstructions.pop_back();
+        }
+
+        // Consume one destination slot.
+        dst->count--;
+        Slot destinationSlot = dst->index + dst->count;
+
+        // Try once more.
+        this->simplifyPopSlotsUnmasked(dst);
+
+        // Copy the slot directly.
+        if (destinationSlot != sourceSlot) {
+            this->copy_slots_unmasked({destinationSlot, 1}, {sourceSlot, 1});
+        }
+        return;
+    }
 }
 
 void Builder::pop_slots_unmasked(SlotRange dst) {
@@ -359,6 +382,35 @@ void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
 
     fInstructions.push_back({BuilderOp::copy_stack_to_slots, {dst.index},
                              dst.count, offsetFromStackTop});
+}
+
+static bool slot_ranges_overlap(SlotRange x, SlotRange y) {
+    return x.index < y.index + y.count &&
+           y.index < x.index + x.count;
+}
+
+void Builder::copy_slots_unmasked(SlotRange dst, SlotRange src) {
+    // If the last instruction copied adjacent slots, just extend it.
+    if (!fInstructions.empty()) {
+        Instruction& lastInstr = fInstructions.back();
+
+        // If the last op is copy-slots-unmasked...
+        if (lastInstr.fOp == BuilderOp::copy_slot_unmasked &&
+            // and this op's destination is immediately after the last copy-slots-op's destination
+            lastInstr.fSlotA + lastInstr.fImmA == dst.index &&
+            // and this op's source is immediately after the last copy-slots-op's source
+            lastInstr.fSlotB + lastInstr.fImmA == src.index &&
+            // and the source/dest ranges will not overlap
+            !slot_ranges_overlap({lastInstr.fSlotB, lastInstr.fImmA + dst.count},
+                                 {lastInstr.fSlotA, lastInstr.fImmA + dst.count})) {
+            // then we can just extend the copy!
+            lastInstr.fImmA += dst.count;
+            return;
+        }
+    }
+
+    SkASSERT(dst.count == src.count);
+    fInstructions.push_back({BuilderOp::copy_slot_unmasked, {dst.index, src.index}, dst.count});
 }
 
 void Builder::copy_stack_to_slots_unmasked(SlotRange dst, int offsetFromStackTop) {

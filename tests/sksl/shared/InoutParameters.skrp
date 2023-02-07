@@ -12,27 +12,23 @@
    12. copy_4_slots_unmasked          $0..3 = c₁
    13. copy_4_slots_unmasked          c = $0..3
    14. label                          label 0x00000001
-   15. copy_4_slots_unmasked          $0..3 = c
-   16. copy_4_slots_unmasked          x₁ = $0..3
-   17. copy_4_slots_unmasked          $0..3 = x₁
-   18. copy_4_slots_unmasked          $4..7 = x₁
-   19. mul_4_floats                   $0..3 *= $4..7
-   20. copy_4_slots_unmasked          x₁ = $0..3
-   21. copy_4_slots_unmasked          c = $0..3
-   22. label                          label 0x00000003
-   23. copy_4_slots_unmasked          $0..3 = c
-   24. copy_4_slots_unmasked          x₂ = $0..3
-   25. copy_4_slots_unmasked          $0..3 = x₂
-   26. copy_4_slots_unmasked          x₁ = $0..3
-   27. copy_4_slots_unmasked          $0..3 = x₁
-   28. copy_4_slots_unmasked          $4..7 = x₁
-   29. mul_4_floats                   $0..3 *= $4..7
-   30. copy_4_slots_unmasked          x₁ = $0..3
-   31. copy_4_slots_unmasked          x₂ = $0..3
-   32. label                          label 0x00000005
-   33. copy_4_slots_unmasked          $0..3 = x₂
-   34. copy_4_slots_unmasked          c = $0..3
-   35. label                          label 0x00000004
-   36. copy_4_slots_unmasked          $0..3 = c
-   37. copy_4_slots_unmasked          [main].result = $0..3
-   38. load_src                       src.rgba = [main].result
+   15. copy_4_slots_unmasked          x₁ = c
+   16. copy_4_slots_unmasked          $0..3 = x₁
+   17. copy_4_slots_unmasked          $4..7 = x₁
+   18. mul_4_floats                   $0..3 *= $4..7
+   19. copy_4_slots_unmasked          x₁ = $0..3
+   20. copy_4_slots_unmasked          c = $0..3
+   21. label                          label 0x00000003
+   22. copy_4_slots_unmasked          x₂ = c
+   23. copy_4_slots_unmasked          x₁ = x₂
+   24. copy_4_slots_unmasked          $0..3 = x₁
+   25. copy_4_slots_unmasked          $4..7 = x₁
+   26. mul_4_floats                   $0..3 *= $4..7
+   27. copy_4_slots_unmasked          x₁ = $0..3
+   28. copy_4_slots_unmasked          x₂ = $0..3
+   29. label                          label 0x00000005
+   30. copy_4_slots_unmasked          $0..3 = x₂
+   31. copy_4_slots_unmasked          c = $0..3
+   32. label                          label 0x00000004
+   33. copy_4_slots_unmasked          [main].result = c
+   34. load_src                       src.rgba = [main].result

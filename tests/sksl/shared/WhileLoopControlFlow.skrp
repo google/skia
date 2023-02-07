@@ -53,6 +53,5 @@
    53. stack_rewind
    54. branch_if_any_active_lanes     branch_if_any_active_lanes -24 (label 3 at #30)
    55. load_loop_mask                 LoopMask = $0
-   56. copy_4_slots_unmasked          $0..3 = x
-   57. copy_4_slots_unmasked          [main].result = $0..3
-   58. load_src                       src.rgba = [main].result
+   56. copy_4_slots_unmasked          [main].result = x
+   57. load_src                       src.rgba = [main].result

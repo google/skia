@@ -1,33 +1,31 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  x = 0x41200000 (10.0)
-    4. copy_slot_unmasked             $0 = x
-    5. copy_slot_unmasked             x₁ = $0
-    6. zero_2_slots_unmasked          y[0], y[1] = 0
-    7. copy_slot_unmasked             $0 = x₁
-    8. copy_slot_unmasked             y[0] = $0
-    9. copy_slot_unmasked             $0 = x₁
-   10. copy_constant                  $1 = 0x40000000 (2.0)
-   11. mul_float                      $0 *= $1
-   12. copy_slot_unmasked             y[1] = $0
-   13. copy_2_slots_unmasked          $0..1 = y[0], y[1]
-   14. copy_2_slots_unmasked          v = $0..1
-   15. copy_2_slots_unmasked          $0..1 = v
-   16. mul_float                      $0 *= $1
-   17. copy_slot_unmasked             [foo].result = $0
-   18. label                          label 0x00000001
-   19. copy_slot_unmasked             x₁ = $0
-   20. copy_slot_unmasked             x = $0
-   21. label                          label 0x00000000
-   22. store_condition_mask           $8 = CondMask
-   23. copy_slot_unmasked             $9 = x
-   24. copy_constant                  $10 = 0x43480000 (200.0)
-   25. cmpeq_float                    $9 = equal($9, $10)
-   26. copy_4_constants               $0..3 = colorRed
-   27. merge_condition_mask           CondMask = $8 & $9
-   28. copy_4_constants               $4..7 = colorGreen
-   29. copy_4_slots_masked            $0..3 = Mask($4..7)
-   30. label                          label 0x00000002
-   31. load_condition_mask            CondMask = $8
-   32. copy_4_slots_unmasked          [main].result = $0..3
-   33. load_src                       src.rgba = [main].result
+    4. copy_slot_unmasked             x₁ = x
+    5. zero_2_slots_unmasked          y[0], y[1] = 0
+    6. copy_slot_unmasked             $0 = x₁
+    7. copy_slot_unmasked             y[0] = $0
+    8. copy_slot_unmasked             $0 = x₁
+    9. copy_constant                  $1 = 0x40000000 (2.0)
+   10. mul_float                      $0 *= $1
+   11. copy_slot_unmasked             y[1] = $0
+   12. copy_2_slots_unmasked          v = y[0], y[1]
+   13. copy_2_slots_unmasked          $0..1 = v
+   14. mul_float                      $0 *= $1
+   15. copy_slot_unmasked             [foo].result = $0
+   16. label                          label 0x00000001
+   17. copy_slot_unmasked             x₁ = $0
+   18. copy_slot_unmasked             x = $0
+   19. label                          label 0x00000000
+   20. store_condition_mask           $8 = CondMask
+   21. copy_slot_unmasked             $9 = x
+   22. copy_constant                  $10 = 0x43480000 (200.0)
+   23. cmpeq_float                    $9 = equal($9, $10)
+   24. copy_4_constants               $0..3 = colorRed
+   25. merge_condition_mask           CondMask = $8 & $9
+   26. copy_4_constants               $4..7 = colorGreen
+   27. copy_4_slots_masked            $0..3 = Mask($4..7)
+   28. label                          label 0x00000002
+   29. load_condition_mask            CondMask = $8
+   30. copy_4_slots_unmasked          [main].result = $0..3
+   31. load_src                       src.rgba = [main].result
