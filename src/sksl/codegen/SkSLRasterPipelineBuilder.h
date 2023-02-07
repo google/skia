@@ -293,6 +293,11 @@ public:
         fInstructions.push_back({BuilderOp::store_dst, {slots.index}});
     }
 
+    void store_device_xy01(SlotRange slots) {
+        SkASSERT(slots.count == 4);
+        fInstructions.push_back({BuilderOp::store_device_xy01, {slots.index}});
+    }
+
     void load_src(SlotRange slots) {
         SkASSERT(slots.count == 4);
         fInstructions.push_back({BuilderOp::load_src, {slots.index}});

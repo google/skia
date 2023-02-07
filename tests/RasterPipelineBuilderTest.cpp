@@ -56,7 +56,8 @@ DEF_TEST(RasterPipelineBuilder, r) {
     SkSL::RP::Builder builder;
     builder.store_src_rg(two_slots_at(0));
     builder.store_src(four_slots_at(2));
-    builder.store_dst(four_slots_at(6));
+    builder.store_dst(four_slots_at(4));
+    builder.store_device_xy01(four_slots_at(6));
     builder.init_lane_masks();
     builder.enableExecutionMaskWrites();
     builder.mask_off_return_mask();
@@ -70,13 +71,14 @@ DEF_TEST(RasterPipelineBuilder, r) {
     check(r, *program,
 R"(    1. store_src_rg                   v0..1 = src.rg
     2. store_src                      v2..5 = src.rgba
-    3. store_dst                      v6..9 = dst.rgba
-    4. init_lane_masks                CondMask = LoopMask = RetMask = true
-    5. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-    6. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-    7. reenable_loop_mask             LoopMask |= v4
-    8. load_src                       src.rgba = v1..4
-    9. load_dst                       dst.rgba = v3..6
+    3. store_dst                      v4..7 = dst.rgba
+    4. store_device_xy01              v6..9 = DeviceCoords.xy01
+    5. init_lane_masks                CondMask = LoopMask = RetMask = true
+    6. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+    7. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+    8. reenable_loop_mask             LoopMask |= v4
+    9. load_src                       src.rgba = v1..4
+   10. load_dst                       dst.rgba = v3..6
 )");
 }
 

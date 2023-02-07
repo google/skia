@@ -1593,7 +1593,7 @@ SI I32 cond_to_mask(I32 cond) {
 // Now finally, normal Stages!
 
 STAGE(seed_shader, NoCtx) {
-    static const float iota[] = {
+    static constexpr float iota[] = {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
     };
@@ -1604,6 +1604,19 @@ STAGE(seed_shader, NoCtx) {
     g = cast(dy) + 0.5f;
     b = 1.0f;  // This is w=1 for matrix multiplies by the device coords.
     a = 0;
+}
+
+STAGE(store_device_xy01, F* dst) {
+    // This is very similar to `seed_shader + store_src`, but b/a are backwards.
+    // (sk_FragCoord actually puts w=1 in the w slot.)
+    static constexpr float iota[] = {
+        0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
+        8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
+    };
+    dst[0] = cast(dx) + sk_unaligned_load<F>(iota);
+    dst[1] = cast(dy) + 0.5f;
+    dst[2] = 0.0f;
+    dst[3] = 1.0f;
 }
 
 STAGE(dither, const float* rate) {
@@ -4226,7 +4239,7 @@ SI F abs_(F x) { return sk_bit_cast<F>( sk_bit_cast<I32>(x) & 0x7fffffff ); }
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
 STAGE_GG(seed_shader, NoCtx) {
-    static const float iota[] = {
+    static constexpr float iota[] = {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
     };

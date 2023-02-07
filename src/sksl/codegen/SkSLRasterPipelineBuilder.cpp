@@ -1066,6 +1066,10 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::store_dst, SlotA()});
                 break;
 
+            case BuilderOp::store_device_xy01:
+                pipeline->push_back({ProgramOp::store_device_xy01, SlotA()});
+                break;
+
             case BuilderOp::load_src:
                 pipeline->push_back({ProgramOp::load_src, SlotA()});
                 break;
@@ -1742,6 +1746,7 @@ void Program::dump(SkWStream* out) const {
             case POp::load_dst:
             case POp::store_src:
             case POp::store_dst:
+            case POp::store_device_xy01:
             case POp::zero_4_slots_unmasked:
             case POp::bitwise_not_4_ints:
             case POp::cast_to_float_from_4_ints: case POp::cast_to_float_from_4_uints:
@@ -1988,6 +1993,10 @@ void Program::dump(SkWStream* out) const {
 
             case POp::store_dst:
                 opText = opArg1 + " = dst.rgba";
+                break;
+
+            case POp::store_device_xy01:
+                opText = opArg1 + " = DeviceCoords.xy01";
                 break;
 
             case POp::load_src_rg:
