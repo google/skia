@@ -126,7 +126,7 @@ public:
     bool operator==(const PaintParamsKey& that) const;
     bool operator!=(const PaintParamsKey& that) const { return !(*this == that); }
 
-#if GR_TEST_UTILS
+#if GRAPHITE_TEST_UTILS
     bool isErrorKey() const;
 #endif
 

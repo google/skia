@@ -292,7 +292,7 @@ void PaintParamsKey::toShaderInfo(const ShaderCodeDictionary* dict,
     }
 }
 
-#if GR_TEST_UTILS
+#if GRAPHITE_TEST_UTILS
 bool PaintParamsKey::isErrorKey() const {
     if (this->sizeInBytes() != sizeof(Header)) {
         return false;
