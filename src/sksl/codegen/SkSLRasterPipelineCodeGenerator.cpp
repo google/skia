@@ -521,15 +521,8 @@ class FieldLValue final : public LValue {
 public:
     FieldLValue(std::unique_ptr<LValue> p, const FieldAccess& fieldAccess)
             : fParent(std::move(p)) {
-        // Calculate the slot range of this field in the parent.
-        SkSpan<const Type::Field> fields = fieldAccess.base()->type().fields();
-        const int fieldIndex = fieldAccess.fieldIndex();
-
-        fInitialSlot = 0;
-        for (int index = 0; index < fieldIndex; ++index) {
-            fInitialSlot += fields[index].fType->slotCount();
-        }
-        fNumSlots = fields[fieldIndex].fType->slotCount();
+        fInitialSlot = fieldAccess.initialSlot();
+        fNumSlots = fieldAccess.type().slotCount();
     }
 
     SlotMap getSlotMap(Generator* gen) const override {

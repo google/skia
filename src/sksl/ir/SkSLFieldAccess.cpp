@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLFieldAccess.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSymbol.h"
@@ -88,7 +89,7 @@ std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
                                               OwnerKind ownerKind) {
     SkASSERT(base->type().isStruct());
     SkASSERT(fieldIndex >= 0);
-    SkASSERT(fieldIndex < (int) base->type().fields().size());
+    SkASSERT(fieldIndex < (int)base->type().fields().size());
 
     // Replace `knownStruct.field` with the field's value if there are no side-effects involved.
     const Expression* expr = ConstantFolder::GetConstantValueForVariable(*base);
@@ -100,6 +101,17 @@ std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
     }
 
     return std::make_unique<FieldAccess>(pos, std::move(base), fieldIndex, ownerKind);
+}
+
+size_t FieldAccess::initialSlot() const {
+    SkSpan<const Type::Field> fields = this->base()->type().fields();
+    const int fieldIndex = this->fieldIndex();
+
+    size_t slot = 0;
+    for (int index = 0; index < fieldIndex; ++index) {
+        slot += fields[index].fType->slotCount();
+    }
+    return slot;
 }
 
 std::string FieldAccess::description(OperatorPrecedence) const {

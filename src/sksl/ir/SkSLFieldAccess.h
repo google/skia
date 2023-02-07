@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -85,6 +86,8 @@ public:
                                              this->fieldIndex(),
                                              this->ownerKind());
     }
+
+    size_t initialSlot() const;
 
     std::string description(OperatorPrecedence) const override;
 

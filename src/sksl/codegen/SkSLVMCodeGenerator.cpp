@@ -290,7 +290,6 @@ private:
         return result;
     }
 
-    size_t fieldSlotOffset(const FieldAccess& expr);
     size_t indexSlotOffset(const IndexExpression& expr);
 
     Value writeExpression(const Expression& expr);
@@ -1155,18 +1154,10 @@ Value SkVMGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize&
     return dst;
 }
 
-size_t SkVMGenerator::fieldSlotOffset(const FieldAccess& expr) {
-    size_t offset = 0;
-    for (int i = 0; i < expr.fieldIndex(); ++i) {
-        offset += (*expr.base()->type().fields()[i].fType).slotCount();
-    }
-    return offset;
-}
-
 Value SkVMGenerator::writeFieldAccess(const FieldAccess& expr) {
     Value base = this->writeExpression(*expr.base());
     Value field(expr.type().slotCount());
-    size_t offset = this->fieldSlotOffset(expr);
+    size_t offset = expr.initialSlot();
     for (size_t i = 0; i < field.slots(); ++i) {
         field[i] = base[offset + i];
     }
@@ -1847,7 +1838,7 @@ Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
         switch (expr->kind()) {
             case Expression::Kind::kFieldAccess: {
                 const FieldAccess& fld = expr->as<FieldAccess>();
-                size_t offset = this->fieldSlotOffset(fld);
+                size_t offset = fld.initialSlot();
                 for (size_t& s : slots) {
                     s += offset;
                 }
