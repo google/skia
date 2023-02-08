@@ -1908,6 +1908,10 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     // Note: at this point the recording thread(s) are stalled out w/ nothing to do.
 
+    if (FLAGS_preAbandonGpuContext) {
+        dContext->abandonContext();
+    }
+
     // The recording threads have already scheduled the drawing of each tile's DDL on the gpu
     // thread. The composition DDL must be scheduled last bc it relies on the result of all
     // the tiles' rendering. Additionally, bc we're aliasing the tiles' backend textures,

@@ -206,8 +206,8 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, Tile
     tile->fCallbackContext->setBackendTexture(beTex);
 }
 
-void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* tile) {
-    if (!tile->initialized()) {
+void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext* dContext, TileData* tile) {
+    if (!tile->initialized() || dContext->abandoned()) {
         return;
     }
 

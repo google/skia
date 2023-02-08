@@ -424,7 +424,7 @@ bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, SkIPoint offs
     }
 
     auto direct = fDevice->recordingContext()->asDirectContext();
-    if (!direct) {
+    if (!direct || direct->abandoned()) {
         return false;
     }
 
