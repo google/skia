@@ -502,7 +502,7 @@ SKSL_TEST(VM,            kApiLevel_T, PreserveSideEffects,             "folding/
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, SelfAssignment,                  "folding/SelfAssignment.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructFieldFolding,              "folding/StructFieldFolding.rts")
-SKSL_TEST(VM + GPU,      kApiLevel_T, StructFieldNoFolding,            "folding/StructFieldNoFolding.rts")
+SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructFieldNoFolding,            "folding/StructFieldNoFolding.rts")
 SKSL_TEST(VM + GPU,      kApiLevel_T, SwitchCaseFolding,               "folding/SwitchCaseFolding.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, SwizzleFolding,                  "folding/SwizzleFolding.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryFolding,                  "folding/TernaryFolding.rts")

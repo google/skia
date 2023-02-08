@@ -1,4 +1,72 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             numSideEffects = 0
+    4. copy_constant                  _0_val1 = 0x00000002 (2.802597e-45)
+    5. copy_constant                  _1_val2 = 0x00000001 (1.401298e-45)
+    6. copy_slot_unmasked             $8 = _0_val1
+    7. copy_constant                  $9 = 0x00000001 (1.401298e-45)
+    8. sub_int                        $8 -= $9
+    9. copy_slot_unmasked             _0_val1 = $8
+   10. copy_constant                  value = 0x00000002 (2.802597e-45)
+   11. copy_slot_unmasked             $9 = numSideEffects
+   12. copy_constant                  $10 = 0x00000001 (1.401298e-45)
+   13. add_int                        $9 += $10
+   14. copy_slot_unmasked             numSideEffects = $9
+   15. copy_slot_unmasked             [side_effecting].result = value
+   16. copy_slot_unmasked             $9 = [side_effecting].result
+   17. label                          label 0x00000000
+   18. copy_constant                  $10 = 0x00000003 (4.203895e-45)
+   19. copy_slot_unmasked             $0 = $8
+   20. copy_slot_unmasked             _2_noFlatten0 = $0
+   21. copy_constant                  value = 0x00000001 (1.401298e-45)
+   22. copy_slot_unmasked             $8 = numSideEffects
+   23. copy_constant                  $9 = 0x00000001 (1.401298e-45)
+   24. add_int                        $8 += $9
+   25. copy_slot_unmasked             numSideEffects = $8
+   26. copy_slot_unmasked             [side_effecting].result = value
+   27. copy_slot_unmasked             $8 = [side_effecting].result
+   28. label                          label 0x00000001
+   29. copy_constant                  $9 = 0x00000002 (2.802597e-45)
+   30. copy_constant                  $10 = 0x00000003 (4.203895e-45)
+   31. copy_slot_unmasked             $0 = $9
+   32. copy_slot_unmasked             _3_noFlatten1 = $0
+   33. copy_constant                  $8 = 0x00000001 (1.401298e-45)
+   34. copy_slot_unmasked             $9 = _1_val2
+   35. copy_constant                  $10 = 0x00000001 (1.401298e-45)
+   36. add_int                        $9 += $10
+   37. copy_slot_unmasked             _1_val2 = $9
+   38. copy_constant                  $10 = 0x00000003 (4.203895e-45)
+   39. copy_slot_unmasked             $0 = $10
+   40. copy_slot_unmasked             _4_noFlatten2 = $0
+   41. store_condition_mask           $8 = CondMask
+   42. copy_slot_unmasked             $9 = _2_noFlatten0
+   43. copy_constant                  $10 = 0x00000001 (1.401298e-45)
+   44. cmpeq_int                      $9 = equal($9, $10)
+   45. copy_slot_unmasked             $10 = _3_noFlatten1
+   46. copy_constant                  $11 = 0x00000002 (2.802597e-45)
+   47. cmpeq_int                      $10 = equal($10, $11)
+   48. bitwise_and_int                $9 &= $10
+   49. copy_slot_unmasked             $10 = _4_noFlatten2
+   50. copy_constant                  $11 = 0x00000003 (4.203895e-45)
+   51. cmpeq_int                      $10 = equal($10, $11)
+   52. bitwise_and_int                $9 &= $10
+   53. copy_slot_unmasked             $10 = _0_val1
+   54. copy_constant                  $11 = 0x00000001 (1.401298e-45)
+   55. cmpeq_int                      $10 = equal($10, $11)
+   56. bitwise_and_int                $9 &= $10
+   57. copy_slot_unmasked             $10 = _1_val2
+   58. copy_constant                  $11 = 0x00000002 (2.802597e-45)
+   59. cmpeq_int                      $10 = equal($10, $11)
+   60. bitwise_and_int                $9 &= $10
+   61. copy_slot_unmasked             $10 = numSideEffects
+   62. copy_constant                  $11 = 0x00000002 (2.802597e-45)
+   63. cmpeq_int                      $10 = equal($10, $11)
+   64. bitwise_and_int                $9 &= $10
+   65. copy_4_constants               $0..3 = colorRed
+   66. merge_condition_mask           CondMask = $8 & $9
+   67. copy_4_constants               $4..7 = colorGreen
+   68. copy_4_slots_masked            $0..3 = Mask($4..7)
+   69. label                          label 0x00000002
+   70. load_condition_mask            CondMask = $8
+   71. copy_4_slots_unmasked          [main].result = $0..3
+   72. load_src                       src.rgba = [main].result

@@ -1771,11 +1771,30 @@ bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
 }
 
 bool Generator::pushFieldAccess(const FieldAccess& f) {
+    // If possible, get direct field access via the lvalue.
     std::unique_ptr<LValue> lvalue = LValue::Make(f);
-    if (!lvalue) {
+    if (lvalue) {
+        lvalue->push(this);
+        return true;
+    }
+    // Push the entire base expression onto a separate stack.
+    this->nextTempStack();
+    if (!this->pushExpression(*f.base())) {
         return unsupported();
     }
-    lvalue->push(this);
+    this->previousTempStack();
+
+    // Copy the field we want onto the primary stack.
+    int totalSlots = f.base()->type().slotCount();
+    int fieldOffset = f.initialSlot();
+    int fieldSlots = f.type().slotCount();
+
+    this->pushCloneFromNextTempStack(fieldSlots, totalSlots - fieldOffset - fieldSlots);
+
+    // The rest of the base expression, on the separate stack, can now be jettisoned.
+    this->nextTempStack();
+    this->discardExpression(totalSlots);
+    this->previousTempStack();
     return true;
 }
 
