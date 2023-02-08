@@ -1,4 +1,22 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $4 = colorGreen(1)
+    4. zero_slot_unmasked             $5 = 0
+    5. cmpne_float                    $4 = notEqual($4, $5)
+    6. branch_if_no_active_lanes_eq   branch +7 (label 0 at #13) if no lanes of $4 == 0xFFFFFFFF
+    7. copy_constant                  b = 0xFFFFFFFF
+    8. copy_2_slots_unmasked          v7..8 = coords
+    9. copy_4_constants               $0..3 = colorGreen
+   10. copy_4_slots_unmasked          [fnGreen].result = $0..3
+   11. label                          label 0x00000002
+   12. jump                           jump +8 (label 1 at #20)
+   13. label                          label 0x00000000
+   14. copy_constant                  ₁ = 0x0000007B (1.723597e-43)
+   15. copy_constant                  f = 0x4048F5C3 (3.14)
+   16. zero_slot_unmasked             .i = 0
+   17. copy_4_constants               $0..3 = colorRed
+   18. copy_4_slots_unmasked          [fnRed].result = $0..3
+   19. label                          label 0x00000003
+   20. label                          label 0x00000001
+   21. copy_4_slots_unmasked          [main].result = $0..3
+   22. load_src                       src.rgba = [main].result

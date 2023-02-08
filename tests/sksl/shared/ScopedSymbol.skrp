@@ -1,4 +1,64 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             glob = 0
+    4. copy_constant                  $0 = 0x00000002 (2.802597e-45)
+    5. copy_slot_unmasked             glob = $0
+    6. copy_constant                  _0_var = 0xFFFFFFFF
+    7. store_condition_mask           $19 = CondMask
+    8. store_condition_mask           $15 = CondMask
+    9. store_condition_mask           $12 = CondMask
+   10. store_condition_mask           $9 = CondMask
+   11. copy_slot_unmasked             $8 = _0_var
+   12. branch_if_no_active_lanes_eq   branch +8 (label 0 at #20) if no lanes of $8 == 0xFFFFFFFF
+   13. branch_if_no_active_lanes      branch_if_no_active_lanes +5 (label 2 at #18)
+   14. copy_slot_unmasked             $10 = glob
+   15. copy_constant                  $11 = 0x00000002 (2.802597e-45)
+   16. cmpeq_int                      $10 = equal($10, $11)
+   17. copy_slot_masked               [block_variable_hides_global_variable].result = Mask($10)
+   18. label                          label 0x00000002
+   19. jump                           jump +3 (label 1 at #22)
+   20. label                          label 0x00000000
+   21. zero_slot_unmasked             $10 = 0
+   22. label                          label 0x00000001
+   23. zero_slot_unmasked             $13 = 0
+   24. merge_condition_mask           CondMask = $9 & $10
+   25. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 3 at #31)
+   26. copy_constant                  S = 0xFFFFFFFF
+   27. copy_slot_unmasked             $14 = S
+   28. copy_slot_masked               [local_variable_hides_struct].result = Mask($14)
+   29. label                          label 0x00000004
+   30. copy_slot_masked               $13 = Mask($14)
+   31. label                          label 0x00000003
+   32. load_condition_mask            CondMask = $9
+   33. zero_slot_unmasked             $16 = 0
+   34. merge_condition_mask           CondMask = $12 & $13
+   35. branch_if_no_active_lanes      branch_if_no_active_lanes +8 (label 5 at #43)
+   36. copy_constant                  S.i = 0x00000001 (1.401298e-45)
+   37. copy_slot_unmasked             $17 = S.i
+   38. copy_constant                  $18 = 0x00000001 (1.401298e-45)
+   39. cmpeq_int                      $17 = equal($17, $18)
+   40. copy_slot_masked               [local_struct_variable_hides_struct_type].result = Mask($17)
+   41. label                          label 0x00000006
+   42. copy_slot_masked               $16 = Mask($17)
+   43. label                          label 0x00000005
+   44. load_condition_mask            CondMask = $12
+   45. zero_slot_unmasked             $20 = 0
+   46. merge_condition_mask           CondMask = $15 & $16
+   47. branch_if_no_active_lanes      branch_if_no_active_lanes +8 (label 7 at #55)
+   48. copy_constant                  glob₁ = 0x00000001 (1.401298e-45)
+   49. copy_slot_unmasked             $21 = glob₁
+   50. copy_constant                  $22 = 0x00000001 (1.401298e-45)
+   51. cmpeq_int                      $21 = equal($21, $22)
+   52. copy_slot_masked               [local_variable_hides_global_variable].result = Mask($21)
+   53. label                          label 0x00000008
+   54. copy_slot_masked               $20 = Mask($21)
+   55. label                          label 0x00000007
+   56. load_condition_mask            CondMask = $15
+   57. copy_4_constants               $0..3 = colorRed
+   58. merge_condition_mask           CondMask = $19 & $20
+   59. copy_4_constants               $4..7 = colorGreen
+   60. copy_4_slots_masked            $0..3 = Mask($4..7)
+   61. label                          label 0x00000009
+   62. load_condition_mask            CondMask = $19
+   63. copy_4_slots_unmasked          [main].result = $0..3
+   64. load_src                       src.rgba = [main].result
