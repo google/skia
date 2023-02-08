@@ -21,7 +21,9 @@
 
 static void testCubicRootsReal(skiatest::Reporter* reporter, std::string name,
                                double A, double B, double C, double D,
-                               SkSpan<const double> expectedRoots) {
+                               SkSpan<const double> expectedRoots,
+                               bool skipPathops = false,
+                               bool skipRootValidation = false) {
     skiatest::ReporterContext subtest(reporter, name);
     // Validate test case
     REPORTER_ASSERT(reporter, expectedRoots.size() <= 3,
@@ -29,10 +31,12 @@ static void testCubicRootsReal(skiatest::Reporter* reporter, std::string name,
 
     for (size_t i = 0; i < expectedRoots.size(); i++) {
         double x = expectedRoots[i];
-        // A*x^3 + B*x^2 + C*x + D should equal 0
+        // A*x^3 + B*x^2 + C*x + D should equal 0 (unless floating point error causes issues)
         double y = A * x * x * x + B * x * x + C * x + D;
-        REPORTER_ASSERT(reporter, sk_double_nearly_zero(y),
-                    "Invalid test case root %zu. %.16f != 0", i, y);
+        if (!skipRootValidation) {
+            REPORTER_ASSERT(reporter, sk_double_nearly_zero(y),
+                            "Invalid test case root %zu. %.16f != 0", i, y);
+        }
 
         if (i > 0) {
             REPORTER_ASSERT(reporter, expectedRoots[i-1] <= expectedRoots[i],
@@ -40,7 +44,9 @@ static void testCubicRootsReal(skiatest::Reporter* reporter, std::string name,
         }
     }
 
-    {
+    // The old pathops implementation sometimes gives incorrect solutions. We can opt
+    // our tests out of checking that older implementation if that causes issues.
+    if (!skipPathops) {
         skiatest::ReporterContext subsubtest(reporter, "Pathops Implementation");
         double roots[3] = {0, 0, 0};
         int rootCount = SkDCubic::RootsReal(A, B, C, D, roots);
@@ -151,6 +157,45 @@ DEF_TEST(CubicRootsReal_ActualCubics, reporter) {
                        -0.33790159225463867, -0.81997990608215332,
                        -0.66327774524688721, -0.17884063720703125,
                        {-0.7995944894729731});
+
+    // The following three cases fallback to treating the cubic as a quadratic.
+    // Otherwise, floating point error mangles the solutions near +- 1
+    // This means we don't find all the roots, but usually we only care about roots
+    // in the range [0, 1], so that is ok.
+    testCubicRootsReal(reporter, "oss-fuzz:55625 Two roots near zero, one big root",
+                       sk_bit_cast<double>(0xbf1a8de580000000), // -0.00010129655
+                       sk_bit_cast<double>(0x4106c0c680000000), // 186392.8125
+                       0.0,
+                       sk_bit_cast<double>(0xc104c0ce80000000), // -170009.8125
+                       { -0.9550418733785169, // Wolfram Alpha puts the root at X = 0.955042
+                          0.9550418733785169, // (~2e7 error)
+                         // 1.84007e9 is the other root, which we do not find.
+                       },
+                       true /* == skipPathops */, true /* == skipRootValidation */);
+
+    testCubicRootsReal(reporter, "oss-fuzz:55625 Two roots near zero, one big root, near linear",
+                       sk_bit_cast<double>(0x3c04040400000000), // -1.3563156-19
+                       sk_bit_cast<double>(0x4106c0c680000000), // 186392.8125
+                       0.0,
+                       sk_bit_cast<double>(0xc104c0ce80000000), // -170009.8125
+                       { -0.9550418733785169,
+                          0.9550418733785169,
+                         // 1.84007e9 is the other root, which we do not find.
+                       },
+                       true /* == skipPathops */);
+
+    testCubicRootsReal(reporter, "oss-fuzz:55680 A nearly zero, C is zero",
+                       sk_bit_cast<double>(0x3eb0000000000000), // 9.5367431640625000e-07
+                       sk_bit_cast<double>(0x409278a560000000), // 1182.1614990234375
+                       0.0,
+                       sk_bit_cast<double>(0xc092706160000000), // -1180.0950927734375
+                       { -0.9991256228290017,
+                      // -0.9991256232316570469050229 according to Wolfram Alpha (~1e-09 error)
+                          0.9991256228290017,
+                       // 0.9991256224263463476403026 according to Wolfram Alpha (~1e-09 error)
+                         // 1.239586176×10^9 is the other root, which we do not find.
+                       },
+                       true, true /* == skipRootValidation */);
 }
 
 DEF_TEST(CubicRootsReal_Quadratics, reporter) {

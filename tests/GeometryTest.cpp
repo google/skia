@@ -797,6 +797,15 @@ DEF_TEST(GeometryChopMonoCubicAtY_Successful, reporter) {
          { 48.633648f, 0.000000f },
          { 61.859592f, -1.237192f }, { 78.650871f, -1.573017f }, {100.000000f, -2.000000f }}
     );
+
+    testChopMonoCubicAtY(reporter, "ossfuzz:55680 curve barely crosses Y axis",
+        {{-250.121582f, -1180.09509f}, {10.007843f, -1180.09509f},
+         {20.015685f, -786.041259f}, {40.0313721f, 2.0664072f}},
+        0.f,
+        {{-250.121582f, -1180.095093f}, {9.780392f, -1180.095093f}, {19.997992f, -786.730042f},
+         {39.978889f, 0.000000f},
+         {39.996376f, 0.688501f}, {40.013870f, 1.377304f}, {40.031372f, 2.066407f}}
+    );
 }
 
 DEF_TEST(GeometryChopMonoCubicAtY_OutOfRangeReturnFalse, reporter) {
