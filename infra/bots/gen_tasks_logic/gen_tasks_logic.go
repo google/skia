@@ -708,7 +708,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			ignore := []string{
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "FailFlushTimeCallbacks",
 				"ReleaseAndAbandonGpuContext", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
-				"NoGPUThreads", "DDL1", "DDL3", "OOPRDDL", "T8888",
+				"NoGPUThreads", "DDL1", "DDL3", "T8888",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "ColorSpaces", "GL", "SkottieTracing", "SkottieWASM",
 				"GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
 				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2", "i5",

@@ -559,12 +559,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
 		}
-		if b.extraConfig("OOPRDDL") {
-			// This bot generates the real oopr/DDL images for the large skps and the GMs
-			configs = suffix(filter(configs, "gl", "vk", "mtl"), "ooprddl")
-			args = append(args, "--skpViewportSize", "2048")
-			args = append(args, "--gpuThreads", "0")
-		}
 	}
 
 	if b.matchExtraConfig("ColorSpaces") {

@@ -77,7 +77,6 @@ static const struct {
     { "gltestprecompile",      "gpu", "api=gl,testPrecompile=true" },
     { "glestestprecompile",    "gpu", "api=gles,testPrecompile=true" },
     { "glddl",                 "gpu", "api=gl,useDDLSink=true" },
-    { "glooprddl",             "gpu", "api=gl,OOPRish=true" },
     { "glreducedshaders",      "gpu", "api=gl,reducedShaders=true" },
     { "glesreducedshaders",    "gpu", "api=gles,reducedShaders=true" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
@@ -115,7 +114,6 @@ static const struct {
     { "vkbert",                "gpu", "api=vulkan,surf=bert" },
     { "vktestpersistentcache", "gpu", "api=vulkan,testPersistentCache=1" },
     { "vkddl",                 "gpu", "api=vulkan,useDDLSink=true" },
-    { "vkooprddl",             "gpu", "api=vulkan,OOPRish=true" },
 #endif
 #ifdef SK_METAL
     { "mtl",                   "gpu", "api=metal" },
@@ -126,7 +124,6 @@ static const struct {
     { "mtlmsaa4",              "gpu", "api=metal,samples=4" },
     { "mtlmsaa8",              "gpu", "api=metal,samples=8" },
     { "mtlddl",                "gpu", "api=metal,useDDLSink=true" },
-    { "mtlooprddl",            "gpu", "api=metal,OOPRish=true" },
     { "mtltestprecompile",     "gpu", "api=metal,testPrecompile=true" },
     { "mtlreducedshaders",     "gpu", "api=metal,reducedShaders=true" },
 #endif
@@ -552,7 +549,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                int                       testPersistentCache,
                                                bool                      testPrecompile,
                                                bool                      useDDLSink,
-                                               bool                      OOPRish,
                                                bool                      slug,
                                                bool                      serializeSlug,
                                                bool                      remoteSlug,
@@ -569,7 +565,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         , fTestPersistentCache(testPersistentCache)
         , fTestPrecompile(testPrecompile)
         , fUseDDLSink(useDDLSink)
-        , fOOPRish(OOPRish)
         , fSlug(slug)
         , fSerializeSlug(serializeSlug)
         , fRemoteSlug(remoteSlug)
@@ -601,7 +596,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     int                                 testPersistentCache = 0;
     bool                                testPrecompile      = false;
     bool                                useDDLs             = false;
-    bool                                ooprish             = false;
     bool                                slug                = false;
     bool                                serializeSlug       = false;
     bool                                remoteSlug          = false;
@@ -626,7 +620,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
             extendedOptions.get_option_int("testPersistentCache", &testPersistentCache) &&
             extendedOptions.get_option_bool("testPrecompile", &testPrecompile) &&
             extendedOptions.get_option_bool("useDDLSink", &useDDLs) &&
-            extendedOptions.get_option_bool("OOPRish", &ooprish) &&
             extendedOptions.get_option_bool("slug", &slug) &&
             extendedOptions.get_option_bool("serializeSlug", &serializeSlug) &&
             extendedOptions.get_option_bool("remoteSlug", &remoteSlug) &&
@@ -659,7 +652,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
                                       testPersistentCache,
                                       testPrecompile,
                                       useDDLs,
-                                      ooprish,
                                       slug,
                                       serializeSlug,
                                       remoteSlug,

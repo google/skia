@@ -69,7 +69,6 @@ public:
                            int                       testPersistentCache,
                            bool                      testPrecompile,
                            bool                      useDDLSink,
-                           bool                      OOPRish,
                            bool                      slug,
                            bool                      serializedSlug,
                            bool                      remoteSlug,
@@ -87,7 +86,6 @@ public:
     int           getTestPersistentCache() const { return fTestPersistentCache; }
     bool          getTestPrecompile() const { return fTestPrecompile; }
     bool          getUseDDLSink() const { return fUseDDLSink; }
-    bool          getOOPRish() const { return fOOPRish; }
     bool          getSlug() const { return fSlug; }
     bool          getSerializedSlug() const { return fSerializeSlug; }
     bool          getRemoteSlug() const { return fRemoteSlug; }
@@ -105,7 +103,6 @@ private:
     int                 fTestPersistentCache;
     bool                fTestPrecompile;
     bool                fUseDDLSink;
-    bool                fOOPRish;
     bool                fSlug;
     bool                fSerializeSlug;
     bool                fRemoteSlug;
