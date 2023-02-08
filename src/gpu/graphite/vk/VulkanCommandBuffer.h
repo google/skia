@@ -31,6 +31,12 @@ public:
 
     void waitUntilFinished();
 
+    void addImageMemoryBarrier(const Resource*,
+                               VkPipelineStageFlags srcStageMask,
+                               VkPipelineStageFlags dstStageMask,
+                               bool byRegion,
+                               VkImageMemoryBarrier* barrier) { /* TODO */ }
+
 private:
     VulkanCommandBuffer(VkCommandPool pool,
                         VkCommandBuffer primaryCommandBuffer,
