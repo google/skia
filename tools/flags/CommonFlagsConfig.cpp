@@ -249,6 +249,8 @@ SkCommandLineConfig::SkCommandLineConfig(const SkString& tag,
          SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50).release()},
         {"srgb",
          SkColorSpace::MakeSRGB().release()},
+        {"srgb2",  // The same as "srgb" but works around ignoring prior images in Gold
+         SkColorSpace::MakeSRGB().release()},
         {"linear",
          SkColorSpace::MakeSRGBLinear().release()},
         {"p3",
