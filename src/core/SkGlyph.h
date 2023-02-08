@@ -303,14 +303,15 @@ enum class GlyphAction {
 
 enum ActionType {
     kDirectMask = 0,
-    kPath = 2,
-    kDrawable = 4,
+    kDirectMaskCPU = 2,
+    kMask = 4,
     kSDFT = 6,
-    kMask = 8,
+    kPath = 8,
+    kDrawable = 10,
 };
 
 enum ActionTypeSize {
-    kTotalBits = 10
+    kTotalBits = 12
 };
 }  // namespace skglyph
 

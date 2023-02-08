@@ -27,6 +27,7 @@
 #include "src/text/GlyphRun.h"
 
 using namespace skglyph;
+using namespace sktext;
 
 namespace {
 SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs) {
@@ -42,7 +43,7 @@ SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs) {
 
 // TODO: collect this up into a single class when all the details are worked out.
 // This is duplicate code. The original is in SubRunContainer.cpp.
-void prepare_for_path_drawing(SkStrike* strike,
+void prepare_for_path_drawing(StrikeForGPU* strike,
                               SkDrawableGlyphBuffer* accepted,
                               SkSourceGlyphBuffer* rejected) {
     strike->lock();
@@ -65,7 +66,7 @@ void prepare_for_path_drawing(SkStrike* strike,
 
 // TODO: collect this up into a single class when all the details are worked out.
 // This is duplicate code. The original is in SubRunContainer.cpp.
-void prepare_for_drawable_drawing(SkStrike* strike,
+void prepare_for_drawable_drawing(StrikeForGPU* strike,
                                   SkDrawableGlyphBuffer* accepted,
                                   SkSourceGlyphBuffer* rejected) {
     strike->lock();
@@ -86,6 +87,29 @@ void prepare_for_drawable_drawing(SkStrike* strike,
     strike->unlock();
 }
 
+void prepare_for_direct_mask_drawing(SkStrike* strike,
+                                     SkDrawableGlyphBuffer* accepted,
+                                     SkSourceGlyphBuffer* rejected) {
+    strike->lock();
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+            continue;
+        }
+
+        switch (SkGlyphDigest digest = strike->digestFor(skglyph::kDirectMaskCPU, packedID);
+                digest.actionFor(kDirectMaskCPU)) {
+            case GlyphAction::kAccept:
+                accepted->accept(strike->glyph(digest), i);
+                break;
+            case GlyphAction::kReject:
+                rejected->reject(i);
+                break;
+            default:
+                break;
+        }
+    }
+    strike->unlock();
+}
 }  // namespace
 
 // -- SkGlyphRunListPainterCPU ---------------------------------------------------------------------
@@ -200,7 +224,7 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
             accepted->startDevicePositioning(
                     rejected->source(), positionMatrix, strike->roundingSpec());
 
-            strike->prepareForDrawingMasksCPU(accepted);
+            prepare_for_direct_mask_drawing(strike.get(), accepted, rejected);
             rejected->flipRejectsToSource();
             bitmapDevice->paintMasks(accepted, paint);
         }
@@ -254,7 +278,7 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
             accepted->startDevicePositioning(
                     rejected->source(), positionMatrix, strike->roundingSpec());
 
-            strike->prepareForDrawingMasksCPU(accepted);
+            prepare_for_direct_mask_drawing(strike.get(), accepted, rejected);
             auto variants = accepted->accepted().get<0>();
             for (auto [variant, srcPos] : SkMakeZip(variants, sourcePositions)) {
                 const SkGlyph* glyph = variant.glyph();

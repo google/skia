@@ -87,8 +87,6 @@ public:
     SkSpan<const SkGlyph*> prepareDrawables(
             SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fStrikeLock);
 
-    void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) SK_EXCLUDES(fStrikeLock);
-
     // SkStrikeForGPU APIs
     const SkDescriptor& getDescriptor() const override {
         return fStrikeSpec.descriptor();
@@ -120,6 +118,8 @@ public:
 
     void dump() const SK_EXCLUDES(fStrikeLock);
     void dumpMemoryStatistics(SkTraceMemoryDump* dump) const SK_EXCLUDES(fStrikeLock);
+
+    SkGlyph* glyph(SkGlyphDigest) SK_REQUIRES(fStrikeLock);
 
 private:
     friend class SkStrikeCache;
