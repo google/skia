@@ -192,9 +192,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("BonusConfigs") {
 			configs = []string{
 				"r8", "565",
-				"pic-8888", "serialize-8888",
-				"linear-f16",
-				"p3-rgba", "p3-f16", "rec2020-rgba", "rec2020-f16"}
+				"pic-8888", "serialize-8888"}
 		}
 
 		if b.extraConfig("PDF") {
@@ -564,12 +562,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.matchExtraConfig("ColorSpaces") {
 		// Here we're going to generate a bunch of configs with the format:
 		//        <colorspace> <backend> <targetFormat>
-		// Where: <colorspace> is one of:   "", "narrow-", "srgb2-"
+		// Where: <colorspace> is one of:   "", "linear-", "narrow-", p3-", "rec2020-", "srgb2-"
 		//        <backend> is one of: "gl, "gles", "mtl", "vk"
 		//                             their "gr" prefixed versions
 		//                             and "" (for raster)
 		//        <targetFormat> is one of: "f16", { "" (for gpus) or "rgba" (for raster) }
-		colorSpaces := []string{"", "narrow-", "srgb2-"}
+		colorSpaces := []string{"", "linear-", "narrow-", "p3-", "rec2020-", "srgb2-"}
 
 		backendStr := ""
 		if b.gpu() {
