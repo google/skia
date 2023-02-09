@@ -59,7 +59,10 @@ int SkCubics::RootsReal(double A, double B, double C, double D, double solution[
     }
     double a, b, c;
     {
-        double invA = 1 / A;
+        // If A is zero (e.g. B was nan and thus close_to_a_quadratic was false), we will
+        // temporarily have infinities rolling about, but will catch that when checking
+        // R2MinusQ3.
+        double invA = sk_ieee_double_divide(1, A);
         a = B * invA;
         b = C * invA;
         c = D * invA;

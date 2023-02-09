@@ -269,6 +269,16 @@ DEF_TEST(CubicRootsReal_NonFiniteNumbers, reporter) {
                                            roots);
         REPORTER_ASSERT(reporter, numRoots == 0, "No finite roots expected, got %d", numRoots);
     }
+    {
+        skiatest::ReporterContext subtest(reporter, "oss-fuzz:55829 A is zero and B is NAN");
+        int numRoots = SkCubics::RootsReal(
+                                           0,
+                                           sk_bit_cast<double>(0xffffffffffff2020), //-nan
+                                           sk_bit_cast<double>(0x20202020202020ff), // 6.013470e-154
+                                           sk_bit_cast<double>(0xff20202020202020), //-2.211661e+304
+                                           roots);
+        REPORTER_ASSERT(reporter, numRoots == 0, "No finite roots expected, got %d", numRoots);
+    }
 }
 
 static void testCubicValidT(skiatest::Reporter* reporter, std::string name,
