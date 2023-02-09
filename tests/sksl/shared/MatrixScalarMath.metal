@@ -17,13 +17,6 @@ struct Outputs {
 
 thread bool operator==(const float2x2 left, const float2x2 right);
 thread bool operator!=(const float2x2 left, const float2x2 right);
-thread float2x2 operator/(const float2x2 left, const float2x2 right) {
-    return float2x2(left[0] / right[0], left[1] / right[1]);
-}
-thread float2x2& operator/=(thread float2x2& left, thread const float2x2& right) {
-    left = left / right;
-    return left;
-}
 thread bool operator==(const float2x2 left, const float2x2 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]);
@@ -53,8 +46,8 @@ bool test_bifffff22(Uniforms _uniforms, int op, float m11, float m12, float m21,
 bool divisionTest_b(Uniforms _uniforms) {
     float ten = float(_uniforms.colorRed.x * 10.0h);
     float2x2 mat = float2x2(float2(ten), float2(ten));
-    float2x2 div = mat / (float2x2(1.0, 1.0, 1.0, 1.0) * _uniforms.testInputs.x);
-    mat /= (float2x2(1.0, 1.0, 1.0, 1.0) * _uniforms.testInputs.x);
+    float2x2 div = mat * (1.0 / _uniforms.testInputs.x);
+    mat *= 1.0 / _uniforms.testInputs.x;
     return div == float2x2(float2(-8.0, -8.0), float2(-8.0, -8.0)) && mat == float2x2(float2(-8.0, -8.0), float2(-8.0, -8.0));
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {

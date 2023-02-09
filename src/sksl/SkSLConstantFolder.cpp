@@ -384,8 +384,10 @@ static bool is_constant_value(const Expression& expr, double value) {
                                   : is_constant_splat(expr, value);
 }
 
-// The expression is the right-hand side of a division op; if the division can be strength-reduced
-// into multiplication by a reciprocal, return the reciprocal as an expression.
+// The expression represents the right-hand side of a division op. If the division can be
+// strength-reduced into multiplication by a reciprocal, returns that reciprocal as an expression.
+// Note that this only supports literal values with safe-to-use reciprocals, and returns null if
+// Expression contains anything else.
 static std::unique_ptr<Expression> make_reciprocal_expression(const Context& context,
                                                               const Expression& right) {
     if (right.type().isMatrix() || !right.type().componentType().isFloat()) {
@@ -528,7 +530,7 @@ static std::unique_ptr<Expression> simplify_arithmetic(const Context& context,
                     return expr;
                 }
             }
-            if (is_constant_value(left, -1.0)) {   // -1 * x (to `-x`)
+            if (is_constant_value(left, -1.0)) {  // -1 * x (to `-x`)
                 if (std::unique_ptr<Expression> expr = negate_expression(context, pos, right,
                                                                          resultType)) {
                     return expr;
@@ -598,6 +600,47 @@ static std::unique_ptr<Expression> simplify_arithmetic(const Context& context,
             if (std::unique_ptr<Expression> expr = make_reciprocal_expression(context, right)) {
                 return BinaryExpression::Make(context, pos, left.clone(), Operator::Kind::STAREQ,
                                               std::move(expr));
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return nullptr;
+}
+
+// The expression must be scalar, and represents the right-hand side of a division op. It can
+// contain anything, not just literal values. This returns the binary expression `1.0 / expr`. The
+// expression might be further simplified by the constant folding, if possible.
+static std::unique_ptr<Expression> one_over_scalar(const Context& context,
+                                                   const Expression& right) {
+    SkASSERT(right.type().isScalar());
+    Position pos = right.fPosition;
+    return BinaryExpression::Make(context, pos,
+                                  Literal::Make(pos, 1.0, &right.type()),
+                                  Operator::Kind::SLASH,
+                                  right.clone());
+}
+
+static std::unique_ptr<Expression> simplify_matrix_division(const Context& context,
+                                                            Position pos,
+                                                            const Expression& left,
+                                                            Operator op,
+                                                            const Expression& right,
+                                                            const Type& resultType) {
+    // Convert matrix-over-scalar `x /= y` into `x *= (1.0 / y)`. This generates better
+    // code in SPIR-V and Metal, and should be roughly equivalent elsewhere.
+    switch (op.kind()) {
+        case OperatorKind::SLASH:
+        case OperatorKind::SLASHEQ:
+            if (left.type().isMatrix() && right.type().isScalar()) {
+                Operator multiplyOp = op.isAssignment() ? OperatorKind::STAREQ
+                                                        : OperatorKind::STAR;
+                return BinaryExpression::Make(context, pos,
+                                              left.clone(),
+                                              multiplyOp,
+                                              one_over_scalar(context, right));
             }
             break;
 
@@ -817,14 +860,20 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         }
     }
 
-    // If just one side is constant, we might still be able to simplify arithmetic expressions like
-    // `x * 1`, `x *= 1`, `x + 0`, `x * 0`, `0 / x`, etc.
-    if (leftSideIsConstant || rightSideIsConstant) {
-        if (context.fConfig->fSettings.fOptimize) {
+    if (context.fConfig->fSettings.fOptimize) {
+        // If just one side is constant, we might still be able to simplify arithmetic expressions
+        // like `x * 1`, `x *= 1`, `x + 0`, `x * 0`, `0 / x`, etc.
+        if (leftSideIsConstant || rightSideIsConstant) {
             if (std::unique_ptr<Expression> expr = simplify_arithmetic(context, pos, *left, op,
                                                                        *right, resultType)) {
                 return expr;
             }
+        }
+
+        // We can simplify some forms of matrix division even when neither side is constant.
+        if (std::unique_ptr<Expression> expr = simplify_matrix_division(context, pos, *left, op,
+                                                                        *right, resultType)) {
+            return expr;
         }
     }
 

@@ -28,8 +28,8 @@ bool test_bifffff22(int op, float m11, float m12, float m21, float m22, mat2 exp
 bool divisionTest_b() {
     float ten = colorRed.x * 10.0;
     mat2 mat = mat2(vec2(ten), vec2(ten));
-    mat2 div = mat / testInputs.x;
-    mat /= testInputs.x;
+    mat2 div = mat * (1.0 / testInputs.x);
+    mat *= 1.0 / testInputs.x;
     return div == mat2(-8.0, -8.0, -8.0, -8.0) && mat == mat2(-8.0, -8.0, -8.0, -8.0);
 }
 vec4 main() {
