@@ -148,10 +148,13 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
                                                const std::string& msl,
                                                ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
-    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
-                                                   length:msl.size()
-                                                 encoding:NSUTF8StringEncoding
-                                             freeWhenDone:NO];
+    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
+                                                        length:msl.size()
+                                                      encoding:NSUTF8StringEncoding
+                                                  freeWhenDone:NO];
+    if (!nsSource) {
+        return nil;
+    }
     MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
     // array<> is supported in MSL 2.0 on MacOS 10.13+ and iOS 11+,
     // and in MSL 1.2 on iOS 10+ (but not MacOS).
@@ -165,9 +168,10 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
 
     NSError* error = nil;
     // TODO: do we need a version with a timeout?
-    sk_cfp<id<MTLLibrary>> compiledLibrary([sharedContext->device() newLibraryWithSource:nsSource
-                                                                                 options:options
-                                                                                   error:&error]);
+    sk_cfp<id<MTLLibrary>> compiledLibrary(
+            [sharedContext->device() newLibraryWithSource:(NSString* _Nonnull)nsSource
+                                                  options:options
+                                                    error:&error]);
     if (!compiledLibrary) {
         errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
         return nil;

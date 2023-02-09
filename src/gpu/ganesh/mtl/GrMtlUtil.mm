@@ -100,10 +100,13 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                          const std::string& msl,
                                          GrContextOptions::ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
-    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
-                                                   length:msl.size()
-                                                 encoding:NSUTF8StringEncoding
-                                             freeWhenDone:NO];
+    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
+                                                        length:msl.size()
+                                                      encoding:NSUTF8StringEncoding
+                                                  freeWhenDone:NO];
+    if (!nsSource) {
+        return nil;
+    }
     MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
     // array<> is supported in MSL 2.0 on MacOS 10.13+ and iOS 11+,
     // and in MSL 1.2 on iOS 10+ (but not MacOS).
@@ -119,11 +122,12 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     NSError* error = nil;
     id<MTLLibrary> compiledLibrary;
     if (@available(macOS 10.15, *)) {
-        compiledLibrary = [gpu->device() newLibraryWithSource:nsSource
+        compiledLibrary = [gpu->device() newLibraryWithSource:(NSString* _Nonnull)nsSource
                                                       options:options
                                                         error:&error];
     } else {
-        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), nsSource, options, &error);
+        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), (NSString* _Nonnull)nsSource,
+                                                    options, &error);
     }
     if (!compiledLibrary) {
         errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
@@ -135,15 +139,17 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 
 void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                   const std::string& msl) {
-    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
-                                                   length:msl.size()
-                                                 encoding:NSUTF8StringEncoding
-                                             freeWhenDone:NO];
+    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
+                                                        length:msl.size()
+                                                      encoding:NSUTF8StringEncoding
+                                                  freeWhenDone:NO];
+    if (!nsSource) {
+        return;
+    }
     // Do nothing after completion for now.
     // TODO: cache the result somewhere so we can use it later.
-    MTLNewLibraryCompletionHandler completionHandler =
-            ^(id<MTLLibrary> library, NSError* error) {};
-    [gpu->device() newLibraryWithSource:nsSource
+    MTLNewLibraryCompletionHandler completionHandler = ^(id<MTLLibrary> library, NSError* error) {};
+    [gpu->device() newLibraryWithSource:(NSString* _Nonnull)nsSource
                                 options:nil
                       completionHandler:completionHandler];
 }
