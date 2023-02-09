@@ -600,6 +600,8 @@ static SkIRect safeRoundOut(const SkRect& src) {
 static bool ShouldUseAAA(const SkPath& path) {
 #if defined(SK_DISABLE_AAA)
     return false;
+#elif defined(SK_FORCE_AAA)
+    return true;
 #else
     if (gSkForceAnalyticAA) {
         return true;
