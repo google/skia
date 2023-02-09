@@ -256,6 +256,13 @@ sudo mount -i -o remount,exec /home/chronos
 Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode
 project.
 
+Mac GN builds assume an Intel CPU by default. If you are building for Apple
+Silicon (M1 and newer) instead, add a gn arg to set `target_cpu="arm64"`:
+
+```
+bin/gn gen out/AppleSilicon --args='target_cpu="arm64"'
+```
+
 Googlers should see [go/skia-corp-xcode](http://go/skia-corp-xcode) for
 instructions on setting up Xcode on a corp machine.
 
