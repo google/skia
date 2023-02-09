@@ -167,6 +167,11 @@ private:
     const MtlSharedContext* fSharedContext;
     MtlResourceProvider* fResourceProvider;
 
+    // If true, the draw commands being added are entirely offscreen and can be skipped.
+    // This can happen if a recording is being replayed with a transform that moves the recorded
+    // commands outside of the render target bounds.
+    bool fDrawIsOffscreen = false;
+
 #ifdef SK_ENABLE_PIET_GPU
     const skgpu::piet::MtlRenderer* fPietRenderer = nullptr;  // owned by MtlQueueManager
 #endif

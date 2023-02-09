@@ -247,8 +247,7 @@ bool UploadTask::prepareResources(ResourceProvider* resourceProvider,
     return true;
 }
 
-bool UploadTask::addCommands(Context* context,
-                             CommandBuffer* commandBuffer) {
+bool UploadTask::addCommands(Context* context, CommandBuffer* commandBuffer, ReplayTargetData) {
     for (unsigned int i = 0; i < fInstances.size(); ++i) {
         fInstances[i].addCommand(context, commandBuffer);
     }

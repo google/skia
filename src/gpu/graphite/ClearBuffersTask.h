@@ -40,7 +40,7 @@ public:
         return true;
     }
 
-    bool addCommands(Context*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     explicit ClearBuffersTask(std::vector<ClearBufferInfo> clearList)

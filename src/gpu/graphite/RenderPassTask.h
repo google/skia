@@ -34,7 +34,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(Context*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,

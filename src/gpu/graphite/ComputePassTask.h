@@ -38,7 +38,7 @@ public:
     ~ComputePassTask() override = default;
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
-    bool addCommands(Context*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     ComputePassTask(std::vector<ResourceBinding> bindings,

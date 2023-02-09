@@ -31,7 +31,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(Context*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     CopyBufferToBufferTask(sk_sp<Buffer> srcBuffer, size_t srcOffset,
@@ -57,7 +57,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(Context*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     CopyTextureToBufferTask(sk_sp<TextureProxy>,
@@ -84,7 +84,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(Context*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,

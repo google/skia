@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_GraphiteTypes_DEFINED
 #define skgpu_graphite_GraphiteTypes_DEFINED
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 
@@ -35,10 +36,15 @@ using GpuFinishedProc = void (*)(GpuFinishedContext finishedContext, CallbackRes
  * canvas returned from Recorder::makeDeferredCanvas. This target surface must be provided iff
  * the Recording contains any such draws. It must be Graphite-backed and its backing texture's
  * TextureInfo must match the info provided to the Recorder when making the deferred canvas.
+ *
+ * fTargetTranslation is an additional translation applied to draws targeting fTargetSurface.
  */
 struct InsertRecordingInfo {
     Recording* fRecording = nullptr;
+
     SkSurface* fTargetSurface = nullptr;
+    SkIVector fTargetTranslation = {0, 0};
+
     GpuFinishedContext fFinishedContext = nullptr;
     GpuFinishedProc fFinishedProc = nullptr;
 };

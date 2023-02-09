@@ -31,9 +31,11 @@ bool TaskGraph::prepareResources(ResourceProvider* resourceProvider,
     return true;
 }
 
-bool TaskGraph::addCommands(Context* context, CommandBuffer* commandBuffer) {
+bool TaskGraph::addCommands(Context* context,
+                            CommandBuffer* commandBuffer,
+                            Task::ReplayTargetData replayData) {
     for (const auto& task: fTasks) {
-        if (!task->addCommands(context, commandBuffer)) {
+        if (!task->addCommands(context, commandBuffer, replayData)) {
             return false;
         }
     }

@@ -260,12 +260,26 @@ void MtlCommandBuffer::endRenderPass() {
     SkASSERT(fActiveRenderCommandEncoder);
     fActiveRenderCommandEncoder->endEncoding();
     fActiveRenderCommandEncoder.reset();
+    fDrawIsOffscreen = false;
 }
 
 void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
     drawPass->addResourceRefs(this);
 
     for (auto[type, cmdPtr] : drawPass->commands()) {
+        // Skip draw commands if they'd be offscreen.
+        if (fDrawIsOffscreen) {
+            switch (type) {
+                case DrawPassCommands::Type::kDraw:
+                case DrawPassCommands::Type::kDrawIndexed:
+                case DrawPassCommands::Type::kDrawInstanced:
+                case DrawPassCommands::Type::kDrawIndexedInstanced:
+                    continue;
+                default:
+                    break;
+            }
+        }
+
         switch (type) {
             case DrawPassCommands::Type::kBindGraphicsPipeline: {
                 auto bgp = static_cast<DrawPassCommands::BindGraphicsPipeline*>(cmdPtr);
@@ -456,14 +470,30 @@ void MtlCommandBuffer::bindTextureAndSampler(const Texture* texture,
 void MtlCommandBuffer::setScissor(unsigned int left, unsigned int top,
                                   unsigned int width, unsigned int height) {
     SkASSERT(fActiveRenderCommandEncoder);
-    MTLScissorRect scissorRect = { left, top, width, height };
-    fActiveRenderCommandEncoder->setScissorRect(scissorRect);
+    SkIRect scissor = SkIRect::MakeXYWH(
+            left + fReplayTranslation.x(), top + fReplayTranslation.y(), width, height);
+    fDrawIsOffscreen = !scissor.intersect(SkIRect::MakeSize(fRenderPassSize));
+    if (fDrawIsOffscreen) {
+        scissor.setEmpty();
+    }
+
+    fActiveRenderCommandEncoder->setScissorRect({
+            static_cast<unsigned int>(scissor.x()),
+            static_cast<unsigned int>(scissor.y()),
+            static_cast<unsigned int>(scissor.width()),
+            static_cast<unsigned int>(scissor.height()),
+    });
 }
 
 void MtlCommandBuffer::setViewport(float x, float y, float width, float height,
                                    float minDepth, float maxDepth) {
     SkASSERT(fActiveRenderCommandEncoder);
-    MTLViewport viewport = { x, y, width, height, minDepth, maxDepth };
+    MTLViewport viewport = {x + fReplayTranslation.x(),
+                            y + fReplayTranslation.y(),
+                            width,
+                            height,
+                            minDepth,
+                            maxDepth};
     fActiveRenderCommandEncoder->setViewport(viewport);
 
     float invTwoW = 2.f / width;

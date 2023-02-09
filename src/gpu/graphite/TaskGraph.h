@@ -26,7 +26,7 @@ public:
 
     // Returns true on success; false on failure
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*);
-    bool addCommands(Context*, CommandBuffer*);
+    bool addCommands(Context*, CommandBuffer*, Task::ReplayTargetData);
 
     void reset();
 

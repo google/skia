@@ -17,7 +17,7 @@ sk_sp<ClearBuffersTask> ClearBuffersTask::Make(std::vector<ClearBufferInfo> clea
 
 ClearBuffersTask::~ClearBuffersTask(){};
 
-bool ClearBuffersTask::addCommands(Context*, CommandBuffer* commandBuffer) {
+bool ClearBuffersTask::addCommands(Context*, CommandBuffer* commandBuffer, ReplayTargetData) {
     bool result = true;
     for (const auto& c : fClearList) {
         result &= commandBuffer->clearBuffer(c.fBuffer, c.fOffset, c.fSize);

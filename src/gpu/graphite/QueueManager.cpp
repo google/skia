@@ -54,8 +54,7 @@ bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider) {
     return true;
 }
 
-bool QueueManager::addRecording(const InsertRecordingInfo& info,
-                                Context* context) {
+bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
     sk_sp<RefCntedCallback> callback;
     if (info.fFinishedProc) {
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
@@ -111,7 +110,8 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info,
 
     if (!info.fRecording->priv().addCommands(context,
                                              fCurrentCommandBuffer.get(),
-                                             static_cast<Surface*>(info.fTargetSurface))) {
+                                             static_cast<Surface*>(info.fTargetSurface),
+                                             info.fTargetTranslation)) {
         if (callback) {
             callback->setFailureResult();
         }
@@ -141,7 +141,7 @@ bool QueueManager::addTask(Task* task,
         return false;
     }
 
-    if (!task->addCommands(context, fCurrentCommandBuffer.get())) {
+    if (!task->addCommands(context, fCurrentCommandBuffer.get(), {})) {
         SKGPU_LOG_E("Adding Task commands to the CommandBuffer has failed");
         return false;
     }

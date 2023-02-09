@@ -97,8 +97,16 @@ public:
     void renderPietScene(const skgpu::piet::Scene& scene, sk_sp<Texture> target);
 #endif
 
+    // This sets a translation to be applied to any subsequently added command, assuming these
+    // commands are part of a translated replay of a Graphite recording.
+    void setReplayTranslation(SkIVector translation) { fReplayTranslation = translation; }
+    void clearReplayTranslation() { fReplayTranslation = {0, 0}; }
+
 protected:
     CommandBuffer();
+
+    SkISize fRenderPassSize;
+    SkIVector fReplayTranslation;
 
 private:
     // Release all tracked Resources
