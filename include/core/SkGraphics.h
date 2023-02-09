@@ -159,7 +159,6 @@ public:
      */
     using VariableColrV1EnabledFunc = bool (*)();
     static VariableColrV1EnabledFunc SetVariableColrV1EnabledFunc(VariableColrV1EnabledFunc);
-    static bool GetVariableColrV1Enabled();
 
     /**
      *  Call early in main() to allow Skia to use a JIT to accelerate CPU-bound operations.
