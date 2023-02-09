@@ -295,7 +295,7 @@ DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
 // This GM is designed to test a variety of fill and stroked rectangles and round rectangles, with
 // different stroke width and join type scenarios. The geometry parameters are chosen so that
 // Graphite should be able to use its AnalyticRoundRectRenderStep and batch into a single draw.
-DEF_SIMPLE_GM(stroke_rect_rrects, canvas, 675, 700) {
+DEF_SIMPLE_GM(stroke_rect_rrects, canvas, 1350, 700) {
     canvas->scale(0.5f, 0.5f);
     canvas->translate(50.f, 50.f);
 
@@ -380,6 +380,90 @@ DEF_SIMPLE_GM(stroke_rect_rrects, canvas, 675, 700) {
             draw(2*i+1, 2*j, true, width, join);
             draw(2*i, 2*j+1, true, width, join);
             draw(2*i+1, 2*j+1, true, width, join);
+            j++;
+        }
+        i++;
+    }
+
+    // Rotated "footballs"
+    auto drawComplex = [&](int cx, int cy, float width, float stretch) {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStrokeWidth(width);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeJoin(SkPaint::kBevel_Join);
+
+        canvas->save();
+        canvas->translate(cx * 110.f, cy * 110.f);
+
+        SkRect rect = SkRect::MakeWH(cx % 2 ? 50.f : (40.f + stretch),
+                                     cx % 2 ? (40.f + stretch) : 50.f);
+        const SkVector kBigCorner{30.f, 30.f};
+        const SkVector kRectCorner{0.f, 0.f};
+
+        SkVector strokeRadii[4] = { cy % 2 ? kRectCorner : kBigCorner,
+                                    cy % 2 ? kBigCorner : kRectCorner,
+                                    cy % 2 ? kRectCorner : kBigCorner,
+                                    cy % 2 ? kBigCorner : kRectCorner };
+
+        SkRRect r;
+        r.setRectRadii(rect, strokeRadii);
+        canvas->drawRRect(r, p);
+
+        canvas->restore();
+    };
+
+    canvas->translate(0.f, -50.f);
+    i = 6;
+    for (float width : {50.f, 30.f, 20.f, 10.f, 1.f, 0.f}) {
+        int j = 0;
+        for (float stretch: {0.f, 5.f, 10.f}) {
+            drawComplex(2*i, 2*j, width, stretch);
+            drawComplex(2*i+1, 2*j, width, stretch);
+            drawComplex(2*i, 2*j+1, width, stretch);
+            drawComplex(2*i+1, 2*j+1, width, stretch);
+            j++;
+        }
+        i++;
+    }
+
+    // Rotated "D"s
+    auto drawComplex2 = [&](int cx, int cy, float width, float stretch) {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStrokeWidth(width);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeJoin(SkPaint::kMiter_Join);
+
+        canvas->save();
+        canvas->translate(cx * 110.f, cy * 110.f);
+
+        SkRect rect = SkRect::MakeWH(cx % 2 ? 50.f : (40.f + stretch),
+                                     cx % 2 ? (40.f + stretch) : 50.f);
+        const SkVector kBigCorner{30.f, 30.f};
+        const SkVector kRectCorner{0.f, 0.f};
+
+        SkVector strokeRadii[4] = { cx % 2 ? kRectCorner : kBigCorner,
+                                    (cx % 2) ^ (cy % 2) ? kBigCorner : kRectCorner,
+                                    cx % 2 ? kBigCorner : kRectCorner,
+                                    (cx % 2) ^ (cy % 2) ? kRectCorner : kBigCorner };
+
+        SkRRect r;
+        r.setRectRadii(rect, strokeRadii);
+        canvas->drawRRect(r, p);
+
+        canvas->restore();
+    };
+
+    canvas->translate(0.f, 50.f);
+    i = 6;
+    for (float width : {50.f, 30.f, 20.f, 10.f, 1.f, 0.f}) {
+        int j = 3;
+        for (float stretch: {0.f, 5.f, 10.f}) {
+            drawComplex2(2*i, 2*j, width, stretch);
+            drawComplex2(2*i+1, 2*j, width, stretch);
+            drawComplex2(2*i, 2*j+1, width, stretch);
+            drawComplex2(2*i+1, 2*j+1, width, stretch);
             j++;
         }
         i++;
