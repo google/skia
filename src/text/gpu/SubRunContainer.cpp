@@ -2514,6 +2514,9 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
     const SkScalerContextFlags scalerContextFlags = strikeDeviceInfo.fScalerContextFlags;
 #if !defined(SK_DISABLE_SDF_TEXT)
     const SDFTControl SDFTControl = *strikeDeviceInfo.fSDFTControl;
+    const SkScalar maxMaskSize = SDFTControl.maxSize();
+#else
+    const SkScalar maxMaskSize = 256;
 #endif
 
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
@@ -2549,7 +2552,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         // Atlas mask cases - SDFT and direct mask
         // Only consider using direct or SDFT drawing if not drawing hairlines and not too big.
         if ((runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0) &&
-                approximateDeviceTextSize < 512) {
+                approximateDeviceTextSize < maxMaskSize) {
 
 #if !defined(SK_DISABLE_SDF_TEXT)
             // SDFT case

@@ -48,11 +48,13 @@ public:
 
     bool isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                 const SkMatrix& matrix) const;
+    SkScalar maxSize() const { return fMaxDistanceFieldFontSize; }
 #else
     SDFTControl() {}
 #endif
     bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                   const SkMatrix& matrix) const;
+
 
 private:
 #if !defined(SK_DISABLE_SDF_TEXT)
