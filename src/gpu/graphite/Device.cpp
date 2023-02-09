@@ -56,9 +56,6 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO: This will be removed once the AnalyticRectRenderStep is finished being developed.
-#define ENABLE_ANALYTIC_RRECT_RENDERER 0
-
 using RescaleGamma       = SkImage::RescaleGamma;
 using RescaleMode        = SkImage::RescaleMode;
 using ReadPixelsCallback = SkImage::ReadPixelsCallback;
@@ -156,15 +153,10 @@ bool create_img_shader_paint(sk_sp<SkImage> image,
 bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
     // We send regular filled and hairline [round] rectangles and quadrilaterals, and stroked
     // [r]rects with circular corners to a single Renderer that does not trigger MSAA.
-    bool validRRect = shape.isRRect() &&
-#if !ENABLE_ANALYTIC_RRECT_RENDERER
-            // The remaining issues with the AnalyticRRectRenderStep relate to stroked rrects, as
-            // long as it's a hairline it shouldn't trigger the visual issues.
-            type != SkStrokeRec::kStroke_Style &&
-#endif
-            (type != SkStrokeRec::kStroke_Style || SkRRectPriv::AllCornersCircular(shape.rrect()));
     return !shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
-            (shape.isRect() /* || shape.isQuadrilateral()*/ || validRRect);
+            (shape.isRect() /* || shape.isQuadrilateral()*/ ||
+             (shape.isRRect() && (type != SkStrokeRec::kStroke_Style ||
+                                  SkRRectPriv::AllCornersCircular(shape.rrect()))));
 }
 
 } // anonymous namespace
