@@ -311,9 +311,10 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     dstTexture->textureInfo().getVulkanTextureInfo(&dstTextureInfo);
     size_t bytesPerBlock = VkFormatBytesPerBlock(dstTextureInfo.fFormat);
 
+    // Set up copy regions.
+    SkTArray<VkBufferImageCopy> regions(count);
     for (int i = 0; i < count; ++i) {
-        // Set up copy region.
-        VkBufferImageCopy region;
+        VkBufferImageCopy& region = regions.push_back();
         memset(&region, 0, sizeof(VkBufferImageCopy));
         region.bufferOffset = copyData[i].fBufferOffset;
         // copyData provides row length in bytes, but Vulkan expects bufferRowLength in texels.
@@ -326,17 +327,17 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
         region.imageExtent = { (uint32_t)copyData[i].fRect.width(),
                                (uint32_t)copyData[i].fRect.height(),
                                /*depth=*/1 };
-
-        // TODO: Change layout of target texture image so it can be copied to.
-
-        VULKAN_CALL(fSharedContext->interface(),
-                    CmdCopyBufferToImage(fPrimaryCommandBuffer,
-                                         srcBuffer,
-                                         dstTexture->vkImage(),
-                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                         /*regionCount=*/1,
-                                         &region));
     }
+
+    // TODO: Change layout of target texture image so it can be copied to.
+
+    VULKAN_CALL(fSharedContext->interface(),
+            CmdCopyBufferToImage(fPrimaryCommandBuffer,
+                                 srcBuffer,
+                                 dstTexture->vkImage(),
+                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                 regions.size(),
+                                 regions.begin()));
     return true;
 }
 
