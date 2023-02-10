@@ -1085,7 +1085,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.matchOs("Mac") && b.extraConfig("Metal") && (b.gpu("IntelIrisPlus") ||
                                                       b.gpu("IntelHD6000")) {
-		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_GPU") // skia:14025
+		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_GPU")         // skia:14025
+		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_GPU") // skia:14025
 	}
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && b.extraConfig("ANGLE") {
