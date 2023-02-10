@@ -318,6 +318,9 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_BGR_fff,        // Pointers must be 32-bit aligned.
     skcms_PixelFormat_RGBA_ffff,
     skcms_PixelFormat_BGRA_ffff,
+
+    skcms_PixelFormat_RGB_101010x_XR,  // Note: This is located here to signal no clamping.
+    skcms_PixelFormat_BGR_101010x_XR,  // Compatible with MTLPixelFormatBGR10_XR.
 } skcms_PixelFormat;
 
 // We always store any alpha channel linearly.  In the chart below, tf-1() is the inverse

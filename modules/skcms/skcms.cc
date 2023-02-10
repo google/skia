@@ -2308,6 +2308,7 @@ typedef enum {
     Op_load_888,
     Op_load_8888,
     Op_load_1010102,
+    Op_load_101010x_XR,
     Op_load_161616LE,
     Op_load_16161616LE,
     Op_load_161616BE,
@@ -2368,6 +2369,7 @@ typedef enum {
     Op_store_16161616LE,
     Op_store_161616BE,
     Op_store_16161616BE,
+    Op_store_101010x_XR,
     Op_store_hhh,
     Op_store_hhhh,
     Op_store_fff,
@@ -2585,6 +2587,7 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
         case skcms_PixelFormat_RGBA_8888          >> 1: return  4;
         case skcms_PixelFormat_RGBA_8888_sRGB     >> 1: return  4;
         case skcms_PixelFormat_RGBA_1010102       >> 1: return  4;
+        case skcms_PixelFormat_RGB_101010x_XR     >> 1: return  4;
         case skcms_PixelFormat_RGB_161616LE       >> 1: return  6;
         case skcms_PixelFormat_RGBA_16161616LE    >> 1: return  8;
         case skcms_PixelFormat_RGB_161616BE       >> 1: return  6;
@@ -2692,6 +2695,7 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGB_888         >> 1: *ops++ = Op_load_888;        break;
         case skcms_PixelFormat_RGBA_8888       >> 1: *ops++ = Op_load_8888;       break;
         case skcms_PixelFormat_RGBA_1010102    >> 1: *ops++ = Op_load_1010102;    break;
+        case skcms_PixelFormat_RGB_101010x_XR  >> 1: *ops++ = Op_load_101010x_XR; break;
         case skcms_PixelFormat_RGB_161616LE    >> 1: *ops++ = Op_load_161616LE;   break;
         case skcms_PixelFormat_RGBA_16161616LE >> 1: *ops++ = Op_load_16161616LE; break;
         case skcms_PixelFormat_RGB_161616BE    >> 1: *ops++ = Op_load_161616BE;   break;
@@ -2946,6 +2950,7 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGBA_16161616BE >> 1: *ops++ = Op_store_16161616BE; break;
         case skcms_PixelFormat_RGB_hhh_Norm    >> 1: *ops++ = Op_store_hhh;        break;
         case skcms_PixelFormat_RGBA_hhhh_Norm  >> 1: *ops++ = Op_store_hhhh;       break;
+        case skcms_PixelFormat_RGB_101010x_XR  >> 1: *ops++ = Op_store_101010x_XR; break;
         case skcms_PixelFormat_RGB_hhh         >> 1: *ops++ = Op_store_hhh;        break;
         case skcms_PixelFormat_RGBA_hhhh       >> 1: *ops++ = Op_store_hhhh;       break;
         case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_store_fff;        break;
