@@ -456,7 +456,31 @@ public:
     }
 #endif
 
-    bool appendStages(const SkStageRec&, bool) const override { return false; }
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        sk_sp<SkColorSpace> dstCS = sk_ref_sp(rec.fDstCS);
+
+        if (!dstCS) { dstCS = SkColorSpace::MakeSRGB(); }
+
+        SkAlphaType workingAT;
+        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
+
+        SkColorInfo dst = {rec.fDstColorType, kPremul_SkAlphaType, dstCS},
+                working = {rec.fDstColorType, workingAT, workingCS};
+
+        SkStageRec workingRec = {rec.fPipeline,
+                                 rec.fAlloc,
+                                 rec.fDstColorType,
+                                 workingCS.get(),
+                                 rec.fPaint,
+                                 rec.fSurfaceProps};
+
+        rec.fAlloc->make<SkColorSpaceXformSteps>(dst, working)->apply(rec.fPipeline);
+        if (!as_CFB(fChild)->appendStages(workingRec, shaderIsOpaque)) {
+            return false;
+        }
+        rec.fAlloc->make<SkColorSpaceXformSteps>(working, dst)->apply(rec.fPipeline);
+        return true;
+    }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& rawDst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
