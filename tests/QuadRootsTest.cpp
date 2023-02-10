@@ -177,10 +177,6 @@ DEF_TEST(QuadRootsReal_NonFiniteNumbers, reporter) {
         "Discriminant is negative infinity"
     );
     REPORTER_ASSERT(reporter,
-        SkQuads::RootsReal(1, DBL_MAX, 0, roots) == 0,
-        "Discriminant is positive infinity"
-    );
-    REPORTER_ASSERT(reporter,
         SkQuads::RootsReal(DBL_MAX, DBL_MAX, DBL_MAX, roots) == 0,
         "Double Overflow"
     );

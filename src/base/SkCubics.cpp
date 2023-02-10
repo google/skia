@@ -30,7 +30,7 @@ static bool close_to_a_quadratic(double A, double B) {
     if (sk_double_nearly_zero(B)) {
         return sk_double_nearly_zero(A);
     }
-    return std::abs(A / B) < 0.0000001;
+    return std::abs(A / B) < 1.0e-7;
 }
 
 int SkCubics::RootsReal(double A, double B, double C, double D, double solution[3]) {

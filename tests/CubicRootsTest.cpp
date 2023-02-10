@@ -218,6 +218,12 @@ DEF_TEST(CubicRootsReal_Quadratics, reporter) {
     testCubicRootsReal(reporter, "no roots x^2 + 2x + 7",
                        0, 1, 2, 7,
                        {});
+
+    // similar to oss-fuzz:55680
+    testCubicRootsReal(reporter, "two roots one small one big (and ignored)",
+                       0, -0.01, 200000000000000, -120000000000000,
+                       { 0.6 },
+                        true /* == skipPathops */);
 }
 
 DEF_TEST(CubicRootsReal_Linear, reporter) {

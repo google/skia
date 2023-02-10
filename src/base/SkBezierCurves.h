@@ -22,6 +22,18 @@
  */
 class SkBezierCubic {
 public:
+
+    /**
+     * Evaluates the cubic Bézier curve for a given t. It returns an X and Y coordinate
+     * following the formula, which does the interpolation mentioned above.
+     *     X(t) = X_0*(1-t)^3 + 3*X_1*t(1-t)^2 + 3*X_2*t^2(1-t) + X_3*t^3
+     *     Y(t) = Y_0*(1-t)^3 + 3*Y_1*t(1-t)^2 + 3*Y_2*t^2(1-t) + Y_3*t^3
+     *
+     * t is typically in the range [0, 1], but this function will not assert that,
+     * as Bézier curves are well-defined for any real number input.
+     */
+    static std::array<double, 2> EvalAt(const double curve[8], double t);
+
     /**
      * Splits the provided Bézier curve at the location t, resulting in two
      * Bézier curves that share a point (the end point from curve 1

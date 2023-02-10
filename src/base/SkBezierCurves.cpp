@@ -15,6 +15,40 @@ static inline double interpolate(double A, double B, double t) {
     return A + (B - A) * t;
 }
 
+std::array<double, 2> SkBezierCubic::EvalAt(const double curve[8], double t) {
+    const auto in_X = [&curve](size_t n) { return curve[2*n]; };
+    const auto in_Y = [&curve](size_t n) { return curve[2*n + 1]; };
+
+    // Two semi-common fast paths
+    if (t == 0) {
+        return {in_X(0), in_Y(0)};
+    }
+    if (t == 1) {
+        return {in_X(3), in_Y(3)};
+    }
+    // X(t) = X_0*(1-t)^3 + 3*X_1*t(1-t)^2 + 3*X_2*t^2(1-t) + X_3*t^3
+    // Y(t) = Y_0*(1-t)^3 + 3*Y_1*t(1-t)^2 + 3*Y_2*t^2(1-t) + Y_3*t^3
+    // Some compilers are smart enough and have sufficient registers/intrinsics to write optimal
+    // code from
+    //    double one_minus_t = 1 - t;
+    //    double a = one_minus_t * one_minus_t * one_minus_t;
+    //    double b = 3 * one_minus_t * one_minus_t * t;
+    //    double c = 3 * one_minus_t * t * t;
+    //    double d = t * t * t;
+    // However, some (e.g. when compiling for ARM) fail to do so, so we use this form
+    // to help more compilers generate smaller/faster ASM. https://godbolt.org/z/M6jG9x45c
+    double one_minus_t = 1 - t;
+    double one_minus_t_squared = one_minus_t * one_minus_t;
+    double a = (one_minus_t_squared * one_minus_t);
+    double b = 3 * one_minus_t_squared * t;
+    double t_squared = t * t;
+    double c = 3 * one_minus_t * t_squared;
+    double d = t_squared * t;
+
+    return {a * in_X(0) + b * in_X(1) + c * in_X(2) + d * in_X(3),
+            a * in_Y(0) + b * in_Y(1) + c * in_Y(2) + d * in_Y(3)};
+}
+
 // Perform subdivision using De Casteljau's algorithm, that is, repeated linear
 // interpolation between adjacent points.
 void SkBezierCubic::Subdivide(const double curve[8], double t,

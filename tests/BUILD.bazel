@@ -26,6 +26,7 @@ CPU_ONLY_TESTS = [
     "AvifTest.cpp",
     "BRDTest.cpp",
     "BadIcoTest.cpp",
+    "BezierCurveTest.cpp",
     "BitSetTest.cpp",
     "BitmapCopyTest.cpp",
     "BitmapGetColorTest.cpp",
