@@ -1147,9 +1147,11 @@ SkScalar SkFindCubicCusp(const SkPoint src[4]) {
     return -1;
 }
 
+static bool close_enough_to_zero(double x) {
+    return std::fabs(x) < 0.00001;
+}
 
-
-static bool first_axis_intersection(const double coefficients[4], bool yDirection,
+static bool first_axis_intersection(const double coefficients[8], bool yDirection,
                                     double axisIntercept, double* solution) {
     auto [A, B, C, D] = SkBezierCubic::ConvertToPolynomial(coefficients, yDirection);
     D -= axisIntercept;
@@ -1158,8 +1160,27 @@ static bool first_axis_intersection(const double coefficients[4], bool yDirectio
     if (count == 0) {
         return false;
     }
-    *solution = roots[0];
-    return true;
+    // Verify that at least one of the roots is accurate.
+    for (int i = 0; i < count; i++) {
+        if (close_enough_to_zero(SkCubics::EvalAt(A, B, C, D, roots[i]))) {
+            *solution = roots[i];
+            return true;
+        }
+    }
+    // None of the roots returned by our normal cubic solver were correct enough
+    // (e.g. https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=55732)
+    // So we need to fallback to a more accurate solution.
+    count = SkCubics::BinarySearchRootsValidT(A, B, C, D, roots);
+    if (count == 0) {
+        return false;
+    }
+    for (int i = 0; i < count; i++) {
+        if (close_enough_to_zero(SkCubics::EvalAt(A, B, C, D, roots[i]))) {
+            *solution = roots[i];
+            return true;
+        }
+    }
+    return false;
 }
 
 bool SkChopMonoCubicAtY(const SkPoint src[4], SkScalar y, SkPoint dst[7]) {

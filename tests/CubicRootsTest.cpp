@@ -69,7 +69,7 @@ static void testCubicRootsReal(skiatest::Reporter* reporter, std::string name,
         }
     }
     {
-        skiatest::ReporterContext subsubtest(reporter, "SkCubics Implementation");
+        skiatest::ReporterContext subsubtest(reporter, "SkCubics Analytic Implementation");
         double roots[3] = {0, 0, 0};
         int rootCount = SkCubics::RootsReal(A, B, C, D, roots);
         REPORTER_ASSERT(reporter, expectedRoots.size() == size_t(rootCount),
@@ -334,7 +334,7 @@ static void testCubicValidT(skiatest::Reporter* reporter, std::string name,
         }
     }
     {
-        skiatest::ReporterContext subsubtest(reporter, "SkCubics Implementation");
+        skiatest::ReporterContext subsubtest(reporter, "SkCubics Analytic Implementation");
         double roots[3] = {0, 0, 0};
         int rootCount = SkCubics::RootsValidT(A, B, C, D, roots);
         REPORTER_ASSERT(reporter, expectedRoots.size() == size_t(rootCount),
@@ -355,6 +355,26 @@ static void testCubicValidT(skiatest::Reporter* reporter, std::string name,
             }
         }
     }
+    {
+        skiatest::ReporterContext subsubtest(reporter, "SkCubics Binary Search Implementation");
+        double roots[3] = {0, 0, 0};
+        int rootCount = SkCubics::BinarySearchRootsValidT(A, B, C, D, roots);
+        REPORTER_ASSERT(reporter, expectedRoots.size() == size_t(rootCount),
+                        "Wrong number of roots returned %zu != %d", expectedRoots.size(),
+                        rootCount);
+
+        // We don't care which order the roots are returned from the algorithm.
+        // For determinism, we will sort them (and ensure the provided solutions are also sorted).
+        std::sort(std::begin(roots), std::begin(roots) + rootCount);
+        for (int i = 0; i < rootCount; i++) {
+            double delta = std::abs(roots[i] - expectedRoots[i]);
+            REPORTER_ASSERT(reporter,
+                            // Binary search is not absolutely accurate all the time, but
+                            // it should be accurate enough reliably
+                            delta < 0.000001,
+                            "%.16f != %.16f at index %d", expectedRoots[i], roots[i], i);
+        }
+    }
 }
 
 DEF_TEST(CubicRootsValidT, reporter) {
@@ -368,25 +388,34 @@ DEF_TEST(CubicRootsValidT, reporter) {
 
     testCubicValidT(reporter, "three roots total, two in range 54x^3 - 117x^2 + 45x + 0",
                     54, -117, 45, 0,
-                    {0.,
+                    {0.0,
                      0.5,
                      // 5/3 is the other root, but not in [0, 1]
                     });
 
     testCubicValidT(reporter, "one root = 1 10x^3 - 20x^2 - 30x + 40",
                     10, -20, -30, 40,
-                    {1.});
+                    {1.0});
 
     testCubicValidT(reporter, "one root = 0 2x^3 - 3x^2 - 4x + 0",
                     2, -3, -4, 0,
-                    {0.});
+                    {0.0});
 
     testCubicValidT(reporter, "three roots total, two in range -2x^3 - 3x^2 + 4x + 0",
                     -2, -3, 4, 0,
-                    { 0.,
+                    { 0.0,
                       0.8507810593582122,
                    // 0.8507810593582121716220544 from Wolfram Alpha
                     });
+
+    // x(x-1) = x^2 - x
+    testCubicValidT(reporter, "Two roots at exactly 0 and 1",
+                    0, 1, -1, 0,
+                    {0.0, 1.0});
+
+    testCubicValidT(reporter, "Single point has one root",
+                    0, 0, 0, 0,
+                    {0.0});
 }
 
 DEF_TEST(CubicRootsValidT_ClampToZeroAndOne, reporter) {

@@ -69,6 +69,28 @@ static void fuzz_cubic_roots_valid_t(double A, double B, double C, double D) {
     }
 }
 
+static void fuzz_cubic_roots_binary_search(double A, double B, double C, double D) {
+    double roots[3];
+    const int numSolutions = SkCubics::BinarySearchRootsValidT(A, B, C, D, roots);
+    SkASSERT_RELEASE(numSolutions >= 0 && numSolutions <= 3);
+    for (int i = 0; i < numSolutions; i++) {
+        SkASSERT_RELEASE(std::isfinite(roots[i]));
+        SkASSERT_RELEASE(roots[i] >= 0.0);
+        SkASSERT_RELEASE(roots[i] <= 1.0);
+        double actual = SkCubics::EvalAt(A, B, C, D, roots[i]);
+        // The binary search algorithm *should* be accurate regardless of the inputs.
+        SkASSERT_RELEASE(std::abs(actual) < 0.001);
+    }
+    // Roots should not be duplicated
+    if (numSolutions >= 2) {
+        SkASSERT_RELEASE(!sk_doubles_nearly_equal_ulps(roots[0], roots[1]));
+    }
+    if (numSolutions == 3) {
+        SkASSERT_RELEASE(!sk_doubles_nearly_equal_ulps(roots[1], roots[2]));
+        SkASSERT_RELEASE(!sk_doubles_nearly_equal_ulps(roots[0], roots[2]));
+    }
+}
+
 DEF_FUZZ(CubicQuadRoots, fuzz) {
     double A, B, C, D;
     fuzz->next(&A);
@@ -77,13 +99,15 @@ DEF_FUZZ(CubicQuadRoots, fuzz) {
     fuzz->next(&D);
 
     // Uncomment for easy test case creation
-   // SkDebugf("A %16e (0x%llx) B %16e (0x%llx) C %16e (0x%llx) D %16e (0x%llx)\n",
-   //          A, sk_bit_cast<uint64_t>(A), B, sk_bit_cast<uint64_t>(B),
-   //          C, sk_bit_cast<uint64_t>(C), D, sk_bit_cast<uint64_t>(D));
+//    SkDebugf("A %16e (0x%lx) B %16e (0x%lx) C %16e (0x%lx) D %16e (0x%lx)\n",
+//             A, sk_bit_cast<uint64_t>(A), B, sk_bit_cast<uint64_t>(B),
+//             C, sk_bit_cast<uint64_t>(C), D, sk_bit_cast<uint64_t>(D));
 
     fuzz_quad_real_roots(A, B, C);
 
     fuzz_cubic_real_roots(A, B, C, D);
 
     fuzz_cubic_roots_valid_t(A, B, C, D);
+
+    fuzz_cubic_roots_binary_search(A, B, C, D);
 }

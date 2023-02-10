@@ -16,7 +16,7 @@ public:
     /**
      * Puts up to 3 real solutions to the equation
      *   A*t^3 + B*t^2 + C*t + d = 0
-     * in the provided array.
+     * in the provided array and returns how many roots that was.
      */
     static int RootsReal(double A, double B, double C, double D,
                          double solution[3]);
@@ -24,11 +24,23 @@ public:
     /**
      * Puts up to 3 real solutions to the equation
      *   A*t^3 + B*t^2 + C*t + D = 0
-     * in the provided array, with the constraint that t is in the range [0.0, 1.0].
+     * in the provided array, with the constraint that t is in the range [0.0, 1.0],
+     * and returns how many roots that was.
      */
     static int RootsValidT(double A, double B, double C, double D,
                            double solution[3]);
 
+
+    /**
+     * Puts up to 3 real solutions to the equation
+     *   A*t^3 + B*t^2 + C*t + D = 0
+     * in the provided array, with the constraint that t is in the range [0.0, 1.0],
+     * and returns how many roots that was.
+     * This is a slower method than RootsValidT, but more accurate in circumstances
+     * where floating point error gets too big.
+     */
+    static int BinarySearchRootsValidT(double A, double B, double C, double D,
+                                       double solution[3]);
 
     /**
      * Evaluates the cubic function with the 4 provided coefficients and the
