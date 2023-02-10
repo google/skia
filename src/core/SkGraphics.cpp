@@ -139,12 +139,6 @@ SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory()
     return gSVGDecoderFactory;
 }
 
-/* static */
-SkGraphics::VariableColrV1EnabledFunc SkGraphics::SetVariableColrV1EnabledFunc(
-        VariableColrV1EnabledFunc variableCOLRV1EnabledFunc) {
-    return nullptr;
-}
-
 extern bool gSkVMAllowJIT;
 
 void SkGraphics::AllowJIT() {
