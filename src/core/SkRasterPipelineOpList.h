@@ -136,23 +136,24 @@
     M(zero_slot_unmasked)    M(zero_2_slots_unmasked)                                         \
     M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)                                         \
     M(swizzle_1) M(swizzle_2) M(swizzle_3) M(swizzle_4) M(shuffle)                            \
-    M(add_n_floats) M(add_float) M(add_2_floats) M(add_3_floats) M(add_4_floats)              \
-    M(add_n_ints)   M(add_int)   M(add_2_ints)   M(add_3_ints)   M(add_4_ints)                \
-    M(sub_n_floats) M(sub_float) M(sub_2_floats) M(sub_3_floats) M(sub_4_floats)              \
-    M(sub_n_ints)   M(sub_int)   M(sub_2_ints)   M(sub_3_ints)   M(sub_4_ints)                \
-    M(mul_n_floats) M(mul_float) M(mul_2_floats) M(mul_3_floats) M(mul_4_floats)              \
-    M(mul_n_ints)   M(mul_int)   M(mul_2_ints)   M(mul_3_ints)   M(mul_4_ints)                \
-    M(div_n_floats) M(div_float) M(div_2_floats) M(div_3_floats) M(div_4_floats)              \
-    M(div_n_ints)   M(div_int)   M(div_2_ints)   M(div_3_ints)   M(div_4_ints)                \
-    M(div_n_uints)  M(div_uint)  M(div_2_uints)  M(div_3_uints)  M(div_4_uints)               \
-    M(max_n_floats) M(max_float) M(max_2_floats) M(max_3_floats) M(max_4_floats)              \
-    M(max_n_ints)   M(max_int)   M(max_2_ints)   M(max_3_ints)   M(max_4_ints)                \
-    M(max_n_uints)  M(max_uint)  M(max_2_uints)  M(max_3_uints)  M(max_4_uints)               \
-    M(min_n_floats) M(min_float) M(min_2_floats) M(min_3_floats) M(min_4_floats)              \
-    M(min_n_ints)   M(min_int)   M(min_2_ints)   M(min_3_ints)   M(min_4_ints)                \
-    M(min_n_uints)  M(min_uint)  M(min_2_uints)  M(min_3_uints)  M(min_4_uints)               \
-    M(mix_n_floats) M(mix_float) M(mix_2_floats) M(mix_3_floats) M(mix_4_floats)              \
-                                 M(dot_2_floats) M(dot_3_floats) M(dot_4_floats)              \
+    M(add_n_floats)   M(add_float)   M(add_2_floats)   M(add_3_floats)   M(add_4_floats)      \
+    M(add_n_ints)     M(add_int)     M(add_2_ints)     M(add_3_ints)     M(add_4_ints)        \
+    M(sub_n_floats)   M(sub_float)   M(sub_2_floats)   M(sub_3_floats)   M(sub_4_floats)      \
+    M(sub_n_ints)     M(sub_int)     M(sub_2_ints)     M(sub_3_ints)     M(sub_4_ints)        \
+    M(mul_n_floats)   M(mul_float)   M(mul_2_floats)   M(mul_3_floats)   M(mul_4_floats)      \
+    M(mul_n_ints)     M(mul_int)     M(mul_2_ints)     M(mul_3_ints)     M(mul_4_ints)        \
+    M(div_n_floats)   M(div_float)   M(div_2_floats)   M(div_3_floats)   M(div_4_floats)      \
+    M(div_n_ints)     M(div_int)     M(div_2_ints)     M(div_3_ints)     M(div_4_ints)        \
+    M(div_n_uints)    M(div_uint)    M(div_2_uints)    M(div_3_uints)    M(div_4_uints)       \
+    M(max_n_floats)   M(max_float)   M(max_2_floats)   M(max_3_floats)   M(max_4_floats)      \
+    M(max_n_ints)     M(max_int)     M(max_2_ints)     M(max_3_ints)     M(max_4_ints)        \
+    M(max_n_uints)    M(max_uint)    M(max_2_uints)    M(max_3_uints)    M(max_4_uints)       \
+    M(min_n_floats)   M(min_float)   M(min_2_floats)   M(min_3_floats)   M(min_4_floats)      \
+    M(min_n_ints)     M(min_int)     M(min_2_ints)     M(min_3_ints)     M(min_4_ints)        \
+    M(min_n_uints)    M(min_uint)    M(min_2_uints)    M(min_3_uints)    M(min_4_uints)       \
+    M(mix_n_floats)   M(mix_float)   M(mix_2_floats)   M(mix_3_floats)   M(mix_4_floats)      \
+    M(mix_n_ints)     M(mix_int)     M(mix_2_ints)     M(mix_3_ints)     M(mix_4_ints)        \
+                                     M(dot_2_floats)   M(dot_3_floats)   M(dot_4_floats)      \
     M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats)    \
     M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)      \
     M(cmplt_n_uints)  M(cmplt_uint)  M(cmplt_2_uints)  M(cmplt_3_uints)  M(cmplt_4_uints)     \

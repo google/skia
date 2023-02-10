@@ -3717,23 +3717,37 @@ SI void apply_adjacent_ternary(T* dst, T* src0, T* src1) {
     } while (dst != end);
 }
 
-template <typename T>
-SI void mix_fn(T* a, T* b, T* c) {
+SI void mix_fn(F* a, F* b, F* c) {
     *a = lerp(*a, *b, *c);
 }
 
-#define DECLARE_TERNARY_FLOAT(name)                                                               \
-    STAGE_TAIL(name##_float, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 1, p + 2); }    \
-    STAGE_TAIL(name##_2_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 2, p + 4); } \
-    STAGE_TAIL(name##_3_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 3, p + 6); } \
-    STAGE_TAIL(name##_4_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 4, p + 8); } \
-    STAGE_TAIL(name##_n_floats, SkRasterPipeline_TernaryOpCtx* ctx) {                             \
-        apply_adjacent_ternary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src0, (F*)ctx->src1);        \
+SI void mix_fn(I32* a, I32* b, I32* c) {
+    *a = if_then_else(*c, *b, *a);
+}
+
+#define DECLARE_TERNARY_FLOAT(name)                                                           \
+    STAGE_TAIL(name##_float, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+1, p+2); }    \
+    STAGE_TAIL(name##_2_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+2, p+4); } \
+    STAGE_TAIL(name##_3_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+3, p+6); } \
+    STAGE_TAIL(name##_4_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+4, p+8); } \
+    STAGE_TAIL(name##_n_floats, SkRasterPipeline_TernaryOpCtx* ctx) {                         \
+        apply_adjacent_ternary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src0, (F*)ctx->src1);    \
+    }
+
+#define DECLARE_TERNARY_INT(name)                                                                  \
+    STAGE_TAIL(name##_int, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+1, p+2); }       \
+    STAGE_TAIL(name##_2_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+2, p+4); }    \
+    STAGE_TAIL(name##_3_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+3, p+6); }    \
+    STAGE_TAIL(name##_4_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+4, p+8); }    \
+    STAGE_TAIL(name##_n_ints, SkRasterPipeline_TernaryOpCtx* ctx) {                                \
+        apply_adjacent_ternary<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src0, (I32*)ctx->src1); \
     }
 
 DECLARE_TERNARY_FLOAT(mix)
+DECLARE_TERNARY_INT(mix)
 
 #undef DECLARE_TERNARY_FLOAT
+#undef DECLARE_TERNARY_INT
 
 STAGE(gauss_a_to_rgba, NoCtx) {
     // x = 1 - x;

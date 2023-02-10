@@ -2240,22 +2240,28 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             return true;
 
         case IntrinsicKind::k_mix_IntrinsicKind:
-            // TODO: implement mix(a,b,genBType)
-            if (!arg2.type().componentType().isFloat()) {
-                return unsupported();
-            }
             SkASSERT(arg0.type().matches(arg1.type()));
-            SkASSERT(arg0.type().componentType().matches(arg2.type().componentType()));
             if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
                 return unsupported();
             }
-            if (!this->pushVectorizedExpression(arg2, arg0.type())) {
-                return unsupported();
+            if (arg2.type().componentType().isFloat()) {
+                SkASSERT(arg0.type().componentType().matches(arg2.type().componentType()));
+                if (!this->pushVectorizedExpression(arg2, arg0.type())) {
+                    return unsupported();
+                }
+                return this->ternaryOp(arg0.type(), kMixOps);
             }
-            if (!this->ternaryOp(arg0.type(), kMixOps)) {
-                return unsupported();
+            if (arg2.type().componentType().isBoolean()) {
+                if (!this->pushExpression(arg2)) {
+                    return unsupported();
+                }
+                // The `mix_int` op isn't doing a lerp; it uses the third argument to select values
+                // from the first and second arguments. It's safe for use with any type in arguments
+                // 0 and 1.
+                fBuilder.ternary_op(BuilderOp::mix_n_ints, arg0.type().slotCount());
+                return true;
             }
-            return true;
+            return unsupported();
 
         default:
             break;

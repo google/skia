@@ -90,7 +90,8 @@ namespace RP {
     case BuilderOp::cmpne_n_ints
 
 #define ALL_MULTI_SLOT_TERNARY_OP_CASES \
-         BuilderOp::mix_n_floats
+         BuilderOp::mix_n_floats:       \
+    case BuilderOp::mix_n_ints
 
 void Builder::unary_op(BuilderOp op, int32_t slots) {
     switch (op) {
@@ -1840,9 +1841,9 @@ void Program::dump(SkWStream* out) const {
             case POp::sub_float:   case POp::sub_int:
             case POp::mul_float:   case POp::mul_int:
             case POp::div_float:   case POp::div_int:   case POp::div_uint:
-                                    case POp::bitwise_and_int:
-                                    case POp::bitwise_or_int:
-                                    case POp::bitwise_xor_int:
+                                   case POp::bitwise_and_int:
+                                   case POp::bitwise_or_int:
+                                   case POp::bitwise_xor_int:
             case POp::min_float:   case POp::min_int:   case POp::min_uint:
             case POp::max_float:   case POp::max_int:   case POp::max_uint:
             case POp::cmplt_float: case POp::cmplt_int: case POp::cmplt_uint:
@@ -1852,7 +1853,7 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 1);
                 break;
 
-            case POp::mix_float:
+            case POp::mix_float:   case POp::mix_int:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 1);
                 break;
 
@@ -1872,7 +1873,7 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 2);
                 break;
 
-            case POp::mix_2_floats:
+            case POp::mix_2_floats:   case POp::mix_2_ints:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 2);
                 break;
 
@@ -1892,7 +1893,7 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 3);
                 break;
 
-            case POp::mix_3_floats:
+            case POp::mix_3_floats:   case POp::mix_3_ints:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 3);
                 break;
 
@@ -1912,7 +1913,7 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 4);
                 break;
 
-            case POp::mix_4_floats:
+            case POp::mix_4_floats:   case POp::mix_4_ints:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 4);
                 break;
 
@@ -1934,7 +1935,7 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = AdjacentBinaryOpCtx(stage.ctx);
                 break;
 
-            case POp::mix_n_floats:
+            case POp::mix_n_floats:   case POp::mix_n_ints:
                 std::tie(opArg1, opArg2, opArg3) = AdjacentTernaryOpCtx(stage.ctx);
                 break;
 
@@ -2275,11 +2276,11 @@ void Program::dump(SkWStream* out) const {
                 opText = opArg1 + " = notEqual(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case POp::mix_float:
-            case POp::mix_2_floats:
-            case POp::mix_3_floats:
-            case POp::mix_4_floats:
-            case POp::mix_n_floats:
+            case POp::mix_float:      case POp::mix_int:
+            case POp::mix_2_floats:   case POp::mix_2_ints:
+            case POp::mix_3_floats:   case POp::mix_3_ints:
+            case POp::mix_4_floats:   case POp::mix_4_ints:
+            case POp::mix_n_floats:   case POp::mix_n_ints:
                 opText = opArg1 + " = mix(" + opArg1 + ", " + opArg2 + ", " + opArg3 + ")";
                 break;
 
