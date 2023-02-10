@@ -256,15 +256,7 @@ void PathSegment::init() {
         SkASSERT(fType == PathSegment::kQuad);
 
         // Calculate bounding box
-        const SkPoint _P1mP0 = fPts[1] - fPts[0];
-        SkPoint t = _P1mP0 - fPts[2] + fPts[1];
-        t.fX = _P1mP0.fX / t.fX;
-        t.fY = _P1mP0.fY / t.fY;
-        t.fX = SkTPin(t.fX, 0.0f, 1.0f);
-        t.fY = SkTPin(t.fY, 0.0f, 1.0f);
-        t.fX = _P1mP0.fX * t.fX;
-        t.fY = _P1mP0.fY * t.fY;
-        const SkPoint m = fPts[0] + t;
+        const SkPoint m = fPts[0]*0.25f + fPts[1]*0.5f + fPts[2]*0.25f; // midpoint of curve
         SkRectPriv::GrowToInclude(&fBoundingBox, m);
 
         const double p1x = fPts[1].fX;
