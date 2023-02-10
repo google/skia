@@ -432,9 +432,15 @@ if (is_wasm) {
   gcc_like_toolchain("wasm") {
     cpu = "wasm"
     os = "wasm"
-    ar = "$skia_emsdk_dir/upstream/emscripten/emar"
-    cc = "$skia_emsdk_dir/upstream/emscripten/emcc"
-    cxx = "$skia_emsdk_dir/upstream/emscripten/em++"
+    if(host_os == "win"){
+      ar = "$skia_emsdk_dir/upstream/emscripten/emar.bat"
+      cc = "$skia_emsdk_dir/upstream/emscripten/emcc.bat"
+      cxx = "$skia_emsdk_dir/upstream/emscripten/em++.bat"
+    }else{
+      ar = "$skia_emsdk_dir/upstream/emscripten/emar"
+      cc = "$skia_emsdk_dir/upstream/emscripten/emcc"
+      cxx = "$skia_emsdk_dir/upstream/emscripten/em++"
+    }
     link = cxx
   }
 }
