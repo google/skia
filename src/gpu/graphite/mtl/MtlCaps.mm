@@ -699,15 +699,11 @@ UniqueKey MtlCaps::makeComputePipelineKey(const ComputePipelineDesc& pipelineDes
     UniqueKey pipelineKey;
     {
         static const skgpu::UniqueKey::Domain kComputePipelineDomain = UniqueKey::GenerateDomain();
-        SkSpan<const uint32_t> pipelineDescKey = pipelineDesc.asKey();
-        UniqueKey::Builder builder(
-                &pipelineKey, kComputePipelineDomain, pipelineDescKey.size(), "ComputePipeline");
-        // Add ComputePipelineDesc key
-        for (unsigned int i = 0; i < pipelineDescKey.size(); ++i) {
-            builder[i] = pipelineDescKey[i];
-        }
+        // The key is made up of a single uint32_t corresponding to the compute step ID.
+        UniqueKey::Builder builder(&pipelineKey, kComputePipelineDomain, 1, "ComputePipeline");
+        builder[0] = pipelineDesc.computeStep()->uniqueID();
 
-        // TODO(b/240615224): The local work group size may need to factor into the key on platforms
+        // TODO(b/240615224): The local work group size should factor into the key on platforms
         // that don't support specialization constants and require the workgroup/threadgroup size to
         // be specified in the shader text (D3D12, Vulkan 1.0, and OpenGL).
 

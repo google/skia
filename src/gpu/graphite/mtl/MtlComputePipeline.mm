@@ -19,36 +19,20 @@
 namespace skgpu::graphite {
 
 // static
-sk_sp<MtlComputePipeline> MtlComputePipeline::Make(ResourceProvider* resourceProvider,
-                                                   const MtlSharedContext* sharedContext,
-                                                   const ComputePipelineDesc& pipelineDesc) {
+sk_sp<MtlComputePipeline> MtlComputePipeline::Make(const MtlSharedContext* sharedContext,
+                                                   std::string label,
+                                                   MSLFunction computeMain) {
+    id<MTLLibrary> library = std::get<0>(computeMain);
+    if (!library) {
+        return nullptr;
+    }
+
     sk_cfp<MTLComputePipelineDescriptor*> psoDescriptor([MTLComputePipelineDescriptor new]);
 
-    std::string msl;
-    SkSL::Program::Inputs inputs;
-    SkSL::ProgramSettings settings;
+    (*psoDescriptor).label = @(label.c_str());
 
-    auto skslCompiler = resourceProvider->skslCompiler();
-    ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
-    if (!SkSLToMSL(skslCompiler,
-                   pipelineDesc.sksl(),
-                   SkSL::ProgramKind::kCompute,
-                   settings,
-                   &msl,
-                   &inputs,
-                   errorHandler)) {
-        return nullptr;
-    }
-
-    sk_cfp<id<MTLLibrary>> shaderLibrary = MtlCompileShaderLibrary(sharedContext,
-                                                                   msl,
-                                                                   errorHandler);
-    if (!shaderLibrary) {
-        return nullptr;
-    }
-
-    (*psoDescriptor).label = @(pipelineDesc.name().c_str());
-    (*psoDescriptor).computeFunction = [shaderLibrary.get() newFunctionWithName:@"computeMain"];
+    NSString* entryPointName = [NSString stringWithUTF8String:std::get<1>(computeMain).c_str()];
+    (*psoDescriptor).computeFunction = [library newFunctionWithName:entryPointName];
 
     // TODO(b/240604614): Populate input data attribute and buffer layout descriptors using the
     // `stageInputDescriptor` property based on the contents of `pipelineDesc` (on iOS 10+ or

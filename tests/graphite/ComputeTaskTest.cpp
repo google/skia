@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SynchronizeToCpuTask.h"
+#include "src/gpu/graphite/compute/ComputeStep.h"
 
 using namespace skgpu::graphite;
 
@@ -29,22 +30,31 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeTaskTest, reporter, context) {
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // Construct a kernel that multiplies a large array of floats by a supplied factor.
-    ComputePipelineDesc pipelineDesc;
-    pipelineDesc.setProgram(
-            "layout(set=0, binding=0) readonly buffer inputBlock"
-            "{"
-            "    float in_factor;"
-            "    float in_data[];"
-            "};"
-            "layout(set=0, binding=1) buffer outputBlock"
-            "{"
-            "    float out_data[];"
-            "};"
-            "void main() {"
-            "    out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * in_factor;"
-            "}",
-            "TestArrayMultiply");
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep("TestArrayMultiply", {}, {}) {}
+        ~TestComputeStep() override = default;
+
+        // A kernel that multiplies a large array of floats by a supplied factor.
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(set=0, binding=0) readonly buffer inputBlock
+                {
+                    float factor;
+                    float in_data[];
+                };
+                layout(set=0, binding=1) buffer outputBlock
+                {
+                    float out_data[];
+                };
+                void main() {
+                    out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * factor;
+                }
+            )";
+        }
+    };
+    TestComputeStep step;
+    ComputePipelineDesc pipelineDesc(&step);
 
     ResourceProvider* provider = recorder->priv().resourceProvider();
     size_t inputSize = SkAlignTo(sizeof(float) * (kProblemSize + 1),
@@ -123,15 +133,19 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeTaskTest, reporter, context) {
 DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsTest, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // Construct a kernel that increments a global (device memory) counter across multiple
-    // workgroups. Each workgroup maintains its own independent tally in a workgroup-shared counter
-    // which is then added to the global count.
-    //
-    // This exercises atomic store/load/add and coherent reads and writes over memory in storage and
-    // workgroup address spaces.
-    ComputePipelineDesc pipelineDesc;
-    pipelineDesc.setProgram(
-            R"(
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep("TestAtomicOperations", {}, {}) {}
+        ~TestComputeStep() override = default;
+
+        // A kernel that increments a global (device memory) counter across multiple workgroups.
+        // Each workgroup maintains its own independent tally in a workgroup-shared counter which
+        // is then added to the global count.
+        //
+        // This exercises atomic store/load/add and coherent reads and writes over memory in storage
+        // and workgroup address spaces.
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
                 layout(metal, binding = 0) buffer ssbo {
                     atomicUint globalCounter;
                 };
@@ -160,8 +174,11 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsTest, reporter,
                         atomicAdd(globalCounter, atomicLoad(localCounter));
                     }
                 }
-            )",
-            "TestAtomicOperations");
+            )";
+        }
+    };
+    TestComputeStep step;
+    ComputePipelineDesc pipelineDesc(&step);
 
     ResourceProvider* provider = recorder->priv().resourceProvider();
     size_t minSize = SkAlignTo(sizeof(uint32_t),
@@ -226,15 +243,19 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsOverArrayAndStr
                                     context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // Construct a kernel that increments a two global (device memory) counters across multiple
-    // workgroups. Each workgroup maintains its own independent tallies in workgroup-shared counters
-    // which are then added to the global counts.
-    //
-    // This exercises atomic store/load/add and coherent reads and writes over memory in storage and
-    // workgroup address spaces.
-    ComputePipelineDesc pipelineDesc;
-    pipelineDesc.setProgram(
-            R"(
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep("TestAtomicOperationsOverArrayAndStruct", {}, {}) {}
+        ~TestComputeStep() override = default;
+
+        // Construct a kernel that increments a two global (device memory) counters across multiple
+        // workgroups. Each workgroup maintains its own independent tallies in workgroup-shared
+        // counters which are then added to the global counts.
+        //
+        // This exercises atomic store/load/add and coherent reads and writes over memory in storage
+        // and workgroup address spaces.
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
                 const uint WORKGROUP_SIZE = 1024;
 
                 struct GlobalCounts {
@@ -273,8 +294,11 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsOverArrayAndStr
                         atomicAdd(globalCounts.secondHalfCount, atomicLoad(localCounts[1]));
                     }
                 }
-            )",
-            "TestAtomicOperationsOverArrayAndStruct");
+            )";
+        }
+    };
+    TestComputeStep step;
+    ComputePipelineDesc pipelineDesc(&step);
 
     ResourceProvider* provider = recorder->priv().resourceProvider();
     size_t minSize = SkAlignTo(2*sizeof(uint32_t),

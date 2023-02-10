@@ -13,11 +13,13 @@
 
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/Blend.h"
+#include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/compute/ComputeStep.h"
 #include "src/gpu/graphite/mtl/MtlBuffer.h"
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlComputePipeline.h"
@@ -166,7 +168,31 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
 
 sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
         const ComputePipelineDesc& pipelineDesc) {
-    return MtlComputePipeline::Make(this, this->mtlSharedContext(), pipelineDesc);
+    std::string msl;
+    SkSL::Program::Inputs inputs;
+    SkSL::ProgramSettings settings;
+
+    auto skslCompiler = this->skslCompiler();
+    ShaderErrorHandler* errorHandler = fSharedContext->caps()->shaderErrorHandler();
+
+    auto computeSkSL = pipelineDesc.computeStep()->computeSkSL(
+            fSharedContext->caps()->resourceBindingRequirements(),
+            /*nextBindingIndex=*/0);
+    if (!SkSLToMSL(skslCompiler,
+                   computeSkSL,
+                   SkSL::ProgramKind::kCompute,
+                   settings,
+                   &msl,
+                   &inputs,
+                   errorHandler)) {
+        return nullptr;
+    }
+
+    auto library = MtlCompileShaderLibrary(this->mtlSharedContext(), msl, errorHandler);
+
+    return MtlComputePipeline::Make(this->mtlSharedContext(),
+                                    pipelineDesc.computeStep()->name(),
+                                    {library.get(), "computeMain"});
 }
 
 sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
