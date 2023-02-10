@@ -31,11 +31,20 @@ public:
 
     void waitUntilFinished();
 
+    void addBufferMemoryBarrier(const Resource* resource,
+                                VkPipelineStageFlags srcStageMask,
+                                VkPipelineStageFlags dstStageMask,
+                                bool byRegion,
+                                VkBufferMemoryBarrier* barrier);
+    void addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
+                                VkPipelineStageFlags dstStageMask,
+                                bool byRegion,
+                                VkBufferMemoryBarrier* barrier);
     void addImageMemoryBarrier(const Resource*,
                                VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
                                bool byRegion,
-                               VkImageMemoryBarrier* barrier) { /* TODO */ }
+                               VkImageMemoryBarrier* barrier);
 
 private:
     VulkanCommandBuffer(VkCommandPool pool,
@@ -82,6 +91,18 @@ private:
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
     bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
 
+    enum BarrierType {
+        kBufferMemory_BarrierType,
+        kImageMemory_BarrierType
+    };
+    void pipelineBarrier(const Resource* resource,
+                         VkPipelineStageFlags srcStageMask,
+                         VkPipelineStageFlags dstStageMask,
+                         bool byRegion,
+                         BarrierType barrierType,
+                         void* barrier);
+    void submitPipelineBarriers(bool forSelfDependency = false);
+
 #ifdef SK_ENABLE_PIET_GPU
     void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) override;
 #endif
@@ -91,7 +112,20 @@ private:
     const VulkanSharedContext* fSharedContext;
     VulkanResourceProvider* fResourceProvider;
 
+    // Stores a pointer to the current active render pass (i.e. begin has been called but not
+    // end). A nullptr means there is no active render pass. The VulkanCommandBuffer does not own
+    // the render pass.
+    // TODO: define what this is once we implement renderpasses.
+    const void* fActiveRenderPass = nullptr;
+
     VkFence fSubmitFence = VK_NULL_HANDLE;
+
+    // Tracking of memory barriers so that we can submit them all in a batch together.
+    SkSTArray<1, VkBufferMemoryBarrier> fBufferBarriers;
+    SkSTArray<2, VkImageMemoryBarrier> fImageBarriers;
+    bool fBarriersByRegion = false;
+    VkPipelineStageFlags fSrcStageMask = 0;
+    VkPipelineStageFlags fDstStageMask = 0;
 
 #ifdef SK_DEBUG
     bool fActive = false;

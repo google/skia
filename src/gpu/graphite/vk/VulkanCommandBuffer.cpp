@@ -73,11 +73,8 @@ VulkanCommandBuffer::VulkanCommandBuffer(VkCommandPool pool,
         , fSharedContext(sharedContext)
         , fResourceProvider(resourceProvider) {
 
-    // TODO: Remove these lines. They are only here to hide compiler warnings/errors about unused
+    // TODO: Remove this line. It is only here to hide compiler warnings/errors about unused
     // member variables.
-    (void) fPool;
-    (void) fPrimaryCommandBuffer;
-    (void) fSharedContext;
     (void) fResourceProvider;
     // When making a new command buffer, we automatically begin the command buffer
     this->begin();
@@ -113,6 +110,8 @@ void VulkanCommandBuffer::begin() {
 
 void VulkanCommandBuffer::end() {
     SkASSERT(fActive);
+
+    this->submitPipelineBarriers();
 
     VULKAN_CALL_ERRCHECK(fSharedContext->interface(), EndCommandBuffer(fPrimaryCommandBuffer));
 
@@ -268,6 +267,8 @@ bool VulkanCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
                                                 const Buffer* buffer,
                                                 size_t bufferOffset,
                                                 size_t bufferRowBytes) {
+    this->submitPipelineBarriers();
+
     const VulkanTexture* srcTexture = static_cast<const VulkanTexture*>(texture);
     VkBuffer dstBuffer = static_cast<const VulkanBuffer*>(buffer)->vkBuffer();
 
@@ -303,6 +304,8 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
                                                 const Texture* texture,
                                                 const BufferTextureCopyData* copyData,
                                                 int count) {
+    this->submitPipelineBarriers();
+
     VkBuffer srcBuffer = static_cast<const VulkanBuffer*>(buffer)->vkBuffer();
     const VulkanTexture* dstTexture = static_cast<const VulkanTexture*>(texture);
 
@@ -360,6 +363,156 @@ bool VulkanCommandBuffer::onClearBuffer(const Buffer*, size_t offset, size_t siz
 void VulkanCommandBuffer::onRenderPietScene(const skgpu::piet::Scene& scene,
                                             const Texture* target) {}
 #endif
+
+void VulkanCommandBuffer::addBufferMemoryBarrier(const Resource* resource,
+                                                 VkPipelineStageFlags srcStageMask,
+                                                 VkPipelineStageFlags dstStageMask,
+                                                 bool byRegion,
+                                                 VkBufferMemoryBarrier* barrier) {
+    SkASSERT(resource);
+    this->pipelineBarrier(resource,
+                          srcStageMask,
+                          dstStageMask,
+                          byRegion,
+                          kBufferMemory_BarrierType,
+                          barrier);
+}
+
+void VulkanCommandBuffer::addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
+                                                 VkPipelineStageFlags dstStageMask,
+                                                 bool byRegion,
+                                                 VkBufferMemoryBarrier* barrier) {
+    // We don't pass in a resource here to the command buffer. The command buffer only is using it
+    // to hold a ref, but every place where we add a buffer memory barrier we are doing some other
+    // command with the buffer on the command buffer. Thus those other commands will already cause
+    // the command buffer to be holding a ref to the buffer.
+    this->pipelineBarrier(/*resource=*/nullptr,
+                          srcStageMask,
+                          dstStageMask,
+                          byRegion,
+                          kBufferMemory_BarrierType,
+                          barrier);
+}
+
+void VulkanCommandBuffer::addImageMemoryBarrier(const Resource* resource,
+                                                VkPipelineStageFlags srcStageMask,
+                                                VkPipelineStageFlags dstStageMask,
+                                                bool byRegion,
+                                                VkImageMemoryBarrier* barrier) {
+    SkASSERT(resource);
+    this->pipelineBarrier(resource,
+                          srcStageMask,
+                          dstStageMask,
+                          byRegion,
+                          kImageMemory_BarrierType,
+                          barrier);
+}
+
+void VulkanCommandBuffer::pipelineBarrier(const Resource* resource,
+                                          VkPipelineStageFlags srcStageMask,
+                                          VkPipelineStageFlags dstStageMask,
+                                          bool byRegion,
+                                          BarrierType barrierType,
+                                          void* barrier) {
+    // TODO: Do we need to handle wrapped command buffers?
+    // SkASSERT(!this->isWrapped());
+    SkASSERT(fActive);
+#ifdef SK_DEBUG
+    // For images we can have barriers inside of render passes but they require us to add more
+    // support in subpasses which need self dependencies to have barriers inside them. Also, we can
+    // never have buffer barriers inside of a render pass. For now we will just assert that we are
+    // not in a render pass.
+    bool isValidSubpassBarrier = false;
+    if (barrierType == kImageMemory_BarrierType) {
+        VkImageMemoryBarrier* imgBarrier = static_cast<VkImageMemoryBarrier*>(barrier);
+        isValidSubpassBarrier = (imgBarrier->newLayout == imgBarrier->oldLayout) &&
+            (imgBarrier->srcQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) &&
+            (imgBarrier->dstQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) &&
+            byRegion;
+    }
+    SkASSERT(!fActiveRenderPass || isValidSubpassBarrier);
+#endif
+
+    if (barrierType == kBufferMemory_BarrierType) {
+        const VkBufferMemoryBarrier* barrierPtr = static_cast<VkBufferMemoryBarrier*>(barrier);
+        fBufferBarriers.push_back(*barrierPtr);
+    } else {
+        SkASSERT(barrierType == kImageMemory_BarrierType);
+        const VkImageMemoryBarrier* barrierPtr = static_cast<VkImageMemoryBarrier*>(barrier);
+        // We need to check if we are adding a pipeline barrier that covers part of the same
+        // subresource range as a barrier that is already in current batch. If it does, then we must
+        // submit the first batch because the vulkan spec does not define a specific ordering for
+        // barriers submitted in the same batch.
+        // TODO: Look if we can gain anything by merging barriers together instead of submitting
+        // the old ones.
+        for (int i = 0; i < fImageBarriers.size(); ++i) {
+            VkImageMemoryBarrier& currentBarrier = fImageBarriers[i];
+            if (barrierPtr->image == currentBarrier.image) {
+                const VkImageSubresourceRange newRange = barrierPtr->subresourceRange;
+                const VkImageSubresourceRange oldRange = currentBarrier.subresourceRange;
+                SkASSERT(newRange.aspectMask == oldRange.aspectMask);
+                SkASSERT(newRange.baseArrayLayer == oldRange.baseArrayLayer);
+                SkASSERT(newRange.layerCount == oldRange.layerCount);
+                uint32_t newStart = newRange.baseMipLevel;
+                uint32_t newEnd = newRange.baseMipLevel + newRange.levelCount - 1;
+                uint32_t oldStart = oldRange.baseMipLevel;
+                uint32_t oldEnd = oldRange.baseMipLevel + oldRange.levelCount - 1;
+                if (std::max(newStart, oldStart) <= std::min(newEnd, oldEnd)) {
+                    this->submitPipelineBarriers();
+                    break;
+                }
+            }
+        }
+        fImageBarriers.push_back(*barrierPtr);
+    }
+    fBarriersByRegion |= byRegion;
+    fSrcStageMask = fSrcStageMask | srcStageMask;
+    fDstStageMask = fDstStageMask | dstStageMask;
+
+    if (resource) {
+        this->trackResource(sk_ref_sp(resource));
+    }
+    if (fActiveRenderPass) {
+        this->submitPipelineBarriers(true);
+    }
+}
+
+void VulkanCommandBuffer::submitPipelineBarriers(bool forSelfDependency) {
+    SkASSERT(fActive);
+
+    // TODO: Do we need to handle SecondaryCommandBuffers as well?
+
+    // Currently we never submit a pipeline barrier without at least one buffer or image barrier.
+    if (fBufferBarriers.size() || fImageBarriers.size()) {
+        // For images we can have barriers inside of render passes but they require us to add more
+        // support in subpasses which need self dependencies to have barriers inside them. Also, we
+        // can never have buffer barriers inside of a render pass. For now we will just assert that
+        // we are not in a render pass.
+        SkASSERT(!fActiveRenderPass || forSelfDependency);
+        // TODO: Do we need to handle wrapped CommandBuffers?
+        //  SkASSERT(!this->isWrapped());
+        SkASSERT(fSrcStageMask && fDstStageMask);
+
+        VkDependencyFlags dependencyFlags = fBarriersByRegion ? VK_DEPENDENCY_BY_REGION_BIT : 0;
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdPipelineBarrier(fPrimaryCommandBuffer, fSrcStageMask, fDstStageMask,
+                                       dependencyFlags,
+                                       /*memoryBarrierCount=*/0, /*pMemoryBarrier=*/nullptr,
+                                       fBufferBarriers.size(), fBufferBarriers.begin(),
+                                       fImageBarriers.size(), fImageBarriers.begin()));
+        fBufferBarriers.clear();
+        fImageBarriers.clear();
+        fBarriersByRegion = false;
+        fSrcStageMask = 0;
+        fDstStageMask = 0;
+    }
+    SkASSERT(!fBufferBarriers.size());
+    SkASSERT(!fImageBarriers.size());
+    SkASSERT(!fBarriersByRegion);
+    SkASSERT(!fSrcStageMask);
+    SkASSERT(!fDstStageMask);
+}
+
 
 } // namespace skgpu::graphite
 
