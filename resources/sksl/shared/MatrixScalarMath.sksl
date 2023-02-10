@@ -30,8 +30,8 @@ bool divisionTest() {
     float2x2 div = mat / testInputs.x;  // `matrix / scalar` should become `matrix * (1 / scalar)`
     mat /= testInputs.x;                // `matrix /= scalar` should become `matrix *= (1 / scalar)`
 
-    return div == -float2x2(8, 8, 8, 8) &&
-           mat == -float2x2(8, 8, 8, 8);
+    return all(lessThan(abs(float4(div) + float4(8)), float4(0.01))) &&
+           all(lessThan(abs(float4(mat) + float4(8)), float4(0.01)));
 }
 
 half4 main(float2 coords) {

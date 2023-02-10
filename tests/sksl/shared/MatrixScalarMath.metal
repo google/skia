@@ -15,14 +15,8 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 
-thread bool operator==(const float2x2 left, const float2x2 right);
-thread bool operator!=(const float2x2 left, const float2x2 right);
-thread bool operator==(const float2x2 left, const float2x2 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-thread bool operator!=(const float2x2 left, const float2x2 right) {
-    return !(left == right);
+float4 float4_from_float2x2(float2x2 x) {
+    return float4(x[0].xy, x[1].xy);
 }
 bool test_bifffff22(Uniforms _uniforms, int op, float m11, float m12, float m21, float m22, float2x2 expected) {
     float one = float(_uniforms.colorRed.x);
@@ -48,7 +42,7 @@ bool divisionTest_b(Uniforms _uniforms) {
     float2x2 mat = float2x2(float2(ten), float2(ten));
     float2x2 div = mat * (1.0 / _uniforms.testInputs.x);
     mat *= 1.0 / _uniforms.testInputs.x;
-    return div == float2x2(float2(-8.0, -8.0), float2(-8.0, -8.0)) && mat == float2x2(float2(-8.0, -8.0), float2(-8.0, -8.0));
+    return all((abs(float4_from_float2x2(div) + float4(8.0)) < float4(0.01))) && all((abs(float4_from_float2x2(mat) + float4(8.0)) < float4(0.01)));
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;

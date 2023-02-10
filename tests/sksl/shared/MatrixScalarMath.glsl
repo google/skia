@@ -30,7 +30,7 @@ bool divisionTest_b() {
     mat2 mat = mat2(vec2(ten), vec2(ten));
     mat2 div = mat * (1.0 / testInputs.x);
     mat *= 1.0 / testInputs.x;
-    return div == mat2(-8.0, -8.0, -8.0, -8.0) && mat == mat2(-8.0, -8.0, -8.0, -8.0);
+    return all(lessThan(abs(vec4(div) + vec4(8.0)), vec4(0.01))) && all(lessThan(abs(vec4(mat) + vec4(8.0)), vec4(0.01)));
 }
 vec4 main() {
     float f1 = colorGreen.y;
