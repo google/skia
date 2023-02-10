@@ -16,12 +16,14 @@
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsQuad.h"
+#include "src/text/StrikeForGPU.h"
 
 #include <cstring>
 #include <tuple>
 #include <utility>
 
 using namespace skglyph;
+using namespace sktext;
 
 //-- SkGlyph ---------------------------------------------------------------------------------------
 SkGlyph::SkGlyph(const SkGlyph&) = default;
@@ -434,8 +436,7 @@ SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
 
 void SkGlyphDigest::setActionFor(skglyph::ActionType actionType,
                                  SkGlyph* glyph,
-                                 SkScalerContext* context,
-                                 SkArenaAlloc* alloc) {
+                                 StrikeForGPU* strike) {
     // We don't have to do any more if the glyph is marked as kDrop because it was isEmpty().
     if (this->actionFor(actionType) == GlyphAction::kUnset) {
         GlyphAction action = GlyphAction::kReject;
@@ -447,8 +448,7 @@ void SkGlyphDigest::setActionFor(skglyph::ActionType actionType,
                 break;
             }
             case kDirectMaskCPU: {
-                glyph->setImage(alloc, context);
-                if (glyph->image() != nullptr) {
+                if (strike->prepareForImage(glyph)) {
                     action = GlyphAction::kAccept;
                 }
                 break;
@@ -467,15 +467,13 @@ void SkGlyphDigest::setActionFor(skglyph::ActionType actionType,
                 break;
             }
             case kPath: {
-                glyph->setPath(alloc, context);
-                if (glyph->path() != nullptr) {
+                if (strike->prepareForPath(glyph)) {
                     action = GlyphAction::kAccept;
                 }
                 break;
             }
             case kDrawable: {
-                glyph->setDrawable(alloc, context);
-                if (glyph->drawable() != nullptr) {
+                if (strike->prepareForDrawable(glyph)) {
                     action = GlyphAction::kAccept;
                 }
                 break;

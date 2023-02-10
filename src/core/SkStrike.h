@@ -49,6 +49,9 @@ public:
     void lock() override SK_ACQUIRE(fStrikeLock);
     void unlock() override SK_RELEASE_CAPABILITY(fStrikeLock);
     SkGlyphDigest digestFor(skglyph::ActionType, SkPackedGlyphID) override SK_REQUIRES(fStrikeLock);
+    bool prepareForImage(SkGlyph* glyph) override SK_REQUIRES(fStrikeLock);
+    bool prepareForPath(SkGlyph*) override SK_REQUIRES(fStrikeLock);
+    bool prepareForDrawable(SkGlyph*) override SK_REQUIRES(fStrikeLock);
 
     // Lookup (or create if needed) the returned glyph using toID. If that glyph is not initialized
     // with an image, then use the information in fromGlyph to initialize the width, height top,
@@ -131,14 +134,6 @@ private:
 
     // Generate the glyph digest information and update structures to add the glyph.
     SkGlyphDigest* addGlyphAndDigest(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
-
-    const void* prepareImage(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
-
-    // If the path has never been set, then use the scaler context to add the glyph.
-    void preparePath(SkGlyph*) SK_REQUIRES(fStrikeLock);
-
-    // If the drawable has never been set, then use the scaler context to add the glyph.
-    void prepareDrawable(SkGlyph*) SK_REQUIRES(fStrikeLock);
 
     // Maintain memory use statistics.
     void updateMemoryUsage(size_t increase) SK_EXCLUDES(fStrikeLock);

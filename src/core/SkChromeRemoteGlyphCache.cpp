@@ -172,6 +172,21 @@ public:
     void lock() override {}
     void unlock() override {}
     SkGlyphDigest digestFor(skglyph::ActionType, SkPackedGlyphID) override;
+    bool prepareForImage(SkGlyph* glyph) override {
+        this->ensureScalerContext();
+        glyph->setImage(&fAlloc, fContext.get());
+        return glyph->image() != nullptr;
+    }
+    bool prepareForPath(SkGlyph* glyph) override {
+        this->ensureScalerContext();
+        glyph->setPath(&fAlloc, fContext.get());
+        return glyph->path() != nullptr;
+    }
+    bool prepareForDrawable(SkGlyph* glyph) override {
+        this->ensureScalerContext();
+        glyph->setDrawable(&fAlloc, fContext.get());
+        return glyph->drawable() != nullptr;
+    }
 
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
@@ -195,7 +210,6 @@ public:
     void resetScalerContext();
 
 private:
-    SkGlyphDigest* digestPtr(SkPackedGlyphID, ActionType);
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
@@ -389,7 +403,7 @@ SkGlyphDigest RemoteStrike::digestFor(ActionType actionType, SkPackedGlyphID pac
         digestPtr = fSentGlyphs.set(packedGlyphID, SkGlyphDigest{0, *glyph});
     }
 
-    digestPtr->setActionFor(actionType, glyph, fContext.get(), &fAlloc);
+    digestPtr->setActionFor(actionType, glyph, this);
 
     return *digestPtr;
 }

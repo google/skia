@@ -32,6 +32,9 @@
 class SkArenaAlloc;
 class SkGlyph;
 class SkScalerContext;
+namespace sktext {
+class StrikeForGPU;
+}  // namespace sktext
 
 // -- SkPackedGlyphID ------------------------------------------------------------------------------
 // A combination of SkGlyphID and sub-pixel position information.
@@ -336,7 +339,7 @@ public:
         return static_cast<skglyph::GlyphAction>((fActions >> actionType) & 0b11);
     }
 
-    void setActionFor(skglyph::ActionType, SkGlyph*, SkScalerContext*, SkArenaAlloc*);
+    void setActionFor(skglyph::ActionType, SkGlyph*, sktext::StrikeForGPU*);
 
     uint16_t maxDimension() const {
         return std::max(fWidth, fHeight);

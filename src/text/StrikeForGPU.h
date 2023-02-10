@@ -75,7 +75,18 @@ public:
     virtual void lock() = 0;
     virtual void unlock() = 0;
 
+    // Generate a digest for a given packed glyph ID as drawn using the give action type.
     virtual SkGlyphDigest digestFor(skglyph::ActionType, SkPackedGlyphID) = 0;
+
+    // Prepare the glyph to draw an image, and return if the image exists.
+    virtual bool prepareForImage(SkGlyph*) = 0;
+
+    // Prepare the glyph to draw a path, and return if the path exists.
+    virtual bool prepareForPath(SkGlyph*) = 0;
+
+    // Prepare the glyph to draw a drawable, and return if the drawable exists.
+    virtual bool prepareForDrawable(SkGlyph*) = 0;
+
 
     virtual const SkDescriptor& getDescriptor() const = 0;
 
