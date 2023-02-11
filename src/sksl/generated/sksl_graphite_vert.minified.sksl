@@ -61,7 +61,4 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 "=$w(ak,al,ai);float2 ao=$w(am,an,ai);float ap=$w(1.,o,ai);float aq=(o+1.)-ap"
 ";float ar=$w(ap,aq,ai);if(ai!=ah){H=o>=0.?$s(ak*ap,aj*aq):$s(an,am);}I=o>=0."
 "?am/ar:ao;}else{H=z==0.?u:v;I=z==0.?k:n;}float2 J=float2(H.y,-H.x);I+=J*(q*"
-"D);if(s){return float4(I+d,inverse(c)*I);}else{return float4(c*I+d,I);}}float2"
-" ortho(float2 a){return float2(-a.y,a.x);}float distance_to_line(float2 a,float2"
-" b,float2 c){return dot(b,a)-dot(b,c);}float2 normalize_with_length(float2 a"
-",out float b){b=length(a);return a/b;}";
+"D);if(s){return float4(I+d,inverse(c)*I);}else{return float4(c*I+d,I);}}";

@@ -712,3 +712,105 @@ $pure half4 sk_gaussian_colorfilter(half4 inColor) {
     factor = exp(-factor * factor * 4) - 0.018;
     return half4(factor);
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Support functions for analytic round rectangles
+
+// Returns a scale and bias such that 'scale * (dist + bias)' represents a per-pixel coverage value,
+// taking into account the approximate device-space dimensions of the shape.
+$pure float2 coverage_scale_and_bias(float minDim) {
+    float width = min(1.0, minDim);
+    return float2(width, 1.0 - 0.5 * width);
+}
+
+// Calculates 1/|∇| in device space by applying the chain rule to a local gradient vector and the
+// 2x2 Jacobian describing the transform from local-to-device space. For non-perspective, this is
+// equivalent to the "normal matrix", or the inverse transpose. For perspective, J should be
+//    W(u,v) [m00' - m20'u  m01' - m21'u] derived from the first two columns of the 3x3 inverse.
+//           [m10' - m20'v  m11' - m21'v]
+$pure float inverse_grad_len(float2 localGrad, float2x2 jacobian) {
+    // NOTE: By chain rule, the local gradient is on the left side of the Jacobian matrix
+    float2 devGrad = localGrad * jacobian;
+    // NOTE: This uses the L2 norm, which is more accurate than the L1 norm used by fwidth().
+    // TODO: Switch to L1 since it is a 2x perf improvement according to Xcode with little visual
+    // impact, but start with L2 to measure the change separately from the algorithmic update.
+    // return 1.0 / (abs(devGrad.x) + abs(devGrad.y));
+    return inversesqrt(dot(devGrad, devGrad));
+}
+
+// Returns distance from both sides of a stroked circle or ellipse. Elliptical coverage is
+// only accurate if strokeRadius = 0. A positive value represents the interior of the stroke.
+$pure float2 elliptical_distance(float2 uv, float2 radii, float strokeRadius, float2x2 jacobian) {
+    // We do need to evaluate up to two circle equations: one with
+    //    R = cornerRadius(r)+strokeRadius(s), and another with R = r-s.
+    // This can be consolidated into a common evaluation against a circle of radius sqrt(r^2+s^2):
+    //    (x/(r+/-s))^2 + (y/(r+/-s))^2 = 1
+    //    x^2 + y^2 = (r+/-s)^2
+    //    x^2 + y^2 = r^2 + s^2 +/- 2rs
+    //    (x/sqrt(r^2+s^2))^2 + (y/sqrt(r^2+s^2)) = 1 +/- 2rs/(r^2+s^2)
+    // The 2rs/(r^2+s^2) is the "width" that adjusts the implicit function to the outer or inner
+    // edge of the stroke. For fills and hairlines, s = 0, which means these operations remain valid
+    // for elliptical corners where radii holds the different X and Y corner radii.
+    float2 invR2 = 1.0 / (radii * radii + strokeRadius*strokeRadius);
+    float2 normUV = invR2 * uv;
+    float invGradLength = inverse_grad_len(normUV, jacobian);
+
+    // Since normUV already includes 1/r^2 in the denominator, dot with just 'uv' instead.
+    float f = 0.5 * invGradLength * (dot(uv, normUV) - 1.0);
+
+    // This is 0 for fills/hairlines, which are the only types that allow
+    // elliptical corners (strokeRadius == 0). For regular strokes just use X.
+    float width = radii.x * strokeRadius * invR2.x * invGradLength;
+    return float2(width - f, width + f);
+}
+
+// Accumulates the minimum (and negative maximum) of the outer and inner corner distances in 'dist'
+// for a possibly elliptical corner with 'radii' and relative pixel location specified by
+// 'cornerEdgeDist'. The corner's basis relative to the jacobian is defined in 'xyFlip'.
+void corner_distance(inout float2 dist,
+                     float2x2 jacobian,
+                     float2 strokeParams,
+                     float2 cornerEdgeDist,
+                     float2 xyFlip,
+                     float2 radii) {
+    float2 uv = radii - cornerEdgeDist;
+    // NOTE: For mitered corners uv > 0 only if it's stroked, and in that case the
+    // subsequent conditions skip calculating anything.
+    if (uv.x > 0.0 && uv.y > 0.0) {
+        if ((radii.x > 0.0 && radii.y > 0.0) ||
+            (strokeParams.x > 0.0 && strokeParams.y < 0.0 /* round-join */)) {
+            // A rounded corner so incorporate outer elliptical distance if we're within the
+            // quarter circle.
+            float2 d = elliptical_distance(uv * xyFlip, radii, strokeParams.x, jacobian);
+            if (radii.x - strokeParams.x <= 0.0) {
+                d.y = 1.0; // disregard inner curve since it's collapsed into an inner miter.
+            } else {
+                d.y *= -1.0; // Negate so that "min" accumulates the maximum value instead
+            }
+            dist = min(dist, d);
+        } else if (strokeParams.y == 0.0 /* bevel-join */) {
+            // Bevels are--by construction--interior mitered, so inner distance is based
+            // purely on the edge distance calculations, but the outer distance is to a 45-degree
+            // line and not the vertical/horizontal lines of the other edges.
+            float bevelDist = (strokeParams.x - uv.x - uv.y) * inverse_grad_len(xyFlip, jacobian);
+            dist.x = min(dist.x, bevelDist);
+        } // Else it's a miter so both inner and outer distances are unmodified
+    } // Else we're not affected by the corner so leave distances unmodified
+}
+
+// Accumulates the minimum (and negative maximum) of the outer and inner corner distances into 'd',
+// for all four corners of a [round] rectangle. 'edgeDists' should be ordered LTRB with positive
+// distance representing the interior of the edge. 'xRadii' and 'yRadii' should hold the per-corner
+// elliptical radii, ordered TL, TR, BR, BL.
+void corner_distances(inout float2 d,
+                      float2x2 J,
+                      float2 stroke, // {radii, joinStyle}, see StrokeStyle struct definition
+                      float4 edgeDists,
+                      float4 xRadii,
+                      float4 yRadii) {
+    corner_distance(d, J, stroke, edgeDists.xy, float2(-1.0, -1.0), float2(xRadii[0], yRadii[0]));
+    corner_distance(d, J, stroke, edgeDists.zy, float2( 1.0, -1.0), float2(xRadii[1], yRadii[1]));
+    corner_distance(d, J, stroke, edgeDists.zw, float2( 1.0,  1.0), float2(xRadii[2], yRadii[2]));
+    corner_distance(d, J, stroke, edgeDists.xw, float2(-1.0,  1.0), float2(xRadii[3], yRadii[3]));
+}

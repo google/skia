@@ -533,22 +533,3 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         return float4(affineMatrix * strokeCoord + translate, strokeCoord);
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Support functions for analytic round rectangles
-
-float2 ortho(float2 v) {
-    return float2(-v.y, v.x);
-}
-
-// Calculate distance from 'p0' to the line with normal, 'n', going through 'p1'.
-float distance_to_line(float2 p0, float2 n, float2 p1) {
-    // A line Ax+By+C = 0, through p1 has A = n.x, B = n.y, C = -n dot p1, and the
-    // distance of p0 to that line is Ap0.x + Bp0.y + C.
-    return dot(n, p0) - dot(n, p1);
-}
-
-float2 normalize_with_length(float2 v, out float len) {
-    len = length(v);
-    return v / len;
-}
