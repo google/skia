@@ -383,6 +383,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				// anglebug.com/7145
 				skip(ALL, "test", ALL, "SkSLOutParamsAreDistinctFromGlobal_GPU")
 
+				// b/268720489
+				skip(ALL, "test", ALL, "SkSLIntrinsicMixFloatES3_GPU")
+
 				// anglebug.com/7245
 				skip("angle_mtl_es3", "gm", ALL, "runtime_intrinsics_common_es3")
 
@@ -1037,7 +1040,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLArrayCast_GPU")       // skia:12332
 		skip(ALL, "tests", ALL, "SkSLArrayComparison_GPU") // skia:12332
 		skip(ALL, "tests", ALL, "SkSLCommaSideEffects_GPU")
-		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloat_GPU")
+		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES2_GPU")
 		skip(ALL, "tests", ALL, "SkSLIntrinsicClampFloat_GPU")
 	}
 
