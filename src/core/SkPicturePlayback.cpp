@@ -254,7 +254,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkBlendMode mode = SkBlendMode::kDst;
             if (flags & DRAW_ATLAS_HAS_COLORS) {
                 colors = (const SkColor*)reader->skip(count, sizeof(SkColor));
-                mode = (SkBlendMode)reader->readUInt();
+                mode = reader->read32LE(SkBlendMode::kLastMode);
+                BREAK_ON_READ_ERROR(reader);
             }
             const SkRect* cull = nullptr;
             if (flags & DRAW_ATLAS_HAS_CULL) {
@@ -310,7 +311,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkCanvas::QuadAAFlags aaFlags = static_cast<SkCanvas::QuadAAFlags>(reader->read32());
             SkColor4f color;
             reader->readColor4f(&color);
-            SkBlendMode blend = static_cast<SkBlendMode>(reader->read32());
+            SkBlendMode blend = reader->read32LE(SkBlendMode::kLastMode);
+            BREAK_ON_READ_ERROR(reader);
             bool hasClip = reader->readInt();
             SkPoint* clip = nullptr;
             if (hasClip) {
