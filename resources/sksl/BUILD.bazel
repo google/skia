@@ -875,6 +875,7 @@ skia_filegroup(
         "shared/InterfaceBlockMultipleAnonymous.sksl",
         "shared/InterfaceBlockNamed.sksl",
         "shared/InterfaceBlockNamedArray.sksl",
+        "shared/LogicalOrShortCircuit.sksl",
         "shared/Matrices.sksl",
         "shared/MatricesNonsquare.sksl",
         "shared/MatrixConstructorsES2.sksl",

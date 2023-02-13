@@ -1,0 +1,41 @@
+uniform half4 colorGreen, colorRed;
+
+bool TrueTrue() {
+    int x = 1, y = 1;
+    if ((x == 1) || ((y += 1) == 2)) { // LHS true, RHS not executed but would be true
+        return (x == 1 && y == 1);
+    } else {
+        return false;
+    }
+}
+
+bool TrueFalse() {
+    int x = 1, y = 1;
+    if ((x == 1) || ((y += 1) == 3)) { // LHS true, RHS not executed but would be false
+        return (x == 1 && y == 1);
+    } else {
+        return false;
+    }
+}
+
+bool FalseTrue() {
+    int x = 1, y = 1;
+    if ((x == 2) || ((y += 1) == 2)) { // LHS false, RHS is executed and is true
+        return (x == 1 && y == 2);
+    } else {
+        return false;
+    }
+}
+
+bool FalseFalse() {
+    int x = 1, y = 1;
+    if ((x == 2) || ((y += 1) == 3)) { // LHS false, RHS is executed and is false
+        return false;
+    } else {
+        return (x == 1 && y == 2);
+    }
+}
+
+half4 main(float2) {
+    return TrueTrue() && TrueFalse() && FalseTrue() && FalseFalse() ? colorGreen : colorRed;
+}

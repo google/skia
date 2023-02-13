@@ -645,6 +645,7 @@ SKSL_TEST(RP + GPU_ES3,      kNever,      HexUnsigned,                     "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, InoutParameters,                 "shared/InoutParameters.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, InoutParamsAreDistinct,          "shared/InoutParamsAreDistinct.sksl")
 SKSL_TEST(RP + GPU_ES3,      kApiLevel_T, IntegerDivisionES3,              "shared/IntegerDivisionES3.sksl")
+SKSL_TEST(RP + VM + GPU,     kNextRelease,LogicalOrShortCircuit,           "shared/LogicalOrShortCircuit.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Matrices,                        "shared/Matrices.sksl")
 SKSL_TEST(RP + GPU_ES3,      kNever,      MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
 // TODO(skia:12443) The MatrixConstructors tests actually don't work on MANY devices. The GLSL SkQP
