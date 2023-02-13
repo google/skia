@@ -2294,3 +2294,72 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
         }
     )
 }
+
+
+SkTypeface_FreeTypeStream::SkTypeface_FreeTypeStream(std::unique_ptr<SkFontData> fontData,
+                                                     const SkString familyName,
+                                                     const SkFontStyle& style, bool isFixedPitch)
+    : SkTypeface_FreeType(style, isFixedPitch)
+    , fFamilyName(std::move(familyName))
+    , fData(std::move(fontData))
+{ }
+
+SkTypeface_FreeTypeStream::~SkTypeface_FreeTypeStream() {}
+
+void SkTypeface_FreeTypeStream::onGetFamilyName(SkString* familyName) const {
+    *familyName = fFamilyName;
+}
+
+std::unique_ptr<SkStreamAsset> SkTypeface_FreeTypeStream::onOpenStream(int* ttcIndex) const {
+    *ttcIndex = fData->getIndex();
+    return fData->getStream()->duplicate();
+}
+
+std::unique_ptr<SkFontData> SkTypeface_FreeTypeStream::onMakeFontData() const {
+    return std::make_unique<SkFontData>(*fData);
+}
+
+sk_sp<SkTypeface> SkTypeface_FreeTypeStream::onMakeClone(const SkFontArguments& args) const {
+    std::unique_ptr<SkFontData> data = this->cloneFontData(args);
+    if (!data) {
+        return nullptr;
+    }
+
+    SkString familyName;
+    this->getFamilyName(&familyName);
+
+    return sk_make_sp<SkTypeface_FreeTypeStream>(
+        std::move(data), familyName, this->fontStyle(), this->isFixedPitch());
+}
+
+void SkTypeface_FreeTypeStream::onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const {
+    desc->setFamilyName(fFamilyName.c_str());
+    desc->setStyle(this->fontStyle());
+    desc->setFactoryId(SkTypeface_FreeType::FactoryId);
+    SkTypeface_FreeType::FontDataPaletteToDescriptorPalette(*fData, desc);
+    *serialize = true;
+}
+
+sk_sp<SkTypeface> SkTypeface_FreeType::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                                      const SkFontArguments& args) {
+    using Scanner = SkTypeface_FreeType::Scanner;
+    static Scanner scanner;
+    bool isFixedPitch;
+    SkFontStyle style;
+    SkString name;
+    Scanner::AxisDefinitions axisDefinitions;
+    if (!scanner.scanFont(stream.get(), args.getCollectionIndex(),
+                          &name, &style, &isFixedPitch, &axisDefinitions)) {
+        return nullptr;
+    }
+
+    const SkFontArguments::VariationPosition position = args.getVariationDesignPosition();
+    AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+    Scanner::computeAxisValues(axisDefinitions, position, axisValues, name);
+
+    auto data = std::make_unique<SkFontData>(
+        std::move(stream), args.getCollectionIndex(), args.getPalette().index,
+        axisValues.get(), axisDefinitions.size(),
+        args.getPalette().overrides, args.getPalette().overrideCount);
+    return sk_make_sp<SkTypeface_FreeTypeStream>(std::move(data), name, style, isFixedPitch);
+}

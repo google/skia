@@ -18,7 +18,9 @@
 #include "src/core/SkSharedMutex.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
-#include "include/core/SkFontMgr.h"
+struct SkAdvancedTypefaceMetrics;
+class SkFontDescriptor;
+class SkFontData;
 
 // These are forward declared to avoid pimpl but also hide the FreeType implementation.
 typedef struct FT_LibraryRec_* FT_Library;
@@ -117,6 +119,9 @@ public:
     class FaceRec;
     FaceRec* getFaceRec() const;
 
+    static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('f','r','e','e');
+    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&);
+
 protected:
     SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch);
     ~SkTypeface_FreeType() override;
@@ -162,6 +167,24 @@ private:
     mutable bool fGlyphMasksMayNeedCurrentColor;
 
     using INHERITED = SkTypeface;
+};
+
+class SkTypeface_FreeTypeStream : public SkTypeface_FreeType {
+public:
+    SkTypeface_FreeTypeStream(std::unique_ptr<SkFontData> fontData, const SkString familyName,
+                              const SkFontStyle& style, bool isFixedPitch);
+    ~SkTypeface_FreeTypeStream() override;
+
+protected:
+    void onGetFamilyName(SkString* familyName) const override;
+    void onGetFontDescriptor(SkFontDescriptor*, bool* serialize) const override;
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
+    std::unique_ptr<SkFontData> onMakeFontData() const override;
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const override;
+
+private:
+    const SkString fFamilyName;
+    const std::unique_ptr<const SkFontData> fData;
 };
 
 #endif // SKFONTHOST_FREETYPE_COMMON_H_

@@ -28,6 +28,7 @@ enum {
     kFontVariation  = 0xFA, // int count, (u32, scalar)[count]
 
     // Related to font data.
+    kFactoryId      = 0xFC, // int
     kFontIndex      = 0xFD, // int
     kSentinel       = 0xFF, // no data
 };
@@ -80,6 +81,9 @@ static constexpr SkScalar width_for_usWidth[0x10] = {
 };
 
 bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
+    size_t factoryId;
+    using FactoryIdType = decltype(result->fFactoryId);
+
     size_t coordinateCount;
     using CoordinateCountType = decltype(result->fCoordinateCount);
 
@@ -178,6 +182,11 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
                     }
                 }
                 break;
+            case kFactoryId:
+                if (!stream->readPackedUInt(&factoryId)) { return false; }
+                if (!SkTFitsIn<FactoryIdType>(factoryId)) { return false; }
+                result->fFactoryId = SkTo<FactoryIdType>(factoryId);
+                break;
             default:
                 SkDEBUGFAIL("Unknown id used by a font descriptor");
                 return false;
@@ -247,6 +256,8 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
             }
         }
     }
+
+    write_uint(stream, fFactoryId, kFactoryId);
 
     stream->writePackedUInt(kSentinel);
 

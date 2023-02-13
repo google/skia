@@ -89,6 +89,7 @@ public:
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
         desc->setStyle(this->fontStyle());
+        desc->setFactoryId(SkTypeface_FreeType::FactoryId);
         *serialize = false;
     }
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
@@ -123,49 +124,6 @@ public:
     const FontVariant fVariantStyle;
     SkAutoTCallVProc<FILE, sk_fclose> fFile;
 
-    using INHERITED = SkTypeface_Android;
-};
-
-class SkTypeface_AndroidStream : public SkTypeface_Android {
-public:
-    SkTypeface_AndroidStream(std::unique_ptr<SkFontData> data,
-                             const SkFontStyle& style,
-                             bool isFixedPitch,
-                             const SkString& familyName)
-        : INHERITED(style, isFixedPitch, familyName)
-        , fData(std::move(data))
-    { }
-
-    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
-        SkASSERT(desc);
-        SkASSERT(serialize);
-        desc->setFamilyName(fFamilyName.c_str());
-        SkTypeface_FreeType::FontDataPaletteToDescriptorPalette(*fData, desc);
-        *serialize = true;
-    }
-
-    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
-        *ttcIndex = fData->getIndex();
-        return fData->getStream()->duplicate();
-    }
-
-    std::unique_ptr<SkFontData> onMakeFontData() const override {
-        return std::make_unique<SkFontData>(*fData);
-    }
-
-    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        std::unique_ptr<SkFontData> data = this->cloneFontData(args);
-        if (!data) {
-            return nullptr;
-        }
-        return sk_make_sp<SkTypeface_AndroidStream>(std::move(data),
-                                                    this->fontStyle(),
-                                                    this->isFixedPitch(),
-                                                    fFamilyName);
-    }
-
-private:
-    const std::unique_ptr<const SkFontData> fData;
     using INHERITED = SkTypeface_Android;
 };
 
@@ -448,41 +406,13 @@ protected:
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
-        bool isFixedPitch;
-        SkFontStyle style;
-        SkString name;
-        if (!fScanner.scanFont(stream.get(), ttcIndex, &name, &style, &isFixedPitch, nullptr)) {
-            return nullptr;
-        }
-        auto data = std::make_unique<SkFontData>(std::move(stream), ttcIndex, 0,
-                                                 nullptr, 0, nullptr, 0);
-        return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(std::move(data),
-                                                              style, isFixedPitch, name));
+        return this->makeFromStream(std::move(stream),
+                                    SkFontArguments().setCollectionIndex(ttcIndex));
     }
 
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
                                            const SkFontArguments& args) const override {
-        using Scanner = SkTypeface_FreeType::Scanner;
-        bool isFixedPitch;
-        SkFontStyle style;
-        SkString name;
-        Scanner::AxisDefinitions axisDefinitions;
-        if (!fScanner.scanFont(stream.get(), args.getCollectionIndex(),
-                               &name, &style, &isFixedPitch, &axisDefinitions))
-        {
-            return nullptr;
-        }
-
-        AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
-        Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
-                                   axisValues, name);
-
-        auto data = std::make_unique<SkFontData>(
-            std::move(stream), args.getCollectionIndex(), args.getPalette().index,
-            axisValues.get(), axisDefinitions.size(),
-            args.getPalette().overrides, args.getPalette().overrideCount);
-        return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(std::move(data),
-                                                              style, isFixedPitch, name));
+        return SkTypeface_FreeType::MakeFromStream(std::move(stream), args);
     }
 
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {

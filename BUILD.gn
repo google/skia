@@ -539,6 +539,7 @@ optional("fontmgr_fuchsia") {
 optional("fontmgr_mac_ct") {
   enabled = skia_use_fonthost_mac
 
+  public_defines = [ "SK_TYPEFACE_FACTORY_CORETEXT" ]
   public = [
     "include/ports/SkFontMgr_mac_ct.h",
     "include/ports/SkTypeface_mac.h",
@@ -580,6 +581,7 @@ optional("fontmgr_mac_ct_factory") {
 optional("fontmgr_win") {
   enabled = skia_enable_fontmgr_win
 
+  public_defines = [ "SK_TYPEFACE_FACTORY_DIRECTWRITE" ]
   public = [ "include/ports/SkTypeface_win.h" ]
   sources = [
     "include/ports/SkFontMgr_indirect.h",
@@ -1381,6 +1383,7 @@ optional("raw") {
 optional("typeface_freetype") {
   enabled = skia_use_freetype
 
+  public_defines = [ "SK_TYPEFACE_FACTORY_FREETYPE" ]
   deps = [ "//third_party/freetype2" ]
   sources = [
     "src/ports/SkFontHost_FreeType.cpp",

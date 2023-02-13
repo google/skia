@@ -1078,6 +1078,7 @@ void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
     desc->setFullName(get_str(CTFontCopyFullName(fFontRef.get()), &tmpStr));
     desc->setPostscriptName(get_str(CTFontCopyPostScriptName(fFontRef.get()), &tmpStr));
     desc->setStyle(this->fontStyle());
+    desc->setFactoryId(FactoryId);
     *isLocalStream = fIsFromStream;
 }
 
@@ -1128,8 +1129,8 @@ int SkTypeface_Mac::onCountGlyphs() const {
 }
 
 /** Creates a dictionary suitable for setting the axes on a CTFont. */
-CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, CFArrayRef ctAxes,
-                                                 const SkFontArguments& args) {
+static CTFontVariation ctvariation_from_SkFontArguments(CTFontRef ct, CFArrayRef ctAxes,
+                                                        const SkFontArguments& args) {
     OpszVariation opsz;
     constexpr const SkFourByteTag opszTag = SkSetFourByteTag('o','p','s','z');
 
@@ -1233,7 +1234,7 @@ CTFontVariation SkCTVariationFromSkFontArguments(CTFontRef ct, CFArrayRef ctAxes
 }
 
 sk_sp<SkTypeface> SkTypeface_Mac::onMakeClone(const SkFontArguments& args) const {
-    CTFontVariation ctVariation = SkCTVariationFromSkFontArguments(fFontRef.get(),
+    CTFontVariation ctVariation = ctvariation_from_SkFontArguments(fFontRef.get(),
                                                                    this->getVariationAxes(),
                                                                    args);
 
@@ -1279,6 +1280,103 @@ sk_sp<SkTypeface> SkTypeface_Mac::onMakeClone(const SkFontArguments& args) const
 
     return SkTypeface_Mac::Make(std::move(ctVariant), ctVariation.opsz,
                                 fStream ? fStream->duplicate() : nullptr);
+}
+
+static sk_sp<SkData> skdata_from_skstreamasset(std::unique_ptr<SkStreamAsset> stream) {
+    size_t size = stream->getLength();
+    if (const void* base = stream->getMemoryBase()) {
+        return SkData::MakeWithProc(base, size,
+                                    [](const void*, void* ctx) -> void {
+                                        delete (SkStreamAsset*)ctx;
+                                    }, stream.release());
+    }
+    return SkData::MakeFromStream(stream.get(), size);
+}
+
+static SkUniqueCFRef<CFDataRef> cfdata_from_skdata(sk_sp<SkData> data) {
+    void const * const addr = data->data();
+    size_t const size = data->size();
+
+    CFAllocatorContext ctx = {
+        0, // CFIndex version
+        data.release(), // void* info
+        nullptr, // const void *(*retain)(const void *info);
+        nullptr, // void (*release)(const void *info);
+        nullptr, // CFStringRef (*copyDescription)(const void *info);
+        nullptr, // void * (*allocate)(CFIndex size, CFOptionFlags hint, void *info);
+        nullptr, // void*(*reallocate)(void* ptr,CFIndex newsize,CFOptionFlags hint,void* info);
+        [](void*,void* info) -> void { // void (*deallocate)(void *ptr, void *info);
+            SkASSERT(info);
+            ((SkData*)info)->unref();
+        },
+        nullptr, // CFIndex (*preferredSize)(CFIndex size, CFOptionFlags hint, void *info);
+    };
+    SkUniqueCFRef<CFAllocatorRef> alloc(CFAllocatorCreate(kCFAllocatorDefault, &ctx));
+    return SkUniqueCFRef<CFDataRef>(CFDataCreateWithBytesNoCopy(
+            kCFAllocatorDefault, (const UInt8 *)addr, size, alloc.get()));
+}
+
+static SkUniqueCFRef<CTFontRef> ctfont_from_skdata(sk_sp<SkData> data, int ttcIndex) {
+    // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
+    if (ttcIndex != 0) {
+        return nullptr;
+    }
+
+    SkUniqueCFRef<CFDataRef> cfData(cfdata_from_skdata(std::move(data)));
+
+    SkUniqueCFRef<CTFontDescriptorRef> desc(
+            CTFontManagerCreateFontDescriptorFromData(cfData.get()));
+    if (!desc) {
+        return nullptr;
+    }
+    return SkUniqueCFRef<CTFontRef>(CTFontCreateWithFontDescriptor(desc.get(), 0, nullptr));
+}
+
+sk_sp<SkTypeface> SkTypeface_Mac::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                                 const SkFontArguments& args)
+{
+    // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
+    int ttcIndex = args.getCollectionIndex();
+    if (ttcIndex != 0) {
+        return nullptr;
+    }
+
+    sk_sp<SkData> data = skdata_from_skstreamasset(stream->duplicate());
+    if (!data) {
+        return nullptr;
+    }
+    SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), ttcIndex);
+    if (!ct) {
+        return nullptr;
+    }
+
+    SkUniqueCFRef<CTFontRef> ctVariant;
+    CTFontVariation ctVariation;
+    if (args.getVariationDesignPosition().coordinateCount == 0) {
+        ctVariant.reset(ct.release());
+    } else {
+        SkUniqueCFRef<CFArrayRef> axes(CTFontCopyVariationAxes(ct.get()));
+        ctVariation = ctvariation_from_SkFontArguments(ct.get(), axes.get(), args);
+
+        if (ctVariation.variation) {
+            SkUniqueCFRef<CFMutableDictionaryRef> attributes(
+                     CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                               &kCFTypeDictionaryKeyCallBacks,
+                                               &kCFTypeDictionaryValueCallBacks));
+            CFDictionaryAddValue(attributes.get(),
+                                 kCTFontVariationAttribute, ctVariation.variation.get());
+            SkUniqueCFRef<CTFontDescriptorRef> varDesc(
+                    CTFontDescriptorCreateWithAttributes(attributes.get()));
+            ctVariant.reset(CTFontCreateCopyWithAttributes(ct.get(), 0, nullptr, varDesc.get()));
+        } else {
+            ctVariant.reset(ct.release());
+        }
+    }
+    if (!ctVariant) {
+        return nullptr;
+    }
+
+    return SkTypeface_Mac::Make(std::move(ctVariant), ctVariation.opsz, std::move(stream));
 }
 
 int SkTypeface_Mac::onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],

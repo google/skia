@@ -228,12 +228,11 @@ struct TypefaceId {
 
 constexpr kNullTypefaceId = {0xFFFFFFFF, 0xFFFFFFFF};
 
-class SkTypeface_Fuchsia : public SkTypeface_Stream {
+class SkTypeface_Fuchsia : public SkTypeface_FreeTypeStream {
 public:
     SkTypeface_Fuchsia(std::unique_ptr<SkFontData> fontData, const SkFontStyle& style,
                        bool isFixedPitch, const SkString familyName, TypefaceId id)
-            : SkTypeface_Stream(std::move(fontData), style, isFixedPitch,
-                                /*sys_font=*/true, familyName)
+            : SkTypeface_FreeTypeStream(std::move(fontData), familyName, style, isFixedPitch)
             , fId(id) {}
 
     TypefaceId id() { return fId; }

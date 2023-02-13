@@ -51,11 +51,6 @@ struct SkSVGTestTypefaceGlyphData {
 
 class TestSVGTypeface : public SkTypeface {
 public:
-    TestSVGTypeface(const char*                              name,
-                    int                                      upem,
-                    const SkFontMetrics&                     metrics,
-                    SkSpan<const SkSVGTestTypefaceGlyphData> data,
-                    const SkFontStyle&                       style);
     ~TestSVGTypeface() override;
     void getAdvance(SkGlyph* glyph) const;
     void getFontMetrics(SkFontMetrics* metrics) const;
@@ -88,13 +83,11 @@ protected:
     void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
 
-    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
-
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         return sk_ref_sp(this);
     }
 
-    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override = 0;
 
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
 
@@ -130,6 +123,11 @@ protected:
     }
 
 private:
+    TestSVGTypeface(const char*                              name,
+                    int                                      upem,
+                    const SkFontMetrics&                     metrics,
+                    SkSpan<const SkSVGTestTypefaceGlyphData> data,
+                    const SkFontStyle&                       style);
     struct Glyph {
         Glyph();
         ~Glyph();

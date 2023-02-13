@@ -228,56 +228,6 @@ static const char* map_css_names(const char* name) {
 
 namespace {
 
-static sk_sp<SkData> skdata_from_skstreamasset(std::unique_ptr<SkStreamAsset> stream) {
-    size_t size = stream->getLength();
-    if (const void* base = stream->getMemoryBase()) {
-        return SkData::MakeWithProc(base, size,
-                                    [](const void*, void* ctx) -> void {
-                                        delete (SkStreamAsset*)ctx;
-                                    }, stream.release());
-    }
-    return SkData::MakeFromStream(stream.get(), size);
-}
-
-static SkUniqueCFRef<CFDataRef> cfdata_from_skdata(sk_sp<SkData> data) {
-    void const * const addr = data->data();
-    size_t const size = data->size();
-
-    CFAllocatorContext ctx = {
-        0, // CFIndex version
-        data.release(), // void* info
-        nullptr, // const void *(*retain)(const void *info);
-        nullptr, // void (*release)(const void *info);
-        nullptr, // CFStringRef (*copyDescription)(const void *info);
-        nullptr, // void * (*allocate)(CFIndex size, CFOptionFlags hint, void *info);
-        nullptr, // void*(*reallocate)(void* ptr,CFIndex newsize,CFOptionFlags hint,void* info);
-        [](void*,void* info) -> void { // void (*deallocate)(void *ptr, void *info);
-            SkASSERT(info);
-            ((SkData*)info)->unref();
-        },
-        nullptr, // CFIndex (*preferredSize)(CFIndex size, CFOptionFlags hint, void *info);
-    };
-    SkUniqueCFRef<CFAllocatorRef> alloc(CFAllocatorCreate(kCFAllocatorDefault, &ctx));
-    return SkUniqueCFRef<CFDataRef>(CFDataCreateWithBytesNoCopy(
-            kCFAllocatorDefault, (const UInt8 *)addr, size, alloc.get()));
-}
-
-static SkUniqueCFRef<CTFontRef> ctfont_from_skdata(sk_sp<SkData> data, int ttcIndex) {
-    // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
-    if (ttcIndex != 0) {
-        return nullptr;
-    }
-
-    SkUniqueCFRef<CFDataRef> cfData(cfdata_from_skdata(std::move(data)));
-
-    SkUniqueCFRef<CTFontDescriptorRef> desc(
-            CTFontManagerCreateFontDescriptorFromData(cfData.get()));
-    if (!desc) {
-        return nullptr;
-    }
-    return SkUniqueCFRef<CTFontRef>(CTFontCreateWithFontDescriptor(desc.get(), 0, nullptr));
-}
-
 static bool find_desc_str(CTFontDescriptorRef desc, CFStringRef name, SkString* value) {
     SkUniqueCFRef<CFStringRef> ref((CFStringRef)CTFontDescriptorCopyAttribute(desc, name));
     if (!ref) {
@@ -516,84 +466,22 @@ protected:
     }
 
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
-        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(data, ttcIndex);
-        if (!ct) {
-            return nullptr;
-        }
-
-        return SkTypeface_Mac::Make(std::move(ct), OpszVariation(),
-                                    SkMemoryStream::Make(std::move(data)));
+        return this->makeFromStream(
+                std::unique_ptr<SkStreamAsset>(new SkMemoryStream(std::move(data))), ttcIndex);
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
-        sk_sp<SkData> data = skdata_from_skstreamasset(stream->duplicate());
-        if (!data) {
-            return nullptr;
-        }
-        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), ttcIndex);
-        if (!ct) {
-            return nullptr;
-        }
-
-        return SkTypeface_Mac::Make(std::move(ct), OpszVariation(), std::move(stream));
+        return this->makeFromStream(std::move(stream),
+                                    SkFontArguments().setCollectionIndex(ttcIndex));
     }
 
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
-                                           const SkFontArguments& args) const override
-    {
-        // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
-        int ttcIndex = args.getCollectionIndex();
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
-        sk_sp<SkData> data = skdata_from_skstreamasset(stream->duplicate());
-        if (!data) {
-            return nullptr;
-        }
-        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), ttcIndex);
-        if (!ct) {
-            return nullptr;
-        }
-
-        SkUniqueCFRef<CFArrayRef> axes(CTFontCopyVariationAxes(ct.get()));
-        CTFontVariation ctVariation = SkCTVariationFromSkFontArguments(ct.get(), axes.get(), args);
-
-        SkUniqueCFRef<CTFontRef> ctVariant;
-        if (ctVariation.variation) {
-            SkUniqueCFRef<CFMutableDictionaryRef> attributes(
-                    CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
-                                              &kCFTypeDictionaryKeyCallBacks,
-                                              &kCFTypeDictionaryValueCallBacks));
-            CFDictionaryAddValue(attributes.get(),
-                                 kCTFontVariationAttribute, ctVariation.variation.get());
-            SkUniqueCFRef<CTFontDescriptorRef> varDesc(
-                    CTFontDescriptorCreateWithAttributes(attributes.get()));
-            ctVariant.reset(CTFontCreateCopyWithAttributes(ct.get(), 0, nullptr, varDesc.get()));
-        } else {
-            ctVariant.reset(ct.release());
-        }
-        if (!ctVariant) {
-            return nullptr;
-        }
-
-        return SkTypeface_Mac::Make(std::move(ctVariant), ctVariation.opsz, std::move(stream));
+                                           const SkFontArguments& args) const override {
+        return SkTypeface_Mac::MakeFromStream(std::move(stream), args);
     }
 
     sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
         sk_sp<SkData> data = SkData::MakeFromFileName(path);
         if (!data) {
             return nullptr;

@@ -113,6 +113,13 @@ CODEC_DEFINES = [
     },
 )
 
+TYPEFACE_DEFINES = select_multi(
+    {
+        "//src/ports:uses_freetype": ["SK_TYPEFACE_FACTORY_FREETYPE"],
+        #TODO: others when they become available
+    },
+)
+
 PLATFORM_DEFINES = select({
     "//bazel/common_config_settings:cpu_wasm": [
         # working around https://github.com/emscripten-core/emscripten/issues/10072
@@ -127,6 +134,6 @@ PLATFORM_DEFINES = select({
 # building the library but not exporting it for clients, so they can use whatever vulkan they want.
 GENERAL_LOCAL_DEFINES = ["SKIA_IMPLEMENTATION=1"]
 
-DEFAULT_DEFINES = GENERAL_DEFINES + GPU_DEFINES + CODEC_DEFINES + PLATFORM_DEFINES + EXTRA_DEFINES
+DEFAULT_DEFINES = GENERAL_DEFINES + GPU_DEFINES + CODEC_DEFINES + TYPEFACE_DEFINES + PLATFORM_DEFINES + EXTRA_DEFINES
 
 DEFAULT_LOCAL_DEFINES = GENERAL_LOCAL_DEFINES

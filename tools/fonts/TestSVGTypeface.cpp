@@ -149,10 +149,10 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> TestSVGTypeface::onGetAdvancedMetrics
     return info;
 }
 
-void TestSVGTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
+void TestSVGTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const {
     desc->setFamilyName(fName.c_str());
     desc->setStyle(this->fontStyle());
-    *isLocal = false;
+    *serialize = true;
 }
 
 void TestSVGTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
@@ -303,6 +303,47 @@ std::unique_ptr<SkScalerContext> TestSVGTypeface::onCreateScalerContext(
             sk_ref_sp(const_cast<TestSVGTypeface*>(this)), e, desc);
 }
 
+class DefaultTypeface : public TestSVGTypeface {
+    using TestSVGTypeface::TestSVGTypeface;
+
+    bool getPathOp(SkColor color, SkPathOp* op) const override {
+        if ((SkColorGetR(color) + SkColorGetG(color) + SkColorGetB(color)) / 3 > 0x20) {
+            *op = SkPathOp::kDifference_SkPathOp;
+        } else {
+            *op = SkPathOp::kUnion_SkPathOp;
+        }
+        return true;
+    }
+
+    static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('d','s','v','g');
+    static constexpr const char gHeaderString[] = "SkTestSVGTypefaceDefault01";
+    static constexpr const size_t kHeaderSize = sizeof(gHeaderString);
+
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
+        SkDynamicMemoryWStream wstream;
+        wstream.write(gHeaderString, kHeaderSize);
+        return wstream.detachAsStream();
+    }
+
+    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                            const SkFontArguments&) {
+        char header[kHeaderSize];
+        if (stream->read(header, kHeaderSize) != kHeaderSize ||
+            0 != memcmp(header, gHeaderString, kHeaderSize))
+        {
+            return nullptr;
+        }
+        return TestSVGTypeface::Default();
+    }
+
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
+        TestSVGTypeface::onGetFontDescriptor(desc, serialize);
+        desc->setFactoryId(FactoryId);
+    }
+public:
+    struct Register { Register() { SkTypeface::Register(FactoryId, &MakeFromStream); } };
+};
+static DefaultTypeface::Register defaultTypefaceRegister;
 sk_sp<TestSVGTypeface> TestSVGTypeface::Default() {
     // Recommended that the first four be .notdef, .null, CR, space
     constexpr const static SkSVGTestTypefaceGlyphData glyphs[] = {
@@ -332,25 +373,47 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Default() {
     metrics.fStrikeoutThickness = 20;
     metrics.fStrikeoutPosition  = -400;
 
-    class DefaultTypeface : public TestSVGTypeface {
-        using TestSVGTypeface::TestSVGTypeface;
-
-        bool getPathOp(SkColor color, SkPathOp* op) const override {
-            if ((SkColorGetR(color) + SkColorGetG(color) + SkColorGetB(color)) / 3 > 0x20) {
-                *op = SkPathOp::kDifference_SkPathOp;
-            } else {
-                *op = SkPathOp::kUnion_SkPathOp;
-            }
-            return true;
-        }
-    };
-    return sk_make_sp<DefaultTypeface>("Emoji",
-                                       1000,
-                                       metrics,
-                                       glyphs,
-                                       SkFontStyle::Normal());
+    return sk_sp<TestSVGTypeface>(
+        new DefaultTypeface("Emoji", 1000, metrics, glyphs, SkFontStyle::Normal()));
 }
 
+class PlanetTypeface : public TestSVGTypeface {
+    using TestSVGTypeface::TestSVGTypeface;
+
+    bool getPathOp(SkColor color, SkPathOp* op) const override {
+        *op = SkPathOp::kUnion_SkPathOp;
+        return true;
+    }
+
+    static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('p','s','v','g');
+    static constexpr const char gHeaderString[] = "SkTestSVGTypefacePlanet01";
+    static constexpr const size_t kHeaderSize = sizeof(gHeaderString);
+
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
+        SkDynamicMemoryWStream wstream;
+        wstream.write(gHeaderString, kHeaderSize);
+        return wstream.detachAsStream();
+    }
+
+    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                            const SkFontArguments&) {
+        char header[kHeaderSize];
+        if (stream->read(header, kHeaderSize) != kHeaderSize ||
+            0 != memcmp(header, gHeaderString, kHeaderSize))
+        {
+            return nullptr;
+        }
+        return TestSVGTypeface::Planets();
+    }
+
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override {
+        TestSVGTypeface::onGetFontDescriptor(desc, isLocal);
+        desc->setFactoryId(FactoryId);
+    }
+public:
+    struct Register { Register() { SkTypeface::Register(FactoryId, &MakeFromStream); } };
+};
+static PlanetTypeface::Register planetTypefaceRegister;
 sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
     // Recommended that the first four be .notdef, .null, CR, space
     constexpr const static SkSVGTestTypefaceGlyphData glyphs[] = {
@@ -386,19 +449,8 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
     metrics.fStrikeoutThickness = 2;
     metrics.fStrikeoutPosition  = -80;
 
-    class PlanetTypeface : public TestSVGTypeface {
-        using TestSVGTypeface::TestSVGTypeface;
-
-        bool getPathOp(SkColor color, SkPathOp* op) const override {
-            *op = SkPathOp::kUnion_SkPathOp;
-            return true;
-        }
-    };
-    return sk_make_sp<PlanetTypeface>("Planets",
-                                      200,
-                                      metrics,
-                                      glyphs,
-                                      SkFontStyle::Normal());
+    return sk_sp<TestSVGTypeface>(
+        new PlanetTypeface("Planets", 200, metrics, glyphs, SkFontStyle::Normal()));
 }
 
 void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
