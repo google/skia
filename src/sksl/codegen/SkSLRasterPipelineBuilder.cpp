@@ -2281,7 +2281,7 @@ void Program::dump(SkWStream* out) const {
             case POp::mix_3_floats:   case POp::mix_3_ints:
             case POp::mix_4_floats:   case POp::mix_4_ints:
             case POp::mix_n_floats:   case POp::mix_n_ints:
-                opText = opArg1 + " = mix(" + opArg1 + ", " + opArg2 + ", " + opArg3 + ")";
+                opText = opArg1 + " = mix(" + opArg2 + ", " + opArg3 + ", " + opArg1 + ")";
                 break;
 
             case POp::jump:

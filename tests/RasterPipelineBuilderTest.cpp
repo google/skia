@@ -754,7 +754,7 @@ R"(    1. copy_constant                  $0 = 0x3F400000 (0.75)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
     3. copy_4_slots_unmasked          $4..7 = $0..3
     4. copy_slot_unmasked             $8 = $7
-    5. mix_3_floats                   $0..2 = mix($0..2, $3..5, $6..8)
+    5. mix_3_floats                   $0..2 = mix($3..5, $6..8, $0..2)
 )");
 }
 

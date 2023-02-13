@@ -1489,12 +1489,12 @@ DEF_TEST(SkRasterPipeline_MixTest, r) {
         // Initialize the values to 1,2,3...
         std::iota(&slots[0], &slots[15 * N], 1.0f);
 
-        float fromValue   = slots[0];
-        float toValue     = slots[1 * op.numSlotsAffected * N];
-        float weightValue = slots[2 * op.numSlotsAffected * N];
+        float weightValue = slots[0];
+        float fromValue   = slots[1 * op.numSlotsAffected * N];
+        float toValue     = slots[2 * op.numSlotsAffected * N];
 
-        // The third group of values (the weight) must be between zero and one.
-        for (int idx = 2 * op.numSlotsAffected * N; idx < 3 * op.numSlotsAffected * N; ++idx) {
+        // The first group of values (the weights) must be between zero and one.
+        for (int idx = 0; idx < 1 * op.numSlotsAffected * N; ++idx) {
             slots[idx] = to_mix_weight(slots[idx]);
         }
 
@@ -1504,7 +1504,7 @@ DEF_TEST(SkRasterPipeline_MixTest, r) {
         op.append(&p, &alloc);
         p.run(0,0,1,1);
 
-        // Verify that the affected slots now equal mix({1,2...}, {3,4...}, {0.25, 0.3125...).
+        // Verify that the affected slots now equal mix({0.25, 0.3125...}, {3,4...}, {5,6...}, ).
         float* destPtr = &slots[0];
         for (int checkSlot = 0; checkSlot < op.numSlotsAffected; ++checkSlot) {
             for (int checkLane = 0; checkLane < N; ++checkLane) {
