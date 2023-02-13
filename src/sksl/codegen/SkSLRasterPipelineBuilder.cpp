@@ -1099,18 +1099,6 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::load_dst, SlotA()});
                 break;
 
-            case BuilderOp::load_unmasked:
-                pipeline->push_back({ProgramOp::load_unmasked, SlotA()});
-                break;
-
-            case BuilderOp::store_unmasked:
-                pipeline->push_back({ProgramOp::store_unmasked, SlotA()});
-                break;
-
-            case BuilderOp::store_masked:
-                pipeline->push_back({ProgramOp::store_masked, SlotA()});
-                break;
-
             case ALL_SINGLE_SLOT_UNARY_OP_CASES: {
                 float* dst = tempStackPtr - (inst.fImmA * N);
                 this->appendSingleSlotUnaryOp(pipeline, (ProgramOp)inst.fOp, dst, inst.fImmA);
@@ -1729,7 +1717,6 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = ShuffleCtx(stage.ctx);
                 break;
 
-            case POp::load_unmasked:
             case POp::load_condition_mask:
             case POp::store_condition_mask:
             case POp::load_loop_mask:
@@ -1738,8 +1725,6 @@ void Program::dump(SkWStream* out) const {
             case POp::reenable_loop_mask:
             case POp::load_return_mask:
             case POp::store_return_mask:
-            case POp::store_masked:
-            case POp::store_unmasked:
             case POp::zero_slot_unmasked:
             case POp::bitwise_not_int:
             case POp::cast_to_float_from_int: case POp::cast_to_float_from_uint:
@@ -2009,14 +1994,6 @@ void Program::dump(SkWStream* out) const {
                 opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
                 break;
 
-            case POp::load_unmasked:
-                opText = "src.r = " + opArg1;
-                break;
-
-            case POp::store_unmasked:
-                opText = opArg1 + " = src.r";
-                break;
-
             case POp::store_src_rg:
                 opText = opArg1 + " = src.rg";
                 break;
@@ -2043,10 +2020,6 @@ void Program::dump(SkWStream* out) const {
 
             case POp::load_dst:
                 opText = "dst.rgba = " + opArg1;
-                break;
-
-            case POp::store_masked:
-                opText = opArg1 + " = Mask(src.r)";
                 break;
 
             case POp::bitwise_and_int:

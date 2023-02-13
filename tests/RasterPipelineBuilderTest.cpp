@@ -82,23 +82,6 @@ R"(    1. store_src_rg                   v0..1 = src.rg
 )");
 }
 
-DEF_TEST(RasterPipelineBuilderLoadStoreAccumulator, r) {
-    // Create a very simple nonsense program.
-    SkSL::RP::Builder builder;
-    builder.load_unmasked(12);
-    builder.store_unmasked(34);
-    builder.store_unmasked(56);
-    builder.store_masked(0);
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/57,
-                                                                /*numUniformSlots=*/0);
-    check(r, *program,
-R"(    1. load_unmasked                  src.r = v12
-    2. store_unmasked                 v34 = src.r
-    3. store_unmasked                 v56 = src.r
-    4. store_masked                   v0 = Mask(src.r)
-)");
-}
-
 DEF_TEST(RasterPipelineBuilderPushPopMaskRegisters, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;

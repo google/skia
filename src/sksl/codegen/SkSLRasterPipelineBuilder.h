@@ -472,18 +472,6 @@ public:
     // shrinks the temp stack.
     void pop_slots_unmasked(SlotRange dst);
 
-    void load_unmasked(Slot slot) {
-        fInstructions.push_back({BuilderOp::load_unmasked, {slot}});
-    }
-
-    void store_unmasked(Slot slot) {
-        fInstructions.push_back({BuilderOp::store_unmasked, {slot}});
-    }
-
-    void store_masked(Slot slot) {
-        fInstructions.push_back({BuilderOp::store_masked, {slot}});
-    }
-
     void copy_slots_masked(SlotRange dst, SlotRange src) {
         SkASSERT(dst.count == src.count);
         fInstructions.push_back({BuilderOp::copy_slot_masked, {dst.index, src.index}, dst.count});
