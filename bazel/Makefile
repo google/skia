@@ -37,7 +37,7 @@ mocks:
 
 # This target should be run after the go.mod file is updated (e.g. version rolls or new updates)
 gazelle_update_repo:
-	cd .. && bazelisk run //:gazelle -- update-repos -from_file=go.mod -to_macro=go_repositories.bzl%go_repositories
+	cd .. && bazelisk run //:gazelle -- update-repos -from_file=go.mod -to_macro=go_repositories.bzl%go_repositories -prune
 
 # Run this target to test all known working Bazel builds
 known_good_builds:
