@@ -94,11 +94,10 @@ struct SinkFlags {
 
 struct Src {
     virtual ~Src() {}
-    virtual Result SK_WARN_UNUSED_RESULT draw(GrDirectContext* context, SkCanvas* canvas) const = 0;
+    virtual Result SK_WARN_UNUSED_RESULT draw(SkCanvas* canvas) const = 0;
     virtual Result SK_WARN_UNUSED_RESULT draw(skgpu::graphite::Context*,
-                                              GrDirectContext* context,
                                               SkCanvas* canvas) const {
-        return this->draw(context, canvas);
+        return this->draw(canvas);
     }
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
@@ -106,9 +105,8 @@ struct Src {
     virtual bool veto(SinkFlags) const { return false; }
 
     virtual int pageCount() const { return 1; }
-    virtual Result SK_WARN_UNUSED_RESULT draw([[maybe_unused]] int page, GrDirectContext* context,
-                                              SkCanvas* canvas) const {
-        return this->draw(context, canvas);
+    virtual Result SK_WARN_UNUSED_RESULT draw([[maybe_unused]] int page, SkCanvas* canvas) const {
+        return this->draw(canvas);
     }
     virtual SkISize size([[maybe_unused]] int page) const { return this->size(); }
     // Force Tasks using this Src to run on the main thread?
@@ -147,8 +145,8 @@ class GMSrc : public Src {
 public:
     explicit GMSrc(skiagm::GMFactory);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
-    Result draw(skgpu::graphite::Context*, GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
+    Result draw(skgpu::graphite::Context*, SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
@@ -180,7 +178,7 @@ public:
     };
     CodecSrc(Path, Mode, DstColorType, SkAlphaType, float);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
@@ -198,7 +196,7 @@ class AndroidCodecSrc : public Src {
 public:
     AndroidCodecSrc(Path, CodecSrc::DstColorType, SkAlphaType, int sampleSize);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
@@ -227,7 +225,7 @@ public:
 
     BRDSrc(Path, Mode, CodecSrc::DstColorType, uint32_t);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
@@ -247,7 +245,7 @@ public:
     };
     ImageGenSrc(Path, Mode, SkAlphaType, bool);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
@@ -264,7 +262,7 @@ class ColorCodecSrc : public Src {
 public:
     ColorCodecSrc(Path, bool decode_to_dst);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
@@ -277,7 +275,7 @@ class SKPSrc : public Src {
 public:
     explicit SKPSrc(Path path);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
 private:
@@ -291,7 +289,7 @@ class BisectSrc : public SKPSrc {
 public:
     explicit BisectSrc(Path path, const char* trail);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
 
 private:
     SkString fTrail;
@@ -304,7 +302,7 @@ class SkottieSrc final : public Src {
 public:
     explicit SkottieSrc(Path path);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
@@ -332,7 +330,7 @@ class SVGSrc : public Src {
 public:
     explicit SVGSrc(Path path);
 
-    Result draw(GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
@@ -352,8 +350,8 @@ public:
     explicit MSKPSrc(Path path);
 
     int pageCount() const override;
-    Result draw(GrDirectContext*, SkCanvas* c) const override;
-    Result draw(int, GrDirectContext*, SkCanvas*) const override;
+    Result draw(SkCanvas* c) const override;
+    Result draw(int, SkCanvas*) const override;
     SkISize size() const override;
     SkISize size(int) const override;
     Name name() const override;

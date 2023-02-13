@@ -114,7 +114,8 @@ protected:
                                                SkTileMode::kMirror);
     }
 
-    DrawResult onGpuSetup(GrDirectContext* dc, SkString* string) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* string) override {
+        auto dc = GrAsDirectContext(canvas->recordingContext());
         this->ensureBuffers();
         if (!dc || dc->abandoned()) {
             return DrawResult::kOk;

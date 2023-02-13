@@ -115,11 +115,11 @@ namespace skiagm {
         inline static constexpr char kErrorMsg_DrawSkippedGraphiteOnly[] =
                 "This test is for Graphite only.";
 
-        DrawResult gpuSetup(GrDirectContext* context, SkCanvas* canvas) {
+        DrawResult gpuSetup(SkCanvas* canvas) {
             SkString errorMsg;
-            return this->gpuSetup(context, canvas, &errorMsg);
+            return this->gpuSetup(canvas, &errorMsg);
         }
-        DrawResult gpuSetup(GrDirectContext*, SkCanvas*, SkString* errorMsg);
+        DrawResult gpuSetup(SkCanvas*, SkString* errorMsg);
         void gpuTeardown();
 
         void onceBeforeDraw() {
@@ -174,7 +174,7 @@ namespace skiagm {
 
     protected:
         // onGpuSetup is called once before any other processing with a direct context.
-        virtual DrawResult onGpuSetup(GrDirectContext*, SkString*) { return DrawResult::kOk; }
+        virtual DrawResult onGpuSetup(SkCanvas*, SkString*) { return DrawResult::kOk; }
         virtual void onGpuTeardown() {}
         virtual void onOnceBeforeDraw();
         virtual DrawResult onDraw(skgpu::graphite::Context*, SkCanvas*, SkString* errorMsg);

@@ -25,9 +25,7 @@ bool GMBench::isSuitableFor(Backend backend) {
 }
 
 void GMBench::onPerCanvasPreDraw(SkCanvas* canvas) {
-    auto direct = GrAsDirectContext(canvas->recordingContext());
-
-    if (fGM->gpuSetup(direct, canvas) != skiagm::DrawResult::kOk) {
+    if (fGM->gpuSetup(canvas) != skiagm::DrawResult::kOk) {
         fGpuSetupFailed = true;
     }
 
