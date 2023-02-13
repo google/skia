@@ -7,7 +7,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkString.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkMatrixUtils.h"
 
 class MatrixBench : public Benchmark {

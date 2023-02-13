@@ -9,7 +9,7 @@
 #define SKPAnimationBench_DEFINED
 
 #include "bench/SKPBench.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/timer/Timer.h"
 
 /**

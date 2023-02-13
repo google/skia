@@ -8,9 +8,13 @@
 #ifndef SkRandom_DEFINED
 #define SkRandom_DEFINED
 
-#include "include/core/SkScalar.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkFloatBits.h"
+
+#include <cstdint>
+
+typedef float SkScalar;
 
 /** \class SkRandom
 
@@ -115,7 +119,7 @@ public:
     /** A biased version of nextBool().
      */
     bool nextBiasedBool(SkScalar fractionTrue) {
-        SkASSERT(fractionTrue >= 0 && fractionTrue <= SK_Scalar1);
+        SkASSERT(fractionTrue >= 0 && fractionTrue <= 1);
         return this->nextUScalar1() <= fractionTrue;
     }
 

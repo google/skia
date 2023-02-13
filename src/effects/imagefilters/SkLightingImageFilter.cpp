@@ -65,7 +65,7 @@ typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 #endif
 
 #if GR_TEST_UTILS
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #endif
 
 const SkScalar gOneThird = SkIntToScalar(1) / 3;

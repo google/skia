@@ -20,7 +20,6 @@ skia_filegroup(
         "SkPaintFilterCanvas.h",
         "SkParse.h",
         "SkParsePath.h",
-        "SkRandom.h",
         "SkShadowUtils.h",
         "SkTextUtils.h",
         "SkTraceEventPhase.h",

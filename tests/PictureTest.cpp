@@ -29,7 +29,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRectPriv.h"

@@ -6,7 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 
 #include <type_traits>

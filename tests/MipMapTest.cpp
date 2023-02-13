@@ -21,7 +21,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMalloc.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapBuilder.h"
 #include "tests/Test.h"

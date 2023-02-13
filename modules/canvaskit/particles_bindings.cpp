@@ -7,10 +7,10 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkRandom.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/skresources/include/SkResources.h"
+#include "src/base/SkRandom.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 #include <string>

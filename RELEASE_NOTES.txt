@@ -10,6 +10,7 @@ Milestone 112
     analogous to SkRuntimeShaderBuilder.
   * SkShaders::CoordClamp has been added. It clamps the coords passed used with another
     shader to a rectangle.
+  * SkRandom is no longer part of the public API.
 
 Milestone 111
 -------------

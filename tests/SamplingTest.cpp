@@ -11,7 +11,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkSamplingPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"

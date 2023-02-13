@@ -17,7 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 
 #include <memory>
 

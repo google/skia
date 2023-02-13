@@ -14,7 +14,7 @@
 #include "src/shaders/gradients/SkLinearGradient.h"
 
 #if GR_TEST_UTILS
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #endif
 
 namespace GrGradientShader {

@@ -7,7 +7,7 @@
 
 #include "include/core/SkICC.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkColorSpacePriv.h"

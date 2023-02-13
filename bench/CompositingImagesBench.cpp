@@ -14,7 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 using namespace skia_private;
 

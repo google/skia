@@ -8,7 +8,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkFloatBits.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 class ScalarBench : public Benchmark {
     SkString    fName;

@@ -14,8 +14,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/base/SkRandom.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 const SkBlendMode gModes[] = {

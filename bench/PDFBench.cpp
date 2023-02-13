@@ -15,7 +15,7 @@
 #include "include/core/SkStream.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkTo.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/pdf/SkPDFUnion.h"
 #include "src/utils/SkFloatToDecimal.h"

@@ -8,7 +8,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkTime.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/viewer/Slide.h"
 
 // Implementation in C++ of Mozilla Canvas2D benchmark Canvas Clock Test

@@ -10,7 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/gpu/tessellate/Tessellation.h"

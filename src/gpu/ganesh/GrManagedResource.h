@@ -9,7 +9,7 @@
 #define GrManagedResource_DEFINED
 
 #include "include/private/base/SkMutex.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include <atomic>

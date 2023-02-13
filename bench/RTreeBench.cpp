@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkRTree.h"
 
 using namespace skia_private;

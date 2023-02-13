@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/ops/StrokeRectOp.h"
 
 #include "include/core/SkStrokeRec.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ResourceKey.h"

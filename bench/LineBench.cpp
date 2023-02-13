@@ -13,7 +13,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 
 class LineBench : public Benchmark {

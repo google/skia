@@ -194,7 +194,7 @@ DEF_SLIDE( return new PathSlide; )
 //////////////////////////////////////////////////////////////////////////////
 
 #include "include/effects/SkCornerPathEffect.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 class ArcToSlide : public ClickHandlerSlide {
     bool fDoFrame, fDoCorner, fDoConic;

@@ -11,7 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"

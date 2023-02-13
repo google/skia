@@ -9,11 +9,11 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/utils/SkRandom.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
+#include "src/base/SkRandom.h"
 
 #include <cmath>
 

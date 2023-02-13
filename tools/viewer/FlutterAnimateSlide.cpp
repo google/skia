@@ -12,7 +12,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/timer/Timer.h"
 #include "tools/viewer/Slide.h"
 

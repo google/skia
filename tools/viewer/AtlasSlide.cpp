@@ -11,8 +11,8 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSurface.h"
-#include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkPaintPriv.h"
 #include "tools/viewer/Slide.h"
 

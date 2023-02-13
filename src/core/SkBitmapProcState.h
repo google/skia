@@ -11,7 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkArenaAlloc.h"

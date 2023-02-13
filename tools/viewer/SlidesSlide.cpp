@@ -235,7 +235,7 @@ static void gradient_slide(SkCanvas* canvas) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "include/core/SkStream.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkOSFile.h"
 #include "tools/DecodeFile.h"
 

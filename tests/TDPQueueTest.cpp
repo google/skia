@@ -6,7 +6,7 @@
  */
 
 #include "include/private/base/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/base/SkTDPQueue.h"
 #include "tests/Test.h"
 

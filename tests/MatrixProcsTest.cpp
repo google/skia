@@ -8,7 +8,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 #include "src/core/SkBitmapProcState.h"
 #include "src/opts/SkBitmapProcState_opts.h"
 

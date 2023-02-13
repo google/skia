@@ -9,7 +9,7 @@
 
 #include "include/core/SkPoint3.h"
 #include "include/core/SkScalar.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tests/Test.h"
 
 #include <array>

@@ -10,7 +10,7 @@
 #include <math.h>
 
 #include "include/core/SkColorSpace.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"

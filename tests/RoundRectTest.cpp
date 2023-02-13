@@ -13,7 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "tests/Test.h"

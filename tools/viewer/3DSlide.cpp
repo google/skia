@@ -11,7 +11,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkVertices.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 

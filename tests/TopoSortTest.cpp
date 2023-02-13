@@ -9,7 +9,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrTTopoSort.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"

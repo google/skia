@@ -9,7 +9,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/private/base/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/viewer/Slide.h"
 
 // Generates y values for the chart plots.

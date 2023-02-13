@@ -47,9 +47,9 @@ ignorelist = [
   'node_modules',
   'include/third_party/skcms',
   # Temporary (hopefully) shims for Android
+  'SkFixed.h',
   'SkMalloc.h',
   'SkTSearch.h',
-  'SkTemplates.h',
 ]
 
 assert '/' in [os.sep, os.altsep]

@@ -14,7 +14,7 @@
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/pdf/SkDeflate.h"
 #include "tests/Test.h"
 

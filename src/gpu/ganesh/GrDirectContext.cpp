@@ -51,7 +51,7 @@
 #include <memory>
 
 #if GR_TEST_UTILS
-#   include "include/utils/SkRandom.h"
+#   include "src/base/SkRandom.h"
 #   if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #       include <sanitizer/lsan_interface.h>
 #   endif

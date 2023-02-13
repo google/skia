@@ -10,7 +10,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/viewer/Slide.h"

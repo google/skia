@@ -21,7 +21,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkOpPathEffect.h"
 #include "include/private/base/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkOSFile.h"

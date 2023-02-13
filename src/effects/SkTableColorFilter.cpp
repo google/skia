@@ -59,7 +59,7 @@ namespace skgpu { class KeyBuilder; }
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #else
 class SkSurfaceProps;

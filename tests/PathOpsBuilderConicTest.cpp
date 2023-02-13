@@ -15,7 +15,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkFloatBits.h"
 #include "include/utils/SkParsePath.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"

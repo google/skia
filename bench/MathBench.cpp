@@ -10,9 +10,9 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkFixed.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkFixed.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkRandom.h"
 
 static float sk_fsel(float pred, float result_ge, float result_lt) {
     return pred >= 0 ? result_ge : result_lt;

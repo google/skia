@@ -1,8 +1,11 @@
 // Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <random>
+
 REG_FIDDLE_ANIMATED(Octopus_Generator_Animated, 256, 256, false, 0, 4) {
-void paintOctopus(int x, int y, int size_base, SkColor color, SkCanvas* canvas) {
+void paintOctopus(float x, float y, int size_base, SkColor color, SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(color);
@@ -20,15 +23,24 @@ void paintOctopus(int x, int y, int size_base, SkColor color, SkCanvas* canvas) 
 }
 
 void draw(SkCanvas* canvas) {
-    SkRandom rand;
+    std::default_random_engine rng;
+    const auto randScalar = [&rng](float min, float max) -> float {
+        return std::uniform_real_distribution<float>(min, max)(rng);
+    };
+    const auto randInt = [&rng](int min, int max) -> int {
+        return std::uniform_int_distribution<int>(min, max)(rng);
+    };
+    const auto randOpaqueColor = [&rng]() -> SkColor {
+        return std::uniform_int_distribution<uint32_t>(0, 0xFFFFFF)(rng) | 0xFF000000;
+    };
 
     for (int i = 0; i < 400; ++i) {
-      float x = rand.nextRangeScalar(0, 256);
-      float y = rand.nextRangeScalar(0, 256);
-      float s = rand.nextRangeScalar(6, 12);
-      SkColor c = rand.nextU() | SkColorSetARGB(255, 0, 0, 0);
-      float radius = rand.nextRangeScalar(0, 40);
-      float angle = (rand.nextRangeScalar(0, 1) + frame) * 6.28319;
+      float x = randScalar(0, 256);
+      float y = randScalar(0, 256);
+      int s = randInt(6, 12);
+      SkColor c = randOpaqueColor();
+      float radius = randScalar(0, 40);
+      float angle = (randScalar(0, 1) + frame) * 6.28319;
       x += radius * cos(angle);
       y += radius * sin(angle);
       paintOctopus(x, y, s, c, canvas);

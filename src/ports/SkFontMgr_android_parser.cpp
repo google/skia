@@ -9,7 +9,7 @@
 
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTLogic.h"
 #include "include/private/base/SkTemplates.h"

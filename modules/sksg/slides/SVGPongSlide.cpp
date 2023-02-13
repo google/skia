@@ -9,7 +9,6 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/private/base/SkTPin.h"
-#include "include/utils/SkRandom.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
@@ -18,6 +17,7 @@
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "modules/sksg/include/SkSGTransform.h"
+#include "src/base/SkRandom.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 

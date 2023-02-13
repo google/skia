@@ -22,7 +22,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>

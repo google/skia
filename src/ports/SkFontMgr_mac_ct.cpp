@@ -28,7 +28,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkFontMgr_mac_ct.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"

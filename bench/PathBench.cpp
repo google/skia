@@ -16,7 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 #include "src/core/SkDraw.h"
 #include "src/core/SkMatrixPriv.h"

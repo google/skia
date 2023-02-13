@@ -20,8 +20,8 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkParsePath.h"
-#include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"
 

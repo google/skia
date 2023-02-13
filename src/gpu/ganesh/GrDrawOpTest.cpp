@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/gpu/ganesh/GrContext_Base.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
