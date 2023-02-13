@@ -1161,8 +1161,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU")  // https://anglebug.com/7525
 	}
 
-	if b.gpu("RTX3060") && b.extraConfig("Vulkan") {
+	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
 		skip(ALL, "gm", ALL, "blurcircles2") // skia:13342
+		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_GPU")
 	}
 
 	if b.gpu("Tegra3") {
