@@ -23,7 +23,20 @@ namespace skgpu::graphite {
 
 namespace {
 using IntrinsicConstant = float[4];
+
+uint64_t clamp_ubo_binding_size(uint64_t offset, uint64_t bufferSize) {
+    // Dawn's limit
+    constexpr uint32_t kMaxUniformBufferBindingSize = 64 * 1024;
+
+    SkASSERT(offset <= bufferSize);
+    auto remainSize = bufferSize - offset;
+    if (remainSize > kMaxUniformBufferBindingSize) {
+        return kMaxUniformBufferBindingSize;
+    }
+
+    return wgpu::kWholeSize;
 }
+}  // namespace
 
 std::unique_ptr<DawnCommandBuffer> DawnCommandBuffer::Make(const DawnSharedContext* sharedContext,
                                                            DawnResourceProvider* resourceProvider) {
@@ -499,25 +512,34 @@ void DawnCommandBuffer::syncUniformBuffers() {
 
         if (fActiveGraphicsPipeline->hasStepUniforms() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex]) {
+            auto boundBuffer =
+                    fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
+
             entries[numBuffers].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
-            entries[numBuffers].buffer =
-                    fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex]
-                            ->dawnBuffer();
+            entries[numBuffers].buffer = boundBuffer->dawnBuffer();
+
             entries[numBuffers].offset =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
-            entries[numBuffers].size = wgpu::kWholeSize;
+
+            entries[numBuffers].size =
+                    clamp_ubo_binding_size(entries[numBuffers].offset, boundBuffer->size());
+
             ++numBuffers;
         }
 
         if (fActiveGraphicsPipeline->hasFragment() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]) {
+            auto boundBuffer = fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
+
             entries[numBuffers].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
-            entries[numBuffers].buffer =
-                    fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]
-                            ->dawnBuffer();
+            entries[numBuffers].buffer = boundBuffer->dawnBuffer();
+
             entries[numBuffers].offset =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kPaintUniformBufferIndex];
-            entries[numBuffers].size = wgpu::kWholeSize;
+
+            entries[numBuffers].size =
+                    clamp_ubo_binding_size(entries[numBuffers].offset, boundBuffer->size());
+
             ++numBuffers;
         }
 
