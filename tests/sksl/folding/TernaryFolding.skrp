@@ -16,17 +16,14 @@
    16. copy_slot_unmasked             $0 = [do_side_effect].result
    17. label                          label 0x00000000
    18. copy_constant                  call = 0xFFFFFFFF
-   19. store_condition_mask           $8 = CondMask
-   20. copy_slot_unmasked             $9 = ok
-   21. copy_slot_unmasked             $10 = param
-   22. bitwise_and_int                $9 &= $10
-   23. copy_slot_unmasked             $10 = call
-   24. bitwise_and_int                $9 &= $10
-   25. copy_4_slots_unmasked          $0..3 = red
-   26. merge_condition_mask           CondMask = $8 & $9
-   27. copy_4_slots_unmasked          $4..7 = green
-   28. copy_4_slots_masked            $0..3 = Mask($4..7)
-   29. label                          label 0x00000001
-   30. load_condition_mask            CondMask = $8
-   31. copy_4_slots_unmasked          [main].result = $0..3
-   32. load_src                       src.rgba = [main].result
+   19. copy_slot_unmasked             $0 = ok
+   20. copy_slot_unmasked             $1 = param
+   21. bitwise_and_int                $0 &= $1
+   22. copy_slot_unmasked             $1 = call
+   23. bitwise_and_int                $0 &= $1
+   24. swizzle_4                      $0..3 = ($0..3).xxxx
+   25. copy_4_slots_unmasked          $4..7 = red
+   26. copy_4_slots_unmasked          $8..11 = green
+   27. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   28. copy_4_slots_unmasked          [main].result = $0..3
+   29. load_src                       src.rgba = [main].result

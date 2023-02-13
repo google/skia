@@ -2507,9 +2507,33 @@ bool Generator::pushTernaryExpression(const Expression& test,
         return this->pushDynamicallyUniformTernaryExpression(test, ifTrue, ifFalse);
     }
 
-    fBuilder.enableExecutionMaskWrites();
+    // Analyze the ternary to see which corners we can safely cut.
+    bool ifFalseHasSideEffects = Analysis::HasSideEffects(ifFalse);
+    bool ifTrueHasSideEffects  = Analysis::HasSideEffects(ifTrue);
+    bool ifTrueIsTrivial       = Analysis::IsTrivialExpression(ifTrue);
+    int  cleanupLabelID        = fBuilder.nextLabelID();
+
+    // If the true- and false-expressions both lack side effects, we evaluate both of them safely
+    // without masking off their effects. In that case, we can emit both sides and use boolean mix
+    // to select the correct result without using the condition mask at all.
+    if (!ifFalseHasSideEffects && !ifTrueHasSideEffects && ifTrueIsTrivial) {
+        // Push all of the arguments to mix.
+        if (!this->pushVectorizedExpression(test, ifTrue.type())) {
+            return unsupported();
+        }
+        if (!this->pushExpression(ifFalse)) {
+            return unsupported();
+        }
+        if (!this->pushExpression(ifTrue)) {
+            return unsupported();
+        }
+        // Use boolean mix to select the true- or false-expression via the test-expression.
+        fBuilder.ternary_op(BuilderOp::mix_n_ints, ifTrue.type().slotCount());
+        return true;
+    }
 
     // First, push the current condition-mask and the test-expression into a separate stack.
+    fBuilder.enableExecutionMaskWrites();
     this->nextTempStack();
     fBuilder.push_condition_mask();
     if (!this->pushExpression(test)) {
@@ -2520,9 +2544,8 @@ bool Generator::pushTernaryExpression(const Expression& test,
     // We can take some shortcuts with condition-mask handling if the false-expression is entirely
     // side-effect free. (We can evaluate it without masking off its effects.) We always handle the
     // condition mask properly for the test-expression and true-expression properly.
-    if (!Analysis::HasSideEffects(ifFalse)) {
+    if (!ifFalseHasSideEffects) {
         // Push the false-expression onto the primary stack.
-        int cleanupLabelID = fBuilder.nextLabelID();
         if (!this->pushExpression(ifFalse)) {
             return unsupported();
         }
@@ -2534,7 +2557,7 @@ bool Generator::pushTernaryExpression(const Expression& test,
 
         // If no lanes are active, we can skip the true-expression entirely. This isn't super likely
         // to happen, so it's probably only a win for non-trivial true-expressions.
-        if (!Analysis::IsTrivialExpression(ifTrue)) {
+        if (!ifTrueIsTrivial) {
             fBuilder.branch_if_no_active_lanes(cleanupLabelID);
         }
 

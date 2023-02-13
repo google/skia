@@ -116,15 +116,11 @@
   116. copy_constant                  $2 = 0xFFFFFFFF
   117. copy_slot_unmasked             $3 = v(3)
   118. copy_4_slots_unmasked          result = $0..3
-  119. store_condition_mask           $8 = CondMask
-  120. copy_4_slots_unmasked          $9..12 = result
-  121. bitwise_or_2_ints              $9..10 |= $11..12
-  122. bitwise_or_int                 $9 |= $10
-  123. copy_4_constants               $0..3 = colorRed
-  124. merge_condition_mask           CondMask = $8 & $9
-  125. copy_4_constants               $4..7 = colorGreen
-  126. copy_4_slots_masked            $0..3 = Mask($4..7)
-  127. label                          label 0x00000000
-  128. load_condition_mask            CondMask = $8
-  129. copy_4_slots_unmasked          [main].result = $0..3
-  130. load_src                       src.rgba = [main].result
+  119. bitwise_or_2_ints              $0..1 |= $2..3
+  120. bitwise_or_int                 $0 |= $1
+  121. swizzle_4                      $0..3 = ($0..3).xxxx
+  122. copy_4_constants               $4..7 = colorRed
+  123. copy_4_constants               $8..11 = colorGreen
+  124. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+  125. copy_4_slots_unmasked          [main].result = $0..3
+  126. load_src                       src.rgba = [main].result

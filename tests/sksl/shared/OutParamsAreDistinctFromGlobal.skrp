@@ -1,27 +1,23 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  x = 0x3F800000 (1.0)
-    4. store_condition_mask           $8 = CondMask
-    5. branch_if_no_active_lanes      branch_if_no_active_lanes +14 (label 0 at #19)
-    6. copy_constant                  $9 = 0x40000000 (2.0)
-    7. copy_slot_masked               y = Mask($9)
-    8. copy_slot_unmasked             $9 = x
-    9. copy_constant                  $10 = 0x3F800000 (1.0)
-   10. cmpeq_float                    $9 = equal($9, $10)
-   11. copy_slot_unmasked             $10 = y
-   12. copy_constant                  $11 = 0x40000000 (2.0)
-   13. cmpeq_float                    $10 = equal($10, $11)
-   14. bitwise_and_int                $9 &= $10
-   15. copy_slot_masked               [out_params_are_distinct_from_global].result = Mask($9)
-   16. copy_slot_unmasked             $9 = y
-   17. copy_slot_masked               x = Mask($9)
-   18. copy_slot_unmasked             $9 = [out_params_are_distinct_from_global].result
-   19. label                          label 0x00000000
-   20. copy_4_constants               $0..3 = colorRed
-   21. merge_condition_mask           CondMask = $8 & $9
-   22. copy_4_constants               $4..7 = colorGreen
-   23. copy_4_slots_masked            $0..3 = Mask($4..7)
-   24. label                          label 0x00000001
-   25. load_condition_mask            CondMask = $8
-   26. copy_4_slots_unmasked          [main].result = $0..3
-   27. load_src                       src.rgba = [main].result
+    4. copy_constant                  $0 = 0x40000000 (2.0)
+    5. copy_slot_unmasked             y = $0
+    6. copy_slot_unmasked             $0 = x
+    7. copy_constant                  $1 = 0x3F800000 (1.0)
+    8. cmpeq_float                    $0 = equal($0, $1)
+    9. copy_slot_unmasked             $1 = y
+   10. copy_constant                  $2 = 0x40000000 (2.0)
+   11. cmpeq_float                    $1 = equal($1, $2)
+   12. bitwise_and_int                $0 &= $1
+   13. copy_slot_unmasked             [out_params_are_distinct_from_global].result = $0
+   14. copy_slot_unmasked             $0 = y
+   15. copy_slot_unmasked             x = $0
+   16. copy_slot_unmasked             $0 = [out_params_are_distinct_from_global].result
+   17. label                          label 0x00000001
+   18. swizzle_4                      $0..3 = ($0..3).xxxx
+   19. copy_4_constants               $4..7 = colorRed
+   20. copy_4_constants               $8..11 = colorGreen
+   21. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   22. copy_4_slots_unmasked          [main].result = $0..3
+   23. load_src                       src.rgba = [main].result

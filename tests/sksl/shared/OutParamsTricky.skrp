@@ -28,20 +28,17 @@
    28. copy_4_slots_unmasked          $0..3 = color
    29. copy_4_slots_unmasked          result = $0..3
    30. label                          label 0x00000000
-   31. store_condition_mask           $8 = CondMask
-   32. copy_4_slots_unmasked          $9..12 = result
-   33. copy_constant                  $13 = 0x40000000 (2.0)
-   34. copy_constant                  $14 = 0x40400000 (3.0)
-   35. zero_slot_unmasked             $15 = 0
-   36. copy_constant                  $16 = 0x40A00000 (5.0)
-   37. cmpeq_4_floats                 $9..12 = equal($9..12, $13..16)
-   38. bitwise_and_2_ints             $9..10 &= $11..12
-   39. bitwise_and_int                $9 &= $10
-   40. copy_4_constants               $0..3 = colorRed
-   41. merge_condition_mask           CondMask = $8 & $9
-   42. copy_4_constants               $4..7 = colorGreen
-   43. copy_4_slots_masked            $0..3 = Mask($4..7)
-   44. label                          label 0x00000002
-   45. load_condition_mask            CondMask = $8
-   46. copy_4_slots_unmasked          [main].result = $0..3
-   47. load_src                       src.rgba = [main].result
+   31. copy_4_slots_unmasked          $0..3 = result
+   32. copy_constant                  $4 = 0x40000000 (2.0)
+   33. copy_constant                  $5 = 0x40400000 (3.0)
+   34. zero_slot_unmasked             $6 = 0
+   35. copy_constant                  $7 = 0x40A00000 (5.0)
+   36. cmpeq_4_floats                 $0..3 = equal($0..3, $4..7)
+   37. bitwise_and_2_ints             $0..1 &= $2..3
+   38. bitwise_and_int                $0 &= $1
+   39. swizzle_4                      $0..3 = ($0..3).xxxx
+   40. copy_4_constants               $4..7 = colorRed
+   41. copy_4_constants               $8..11 = colorGreen
+   42. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   43. copy_4_slots_unmasked          [main].result = $0..3
+   44. load_src                       src.rgba = [main].result

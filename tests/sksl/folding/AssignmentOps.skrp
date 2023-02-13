@@ -83,13 +83,9 @@
    83. cmpeq_int                      $1 = equal($1, $2)
    84. bitwise_and_int                $0 &= $1
    85. copy_slot_unmasked             ok = $0
-   86. store_condition_mask           $8 = CondMask
-   87. copy_slot_unmasked             $9 = ok
-   88. copy_4_constants               $0..3 = colorRed
-   89. merge_condition_mask           CondMask = $8 & $9
-   90. copy_4_constants               $4..7 = colorGreen
-   91. copy_4_slots_masked            $0..3 = Mask($4..7)
-   92. label                          label 0x00000000
-   93. load_condition_mask            CondMask = $8
-   94. copy_4_slots_unmasked          [main].result = $0..3
-   95. load_src                       src.rgba = [main].result
+   86. swizzle_4                      $0..3 = ($0..3).xxxx
+   87. copy_4_constants               $4..7 = colorRed
+   88. copy_4_constants               $8..11 = colorGreen
+   89. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   90. copy_4_slots_unmasked          [main].result = $0..3
+   91. load_src                       src.rgba = [main].result

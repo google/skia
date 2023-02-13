@@ -82,15 +82,11 @@
    82. copy_slot_unmasked             $1 = l(0)
    83. add_float                      $0 += $1
    84. copy_slot_unmasked             result = $0
-   85. store_condition_mask           $16 = CondMask
-   86. copy_slot_unmasked             $17 = result
-   87. copy_constant                  $18 = 0x40C00000 (6.0)
-   88. cmpeq_float                    $17 = equal($17, $18)
-   89. copy_4_constants               $0..3 = colorRed
-   90. merge_condition_mask           CondMask = $16 & $17
-   91. copy_4_constants               $4..7 = colorGreen
-   92. copy_4_slots_masked            $0..3 = Mask($4..7)
-   93. label                          label 0x00000000
-   94. load_condition_mask            CondMask = $16
-   95. copy_4_slots_unmasked          [main].result = $0..3
-   96. load_src                       src.rgba = [main].result
+   85. copy_constant                  $1 = 0x40C00000 (6.0)
+   86. cmpeq_float                    $0 = equal($0, $1)
+   87. swizzle_4                      $0..3 = ($0..3).xxxx
+   88. copy_4_constants               $4..7 = colorRed
+   89. copy_4_constants               $8..11 = colorGreen
+   90. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   91. copy_4_slots_unmasked          [main].result = $0..3
+   92. load_src                       src.rgba = [main].result
