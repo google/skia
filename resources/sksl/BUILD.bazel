@@ -954,6 +954,7 @@ skia_filegroup(
         "shared/TernaryAsLValueEntirelyFoldable.sksl",
         "shared/TernaryAsLValueFoldableTest.sksl",
         "shared/TernaryExpression.sksl",
+        "shared/TernarySideEffects.sksl",
         "shared/Texture2D.sksl",
         "shared/TextureSharpen.sksl",
         "shared/UnaryPositiveNegative.sksl",
