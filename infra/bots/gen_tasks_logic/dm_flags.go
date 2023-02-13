@@ -1086,6 +1086,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLCross")
 	}
 
+	if b.matchOs("Mac") && !b.extraConfig("Metal") {
+		// Macs do not handle short-circuit evaluation properly in OpenGL (chromium:307751)
+		skip(ALL, "tests", ALL, "SkSLLogicalAndShortCircuit_GPU")
+		skip(ALL, "tests", ALL, "SkSLLogicalOrShortCircuit_GPU")
+	}
+
 	if b.matchOs("Mac") && b.extraConfig("Metal") && (b.gpu("IntelIrisPlus") ||
                                                       b.gpu("IntelHD6000")) {
 		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_GPU")         // skia:14025
