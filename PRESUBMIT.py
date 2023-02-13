@@ -243,6 +243,28 @@ def _RegenerateAllExamplesCPP(input_api, output_api):
   return results
 
 
+def _CheckExamplesForPrivateAPIs(input_api, output_api):
+  """We only want our checked-in examples (aka fiddles) to show public API."""
+  banned_includes = [
+    input_api.re.compile(r'#\s*include\s+("src/.*)'),
+    input_api.re.compile(r'#\s*include\s+("include/private/.*)'),
+  ]
+  file_filter = lambda x: (x.LocalPath().startswith('docs/examples/'))
+  errors = []
+  for affected_file in input_api.AffectedSourceFiles(file_filter):
+    affected_filepath = affected_file.LocalPath()
+    for (line_num, line) in affected_file.ChangedContents():
+      for re in banned_includes:
+        match = re.search(line)
+        if match:
+          errors.append('%s:%s: Fiddles should not use private/internal API like %s.' % (
+                affected_filepath, line_num, match.group(1)))
+
+  if errors:
+    return [output_api.PresubmitError('\n'.join(errors))]
+  return []
+
+
 def _CheckGeneratedBazelBUILDFiles(input_api, output_api):
     if 'win32' in sys.platform:
       # TODO(crbug.com/skia/12541): Remove when Bazel builds work on Windows.
@@ -511,6 +533,7 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CheckGNFormatted(input_api, output_api))
   results.extend(_CheckGitConflictMarkers(input_api, output_api))
   results.extend(_RegenerateAllExamplesCPP(input_api, output_api))
+  results.extend(_CheckExamplesForPrivateAPIs(input_api, output_api))
   results.extend(_CheckBazelBUILDFiles(input_api, output_api))
   results.extend(_CheckBannedAPIs(input_api, output_api))
   return results
