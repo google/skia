@@ -564,6 +564,7 @@ sksl_shared_tests = [
   "shared/InterfaceBlockMultipleAnonymous.sksl",
   "shared/InterfaceBlockNamed.sksl",
   "shared/InterfaceBlockNamedArray.sksl",
+  "shared/LogicalAndShortCircuit.sksl",
   "shared/LogicalOrShortCircuit.sksl",
   "shared/Matrices.sksl",
   "shared/MatricesNonsquare.sksl",
