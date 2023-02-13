@@ -530,6 +530,7 @@ void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> elementSpan) {
         for (int index = 1; index < numElements; ++index) {
             elements[index - 1] = elements[index] - 1;
         }
+        elements[numElements - 1] = 0;
         --consumedSlots;
         --numElements;
     }
