@@ -1099,10 +1099,6 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::load_dst, SlotA()});
                 break;
 
-            case BuilderOp::immediate_f: {
-                pipeline->push_back({ProgramOp::immediate_f, context_bit_pun(inst.fImmA)});
-                break;
-            }
             case BuilderOp::load_unmasked:
                 pipeline->push_back({ProgramOp::load_unmasked, SlotA()});
                 break;
@@ -1700,10 +1696,6 @@ void Program::dump(SkWStream* out) const {
         std::string opArg1, opArg2, opArg3;
         using POp = ProgramOp;
         switch (stage.op) {
-            case POp::immediate_f:
-                opArg1 = ImmCtx(stage.ctx);
-                break;
-
             case POp::label:
             case POp::invoke_shader:
             case POp::invoke_color_filter:
@@ -2017,7 +2009,6 @@ void Program::dump(SkWStream* out) const {
                 opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
                 break;
 
-            case POp::immediate_f:
             case POp::load_unmasked:
                 opText = "src.r = " + opArg1;
                 break;

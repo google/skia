@@ -3304,12 +3304,6 @@ STAGE_BRANCH(branch_if_no_active_lanes_eq, SkRasterPipeline_BranchIfEqualCtx* ct
     return any(match) ? 1 : ctx->offset;
 }
 
-STAGE_TAIL(immediate_f, void* ctx) {
-    float val;
-    memcpy(&val, &ctx, sizeof(val));
-    r = F(val);
-}
-
 STAGE_TAIL(zero_slot_unmasked, F* dst) {
     // We don't even bother masking off the tail; we're filling slots, not the destination surface.
     sk_bzero(dst, sizeof(F) * 1);

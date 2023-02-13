@@ -41,23 +41,22 @@ DEF_TEST(SkRasterPipeline, r) {
     REPORTER_ASSERT(r, ((result >> 48) & 0xffff) == 0x3c00);
 }
 
-DEF_TEST(SkRasterPipeline_ImmediateStoreUnmasked, r) {
+DEF_TEST(SkRasterPipeline_StoreUnmasked, r) {
     alignas(64) float val[SkRasterPipeline_kMaxStride_highp + 1] = {};
 
-    float immVal = 123.0f;
-    const void* immValCtx = nullptr;
-    memcpy(&immValCtx, &immVal, sizeof(float));
+    static constexpr float kColor[4] = {0.75f, 0.5f, 0.25f, 0.5f};
 
-    SkRasterPipeline_<256> p;
-    p.append(SkRasterPipelineOp::immediate_f, immValCtx);
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, kColor);
     p.append(SkRasterPipelineOp::store_unmasked, val);
     p.run(0,0,1,1);
 
-    // `val` should be populated with `123.0` in the frontmost positions
+    // `val` should be populated with `0.75` in the frontmost positions
     // (depending on the architecture that SkRasterPipeline is targeting).
     size_t index = 0;
     for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
-        REPORTER_ASSERT(r, val[index] == immVal);
+        REPORTER_ASSERT(r, val[index] == 0.75f);
     }
 
     // The remaining slots should have been left alone.

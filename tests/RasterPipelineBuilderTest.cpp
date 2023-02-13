@@ -82,25 +82,6 @@ R"(    1. store_src_rg                   v0..1 = src.rg
 )");
 }
 
-DEF_TEST(RasterPipelineBuilderImmediate, r) {
-    // Create a very simple nonsense program.
-    SkSL::RP::Builder builder;
-    builder.immediate_f(333.0f);
-    builder.immediate_f(0.0f);
-    builder.immediate_f(-5555.0f);
-    builder.immediate_i(-123);
-    builder.immediate_u(456);
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
-                                                                /*numUniformSlots=*/0);
-    check(r, *program,
-R"(    1. immediate_f                    src.r = 0x43A68000 (333.0)
-    2. immediate_f                    src.r = 0x00000000 (0.0)
-    3. immediate_f                    src.r = 0xC5AD9800 (-5555.0)
-    4. immediate_f                    src.r = 0xFFFFFF85
-    5. immediate_f                    src.r = 0x000001C8 (6.389921e-43)
-)");
-}
-
 DEF_TEST(RasterPipelineBuilderLoadStoreAccumulator, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
@@ -407,72 +388,68 @@ DEF_TEST(RasterPipelineBuilderBranches, r) {
 #if SK_HAS_MUSTTAIL
     // We have guaranteed tail-calling, and don't need to rewind the stack.
     static constexpr char kExpectationWithKnownExecutionMask[] =
-R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +8 (label 3 at #10)
-    3. label                          label 0x00000000
-    4. immediate_f                    src.r = 0x3F800000 (1.0)
-    5. label                          label 0x00000001
-    6. immediate_f                    src.r = 0x40000000 (2.0)
-    7. label                          label 0x00000002
-    8. immediate_f                    src.r = 0x40400000 (3.0)
-    9. jump                           jump -6 (label 0 at #3)
-   10. label                          label 0x00000003
-   11. branch_if_no_active_lanes_eq   branch -4 (label 2 at #7) if no lanes of $0 == 0x00000000 (0.0)
-   12. branch_if_no_active_lanes_eq   branch -9 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+R"(    1. jump                           jump +8 (label 3 at #9)
+    2. label                          label 0x00000000
+    3. zero_slot_unmasked             v0 = 0
+    4. label                          label 0x00000001
+    5. zero_slot_unmasked             v1 = 0
+    6. label                          label 0x00000002
+    7. zero_slot_unmasked             v2 = 0
+    8. jump                           jump -6 (label 0 at #2)
+    9. label                          label 0x00000003
+   10. branch_if_no_active_lanes_eq   branch -4 (label 2 at #6) if no lanes of v2 == 0x00000000 (0.0)
+   11. branch_if_no_active_lanes_eq   branch -9 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
     static constexpr char kExpectationWithExecutionMaskWrites[] =
-R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +9 (label 3 at #11)
-    3. label                          label 0x00000000
-    4. immediate_f                    src.r = 0x3F800000 (1.0)
-    5. label                          label 0x00000001
-    6. immediate_f                    src.r = 0x40000000 (2.0)
-    7. branch_if_no_active_lanes      branch_if_no_active_lanes -2 (label 1 at #5)
-    8. label                          label 0x00000002
-    9. immediate_f                    src.r = 0x40400000 (3.0)
-   10. branch_if_any_active_lanes     branch_if_any_active_lanes -7 (label 0 at #3)
-   11. label                          label 0x00000003
-   12. branch_if_no_active_lanes_eq   branch -4 (label 2 at #8) if no lanes of $0 == 0x00000000 (0.0)
-   13. branch_if_no_active_lanes_eq   branch -10 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+R"(    1. jump                           jump +9 (label 3 at #10)
+    2. label                          label 0x00000000
+    3. zero_slot_unmasked             v0 = 0
+    4. label                          label 0x00000001
+    5. zero_slot_unmasked             v1 = 0
+    6. branch_if_no_active_lanes      branch_if_no_active_lanes -2 (label 1 at #4)
+    7. label                          label 0x00000002
+    8. zero_slot_unmasked             v2 = 0
+    9. branch_if_any_active_lanes     branch_if_any_active_lanes -7 (label 0 at #2)
+   10. label                          label 0x00000003
+   11. branch_if_no_active_lanes_eq   branch -4 (label 2 at #7) if no lanes of v2 == 0x00000000 (0.0)
+   12. branch_if_no_active_lanes_eq   branch -10 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
 #else
     // We don't have guaranteed tail-calling, so we rewind the stack immediately before any backward
     // branches.
     static constexpr char kExpectationWithKnownExecutionMask[] =
-R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +9 (label 3 at #11)
-    3. label                          label 0x00000000
-    4. immediate_f                    src.r = 0x3F800000 (1.0)
-    5. label                          label 0x00000001
-    6. immediate_f                    src.r = 0x40000000 (2.0)
-    7. label                          label 0x00000002
-    8. immediate_f                    src.r = 0x40400000 (3.0)
-    9. stack_rewind
-   10. jump                           jump -7 (label 0 at #3)
-   11. label                          label 0x00000003
-   12. stack_rewind
-   13. branch_if_no_active_lanes_eq   branch -6 (label 2 at #7) if no lanes of $0 == 0x00000000 (0.0)
-   14. stack_rewind
-   15. branch_if_no_active_lanes_eq   branch -12 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+R"(    1. jump                           jump +9 (label 3 at #10)
+    2. label                          label 0x00000000
+    3. zero_slot_unmasked             v0 = 0
+    4. label                          label 0x00000001
+    5. zero_slot_unmasked             v1 = 0
+    6. label                          label 0x00000002
+    7. zero_slot_unmasked             v2 = 0
+    8. stack_rewind
+    9. jump                           jump -7 (label 0 at #2)
+   10. label                          label 0x00000003
+   11. stack_rewind
+   12. branch_if_no_active_lanes_eq   branch -6 (label 2 at #6) if no lanes of v2 == 0x00000000 (0.0)
+   13. stack_rewind
+   14. branch_if_no_active_lanes_eq   branch -12 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
     static constexpr char kExpectationWithExecutionMaskWrites[] =
-R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +11 (label 3 at #13)
-    3. label                          label 0x00000000
-    4. immediate_f                    src.r = 0x3F800000 (1.0)
-    5. label                          label 0x00000001
-    6. immediate_f                    src.r = 0x40000000 (2.0)
-    7. stack_rewind
-    8. branch_if_no_active_lanes      branch_if_no_active_lanes -3 (label 1 at #5)
-    9. label                          label 0x00000002
-   10. immediate_f                    src.r = 0x40400000 (3.0)
-   11. stack_rewind
-   12. branch_if_any_active_lanes     branch_if_any_active_lanes -9 (label 0 at #3)
-   13. label                          label 0x00000003
-   14. stack_rewind
-   15. branch_if_no_active_lanes_eq   branch -6 (label 2 at #9) if no lanes of $0 == 0x00000000 (0.0)
-   16. stack_rewind
-   17. branch_if_no_active_lanes_eq   branch -14 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+R"(    1. jump                           jump +11 (label 3 at #12)
+    2. label                          label 0x00000000
+    3. zero_slot_unmasked             v0 = 0
+    4. label                          label 0x00000001
+    5. zero_slot_unmasked             v1 = 0
+    6. stack_rewind
+    7. branch_if_no_active_lanes      branch_if_no_active_lanes -3 (label 1 at #4)
+    8. label                          label 0x00000002
+    9. zero_slot_unmasked             v2 = 0
+   10. stack_rewind
+   11. branch_if_any_active_lanes     branch_if_any_active_lanes -9 (label 0 at #2)
+   12. label                          label 0x00000003
+   13. stack_rewind
+   14. branch_if_no_active_lanes_eq   branch -6 (label 2 at #8) if no lanes of v2 == 0x00000000 (0.0)
+   15. stack_rewind
+   16. branch_if_no_active_lanes_eq   branch -14 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
 #endif
 
@@ -488,16 +465,15 @@ R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
             builder.enableExecutionMaskWrites();
         }
 
-        builder.push_literal_i(1);
         builder.jump(label4);
         builder.label(label1);
-        builder.immediate_f(1.0f);
+        builder.zero_slots_unmasked(one_slot_at(0));
         builder.label(label2);
-        builder.immediate_f(2.0f);
+        builder.zero_slots_unmasked(one_slot_at(1));
         builder.branch_if_no_active_lanes(label2);
         builder.branch_if_no_active_lanes(label3);
         builder.label(label3);
-        builder.immediate_f(3.0f);
+        builder.zero_slots_unmasked(one_slot_at(2));
         builder.branch_if_any_active_lanes(label1);
         builder.branch_if_any_active_lanes(label1);
         builder.label(label4);
@@ -505,13 +481,12 @@ R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
         builder.branch_if_no_active_lanes_on_stack_top_equal(0, label2);
         builder.branch_if_no_active_lanes_on_stack_top_equal(1, label1);
         builder.branch_if_no_active_lanes_on_stack_top_equal(1, label4);
-        builder.discard_stack(1);
 
         if (enableExecutionMaskWrites) {
             builder.disableExecutionMaskWrites();
         }
 
-        std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
+        std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/3,
                                                                     /*numUniformSlots=*/0);
 
         check(r, *program, enableExecutionMaskWrites ? kExpectationWithExecutionMaskWrites

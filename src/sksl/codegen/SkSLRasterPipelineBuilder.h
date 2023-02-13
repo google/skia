@@ -374,18 +374,6 @@ public:
     }
 
     // We use the same SkRasterPipeline op regardless of the literal type, and bitcast the value.
-    void immediate_f(float val) {
-        fInstructions.push_back({BuilderOp::immediate_f, {}, sk_bit_cast<int32_t>(val)});
-    }
-
-    void immediate_i(int32_t val) {
-        fInstructions.push_back({BuilderOp::immediate_f, {}, val});
-    }
-
-    void immediate_u(uint32_t val) {
-        fInstructions.push_back({BuilderOp::immediate_f, {}, sk_bit_cast<int32_t>(val)});
-    }
-
     void push_literal_f(float val) {
         this->push_literal_i(sk_bit_cast<int32_t>(val));
     }
