@@ -490,7 +490,7 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, CastFolding,                     "folding/
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntFoldingES2,                   "folding/IntFoldingES2.rts")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntFoldingES3,                   "folding/IntFoldingES3.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, FloatFolding,                    "folding/FloatFolding.rts")
-SKSL_TEST(VM + GPU,      kApiLevel_T, MatrixFoldingES2,                "folding/MatrixFoldingES2.rts")
+SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixFoldingES2,                "folding/MatrixFoldingES2.rts")
 SKSL_TEST(RP + GPU_ES3,  kNever,      MatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixNoOpFolding,               "folding/MatrixNoOpFolding.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixScalarNoOpFolding,         "folding/MatrixScalarNoOpFolding.rts")
@@ -498,7 +498,7 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixVectorNoOpFolding,         "folding/
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, Negation,                        "folding/Negation.rts")
 // TODO(skia:13035): This test fails on Nvidia GPUs on OpenGL but passes Vulkan. Re-enable the test
 // on Vulkan when granular GPU backend selection is supported.
-SKSL_TEST(VM,            kApiLevel_T, PreserveSideEffects,             "folding/PreserveSideEffects.rts")
+SKSL_TEST(RP + VM,       kApiLevel_T, PreserveSideEffects,             "folding/PreserveSideEffects.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, SelfAssignment,                  "folding/SelfAssignment.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructFieldFolding,              "folding/StructFieldFolding.rts")
@@ -538,7 +538,7 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructsCanBeInlinedSafely,                
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, SwizzleCanBeInlinedDirectly,                      "inliner/SwizzleCanBeInlinedDirectly.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryResultsCannotBeInlined,                    "inliner/TernaryResultsCannotBeInlined.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryTestCanBeInlined,                          "inliner/TernaryTestCanBeInlined.sksl")
-SKSL_TEST(VM + GPU,      kApiLevel_T, TrivialArgumentsInlineDirectly,                   "inliner/TrivialArgumentsInlineDirectly.sksl")
+SKSL_TEST(RP + VM + GPU, kApiLevel_T, TrivialArgumentsInlineDirectly,                   "inliner/TrivialArgumentsInlineDirectly.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      TrivialArgumentsInlineDirectlyES3,                "inliner/TrivialArgumentsInlineDirectlyES3.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      WhileBodyMustBeInlinedIntoAScope,                 "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      WhileTestCannotBeInlined,                         "inliner/WhileTestCannotBeInlined.sksl")

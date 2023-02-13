@@ -1887,12 +1887,39 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 }
 
 bool Generator::pushIndexExpression(const IndexExpression& i) {
+    // If possible, get direct access via the lvalue.
     std::unique_ptr<LValue> lvalue = LValue::Make(i);
-    if (!lvalue) {
-        return unsupported();
+    if (lvalue) {
+        lvalue->push(this);
+        return true;
     }
-    lvalue->push(this);
-    return true;
+
+    // Handle fixed-index lookups into temporary values.
+    SKSL_INT indexValue;
+    if (ConstantFolder::GetConstantInt(*i.index(), &indexValue)) {
+        // Push the temporary array onto a separate stack.
+        this->nextTempStack();
+        if (!this->pushExpression(*i.base())) {
+            return unsupported();
+        }
+        this->previousTempStack();
+
+        // Clone the indexed item from the array onto the main stack.
+        int totalSlots = i.base()->type().slotCount();
+        int perItemSlots = i.type().slotCount();
+
+        this->pushCloneFromNextTempStack(perItemSlots,
+                                         totalSlots - ((indexValue + 1) * perItemSlots));
+
+        // The rest of the array, on the separate stack, can now be jettisoned.
+        this->nextTempStack();
+        this->discardExpression(totalSlots);
+        this->previousTempStack();
+        return true;
+    }
+
+    // TODO: implement dynamic-index lookups.
+    return unsupported();
 }
 
 bool Generator::pushIntrinsic(const FunctionCall& c) {
