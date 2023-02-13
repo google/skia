@@ -180,7 +180,6 @@ CORE_FILES = [
     "SkM44.cpp",
     "SkMD5.cpp",
     "SkMD5.h",
-    "SkMSAN.h",
     "SkMallocPixelRef.cpp",
     "SkMask.cpp",
     "SkMask.h",

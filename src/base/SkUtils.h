@@ -10,6 +10,7 @@
 
 #include "include/private/base/SkAttributes.h"
 
+#include <cstring>
 #include <type_traits> // is_trivially_copyable
 
 namespace SkHexadecimalDigits {

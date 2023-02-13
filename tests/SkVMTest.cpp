@@ -15,7 +15,7 @@
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/core/SkMSAN.h"
+#include "src/base/SkMSAN.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
