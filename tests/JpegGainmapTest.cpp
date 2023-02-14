@@ -168,6 +168,28 @@ DEF_TEST(Codec_jpegSegmentScan, r) {
     }
 }
 
+static bool find_mp_params_segment(SkStream* stream,
+                                   std::unique_ptr<SkJpegMultiPictureParameters>* outMpParams,
+                                   SkJpegSegment* outMpParamsSegment) {
+    auto sourceMgr = SkJpegSourceMgr::Make(stream);
+    for (const auto& segment : sourceMgr->getAllSegments()) {
+        static constexpr uint32_t kMpfMarker = 0xE2;
+        if (segment.marker != kMpfMarker) {
+            continue;
+        }
+        auto parameterData = sourceMgr->getSegmentParameters(segment);
+        if (!parameterData) {
+            continue;
+        }
+        *outMpParams = SkJpegMultiPictureParameters::Make(parameterData);
+        if (*outMpParams) {
+            *outMpParamsSegment = segment;
+            return true;
+        }
+    }
+    return false;
+}
+
 DEF_TEST(Codec_jpegMultiPicture, r) {
     const char* path = "images/iphone_13_pro.jpeg";
     auto stream = GetResourceAsStream(path);
@@ -176,25 +198,22 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
     // Search and parse the MPF header.
     std::unique_ptr<SkJpegMultiPictureParameters> mpParams;
     SkJpegSegment mpParamsSegment;
+    REPORTER_ASSERT(r, find_mp_params_segment(stream.get(), &mpParams, &mpParamsSegment));
+
+    // Verify that we get the same parameters when we re-serialize and de-serialize them
     {
-        auto sourceMgr = SkJpegSourceMgr::Make(stream.get());
-        for (const auto& segment : sourceMgr->getAllSegments()) {
-            static constexpr uint32_t kMpfMarker = 0xE2;
-            if (segment.marker != kMpfMarker) {
-                continue;
-            }
-            auto parameterData = sourceMgr->getSegmentParameters(segment);
-            if (!parameterData) {
-                continue;
-            }
-            mpParams = SkJpegParseMultiPicture(parameterData);
-            if (mpParams) {
-                mpParamsSegment = segment;
-                break;
-            }
+        auto mpParamsSerialized = mpParams->serialize();
+        REPORTER_ASSERT(r, mpParamsSerialized);
+        auto mpParamsRoundTripped = SkJpegMultiPictureParameters::Make(mpParamsSerialized);
+        REPORTER_ASSERT(r, mpParamsRoundTripped);
+        REPORTER_ASSERT(r, mpParamsRoundTripped->images.size() == mpParams->images.size());
+        for (size_t i = 0; i < mpParamsRoundTripped->images.size(); ++i) {
+            REPORTER_ASSERT(r, mpParamsRoundTripped->images[i].size == mpParams->images[i].size);
+            REPORTER_ASSERT(
+                    r,
+                    mpParamsRoundTripped->images[i].dataOffset == mpParams->images[i].dataOffset);
         }
     }
-    REPORTER_ASSERT(r, mpParams);
 
     const struct Rec {
         const TestStream::Type streamType;

@@ -1159,8 +1159,8 @@ bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
         auto mpParamsSegment = (*mpfMarkerSegmentIter);
         ++mpfMarkerSegmentIter;
 
-        auto mpParams =
-                SkJpegParseMultiPicture(SkData::MakeWithoutCopy(marker->data, marker->data_length));
+        auto mpParams = SkJpegMultiPictureParameters::Make(
+                SkData::MakeWithoutCopy(marker->data, marker->data_length));
         if (!mpParams) {
             continue;
         }
