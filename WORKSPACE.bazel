@@ -145,11 +145,11 @@ gazelle_dependencies(
 # https://github.com/bazelbuild/rules_go#protobuf-and-grpc
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf",
-    strip_prefix = "protobuf-3.14.0",
+    sha256 = "b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576",
+    strip_prefix = "protobuf-3.18.1",
     urls = [
-        "https://storage.googleapis.com/skia-world-readable/bazel/6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf.tar.gz",
-        "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protobuf-all-3.14.0.tar.gz",
+        "https://storage.googleapis.com/skia-world-readable/bazel/b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/releases/download/v3.18.1/protobuf-all-3.18.1.tar.gz",
     ],
 )
 
