@@ -29,4 +29,6 @@ void Texture::setReleaseCallback(sk_sp<RefCntedCallback> releaseCallback) {
     fReleaseCallback = std::move(releaseCallback);
 }
 
+MutableTextureStateRef* Texture::mutableState() const { return fMutableState.get(); }
+
 } // namespace skgpu::graphite

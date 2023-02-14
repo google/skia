@@ -41,6 +41,8 @@ protected:
             Ownership,
             skgpu::Budgeted);
 
+    MutableTextureStateRef* mutableState() const;
+
 private:
     SkISize fDimensions;
     TextureInfo fInfo;
