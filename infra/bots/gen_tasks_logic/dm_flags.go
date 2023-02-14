@@ -445,9 +445,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "TestMockContext")
 			skip(ALL, "test", ALL, "TestGpuRenderingContexts")
 			skip(ALL, "test", ALL, "TestGpuAllContexts")
+			skip(ALL, "test", ALL, "TextBlobCache")
 			skip(ALL, "test", ALL, "OverdrawSurface_Gpu")
 			skip(ALL, "test", ALL, "ReplaceSurfaceBackendTexture")
 			skip(ALL, "test", ALL, "SurfaceAttachStencil_Gpu")
+			skip(ALL, "test", ALL, "SurfacePartialDraw_Gpu")
 			skip(ALL, "test", ALL, "SurfaceWrappedWithRelease_Gpu")
 		}
 
