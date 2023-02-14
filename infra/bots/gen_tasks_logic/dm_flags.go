@@ -561,6 +561,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("mtltestprecompile", "svg", ALL, "Ghostscript_Tiger.svg")
 			skip("mtltestprecompile", "svg", ALL, "Seal_of_American_Samoa.svg")
 			skip("mtltestprecompile", "svg", ALL, "Seal_of_Illinois.svg")
+			skip("mtltestprecompile", "svg", ALL, "cartman.svg")
 			skip("mtltestprecompile", "svg", ALL, "desk_motionmark_paths.svg")
 			skip("mtltestprecompile", "svg", ALL, "rg1024_green_grapes.svg")
 			skip("mtltestprecompile", "svg", ALL, "shapes-intro-02-f.svg")
