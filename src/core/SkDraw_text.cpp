@@ -36,8 +36,7 @@ static bool check_glyph_position(SkPoint position) {
              lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)));
 }
 
-void SkDraw::paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) const {
-
+void SkDraw::paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& paint) const {
     // The size used for a typical blitter.
     SkSTArenaAlloc<3308> alloc;
     SkBlitter* blitter = SkBlitter::Choose(fDst,
@@ -54,8 +53,7 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) c
     bool useRegion = fRC->isBW() && !fRC->isRect();
 
     if (useRegion) {
-        for (auto [variant, pos] : accepted->accepted()) {
-            const SkGlyph* glyph = variant.glyph();
+        for (auto [glyph, pos] : accepted) {
             if (check_glyph_position(pos)) {
                 SkMask mask = glyph->mask(pos);
 
@@ -81,8 +79,7 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) c
     } else {
         SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
                                          : fRC->aaRgn().getBounds();
-        for (auto [variant, pos] : accepted->accepted()) {
-            const SkGlyph* glyph = variant.glyph();
+        for (auto [glyph, pos] : accepted) {
             if (check_glyph_position(pos)) {
                 SkMask mask = glyph->mask(pos);
                 SkIRect storage;

@@ -226,7 +226,14 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(
 
             prepare_for_direct_mask_drawing(strike.get(), accepted, rejected);
             rejected->flipRejectsToSource();
-            bitmapDevice->paintMasks(accepted, paint);
+            // TODO: Remove temporary change of array formats. Copy the glyphs into a SkGlyph*
+            // array.
+            auto toDraw = accepted->accepted();
+            SkSTArray<24, const SkGlyph*> glyphs(toDraw.size());
+            for (const auto glyph : toDraw.get<0>()) {
+                glyphs.push_back(glyph);
+            }
+            bitmapDevice->paintMasks(SkMakeZip(glyphs, toDraw.get<1>()), paint);
         }
         if (!rejected->source().empty()) {
             std::vector<SkPoint> sourcePositions;
