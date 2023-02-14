@@ -53,6 +53,7 @@ public:
         kTriedToFulfill,
         kDone
     };
+
     ~PromiseImageInfo() {
         // If we hit this, then the image or the texture will outlive this object which is bad.
         SkASSERT_RELEASE(!fImage || fImage->unique());
@@ -60,13 +61,15 @@ public:
         fImage.reset();
         fTexture.reset();
         State s = fState;
-        SkASSERT_RELEASE(s == State::kDone);
+        SkASSERT_RELEASE(!fDrawn || s == State::kDone);
     }
+
     DDLFuzzer* fFuzzer = nullptr;
     sk_sp<SkImage> fImage;
     // At the moment, the atomicity of this isn't used because all our promise image callbacks
     // happen on the same thread. See the TODO below about them unreffing them off the GPU thread.
     std::atomic<State> fState{State::kInitial};
+    std::atomic<bool> fDrawn{false};
     sk_sp<SkPromiseImageTexture> fTexture;
 };
 
@@ -188,8 +191,9 @@ void DDLFuzzer::releasePromiseImage(PromiseImageInfo& promiseImage) {
     if (!this->isOnGPUThread()) {
         fFuzz->signalBug();
     }
-    State old = promiseImage.fState.exchange(State::kInitial, std::memory_order_relaxed);
-    if (old != State::kTriedToFulfill) {
+
+    State old = promiseImage.fState.exchange(State::kDone, std::memory_order_relaxed);
+    if (promiseImage.fDrawn && old != State::kTriedToFulfill) {
         fFuzz->signalBug();
     }
 
@@ -245,6 +249,7 @@ void DDLFuzzer::recordAndPlayDDL() {
         int j;
         // Pick random promise images to draw.
         fFuzz->nextRange(&j, 0, kPromiseImageCount - 1);
+        fPromiseImages[j].fDrawn = true;
         canvas->drawImage(fPromiseImages[j].fImage, xOffset, 0);
     }
     sk_sp<SkDeferredDisplayList> ddl = recorder.detach();
@@ -264,6 +269,13 @@ void DDLFuzzer::run() {
         this->recordAndPlayDDL();
     });
     fRecordingTaskGroup.wait();
+
+    fGpuTaskGroup.add([=]{
+        fSurface->flushAndSubmit(/* syncCpu= */ true);
+    });
+
+    fGpuTaskGroup.wait();
+
     fGpuTaskGroup.add([=] {
         while (!fReusableTextures.empty()) {
             sk_sp<SkPromiseImageTexture> gpuTexture = std::move(fReusableTextures.front());
