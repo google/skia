@@ -120,20 +120,10 @@ void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
         dst = "half4(1)";
     }
     SkString lookup;
-    // This works around an issue in SwiftShader where the texture lookup is messed up
-    // if we use blend_modulate instead of simply operator * on dst and the sampled result.
-    // At this time it's unknown if the same problem exists for other modes.
-    if (mode == SkBlendMode::kModulate) {
-        this->codeAppend("(");
-        this->appendTextureLookup(&lookup, samplerHandle, coordName);
-        this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
-        this->codeAppendf(" * %s)", dst);
-    } else {
-        this->codeAppendf("%s(", skgpu::BlendFuncName(mode));
-        this->appendTextureLookup(&lookup, samplerHandle, coordName);
-        this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
-        this->codeAppendf(", %s)", dst);
-    }
+    this->codeAppendf("%s(", skgpu::BlendFuncName(mode));
+    this->appendTextureLookup(&lookup, samplerHandle, coordName);
+    this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
+    this->codeAppendf(", %s)", dst);
 }
 
 void GrGLSLShaderBuilder::appendInputLoad(SamplerHandle samplerHandle) {
