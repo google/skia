@@ -565,32 +565,33 @@ private:
 
 } // namespace
 
-Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, const SkPoint& point,
+Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkPoint& point,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    const AdjustedText txt(orig_txt, desc);
+    const AdjustedText adjText(text, desc);
 
     return (desc.fResize == ResizePolicy::kScaleToFit ||
             desc.fResize == ResizePolicy::kDownscaleToFit) // makes no sense in point mode
             ? Result()
-            : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
+            : ShapeImpl(adjText, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()),
+                        fontmgr);
 }
 
-Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, const SkRect& box,
+Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkRect& box,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    const AdjustedText txt(orig_txt, desc);
+    const AdjustedText adjText(text, desc);
 
     switch(desc.fResize) {
     case ResizePolicy::kNone:
-        return ShapeImpl(txt, desc, box, fontmgr);
+        return ShapeImpl(adjText, desc, box, fontmgr);
     case ResizePolicy::kScaleToFit:
-        return ShapeToFit(txt, desc, box, fontmgr);
+        return ShapeToFit(adjText, desc, box, fontmgr);
     case ResizePolicy::kDownscaleToFit: {
         SkSize size;
-        auto result = ShapeImpl(txt, desc, box, fontmgr, &size);
+        auto result = ShapeImpl(adjText, desc, box, fontmgr, &size);
 
         return result_fits(result, size, box, desc)
                 ? result
-                : ShapeToFit(txt, desc, box, fontmgr);
+                : ShapeToFit(adjText, desc, box, fontmgr);
     }
     }
 

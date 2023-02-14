@@ -239,8 +239,8 @@ public:
     [[nodiscard]] bool pushConstructorMatrixResize(const ConstructorMatrixResize& c);
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
     [[nodiscard]] bool pushExpression(const Expression& e, bool usesResult = true);
-    [[nodiscard]] bool pushFieldAccess(const FieldAccess& e);
-    [[nodiscard]] bool pushFunctionCall(const FunctionCall& e);
+    [[nodiscard]] bool pushFieldAccess(const FieldAccess& f);
+    [[nodiscard]] bool pushFunctionCall(const FunctionCall& c);
     [[nodiscard]] bool pushIndexExpression(const IndexExpression& i);
     [[nodiscard]] bool pushIntrinsic(const FunctionCall& c);
     [[nodiscard]] bool pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0);
@@ -1612,7 +1612,7 @@ bool Generator::pushConstructorCompound(const AnyConstructor& c) {
 bool Generator::pushChildCall(const ChildCall& c) {
     int* childIdx = fChildEffectMap.find(&c.child());
     SkASSERT(childIdx != nullptr);
-    SkASSERT(c.arguments().size() >= 1);
+    SkASSERT(!c.arguments().empty());
 
     // Save the dst.rgba fields; these hold our execution masks, and could potentially be
     // clobbered by the child effect.
@@ -2411,7 +2411,7 @@ bool Generator::pushPrefixExpression(Operator op, const Expression& expr) {
 }
 
 bool Generator::pushSwizzle(const Swizzle& s) {
-    SkASSERT(s.components().size() >= 1 && s.components().size() <= 4);
+    SkASSERT(!s.components().empty() && s.components().size() <= 4);
 
     // Determine if the swizzle rearranges its elements, or if it's a simple subset of its elements.
     // (A simple subset would be a sequential non-repeating range of components, like `.xyz` or

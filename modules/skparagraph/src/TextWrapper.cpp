@@ -266,7 +266,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     fMaxIntrinsicWidth = std::numeric_limits<SkScalar>::min();
 
     auto span = parent->clusters();
-    if (span.size() == 0) {
+    if (span.empty()) {
         return;
     }
     auto maxLines = parent->paragraphStyle().getMaxLines();

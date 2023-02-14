@@ -502,19 +502,19 @@ static int pack_nybbles(SkSpan<const int8_t> components) {
     return packed;
 }
 
-void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> elementSpan) {
+void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> components) {
     // Consumes `consumedSlots` elements on the stack, then generates `elementSpan.size()` elements.
     SkASSERT(consumedSlots >= 0);
 
     // We only allow up to 16 elements, and they can only reach 0-15 slots, due to nybble packing.
-    int numElements = elementSpan.size();
+    int numElements = components.size();
     SkASSERT(numElements <= 16);
-    SkASSERT(std::all_of(elementSpan.begin(), elementSpan.end(), [](int8_t e){ return e >= 0; }));
-    SkASSERT(std::all_of(elementSpan.begin(), elementSpan.end(), [](int8_t e){ return e <= 0xF; }));
+    SkASSERT(std::all_of(components.begin(), components.end(), [](int8_t e){ return e >= 0; }));
+    SkASSERT(std::all_of(components.begin(), components.end(), [](int8_t e){ return e <= 0xF; }));
 
     // Make a local copy of the element array.
     int8_t elements[16] = {};
-    std::copy(elementSpan.begin(), elementSpan.end(), std::begin(elements));
+    std::copy(components.begin(), components.end(), std::begin(elements));
 
     while (numElements > 0) {
         // If the first element of the swizzle is zero...

@@ -125,26 +125,26 @@ int SkCubics::RootsReal(double A, double B, double C, double D, double solution[
 }
 
 int SkCubics::RootsValidT(double A, double B, double C, double D,
-                          double t[3]) {
-    double solution[3] = {0, 0, 0};
-    int realRoots = SkCubics::RootsReal(A, B, C, D, solution);
+                          double solution[3]) {
+    double allRoots[3] = {0, 0, 0};
+    int realRoots = SkCubics::RootsReal(A, B, C, D, allRoots);
     int foundRoots = 0;
     for (int index = 0; index < realRoots; ++index) {
-        double tValue = solution[index];
+        double tValue = allRoots[index];
         if (tValue >= 1.0 && tValue <= 1.00005) {
             // Make sure we do not already have 1 (or something very close) in the list of roots.
-            if ((foundRoots < 1 || !sk_doubles_nearly_equal_ulps(t[0], 1)) &&
-                (foundRoots < 2 || !sk_doubles_nearly_equal_ulps(t[1], 1))) {
-                t[foundRoots++] = 1;
+            if ((foundRoots < 1 || !sk_doubles_nearly_equal_ulps(solution[0], 1)) &&
+                (foundRoots < 2 || !sk_doubles_nearly_equal_ulps(solution[1], 1))) {
+                solution[foundRoots++] = 1;
             }
         } else if (tValue >= -0.00005 && (tValue <= 0.0 || sk_double_nearly_zero(tValue))) {
             // Make sure we do not already have 0 (or something very close) in the list of roots.
-            if ((foundRoots < 1 || !sk_double_nearly_zero(t[0])) &&
-                (foundRoots < 2 || !sk_double_nearly_zero(t[1]))) {
-                t[foundRoots++] = 0;
+            if ((foundRoots < 1 || !sk_double_nearly_zero(solution[0])) &&
+                (foundRoots < 2 || !sk_double_nearly_zero(solution[1]))) {
+                solution[foundRoots++] = 0;
             }
         } else if (tValue > 0.0 && tValue < 1.0) {
-            t[foundRoots++] = tValue;
+            solution[foundRoots++] = tValue;
         }
     }
     return foundRoots;
@@ -206,7 +206,7 @@ static double binary_search(double A, double B, double C, double D, double start
 }
 
 int SkCubics::BinarySearchRootsValidT(double A, double B, double C, double D,
-                                      double t[3]) {
+                                      double solution[3]) {
     if (!std::isfinite(A) || !std::isfinite(B) || !std::isfinite(C) || !std::isfinite(D)) {
         return 0;
     }
@@ -231,9 +231,9 @@ int SkCubics::BinarySearchRootsValidT(double A, double B, double C, double D,
         double root = binary_search(A, B, C, D, regions[startIndex], regions[startIndex + 1]);
         if (root >= 0) {
             // Check for duplicates
-            if ((foundRoots < 1 || !approximately_zero(t[0] - root)) &&
-                (foundRoots < 2 || !approximately_zero(t[1] - root))) {
-                t[foundRoots++] = root;
+            if ((foundRoots < 1 || !approximately_zero(solution[0] - root)) &&
+                (foundRoots < 2 || !approximately_zero(solution[1] - root))) {
+                solution[foundRoots++] = root;
             }
         }
     }

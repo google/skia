@@ -217,9 +217,9 @@ void SkUserTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) 
     *isLocal = true;
 }
 
-void SkUserTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
+void SkUserTypeface::onCharsToGlyphs(const SkUnichar chars[], int count, SkGlyphID glyphs[]) const {
     for (int i = 0; i < count; ++i) {
-        glyphs[i] = uni[i] < this->glyphCount() ? SkTo<SkGlyphID>(uni[i]) : 0;
+        glyphs[i] = chars[i] < this->glyphCount() ? SkTo<SkGlyphID>(chars[i]) : 0;
     }
 }
 

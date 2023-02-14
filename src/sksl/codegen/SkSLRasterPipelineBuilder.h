@@ -155,7 +155,7 @@ public:
                       SkSpan<const float> uniforms) const;
 #endif
 
-    void dump(SkWStream* s) const;
+    void dump(SkWStream* out) const;
 
 private:
     using StackDepthMap = SkTHashMap<int, int>; // <stack index, depth of stack>
