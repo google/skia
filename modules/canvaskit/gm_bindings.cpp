@@ -135,7 +135,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     gm->onceBeforeDraw();
     SkString msg;
     // Based on GMSrc::draw from DM.
-    auto gpuSetupResult = gm->gpuSetup(ctx.get(), canvas, &msg);
+    auto gpuSetupResult = gm->gpuSetup(canvas, &msg);
     if (gpuSetupResult == skiagm::DrawResult::kFail) {
         SkDebugf("Error with gpu setup for gm %s: %s\n", name.c_str(), msg.c_str());
         return result;
