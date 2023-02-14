@@ -28,7 +28,7 @@ void GMSlide::gpuTeardown() {
     fGM->gpuTeardown();
 }
 
-void GMSlide::draw(skgpu::graphite::Context* context, SkCanvas* canvas) {
+void GMSlide::draw(SkCanvas* canvas) {
     SkString msg;
 
     auto result = fGM->gpuSetup(canvas, &msg);
@@ -36,7 +36,7 @@ void GMSlide::draw(skgpu::graphite::Context* context, SkCanvas* canvas) {
         return;
     }
 
-    fGM->draw(context, canvas, &msg);
+    fGM->draw(canvas, &msg);
 }
 
 bool GMSlide::animate(double nanos) { return fGM->animate(nanos); }

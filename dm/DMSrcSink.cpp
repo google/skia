@@ -114,11 +114,6 @@ namespace DM {
 GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
 Result GMSrc::draw(SkCanvas* canvas) const {
-    return this->draw(nullptr, canvas);
-}
-
-Result GMSrc::draw(skgpu::graphite::Context* graphiteContext,
-                   SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     SkString msg;
 
@@ -130,7 +125,7 @@ Result GMSrc::draw(skgpu::graphite::Context* graphiteContext,
         default: SK_ABORT("");
     }
 
-    skiagm::DrawResult drawResult = gm->draw(graphiteContext, canvas, &msg);
+    skiagm::DrawResult drawResult = gm->draw(canvas, &msg);
     switch (drawResult) {
         case skiagm::DrawResult::kOk  : return Result(Result::Status::Ok,    msg);
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);

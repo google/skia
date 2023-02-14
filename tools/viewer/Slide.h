@@ -25,10 +25,6 @@ using SlideRegistry = sk_tools::Registry<SlideFactory>;
     static Slide*          SK_MACRO_APPEND_LINE(F_)() { code } \
     static SlideRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
-namespace skgpu::graphite {
-class Context;
-}
-
 class Slide : public SkRefCnt {
 public:
     /**
@@ -38,8 +34,7 @@ public:
     virtual SkISize getDimensions() const { return SkISize::MakeEmpty(); }
 
     virtual void gpuTeardown() { }
-    virtual void draw(SkCanvas*) { SK_ABORT("Not implemented."); }
-    virtual void draw(skgpu::graphite::Context*, SkCanvas* canvas) { this->draw(canvas); }
+    virtual void draw(SkCanvas* canvas) = 0;
     virtual bool animate(double nanos) { return false; }
     virtual void load(SkScalar winWidth, SkScalar winHeight) {}
     virtual void resize(SkScalar winWidth, SkScalar winHeight) {}
