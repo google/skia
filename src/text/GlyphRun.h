@@ -113,6 +113,13 @@ public:
         }
         return glyphCount;
     }
+    size_t maxGlyphRunSize() const {
+        size_t size = 0;
+        for (const GlyphRun& run : *this) {
+            size = std::max(run.runSize(), size);
+        }
+        return size;
+    }
 
     bool hasRSXForm() const {
         for (const GlyphRun& run : *this) {
