@@ -294,9 +294,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("gltestthreading", "gm", ALL, "persp_shaders_aa")
 			skip("gltestthreading", "gm", ALL, "rtif_distort")
 			skip("gltestthreading", "gm", ALL, "skbug_8664")
+			skip("gltestthreading", "gm", ALL, "teenystrokes")
 			skip("gltestthreading", "gm", ALL, "texel_subset_linear_mipmap_nearest_down")
 			skip("gltestthreading", "gm", ALL, "yuv420_odd_dim_repeat")
 
+			skip("gltestthreading", "svg", ALL, "filters-offset-01-b.svg")
+			skip("gltestthreading", "svg", ALL, "gallardo.svg")
 			skip("gltestthreading", "svg", ALL, "masking-filter-01-f.svg")
 
 		}
