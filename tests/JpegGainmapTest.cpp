@@ -237,37 +237,29 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
             {TestStream::Type::kUnseekable, true, 1024 * 1024 * 16},
     };
     for (const auto& rec : recs) {
-        SkJpegMultiPictureParameters testMpParams = *mpParams;
-        if (rec.skipFirstImage) {
-            testMpParams.images[1].size = 0;
-            testMpParams.images[1].dataOffset = 0;
-        }
         stream->rewind();
         TestStream testStream(rec.streamType, stream.get());
-
         auto sourceMgr = SkJpegSourceMgr::Make(&testStream, rec.bufferSize);
 
-        // Extract the streams for the MultiPicture images.
-        auto mpStreams =
-                SkJpegExtractMultiPictureStreams(&testMpParams, mpParamsSegment, sourceMgr.get());
-        REPORTER_ASSERT(r, mpStreams);
-        size_t numberOfImages = mpStreams->images.size();
-
-        // Decode them into bitmaps.
+        // Decode the images into bitmaps.
+        size_t numberOfImages = mpParams->images.size();
         std::vector<SkBitmap> bitmaps(numberOfImages);
         for (size_t i = 0; i < numberOfImages; ++i) {
-            auto imageStream = std::move(mpStreams->images[i].stream);
             if (i == 0) {
-                REPORTER_ASSERT(r, !imageStream);
+                REPORTER_ASSERT(r, mpParams->images[i].dataOffset == 0);
                 continue;
             }
             if (i == 1 && rec.skipFirstImage) {
-                REPORTER_ASSERT(r, !imageStream);
                 continue;
-            }
-            REPORTER_ASSERT(r, imageStream);
+            };
+            auto imageData = sourceMgr->getSubsetData(
+                    SkJpegMultiPictureParameters::GetAbsoluteOffset(mpParams->images[i].dataOffset,
+                                                                    mpParamsSegment.offset),
+                    mpParams->images[i].size);
+            REPORTER_ASSERT(r, imageData);
 
-            std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(imageStream));
+            std::unique_ptr<SkCodec> codec =
+                    SkCodec::MakeFromStream(SkMemoryStream::Make(imageData));
             REPORTER_ASSERT(r, codec);
 
             SkBitmap bm;

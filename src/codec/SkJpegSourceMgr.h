@@ -53,8 +53,10 @@ public:
     // Return false if there is an error or if no EndOfImage marker is found.
     virtual const std::vector<SkJpegSegment>& getAllSegments() = 0;
 
-    // Return a stream for the subset of this source's stream with the specified offset and size.
-    virtual std::unique_ptr<SkStream> getSubsetStream(size_t offset, size_t size) = 0;
+    // Return an the data for a subset of this source's stream, with the specified offset and size.
+    // If the returned SkData is a copy (it does not refer directly to memory owned by |fStream|),
+    // then |wasCopied| is set to true.
+    virtual sk_sp<SkData> getSubsetData(size_t offset, size_t size, bool* wasCopied = nullptr) = 0;
 
     // Segments start with a 2 byte marker, followed by a 2 byte parameter length (which includes
     // those two bytes, followed by parameters. Return the parameters portion of the specified

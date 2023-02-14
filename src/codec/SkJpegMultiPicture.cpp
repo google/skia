@@ -12,7 +12,6 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegPriv.h"
 #include "src/codec/SkJpegSegmentScan.h"
-#include "src/codec/SkJpegSourceMgr.h"
 #include "src/core/SkEndian.h"
 
 #include <cstring>
@@ -371,32 +370,4 @@ size_t SkJpegMultiPictureParameters::GetAbsoluteOffset(uint32_t dataOffset,
            SkJpegSegmentScanner::kParameterLengthSize +  // The parameter length
            sizeof(kMpfSig) +                             // The signature
            dataOffset;
-}
-
-std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
-        const SkJpegMultiPictureParameters* mpParams,
-        const SkJpegSegment& mpParamsSegment,
-        SkJpegSourceMgr* decoderSource) {
-    SkASSERT(mpParamsSegment.marker == kMpfMarker);
-
-    // Ensure that the whole source image has been scanned.
-    // TODO(ccameron): Move this into getSubsetStream.
-    (void)decoderSource->getAllSegments();
-
-    // Create streams for each of the specified segments.
-    auto result = std::make_unique<SkJpegMultiPictureStreams>();
-    size_t numberOfImages = mpParams->images.size();
-    result->images.resize(numberOfImages);
-    for (size_t i = 0; i < numberOfImages; ++i) {
-        const auto& imageParams = mpParams->images[i];
-        if (imageParams.dataOffset == 0) {
-            continue;
-        }
-        const size_t imageStreamOffset = SkJpegMultiPictureParameters::GetAbsoluteOffset(
-                imageParams.dataOffset, mpParamsSegment.offset);
-        const size_t imageStreamSize = imageParams.size;
-        result->images[i].stream =
-                decoderSource->getSubsetStream(imageStreamOffset, imageStreamSize);
-    }
-    return result;
 }

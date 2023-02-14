@@ -9,15 +9,11 @@
 #define SkJpegMultiPicture_codec_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkStream.h"
 
 #include <cstdint>
-#include <memory>
 #include <vector>
 
 class SkData;
-class SkJpegSourceMgr;
-struct SkJpegSegment;
 
 /*
  * Parsed Jpeg Multi-Picture Format structure as specified in CIPA DC-x007-2009. An introduction to
@@ -62,27 +58,5 @@ struct SkJpegMultiPictureParameters {
      */
     static size_t GetAbsoluteOffset(uint32_t dataOffset, size_t mpSegmentOffset);
 };
-
-/*
- * Create SkStreams for all MultiPicture images, given an SkJpegSourceMgr for an image, and the
- * SkJpegSegment whose parameters produced the parameters. This will return nullptr if there is not
- * MultiPicture segment, or if the MultiPicture parameters fail to parse.
- */
-struct SkJpegMultiPictureStreams {
-    // An individual image.
-    struct Image {
-        // An SkStream from which the image's data may be read. This is nullptr for the First
-        // Individual Image and for any images which encounter errors (e.g, they are outside of
-        // the range of the stream).
-        std::unique_ptr<SkStream> stream;
-    };
-
-    // The images as listed in the Index Image File Directory.
-    std::vector<Image> images;
-};
-std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
-        const SkJpegMultiPictureParameters* mpParams,
-        const SkJpegSegment& mpParamsSegment,
-        SkJpegSourceMgr* decoderSource);
 
 #endif
