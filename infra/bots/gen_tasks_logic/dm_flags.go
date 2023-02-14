@@ -707,6 +707,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("tests")
 	}
 
+	if b.model("Spin513") {
+		removeFromArgs("tests")
+	}
+
 	if b.extraConfig("NativeFonts") { // images won't exercise native font integration :)
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
