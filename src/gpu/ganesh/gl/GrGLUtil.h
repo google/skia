@@ -164,8 +164,6 @@ enum class GrGLRenderer {
     kAdreno640,  // Pixel4
     kAdreno6xx_other,
 
-    kGoogleSwiftShader,
-
     /** Intel GPU families, ordered by generation **/
     // 6th gen
     kIntelSandyBridge,
@@ -217,7 +215,6 @@ enum class GrGLDriver {
     kMesa,
     kNVIDIA,
     kIntel,
-    kSwiftShader,
     kQualcomm,
     kFreedreno,
     kAndroidEmulator,

@@ -4450,11 +4450,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fAvoidReorderingRenderTasks = true;
     }
 
-    // http://skbug.com/11965
-    if (ctxInfo.renderer() == GrGLRenderer::kGoogleSwiftShader) {
-        fShaderCaps->fVertexIDSupport = false;
-    }
-
     // http://crbug.com/1197152
     // http://b/187364475
     // We could limit this < 1.13 on ChromeOS but we don't really have a good way to detect

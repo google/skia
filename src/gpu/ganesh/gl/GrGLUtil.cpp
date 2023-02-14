@@ -227,9 +227,6 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
             }
         }
     }
-    if (0 == strcmp("Google SwiftShader", rendererString)) {
-        return GrGLRenderer::kGoogleSwiftShader;
-    }
 
     if (const char* intelString = strstr(rendererString, "Intel")) {
         // These generic strings seem to always come from Haswell: Iris 5100 or Iris Pro 5200
@@ -490,24 +487,7 @@ static std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStan
     }
 
     if (driver == GrGLDriver::kUnknown) {
-        if (vendor == GrGLVendor::kGoogle) {
-            // Swiftshader is the only Google vendor at the moment
-            driver = GrGLDriver::kSwiftShader;
-
-            // Swiftshader has a strange version string: w.x.y.z  Going to arbitrarily ignore
-            // y and assume w,x and z are major, minor, point.
-            // As of writing, version is 4.0.0.6
-            int n = sscanf(versionString,
-                           "OpenGL ES %d.%d SwiftShader %d.%d.0.%d",
-                           &major,
-                           &minor,
-                           &driverMajor,
-                           &driverMinor,
-                           &driverPoint);
-            if (n == 5) {
-                driverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
-            }
-        } else if (vendor == GrGLVendor::kIntel) {
+        if (vendor == GrGLVendor::kIntel) {
             // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
             driver = GrGLDriver::kIntel;
 
