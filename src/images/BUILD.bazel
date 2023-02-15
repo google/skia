@@ -31,6 +31,7 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
+        "SkEncoder.cpp",
         "SkImageEncoder.cpp",
         ":optional_srcs",
     ],

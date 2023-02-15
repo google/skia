@@ -743,8 +743,6 @@ private:
     const void*     fPixels;
     size_t          fRowBytes;
     SkImageInfo     fInfo;
-
-    friend class SkPixmapPriv;
 };
 
 #endif

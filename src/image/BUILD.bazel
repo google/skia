@@ -10,7 +10,6 @@ CORE_FILES = [
     "SkImage_Lazy.cpp",
     "SkImage_Lazy.h",
     "SkImage_Raster.cpp",
-    "SkReadPixelsRec.h",
     "SkRescaleAndReadPixels.cpp",
     "SkRescaleAndReadPixels.h",
     "SkSurface.cpp",

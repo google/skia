@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkPixmapPriv_DEFINED
-#define SkPixmapPriv_DEFINED
+#ifndef SkPixmapUtils_DEFINED
+#define SkPixmapUtils_DEFINED
 
 #include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "src/core/SkAutoPixmapStorage.h"
 
-class SkPixmapPriv {
+class SkPixmapUtils {
 public:
     /**
      *  Copy the pixels in this pixmap into dst, applying the orientation transformations specified
@@ -55,10 +56,6 @@ public:
         return true;
     }
 
-    static void ResetPixmapKeepInfo(SkPixmap* pm, const void* address, size_t rowBytes) {
-        pm->fRowBytes = rowBytes;
-        pm->fPixels = address;
-    }
 };
 
-#endif
+#endif // SkPixmapUtils_DEFINED

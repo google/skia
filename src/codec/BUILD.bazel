@@ -25,6 +25,8 @@ CORE_FILES = [
     "SkMaskSwizzler.h",
     "SkMasks.cpp",
     "SkMasks.h",
+    "SkPixmapUtils.cpp",
+    "SkPixmapUtils.h",
     "SkSampler.cpp",
     "SkSampler.h",
     "SkSwizzler.cpp",

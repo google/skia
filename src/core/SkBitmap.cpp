@@ -28,7 +28,6 @@
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkPixelRefPriv.h"
-#include "src/core/SkPixmapPriv.h"
 #include "src/core/SkWritePixelsRec.h"
 #include "src/shaders/SkImageShader.h"
 
@@ -195,7 +194,7 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
             p = (char*)p + dy * rowBytes + dx * this->bytesPerPixel();
         }
     }
-    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, p, rowBytes);
+    fPixmap.reset(fPixmap.info(), p, rowBytes);
     SkDEBUGCODE(this->validate();)
 }
 
@@ -204,7 +203,7 @@ void SkBitmap::setPixels(void* p) {
         p = nullptr;
     }
     size_t rb = this->rowBytes();
-    SkPixmapPriv::ResetPixmapKeepInfo(&fPixmap, p, rb);
+    fPixmap.reset(fPixmap.info(), p, rb);
     fPixelRef = p ? sk_make_sp<SkPixelRef>(this->width(), this->height(), p, rb) : nullptr;
     SkDEBUGCODE(this->validate();)
 }
