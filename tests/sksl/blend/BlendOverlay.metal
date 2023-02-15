@@ -18,7 +18,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     half4 _0_result = half4(blend_overlay_component_Qhh2h2(_uniforms.src.xw, _uniforms.dst.xw), blend_overlay_component_Qhh2h2(_uniforms.src.yw, _uniforms.dst.yw), blend_overlay_component_Qhh2h2(_uniforms.src.zw, _uniforms.dst.zw), _uniforms.src.w + (1.0h - _uniforms.src.w) * _uniforms.dst.w);
-    _0_result.xyz = _0_result.xyz + _uniforms.dst.xyz * (1.0h - _uniforms.src.w) + _uniforms.src.xyz * (1.0h - _uniforms.dst.w);
+    _0_result.xyz = _0_result.xyz + (_uniforms.dst.xyz * (1.0h - _uniforms.src.w) + _uniforms.src.xyz * (1.0h - _uniforms.dst.w));
     _out.sk_FragColor = _0_result;
     return _out;
 }
