@@ -9,5 +9,6 @@ vec4 main() {
     color.y *= 4.0;
     color.yzw *= vec3(0.5);
     color.zywx += vec4(0.25, 0.0, 0.0, 0.75);
-    return color == vec4(0.75, 1.0, 0.25, 1.0) ? colorGreen : colorRed;
+    color.x += color.w <= 1.0 ? color.z : 0.0;
+    return color == vec4(1.0, 1.0, 0.25, 1.0) ? colorGreen : colorRed;
 }
