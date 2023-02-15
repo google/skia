@@ -1787,6 +1787,24 @@ void MetalCodeGenerator::writeNumberAsMatrix(const Expression& expr, const Type&
     this->write(")");
 }
 
+void MetalCodeGenerator::writeBinaryExpressionElement(const Expression& expr,
+                                                      Operator op,
+                                                      const Expression& other,
+                                                      Precedence precedence) {
+    bool needMatrixSplatOnScalar = other.type().isMatrix() && expr.type().isNumber() &&
+                                   op.isValidForMatrixOrVector() &&
+                                   op.removeAssignment().kind() != Operator::Kind::STAR;
+    if (needMatrixSplatOnScalar) {
+        this->writeNumberAsMatrix(expr, other.type());
+    } else if (op.isEquality() && expr.type().isArray()) {
+        this->write("make_array_ref(");
+        this->writeExpression(expr, precedence);
+        this->write(")");
+    } else {
+        this->writeExpression(expr, precedence);
+    }
+}
+
 void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence) {
     const Expression& left = *b.left();
@@ -1823,21 +1841,13 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
          (leftType.isMatrix() && rightType.isScalar()))) {
         this->writeMatrixDivisionHelpers(leftType.isMatrix() ? leftType : rightType);
     }
+
     if (needParens) {
         this->write("(");
     }
-    bool needMatrixSplatOnScalar = rightType.isMatrix() && leftType.isNumber() &&
-                                   op.isValidForMatrixOrVector() &&
-                                   op.removeAssignment().kind() != Operator::Kind::STAR;
-    if (needMatrixSplatOnScalar) {
-        this->writeNumberAsMatrix(left, rightType);
-    } else if (op.isEquality() && leftType.isArray()) {
-        this->write("make_array_ref(");
-        this->writeExpression(left, precedence);
-        this->write(")");
-    } else {
-        this->writeExpression(left, precedence);
-    }
+
+    this->writeBinaryExpressionElement(left, op, right, precedence);
+
     if (op.kind() != Operator::Kind::EQ && op.isAssignment() &&
         left.kind() == Expression::Kind::kSwizzle && !Analysis::HasSideEffects(left)) {
         // This doesn't compile in Metal:
@@ -1854,18 +1864,8 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write(operator_name(op));
     }
 
-    needMatrixSplatOnScalar = leftType.isMatrix() && rightType.isNumber() &&
-                              op.isValidForMatrixOrVector() &&
-                              op.removeAssignment().kind() != Operator::Kind::STAR;
-    if (needMatrixSplatOnScalar) {
-        this->writeNumberAsMatrix(right, leftType);
-    } else if (op.isEquality() && rightType.isArray()) {
-        this->write("make_array_ref(");
-        this->writeExpression(right, precedence);
-        this->write(")");
-    } else {
-        this->writeExpression(right, precedence);
-    }
+    this->writeBinaryExpressionElement(right, op, left, precedence);
+
     if (needParens) {
         this->write(")");
     }

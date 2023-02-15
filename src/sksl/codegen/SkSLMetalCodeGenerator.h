@@ -43,6 +43,7 @@ class FunctionPrototype;
 class IfStatement;
 class InterfaceBlock;
 class Literal;
+class Operator;
 class OutputStream;
 class Position;
 class PostfixExpression;
@@ -240,6 +241,11 @@ protected:
 
     // Splats a scalar expression across a matrix of arbitrary size.
     void writeNumberAsMatrix(const Expression& expr, const Type& matrixType);
+
+    void writeBinaryExpressionElement(const Expression& expr,
+                                      Operator op,
+                                      const Expression& other,
+                                      Precedence precedence);
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
 
