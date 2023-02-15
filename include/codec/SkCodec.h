@@ -25,11 +25,6 @@
 #include <tuple>
 #include <vector>
 
-// TODO(kjlubick, bungeman) replace these includes with forward declares.
-#include "include/codec/SkCodecAnimation.h" // IWYU pragma: keep
-#include "include/core/SkAlphaType.h" // IWYU pragma: keep
-#include "include/core/SkEncodedImageFormat.h" // IWYU pragma: keep
-
 class SkAndroidCodec;
 class SkData;
 class SkFrameHolder;
@@ -38,6 +33,14 @@ class SkPngChunkReader;
 class SkSampler;
 class SkStream;
 struct SkGainmapInfo;
+enum SkAlphaType : int;
+enum class SkEncodedImageFormat;
+
+namespace SkCodecAnimation {
+enum class Blend;
+enum class DisposalMethod;
+}
+
 
 namespace DM {
 class CodecSrc;

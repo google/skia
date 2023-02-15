@@ -9,8 +9,13 @@
 #define SkPngEncoder_DEFINED
 
 #include "include/core/SkDataTable.h"
+#include "include/core/SkRefCnt.h"
 #include "include/encode/SkEncoder.h"
+#include "include/private/base/SkAPI.h"
 
+#include <memory>
+
+class SkPixmap;
 class SkPngEncoderMgr;
 class SkWStream;
 struct skcms_ICCProfile;

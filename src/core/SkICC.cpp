@@ -6,17 +6,24 @@
  */
 
 #include "include/core/SkICC.h"
+
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkFixed.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "modules/skcms/skcms.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkUtils.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkICCPriv.h"
 #include "src/core/SkMD5.h"
 
 #include <cmath>
+#include <cstring>
 #include <string>
+#include <utility>
 #include <vector>
 
 // The number of input and output channels.

@@ -8,8 +8,10 @@
 #ifndef SkICCPriv_DEFINED
 #define SkICCPriv_DEFINED
 
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkTypes.h"
+#include "include/core/SkTypes.h" // SkSetFourByteTag
+
+#include <cstddef>
+#include <cstdint>
 
 // This is equal to the header size according to the ICC specification (128)
 // plus the size of the tag count (4).  We include the tag count since we

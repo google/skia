@@ -161,7 +161,7 @@ public:
     void onDraw(SkCanvas* canvas) override {
         SkRuntimeShaderBuilder builder(fEffect);
 
-        builder.uniform("cutoff") = sin(fSecs) * 0.55f + 0.5f;
+        builder.uniform("cutoff") = sinf(fSecs) * 0.55f + 0.5f;
         builder.uniform("slope")  = 10.0f;
 
         builder.child("before_map")    = fBefore;

@@ -13,13 +13,15 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMath.h"
-
 #include "include/private/base/SkTFitsIn.h"
-#include "include/private/base/SkTo.h"
 
-class SkReadBuffer;
-class SkWriteBuffer;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
 class SkColorSpace;
 
 /** Returns the number of bytes required to store a pixel, including unused padding.

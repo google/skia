@@ -8,9 +8,11 @@
 #ifndef SkWebpEncoder_DEFINED
 #define SkWebpEncoder_DEFINED
 
-#include "include/core/SkSpan.h"
+#include "include/core/SkSpan.h" // IWYU pragma: keep
 #include "include/encode/SkEncoder.h"
+#include "include/private/base/SkAPI.h"
 
+class SkPixmap;
 class SkWStream;
 struct skcms_ICCProfile;
 

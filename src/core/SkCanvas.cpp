@@ -7,57 +7,73 @@
 
 #include "include/core/SkCanvas.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMesh.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkRasterHandleAllocator.h"
-#include "include/core/SkString.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkSafe32.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkNoDrawCanvas.h"
-#include "src/base/SkArenaAlloc.h"
 #include "src/base/SkMSAN.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkBitmapDevice.h"
-#include "src/core/SkBlenderBase.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkClipStack.h"
 #include "src/core/SkColorFilterBase.h"
-#include "src/core/SkDraw.h"
-#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixUtils.h"
-#include "src/core/SkMeshPriv.h"
 #include "src/core/SkPaintPriv.h"
-#include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkStrikeCache.h"
+#include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/core/SkTextFormatParams.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkVerticesPriv.h"
-#include "src/image/SkImage_Base.h"
 #include "src/image/SkSurface_Base.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
 
+#include <algorithm>
+#include <atomic>
+#include <functional>
 #include <memory>
 #include <new>
 #include <optional>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/ganesh/Device_v1.h"
 #include "src/utils/SkTestCanvas.h"
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 #   include "src/gpu/ganesh/GrRenderTarget.h"
@@ -70,6 +86,7 @@
 #endif
 
 #if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -215,6 +232,13 @@ SkCanvas::Layer::Layer(sk_sp<SkBaseDevice> device,
     // can be used as-is to draw the result of the filter to the dst device.
     SkASSERT(!fPaint.getImageFilter());
 }
+
+SkCanvas::BackImage::BackImage(sk_sp<SkSpecialImage> img, SkIPoint loc)
+                               :fImage(img), fLoc(loc) {}
+SkCanvas::BackImage::BackImage(const BackImage&) = default;
+SkCanvas::BackImage::BackImage(BackImage&&) = default;
+SkCanvas::BackImage& SkCanvas::BackImage::operator=(const BackImage&) = default;
+SkCanvas::BackImage::~BackImage() = default;
 
 SkCanvas::MCRec::MCRec(SkBaseDevice* device) : fDevice(device) {
     SkASSERT(fDevice);

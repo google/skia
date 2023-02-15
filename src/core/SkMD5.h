@@ -11,6 +11,9 @@
 #include "include/core/SkStream.h"
 #include "include/private/base/SkTo.h"
 
+#include <cstdint>
+#include <cstring>
+
 /* Calculate a 128-bit MD5 message-digest of the bytes sent to this stream. */
 class SkMD5 : public SkWStream {
 public:

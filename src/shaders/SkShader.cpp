@@ -207,16 +207,6 @@ void SkShaderBase::addToKey(const skgpu::graphite::KeyContext& keyContext,
 }
 #endif
 
-sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
-                                     const SkSamplingOptions& sampling,
-                                     const SkMatrix* lm) const {
-    if (lm && !lm->invert(nullptr)) {
-        return nullptr;
-    }
-    return SkImageShader::Make(SkMakeImageFromRasterBitmap(*this, kIfMutable_SkCopyPixelsMode),
-                               tmx, tmy, sampling, lm);
-}
-
 bool SkShaderBase::appendRootStages(const SkStageRec& rec, const SkMatrix& ctm) const {
     return this->appendStages(rec, MatrixRec(ctm));
 }

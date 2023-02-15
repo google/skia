@@ -8,8 +8,12 @@
 #ifndef SkICC_DEFINED
 #define SkICC_DEFINED
 
-#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 
+#include <cstdint>
+
+class SkData;
 struct skcms_ICCProfile;
 struct skcms_Matrix3x3;
 struct skcms_TransferFunction;

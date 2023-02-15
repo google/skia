@@ -7,17 +7,24 @@
 
 #include "include/core/SkPixmap.h"
 
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
 #include "src/base/SkHalf.h"
-#include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkDraw.h"
@@ -30,6 +37,7 @@
 #include "src/image/SkReadPixelsRec.h"
 #include "src/shaders/SkImageShader.h"
 
+#include <cstring>
 #include <utility>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

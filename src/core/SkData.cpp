@@ -6,13 +6,15 @@
  */
 
 #include "include/core/SkData.h"
+
 #include "include/core/SkStream.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkOnce.h"
 #include "src/core/SkOSFile.h"
-#include "src/core/SkReadBuffer.h"
 #include "src/core/SkStreamPriv.h"
-#include "src/core/SkWriteBuffer.h"
 
+#include <cstring>
 #include <new>
 
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context)

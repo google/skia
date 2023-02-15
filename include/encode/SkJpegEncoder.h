@@ -9,8 +9,15 @@
 #define SkJpegEncoder_DEFINED
 
 #include "include/encode/SkEncoder.h"
+#include "include/private/base/SkAPI.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+class SkData;
 class SkJpegEncoderMgr;
+class SkPixmap;
 class SkWStream;
 struct skcms_ICCProfile;
 

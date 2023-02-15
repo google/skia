@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkString.h"
 #include "src/core/SkLocalMatrixImageFilter.h"
+
+#include "include/core/SkString.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/core/SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
                                                     sk_sp<SkImageFilter> input) {

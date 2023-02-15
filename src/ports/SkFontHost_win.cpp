@@ -17,6 +17,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkBase64.h"

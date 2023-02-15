@@ -8,14 +8,21 @@
 #ifndef SkReadBuffer_DEFINED
 #define SkReadBuffer_DEFINED
 
-#include "include/core/SkFont.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
-#include "include/core/SkPicture.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkShader.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -23,15 +30,28 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkTHash.h"
 #include "src/shaders/SkShaderBase.h"
+
+#include <cstddef>
+#include <cstdint>
+
+class SkBlender;
+class SkData;
+class SkImage;
+class SkM44;
+class SkMaskFilter;
+class SkMatrix;
+class SkPath;
+class SkRRect;
+class SkRegion;
+class SkString;
+class SkTypeface;
+struct SkPoint3;
 
 #ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
 #include "include/core/SkDrawLooper.h"
 #endif
-
-class SkData;
-class SkImage;
 
 class SkReadBuffer {
 public:

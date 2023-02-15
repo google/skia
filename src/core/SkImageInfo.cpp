@@ -7,11 +7,15 @@
 
 #include "include/core/SkImageInfo.h"
 
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkWritePixelsRec.h"
+#include "src/image/SkReadPixelsRec.h"
+
+#include <cstdint>
 
 int SkColorTypeBytesPerPixel(SkColorType ct) {
     switch (ct) {
@@ -235,8 +239,6 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "src/image/SkReadPixelsRec.h"
-
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
         return false;
@@ -271,8 +273,6 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "src/core/SkWritePixelsRec.h"
 
 bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {

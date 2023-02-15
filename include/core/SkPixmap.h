@@ -9,11 +9,21 @@
 #define SkPixmap_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkAttributes.h"
+
+#include <cstddef>
+#include <cstdint>
 
 class SkColorSpace;
-class SkData;
+enum SkAlphaType : int;
 struct SkMask;
 
 /** \class SkPixmap

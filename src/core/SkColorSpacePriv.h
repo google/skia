@@ -7,16 +7,16 @@
 #ifndef SkColorSpacePriv_DEFINED
 #define SkColorSpacePriv_DEFINED
 
-#include <math.h>
-
 #include "include/core/SkColorSpace.h"
-#include "include/private/base/SkFixed.h"
-#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
-#include "src/core/SkVM_fwd.h"
 
-#define SkColorSpacePrintf(...)
+namespace skvm {
+class Builder;
+struct Color;
+struct F32;
+struct Uniforms;
+}
 
 // A gamut narrower than sRGB, useful for testing.
 static constexpr skcms_Matrix3x3 gNarrow_toXYZD50 = {{

@@ -11,6 +11,8 @@
 #include "include/core/SkPixmap.h"
 #include "include/private/base/SkMalloc.h"
 
+class SkData;
+
 class SkAutoPixmapStorage : public SkPixmap {
 public:
     SkAutoPixmapStorage();
