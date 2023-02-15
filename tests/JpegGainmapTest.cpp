@@ -252,7 +252,7 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
             }
             if (i == 1 && rec.skipFirstImage) {
                 continue;
-            };
+            }
             auto imageData = sourceMgr->getSubsetData(
                     SkJpegMultiPictureParameters::GetAbsoluteOffset(mpParams->images[i].dataOffset,
                                                                     mpParamsSegment.offset),

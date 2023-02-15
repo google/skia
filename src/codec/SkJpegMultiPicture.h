@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 class SkData;
