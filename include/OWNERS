@@ -2,13 +2,11 @@ set noparent
 
 # Include one of the following reviewers for CLs that add or change Skia's public API:
 brianosman@google.com
-bsalomon@google.com
 djsollen@google.com
-hcm@google.com
 egdaniel@google.com
-
-# For revert purposes only
-rubber-stamper@appspot.gserviceaccount.com
+fmalita@google.com
+hcm@google.com
+herb@google.com
 
 per-file BUILD.bazel=bungeman@google.com
 per-file BUILD.bazel=jcgregorio@google.com
