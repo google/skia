@@ -588,14 +588,34 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
             int y;
             float hdrRatio;
             SkColor4f expectedColor;
+            SkColorType forcedColorType;
         } recs[] = {
-                {1446, 1603, 1.05f, {0.984375f, 1.004883f, 1.008789f, 1.f}},
-                {1446, 1603, 100.f, {1.147461f, 1.170898f, 1.174805f, 1.f}},
+                {1446, 1603, 1.05f, {0.984375f, 1.004883f, 1.008789f, 1.f}, kUnknown_SkColorType},
+                {1446, 1603, 100.f, {1.147461f, 1.170898f, 1.174805f, 1.f}, kUnknown_SkColorType},
+                {1446, 1603, 100.f, {1.147461f, 1.170898f, 1.174805f, 1.f}, kGray_8_SkColorType},
+                {1446, 1603, 100.f, {1.147461f, 1.170898f, 1.174805f, 1.f}, kAlpha_8_SkColorType},
+                {1446, 1603, 100.f, {1.147461f, 1.170898f, 1.174805f, 1.f}, kR8_unorm_SkColorType},
         };
 
         for (const auto& rec : recs) {
+            SkBitmap gainmapBitmap0;
+            SkASSERT(gainmapBitmap[0].colorType() == kGray_8_SkColorType);
+
+            // Force various different single-channel formats, to ensure that they all work. Note
+            // that when the color type is forced to kAlpha_8_SkColorType, the shader will always
+            // read (0,0,0,1) if the alpha type is kOpaque_SkAlphaType.
+            if (rec.forcedColorType == kUnknown_SkColorType) {
+                gainmapBitmap0 = gainmapBitmap[0];
+            } else {
+                gainmapBitmap0.installPixels(gainmapBitmap[0]
+                                                     .info()
+                                                     .makeColorType(rec.forcedColorType)
+                                                     .makeAlphaType(kPremul_SkAlphaType),
+                                             gainmapBitmap[0].getPixels(),
+                                             gainmapBitmap[0].rowBytes());
+            }
             SkColor4f p0 = render_gainmap_pixel(
-                    rec.hdrRatio, baseBitmap[0], gainmapBitmap[0], gainmapInfo[0], rec.x, rec.y);
+                    rec.hdrRatio, baseBitmap[0], gainmapBitmap0, gainmapInfo[0], rec.x, rec.y);
             SkColor4f p1 = render_gainmap_pixel(
                     rec.hdrRatio, baseBitmap[1], gainmapBitmap[1], gainmapInfo[1], rec.x, rec.y);
 
