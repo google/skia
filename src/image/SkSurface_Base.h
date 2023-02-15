@@ -70,7 +70,7 @@ public:
     virtual sk_sp<SkImage> onAsImage() { return nullptr; }
 
     virtual sk_sp<SkImage> onMakeImageCopy(const SkIRect* /* subset */,
-                                           skgpu::graphite::Mipmapped) {
+                                           skgpu::Mipmapped) {
         return nullptr;
     }
 #endif

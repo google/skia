@@ -40,11 +40,14 @@ class SkPixmap;
 enum SkColorType : int;
 enum class GrColorType;
 enum class GrImageTexGenPolicy : int;
-enum class GrMipmapped : bool;
 enum class SkTileMode;
-namespace skgpu { enum class Budgeted : bool; }
 struct SkIRect;
 struct SkRect;
+
+namespace skgpu {
+enum class Budgeted : bool;
+enum class Mipmapped : bool;
+}
 
 class SkImage_Lazy : public SkImage_Base {
 public:
@@ -93,7 +96,7 @@ public:
     // cached in CPU memory. We will always cache the generated texture on success.
     GrSurfaceProxyView lockTextureProxyView(GrRecordingContext*,
                                             GrImageTexGenPolicy,
-                                            GrMipmapped) const;
+                                            skgpu::Mipmapped) const;
 
     // Returns the GrColorType to use with the GrTextureProxy returned from lockTextureProxy. This
     // may be different from the color type on the image in the case where we need up upload CPU
@@ -107,7 +110,7 @@ private:
     bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const;
 #if SK_SUPPORT_GPU
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
-                                                         GrMipmapped,
+                                                         skgpu::Mipmapped,
                                                          GrImageTexGenPolicy) const override;
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext*,
                                                                SkSamplingOptions,

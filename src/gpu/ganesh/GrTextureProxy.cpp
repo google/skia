@@ -9,8 +9,10 @@
 #include "src/gpu/ganesh/GrTextureProxyPriv.h"
 
 #include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrDeferredProxyUploader.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -27,7 +29,7 @@ class GrOpFlushState;
 // Deferred version - no data
 GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrMipmapped mipmapped,
+                               skgpu::Mipmapped mipmapped,
                                GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
                                skgpu::Budgeted budgeted,
@@ -53,7 +55,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
                                SkISize dimensions,
-                               GrMipmapped mipmapped,
+                               skgpu::Mipmapped mipmapped,
                                GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
                                skgpu::Budgeted budgeted,
@@ -161,7 +163,7 @@ void GrTextureProxyPriv::resetDeferredUploader() {
     fTextureProxy->fDeferredUploader.reset();
 }
 
-GrMipmapped GrTextureProxy::mipmapped() const {
+skgpu::Mipmapped GrTextureProxy::mipmapped() const {
     if (this->isInstantiated()) {
         return this->peekTexture()->mipmapped();
     }
@@ -235,8 +237,8 @@ void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asTexture());
     // It is possible to fulfill a non-mipmapped proxy with a mipmapped texture.
-    SkASSERT(GrMipmapped::kNo == this->proxyMipmapped() ||
-             GrMipmapped::kYes == surface->asTexture()->mipmapped());
+    SkASSERT(skgpu::Mipmapped::kNo == this->proxyMipmapped() ||
+             skgpu::Mipmapped::kYes == surface->asTexture()->mipmapped());
 
     SkASSERT(surface->asTexture()->textureType() == this->textureType());
 

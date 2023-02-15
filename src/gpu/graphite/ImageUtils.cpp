@@ -39,12 +39,11 @@ namespace skgpu::graphite {
 std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorder,
                                                                const SkImage* imageIn,
                                                                SkSamplingOptions sampling) {
-    skgpu::graphite::Mipmapped mipmapped = (sampling.mipmap != SkMipmapMode::kNone)
-                                               ? skgpu::graphite::Mipmapped::kYes
-                                               : skgpu::graphite::Mipmapped::kNo;
+    skgpu::Mipmapped mipmapped = (sampling.mipmap != SkMipmapMode::kNone)
+                                     ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
 
-    if (imageIn->dimensions().area() <= 1 && mipmapped == skgpu::graphite::Mipmapped::kYes) {
-        mipmapped = skgpu::graphite::Mipmapped::kNo;
+    if (imageIn->dimensions().area() <= 1 && mipmapped == skgpu::Mipmapped::kYes) {
+        mipmapped = skgpu::Mipmapped::kNo;
         sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
     }
 
@@ -54,8 +53,8 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorde
 
         // If the preexisting Graphite-backed image doesn't have the required mipmaps we will drop
         // down the sampling
-        if (mipmapped == skgpu::graphite::Mipmapped::kYes && !result->hasMipmaps()) {
-            mipmapped = skgpu::graphite::Mipmapped::kNo;
+        if (mipmapped == skgpu::Mipmapped::kYes && !result->hasMipmaps()) {
+            mipmapped = skgpu::Mipmapped::kNo;
             sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
         }
     } else {

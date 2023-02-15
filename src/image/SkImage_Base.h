@@ -152,7 +152,7 @@ public:
     // the data in a texture.
     std::tuple<skgpu::graphite::TextureProxyView, SkColorType> asView(
             skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped) const;
+            skgpu::Mipmapped) const;
 
 #endif
 #if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)

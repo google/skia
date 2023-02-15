@@ -25,6 +25,7 @@
 #include "tools/ToolUtils.h"
 
 using namespace skgpu::graphite;
+using Mipmapped = skgpu::Mipmapped;
 
 namespace {
 

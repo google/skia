@@ -401,8 +401,8 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
                 } else {
 #ifdef SK_GRAPHITE_ENABLED
                     texImage = image->makeTextureImage(recorder,
-                                                       { mm ? skgpu::graphite::Mipmapped::kYes
-                                                            : skgpu::graphite::Mipmapped::kNo });
+                                                       { mm ? skgpu::Mipmapped::kYes
+                                                            : skgpu::Mipmapped::kNo });
  #endif
                 }
                 if (texImage) {

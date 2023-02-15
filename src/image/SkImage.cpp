@@ -554,7 +554,7 @@ GrSurfaceProxyView SkImage_Base::CopyView(GrRecordingContext* context,
 #ifdef SK_GRAPHITE_ENABLED
 std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Base::asView(
         skgpu::graphite::Recorder* recorder,
-        skgpu::graphite::Mipmapped mipmapped) const {
+        skgpu::Mipmapped mipmapped) const {
     if (!recorder) {
         return {};
     }
@@ -566,11 +566,11 @@ std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Base::asView(
     auto image = reinterpret_cast<const skgpu::graphite::Image*>(this);
 
     if (this->dimensions().area() <= 1) {
-        mipmapped = skgpu::graphite::Mipmapped::kNo;
+        mipmapped = skgpu::Mipmapped::kNo;
     }
 
-    if (mipmapped == skgpu::graphite::Mipmapped::kYes &&
-        image->textureProxyView().proxy()->mipmapped() != skgpu::graphite::Mipmapped::kYes) {
+    if (mipmapped == skgpu::Mipmapped::kYes &&
+        image->textureProxyView().proxy()->mipmapped() != skgpu::Mipmapped::kYes) {
         SKGPU_LOG_W("Graphite does not auto-generate mipmap levels");
         return {};
     }

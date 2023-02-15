@@ -269,7 +269,7 @@ sk_sp<SkImage> SkSurface::asImage() {
 }
 
 sk_sp<SkImage> SkSurface::makeImageCopy(const SkIRect* subset,
-                                        skgpu::graphite::Mipmapped mipmapped) {
+                                        skgpu::Mipmapped mipmapped) {
     if (asSB(this)->fCachedImage) {
         SKGPU_LOG_W("Intermingling makeImageSnapshot and makeImageCopy calls may produce "
                     "unexpected results. Please use either the old _or_ new API.");

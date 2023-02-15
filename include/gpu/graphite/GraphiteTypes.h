@@ -70,14 +70,6 @@ enum class SyncToCpu : bool {
     kNo = false
 };
 
-/**
- * Is the texture mipmapped or not
- */
-enum class Mipmapped : bool {
-    kNo = false,
-    kYes = true,
-};
-
 /*
  * For Promise Images - should the Promise Image be fulfilled every time a Recording that references
  * it is inserted into the Context.

@@ -223,7 +223,7 @@ protected:
 #ifdef SK_GRAPHITE_ENABLED
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       const SkImageInfo&,
-                                      skgpu::graphite::Mipmapped) override {
+                                      skgpu::Mipmapped) override {
         return fImage;
     }
 #endif

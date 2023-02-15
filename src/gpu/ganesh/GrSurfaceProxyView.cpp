@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 #include "include/core/SkRect.h"
+#include "include/gpu/GpuTypes.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
@@ -16,7 +17,7 @@ bool GrSurfaceProxyView::operator==(const GrSurfaceProxyView& view) const {
            fSwizzle == view.fSwizzle;
 }
 
-GrMipmapped GrSurfaceProxyView::mipmapped() const {
+skgpu::Mipmapped GrSurfaceProxyView::mipmapped() const {
     if (const GrTextureProxy* proxy = this->asTextureProxy()) {
         return proxy->mipmapped();
     }
@@ -61,7 +62,7 @@ void GrSurfaceProxyView::reset() { *this = {}; }
 
 GrSurfaceProxyView GrSurfaceProxyView::Copy(GrRecordingContext* context,
                                             GrSurfaceProxyView src,
-                                            GrMipmapped mipmapped,
+                                            skgpu::Mipmapped mipmapped,
                                             SkIRect srcRect,
                                             SkBackingFit fit,
                                             skgpu::Budgeted budgeted,
@@ -73,7 +74,7 @@ GrSurfaceProxyView GrSurfaceProxyView::Copy(GrRecordingContext* context,
 
 GrSurfaceProxyView GrSurfaceProxyView::Copy(GrRecordingContext* rContext,
                                             GrSurfaceProxyView src,
-                                            GrMipmapped mipmapped,
+                                            skgpu::Mipmapped mipmapped,
                                             SkBackingFit fit,
                                             skgpu::Budgeted budgeted,
                                             std::string_view label) {

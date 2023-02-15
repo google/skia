@@ -15,6 +15,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"

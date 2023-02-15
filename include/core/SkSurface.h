@@ -414,7 +414,7 @@ public:
     static sk_sp<SkSurface> MakeGraphite(
             skgpu::graphite::Recorder*,
             const SkImageInfo& imageInfo,
-            skgpu::graphite::Mipmapped = skgpu::graphite::Mipmapped::kNo,
+            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
             const SkSurfaceProps* surfaceProps = nullptr);
 
     /**
@@ -721,8 +721,7 @@ public:
     sk_sp<SkImage> asImage();
 
     sk_sp<SkImage> makeImageCopy(const SkIRect* subset = nullptr,
-                                 skgpu::graphite::Mipmapped mipmapped =
-                                                              skgpu::graphite::Mipmapped::kNo);
+                                 skgpu::Mipmapped mipmapped = skgpu::Mipmapped::kNo);
 #endif
 
     /** Draws SkSurface contents to canvas, with its top-left corner at (x, y).

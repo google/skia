@@ -28,6 +28,7 @@ enum class SkBackingFit;
 struct SkIRect;
 namespace skgpu {
 enum class Budgeted : bool;
+enum class Mipmapped : bool;
 }
 
 class GrSurfaceProxyView {
@@ -56,7 +57,7 @@ public:
     int height() const { return this->proxy()->height(); }
     SkISize dimensions() const { return this->proxy()->dimensions(); }
 
-    GrMipmapped mipmapped() const;
+    skgpu::Mipmapped mipmapped() const;
 
     GrSurfaceProxy* proxy() const { return fProxy.get(); }
     sk_sp<GrSurfaceProxy> refProxy() const { return fProxy; }
@@ -82,7 +83,7 @@ public:
     // the same origin and swizzle as the src view.
     static GrSurfaceProxyView Copy(GrRecordingContext* context,
                                    GrSurfaceProxyView src,
-                                   GrMipmapped mipmapped,
+                                   skgpu::Mipmapped mipmapped,
                                    SkIRect srcRect,
                                    SkBackingFit fit,
                                    skgpu::Budgeted budgeted,
@@ -90,7 +91,7 @@ public:
 
     static GrSurfaceProxyView Copy(GrRecordingContext* rContext,
                                    GrSurfaceProxyView src,
-                                   GrMipmapped mipmapped,
+                                   skgpu::Mipmapped mipmapped,
                                    SkBackingFit fit,
                                    skgpu::Budgeted budgeted,
                                    std::string_view label);

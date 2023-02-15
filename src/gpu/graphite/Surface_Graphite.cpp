@@ -172,7 +172,7 @@ bool validate_backend_texture(const Caps* caps,
 
 sk_sp<SkSurface> SkSurface::MakeGraphite(Recorder* recorder,
                                          const SkImageInfo& info,
-                                         Mipmapped mipmapped,
+                                         skgpu::Mipmapped mipmapped,
                                          const SkSurfaceProps* props) {
     // The client is getting the ref on this surface so it must be unbudgeted.
     return skgpu::graphite::Surface::MakeGraphite(

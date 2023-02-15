@@ -42,6 +42,13 @@ enum class CallbackResult : bool {
     kSuccess = true,
 };
 
+/**
+ * Is the texture mipmapped or not
+ */
+enum class Mipmapped : bool {
+    kNo = false,
+    kYes = true,
+};
 
 /**
  * Is the data protected on the GPU or not.

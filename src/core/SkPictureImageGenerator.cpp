@@ -35,7 +35,7 @@ protected:
 #if SK_GRAPHITE_ENABLED
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       const SkImageInfo&,
-                                      skgpu::graphite::Mipmapped) override;
+                                      skgpu::Mipmapped) override;
 #endif
 
 private:
@@ -144,7 +144,7 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
 
 sk_sp<SkImage> SkPictureImageGenerator::onMakeTextureImage(skgpu::graphite::Recorder* recorder,
                                                            const SkImageInfo& info,
-                                                           skgpu::graphite::Mipmapped mipmapped) {
+                                                           skgpu::Mipmapped mipmapped) {
     using namespace skgpu::graphite;
 
     sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder, info, mipmapped);

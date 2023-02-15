@@ -78,7 +78,7 @@ void GraphiteDawnWindowContext::destroyContext() {
 sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     auto textureView = fSwapChain.GetCurrentTextureView();
     skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
-                                          skgpu::graphite::Mipmapped::kNo,
+                                          skgpu::Mipmapped::kNo,
                                           fSwapChainFormat,
                                           kTextureUsage);
     skgpu::graphite::BackendTexture backendTex(this->dimensions(),

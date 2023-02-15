@@ -9,7 +9,7 @@
 #define GrSamplerState_DEFINED
 
 #include "include/core/SkSamplingOptions.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
@@ -60,14 +60,14 @@ public:
     static constexpr GrSamplerState Aniso(WrapMode wrapX,
                                           WrapMode wrapY,
                                           int maxAniso,
-                                          GrMipmapped viewIsMipped) {
+                                          skgpu::Mipmapped viewIsMipped) {
         GrSamplerState sampler;
         sampler.fWrapModes[0] = wrapX;
         sampler.fWrapModes[1] = wrapY;
         sampler.fMaxAniso     = SkTPin(maxAniso, 1, kMaxMaxAniso);
         sampler.fFilter       = Filter::kLinear;
-        sampler.fMipmapMode   = viewIsMipped == GrMipmapped::kYes ? MipmapMode::kLinear
-                                                                  : MipmapMode::kNone;
+        sampler.fMipmapMode   = viewIsMipped == skgpu::Mipmapped::kYes ? MipmapMode::kLinear
+                                                                       : MipmapMode::kNone;
         return sampler;
     }
 
@@ -95,8 +95,8 @@ public:
 
     constexpr MipmapMode mipmapMode() const { return fMipmapMode; }
 
-    constexpr GrMipmapped mipmapped() const {
-        return GrMipmapped(fMipmapMode != MipmapMode::kNone);
+    constexpr skgpu::Mipmapped mipmapped() const {
+        return skgpu::Mipmapped(fMipmapMode != MipmapMode::kNone);
     }
 
     int maxAniso() const { return fMaxAniso; }

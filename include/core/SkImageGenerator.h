@@ -29,13 +29,6 @@ class SkPicture;
 
 enum class GrImageTexGenPolicy : int;
 
-#if SK_GRAPHITE_ENABLED
-namespace skgpu::graphite {
-enum class Mipmapped : bool;
-class Recorder;
-}
-#endif
-
 class SK_API SkImageGenerator {
 public:
     /**
@@ -144,14 +137,14 @@ public:
      */
     GrSurfaceProxyView generateTexture(GrRecordingContext*,
                                        const SkImageInfo& info,
-                                       GrMipmapped mipmapped,
+                                       skgpu::Mipmapped mipmapped,
                                        GrImageTexGenPolicy);
 #endif
 
 #if SK_GRAPHITE_ENABLED
     sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
                                     const SkImageInfo&,
-                                    skgpu::graphite::Mipmapped);
+                                    skgpu::Mipmapped);
 #endif
 
     /**
@@ -203,7 +196,7 @@ protected:
 #if SK_GRAPHITE_ENABLED
     virtual sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                               const SkImageInfo&,
-                                              skgpu::graphite::Mipmapped);
+                                              skgpu::Mipmapped);
 #endif
 
 private:

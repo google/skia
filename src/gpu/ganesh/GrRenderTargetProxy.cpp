@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 
 #include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkTo.h"
@@ -93,8 +94,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes, GrMipmapped::kNo,
-                               nullptr)) {
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes,
+                               skgpu::Mipmapped::kNo, nullptr)) {
         return false;
     }
 
@@ -132,7 +133,7 @@ bool GrRenderTargetProxy::canUseStencil(const GrCaps& caps) const {
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
-                                                       GrRenderable::kYes, GrMipmapped::kNo);
+                                                       GrRenderable::kYes, skgpu::Mipmapped::kNo);
     if (!surface) {
         return nullptr;
     }
@@ -150,7 +151,8 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                  colorSamplesPerPixel, GrMipmapped::kNo, !this->priv().isExact());
+                                  colorSamplesPerPixel, skgpu::Mipmapped::kNo,
+                                  !this->priv().isExact());
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {
@@ -170,7 +172,7 @@ GrSurfaceProxy::LazySurfaceDesc GrRenderTargetProxy::callbackDesc() const {
             this->dimensions(),
             SkBackingFit::kExact,
             GrRenderable::kYes,
-            GrMipmapped::kNo,
+            skgpu::Mipmapped::kNo,
             this->numSamples(),
             this->backendFormat(),
             GrTextureType::kNone,

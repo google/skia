@@ -29,6 +29,8 @@
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
 
+using Mipmapped = skgpu::Mipmapped;
+
 static constexpr int min_rgb_channel_bits(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:            return 0;
@@ -521,7 +523,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
         // types.
         TextureInfo texInfo = context->priv().caps()->getDefaultSampledTextureInfo(
                 image->colorType(),
-                skgpu::graphite::Mipmapped::kNo,
+                Mipmapped::kNo,
                 skgpu::Protected::kNo,
                 Renderable::kYes);
         if (!context->priv().caps()->isRenderable(texInfo)) {
@@ -556,7 +558,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
             // TODO: put this in the equivalent of sk_gpu_test::MakeBackendTextureImage
             TextureInfo info = recorder->priv().caps()->getDefaultSampledTextureInfo(
                     src.colorType(),
-                    skgpu::graphite::Mipmapped::kNo,
+                    Mipmapped::kNo,
                     skgpu::Protected::kNo,
                     renderable);
             auto texture = recorder->createBackendTexture(src.dimensions(), info);
@@ -623,7 +625,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
     auto factory = std::function<GraphiteSrcFactory<Surface>>([&](const SkPixmap& src) {
         Surface surface = SkSurface::MakeGraphite(recorder.get(),
                                                   src.info(),
-                                                  skgpu::graphite::Mipmapped::kNo,
+                                                  Mipmapped::kNo,
                                                   /*surfaceProps=*/nullptr);
         if (surface) {
             surface->writePixels(src, 0, 0);

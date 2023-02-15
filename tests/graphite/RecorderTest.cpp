@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/Device.h"
 
 using namespace skgpu::graphite;
+using Mipmapped = skgpu::Mipmapped;
 
 // Tests to make sure the managing of back pointers between Recorder and Device all work properly.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context) {

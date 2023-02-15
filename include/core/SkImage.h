@@ -1248,7 +1248,7 @@ public:
                                                          sk_sp<SkColorSpace> colorSpace);
 
     struct RequiredImageProperties {
-        skgpu::graphite::Mipmapped fMipmapped;
+        skgpu::Mipmapped fMipmapped;
     };
 
     /** Graphite version of makeTextureImage.

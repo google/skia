@@ -185,7 +185,7 @@ void setup_test_context(Context* context,
     testCtx->fRecorder = context->makeRecorder();
 
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
-                                                                 Mipmapped::kNo,
+                                                                 skgpu::Mipmapped::kNo,
                                                                  skgpu::Protected::kNo,
                                                                  Renderable::kYes);
 

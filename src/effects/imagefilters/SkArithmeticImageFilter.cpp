@@ -41,6 +41,7 @@
 #include <utility>
 
 #if SK_SUPPORT_GPU
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/SkBackingFit.h"

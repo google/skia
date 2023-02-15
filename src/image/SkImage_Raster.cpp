@@ -363,7 +363,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset,
                                             RequiredImageProperties requiredProperties) const {
     sk_sp<SkImage> img;
 
-    if (requiredProperties.fMipmapped == skgpu::graphite::Mipmapped::kYes) {
+    if (requiredProperties.fMipmapped == skgpu::Mipmapped::kYes) {
         bool fullCopy = subset == SkIRect::MakeSize(fBitmap.dimensions());
 
         sk_sp<SkMipmap> mips = fullCopy ? copy_mipmaps(fBitmap, fBitmap.fMips.get()) : nullptr;

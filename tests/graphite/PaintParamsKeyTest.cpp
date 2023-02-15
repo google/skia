@@ -207,7 +207,7 @@ sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
     sk_sp<SkImage> img = bitmap.asImage();
 
     // TODO: fuzz mipmappedness
-    return img->makeTextureImage(recorder, { Mipmapped::kNo });
+    return img->makeTextureImage(recorder, { skgpu::Mipmapped::kNo });
 }
 
 //--------------------------------------------------------------------------------------------------

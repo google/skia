@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
@@ -24,14 +24,12 @@
 
 class GrBackendFormat;
 class GrDeferredProxyUploader;
+enum class GrProtected : bool;
 class GrProxyProvider;
 class GrResourceProvider;
 class GrTextureProxyPriv;
 enum class SkBackingFit;
 struct SkISize;
-namespace skgpu {
-enum class Budgeted : bool;
-}
 
 // This class delays the acquisition of textures until they are actually required
 class GrTextureProxy : virtual public GrSurfaceProxy {
@@ -47,25 +45,25 @@ public:
     // claim to not need mips at creation time, but the instantiation happens to give us a mipped
     // target. In that case we should use that for our benefit to avoid possible copies/mip
     // generation later.
-    GrMipmapped mipmapped() const;
+    skgpu::Mipmapped mipmapped() const;
 
     bool mipmapsAreDirty() const {
-        SkASSERT((GrMipmapped::kNo == fMipmapped) ==
+        SkASSERT((skgpu::Mipmapped::kNo == fMipmapped) ==
                  (GrMipmapStatus::kNotAllocated == fMipmapStatus));
-        return GrMipmapped::kYes == fMipmapped && GrMipmapStatus::kValid != fMipmapStatus;
+        return skgpu::Mipmapped::kYes == fMipmapped && GrMipmapStatus::kValid != fMipmapStatus;
     }
     void markMipmapsDirty() {
-        SkASSERT(GrMipmapped::kYes == fMipmapped);
+        SkASSERT(skgpu::Mipmapped::kYes == fMipmapped);
         fMipmapStatus = GrMipmapStatus::kDirty;
     }
     void markMipmapsClean() {
-        SkASSERT(GrMipmapped::kYes == fMipmapped);
+        SkASSERT(skgpu::Mipmapped::kYes == fMipmapped);
         fMipmapStatus = GrMipmapStatus::kValid;
     }
 
-    // Returns the GrMipmapped value of the proxy from creation time regardless of whether it has
+    // Returns the skgpu::Mipmapped value of the proxy from creation time regardless of whether it has
     // been instantiated or not.
-    GrMipmapped proxyMipmapped() const { return fMipmapped; }
+    skgpu::Mipmapped proxyMipmapped() const { return fMipmapped; }
 
     GrTextureType textureType() const;
 
@@ -126,7 +124,7 @@ protected:
     // Deferred version - no data.
     GrTextureProxy(const GrBackendFormat&,
                    SkISize,
-                   GrMipmapped,
+                   skgpu::Mipmapped,
                    GrMipmapStatus,
                    SkBackingFit,
                    skgpu::Budgeted,
@@ -149,7 +147,7 @@ protected:
     GrTextureProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
                    SkISize,
-                   GrMipmapped,
+                   skgpu::Mipmapped,
                    GrMipmapStatus,
                    SkBackingFit,
                    skgpu::Budgeted,
@@ -182,7 +180,7 @@ private:
     // that particular class don't require it. Changing the size of this object can move the start
     // address of other types, leading to this problem.
 
-    GrMipmapped      fMipmapped;
+    skgpu::Mipmapped fMipmapped;
 
     // This tracks the mipmap status at the proxy level and is thus somewhat distinct from the
     // backing GrTexture's mipmap status. In particular, this status is used to determine when

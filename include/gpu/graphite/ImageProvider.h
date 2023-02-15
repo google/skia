@@ -13,7 +13,6 @@
 
 namespace skgpu::graphite {
 
-enum class Mipmapped : bool;
 class Recorder;
 
 /*

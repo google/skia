@@ -47,11 +47,11 @@ public:
     int height() const { return this->proxy()->dimensions().height(); }
     SkISize dimensions() const { return this->proxy()->dimensions(); }
 
-    Mipmapped mipmapped() const {
+    skgpu::Mipmapped mipmapped() const {
         if (const TextureProxy* proxy = this->proxy()) {
             return proxy->mipmapped();
         }
-        return Mipmapped::kNo;
+        return skgpu::Mipmapped::kNo;
     }
 
     TextureProxy* proxy() const { return fProxy.get(); }

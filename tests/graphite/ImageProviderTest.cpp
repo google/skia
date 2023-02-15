@@ -21,6 +21,7 @@
 #include "tools/ToolUtils.h"
 
 using namespace skgpu::graphite;
+using Mipmapped = skgpu::Mipmapped;
 
 namespace {
 
@@ -373,7 +374,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter
                                       (i->hasMipmaps() && mipmapOptAllowed));
 
             if (!orig->isTextureBacked()) {
-                i = orig->makeTextureImage(nullptr, { mm });
+                i = orig->makeTextureImage(nullptr, mm);
                 REPORTER_ASSERT(reporter, !i);
 
                 // Make sure makeSubset w/o a recorder works as expected

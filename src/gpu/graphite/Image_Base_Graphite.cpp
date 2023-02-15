@@ -72,7 +72,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(Recorder* recorder,
         return nullptr;
     }
     if (this->dimensions().area() <= 1) {
-        requiredProps.fMipmapped = Mipmapped::kNo;
+        requiredProps.fMipmapped = skgpu::Mipmapped::kNo;
     }
 
     return as_IB(this)->onMakeTextureImage(recorder, requiredProps);

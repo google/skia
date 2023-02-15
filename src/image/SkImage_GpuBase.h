@@ -28,11 +28,13 @@ class SkImage;
 enum SkAlphaType : int;
 enum SkColorType : int;
 enum class GrColorType;
-enum class GrMipmapped : bool;
-namespace skgpu { class RefCntedCallback; }
 struct SkIRect;
 struct SkISize;
 struct SkImageInfo;
+namespace skgpu {
+enum class Mipmapped : bool;
+class RefCntedCallback;
+}
 
 class SkImage_GpuBase : public SkImage_Base {
 public:
@@ -63,7 +65,7 @@ public:
             GrContextThreadSafeProxy*,
             SkISize dimensions,
             GrBackendFormat,
-            GrMipmapped,
+            skgpu::Mipmapped,
             PromiseImageTextureFulfillProc,
             sk_sp<skgpu::RefCntedCallback> releaseHelper);
 

@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/base/SkDebug.h"
@@ -319,14 +320,14 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
 
 bool GrCaps::validateSurfaceParams(const SkISize& dimensions, const GrBackendFormat& format,
                                    GrRenderable renderable, int renderTargetSampleCnt,
-                                   GrMipmapped mipped, GrTextureType textureType) const {
+                                   skgpu::Mipmapped mipped, GrTextureType textureType) const {
     if (textureType != GrTextureType::kNone) {
         if (!this->isFormatTexturable(format, textureType)) {
             return false;
         }
     }
 
-    if (GrMipmapped::kYes == mipped && !this->mipmapSupport()) {
+    if (skgpu::Mipmapped::kYes == mipped && !this->mipmapSupport()) {
         return false;
     }
 

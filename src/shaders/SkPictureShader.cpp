@@ -480,7 +480,7 @@ void SkPictureShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
     // API to include already Graphite-backed images, add a Recorder-local cache or add
     // rendered-picture images to the global cache.
     sk_sp<SkImage> img = info.makeImage(SkSurface::MakeGraphite(recorder, info.imageInfo,
-                                                                Mipmapped::kNo, &info.props),
+                                                                skgpu::Mipmapped::kNo, &info.props),
                                         fPicture.get());
     if (!img) {
         SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});

@@ -28,7 +28,7 @@ public:
     ~Image() override;
 
     bool onHasMipmaps() const override {
-        return fTextureProxyView.proxy()->mipmapped() == Mipmapped::kYes;
+        return fTextureProxyView.proxy()->mipmapped() == skgpu::Mipmapped::kYes;
     }
 
     using Image_Base::onMakeSubset;
