@@ -101,28 +101,48 @@ prepare_for_drawable_drawing(StrikeForGPU* strike,
     return {acceptedBuffer.first(acceptedSize), rejectedBuffer.first(rejectedSize)};
 }
 
-void prepare_for_direct_mask_drawing(SkStrike* strike,
-                                     SkDrawableGlyphBuffer* accepted,
-                                     SkSourceGlyphBuffer* rejected) {
+std::tuple<SkZip<SkPackedGlyphID, SkPoint>, SkZip<SkGlyphID, SkPoint>>
+prepare_for_direct_mask_drawing(StrikeForGPU* strike,
+                                const SkMatrix& creationMatrix,
+                                SkZip<const SkGlyphID, const SkPoint> source,
+                                SkZip<SkPackedGlyphID, SkPoint> acceptedBuffer,
+                                SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
+    const SkIPoint mask = strike->roundingSpec().ignorePositionFieldMask;
+    const SkPoint halfSampleFreq = strike->roundingSpec().halfAxisSampleFreq;
+
+    // Build up the mapping from source space to device space. Add the rounding constant
+    // halfSampleFreq, so we just need to floor to get the device result.
+    SkMatrix positionMatrixWithRounding = creationMatrix;
+    positionMatrixWithRounding.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
+
+    int acceptedSize = 0;
+    int rejectedSize = 0;
     strike->lock();
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+    for (auto [glyphID, pos] : source) {
         if (!SkScalarsAreFinite(pos.x(), pos.y())) {
             continue;
         }
 
-        switch (SkGlyphDigest digest = strike->digestFor(skglyph::kDirectMaskCPU, packedID);
-                digest.actionFor(kDirectMaskCPU)) {
-            case GlyphAction::kAccept:
-                accepted->accept(strike->glyph(digest), i);
+        const SkPoint mappedPos = positionMatrixWithRounding.mapPoint(pos);
+        const SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID, mappedPos, mask};
+        switch (strike->digestFor(kDirectMaskCPU, packedGlyphID).actionFor(kDirectMaskCPU)) {
+            case GlyphAction::kAccept: {
+                const SkPoint roundedPos{SkScalarFloorToScalar(mappedPos.x()),
+                                         SkScalarFloorToScalar(mappedPos.y())};
+                acceptedBuffer[acceptedSize++] =
+                        std::make_tuple(packedGlyphID, roundedPos);
                 break;
+            }
             case GlyphAction::kReject:
-                rejected->reject(i);
+                rejectedBuffer[rejectedSize++] = std::make_tuple(glyphID, pos);
                 break;
             default:
                 break;
         }
     }
     strike->unlock();
+
+    return {acceptedBuffer.first(acceptedSize), rejectedBuffer.first(rejectedSize)};
 }
 }  // namespace
 
@@ -151,8 +171,6 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
     rejectedGlyphIDs.resize(maxGlyphRunSize);
     rejectedPositions.resize(maxGlyphRunSize);
     const auto rejectedBuffer = SkMakeZip(rejectedGlyphIDs, rejectedPositions);
-    auto bufferScope = sktext::SkSubRunBuffers::EnsureBuffers(glyphRunList);
-    auto [oldAccepted, oldRejected] = bufferScope.buffers();
 
     // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
     // convert the lcd text into A8 text. The props communicate this to the scaler.
@@ -247,28 +265,23 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
                 }
             }
         }
-        oldRejected->setSource(source);
-        if (!oldRejected->source().empty() && !positionMatrix.hasPerspective()) {
+        if (!source.empty() && !positionMatrix.hasPerspective()) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                     runFont, paint, props, fScalerContextFlags, positionMatrix);
 
             auto strike = strikeSpec.findOrCreateStrike();
 
-            oldAccepted->startDevicePositioning(
-                    oldRejected->source(), positionMatrix, strike->roundingSpec());
-
-            prepare_for_direct_mask_drawing(strike.get(), oldAccepted, oldRejected);
-            oldRejected->flipRejectsToSource();
-            // TODO: Remove temporary change of array formats. Copy the glyphs into a SkGlyph*
-            // array.
-            auto toDraw = oldAccepted->accepted();
-            SkSTArray<24, const SkGlyph*> glyphs(toDraw.size());
-            for (const auto glyph : toDraw.get<0>()) {
-                glyphs.push_back(glyph);
-            }
-            bitmapDevice->paintMasks(SkMakeZip(glyphs, toDraw.get<1>()), paint);
+            auto [accepted, rejected] = prepare_for_direct_mask_drawing(strike.get(),
+                                                                        positionMatrix,
+                                                                        source,
+                                                                        acceptedBuffer,
+                                                                        rejectedBuffer);
+            source = rejected;
+            SkBulkGlyphMetricsAndImages bulkGlyphs{std::move(strike)};
+            SkSpan<const SkGlyph*> glyphs = bulkGlyphs.glyphs(accepted.get<0>());
+            bitmapDevice->paintMasks(SkMakeZip(glyphs, accepted.get<1>()), paint);
         }
-        if (!oldRejected->source().empty()) {
+        if (!source.empty()) {
             std::vector<SkPoint> sourcePositions;
 
             // Create a strike is source space to calculate scale information.
@@ -276,8 +289,8 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
                     runFont, paint, props, fScalerContextFlags, SkMatrix::I());
             SkBulkGlyphMetrics metrics{scaleStrikeSpec};
 
-            auto glyphIDs = oldRejected->source().get<0>();
-            auto positions = oldRejected->source().get<1>();
+            auto glyphIDs = source.get<0>();
+            auto positions = source.get<1>();
             SkSpan<const SkGlyph*> glyphs = metrics.glyphs(glyphIDs);
             SkScalar maxScale = SK_ScalarMin;
 
@@ -314,14 +327,14 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
 
             auto strike = strikeSpec.findOrCreateStrike();
 
-            // Figure out all the positions and packed glyphIDs based on the device matrix.
-            oldAccepted->startDevicePositioning(
-                    oldRejected->source(), positionMatrix, strike->roundingSpec());
-
-            prepare_for_direct_mask_drawing(strike.get(), oldAccepted, oldRejected);
-            auto variants = oldAccepted->accepted().get<0>();
-            for (auto [variant, srcPos] : SkMakeZip(variants, sourcePositions)) {
-                const SkGlyph* glyph = variant.glyph();
+            auto [accepted, rejected] = prepare_for_direct_mask_drawing(strike.get(),
+                                                                        positionMatrix,
+                                                                        source,
+                                                                        acceptedBuffer,
+                                                                        rejectedBuffer);
+            SkBulkGlyphMetricsAndImages bulkGlyphs{std::move(strike)};
+            glyphs = bulkGlyphs.glyphs(accepted.get<0>());
+            for (auto [glyph, srcPos] : SkMakeZip(glyphs, sourcePositions)) {
                 SkMask mask = glyph->mask();
                 // TODO: is this needed will A8 and BW just work?
                 if (mask.fFormat != SkMask::kARGB32_Format) {
@@ -348,7 +361,6 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
                         bm, translate, nullptr, SkSamplingOptions{SkFilterMode::kLinear},
                         paint);
             }
-            oldRejected->flipRejectsToSource();
         }
 
         // TODO: have the mask stage above reject the glyphs that are too big, and handle the
