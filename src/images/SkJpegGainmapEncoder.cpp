@@ -14,6 +14,7 @@
 #include "include/core/SkStream.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/SkGainmapInfo.h"
+#include "src/codec/SkJpegConstants.h"
 #include "src/codec/SkJpegPriv.h"
 
 #include <vector>

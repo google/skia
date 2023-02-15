@@ -10,7 +10,7 @@
 #include "include/private/SkGainmapInfo.h"
 #include "include/utils/SkParse.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkJpegPriv.h"
+#include "src/codec/SkJpegConstants.h"
 #include "src/core/SkMD5.h"
 #include "src/xml/SkDOM.h"
 

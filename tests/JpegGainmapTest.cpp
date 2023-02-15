@@ -20,6 +20,7 @@
 #include "include/private/SkGainmapShader.h"
 #include "include/private/SkJpegGainmapEncoder.h"
 #include "src/codec/SkJpegCodec.h"
+#include "src/codec/SkJpegConstants.h"
 #include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegSegmentScan.h"
 #include "src/codec/SkJpegSourceMgr.h"
@@ -174,7 +175,6 @@ static bool find_mp_params_segment(SkStream* stream,
                                    SkJpegSegment* outMpParamsSegment) {
     auto sourceMgr = SkJpegSourceMgr::Make(stream);
     for (const auto& segment : sourceMgr->getAllSegments()) {
-        static constexpr uint32_t kMpfMarker = 0xE2;
         if (segment.marker != kMpfMarker) {
             continue;
         }

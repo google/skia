@@ -10,7 +10,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkJpegPriv.h"
+#include "src/codec/SkJpegConstants.h"
 #include "src/codec/SkJpegSegmentScan.h"
 #include "src/core/SkEndian.h"
 

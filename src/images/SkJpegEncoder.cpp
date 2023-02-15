@@ -20,6 +20,7 @@
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkMSAN.h"
+#include "src/codec/SkJpegConstants.h"
 #include "src/codec/SkJpegPriv.h"
 #include "src/images/SkImageEncoderFns.h"
 #include "src/images/SkImageEncoderPriv.h"
