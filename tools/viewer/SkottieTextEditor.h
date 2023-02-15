@@ -18,7 +18,8 @@
 // A sample WYSIWYG text editor built using the GlyphDecorator API.
 class SkottieTextEditor final : public skottie::GlyphDecorator {
 public:
-    explicit SkottieTextEditor(std::unique_ptr<skottie::TextPropertyHandle>&&);
+    explicit SkottieTextEditor(std::unique_ptr<skottie::TextPropertyHandle>&&,
+                               std::vector<std::unique_ptr<skottie::TextPropertyHandle>>&&);
     ~SkottieTextEditor() override;
 
     void toggleEnabled();
@@ -39,10 +40,12 @@ private:
     void drawCursor(SkCanvas*, const GlyphInfo glyphs[], size_t size) const;
     void insertChar(SkUnichar c);
     void deleteChars(size_t offset, size_t count);
+    void updateDeps(const SkString&);
 
-    const std::unique_ptr<skottie::TextPropertyHandle> fTextProp;
-    const SkPath                                       fCursorPath;
-    const SkRect                                       fCursorBounds;
+    const std::unique_ptr<skottie::TextPropertyHandle>              fTextProp;
+    const std::vector<std::unique_ptr<skottie::TextPropertyHandle>> fDependentProps;
+    const SkPath                                                    fCursorPath;
+    const SkRect                                                    fCursorBounds;
 
     std::vector<GlyphData>     fGlyphData;
     std::tuple<size_t, size_t> fSelection   = {0,0};

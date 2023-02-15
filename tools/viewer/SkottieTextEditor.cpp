@@ -8,6 +8,7 @@
 #include "tools/viewer/SkottieTextEditor.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkPath.h"
 
@@ -31,8 +32,11 @@ SkPath make_cursor_path() {
 
 } // namespace
 
-SkottieTextEditor::SkottieTextEditor(std::unique_ptr<skottie::TextPropertyHandle>&& prop)
+SkottieTextEditor::SkottieTextEditor(
+        std::unique_ptr<skottie::TextPropertyHandle>&& prop,
+        std::vector<std::unique_ptr<skottie::TextPropertyHandle>>&& deps)
     : fTextProp(std::move(prop))
+    , fDependentProps(std::move(deps))
     , fCursorPath(make_cursor_path())
     , fCursorBounds(fCursorPath.computeTightBounds())
     , fCursorIndex(fTextProp->get().fText.size())
@@ -116,12 +120,25 @@ void SkottieTextEditor::drawCursor(SkCanvas* canvas, const GlyphInfo glyphs[], s
     SkPaint p;
     p.setAntiAlias(true);
     p.setStyle(SkPaint::kStroke_Style);
-    p.setStrokeWidth(2);
     p.setStrokeCap(SkPaint::kRound_Cap);
 
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(glyphs[glyph_index].fMatrix);
+
+    p.setColor(SK_ColorWHITE);
+    p.setStrokeWidth(3);
     canvas->drawPath(cpath, p);
+    p.setColor(SK_ColorBLACK);
+    p.setStrokeWidth(2);
+    canvas->drawPath(cpath, p);
+}
+
+void SkottieTextEditor::updateDeps(const SkString& txt) {
+    for (const auto& dep : fDependentProps) {
+        auto txt_prop = dep->get();
+        txt_prop.fText = txt;
+        dep->set(txt_prop);
+    }
 }
 
 void SkottieTextEditor::insertChar(SkUnichar c) {
@@ -129,6 +146,7 @@ void SkottieTextEditor::insertChar(SkUnichar c) {
 
     txt.fText.insertUnichar(fCursorIndex++, c);
     fTextProp->set(txt);
+    this->updateDeps(txt.fText);
 }
 
 void SkottieTextEditor::deleteChars(size_t offset, size_t count) {
@@ -136,6 +154,7 @@ void SkottieTextEditor::deleteChars(size_t offset, size_t count) {
 
     txt.fText.remove(offset, count);
     fTextProp->set(txt);
+    this->updateDeps(txt.fText);
 
     if (fCursorIndex >= offset) {
         fCursorIndex -= count;

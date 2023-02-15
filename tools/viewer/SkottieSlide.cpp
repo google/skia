@@ -534,10 +534,12 @@ void SkottieSlide::init() {
                  fAnimation->size().height());
         logger->report();
 
-        // Create an editor for the first text layer only.
-        // TODO: editors for all layers?
-        if (!text_tracker->props().empty()) {
-            fTextEditor = sk_make_sp<SkottieTextEditor>(std::move(text_tracker->props()[0]));
+        if (auto text_props = std::move(text_tracker->props()); !text_props.empty()) {
+            // Attach the editor to the first text layer, and track the rest as dependents.
+            auto editor_target = std::move(text_props[0]);
+            text_props.erase(text_props.cbegin());
+            fTextEditor = sk_make_sp<SkottieTextEditor>(std::move(editor_target),
+                                                        std::move(text_props));
         }
     } else {
         SkDebugf("failed to load Bodymovin animation: %s\n", fPath.c_str());
