@@ -81,41 +81,26 @@ private:
 // memory.
 class SkGlyphVariant {
 public:
-    SkGlyphVariant() : fV{nullptr} { }
+    SkGlyphVariant() { }
     SkGlyphVariant& operator= (SkPackedGlyphID packedID) {
-        fV.packedID = packedID;
+        fPackedID = packedID;
         SkDEBUGCODE(fTag = kPackedID);
         return *this;
     }
-    SkGlyphVariant& operator= (const SkGlyph* glyph) {
-        fV.glyph = glyph;
-        SkDEBUGCODE(fTag = kGlyph);
-        return *this;
-    }
-
-    const SkGlyph* glyph() const {
-        SkASSERT(fTag == kGlyph);
-        return fV.glyph;
-    }
     SkPackedGlyphID packedID() const {
         SkASSERT(fTag == kPackedID);
-        return fV.packedID;
+        return fPackedID;
     }
 
     operator SkPackedGlyphID()  const { return this->packedID(); }
-    operator const SkGlyph*()   const { return this->glyph();    }
 
 private:
-    union {
-        const SkGlyph* glyph;
-        SkPackedGlyphID packedID;
-    } fV;
+    SkPackedGlyphID fPackedID;
 
 #ifdef SK_DEBUG
     enum {
         kEmpty,
         kPackedID,
-        kGlyph,
     } fTag{kEmpty};
 #endif
 };
@@ -131,30 +116,6 @@ public:
     // during drawing.
     void startSource(const SkZip<const SkGlyphID, const SkPoint>& source);
 
-    void startSourceWithMatrixAdjustment(
-            const SkZip<const SkGlyphID, const SkPoint>& source, const SkMatrix& creationMatrix);
-
-    // Load the buffer with SkPackedGlyphIDs, calculating positions, so they can be constant.
-    //
-    // The positions are calculated integer positions in devices space, and the mapping of
-    // the source origin through the initial matrix is returned. It is given that these positions
-    // are only reused when the blob is translated by an integral amount. Thus, the shifted
-    // positions are given by the following equation where (ix, iy) is the integer positions of
-    // the glyph, initialMappedOrigin is (0,0) in source mapped to the device using the initial
-    // matrix, and newMappedOrigin is (0,0) in source mapped to the device using the current
-    // drawing matrix.
-    //
-    //    (ix', iy') = (ix, iy) + round(newMappedOrigin - initialMappedOrigin)
-    //
-    // In theory, newMappedOrigin - initialMappedOrigin should be integer, but the vagaries of
-    // floating point don't guarantee that, so force it to integer.
-    //
-    // N.B. The positionMatrix is already translated by the origin of the glyph run list.
-    void startDevicePositioning(
-            const SkZip<const SkGlyphID, const SkPoint>& source,
-            const SkMatrix& positionMatrix,
-            const SkGlyphPositionRoundingSpec& roundingSpec);
-
     SkString dumpInput() const;
 
     // The input of SkPackedGlyphIDs
@@ -163,16 +124,6 @@ public:
         SkDEBUGCODE(fPhase = kProcess);
         return SkZip<SkGlyphVariant, SkPoint>{
                 SkToSizeT(fInputSize), fMultiBuffer.get(), fPositions};
-    }
-
-    // Store the glyph in the next slot, using the position information located at index from.
-    void accept(SkGlyph* glyph, int from) {
-        SkASSERT(fPhase == kProcess);
-        SkASSERT(fAcceptedSize <= from);
-        fPositions[fAcceptedSize] = fPositions[from];
-        fMultiBuffer[fAcceptedSize] = glyph;
-        fFormats[fAcceptedSize] = glyph->maskFormat();
-        fAcceptedSize++;
     }
 
     void accept(SkPackedGlyphID glyphID, SkPoint position, SkMask::Format format) {
