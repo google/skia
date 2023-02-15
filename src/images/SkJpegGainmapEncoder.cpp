@@ -14,8 +14,11 @@
 #include "include/core/SkStream.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/SkGainmapInfo.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegConstants.h"
+#include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegPriv.h"
+#include "src/codec/SkJpegSegmentScan.h"
 
 #include <vector>
 
@@ -294,6 +297,41 @@ sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
     return s.detachAsData();
 }
 
+// Generate the GContainer metadata for an image with a JPEG gainmap.
+static sk_sp<SkData> get_gcontainer_xmp_data(size_t gainmapItemLength) {
+    SkDynamicMemoryWStream s;
+    s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
+    s.writeText(
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.1.2\">\n"
+            "  <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+            "    <rdf:Description\n"
+            "     xmlns:Container=\"http://ns.google.com/photos/1.0/container/\"\n"
+            "     xmlns:Item=\"http://ns.google.com/photos/1.0/container/item/\"\n"
+            "     xmlns:RecoveryMap=\"http://ns.google.com/photos/1.0/recoverymap/\">\n"
+            "      <Container:Directory>\n"
+            "        <rdf:Seq>\n"
+            "          <rdf:li>\n"
+            "            <Container:Item\n"
+            "             Item:Semantic=\"Primary\"\n"
+            "             Item:Mime=\"image/jpeg\"/>\n"
+            "          </rdf:li>\n"
+            "          <rdf:li>\n"
+            "            <Container:Item\n"
+            "             Item:Semantic=\"RecoveryMap\"\n"
+            "             Item:Mime=\"image/jpeg\"\n"
+            "             ");
+    xmp_write_decimal_attr(s, "Item:Length", gainmapItemLength, /*newLine=*/false);
+    s.writeText(
+            "/>\n"
+            "          </rdf:li>\n"
+            "        </rdf:Seq>\n"
+            "      </Container:Directory>\n"
+            "    </rdf:Description>\n"
+            "  </rdf:RDF>\n"
+            "</x:xmpmeta>\n");
+    return s.detachAsData();
+}
+
 // Split an SkData into segments.
 std::vector<sk_sp<SkData>> get_hdrgm_image_segments(sk_sp<SkData> image,
                                                     size_t segmentMaxDataSize) {
@@ -357,43 +395,115 @@ std::vector<sk_sp<SkData>> get_hdrgm_image_segments(sk_sp<SkData> image,
     return result;
 }
 
+sk_sp<SkData> SkJpegGainmapEncoder::EncodeToData(const SkPixmap& pm,
+                                                 const SkJpegEncoder::Options& options,
+                                                 SkData* xmpMetadata,
+                                                 SkData* mpfMetadata) {
+    uint8_t segmentMarkers[2] = {
+            kXMPMarker,
+            kMpfMarker,
+    };
+    SkData* segmentData[2] = {
+            xmpMetadata,
+            mpfMetadata,
+    };
+    SkDynamicMemoryWStream encodeStream;
+    auto encoder = SkJpegEncoder::Make(
+            &encodeStream, pm, options, 2, segmentMarkers, segmentData, nullptr);
+    if (!encoder || !encoder->encodeRows(pm.height())) {
+        return nullptr;
+    }
+    return encodeStream.detachAsData();
+}
+
 bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
                                        const SkPixmap& base,
                                        const SkJpegEncoder::Options& baseOptions,
                                        const SkPixmap& gainmap,
                                        const SkJpegEncoder::Options& gainmapOptions,
                                        const SkGainmapInfo& gainmapInfo) {
-    // Encode the gainmap as a Jpeg, and split it into segments.
-    SkDynamicMemoryWStream gainmapEncodeStream;
-    if (!SkJpegEncoder::Encode(&gainmapEncodeStream, gainmap, gainmapOptions)) {
+    // We will include the HDRGM XMP metadata in the gainmap image.
+    auto hdrgmXmp = get_hdrgm_xmp_data(gainmapInfo);
+
+    // Encode the gainmap image.
+    auto gainmapData = EncodeToData(gainmap, gainmapOptions, hdrgmXmp.get(), nullptr);
+    if (!gainmapData) {
+        SkCodecPrintf("Failed to encode gainmap image.\n");
         return false;
     }
-    std::vector<sk_sp<SkData>> gainmapSegments = get_hdrgm_image_segments(
-            gainmapEncodeStream.detachAsData(), SkJpegEncoder::kSegmentDataMaxSize);
 
-    // Compute the XMP metadata.
-    sk_sp<SkData> xmpMetadata = get_hdrgm_xmp_data(gainmapInfo);
+    // We will include the GContainer XMP metadata in the base image.
+    auto gcontainerXmp = get_gcontainer_xmp_data(static_cast<int32_t>(gainmapData->size()));
 
-    // Merge these into the list of segments to send to the encoder.
-    std::vector<uint8_t> segmentMarker;
-    std::vector<SkData*> segmentData;
-    segmentMarker.push_back(kXMPMarker);
-    segmentData.push_back(xmpMetadata.get());
-    for (auto& gainmapSegment : gainmapSegments) {
-        segmentMarker.push_back(kGainmapMarker);
-        segmentData.push_back(gainmapSegment.get());
+    // Build placeholder MPF parameters that we will include in the base image.
+    SkJpegMultiPictureParameters mpParams;
+    mpParams.images.resize(2);
+    auto placeholderMpfData = mpParams.serialize();
+
+    // Encode the base image with the GContainer XMP and MPF.
+    sk_sp<SkData> baseData =
+            EncodeToData(base, baseOptions, gcontainerXmp.get(), placeholderMpfData.get());
+    uint8_t* baseDataBytes = reinterpret_cast<uint8_t*>(baseData->writable_data());
+    if (!baseData) {
+        SkCodecPrintf("Failed to encode base image.\n");
+        return false;
     }
-    SkASSERT(segmentMarker.size() == segmentData.size());
 
-    // Send this to the base image encoder.
-    auto encoder = SkJpegEncoder::Make(dst,
-                                       base,
-                                       baseOptions,
-                                       segmentMarker.size(),
-                                       segmentMarker.data(),
-                                       segmentData.data(),
-                                       nullptr);
-    return encoder.get() && encoder->encodeRows(base.height());
+    // Create a segment scan of of the encoded base image and search for our MPF parameters.
+    SkJpegSegmentScanner baseScan(SkJpegSegmentScanner::kMarkerStartOfScan);
+    baseScan.onBytes(baseData->bytes(), baseData->size());
+    if (!baseScan.isDone()) {
+        SkCodecPrintf("Failed to scan encoded base image header.\n");
+        return false;
+    }
+    for (const auto& segment : baseScan.getSegments()) {
+        // See if this segment has an MPF marker and parses as MPF parameters.
+        if (segment.marker != kMpfMarker) {
+            continue;
+        }
+        auto segmentParameters = SkJpegSegmentScanner::GetParameters(baseData.get(), segment);
+        if (!SkJpegMultiPictureParameters::Make(segmentParameters)) {
+            continue;
+        }
+
+        // Assert that it is exactly the placeholder data that we wrote.
+        SkASSERT(segmentParameters->size() == placeholderMpfData->size());
+        SkASSERT(memcmp(segmentParameters->data(),
+                        placeholderMpfData->data(),
+                        placeholderMpfData->size()) == 0);
+
+        // Compute the real MPF parameters.
+        uint32_t mpDataOffsetBase = static_cast<uint32_t>(
+                segment.offset +                              // The offset of the segment
+                SkJpegSegmentScanner::kMarkerCodeSize +       // Including the marker
+                SkJpegSegmentScanner::kParameterLengthSize +  // And the size parameter
+                sizeof(kMpfSig));                             // And the signature
+        mpParams.images[0].size = static_cast<uint32_t>(baseData->size());
+        mpParams.images[1].dataOffset = mpParams.images[0].size - mpDataOffsetBase;
+        mpParams.images[1].size = static_cast<uint32_t>(gainmapData->size());
+
+        // Assert that they serialize to same size.
+        auto mpfData = mpParams.serialize();
+        SkASSERT(mpfData->size() == placeholderMpfData->size());
+
+        // Overwrite the placeholder parameters in the encoded image.
+        memcpy(baseDataBytes + segment.offset + SkJpegSegmentScanner::kMarkerCodeSize +
+                       SkJpegSegmentScanner::kParameterLengthSize,
+               mpfData->bytes(),
+               mpfData->size());
+        break;
+    }
+
+    // Write the concatenated images to the output stream.
+    if (!dst->write(baseData->data(), baseData->size())) {
+        SkCodecPrintf("Failed to write encoded base image.\n");
+        return false;
+    }
+    if (!dst->write(gainmapData->data(), gainmapData->size())) {
+        SkCodecPrintf("Failed to write encoded gainmap image.\n");
+        return false;
+    }
+    return true;
 }
 
 #endif  // SK_ENCODE_JPEG

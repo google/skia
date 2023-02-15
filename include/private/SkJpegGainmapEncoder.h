@@ -58,6 +58,13 @@ public:
                             const SkPixmap& gainmap,
                             const SkJpegEncoder::Options& gainmapOptions,
                             const SkGainmapInfo& gainmapInfo);
+
+private:
+    // Helper function to encode an image with optional XMP and MPF to an SkData.
+    static sk_sp<SkData> EncodeToData(const SkPixmap& pm,
+                                      const SkJpegEncoder::Options& options,
+                                      SkData* xmpSegmentParameters,
+                                      SkData* mpfSegmentParameters);
 };
 
 #endif

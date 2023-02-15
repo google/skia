@@ -61,11 +61,7 @@ bool SkJpegGetMultiPictureGainmap(const SkJpegMultiPictureParameters* mpParams,
             if (segment.marker != kXMPMarker) {
                 continue;
             }
-            auto parameters = SkData::MakeSubset(
-                    mpImage.get(),
-                    segment.offset + SkJpegSegmentScanner::kMarkerCodeSize +
-                            SkJpegSegmentScanner::kParameterLengthSize,
-                    segment.parameterLength - SkJpegSegmentScanner::kParameterLengthSize);
+            auto parameters = SkJpegSegmentScanner::GetParameters(mpImage.get(), segment);
             if (!parameters) {
                 continue;
             }

@@ -204,6 +204,9 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst,
     jpeg_start_compress(encoderMgr->cinfo(), TRUE);
 
     for (size_t i = 0; i < segmentCount; ++i) {
+        if (!segmentData[i] || segmentData[i]->isEmpty()) {
+            continue;
+        }
         SkASSERT(segmentData[i]->size() <= kSegmentDataMaxSize);
         jpeg_write_marker(encoderMgr->cinfo(),
                           segmentMarkers[i],

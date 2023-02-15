@@ -49,6 +49,10 @@ public:
     // include all segments up to the error.
     const std::vector<SkJpegSegment>& getSegments() const;
 
+    // Helper function to retrieve the parameters for a segment. ScannedData must be the data that
+    // was scanned to produce segment, starting at StartOfImage.
+    static sk_sp<SkData> GetParameters(const SkData* scannedData, const SkJpegSegment& segment);
+
     // Convenient markers to know.
     static constexpr uint8_t kMarkerStartOfImage = 0xD8;
     static constexpr uint8_t kMarkerEndOfImage = 0xD9;

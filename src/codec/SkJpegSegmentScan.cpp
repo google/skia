@@ -23,6 +23,14 @@ SkJpegSegmentScanner::SkJpegSegmentScanner(uint8_t stopMarker) : fStopMarker(sto
 
 const std::vector<SkJpegSegment>& SkJpegSegmentScanner::getSegments() const { return fSegments; }
 
+sk_sp<SkData> SkJpegSegmentScanner::GetParameters(const SkData* scannedData,
+                                                  const SkJpegSegment& segment) {
+    return SkData::MakeSubset(scannedData,
+                              segment.offset + SkJpegSegmentScanner::kMarkerCodeSize +
+                                      SkJpegSegmentScanner::kParameterLengthSize,
+                              segment.parameterLength - SkJpegSegmentScanner::kParameterLengthSize);
+}
+
 void SkJpegSegmentScanner::onBytes(const void* data, size_t size) {
     const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
     size_t bytesRemaining = size;

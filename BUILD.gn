@@ -1207,7 +1207,8 @@ optional("avif") {
 }
 
 optional("jpeg_mpf") {
-  enabled = skia_use_jpeg_gainmaps && skia_use_libjpeg_turbo_decode
+  enabled = skia_use_jpeg_gainmaps &&
+            (skia_use_libjpeg_turbo_encode || skia_use_libjpeg_turbo_decode)
   sources = [
     "src/codec/SkJpegMultiPicture.cpp",
     "src/codec/SkJpegSegmentScan.cpp",
@@ -1252,6 +1253,7 @@ optional("jpeg_encode") {
   ]
 
   if (skia_use_jpeg_gainmaps) {
+    deps += [ ":jpeg_mpf" ]
     sources += [ "src/images/SkJpegGainmapEncoder.cpp" ]
   }
 }
