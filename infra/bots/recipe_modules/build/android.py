@@ -65,6 +65,7 @@ def compile_fn(api, checkout_root, out_dir):
     args.update({
       'skia_use_runtime_icu': 'true',
       'skia_enable_optimize_size': 'true',
+      'skia_use_jpeg_gainmaps': 'false',
     })
 
   # The 'FrameworkWorkarounds' bot is used to test special behavior that's
