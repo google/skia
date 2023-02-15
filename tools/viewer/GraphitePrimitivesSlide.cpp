@@ -276,18 +276,18 @@ static void compute_corner(SkV3 devPts[19], const SkM44& m, const SkV4& cornerMa
         joinScale = kRoundScale;
     }
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kCornerTemplate); ++i) {
+    for (size_t i = 0; i < std::size(kCornerTemplate); ++i) {
         devPts[i] = kCornerTemplate[i].transform(m, cornerMapping, cornerPt, cornerRadii,
                                                  center, centerWeight, strokeRadius, joinScale,
                                                  localAARadius);
     }
 }
 
-static const uint16_t kBR = 0*SK_ARRAY_COUNT(kCornerTemplate);
-static const uint16_t kTR = 1*SK_ARRAY_COUNT(kCornerTemplate);
-static const uint16_t kTL = 2*SK_ARRAY_COUNT(kCornerTemplate);
-static const uint16_t kBL = 3*SK_ARRAY_COUNT(kCornerTemplate);
-static const size_t kVertexCount = 4*SK_ARRAY_COUNT(kCornerTemplate);
+static const uint16_t kBR = 0*std::size(kCornerTemplate);
+static const uint16_t kTR = 1*std::size(kCornerTemplate);
+static const uint16_t kTL = 2*std::size(kCornerTemplate);
+static const uint16_t kBL = 3*std::size(kCornerTemplate);
+static const size_t kVertexCount = 4*std::size(kCornerTemplate);
 static void compute_vertices(SkV3 devPts[kVertexCount],
                              const SkM44& m,
                              const SkRRect& rrect,
@@ -586,18 +586,18 @@ private:
         if (fColorize) {
             drawMeshSubset(SK_ColorGRAY,
                            kEdgeIndices,
-                           SK_ARRAY_COUNT(kEdgeIndices));
+                           std::size(kEdgeIndices));
             drawMeshSubset(SK_ColorDKGRAY,
                            kInteriorIndices,
-                           SK_ARRAY_COUNT(kInteriorIndices));
+                           std::size(kInteriorIndices));
             drawMeshSubset(SK_ColorMAGENTA,
                            kInnerCornerIndices,
-                           SK_ARRAY_COUNT(kInnerCornerIndices));
+                           std::size(kInnerCornerIndices));
             drawMeshSubset(SK_ColorCYAN,
                            kOuterCornerIndices,
-                           SK_ARRAY_COUNT(kOuterCornerIndices));
+                           std::size(kOuterCornerIndices));
         } else {
-            drawMeshSubset(SK_ColorGRAY, kIndices, SK_ARRAY_COUNT(kIndices));
+            drawMeshSubset(SK_ColorGRAY, kIndices, std::size(kIndices));
         }
 
         // Draw the edges over the triangle strip mesh, but keep track of edges already drawn so
@@ -614,7 +614,7 @@ private:
                 canvas->drawLine(vertices[e0], vertices[e1], paint(SK_ColorBLACK, 0.f));
             }
         };
-        for (size_t i = 2; i < SK_ARRAY_COUNT(kIndices); ++i) {
+        for (size_t i = 2; i < std::size(kIndices); ++i) {
             drawEdge(kIndices[i-1], kIndices[i]);
             drawEdge(kIndices[i-2], kIndices[i]);
         }

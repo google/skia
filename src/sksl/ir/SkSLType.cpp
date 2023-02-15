@@ -194,7 +194,7 @@ public:
     GenericType(const char* name, SkSpan<const Type* const> coercibleTypes)
         : INHERITED(name, "G", kTypeKind) {
         fNumTypes = coercibleTypes.size();
-        SkASSERT(fNumTypes <= SK_ARRAY_COUNT(fCoercibleTypes));
+        SkASSERT(fNumTypes <= std::size(fCoercibleTypes));
         std::copy(coercibleTypes.begin(), coercibleTypes.end(), fCoercibleTypes);
     }
 

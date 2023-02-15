@@ -11,6 +11,8 @@ Milestone 112
   * SkShaders::CoordClamp has been added. It clamps the coords passed used with another
     shader to a rectangle.
   * SkRandom is no longer part of the public API.
+  * SK_ARRAY_COUNT is no longer part of the public API. Clients should use std::size.
+
 
 Milestone 111
 -------------
