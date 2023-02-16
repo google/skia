@@ -27,6 +27,8 @@ public:
 
     const ComputeStep* computeStep() const { return fComputeStep; }
 
+    uint32_t uniqueID() const { return fComputeStep->uniqueID(); }
+
 private:
     const ComputeStep* fComputeStep;
 };
