@@ -136,6 +136,10 @@ class SKUNICODE_API SkUnicode {
         static bool isGraphemeStart(SkUnicode::CodeUnitFlags flags);
         static bool isControl(SkUnicode::CodeUnitFlags flags);
         static bool isPartOfWhiteSpaceBreak(SkUnicode::CodeUnitFlags flags);
+        static bool extractBidi(const char utf8[],
+                                int utf8Units,
+                                TextDirection dir,
+                                std::vector<BidiRegion>* bidiRegions);
         virtual bool getBidiRegions(const char utf8[],
                                     int utf8Units,
                                     TextDirection dir,
@@ -270,7 +274,6 @@ class SKUNICODE_API SkUnicode {
 
         static std::unique_ptr<SkUnicode> MakeClientBasedUnicode(
                 SkSpan<char> text,
-                std::vector<SkUnicode::BidiRegion> bidiRegions,
                 std::vector<SkUnicode::Position> words,
                 std::vector<SkUnicode::Position> graphemeBreaks,
                 std::vector<SkUnicode::LineBreakBefore> lineBreaks);

@@ -7,9 +7,9 @@
 
 #include "modules/skunicode/include/SkUnicode.h"
 
+#include "include/private/SkBitmaskEnum.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/private/SkBitmaskEnum.h"
 
 using namespace skia_private;
 
@@ -25,13 +25,12 @@ std::unique_ptr<SkUnicode> SkUnicode::Make() {
 
 std::unique_ptr<SkUnicode> MakeClientBasedUnicode(
         SkSpan<char> text,
-        std::vector<SkUnicode::BidiRegion> bidiRegions,
         std::vector<SkUnicode::Position> words,
         std::vector<SkUnicode::Position> graphemeBreaks,
         std::vector<SkUnicode::LineBreakBefore> lineBreaks) {
 #ifdef SK_UNICODE_CLIENT_IMPLEMENTATION
-    std::unique_ptr<SkUnicode> unicode = SkUnicode::MakeClientBasedUnicode(
-                                text, bidiRegions, words, graphemeBreaks, lineBreaks);
+    std::unique_ptr<SkUnicode> unicode =
+            SkUnicode::MakeClientBasedUnicode(text, words, graphemeBreaks, lineBreaks);
     if (unicode) {
         return unicode;
     }

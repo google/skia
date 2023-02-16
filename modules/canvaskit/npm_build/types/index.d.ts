@@ -987,23 +987,6 @@ export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
     build(): Paragraph;
 
     /**
-     * @param bidiRegions is an array of unsigned integers that should be
-     * treated as triples (starting index, ending index, bidi level).
-     *
-     * The indices are expected to be relative to the UTF-8 representation of
-     * the text.
-     */
-    setBidiRegionsUtf8(bidiRegions: InputBidiRegions): void;
-    /**
-     * @param bidiRegions is an array of unsigned integers that should be
-     * treated as triples (starting index, ending index, bidi level).
-     *
-     * The indices are expected to be relative to the UTF-16 representation of
-     * the text.
-     */
-    setBidiRegionsUtf16(bidiRegions: InputBidiRegions): void;
-
-    /**
      * @param words is an array of word edges (starting or ending). You can
      * pass 2 elements (0 as a start of the entire text and text.size as the
      * end). This information is only needed for a specific API method getWords.

@@ -418,10 +418,6 @@
     // In case the paragraph text was constructed in a set of calls we need the text
         const text = builder.getText();
 
-        // Pass 1 bidi region as a triple of integers, [start:end), direction
-        const mallocedBidis = CanvasKit.Malloc(Uint32Array, 3);
-        mallocedBidis.toTypedArray().set([0, text.length, CanvasKit.TextDirection.LTR.value]);
-
         // Pass the entire text as one word. It's only used for the method
         // getWords
         const mallocedWords = CanvasKit.Malloc(Uint32Array, 2);
@@ -450,7 +446,6 @@
         const mallocedLineBreaks = CanvasKit.Malloc(Uint32Array, lineBreaks.length);
         mallocedLineBreaks.toTypedArray().set(lineBreaks);
 
-        builder.setBidiRegionsUtf16(mallocedBidis);
         builder.setWordsUtf16(mallocedWords);
         builder.setGraphemeBreaksUtf16(mallocedGraphemes);
         builder.setLineBreaksUtf16(mallocedLineBreaks);

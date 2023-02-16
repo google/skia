@@ -18,10 +18,19 @@
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
 
-#define SKICU_FUNC(funcname) decltype(funcname)* sk_##funcname;
+#include "modules/skunicode/include/SkUnicode.h"
 
-SKICU_FUNC(ubidi_reorderVisual)
+#define SKCL_FUNC(funcname) decltype(funcname)* cl_##funcname;
 
-#undef SKICU_FUNC
+SKCL_FUNC(u_errorName)
+SKCL_FUNC(ubidi_close)
+SKCL_FUNC(ubidi_getDirection)
+SKCL_FUNC(ubidi_getLength)
+SKCL_FUNC(ubidi_getLevelAt)
+SKCL_FUNC(ubidi_openSized)
+SKCL_FUNC(ubidi_reorderVisual)
+SKCL_FUNC(ubidi_setPara)
+
+#undef SKCL_FUNC
 
 #endif // SkUnicode_client_DEFINED

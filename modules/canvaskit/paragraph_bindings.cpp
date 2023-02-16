@@ -592,34 +592,6 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                           auto text = self.getText();
                           return emscripten::val(std::string(text.data(), text.size()).c_str());
                       }))
-            .function("_setBidiRegionsUtf8",
-                      optional_override([](para::ParagraphBuilderImpl& self,
-                                           WASMPointerU32 clientBidis, size_t bidisNum) {
-                      SkUnicode::Position* bidiData = reinterpret_cast<SkUnicode::Position*>(clientBidis);
-                      std::vector<SkUnicode::BidiRegion> bidiRegions;
-                      for (size_t i = 0; i < bidisNum; i += 3) {
-                          auto start = bidiData[i];
-                          auto end = bidiData[i+1];
-                          auto level = SkToU8(bidiData[i+2]);
-
-                          bidiRegions.emplace_back(start, end, level);
-                      }
-                      self.setBidiRegionsUtf8(std::move(bidiRegions));
-                  }))
-            .function("_setBidiRegionsUtf16",
-                      optional_override([](para::ParagraphBuilderImpl& self,
-                                           WASMPointerU32 clientBidis, size_t bidisNum) {
-                      SkUnicode::Position* bidiData = reinterpret_cast<SkUnicode::Position*>(clientBidis);
-                      std::vector<SkUnicode::BidiRegion> bidiRegions;
-                      for (size_t i = 0; i < bidisNum; i += 3) {
-                          auto start = bidiData[i];
-                          auto end = bidiData[i+1];
-                          auto level = SkToU8(bidiData[i+2]);
-
-                          bidiRegions.emplace_back(start, end, level);
-                      }
-                      self.setBidiRegionsUtf16(std::move(bidiRegions));
-                  }))
             .function("_setWordsUtf8",
                       optional_override([](para::ParagraphBuilderImpl& self,
                                            WASMPointerU32 clientWords, size_t wordsNum) {

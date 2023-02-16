@@ -187,7 +187,6 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 
     // This is the place where SkUnicode is paired with SkParagraph
     fUnicode = SkUnicode::MakeClientBasedUnicode(this->getText(),
-                                                 std::move(fBidiRegionsUtf8),
                                                  std::move(fWordsUtf8),
                                                  std::move(fGraphemeBreaksUtf8),
                                                  std::move(fLineBreaksUtf8));
@@ -216,23 +215,6 @@ void ParagraphBuilderImpl::ensureUTF16Mapping() {
 }
 
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-void ParagraphBuilderImpl::setBidiRegionsUtf8(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8) {
-    fUsingClientInfo = true;
-    fBidiRegionsUtf8 = std::move(bidiRegionsUtf8);
-}
-
-void ParagraphBuilderImpl::setBidiRegionsUtf16(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16) {
-    ensureUTF16Mapping();
-    std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8;
-    for (SkUnicode::BidiRegion bidiRegionUtf16: bidiRegionsUtf16) {
-        bidiRegionsUtf8.emplace_back(
-                SkUnicode::BidiRegion(fUTF8IndexForUTF16Index[bidiRegionUtf16.start],
-                                      fUTF8IndexForUTF16Index[bidiRegionUtf16.end],
-                                      bidiRegionUtf16.level));
-    }
-    setBidiRegionsUtf8(bidiRegionsUtf8);
-}
-
 void ParagraphBuilderImpl::setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) {
     fUsingClientInfo = true;
     fWordsUtf8 = std::move(wordsUtf8);
@@ -276,14 +258,6 @@ void ParagraphBuilderImpl::setLineBreaksUtf16(std::vector<SkUnicode::LineBreakBe
     setLineBreaksUtf8(lineBreaksUtf8);
 }
 #else
-void ParagraphBuilderImpl::setBidiRegionsUtf8(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8) {
-    SkASSERT(false);
-}
-
-void ParagraphBuilderImpl::setBidiRegionsUtf16(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16) {
-    SkASSERT(false);
-}
-
 void ParagraphBuilderImpl::setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) {
     SkASSERT(false);
 }
@@ -317,7 +291,6 @@ void ParagraphBuilderImpl::Reset() {
     fPlaceholders.clear();
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     fUTF8IndexForUTF16Index.clear();
-    fBidiRegionsUtf8.clear();
     fWordsUtf8.clear();
     fGraphemeBreaksUtf8.clear();
     fLineBreaksUtf8.clear();

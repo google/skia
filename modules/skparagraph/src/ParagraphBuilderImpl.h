@@ -65,9 +65,6 @@ public:
     SkSpan<char> getText();
     const ParagraphStyle& getParagraphStyle() const;
 
-    void setBidiRegionsUtf8(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8);
-    void setBidiRegionsUtf16(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16);
-
     void setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8);
     void setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16);
 
@@ -112,7 +109,6 @@ private:
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     bool fTextIsFinalized;
     bool fUsingClientInfo;
-    std::vector<SkUnicode::BidiRegion> fBidiRegionsUtf8;
     std::vector<SkUnicode::Position> fWordsUtf8;
     std::vector<SkUnicode::Position> fGraphemeBreaksUtf8;
     std::vector<SkUnicode::LineBreakBefore> fLineBreaksUtf8;

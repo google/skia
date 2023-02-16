@@ -329,17 +329,6 @@
       this._addPlaceholder(width, height, alignment, baseline, offset);
     };
 
-    CanvasKit.ParagraphBuilder.prototype.setBidiRegionsUtf8 = function(bidiRegions) {
-      var bPtr = copy1dArray(bidiRegions, 'HEAPU32');
-      this._setBidiRegionsUtf8(bPtr, bidiRegions && bidiRegions.length || 0);
-      freeArraysThatAreNotMallocedByUsers(bPtr,     bidiRegions);
-    };
-    CanvasKit.ParagraphBuilder.prototype.setBidiRegionsUtf16 = function(bidiRegions) {
-      var bPtr = copy1dArray(bidiRegions, 'HEAPU32');
-      this._setBidiRegionsUtf16(bPtr, bidiRegions && bidiRegions.length || 0);
-      freeArraysThatAreNotMallocedByUsers(bPtr, bidiRegions);
-    };
-
     CanvasKit.ParagraphBuilder.prototype.setWordsUtf8 = function(words) {
       var bPtr = copy1dArray(words, 'HEAPU32');
       this._setWordsUtf8(bPtr, words && words.length || 0);

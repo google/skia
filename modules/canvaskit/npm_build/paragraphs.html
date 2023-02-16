@@ -16,6 +16,10 @@
   #withoutICU {
     border-color: green;
   }
+  #sampleText {
+    width: 400px;
+    height: 200px;
+  }
 </style>
 
 <table>
@@ -31,9 +35,17 @@
   </tr>
 </table>
 
+<textarea id="sampleText">The لاquick 😠(brown) fox
+واحد (اثنان) ثلاثة
+ate a hamburger.
+</textarea>
+
 <script type="text/javascript" charset="utf-8">
 
   var CanvasKit = null;
+  var fonts = null;
+  var sampleText = null;
+
   var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
 
   const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
@@ -41,41 +53,55 @@
   const loadFonts = [
     fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer()),
     fetch('https://fonts.gstatic.com/s/notoemoji/v26/bMrnmSyK7YY-MEu6aWjPDs-ar6uWaGWuob-r0jwvS-FGJCMY.ttf').then((response) => response.arrayBuffer()),
-    fetch('https://fonts.gstatic.com/s/notosanssymbols/v34/rP2up3q65FkAtHfwd-eIS2brbDN6gxP34F9jRRCe4W3gfQ8gavVFRkzrbQ.ttf').then((response) => response.arrayBuffer()),
-    fetch('https://fonts.gstatic.com/s/notosanssymbols2/v15/I_uyMoGduATTei9eI8daxVHDyfisHr71ypPqfX71-AI.ttf').then((response) => response.arrayBuffer()),
     fetch('https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyvu3CBFQLaig.ttf').then((response) => response.arrayBuffer()),
   ];
 
-  ckLoaded.then((CK) => {
-    CanvasKit = CK;
+  let paragraphWithICU;
+  let paragraphWithoutICU;
+
+  Promise.all([ckLoaded, ...loadFonts]).then(([_CanvasKit, ..._fonts]) => {
+    CanvasKit = _CanvasKit;
+    fonts = _fonts;
+
+    const textarea = document.getElementById('sampleText');
+    sampleText = textarea.value;
+    textarea.addEventListener('input', (e) => {
+      sampleText = e.target.value;
+      paragraphWithICU = ParagraphWithICU();
+      paragraphWithoutICU = ParagraphWithoutICU();
+    });
+
+    paragraphWithICU = ParagraphWithICU();
+    paragraphWithoutICU = ParagraphWithoutICU();
+
+    continuousRendering('withICU', () => paragraphWithICU);
+    continuousRendering('withoutICU', () => paragraphWithoutICU);
   });
 
-  Promise.all([ckLoaded, Promise.all(loadFonts)]).then((results) => {
-    ParagraphWithICU(...results);
-    ParagraphWithoutICU(...results);
-  });
-
-  const sampleText = 'The لاquick 😠brown\nfox ate a hamburgerfons and got sick.\n';
   const fontFamilies = [
     'Roboto',
     'Noto Emoji',
     'Noto Sans Arabic',
-    'Noto Sans Symbols',
-    'Noto Sans Symbols 2',
   ];
 
-  function ParagraphWithICU(CanvasKit, fonts) {
-    if (!CanvasKit || !fonts) {
-      return;
-    }
-
-    const surface = CanvasKit.MakeCanvasSurface('withICU');
+  function continuousRendering(elementId, getParagraph) {
+    const surface = CanvasKit.MakeCanvasSurface(elementId);
     if (!surface) {
-      console.error('Could not make surface');
-      return;
+      throw new Error('Could not make surface');
     }
 
-    const canvas = surface.getCanvas();
+    function drawFrame(canvas) {
+      drawParagraph(canvas, getParagraph());
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function ParagraphWithICU() {
+    if (!CanvasKit || !fonts) {
+      throw new Error('CanvasKit or fonts not loaded');
+    }
+
     const fontMgr = CanvasKit.FontMgr.FromData(fonts);
 
     const paraStyle = new CanvasKit.ParagraphStyle({
@@ -94,22 +120,12 @@
 
     fontMgr.delete();
 
-    function drawFrame(canvas) {
-      drawParagraph(canvas, paragraph);
-      surface.requestAnimationFrame(drawFrame);
-    }
-    surface.requestAnimationFrame(drawFrame);
+    return paragraph;
   }
 
-  function ParagraphWithoutICU(CanvasKit, fonts) {
+  function ParagraphWithoutICU() {
     if (!CanvasKit || !fonts) {
-      return;
-    }
-
-    const surface = CanvasKit.MakeCanvasSurface('withoutICU');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
+      throw new Error('CanvasKit or fonts not loaded');
     }
 
     const fontMgr = CanvasKit.FontMgr.FromData(fonts);
@@ -129,14 +145,6 @@
 
     const text = sampleText;
 
-    // Pass 3 bidi regions. The array is made of triplets {start, end, direction}.
-    const mallocedBidis = CanvasKit.Malloc(Uint32Array, 9);
-    mallocedBidis.toTypedArray().set([
-      0, 4, CanvasKit.TextDirection.LTR.value,
-      4, 6, CanvasKit.TextDirection.RTL.value,
-      6, text.length, CanvasKit.TextDirection.LTR.value,
-    ]);
-
     // Pass the entire text as one word. It's only used for the method
     // getWords.
     const mallocedWords = CanvasKit.Malloc(Uint32Array, 2);
@@ -150,7 +158,6 @@
     const mallocedLineBreaks = CanvasKit.Malloc(Uint32Array, lineBreaks.length);
     mallocedLineBreaks.toTypedArray().set(lineBreaks);
 
-    builder.setBidiRegionsUtf16(mallocedBidis);
     builder.setWordsUtf16(mallocedWords);
     builder.setGraphemeBreaksUtf16(mallocedGraphemes);
     builder.setLineBreaksUtf16(mallocedLineBreaks);
@@ -158,13 +165,7 @@
 
     fontMgr.delete();
 
-    function drawFrame(canvas) {
-      drawParagraph(canvas, paragraph);
-      surface.requestAnimationFrame(drawFrame);
-    }
-    surface.requestAnimationFrame(drawFrame);
-
-    return surface;
+    return paragraph;
   }
 
   function drawParagraph(canvas, paragraph) {

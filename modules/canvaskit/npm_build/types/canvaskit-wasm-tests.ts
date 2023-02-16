@@ -614,7 +614,6 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
     builder2.reset();
 
     const text = builder.getText(); // $ExpectType string
-    builder.setBidiRegionsUtf16(CK.Malloc(Uint32Array, 3));
     builder.setWordsUtf16(new Uint32Array(10));
     builder.setGraphemeBreaksUtf16(new Uint32Array(10));
     builder.setLineBreaksUtf16(new Uint32Array(10));
