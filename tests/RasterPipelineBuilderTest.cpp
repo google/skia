@@ -90,18 +90,18 @@ DEF_TEST(RasterPipelineBuilderPushPopMaskRegisters, r) {
     builder.enableExecutionMaskWrites();
     REPORTER_ASSERT(r, builder.executionMaskWritesAreEnabled());
 
-    builder.push_condition_mask();  // push into 0
-    builder.push_loop_mask();       // push into 1
-    builder.push_return_mask();     // push into 2
-    builder.merge_condition_mask(); // set the condition-mask to 1 & 2
-    builder.pop_condition_mask();   // pop from 2
-    builder.merge_loop_mask();      // mask off the loop-mask against 1
-    builder.push_condition_mask();  // push into 2
-    builder.pop_condition_mask();   // pop from 2
-    builder.pop_loop_mask();        // pop from 1
-    builder.pop_return_mask();      // pop from 0
-    builder.push_condition_mask();  // push into 0
-    builder.pop_condition_mask();   // pop from 0
+    builder.push_condition_mask();         // push into 0
+    builder.push_loop_mask();              // push into 1
+    builder.push_return_mask();            // push into 2
+    builder.merge_condition_mask();        // set the condition-mask to 1 & 2
+    builder.pop_condition_mask();          // pop from 2
+    builder.merge_loop_mask();             // mask off the loop-mask against 1
+    builder.push_condition_mask();         // push into 2
+    builder.pop_condition_mask();          // pop from 2
+    builder.pop_loop_mask();               // pop from 1
+    builder.pop_return_mask();             // pop from 0
+    builder.push_condition_mask();         // push into 0
+    builder.pop_and_reenable_loop_mask();  // pop from 0
 
     REPORTER_ASSERT(r, builder.executionMaskWritesAreEnabled());
     builder.disableExecutionMaskWrites();
@@ -121,7 +121,7 @@ R"(    1. store_condition_mask           $0 = CondMask
     9. load_loop_mask                 LoopMask = $1
    10. load_return_mask               RetMask = $0
    11. store_condition_mask           $0 = CondMask
-   12. load_condition_mask            CondMask = $0
+   12. reenable_loop_mask             LoopMask |= $0
 )");
 }
 

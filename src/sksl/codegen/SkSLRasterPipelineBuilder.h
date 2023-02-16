@@ -90,6 +90,7 @@ enum class BuilderOp {
     pop_condition_mask,
     push_loop_mask,
     pop_loop_mask,
+    pop_and_reenable_loop_mask,
     push_return_mask,
     pop_return_mask,
     push_src_rgba,
@@ -553,6 +554,11 @@ public:
         SkASSERT(this->executionMaskWritesAreEnabled());
         SkASSERT(src.count == 1);
         fInstructions.push_back({BuilderOp::reenable_loop_mask, {src.index}});
+    }
+
+    void pop_and_reenable_loop_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
+        fInstructions.push_back({BuilderOp::pop_and_reenable_loop_mask, {}});
     }
 
     void merge_loop_mask() {

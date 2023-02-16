@@ -656,6 +656,7 @@ static int stack_usage(const Instruction& inst) {
 
         case BuilderOp::pop_condition_mask:
         case BuilderOp::pop_loop_mask:
+        case BuilderOp::pop_and_reenable_loop_mask:
         case BuilderOp::pop_return_mask:
             return -1;
 
@@ -1260,12 +1261,17 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::load_loop_mask, src});
                 break;
             }
-            case BuilderOp::mask_off_loop_mask:
-                pipeline->push_back({ProgramOp::mask_off_loop_mask, nullptr});
+            case BuilderOp::pop_and_reenable_loop_mask: {
+                float* src = tempStackPtr - (1 * N);
+                pipeline->push_back({ProgramOp::reenable_loop_mask, src});
                 break;
-
+            }
             case BuilderOp::reenable_loop_mask:
                 pipeline->push_back({ProgramOp::reenable_loop_mask, SlotA()});
+                break;
+
+            case BuilderOp::mask_off_loop_mask:
+                pipeline->push_back({ProgramOp::mask_off_loop_mask, nullptr});
                 break;
 
             case BuilderOp::merge_loop_mask: {
