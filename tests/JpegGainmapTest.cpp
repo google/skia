@@ -474,15 +474,6 @@ DEF_TEST(AndroidCodec_jpegGainmapDecode, r) {
              1.f,
              2.71828f,
              SkGainmapInfo::Type::kMultiPicture},
-            {"images/jpegr.jpg",
-             SkISize::Make(1008, 756),
-             0xFFCACACA,
-             0xFFC8C8C8,
-             -2.3669f,
-             2.3669f,
-             1.f,
-             10.6643f,
-             SkGainmapInfo::Type::kJpegR_HLG},
             {"images/hdrgm.jpg",
              SkISize::Make(188, 250),
              0xFFE9E9E9,
@@ -609,45 +600,33 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
                                                              gainmapInfo[0]);
         }
         REPORTER_ASSERT(r, encodeResult);
+        auto encodeData = encodeStream.detachAsData();
 
-        // Decode the just-encoded JpegR or HDRGM.
-        auto decodeStream = std::make_unique<SkMemoryStream>(encodeStream.detachAsData());
+        // Decode the just-encoded image.
+        auto decodeStream = std::make_unique<SkMemoryStream>(encodeData);
         decode_all(r, std::move(decodeStream), baseBitmap[1], gainmapBitmap[1], gainmapInfo[1]);
 
-        // Verify that the representations are different.
-        REPORTER_ASSERT(r, gainmapInfo[0].fType != gainmapInfo[1].fType);
-        if (i == 0) {
-            // JpegR will have different rendering parameters.
-            REPORTER_ASSERT(r, gainmapInfo[0].fLogRatioMin != gainmapInfo[1].fLogRatioMin);
-        } else {
-            // HDRGM will have the same rendering parameters.
-            REPORTER_ASSERT(
-                    r,
-                    approx_eq_rgb(
-                            gainmapInfo[0].fLogRatioMin, gainmapInfo[1].fLogRatioMin, kEpsilon));
-            REPORTER_ASSERT(
-                    r,
-                    approx_eq_rgb(
-                            gainmapInfo[0].fLogRatioMax, gainmapInfo[1].fLogRatioMax, kEpsilon));
-            REPORTER_ASSERT(
-                    r,
-                    approx_eq_rgb(
-                            gainmapInfo[0].fGainmapGamma, gainmapInfo[1].fGainmapGamma, kEpsilon));
-            REPORTER_ASSERT(r,
-                            approx_eq(gainmapInfo[0].fEpsilonSdr.fR,
-                                      gainmapInfo[1].fEpsilonSdr.fR,
-                                      kEpsilon));
-            REPORTER_ASSERT(r,
-                            approx_eq(gainmapInfo[0].fEpsilonHdr.fR,
-                                      gainmapInfo[1].fEpsilonHdr.fR,
-                                      kEpsilon));
-            REPORTER_ASSERT(
-                    r,
-                    approx_eq(gainmapInfo[0].fHdrRatioMin, gainmapInfo[1].fHdrRatioMin, kEpsilon));
-            REPORTER_ASSERT(
-                    r,
-                    approx_eq(gainmapInfo[0].fHdrRatioMax, gainmapInfo[1].fHdrRatioMax, kEpsilon));
-        }
+        // HDRGM will have the same rendering parameters.
+        REPORTER_ASSERT(
+                r,
+                approx_eq_rgb(gainmapInfo[0].fLogRatioMin, gainmapInfo[1].fLogRatioMin, kEpsilon));
+        REPORTER_ASSERT(
+                r,
+                approx_eq_rgb(gainmapInfo[0].fLogRatioMax, gainmapInfo[1].fLogRatioMax, kEpsilon));
+        REPORTER_ASSERT(
+                r,
+                approx_eq_rgb(
+                        gainmapInfo[0].fGainmapGamma, gainmapInfo[1].fGainmapGamma, kEpsilon));
+        REPORTER_ASSERT(
+                r,
+                approx_eq(gainmapInfo[0].fEpsilonSdr.fR, gainmapInfo[1].fEpsilonSdr.fR, kEpsilon));
+        REPORTER_ASSERT(
+                r,
+                approx_eq(gainmapInfo[0].fEpsilonHdr.fR, gainmapInfo[1].fEpsilonHdr.fR, kEpsilon));
+        REPORTER_ASSERT(
+                r, approx_eq(gainmapInfo[0].fHdrRatioMin, gainmapInfo[1].fHdrRatioMin, kEpsilon));
+        REPORTER_ASSERT(
+                r, approx_eq(gainmapInfo[0].fHdrRatioMax, gainmapInfo[1].fHdrRatioMax, kEpsilon));
 
 #ifdef SK_ENABLE_SKSL
         // Render a few pixels and verify that they come out the same. Rendering requires SkSL.

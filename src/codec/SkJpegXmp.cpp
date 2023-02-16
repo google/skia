@@ -416,29 +416,21 @@ bool SkJpegXmp::findUriNamespaces(size_t count,
     return false;
 }
 
-bool SkJpegXmp::getGainmapInfoJpegR(SkGainmapInfo* outInfo,
-                                    size_t* outOffset,
-                                    size_t* outSize) const {
+bool SkJpegXmp::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) const {
     // Find a node that matches the requested namespaces and URIs.
     const char* namespaces[2] = {nullptr, nullptr};
     const char* uris[2] = {"http://ns.google.com/photos/1.0/container/",
-                           "http://ns.google.com/photos/1.0/recoverymap/"};
+                           "http://ns.google.com/photos/1.0/container/item/"};
     const SkDOM* dom = nullptr;
     const SkDOM::Node* node = nullptr;
     if (!findUriNamespaces(2, uris, namespaces, &dom, &node)) {
         return false;
     }
-    const auto gContainerPrefix = get_namespace_prefix(namespaces[0]);
-    const auto recoveryMapPrefix = get_namespace_prefix(namespaces[1]);
-
-    // The node must have a GContainer:Version child that specifies version 1.
-    if (!unique_child_text_matches(*dom, node, gContainerPrefix + "Version", 1)) {
-        SkCodecPrintf("GContainer Version is absent or not 1");
-        return false;
-    }
+    const auto containerPrefix = get_namespace_prefix(namespaces[0]);
+    const auto itemPrefix = get_namespace_prefix(namespaces[1]);
 
     // The node must have a GContainer:Directory.
-    const auto* directory = dom->getFirstChild(node, (gContainerPrefix + "Directory").c_str());
+    const auto* directory = dom->getFirstChild(node, (containerPrefix + "Directory").c_str());
     if (!directory) {
         SkCodecPrintf("Missing GContainer Directory");
         return false;
@@ -454,29 +446,28 @@ bool SkJpegXmp::getGainmapInfoJpegR(SkGainmapInfo* outInfo,
     // Iterate through the items in the GContainer:Directory's sequence. Keep a running sum of the
     // GContainer::ItemLength of all items that appear before the RecoveryMap.
     bool isFirstItem = true;
-    size_t itemLengthSum = 0;
-    SkGainmapInfo::Type type = SkGainmapInfo::Type::kUnknown;
-    SkScalar rangeScalingFactor = 1.f;
+    size_t offset = 0;
     for (const auto* li = dom->getFirstChild(seq, "rdf:li"); li;
          li = dom->getNextSibling(li, "rdf:li")) {
         // Each list item must contain a GContainer item.
-        const auto* item = dom->getFirstChild(li, (gContainerPrefix + "Item").c_str());
+        const auto* item = dom->getFirstChild(li, (containerPrefix + "Item").c_str());
         if (!item) {
-            SkCodecPrintf("List item does not have GContainer Item.\n");
+            SkCodecPrintf("List item does not have container Item.\n");
             return false;
         }
-        // An ItemSemantic is required for every GContainer item.
-        const char* itemSemantic = dom->findAttr(item, (gContainerPrefix + "ItemSemantic").c_str());
+        // A Semantic is required for every item.
+        const char* itemSemantic = dom->findAttr(item, (itemPrefix + "Semantic").c_str());
         if (!itemSemantic) {
-            SkCodecPrintf("GContainer item is missing ItemSemantic.\n");
+            SkCodecPrintf("Item is missing Semantic.\n");
             return false;
         }
-        // An ItemMime is required for every GContainer item.
-        const char* itemMime = dom->findAttr(item, (gContainerPrefix + "ItemMime").c_str());
+        // A Mime is required for every item.
+        const char* itemMime = dom->findAttr(item, (itemPrefix + "Mime").c_str());
         if (!itemMime) {
-            SkCodecPrintf("GContainer item is missing ItemMime.\n");
+            SkCodecPrintf("Item is missing Mime.\n");
             return false;
         }
+
         if (isFirstItem) {
             isFirstItem = false;
             // The first item must be Primary.
@@ -489,51 +480,31 @@ bool SkJpegXmp::getGainmapInfoJpegR(SkGainmapInfo* outInfo,
                 SkCodecPrintf("Primary does not report that it is image/jpeg.\n");
                 return false;
             }
-            // The Verison of 1 is required for the Primary.
-            if (!dom->hasAttr(item, (recoveryMapPrefix + "Version").c_str(), "1")) {
-                SkCodecPrintf("RecoveryMap Version is not 1.");
-                return false;
-            }
-            // The TransferFunction is required for the Primary.
-            int32_t transferFunction = 0;
-            if (!dom->findS32(item,
-                              (recoveryMapPrefix + "TransferFunction").c_str(),
-                              &transferFunction)) {
-                SkCodecPrintf("RecoveryMap TransferFunction is absent.");
-                return false;
-            }
-            switch (transferFunction) {
-                case 0:
-                    type = SkGainmapInfo::Type::kJpegR_Linear;
-                    break;
-                case 1:
-                    type = SkGainmapInfo::Type::kJpegR_HLG;
-                    break;
-                case 2:
-                    type = SkGainmapInfo::Type::kJpegR_PQ;
-                    break;
-                default:
-                    SkCodecPrintf("RecoveryMap:TransferFunction is out of range.");
+            // The first media item can contain a Padding attribute, which specifies additional
+            // padding between the end of the encoded primary image and the beginning of the next
+            // media item. Only the first media item can contain a Padding attribute.
+            int32_t padding = 0;
+            if (dom->findS32(item, (itemPrefix + "Padding").c_str(), &padding)) {
+                if (padding < 0) {
+                    SkCodecPrintf("Item padding must be non-negative.");
                     return false;
-            }
-            // The RangeScalingFactor is required for the Primary.
-            if (!dom->findScalars(item,
-                                  (recoveryMapPrefix + "RangeScalingFactor").c_str(),
-                                  &rangeScalingFactor,
-                                  1)) {
-                SkCodecPrintf("RecoveryMap RangeScalingFactor is absent.");
-                return false;
+                }
+                offset += padding;
             }
         } else {
-            // An ItemLength is required for all non-Primary GContainter items.
-            int32_t itemLength = 0;
-            if (!dom->findS32(item, (gContainerPrefix + "ItemLength").c_str(), &itemLength)) {
-                SkCodecPrintf("GContainer ItemLength is absent.");
+            // A Length is required for all non-Primary items.
+            int32_t length = 0;
+            if (!dom->findS32(item, (itemPrefix + "Length").c_str(), &length)) {
+                SkCodecPrintf("Item length is absent.");
+                return false;
+            }
+            if (length < 0) {
+                SkCodecPrintf("Item length must be non-negative.");
                 return false;
             }
             // If this is not the recovery map, then read past it.
             if (strcmp(itemSemantic, "RecoveryMap") != 0) {
-                itemLengthSum += itemLength;
+                offset += length;
                 continue;
             }
             // The recovery map must have mime type image/jpeg in this implementation.
@@ -542,22 +513,9 @@ bool SkJpegXmp::getGainmapInfoJpegR(SkGainmapInfo* outInfo,
                 return false;
             }
 
-            // Populate the SkGainmapInfo
-            const float kRatioMax = rangeScalingFactor;
-            const float kRatioMin = 1.f / rangeScalingFactor;
-            outInfo->fGainmapRatioMin = {kRatioMin, kRatioMin, kRatioMin, 1.f};
-            outInfo->fGainmapRatioMax = {kRatioMax, kRatioMax, kRatioMax, 1.f};
-            outInfo->fGainmapGamma = {1.f, 1.f, 1.f, 1.f};
-            outInfo->fEpsilonSdr = {0.f, 0.f, 0.f, 1.f};
-            outInfo->fEpsilonHdr = {0.f, 0.f, 0.f, 1.f};
-            outInfo->fDisplayRatioSdr = 1.f;
-            outInfo->fDisplayRatioHdr = rangeScalingFactor;
-            outInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
-            outInfo->fType = type;
-
             // Populate the location in the file at which to find the gainmap image.
-            *outOffset = itemLengthSum;
-            *outSize = itemLength;
+            *outOffset = offset;
+            *outSize = length;
             return true;
         }
     }
