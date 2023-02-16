@@ -261,6 +261,61 @@ DEF_TEST(SkRasterPipeline_ReenableLoopMask, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_CaseOp, r) {
+    alignas(64) int32_t initial[]        = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // dr (condition)
+                                             0, ~0, ~0,  0, ~0, ~0,  0, ~0,  // dg (loop)
+                                            ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // db (return)
+                                             0,  0, ~0,  0,  0,  0,  0, ~0}; // da (combined)
+    alignas(64) int32_t dst[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    static_assert(std::size(initial) == (4 * SkRasterPipeline_kMaxStride_highp));
+
+    constexpr int32_t actualValues[] = { 2,  1,  2,  4,  5,  2,  2,  8};
+    static_assert(std::size(actualValues) == SkRasterPipeline_kMaxStride_highp);
+
+    alignas(64) int32_t caseOpData[2 * SkRasterPipeline_kMaxStride_highp];
+    for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+        caseOpData[0 * SkOpts::raster_pipeline_highp_stride + index] = actualValues[index];
+        caseOpData[1 * SkOpts::raster_pipeline_highp_stride + index] = ~0;
+    }
+
+    SkRasterPipeline_CaseOpCtx ctx;
+    ctx.ptr = caseOpData;
+    ctx.expectedValue = 2;
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipelineOp::load_dst, initial);
+    p.append(SkRasterPipelineOp::case_op, &ctx);
+    p.append(SkRasterPipelineOp::store_dst, dst);
+    p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
+
+    const int dr = 0 * SkOpts::raster_pipeline_highp_stride;
+    const int dg = 1 * SkOpts::raster_pipeline_highp_stride;
+    const int db = 2 * SkOpts::raster_pipeline_highp_stride;
+    const int da = 3 * SkOpts::raster_pipeline_highp_stride;
+    const int actualValueIdx = 0 * SkOpts::raster_pipeline_highp_stride;
+    const int defaultMaskIdx = 1 * SkOpts::raster_pipeline_highp_stride;
+
+    for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+        // `dg` should have been set to true for each lane containing 2.
+        int32_t expected = (actualValues[index] == 2) ? ~0 : initial[dg + index];
+        REPORTER_ASSERT(r, dst[dg + index] == expected);
+
+        // `dr` and `db` should be unchanged.
+        REPORTER_ASSERT(r, dst[dr + index] == initial[dr + index]);
+        REPORTER_ASSERT(r, dst[db + index] == initial[db + index]);
+
+        // `da` should contain `dr & dg & gb`.
+        REPORTER_ASSERT(r, dst[da + index] == (dst[dr+index] & dst[dg+index] & dst[db+index]));
+
+        // The actual-value part of `caseOpData` should be unchanged from the inputs.
+        REPORTER_ASSERT(r, caseOpData[actualValueIdx + index] == actualValues[index]);
+
+        // The default-mask part of `caseOpData` should have been zeroed where the values matched.
+        expected = (actualValues[index] == 2) ? 0 : ~0;
+        REPORTER_ASSERT(r, caseOpData[defaultMaskIdx + index] == expected);
+    }
+}
+
 DEF_TEST(SkRasterPipeline_MaskOffLoopMask, r) {
     alignas(64) int32_t initial[]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // dr (condition)
                                       ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // dg (loop)

@@ -179,4 +179,9 @@ struct SkRasterPipeline_BranchIfEqualCtx : public SkRasterPipeline_BranchCtx {
     const int *ptr;
 };
 
+struct SkRasterPipeline_CaseOpCtx {
+    int expectedValue;
+    int* ptr;  // points to a pair of adjacent I32s: {I32 actualValue, I32 defaultMask}
+};
+
 #endif  // SkRasterPipelineOpContexts_DEFINED
