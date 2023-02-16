@@ -1,4 +1,42 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_4_constants               $0..3 = colorRed
+    4. copy_4_slots_unmasked          color = $0..3
+    5. store_loop_mask                $0 = LoopMask
+    6. copy_constant                  $1 = colorGreen(1)
+    7. cast_to_int_from_float         $1 = FloatToInt($1)
+    8. store_loop_mask                $2 = LoopMask
+    9. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   10. case_op                        if ($1 == 0x00000000) { LoopMask = true; $2 = false; }
+   11. branch_if_no_active_lanes      branch_if_no_active_lanes +2 (label 0 at #13)
+   12. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   13. label                          label 0x00000000
+   14. case_op                        if ($1 == 0x00000001) { LoopMask = true; $2 = false; }
+   15. branch_if_no_active_lanes      branch_if_no_active_lanes +4 (label 1 at #19)
+   16. copy_4_constants               $3..6 = colorGreen
+   17. copy_4_slots_masked            color = Mask($3..6)
+   18. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   19. label                          label 0x00000001
+   20. case_op                        if ($1 == 0x00000002) { LoopMask = true; $2 = false; }
+   21. branch_if_no_active_lanes      branch_if_no_active_lanes +2 (label 2 at #23)
+   22. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   23. label                          label 0x00000002
+   24. case_op                        if ($1 == 0x00000003) { LoopMask = true; $2 = false; }
+   25. branch_if_no_active_lanes      branch_if_no_active_lanes +2 (label 3 at #27)
+   26. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   27. label                          label 0x00000003
+   28. case_op                        if ($1 == 0x00000004) { LoopMask = true; $2 = false; }
+   29. branch_if_no_active_lanes      branch_if_no_active_lanes +2 (label 4 at #31)
+   30. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   31. label                          label 0x00000004
+   32. case_op                        if ($1 == 0x00000005) { LoopMask = true; $2 = false; }
+   33. branch_if_no_active_lanes      branch_if_no_active_lanes +2 (label 5 at #35)
+   34. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   35. label                          label 0x00000005
+   36. reenable_loop_mask             LoopMask |= $2
+   37. branch_if_no_active_lanes      branch_if_no_active_lanes +2 (label 6 at #39)
+   38. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   39. label                          label 0x00000006
+   40. load_loop_mask                 LoopMask = $0
+   41. copy_4_slots_unmasked          [main].result = color
+   42. load_src                       src.rgba = [main].result

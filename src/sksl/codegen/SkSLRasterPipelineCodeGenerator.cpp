@@ -49,6 +49,8 @@
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSwitchCase.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -58,6 +60,7 @@
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <float.h>
@@ -225,6 +228,7 @@ public:
     [[nodiscard]] bool writeIfStatement(const IfStatement& i);
     [[nodiscard]] bool writeDynamicallyUniformIfStatement(const IfStatement& i);
     [[nodiscard]] bool writeReturnStatement(const ReturnStatement& r);
+    [[nodiscard]] bool writeSwitchStatement(const SwitchStatement& s);
     [[nodiscard]] bool writeVarDeclaration(const VarDeclaration& v);
 
     /** Pushes an expression to the value stack. */
@@ -881,6 +885,9 @@ bool Generator::writeStatement(const Statement& s) {
         case Statement::Kind::kReturn:
             return this->writeReturnStatement(s.as<ReturnStatement>());
 
+        case Statement::Kind::kSwitch:
+            return this->writeSwitchStatement(s.as<SwitchStatement>());
+
         case Statement::Kind::kVarDeclaration:
             return this->writeVarDeclaration(s.as<VarDeclaration>());
 
@@ -1186,6 +1193,68 @@ bool Generator::writeReturnStatement(const ReturnStatement& r) {
     if (fBuilder.executionMaskWritesAreEnabled() && this->needsReturnMask()) {
         fBuilder.mask_off_return_mask();
     }
+    return true;
+}
+
+bool Generator::writeSwitchStatement(const SwitchStatement& s) {
+    const StatementArray& cases = s.cases();
+    SkASSERT(std::all_of(cases.begin(), cases.end(), [](const std::unique_ptr<Statement>& stmt) {
+        return stmt->is<SwitchCase>();
+    }));
+
+    // Save off the original loop mask.
+    fBuilder.enableExecutionMaskWrites();
+    fBuilder.push_loop_mask();
+
+    // Push the switch-case value, and write a default-mask that enables every lane which already
+    // has an active loop mask. As we match cases, the default mask will get pared down.
+    if (!this->pushExpression(*s.value())) {
+        return unsupported();
+    }
+    fBuilder.push_loop_mask();
+
+    // Zero out the loop mask; each case op will re-enable it as we go.
+    fBuilder.mask_off_loop_mask();
+
+    // Write each switch-case.
+    bool foundDefaultCase = false;
+    for (const std::unique_ptr<Statement>& stmt : cases) {
+        int skipLabelID = fBuilder.nextLabelID();
+
+        const SwitchCase& sc = stmt->as<SwitchCase>();
+        if (sc.isDefault()) {
+            foundDefaultCase = true;
+            if (stmt.get() != cases.back().get()) {
+                // We only support a default case when it is the very last case. If that changes,
+                // this logic will need to be updated.
+                return unsupported();
+            }
+            // Keep whatever lanes are executing now, and also enable any lanes in the default mask.
+            fBuilder.pop_and_reenable_loop_mask();
+            // Execute the switch-case block, if any lanes are alive to see it.
+            fBuilder.branch_if_no_active_lanes(skipLabelID);
+            if (!this->writeStatement(*sc.statement())) {
+                return unsupported();
+            }
+        } else {
+            // The case-op will enable the loop mask if the switch-value matches, and mask off lanes
+            // from the default-mask.
+            fBuilder.case_op(sc.value());
+            // Execute the switch-case block, if any lanes are alive to see it.
+            fBuilder.branch_if_no_active_lanes(skipLabelID);
+            if (!this->writeStatement(*sc.statement())) {
+                return unsupported();
+            }
+        }
+        fBuilder.label(skipLabelID);
+    }
+
+    // Jettison the switch value, and the default case mask if it was never consumed above.
+    this->discardExpression(/*slots=*/foundDefaultCase ? 1 : 2);
+
+    // Restore the loop mask.
+    fBuilder.pop_loop_mask();
+    fBuilder.disableExecutionMaskWrites();
     return true;
 }
 

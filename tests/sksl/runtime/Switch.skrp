@@ -1,4 +1,29 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          color = 0
+    4. store_loop_mask                $0 = LoopMask
+    5. copy_constant                  $1 = colorGreen(1)
+    6. cast_to_int_from_float         $1 = FloatToInt($1)
+    7. store_loop_mask                $2 = LoopMask
+    8. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+    9. case_op                        if ($1 == 0x00000000) { LoopMask = true; $2 = false; }
+   10. branch_if_no_active_lanes      branch_if_no_active_lanes +4 (label 0 at #14)
+   11. copy_4_constants               $3..6 = colorRed
+   12. copy_4_slots_masked            color = Mask($3..6)
+   13. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   14. label                          label 0x00000000
+   15. case_op                        if ($1 == 0x00000001) { LoopMask = true; $2 = false; }
+   16. branch_if_no_active_lanes      branch_if_no_active_lanes +4 (label 1 at #20)
+   17. copy_4_constants               $3..6 = colorGreen
+   18. copy_4_slots_masked            color = Mask($3..6)
+   19. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   20. label                          label 0x00000001
+   21. reenable_loop_mask             LoopMask |= $2
+   22. branch_if_no_active_lanes      branch_if_no_active_lanes +4 (label 2 at #26)
+   23. copy_4_constants               $2..5 = colorRed
+   24. copy_4_slots_masked            color = Mask($2..5)
+   25. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   26. label                          label 0x00000002
+   27. load_loop_mask                 LoopMask = $0
+   28. copy_4_slots_unmasked          [main].result = color
+   29. load_src                       src.rgba = [main].result
