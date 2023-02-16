@@ -9,6 +9,7 @@
 
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
@@ -106,16 +107,19 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
     return true;
 }
 
-bool DawnCommandBuffer::onAddComputePass(const ComputePassDesc& computePassDesc,
-                                         const ComputePipeline* pipeline,
-                                         const std::vector<ResourceBinding>& bindings) {
+bool DawnCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
     this->beginComputePass();
-    this->bindComputePipeline(pipeline);
-    for (const ResourceBinding& binding : bindings) {
-        this->bindBuffer(binding.fBuffer.fBuffer, binding.fBuffer.fOffset, binding.fIndex);
+    for (const auto& group : groups) {
+        group->addResourceRefs(this);
+        for (const auto& dispatch : group->dispatches()) {
+            this->bindComputePipeline(group->getPipeline(dispatch.fPipelineIndex));
+            for (const ResourceBinding& binding : dispatch.fBindings) {
+                this->bindBuffer(binding.fBuffer.fBuffer, binding.fBuffer.fOffset, binding.fIndex);
+            }
+            this->dispatchThreadgroups(dispatch.fParams.fGlobalDispatchSize,
+                                       dispatch.fParams.fLocalDispatchSize);
+        }
     }
-    this->dispatchThreadgroups(computePassDesc.fGlobalDispatchSize,
-                               computePassDesc.fLocalDispatchSize);
     this->endComputePass();
     return true;
 }

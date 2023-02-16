@@ -17,11 +17,14 @@
 #include "webgpu/webgpu_cpp.h"
 
 namespace skgpu::graphite {
+class ComputePipeline;
 class DawnBuffer;
 class DawnQueueManager;
 class DawnResourceProvider;
 class DawnSharedContext;
 class DawnTexture;
+class DispatchGroup;
+struct WorkgroupSize;
 
 class DawnCommandBuffer final : public CommandBuffer {
 public:
@@ -43,9 +46,7 @@ private:
                          const Texture* depthStencilTexture,
                          SkRect viewport,
                          const std::vector<std::unique_ptr<DrawPass>>& drawPasses) override;
-    bool onAddComputePass(const ComputePassDesc&,
-                          const ComputePipeline*,
-                          const std::vector<ResourceBinding>& bindings) override;
+    bool onAddComputePass(const DispatchGroupList&) override;
 
     // Methods for populating a Dawn RenderPassEncoder:
     bool beginRenderPass(const RenderPassDesc&,

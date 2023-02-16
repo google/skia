@@ -248,11 +248,7 @@ bool VulkanCommandBuffer::onAddRenderPass(
     return false;
 }
 
-bool VulkanCommandBuffer::onAddComputePass(const ComputePassDesc&,
-                                           const ComputePipeline*,
-                                           const std::vector<ResourceBinding>& bindings) {
-    return false;
-}
+bool VulkanCommandBuffer::onAddComputePass(const DispatchGroupList&) { return false; }
 
 bool VulkanCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
                                                size_t srcOffset,

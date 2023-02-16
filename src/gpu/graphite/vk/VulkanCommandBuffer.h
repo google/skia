@@ -65,9 +65,7 @@ private:
                          const Texture* depthStencilTexture,
                          SkRect viewport,
                          const std::vector<std::unique_ptr<DrawPass>>& drawPasses) override;
-    bool onAddComputePass(const ComputePassDesc&,
-                          const ComputePipeline*,
-                          const std::vector<ResourceBinding>& bindings) override;
+    bool onAddComputePass(const DispatchGroupList&) override;
 
     bool onCopyBufferToBuffer(const Buffer* srcBuffer,
                               size_t srcOffset,

@@ -14,7 +14,6 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/CommandTypes.h"
-#include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
 
@@ -31,7 +30,7 @@ class Scene;
 namespace skgpu::graphite {
 
 class Buffer;
-class ComputePipeline;
+class DispatchGroup;
 class DrawPass;
 class SharedContext;
 class GraphicsPipeline;
@@ -42,6 +41,8 @@ class TextureProxy;
 
 class CommandBuffer {
 public:
+    using DispatchGroupList = SkTArray<std::unique_ptr<DispatchGroup>>;
+
     virtual ~CommandBuffer();
 
 #ifdef SK_DEBUG
@@ -65,9 +66,7 @@ public:
                        SkRect viewport,
                        const std::vector<std::unique_ptr<DrawPass>>& drawPasses);
 
-    bool addComputePass(const ComputePassDesc&,
-                        sk_sp<ComputePipeline> pipeline,
-                        const std::vector<ResourceBinding>& bindings);
+    bool addComputePass(const DispatchGroupList& dispatchGroups);
 
     //---------------------------------------------------------------
     // Can only be used outside renderpasses
@@ -121,9 +120,7 @@ private:
                                  SkRect viewport,
                                  const std::vector<std::unique_ptr<DrawPass>>& drawPasses) = 0;
 
-    virtual bool onAddComputePass(const ComputePassDesc&,
-                                  const ComputePipeline*,
-                                  const std::vector<ResourceBinding>& bindings) = 0;
+    virtual bool onAddComputePass(const DispatchGroupList& dispatchGroups) = 0;
 
     virtual bool onCopyBufferToBuffer(const Buffer* srcBuffer,
                                       size_t srcOffset,
