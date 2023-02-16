@@ -546,6 +546,7 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
         case kRGB_888x_SkColorType:     // TODO: use 8888?
         case kRGB_101010x_SkColorType:  // TODO: use 1010102?
         case kBGR_101010x_SkColorType:  // TODO: use 1010102?
+        case kBGR_101010x_XR_SkColorType:  // TODO: use 1010102?
         case kRGBA_F32_SkColorType:
             return nullptr;
 

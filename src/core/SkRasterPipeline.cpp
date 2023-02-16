@@ -224,6 +224,11 @@ void SkRasterPipeline::append_load(SkColorType ct, const SkRasterPipeline_Memory
                                              this->append(Op::swap_rb);
                                              break;
 
+        case kBGR_101010x_XR_SkColorType:    this->append(Op::load_1010102_xr, ctx);
+                                             this->append(Op::force_opaque);
+                                             this->append(Op::swap_rb);
+                                             break;
+
         case kBGRA_8888_SkColorType:         this->append(Op::load_8888, ctx);
                                              this->append(Op::swap_rb);
                                              break;
@@ -279,6 +284,11 @@ void SkRasterPipeline::append_load_dst(SkColorType ct, const SkRasterPipeline_Me
                                               this->append(Op::swap_rb_dst);
                                               break;
 
+        case kBGR_101010x_XR_SkColorType:     this->append(Op::load_1010102_xr_dst, ctx);
+                                              this->append(Op::force_opaque_dst);
+                                              this->append(Op::swap_rb_dst);
+                                              break;
+
         case kBGRA_8888_SkColorType:          this->append(Op::load_8888_dst, ctx);
                                               this->append(Op::swap_rb_dst);
                                               break;
@@ -328,6 +338,11 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
         case kBGR_101010x_SkColorType:        this->append(Op::force_opaque);
                                               this->append(Op::swap_rb);
                                               this->append(Op::store_1010102, ctx);
+                                              break;
+
+        case kBGR_101010x_XR_SkColorType:     this->append(Op::force_opaque);
+                                              this->append(Op::swap_rb);
+                                              this->append(Op::store_1010102_xr, ctx);
                                               break;
 
         case kGray_8_SkColorType:             this->append(Op::bt709_luminance_or_luma_to_alpha);

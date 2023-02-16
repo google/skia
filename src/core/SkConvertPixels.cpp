@@ -104,6 +104,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
+        case kBGR_101010x_XR_SkColorType:
         case kR8_unorm_SkColorType: {
             for (int y = 0; y < srcInfo.height(); ++y) {
                memset(dst, 0xFF, srcInfo.width());
