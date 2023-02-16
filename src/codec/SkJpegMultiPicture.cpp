@@ -29,7 +29,8 @@ constexpr uint32_t kTagSerializedCount = 3;
 constexpr uint16_t kVersionTag = 0xB000;
 constexpr uint16_t kVersionType = kTypeUndefined;
 constexpr uint32_t kVersionCount = 4;
-constexpr uint32_t kVersion0100 = 0x30313030;
+constexpr size_t kVersionSize = 4;
+constexpr uint8_t kVersionExpected[kVersionSize] = {'0', '1', '0', '0'};
 
 constexpr uint16_t kNumberOfImagesTag = 0xB001;
 constexpr uint16_t kNumberOfImagesType = kTypeLong;
@@ -52,21 +53,22 @@ constexpr uint16_t kTotalNumberCapturedFramesTag = 0xB004;
 constexpr uint32_t kTotalNumberCaptureFramesCount = 1;
 
 // Helper macro for SkJpegMultiPictureParameters::Make. Define the indicated variable VAR of type
-// TYPE, and read it from the stream, performing any endian-ness conversions as needed. If any
+// TYPE, and read it from the stream, performing any endian-ness conversions as needed. Also define
+// the variable VAR##Bytes with the raw bytes (with no endian-ness conversion applied). If any
 // errors are encountered, then return nullptr. The last void line is present to suppress unused
 // variable warnings for parameters that we don't use.
-#define DEFINE_AND_READ_UINT(TYPE, VAR)                                                 \
-    TYPE VAR = 0;                                                                       \
-    {                                                                                   \
-        uint8_t VAR##Data[sizeof(TYPE)] = {0};                                          \
-        if (!stream->read(VAR##Data, sizeof(TYPE))) {                                   \
-            return nullptr;                                                             \
-        }                                                                               \
-        for (size_t VAR##i = 0; VAR##i < sizeof(TYPE); ++VAR##i) {                      \
-            VAR *= 256;                                                                 \
-            VAR += VAR##Data[streamIsBigEndian ? VAR##i : (sizeof(TYPE) - VAR##i - 1)]; \
-        }                                                                               \
-    }                                                                                   \
+#define DEFINE_AND_READ_UINT(TYPE, VAR)                                                  \
+    TYPE VAR = 0;                                                                        \
+    uint8_t VAR##Bytes[sizeof(TYPE)] = {0};                                              \
+    {                                                                                    \
+        if (!stream->read(VAR##Bytes, sizeof(TYPE))) {                                   \
+            return nullptr;                                                              \
+        }                                                                                \
+        for (size_t VAR##i = 0; VAR##i < sizeof(TYPE); ++VAR##i) {                       \
+            VAR *= 256;                                                                  \
+            VAR += VAR##Bytes[streamIsBigEndian ? VAR##i : (sizeof(TYPE) - VAR##i - 1)]; \
+        }                                                                                \
+    }                                                                                    \
     (void)VAR
 
 std::unique_ptr<SkJpegMultiPictureParameters> SkJpegMultiPictureParameters::Make(
@@ -142,7 +144,7 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegMultiPictureParameters::Make
         switch (tagId) {
             case kVersionTag:
                 // See 5.2.3.1: MP Format Version.
-                if (value != kVersion0100) {
+                if (memcmp(valueBytes, kVersionExpected, kVersionSize) != 0) {
                     SkCodecPrintf("Version value is not 0100.\n");
                     return nullptr;
                 }
@@ -290,11 +292,13 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize() const {
     // Write the MPF signature.
     SkDynamicMemoryWStream s;
     if (!s.write(kMpfSig, sizeof(kMpfSig))) {
+        SkCodecPrintf("Failed to write signature.\n");
         return nullptr;
     }
 
     // We will always write as big-endian.
     if (!s.write(kMpBigEndian, kMpEndianSize)) {
+        SkCodecPrintf("Failed to write endianness.\n");
         return nullptr;
     }
     // Compute the number of images.
@@ -313,7 +317,10 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize() const {
     WRITE_UINT16(kVersionTag);
     WRITE_UINT16(kVersionType);
     WRITE_UINT32(kVersionCount);
-    WRITE_UINT32(kVersion0100);
+    if (!s.write(kVersionExpected, kVersionSize)) {
+        SkCodecPrintf("Failed to write version.\n");
+        return nullptr;
+    }
 
     // Write the number of images.
     WRITE_UINT16(kNumberOfImagesTag);
