@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/images/SkImageEncoderPriv.h"
+#include "src/encode/SkImageEncoderPriv.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 

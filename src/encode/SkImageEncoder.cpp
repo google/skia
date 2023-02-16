@@ -18,7 +18,7 @@
 #include "include/encode/SkWebpEncoder.h"
 
 #if SK_ENABLE_NDK_IMAGES || SK_USE_CG_ENCODER || SK_USE_WIC_ENCODER
-#include "src/images/SkImageEncoderPriv.h"
+#include "src/encode/SkImageEncoderPriv.h"
 #endif
 
 #if !defined(SK_ENCODE_JPEG)|| !defined(SK_ENCODE_PNG) || !defined(SK_ENCODE_WEBP)

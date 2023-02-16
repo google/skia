@@ -183,7 +183,7 @@ selects.config_setting_group(
     name = "needs_jpeg_priv",
     match_any = [
         ":needs_jpeg",
-        "//src/images:jpeg_encode_codec",
+        "//src/encode:jpeg_encode_codec",
     ],
 )
 
@@ -191,7 +191,7 @@ selects.config_setting_group(
     name = "needs_png_priv",
     match_any = [
         ":png_decode_codec",
-        "//src/images:png_encode_codec",
+        "//src/encode:png_encode_codec",
     ],
 )
 
@@ -222,10 +222,10 @@ skia_filegroup(
         ":decode_bmp_hdrs",
         ":core_hdrs",
     ] + select({
-        ":needs_jpeg_priv": ["SkJpegPriv.h"],  # used by src/images/SkJPEGWriteUtility
+        ":needs_jpeg_priv": ["SkJpegPriv.h"],  # used by src/encode/SkJPEGWriteUtility
         "//conditions:default": [],
     }) + select({
-        ":needs_png_priv": ["SkPngPriv.h"],  # used by src/images/SkPngEncoder
+        ":needs_png_priv": ["SkPngPriv.h"],  # used by src/encode/SkPngEncoder
         "//conditions:default": [],
     }) + select_multi(
         {
