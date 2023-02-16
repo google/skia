@@ -38,9 +38,10 @@ public:
 private:
     SkJpegXmp();
 
-    // Find an XMP node that has the specified namespace attributes set to the specified URIs. The
-    // XMP that this will search for is as follows (NAMESPACEi and URIi being the parameters
-    // specified to this function):
+    // Find an XMP node that assigns namespaces to the specified URIs. The XMP that this will search
+    // for is as follows. URIi is the input parameters in |uris|, and NAMESPACEi is the output
+    // written to |outNamespaces|. The output NAMESPACEi strings will always start with the prefix
+    // "xmlns:".
     //
     //   <x:xmpmeta ...>
     //     <rdf:RDF ...>
@@ -50,11 +51,11 @@ private:
     //
     // This function will sequentially search the standard XMP, followed by the extended XMP (which
     // is not correct behavior -- it should merge the two XMP trees and search the merged tree).
-    bool findNamespaceUriMatch(const char* namespaces[],
-                               const char* uris[],
-                               size_t count,
-                               const SkDOM** outDom,
-                               const SkDOM::Node** outNode) const;
+    bool findUriNamespaces(size_t count,
+                           const char* uris[],
+                           const char* outNamespaces[],
+                           const SkDOM** outDom,
+                           const SkDOM::Node** outNode) const;
 
     // The DOM for the standard XMP.
     SkDOM fStandardDOM;
