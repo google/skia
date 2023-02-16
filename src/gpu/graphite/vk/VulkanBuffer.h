@@ -17,7 +17,7 @@ namespace skgpu::graphite {
 class VulkanBuffer final : public Buffer {
 public:
     static sk_sp<Buffer> Make(const VulkanSharedContext*, size_t, BufferType, PrioritizeGpuReads);
-    void freeGpuData() override {}
+    void freeGpuData() override;
     VkBuffer vkBuffer() const { return fBuffer; }
 
 private:

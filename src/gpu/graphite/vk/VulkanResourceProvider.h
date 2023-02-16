@@ -15,6 +15,7 @@
 namespace skgpu::graphite {
 
 class VulkanCommandBuffer;
+class VulkanSharedContext;
 
 class VulkanResourceProvider final : public ResourceProvider {
 public:
@@ -24,6 +25,8 @@ public:
     sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
 
 private:
+    const VulkanSharedContext* vulkanSharedContext();
+
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
                                                    const GraphicsPipelineDesc&,
                                                    const RenderPassDesc&) override;
