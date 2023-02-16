@@ -1404,6 +1404,15 @@ SI void from_1010102(U32 rgba, F* r, F* g, F* b, F* a) {
     *b = cast((rgba >> 20) & 0x3ff) * (1/1023.0f);
     *a = cast((rgba >> 30)        ) * (1/   3.0f);
 }
+SI void from_1010102_xr(U32 rgba, F* r, F* g, F* b, F* a) {
+    static constexpr float min = -0.752941f;
+    static constexpr float max = 1.25098f;
+    static constexpr float range = max - min;
+    *r = cast((rgba      ) & 0x3ff) * (1/1023.0f) * range + min;
+    *g = cast((rgba >> 10) & 0x3ff) * (1/1023.0f) * range + min;
+    *b = cast((rgba >> 20) & 0x3ff) * (1/1023.0f) * range + min;
+    *a = cast((rgba >> 30)        ) * (1/   3.0f);
+}
 SI void from_1616(U32 _1616, F* r, F* g) {
     *r = cast((_1616      ) & 0xffff) * (1/65535.0f);
     *g = cast((_1616 >> 16) & 0xffff) * (1/65535.0f);
@@ -2570,6 +2579,14 @@ STAGE(load_1010102_dst, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
     from_1010102(load<U32>(ptr, tail), &dr,&dg,&db,&da);
 }
+STAGE(load_1010102_xr, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
+    from_1010102_xr(load<U32>(ptr, tail), &r,&g,&b,&a);
+}
+STAGE(load_1010102_xr_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
+    from_1010102_xr(load<U32>(ptr, tail), &dr,&dg,&db,&da);
+}
 STAGE(gather_1010102, const SkRasterPipeline_GatherCtx* ctx) {
     const uint32_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
@@ -2581,6 +2598,17 @@ STAGE(store_1010102, const SkRasterPipeline_MemoryCtx* ctx) {
     U32 px = to_unorm(r, 1023)
            | to_unorm(g, 1023) << 10
            | to_unorm(b, 1023) << 20
+           | to_unorm(a,    3) << 30;
+    store(ptr, px, tail);
+}
+STAGE(store_1010102_xr, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+    static constexpr float min = -0.752941f;
+    static constexpr float max = 1.25098f;
+    static constexpr float range = max - min;
+    U32 px = to_unorm((r - min) / range, 1023)
+           | to_unorm((g - min) / range, 1023) << 10
+           | to_unorm((b - min) / range, 1023) << 20
            | to_unorm(a,    3) << 30;
     store(ptr, px, tail);
 }

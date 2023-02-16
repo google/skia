@@ -1181,7 +1181,8 @@ namespace skvm {
     PixelFormat SkColorType_to_PixelFormat(SkColorType ct) {
         auto UNORM = PixelFormat::UNORM,
              SRGB  = PixelFormat::SRGB,
-             FLOAT = PixelFormat::FLOAT;
+             FLOAT = PixelFormat::FLOAT,
+             XRNG  = PixelFormat::XRNG;
         switch (ct) {
             case kUnknown_SkColorType: break;
 
@@ -1206,10 +1207,11 @@ namespace skvm {
             case kBGRA_8888_SkColorType:  return {UNORM, 8,8,8,8, 16,8, 0,24};
             case kSRGBA_8888_SkColorType: return { SRGB, 8,8,8,8,  0,8,16,24};
 
-            case kRGBA_1010102_SkColorType: return {UNORM, 10,10,10,2,  0,10,20,30};
-            case kBGRA_1010102_SkColorType: return {UNORM, 10,10,10,2, 20,10, 0,30};
-            case kRGB_101010x_SkColorType:  return {UNORM, 10,10,10,0,  0,10,20, 0};
-            case kBGR_101010x_SkColorType:  return {UNORM, 10,10,10,0, 20,10, 0, 0};
+            case kRGBA_1010102_SkColorType:   return {UNORM, 10,10,10,2,  0,10,20,30};
+            case kBGRA_1010102_SkColorType:   return {UNORM, 10,10,10,2, 20,10, 0,30};
+            case kRGB_101010x_SkColorType:    return {UNORM, 10,10,10,0,  0,10,20, 0};
+            case kBGR_101010x_SkColorType:    return {UNORM, 10,10,10,0, 20,10, 0, 0};
+            case kBGR_101010x_XR_SkColorType: return { XRNG, 10,10,10,0, 20,10, 0, 0};
 
             case kR8G8_unorm_SkColorType:   return {UNORM,  8, 8,0, 0, 0, 8,0,0};
             case kR16G16_unorm_SkColorType: return {UNORM, 16,16,0, 0, 0,16,0,0};
@@ -1244,6 +1246,13 @@ namespace skvm {
                                           v->splat(tf->e),
                                           v->splat(tf->f));
         };
+        auto from_xr = [](int bits, I32 channel) -> F32 {
+            static constexpr float min = -0.752941f;
+            static constexpr float max = 1.25098f;
+            static constexpr float range = max - min;
+            F32 v = from_unorm(bits, channel);
+            return v * range + min;
+        };
 
         auto unpack_rgb = [=](int bits, int shift) -> F32 {
             I32 channel = extract(x, shift, (1<<bits)-1);
@@ -1251,6 +1260,7 @@ namespace skvm {
                 case PixelFormat::UNORM: return from_unorm(bits, channel);
                 case PixelFormat:: SRGB: return from_srgb (bits, channel);
                 case PixelFormat::FLOAT: return from_fp16 (      channel);
+                case PixelFormat:: XRNG: return from_xr   (bits, channel);
             }
             SkUNREACHABLE;
         };
@@ -1260,6 +1270,7 @@ namespace skvm {
                 case PixelFormat::UNORM:
                 case PixelFormat:: SRGB: return from_unorm(bits, channel);
                 case PixelFormat::FLOAT: return from_fp16 (      channel);
+                case PixelFormat:: XRNG: return from_xr   (bits, channel);
             }
             SkUNREACHABLE;
         };
@@ -1385,6 +1396,12 @@ namespace skvm {
                                                          v->splat(tf->e),
                                                          v->splat(tf->f)));
         };
+        auto to_xr = [](int bits, F32 v) {
+            static constexpr float min = -0.752941f;
+            static constexpr float max = 1.25098f;
+            static constexpr float range = max - min;
+            return to_unorm(bits, (v - min) * (1.0f / range));
+        };
 
         I32 packed = c->splat(0);
         auto pack_rgb = [&](F32 channel, int bits, int shift) {
@@ -1393,6 +1410,7 @@ namespace skvm {
                 case PixelFormat::UNORM: encoded = to_unorm(bits, channel); break;
                 case PixelFormat:: SRGB: encoded = to_srgb (bits, channel); break;
                 case PixelFormat::FLOAT: encoded = to_fp16 (      channel); break;
+                case PixelFormat:: XRNG: encoded = to_xr   (bits, channel); break;
             }
             packed = pack(packed, encoded, shift);
         };
@@ -1402,6 +1420,7 @@ namespace skvm {
                 case PixelFormat::UNORM:
                 case PixelFormat:: SRGB: encoded = to_unorm(bits, channel); break;
                 case PixelFormat::FLOAT: encoded = to_fp16 (      channel); break;
+                case PixelFormat:: XRNG: encoded = to_xr   (bits, channel); break;
             }
             packed = pack(packed, encoded, shift);
         };
