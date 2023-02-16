@@ -14,18 +14,30 @@ string_flag_with_values(
     ],
 )
 
-# In separate skia_filegroup from "srcs" to prevent these files from being
-# exported to GNI.
+# In separate skia_filegroups to export these as gni file lists
 skia_filegroup(
-    name = "optional_srcs",
-    srcs = select_multi({
-        ":jpeg_encode_codec": [
-            "SkJPEGWriteUtility.cpp",
-            "SkJpegEncoder.cpp",
-        ],
-        ":png_encode_codec": ["SkPngEncoder.cpp"],
-        ":webp_encode_codec": ["SkWebpEncoder.cpp"],
-    }),
+    name = "jpeg_encode_srcs",
+    srcs = [
+        "SkJPEGWriteUtility.cpp",
+        "SkJpegEncoder.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "jpeg_encode_hdrs",
+    srcs = [
+        "SkJPEGWriteUtility.h",
+    ],
+)
+
+skia_filegroup(
+    name = "png_encode_srcs",
+    srcs = ["SkPngEncoder.cpp"],
+)
+
+skia_filegroup(
+    name = "webp_encode_srcs",
+    srcs = ["SkWebpEncoder.cpp"],
 )
 
 skia_filegroup(
@@ -33,8 +45,11 @@ skia_filegroup(
     srcs = [
         "SkEncoder.cpp",
         "SkImageEncoder.cpp",
-        ":optional_srcs",
-    ],
+    ] + select_multi({
+        ":jpeg_encode_codec": [":jpeg_encode_srcs"],
+        ":png_encode_codec": [":png_encode_srcs"],
+        ":webp_encode_codec": [":webp_encode_srcs"],
+    }),
     visibility = ["//src:__pkg__"],
 )
 
@@ -44,7 +59,7 @@ skia_filegroup(
         "SkImageEncoderFns.h",
         "SkImageEncoderPriv.h",
     ] + select({
-        ":jpeg_encode_codec": ["SkJPEGWriteUtility.h"],
+        ":jpeg_encode_codec": [":jpeg_encode_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
