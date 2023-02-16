@@ -125,6 +125,27 @@ R"(    1. store_condition_mask           $0 = CondMask
 )");
 }
 
+
+DEF_TEST(RasterPipelineBuilderCaseOp, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+
+    builder.push_literal_i(123);    // push a test value
+    builder.push_literal_i(~0);     // push an all-on default mask
+    builder.case_op(123);           // do `case 123:`
+    builder.case_op(124);           // do `case 124:`
+    builder.discard_stack(2);
+
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    check(r, *program,
+R"(    1. copy_constant                  $0 = 0x0000007B (1.723597e-43)
+    2. copy_constant                  $1 = 0xFFFFFFFF
+    3. case_op                        if ($0 == 0x0000007B) { LoopMask = true; $1 = false; }
+    4. case_op                        if ($0 == 0x0000007C) { LoopMask = true; $1 = false; }
+)");
+}
+
 DEF_TEST(RasterPipelineBuilderPushPopSrcDst, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;

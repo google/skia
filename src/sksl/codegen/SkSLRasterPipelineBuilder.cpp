@@ -1330,6 +1330,13 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
                 break;
             }
+            case BuilderOp::case_op: {
+                auto* ctx = alloc->make<SkRasterPipeline_CaseOpCtx>();
+                ctx->ptr = reinterpret_cast<int*>(tempStackPtr - 2 * N);
+                ctx->expectedValue = inst.fImmA;
+                pipeline->push_back({ProgramOp::case_op, ctx});
+                break;
+            }
             case BuilderOp::discard_stack:
                 break;
 
@@ -1698,6 +1705,13 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = ImmCtx(stage.ctx, /*showAsFloat=*/false);
                 break;
 
+            case POp::case_op: {
+                const auto* ctx = static_cast<SkRasterPipeline_CaseOpCtx*>(stage.ctx);
+                opArg1 = PtrCtx(ctx->ptr, 1);
+                opArg2 = PtrCtx(ctx->ptr + N, 1);
+                opArg3 = Imm(sk_bit_cast<float>(ctx->expectedValue), /*showAsFloat=*/false);
+                break;
+            }
             case POp::swizzle_1:
             case POp::swizzle_2:
             case POp::swizzle_3:
@@ -2272,6 +2286,11 @@ void Program::dump(SkWStream* out) const {
                 opText = "label " + opArg1;
                 break;
 
+            case POp::case_op: {
+                opText = "if (" + opArg1 + " == " + opArg3 +
+                         ") { LoopMask = true; " + opArg2 + " = false; }";
+                break;
+            }
             default:
                 break;
         }

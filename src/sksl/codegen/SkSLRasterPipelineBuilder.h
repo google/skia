@@ -462,6 +462,11 @@ public:
                                  numSlots + offsetFromStackTop});
     }
 
+    // Compares the stack top with the passed-in value; if it matches, enables the loop mask.
+    void case_op(int value) {
+        fInstructions.push_back({BuilderOp::case_op, {}, value});
+    }
+
     void select(int slots) {
         // Overlays the top two entries on the stack, making one hybrid entry. The execution mask
         // is used to select which lanes are preserved.
