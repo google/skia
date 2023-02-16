@@ -762,9 +762,14 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
         if (params.strokeStyle().halfWidth() > 0.f) {
             float joinStyle = params.strokeStyle().joinLimit();
             if (params.strokeStyle().isMiterJoin()) {
-                // Discard actual miter limit because a 90-degree corner never exceeds that, and
-                // set either +1 for per-corner mitering or +2 for if all corners are mitered.
-                joinStyle = all(xRadii == skvx::float4(0.f)) ? 2.f : 1.f;
+                // All corners are 90-degrees so become beveled if the miter limit is < sqrt(2).
+                if (params.strokeStyle().miterLimit() < SK_ScalarSqrt2) {
+                    joinStyle = 0.f; // == bevel
+                } else {
+                    // Discard actual miter limit because a 90-degree corner never exceeds that, and
+                    // set either +1 for per-corner mitering or +2 for if all corners are mitered.
+                    joinStyle = all(xRadii == skvx::float4(0.f)) ? 2.f : 1.f;
+                }
             }
             // Write a negative value outside [-1, 0] to signal a stroked shape, then the style
             // params, followed by corner radii and bounds.
