@@ -562,7 +562,7 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
             int ctIdx = 0;
             // Format: VK_FORMAT_R16G16B16A16_UNORM, Surface: kRGBA_16161616
             {
-                constexpr SkColorType ct = SkColorType::kRGBA_F16_SkColorType;
+                constexpr SkColorType ct = SkColorType::kR16G16B16A16_unorm_SkColorType;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
                 ctInfo.fTransferColorType = ct;
