@@ -986,8 +986,8 @@ def go_repositories():
     go_repository(
         name = "com_github_godbus_dbus_v5",
         importpath = "github.com/godbus/dbus/v5",
-        sum = "h1:mkgN1ofwASrYnJ5W6U/BxG15eXXXjirgZc7CLqkcaro=",
-        version = "v5.0.6",
+        sum = "h1:9349emZab16e7zQvpmsbtjc18ykshndd8y2PG3sgJbA=",
+        version = "v5.0.4",
     )
     go_repository(
         name = "com_github_gofrs_uuid",
@@ -1701,8 +1701,8 @@ def go_repositories():
     go_repository(
         name = "com_github_kr_pretty",
         importpath = "github.com/kr/pretty",
-        sum = "h1:Fmg33tUaq4/8ym9TJN1x7sLJnHVwhP33CNkpYV/7rwI=",
-        version = "v0.2.1",
+        sum = "h1:s5hAObm+yFO5uHYt5dYjxi2rXrsnmRpJx4OYvIWUaQs=",
+        version = "v0.2.0",
     )
     go_repository(
         name = "com_github_kr_pty",
@@ -2302,14 +2302,14 @@ def go_repositories():
     go_repository(
         name = "com_github_rs_xid",
         importpath = "github.com/rs/xid",
-        sum = "h1:mhH9Nq+C1fY2l1XIpgxIiUOfNpRBYH1kKcr+qfKgjRc=",
-        version = "v1.2.1",
+        sum = "h1:6NjYksEUlhurdVehpc7S7dk6DAmcKv8V9gG0FsVN2U4=",
+        version = "v1.3.0",
     )
     go_repository(
         name = "com_github_rs_zerolog",
         importpath = "github.com/rs/zerolog",
-        sum = "h1:uPRuwkWF4J6fGsJ2R0Gn2jB1EQiav9k3S6CSdygQJXY=",
-        version = "v1.15.0",
+        sum = "h1:/ihwxqH+4z8UxyI70wM1z9yCvkWcfz/a3mj48k/Zngc=",
+        version = "v1.26.1",
     )
     go_repository(
         name = "com_github_russross_blackfriday",
@@ -2644,6 +2644,12 @@ def go_repositories():
         importpath = "github.com/urfave/negroni",
         sum = "h1:kIimOitoypq34K7TG7DUaJ9kq/N4Ofuwi1sjz0KipXc=",
         version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_vektra_mockery_v2",
+        importpath = "github.com/vektra/mockery/v2",
+        sum = "h1:9NkC3urGvJS9B0ve5aTbFjksbO9f/u5cZFgCTVJ30jg=",
+        version = "v2.11.0",
     )
 
     go_repository(
@@ -3496,8 +3502,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:ueVMRt58+JCqBjFjy4lUbiLJXBROL9jIp08xQL246KU=",
-        version = "v0.0.0-20230215031456-87d3eee3434b",
+        sum = "h1:u4vOkPNnc0/F2K3NpLXnQx5onSl+L4rTJYPAicQuW8Y=",
+        version = "v0.0.0-20230215201534-b1b0afe6ac4d",
     )
     go_repository(
         name = "org_uber_go_atomic",
