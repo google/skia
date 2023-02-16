@@ -15,7 +15,7 @@
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/encode/SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 #include "src/utils/win/SkAutoCoInitialize.h"
 #include "src/utils/win/SkIStream.h"
 #include "src/utils/win/SkTScopedComPtr.h"

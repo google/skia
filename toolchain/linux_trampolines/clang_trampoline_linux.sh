@@ -23,7 +23,7 @@ supported_files_or_dirs=(
   "src/codec/"
   "src/effects/"
   "src/image/"
-  "src/encode/"
+  "src/images/"
   "src/pathops/"
   "src/sksl/"
   "src/svg/"

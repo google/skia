@@ -26,7 +26,7 @@
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_WIN) \
  || defined(SK_ENABLE_NDK_IMAGES)
-#include "src/encode/SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 #endif
 
 namespace {

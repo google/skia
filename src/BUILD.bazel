@@ -20,7 +20,7 @@ skia_filegroup(
         "//src/core:srcs",
         "//src/effects:srcs",
         "//src/image:srcs",
-        "//src/encode:srcs",
+        "//src/images:srcs",
         "//src/pathops:srcs",
         "//src/ports:srcs",
         "//src/sfnt:srcs",
@@ -65,7 +65,7 @@ skia_filegroup(
         "//src/core:private_hdrs",
         "//src/effects:private_hdrs",
         "//src/image:private_hdrs",
-        "//src/encode:private_hdrs",
+        "//src/images:private_hdrs",
         "//src/opts:private_hdrs",
         "//src/pathops:private_hdrs",
         "//src/ports:private_hdrs",
@@ -106,7 +106,7 @@ skia_cc_deps(
     visibility = ["//:__pkg__"],
     deps = [
         "//src/codec:deps",
-        "//src/encode:deps",
+        "//src/images:deps",
         "//src/ports:deps",
         "//src/opts:deps",
         "//modules/skcms:skcms",
@@ -139,8 +139,8 @@ generate_cpp_files_for_headers(
         "src/core/SkMatrixPriv.h",
         "src/core/SkPathPriv.h",
         "src/image/SkImage_Base.h",
-        "src/encode/SkImageEncoderFns.h",
-        "src/encode/SkImageEncoderPriv.h",
+        "src/images/SkImageEncoderFns.h",
+        "src/images/SkImageEncoderPriv.h",
     ],
 )
 

@@ -12,7 +12,7 @@
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/private/base/SkMalloc.h"
-#include "src/encode/SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"

@@ -89,7 +89,7 @@ bool_flag(
 selects.config_setting_group(
     name = "uses_jpeg",
     match_any = [
-        "//src/encode:jpeg_encode_codec",
+        "//src/images:jpeg_encode_codec",
         "//src/codec:jpeg_decode_codec",
     ],
 )

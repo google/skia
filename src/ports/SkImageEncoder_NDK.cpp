@@ -9,7 +9,7 @@
 #include "include/core/SkStream.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
-#include "src/encode/SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 #include "src/ports/SkNDKConversions.h"
 
 bool SkEncodeImageWithNDK(SkWStream* stream, const SkPixmap& pmap, SkEncodedImageFormat format,
