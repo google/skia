@@ -53,6 +53,14 @@ platform(
     parents = ["@local_config_platform//:host"],
 )
 
+platform(
+    name = "android_arm32",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:arm",
+    ],
+)
+
 # This constraint allows us to force Bazel to resolve our hermetic toolchain to build
 # the target and not a default one (e.g. on the Linux RBE instance). We do this by
 # adding the constraint to our platforms that describe the target we want Bazel to build for.

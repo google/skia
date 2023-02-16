@@ -88,6 +88,44 @@ pip_install(
 )
 
 #######################################################################################
+# Maven
+#######################################################################################
+
+# https://github.com/bazelbuild/rules_jvm_external
+http_archive(
+    name = "rules_jvm_external",
+    strip_prefix = "rules_jvm_external-4.2",
+    sha256 = "cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca",
+    urls = [
+        "https://storage.googleapis.com/skia-world-readable/bazel/cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca.zip",
+        "https://github.com/bazelbuild/rules_jvm_external/archive/4.2.zip",
+    ],
+)
+
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    artifacts = [
+        # The version released after this one (1.6.0-rc1) did not resolve unknown symbol errors when
+        # building.
+        # https://b.corp.google.com/issues/269331711
+        "androidx.annotation:annotation:1.5.0",
+    ],
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+#######################################################################################
 # Gazelle
 #######################################################################################
 http_archive(
@@ -191,6 +229,14 @@ browser_repositories(
     chromium = True,
     firefox = True,
 )
+
+# Bazel will look for env variables ANDROID_HOME and ANDROID_NDK_HOME.
+# This is NOT hermetic as it requires the user to handle downloading the SDK  and accepting the
+# license independently.
+android_sdk_repository(name = "androidsdk")
+# TODO: skbug.com/14128
+# Uncomment the following after setting ANDROID_NDK_HOME to build for Android:
+# android_ndk_repository(name = "androidndk")
 
 load("//bazel:deps.bzl", "git_repos_from_deps")
 
