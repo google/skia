@@ -192,6 +192,88 @@ void Builder::discard_stack(int32_t count) {
     }
 }
 
+void Builder::label(int labelID) {
+    SkASSERT(labelID >= 0 && labelID < fNumLabels);
+
+    // If the previous instruction was a branch to this label, it's a no-op; jumping to the very
+    // next instruction is effectively meaningless.
+    while (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+        switch (lastInstruction.fOp) {
+            case BuilderOp::jump:
+            case BuilderOp::branch_if_any_active_lanes:
+            case BuilderOp::branch_if_no_active_lanes:
+            case BuilderOp::branch_if_no_active_lanes_on_stack_top_equal:
+                if (lastInstruction.fImmA == labelID) {
+                    fInstructions.pop_back();
+                    continue;
+                }
+                break;
+
+            default:
+                break;
+        }
+        break;
+    }
+    fInstructions.push_back({BuilderOp::label, {}, labelID});
+}
+
+void Builder::jump(int labelID) {
+    SkASSERT(labelID >= 0 && labelID < fNumLabels);
+    if (!fInstructions.empty() && fInstructions.back().fOp == BuilderOp::jump) {
+        // The previous instruction was also `jump`, so this branch could never possibly occur.
+        return;
+    }
+    fInstructions.push_back({BuilderOp::jump, {}, labelID});
+}
+
+void Builder::branch_if_any_active_lanes(int labelID) {
+    if (!this->executionMaskWritesAreEnabled()) {
+        this->jump(labelID);
+        return;
+    }
+
+    SkASSERT(labelID >= 0 && labelID < fNumLabels);
+    if (!fInstructions.empty() &&
+        (fInstructions.back().fOp == BuilderOp::branch_if_any_active_lanes ||
+         fInstructions.back().fOp == BuilderOp::jump)) {
+        // The previous instruction was `jump` or `branch_if_any_active_lanes`, so this branch
+        // could never possibly occur.
+        return;
+    }
+    fInstructions.push_back({BuilderOp::branch_if_any_active_lanes, {}, labelID});
+}
+
+void Builder::branch_if_no_active_lanes(int labelID) {
+    if (!this->executionMaskWritesAreEnabled()) {
+        return;
+    }
+
+    SkASSERT(labelID >= 0 && labelID < fNumLabels);
+    if (!fInstructions.empty() &&
+        (fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes ||
+         fInstructions.back().fOp == BuilderOp::jump)) {
+        // The previous instruction was `jump` or `branch_if_no_active_lanes`, so this branch
+        // could never possibly occur.
+        return;
+    }
+    fInstructions.push_back({BuilderOp::branch_if_no_active_lanes, {}, labelID});
+}
+
+void Builder::branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID) {
+    SkASSERT(labelID >= 0 && labelID < fNumLabels);
+    if (!fInstructions.empty() &&
+        (fInstructions.back().fOp == BuilderOp::jump ||
+         (fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes_on_stack_top_equal &&
+          fInstructions.back().fImmB == value))) {
+        // The previous instruction was `jump` or `branch_if_no_active_lanes_on_stack_top_equal`
+        // (checking against the same value), so this branch could never possibly occur.
+        return;
+    }
+    fInstructions.push_back({BuilderOp::branch_if_no_active_lanes_on_stack_top_equal,
+                             {}, labelID, value});
+}
+
 void Builder::push_slots(SlotRange src) {
     SkASSERT(src.count >= 0);
     if (!fInstructions.empty()) {

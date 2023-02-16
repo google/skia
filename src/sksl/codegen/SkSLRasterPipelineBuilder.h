@@ -313,66 +313,20 @@ public:
         fInstructions.push_back({BuilderOp::set_current_stack, {}, stackIdx});
     }
 
-    void label(int labelID) {
-        SkASSERT(labelID >= 0 && labelID < fNumLabels);
-        fInstructions.push_back({BuilderOp::label, {}, labelID});
-    }
+    // Inserts a label into the instruction stream.
+    void label(int labelID);
 
-    void jump(int labelID) {
-        SkASSERT(labelID >= 0 && labelID < fNumLabels);
-        if (!fInstructions.empty() && fInstructions.back().fOp == BuilderOp::jump) {
-            // The previous instruction was also `jump`, so this branch could never possibly occur.
-            return;
-        }
-        fInstructions.push_back({BuilderOp::jump, {}, labelID});
-    }
+    // Unconditionally branches to a label.
+    void jump(int labelID);
 
-    void branch_if_any_active_lanes(int labelID) {
-        if (!this->executionMaskWritesAreEnabled()) {
-            this->jump(labelID);
-            return;
-        }
+    // Branches to a label if the execution mask is active in any lane.
+    void branch_if_any_active_lanes(int labelID);
 
-        SkASSERT(labelID >= 0 && labelID < fNumLabels);
-        if (!fInstructions.empty() &&
-            (fInstructions.back().fOp == BuilderOp::branch_if_any_active_lanes ||
-             fInstructions.back().fOp == BuilderOp::jump)) {
-            // The previous instruction was `jump` or `branch_if_any_active_lanes`, so this branch
-            // could never possibly occur.
-            return;
-        }
-        fInstructions.push_back({BuilderOp::branch_if_any_active_lanes, {}, labelID});
-    }
+    // Branches to a label if the execution mask is inactive across all lanes.
+    void branch_if_no_active_lanes(int labelID);
 
-    void branch_if_no_active_lanes(int labelID) {
-        if (!this->executionMaskWritesAreEnabled()) {
-            return;
-        }
-
-        SkASSERT(labelID >= 0 && labelID < fNumLabels);
-        if (!fInstructions.empty() &&
-            (fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes ||
-             fInstructions.back().fOp == BuilderOp::jump)) {
-            // The previous instruction was `jump` or `branch_if_no_active_lanes`, so this branch
-            // could never possibly occur.
-            return;
-        }
-        fInstructions.push_back({BuilderOp::branch_if_no_active_lanes, {}, labelID});
-    }
-
-    void branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID) {
-        SkASSERT(labelID >= 0 && labelID < fNumLabels);
-        if (!fInstructions.empty() &&
-            (fInstructions.back().fOp == BuilderOp::jump ||
-             (fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes_on_stack_top_equal &&
-              fInstructions.back().fImmB == value))) {
-            // The previous instruction was `jump` or `branch_if_no_active_lanes_on_stack_top_equal`
-            // (checking against the same value), so this branch could never possibly occur.
-            return;
-        }
-        fInstructions.push_back({BuilderOp::branch_if_no_active_lanes_on_stack_top_equal,
-                                 {}, labelID, value});
-    }
+    // Branches to a label if the top value on the stack is _not_ equal to `value` in any lane.
+    void branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID);
 
     // We use the same SkRasterPipeline op regardless of the literal type, and bitcast the value.
     void push_literal_f(float val) {
