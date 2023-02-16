@@ -347,6 +347,7 @@ BASE_SRCS_ALL = [
     "src/base/SkUtils.h",
     "src/base/SkVx.h",
     "src/base/SkZip.h",
+    "src/codec/SkJpegConstants.h",
     "src/codec/SkPixmapUtils.cpp",
     "src/codec/SkPixmapUtils.h",
     "src/core/Sk4px.h",
