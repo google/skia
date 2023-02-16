@@ -99,8 +99,8 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     bool useLazyAllocation =
             SkToBool(spec.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
 
-    auto checkResult = [](VkResult result) {
-        return result == VK_SUCCESS;
+    auto checkResult = [sharedContext](VkResult result) {
+        return sharedContext->checkVkResult(result);
     };
     if (!skgpu::VulkanMemory::AllocImageMemory(allocator,
                                                image,
@@ -295,6 +295,7 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
 void VulkanTexture::freeGpuData() {
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
     skgpu::VulkanMemory::FreeImageMemory(sharedContext->memoryAllocator(), fMemoryAlloc);
+    VULKAN_CALL(sharedContext->interface(), DestroyImage(sharedContext->device(), fImage, nullptr));
 }
 
 VkImageLayout VulkanTexture::currentLayout() const {
