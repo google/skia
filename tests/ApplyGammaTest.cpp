@@ -146,7 +146,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforce
         dstCanvas->drawImage(img, 0, 0, SkSamplingOptions(), &gammaPaint);
         dst->flushAndSubmit();
 
-        sk_memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);
+        SkOpts::memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);
         if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
             ERRORF(reporter, "Error calling readPixels");
             continue;

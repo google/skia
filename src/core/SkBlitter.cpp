@@ -260,7 +260,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         int16_t*                    runs = runStorage.get();
         const uint8_t*              aa = mask.getAddr8(clip.fLeft, clip.fTop);
 
-        sk_memset16((uint16_t*)runs, 1, width);
+        SkOpts::memset16((uint16_t*)runs, 1, width);
         runs[width] = 0;
 
         int height = clip.height();

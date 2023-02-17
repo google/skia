@@ -224,7 +224,7 @@ void SkBaseDevice::drawAtlas(const SkRSXform xform[],
         vTex = quad_to_tris(vTex, tmp);
 
         if (colors) {
-            sk_memset32(vCol, colors[i], 6);
+            SkOpts::memset32(vCol, colors[i], 6);
             vCol += 6;
         }
     }

@@ -169,7 +169,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(CopySurface,
                                     continue;
                                 }
 
-                                sk_memset32(read.get(), 0, kW * kH);
+                                SkOpts::memset32(read.get(), 0, kW * kH);
                                 GrPixmap readPM(ii, read.get(), kRowBytes);
                                 if (!dstContext->readPixels(dContext, readPM, {0, 0})) {
                                     ERRORF(reporter, "Error calling readPixels");

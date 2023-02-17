@@ -747,24 +747,24 @@ static void image_test_read_pixels(GrDirectContext* dContext, skiatest::Reporter
                                                  0, image->height()));
 
     // top-left should succeed
-    sk_memset32(pixels, notExpected, w*h);
+    SkOpts::memset32(pixels, notExpected, w*h);
     REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes, 0, 0));
     REPORTER_ASSERT(reporter, has_pixels(pixels, w*h, expected));
 
     // bottom-right should succeed
-    sk_memset32(pixels, notExpected, w*h);
+    SkOpts::memset32(pixels, notExpected, w*h);
     REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes,
                                                 image->width() - w, image->height() - h));
     REPORTER_ASSERT(reporter, has_pixels(pixels, w*h, expected));
 
     // partial top-left should succeed
-    sk_memset32(pixels, notExpected, w*h);
+    SkOpts::memset32(pixels, notExpected, w*h);
     REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes, -1, -1));
     REPORTER_ASSERT(reporter, pixels[3] == expected);
     REPORTER_ASSERT(reporter, has_pixels(pixels, w*h - 1, notExpected));
 
     // partial bottom-right should succeed
-    sk_memset32(pixels, notExpected, w*h);
+    SkOpts::memset32(pixels, notExpected, w*h);
     REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes,
                                                 image->width() - 1, image->height() - 1));
     REPORTER_ASSERT(reporter, pixels[0] == expected);

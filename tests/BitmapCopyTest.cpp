@@ -155,7 +155,7 @@ static bool check_4x4_pixel(SkPMColor color, unsigned x, unsigned y) {
  *  Fill with all zeros, which will never match any value from fill_4x4_pixels
  */
 static void clear_4x4_pixels(SkPMColor colors[16]) {
-    sk_memset32(colors, 0, 16);
+    SkOpts::memset32(colors, 0, 16);
 }
 
 // Much of readPixels is exercised by copyTo testing, since readPixels is the backend for that

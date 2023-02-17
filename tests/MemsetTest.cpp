@@ -54,7 +54,7 @@ static void test_16(skiatest::Reporter* reporter) {
             set_zero(buffer, sizeof(buffer));
 
             uint16_t* base = &buffer[PAD + alignment];
-            sk_memset16(base, VALUE16, count);
+            SkOpts::memset16(base, VALUE16, count);
 
             compare16(reporter, buffer,       0,       PAD + alignment);
             compare16(reporter, base,         VALUE16, count);
@@ -71,7 +71,7 @@ static void test_32(skiatest::Reporter* reporter) {
             set_zero(buffer, sizeof(buffer));
 
             uint32_t* base = &buffer[PAD + alignment];
-            sk_memset32(base, VALUE32, count);
+            SkOpts::memset32(base, VALUE32, count);
 
             compare32(reporter, buffer,       0,       PAD + alignment);
             compare32(reporter, base,         VALUE32, count);
@@ -81,7 +81,7 @@ static void test_32(skiatest::Reporter* reporter) {
 }
 
 /**
- *  Test sk_memset16 and sk_memset32.
+ *  Test SkOpts::memset16 and SkOpts::memset32.
  *  For performance considerations, implementations may take different paths
  *  depending on the alignment of the dst, and/or the size of the count.
  */

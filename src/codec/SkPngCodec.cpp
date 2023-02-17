@@ -327,7 +327,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
     const int maxColors = 1 << fBitDepth;
     if (numColors < maxColors) {
         SkPMColor lastColor = numColors > 0 ? colorTable[numColors - 1] : SK_ColorBLACK;
-        sk_memset32(colorTable + numColors, lastColor, maxColors - numColors);
+        SkOpts::memset32(colorTable + numColors, lastColor, maxColors - numColors);
     }
 
     fColorTable.reset(new SkColorTable(colorTable, maxColors));

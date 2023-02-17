@@ -174,7 +174,7 @@ static bool setup_backend_objects(GrDirectContext* dContext,
 
         SkISize offscreenDims = {options.fOffScreenWidth, options.fOffScreenHeight};
         AutoTMalloc<uint32_t> data(offscreenDims.area());
-        sk_memset32(data.get(), 0, offscreenDims.area());
+        SkOpts::memset32(data.get(), 0, offscreenDims.area());
 
         // This backend object should be renderable but not textureable. Given the limitations
         // of how we're creating it though it will wind up being secretly textureable.

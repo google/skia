@@ -378,7 +378,7 @@ static void clampx_nofilter_trans(const SkBitmapProcState& s,
     }
 
     // fill the remaining with the max value
-    sk_memset16(xptr, width - 1, count);
+    SkOpts::memset16(xptr, width - 1, count);
 }
 
 template< U16CPU (tiley)(int x, int n) >

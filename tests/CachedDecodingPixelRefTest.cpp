@@ -66,14 +66,14 @@ protected:
         switch (info.colorType()) {
             case kN32_SkColorType:
                 for (int y = 0; y < info.height(); ++y) {
-                    sk_memset32((uint32_t*)bytePtr,
+                    SkOpts::memset32((uint32_t*)bytePtr,
                                 TestImageGenerator::PMColor(), info.width());
                     bytePtr += rowBytes;
                 }
                 break;
             case kRGB_565_SkColorType:
                 for (int y = 0; y < info.height(); ++y) {
-                    sk_memset16((uint16_t*)bytePtr,
+                    SkOpts::memset16((uint16_t*)bytePtr,
                         SkPixel32ToPixel16(TestImageGenerator::PMColor()), info.width());
                     bytePtr += rowBytes;
                 }

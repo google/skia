@@ -89,7 +89,7 @@ static void S32_alpha_D32_nofilter_DX(const SkBitmapProcState& s,
     auto row = (const SkPMColor*)( (const char*)s.fPixmap.addr() + y * s.fPixmap.rowBytes() );
 
     if (1 == s.fPixmap.width()) {
-        sk_memset32(colors, SkAlphaMulQ(row[0], s.fAlphaScale), count);
+        SkOpts::memset32(colors, SkAlphaMulQ(row[0], s.fAlphaScale), count);
         return;
     }
 
@@ -311,7 +311,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     // clamp to the left
     if (ix < 0) {
         int n = std::min(-ix, count);
-        sk_memset32(colors, row[0], n);
+        SkOpts::memset32(colors, row[0], n);
         count -= n;
         if (0 == count) {
             return;
@@ -332,7 +332,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     }
     SkASSERT(count > 0);
     // clamp to the right
-    sk_memset32(colors, row[maxX], count);
+    SkOpts::memset32(colors, row[maxX], count);
 }
 
 static inline int sk_int_mod(int x, int n) {
@@ -507,13 +507,13 @@ static void S32_D32_constX_shaderproc(const void* sIn,
         }
     }
 
-    sk_memset32(colors, color, count);
+    SkOpts::memset32(colors, color, count);
 }
 
 static void DoNothing_shaderproc(const void*, int x, int y,
                                  SkPMColor* colors, int count) {
     // if we get called, the matrix is too tricky, so we just draw nothing
-    sk_memset32(colors, 0, count);
+    SkOpts::memset32(colors, 0, count);
 }
 
 bool SkBitmapProcState::setupForTranslate() {
