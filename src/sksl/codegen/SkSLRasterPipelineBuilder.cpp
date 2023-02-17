@@ -357,6 +357,28 @@ void Builder::push_duplicates(int count) {
     }
 }
 
+void Builder::push_clone_from_stack(int numSlots, int otherStackIndex, int offsetFromStackTop) {
+    offsetFromStackTop += numSlots;
+
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the previous op is also pushing a clone...
+        if (lastInstruction.fOp == BuilderOp::push_clone_from_stack &&
+            // ... from the same stack...
+            lastInstruction.fImmB == otherStackIndex &&
+            // ... and this clone starts at the same place that the last clone ends...
+            lastInstruction.fImmC - lastInstruction.fImmA == offsetFromStackTop) {
+            // ... just extend the existing clone-op.
+            lastInstruction.fImmA += numSlots;
+            return;
+        }
+    }
+
+    fInstructions.push_back({BuilderOp::push_clone_from_stack, {},
+                             numSlots, otherStackIndex, offsetFromStackTop});
+}
+
 void Builder::pop_slots(SlotRange dst) {
     if (!this->executionMaskWritesAreEnabled()) {
         this->pop_slots_unmasked(dst);

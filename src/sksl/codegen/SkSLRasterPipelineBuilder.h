@@ -411,10 +411,7 @@ public:
 
     // Creates a single clone from an item on any temp stack. The cloned item can consist of any
     // number of slots.
-    void push_clone_from_stack(int numSlots, int otherStackIndex, int offsetFromStackTop = 0) {
-        fInstructions.push_back({BuilderOp::push_clone_from_stack, {}, numSlots, otherStackIndex,
-                                 numSlots + offsetFromStackTop});
-    }
+    void push_clone_from_stack(int numSlots, int otherStackIndex, int offsetFromStackTop = 0);
 
     // Compares the stack top with the passed-in value; if it matches, enables the loop mask.
     void case_op(int value) {
