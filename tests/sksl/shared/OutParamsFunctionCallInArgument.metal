@@ -10,25 +10,25 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-void out_param_func1_vh(Uniforms _uniforms, thread half& v);
-void _skOutParamHelper0_out_param_func1_vh(Uniforms _uniforms, thread array<half, 2>& testArray) {
-    half _var0 = testArray[int out_param_func2_ih(Uniforms _uniforms, thread half& v);
+int out_param_func2_ih(Uniforms _uniforms, thread half& v);
 int _skOutParamHelper1_out_param_func2_ih(Uniforms _uniforms, thread array<half, 2>& testArray) {
     half _var0;
     int _skResult = out_param_func2_ih(_uniforms, _var0);
     testArray[0] = _var0;
     return _skResult;
 }
-    _skOutParamHelper1_out_param_func2_ih(_uniforms, testArray)];
-    out_param_func1_vh(_uniforms, _var0);
-    testArray[int out_param_func2_ih(Uniforms _uniforms, thread half& v);
+int out_param_func2_ih(Uniforms _uniforms, thread half& v);
 int _skOutParamHelper2_out_param_func2_ih(Uniforms _uniforms, thread array<half, 2>& testArray) {
     half _var0;
     int _skResult = out_param_func2_ih(_uniforms, _var0);
     testArray[0] = _var0;
     return _skResult;
 }
-    _skOutParamHelper2_out_param_func2_ih(_uniforms, testArray)] = _var0;
+void out_param_func1_vh(Uniforms _uniforms, thread half& v);
+void _skOutParamHelper0_out_param_func1_vh(Uniforms _uniforms, thread array<half, 2>& testArray) {
+    half _var0 = testArray[    _skOutParamHelper1_out_param_func2_ih(_uniforms, testArray)];
+    out_param_func1_vh(_uniforms, _var0);
+    testArray[    _skOutParamHelper2_out_param_func2_ih(_uniforms, testArray)] = _var0;
 }
 void out_param_func1_vh(Uniforms _uniforms, thread half& v) {
     v = _uniforms.colorGreen.y;

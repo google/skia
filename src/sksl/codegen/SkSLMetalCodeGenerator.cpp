@@ -267,7 +267,12 @@ static bool is_readonly(const InterfaceBlock& block) {
 std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
                                                   const ExpressionArray& arguments,
                                                   const SkTArray<VariableReference*>& outVars) {
-    AutoOutputStream outputToExtraFunctions(this, &fExtraFunctions, &fIndentation);
+    // It's possible for out-param function arguments to contain an out-param function call
+    // expression. Emit the function into a temporary stream to prevent the nested helper from
+    // clobbering the current helper as we recursively evaluate argument expressions.
+    StringStream tmpStream;
+    AutoOutputStream outputToExtraFunctions(this, &tmpStream, &fIndentation);
+
     const FunctionDeclaration& function = call.function();
 
     std::string name = "_skOutParamHelper" + std::to_string(fSwizzleHelperCount++) +
@@ -389,6 +394,9 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
 
     --fIndentation;
     this->writeLine("}");
+
+    // Write the function out to `fExtraFunctions`.
+    write_stringstream(tmpStream, fExtraFunctions);
 
     return name;
 }
