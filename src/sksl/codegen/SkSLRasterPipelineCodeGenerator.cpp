@@ -64,7 +64,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <float.h>
-#include <numeric>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -74,7 +73,10 @@
 namespace SkSL {
 namespace RP {
 
-class LValue;
+static bool unsupported() {
+    // If MakeRasterPipelineProgram returns false, set a breakpoint here for more information.
+    return false;
+}
 
 class SlotManager {
 public:
@@ -163,6 +165,8 @@ private:
     SlotRange* fSlotRange = nullptr;
     SlotRange fPreviousSlotRange;
 };
+
+class LValue;
 
 class Generator {
 public:
@@ -465,37 +469,54 @@ public:
     void store(Generator* gen);
 
     /** Pushes the lvalue onto the top-of-stack. */
-    void push(Generator* gen);
+    [[nodiscard]] bool push(Generator* gen);
+
+    /** Returns true if this lvalue is actually writable--temporaries and uniforms are not. */
+    virtual bool isWritable() const = 0;
+
+    /** Returns the number of slots in this LValue. */
+    virtual int numSlots() const = 0;
+
+    /** Pushes a single slot directly onto the stack. */
+    [[nodiscard]] virtual bool push(Generator* gen, Slot slot) = 0;
 
     /**
-     * Returns the value slots associated with this LValue. For instance, a plain four-slot Variable
-     * will have monotonically increasing slots like {5,6,7,8}.
+     * Stores a single stack value directly into the lvalue. The value on the stack covers
+     * `numSlots` in total, and we are taking the value from the `index`th stack position in range
+     * [0, numSlots).
      */
-    struct SlotMap {
-        SkTArray<int> slots;  // the destination slots
-    };
-    virtual SlotMap getSlotMap(Generator* gen) const = 0;
-
-    /** Returns true if this lvalue actually refers to a uniform. */
-    virtual bool isUniform() const = 0;
+    virtual void store(Generator* gen, Slot slot, int index, int numSlots) = 0;
 };
 
 class VariableLValue final : public LValue {
 public:
     VariableLValue(const Variable* v) : fVariable(v) {}
 
-    SlotMap getSlotMap(Generator* gen) const override {
-        // Map every slot in the variable, in consecutive order, e.g. a half4 at slot 5 = {5,6,7,8}.
-        SlotMap out;
-        SlotRange range = this->isUniform() ? gen->getUniformSlots(*fVariable)
-                                            : gen->getVariableSlots(*fVariable);
-        out.slots.resize(range.count);
-        std::iota(out.slots.begin(), out.slots.end(), range.index);
-        return out;
+    bool isWritable() const override {
+        return !Generator::IsUniform(*fVariable);
     }
 
-    bool isUniform() const override {
-        return Generator::IsUniform(*fVariable);
+    int numSlots() const override {
+        return fVariable->type().slotCount();
+    }
+
+    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
+        if (Generator::IsUniform(*fVariable)) {
+            SlotRange range = gen->getUniformSlots(*fVariable);
+            gen->builder()->push_uniform(SlotRange{range.index + slot, 1});
+        } else {
+            SlotRange range = gen->getVariableSlots(*fVariable);
+            gen->builder()->push_slots(SlotRange{range.index + slot, 1});
+        }
+        return true;
+    }
+
+    void store(Generator* gen, Slot slot, int index, int numSlots) override {
+        SkASSERT(!Generator::IsUniform(*fVariable));
+
+        SlotRange range = gen->getVariableSlots(*fVariable);
+        int offsetFromStackTop = numSlots - index;
+        gen->builder()->copy_stack_to_slots(SlotRange{range.index + slot, 1}, offsetFromStackTop);
     }
 
     const Variable* fVariable;
@@ -507,23 +528,25 @@ public:
             : fParent(std::move(p))
             , fComponents(c) {}
 
-    SlotMap getSlotMap(Generator* gen) const override {
-        // Get slots from the parent expression.
-        SlotMap in = fParent->getSlotMap(gen);
-
-        // Rearrange the slots based to honor the swizzle components.
-        SlotMap out;
-        out.slots.resize(fComponents.size());
-        for (int index = 0; index < fComponents.size(); ++index) {
-            SkASSERT(fComponents[index] < in.slots.size());
-            out.slots[index] = in.slots[fComponents[index]];
-        }
-
-        return out;
+    bool isWritable() const override {
+        return fParent->isWritable();
     }
 
-    bool isUniform() const override {
-        return fParent->isUniform();
+    int numSlots() const override {
+        return fComponents.size();
+    }
+
+    Slot adjust(Slot slot) const {
+        SkASSERT(slot < fComponents.size());
+        return fComponents[slot];
+    }
+
+    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
+        return fParent->push(gen, this->adjust(slot));
+    }
+
+    void store(Generator* gen, Slot slot, int index, int numSlots) override {
+        fParent->store(gen, this->adjust(slot), index, numSlots);
     }
 
     std::unique_ptr<LValue> fParent;
@@ -537,21 +560,26 @@ public:
             , fIndexValue(v)
             , fIndexedType(ti) {}
 
-    SlotMap getSlotMap(Generator* gen) const override {
-        // Get slots from the parent expression.
-        SlotMap in = fParent->getSlotMap(gen);
-
-        // Take a subset of the parent's slots.
-        int numElements = fIndexedType.slotCount();
-        int startingIndex = numElements * fIndexValue;
-
-        SlotMap out;
-        out.slots.push_back_n(numElements, &in.slots[startingIndex]);
-        return out;
+    bool isWritable() const override {
+        return fParent->isWritable();
     }
 
-    bool isUniform() const override {
-        return fParent->isUniform();
+    int numSlots() const override {
+        return fIndexedType.slotCount();
+    }
+
+    Slot adjust(Slot slot) const {
+        int numElements = fIndexedType.slotCount();
+        int startingIndex = numElements * fIndexValue;
+        return slot + startingIndex;
+    }
+
+    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
+        return fParent->push(gen, this->adjust(slot));
+    }
+
+    void store(Generator* gen, Slot slot, int index, int numSlots) override {
+        fParent->store(gen, this->adjust(slot), index, numSlots);
     }
 
     std::unique_ptr<LValue> fParent;
@@ -567,18 +595,20 @@ public:
         fNumSlots = fieldAccess.type().slotCount();
     }
 
-    SlotMap getSlotMap(Generator* gen) const override {
-        // Get the slot map from the base expression.
-        SlotMap in = fParent->getSlotMap(gen);
-
-        // Take a subset of the parent's slots.
-        SlotMap out;
-        out.slots.push_back_n(fNumSlots, &in.slots[fInitialSlot]);
-        return out;
+    bool isWritable() const override {
+        return fParent->isWritable();
     }
 
-    bool isUniform() const override {
-        return fParent->isUniform();
+    int numSlots() const override {
+        return fNumSlots;
+    }
+
+    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
+        return fParent->push(gen, slot + fInitialSlot);
+    }
+
+    void store(Generator* gen, Slot slot, int index, int numSlots) override {
+        fParent->store(gen, slot + fInitialSlot, index, numSlots);
     }
 
     std::unique_ptr<LValue> fParent;
@@ -618,38 +648,26 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e) {
 }
 
 void LValue::store(Generator* gen) {
-    SkASSERT(!this->isUniform());
-
-    SlotMap out = this->getSlotMap(gen);
+    SkASSERT(this->isWritable());
 
     // Copy our slots from the stack into their slots. The Builder will coalesce single-slot pushes
     // into contiguous ranges where possible.
-    int offsetFromStackTop = out.slots.size();
-    for (Slot s : out.slots) {
-        gen->builder()->copy_stack_to_slots(SlotRange{s, 1}, offsetFromStackTop);
-        --offsetFromStackTop;
+    int numSlots = this->numSlots();
+    for (Slot slot = 0; slot < numSlots; ++slot) {
+        this->store(gen, slot, /*index=*/(int)slot, numSlots);
     }
-    SkASSERT(offsetFromStackTop == 0);
 }
 
-void LValue::push(Generator* gen) {
-    SlotMap out = this->getSlotMap(gen);
-
-    // Push our slots onto the stack. The Builder will coalesce single-slot pushes into contiguous
-    // ranges where possible.
-    bool isUniform = this->isUniform();
-    for (Slot s : out.slots) {
-        if (isUniform) {
-            gen->builder()->push_uniform(SlotRange{s, 1});
-        } else {
-            gen->builder()->push_slots(SlotRange{s, 1});
+bool LValue::push(Generator* gen) {
+    // Push our slots onto the stack one-by-one. The Builder will coalesce single-slot pushes into
+    // contiguous ranges where possible.
+    int numSlots = this->numSlots();
+    for (Slot slot = 0; slot < numSlots; ++slot) {
+        if (!this->push(gen, slot)) {
+            return unsupported();
         }
     }
-}
-
-static bool unsupported() {
-    // If MakeRasterPipelineProgram returns false, set a breakpoint here for more information.
-    return false;
+    return true;
 }
 
 void SlotManager::addSlotDebugInfoForGroup(const std::string& varName,
@@ -1441,11 +1459,8 @@ void Generator::foldWithMultiOp(BuilderOp op, int elements) {
 }
 
 bool Generator::pushLValueOrExpression(LValue* lvalue, const Expression& expr) {
-    if (lvalue) {
-        lvalue->push(this);
-        return true;
-    }
-    return this->pushExpression(expr);
+    return lvalue ? lvalue->push(this)
+                  : this->pushExpression(expr);
 }
 
 bool Generator::pushMatrixMultiply(LValue* lvalue,
@@ -1903,8 +1918,7 @@ bool Generator::pushFieldAccess(const FieldAccess& f) {
     // If possible, get direct field access via the lvalue.
     std::unique_ptr<LValue> lvalue = LValue::Make(f);
     if (lvalue) {
-        lvalue->push(this);
-        return true;
+        return lvalue->push(this);
     }
     // Push the entire base expression onto a separate stack.
     AutoStack baseStack(this);
@@ -1968,7 +1982,9 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
             // There are no guarantees on the starting value of an out-parameter, so we only need to
             // store the lvalues associated with an inout parameter.
             if (IsInoutParameter(param)) {
-                lvalues[index]->push(this);
+                if (!lvalues[index]->push(this)) {
+                    return unsupported();
+                }
                 this->popToSlotRangeUnmasked(this->getVariableSlots(param));
             }
         } else {
@@ -2019,8 +2035,7 @@ bool Generator::pushIndexExpression(const IndexExpression& i) {
     // If possible, get direct access via the lvalue.
     std::unique_ptr<LValue> lvalue = LValue::Make(i);
     if (lvalue) {
-        lvalue->push(this);
-        return true;
+        return lvalue->push(this);
     }
 
     // Handle fixed-index lookups into temporary values.
@@ -2464,10 +2479,9 @@ bool Generator::pushPostfixExpression(const PostfixExpression& p, bool usesResul
     }
     // Get the operand as an lvalue, and push it onto the stack as-is.
     std::unique_ptr<LValue> lvalue = LValue::Make(*p.operand());
-    if (!lvalue) {
+    if (!lvalue || !lvalue->push(this)) {
         return unsupported();
     }
-    lvalue->push(this);
 
     // Push a scratch copy of the operand.
     fBuilder.push_clone(p.type().slotCount());
