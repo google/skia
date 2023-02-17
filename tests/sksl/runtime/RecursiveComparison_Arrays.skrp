@@ -111,14 +111,14 @@
   111. copy_slot_unmasked             $59 = one
   112. mul_float                      $58 *= $59
   113. copy_slot_masked               b[2] = Mask($58)
-  114. store_condition_mask           $14 = CondMask
-  115. copy_slot_unmasked             $15 = eq
+  114. store_condition_mask           $65 = CondMask
+  115. copy_slot_unmasked             $66 = eq
   116. copy_4_slots_unmasked          $58..61 = a[0], a[1], a[2], b[0]
   117. copy_2_slots_unmasked          $62..63 = b[1], b[2]
   118. cmpne_3_floats                 $58..60 = notEqual($58..60, $61..63)
   119. bitwise_or_int                 $59 |= $60
   120. bitwise_or_int                 $58 |= $59
-  121. merge_condition_mask           CondMask = $14 & $15
+  121. merge_condition_mask           CondMask = $65 & $66
   122. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 10 at #129)
   123. copy_4_slots_unmasked          $59..62 = a[0], a[1], a[2], b[0]
   124. copy_2_slots_unmasked          $63..64 = b[1], b[2]
@@ -127,7 +127,7 @@
   127. bitwise_and_int                $59 &= $60
   128. copy_slot_masked               $58 = Mask($59)
   129. label                          label 0x0000000A
-  130. load_condition_mask            CondMask = $14
+  130. load_condition_mask            CondMask = $65
   131. copy_slot_masked               [test_same_arrays].result = Mask($58)
   132. label                          label 0x00000009
   133. bitwise_not_int                $58 = ~$58
@@ -164,14 +164,14 @@
   164. copy_slot_unmasked             $70 = one
   165. mul_float                      $69 *= $70
   166. copy_slot_masked               b[2] = Mask($69)
-  167. store_condition_mask           $58 = CondMask
-  168. copy_slot_unmasked             $59 = eq
+  167. store_condition_mask           $12 = CondMask
+  168. copy_slot_unmasked             $13 = eq
   169. copy_4_slots_unmasked          $69..72 = a[0], a[1], a[2], b[0]
   170. copy_2_slots_unmasked          $73..74 = b[1], b[2]
   171. cmpne_3_floats                 $69..71 = notEqual($69..71, $72..74)
   172. bitwise_or_int                 $70 |= $71
   173. bitwise_or_int                 $69 |= $70
-  174. merge_condition_mask           CondMask = $58 & $59
+  174. merge_condition_mask           CondMask = $12 & $13
   175. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 12 at #182)
   176. copy_4_slots_unmasked          $70..73 = a[0], a[1], a[2], b[0]
   177. copy_2_slots_unmasked          $74..75 = b[1], b[2]
@@ -180,7 +180,7 @@
   180. bitwise_and_int                $70 &= $71
   181. copy_slot_masked               $69 = Mask($70)
   182. label                          label 0x0000000C
-  183. load_condition_mask            CondMask = $58
+  183. load_condition_mask            CondMask = $12
   184. copy_slot_masked               [test_same_arrays].result = Mask($69)
   185. label                          label 0x0000000B
   186. copy_slot_masked               $68 = Mask($69)
@@ -216,14 +216,14 @@
   216. copy_slot_unmasked             $32 = one
   217. mul_float                      $31 *= $32
   218. copy_slot_masked               b[2] = Mask($31)
-  219. store_condition_mask           $69 = CondMask
-  220. copy_slot_unmasked             $70 = eq
+  219. store_condition_mask           $56 = CondMask
+  220. copy_slot_unmasked             $57 = eq
   221. copy_4_slots_unmasked          $31..34 = a[0], a[1], a[2], b[0]
   222. copy_2_slots_unmasked          $35..36 = b[1], b[2]
   223. cmpne_3_floats                 $31..33 = notEqual($31..33, $34..36)
   224. bitwise_or_int                 $32 |= $33
   225. bitwise_or_int                 $31 |= $32
-  226. merge_condition_mask           CondMask = $69 & $70
+  226. merge_condition_mask           CondMask = $56 & $57
   227. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 14 at #234)
   228. copy_4_slots_unmasked          $32..35 = a[0], a[1], a[2], b[0]
   229. copy_2_slots_unmasked          $36..37 = b[1], b[2]
@@ -232,7 +232,7 @@
   232. bitwise_and_int                $32 &= $33
   233. copy_slot_masked               $31 = Mask($32)
   234. label                          label 0x0000000E
-  235. load_condition_mask            CondMask = $69
+  235. load_condition_mask            CondMask = $56
   236. copy_slot_masked               [test_same_arrays].result = Mask($31)
   237. label                          label 0x0000000D
   238. bitwise_not_int                $31 = ~$31
@@ -266,14 +266,14 @@
   266. copy_slot_masked               b[1]₁ = Mask($49)
   267. copy_slot_unmasked             $49 = f3₁
   268. copy_slot_masked               b[2]₁ = Mask($49)
-  269. store_condition_mask           $31 = CondMask
-  270. copy_slot_unmasked             $32 = eq₁
+  269. store_condition_mask           $67 = CondMask
+  270. copy_slot_unmasked             $68 = eq₁
   271. copy_4_slots_unmasked          $49..52 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   272. copy_2_slots_unmasked          $53..54 = b[1]₁, b[2]₁
   273. cmpne_3_floats                 $49..51 = notEqual($49..51, $52..54)
   274. bitwise_or_int                 $50 |= $51
   275. bitwise_or_int                 $49 |= $50
-  276. merge_condition_mask           CondMask = $31 & $32
+  276. merge_condition_mask           CondMask = $67 & $68
   277. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 16 at #284)
   278. copy_4_slots_unmasked          $50..53 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   279. copy_2_slots_unmasked          $54..55 = b[1]₁, b[2]₁
@@ -282,7 +282,7 @@
   282. bitwise_and_int                $50 &= $51
   283. copy_slot_masked               $49 = Mask($50)
   284. label                          label 0x00000010
-  285. load_condition_mask            CondMask = $31
+  285. load_condition_mask            CondMask = $67
   286. copy_slot_masked               [test_diff_arrays].result = Mask($49)
   287. label                          label 0x0000000F
   288. copy_slot_masked               $48 = Mask($49)
@@ -315,14 +315,14 @@
   315. copy_slot_masked               b[1]₁ = Mask($40)
   316. copy_slot_unmasked             $40 = f3₁
   317. copy_slot_masked               b[2]₁ = Mask($40)
-  318. store_condition_mask           $49 = CondMask
-  319. copy_slot_unmasked             $50 = eq₁
+  318. store_condition_mask           $29 = CondMask
+  319. copy_slot_unmasked             $30 = eq₁
   320. copy_4_slots_unmasked          $40..43 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   321. copy_2_slots_unmasked          $44..45 = b[1]₁, b[2]₁
   322. cmpne_3_floats                 $40..42 = notEqual($40..42, $43..45)
   323. bitwise_or_int                 $41 |= $42
   324. bitwise_or_int                 $40 |= $41
-  325. merge_condition_mask           CondMask = $49 & $50
+  325. merge_condition_mask           CondMask = $29 & $30
   326. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 18 at #333)
   327. copy_4_slots_unmasked          $41..44 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   328. copy_2_slots_unmasked          $45..46 = b[1]₁, b[2]₁
@@ -331,7 +331,7 @@
   331. bitwise_and_int                $41 &= $42
   332. copy_slot_masked               $40 = Mask($41)
   333. label                          label 0x00000012
-  334. load_condition_mask            CondMask = $49
+  334. load_condition_mask            CondMask = $29
   335. copy_slot_masked               [test_diff_arrays].result = Mask($40)
   336. label                          label 0x00000011
   337. bitwise_not_int                $40 = ~$40
@@ -367,14 +367,14 @@
   367. copy_slot_masked               b[1]₁ = Mask($22)
   368. copy_slot_unmasked             $22 = f3₁
   369. copy_slot_masked               b[2]₁ = Mask($22)
-  370. store_condition_mask           $40 = CondMask
-  371. copy_slot_unmasked             $41 = eq₁
+  370. store_condition_mask           $47 = CondMask
+  371. copy_slot_unmasked             $48 = eq₁
   372. copy_4_slots_unmasked          $22..25 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   373. copy_2_slots_unmasked          $26..27 = b[1]₁, b[2]₁
   374. cmpne_3_floats                 $22..24 = notEqual($22..24, $25..27)
   375. bitwise_or_int                 $23 |= $24
   376. bitwise_or_int                 $22 |= $23
-  377. merge_condition_mask           CondMask = $40 & $41
+  377. merge_condition_mask           CondMask = $47 & $48
   378. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 20 at #385)
   379. copy_4_slots_unmasked          $23..26 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   380. copy_2_slots_unmasked          $27..28 = b[1]₁, b[2]₁
@@ -383,7 +383,7 @@
   383. bitwise_and_int                $23 &= $24
   384. copy_slot_masked               $22 = Mask($23)
   385. label                          label 0x00000014
-  386. load_condition_mask            CondMask = $40
+  386. load_condition_mask            CondMask = $47
   387. copy_slot_masked               [test_diff_arrays].result = Mask($22)
   388. label                          label 0x00000013
   389. copy_slot_masked               $21 = Mask($22)
@@ -418,14 +418,14 @@
   418. copy_slot_masked               b[1]₁ = Mask($1)
   419. copy_slot_unmasked             $1 = f3₁
   420. copy_slot_masked               b[2]₁ = Mask($1)
-  421. store_condition_mask           $22 = CondMask
-  422. copy_slot_unmasked             $23 = eq₁
+  421. store_condition_mask           $38 = CondMask
+  422. copy_slot_unmasked             $39 = eq₁
   423. copy_4_slots_unmasked          $1..4 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   424. copy_2_slots_unmasked          $5..6 = b[1]₁, b[2]₁
   425. cmpne_3_floats                 $1..3 = notEqual($1..3, $4..6)
   426. bitwise_or_int                 $2 |= $3
   427. bitwise_or_int                 $1 |= $2
-  428. merge_condition_mask           CondMask = $22 & $23
+  428. merge_condition_mask           CondMask = $38 & $39
   429. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 22 at #436)
   430. copy_4_slots_unmasked          $2..5 = a[0]₁, a[1]₁, a[2]₁, b[0]₁
   431. copy_2_slots_unmasked          $6..7 = b[1]₁, b[2]₁
@@ -434,7 +434,7 @@
   434. bitwise_and_int                $2 &= $3
   435. copy_slot_masked               $1 = Mask($2)
   436. label                          label 0x00000016
-  437. load_condition_mask            CondMask = $22
+  437. load_condition_mask            CondMask = $38
   438. copy_slot_masked               [test_diff_arrays].result = Mask($1)
   439. label                          label 0x00000015
   440. bitwise_not_int                $1 = ~$1
