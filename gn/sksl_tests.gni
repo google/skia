@@ -601,6 +601,7 @@ sksl_shared_tests = [
   "shared/OutParams.sksl",
   "shared/OutParamsAreDistinct.sksl",
   "shared/OutParamsAreDistinctFromGlobal.sksl",
+  "shared/OutParamsFunctionCallInArgument.sksl",
   "shared/OutParamsTricky.sksl",
   "shared/Overflow.sksl",
   "shared/RectangleTexture.sksl",
