@@ -25,10 +25,28 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // XMP helpers
 
-void xmp_write_per_channel_attr(
-        SkDynamicMemoryWStream& s, const char* attrib, SkScalar r, SkScalar g, SkScalar b) {
-    s.writeText(attrib);
+void xmp_write_prefix(SkDynamicMemoryWStream& s, const std::string& ns, const std::string& attrib) {
+    s.writeText(ns.c_str());
+    s.writeText(":");
+    s.writeText(attrib.c_str());
     s.writeText("=\"");
+}
+
+void xmp_write_suffix(SkDynamicMemoryWStream& s, bool newLine) {
+    s.writeText("\"");
+    if (newLine) {
+        s.writeText("\n");
+    }
+}
+
+void xmp_write_per_channel_attr(SkDynamicMemoryWStream& s,
+                                const std::string& ns,
+                                const std::string& attrib,
+                                SkScalar r,
+                                SkScalar g,
+                                SkScalar b,
+                                bool newLine = true) {
+    xmp_write_prefix(s, ns, attrib);
     if (r == g && r == b) {
         s.writeScalarAsText(r);
     } else {
@@ -38,27 +56,37 @@ void xmp_write_per_channel_attr(
         s.writeText(",");
         s.writeScalarAsText(b);
     }
-    s.writeText("\"\n");
+    xmp_write_suffix(s, newLine);
 }
 
-void xmp_write_scalar_attr(SkDynamicMemoryWStream& s, const char* attrib, SkScalar value) {
-    s.writeText(attrib);
-    s.writeText("=\"");
+void xmp_write_scalar_attr(SkDynamicMemoryWStream& s,
+                           const std::string& ns,
+                           const std::string& attrib,
+                           SkScalar value,
+                           bool newLine = true) {
+    xmp_write_prefix(s, ns, attrib);
     s.writeScalarAsText(value);
-    s.writeText("\"\n");
+    xmp_write_suffix(s, newLine);
 }
 
 void xmp_write_decimal_attr(SkDynamicMemoryWStream& s,
-                            const char* attrib,
+                            const std::string& ns,
+                            const std::string& attrib,
                             int32_t value,
                             bool newLine = true) {
-    s.writeText(attrib);
-    s.writeText("=\"");
+    xmp_write_prefix(s, ns, attrib);
     s.writeDecAsText(value);
-    s.writeText("\"");
-    if (newLine) {
-        s.writeText("\n");
-    }
+    xmp_write_suffix(s, newLine);
+}
+
+void xmp_write_string_attr(SkDynamicMemoryWStream& s,
+                           const std::string& ns,
+                           const std::string& attrib,
+                           const std::string& value,
+                           bool newLine = true) {
+    xmp_write_prefix(s, ns, attrib);
+    s.writeText(value.c_str());
+    xmp_write_suffix(s, newLine);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,54 +108,58 @@ bool SkJpegGainmapEncoder::EncodeJpegR(SkWStream* dst,
 sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
     const float kLog2 = sk_float_log(2.f);
     SkDynamicMemoryWStream s;
-    s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
     s.writeText(
             "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 5.5.0\">\n"
-            "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
-            "<rdf:Description rdf:about=\"\"\n"
-            "xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\"\n"
-            "hdrgm:Version=\"1.0\"\n");
+            "  <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+            "    <rdf:Description rdf:about=\"\"\n"
+            "     xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\"\n");
+    const std::string hdrgmPrefix = "     hdrgm";
+    xmp_write_string_attr(s, hdrgmPrefix, "Version", "1.0");
     xmp_write_per_channel_attr(s,
-                               "hdrgm:GainMapMin",
+                               hdrgmPrefix,
+                               "GainMapMin",
                                sk_float_log(gainmapInfo.fGainmapRatioMin.fR) / kLog2,
                                sk_float_log(gainmapInfo.fGainmapRatioMin.fG) / kLog2,
                                sk_float_log(gainmapInfo.fGainmapRatioMin.fB) / kLog2);
     xmp_write_per_channel_attr(s,
-                               "hdrgm:GainMapMax",
+                               hdrgmPrefix,
+                               "GainMapMax",
                                sk_float_log(gainmapInfo.fGainmapRatioMax.fR) / kLog2,
                                sk_float_log(gainmapInfo.fGainmapRatioMax.fG) / kLog2,
                                sk_float_log(gainmapInfo.fGainmapRatioMax.fB) / kLog2);
     xmp_write_per_channel_attr(s,
-                               "hdrgm:Gamma",
+                               hdrgmPrefix,
+                               "Gamma",
                                gainmapInfo.fGainmapGamma.fR,
                                gainmapInfo.fGainmapGamma.fG,
                                gainmapInfo.fGainmapGamma.fB);
     xmp_write_per_channel_attr(s,
-                               "hdrgm:OffsetSDR",
+                               hdrgmPrefix,
+                               "OffsetSDR",
                                gainmapInfo.fEpsilonSdr.fR,
                                gainmapInfo.fEpsilonSdr.fG,
                                gainmapInfo.fEpsilonSdr.fB);
     xmp_write_per_channel_attr(s,
-                               "hdrgm:OffsetHDR",
+                               hdrgmPrefix,
+                               "OffsetHDR",
                                gainmapInfo.fEpsilonHdr.fR,
                                gainmapInfo.fEpsilonHdr.fG,
                                gainmapInfo.fEpsilonHdr.fB);
     xmp_write_scalar_attr(
-            s, "hdrgm:HDRCapacityMin", sk_float_log(gainmapInfo.fDisplayRatioSdr) / kLog2);
+            s, hdrgmPrefix, "HDRCapacityMin", sk_float_log(gainmapInfo.fDisplayRatioSdr) / kLog2);
     xmp_write_scalar_attr(
-            s, "hdrgm:HDRCapacityMax", sk_float_log(gainmapInfo.fDisplayRatioHdr) / kLog2);
-    s.writeText("hdrgm:BaseRendition=\"");
+            s, hdrgmPrefix, "HDRCapacityMax", sk_float_log(gainmapInfo.fDisplayRatioHdr) / kLog2);
     switch (gainmapInfo.fBaseImageType) {
         case SkGainmapInfo::BaseImageType::kSDR:
-            s.writeText("SDR");
+            xmp_write_string_attr(s, hdrgmPrefix, "BaseRendition", "SDR", /*newLine=*/false);
             break;
         case SkGainmapInfo::BaseImageType::kHDR:
-            s.writeText("HDR");
+            xmp_write_string_attr(s, hdrgmPrefix, "BaseRendition", "HDR", /*newLine=*/false);
             break;
     }
     s.writeText(
-            "\"/>\n"
-            "</rdf:RDF>\n"
+            "/>\n"
+            "  </rdf:RDF>\n"
             "</x:xmpmeta>");
     return s.detachAsData();
 }
@@ -135,7 +167,6 @@ sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
 // Generate the GContainer metadata for an image with a JPEG gainmap.
 static sk_sp<SkData> get_gcontainer_xmp_data(size_t gainmapItemLength) {
     SkDynamicMemoryWStream s;
-    s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
     s.writeText(
             "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.1.2\">\n"
             "  <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
@@ -154,7 +185,7 @@ static sk_sp<SkData> get_gcontainer_xmp_data(size_t gainmapItemLength) {
             "             Item:Semantic=\"RecoveryMap\"\n"
             "             Item:Mime=\"image/jpeg\"\n"
             "             ");
-    xmp_write_decimal_attr(s, "Item:Length", gainmapItemLength, /*newLine=*/false);
+    xmp_write_decimal_attr(s, "Item", "Length", gainmapItemLength, /*newLine=*/false);
     s.writeText(
             "/>\n"
             "          </rdf:li>\n"
@@ -232,18 +263,12 @@ std::vector<sk_sp<SkData>> get_hdrgm_image_segments(sk_sp<SkData> image,
 sk_sp<SkData> SkJpegGainmapEncoder::EncodeToData(const SkPixmap& pm,
                                                  const SkJpegEncoder::Options& options,
                                                  SkData* xmpMetadata,
-                                                 SkData* mpfMetadata) {
-    uint8_t segmentMarkers[2] = {
-            kXMPMarker,
-            kMpfMarker,
-    };
-    SkData* segmentData[2] = {
-            xmpMetadata,
-            mpfMetadata,
-    };
+                                                 SkData* mpfSegment) {
+    SkJpegEncoder::OptionsPrivate optionsPrivate;
+    optionsPrivate.xmpMetadata = xmpMetadata;
+    optionsPrivate.mpfSegment = mpfSegment;
     SkDynamicMemoryWStream encodeStream;
-    auto encoder = SkJpegEncoder::Make(
-            &encodeStream, pm, options, 2, segmentMarkers, segmentData, nullptr);
+    auto encoder = SkJpegEncoder::Make(&encodeStream, pm, options, optionsPrivate);
     if (!encoder || !encoder->encodeRows(pm.height())) {
         return nullptr;
     }
