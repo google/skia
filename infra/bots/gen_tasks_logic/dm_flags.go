@@ -626,6 +626,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		//                             their "gr" prefixed versions
 		//                             and "" (for raster)
 		//        <targetFormat> is one of: "f16", { "" (for gpus) or "rgba" (for raster) }
+		//
+		// We also add on two configs with the format:
+		//        narrow-<backend>f16norm
+		//        linear-<backend>srgba
 		colorSpaces := []string{"", "linear-", "narrow-", "p3-", "rec2020-", "srgb2-"}
 
 		backendStr := ""
@@ -667,6 +671,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, cs+backendStr+tf)
 			}
 		}
+
+		configs = append(configs, "narrow-"+backendStr+"f16norm")
+		configs = append(configs, "linear-"+backendStr+"srgba")
 	}
 
 	// Sharding.
