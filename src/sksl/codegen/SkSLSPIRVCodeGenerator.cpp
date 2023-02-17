@@ -71,6 +71,7 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/utils/SkBitSet.h"
 
 #include <cstring>
 #include <set>
@@ -3909,14 +3910,14 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
 
     // The store cache isn't trustworthy in the presence of branches; store caching only makes sense
     // in the context of linear straight-line execution. If we wanted to be more clever, we could
-    // only invalidate store cache entries for variables affected by the loop body, but for now we
+    // only invalidate store cache entries for variables affected by the switch body, but for now we
     // simply clear the entire cache whenever branching occurs.
     SkTArray<SpvId> labels;
     SpvId end = this->nextId(nullptr);
     SpvId defaultLabel = end;
     fBreakTarget.push_back(end);
     int size = 3;
-    auto& cases = s.cases();
+    const StatementArray& cases = s.cases();
     for (const std::unique_ptr<Statement>& stmt : cases) {
         const SwitchCase& c = stmt->as<SwitchCase>();
         SpvId label = this->nextId(nullptr);
@@ -3927,7 +3928,23 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
             defaultLabel = label;
         }
     }
+
+    // We should have exactly one label for each case.
+    SkASSERT(labels.size() == cases.size());
+
+    // Collapse adjacent switch-cases into one; that is, reduce `case 1: case 2: case 3:` into a
+    // single OpLabel. The Tint SPIR-V reader does not support switch-case fallthrough, but it
+    // does support multiple switch-cases branching to the same label.
+    SkBitSet caseIsCollapsed(cases.size());
+    for (int index = cases.size() - 2; index >= 0; index--) {
+        if (cases[index]->as<SwitchCase>().statement()->isEmpty()) {
+            caseIsCollapsed.set(index);
+            labels[index] = labels[index + 1];
+        }
+    }
+
     labels.push_back(end);
+
     this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
     this->writeOpCode(SpvOpSwitch, size, out);
     this->writeWord(value, out);
@@ -3941,6 +3958,9 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
         this->writeWord(labels[i], out);
     }
     for (int i = 0; i < cases.size(); ++i) {
+        if (caseIsCollapsed.test(i)) {
+            continue;
+        }
         const SwitchCase& c = cases[i]->as<SwitchCase>();
         if (i == 0) {
             this->writeLabel(labels[i], kBranchIsOnPreviousLine, out);

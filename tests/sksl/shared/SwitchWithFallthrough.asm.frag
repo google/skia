@@ -74,13 +74,9 @@ OpFunctionEnd
 OpStore %ok %false
 %32 = OpLoad %int %27
 OpSelectionMerge %33 None
-OpSwitch %32 %38 0 %34 1 %35 2 %36 3 %37
+OpSwitch %32 %38 0 %34 1 %37 2 %37 3 %37
 %34 = OpLabel
 OpBranch %33
-%35 = OpLabel
-OpBranch %36
-%36 = OpLabel
-OpBranch %37
 %37 = OpLabel
 OpStore %ok %true
 OpBranch %33
@@ -104,11 +100,9 @@ OpFunctionEnd
 OpStore %x %50
 OpStore %_0_ok %false
 OpSelectionMerge %52 None
-OpSwitch %50 %56 2 %53 1 %54 0 %55
+OpSwitch %50 %56 2 %53 1 %55 0 %55
 %53 = OpLabel
 OpBranch %52
-%54 = OpLabel
-OpBranch %55
 %55 = OpLabel
 OpStore %_0_ok %true
 OpBranch %52
