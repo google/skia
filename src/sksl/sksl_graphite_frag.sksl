@@ -508,43 +508,6 @@ $pure float2 $conical_grad_layout(float2 point0Param,
     }
 }
 
-/*
- * The actual output color space of this function depends on the input color space
- * (it might be sRGB, linear sRGB, or linear XYZ). The actual space is what's stored
- * in the gradient/SkColor4fXformer's fIntermediateColorSpace.
- */
-$pure half4 $interpolated_to_rgb_unpremul(half4 color, int colorSpace, int doUnpremul) {
-    const int kDestination = 0;
-    const int kSRGBLinear  = 1;
-    const int kLab         = 2;
-    const int kOKLab       = 3;
-    const int kLCH         = 4;
-    const int kOKLCH       = 5;
-    const int kSRGB        = 6;
-    const int kHSL         = 7;
-    const int kHWB         = 8;
-
-    if (bool(doUnpremul)) {
-        if (colorSpace == kLab || colorSpace == kOKLab) {
-            color = unpremul(color);
-        } else if (colorSpace == kLCH ||
-                   colorSpace == kOKLCH ||
-                   colorSpace == kHSL ||
-                   colorSpace == kHWB) {
-            color = $unpremul_polar(color);
-        }
-    }
-    switch (colorSpace) {
-        case kLab:   { color.rgb = $css_lab_to_xyz(color.rgb); break; }
-        case kOKLab: { color.rgb = $css_oklab_to_linear_srgb(color.rgb); break; }
-        case kLCH:   { color.rgb = $css_hcl_to_xyz(color.rgb); break; }
-        case kOKLCH: { color.rgb = $css_okhcl_to_linear_srgb(color.rgb); break; }
-        case kHSL:   { color.rgb = $css_hsl_to_srgb(color.rgb); break; }
-        case kHWB:   { color.rgb = $css_hwb_to_srgb(color.rgb); break; }
-    }
-    return color;
-}
-
 $pure half4 sk_linear_grad_4_shader(float2 coords,
                                     float4 colorsParam[4],
                                     float offsetsParam[4],

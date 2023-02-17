@@ -150,4 +150,14 @@ static constexpr char SKSL_MINIFIED_sksl_shared[] =
 ",12.);half a=hsl.y*min(hsl.z,1.-hsl.z);return hsl.z-a*clamp(min(k-3.,9.-k),"
 "-1.,1.);}$export $pure half3 $css_hwb_to_srgb(half3 hwb){hwb.yz*=.01;if(hwb"
 ".y+hwb.z>=1.){half gray=hwb.y/(hwb.y+hwb.z);return half3(gray);}half3 rgb=$css_hsl_to_srgb"
-"(half3(hwb.x,100.,50.));rgb*=(1.-hwb.y)-hwb.z;rgb+=hwb.y;return rgb;}";
+"(half3(hwb.x,100.,50.));rgb*=(1.-hwb.y)-hwb.z;rgb+=hwb.y;return rgb;}$export"
+" $pure half4 $interpolated_to_rgb_unpremul(half4 color,int colorSpace,int doUnpremul"
+"){const int kDestination=0;const int kSRGBLinear=1;const int kLab=2;const int"
+" kOKLab=3;const int kLCH=4;const int kOKLCH=5;const int kSRGB=6;const int kHSL"
+"=7;const int kHWB=8;if(bool(doUnpremul)){switch(colorSpace){case 2:;case 3:"
+"color=unpremul(color);break;case 4:;case 5:;case 7:;case 8:color=$unpremul_polar"
+"(color);break;}}switch(colorSpace){case 2:{color.xyz=$css_lab_to_xyz(color."
+"xyz);break;}case 3:{color.xyz=$css_oklab_to_linear_srgb(color.xyz);break;}case"
+" 4:{color.xyz=$css_hcl_to_xyz(color.xyz);break;}case 5:{color.xyz=$css_okhcl_to_linear_srgb"
+"(color.xyz);break;}case 7:{color.xyz=$css_hsl_to_srgb(color.xyz);break;}case"
+" 8:{color.xyz=$css_hwb_to_srgb(color.xyz);break;}}return color;}";
