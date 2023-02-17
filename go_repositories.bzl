@@ -2407,8 +2407,8 @@ def go_repositories():
     go_repository(
         name = "com_github_sirupsen_logrus",
         importpath = "github.com/sirupsen/logrus",
-        sum = "h1:dJKuHgqk1NNQlqoA6BTlM1Wf9DOH3NBjQyu0h9+AZZE=",
-        version = "v1.8.1",
+        sum = "h1:UBcNElsrwanuuMsnGSlYmtmgbb23qDR5dG+6X6Oo89I=",
+        version = "v1.6.0",
     )
     go_repository(
         name = "com_github_skia_dev_go2ts",
@@ -3502,8 +3502,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:u4vOkPNnc0/F2K3NpLXnQx5onSl+L4rTJYPAicQuW8Y=",
-        version = "v0.0.0-20230215201534-b1b0afe6ac4d",
+        sum = "h1:7ZQb9YMSb92LsosC3INkudeAtB9WuJBaKhOzOsXGA9Y=",
+        version = "v0.0.0-20230217022518-504d379dd182",
     )
     go_repository(
         name = "org_uber_go_atomic",
