@@ -678,6 +678,7 @@ static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
     static_assert(static_cast<int>(ColorSpace::kHSL)   == 7);
     static_assert(static_cast<int>(ColorSpace::kHWB)   == 8);
 
+    // TODO: can we share this code w/ sksl_graphite_frag.sksl::interpolated_to_srgb_unpremul
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
         "uniform int colorSpace;"    // specialized
         "uniform int do_unpremul;"   // specialized

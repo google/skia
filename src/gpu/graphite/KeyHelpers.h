@@ -14,6 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
@@ -83,7 +84,8 @@ struct GradientShaderBlocks {
                      SkTileMode,
                      int numStops,
                      const SkPMColor4f* colors,
-                     float* offsets);
+                     float* offsets,
+                     const SkGradientShader::Interpolation&);
 
         bool operator==(const GradientData& rhs) const {
             return fType == rhs.fType &&
@@ -113,6 +115,8 @@ struct GradientShaderBlocks {
         int                    fNumStops;
         SkPMColor4f            fColors[kMaxStops];
         float                  fOffsets[kMaxStops];
+
+        SkGradientShader::Interpolation fInterpolation;
     };
 
     static void BeginBlock(const KeyContext&,

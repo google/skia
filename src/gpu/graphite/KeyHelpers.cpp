@@ -80,6 +80,27 @@ void SolidColorShaderBlock::BeginBlock(const KeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 
 namespace {
+// All the gradients share a common postamble of:
+//   tilemode
+//   colorSpace
+//   doUnPremul
+void add_gradient_postamble(const GradientShaderBlocks::GradientData& gradData,
+                            PipelineDataGatherer* gatherer) {
+    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
+
+    static_assert(static_cast<int>(ColorSpace::kLab)   == 2);
+    static_assert(static_cast<int>(ColorSpace::kOKLab) == 3);
+    static_assert(static_cast<int>(ColorSpace::kLCH)   == 4);
+    static_assert(static_cast<int>(ColorSpace::kOKLCH) == 5);
+    static_assert(static_cast<int>(ColorSpace::kHSL)   == 7);
+    static_assert(static_cast<int>(ColorSpace::kHWB)   == 8);
+
+    bool inputPremul = static_cast<bool>(gradData.fInterpolation.fInPremul);
+
+    gatherer->write(static_cast<int>(gradData.fTM));
+    gatherer->write(static_cast<int>(gradData.fInterpolation.fColorSpace));
+    gatherer->write(static_cast<int>(inputPremul));
+}
 
 void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                       BuiltInCodeSnippetID codeSnippetID,
@@ -92,7 +113,7 @@ void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fPoints[1]);
-    gatherer->write(static_cast<int>(gradData.fTM));
+    add_gradient_postamble(gradData, gatherer);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(codeSnippetID));
 };
@@ -108,7 +129,7 @@ void add_radial_gradient_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fRadii[0]);
-    gatherer->write(static_cast<int>(gradData.fTM));
+    add_gradient_postamble(gradData, gatherer);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(codeSnippetID));
 };
@@ -125,7 +146,7 @@ void add_sweep_gradient_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fBias);
     gatherer->write(gradData.fScale);
-    gatherer->write(static_cast<int>(gradData.fTM));
+    add_gradient_postamble(gradData, gatherer);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(codeSnippetID));
 };
@@ -143,7 +164,7 @@ void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(gradData.fPoints[1]);
     gatherer->write(gradData.fRadii[0]);
     gatherer->write(gradData.fRadii[1]);
-    gatherer->write(static_cast<int>(gradData.fTM));
+    add_gradient_postamble(gradData, gatherer);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(codeSnippetID));
 };
@@ -169,12 +190,14 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
                                                  SkTileMode tm,
                                                  int numStops,
                                                  const SkPMColor4f* colors,
-                                                 float* offsets)
+                                                 float* offsets,
+                                                 const SkGradientShader::Interpolation& interp)
         : fType(type)
         , fBias(bias)
         , fScale(scale)
         , fTM(tm)
-        , fNumStops(std::min(numStops, kMaxStops)) {
+        , fNumStops(std::min(numStops, kMaxStops))
+        , fInterpolation(interp) {
     SkASSERT(fNumStops >= 1);
 
     fPoints[0] = point0;

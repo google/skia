@@ -18,6 +18,13 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/core/SkColorSpacePriv.h"
+#include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
+#endif
+
 #include <cmath>
 
 enum GradientSerializationFlags {
@@ -1262,3 +1269,57 @@ SkGradientShaderBase::ColorStopOptimizer::ColorStopOptimizer(const SkColor4f* co
         }
     }
 }
+
+#ifdef SK_GRAPHITE_ENABLED
+// Please see GrGradientShader.cpp::make_interpolated_to_dst for substantial comments
+// as to why this code is structured this way.
+void SkGradientShaderBase::MakeInterpolatedToDst(
+        const skgpu::graphite::KeyContext& keyContext,
+        skgpu::graphite::PaintParamsKeyBuilder* builder,
+        skgpu::graphite::PipelineDataGatherer* gatherer,
+        const skgpu::graphite::GradientShaderBlocks::GradientData& gradData,
+        const SkGradientShaderBase::Interpolation& interp,
+        SkColorSpace* intermediateCS) {
+    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
+    using namespace skgpu::graphite;
+
+    bool inputPremul = static_cast<bool>(interp.fInPremul);
+
+    switch (interp.fColorSpace) {
+        case ColorSpace::kLab:
+        case ColorSpace::kOKLab:
+        case ColorSpace::kLCH:
+        case ColorSpace::kOKLCH:
+        case ColorSpace::kHSL:
+        case ColorSpace::kHWB:
+            inputPremul = false;
+            break;
+        default:
+            break;
+    }
+
+    const SkColorInfo& dstColorInfo = keyContext.dstColorInfo();
+
+    SkColorSpace* dstColorSpace = dstColorInfo.colorSpace() ? dstColorInfo.colorSpace()
+                                                            : sk_srgb_singleton();
+
+    SkAlphaType intermediateAlphaType = inputPremul ? kPremul_SkAlphaType
+                                                    : kUnpremul_SkAlphaType;
+
+    ColorSpaceTransformBlock::ColorSpaceTransformData data(intermediateCS, intermediateAlphaType,
+                                                           dstColorSpace, dstColorInfo.alphaType());
+
+    // The gradient block and colorSpace conversion block need to be combined together
+    // (via the colorFilterShader block) so that the localMatrix block can treat them as
+    // one child.
+    ColorFilterShaderBlock::BeginBlock(keyContext, builder, gatherer);
+
+        GradientShaderBlocks::BeginBlock(keyContext, builder, gatherer, gradData);
+        builder->endBlock();
+
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data);
+        builder->endBlock();
+
+    builder->endBlock();
+}
+#endif
