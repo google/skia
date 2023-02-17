@@ -245,6 +245,38 @@ func (b *taskBuilder) usesGo() {
 // usesDocker adds attributes to tasks which use docker.
 func (b *taskBuilder) usesDocker() {
 	b.dimension("docker_installed:true")
+
+	// The "docker" binary reads its config from $HOME/.docker/config.json which, after running
+	// "gcloud auth configure-docker", typically looks like this:
+	//
+	//     {
+	//       "credHelpers": {
+	//         "gcr.io": "gcloud",
+	//         "us.gcr.io": "gcloud",
+	//         "eu.gcr.io": "gcloud",
+	//         "asia.gcr.io": "gcloud",
+	//         "staging-k8s.gcr.io": "gcloud",
+	//         "marketplace.gcr.io": "gcloud"
+	//       }
+	//     }
+	//
+	// This instructs "docker" to get its GCR credentials from a credential helper [1] program
+	// named "docker-credential-gcloud" [2], which is part of the Google Cloud SDK. This program is
+	// a shell script that invokes the "gcloud" command, which is itself a shell script that probes
+	// the environment to find a viable Python interpreter, and then invokes
+	// /usr/lib/google-cloud-sdk/lib/gcloud.py. For some unknown reason, sometimes "gcloud" decides
+	// to use "/b/s/w/ir/cache/vpython/875f1a/bin/python" as the Python interpreter (exact path may
+	// vary), which causes gcloud.py to fail with the following error:
+	//
+	//     ModuleNotFoundError: No module named 'contextlib'
+	//
+	// Fortunately, "gcloud" supports specifying a Python interpreter via the GCLOUDSDK_PYTHON
+	// environment variable.
+	//
+	// [1] https://docs.docker.com/engine/reference/commandline/login/#credential-helpers
+	// [2] See /usr/bin/docker-credential-gcloud on your gLinux system, which is provided by the
+	//     google-cloud-sdk package.
+	b.envPrefixes("CLOUDSDK_PYTHON", "cipd_bin_packages/cpython3/bin/python3")
 }
 
 // usesGSUtil adds the gsutil dependency from CIPD and puts it on PATH.
