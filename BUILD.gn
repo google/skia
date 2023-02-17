@@ -1248,7 +1248,7 @@ optional("jpeg_encode") {
 
   if (skia_use_jpeg_gainmaps) {
     deps += [ ":jpeg_mpf" ]
-    sources += [ "src/images/SkJpegGainmapEncoder.cpp" ]
+    sources += [ "src/encode/SkJpegGainmapEncoder.cpp" ]
   }
 }
 

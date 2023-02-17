@@ -22,8 +22,8 @@
 #include "include/encode/SkWebpEncoder.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/images/SkImageEncoderFns.h"
-#include "src/images/SkImageEncoderPriv.h"
+#include "src/encode/SkImageEncoderFns.h"
+#include "src/encode/SkImageEncoderPriv.h"
 
 #include <cstddef>
 #include <cstdint>

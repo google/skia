@@ -32,7 +32,7 @@ _string_flags = [
 _string_list_flags = [
     "//src/gpu:gpu_backend",
     "//src/codec:include_decoder",
-    "//src/images:include_encoder",
+    "//src/encode:include_encoder",
     "//bazel/common_config_settings:include_fontmgr",
 ]
 

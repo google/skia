@@ -6,7 +6,7 @@
  */
 
 
-#include "src/images/SkJPEGWriteUtility.h"
+#include "src/encode/SkJPEGWriteUtility.h"
 
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
