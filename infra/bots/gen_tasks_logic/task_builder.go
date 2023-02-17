@@ -277,6 +277,9 @@ func (b *taskBuilder) usesDocker() {
 	// [2] See /usr/bin/docker-credential-gcloud on your gLinux system, which is provided by the
 	//     google-cloud-sdk package.
 	b.envPrefixes("CLOUDSDK_PYTHON", "cipd_bin_packages/cpython3/bin/python3")
+
+	// As mentioned, Docker uses gcloud for authentication against GCR, and gcloud requires Python.
+	b.usesPython()
 }
 
 // usesGSUtil adds the gsutil dependency from CIPD and puts it on PATH.
