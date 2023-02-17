@@ -36,7 +36,6 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
         case kSRGBA_8888_SkColorType:         srcFmt = skcms_PixelFormat_RGBA_8888_sRGB;  break;
         case kRGBA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_1010102;    break;
         case kBGRA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_BGRA_1010102;    break;
-        case kBGR_101010x_XR_SkColorType:     srcFmt = skcms_PixelFormat_BGR_101010x_XR;  break;
         case kGray_8_SkColorType:             srcFmt = skcms_PixelFormat_G_8;             break;
         // skcms doesn't have R_8. Pretend it's G_8, but see below for color space trickery:
         case kR8_unorm_SkColorType:           srcFmt = skcms_PixelFormat_G_8;             break;

@@ -67,7 +67,6 @@
     M(load_f32)    M(load_f32_dst)  M(store_f32)   M(gather_f32)   \
     M(load_rgf32)                   M(store_rgf32)                 \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
-    M(load_1010102_xr) M(load_1010102_xr_dst) M(store_1010102_xr) \
     M(store_u16_be)                                                \
     M(store_src_rg) M(load_src_rg)                                 \
     M(byte_tables)                                                 \

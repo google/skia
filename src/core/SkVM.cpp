@@ -1210,7 +1210,6 @@ namespace skvm {
             case kBGRA_1010102_SkColorType: return {UNORM, 10,10,10,2, 20,10, 0,30};
             case kRGB_101010x_SkColorType:  return {UNORM, 10,10,10,0,  0,10,20, 0};
             case kBGR_101010x_SkColorType:  return {UNORM, 10,10,10,0, 20,10, 0, 0};
-            case kBGR_101010x_XR_SkColorType:  SkDEBUGFAIL("Not implemented."); return {UNORM, 10,10,10,0, 20,10, 0, 0};
 
             case kR8G8_unorm_SkColorType:   return {UNORM,  8, 8,0, 0, 0, 8,0,0};
             case kR16G16_unorm_SkColorType: return {UNORM, 16,16,0, 0, 0,16,0,0};

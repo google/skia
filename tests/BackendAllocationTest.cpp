@@ -617,7 +617,6 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
         // RGB/BGR 101010x have no Ganesh correlate
         { kRGB_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
         { kBGR_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
-        { kBGR_101010x_XR_SkColorType,    { 0, 0.5f, 0, 0.5f }     },
         { kGray_8_SkColorType,            kGrayCol                 },
         { kRGBA_F16Norm_SkColorType,      SkColors::kLtGray        },
         { kRGBA_F16_SkColorType,          SkColors::kYellow        },
@@ -641,12 +640,6 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
             if (kRGBA_F32_SkColorType == combo.fColorType) {
                 continue;
             }
-        }
-
-        if (colorType == kBGR_101010x_XR_SkColorType) {
-            // Creating a texture with kBGR_101010x_XR_SkColorType is not
-            // implemented.
-            continue;
         }
 
         for (auto mipmapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
