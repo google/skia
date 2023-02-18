@@ -490,7 +490,7 @@ public:
 
 class ScratchLValue final : public LValue {
 public:
-    ScratchLValue(const Expression& e) : fExpression(&e) {}
+    explicit ScratchLValue(const Expression& e) : fExpression(&e) {}
 
     ~ScratchLValue() override {
         if (fGenerator && fDedicatedStack.has_value()) {
@@ -530,6 +530,7 @@ public:
         SkDEBUGFAIL("scratch lvalues cannot be stored into");
     }
 
+private:
     Generator* fGenerator;
     const Expression* fExpression;
     std::optional<AutoStack> fDedicatedStack;
@@ -537,7 +538,7 @@ public:
 
 class VariableLValue final : public LValue {
 public:
-    VariableLValue(const Variable* v) : fVariable(v) {}
+    explicit VariableLValue(const Variable* v) : fVariable(v) {}
 
     bool isWritable() const override {
         return !Generator::IsUniform(*fVariable);
@@ -566,12 +567,13 @@ public:
         gen->builder()->copy_stack_to_slots(SlotRange{range.index + slot, 1}, offsetFromStackTop);
     }
 
+private:
     const Variable* fVariable;
 };
 
 class SwizzleLValue final : public LValue {
 public:
-    SwizzleLValue(std::unique_ptr<LValue> p, const ComponentArray& c)
+    explicit SwizzleLValue(std::unique_ptr<LValue> p, const ComponentArray& c)
             : fParent(std::move(p))
             , fComponents(c) {}
 
@@ -596,14 +598,15 @@ public:
         fParent->store(gen, this->adjust(slot), index, numSlots);
     }
 
+private:
     std::unique_ptr<LValue> fParent;
     const ComponentArray& fComponents;
 };
 
-class FixedIndexLValue final : public LValue {
+class UnownedFixedIndexLValue : public LValue {
 public:
-    FixedIndexLValue(std::unique_ptr<LValue> p, SKSL_INT v, const Type& ti)
-            : fParent(std::move(p))
+    explicit UnownedFixedIndexLValue(LValue* p, SKSL_INT v, const Type& ti)
+            : fParent(p)
             , fIndexValue(v)
             , fIndexedType(ti) {}
 
@@ -629,18 +632,30 @@ public:
         fParent->store(gen, this->adjust(slot), index, numSlots);
     }
 
-    std::unique_ptr<LValue> fParent;
+protected:
+    LValue* fParent;
+
+private:
     SKSL_INT fIndexValue;
     const Type& fIndexedType;
 };
 
-class FieldLValue final : public LValue {
+class FixedIndexLValue final : public UnownedFixedIndexLValue {
 public:
-    FieldLValue(std::unique_ptr<LValue> p, const FieldAccess& fieldAccess)
-            : fParent(std::move(p)) {
-        fInitialSlot = fieldAccess.initialSlot();
-        fNumSlots = fieldAccess.type().slotCount();
+    explicit FixedIndexLValue(std::unique_ptr<LValue> p, SKSL_INT v, const Type& ti)
+            : UnownedFixedIndexLValue(p.release(), v, ti) {}
+
+    ~FixedIndexLValue() override {
+        delete fParent;
     }
+};
+
+class UnownedFieldLValue : public LValue {
+public:
+    explicit UnownedFieldLValue(LValue* p, int i, int n)
+            : fParent(p)
+            , fInitialSlot(i)
+            , fNumSlots(n) {}
 
     bool isWritable() const override {
         return fParent->isWritable();
@@ -658,9 +673,22 @@ public:
         fParent->store(gen, slot + fInitialSlot, index, numSlots);
     }
 
-    std::unique_ptr<LValue> fParent;
+protected:
+    LValue* fParent;
+
+private:
     int fInitialSlot = 0;
     int fNumSlots = 0;
+};
+
+class FieldLValue final : public UnownedFieldLValue {
+public:
+    explicit FieldLValue(std::unique_ptr<LValue> p, int i, int n)
+            : UnownedFieldLValue(p.release(), i, n) {}
+
+    ~FieldLValue() override {
+        delete fParent;
+    }
 };
 
 std::unique_ptr<LValue> LValue::Make(const Expression& e, bool allowScratch) {
@@ -668,16 +696,19 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e, bool allowScratch) {
         return std::make_unique<VariableLValue>(e.as<VariableReference>().variable());
     }
     if (e.is<Swizzle>()) {
-        if (std::unique_ptr<LValue> base = LValue::Make(*e.as<Swizzle>().base(),
+        const Swizzle& swizzleExpr = e.as<Swizzle>();
+        if (std::unique_ptr<LValue> base = LValue::Make(*swizzleExpr.base(),
                                                         allowScratch)) {
-            return std::make_unique<SwizzleLValue>(std::move(base), e.as<Swizzle>().components());
+            return std::make_unique<SwizzleLValue>(std::move(base), swizzleExpr.components());
         }
         return nullptr;
     }
     if (e.is<FieldAccess>()) {
-        if (std::unique_ptr<LValue> base = LValue::Make(*e.as<FieldAccess>().base(),
+        const FieldAccess& fieldExpr = e.as<FieldAccess>();
+        if (std::unique_ptr<LValue> base = LValue::Make(*fieldExpr.base(),
                                                         allowScratch)) {
-            return std::make_unique<FieldLValue>(std::move(base), e.as<FieldAccess>());
+            return std::make_unique<FieldLValue>(std::move(base), fieldExpr.initialSlot(),
+                                                 fieldExpr.type().slotCount());
         }
         return nullptr;
     }
