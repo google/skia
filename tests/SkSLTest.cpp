@@ -601,8 +601,8 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, QualifierOrder,                  "runtime/
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, PrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
 
 SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Arrays,  "runtime/RecursiveComparison_Arrays.rts")
-SKSL_TEST(GPU_ES3 + UsesNaN,      kNever, RecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")
-SKSL_TEST(GPU_ES3 + UsesNaN,      kNever, RecursiveComparison_Types,   "runtime/RecursiveComparison_Types.rts")
+SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")
+SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Types,   "runtime/RecursiveComparison_Types.rts")
 SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Vectors, "runtime/RecursiveComparison_Vectors.rts")
 
 SKSL_TEST(GPU_ES3,           kNever,      ArrayCast,                       "shared/ArrayCast.sksl")
@@ -625,7 +625,7 @@ SKSL_TEST(RP + GPU_ES3,      kNever,      DeadLoopVariable,                "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DeadReturn,                      "shared/DeadReturn.sksl")
 // TODO(skia:12012): some Radeons crash when compiling this code; disable them.
-// SKSL_TEST(GPU_ES3,        kNever,      SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
+SKSL_TEST(RP /* +GPU_ES3 */, kNever,      SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DependentInitializers,           "shared/DependentInitializers.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DoubleNegation,                  "shared/DoubleNegation.sksl")
@@ -677,9 +677,9 @@ SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ScopedSymbol,                    "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(RP + VM + GPU_ES3, kNever,      StaticSwitch,                    "shared/StaticSwitch.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
-// TODO(skia:13920): This test currently exposes a bug in SPIR-V codegen.
-// SKSL_TEST(GPU_ES3,        kNever,      StructComparison,                "shared/StructComparison.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, StructsInFunctions,              "shared/StructsInFunctions.sksl")
+// TODO(skia:13920): StructComparison currently exposes a bug in SPIR-V codegen.
+// SKSL_TEST(RP /* +GPU_ES3 */, kNever,      StructComparison,                "shared/StructComparison.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Switch,                          "shared/Switch.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwitchDefaultOnly,               "shared/SwitchDefaultOnly.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwitchWithFallthrough,           "shared/SwitchWithFallthrough.sksl")

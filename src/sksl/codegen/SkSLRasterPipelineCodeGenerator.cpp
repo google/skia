@@ -329,8 +329,13 @@ public:
                                           const Expression& right,
                                           int leftColumns, int leftRows,
                                           int rightColumns, int rightRows);
+    [[nodiscard]] bool pushStructuredComparison(LValue* left,
+                                                Operator op,
+                                                LValue* right,
+                                                const Type& type);
 
     void foldWithMultiOp(BuilderOp op, int elements);
+    void foldComparisonOp(Operator op, int elements);
 
     BuilderOp getTypedOp(const SkSL::Type& type, const TypedOps& ops) const;
 
@@ -1610,28 +1615,127 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
     return true;
 }
 
+void Generator::foldComparisonOp(Operator op, int elements) {
+    switch (op.kind()) {
+        case OperatorKind::EQEQ:
+            // equal(x,y) returns a vector; use & to fold into a scalar.
+            this->foldWithMultiOp(BuilderOp::bitwise_and_n_ints, elements);
+            break;
+
+        case OperatorKind::NEQ:
+            // notEqual(x,y) returns a vector; use | to fold into a scalar.
+            this->foldWithMultiOp(BuilderOp::bitwise_or_n_ints, elements);
+            break;
+
+        default:
+            SkDEBUGFAIL("comparison only allows == and !=");
+            break;
+    }
+}
+
+bool Generator::pushStructuredComparison(LValue* left,
+                                         Operator op,
+                                         LValue* right,
+                                         const Type& type) {
+    if (type.isStruct()) {
+        // Compare every field in the struct.
+        SkSpan<const Type::Field> fields = type.fields();
+        int currentSlot = 0;
+        for (size_t index = 0; index < fields.size(); ++index) {
+            const Type& fieldType = *fields[index].fType;
+            const int   fieldSlotCount = fieldType.slotCount();
+            UnownedFieldLValue fieldLeft {left,  currentSlot, fieldSlotCount};
+            UnownedFieldLValue fieldRight{right, currentSlot, fieldSlotCount};
+            if (!this->pushStructuredComparison(&fieldLeft, op, &fieldRight, fieldType)) {
+                return unsupported();
+            }
+            currentSlot += fieldSlotCount;
+        }
+
+        this->foldComparisonOp(op, fields.size());
+        return true;
+    }
+
+    if (type.isArray()) {
+        const Type& indexedType = type.componentType();
+        if (indexedType.numberKind() == Type::NumberKind::kNonnumeric) {
+            // Compare every element in the array.
+            for (int index = 0; index < type.columns(); ++index) {
+                UnownedFixedIndexLValue indexedLeft {left,  index, indexedType};
+                UnownedFixedIndexLValue indexedRight{right, index, indexedType};
+                if (!this->pushStructuredComparison(&indexedLeft, op, &indexedRight, indexedType)) {
+                    return unsupported();
+                }
+            }
+
+            this->foldComparisonOp(op, type.columns());
+            return true;
+        }
+    }
+
+    // We've winnowed down to a single element, or an array of homogeneous numeric elements.
+    // Push the elements onto the stack, then compare them.
+    if (!left->push(this) || !right->push(this)) {
+        return unsupported();
+    }
+    switch (op.kind()) {
+        case OperatorKind::EQEQ:
+            if (!this->binaryOp(type, kEqualOps)) {
+                return unsupported();
+            }
+            break;
+
+        case OperatorKind::NEQ:
+            if (!this->binaryOp(type, kNotEqualOps)) {
+                return unsupported();
+            }
+            break;
+
+        default:
+            SkDEBUGFAIL("comparison only allows == and !=");
+            break;
+    }
+
+    this->foldComparisonOp(op, type.slotCount());
+    return true;
+}
+
 bool Generator::pushBinaryExpression(const BinaryExpression& e) {
     return this->pushBinaryExpression(*e.left(), e.getOperator(), *e.right());
 }
 
 bool Generator::pushBinaryExpression(const Expression& left, Operator op, const Expression& right) {
-    // Rewrite greater-than ops as their less-than equivalents.
-    if (op.kind() == OperatorKind::GT) {
-        return this->pushBinaryExpression(right, OperatorKind::LT, left);
-    }
-    if (op.kind() == OperatorKind::GTEQ) {
-        return this->pushBinaryExpression(right, OperatorKind::LTEQ, left);
-    }
+    switch (op.kind()) {
+        // Rewrite greater-than ops as their less-than equivalents.
+        case OperatorKind::GT:
+            return this->pushBinaryExpression(right, OperatorKind::LT, left);
 
-    // Emit comma expressions.
-    if (op.kind() == OperatorKind::COMMA) {
-        if (Analysis::HasSideEffects(left)) {
-            if (!this->pushExpression(left, /*usesResult=*/false)) {
-                return unsupported();
+        case OperatorKind::GTEQ:
+            return this->pushBinaryExpression(right, OperatorKind::LTEQ, left);
+
+        // Handle struct and array comparisons.
+        case OperatorKind::EQEQ:
+        case OperatorKind::NEQ:
+            if (left.type().isStruct() || left.type().isArray()) {
+                SkASSERT(left.type().matches(right.type()));
+                std::unique_ptr<LValue> lvLeft = LValue::Make(left, /*allowScratch=*/true);
+                std::unique_ptr<LValue> lvRight = LValue::Make(right, /*allowScratch=*/true);
+                return this->pushStructuredComparison(lvLeft.get(), op, lvRight.get(), left.type());
             }
-            this->discardExpression(left.type().slotCount());
-        }
-        return this->pushExpression(right);
+            break;
+
+        // Emit comma expressions.
+        case OperatorKind::COMMA:
+            if (Analysis::HasSideEffects(left)) {
+                if (!this->pushExpression(left, /*usesResult=*/false)) {
+                    return unsupported();
+                }
+                this->discardExpression(left.type().slotCount());
+            }
+            return this->pushExpression(right);
+
+        default:
+            break;
     }
 
     // Handle binary expressions with mismatched types.
@@ -1788,16 +1892,14 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
             if (!this->binaryOp(type, kEqualOps)) {
                 return unsupported();
             }
-            // equal(x,y) returns a vector; use & to fold into a scalar.
-            this->foldWithMultiOp(BuilderOp::bitwise_and_n_ints, type.slotCount());
+            this->foldComparisonOp(op, type.slotCount());
             break;
 
         case OperatorKind::NEQ:
             if (!this->binaryOp(type, kNotEqualOps)) {
                 return unsupported();
             }
-            // notEqual(x,y) returns a vector; use | to fold into a scalar.
-            this->foldWithMultiOp(BuilderOp::bitwise_or_n_ints, type.slotCount());
+            this->foldComparisonOp(op, type.slotCount());
             break;
 
         case OperatorKind::LOGICALAND:
