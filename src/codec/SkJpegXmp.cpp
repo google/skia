@@ -188,23 +188,11 @@ static sk_sp<SkData> read_xmp_extended(const std::vector<sk_sp<SkData>>& decoder
 const char* kXmlnsPrefix = "xmlns:";
 const size_t kXmlnsPrefixLength = 6;
 
-std::string get_namespace_prefix(const char* name) {
-    return std::string(name + kXmlnsPrefixLength) + ":";
-}
-
-/*
- * Helper function to read a 1 or 3 floats and write them into an SkColor4f.
- */
-static void find_per_channel_attr(const SkDOM* dom,
-                                  const SkDOM::Node* node,
-                                  const std::string& attr,
-                                  SkColor4f* outColor) {
-    SkScalar values[3] = {0.f, 0.f, 0.f};
-    if (dom->findScalars(node, attr.c_str(), values, 3)) {
-        *outColor = {values[0], values[1], values[2], 1.f};
-    } else if (dom->findScalars(node, attr.c_str(), values, 1)) {
-        *outColor = {values[0], values[0], values[0], 1.f};
+static const char* get_namespace_prefix(const char* name) {
+    if (strlen(name) <= kXmlnsPrefixLength) {
+        return nullptr;
     }
+    return name + kXmlnsPrefixLength;
 }
 
 /*
@@ -243,43 +231,160 @@ static const char* get_unique_child_text(const SkDOM& dom,
     return dom.getName(grandChild);
 }
 
-// Helper function that builds on get_unique_child_text, returning true if the unique child with
-// childName has inner text that matches an expected text.
-static bool unique_child_text_matches(const SkDOM& dom,
-                                      const SkDOM::Node* node,
-                                      const std::string& childName,
-                                      const char* expectedText) {
-    const char* text = get_unique_child_text(dom, node, childName);
-    if (text && !strcmp(text, expectedText)) {
+/*
+ * Given a node, find a child node of the specified type.
+ *
+ * If there exists a child node with name |prefix| + ":" + |type|, then return that child.
+ *
+ * If there exists a child node with name "rdf:type" that has attribute "rdf:resource" with value
+ * of |type|, then if there also exists a child node with name "rdf:value" with attribute
+ * "rdf:parseType" of "Resource", then return that child node with name "rdf:value". See Example
+ * 3 in section 7.9.2.5: RDF Typed Nodes.
+ * TODO(ccameron): This should also accept a URI for the type.
+ */
+static const SkDOM::Node* get_typed_child(const SkDOM* dom,
+                                          const SkDOM::Node* node,
+                                          const std::string& prefix,
+                                          const std::string& type) {
+    const auto name = prefix + std::string(":") + type;
+    const SkDOM::Node* child = dom->getFirstChild(node, name.c_str());
+    if (child) {
+        return child;
+    }
+
+    const SkDOM::Node* typeChild = dom->getFirstChild(node, "rdf:type");
+    if (!typeChild) {
+        return nullptr;
+    }
+    const char* typeChildResource = dom->findAttr(typeChild, "rdf:resource");
+    if (!typeChildResource || typeChildResource != type) {
+        return nullptr;
+    }
+
+    const SkDOM::Node* valueChild = dom->getFirstChild(node, "rdf:value");
+    if (!valueChild) {
+        return nullptr;
+    }
+    const char* valueChildParseType = dom->findAttr(valueChild, "rdf:parseType");
+    if (!valueChildParseType || strcmp(valueChildParseType, "Resource") != 0) {
+        return nullptr;
+    }
+    return valueChild;
+}
+
+/*
+ * Given a node, return its value for the specified attribute.
+ *
+ * This will first look for an attribute with the name |prefix| + ":" + |key|, and return the value
+ * for that attribute.
+ *
+ * This will then look for a child node of name |prefix| + ":" + |key|, and return the field value
+ * for that child.
+ */
+static const char* get_attr(const SkDOM* dom,
+                            const SkDOM::Node* node,
+                            const std::string& prefix,
+                            const std::string& key) {
+    const auto name = prefix + ":" + key;
+    const char* attr = dom->findAttr(node, name.c_str());
+    if (attr) {
+        return attr;
+    }
+    return get_unique_child_text(*dom, node, name);
+}
+
+// Perform get_attr and parse the result as an int32_t.
+static bool get_attr_int32(const SkDOM* dom,
+                           const SkDOM::Node* node,
+                           const std::string& prefix,
+                           const std::string& key,
+                           int32_t* value) {
+    const char* attr = get_attr(dom, node, prefix, key);
+    if (!attr) {
+        return false;
+    }
+    if (!SkParse::FindS32(attr, value)) {
+        return false;
+    }
+    return true;
+}
+
+// Perform get_attr and parse the result as a float.
+static bool get_attr_float(const SkDOM* dom,
+                           const SkDOM::Node* node,
+                           const std::string& prefix,
+                           const std::string& key,
+                           float* outValue) {
+    const char* attr = get_attr(dom, node, prefix, key);
+    if (!attr) {
+        return false;
+    }
+    SkScalar value = 0.f;
+    if (SkParse::FindScalar(attr, &value)) {
+        *outValue = value;
         return true;
     }
     return false;
 }
 
-// Helper function that builds on get_unique_child_text, returning true if the unique child with
-// childName has inner text that matches an expected integer.
-static bool unique_child_text_matches(const SkDOM& dom,
-                                      const SkDOM::Node* node,
-                                      const std::string& childName,
-                                      int32_t expectedValue) {
-    const char* text = get_unique_child_text(dom, node, childName);
-    int32_t actualValue = 0;
-    if (text && SkParse::FindS32(text, &actualValue)) {
-        return actualValue == expectedValue;
+// Perform get_attr and parse the result as three comma-separated floats. Return the result as an
+// SkColor4f with the alpha component set to 1.
+static bool get_attr_float3(const SkDOM* dom,
+                            const SkDOM::Node* node,
+                            const std::string& prefix,
+                            const std::string& key,
+                            SkColor4f* outValue) {
+    const char* attr = get_attr(dom, node, prefix, key);
+    if (!attr) {
+        return false;
+    }
+    SkScalar values[3] = {0.f, 0.f, 0.f};
+    if (SkParse::FindScalars(attr, values, 3)) {
+        *outValue = {values[0], values[1], values[2], 1.f};
+        return true;
+    }
+    if (SkParse::FindScalars(attr, values, 1)) {
+        *outValue = {values[0], values[0], values[0], 1.f};
+        return true;
     }
     return false;
 }
 
+static void find_uri_namespaces(const SkDOM& dom,
+                                const SkDOM::Node* node,
+                                size_t count,
+                                const char* uris[],
+                                const char* outNamespaces[]) {
+    // Search all attributes for xmlns:NAMESPACEi="URIi".
+    for (const auto* attr = dom.getFirstAttr(node); attr; attr = dom.getNextAttr(node, attr)) {
+        const char* attrName = dom.getAttrName(node, attr);
+        const char* attrValue = dom.getAttrValue(node, attr);
+        if (!attrName || !attrValue) {
+            continue;
+        }
+        // Make sure the name starts with "xmlns:".
+        if (strlen(attrName) <= kXmlnsPrefixLength) {
+            continue;
+        }
+        if (memcmp(attrName, kXmlnsPrefix, kXmlnsPrefixLength) != 0) {
+            continue;
+        }
+        // Search for a requested URI that matches.
+        for (size_t i = 0; i < count; ++i) {
+            if (strcmp(attrValue, uris[i]) != 0) {
+                continue;
+            }
+            outNamespaces[i] = attrName;
+        }
+    }
+}
+
 // See SkJpegXmp::findUriNamespaces. This function has the same behavior, but only searches
 // a single SkDOM.
-const SkDOM::Node* find_uri_namespaces(const SkDOM& dom,
-                                       size_t count,
-                                       const char* uris[],
-                                       const char* outNamespaces[]) {
-    for (size_t i = 0; i < count; ++i) {
-        outNamespaces[i] = nullptr;
-    }
-
+static const SkDOM::Node* find_uri_namespaces(const SkDOM& dom,
+                                              size_t count,
+                                              const char* uris[],
+                                              const char* outNamespaces[]) {
     const SkDOM::Node* root = dom.getRootNode();
     if (!root) {
         return nullptr;
@@ -295,47 +400,29 @@ const SkDOM::Node* find_uri_namespaces(const SkDOM& dom,
     const char* kRdf = "rdf:RDF";
     for (const auto* rdf = dom.getFirstChild(root, kRdf); rdf;
          rdf = dom.getNextSibling(rdf, kRdf)) {
+        std::vector<const char*> rdfNamespaces(count, nullptr);
+        find_uri_namespaces(dom, rdf, count, uris, rdfNamespaces.data());
+
         // Iterate the children with name rdf::Description.
         const char* kDesc = "rdf:Description";
         for (const auto* desc = dom.getFirstChild(rdf, kDesc); desc;
              desc = dom.getNextSibling(desc, kDesc)) {
-            // Search all attributes for xmlns:NAMESPACEi="URIi".
-            for (const auto* attr = dom.getFirstAttr(desc); attr;
-                 attr = dom.getNextAttr(desc, attr)) {
-                const char* attrName = dom.getAttrName(desc, attr);
-                const char* attrValue = dom.getAttrValue(desc, attr);
-                if (!attrName || !attrValue) {
-                    continue;
-                }
-                // Make sure the name starts with "xmlns:".
-                if (strlen(attrName) <= kXmlnsPrefixLength) {
-                    continue;
-                }
-                if (memcmp(attrName, kXmlnsPrefix, kXmlnsPrefixLength) != 0) {
-                    continue;
-                }
-                // Search for a requested URI that matches.
-                for (size_t i = 0; i < count; ++i) {
-                    if (strcmp(attrValue, uris[i]) != 0) {
-                        continue;
-                    }
-                    outNamespaces[i] = attrName;
-                }
-            }
+            std::vector<const char*> descNamespaces = rdfNamespaces;
+            find_uri_namespaces(dom, desc, count, uris, descNamespaces.data());
 
             // If we have a match for all the requested URIs, return.
             bool foundAllUris = true;
             for (size_t i = 0; i < count; ++i) {
-                if (!outNamespaces[i]) {
+                if (!descNamespaces[i]) {
                     foundAllUris = false;
                     break;
                 }
             }
             if (foundAllUris) {
+                for (size_t i = 0; i < count; ++i) {
+                    outNamespaces[i] = descNamespaces[i];
+                }
                 return desc;
-            }
-            for (size_t i = 0; i < count; ++i) {
-                outNamespaces[i] = nullptr;
             }
         }
     }
@@ -370,7 +457,7 @@ std::unique_ptr<SkJpegXmp> SkJpegXmp::Make(const std::vector<sk_sp<SkData>>& dec
 
     // Extract the GUID (the MD5 hash) of the extended metadata.
     const char* extendedGuid =
-            xmp->fStandardDOM.findAttr(extendedNode, (xmpNotePrefix + "HasExtendedXMP").c_str());
+            get_attr(&xmp->fStandardDOM, extendedNode, xmpNotePrefix, "HasExtendedXMP");
     if (!extendedGuid) {
         return xmp;
     }
@@ -426,43 +513,43 @@ bool SkJpegXmp::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
     if (!findUriNamespaces(2, uris, namespaces, &dom, &node)) {
         return false;
     }
-    const auto containerPrefix = get_namespace_prefix(namespaces[0]);
-    const auto itemPrefix = get_namespace_prefix(namespaces[1]);
+    const char* containerPrefix = get_namespace_prefix(namespaces[0]);
+    const char* itemPrefix = get_namespace_prefix(namespaces[1]);
 
-    // The node must have a GContainer:Directory.
-    const auto* directory = dom->getFirstChild(node, (containerPrefix + "Directory").c_str());
+    // The node must have a Container:Directory child.
+    const auto* directory = get_typed_child(dom, node, containerPrefix, "Directory");
     if (!directory) {
-        SkCodecPrintf("Missing GContainer Directory");
+        SkCodecPrintf("Missing Container Directory");
         return false;
     }
 
-    // That GContainer:Directory must have a sequence of  items.
+    // That Container:Directory must have a sequence of  items.
     const auto* seq = dom->getFirstChild(directory, "rdf:Seq");
     if (!seq) {
         SkCodecPrintf("Missing rdf:Seq");
         return false;
     }
 
-    // Iterate through the items in the GContainer:Directory's sequence. Keep a running sum of the
-    // GContainer::ItemLength of all items that appear before the RecoveryMap.
+    // Iterate through the items in the Container:Directory's sequence. Keep a running sum of the
+    // Item:Length of all items that appear before the RecoveryMap.
     bool isFirstItem = true;
     size_t offset = 0;
     for (const auto* li = dom->getFirstChild(seq, "rdf:li"); li;
          li = dom->getNextSibling(li, "rdf:li")) {
-        // Each list item must contain a GContainer item.
-        const auto* item = dom->getFirstChild(li, (containerPrefix + "Item").c_str());
+        // Each list item must contain a Container:Item.
+        const auto* item = get_typed_child(dom, li, containerPrefix, "Item");
         if (!item) {
             SkCodecPrintf("List item does not have container Item.\n");
             return false;
         }
         // A Semantic is required for every item.
-        const char* itemSemantic = dom->findAttr(item, (itemPrefix + "Semantic").c_str());
+        const char* itemSemantic = get_attr(dom, item, itemPrefix, "Semantic");
         if (!itemSemantic) {
             SkCodecPrintf("Item is missing Semantic.\n");
             return false;
         }
         // A Mime is required for every item.
-        const char* itemMime = dom->findAttr(item, (itemPrefix + "Mime").c_str());
+        const char* itemMime = get_attr(dom, item, itemPrefix, "Mime");
         if (!itemMime) {
             SkCodecPrintf("Item is missing Mime.\n");
             return false;
@@ -484,7 +571,7 @@ bool SkJpegXmp::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
             // padding between the end of the encoded primary image and the beginning of the next
             // media item. Only the first media item can contain a Padding attribute.
             int32_t padding = 0;
-            if (dom->findS32(item, (itemPrefix + "Padding").c_str(), &padding)) {
+            if (get_attr_int32(dom, item, itemPrefix, "Padding", &padding)) {
                 if (padding < 0) {
                     SkCodecPrintf("Item padding must be non-negative.");
                     return false;
@@ -494,7 +581,7 @@ bool SkJpegXmp::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
         } else {
             // A Length is required for all non-Primary items.
             int32_t length = 0;
-            if (!dom->findS32(item, (itemPrefix + "Length").c_str(), &length)) {
+            if (!get_attr_int32(dom, item, itemPrefix, "Length", &length)) {
                 SkCodecPrintf("Item length is absent.");
                 return false;
             }
@@ -533,18 +620,26 @@ bool SkJpegXmp::getGainmapInfoHDRGainMap(SkGainmapInfo* info) const {
     if (!findUriNamespaces(2, uris, namespaces, &dom, &node)) {
         return false;
     }
-    const auto adpiPrefix = get_namespace_prefix(namespaces[0]);
-    const auto hdrGainMapPrefix = get_namespace_prefix(namespaces[1]);
+    const char* adpiPrefix = get_namespace_prefix(namespaces[0]);
+    const char* hdrGainMapPrefix = get_namespace_prefix(namespaces[1]);
 
-    if (!unique_child_text_matches(*dom,
-                                   node,
-                                   adpiPrefix + "AuxiliaryImageType",
-                                   "urn:com:apple:photo:2020:aux:hdrgainmap")) {
-        SkCodecPrintf("Did not find auxiliary image type.\n");
+    const char* auxiliaryImageType = get_attr(dom, node, adpiPrefix, "AuxiliaryImageType");
+    if (!auxiliaryImageType) {
+        SkCodecPrintf("Did not find AuxiliaryImageType.\n");
         return false;
     }
-    if (!unique_child_text_matches(*dom, node, hdrGainMapPrefix + "HDRGainMapVersion", 65536)) {
-        SkCodecPrintf("HDRGainMapVersion absent or not 65536.\n");
+    if (strcmp(auxiliaryImageType, "urn:com:apple:photo:2020:aux:hdrgainmap") != 0) {
+        SkCodecPrintf("AuxiliaryImageType was not HDR gain map.\n");
+        return false;
+    }
+
+    int32_t version = 0;
+    if (!get_attr_int32(dom, node, hdrGainMapPrefix, "HDRGainMapVersion", &version)) {
+        SkCodecPrintf("Did not find HDRGainMapVersion.\n");
+        return false;
+    }
+    if (version != 65536) {
+        SkCodecPrintf("HDRGainMapVersion was not 65536.\n");
         return false;
     }
 
@@ -572,7 +667,7 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     if (!findUriNamespaces(1, uris, namespaces, &dom, &node)) {
         return false;
     }
-    const auto hdrgmPrefix = get_namespace_prefix(namespaces[0]);
+    const char* hdrgmPrefix = get_namespace_prefix(namespaces[0]);
 
     // Initialize the parameters to their defaults.
     SkColor4f gainMapMin = {1.f, 1.f, 1.f, 1.f};
@@ -584,14 +679,14 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     SkScalar hdrCapacityMax = 2.f;
 
     // Read all parameters that are present.
-    const char* baseRendition = dom->findAttr(node, (hdrgmPrefix + "BaseRendition").c_str());
-    find_per_channel_attr(dom, node, hdrgmPrefix + "GainMapMin", &gainMapMin);
-    find_per_channel_attr(dom, node, hdrgmPrefix + "GainMapMax", &gainMapMax);
-    find_per_channel_attr(dom, node, hdrgmPrefix + "Gamma", &gamma);
-    find_per_channel_attr(dom, node, hdrgmPrefix + "OffsetSDR", &offsetSdr);
-    find_per_channel_attr(dom, node, hdrgmPrefix + "OffsetHDR", &offsetHdr);
-    dom->findScalar(node, (hdrgmPrefix + "HDRCapacityMin").c_str(), &hdrCapacityMin);
-    dom->findScalar(node, (hdrgmPrefix + "HDRCapacityMax").c_str(), &hdrCapacityMax);
+    const char* baseRendition = get_attr(dom, node, hdrgmPrefix, "BaseRendition");
+    get_attr_float3(dom, node, hdrgmPrefix, "GainMapMin", &gainMapMin);
+    get_attr_float3(dom, node, hdrgmPrefix, "GainMapMax", &gainMapMax);
+    get_attr_float3(dom, node, hdrgmPrefix, "Gamma", &gamma);
+    get_attr_float3(dom, node, hdrgmPrefix, "OffsetSDR", &offsetSdr);
+    get_attr_float3(dom, node, hdrgmPrefix, "OffsetHDR", &offsetHdr);
+    get_attr_float(dom, node, hdrgmPrefix, "HDRCapacityMin", &hdrCapacityMin);
+    get_attr_float(dom, node, hdrgmPrefix, "HDRCapacityMax", &hdrCapacityMax);
 
     // Translate all parameters to SkGainmapInfo's expected format.
     const float kLog2 = sk_float_log(2.f);

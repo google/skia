@@ -24,6 +24,7 @@
 #include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegSegmentScan.h"
 #include "src/codec/SkJpegSourceMgr.h"
+#include "src/codec/SkJpegXmp.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
@@ -430,6 +431,142 @@ SkBitmap render_gainmap(const SkImageInfo& renderInfo,
     canvas.drawRect(dstRect, paint);
 
     return result;
+}
+
+DEF_TEST(AndroidCodec_xmpHdrgmAsFieldValue, r) {
+    // Expose HDRM values as fields. Also place the HDRGM namespace in the rdf:RDF node.
+    const char xmpData[] =
+            "http://ns.adobe.com/xap/1.0/\0"
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n"
+            "   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+            "            xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\">\n"
+            "      <rdf:Description rdf:about=\"\">\n"
+            "         <hdrgm:Version>1.0</hdrgm:Version>\n"
+            "         <hdrgm:GainMapMax>3</hdrgm:GainMapMax>\n"
+            "         <hdrgm:HDRCapacityMax>4</hdrgm:HDRCapacityMax>\n"
+            "      </rdf:Description>\n"
+            "   </rdf:RDF>\n"
+            "</x:xmpmeta>\n";
+
+    std::vector<sk_sp<SkData>> app1Params;
+    app1Params.push_back(SkData::MakeWithoutCopy(xmpData, sizeof(xmpData) - 1));
+
+    auto xmp = SkJpegXmp::Make(app1Params);
+    REPORTER_ASSERT(r, xmp);
+
+    SkGainmapInfo info;
+    REPORTER_ASSERT(r, xmp->getGainmapInfoHDRGM(&info));
+    REPORTER_ASSERT(r, info.fGainmapRatioMax.fR == 8.f);
+    REPORTER_ASSERT(r, info.fDisplayRatioHdr == 16.f);
+}
+
+DEF_TEST(AndroidCodec_xmpHdrgmAsDescriptionPropertyAttributes, r) {
+    // Expose HDRGM values as attributes on an rdf:Description node.
+    const char xmpData[] =
+            "http://ns.adobe.com/xap/1.0/\0"
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n"
+            "   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+            "      <rdf:Description rdf:about=\"\"\n"
+            "            xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\"\n"
+            "         hdrgm:Version=\"1.0\"\n"
+            "         hdrgm:GainMapMax=\"3\"\n"
+            "         hdrgm:HDRCapacityMax=\"4\"/>\n"
+            "   </rdf:RDF>\n"
+            "</x:xmpmeta>\n";
+
+    std::vector<sk_sp<SkData>> app1Params;
+    app1Params.push_back(SkData::MakeWithoutCopy(xmpData, sizeof(xmpData) - 1));
+
+    auto xmp = SkJpegXmp::Make(app1Params);
+    REPORTER_ASSERT(r, xmp);
+
+    SkGainmapInfo info;
+    REPORTER_ASSERT(r, xmp->getGainmapInfoHDRGM(&info));
+    REPORTER_ASSERT(r, info.fGainmapRatioMax.fR == 8.f);
+    REPORTER_ASSERT(r, info.fDisplayRatioHdr == 16.f);
+}
+
+DEF_TEST(AndroidCodec_xmpContainerTypedNode, r) {
+    // Container and Item using a node of type Container:Item.
+    const char xmpData[] =
+            "http://ns.adobe.com/xap/1.0/\0"
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 5.5.0\">\n"
+            " <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+            "  <rdf:Description rdf:about=\"\"\n"
+            "    xmlns:Container=\"http://ns.google.com/photos/1.0/container/\"\n"
+            "    xmlns:Item=\"http://ns.google.com/photos/1.0/container/item/\">\n"
+            "   <Container:Directory>\n"
+            "    <rdf:Seq>\n"
+            "     <rdf:li rdf:parseType=\"Resource\">\n"
+            "      <Container:Item>\n"
+            "       <Item:Mime>image/jpeg</Item:Mime>\n"
+            "       <Item:Semantic>Primary</Item:Semantic>\n"
+            "      </Container:Item>\n"
+            "     </rdf:li>\n"
+            "     <rdf:li rdf:parseType=\"Resource\">\n"
+            "      <Container:Item\n"
+            "         Item:Semantic=\"RecoveryMap\"\n"
+            "         Item:Mime=\"image/jpeg\"\n"
+            "         Item:Length=\"49035\"/>\n"
+            "     </rdf:li>\n"
+            "    </rdf:Seq>\n"
+            "   </Container:Directory>\n"
+            "  </rdf:Description>\n"
+            " </rdf:RDF>\n"
+            "</x:xmpmeta>\n";
+    std::vector<sk_sp<SkData>> app1Params;
+    app1Params.push_back(SkData::MakeWithoutCopy(xmpData, sizeof(xmpData) - 1));
+
+    auto xmp = SkJpegXmp::Make(app1Params);
+    REPORTER_ASSERT(r, xmp);
+
+    size_t offset = 999;
+    size_t size = 999;
+    REPORTER_ASSERT(r, xmp->getContainerGainmapLocation(&offset, &size));
+    REPORTER_ASSERT(r, size == 49035);
+}
+
+DEF_TEST(AndroidCodec_xmpContainerTypedNodeRdfEquivalent, r) {
+    // Container and Item using rdf:value and rdf:type pairs.
+    const char xmpData[] =
+            "http://ns.adobe.com/xap/1.0/\0"
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 5.5.0\">\n"
+            " <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
+            "  <rdf:Description rdf:about=\"\"\n"
+            "    xmlns:Container=\"http://ns.google.com/photos/1.0/container/\"\n"
+            "    xmlns:Item=\"http://ns.google.com/photos/1.0/container/item/\">\n"
+            "   <Container:Directory>\n"
+            "    <rdf:Seq>\n"
+            "     <rdf:li rdf:parseType=\"Resource\">\n"
+            "      <rdf:value rdf:parseType=\"Resource\">\n"
+            "       <Item:Mime>image/jpeg</Item:Mime>\n"
+            "       <Item:Semantic>Primary</Item:Semantic>\n"
+            "      </rdf:value>\n"
+            "      <rdf:type rdf:resource=\"Item\"/>\n"
+            "     </rdf:li>\n"
+            "     <rdf:li rdf:parseType=\"Resource\">\n"
+            "      <rdf:value rdf:parseType=\"Resource\">\n"
+            "       <Item:Semantic>RecoveryMap</Item:Semantic>\n"
+            "       <Item:Mime>image/jpeg</Item:Mime>\n"
+            "       <Item:Length>49035</Item:Length>\n"
+            "      </rdf:value>\n"
+            "      <rdf:type rdf:resource=\"Item\"/>\n"
+            "     </rdf:li>\n"
+            "    </rdf:Seq>\n"
+            "   </Container:Directory>\n"
+            "  </rdf:Description>\n"
+            " </rdf:RDF>\n"
+            "</x:xmpmeta>\n";
+    std::vector<sk_sp<SkData>> app1Params;
+    app1Params.push_back(SkData::MakeWithoutCopy(xmpData, sizeof(xmpData) - 1));
+
+    auto xmp = SkJpegXmp::Make(app1Params);
+    REPORTER_ASSERT(r, xmp);
+
+    size_t offset = 999;
+    size_t size = 999;
+    REPORTER_ASSERT(r, xmp->getContainerGainmapLocation(&offset, &size));
+    REPORTER_ASSERT(r, size == 49035);
 }
 
 // Render a single pixel of an applied gainmap and return it.
