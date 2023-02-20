@@ -606,6 +606,14 @@ static int pack_nybbles(SkSpan<const int8_t> components) {
     return packed;
 }
 
+static void unpack_nybbles_to_offsets(uint32_t components, SkSpan<uint16_t> offsets) {
+    // Unpack component nybbles into byte-offsets pointing at stack slots.
+    for (size_t index = 0; index < offsets.size(); ++index) {
+        offsets[index] = (components & 0xF) * SkOpts::raster_pipeline_highp_stride * sizeof(float);
+        components >>= 4;
+    }
+}
+
 void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> components) {
     // Consumes `consumedSlots` elements on the stack, then generates `elementSpan.size()` elements.
     SkASSERT(consumedSlots >= 0);
@@ -1270,11 +1278,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 auto* ctx = alloc->make<SkRasterPipeline_SwizzleCtx>();
                 ctx->ptr = tempStackPtr - (N * inst.fImmA);
                 // Unpack component nybbles into byte-offsets pointing at stack slots.
-                int components = inst.fImmB;
-                for (size_t index = 0; index < std::size(ctx->offsets); ++index) {
-                    ctx->offsets[index] = (components & 3) * N * sizeof(float);
-                    components >>= 4;
-                }
+                unpack_nybbles_to_offsets(inst.fImmB, SkSpan(ctx->offsets));
                 pipeline->push_back({(ProgramOp)inst.fOp, ctx});
                 break;
             }
@@ -1285,17 +1289,9 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 auto* ctx = alloc->make<SkRasterPipeline_ShuffleCtx>();
                 ctx->ptr = tempStackPtr - (N * consumed);
                 ctx->count = generated;
-                // Unpack immB and immC from nybble form into an offset array.
-                int packed = inst.fImmB;
-                for (int index = 0; index < 8; ++index) {
-                    ctx->offsets[index] = (packed & 0xF) * N * sizeof(float);
-                    packed >>= 4;
-                }
-                packed = inst.fImmC;
-                for (int index = 8; index < 16; ++index) {
-                    ctx->offsets[index] = (packed & 0xF) * N * sizeof(float);
-                    packed >>= 4;
-                }
+                // Unpack immB and immC from nybble form into the offset array.
+                unpack_nybbles_to_offsets(inst.fImmB, SkSpan(&ctx->offsets[0], 8));
+                unpack_nybbles_to_offsets(inst.fImmC, SkSpan(&ctx->offsets[8], 8));
                 pipeline->push_back({ProgramOp::shuffle, ctx});
                 break;
             }
