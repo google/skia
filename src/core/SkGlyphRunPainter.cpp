@@ -312,6 +312,10 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
                 maxScale = std::max(maxScale, scale);
             }
 
+            if (maxScale <= 0) {
+                continue;  // to the next run.
+            }
+
             if (maxScale * runFont.getSize() > 256) {
                 maxScale = 256.0f / runFont.getSize();
             }
