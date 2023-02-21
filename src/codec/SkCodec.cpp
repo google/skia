@@ -243,6 +243,7 @@ bool SkCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque, bool
         case kBGRA_8888_SkColorType:
         case kRGBA_F16_SkColorType:
             return true;
+        case kBGR_101010x_XR_SkColorType:
         case kRGB_565_SkColorType:
             return srcIsOpaque;
         case kGray_8_SkColorType:
