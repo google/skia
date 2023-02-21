@@ -276,11 +276,13 @@ DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
     builder.select(4);                      // select from 4~7 and 8~11 into 4~7
     builder.select(3);                      // select from 2~4 and 5~7 into 2~4
     builder.select(1);                      // select from 3 and 4 into 3
+    builder.swizzle_copy_stack_to_slots(four_slots_at(1), {3, 2, 1, 0}, 4);
+    builder.swizzle_copy_stack_to_slots(four_slots_at(0), {0, 1, 3}, 3);
     builder.swizzle(4, {3, 2, 1, 0});       // reverse the order of 0~3 (value.wzyx)
     builder.swizzle(4, {1, 2});             // eliminate elements 0 and 3 (value.yz)
     builder.swizzle(2, {0});                // eliminate element 1 (value.x)
     builder.discard_stack(1);               // balance stack
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/6,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
@@ -292,8 +294,10 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     7. copy_4_slots_masked            $4..7 = Mask($8..11)
     8. copy_3_slots_masked            $2..4 = Mask($5..7)
     9. copy_slot_masked               $3 = Mask($4)
-   10. swizzle_4                      $0..3 = ($0..3).wzyx
-   11. swizzle_2                      $0..1 = ($0..2).yz
+   10. swizzle_copy_4_slots_masked    (v1..4).wzyx = Mask($0..3)
+   11. swizzle_copy_3_slots_masked    (v0..3).xyw = Mask($1..3)
+   12. swizzle_4                      $0..3 = ($0..3).wzyx
+   13. swizzle_2                      $0..1 = ($0..2).yz
 )");
 }
 
