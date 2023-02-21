@@ -479,24 +479,19 @@ public:
     /** Returns true if this lvalue is actually writable--temporaries and uniforms are not. */
     virtual bool isWritable() const = 0;
 
-    /** Returns the number of slots in this LValue. */
-    virtual int numSlots() const = 0;
-
-     /**
-      * Returns the slot range of the lvalue, after it is winnowed down to the selected field/index.
-      * The range is calculated assuming every dynamic index will evaluate to zero.
-      */
-     virtual SlotRange fixedSlotRange(Generator* gen) = 0;
-
-    /** Pushes a single slot directly onto the stack. */
-    [[nodiscard]] virtual bool push(Generator* gen, Slot slot) = 0;
-
     /**
-     * Stores a single stack value directly into the lvalue. The value on the stack covers
-     * `numSlots` in total, and we are taking the value from the `index`th stack position in range
-     * [0, numSlots).
+     * Returns the slot range of the lvalue, after it is winnowed down to the selected field/index.
+     * The range is calculated assuming every dynamic index will evaluate to zero.
      */
-    virtual void store(Generator* gen, Slot slot, int index, int numSlots) = 0;
+    virtual SlotRange fixedSlotRange(Generator* gen) = 0;
+
+    /** Pushes values directly onto the stack. */
+    [[nodiscard]] virtual bool push(Generator* gen,
+                                    SlotRange fixedOffset,
+                                    SkSpan<const int8_t> swizzle) = 0;
+
+    /** Stores topmost values from the stack directly into the lvalue. */
+    virtual void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) = 0;
 };
 
 class ScratchLValue final : public LValue {
@@ -518,15 +513,13 @@ public:
         return false;
     }
 
-    int numSlots() const override {
-        return fNumSlots;
-    }
-
     SlotRange fixedSlotRange(Generator* gen) override {
         return SlotRange{0, fNumSlots};
     }
 
-    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
+    [[nodiscard]] bool push(Generator* gen,
+                            SlotRange fixedOffset,
+                            SkSpan<const int8_t> swizzle) override {
         if (!fDedicatedStack.has_value()) {
             // Push the scratch expression onto a dedicated stack.
             fGenerator = gen;
@@ -538,12 +531,15 @@ public:
             fDedicatedStack->exit();
         }
 
-        SkASSERT(slot >= 0 && slot < fNumSlots);
-        fDedicatedStack->pushClone(1, fNumSlots - slot - 1);
+        fDedicatedStack->pushClone(fixedOffset.count,
+                                   fNumSlots - fixedOffset.count - fixedOffset.index);
+        if (!swizzle.empty()) {
+            gen->builder()->swizzle(fixedOffset.count, swizzle);
+        }
         return true;
     }
 
-    void store(Generator*, Slot, int, int) override {
+    void store(Generator*, SlotRange, SkSpan<const int8_t>) override {
         SkDEBUGFAIL("scratch lvalues cannot be stored into");
     }
 
@@ -567,27 +563,28 @@ public:
                                                 : gen->getVariableSlots(*fVariable);
     }
 
-    int numSlots() const override {
-        return fVariable->type().slotCount();
-    }
-
-    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
+    [[nodiscard]] bool push(Generator* gen,
+                            SlotRange fixedOffset,
+                            SkSpan<const int8_t> swizzle) override {
         if (Generator::IsUniform(*fVariable)) {
-            SlotRange range = gen->getUniformSlots(*fVariable);
-            gen->builder()->push_uniform(SlotRange{range.index + slot, 1});
+            gen->builder()->push_uniform(fixedOffset);
         } else {
-            SlotRange range = gen->getVariableSlots(*fVariable);
-            gen->builder()->push_slots(SlotRange{range.index + slot, 1});
+            gen->builder()->push_slots(fixedOffset);
+        }
+        if (!swizzle.empty()) {
+            gen->builder()->swizzle(fixedOffset.count, swizzle);
         }
         return true;
     }
 
-    void store(Generator* gen, Slot slot, int index, int numSlots) override {
+    void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) override {
         SkASSERT(!Generator::IsUniform(*fVariable));
 
-        SlotRange range = gen->getVariableSlots(*fVariable);
-        int offsetFromStackTop = numSlots - index;
-        gen->builder()->copy_stack_to_slots(SlotRange{range.index + slot, 1}, offsetFromStackTop);
+        if (swizzle.empty()) {
+            gen->builder()->copy_stack_to_slots(fixedOffset, fixedOffset.count);
+        } else {
+            gen->builder()->swizzle_copy_stack_to_slots(fixedOffset, swizzle, swizzle.size());
+        }
     }
 
 private:
@@ -610,16 +607,21 @@ public:
         return fParent->fixedSlotRange(gen);
     }
 
-    int numSlots() const override {
-        return fComponents.size();
+    [[nodiscard]] bool push(Generator* gen,
+                            SlotRange fixedOffset,
+                            SkSpan<const int8_t> swizzle) override {
+        if (!swizzle.empty()) {
+            SkDEBUGFAIL("swizzle-of-a-swizzle should have been folded out in front end");
+            return unsupported();
+        }
+        return fParent->push(gen, fixedOffset, fComponents);
     }
 
-    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
-        return fParent->push(gen, fComponents[slot]);
-    }
-
-    void store(Generator* gen, Slot slot, int index, int numSlots) override {
-        fParent->store(gen, fComponents[slot], index, numSlots);
+    void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) override {
+        if (!swizzle.empty()) {
+            SkDEBUGFAIL("swizzle-of-a-swizzle should have been folded out in front end");
+        }
+        fParent->store(gen, fixedOffset, fComponents);
     }
 
 private:
@@ -650,16 +652,14 @@ public:
         return adjusted;
     }
 
-    int numSlots() const override {
-        return fNumSlots;
+    [[nodiscard]] bool push(Generator* gen,
+                            SlotRange fixedOffset,
+                            SkSpan<const int8_t> swizzle) override {
+        return fParent->push(gen, fixedOffset, swizzle);
     }
 
-    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
-        return fParent->push(gen, slot + fInitialSlot);
-    }
-
-    void store(Generator* gen, Slot slot, int index, int numSlots) override {
-        fParent->store(gen, slot + fInitialSlot, index, numSlots);
+    void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) override {
+        fParent->store(gen, fixedOffset, swizzle);
     }
 
 protected:
@@ -891,25 +891,11 @@ std::unique_ptr<LValue> Generator::makeLValue(const Expression& e, bool allowScr
 
 void Generator::store(LValue& lvalue) {
     SkASSERT(lvalue.isWritable());
-
-    // Copy our slots from the stack into their slots. The Builder will coalesce single-slot pushes
-    // into contiguous ranges where possible.
-    int numSlots = lvalue.numSlots();
-    for (Slot slot = 0; slot < numSlots; ++slot) {
-        lvalue.store(this, slot, /*index=*/(int)slot, numSlots);
-    }
+    return lvalue.store(this, lvalue.fixedSlotRange(this), /*swizzle=*/{});
 }
 
 bool Generator::push(LValue& lvalue) {
-    // Push our slots onto the stack one-by-one. The Builder will coalesce single-slot pushes into
-    // contiguous ranges where possible.
-    int numSlots = lvalue.numSlots();
-    for (Slot slot = 0; slot < numSlots; ++slot) {
-        if (!lvalue.push(this, slot)) {
-            return unsupported();
-        }
-    }
-    return true;
+    return lvalue.push(this, lvalue.fixedSlotRange(this), /*swizzle=*/{});
 }
 
 int Generator::getFunctionDebugInfo(const FunctionDeclaration& decl) {
