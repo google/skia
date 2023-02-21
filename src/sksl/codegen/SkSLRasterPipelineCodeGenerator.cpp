@@ -482,6 +482,12 @@ public:
     /** Returns the number of slots in this LValue. */
     virtual int numSlots() const = 0;
 
+     /**
+      * Returns the slot range of the lvalue, after it is winnowed down to the selected field/index.
+      * The range is calculated assuming every dynamic index will evaluate to zero.
+      */
+     virtual SlotRange fixedSlotRange(Generator* gen) = 0;
+
     /** Pushes a single slot directly onto the stack. */
     [[nodiscard]] virtual bool push(Generator* gen, Slot slot) = 0;
 
@@ -495,13 +501,15 @@ public:
 
 class ScratchLValue final : public LValue {
 public:
-    explicit ScratchLValue(const Expression& e) : fExpression(&e) {}
+    explicit ScratchLValue(const Expression& e)
+            : fExpression(&e)
+            , fNumSlots(e.type().slotCount()) {}
 
     ~ScratchLValue() override {
         if (fGenerator && fDedicatedStack.has_value()) {
             // Jettison the scratch expression.
             fDedicatedStack->enter();
-            fGenerator->discardExpression(/*slots=*/this->numSlots());
+            fGenerator->discardExpression(fNumSlots);
             fDedicatedStack->exit();
         }
     }
@@ -511,7 +519,11 @@ public:
     }
 
     int numSlots() const override {
-        return fExpression->type().slotCount();
+        return fNumSlots;
+    }
+
+    SlotRange fixedSlotRange(Generator* gen) override {
+        return SlotRange{0, fNumSlots};
     }
 
     [[nodiscard]] bool push(Generator* gen, Slot slot) override {
@@ -526,8 +538,8 @@ public:
             fDedicatedStack->exit();
         }
 
-        SkASSERT(slot >= 0 && slot < this->numSlots());
-        fDedicatedStack->pushClone(1, this->numSlots() - slot - 1);
+        SkASSERT(slot >= 0 && slot < fNumSlots);
+        fDedicatedStack->pushClone(1, fNumSlots - slot - 1);
         return true;
     }
 
@@ -536,9 +548,10 @@ public:
     }
 
 private:
-    Generator* fGenerator;
-    const Expression* fExpression;
+    Generator* fGenerator = nullptr;
+    const Expression* fExpression = nullptr;
     std::optional<AutoStack> fDedicatedStack;
+    int fNumSlots = 0;
 };
 
 class VariableLValue final : public LValue {
@@ -547,6 +560,11 @@ public:
 
     bool isWritable() const override {
         return !Generator::IsUniform(*fVariable);
+    }
+
+    SlotRange fixedSlotRange(Generator* gen) override {
+        return Generator::IsUniform(*fVariable) ? gen->getUniformSlots(*fVariable)
+                                                : gen->getVariableSlots(*fVariable);
     }
 
     int numSlots() const override {
@@ -580,27 +598,28 @@ class SwizzleLValue final : public LValue {
 public:
     explicit SwizzleLValue(std::unique_ptr<LValue> p, const ComponentArray& c)
             : fParent(std::move(p))
-            , fComponents(c) {}
+            , fComponents(c) {
+        SkASSERT(!fComponents.empty() && fComponents.size() <= 4);
+    }
 
     bool isWritable() const override {
         return fParent->isWritable();
+    }
+
+    SlotRange fixedSlotRange(Generator* gen) override {
+        return fParent->fixedSlotRange(gen);
     }
 
     int numSlots() const override {
         return fComponents.size();
     }
 
-    Slot adjust(Slot slot) const {
-        SkASSERT(slot < fComponents.size());
-        return fComponents[slot];
-    }
-
     [[nodiscard]] bool push(Generator* gen, Slot slot) override {
-        return fParent->push(gen, this->adjust(slot));
+        return fParent->push(gen, fComponents[slot]);
     }
 
     void store(Generator* gen, Slot slot, int index, int numSlots) override {
-        fParent->store(gen, this->adjust(slot), index, numSlots);
+        fParent->store(gen, fComponents[slot], index, numSlots);
     }
 
 private:
@@ -608,62 +627,27 @@ private:
     const ComponentArray& fComponents;
 };
 
-class UnownedFixedIndexLValue : public LValue {
+class UnownedLValueSlice : public LValue {
 public:
-    explicit UnownedFixedIndexLValue(LValue* p, SKSL_INT v, const Type& ti)
+    explicit UnownedLValueSlice(LValue* p, int initialSlot, int numSlots)
             : fParent(p)
-            , fIndexValue(v)
-            , fIndexedType(ti) {}
+            , fInitialSlot(initialSlot)
+            , fNumSlots(numSlots) {
+        SkASSERT(fInitialSlot >= 0);
+        SkASSERT(fNumSlots > 0);
+    }
 
     bool isWritable() const override {
         return fParent->isWritable();
     }
 
-    int numSlots() const override {
-        return fIndexedType.slotCount();
-    }
-
-    Slot adjust(Slot slot) const {
-        int numElements = fIndexedType.slotCount();
-        int startingIndex = numElements * fIndexValue;
-        return slot + startingIndex;
-    }
-
-    [[nodiscard]] bool push(Generator* gen, Slot slot) override {
-        return fParent->push(gen, this->adjust(slot));
-    }
-
-    void store(Generator* gen, Slot slot, int index, int numSlots) override {
-        fParent->store(gen, this->adjust(slot), index, numSlots);
-    }
-
-protected:
-    LValue* fParent;
-
-private:
-    SKSL_INT fIndexValue;
-    const Type& fIndexedType;
-};
-
-class FixedIndexLValue final : public UnownedFixedIndexLValue {
-public:
-    explicit FixedIndexLValue(std::unique_ptr<LValue> p, SKSL_INT v, const Type& ti)
-            : UnownedFixedIndexLValue(p.release(), v, ti) {}
-
-    ~FixedIndexLValue() override {
-        delete fParent;
-    }
-};
-
-class UnownedFieldLValue : public LValue {
-public:
-    explicit UnownedFieldLValue(LValue* p, int i, int n)
-            : fParent(p)
-            , fInitialSlot(i)
-            , fNumSlots(n) {}
-
-    bool isWritable() const override {
-        return fParent->isWritable();
+    SlotRange fixedSlotRange(Generator* gen) override {
+        SlotRange range = fParent->fixedSlotRange(gen);
+        SlotRange adjusted = range;
+        adjusted.index += fInitialSlot;
+        adjusted.count = fNumSlots;
+        SkASSERT((adjusted.index + adjusted.count) <= (range.index + range.count));
+        return adjusted;
     }
 
     int numSlots() const override {
@@ -686,10 +670,22 @@ private:
     int fNumSlots = 0;
 };
 
-class FieldLValue final : public UnownedFieldLValue {
+class FixedIndexLValue final : public UnownedLValueSlice {
 public:
-    explicit FieldLValue(std::unique_ptr<LValue> p, int i, int n)
-            : UnownedFieldLValue(p.release(), i, n) {}
+    explicit FixedIndexLValue(std::unique_ptr<LValue> p, int indexValue, const Type& indexedType)
+            : UnownedLValueSlice(p.release(),
+                                 indexedType.slotCount() * indexValue,
+                                 indexedType.slotCount()) {}
+
+    ~FixedIndexLValue() override {
+        delete fParent;
+    }
+};
+
+class FieldLValue final : public UnownedLValueSlice {
+public:
+    explicit FieldLValue(std::unique_ptr<LValue> p, int initialSlot, int numSlots)
+            : UnownedLValueSlice(p.release(), initialSlot, numSlots) {}
 
     ~FieldLValue() override {
         delete fParent;
@@ -1644,8 +1640,8 @@ bool Generator::pushStructuredComparison(LValue* left,
         for (size_t index = 0; index < fields.size(); ++index) {
             const Type& fieldType = *fields[index].fType;
             const int   fieldSlotCount = fieldType.slotCount();
-            UnownedFieldLValue fieldLeft {left,  currentSlot, fieldSlotCount};
-            UnownedFieldLValue fieldRight{right, currentSlot, fieldSlotCount};
+            UnownedLValueSlice fieldLeft {left,  currentSlot, fieldSlotCount};
+            UnownedLValueSlice fieldRight{right, currentSlot, fieldSlotCount};
             if (!this->pushStructuredComparison(&fieldLeft, op, &fieldRight, fieldType)) {
                 return unsupported();
             }
@@ -1660,12 +1656,15 @@ bool Generator::pushStructuredComparison(LValue* left,
         const Type& indexedType = type.componentType();
         if (indexedType.numberKind() == Type::NumberKind::kNonnumeric) {
             // Compare every element in the array.
+            const int indexedSlotCount = indexedType.slotCount();
+            int       currentSlot = 0;
             for (int index = 0; index < type.columns(); ++index) {
-                UnownedFixedIndexLValue indexedLeft {left,  index, indexedType};
-                UnownedFixedIndexLValue indexedRight{right, index, indexedType};
+                UnownedLValueSlice indexedLeft {left,  currentSlot, indexedSlotCount};
+                UnownedLValueSlice indexedRight{right, currentSlot, indexedSlotCount};
                 if (!this->pushStructuredComparison(&indexedLeft, op, &indexedRight, indexedType)) {
                     return unsupported();
                 }
+                currentSlot += indexedSlotCount;
             }
 
             this->foldComparisonOp(op, type.columns());
