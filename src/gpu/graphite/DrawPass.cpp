@@ -586,6 +586,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // Finish recording draw calls for any collected data at the end of the loop
     drawWriter.flush();
 
+    drawPass->fBounds = passBounds.roundOut().asSkIRect();
 
     drawPass->fPipelineDescs   = pipelineCache.detach();
     drawPass->fSamplerDescs    = textureBindingTracker.detachSamplers();

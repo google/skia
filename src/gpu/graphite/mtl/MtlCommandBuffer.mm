@@ -264,6 +264,15 @@ void MtlCommandBuffer::endRenderPass() {
 }
 
 void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
+    SkIRect replayPassBounds = drawPass->bounds().makeOffset(fReplayTranslation.x(),
+                                                             fReplayTranslation.y());
+    if (!SkIRect::Intersects(replayPassBounds, SkIRect::MakeSize(fRenderPassSize))) {
+        // The entire DrawPass is offscreen given the replay translation so skip adding any
+        // commands. When the DrawPass is partially offscreen individual draw commands will be
+        // culled while preserving state changing commands.
+        return;
+    }
+
     drawPass->addResourceRefs(this);
 
     for (auto[type, cmdPtr] : drawPass->commands()) {
