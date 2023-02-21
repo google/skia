@@ -15,7 +15,7 @@
 #include <android/native_window_jni.h>
 #include <android/native_window.h>
 
-#include "tools/sk_app/WindowContext.h"
+#include "tools/window/SkWindowContext.h"
 
 #include "include/core/SkImage.h"
 #include "include/core/SkPictureRecorder.h"
@@ -45,7 +45,7 @@ protected:
 
 class WindowSurface final : public Surface {
 public:
-    WindowSurface(ANativeWindow* win, std::unique_ptr<sk_app::WindowContext> wctx);
+    WindowSurface(ANativeWindow* win, std::unique_ptr<SkWindowContext> wctx);
 
 private:
     void release(JNIEnv* env) override;
@@ -53,7 +53,7 @@ private:
     void flushAndSubmit() override;
 
     ANativeWindow*                         fWindow;
-    std::unique_ptr<sk_app::WindowContext> fWindowContext;
+    std::unique_ptr<SkWindowContext> fWindowContext;
 };
 
 class ThreadedSurface final : public Surface {

@@ -6,7 +6,6 @@ exports_files_legacy()
 
 skia_filegroup(
     name = "srcs",
-    testonly = True,
     # TODO: break up into seperate targets
     srcs = [
         "SkGLWindowContext_android.cpp",
@@ -18,7 +17,6 @@ skia_filegroup(
 
 skia_cc_deps(
     name = "deps",
-    testonly = True,
     linkopts = [
         "-lX11",
         "-lxcb",  # dep of X11

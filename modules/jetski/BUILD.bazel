@@ -1,0 +1,27 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "jetski_jni",
+    srcs = [
+        "src/Canvas.cpp",
+        "src/JetSki.cpp",
+        "src/Paint.cpp",
+        "src/SkottieAnimation.cpp",
+        "src/Surface.cpp",
+        "src/Surface.h",
+        "src/SurfaceThread.cpp",
+        "src/SurfaceThread.h",
+        "src/Utils.cpp",
+        "src/Utils.h",
+    ],
+    visibility = ["//platform_tools/android/apps/jetski:__pkg__"],
+    deps = [
+        "//:skia_internal",
+        "//modules/skottie",
+        "//tools/window",
+    ],
+)

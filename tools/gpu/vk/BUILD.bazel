@@ -6,7 +6,6 @@ exports_files_legacy()
 
 skia_cc_library(
     name = "testutils",
-    testonly = True,
     srcs = [
         "GrVulkanDefines.h",
         "VkTestUtils.cpp",

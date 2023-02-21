@@ -1,5 +1,4 @@
 load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_library")
-#load("//bazel:copts.bzl")
 
 licenses(["notice"])
 
@@ -7,7 +6,6 @@ exports_files_legacy()
 
 skia_cc_library(
     name = "window",
-    testonly = True,
     srcs = [
         # TODO: split up gpu backends into buffett style BUILD
         "SkDisplayParams.h",
