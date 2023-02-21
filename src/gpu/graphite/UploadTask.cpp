@@ -25,10 +25,14 @@
 namespace skgpu::graphite {
 
 UploadInstance::UploadInstance(const Buffer* buffer,
+                               size_t bytesPerPixel,
                                sk_sp<TextureProxy> textureProxy,
                                std::vector<BufferTextureCopyData> copyData,
                                std::unique_ptr<ConditionalUploadContext> condContext)
-        : fBuffer(buffer), fTextureProxy(textureProxy), fCopyData(copyData)
+        : fBuffer(buffer)
+        , fBytesPerPixel(bytesPerPixel)
+        , fTextureProxy(textureProxy)
+        , fCopyData(copyData)
         , fConditionalContext(std::move(condContext)) {}
 
 // Returns total buffer size to allocate, and required offset alignment of that allocation.
@@ -167,7 +171,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                              mipLevelCount > 1 ? "MipMap " : "",
                              dstRect.width(), dstRect.height());
 
-    return {bufferInfo.fBuffer, std::move(textureProxy), std::move(copyData),
+    return {bufferInfo.fBuffer, bpp, std::move(textureProxy), std::move(copyData),
             std::move(condContext)};
 }
 
@@ -183,14 +187,41 @@ bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
     return true;
 }
 
-void UploadInstance::addCommand(Context* context, CommandBuffer* commandBuffer) const {
+void UploadInstance::addCommand(Context* context,
+                                CommandBuffer* commandBuffer,
+                                Task::ReplayTargetData replayData) const {
     SkASSERT(fTextureProxy && fTextureProxy->isInstantiated());
 
-    if (!fConditionalContext || fConditionalContext->needsUpload(context)) {
+    if (fConditionalContext && !fConditionalContext->needsUpload(context)) {
+        return;
+    }
+
+    if (fTextureProxy->texture() != replayData.fTarget) {
         // The CommandBuffer doesn't take ownership of the upload buffer here; it's owned by
         // UploadBufferManager, which will transfer ownership in transferToCommandBuffer.
         commandBuffer->copyBufferToTexture(
                 fBuffer, fTextureProxy->refTexture(), fCopyData.data(), fCopyData.size());
+
+    } else {
+        // Here we assume that multiple copies in a single UploadInstance are always used for
+        // mipmaps of a single image, and that we won't ever copy to a replay target with mipmaps.
+        SkASSERT(fCopyData.size() == 1);
+        const BufferTextureCopyData& copyData = fCopyData[0];
+        SkIRect dstRect = copyData.fRect;
+        dstRect.offset(replayData.fTranslation);
+        SkIRect croppedDstRect = dstRect;
+        if (!croppedDstRect.intersect(SkIRect::MakeSize(fTextureProxy->dimensions()))) {
+            return;
+        }
+
+        BufferTextureCopyData transformedCopyData = copyData;
+        transformedCopyData.fBufferOffset +=
+                (croppedDstRect.y() - dstRect.y()) * copyData.fBufferRowBytes +
+                (croppedDstRect.x() - dstRect.x()) * fBytesPerPixel;
+        transformedCopyData.fRect = croppedDstRect;
+
+        commandBuffer->copyBufferToTexture(
+                fBuffer, fTextureProxy->refTexture(), &transformedCopyData, 1);
     }
 }
 
@@ -247,9 +278,11 @@ bool UploadTask::prepareResources(ResourceProvider* resourceProvider,
     return true;
 }
 
-bool UploadTask::addCommands(Context* context, CommandBuffer* commandBuffer, ReplayTargetData) {
+bool UploadTask::addCommands(Context* context,
+                             CommandBuffer* commandBuffer,
+                             ReplayTargetData replayData) {
     for (unsigned int i = 0; i < fInstances.size(); ++i) {
-        fInstances[i].addCommand(context, commandBuffer);
+        fInstances[i].addCommand(context, commandBuffer, replayData);
     }
 
     return true;

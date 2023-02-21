@@ -459,9 +459,8 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     // TODO: check for flips and either handle here or pass info to UploadTask
 
     // Determine rect to copy
-    auto bounds = SkIRect::MakeSize(target->dimensions());
     SkIRect dstRect = SkIRect::MakePtSize({x, y}, src.dimensions());
-    if (!dstRect.intersect(bounds)) {
+    if (!target->isFullyLazy() && !dstRect.intersect(SkIRect::MakeSize(target->dimensions()))) {
         return false;
     }
 
