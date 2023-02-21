@@ -8,9 +8,11 @@
 #include "src/text/gpu/SubRunContainer.h"
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkDistanceFieldGen.h"
@@ -584,7 +586,7 @@ public:
 
     ~PathOpSubmitter();
 
-    static PathOpSubmitter Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
+    static PathOpSubmitter Make(SkZip<const SkGlyphID, const SkPoint> accepted,
                                 bool isAntiAliased,
                                 SkScalar strikeToSourceScale,
                                 SkStrikePromise&& strikePromise,
@@ -687,17 +689,15 @@ PathOpSubmitter::~PathOpSubmitter() {
     }
 }
 
-PathOpSubmitter PathOpSubmitter::Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
+PathOpSubmitter PathOpSubmitter::Make(SkZip<const SkGlyphID, const SkPoint> accepted,
                                       bool isAntiAliased,
                                       SkScalar strikeToSourceScale,
                                       SkStrikePromise&& strikePromise,
                                       SubRunAllocator* alloc) {
-    auto mapToIDOrPath = [](SkPackedGlyphID packedID) {
-        return IDOrPath{packedID.glyphID()};
-    };
+    auto mapToIDOrPath = [](SkGlyphID glyphID) { return IDOrPath{glyphID}; };
 
     IDOrPath* const rawIDsOrPaths =
-            alloc->makeUniqueArray<IDOrPath>(get_packedIDs(accepted), mapToIDOrPath).release();
+            alloc->makeUniqueArray<IDOrPath>(get_glyphIDs(accepted), mapToIDOrPath).release();
 
     return PathOpSubmitter{isAntiAliased,
                            strikeToSourceScale,
@@ -775,7 +775,7 @@ class PathSubRun final : public SubRun {
 public:
     PathSubRun(PathOpSubmitter&& pathDrawing) : fPathDrawing(std::move(pathDrawing)) {}
 
-    static SubRunOwner Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
+    static SubRunOwner Make(SkZip<const SkGlyphID, const SkPoint> accepted,
                             bool isAntiAliased,
                             SkScalar strikeToSourceScale,
                             SkStrikePromise&& strikePromise,
@@ -864,18 +864,16 @@ public:
                         SkSpan<IDOrDrawable> idsOrDrawables,
                         SkStrikePromise&& strikePromise);
 
-    static DrawableOpSubmitter Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
+    static DrawableOpSubmitter Make(SkZip<const SkGlyphID, const SkPoint> accepted,
                                     SkScalar strikeToSourceScale,
                                     SkStrikePromise&& strikePromise,
                                     SubRunAllocator* alloc) {
-        auto mapToIDOrDrawable = [](const SkPackedGlyphID packedID) {
-            return IDOrDrawable{packedID.glyphID()};
-        };
+        auto mapToIDOrDrawable = [](const SkGlyphID glyphID) { return IDOrDrawable{glyphID}; };
 
         return DrawableOpSubmitter{
             strikeToSourceScale,
             alloc->makePODSpan(get_positions(accepted)),
-            alloc->makePODArray<IDOrDrawable>(get_packedIDs(accepted), mapToIDOrDrawable),
+            alloc->makePODArray<IDOrDrawable>(get_glyphIDs(accepted), mapToIDOrDrawable),
             std::move(strikePromise)};
     }
 
@@ -995,7 +993,7 @@ public:
     DrawableSubRun(DrawableOpSubmitter&& drawingDrawing)
             : fDrawingDrawing(std::move(drawingDrawing)) {}
 
-    static SubRunOwner Make(SkZip<const SkPackedGlyphID, const SkPoint> drawables,
+    static SubRunOwner Make(SkZip<const SkGlyphID, const SkPoint> drawables,
                             SkScalar strikeToSourceScale,
                             SkStrikePromise&& strikePromise,
                             SubRunAllocator* alloc) {
@@ -1190,7 +1188,7 @@ public:
                      GlyphVector&& glyphs);
 
     static SubRunOwner Make(SkRect runBounds,
-                            const SkZip<SkPackedGlyphID, SkPoint>& accepted,
+                            SkZip<const SkPackedGlyphID, const SkPoint> accepted,
                             const SkMatrix& initialPositionMatrix,
                             SkStrikePromise&& strikePromise,
                             MaskFormat format,
@@ -1300,23 +1298,15 @@ DirectMaskSubRun::DirectMaskSubRun(MaskFormat format,
         , fGlyphs{std::move(glyphs)} {}
 
 SubRunOwner DirectMaskSubRun::Make(SkRect runBounds,
-                                   const SkZip<SkPackedGlyphID, SkPoint>& accepted,
+                                   SkZip<const SkPackedGlyphID, const SkPoint> accepted,
                                    const SkMatrix& initialPositionMatrix,
                                    SkStrikePromise&& strikePromise,
                                    MaskFormat format,
                                    SubRunAllocator* alloc) {
-    auto glyphLeftTop = alloc->makePODArray<SkPoint>(accepted.size());
-    auto glyphIDs = alloc->makePODArray<GlyphVector::Variant>(accepted.size());
-
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted)) {
-        glyphLeftTop[i] = pos;
-        glyphIDs[i].packedGlyphID = packedID;
-    }
-
-    SkSpan<const SkPoint> leftTop{glyphLeftTop, accepted.size()};
+    auto glyphVector = GlyphVector::Make(std::move(strikePromise), get_packedIDs(accepted), alloc);
+    SkSpan<const SkPoint> leftTop = alloc->makePODSpan(get_positions(accepted));
     return alloc->makeUnique<DirectMaskSubRun>(
-            format, initialPositionMatrix, runBounds, leftTop,
-            GlyphVector{std::move(strikePromise), {glyphIDs, accepted.size()}});
+            format, initialPositionMatrix, runBounds, leftTop, std::move(glyphVector));
 }
 
 bool DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
@@ -1705,8 +1695,8 @@ public:
         auto vertexFiller = TransformedMaskVertexFiller::Make(
                 maskType, creationMatrix, creationBounds, get_positions(accepted), alloc);
 
-        auto glyphVector =
-                GlyphVector::Make(std::move(strikePromise), get_packedIDs(accepted), alloc);
+        auto glyphVector = GlyphVector::Make(
+                std::move(strikePromise), get_packedIDs(accepted), alloc);
 
         return alloc->makeUnique<TransformedMaskSubRun>(
                 initialPositionMatrix, std::move(vertexFiller), std::move(glyphVector));
@@ -1965,8 +1955,8 @@ public:
                 get_positions(accepted),
                 alloc);
 
-        auto glyphVector =
-                GlyphVector::Make(std::move(strikePromise), get_packedIDs(accepted), alloc);
+        auto glyphVector = GlyphVector::Make(
+                std::move(strikePromise), get_packedIDs(accepted), alloc);
 
         return alloc->makeUnique<SDFTSubRun>(
                 runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
@@ -2177,7 +2167,7 @@ private:
 template<typename AddSingleMaskFormat>
 void add_multi_mask_format(
         AddSingleMaskFormat addSingleMaskFormat,
-        const SkZip<SkPackedGlyphID, SkPoint, SkMask::Format>& accepted) {
+        SkZip<const SkPackedGlyphID, const SkPoint, const SkMask::Format> accepted) {
     if (accepted.empty()) { return; }
 
     auto maskSpan = accepted.get<2>();
@@ -2318,19 +2308,24 @@ SkScalar find_maximum_glyph_dimension(StrikeForGPU* strike, SkSpan<const SkGlyph
 }
 
 #if !defined(SK_DISABLE_SDF_TEXT)
-SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
-                                const SkMatrix& creationMatrix,
-                                SkDrawableGlyphBuffer* accepted,
-                                SkSourceGlyphBuffer* rejected) {
+std::tuple<SkZip<const SkPackedGlyphID, const SkPoint>, SkZip<SkGlyphID, SkPoint>, SkRect>
+prepare_for_SDFT_drawing(StrikeForGPU* strike,
+                         const SkMatrix& creationMatrix,
+                         SkZip<const SkGlyphID, const SkPoint> source,
+                         SkZip<SkPackedGlyphID, SkPoint> acceptedBuffer,
+                         SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
+    int acceptedSize = 0,
+        rejectedSize = 0;
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+    for (const auto [glyphID, pos] : source) {
         if (!SkScalarsAreFinite(pos.x(), pos.y())) {
             continue;
         }
 
-        SkGlyphDigest digest = strike->digestFor(kSDFT, packedID);
-        switch (digest.actionFor(kSDFT)) {
+        const SkPackedGlyphID packedID{glyphID};
+        switch (const SkGlyphDigest digest = strike->digestFor(kSDFT, packedID);
+                digest.actionFor(kSDFT)) {
             case GlyphAction::kAccept: {
                 SkPoint mappedPos = creationMatrix.mapPoint(pos);
                 const SkGlyphRect glyphBounds =
@@ -2340,25 +2335,31 @@ SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
                         .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
                         .offset(mappedPos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+                acceptedBuffer[acceptedSize++] = std::make_tuple(packedID, glyphBounds.leftTop());
                 break;
             }
             case GlyphAction::kReject:
-                rejected->reject(i);
+                rejectedBuffer[rejectedSize++] = std::make_tuple(glyphID, pos);
             break;
             default:
                 break;
         }
     }
 
-    return boundingRect.rect();
+    return {acceptedBuffer.first(acceptedSize),
+            rejectedBuffer.first(rejectedSize),
+            boundingRect.rect()};
 }
 #endif
 
-SkRect prepare_for_direct_mask_drawing(StrikeForGPU* strike,
-                                       const SkMatrix& positionMatrix,
-                                       SkDrawableGlyphBuffer* accepted,
-                                       SkSourceGlyphBuffer* rejected) {
+std::tuple<SkZip<const SkPackedGlyphID, const SkPoint, const SkMask::Format>,
+           SkZip<SkGlyphID, SkPoint>,
+           SkRect>
+prepare_for_direct_mask_drawing(StrikeForGPU* strike,
+                                const SkMatrix& positionMatrix,
+                                SkZip<const SkGlyphID, const SkPoint> source,
+                                SkZip<SkPackedGlyphID, SkPoint, SkMask::Format> acceptedBuffer,
+                                SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
     const SkIPoint mask = strike->roundingSpec().ignorePositionFieldMask;
     const SkPoint halfSampleFreq = strike->roundingSpec().halfAxisSampleFreq;
 
@@ -2367,106 +2368,134 @@ SkRect prepare_for_direct_mask_drawing(StrikeForGPU* strike,
     SkMatrix positionMatrixWithRounding = positionMatrix;
     positionMatrixWithRounding.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
 
+    int acceptedSize = 0,
+        rejectedSize = 0;
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+    for (auto [glyphID, pos] : source) {
         if (!SkScalarsAreFinite(pos.x(), pos.y())) {
             continue;
         }
 
         const SkPoint mappedPos = positionMatrixWithRounding.mapPoint(pos);
-        const SkGlyphID glyphID = packedID.glyphID();
-        const SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID, mappedPos, mask};
-        auto digest = strike->digestFor(kDirectMask, packedGlyphID);
-        switch (digest.actionFor(kDirectMask)) {
+        const SkPackedGlyphID packedID{glyphID, mappedPos, mask};
+        switch (const SkGlyphDigest digest = strike->digestFor(kDirectMask, packedID);
+                digest.actionFor(kDirectMask)) {
             case GlyphAction::kAccept: {
                 const SkPoint roundedPos{SkScalarFloorToScalar(mappedPos.x()),
                                          SkScalarFloorToScalar(mappedPos.y())};
                 const SkGlyphRect glyphBounds = digest.bounds().offset(roundedPos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                accepted->accept(packedGlyphID, glyphBounds.leftTop(), digest.maskFormat());
+                acceptedBuffer[acceptedSize++] =
+                        std::make_tuple(packedID, glyphBounds.leftTop(), digest.maskFormat());
                 break;
             }
             case GlyphAction::kReject:
-                rejected->reject(i);
+                rejectedBuffer[rejectedSize++] = std::make_tuple(glyphID, pos);
                 break;
             default:
                 break;
         }
     }
 
-    return boundingRect.rect();
+    return {acceptedBuffer.first(acceptedSize),
+            rejectedBuffer.first(rejectedSize),
+            boundingRect.rect()};
 }
 
-SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
-                                const SkMatrix& creationMatrix,
-                                SkDrawableGlyphBuffer* accepted,
-                                SkSourceGlyphBuffer* rejected) {
+std::tuple<SkZip<const SkPackedGlyphID, const SkPoint, const SkMask::Format>,
+           SkZip<SkGlyphID, SkPoint>,
+           SkRect>
+prepare_for_mask_drawing(StrikeForGPU* strike,
+                         const SkMatrix& creationMatrix,
+                         SkZip<const SkGlyphID, const SkPoint> source,
+                         SkZip<SkPackedGlyphID, SkPoint, SkMask::Format> acceptedBuffer,
+                         SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
+    int acceptedSize = 0,
+        rejectedSize = 0;
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+    for (auto [glyphID, pos] : source) {
         if (!SkScalarsAreFinite(pos.x(), pos.y())) {
             continue;
         }
 
-        const SkGlyphDigest digest = strike->digestFor(kMask, packedID);
-        switch (digest.actionFor(kMask)) {
+        const SkPackedGlyphID packedID{glyphID};
+        switch (const SkGlyphDigest digest = strike->digestFor(kMask, packedID);
+                digest.actionFor(kMask)) {
             case GlyphAction::kAccept: {
                 const SkPoint mappedPos = creationMatrix.mapPoint(pos);
                 const SkGlyphRect glyphBounds = digest.bounds().offset(mappedPos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+                acceptedBuffer[acceptedSize++] =
+                        std::make_tuple(packedID, glyphBounds.leftTop(), digest.maskFormat());
                 break;
             }
             case GlyphAction::kReject:
-                rejected->reject(i);
+                rejectedBuffer[rejectedSize++] = std::make_tuple(glyphID, pos);
                 break;
             default:
                 break;
         }
     }
 
-    return boundingRect.rect();
+    return {acceptedBuffer.first(acceptedSize),
+            rejectedBuffer.first(rejectedSize),
+            boundingRect.rect()};
 }
 
-void prepare_for_path_drawing(StrikeForGPU* strike,
-                              SkDrawableGlyphBuffer* accepted,
-                              SkSourceGlyphBuffer* rejected) {
+std::tuple<SkZip<const SkGlyphID, const SkPoint>, SkZip<SkGlyphID, SkPoint>>
+prepare_for_path_drawing(StrikeForGPU* strike,
+                         SkZip<const SkGlyphID, const SkPoint> source,
+                         SkZip<SkGlyphID, SkPoint> acceptedBuffer,
+                         SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
+    int acceptedSize = 0;
+    int rejectedSize = 0;
     StrikeMutationMonitor m{strike};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (strike->digestFor(kPath, packedID).actionFor(kPath)) {
-                case GlyphAction::kAccept:
-                    accepted->accept(packedID, pos);
-                    break;
-                case GlyphAction::kReject:
-                    rejected->reject(i);
-                    break;
-                default:
-                    break;
-            }
+    for (const auto [glyphID, pos] : source) {
+        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+            continue;
+        }
+
+        switch (strike->digestFor(kPath, SkPackedGlyphID{glyphID}).actionFor(kPath)) {
+            case GlyphAction::kAccept:
+                acceptedBuffer[acceptedSize++] = std::make_tuple(glyphID, pos);
+                break;
+            case GlyphAction::kReject:
+                rejectedBuffer[rejectedSize++] = std::make_tuple(glyphID, pos);
+                break;
+            default:
+                break;
         }
     }
+    return {acceptedBuffer.first(acceptedSize), rejectedBuffer.first(rejectedSize)};
 }
 
-void prepare_for_drawable_drawing(StrikeForGPU* strike,
-                                  SkDrawableGlyphBuffer* accepted,
-                                  SkSourceGlyphBuffer* rejected) {
+std::tuple<SkZip<const SkGlyphID, const SkPoint>, SkZip<SkGlyphID, SkPoint>>
+ prepare_for_drawable_drawing(StrikeForGPU* strike,
+                             SkZip<const SkGlyphID, const SkPoint> source,
+                             SkZip<SkGlyphID, SkPoint> acceptedBuffer,
+                             SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
+    int acceptedSize = 0;
+    int rejectedSize = 0;
     StrikeMutationMonitor m{strike};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (strike->digestFor(kDrawable, packedID).actionFor(kDrawable)) {
-                case GlyphAction::kAccept:
-                    accepted->accept(packedID, pos);
-                    break;
-                case GlyphAction::kReject:
-                    rejected->reject(i);
-                    break;
-                default:
-                    break;
-            }
+    for (const auto [glyphID, pos] : source) {
+        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+            continue;
+        }
+
+        switch (strike->digestFor(kDrawable, SkPackedGlyphID{glyphID}).actionFor(kDrawable)) {
+            case GlyphAction::kAccept:
+                acceptedBuffer[acceptedSize++] = std::make_tuple(glyphID, pos);
+                break;
+            case GlyphAction::kReject:
+                rejectedBuffer[rejectedSize++] = std::make_tuple(glyphID, pos);
+                break;
+            default:
+                break;
         }
     }
+    return {acceptedBuffer.first(acceptedSize), rejectedBuffer.first(rejectedSize)};
 }
 
 SubRunContainerOwner SubRunContainer::MakeInAlloc(
@@ -2496,21 +2525,39 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
     const SkScalar maxMaskSize = 256;
 #endif
 
-    auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
-    auto [accepted, rejected] = bufferScope.buffers();
-    SkPoint glyphRunListLocation = glyphRunList.sourceBounds().center();
+    // TODO: hoist the buffer structure to the GlyphRunBuilder. The buffer structure here is
+    //  still begin tuned, and this is expected to be slower until tuned.
+    const int maxGlyphRunSize = glyphRunList.maxGlyphRunSize();
+
+    // Accepted buffers.
+    SkSTArray<64, SkPackedGlyphID> acceptedPackedGlyphIDs;
+    SkSTArray<64, SkGlyphID> acceptedGlyphIDs;
+    SkSTArray<64, SkPoint> acceptedPositions;
+    SkSTArray<64, SkMask::Format> acceptedFormats;
+    acceptedPackedGlyphIDs.resize(maxGlyphRunSize);
+    acceptedGlyphIDs.resize(maxGlyphRunSize);
+    acceptedPositions.resize(maxGlyphRunSize);
+    acceptedFormats.resize(maxGlyphRunSize);
+
+    // Rejected buffers.
+    SkSTArray<64, SkGlyphID> rejectedGlyphIDs;
+    SkSTArray<64, SkPoint> rejectedPositions;
+    rejectedGlyphIDs.resize(maxGlyphRunSize);
+    rejectedPositions.resize(maxGlyphRunSize);
+    const auto rejectedBuffer = SkMakeZip(rejectedGlyphIDs, rejectedPositions);
+
+    const SkPoint glyphRunListLocation = glyphRunList.sourceBounds().center();
 
     // Handle all the runs in the glyphRunList
     for (auto& glyphRun : glyphRunList) {
-        rejected->setSource(glyphRun.source());
+        SkZip<const SkGlyphID, const SkPoint> source = glyphRun.source();
         const SkFont& runFont = glyphRun.font();
 
-        SkScalar approximateDeviceTextSize =
+        const SkScalar approximateDeviceTextSize =
                 // Since the positionMatrix has the origin prepended, use the plain
                 // sourceBounds from above.
                 SkFontPriv::ApproximateTransformedTextSize(runFont, positionMatrix,
                                                            glyphRunListLocation);
-
 
         // Atlas mask cases - SDFT and direct mask
         // Only consider using direct or SDFT drawing if not drawing hairlines and not too big.
@@ -2540,15 +2587,14 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                     SkMatrix creationMatrix =
                             SkMatrix::Scale(1.f/strikeToSourceScale, 1.f/strikeToSourceScale);
 
-                    accepted->startSource(rejected->source());
+                    auto acceptedBuffer = SkMakeZip(acceptedPackedGlyphIDs, acceptedPositions);
+                    auto [accepted, rejected, creationBounds] = prepare_for_SDFT_drawing(
+                            strike.get(), creationMatrix, source, acceptedBuffer, rejectedBuffer);
+                    source = rejected;
 
-                    SkRect creationBounds =
-                        prepare_for_SDFT_drawing(strike.get(), creationMatrix, accepted, rejected);
-                    rejected->flipRejectsToSource();
-
-                    if (creationBehavior == kAddSubRuns && !accepted->empty()) {
+                    if (creationBehavior == kAddSubRuns && !accepted.empty()) {
                         container->fSubRuns.append(SDFTSubRun::Make(
-                                accepted->accepted(),
+                                accepted,
                                 runFont,
                                 strike->strikePromise(),
                                 creationMatrix,
@@ -2558,11 +2604,11 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                     }
                 }
             }
-#endif // !defined(SK_DISABLE_SDF_TEXT)
+#endif  // !defined(SK_DISABLE_SDF_TEXT)
 
             // Direct Mask case
             // Handle all the directly mapped mask subruns.
-            if (!rejected->source().empty() && !positionMatrix.hasPerspective()) {
+            if (!source.empty() && !positionMatrix.hasPerspective()) {
                 // Process masks including ARGB - this should be the 99.99% case.
                 // This will handle medium size emoji that are sharing the run with SDFT drawn text.
                 // If things are too big they will be passed along to the drawing of last resort
@@ -2572,70 +2618,73 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
                 sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
-                accepted->startSource(rejected->source());
-                SkRect bounds =
-                    prepare_for_direct_mask_drawing(
-                        strike.get(), positionMatrix, accepted, rejected);
-                rejected->flipRejectsToSource();
+                auto acceptedBuffer = SkMakeZip(acceptedPackedGlyphIDs,
+                                                acceptedPositions,
+                                                acceptedFormats);
+                auto [accepted, rejected, creationBounds] = prepare_for_direct_mask_drawing(
+                        strike.get(), positionMatrix, source, acceptedBuffer, rejectedBuffer);
+                source = rejected;
 
-                if (creationBehavior == kAddSubRuns && !accepted->empty()) {
+                if (creationBehavior == kAddSubRuns && !accepted.empty()) {
                     auto addGlyphsWithSameFormat =
-                            [&](const SkZip<SkPackedGlyphID, SkPoint>& acceptedGlyphsAndLocations,
+                        [&, bounds = creationBounds](
+                                SkZip<const SkPackedGlyphID, const SkPoint> subrun,
                                 MaskFormat format) {
-                                container->fSubRuns.append(
-                                        DirectMaskSubRun::Make(bounds,
-                                                               acceptedGlyphsAndLocations,
-                                                               container->initialPosition(),
-                                                               strike->strikePromise(),
-                                                               format,
-                                                               alloc));
-                            };
-                    add_multi_mask_format(addGlyphsWithSameFormat,
-                                          accepted->acceptedWithMaskFormat());
+                            container->fSubRuns.append(
+                                    DirectMaskSubRun::Make(bounds,
+                                                           subrun,
+                                                           container->initialPosition(),
+                                                           strike->strikePromise(),
+                                                           format,
+                                                           alloc));
+                        };
+                    add_multi_mask_format(addGlyphsWithSameFormat, accepted);
                 }
             }
         }
 
         // Drawable case
         // Handle all the drawable glyphs - usually large or perspective color glyphs.
-        if (!rejected->source().empty()) {
+        if (!source.empty()) {
             auto [strikeSpec, strikeToSourceScale] =
                     SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
-                accepted->startSource(rejected->source());
-                prepare_for_drawable_drawing(strike.get(), accepted, rejected);
-                rejected->flipRejectsToSource();
+                auto acceptedBuffer = SkMakeZip(acceptedGlyphIDs, acceptedPositions);
+                auto [accepted, rejected] =
+                prepare_for_drawable_drawing(strike.get(), source, acceptedBuffer, rejectedBuffer);
+                source = rejected;
 
-                if (creationBehavior == kAddSubRuns && !accepted->empty()) {
-                    container->fSubRuns.append(DrawableSubRun::Make(
-                            accepted->accepted(),
-                            strikeToSourceScale,
-                            strike->strikePromise(),
-                            alloc));
+                if (creationBehavior == kAddSubRuns && !accepted.empty()) {
+                    container->fSubRuns.append(
+                            DrawableSubRun::Make(
+                                accepted,
+                                strikeToSourceScale,
+                                strike->strikePromise(),
+                                alloc));
                 }
             }
         }
 
         // Path case
         // Handle path subruns. Mainly, large or large perspective glyphs with no color.
-        if (!rejected->source().empty()) {
+        if (!source.empty()) {
             auto [strikeSpec, strikeToSourceScale] =
                     SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
-                accepted->startSource(rejected->source());
+                auto acceptedBuffer = SkMakeZip(acceptedGlyphIDs, acceptedPositions);
+                auto [accepted, rejected] =
+                prepare_for_path_drawing(strike.get(), source, acceptedBuffer, rejectedBuffer);
+                source = rejected;
 
-                prepare_for_path_drawing(strike.get(), accepted, rejected);
-                rejected->flipRejectsToSource();
-
-                if (creationBehavior == kAddSubRuns && !accepted->empty()) {
+                if (creationBehavior == kAddSubRuns && !accepted.empty()) {
                     container->fSubRuns.append(
-                            PathSubRun::Make(accepted->accepted(),
+                            PathSubRun::Make(accepted,
                                              has_some_antialiasing(runFont),
                                              strikeToSourceScale,
                                              strike->strikePromise(),
@@ -2648,7 +2697,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         // Draw all the rest of the rejected glyphs from above. This scales out of the atlas to
         // the screen, so quality will suffer. This mainly handles large color or perspective
         // color not handled by Drawables.
-        if (!rejected->source().empty() && !SkScalarNearlyZero(approximateDeviceTextSize)) {
+        if (!source.empty() && !SkScalarNearlyZero(approximateDeviceTextSize)) {
             // Creation matrix will be changed below to meet the following criteria:
             // * No perspective - the font scaler and the strikes can't handle perspective masks.
             // * Fits atlas - creationMatrix will be conditioned so that the maximum glyph
@@ -2676,7 +2725,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
             // Get the raw glyph IDs to simulate device drawing to figure the maximum device
             // dimension.
-            const SkSpan<const SkGlyphID> glyphs = get_glyphIDs(rejected->source());
+            const SkSpan<const SkGlyphID> glyphs = get_glyphIDs(source);
 
             // maxGlyphDimension always returns an integer even though the return type is SkScalar.
             auto maxGlyphDimension = [&](const SkMatrix& m) {
@@ -2717,29 +2766,32 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             // Draw using the creationMatrix.
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
                     runFont, runPaint, deviceProps, scalerContextFlags, creationMatrix);
+
             sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
-            accepted->startSource(rejected->source());
-            SkRect creationBounds =
-                prepare_for_mask_drawing(strike.get(), creationMatrix, accepted, rejected);
-            rejected->flipRejectsToSource();
-            SkASSERT(rejected->source().empty());
+            auto acceptedBuffer =
+                    SkMakeZip(acceptedPackedGlyphIDs, acceptedPositions, acceptedFormats);
+            auto [accepted, rejected, creationBounds] =
+                prepare_for_mask_drawing(
+                        strike.get(), creationMatrix, source, acceptedBuffer, rejectedBuffer);
+            source = rejected;
 
-            if (creationBehavior == kAddSubRuns && !accepted->empty()) {
+            if (creationBehavior == kAddSubRuns && !accepted.empty()) {
+
                 auto addGlyphsWithSameFormat =
-                        [&](const SkZip<SkPackedGlyphID, SkPoint>& acceptedGlyphsAndLocations,
-                            MaskFormat format) {
+                        [&, bounds = creationBounds](
+                                SkZip<const SkPackedGlyphID, const SkPoint> subrun,
+                                MaskFormat format) {
                             container->fSubRuns.append(
-                                    TransformedMaskSubRun::Make(acceptedGlyphsAndLocations,
+                                    TransformedMaskSubRun::Make(subrun,
                                                                 container->initialPosition(),
                                                                 strike->strikePromise(),
                                                                 creationMatrix,
-                                                                creationBounds,
+                                                                bounds,
                                                                 format,
                                                                 alloc));
                         };
-                add_multi_mask_format(addGlyphsWithSameFormat,
-                                      accepted->acceptedWithMaskFormat());
+                add_multi_mask_format(addGlyphsWithSameFormat, accepted);
             }
         }
     }
