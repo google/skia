@@ -1,5 +1,5 @@
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
-load("//bazel:macros.bzl", "exports_files_legacy", "gazelle", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 
 licenses(["notice"])
 
@@ -49,19 +49,6 @@ skia_cc_library(
     ],
 )
 
-# gazelle:prefix go.skia.org/skia
-gazelle(name = "gazelle")
-
-###########
-# Mockery #
-###########
-
-alias(
-    name = "mockery",
-    actual = "@com_github_vektra_mockery_v2//:v2",
-    visibility = ["//visibility:public"],
-)
-
 ####################################################################
 # Experimental public buffet targets below
 
@@ -88,3 +75,7 @@ alias(
     actual = "//src/ports:default_logging",
     visibility = ["//visibility:public"],
 )
+
+# Load bearing comment below - gazelle looks here (and not in any other BUILD.bazel files)
+# for a special comment indicating the prefix.
+# gazelle:prefix go.skia.org/skia

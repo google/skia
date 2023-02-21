@@ -5,7 +5,7 @@ generate:
 	echo "You do not need to run this any more for C++ code, only if you modify go code"
 
 generate_go:
-	cd .. && bazelisk run //:gazelle -- update infra/bots/task_drivers modules/canvaskit/go \
+	cd .. && bazelisk run //infra:gazelle -- update infra/bots/task_drivers modules/canvaskit/go \
        bazel/exporter  bazel/deps_parser tools/gpu/gl/interface
 
 .PHONY: generate_cmake
@@ -37,7 +37,7 @@ mocks:
 
 # This target should be run after the go.mod file is updated (e.g. version rolls or new updates)
 gazelle_update_repo:
-	cd .. && bazelisk run //:gazelle -- update-repos -from_file=go.mod -to_macro=go_repositories.bzl%go_repositories -prune
+	cd .. && bazelisk run //infra:gazelle -- update-repos -from_file=go.mod -to_macro=go_repositories.bzl%go_repositories -prune
 
 # Run this target to test all known working Bazel builds
 known_good_builds:
