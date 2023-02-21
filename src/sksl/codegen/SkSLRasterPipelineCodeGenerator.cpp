@@ -233,6 +233,18 @@ public:
         return fCurrentStack;
     }
 
+    /**
+     * Returns an LValue for the passed-in expression; if the expression isn't supported as an
+     * LValue, returns nullptr.
+     */
+    std::unique_ptr<LValue> makeLValue(const Expression& e, bool allowScratch = false);
+
+    /** Copies the top-of-stack value into this lvalue, without discarding it from the stack. */
+    void store(LValue& lvalue);
+
+    /** Pushes the lvalue onto the top-of-stack. */
+    [[nodiscard]] bool push(LValue& lvalue);
+
     /** The Builder stitches our instructions together into Raster Pipeline code. */
     Builder* builder() { return &fBuilder; }
 
@@ -464,18 +476,6 @@ class LValue {
 public:
     virtual ~LValue() = default;
 
-    /**
-     * Returns an LValue for the passed-in expression; if the expression isn't supported as an
-     * LValue, returns nullptr.
-     */
-    static std::unique_ptr<LValue> Make(const Expression& e, bool allowScratch = false);
-
-    /** Copies the top-of-stack value into this lvalue, without discarding it from the stack. */
-    void store(Generator* gen);
-
-    /** Pushes the lvalue onto the top-of-stack. */
-    [[nodiscard]] bool push(Generator* gen);
-
     /** Returns true if this lvalue is actually writable--temporaries and uniforms are not. */
     virtual bool isWritable() const = 0;
 
@@ -696,73 +696,6 @@ public:
     }
 };
 
-std::unique_ptr<LValue> LValue::Make(const Expression& e, bool allowScratch) {
-    if (e.is<VariableReference>()) {
-        return std::make_unique<VariableLValue>(e.as<VariableReference>().variable());
-    }
-    if (e.is<Swizzle>()) {
-        const Swizzle& swizzleExpr = e.as<Swizzle>();
-        if (std::unique_ptr<LValue> base = LValue::Make(*swizzleExpr.base(),
-                                                        allowScratch)) {
-            return std::make_unique<SwizzleLValue>(std::move(base), swizzleExpr.components());
-        }
-        return nullptr;
-    }
-    if (e.is<FieldAccess>()) {
-        const FieldAccess& fieldExpr = e.as<FieldAccess>();
-        if (std::unique_ptr<LValue> base = LValue::Make(*fieldExpr.base(),
-                                                        allowScratch)) {
-            return std::make_unique<FieldLValue>(std::move(base), fieldExpr.initialSlot(),
-                                                 fieldExpr.type().slotCount());
-        }
-        return nullptr;
-    }
-    if (e.is<IndexExpression>()) {
-        const IndexExpression& indexExpr = e.as<IndexExpression>();
-        if (std::unique_ptr<LValue> base = LValue::Make(*indexExpr.base(),
-                                                        allowScratch)) {
-            // If the index is a compile-time constant, we can generate simpler code.
-            SKSL_INT indexValue;
-            if (ConstantFolder::GetConstantInt(*indexExpr.index(), &indexValue)) {
-                return std::make_unique<FixedIndexLValue>(std::move(base), indexValue,
-                                                          indexExpr.type());
-            }
-
-            // TODO(skia:13676): support non-constant indices
-        }
-        return nullptr;
-    }
-    if (allowScratch) {
-        // This path allows us to perform field- and index-accesses on an expression as if it were
-        // an lvalue, but is a temporary and shouldn't be written back to.
-        return std::make_unique<ScratchLValue>(e);
-    }
-    return nullptr;
-}
-
-void LValue::store(Generator* gen) {
-    SkASSERT(this->isWritable());
-
-    // Copy our slots from the stack into their slots. The Builder will coalesce single-slot pushes
-    // into contiguous ranges where possible.
-    int numSlots = this->numSlots();
-    for (Slot slot = 0; slot < numSlots; ++slot) {
-        this->store(gen, slot, /*index=*/(int)slot, numSlots);
-    }
-}
-
-bool LValue::push(Generator* gen) {
-    // Push our slots onto the stack one-by-one. The Builder will coalesce single-slot pushes into
-    // contiguous ranges where possible.
-    int numSlots = this->numSlots();
-    for (Slot slot = 0; slot < numSlots; ++slot) {
-        if (!this->push(gen, slot)) {
-            return unsupported();
-        }
-    }
-    return true;
-}
-
 void SlotManager::addSlotDebugInfoForGroup(const std::string& varName,
                                            const Type& type,
                                            Position pos,
@@ -906,6 +839,73 @@ SlotRange SlotManager::getFunctionSlots(const IRNode& callSite, const FunctionDe
                                         /*isFunctionReturnValue=*/true);
     fSlotMap.set(&callSite, range);
     return range;
+}
+
+std::unique_ptr<LValue> Generator::makeLValue(const Expression& e, bool allowScratch) {
+    if (e.is<VariableReference>()) {
+        return std::make_unique<VariableLValue>(e.as<VariableReference>().variable());
+    }
+    if (e.is<Swizzle>()) {
+        const Swizzle& swizzleExpr = e.as<Swizzle>();
+        if (std::unique_ptr<LValue> base = this->makeLValue(*swizzleExpr.base(),
+                                                            allowScratch)) {
+            return std::make_unique<SwizzleLValue>(std::move(base), swizzleExpr.components());
+        }
+        return nullptr;
+    }
+    if (e.is<FieldAccess>()) {
+        const FieldAccess& fieldExpr = e.as<FieldAccess>();
+        if (std::unique_ptr<LValue> base = this->makeLValue(*fieldExpr.base(),
+                                                            allowScratch)) {
+            return std::make_unique<FieldLValue>(std::move(base), fieldExpr.initialSlot(),
+                                                 fieldExpr.type().slotCount());
+        }
+        return nullptr;
+    }
+    if (e.is<IndexExpression>()) {
+        const IndexExpression& indexExpr = e.as<IndexExpression>();
+        if (std::unique_ptr<LValue> base = this->makeLValue(*indexExpr.base(),
+                                                            allowScratch)) {
+            // If the index is a compile-time constant, we can generate simpler code.
+            SKSL_INT indexValue;
+            if (ConstantFolder::GetConstantInt(*indexExpr.index(), &indexValue)) {
+                return std::make_unique<FixedIndexLValue>(std::move(base), indexValue,
+                                                          indexExpr.type());
+            }
+
+            // TODO(skia:13676): support non-constant indices
+        }
+        return nullptr;
+    }
+    if (allowScratch) {
+        // This path allows us to perform field- and index-accesses on an expression as if it were
+        // an lvalue, but is a temporary and shouldn't be written back to.
+        return std::make_unique<ScratchLValue>(e);
+    }
+    return nullptr;
+}
+
+void Generator::store(LValue& lvalue) {
+    SkASSERT(lvalue.isWritable());
+
+    // Copy our slots from the stack into their slots. The Builder will coalesce single-slot pushes
+    // into contiguous ranges where possible.
+    int numSlots = lvalue.numSlots();
+    for (Slot slot = 0; slot < numSlots; ++slot) {
+        lvalue.store(this, slot, /*index=*/(int)slot, numSlots);
+    }
+}
+
+bool Generator::push(LValue& lvalue) {
+    // Push our slots onto the stack one-by-one. The Builder will coalesce single-slot pushes into
+    // contiguous ranges where possible.
+    int numSlots = lvalue.numSlots();
+    for (Slot slot = 0; slot < numSlots; ++slot) {
+        if (!lvalue.push(this, slot)) {
+            return unsupported();
+        }
+    }
+    return true;
 }
 
 int Generator::getFunctionDebugInfo(const FunctionDeclaration& decl) {
@@ -1552,7 +1552,7 @@ void Generator::foldWithMultiOp(BuilderOp op, int elements) {
 }
 
 bool Generator::pushLValueOrExpression(LValue* lvalue, const Expression& expr) {
-    return lvalue ? lvalue->push(this)
+    return lvalue ? this->push(*lvalue)
                   : this->pushExpression(expr);
 }
 
@@ -1609,7 +1609,7 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
 
     // If this multiply was actually an assignment (via *=), write the result back to the lvalue.
     if (lvalue) {
-        lvalue->store(this);
+        this->store(*lvalue);
     }
 
     return true;
@@ -1675,7 +1675,7 @@ bool Generator::pushStructuredComparison(LValue* left,
 
     // We've winnowed down to a single element, or an array of homogeneous numeric elements.
     // Push the elements onto the stack, then compare them.
-    if (!left->push(this) || !right->push(this)) {
+    if (!this->push(*left) || !this->push(*right)) {
         return unsupported();
     }
     switch (op.kind()) {
@@ -1718,8 +1718,8 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         case OperatorKind::NEQ:
             if (left.type().isStruct() || left.type().isArray()) {
                 SkASSERT(left.type().matches(right.type()));
-                std::unique_ptr<LValue> lvLeft = LValue::Make(left, /*allowScratch=*/true);
-                std::unique_ptr<LValue> lvRight = LValue::Make(right, /*allowScratch=*/true);
+                std::unique_ptr<LValue> lvLeft = this->makeLValue(left, /*allowScratch=*/true);
+                std::unique_ptr<LValue> lvRight = this->makeLValue(right, /*allowScratch=*/true);
                 return this->pushStructuredComparison(lvLeft.get(), op, lvRight.get(), left.type());
             }
             break;
@@ -1757,7 +1757,7 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
     std::unique_ptr<LValue> lvalue;
     if (op.isAssignment()) {
         // ... turn the left side into an lvalue.
-        lvalue = LValue::Make(left);
+        lvalue = this->makeLValue(left);
         if (!lvalue) {
             return unsupported();
         }
@@ -1767,7 +1767,7 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
             if (!this->pushExpression(right)) {
                 return unsupported();
             }
-            lvalue->store(this);
+            this->store(*lvalue);
             return true;
         }
 
@@ -1927,7 +1927,7 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
 
     // If we have an lvalue, we need to write the result back into it.
     if (lvalue) {
-        lvalue->store(this);
+        this->store(*lvalue);
     }
 
     return true;
@@ -2106,8 +2106,8 @@ bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
 
 bool Generator::pushFieldAccess(const FieldAccess& f) {
     // If possible, get direct field access via the lvalue.
-    std::unique_ptr<LValue> lvalue = LValue::Make(f, /*allowScratch=*/true);
-    return lvalue && lvalue->push(this);
+    std::unique_ptr<LValue> lvalue = this->makeLValue(f, /*allowScratch=*/true);
+    return lvalue && this->push(*lvalue);
 }
 
 bool Generator::pushFunctionCall(const FunctionCall& c) {
@@ -2143,14 +2143,14 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 
         // Use LValues for out-parameters and inout-parameters, so we can store back to them later.
         if (IsInoutParameter(param) || IsOutParameter(param)) {
-            lvalues[index] = LValue::Make(arg);
+            lvalues[index] = this->makeLValue(arg);
             if (!lvalues[index]) {
                 return unsupported();
             }
             // There are no guarantees on the starting value of an out-parameter, so we only need to
             // store the lvalues associated with an inout parameter.
             if (IsInoutParameter(param)) {
-                if (!lvalues[index]->push(this)) {
+                if (!this->push(*lvalues[index])) {
                     return unsupported();
                 }
                 this->popToSlotRangeUnmasked(this->getVariableSlots(param));
@@ -2188,7 +2188,7 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 
             // Copy the parameter's slots directly into the lvalue.
             fBuilder.push_slots(this->getVariableSlots(param));
-            lvalues[index]->store(this);
+            this->store(*lvalues[index]);
             this->discardExpression(param.type().slotCount());
         }
     }
@@ -2200,8 +2200,8 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 }
 
 bool Generator::pushIndexExpression(const IndexExpression& i) {
-    std::unique_ptr<LValue> lvalue = LValue::Make(i, /*allowScratch=*/true);
-    return lvalue && lvalue->push(this);
+    std::unique_ptr<LValue> lvalue = this->makeLValue(i, /*allowScratch=*/true);
+    return lvalue && this->push(*lvalue);
 }
 
 bool Generator::pushIntrinsic(const FunctionCall& c) {
@@ -2616,8 +2616,8 @@ bool Generator::pushPostfixExpression(const PostfixExpression& p, bool usesResul
         return this->pushPrefixExpression(p.getOperator(), *p.operand());
     }
     // Get the operand as an lvalue, and push it onto the stack as-is.
-    std::unique_ptr<LValue> lvalue = LValue::Make(*p.operand());
-    if (!lvalue || !lvalue->push(this)) {
+    std::unique_ptr<LValue> lvalue = this->makeLValue(*p.operand());
+    if (!lvalue || !this->push(*lvalue)) {
         return unsupported();
     }
 
@@ -2648,7 +2648,7 @@ bool Generator::pushPostfixExpression(const PostfixExpression& p, bool usesResul
     }
 
     // Write the new value back to the operand.
-    lvalue->store(this);
+    this->store(*lvalue);
 
     // Discard the scratch copy, leaving only the original value as-is.
     this->discardExpression(p.type().slotCount());
