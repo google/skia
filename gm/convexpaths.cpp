@@ -17,15 +17,17 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkRandom.h"
 
 namespace {
 
-class SkDoOnce : SkNoncopyable {
+class SkDoOnce {
 public:
     SkDoOnce() { fDidOnce = false; }
+    // Make noncopyable
+    SkDoOnce(SkDoOnce&) = delete;
+    SkDoOnce& operator=(SkDoOnce&) = delete;
 
     bool needToDo() const { return !fDidOnce; }
     bool alreadyDone() const { return fDidOnce; }
