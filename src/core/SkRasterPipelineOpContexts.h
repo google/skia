@@ -170,6 +170,12 @@ struct SkRasterPipeline_ShuffleCtx {
     uint16_t offsets[16];  // values must be byte offsets (4 * highp-stride * component-index)
 };
 
+struct SkRasterPipeline_SwizzleCopyCtx {
+    float *dst;
+    float *src;           // src values must _not_ overlap dst values
+    uint16_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
+};
+
 struct SkRasterPipeline_BranchCtx {
     int offset;  // contains the label ID during compilation, and the program offset when compiled
 };

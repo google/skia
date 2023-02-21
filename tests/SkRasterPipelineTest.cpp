@@ -680,6 +680,63 @@ DEF_TEST(SkRasterPipeline_Swizzle, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_SwizzleCopy, r) {
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct TestPattern {
+        SkRasterPipelineOp op;
+        uint16_t swizzle[4];
+        uint16_t expectation[4];
+    };
+    constexpr uint16_t _ = ~0;
+    static const TestPattern kPatterns[] = {
+        {SkRasterPipelineOp::swizzle_copy_slot_masked,    {3,_,_,_}, {_,_,_,0}},//v.w    = (1)
+        {SkRasterPipelineOp::swizzle_copy_2_slots_masked, {1,0,_,_}, {1,0,_,_}},//v.yx   = (1,2)
+        {SkRasterPipelineOp::swizzle_copy_3_slots_masked, {2,3,0,_}, {2,_,0,1}},//v.zwy  = (1,2,3)
+        {SkRasterPipelineOp::swizzle_copy_4_slots_masked, {3,0,1,2}, {1,2,3,0}},//v.wxyz = (1,2,3,4)
+    };
+    static_assert(sizeof(TestPattern::swizzle) == sizeof(SkRasterPipeline_SwizzleCopyCtx::offsets));
+
+    for (const TestPattern& pattern : kPatterns) {
+        // Allocate space for 4 dest slots, and initialize them to zero.
+        alignas(64) float dest[4 * SkRasterPipeline_kMaxStride_highp] = {};
+
+        // Allocate 4 source slots and initialize them to 1, 2, 3, 4...
+        alignas(64) float source[4 * SkRasterPipeline_kMaxStride_highp] = {};
+        std::iota(&source[0 * N], &source[4 * N], 1.0f);
+
+        // Apply the dest-swizzle pattern.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        SkRasterPipeline_SwizzleCopyCtx ctx = {};
+        ctx.src = source;
+        ctx.dst = dest;
+        for (size_t index = 0; index < std::size(ctx.offsets); ++index) {
+            if (pattern.swizzle[index] != _) {
+                ctx.offsets[index] = pattern.swizzle[index] * N * sizeof(float);
+            }
+        }
+        p.append(SkRasterPipelineOp::init_lane_masks);
+        p.append(pattern.op, &ctx);
+        p.run(0,0,N,1);
+
+        // Verify that the swizzle has been applied in each slot.
+        float* destPtr = &dest[0];
+        for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (pattern.expectation[checkSlot] == _) {
+                    REPORTER_ASSERT(r, *destPtr == 0);
+                } else {
+                    int expectedIdx = pattern.expectation[checkSlot] * N + checkLane;
+                    REPORTER_ASSERT(r, *destPtr == source[expectedIdx]);
+                }
+
+                ++destPtr;
+            }
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_Shuffle, r) {
     // Allocate space for 16 dest slots.
     alignas(64) float slots[16 * SkRasterPipeline_kMaxStride_highp];
