@@ -140,11 +140,12 @@ public:
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
     void ensureUTF16Mapping();
-    TextIndex findNextGraphemeBoundary(TextIndex utf8);
-    TextIndex findPreviousGraphemeBoundary(TextIndex utf8);
-    TextIndex findNextGlyphClusterBoundary(TextIndex utf8);
-    TextIndex findPreviousGlyphClusterBoundary(TextIndex utf8);
-    size_t getUTF16Index(TextIndex index) {
+    SkTArray<TextIndex> countSurroundingGraphemes(TextRange textRange) const;
+    TextIndex findNextGraphemeBoundary(TextIndex utf8) const;
+    TextIndex findPreviousGraphemeBoundary(TextIndex utf8) const;
+    TextIndex findNextGlyphClusterBoundary(TextIndex utf8) const;
+    TextIndex findPreviousGlyphClusterBoundary(TextIndex utf8) const;
+    size_t getUTF16Index(TextIndex index) const {
         return fUTF16IndexForUTF8Index[index];
     }
 

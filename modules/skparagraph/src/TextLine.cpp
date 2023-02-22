@@ -1089,7 +1089,7 @@ bool TextLine::endsWithHardLineBreak() const {
 void TextLine::getRectsForRange(TextRange textRange0,
                                 RectHeightStyle rectHeightStyle,
                                 RectWidthStyle rectWidthStyle,
-                                std::vector<TextBox>& boxes)
+                                std::vector<TextBox>& boxes) const
 {
     const Run* lastRun = nullptr;
     auto startBox = boxes.size();
@@ -1370,14 +1370,33 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 }
 
                 SkScalar glyphemePosLeft = context.run->positionX(found) + context.fTextShift + offsetX;
-                SkScalar glyphemePosWidth = context.run->positionX(found + 1) - context.run->positionX(found);
+                SkScalar glyphemesWidth = context.run->positionX(found + 1) - context.run->positionX(found);
 
                 // Find the grapheme range that contains the point
                 auto clusterIndex8 = context.run->globalClusterIndex(found);
                 auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
+                auto graphemes = fOwner->countSurroundingGraphemes({clusterIndex8, clusterEnd8});
 
-                SkScalar center = glyphemePosLeft + glyphemePosWidth / 2;
-                if ((dx < center) == context.run->leftToRight()) {
+                SkScalar center = glyphemePosLeft + glyphemesWidth / 2;
+                if (graphemes.size() > 1) {
+                    // Calculate the position proportionally based on grapheme count
+                    SkScalar averageGraphemeWidth = glyphemesWidth / graphemes.size();
+                    SkScalar delta = dx - glyphemePosLeft;
+                    int graphemeIndex = SkScalarNearlyZero(averageGraphemeWidth)
+                                         ? 0
+                                         : SkScalarFloorToInt(delta / averageGraphemeWidth);
+                    auto graphemeCenter = glyphemePosLeft + graphemeIndex * averageGraphemeWidth +
+                                          averageGraphemeWidth / 2;
+                    auto graphemeUtf8Index = graphemes[graphemeIndex];
+                    if ((dx < graphemeCenter) == context.run->leftToRight()) {
+                        size_t utf16Index = fOwner->getUTF16Index(graphemeUtf8Index);
+                        result = { SkToS32(utf16Index), kDownstream };
+                    } else {
+                        size_t utf16Index = fOwner->getUTF16Index(graphemeUtf8Index + 1);
+                        result = { SkToS32(utf16Index), kUpstream };
+                    }
+                    // Keep UTF16 index as is
+                } else if ((dx < center) == context.run->leftToRight()) {
                     size_t utf16Index = fOwner->getUTF16Index(clusterIndex8);
                     result = { SkToS32(utf16Index), kDownstream };
                 } else {

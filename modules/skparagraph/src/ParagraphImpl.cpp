@@ -1064,7 +1064,22 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     }
 }
 
-TextIndex ParagraphImpl::findPreviousGraphemeBoundary(TextIndex utf8) {
+SkTArray<TextIndex> ParagraphImpl::countSurroundingGraphemes(TextRange textRange) const {
+    textRange = textRange.intersection({0, fText.size()});
+    SkTArray<TextIndex> graphemes;
+    if ((fCodeUnitProperties[textRange.start] & SkUnicode::CodeUnitFlags::kGraphemeStart) == 0) {
+        // Count the previous partial grapheme
+        graphemes.emplace_back(textRange.start);
+    }
+    for (auto index = textRange.start; index < textRange.end; ++index) {
+        if ((fCodeUnitProperties[index] & SkUnicode::CodeUnitFlags::kGraphemeStart) != 0) {
+            graphemes.emplace_back(index);
+        }
+    }
+    return graphemes;
+}
+
+TextIndex ParagraphImpl::findPreviousGraphemeBoundary(TextIndex utf8) const {
     while (utf8 > 0 &&
           (fCodeUnitProperties[utf8] & SkUnicode::CodeUnitFlags::kGraphemeStart) == 0) {
         --utf8;
@@ -1072,7 +1087,7 @@ TextIndex ParagraphImpl::findPreviousGraphemeBoundary(TextIndex utf8) {
     return utf8;
 }
 
-TextIndex ParagraphImpl::findNextGraphemeBoundary(TextIndex utf8) {
+TextIndex ParagraphImpl::findNextGraphemeBoundary(TextIndex utf8) const {
     while (utf8 < fText.size() &&
           (fCodeUnitProperties[utf8] & SkUnicode::CodeUnitFlags::kGraphemeStart) == 0) {
         ++utf8;
@@ -1080,7 +1095,7 @@ TextIndex ParagraphImpl::findNextGraphemeBoundary(TextIndex utf8) {
     return utf8;
 }
 
-TextIndex ParagraphImpl::findNextGlyphClusterBoundary(TextIndex utf8) {
+TextIndex ParagraphImpl::findNextGlyphClusterBoundary(TextIndex utf8) const {
     while (utf8 < fText.size() &&
           (fCodeUnitProperties[utf8] & SkUnicode::CodeUnitFlags::kGlyphClusterStart) == 0) {
         ++utf8;
@@ -1088,7 +1103,7 @@ TextIndex ParagraphImpl::findNextGlyphClusterBoundary(TextIndex utf8) {
     return utf8;
 }
 
-TextIndex ParagraphImpl::findPreviousGlyphClusterBoundary(TextIndex utf8) {
+TextIndex ParagraphImpl::findPreviousGlyphClusterBoundary(TextIndex utf8) const {
     while (utf8 > 0 &&
           (fCodeUnitProperties[utf8] & SkUnicode::CodeUnitFlags::kGlyphClusterStart) == 0) {
         --utf8;

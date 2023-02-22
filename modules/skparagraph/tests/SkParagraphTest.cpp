@@ -208,6 +208,14 @@ public:
 
         fIcu = SkUnicode::Make();
 
+        std::vector<SkUnicode::BidiRegion> bidiRegions;
+        fIcu->getBidiRegions(text.data(),
+                             text.size(),
+                             style.getTextDirection() == skia::textlayout::TextDirection::kLtr
+                             ? TextDirection::kLTR
+                             : TextDirection::kRTL,
+                             &bidiRegions);
+
         std::vector<SkUnicode::Position> words;
         fIcu->getWords(text.data(), text.size(), nullptr, &words);
 
@@ -231,7 +239,7 @@ public:
             ++pos;
         }
 
-        fClient = SkUnicode::MakeClientBasedUnicode(text, words, graphemeBreaks, lineBreaks);
+        fClient = SkUnicode::MakeClientBasedUnicode(text, bidiRegions, words, graphemeBreaks, lineBreaks);
         SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags1;
         fClient->computeCodeUnitFlags(
                 text.data(), text.size(), style.getReplaceTabCharacters(), &codeUnitFlags1);
@@ -266,6 +274,24 @@ public:
                                                        BreakType breakType) override;
     std::unique_ptr<SkBreakIterator> makeBreakIterator(BreakType breakType) override;
 
+    // For SkParagraph
+    bool getBidiRegions(const char utf8[],
+                        int utf8Units,
+                        TextDirection dir,
+                        std::vector<BidiRegion>* results) override {
+        std::vector<SkUnicode::BidiRegion> bidiRegions;
+        auto result0 = fIcu->getBidiRegions(utf8, utf8Units, dir, &bidiRegions);
+        auto result1 = fClient->getBidiRegions(utf8, utf8Units, dir, results);
+        SkASSERT(result0 == result1);
+        SkASSERT(results->size() == bidiRegions.size());
+        for (size_t i = 0; i < results->size(); ++i) {
+            SkASSERT(bidiRegions[i].level == (*results)[i].level);
+            SkASSERT(bidiRegions[i].start == (*results)[i].start);
+            SkASSERT(bidiRegions[i].end == (*results)[i].end);
+        }
+        return result1;
+    }
+
     bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
                           SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
         return fClient->computeCodeUnitFlags(utf8, utf8Units, replaceTabs, results);
@@ -280,13 +306,6 @@ public:
         return fClient->getWords(utf8, utf8Units, locale, results);
     }
 
-    bool getBidiRegions(const char utf8[],
-                        int utf8Units,
-                        TextDirection dir,
-                        std::vector<BidiRegion>* results) override {
-        return fClient->getBidiRegions(utf8, utf8Units, dir, results);
-    }
-
     SkString toUpper(const SkString& str) override {
         return fClient->toUpper(str);
     }
@@ -294,7 +313,13 @@ public:
     void reorderVisual(const BidiLevel runLevels[],
                        int levelsCount,
                        int32_t logicalFromVisual[]) override {
+        std::vector<int32_t> logicalFromVisual0;
+        logicalFromVisual0.resize(levelsCount);
+        fIcu->reorderVisual(runLevels, levelsCount, logicalFromVisual0.data());
         fClient->reorderVisual(runLevels, levelsCount, logicalFromVisual);
+        for (int i = 0; i < levelsCount; ++i) {
+            SkASSERT(logicalFromVisual0[i] == logicalFromVisual[i]);
+        }
     }
 private:
     friend class SkBidiIterator_test;
@@ -302,6 +327,34 @@ private:
 
     std::unique_ptr<SkUnicode> fIcu;
     std::unique_ptr<SkUnicode> fClient;
+};
+
+class SkBidiIterator_test : public SkBidiIterator {
+    std::unique_ptr<SkBidiIterator> fIcuIter;
+    std::unique_ptr<SkBidiIterator> fClientIter;
+public:
+    SkBidiIterator_test(SkUnicode* icu,
+                        SkUnicode* client,
+                        const char text[],
+                        int count,
+                        SkBidiIterator::Direction dir)
+            : fIcuIter(icu->makeBidiIterator(text, count, dir))
+            , fClientIter(client->makeBidiIterator(text, count, dir)) { }
+    SkBidiIterator_test(SkUnicode* icu,
+                        SkUnicode* client,
+                        const uint16_t text[],
+                        int count,
+                        SkBidiIterator::Direction dir)
+            : fIcuIter(icu->makeBidiIterator(text, count, dir))
+            , fClientIter(client->makeBidiIterator(text, count, dir)) { }
+    Position getLength() override {
+        SkASSERT(fIcuIter->getLength() == fClientIter->getLength());
+        return fClientIter->getLength();
+    }
+    Level getLevelAt(Position pos) override {
+        SkASSERT(fIcuIter->getLevelAt(pos) == fClientIter->getLevelAt(pos));
+        return fClientIter->getLevelAt(pos);
+    }
 };
 
 class SkBreakIterator_test: public SkBreakIterator {
@@ -349,12 +402,12 @@ public:
 
 std::unique_ptr<SkBidiIterator> SkUnicode_test::makeBidiIterator(const uint16_t text[], int count,
                                                  SkBidiIterator::Direction dir) {
-    return fIcu->makeBidiIterator(text, count, dir);
+    return std::make_unique<SkBidiIterator_test>(fIcu.get(), fClient.get(), text, count, dir);
 }
 std::unique_ptr<SkBidiIterator> SkUnicode_test::makeBidiIterator(const char text[],
                                                  int count,
                                                  SkBidiIterator::Direction dir) {
-    return fIcu->makeBidiIterator(text, count, dir);
+    return std::make_unique<SkBidiIterator_test>(fIcu.get(), fClient.get(), text, count, dir);
 }
 std::unique_ptr<SkBreakIterator> SkUnicode_test::makeBreakIterator(const char locale[],
                                                                    BreakType breakType) {
@@ -7398,14 +7451,14 @@ UNIX_ONLY_TEST(SkParagraph_MultiStyle_FFI, reporter) {
     auto width = paragraph->getLongestLine();
     auto height = paragraph->getHeight();
 
-    auto f1Pos = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
-    auto f2Pos = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
-    auto iPos = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
+    auto f1Pos = paragraph->getGlyphPositionAtCoordinate(width/6 - 5, height/2);
+    auto f2Pos = paragraph->getGlyphPositionAtCoordinate(width/2 - 5, height/2);
+    auto iPos = paragraph->getGlyphPositionAtCoordinate(width*5/6 - 5, height/2);
 
     // Positions are aligned with graphemes (no pointing inside ffi grapheme)
     REPORTER_ASSERT(reporter, f1Pos.position == 0 && f1Pos.affinity == Affinity::kDownstream);
-    REPORTER_ASSERT(reporter, f2Pos.position == 3 && f2Pos.affinity == Affinity::kUpstream);
-    REPORTER_ASSERT(reporter, iPos.position == 3 && iPos.affinity == Affinity::kUpstream);
+    REPORTER_ASSERT(reporter, f2Pos.position == 1 && f2Pos.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, iPos.position == 2 && iPos.affinity == Affinity::kDownstream);
 
     // Bounding boxes show the extact position (inside ffi grapheme)
     auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight,

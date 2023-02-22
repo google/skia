@@ -3697,9 +3697,9 @@ public:
         auto width = paragraph->getLongestLine();
         auto height = paragraph->getHeight();
         if (this->isVerbose()) {
-            auto f1Pos = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
-            auto f2Pos = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
-            auto iPos = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
+            auto f1Pos = paragraph->getGlyphPositionAtCoordinate(width/3 * 0 + 5, height/2);
+            auto f2Pos = paragraph->getGlyphPositionAtCoordinate(width/3 * 1 + 5, height/2);
+            auto iPos = paragraph->getGlyphPositionAtCoordinate(width/3 * 2 + 5, height/2);
             SkDebugf("%d(%s) %d(%s) %d(%s)\n",
                      f1Pos.position, f1Pos.affinity == Affinity::kUpstream ? "up" : "down",
                      f2Pos.position, f2Pos.affinity == Affinity::kUpstream ? "up" : "down",
@@ -3908,10 +3908,10 @@ public:
 
         canvas->drawColor(SK_ColorWHITE);
 
-        SkString text(">S͛ͭ̋͆̈̔̇͗̍͑̎ͪͮͧͣ̽ͫͣ́ͬ̀͌͑͂͗͒̍̔̄ͧ̏̉̌̊̊̿̀̌̃̄͐̓̓̚̚҉̵̡͜͟͝͠͏̸̵̡̧͜҉̷̡͇̜̘̻̺̘̟̝͙̬̘̩͇̭̼̥̖̤̦͎k͉̩̘͚̜̹̗̗͍̤̥̱͉̳͕͖̤̲̣͚̮̞̬̲͍͔̯̻̮̞̭͈̗̫͓̂ͨ̉ͪ̒͋͛̀̍͊ͧ̿̅͆̓̔̔ͬ̇̑̿ͩ͗ͮ̎͌̿̄ͅP̴̵̡̡̛̪͙̼̣̟̩̭̫̱͙̬͔͉͍̘̠͉̦̝̘̥̟̗͖̫̤͕̙̬̦͍̱̖̮̱͑͐̎̃̒͐͋̚͘͞a̶̶̵̵̵̶̶̡̧̢̢̺͔̣͖̭̺͍̤͚̱̜̰̥͕̬̥̲̞̥̘͇͚̺̰͚̪̺͔̤͍̓̿͆̎͋̓ͦ̈́ͦ̌́̄͗̌̓͌̕͜͜͟͢͝͡ŕ͎̝͕͉̻͎̤̭͚̗̳̖̙̘͚̫͖͓͚͉͔͈̟̰̟̬̗͓̟͚̱̕͡ͅͅͅa̸̶̢̛̛̽ͮͩ̅͒ͫ͗͂̎ͦ̈́̓̚͘͜͢͡҉̷̵̶̢̡̜̮̦̜̥̜̯̙͓͔̼̗̻͜͜ͅḡ̢̛͕̗͖̖̤̦̘͔ͨͨ̊͒ͩͭͤ̍̅̃ͪ̋̏̓̍̋͗̋ͨ̏̽̈́̔̀̋̉ͫ̅̂ͭͫ̏͒͋ͥ̚͜r̶̢̧̧̥̤̼̀̂̒ͪ͌̿͌̅͛ͨͪ͒̍ͥ̉ͤ̌̿̆́ͭ͆̃̒ͤ͛̊ͧ̽͘͝͠a̧̢̧̢͑͑̓͑ͮ̃͂̄͛́̈́͋̂͌̽̄͒̔́̇ͨͧͭ͐ͦ̋ͨ̍ͦ̍̋͆̔ͧ͑͋͌̈̓͛͛̚͢͜͜͏̴̢̧̛̳͍̹͚̰̹̻͔p̨̡͆ͦͣ͊̽̔͂̉ͣ̔ͣ̌̌̉̃̋̂͒ͫ̄̎̐͗̉̌̃̽̽́̀̚͘͜͟҉̱͉h̭̮̘̗͔̜̯͔͈̯̺͔̗̣̭͚̱̰̙̼̹͚̣̻̥̲̮͍̤͜͝<");
-        auto K = text.find("k");
-        auto P = text.find("P");
-        auto h = text.find("h");
+        std::u16string text = u">S͛ͭ̋͆̈̔̇͗̍͑̎ͪͮͧͣ̽ͫͣ́ͬ̀͌͑͂͗͒̍̔̄ͧ̏̉̌̊̊̿̀̌̃̄͐̓̓̚̚҉̵̡͜͟͝͠͏̸̵̡̧͜҉̷̡͇̜̘̻̺̘̟̝͙̬̘̩͇̭̼̥̖̤̦͎k͉̩̘͚̜̹̗̗͍̤̥̱͉̳͕͖̤̲̣͚̮̞̬̲͍͔̯̻̮̞̭͈̗̫͓̂ͨ̉ͪ̒͋͛̀̍͊ͧ̿̅͆̓̔̔ͬ̇̑̿ͩ͗ͮ̎͌̿̄ͅP̴̵̡̡̛̪͙̼̣̟̩̭̫̱͙̬͔͉͍̘̠͉̦̝̘̥̟̗͖̫̤͕̙̬̦͍̱̖̮̱͑͐̎̃̒͐͋̚͘͞a̶̶̵̵̵̶̶̡̧̢̢̺͔̣͖̭̺͍̤͚̱̜̰̥͕̬̥̲̞̥̘͇͚̺̰͚̪̺͔̤͍̓̿͆̎͋̓ͦ̈́ͦ̌́̄͗̌̓͌̕͜͜͟͢͝͡ŕ͎̝͕͉̻͎̤̭͚̗̳̖̙̘͚̫͖͓͚͉͔͈̟̰̟̬̗͓̟͚̱̕͡ͅͅͅa̸̶̢̛̛̽ͮͩ̅͒ͫ͗͂̎ͦ̈́̓̚͘͜͢͡҉̷̵̶̢̡̜̮̦̜̥̜̯̙͓͔̼̗̻͜͜ͅḡ̢̛͕̗͖̖̤̦̘͔ͨͨ̊͒ͩͭͤ̍̅̃ͪ̋̏̓̍̋͗̋ͨ̏̽̈́̔̀̋̉ͫ̅̂ͭͫ̏͒͋ͥ̚͜r̶̢̧̧̥̤̼̀̂̒ͪ͌̿͌̅͛ͨͪ͒̍ͥ̉ͤ̌̿̆́ͭ͆̃̒ͤ͛̊ͧ̽͘͝͠a̧̢̧̢͑͑̓͑ͮ̃͂̄͛́̈́͋̂͌̽̄͒̔́̇ͨͧͭ͐ͦ̋ͨ̍ͦ̍̋͆̔ͧ͑͋͌̈̓͛͛̚͢͜͜͏̴̢̧̛̳͍̹͚̰̹̻͔p̨̡͆ͦͣ͊̽̔͂̉ͣ̔ͣ̌̌̉̃̋̂͒ͫ̄̎̐͗̉̌̃̽̽́̀̚͘͜͟҉̱͉h̭̮̘̗͔̜̯͔͈̯̺͔̗̣̭͚̱̰̙̼̹͚̣̻̥̲̮͍̤͜͝<";
+        auto K = text.find(u"k");
+        auto P = text.find(u"P");
+        auto h = text.find(u"h");
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
@@ -3922,18 +3922,18 @@ public:
         text_style.setFontSize(20);
         text_style.setColor(SK_ColorRED);
         builder.pushStyle(text_style);
-        builder.addText(text.data(), K + 3);
+        builder.addText(std::u16string(text.data(), K + 3));
         text_style.setColor(SK_ColorBLUE);
         text_style.setBackgroundColor(SkPaint(SkColors::kYellow));
         builder.pushStyle(text_style);
-        builder.addText(text.data() + K + 3, P - K - 3 + 6);
+        builder.addText(std::u16string(text.data() + K + 3, P - K - 3 + 6));
         text_style.setColor(SK_ColorGREEN);
         builder.pushStyle(text_style);
-        builder.addText(text.data() + P + 6, h - P - 6);
+        builder.addText(std::u16string(text.data() + P + 6, h - P - 6));
         text_style.setColor(SK_ColorBLACK);
         text_style.setBackgroundColor(SkPaint(SkColors::kLtGray));
         builder.pushStyle(text_style);
-        builder.addText(text.data() + h, text.size() - h);
+        builder.addText(std::u16string(text.data() + h, text.size() - h));
         auto paragraph = builder.Build();
         paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
@@ -3943,37 +3943,38 @@ public:
                                                   RectWidthStyle::kTight);
             TextBox rectSK(SkRect::MakeEmpty(), TextDirection::kLtr);
             if (resSK.empty()) {
-                SkDebugf("resSK is empty\n");
+                SkDebugf("rectSk is empty\n");
             } else {
                 rectSK = resSK[0];
-                SkDebugf("rectSK: [%f:%f] %s\n", rectSK.rect.fLeft, rectSK.rect.fRight,
+                SkDebugf("rectSk: [%f:%f] %s\n", rectSK.rect.fLeft, rectSK.rect.fRight,
                                              rectSK.direction == TextDirection::kRtl ? "rtl" : "ltr");
             }
 
-            auto resKP = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight,
+            auto resKP = paragraph->getRectsForRange(K, P, RectHeightStyle::kTight,
                                                   RectWidthStyle::kTight);
             TextBox rectKP(SkRect::MakeEmpty(), TextDirection::kLtr);
             if (resKP.empty()) {
-                SkDebugf("resKP is empty\n");
+                SkDebugf("rectkP is empty\n");
             } else {
                 rectKP = resKP[0];
-                SkDebugf("f2: [%f:%f] %s\n", rectKP.rect.fLeft, rectKP.rect.fRight,
+                SkDebugf("rectkP: [%f:%f] %s\n", rectKP.rect.fLeft, rectKP.rect.fRight,
                                              rectKP.direction == TextDirection::kRtl ? "rtl" : "ltr");
             }
 
-            auto resPh = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight,
+            auto resPh = paragraph->getRectsForRange(P, h, RectHeightStyle::kTight,
                                                   RectWidthStyle::kTight);
             TextBox rectPh(SkRect::MakeEmpty(), TextDirection::kLtr);
             if (resPh.empty()) {
-                SkDebugf("resPh is empty\n");
+                SkDebugf("rectPh is empty\n");
             } else {
                 rectPh = resPh[0];
-                SkDebugf("i:  [%f:%f] %s\n", rectPh.rect.fLeft, rectPh.rect.fRight,
-                                             rectPh.direction == TextDirection::kRtl ? "rtl" : "ltr");
+                SkDebugf("rectPh:  [%f:%f] %s\n", rectPh.rect.fLeft, rectPh.rect.fRight,
+                                                  rectPh.direction == TextDirection::kRtl ? "rtl" : "ltr");
             }
             auto posK = paragraph->getGlyphPositionAtCoordinate(rectSK.rect.center().fX, height/2);
             auto posP = paragraph->getGlyphPositionAtCoordinate(rectKP.rect.center().fX, height/2);
             auto posH = paragraph->getGlyphPositionAtCoordinate(rectPh.rect.center().fX, height/2);
+
             SkDebugf("%d(%s) %d(%s) %d(%s)\n",
                      posK.position, posK.affinity == Affinity::kUpstream ? "up" : "down",
                      posP.position, posP.affinity == Affinity::kUpstream ? "up" : "down",

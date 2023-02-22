@@ -116,7 +116,7 @@ public:
 
     bool isFirstLine() const;
     bool isLastLine() const;
-    void getRectsForRange(TextRange textRange, RectHeightStyle rectHeightStyle, RectWidthStyle rectWidthStyle, std::vector<TextBox>& boxes);
+    void getRectsForRange(TextRange textRange, RectHeightStyle rectHeightStyle, RectWidthStyle rectWidthStyle, std::vector<TextBox>& boxes) const;
     void getRectsForPlaceholders(std::vector<TextBox>& boxes);
     PositionWithAffinity getGlyphPositionAtCoordinate(SkScalar dx);
 
