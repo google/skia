@@ -16,7 +16,7 @@ void SkSourceGlyphBuffer::reset() {
 
 void SkDrawableGlyphBuffer::ensureSize(int size) {
     if (size > fMaxSize) {
-        fMultiBuffer.reset(size);
+        fPackedGlyphIDs.reset(size);
         fPositions.reset(size);
         fFormats.reset(size);
         fMaxSize = size;
@@ -34,7 +34,7 @@ void SkDrawableGlyphBuffer::startSource(const SkZip<const SkGlyphID, const SkPoi
     memcpy(fPositions, positions.data(), positions.size() * sizeof(SkPoint));
 
     // Convert from SkGlyphIDs to SkPackedGlyphIDs.
-    SkGlyphVariant* packedIDCursor = fMultiBuffer.get();
+    SkPackedGlyphID* packedIDCursor = fPackedGlyphIDs.get();
     for (auto t : source) {
         *packedIDCursor++ = SkPackedGlyphID{std::get<0>(t)};
     }
@@ -46,8 +46,8 @@ SkString SkDrawableGlyphBuffer::dumpInput() const {
 
     SkString msg;
     for (auto [packedGlyphID, pos]
-            : SkZip<SkGlyphVariant, SkPoint>{
-                 SkToSizeT(fInputSize), fMultiBuffer.get(), fPositions.get()}) {
+            : SkZip<SkPackedGlyphID, SkPoint>{
+            SkToSizeT(fInputSize), fPackedGlyphIDs.get(), fPositions.get()}) {
         msg.appendf("%s:(%a,%a), ", packedGlyphID.shortDump().c_str(), pos.x(), pos.y());
     }
     return msg;
@@ -56,7 +56,7 @@ SkString SkDrawableGlyphBuffer::dumpInput() const {
 void SkDrawableGlyphBuffer::reset() {
     SkDEBUGCODE(fPhase = kReset);
     if (fMaxSize > 200) {
-        fMultiBuffer.reset();
+        fPackedGlyphIDs.reset();
         fPositions.reset();
         fFormats.reset();
         fMaxSize = 0;

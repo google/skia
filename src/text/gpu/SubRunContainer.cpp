@@ -148,7 +148,7 @@ public:
     static TransformedMaskVertexFiller Make(MaskFormat maskType,
                                             const SkMatrix& creationMatrix,
                                             SkRect creationBounds,
-                                            const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                            const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                             SubRunAllocator* alloc) {
         SkSpan<SkPoint> leftTop = alloc->makePODArray<SkPoint>(
                 accepted,
@@ -1191,7 +1191,7 @@ public:
                      GlyphVector&& glyphs);
 
     static SubRunOwner Make(SkRect runBounds,
-                            const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                            const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                             const SkMatrix& initialPositionMatrix,
                             SkStrikePromise&& strikePromise,
                             MaskFormat format,
@@ -1301,7 +1301,7 @@ DirectMaskSubRun::DirectMaskSubRun(MaskFormat format,
         , fGlyphs{std::move(glyphs)} {}
 
 SubRunOwner DirectMaskSubRun::Make(SkRect runBounds,
-                                   const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                   const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                                    const SkMatrix& initialPositionMatrix,
                                    SkStrikePromise&& strikePromise,
                                    MaskFormat format,
@@ -1696,7 +1696,7 @@ public:
             , fVertexFiller{std::move(vertexFiller)}
             , fGlyphs{std::move(glyphs)} {}
 
-    static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    static SubRunOwner Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                             const SkMatrix& initialPositionMatrix,
                             SkStrikePromise&& strikePromise,
                             SkMatrix creationMatrix,
@@ -1951,7 +1951,7 @@ public:
         , fVertexFiller{std::move(vertexFiller)}
         , fGlyphs{std::move(glyphs)} { }
 
-    static SubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+    static SubRunOwner Make(const SkZip<SkPackedGlyphID, SkPoint>& accepted,
                             const SkFont& runFont,
                             SkStrikePromise&& strikePromise,
                             const SkMatrix& creationMatrix,
@@ -2176,7 +2176,7 @@ private:
 template<typename AddSingleMaskFormat>
 void add_multi_mask_format(
         AddSingleMaskFormat addSingleMaskFormat,
-        const SkZip<SkGlyphVariant, SkPoint, SkMask::Format>& accepted) {
+        const SkZip<SkPackedGlyphID, SkPoint, SkMask::Format>& accepted) {
     if (accepted.empty()) { return; }
 
     auto maskSpan = accepted.get<2>();
@@ -2579,7 +2579,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     auto addGlyphsWithSameFormat =
-                            [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
+                            [&](const SkZip<SkPackedGlyphID, SkPoint>& acceptedGlyphsAndLocations,
                                 MaskFormat format) {
                                 container->fSubRuns.append(
                                         DirectMaskSubRun::Make(bounds,
@@ -2726,7 +2726,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
             if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                 auto addGlyphsWithSameFormat =
-                        [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
+                        [&](const SkZip<SkPackedGlyphID, SkPoint>& acceptedGlyphsAndLocations,
                             MaskFormat format) {
                             container->fSubRuns.append(
                                     TransformedMaskSubRun::Make(acceptedGlyphsAndLocations,

@@ -44,7 +44,7 @@ public:
     GlyphVector(SkStrikePromise&& strikePromise, SkSpan<Variant> glyphs);
 
     static GlyphVector Make(
-            SkStrikePromise&& promise, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+            SkStrikePromise&& promise, SkSpan<SkPackedGlyphID> glyphs, SubRunAllocator* alloc);
 
     SkSpan<const Glyph*> glyphs() const;
 
@@ -81,7 +81,7 @@ public:
 
 private:
     friend class GlyphVectorTestingPeer;
-    static Variant* MakeGlyphs(SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+    static Variant* MakeGlyphs(SkSpan<SkPackedGlyphID> glyphs, SubRunAllocator* alloc);
 
     SkStrikePromise fStrikePromise;
     SkSpan<Variant> fGlyphs;
