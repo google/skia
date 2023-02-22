@@ -17,10 +17,23 @@
 
 namespace skgpu::graphite {
 
-// Tests that a Recording can be replayed to a provided surface.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTest, reporter, context) {
+using DrawCallback = std::function<void(SkCanvas*)>;
+
+struct Expectation {
+    int fX;
+    int fY;
+    SkColor4f fColor;
+};
+
+void run_test(skiatest::Reporter* reporter,
+              Context* context,
+              SkISize surfaceSize,
+              SkISize recordingSize,
+              SkISize replayOffset,
+              DrawCallback draw,
+              const std::vector<Expectation>& expectations) {
     const SkImageInfo surfaceImageInfo = SkImageInfo::Make(
-            16, 16, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
+            surfaceSize, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
 
     std::unique_ptr<Recorder> surfaceRecorder = context->makeRecorder();
     sk_sp<SkSurface> surface = SkSurface::MakeGraphite(surfaceRecorder.get(), surfaceImageInfo);
@@ -32,17 +45,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTest, reporter, context) {
     context->insertRecording({surfaceRecording.get()});
 
     // Snap a recording without a bound target.
-    const SkImageInfo recordingImageInfo = surfaceImageInfo.makeDimensions(SkISize::Make(8, 16));
+    const SkImageInfo recordingImageInfo = surfaceImageInfo.makeDimensions(recordingSize);
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     SkCanvas* canvas = recorder->makeDeferredCanvas(recordingImageInfo, textureInfo);
-    canvas->clear(SkColors::kRed);
+    draw(canvas);
+
     // Can't make another canvas before snapping.
     REPORTER_ASSERT(reporter,
                     recorder->makeDeferredCanvas(recordingImageInfo, textureInfo) == nullptr);
     std::unique_ptr<Recording> recording = recorder->snap();
 
     // Play back recording.
-    context->insertRecording({recording.get(), surface.get()});
+    context->insertRecording(
+            {recording.get(), surface.get(), {replayOffset.fWidth, replayOffset.fHeight}});
 
     // Read pixels.
     SkBitmap bitmap;
@@ -54,10 +69,39 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTest, reporter, context) {
         return;
     }
 
-    // Verify recording was replayed and is now uninstantiated.
-    REPORTER_ASSERT(reporter, pixmap.getColor4f(0, 0) == SkColors::kRed);
-    REPORTER_ASSERT(reporter, pixmap.getColor4f(8, 0) == SkColors::kTransparent);
+    // Veryify expectations are met and recording is uninstantiated.
     REPORTER_ASSERT(reporter, !recording->isTargetProxyInstantiated());
+    for (const Expectation& e : expectations) {
+        SkColor4f color = pixmap.getColor4f(e.fX, e.fY);
+#ifdef SK_DEBUG
+        if (color != e.fColor) {
+            SkDebugf("Wrong color\n\texpected: %f %f %f %f\n\tactual: %f %f %f %f",
+                     color.fR,
+                     color.fG,
+                     color.fB,
+                     color.fA,
+                     e.fColor.fR,
+                     e.fColor.fG,
+                     e.fColor.fB,
+                     e.fColor.fA);
+        }
+#endif
+        REPORTER_ASSERT(reporter, color == e.fColor);
+    }
+}
+
+// Tests that clear does not clear an entire replayed-to surface if recorded onto a smaller surface.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestClear, reporter, context) {
+    SkISize surfaceSize = SkISize::Make(8, 4);
+    SkISize recordingSize = SkISize::Make(4, 4);
+    SkISize replayOffset = SkISize::Make(0, 0);
+
+    auto draw = [](SkCanvas* canvas) { canvas->clear(SkColors::kRed); };
+
+    std::vector<Expectation> expectations = {{0, 0, SkColors::kRed},
+                                             {4, 0, SkColors::kTransparent}};
+
+    run_test(reporter, context, surfaceSize, recordingSize, replayOffset, draw, expectations);
 }
 
 }  // namespace skgpu::graphite
