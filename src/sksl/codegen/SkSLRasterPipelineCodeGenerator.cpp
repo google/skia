@@ -240,7 +240,7 @@ public:
     std::unique_ptr<LValue> makeLValue(const Expression& e, bool allowScratch = false);
 
     /** Copies the top-of-stack value into this lvalue, without discarding it from the stack. */
-    void store(LValue& lvalue);
+    [[nodiscard]] bool store(LValue& lvalue);
 
     /** Pushes the lvalue onto the top-of-stack. */
     [[nodiscard]] bool push(LValue& lvalue);
@@ -491,7 +491,9 @@ public:
                                     SkSpan<const int8_t> swizzle) = 0;
 
     /** Stores topmost values from the stack directly into the lvalue. */
-    virtual void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) = 0;
+    [[nodiscard]] virtual bool store(Generator* gen,
+                                     SlotRange fixedOffset,
+                                     SkSpan<const int8_t> swizzle) = 0;
 };
 
 class ScratchLValue final : public LValue {
@@ -539,8 +541,9 @@ public:
         return true;
     }
 
-    void store(Generator*, SlotRange, SkSpan<const int8_t>) override {
+    [[nodiscard]] bool store(Generator*, SlotRange, SkSpan<const int8_t>) override {
         SkDEBUGFAIL("scratch lvalues cannot be stored into");
+        return unsupported();
     }
 
 private:
@@ -577,7 +580,9 @@ public:
         return true;
     }
 
-    void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) override {
+    [[nodiscard]] bool store(Generator* gen,
+                             SlotRange fixedOffset,
+                             SkSpan<const int8_t> swizzle) override {
         SkASSERT(!Generator::IsUniform(*fVariable));
 
         if (swizzle.empty()) {
@@ -585,6 +590,7 @@ public:
         } else {
             gen->builder()->swizzle_copy_stack_to_slots(fixedOffset, swizzle, swizzle.size());
         }
+        return true;
     }
 
 private:
@@ -617,11 +623,14 @@ public:
         return fParent->push(gen, fixedOffset, fComponents);
     }
 
-    void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) override {
+    [[nodiscard]] bool store(Generator* gen,
+                             SlotRange fixedOffset,
+                             SkSpan<const int8_t> swizzle) override {
         if (!swizzle.empty()) {
             SkDEBUGFAIL("swizzle-of-a-swizzle should have been folded out in front end");
+            return unsupported();
         }
-        fParent->store(gen, fixedOffset, fComponents);
+        return fParent->store(gen, fixedOffset, fComponents);
     }
 
 private:
@@ -658,8 +667,10 @@ public:
         return fParent->push(gen, fixedOffset, swizzle);
     }
 
-    void store(Generator* gen, SlotRange fixedOffset, SkSpan<const int8_t> swizzle) override {
-        fParent->store(gen, fixedOffset, swizzle);
+    [[nodiscard]] bool store(Generator* gen,
+                             SlotRange fixedOffset,
+                             SkSpan<const int8_t> swizzle) override {
+        return fParent->store(gen, fixedOffset, swizzle);
     }
 
 protected:
@@ -889,7 +900,7 @@ std::unique_ptr<LValue> Generator::makeLValue(const Expression& e, bool allowScr
     return nullptr;
 }
 
-void Generator::store(LValue& lvalue) {
+bool Generator::store(LValue& lvalue) {
     SkASSERT(lvalue.isWritable());
     return lvalue.store(this, lvalue.fixedSlotRange(this), /*swizzle=*/{});
 }
@@ -1598,11 +1609,8 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
     matrixStack.exit();
 
     // If this multiply was actually an assignment (via *=), write the result back to the lvalue.
-    if (lvalue) {
-        this->store(*lvalue);
-    }
-
-    return true;
+    return lvalue ? this->store(*lvalue)
+                  : true;
 }
 
 void Generator::foldComparisonOp(Operator op, int elements) {
@@ -1757,11 +1765,8 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
 
         // Handle simple assignment (`var = expr`).
         if (op.kind() == OperatorKind::EQ) {
-            if (!this->pushExpression(right)) {
-                return unsupported();
-            }
-            this->store(*lvalue);
-            return true;
+            return this->pushExpression(right) &&
+                   this->store(*lvalue);
         }
 
         // Strip off the assignment from the op (turning += into +).
@@ -1919,11 +1924,8 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
     }
 
     // If we have an lvalue, we need to write the result back into it.
-    if (lvalue) {
-        this->store(*lvalue);
-    }
-
-    return true;
+    return lvalue ? this->store(*lvalue)
+                  : true;
 }
 
 bool Generator::pushConstructorCompound(const AnyConstructor& c) {
@@ -2181,7 +2183,9 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 
             // Copy the parameter's slots directly into the lvalue.
             fBuilder.push_slots(this->getVariableSlots(param));
-            this->store(*lvalues[index]);
+            if (!this->store(*lvalues[index])) {
+                return unsupported();
+            }
             this->discardExpression(param.type().slotCount());
         }
     }
@@ -2641,7 +2645,9 @@ bool Generator::pushPostfixExpression(const PostfixExpression& p, bool usesResul
     }
 
     // Write the new value back to the operand.
-    this->store(*lvalue);
+    if (!this->store(*lvalue)) {
+        return unsupported();
+    }
 
     // Discard the scratch copy, leaving only the original value as-is.
     this->discardExpression(p.type().slotCount());
