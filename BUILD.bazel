@@ -79,3 +79,11 @@ alias(
 # Load bearing comment below - gazelle looks here (and not in any other BUILD.bazel files)
 # for a special comment indicating the prefix.
 # gazelle:prefix go.skia.org/skia
+
+# This is an alias to avoid having to load the golang toolchain code just to
+# create the rules in our primary BUILD.bazel file
+alias(
+    name = "gazelle",
+    actual = "//infra:gazelle",
+    visibility = ["//visibility:public"],
+)
