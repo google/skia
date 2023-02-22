@@ -144,22 +144,20 @@ private:
     void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&,
                             const SkPaint&, const SkPaint&) override;
 
-    // TODO: This will likely be implemented with the same primitive building block that drawRect
-    // and drawRRect will rely on.
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
                         SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color,
-                        SkBlendMode mode) override {}
+                        SkBlendMode mode) override;
 
     void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,
                             const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                             const SkSamplingOptions&, const SkPaint&,
-                            SkCanvas::SrcRectConstraint) override {}
+                            SkCanvas::SrcRectConstraint) override;
 
-    // TODO: These image drawing APIs can likely be implemented with the same primitive building
-    // block that drawEdgeAAImageSet will use.
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
+
+    // TODO: Implement these using per-edge AA quads and an inlined image shader program.
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override {}
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,

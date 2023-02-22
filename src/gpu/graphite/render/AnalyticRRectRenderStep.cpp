@@ -125,6 +125,8 @@
 // its reciprocal is provided in sk_FragCoord.w.
 namespace skgpu::graphite {
 
+using AAFlags = EdgeAAQuad::Flags;
+
 static skvx::float4 load_x_radii(const SkRRect& rrect) {
     return skvx::float4{rrect.radii(SkRRect::kUpperLeft_Corner).fX,
                         rrect.radii(SkRRect::kUpperRight_Corner).fX,
@@ -225,7 +227,7 @@ static float local_aa_radius(const Transform& t, const Rect& bounds) {
     }
 }
 
-static bool insets_intersect(const SkRRect& rrect, float strokeRadius, float aaRadius) {
+static bool opposite_insets_intersect(const SkRRect& rrect, float strokeRadius, float aaRadius) {
     // One AA inset per side
     const float maxInset = strokeRadius + 2.f * aaRadius;
     return // Horizontal insets would intersect opposite corner's curve
@@ -240,13 +242,33 @@ static bool insets_intersect(const SkRRect& rrect, float strokeRadius, float aaR
            maxInset >= rrect.height() - rrect.radii(SkRRect::kUpperRight_Corner).fY;
 }
 
-static bool insets_intersect(const Shape& shape, float strokeRadius, float aaRadius) {
-    // TODO: if (shape.isQuad()) { return true; } // for simplicity assume arbitrary quads intersect
-    if (shape.isRect()) {
-        return any(shape.rect().size() <= 2.f * (strokeRadius + aaRadius));
+static bool opposite_insets_intersect(const Geometry& geometry,
+                                      float strokeRadius,
+                                      float aaRadius) {
+    if (geometry.isEdgeAAQuad()) {
+        SkASSERT(strokeRadius == 0.f);
+        const EdgeAAQuad& quad = geometry.edgeAAQuad();
+        if (quad.edgeFlags() == AAFlags::kNone) {
+            // If all edges are non-AA, there won't be any insetting.
+            return false;
+        } else if (quad.isRect()) {
+            auto inset = skvx::float2(quad.edgeFlags() & AAFlags::kLeft   ? aaRadius : 0.f,
+                                      quad.edgeFlags() & AAFlags::kTop    ? aaRadius : 0.f) +
+                         skvx::float2(quad.edgeFlags() & AAFlags::kRight  ? aaRadius : 0.f,
+                                      quad.edgeFlags() & AAFlags::kBottom ? aaRadius : 0.f);
+            return any(quad.bounds().size() <= inset);
+        } else {
+            // For simplicity an arbitrary quadrilateral with any AA assumes the insets intersect.
+            return true;
+        }
     } else {
-        SkASSERT(shape.isRRect());
-        return insets_intersect(shape.rrect(), strokeRadius, aaRadius);
+        const Shape& shape = geometry.shape();
+        if (shape.isRect()) {
+            return any(shape.rect().size() <= 2.f * (strokeRadius + aaRadius));
+        } else {
+            SkASSERT(shape.isRRect());
+            return opposite_insets_intersect(shape.rrect(), strokeRadius, aaRadius);
+        }
     }
 }
 
@@ -589,6 +611,7 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
         // Calculate edge distances and device space coordinate for the vertex
         float4 dx = xs - xs.wxyz;
         float4 dy = ys - ys.wxyz;
+        // TODO: Apply edge AA flags to these values to turn off AA when necessary.
         edgeDistances = inversesqrt(dx*dx + dy*dy) * (dy*(xs - localPos.x) - dx*(ys - localPos.y));
 
         float3x3 localToDevice = float3x3(mat0, mat1, mat2);
@@ -727,13 +750,12 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
 void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
                                            const DrawParams& params,
                                            int ssboIndex) const {
-    SkASSERT(params.geometry().isShape());
-    const Shape& shape = params.geometry().shape();
+    SkASSERT(params.geometry().isShape() || params.geometry().isEdgeAAQuad());
 
     DrawWriter::Instances instance{*writer, fVertexBuffer, fIndexBuffer, kIndexCount};
     auto vw = instance.append(1);
 
-    // The bounds of a rect is the rect, and the bounds of a rrectv is tight (== SkRRect::getRect()).
+    // The bounds of a rect is the rect, and the bounds of a rrect is tight (== SkRRect::getRect()).
     Rect bounds = params.geometry().bounds();
 
     // aaRadius will be set to a negative value to signal a complex self-intersection that has to
@@ -743,6 +765,8 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
     float centerWeight = kSolidInterior;
 
     if (params.isStroke()) {
+        const Shape& shape = params.geometry().shape(); // EdgeAAQuads are not stroked
+
         SkASSERT(params.strokeStyle().halfWidth() >= 0.f);
         SkASSERT(shape.isRect() || params.strokeStyle().halfWidth() == 0.f ||
                  (shape.isRRect() && SkRRectPriv::AllCornersCircular(shape.rrect())));
@@ -782,23 +806,36 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
             vw << (-2.f - xRadii) << yRadii << bounds.ltrb();
         }
     } else {
-        // TODO: Add quadrilateral support to Shape with per-edge flags.
-        if (shape.isRect() || (shape.isRRect() && shape.rrect().isRect())) {
-            // Rectangles (or rectangles embedded in an SkRRect) are converted to the quadrilateral
-            // case, but with all edges anti-aliased (== -1).
-            skvx::float4 ltrb = bounds.ltrb();
-            vw << /*edge flags*/ skvx::float4(-1.f)
-               << /*xs*/ skvx::shuffle<0,2,2,0>(ltrb)
-               << /*ys*/ skvx::shuffle<1,1,3,3>(ltrb);
+        if (params.geometry().isEdgeAAQuad()) {
+            // NOTE: If quad.isRect() && quad.edgeFlags() == kAll, the written data is identical to
+            // Shape.isRect() case below.
+            const EdgeAAQuad& quad = params.geometry().edgeAAQuad();
+            // -1 for AA on, 0 for AA off
+            auto edgeSigns = skvx::float4{quad.edgeFlags() & AAFlags::kLeft   ? -1.f : 0.f,
+                                          quad.edgeFlags() & AAFlags::kTop    ? -1.f : 0.f,
+                                          quad.edgeFlags() & AAFlags::kRight  ? -1.f : 0.f,
+                                          quad.edgeFlags() & AAFlags::kBottom ? -1.f : 0.f};
+            vw << edgeSigns << quad.xs() << quad.ys();
         } else {
-            // A filled rounded rectangle
-            SkASSERT(any(load_x_radii(shape.rrect()) > 0.f)); // If not, the shader won't detect it.
+            const Shape& shape = params.geometry().shape();
+            if (shape.isRect() || (shape.isRRect() && shape.rrect().isRect())) {
+                // Rectangles (or rectangles embedded in an SkRRect) are converted to the
+                // quadrilateral case, but with all edges anti-aliased (== -1).
+                skvx::float4 ltrb = bounds.ltrb();
+                vw << /*edge flags*/ skvx::float4(-1.f)
+                   << /*xs*/ skvx::shuffle<0,2,2,0>(ltrb)
+                   << /*ys*/ skvx::shuffle<1,1,3,3>(ltrb);
+            } else {
+                // A filled rounded rectangle, so make sure at least one corner radii > 0 or the
+                // shader won't detect it as a rounded rect.
+                SkASSERT(any(load_x_radii(shape.rrect()) > 0.f));
 
-            vw << load_x_radii(shape.rrect()) << load_y_radii(shape.rrect()) << bounds.ltrb();
+                vw << load_x_radii(shape.rrect()) << load_y_radii(shape.rrect()) << bounds.ltrb();
+            }
         }
     }
 
-    if (insets_intersect(shape, strokeInset, aaRadius)) {
+    if (opposite_insets_intersect(params.geometry(), strokeInset, aaRadius)) {
         aaRadius = kComplexAAInsets;
         if (centerWeight == kStrokeInterior) {
             centerWeight = kFilledStrokeInterior;

@@ -152,6 +152,7 @@ skia_graphite_sources = [
   "$_src/compute/ComputeStep.cpp",
   "$_src/compute/ComputeStep.h",
   "$_src/geom/BoundsManager.h",
+  "$_src/geom/EdgeAAQuad.h",
   "$_src/geom/Geometry.h",
   "$_src/geom/IntersectionTree.cpp",
   "$_src/geom/IntersectionTree.h",

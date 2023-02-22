@@ -33,6 +33,10 @@ public:
     AI Rect(float2 topLeft, float2 botRight) : fVals(topLeft, -botRight) {}
     AI Rect(const SkRect& r) : fVals(NegateBotRight(float4::Load(r.asScalars()))) {}
 
+    AI static Rect LTRB(float4 ltrb) {
+        return Rect(NegateBotRight(ltrb));
+    }
+
     AI static Rect XYWH(float x, float y, float w, float h) {
         return Rect(x, y, x + w, y + h);
     }

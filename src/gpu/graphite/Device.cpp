@@ -689,6 +689,28 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
     }
 }
 
+void Device::drawEdgeAAQuad(const SkRect& rect,
+                            const SkPoint clip[4],
+                            SkCanvas::QuadAAFlags aaFlags,
+                            const SkColor4f& color,
+                            SkBlendMode mode) {
+    SkPaint solidColorPaint;
+    solidColorPaint.setColor4f(color, /*colorSpace=*/nullptr);
+    solidColorPaint.setBlendMode(mode);
+
+    auto flags = SkEnumBitMask<EdgeAAQuad::Flags>(static_cast<EdgeAAQuad::Flags>(aaFlags));
+    EdgeAAQuad quad = clip ? EdgeAAQuad(clip, flags) : EdgeAAQuad(rect, flags);
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(quad), solidColorPaint, kFillStyle,
+                       DrawFlags::kIgnoreMaskFilter | DrawFlags::kIgnorePathEffect);
+}
+
+void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,
+                                const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                const SkSamplingOptions&, const SkPaint&,
+                                SkCanvas::SrcRectConstraint) {
+    // TODO: Implement this by merging the logic of drawImageRect and drawEdgeAAQuad.
+}
+
 void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                            const SkSamplingOptions& sampling, const SkPaint& paint,
                            SkCanvas::SrcRectConstraint constraint) {
@@ -1020,6 +1042,9 @@ const Renderer* Device::chooseRenderer(const Geometry& geometry,
     } else if (geometry.isVertices()) {
         SkVerticesPriv info(geometry.vertices()->priv());
         return renderers->vertices(info.mode(), info.hasColors(), info.hasTexCoords());
+    } else if (geometry.isEdgeAAQuad()) {
+        SkASSERT(!requireMSAA && style.isFillStyle());
+        return renderers->analyticRRect(); // handled by the same system as rects and round rects
     } else if (!geometry.isShape()) {
         // We must account for new Geometry types with specific Renderers
         return nullptr;
