@@ -288,7 +288,12 @@ bool VulkanCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     region.imageOffset = { srcRect.left(), srcRect.top(), /*z=*/0 };
     region.imageExtent = { (uint32_t)srcRect.width(), (uint32_t)srcRect.height(), /*depth=*/1 };
 
-    // TODO: Change layout of source texture image so it can be copied from.
+    // Enable editing of the source texture so we can change its layout so it can be copied from.
+    const_cast<VulkanTexture*>(srcTexture)->setImageLayout(this,
+                                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                           VK_ACCESS_TRANSFER_READ_BIT,
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                           false);
 
     VULKAN_CALL(fSharedContext->interface(),
                 CmdCopyImageToBuffer(fPrimaryCommandBuffer,
@@ -332,7 +337,12 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
                                /*depth=*/1 };
     }
 
-    // TODO: Change layout of target texture image so it can be copied to.
+    // Enable editing of the destination texture so we can change its layout so it can be copied to.
+    const_cast<VulkanTexture*>(dstTexture)->setImageLayout(this,
+                                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                           VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                           false);
 
     VULKAN_CALL(fSharedContext->interface(),
             CmdCopyBufferToImage(fPrimaryCommandBuffer,
