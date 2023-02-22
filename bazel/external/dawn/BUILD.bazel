@@ -715,6 +715,7 @@ TINT_SRCS = [
     "src/tint/utils/result.h",
     "src/tint/utils/reverse.h",
     "src/tint/utils/scoped_assignment.h",
+    "src/tint/utils/slice.h",
     "src/tint/utils/string.cc",
     "src/tint/utils/string.h",
     "src/tint/utils/transform.h",
@@ -919,6 +920,7 @@ TINT_SRCS = [
     "src/tint/ast/loop_statement.h",
     "src/tint/ast/member_accessor_expression.h",
     "src/tint/ast/module.h",
+    "src/tint/ast/must_use_attribute.h",
     "src/tint/ast/node.h",
     "src/tint/ast/node_id.h",
     "src/tint/ast/override.h",
@@ -995,6 +997,7 @@ TINT_SRCS = [
     "src/tint/ast/loop_statement.cc",
     "src/tint/ast/member_accessor_expression.cc",
     "src/tint/ast/module.cc",
+    "src/tint/ast/must_use_attribute.cc",
     "src/tint/ast/node.cc",
     "src/tint/ast/override.cc",
     "src/tint/ast/parameter.cc",
@@ -1036,6 +1039,10 @@ TINT_SRCS = [
     "src/tint/builtin/diagnostic_severity.h",
     "src/tint/builtin/extension.cc",
     "src/tint/builtin/extension.h",
+    "src/tint/builtin/interpolation_sampling.cc",
+    "src/tint/builtin/interpolation_sampling.h",
+    "src/tint/builtin/interpolation_type.cc",
+    "src/tint/builtin/interpolation_type.h",
     "src/tint/builtin/texel_format.cc",
     "src/tint/builtin/texel_format.h",
 
@@ -1174,7 +1181,6 @@ TINT_SRCS = [
     "src/tint/type/vector.h",
     "src/tint/type/void.cc",
     "src/tint/type/void.h",
-
     "src/tint/writer/append_vector.cc",
     "src/tint/writer/append_vector.h",
     "src/tint/writer/array_length_from_uniform_options.cc",
@@ -1217,6 +1223,7 @@ TINT_SRCS = [
     #    tint_build_wgsl_reader = true
     #    tint_build_wgsl_writer = true
     # From dawn/src/tint/BUILD.gn:libtint_spv_reader_src
+    "src/tint/reader/spirv/attributes.h",
     "src/tint/reader/spirv/construct.cc",
     "src/tint/reader/spirv/construct.h",
     "src/tint/reader/spirv/entry_point_info.cc",
