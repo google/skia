@@ -1309,9 +1309,9 @@ SubRunOwner DirectMaskSubRun::Make(SkRect runBounds,
     auto glyphLeftTop = alloc->makePODArray<SkPoint>(accepted.size());
     auto glyphIDs = alloc->makePODArray<GlyphVector::Variant>(accepted.size());
 
-    for (auto [i, variant, pos] : SkMakeEnumerate(accepted)) {
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted)) {
         glyphLeftTop[i] = pos;
-        glyphIDs[i].packedGlyphID = variant.packedID();
+        glyphIDs[i].packedGlyphID = packedID;
     }
 
     SkSpan<const SkPoint> leftTop{glyphLeftTop, accepted.size()};
@@ -2368,13 +2368,13 @@ SkRect prepare_for_direct_mask_drawing(StrikeForGPU* strike,
 
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
-    for (auto [i, notSubPixelGlyphID, pos] : SkMakeEnumerate(accepted->input())) {
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (!SkScalarsAreFinite(pos.x(), pos.y())) {
             continue;
         }
 
         const SkPoint mappedPos = positionMatrixWithRounding.mapPoint(pos);
-        const SkGlyphID glyphID = notSubPixelGlyphID.packedID().glyphID();
+        const SkGlyphID glyphID = packedID.glyphID();
         const SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID, mappedPos, mask};
         auto digest = strike->digestFor(kDirectMask, packedGlyphID);
         switch (digest.actionFor(kDirectMask)) {
@@ -2497,20 +2497,6 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
-    std::vector<SkPackedGlyphID> packedGlyphIDs;
-    SkSpan<SkPoint> positions;
-    // This rearranging of arrays is temporary until the updated buffer system is
-    // in place.
-    auto convertToGlyphIDs = [&](SkZip<SkGlyphVariant, SkPoint> good)
-            -> SkZip<SkPackedGlyphID, SkPoint> {
-        positions = good.get<1>();
-        packedGlyphIDs.resize(positions.size());
-
-        for (auto [packedGlyphID, variant] : SkMakeZip(packedGlyphIDs, good.get<0>())) {
-            packedGlyphID = variant.packedID();
-        }
-        return SkMakeZip(packedGlyphIDs, positions);
-    };
     SkPoint glyphRunListLocation = glyphRunList.sourceBounds().center();
 
     // Handle all the runs in the glyphRunList
@@ -2624,7 +2610,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     container->fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
-                            convertToGlyphIDs(accepted->accepted()),
+                            accepted->accepted(),
                             strikeToSourceScale,
                             strike->strikePromise(),
                             alloc));
@@ -2648,7 +2634,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     container->fSubRuns.append(
-                            PathSubRun::Make(convertToGlyphIDs(accepted->accepted()),
+                            PathSubRun::Make(accepted->accepted(),
                                              has_some_antialiasing(runFont),
                                              strikeToSourceScale,
                                              strike->strikePromise(),

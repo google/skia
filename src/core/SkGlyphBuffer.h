@@ -76,34 +76,7 @@ private:
     SkSTArray<4, SkPoint> fRejectedPositions;
 };
 
-// A memory format that allows an SkPackedGlyphID, SkGlyph*, and SkPath* to occupy the same
-// memory. This allows SkPackedGlyphIDs as input, and SkGlyph*/SkPath* as output using the same
-// memory.
-class SkGlyphVariant {
-public:
-    SkGlyphVariant() { }
-    SkGlyphVariant& operator= (SkPackedGlyphID packedID) {
-        fPackedID = packedID;
-        SkDEBUGCODE(fTag = kPackedID);
-        return *this;
-    }
-    SkPackedGlyphID packedID() const {
-        SkASSERT(fTag == kPackedID);
-        return fPackedID;
-    }
-
-    operator SkPackedGlyphID()  const { return this->packedID(); }
-
-private:
-    SkPackedGlyphID fPackedID;
-
-#ifdef SK_DEBUG
-    enum {
-        kEmpty,
-        kPackedID,
-    } fTag{kEmpty};
-#endif
-};
+using SkGlyphVariant = SkPackedGlyphID;
 
 // A buffer for converting SkPackedGlyph to SkGlyph*s. Initially the buffer contains
 // SkPackedGlyphIDs, but those are used to lookup SkGlyph*s which are then copied over the
@@ -166,7 +139,7 @@ public:
     template <typename Fn>
     void forEachInput(Fn&& fn) {
         for (auto [i, packedID, pos] : SkMakeEnumerate(this->input())) {
-            fn(i, packedID.packedID(), pos);
+            fn(i, packedID, pos);
         }
     }
 

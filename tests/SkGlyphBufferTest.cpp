@@ -166,7 +166,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
         accepted.ensureSize(100);
         accepted.startSource(source);
         for (auto [i, packedID, pos] : SkMakeEnumerate(accepted.input())) {
-            REPORTER_ASSERT(reporter, packedID.packedID().glyphID() == glyphIDs[i]);
+            REPORTER_ASSERT(reporter, packedID.glyphID() == glyphIDs[i]);
             REPORTER_ASSERT(reporter, pos == positions[i]);
         }
     }

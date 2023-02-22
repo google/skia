@@ -48,7 +48,7 @@ SkString SkDrawableGlyphBuffer::dumpInput() const {
     for (auto [packedGlyphID, pos]
             : SkZip<SkGlyphVariant, SkPoint>{
                  SkToSizeT(fInputSize), fMultiBuffer.get(), fPositions.get()}) {
-        msg.appendf("%s:(%a,%a), ", packedGlyphID.packedID().shortDump().c_str(), pos.x(), pos.y());
+        msg.appendf("%s:(%a,%a), ", packedGlyphID.shortDump().c_str(), pos.x(), pos.y());
     }
     return msg;
 }
