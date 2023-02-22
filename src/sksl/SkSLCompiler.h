@@ -129,11 +129,6 @@ public:
     static void EnableOptimizer(OverrideFlag flag) { sOptimizer = flag; }
     static void EnableInliner(OverrideFlag flag) { sInliner = flag; }
 
-    /**
-     * If fExternalFunctions is supplied in the settings, those values are registered in the symbol
-     * table of the Program, but ownership is *not* transferred. It is up to the caller to keep them
-     * alive.
-     */
     std::unique_ptr<Program> convertProgram(ProgramKind kind,
                                             std::string text,
                                             ProgramSettings settings);

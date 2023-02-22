@@ -26,8 +26,6 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLExternalFunction.h"
-#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -202,9 +200,6 @@ void Compiler::FinalizeSettings(ProgramSettings* settings, ProgramKind kind) {
         // For "generic" interpreter programs, leave all functions intact. (The SkVM API supports
         // calling any function, not just 'main').
         settings->fRemoveDeadFunctions = false;
-    } else {
-        // Only generic programs (limited to CPU) are able to use external functions.
-        SkASSERT(!settings->fExternalFunctions);
     }
 
     // Runtime effects always allow narrowing conversions.
@@ -286,10 +281,6 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
             dsl::DSLModifiers modifiers;
             dsl::DSLType dslType(result->name(), &modifiers, pos);
             return TypeReference::Convert(*fContext, pos, &dslType.skslType());
-        }
-        case Symbol::Kind::kExternal: {
-            const ExternalFunction* r = &result->as<ExternalFunction>();
-            return std::make_unique<ExternalFunctionReference>(pos, r);
         }
         default:
             SK_ABORT("unsupported symbol type %d\n", (int) result->kind());

@@ -30,9 +30,6 @@
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
-#include "src/sksl/ir/SkSLExternalFunction.h"
-#include "src/sksl/ir/SkSLExternalFunctionCall.h"
-#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLLiteral.h"
@@ -928,27 +925,6 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                                         pos,
                                         functionValue->as<TypeReference>().value(),
                                         std::move(arguments));
-        case Expression::Kind::kExternalFunctionReference: {
-            const ExternalFunction& f = functionValue->as<ExternalFunctionReference>().function();
-            int count = f.callParameterCount();
-            if (count != (int) arguments.size()) {
-                context.fErrors->error(pos,
-                        "external function expected " + std::to_string(count) +
-                        " arguments, but found " + std::to_string(arguments.size()));
-                return nullptr;
-            }
-            static constexpr int PARAMETER_MAX = 16;
-            SkASSERT(count < PARAMETER_MAX);
-            const Type* types[PARAMETER_MAX];
-            f.getCallParameterTypes(types);
-            for (int i = 0; i < count; ++i) {
-                arguments[i] = types[i]->coerceExpression(std::move(arguments[i]), context);
-                if (!arguments[i]) {
-                    return nullptr;
-                }
-            }
-            return std::make_unique<ExternalFunctionCall>(pos, &f, std::move(arguments));
-        }
         case Expression::Kind::kFunctionReference: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
             const FunctionDeclaration* best = FindBestFunctionForCall(context, ref.overloadChain(),

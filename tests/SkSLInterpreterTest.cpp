@@ -20,13 +20,10 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkVM.h"
-#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
@@ -42,7 +39,6 @@
 #include <vector>
 
 namespace SkSL { class FunctionDefinition; }
-namespace SkSL { class Type; }
 
 struct ProgramBuilder {
     ProgramBuilder(skiatest::Reporter* r, const char* src)
@@ -898,114 +894,6 @@ DEF_TEST(SkSLInterpreterDot, r) {
                args[2] * args[6] +
                args[3] * args[7];
     test(r, "float main(float4 x, float4 y) { return dot(x, y); }", args, &expected);
-}
-
-class ExternalSqrt : public SkSL::ExternalFunction {
-public:
-    ExternalSqrt(const char* name, SkSL::Compiler& compiler)
-        : INHERITED(name, *compiler.context().fTypes.fFloat)
-        , fCompiler(compiler) {}
-
-    int callParameterCount() const override { return 1; }
-
-    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fTypes.fFloat.get();
-    }
-
-    void call(skvm::Builder* b,
-              skvm::F32* arguments,
-              skvm::F32* outResult,
-              skvm::I32 mask) const override {
-        outResult[0] = sqrt(arguments[0]);
-    }
-
-private:
-    SkSL::Compiler& fCompiler;
-    using INHERITED = SkSL::ExternalFunction;
-};
-
-DEF_TEST(SkSLInterpreterExternalFunction, r) {
-    SkSL::ShaderCaps caps;
-    SkSL::Compiler compiler(&caps);
-    SkSL::ProgramSettings settings;
-    const char* src = "float main() { return externalSqrt(25); }";
-    std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
-    externalFunctions.push_back(std::make_unique<ExternalSqrt>("externalSqrt", compiler));
-    settings.fExternalFunctions = &externalFunctions;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, std::string(src), settings);
-    REPORTER_ASSERT(r, program);
-
-    const SkSL::FunctionDeclaration* main = program->getFunction("main");
-
-    skvm::Builder b;
-    SkSL::ProgramToSkVM(*program, *main->definition(), &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
-    skvm::Program p = b.done();
-
-    float out;
-    p.eval(1, &out);
-    REPORTER_ASSERT(r, out == 5.0);
-}
-
-class ExternalTable : public SkSL::ExternalFunction {
-public:
-    ExternalTable(const char* name, SkSL::Compiler& compiler, skvm::Uniforms* uniforms)
-            : INHERITED(name, *compiler.context().fTypes.fFloat)
-            , fCompiler(compiler)
-            , fTable{1, 2, 4, 8} {
-        fAddr = uniforms->pushPtr(fTable);
-    }
-
-    int callParameterCount() const override { return 1; }
-
-    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
-        outTypes[0] = fCompiler.context().fTypes.fFloat.get();
-    }
-
-    void call(skvm::Builder* b,
-              skvm::F32* arguments,
-              skvm::F32* outResult,
-              skvm::I32 mask) const override {
-        skvm::I32 index = skvm::trunc(arguments[0] * 4);
-        index = max(0, min(index, 3));
-        outResult[0] = b->gatherF(fAddr, index);
-    }
-
-private:
-    SkSL::Compiler& fCompiler;
-    skvm::Uniform fAddr;
-    float fTable[4];
-    using INHERITED = SkSL::ExternalFunction;
-};
-
-DEF_TEST(SkSLInterpreterExternalTable, r) {
-    SkSL::ShaderCaps caps;
-    SkSL::Compiler compiler(&caps);
-    SkSL::ProgramSettings settings;
-    const char* src =
-            "float4 main() { return float4(table(2), table(-1), table(0.4), table(0.6)); }";
-    std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
-
-    skvm::Builder b;
-    skvm::Uniforms u(b.uniform(), 0);
-
-    externalFunctions.push_back(std::make_unique<ExternalTable>("table", compiler, &u));
-    settings.fExternalFunctions = &externalFunctions;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, std::string(src), settings);
-    REPORTER_ASSERT(r, program);
-
-    const SkSL::FunctionDeclaration* main = program->getFunction("main");
-
-    SkSL::ProgramToSkVM(*program, *main->definition(), &b, /*debugTrace=*/nullptr, /*uniforms=*/{});
-    skvm::Program p = b.done();
-
-    float out[4];
-    p.eval(1, u.buf.data(), &out[0], &out[1], &out[2], &out[3]);
-    REPORTER_ASSERT(r, out[0] == 8.0);
-    REPORTER_ASSERT(r, out[1] == 1.0);
-    REPORTER_ASSERT(r, out[2] == 2.0);
-    REPORTER_ASSERT(r, out[3] == 4.0);
 }
 
 DEF_TEST(SkSLInterpreterTrace, r) {

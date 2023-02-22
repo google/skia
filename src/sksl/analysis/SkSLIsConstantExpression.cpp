@@ -80,14 +80,12 @@ public:
             // constant-expressions should result in a constant-expression. SkSL handles this by
             // optimizing fully-constant function calls into literals in FunctionCall::Make.
             case Expression::Kind::kFunctionCall:
-            case Expression::Kind::kExternalFunctionCall:
             case Expression::Kind::kChildCall:
 
             // These shouldn't appear in a valid program at all, and definitely aren't
             // constant-(index)-expressions.
             case Expression::Kind::kPoison:
             case Expression::Kind::kFunctionReference:
-            case Expression::Kind::kExternalFunctionReference:
             case Expression::Kind::kMethodReference:
             case Expression::Kind::kTypeReference:
                 return true;

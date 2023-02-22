@@ -21,7 +21,6 @@ std::string Expression::description() const {
 bool Expression::isIncomplete(const Context& context) const {
     switch (this->kind()) {
         case Kind::kFunctionReference:
-        case Kind::kExternalFunctionReference:
             context.fErrors->error(fPosition.after(), "expected '(' to begin function call");
             return true;
 
