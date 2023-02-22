@@ -15,8 +15,6 @@
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/audioplayer/SkAudioPlayer.h"
-#include "modules/particles/include/SkParticleEffect.h"
-#include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
@@ -87,7 +85,7 @@ public:
     virtual ~Decorator() = default;
 
     // We pass in the Matrix and have the Decorator handle using it independently
-    // This is so decorators like particle effects can keep position on screen after moving.
+    // This is so decorators can keep position on screen after moving.
     virtual void render(SkCanvas*, double, const SkMatrix) = 0;
 };
 
@@ -140,57 +138,11 @@ private:
     std::unordered_map<std::string, sk_sp<SkData>> fResources;
 };
 
-class ParticleMarker final : public Decorator {
-public:
-    ~ParticleMarker() override = default;
-
-    static std::unique_ptr<Decorator> MakeConfetti() { return std::make_unique<ParticleMarker>("confetti.json"); }
-    static std::unique_ptr<Decorator> MakeSine() { return std::make_unique<ParticleMarker>("sinusoidal_emitter.json"); }
-    static std::unique_ptr<Decorator> MakeSkottie() { return std::make_unique<ParticleMarker>("skottie_particle.json"); }
-
-    explicit ParticleMarker(const char* effect_file) {
-        SkParticleEffect::RegisterParticleTypes();
-        auto params = sk_sp<SkParticleEffectParams>();
-        params.reset(new SkParticleEffectParams());
-        auto effectJsonPath = SkOSPath::Join(GetResourcePath("particles").c_str(), effect_file);
-        if (auto fileData = SkData::MakeFromFileName(effectJsonPath.c_str())) {
-            skjson::DOM dom(static_cast<const char*>(fileData->data()), fileData->size());
-            SkFromJsonVisitor fromJson(dom.root());
-            params->visitFields(&fromJson);
-            auto provider = sk_make_sp<TestingResourceProvider>();
-            params->prepare(provider.get());
-        } else {
-            SkDebugf("no particle effect file found at: %s\n", effectJsonPath.c_str());
-        }
-        fEffect = sk_make_sp<SkParticleEffect>(params);
-    }
-
-    void render(SkCanvas* canvas, double t, SkMatrix transform) override {
-        if (!fStarted || t < 0.01) {
-            fStarted = true;
-            fEffect->start(t, true, { 0, 0 }, { 0, -1 }, 1, { 0, 0 }, 0,
-                              { 1, 1, 1, 1 }, 0, 0);
-            fEffect->setPosition({0,0});
-        }
-        SkPoint p = {0,0};
-        transform.mapPoints(&p, 1);
-        fEffect->setPosition(p);
-        fEffect->update(t);
-        fEffect->draw(canvas);
-    }
-private:
-    sk_sp<SkParticleEffect> fEffect;
-    bool fStarted = false;
-};
-
 static const struct DecoratorRec {
     const char* fName;
     std::unique_ptr<Decorator>(*fFactory)();
 } kDecorators[] = {
     { "Simple marker",       SimpleMarker::Make },
-    { "Confetti",            ParticleMarker::MakeConfetti },
-    { "Sine Wave",           ParticleMarker::MakeSine },
-    { "Nested Skotties",     ParticleMarker::MakeSkottie },
 };
 
 class TextTracker final : public skottie::PropertyObserver {

@@ -46,7 +46,7 @@ For other available build targets, see `Makefile` and `compile.sh`.
 For example, building a stripped-down version of CanvasKit with no text support or
 any of the "extras", one might run:
 
-    ./compile.sh no_skottie no_particles no_font
+    ./compile.sh no_skottie no_font
 
 Such a stripped-down version is about half the size of the default release build.
 

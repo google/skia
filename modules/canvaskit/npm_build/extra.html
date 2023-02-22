@@ -27,9 +27,6 @@
 <canvas id=rtshader width=300 height=300></canvas>
 <canvas id=rtshader2 width=300 height=300></canvas>
 
-<h2> Particles </h2>
-<canvas id=particles width=500 height=500></canvas>
-
 <h2> Paragraph </h2>
 <canvas id=para1 width=600 height=600></canvas>
 <canvas id=para2 width=600 height=600 tabindex='-1'></canvas>
@@ -69,55 +66,9 @@
   const loadBrickTex = fetch(cdn + 'brickwork-texture.jpg').then((response) => response.arrayBuffer());
   const loadBrickBump = fetch(cdn + 'brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
 
-  const curves = {
-    "MaxCount": 1000,
-    "Drawable": {
-      "Type": "SkCircleDrawable",
-      "Radius": 2
-    },
-    "Code": [`
-      void effectSpawn(inout Effect effect) {
-        effect.rate = 200;
-        effect.color = float4(1, 0, 0, 1);
-      }
-      void spawn(inout Particle p) {
-        p.lifetime = 3 + rand(p.seed);
-        p.vel.y = -50;
-      }
-
-      void update(inout Particle p) {
-        float w = mix(15, 3, p.age);
-        p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));
-        if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }
-
-        p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;
-      }
-      `
-    ],
-    "Bindings": []
-  };
-
-  const spiralSkSL = `
-  uniform float rad_scale;
-  uniform float2 in_center;
-  uniform float4 in_colors0;
-  uniform float4 in_colors1;
-
-  half4 main(float2 p) {
-      float2 pp = p - in_center;
-      float radius = sqrt(dot(pp, pp));
-      radius = sqrt(radius);
-      float angle = atan(pp.y / pp.x);
-      float t = (angle + 3.1415926/2) / (3.1415926);
-      t += radius * rad_scale;
-      t = fract(t);
-      return half4(mix(in_colors0, in_colors1, t));
-  }`;
-
   // Examples which only require canvaskit
   ckLoaded.then((CK) => {
     CanvasKit = CK;
-    ParticlesAPI1(CanvasKit);
     RTShaderAPI1(CanvasKit);
     ColorSupport(CanvasKit);
     SkpExample(CanvasKit);
@@ -191,28 +142,6 @@
     surface.requestAnimationFrame(drawFrame);
 
     return surface;
-  }
-
-  function ParticlesAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('particles');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    const canvas = surface.getCanvas();
-    canvas.translate(250, 450);
-
-    const particles = CanvasKit.MakeParticles(JSON.stringify(curves));
-    particles.start(Date.now() / 1000.0, true);
-
-    function drawFrame(canvas) {
-      canvas.clear(CanvasKit.BLACK);
-
-      particles.update(Date.now() / 1000.0);
-      particles.draw(canvas);
-      surface.requestAnimationFrame(drawFrame);
-    }
-    surface.requestAnimationFrame(drawFrame);
   }
 
   function ParagraphAPI1(CanvasKit, fontData) {

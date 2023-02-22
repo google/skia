@@ -1740,7 +1740,6 @@ skia_static_library("pathkit") {
 
 group("modules") {
   deps = [
-    "modules/particles",
     "modules/skottie",
     "modules/skparagraph",
     "modules/skshaper",
@@ -1777,7 +1776,6 @@ if (skia_enable_tools) {
     "include/svg",
     "include/utils",
     "include/utils/mac",
-    "modules/particles/include",
     "modules/skottie/include",
     "modules/skparagraph/include",
     "modules/skshaper/include",
@@ -1825,7 +1823,6 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":skia.h",
-        "modules/particles",
         "modules/skottie",
         "modules/skparagraph",
         "modules/skshaper",
@@ -2223,7 +2220,6 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
-      "modules/particles",
       "modules/skottie",
       "modules/skottie:gm",
       "modules/skparagraph",
@@ -2974,7 +2970,6 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":skia.h",
-        "modules/particles",
         "modules/skottie",
         "modules/skparagraph",
         "modules/skshaper",
@@ -3030,8 +3025,6 @@ if (skia_enable_tools) {
         "tools/viewer/MaterialShadowsSlide.cpp",
         "tools/viewer/MegaStrokeSlide.cpp",
         "tools/viewer/MixerSlide.cpp",
-        "tools/viewer/ParticlesSlide.cpp",
-        "tools/viewer/ParticlesSlide.h",
         "tools/viewer/PatchSlide.cpp",
         "tools/viewer/PathClipSlide.cpp",
         "tools/viewer/PathEffectsSlide.cpp",
@@ -3097,7 +3090,6 @@ if (skia_enable_tools) {
         "experimental/sktext",
         "experimental/sktext:slides",
         "modules/audioplayer",
-        "modules/particles",
         "modules/skottie",
         "modules/skottie:utils",
         "modules/skparagraph:slides",
@@ -3150,14 +3142,6 @@ if (skia_enable_tools) {
       sources = [ "$ndk/$ndk_gdbserver" ]
       outputs = [ "$root_out_dir/gdbserver" ]
     }
-  }
-
-  skia_executable("cpu_modules") {
-    sources = [ "tools/cpu_modules.cpp" ]
-    deps = [
-      ":skia",
-      "modules/particles",
-    ]
   }
 
   test_app("editor") {

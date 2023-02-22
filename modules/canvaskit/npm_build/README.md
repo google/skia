@@ -72,8 +72,7 @@ Then, add the following configuration change to the node section of the config:
 
 See `example.html` and `node.example.js` for demos of how to use the core API.
 
-See `extra.html` for some optional add-ins like an animation player (Skottie)
-and a particles system.
+See `extra.html` for some optional add-ins like an animation player (Skottie).
 
 See `types/index.d.ts` for a typescript definition file that contains all the
 APIs and some documentation about them.

@@ -448,14 +448,6 @@ export interface CanvasKit {
     MakeManagedAnimation(json: string, assets?: Record<string, ArrayBuffer>,
                          filterPrefix?: string, soundMap?: SoundMap): ManagedSkottieAnimation;
 
-    /**
-     * Returns a Particles effect built from the provided json string and assets.
-     * Requires that Particles be compiled into CanvasKit
-     * @param json
-     * @param assets
-     */
-    MakeParticles(json: string, assets?: Record<string, ArrayBuffer>): Particles;
-
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
     readonly ImageData: ImageDataConstructor;
     readonly ParagraphStyle: ParagraphStyleConstructor;
@@ -547,7 +539,6 @@ export interface CanvasKit {
 
     readonly gpu?: boolean; // true if GPU code was compiled in
     readonly managed_skottie?: boolean; // true if advanced (managed) Skottie code was compiled in
-    readonly particles?: boolean; // true if Particles code was compiled in
     readonly rt_effect?: boolean; // true if RuntimeEffect was compiled in
     readonly skottie?: boolean; // true if base Skottie code was compiled in
 
@@ -1099,72 +1090,6 @@ export interface ParagraphStyle {
 export interface PositionWithAffinity {
     pos: number;
     affinity: Affinity;
-}
-
-/**
- * See SkParticleEffect.h for more details.
- */
-export interface Particles extends EmbindObject<Particles> {
-    /**
-     * Draws the current state of the particles on the given canvas.
-     * @param canvas
-     */
-    draw(canvas: Canvas): void;
-
-    /**
-     * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
-     * floats will change the corresponding uniforms instantly.
-     */
-    uniforms(): Float32Array;
-
-    /**
-     * Returns the nth uniform from the effect.
-     * @param index
-     */
-    getUniform(index: number): SkSLUniform;
-
-    /**
-     * Returns the number of uniforms on the effect.
-     */
-    getUniformCount(): number;
-
-    /**
-     * Returns the total number of floats across all uniforms on the effect. This is the length
-     * of the array returned by `uniforms()`. For example, an effect with a single float3 uniform,
-     * would return 1 from `getUniformCount()`, but 3 from `getUniformFloatCount()`.
-     */
-    getUniformFloatCount(): number;
-
-    /**
-     * Returns the name of the nth effect uniform.
-     * @param index
-     */
-    getUniformName(index: number): string;
-
-    /**
-     * Sets the base position of the effect.
-     * @param point
-     */
-    setPosition(point: InputPoint): void;
-
-    /**
-     * Sets the base rate of the effect.
-     * @param rate
-     */
-    setRate(rate: number): void;
-
-    /**
-     * Starts playing the effect.
-     * @param now
-     * @param looping
-     */
-    start(now: number, looping: boolean): void;
-
-    /**
-     * Updates the effect using the new time.
-     * @param now
-     */
-    update(now: number): void;
 }
 
 export interface SkSLUniform {

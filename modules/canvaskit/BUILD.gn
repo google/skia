@@ -106,10 +106,7 @@ skia_wasm_lib("canvaskit") {
       "../../modules/sksg:sksg",
     ]
   }
-  if (skia_canvaskit_enable_particles) {
-    deps += [ "../../modules/particles:particles" ]
-  }
-  if (skia_canvaskit_enable_skottie || skia_canvaskit_enable_particles) {
+  if (skia_canvaskit_enable_skottie) {
     deps += [ "../../modules/skresources:skresources" ]
   }
   if (skia_canvaskit_include_viewer) {
@@ -135,10 +132,7 @@ skia_wasm_lib("canvaskit") {
       "skottie_bindings.cpp",
     ]
   }
-  if (skia_canvaskit_enable_particles) {
-    sources += [ "particles_bindings.cpp" ]
-  }
-  if (skia_canvaskit_enable_skottie || skia_canvaskit_enable_particles) {
+  if (skia_canvaskit_enable_skottie) {
     sources += [ "../../modules/skresources/src/SkResources.cpp" ]
   }
   if (skia_canvaskit_include_viewer) {
@@ -252,13 +246,6 @@ skia_wasm_lib("canvaskit") {
     ldflags += [
       "--pre-js",
       rebase_path("skottie.js"),
-    ]
-  }
-
-  if (skia_canvaskit_enable_particles) {
-    ldflags += [
-      "--pre-js",
-      rebase_path("particles.js"),
     ]
   }
 

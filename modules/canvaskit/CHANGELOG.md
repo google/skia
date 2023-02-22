@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+ - Particles have been removed.
+
 ## [0.38.0] - 2023-01-12
 
 ### Changed

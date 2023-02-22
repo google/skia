@@ -165,7 +165,6 @@ fi
 # These gms do not compile or link with the WASM code. Thus, we omit them.
 GLOBIGNORE="gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
-"gm/particles.cpp:"\
 "gm/video_decoder.cpp:"
 
 # These tests do not compile with the WASM code (require other deps).

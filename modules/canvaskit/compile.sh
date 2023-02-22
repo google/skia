@@ -80,12 +80,6 @@ if [[ $@ == *viewer* ]]; then
   IS_OFFICIAL_BUILD="false"
 fi
 
-ENABLE_PARTICLES="true"
-if [[ $@ == *no_particles* ]]; then
-  echo "Omitting Particles"
-  ENABLE_PARTICLES="false"
-fi
-
 ENABLE_PATHOPS="true"
 if [[ $@ == *no_pathops* ]] ; then
   # This saves about 2kb compressed.
@@ -250,7 +244,6 @@ echo "Compiling"
   skia_canvaskit_enable_effects_deserialization=${DESERIALIZE_EFFECTS} \
   skia_canvaskit_enable_skottie=${ENABLE_SKOTTIE} \
   skia_canvaskit_include_viewer=${INCLUDE_VIEWER} \
-  skia_canvaskit_enable_particles=${ENABLE_PARTICLES} \
   skia_canvaskit_enable_pathops=${ENABLE_PATHOPS} \
   skia_canvaskit_enable_rt_shader=${ENABLE_RT_SHADER} \
   skia_canvaskit_enable_matrix_helper=${ENABLE_MATRIX} \

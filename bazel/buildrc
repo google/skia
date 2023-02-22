@@ -67,7 +67,7 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
                      --disable_tracing --enable_sksl_tracing \
                      \
                      --ck_enable_canvas_polyfill --ck_enable_skp_serialization --ck_enable_skottie \
-                     --ck_enable_particles --ck_enable_runtime_effect --ck_enable_matrix_js
+                     --ck_enable_runtime_effect --ck_enable_matrix_js
 
 build:ck_webgl2 --with_gl_standard=webgl_standard --gpu_backend=gl_backend \
                 --disable_legacy_shader_context

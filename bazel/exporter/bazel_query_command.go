@@ -30,7 +30,6 @@ var allSkiaFlags = []string{
 	"--ck_enable_embedded_font",
 	"--ck_enable_fonts",
 	"--ck_enable_matrix_js",
-	"--ck_enable_particles",
 	"--ck_enable_runtime_effect",
 	"--ck_enable_skottie",
 	"--ck_enable_skp_serialization",

@@ -851,66 +851,6 @@ describe('Canvas Behavior', () => {
         paint.delete();
         path.delete();
     });
-
-    gm('particles_canvas', (canvas) => {
-        canvas.clear(CanvasKit.BLACK);
-
-        const curveParticles = {
-            'MaxCount': 1000,
-            'Drawable': {
-               'Type': 'SkCircleDrawable',
-               'Radius': 2
-            },
-            'Code': [
-               `void effectSpawn(inout Effect effect) {
-                  effect.rate = 200;
-                  effect.color = float4(1, 0, 0, 1);
-                }
-                void spawn(inout Particle p) {
-                  p.lifetime = 3 + rand(p.seed);
-                  p.vel.y = -50;
-                }
-
-                void update(inout Particle p) {
-                  float w = mix(15, 3, p.age);
-                  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));
-                  if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }
-
-                  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;
-                }`
-            ],
-            'Bindings': []
-        };
-
-        const particles = CanvasKit.MakeParticles(JSON.stringify(curveParticles));
-        particles.start(0, true);
-        particles.setPosition([0, 0]);
-
-        const paint = new CanvasKit.Paint();
-        paint.setAntiAlias(true);
-        paint.setColor(CanvasKit.WHITE);
-        const font = new CanvasKit.Font(null, 12);
-
-        // Draw a 5x5 set of different times in the particle system
-        // like a filmstrip of motion of particles.
-        const LEFT_MARGIN = 90;
-        const TOP_MARGIN = 100;
-        for (let row = 0; row < 5; row++) {
-            for (let column = 0; column < 5; column++) {
-                canvas.save();
-                canvas.translate(LEFT_MARGIN + column*100, TOP_MARGIN + row*100);
-
-                // Time moves in row-major order in increments of 0.02.
-                const particleTime = row/10 + column/50;
-
-                canvas.drawText('time ' + particleTime.toFixed(2), -30, 20, paint, font);
-                particles.update(particleTime);
-
-                particles.draw(canvas);
-                canvas.restore();
-            }
-        }
-    });
 });
 
 const expect3x3MatricesToMatch = (expected, actual) => {

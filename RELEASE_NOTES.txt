@@ -16,6 +16,7 @@ Milestone 112
   * sk_realloc_throw (an internal API) now frees up memory when 0 is passed in as the size.
     This should have no user-facing impacts for clients which use the default allocator, but
     requires custom allocators to also implement this change.
+  * The particles module has been deleted.
 
 Milestone 111
 -------------
