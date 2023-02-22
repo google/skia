@@ -64,6 +64,10 @@ void sk_out_of_memory(void) {
 }
 
 void* sk_realloc_throw(void* addr, size_t size) {
+    if (size == 0) {
+        sk_free(addr);
+        return nullptr;
+    }
     return throw_on_failure(size, realloc(addr, size));
 }
 

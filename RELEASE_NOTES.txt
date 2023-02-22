@@ -13,6 +13,9 @@ Milestone 112
   * SkRandom is no longer part of the public API.
   * SK_ARRAY_COUNT is no longer part of the public API. Clients should use std::size.
   * SK_SCALAR_IS_FLOAT is not set anymore. SkScalar is always a float (and has been since 2017).
+  * sk_realloc_throw (an internal API) now frees up memory when 0 is passed in as the size.
+    This should have no user-facing impacts for clients which use the default allocator, but
+    requires custom allocators to also implement this change.
 
 Milestone 111
 -------------

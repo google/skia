@@ -247,6 +247,7 @@ tests_sources = [
   "$_tests/SkGlyphBufferTest.cpp",
   "$_tests/SkGlyphTest.cpp",
   "$_tests/SkImageTest.cpp",
+  "$_tests/SkMallocTest.cpp",
   "$_tests/SkPathRangeIterTest.cpp",
   "$_tests/SkRasterPipelineOptsTest.cpp",
   "$_tests/SkRasterPipelineTest.cpp",

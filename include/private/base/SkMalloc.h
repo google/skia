@@ -50,7 +50,9 @@ enum {
 SK_API extern void* sk_malloc_flags(size_t size, unsigned flags);
 
 /** Same as standard realloc(), but this one never returns null on failure. It will throw
- *  an exception if it fails.
+ *  if it fails.
+ *  If size is 0, it will call sk_free on buffer and return null. (This behavior is implementation-
+ *  defined for normal realloc. We follow what glibc does.)
  */
 SK_API extern void* sk_realloc_throw(void* buffer, size_t size);
 
