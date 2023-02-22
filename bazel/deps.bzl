@@ -158,7 +158,7 @@ def git_repos_from_deps():
 
     git_repository(
         name = "spirv_tools",
-        commit = "8bcaad28f73498b9471cd642dd0203b6d0e1756b",
+        commit = "9017cfcf6286e6b37552828cdf6ca0b62a030e47",
         remote = "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git",
     )
 
@@ -172,7 +172,7 @@ def git_repos_from_deps():
     new_git_repository(
         name = "vulkan_tools",
         build_file = "@//bazel/external/vulkan_tools:BUILD.bazel",
-        commit = "c3bd023b6f945b5edd0ade0bc6714ca3321bb0e3",
+        commit = "1a66f59f23ac2e45af4e38ee49c711df022a8f22",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools",
     )
 
