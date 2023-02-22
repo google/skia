@@ -108,15 +108,6 @@ using Transform = gr::Transform;
 #endif
 
 namespace {
-// Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
-// differences.
-// extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
-#if defined(SK_TRACE_GLYPH_RUN_PROCESS)
-static const constexpr bool kTrace = true;
-#else
-static const constexpr bool kTrace = false;
-#endif
-
 // Returns the empty span if there is a problem reading the positions.
 SkSpan<SkPoint> make_points_from_buffer(SkReadBuffer& buffer, SubRunAllocator* alloc) {
     uint32_t glyphCount = buffer.getArrayCount();
@@ -2487,24 +2478,9 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         SubRunCreationBehavior creationBehavior,
         const char* tag) {
     SkASSERT(alloc != nullptr);
-    [[maybe_unused]] SkString msg;
-    if constexpr (kTrace) {
-        const uint64_t uniqueID = glyphRunList.uniqueID();
-        msg.appendf("\nStart glyph run processing");
-        if (tag != nullptr) {
-            msg.appendf(" for %s ", tag);
-            if (uniqueID != SK_InvalidUniqueID) {
-                msg.appendf(" uniqueID: %" PRIu64, uniqueID);
-            }
-        }
-        msg.appendf("\n   matrix\n");
-        msg.appendf("   %7.3g %7.3g %7.3g\n   %7.3g %7.3g %7.3g\n",
-                    positionMatrix[0], positionMatrix[1], positionMatrix[2],
-                    positionMatrix[3], positionMatrix[4], positionMatrix[5]);
-    }
+    SkASSERT(strikeDeviceInfo.fSDFTControl != nullptr);
 
     SubRunContainerOwner container = alloc->makeUnique<SubRunContainer>(positionMatrix);
-    SkASSERT(strikeDeviceInfo.fSDFTControl != nullptr);
     // If there is no SDFT description ignore all SubRuns.
     if (strikeDeviceInfo.fSDFTControl == nullptr) {
         return container;
@@ -2563,10 +2539,6 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                                 runFont, runPaint, deviceProps, positionMatrix,
                                 glyphRunListLocation, SDFTControl);
 
-                if constexpr(kTrace) {
-                    msg.appendf("  SDFT case:\n%s", strikeSpec.dump().c_str());
-                }
-
                 if (!SkScalarNearlyZero(strikeToSourceScale)) {
                     sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
@@ -2582,10 +2554,6 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                             SkMatrix::Scale(1.f/strikeToSourceScale, 1.f/strikeToSourceScale);
 
                     accepted->startSource(rejected->source());
-
-                    if constexpr (kTrace) {
-                        msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
-                    }
 
                     SkRect creationBounds =
                         prepare_for_SDFT_drawing(strike.get(), creationMatrix, accepted, rejected);
@@ -2615,16 +2583,9 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                         runFont, runPaint, deviceProps, scalerContextFlags, positionMatrix);
 
-                if constexpr (kTrace) {
-                    msg.appendf("  Mask case:\n%s", strikeSpec.dump().c_str());
-                }
-
                 sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
-                if constexpr (kTrace) {
-                    msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
-                }
                 SkRect bounds =
                     prepare_for_direct_mask_drawing(
                         strike.get(), positionMatrix, accepted, rejected);
@@ -2654,17 +2615,10 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             auto [strikeSpec, strikeToSourceScale] =
                     SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
-            if constexpr (kTrace) {
-                msg.appendf("  Drawable case:\n%s", strikeSpec.dump().c_str());
-            }
-
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
-                if constexpr (kTrace) {
-                    msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
-                }
                 prepare_for_drawable_drawing(strike.get(), accepted, rejected);
                 rejected->flipRejectsToSource();
 
@@ -2684,17 +2638,10 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             auto [strikeSpec, strikeToSourceScale] =
                     SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
-            if constexpr (kTrace) {
-                msg.appendf("  Path case:\n%s", strikeSpec.dump().c_str());
-            }
-
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
-                if constexpr (kTrace) {
-                    msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
-                }
 
                 prepare_for_path_drawing(strike.get(), accepted, rejected);
                 rejected->flipRejectsToSource();
@@ -2783,15 +2730,9 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             // Draw using the creationMatrix.
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
                     runFont, runPaint, deviceProps, scalerContextFlags, creationMatrix);
-            if constexpr (kTrace) {
-                msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
-            }
             sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
             accepted->startSource(rejected->source());
-            if constexpr (kTrace) {
-                msg.appendf("glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
-            }
             SkRect creationBounds =
                 prepare_for_mask_drawing(strike.get(), creationMatrix, accepted, rejected);
             rejected->flipRejectsToSource();
@@ -2816,13 +2757,6 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         }
     }
 
-    if constexpr (kTrace) {
-        msg.appendf("End glyph run processing");
-        if (tag != nullptr) {
-            msg.appendf(" for %s ", tag);
-        }
-        SkDebugf("%s\n", msg.c_str());
-    }
     return container;
 }
 
