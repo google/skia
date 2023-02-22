@@ -84,17 +84,17 @@ class FontRegenGM : public skiagm::GM {
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-        if (!dContext) {
-            *errorMsg = "GPU-specific";
-            return DrawResult::kSkip;
-        }
+
 
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);
         canvas->drawTextBlob(fBlobs[1], 10, 225, paint);
-        dContext->flushAndSubmit();
+
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
+        if (dContext) {
+            dContext->flushAndSubmit();
+        }
 
         paint.setColor(0xFF010101);
         canvas->drawTextBlob(fBlobs[0], 10, 305, paint);
@@ -102,7 +102,7 @@ class FontRegenGM : public skiagm::GM {
 
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
-        if (kShowAtlas) {
+        if (kShowAtlas && dContext) {
             auto img = dContext->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8);
             canvas->drawImage(img, 200, 0);
         }

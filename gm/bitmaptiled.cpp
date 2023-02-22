@@ -15,10 +15,8 @@
 #include "include/gpu/GrRecordingContext.h"
 
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
-// extents of the tiles don't causes gaps between tiles.
-static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* rContext,
-                                                    SkCanvas* canvas,
-                                                    bool vertical) {
+// extents of the tiles don't cause gaps between tiles.
+static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool vertical) {
     // This should match kBmpSmallTileSize in SkGpuDevice.cpp. Note that our canvas size is tuned
     // to this constant as well.
     const int kTileSize = 1 << 10;
@@ -28,7 +26,7 @@ static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* rContext
     const int kBitmapLongEdge = 7 * kTileSize;
     const int kBitmapShortEdge = 1 * kTileSize;
 
-    if (auto dContext = rContext->asDirectContext()) {
+    if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
         // To trigger tiling, we also need the image to be more than 50% of the cache, so we
         // ensure the cache is sized to make that true.
         const int kBitmapArea = kBitmapLongEdge * kBitmapShortEdge;
@@ -63,12 +61,10 @@ static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* rContext
     }
 }
 
-DEF_SIMPLE_GPU_GM_BG(
-        bitmaptiled_fractional_horizontal, rContext, canvas, 1124, 365, SK_ColorBLACK) {
-    draw_tile_bitmap_with_fractional_offset(rContext, canvas, false);
+DEF_SIMPLE_GM_BG(bitmaptiled_fractional_horizontal, canvas, 1124, 365, SK_ColorBLACK) {
+    draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ false);
 }
 
-DEF_SIMPLE_GPU_GM_BG(
-        bitmaptiled_fractional_vertical, rContext, canvas, 365, 1124, SK_ColorBLACK) {
-    draw_tile_bitmap_with_fractional_offset(rContext, canvas, true);
+DEF_SIMPLE_GM_BG(bitmaptiled_fractional_vertical, canvas, 365, 1124, SK_ColorBLACK) {
+    draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ true);
 }

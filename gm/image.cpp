@@ -450,16 +450,24 @@ DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 1080, 280) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkImage> make_lazy_image(SkSurface* surf) {
-    surf->getCanvas()->drawCircle(100, 100, 100, SkPaint());
-    sk_sp<SkData> data = surf->makeImageSnapshot()->encodeToData();
-    if (!data) {
-        return nullptr;
+static sk_sp<SkImage> make_lazy_image() {
+    sk_sp<SkPicture> picture;
+    {
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(SkRect::MakeIWH(200, 200));
+        canvas->drawCircle(100, 100, 100, SkPaint());
+        picture = recorder.finishRecordingAsPicture();
     }
-    return SkImage::MakeFromEncoded(std::move(data));
+
+    return SkImage::MakeFromPicture(std::move(picture), { 200, 200 },
+                                    /* matrix= */ nullptr, /* paint= */ nullptr,
+                                    SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
 }
 
 static sk_sp<SkImage> serial_deserial(SkImage* img) {
+    if (!img) {
+        return nullptr;
+    }
     SkBinaryWriteBuffer writer;
     writer.writeImage(img);
     size_t length = writer.bytesWritten();
@@ -471,26 +479,32 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
-    auto rContext = canvas->recordingContext();
-    auto dContext = GrAsDirectContext(rContext);
-
-    if (!dContext && rContext) {
-        *errorMsg = "Not supported in DDL mode";
-        return skiagm::DrawResult::kSkip;
-    }
-
-    SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, nullptr);
-    auto        surf = ToolUtils::makeSurface(canvas, info, nullptr);
-    auto img = make_lazy_image(surf.get());
+    auto img = make_lazy_image();
     if (!img) {
         *errorMsg = "Failed to make lazy image.";
         return skiagm::DrawResult::kFail;
     }
 
+    GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
+#ifdef SK_GRAPHITE_ENABLED
+    auto recorder = canvas->recorder();
+#endif
+
     canvas->drawImage(img, 10, 10);
-    auto sub = img->makeSubset({100, 100, 200, 200});
-    canvas->drawImage(sub, 220, 10);
-    sub = serial_deserial(sub.get());
-    canvas->drawImage(sub, 220+110, 10);
+
+    sk_sp<SkImage> subset;
+
+#ifdef SK_GRAPHITE_ENABLED
+    if (recorder) {
+        subset = img->makeSubset({100, 100, 200, 200}, recorder);
+    } else
+#endif
+    {
+        subset = img->makeSubset({100, 100, 200, 200}, dContext);
+    }
+
+    canvas->drawImage(subset, 220, 10);
+    subset = serial_deserial(subset.get());
+    canvas->drawImage(subset, 220+110, 10);
     return skiagm::DrawResult::kOk;
 }
