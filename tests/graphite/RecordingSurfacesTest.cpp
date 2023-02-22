@@ -104,4 +104,47 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestClear, reporter, context
     run_test(reporter, context, surfaceSize, recordingSize, replayOffset, draw, expectations);
 }
 
+// Tests that writePixels is translated correctly when replayed with an offset.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixels, reporter, context) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(4, 4, true);
+    SkCanvas bitmapCanvas(bitmap);
+    SkPaint paint;
+    paint.setColor(SkColors::kRed);
+    bitmapCanvas.drawIRect(SkIRect::MakeXYWH(0, 0, 4, 4), paint);
+
+    SkISize surfaceSize = SkISize::Make(8, 4);
+    SkISize recordingSize = SkISize::Make(4, 4);
+    SkISize replayOffset = SkISize::Make(4, 0);
+
+    auto draw = [&bitmap](SkCanvas* canvas) { canvas->writePixels(bitmap, 0, 0); };
+
+    std::vector<Expectation> expectations = {{0, 0, SkColors::kTransparent},
+                                             {4, 0, SkColors::kRed}};
+
+    run_test(reporter, context, surfaceSize, recordingSize, replayOffset, draw, expectations);
+}
+
+// Tests that the result of writePixels is cropped correctly when offscreen.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixelsOffscreen, reporter, context) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(4, 4, true);
+    SkCanvas bitmapCanvas(bitmap);
+    SkPaint paint;
+    paint.setColor(SkColors::kRed);
+    bitmapCanvas.drawIRect(SkIRect::MakeXYWH(0, 0, 4, 4), paint);
+    paint.setColor(SkColors::kGreen);
+    bitmapCanvas.drawIRect(SkIRect::MakeXYWH(2, 2, 2, 2), paint);
+
+    SkISize surfaceSize = SkISize::Make(4, 4);
+    SkISize recordingSize = SkISize::Make(4, 4);
+    SkISize replayOffset = SkISize::Make(-2, -2);
+
+    auto draw = [&bitmap](SkCanvas* canvas) { canvas->writePixels(bitmap, 0, 0); };
+
+    std::vector<Expectation> expectations = {{0, 0, SkColors::kGreen}};
+
+    run_test(reporter, context, surfaceSize, recordingSize, replayOffset, draw, expectations);
+}
+
 }  // namespace skgpu::graphite
