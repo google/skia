@@ -26,10 +26,30 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/ImageUtils.h"
+#include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/ReadWriteSwizzle.h"
 #include "src/gpu/graphite/TextureProxyView.h"
+
+
+static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swizzle& swizzle) {
+    if (swizzle == skgpu::Swizzle::RGBA()) {
+        return skgpu::graphite::ReadSwizzle::kRGBA;
+    } else if (swizzle == skgpu::Swizzle::RGB1()) {
+        return skgpu::graphite::ReadSwizzle::kRGB1;
+    } else if (swizzle == skgpu::Swizzle("rrrr")) {
+        return skgpu::graphite::ReadSwizzle::kRRRR;
+    } else if (swizzle == skgpu::Swizzle("rrr1")) {
+        return skgpu::graphite::ReadSwizzle::kRRR1;
+    } else if (swizzle == skgpu::Swizzle::BGRA()) {
+        return skgpu::graphite::ReadSwizzle::kBGRA;
+    } else {
+        SkDebugf("Encountered unsupported read swizzle. Defaulting to RGBA.");
+        return skgpu::graphite::ReadSwizzle::kRGBA;
+    }
+}
 #endif
 
 SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
@@ -392,7 +412,8 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
-    ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset);
+    ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset,
+                                        ReadSwizzle::kRGBA);
 
     if (!fRaw) {
         imgData.fSteps = SkColorSpaceXformSteps(fImage->colorSpace(),
@@ -414,6 +435,7 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
 
         auto [view, _] = as_IB(imageToDraw)->asView(keyContext.recorder(), mipmapped);
         imgData.fTextureProxy = view.refProxy();
+        imgData.fReadSwizzle = swizzle_class_to_read_enum(view.swizzle());
     }
 
     ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);

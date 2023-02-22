@@ -13,8 +13,13 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 
+namespace skgpu {
+class Swizzle;
+}
+
 namespace skgpu::graphite {
 class KeyContext;
+enum class ReadSwizzle;
 }
 
 class SkImageShader : public SkShaderBase {
