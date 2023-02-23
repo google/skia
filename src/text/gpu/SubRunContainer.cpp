@@ -541,6 +541,14 @@ std::tuple<bool, SkVector> can_use_direct(
             translation};
 }
 
+SkSpan<const SkPackedGlyphID> get_packedIDs(SkZip<const SkPackedGlyphID, const SkPoint> accepted) {
+    return accepted.get<0>();
+}
+
+SkSpan<const SkGlyphID> get_glyphIDs(SkZip<const SkGlyphID, const SkPoint> accepted) {
+    return accepted.get<0>();
+}
+
 template <typename U>
 SkSpan<const SkPoint> get_positions(SkZip<U, const SkPoint> accepted) {
     return accepted.template get<1>();
@@ -689,7 +697,7 @@ PathOpSubmitter PathOpSubmitter::Make(SkZip<const SkPackedGlyphID, const SkPoint
     IDOrPath* idsOrPaths = alloc->makeUniqueArray<IDOrPath>(glyphCount).release();
 
     for (auto [dstIdOrPath, dstPosition, srcPackedGlyphID, srcPosition] :
-            SkMakeZip(idsOrPaths, positions, accepted.get<0>(), accepted.get<1>())) {
+            SkMakeZip(idsOrPaths, positions, get_packedIDs(accepted), get_positions(accepted))) {
         dstPosition = srcPosition;
         dstIdOrPath.fGlyphID = srcPackedGlyphID.glyphID();
     }
@@ -1708,7 +1716,8 @@ public:
         auto vertexFiller = TransformedMaskVertexFiller::Make(
                 maskType, creationMatrix, creationBounds, get_positions(accepted), alloc);
 
-        auto glyphVector = GlyphVector::Make(std::move(strikePromise), accepted.get<0>(), alloc);
+        auto glyphVector =
+                GlyphVector::Make(std::move(strikePromise), get_packedIDs(accepted), alloc);
 
         return alloc->makeUnique<TransformedMaskSubRun>(
                 initialPositionMatrix, std::move(vertexFiller), std::move(glyphVector));
@@ -1967,7 +1976,8 @@ public:
                 get_positions(accepted),
                 alloc);
 
-        auto glyphVector = GlyphVector::Make(std::move(strikePromise), accepted.get<0>(), alloc);
+        auto glyphVector =
+                GlyphVector::Make(std::move(strikePromise), get_packedIDs(accepted), alloc);
 
         return alloc->makeUnique<SDFTSubRun>(
                 runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
@@ -2677,7 +2687,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
             // Get the raw glyph IDs to simulate device drawing to figure the maximum device
             // dimension.
-            const SkSpan<const SkGlyphID> glyphs = rejected->source().get<0>();
+            const SkSpan<const SkGlyphID> glyphs = get_glyphIDs(rejected->source());
 
             // maxGlyphDimension always returns an integer even though the return type is SkScalar.
             auto maxGlyphDimension = [&](const SkMatrix& m) {
