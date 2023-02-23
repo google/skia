@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "include/private/SkColorData.h"
 
 namespace skgpu::graphite {
 
@@ -33,7 +34,7 @@ public:
     }
 
     // Constructor for the ExtractPaintData code path (i.e., with a Recorder)
-    KeyContext(Recorder*, const SkM44& local2Dev, const SkColorInfo&);
+    KeyContext(Recorder*, const SkM44& local2Dev, const SkColorInfo&, const SkColor4f& paintColor);
 
     KeyContext(const KeyContext&);
 
@@ -47,6 +48,8 @@ public:
 
     const SkColorInfo& dstColorInfo() const { return fDstColorInfo; }
 
+    const SkPMColor4f& paintColor() const { return fPaintColor; }
+
 protected:
     Recorder* fRecorder = nullptr;
     SkM44 fLocal2Dev;
@@ -54,6 +57,7 @@ protected:
     ShaderCodeDictionary* fDictionary;
     RuntimeEffectDictionary* fRTEffectDict;
     SkColorInfo fDstColorInfo;
+    SkPMColor4f fPaintColor = SK_PMColor4fBLACK;
 };
 
 class KeyContextWithLocalMatrix : public KeyContext {

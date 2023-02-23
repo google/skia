@@ -36,7 +36,7 @@ ExtractPaintData(Recorder* recorder,
 
     gatherer->resetWithNewLayout(layout);
 
-    KeyContext keyContext(recorder, local2Dev, targetColorInfo);
+    KeyContext keyContext(recorder, local2Dev, targetColorInfo, p.color());
     p.toKey(keyContext, builder, gatherer);
 
     auto dict = recorder->priv().shaderCodeDictionary();

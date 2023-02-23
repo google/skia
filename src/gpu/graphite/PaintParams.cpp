@@ -75,11 +75,8 @@ void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
 
-    SkColor4f dstPaintColor = Color4fPrepForDst(fColor, keyContext.dstColorInfo());
-
     // TODO: figure out how we can omit this block when the Paint's color isn't used.
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                      dstPaintColor.makeOpaque().premul());
+    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, keyContext.paintColor());
     builder->endBlock();
 
     if (fShader) {

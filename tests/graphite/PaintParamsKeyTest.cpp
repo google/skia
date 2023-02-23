@@ -640,7 +640,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     SkColorInfo ci = SkColorInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                  SkColorSpace::MakeSRGB());
 
-    KeyContext extractPaintKeyContext(recorder.get(), {}, ci);
+    KeyContext extractPaintKeyContext(recorder.get(), {}, ci, SkColors::kBlack);
 
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
     KeyContext precompileKeyContext(dict, rtDict.get(), ci);
