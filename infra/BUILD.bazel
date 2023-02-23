@@ -4,7 +4,10 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-gazelle(name = "gazelle")
+gazelle(
+    name = "gazelle",
+    visibility = ["//visibility:public"],
+)
 
 alias(
     name = "mockery",
