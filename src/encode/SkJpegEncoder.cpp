@@ -172,16 +172,9 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
     return true;
 }
 
-std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& src,
-                                               const Options& options) {
-    OptionsPrivate optionsPrivate;
-    return Make(dst, src, options, optionsPrivate);
-}
-
 std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst,
                                                const SkPixmap& src,
-                                               const Options& options,
-                                               const OptionsPrivate& optionsPrivate) {
+                                               const Options& options) {
     if (!SkPixmapIsValid(src)) {
         return nullptr;
     }
@@ -202,10 +195,10 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst,
 
     // Write XMP metadata. This will only write the standard XMP segment.
     // TODO(ccameron): Split this into a standard and extended XMP segment if needed.
-    if (optionsPrivate.xmpMetadata) {
+    if (options.xmpMetadata) {
         SkDynamicMemoryWStream s;
         s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
-        s.write(optionsPrivate.xmpMetadata->data(), optionsPrivate.xmpMetadata->size());
+        s.write(options.xmpMetadata->data(), options.xmpMetadata->size());
         auto data = s.detachAsData();
         jpeg_write_marker(encoderMgr->cinfo(), kXMPMarker, data->bytes(), data->size());
     }
@@ -227,15 +220,6 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst,
         memcpy(ptr, icc->data(), icc->size());
 
         jpeg_write_marker(encoderMgr->cinfo(), kICCMarker, markerData->bytes(), markerData->size());
-    }
-
-    // Append the MPF segment last, so that edits to the previous segments don't break offset
-    // computations.
-    if (optionsPrivate.mpfSegment) {
-        jpeg_write_marker(encoderMgr->cinfo(),
-                          kMpfMarker,
-                          optionsPrivate.mpfSegment->bytes(),
-                          optionsPrivate.mpfSegment->size());
     }
 
     return std::unique_ptr<SkJpegEncoder>(new SkJpegEncoder(std::move(encoderMgr), src));

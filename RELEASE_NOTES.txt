@@ -17,6 +17,7 @@ Milestone 112
     This should have no user-facing impacts for clients which use the default allocator, but
     requires custom allocators to also implement this change.
   * The particles module has been deleted.
+  * SkJpegEncoder::Options includes a parameter for XMP metadata.
 
 Milestone 111
 -------------
