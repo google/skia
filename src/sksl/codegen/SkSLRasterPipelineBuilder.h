@@ -78,6 +78,7 @@ enum class BuilderOp {
     // converted into ProgramOps during `makeStages`.
     push_literal,
     push_slots,
+    push_slots_indirect,
     push_uniform,
     push_zeros,
     push_clone,
@@ -361,6 +362,12 @@ public:
 
     // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
     void push_slots(SlotRange src);
+
+    // Translates into copy_from_indirect_unmasked (from values into temp stack) in Raster Pipeline.
+    // `fixedRange` denotes a fixed set of slots; this range is pushed forward by the value at the
+    // top of stack `dynamicStack`. Pass the slot range of the variable being indexed as
+    // `limitRange`; this is used as a hard cap, to avoid indexing outside of bounds.
+    void push_slots_indirect(SlotRange fixedRange, int dynamicStack, SlotRange limitRange);
 
     // Translates into copy_slots_masked (from temp stack to values) in Raster Pipeline.
     // Does not discard any values on the temp stack.

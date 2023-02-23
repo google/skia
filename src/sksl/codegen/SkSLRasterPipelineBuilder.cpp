@@ -160,6 +160,7 @@ void Builder::discard_stack(int32_t count) {
             case BuilderOp::push_clone:
             case BuilderOp::push_clone_from_stack:
             case BuilderOp::push_slots:
+            case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform:
                 // Our last op was a multi-slot push; cancel out one discard and eliminate the op
                 // if its count reached zero.
@@ -307,6 +308,17 @@ void Builder::push_slots(SlotRange src) {
     if (src.count > 0) {
         fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
     }
+}
+
+void Builder::push_slots_indirect(SlotRange fixedRange, int dynamicStackID, SlotRange limitRange) {
+    // SlotA: fixed-range start
+    // SlotB: limit-range end
+    // immA: number of slots
+    // immB: dynamic stack ID
+    fInstructions.push_back({BuilderOp::push_slots_indirect,
+                             {fixedRange.index, limitRange.index + limitRange.count},
+                             fixedRange.count,
+                             dynamicStackID});
 }
 
 void Builder::push_uniform(SlotRange src) {
@@ -768,6 +780,7 @@ static int stack_usage(const Instruction& inst) {
             return 4;
 
         case BuilderOp::push_slots:
+        case BuilderOp::push_slots_indirect:
         case BuilderOp::push_uniform:
         case BuilderOp::push_zeros:
         case BuilderOp::push_clone:
@@ -1331,6 +1344,21 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
             case BuilderOp::push_slots: {
                 float* dst = tempStackPtr;
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, SlotA(), inst.fImmA);
+                break;
+            }
+            case BuilderOp::push_slots_indirect: {
+                // SlotA: fixed-range start
+                // SlotB: limit-range end
+                //  immA: number of slots to copy
+                //  immB: dynamic stack ID
+                auto* ctx = alloc->make<SkRasterPipeline_CopyIndirectCtx>();
+                ctx->dst = tempStackPtr;
+                ctx->src = SlotA();
+                ctx->indirectOffset =
+                        reinterpret_cast<const uint32_t*>(tempStackMap[inst.fImmB]) - (1 * N);
+                ctx->indirectLimit = inst.fSlotB - inst.fSlotA - inst.fImmA;
+                ctx->slots = inst.fImmA;
+                pipeline->push_back({ProgramOp::copy_from_indirect_unmasked, ctx});
                 break;
             }
             case BuilderOp::push_uniform: {
@@ -1972,6 +2000,14 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 4);
                 break;
 
+            case POp::copy_from_indirect_unmasked: {
+                const auto* ctx = static_cast<SkRasterPipeline_CopyIndirectCtx*>(stage.ctx);
+                // We don't incorporate the indirect-limit in the output
+                opArg1 = PtrCtx(ctx->dst, ctx->slots);
+                opArg2 = PtrCtx(ctx->src, ctx->slots);
+                opArg3 = PtrCtx(ctx->indirectOffset, 1);
+                break;
+            }
             case POp::merge_condition_mask:
             case POp::add_float:   case POp::add_int:
             case POp::sub_float:   case POp::sub_int:
@@ -2255,6 +2291,10 @@ void Program::dump(SkWStream* out) const {
             case POp::swizzle_3:                   case POp::swizzle_4:
             case POp::shuffle:
                 opText = opArg1 + " = " + opArg2;
+                break;
+
+            case POp::copy_from_indirect_unmasked:
+                opText = opArg1 + " = Indirect(" + opArg2 + " + " + opArg3 + ")";
                 break;
 
             case POp::zero_slot_unmasked:    case POp::zero_2_slots_unmasked:
