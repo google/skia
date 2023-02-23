@@ -582,6 +582,7 @@ sksl_shared_tests = [
   "shared/MatrixConstructorsES2.sksl",
   "shared/MatrixConstructorsES3.sksl",
   "shared/MatrixEquality.sksl",
+  "shared/MatrixIndexLookup.sksl",
   "shared/MatrixOpEqualsES2.sksl",
   "shared/MatrixOpEqualsES3.sksl",
   "shared/MatrixScalarMath.sksl",

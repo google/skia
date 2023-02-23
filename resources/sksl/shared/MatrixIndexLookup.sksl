@@ -1,0 +1,31 @@
+uniform half4 colorGreen, colorRed;
+uniform float3x3 testMatrix3x3;
+uniform float4x4 testMatrix4x4;
+
+bool test3x3() {
+    float3x3 matrix = testMatrix3x3;
+    float3 expected = float3(1, 2, 3);
+    for (int index=0; index<3; ++index) {
+        if (matrix[index] != expected) {
+            return false;
+        }
+        expected += 3;
+    }
+    return true;
+}
+
+bool test4x4() {
+    float4x4 matrix = testMatrix4x4;
+    float4 expected = float4(1, 2, 3, 4);
+    for (int index=0; index<4; ++index) {
+        if (matrix[index] != expected) {
+            return false;
+        }
+        expected += 4;
+    }
+    return true;
+}
+
+half4 main(float2 coords) {
+    return test3x3() && test4x4() ? colorGreen : colorRed;
+}
