@@ -113,10 +113,10 @@ public:
     }
 
     // The result after a series of `accept` of accepted SkGlyph* or SkPath*.
-    SkZip<SkPackedGlyphID, SkPoint> accepted() {
+    SkZip<const SkPackedGlyphID, const SkPoint> accepted() {
         SkASSERT(fPhase == kProcess);
         SkDEBUGCODE(fPhase = kDraw);
-        return SkZip<SkPackedGlyphID, SkPoint>{
+        return SkZip<const SkPackedGlyphID, const SkPoint>{
                 SkToSizeT(fAcceptedSize), fPackedGlyphIDs.get(), fPositions};
     }
 
