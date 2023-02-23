@@ -466,6 +466,10 @@ public:
         fGenerator->builder()->push_clone_from_stack(slots, fStackID, offsetFromStackTop);
     }
 
+    int stackID() const {
+        return fStackID;
+    }
+
 private:
     Generator* fGenerator;
     int fStackID = 0;
@@ -480,19 +484,28 @@ public:
     virtual bool isWritable() const = 0;
 
     /**
-     * Returns the slot range of the lvalue, after it is winnowed down to the selected field/index.
-     * The range is calculated assuming every dynamic index will evaluate to zero.
+     * Returns the fixed slot range of the lvalue, after it is winnowed down to the selected
+     * field/index. The range is calculated assuming every dynamic index will evaluate to zero.
      */
     virtual SlotRange fixedSlotRange(Generator* gen) = 0;
+
+    /**
+     * Returns a stack which holds a single integer, representing the dynamic offset of the lvalue.
+     * This value does not incorporate the fixed offset. If null is returned, the lvalue doesn't
+     * have a dynamic offset. `evaluateDynamicIndices` must be called before this is used.
+     */
+    virtual AutoStack* dynamicSlotRange() = 0;
 
     /** Pushes values directly onto the stack. */
     [[nodiscard]] virtual bool push(Generator* gen,
                                     SlotRange fixedOffset,
+                                    AutoStack* dynamicOffset,
                                     SkSpan<const int8_t> swizzle) = 0;
 
     /** Stores topmost values from the stack directly into the lvalue. */
     [[nodiscard]] virtual bool store(Generator* gen,
                                      SlotRange fixedOffset,
+                                     AutoStack* dynamicOffset,
                                      SkSpan<const int8_t> swizzle) = 0;
 };
 
@@ -519,8 +532,13 @@ public:
         return SlotRange{0, fNumSlots};
     }
 
+    AutoStack* dynamicSlotRange() override {
+        return nullptr;
+    }
+
     [[nodiscard]] bool push(Generator* gen,
                             SlotRange fixedOffset,
+                            AutoStack* dynamicOffset,
                             SkSpan<const int8_t> swizzle) override {
         if (!fDedicatedStack.has_value()) {
             // Push the scratch expression onto a dedicated stack.
@@ -533,15 +551,20 @@ public:
             fDedicatedStack->exit();
         }
 
-        fDedicatedStack->pushClone(fixedOffset.count,
-                                   fNumSlots - fixedOffset.count - fixedOffset.index);
+        if (dynamicOffset) {
+            // TODO: implement indirect access inside scratch lvalues
+            return unsupported();
+        } else {
+            fDedicatedStack->pushClone(fixedOffset.count,
+                                       fNumSlots - fixedOffset.count - fixedOffset.index);
+        }
         if (!swizzle.empty()) {
             gen->builder()->swizzle(fixedOffset.count, swizzle);
         }
         return true;
     }
 
-    [[nodiscard]] bool store(Generator*, SlotRange, SkSpan<const int8_t>) override {
+    [[nodiscard]] bool store(Generator*, SlotRange, AutoStack*, SkSpan<const int8_t>) override {
         SkDEBUGFAIL("scratch lvalues cannot be stored into");
         return unsupported();
     }
@@ -566,13 +589,28 @@ public:
                                                 : gen->getVariableSlots(*fVariable);
     }
 
+    AutoStack* dynamicSlotRange() override {
+        return nullptr;
+    }
+
     [[nodiscard]] bool push(Generator* gen,
                             SlotRange fixedOffset,
+                            AutoStack* dynamicOffset,
                             SkSpan<const int8_t> swizzle) override {
         if (Generator::IsUniform(*fVariable)) {
-            gen->builder()->push_uniform(fixedOffset);
+            if (dynamicOffset) {
+                // TODO: implement indirect access inside uniforms
+                return unsupported();
+            } else {
+                gen->builder()->push_uniform(fixedOffset);
+            }
         } else {
-            gen->builder()->push_slots(fixedOffset);
+            if (dynamicOffset) {
+                gen->builder()->push_slots_indirect(fixedOffset, dynamicOffset->stackID(),
+                                                    this->fixedSlotRange(gen));
+            } else {
+                gen->builder()->push_slots(fixedOffset);
+            }
         }
         if (!swizzle.empty()) {
             gen->builder()->swizzle(fixedOffset.count, swizzle);
@@ -582,13 +620,24 @@ public:
 
     [[nodiscard]] bool store(Generator* gen,
                              SlotRange fixedOffset,
+                             AutoStack* dynamicOffset,
                              SkSpan<const int8_t> swizzle) override {
         SkASSERT(!Generator::IsUniform(*fVariable));
 
         if (swizzle.empty()) {
-            gen->builder()->copy_stack_to_slots(fixedOffset, fixedOffset.count);
+            if (dynamicOffset) {
+                // TODO: implement indirect store
+                return unsupported();
+            } else {
+                gen->builder()->copy_stack_to_slots(fixedOffset, fixedOffset.count);
+            }
         } else {
-            gen->builder()->swizzle_copy_stack_to_slots(fixedOffset, swizzle, swizzle.size());
+            if (dynamicOffset) {
+                // TODO: implement indirect swizzled store
+                return unsupported();
+            } else {
+                gen->builder()->swizzle_copy_stack_to_slots(fixedOffset, swizzle, swizzle.size());
+            }
         }
         return true;
     }
@@ -613,24 +662,30 @@ public:
         return fParent->fixedSlotRange(gen);
     }
 
+    AutoStack* dynamicSlotRange() override {
+        return fParent->dynamicSlotRange();
+    }
+
     [[nodiscard]] bool push(Generator* gen,
                             SlotRange fixedOffset,
+                            AutoStack* dynamicOffset,
                             SkSpan<const int8_t> swizzle) override {
         if (!swizzle.empty()) {
             SkDEBUGFAIL("swizzle-of-a-swizzle should have been folded out in front end");
             return unsupported();
         }
-        return fParent->push(gen, fixedOffset, fComponents);
+        return fParent->push(gen, fixedOffset, dynamicOffset, fComponents);
     }
 
     [[nodiscard]] bool store(Generator* gen,
                              SlotRange fixedOffset,
+                             AutoStack* dynamicOffset,
                              SkSpan<const int8_t> swizzle) override {
         if (!swizzle.empty()) {
             SkDEBUGFAIL("swizzle-of-a-swizzle should have been folded out in front end");
             return unsupported();
         }
-        return fParent->store(gen, fixedOffset, fComponents);
+        return fParent->store(gen, fixedOffset, dynamicOffset, fComponents);
     }
 
 private:
@@ -661,16 +716,22 @@ public:
         return adjusted;
     }
 
+    AutoStack* dynamicSlotRange() override {
+        return fParent->dynamicSlotRange();
+    }
+
     [[nodiscard]] bool push(Generator* gen,
                             SlotRange fixedOffset,
+                            AutoStack* dynamicOffset,
                             SkSpan<const int8_t> swizzle) override {
-        return fParent->push(gen, fixedOffset, swizzle);
+        return fParent->push(gen, fixedOffset, dynamicOffset, swizzle);
     }
 
     [[nodiscard]] bool store(Generator* gen,
                              SlotRange fixedOffset,
+                             AutoStack* dynamicOffset,
                              SkSpan<const int8_t> swizzle) override {
-        return fParent->store(gen, fixedOffset, swizzle);
+        return fParent->store(gen, fixedOffset, dynamicOffset, swizzle);
     }
 
 protected:
@@ -689,6 +750,94 @@ public:
     ~LValueSlice() override {
         delete fParent;
     }
+};
+
+class DynamicIndexLValue final : public LValue {
+public:
+    explicit DynamicIndexLValue(std::unique_ptr<LValue> p, const IndexExpression& i)
+            : fParent(std::move(p))
+            , fIndexExpr(&i) {
+        SkASSERT(fIndexExpr->index()->type().isInteger());
+    }
+
+    ~DynamicIndexLValue() override {
+        if (fDedicatedStack.has_value()) {
+            SkASSERT(fGenerator);
+
+            // Jettison the index expression.
+            fDedicatedStack->enter();
+            fGenerator->discardExpression(/*slots=*/1);
+            fDedicatedStack->exit();
+        }
+    }
+
+    bool isWritable() const override {
+        return fParent->isWritable();
+    }
+
+    [[nodiscard]] bool evaluateDynamicIndices(Generator* gen) {
+        // The index must only be computed once; the index-expression could have side effects.
+        // Once it has been computed, the offset lives on `fDedicatedStack`.
+        SkASSERT(!fDedicatedStack.has_value());
+        SkASSERT(!fGenerator);
+        fGenerator = gen;
+        fDedicatedStack.emplace(fGenerator);
+
+        // Push the index expression onto the dedicated stack.
+        fDedicatedStack->enter();
+        if (!fGenerator->pushExpression(*fIndexExpr->index())) {
+            return unsupported();
+        }
+
+        // Multiply the index-expression result by the per-value slot count.
+        int slotCount = fIndexExpr->type().slotCount();
+        if (slotCount != 1) {
+            fGenerator->builder()->push_literal_i(fIndexExpr->type().slotCount());
+            fGenerator->builder()->binary_op(BuilderOp::mul_n_ints, 1);
+        }
+
+        // Check to see if a parent LValue already has a dynamic index. If so, we need to
+        // incorporate its value into our own.
+        if (AutoStack* parentDynamicIndexStack = fParent->dynamicSlotRange()) {
+            parentDynamicIndexStack->pushClone(/*slots=*/1);
+            fGenerator->builder()->binary_op(BuilderOp::add_n_ints, 1);
+        }
+        fDedicatedStack->exit();
+        return true;
+    }
+
+    SlotRange fixedSlotRange(Generator* gen) override {
+        // Compute the fixed slot range as if we are indexing into position zero.
+        SlotRange range = fParent->fixedSlotRange(gen);
+        range.count = fIndexExpr->type().slotCount();
+        return range;
+    }
+
+    AutoStack* dynamicSlotRange() override {
+        // We incorporated any parent dynamic offsets when `evaluateDynamicIndices` was called.
+        SkASSERT(fDedicatedStack.has_value());
+        return &*fDedicatedStack;
+    }
+
+    [[nodiscard]] bool push(Generator* gen,
+                            SlotRange fixedOffset,
+                            AutoStack* dynamicOffset,
+                            SkSpan<const int8_t> swizzle) override {
+        return fParent->push(gen, fixedOffset, dynamicOffset, swizzle);
+    }
+
+    [[nodiscard]] bool store(Generator* gen,
+                             SlotRange fixedOffset,
+                             AutoStack* dynamicOffset,
+                             SkSpan<const int8_t> swizzle) override {
+        return fParent->store(gen, fixedOffset, dynamicOffset, swizzle);
+    }
+
+private:
+    Generator* fGenerator = nullptr;
+    std::unique_ptr<LValue> fParent;
+    std::optional<AutoStack> fDedicatedStack;
+    const IndexExpression* fIndexExpr = nullptr;
 };
 
 void SlotManager::addSlotDebugInfoForGroup(const std::string& varName,
@@ -888,7 +1037,10 @@ std::unique_ptr<LValue> Generator::makeLValue(const Expression& e, bool allowScr
                                                      numSlots);
             }
 
-            // TODO(skia:13676): support non-constant indices
+            // Represent non-constant indexing via a dynamic index.
+            auto dynLValue = std::make_unique<DynamicIndexLValue>(std::move(base), indexExpr);
+            return dynLValue->evaluateDynamicIndices(this) ? std::move(dynLValue)
+                                                           : nullptr;
         }
         return nullptr;
     }
@@ -900,13 +1052,19 @@ std::unique_ptr<LValue> Generator::makeLValue(const Expression& e, bool allowScr
     return nullptr;
 }
 
-bool Generator::store(LValue& lvalue) {
-    SkASSERT(lvalue.isWritable());
-    return lvalue.store(this, lvalue.fixedSlotRange(this), /*swizzle=*/{});
+bool Generator::push(LValue& lvalue) {
+    return lvalue.push(this,
+                       lvalue.fixedSlotRange(this),
+                       lvalue.dynamicSlotRange(),
+                       /*swizzle=*/{});
 }
 
-bool Generator::push(LValue& lvalue) {
-    return lvalue.push(this, lvalue.fixedSlotRange(this), /*swizzle=*/{});
+bool Generator::store(LValue& lvalue) {
+    SkASSERT(lvalue.isWritable());
+    return lvalue.store(this,
+                        lvalue.fixedSlotRange(this),
+                        lvalue.dynamicSlotRange(),
+                        /*swizzle=*/{});
 }
 
 int Generator::getFunctionDebugInfo(const FunctionDeclaration& decl) {
