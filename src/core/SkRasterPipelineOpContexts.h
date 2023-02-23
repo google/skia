@@ -176,6 +176,14 @@ struct SkRasterPipeline_SwizzleCopyCtx {
     uint16_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
 };
 
+struct SkRasterPipeline_CopyIndirectCtx {
+    float *dst;
+    const float *src;
+    const uint32_t *indirectOffset;  // this applies to `src` or `dst` based on the op
+    uint32_t indirectLimit;          // the indirect offset is clamped to this upper bound
+    uint32_t slots;                  // the number of slots to copy
+};
+
 struct SkRasterPipeline_BranchCtx {
     int offset;  // contains the label ID during compilation, and the program offset when compiled
 };
