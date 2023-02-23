@@ -992,20 +992,22 @@ DrawableOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin,const SkPa
     }
 }
 
-template <typename SubRunT>
-SubRunOwner make_drawable_sub_run(SkZip<const SkPackedGlyphID, const SkPoint> drawables,
-                                  SkScalar strikeToSourceScale,
-                                  SkStrikePromise&& strikePromise,
-                                  SubRunAllocator* alloc) {
-    return alloc->makeUnique<SubRunT>(
-        DrawableOpSubmitter::Make(drawables, strikeToSourceScale, std::move(strikePromise), alloc));
-}
-
 // -- DrawableSubRun -------------------------------------------------------------------------------
 class DrawableSubRun : public SubRun {
 public:
     DrawableSubRun(DrawableOpSubmitter&& drawingDrawing)
             : fDrawingDrawing(std::move(drawingDrawing)) {}
+
+    static SubRunOwner Make(SkZip<const SkPackedGlyphID, const SkPoint> drawables,
+                            SkScalar strikeToSourceScale,
+                            SkStrikePromise&& strikePromise,
+                            SubRunAllocator* alloc) {
+        return alloc->makeUnique<DrawableSubRun>(
+                DrawableOpSubmitter::Make(drawables,
+                                          strikeToSourceScale,
+                                          std::move(strikePromise),
+                                          alloc));
+    }
 
     static SubRunOwner MakeFromBuffer(const SkMatrix&,
                                       SkReadBuffer& buffer,
@@ -2609,7 +2611,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
-                    container->fSubRuns.append(make_drawable_sub_run<DrawableSubRun>(
+                    container->fSubRuns.append(DrawableSubRun::Make(
                             accepted->accepted(),
                             strikeToSourceScale,
                             strike->strikePromise(),
