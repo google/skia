@@ -89,10 +89,10 @@ $pure half $apply_xfer_fn(int kind, half x, half cs[7]) {
 $pure half4 sk_color_space_transform(half4 color,
                                      int flags,
                                      int srcKind,
-                                     int dstKind,
                                      half srcCoeffs[7],
-                                     half dstCoeffs[7],
-                                     half3x3 gamutTransform) {
+                                     half3x3 gamutTransform,
+                                     int dstKind,
+                                     half dstCoeffs[7]) {
     if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
         color = unpremul(color);
     }
@@ -270,17 +270,17 @@ $pure half4 sk_image_shader(float2 coords,
                             int readSwizzle,
                             int csXformFlags,
                             int csXformSrcKind,
-                            int csXformDstKind,
                             half csXformSrcCoeffs[7],
-                            half csXformDstCoeffs[7],
                             half3x3 csXformGamutTransform,
+                            int csXformDstKind,
+                            half csXformDstCoeffs[7],
                             sampler2D s) {
     half4 sampleColor = (useCubic != 0)
         ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
                               readSwizzle, s)
         : $sample_image(coords, imgSize, subset, tileModeX, tileModeY, filterMode, readSwizzle, s);
-    return sk_color_space_transform(sampleColor, csXformFlags, csXformSrcKind, csXformDstKind,
-                                    csXformSrcCoeffs, csXformDstCoeffs, csXformGamutTransform);
+    return sk_color_space_transform(sampleColor, csXformFlags, csXformSrcKind, csXformSrcCoeffs,
+                                    csXformGamutTransform, csXformDstKind, csXformDstCoeffs);
 }
 
 $pure float2 $tile_grad(int tileMode, float2 t) {

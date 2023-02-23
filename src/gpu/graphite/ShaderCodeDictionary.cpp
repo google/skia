@@ -594,10 +594,10 @@ static constexpr Uniform kImageShaderUniforms[] = {
         // The next 6 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
-        { "csXformDstKind",        SkSLType::kInt },
         { "csXformSrcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
-        { "csXformDstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
         { "csXformGamutTransform", SkSLType::kHalf3x3 },
+        { "csXformDstKind",        SkSLType::kInt },
+        { "csXformDstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
 };
 
 static constexpr TextureAndSampler kISTexturesAndSamplers[] = {
@@ -854,10 +854,10 @@ static constexpr char kGaussianColorFilterName[] = "sk_gaussian_colorfilter";
 static constexpr Uniform kColorSpaceTransformUniforms[] = {
         { "flags",          SkSLType::kInt },
         { "srcKind",        SkSLType::kInt },
-        { "dstKind",        SkSLType::kInt },
         { "srcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
-        { "dstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
         { "gamutTransform", SkSLType::kHalf3x3 },
+        { "dstKind",        SkSLType::kInt },
+        { "dstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
 };
 
 static_assert(0 == static_cast<int>(skcms_TFType_Invalid),
