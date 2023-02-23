@@ -41,69 +41,71 @@ $39 = c_mul_d (float, L46)
 $40 = d_mul_c (float, L47)
 F0 = half4 main(float2 xy)
 
-13 registers, 64 instructions:
+13 registers, 66 instructions:
 0	r0 = uniform32 ptr0 0
-1	r1 = uniform32 ptr0 4
-2	r2 = uniform32 ptr0 8
-3	r3 = uniform32 ptr0 C
-4	r4 = uniform32 ptr0 10
-5	r5 = uniform32 ptr0 14
-6	r6 = uniform32 ptr0 18
-7	r7 = uniform32 ptr0 1C
-8	r8 = uniform32 ptr0 20
-9	r9 = uniform32 ptr0 2C
-10	r10 = uniform32 ptr0 30
-11	r11 = splat 3F000000 (0.5)
-12	r0 = eq_f32 r0 r11
-13	r12 = add_f32 r9 r10
-14	r12 = eq_f32 r12 r12
-15	r10 = mul_f32 r9 r10
-16	r10 = eq_f32 r10 r10
-17	r10 = bit_and r12 r10
-18	r5 = select r10 r1 r5
-19	r6 = select r10 r2 r6
-20	r7 = select r10 r3 r7
-21	r8 = select r10 r4 r8
+1	r1 = splat 3F000000 (0.5)
+2	r0 = add_f32 r0 r1
+3	r2 = uniform32 ptr0 4
+4	r3 = uniform32 ptr0 8
+5	r4 = uniform32 ptr0 C
+6	r5 = uniform32 ptr0 10
+7	r6 = uniform32 ptr0 14
+8	r7 = uniform32 ptr0 18
+9	r8 = uniform32 ptr0 1C
+10	r9 = uniform32 ptr0 20
+11	r10 = uniform32 ptr0 2C
+12	r11 = uniform32 ptr0 30
+13	r0 = eq_f32 r0 r1
+14	r12 = add_f32 r10 r11
+15	r12 = eq_f32 r12 r12
+16	r11 = mul_f32 r10 r11
+17	r11 = eq_f32 r11 r11
+18	r11 = bit_and r12 r11
+19	r6 = select r11 r2 r6
+20	r7 = select r11 r3 r7
+21	r8 = select r11 r4 r8
+22	r9 = select r11 r5 r9
 loop:
-22	    r4 = index
-23	    r4 = eq_f32 r4 r11
-24	    r4 = bit_and r4 r0
-25	    trace_enter 0 r4 r4 F0
-26	    trace_scope 0 r4 r4 1
-27	    trace_line 0 r4 r4 L10
-28	    trace_line 0 r4 r4 L11
-29	    trace_line 0 r4 r4 L12
-30	    trace_line 0 r4 r4 L14
-31	    trace_line 0 r4 r4 L15
-32	    trace_line 0 r4 r4 L16
-33	    trace_line 0 r4 r4 L18
-34	    trace_line 0 r4 r4 L19
-35	    trace_line 0 r4 r4 L20
-36	    trace_line 0 r4 r4 L22
-37	    trace_line 0 r4 r4 L23
-38	    trace_line 0 r4 r4 L24
-39	    trace_line 0 r4 r4 L26
-40	    trace_line 0 r4 r4 L27
-41	    trace_line 0 r4 r4 L28
-42	    trace_line 0 r4 r4 L30
-43	    trace_line 0 r4 r4 L31
-44	    trace_line 0 r4 r4 L32
-45	    trace_line 0 r4 r4 L34
-46	    trace_line 0 r4 r4 L35
-47	    trace_line 0 r4 r4 L36
-48	    trace_line 0 r4 r4 L38
-49	    trace_line 0 r4 r4 L39
-50	    trace_line 0 r4 r4 L40
-51	    trace_line 0 r4 r4 L42
-52	    trace_line 0 r4 r4 L43
-53	    trace_line 0 r4 r4 L44
-54	    trace_line 0 r4 r4 L46
-55	    trace_line 0 r4 r4 L47
-56	    trace_line 0 r4 r4 L48
-57	    trace_line 0 r4 r4 L50
-58	    trace_scope 0 r4 r4 -1
-59	    trace_exit 0 r4 r4 F0
-60	    store32 ptr1 r5
-61	    store32 ptr2 r6
-62	    store32 ptr3 r7
-63	    store32 ptr4 r8
+23	    r5 = index
+24	    r5 = add_f32 r5 r1
+25	    r5 = eq_f32 r5 r1
+26	    r5 = bit_and r5 r0
+27	    trace_enter 0 r5 r5 F0
+28	    trace_scope 0 r5 r5 1
+29	    trace_line 0 r5 r5 L10
+30	    trace_line 0 r5 r5 L11
+31	    trace_line 0 r5 r5 L12
+32	    trace_line 0 r5 r5 L14
+33	    trace_line 0 r5 r5 L15
+34	    trace_line 0 r5 r5 L16
+35	    trace_line 0 r5 r5 L18
+36	    trace_line 0 r5 r5 L19
+37	    trace_line 0 r5 r5 L20
+38	    trace_line 0 r5 r5 L22
+39	    trace_line 0 r5 r5 L23
+40	    trace_line 0 r5 r5 L24
+41	    trace_line 0 r5 r5 L26
+42	    trace_line 0 r5 r5 L27
+43	    trace_line 0 r5 r5 L28
+44	    trace_line 0 r5 r5 L30
+45	    trace_line 0 r5 r5 L31
+46	    trace_line 0 r5 r5 L32
+47	    trace_line 0 r5 r5 L34
+48	    trace_line 0 r5 r5 L35
+49	    trace_line 0 r5 r5 L36
+50	    trace_line 0 r5 r5 L38
+51	    trace_line 0 r5 r5 L39
+52	    trace_line 0 r5 r5 L40
+53	    trace_line 0 r5 r5 L42
+54	    trace_line 0 r5 r5 L43
+55	    trace_line 0 r5 r5 L44
+56	    trace_line 0 r5 r5 L46
+57	    trace_line 0 r5 r5 L47
+58	    trace_line 0 r5 r5 L48
+59	    trace_line 0 r5 r5 L50
+60	    trace_scope 0 r5 r5 -1
+61	    trace_exit 0 r5 r5 F0
+62	    store32 ptr1 r6
+63	    store32 ptr2 r7
+64	    store32 ptr3 r8
+65	    store32 ptr4 r9

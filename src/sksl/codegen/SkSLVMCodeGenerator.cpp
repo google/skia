@@ -2266,6 +2266,9 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
 
     // Assume identity CTM
     skvm::Coord device = {pun_to_F32(builder->index()), new_uni()};
+    // Position device coords at pixel centers, so debug traces will trigger
+    device.x += 0.5f;
+    device.y += 0.5f;
     skvm::Coord local  = device;
 
     class Callbacks : public SkVMCallbacks {

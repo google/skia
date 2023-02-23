@@ -10,38 +10,40 @@ $8 = xy (float2 : slot 2/2, L11)
 F0 = float4 main(float2 xy)
 F1 = void init_globals()
 
-8 registers, 33 instructions:
+8 registers, 35 instructions:
 0	r0 = uniform32 ptr0 0
-1	r1 = splat 0 (0)
-2	r2 = splat 3F000000 (0.5)
-3	r3 = eq_f32 r0 r2
-4	r4 = splat BF800000 (-1)
-5	r5 = splat 3F800000 (1)
+1	r1 = splat 3F000000 (0.5)
+2	r0 = add_f32 r0 r1
+3	r2 = splat 0 (0)
+4	r3 = eq_f32 r0 r1
+5	r4 = splat BF800000 (-1)
+6	r5 = splat 3F800000 (1)
 loop:
-6	    r6 = index
-7	    r7 = eq_f32 r6 r2
-8	    r7 = bit_and r7 r3
-9	    trace_var 0 r7 r7 $0 = r4
-10	    trace_var 0 r7 r7 $1 = r5
-11	    trace_enter 0 r7 r7 F0
-12	    trace_var 0 r7 r7 $7 = r6
-13	    trace_var 0 r7 r7 $8 = r0
-14	    trace_scope 0 r7 r7 1
-15	    trace_line 0 r7 r7 L12
-16	    trace_enter 0 r7 r7 F1
-17	    trace_scope 0 r7 r7 1
-18	    trace_line 0 r7 r7 L8
-19	    trace_var 0 r7 r7 $2 = r5
-20	    trace_scope 0 r7 r7 -1
-21	    trace_exit 0 r7 r7 F1
-22	    trace_line 0 r7 r7 L13
-23	    trace_var 0 r7 r7 $3 = r1
-24	    trace_var 0 r7 r7 $4 = r5
-25	    trace_var 0 r7 r7 $5 = r1
-26	    trace_var 0 r7 r7 $6 = r5
-27	    trace_scope 0 r7 r7 -1
-28	    trace_exit 0 r7 r7 F0
-29	    store32 ptr1 r1
-30	    store32 ptr2 r5
-31	    store32 ptr3 r1
-32	    store32 ptr4 r5
+7	    r6 = index
+8	    r6 = add_f32 r6 r1
+9	    r7 = eq_f32 r6 r1
+10	    r7 = bit_and r7 r3
+11	    trace_var 0 r7 r7 $0 = r4
+12	    trace_var 0 r7 r7 $1 = r5
+13	    trace_enter 0 r7 r7 F0
+14	    trace_var 0 r7 r7 $7 = r6
+15	    trace_var 0 r7 r7 $8 = r0
+16	    trace_scope 0 r7 r7 1
+17	    trace_line 0 r7 r7 L12
+18	    trace_enter 0 r7 r7 F1
+19	    trace_scope 0 r7 r7 1
+20	    trace_line 0 r7 r7 L8
+21	    trace_var 0 r7 r7 $2 = r5
+22	    trace_scope 0 r7 r7 -1
+23	    trace_exit 0 r7 r7 F1
+24	    trace_line 0 r7 r7 L13
+25	    trace_var 0 r7 r7 $3 = r2
+26	    trace_var 0 r7 r7 $4 = r5
+27	    trace_var 0 r7 r7 $5 = r2
+28	    trace_var 0 r7 r7 $6 = r5
+29	    trace_scope 0 r7 r7 -1
+30	    trace_exit 0 r7 r7 F0
+31	    store32 ptr1 r2
+32	    store32 ptr2 r5
+33	    store32 ptr3 r2
+34	    store32 ptr4 r5
