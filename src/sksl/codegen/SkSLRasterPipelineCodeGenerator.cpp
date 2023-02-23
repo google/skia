@@ -1448,6 +1448,7 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
         case Expression::Kind::kChildCall:
             return this->pushChildCall(e.as<ChildCall>());
 
+        case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorCompound:
         case Expression::Kind::kConstructorStruct:
             return this->pushConstructorCompound(e.asAnyConstructor());
