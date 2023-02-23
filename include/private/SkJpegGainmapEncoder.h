@@ -50,6 +50,9 @@ public:
      *
      *  The rendering behavior of the gainmap image is provided in |gainmapInfo|.
      *
+     *  If |baseOptions| or |gainmapOptions| specify XMP metadata, then that metadata will be
+     *  overwritten.
+     *
      *  Returns true on success.  Returns false on an invalid or unsupported |src|.
      */
     static bool EncodeHDRGM(SkWStream* dst,
@@ -59,12 +62,10 @@ public:
                             const SkJpegEncoder::Options& gainmapOptions,
                             const SkGainmapInfo& gainmapInfo);
 
-private:
-    // Helper function to encode an image with optional XMP and MPF to an SkData.
-    static sk_sp<SkData> EncodeToData(const SkPixmap& pm,
-                                      const SkJpegEncoder::Options& options,
-                                      SkData* xmpSegmentParameters,
-                                      SkData* mpfSegmentParameters);
+    /**
+     *  Write a Multi Picture Format containing the |imageCount| images specified by |images|.
+     */
+    static bool MakeMPF(SkWStream* dst, const SkData** images, size_t imageCount);
 };
 
 #endif
