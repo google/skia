@@ -9,6 +9,7 @@
 #define SkJpegSegmentScan_codec_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "src/codec/SkJpegConstants.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -37,7 +38,7 @@ struct SkJpegSegment {
  */
 class SkJpegSegmentScanner {
 public:
-    SkJpegSegmentScanner(uint8_t stopMarker = kMarkerEndOfImage);
+    SkJpegSegmentScanner(uint8_t stopMarker = kJpegMarkerEndOfImage);
 
     bool isDone() const { return fState == State::kDone; }
     bool hadError() const { return fState == State::kError; }
@@ -52,17 +53,6 @@ public:
     // Helper function to retrieve the parameters for a segment. ScannedData must be the data that
     // was scanned to produce segment, starting at StartOfImage.
     static sk_sp<SkData> GetParameters(const SkData* scannedData, const SkJpegSegment& segment);
-
-    // Convenient markers to know.
-    static constexpr uint8_t kMarkerStartOfImage = 0xD8;
-    static constexpr uint8_t kMarkerEndOfImage = 0xD9;
-    static constexpr uint8_t kMarkerStartOfScan = 0xDA;
-
-    // The number of bytes in a marker code is two.
-    static constexpr size_t kMarkerCodeSize = 2;
-
-    // The number of bytes used to specify the length of a segment's parameters is two.
-    static constexpr size_t kParameterLengthSize = 2;
 
 private:
     // The scanner is a state machine. State transitions happen when a byte is read.

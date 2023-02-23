@@ -1164,7 +1164,7 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
     }
 
     // Scan through the image up to the StartOfScan. We'll be searching for the XMP metadata.
-    SkJpegSegmentScanner scan(SkJpegSegmentScanner::kMarkerStartOfScan);
+    SkJpegSegmentScanner scan(kJpegMarkerStartOfScan);
     scan.onBytes(imageData->data(), imageData->size());
     if (scan.hadError() || !scan.isDone()) {
         SkCodecPrintf("Failed to scan header of MP image.\n");
@@ -1218,9 +1218,8 @@ bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
         const auto& segments = fDecoderMgr->getSourceMgr()->getAllSegments();
         if (!segments.empty()) {
             const auto& lastSegment = segments.back();
-            if (lastSegment.marker == SkJpegSegmentScanner::kMarkerEndOfImage) {
-                containerGainmapOffset +=
-                        lastSegment.offset + SkJpegSegmentScanner::kMarkerCodeSize;
+            if (lastSegment.marker == kJpegMarkerEndOfImage) {
+                containerGainmapOffset += lastSegment.offset + kJpegMarkerCodeSize;
             }
         }
     }

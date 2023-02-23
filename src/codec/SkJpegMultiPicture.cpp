@@ -372,9 +372,9 @@ size_t SkJpegMultiPictureParameters::GetAbsoluteOffset(uint32_t dataOffset,
     if (dataOffset == 0) {
         return 0;
     }
-    return mpSegmentOffset +                             // The offset to the marker
-           SkJpegSegmentScanner::kMarkerCodeSize +       // The marker itself
-           SkJpegSegmentScanner::kParameterLengthSize +  // The parameter length
-           sizeof(kMpfSig) +                             // The signature
+    return mpSegmentOffset +                  // The offset to the marker
+           kJpegMarkerCodeSize +              // The marker itself
+           kJpegSegmentParameterLengthSize +  // The parameter length
+           sizeof(kMpfSig) +                  // The signature
            dataOffset;
 }

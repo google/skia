@@ -309,7 +309,7 @@ bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
     }
 
     // Create a segment scan of of the encoded base image and search for our MPF parameters.
-    SkJpegSegmentScanner baseScan(SkJpegSegmentScanner::kMarkerStartOfScan);
+    SkJpegSegmentScanner baseScan(kJpegMarkerStartOfScan);
     baseScan.onBytes(baseData->bytes(), baseData->size());
     if (!baseScan.isDone()) {
         SkCodecPrintf("Failed to scan encoded base image header.\n");
@@ -332,11 +332,11 @@ bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
                         placeholderMpfData->size()) == 0);
 
         // Compute the real MPF parameters.
-        uint32_t mpDataOffsetBase = static_cast<uint32_t>(
-                segment.offset +                              // The offset of the segment
-                SkJpegSegmentScanner::kMarkerCodeSize +       // Including the marker
-                SkJpegSegmentScanner::kParameterLengthSize +  // And the size parameter
-                sizeof(kMpfSig));                             // And the signature
+        uint32_t mpDataOffsetBase =
+                static_cast<uint32_t>(segment.offset +       // The offset of the segment
+                                      kJpegMarkerCodeSize +  // Including the marker
+                                      kJpegSegmentParameterLengthSize +  // And the size parameter
+                                      sizeof(kMpfSig));                  // And the signature
         mpParams.images[0].size = static_cast<uint32_t>(baseData->size());
         mpParams.images[1].dataOffset = mpParams.images[0].size - mpDataOffsetBase;
         mpParams.images[1].size = static_cast<uint32_t>(gainmapData->size());
@@ -346,8 +346,8 @@ bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
         SkASSERT(mpfData->size() == placeholderMpfData->size());
 
         // Overwrite the placeholder parameters in the encoded image.
-        memcpy(baseDataBytes + segment.offset + SkJpegSegmentScanner::kMarkerCodeSize +
-                       SkJpegSegmentScanner::kParameterLengthSize,
+        memcpy(baseDataBytes + segment.offset + kJpegMarkerCodeSize +
+                       kJpegSegmentParameterLengthSize,
                mpfData->bytes(),
                mpfData->size());
         break;

@@ -157,7 +157,7 @@ DEF_TEST(Codec_jpegSegmentScan, r) {
 
         // Verify we got the expected number of segments before StartOfScan
         for (size_t i = 0; i < segments.size(); ++i) {
-            if (segments[i].marker == SkJpegSegmentScanner::kMarkerStartOfScan) {
+            if (segments[i].marker == kJpegMarkerStartOfScan) {
                 REPORTER_ASSERT(r, rec.sosSegmentCount == i + 1);
                 break;
             }

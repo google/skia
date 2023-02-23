@@ -25,10 +25,10 @@ const std::vector<SkJpegSegment>& SkJpegSegmentScanner::getSegments() const { re
 
 sk_sp<SkData> SkJpegSegmentScanner::GetParameters(const SkData* scannedData,
                                                   const SkJpegSegment& segment) {
-    return SkData::MakeSubset(scannedData,
-                              segment.offset + SkJpegSegmentScanner::kMarkerCodeSize +
-                                      SkJpegSegmentScanner::kParameterLengthSize,
-                              segment.parameterLength - SkJpegSegmentScanner::kParameterLengthSize);
+    return SkData::MakeSubset(
+            scannedData,
+            segment.offset + kJpegMarkerCodeSize + kJpegSegmentParameterLengthSize,
+            segment.parameterLength - kJpegSegmentParameterLengthSize);
 }
 
 void SkJpegSegmentScanner::onBytes(const void* data, size_t size) {
@@ -98,7 +98,7 @@ void SkJpegSegmentScanner::onMarkerSecondByte(uint8_t byte) {
     if (byte == fStopMarker) {
         saveCurrentSegment(0);
         fState = State::kDone;
-    } else if (byte == kMarkerStartOfImage) {
+    } else if (byte == kJpegMarkerStartOfImage) {
         saveCurrentSegment(0);
         fState = State::kSecondMarkerByte0;
     } else if (MarkerStandsAlone(byte)) {
@@ -121,8 +121,8 @@ void SkJpegSegmentScanner::onByte(uint8_t byte) {
             fState = State::kStartOfImageByte1;
             break;
         case State::kStartOfImageByte1:
-            if (byte != kMarkerStartOfImage) {
-                SkCodecPrintf("Second byte was %02x, not %02x", byte, kMarkerStartOfImage);
+            if (byte != kJpegMarkerStartOfImage) {
+                SkCodecPrintf("Second byte was %02x, not %02x", byte, kJpegMarkerStartOfImage);
                 fState = State::kError;
                 return;
             }
@@ -158,13 +158,13 @@ void SkJpegSegmentScanner::onByte(uint8_t byte) {
             // of related parameters. The first parameter in a marker segment is the two-byte length
             // parameter. This length parameter encodes the number of bytes in the marker segment,
             // including the length parameter and excluding the two-byte marker.
-            if (paramLength < kParameterLengthSize) {
+            if (paramLength < kJpegSegmentParameterLengthSize) {
                 SkCodecPrintf("SkJpegSegment payload length was %u < 2 bytes", paramLength);
                 fState = State::kError;
                 return;
             }
             saveCurrentSegment(paramLength);
-            fSegmentParamBytesRemaining = paramLength - kParameterLengthSize;
+            fSegmentParamBytesRemaining = paramLength - kJpegSegmentParameterLengthSize;
             if (fSegmentParamBytesRemaining > 0) {
                 fState = State::kSegmentParam;
             } else {
