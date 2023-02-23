@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
  - Particles have been removed.
 
+### Added
+ - Skottie TransformValue accessors for dynamic layer transforms.
+
 ## [0.38.0] - 2023-01-12
 
 ### Changed
