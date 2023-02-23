@@ -51,7 +51,13 @@ public:
         size_t   fCluster; // cluster index in the original text string
     };
 
-    virtual void onDecorate(SkCanvas*, const GlyphInfo[], size_t size) = 0;
+    struct TextInfo {
+        const GlyphInfo* fGlyphs;
+        size_t           fGlyphCount;
+        float            fScale;      // Additional font size applied by auto-sizing.
+    };
+
+    virtual void onDecorate(SkCanvas*, const TextInfo&) = 0;
 };
 
 struct TextPropertyValue {

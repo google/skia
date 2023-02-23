@@ -81,8 +81,9 @@ static float align_factor(SkTextUtils::Align a) {
 
 class TextAdapter::GlyphDecoratorNode final : public sksg::Group {
 public:
-    GlyphDecoratorNode(sk_sp<GlyphDecorator> decorator)
+    GlyphDecoratorNode(sk_sp<GlyphDecorator> decorator, float scale)
         : fDecorator(std::move(decorator))
+        , fScale(scale)
     {}
 
     ~GlyphDecoratorNode() override = default;
@@ -123,7 +124,11 @@ public:
                                                                        true);
         this->INHERITED::onRender(canvas, local_ctx);
 
-        fDecorator->onDecorate(canvas, fDecoratorInfo.get(), fFragCount);
+        fDecorator->onDecorate(canvas, {
+            fDecoratorInfo.get(),
+            fFragCount,
+            fScale
+        });
     }
 
 private:
@@ -134,6 +139,8 @@ private:
     };
 
     const sk_sp<GlyphDecorator>                  fDecorator;
+    const float                                  fScale;
+
     std::unique_ptr<FragmentInfo[]>              fFragInfo;
     std::unique_ptr<GlyphDecorator::GlyphInfo[]> fDecoratorInfo;
     size_t                                       fFragCount;
@@ -696,7 +703,7 @@ void TextAdapter::reshape() {
     sksg::Group* container = fRoot.get();
     sk_sp<GlyphDecoratorNode> decorator_node;
     if (fText->fDecorator) {
-        decorator_node = sk_make_sp<GlyphDecoratorNode>(fText->fDecorator);
+        decorator_node = sk_make_sp<GlyphDecoratorNode>(fText->fDecorator, fTextShapingScale);
         container = decorator_node.get();
     }
 

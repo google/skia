@@ -24,7 +24,7 @@ public:
 
     void toggleEnabled();
 
-    void onDecorate(SkCanvas*, const GlyphInfo[], size_t) override;
+    void onDecorate(SkCanvas*, const TextInfo&) override;
 
     bool onMouseInput(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey);
 
@@ -38,7 +38,7 @@ private:
 
     std::tuple<size_t, size_t> currentSelection() const;
     size_t closestGlyph(const SkPoint& pt) const;
-    void drawCursor(SkCanvas*, const GlyphInfo glyphs[], size_t size) const;
+    void drawCursor(SkCanvas*, const TextInfo&) const;
     void insertChar(SkUnichar c);
     void deleteChars(size_t offset, size_t count);
     bool deleteSelection();
