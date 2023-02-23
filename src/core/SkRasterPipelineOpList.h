@@ -131,7 +131,7 @@
     M(atan2_n_floats)   M(sqrt_float)          M(pow_n_floats)        M(exp_float)            \
     M(copy_constant)    M(copy_2_constants)    M(copy_3_constants)    M(copy_4_constants)     \
     M(copy_slot_masked) M(copy_2_slots_masked) M(copy_3_slots_masked) M(copy_4_slots_masked)  \
-    M(copy_from_indirect_masked)                                                              \
+    M(copy_from_indirect_unmasked)                                                            \
     M(copy_slot_unmasked)          M(copy_2_slots_unmasked)                                   \
     M(copy_3_slots_unmasked)       M(copy_4_slots_unmasked)                                   \
     M(zero_slot_unmasked)          M(zero_2_slots_unmasked)                                   \

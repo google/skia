@@ -3489,7 +3489,7 @@ STAGE_TAIL(swizzle_copy_4_slots_masked, SkRasterPipeline_SwizzleCopyCtx* ctx) {
     swizzle_copy_masked_fn<4>((F*)ctx->dst, (F*)ctx->src, ctx->offsets, execution_mask());
 }
 
-STAGE_TAIL(copy_from_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
+STAGE_TAIL(copy_from_indirect_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     // Clamp the indirect offsets to stay within the limit.
     U32 offsets = *(U32*)ctx->indirectOffset;
     offsets = min(offsets, ctx->indirectLimit);
@@ -3505,9 +3505,8 @@ STAGE_TAIL(copy_from_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     const float* src = ctx->src;
     F*           dst = (F*)ctx->dst;
     F*           end = dst + ctx->slots;
-    I32          mask = execution_mask();
     do {
-        *dst = if_then_else(mask, gather(src, offsets), *dst);
+        *dst = gather(src, offsets);
         dst += 1;
         src += N;
     } while (dst != end);
