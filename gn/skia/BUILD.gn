@@ -279,6 +279,19 @@ config("default") {
         "-target",
         "arm64-apple-macos11",
       ]
+    } else {
+      asmflags += [
+        "-target",
+        "x86_64-apple-macos10.13",
+      ]
+      cflags += [
+        "-target",
+        "x86_64-apple-macos10.13",
+      ]
+      ldflags += [
+        "-target",
+        "x86_64-apple-macos10.13",
+      ]
     }
   }
 
