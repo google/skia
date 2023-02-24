@@ -3512,6 +3512,22 @@ STAGE_TAIL(copy_from_indirect_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     } while (dst != end);
 }
 
+STAGE_TAIL(copy_from_indirect_uniform_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
+    // Clamp the indirect offsets to stay within the limit.
+    U32 offsets = *(U32*)ctx->indirectOffset;
+    offsets = min(offsets, ctx->indirectLimit);
+
+    // Use gather to perform indirect lookups; write the results into `dst`.
+    const float* src = ctx->src;
+    F*           dst = (F*)ctx->dst;
+    F*           end = dst + ctx->slots;
+    do {
+        *dst = gather(src, offsets);
+        dst += 1;
+        src += 1;
+    } while (dst != end);
+}
+
 // Unary operations take a single input, and overwrite it with their output.
 // Unlike binary or ternary operations, we provide variations of 1-4 slots, but don't provide
 // an arbitrary-width "n-slot" variation; the Builder can chain together longer sequences manually.
