@@ -599,8 +599,8 @@ public:
                             SkSpan<const int8_t> swizzle) override {
         if (Generator::IsUniform(*fVariable)) {
             if (dynamicOffset) {
-                // TODO: implement indirect access inside uniforms
-                return unsupported();
+                gen->builder()->push_uniform_indirect(fixedOffset, dynamicOffset->stackID(),
+                                                      this->fixedSlotRange(gen));
             } else {
                 gen->builder()->push_uniform(fixedOffset);
             }
