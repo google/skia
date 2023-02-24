@@ -49,6 +49,7 @@ public:
         SkRect   fBounds;  // visual glyph bounds
         SkMatrix fMatrix;  // glyph matrix
         size_t   fCluster; // cluster index in the original text string
+        float    fAdvance; // horizontal glyph advance
     };
 
     struct TextInfo {
