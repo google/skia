@@ -53,7 +53,7 @@ void TestCopyFromSurface(skiatest::Reporter*,
 
 // Encodes the bitmap into a data:/image/png;base64,... url suitable to view in a browser after
 // printing to a log. If false is returned, dst holds an error message instead of a URI.
-bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst);
+bool BitmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst);
 
 /** Used by compare_pixels. */
 using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);

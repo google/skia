@@ -1432,14 +1432,14 @@ static Result compare_bitmaps(const SkBitmap& reference, const SkBitmap& bitmap)
     if (0 != memcmp(reference.getPixels(), bitmap.getPixels(), reference.computeByteSize())) {
         SkString encoded;
         SkString errString("Pixels don't match reference");
-        if (BipmapToBase64DataURI(reference, &encoded)) {
+        if (BitmapToBase64DataURI(reference, &encoded)) {
             errString.append("\nExpected: ");
             errString.append(encoded);
         } else {
             errString.append("\nExpected image failed to encode: ");
             errString.append(encoded);
         }
-        if (BipmapToBase64DataURI(bitmap, &encoded)) {
+        if (BitmapToBase64DataURI(bitmap, &encoded)) {
             errString.append("\nActual: ");
             errString.append(encoded);
         } else {

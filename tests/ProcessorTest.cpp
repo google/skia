@@ -445,7 +445,7 @@ static bool log_pixels(GrColor* pixels, int widthHeight, SkString* dst) {
             SkImageInfo::Make(widthHeight, widthHeight, kRGBA_8888_SkColorType, kLogAlphaType);
     SkBitmap bmp;
     bmp.installPixels(info, pixels, widthHeight * sizeof(GrColor));
-    return BipmapToBase64DataURI(bmp, dst);
+    return BitmapToBase64DataURI(bmp, dst);
 }
 
 static bool log_texture_view(GrDirectContext* dContext, GrSurfaceProxyView src, SkString* dst) {
@@ -456,7 +456,7 @@ static bool log_texture_view(GrDirectContext* dContext, GrSurfaceProxyView src, 
     SkBitmap bm;
     SkAssertResult(bm.tryAllocPixels(ii));
     SkAssertResult(sContext->readPixels(dContext, bm.pixmap(), {0, 0}));
-    return BipmapToBase64DataURI(bm, dst);
+    return BitmapToBase64DataURI(bm, dst);
 }
 
 static bool fuzzy_color_equals(const SkPMColor4f& c1, const SkPMColor4f& c2) {

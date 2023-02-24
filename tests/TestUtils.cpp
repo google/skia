@@ -124,7 +124,7 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
     TestReadPixels(reporter, dContext, dstContext.get(), expectedPixelValues, testName);
 }
 
-bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
+bool BitmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
     SkPixmap pm;
     if (!bitmap.peekPixels(&pm)) {
         dst->set("peekPixels failed");
