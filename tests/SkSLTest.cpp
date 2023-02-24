@@ -680,6 +680,7 @@ SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ScopedSymbol,                    "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(RP + VM + GPU_ES3, kNever,      StaticSwitch,                    "shared/StaticSwitch.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
+SKSL_TEST(RP + VM + GPU,     kNextRelease,StructIndexLookup,               "shared/StructIndexLookup.sksl")
 // TODO(skia:13920): StructComparison currently exposes a bug in SPIR-V codegen.
 // SKSL_TEST(RP /* +GPU_ES3 */, kNever,      StructComparison,                "shared/StructComparison.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StructsInFunctions,              "shared/StructsInFunctions.sksl")

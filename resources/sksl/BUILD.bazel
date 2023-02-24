@@ -939,6 +939,7 @@ skia_filegroup(
         "shared/StaticSwitchWithStaticConditionalBreakInsideBlock.sksl",
         "shared/StructArrayFollowedByScalar.sksl",
         "shared/StructComparison.sksl",
+        "shared/StructIndexLookup.sksl",
         "shared/StructMaxDepth.sksl",
         "shared/Structs.sksl",
         "shared/StructsInFunctions.sksl",
