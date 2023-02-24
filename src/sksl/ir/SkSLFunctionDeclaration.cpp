@@ -265,9 +265,6 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             }
             break;
         }
-        case ProgramKind::kGeneric:
-            // No rules apply here
-            break;
         case ProgramKind::kFragment:
         case ProgramKind::kGraphiteFragment: {
             bool validParams = (parameters.size() == 0) ||

@@ -29,7 +29,6 @@ enum class ProgramKind : int8_t {
     kPrivateRuntimeBlender,     // Runtime blender       "     "         "         "
     kMeshVertex,                // Vertex   portion of a custom mesh
     kMeshFragment,              // Fragment  "      "  "   "     "
-    kGeneric,
 };
 
 } // namespace SkSL

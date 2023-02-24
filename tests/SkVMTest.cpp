@@ -6,25 +6,12 @@
  */
 
 #include "include/core/SkColorType.h"
-#include "include/core/SkData.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkSpan.h"
-#include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkMSAN.h"
 #include "src/core/SkVM.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLUtil.h"
-#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/tracing/SkVMDebugTrace.h"
-#include "src/utils/SkVMVisualizer.h"
 #include "tests/Test.h"
 
 #include <algorithm>
@@ -32,9 +19,6 @@
 #include <cstdint>
 #include <cstring>
 #include <initializer_list>
-#include <memory>
-#include <string>
-#include <utility>
 #include <vector>
 
 template <typename Fn>
@@ -2858,48 +2842,4 @@ DEF_TEST(SkVM_duplicates, reporter) {
             REPORTER_ASSERT(reporter, instr.op != skvm::Op::duplicate);
         }
     }
-}
-
-DEF_TEST(SkVM_Visualizer, r) {
-    const char* src =
-            "int main(int x, int y) {\n"
-            "   int a = 99;\n"
-            "   if (x > 0) a += 100;\n"
-            "   if (y > 0) a += 101;\n"
-            "   a = 102;\n"
-            "   return a;\n"
-            "}";
-    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
-    SkSL::ProgramSettings settings;
-    auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
-                                           std::string(src), settings);
-    const SkSL::FunctionDeclaration* main = program->getFunction("main");
-    SkSL::SkVMDebugTrace d;
-    d.setSource(src);
-    auto v = std::make_unique<skvm::viz::Visualizer>(&d);
-    skvm::Builder b(skvm::Features{}, /*createDuplicates=*/true);
-    SkSL::ProgramToSkVM(*program, *main->definition(), &b, &d, /*uniforms=*/{});
-
-    skvm::Program p = b.done(nullptr, true, std::move(v));
-    SkDynamicMemoryWStream vizFile;
-    p.visualizer()->dump(&vizFile);
-    auto vizData = vizFile.detachAsData();
-    std::string html((const char*)vizData->data(), vizData->size());
-    //b.dump();
-    //std::printf(html.c_str());
-    // Check that html contains all types of information:
-    REPORTER_ASSERT(r, std::strstr(html.c_str(), "<tr class='normal'>"));       // SkVM byte code
-    REPORTER_ASSERT(r, std::strstr(html.c_str(), "<tr class='source'>"));       // C++ source
-    REPORTER_ASSERT(r, std::strstr(html.c_str(), "<tr class='dead'>"));         // dead code
-    REPORTER_ASSERT(r, std::strstr(html.c_str(), "<tr class='dead deduped'>")); // deduped removed
-    REPORTER_ASSERT(r, std::strstr(html.c_str(),                                // deduped origins
-                       "<tr class='normal origin'>"
-                       "<td>&#8593;&#8593;&#8593; *13</td>"
-                       "<td>v2 = splat 0 (0)</td></tr>"));
-    REPORTER_ASSERT(r, std::strstr(html.c_str(),                                // trace enter
-                       "<tr class='source'><td class='mask'>&#8618;v9</td>"
-                                   "<td colspan=2>int main(int x, int y)</td></tr>"));
-    REPORTER_ASSERT(r, std::strstr(html.c_str(),                                // trace exit
-                       "<tr class='source'><td class='mask'>&#8617;v9</td>"
-                       "<td colspan=2>int main(int x, int y)</td></tr>"));
 }

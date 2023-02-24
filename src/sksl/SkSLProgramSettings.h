@@ -100,7 +100,7 @@ struct ProgramConfig {
     SkSL::Version fRequiredSkSLVersion = SkSL::Version::k100;
 
     bool enforcesSkSLVersion() const {
-        return IsRuntimeEffect(fKind) || fKind == ProgramKind::kGeneric;
+        return IsRuntimeEffect(fKind);
     }
 
     bool strictES2Mode() const {

@@ -302,7 +302,7 @@ const Module* ModuleLoader::loadPublicModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fPublicModule) {
         const Module* sharedModule = this->loadSharedModule(compiler);
         fModuleLoader.fPublicModule = compile_and_shrink(compiler,
-                                                         ProgramKind::kGeneric,
+                                                         ProgramKind::kFragment,
                                                          MODULE_DATA(sksl_public),
                                                          sharedModule,
                                                          this->coreModifiers());

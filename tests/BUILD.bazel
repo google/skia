@@ -158,7 +158,6 @@ CPU_ONLY_TESTS = [
     "SkMallocTest.cpp",
     "SkPathRangeIterTest.cpp",
     "SkSLErrorTest.cpp",
-    "SkSLInterpreterTest.cpp",
     "SkSLMemoryLayoutTest.cpp",
     "SkSLTypeTest.cpp",
     "SkSharedMutexTest.cpp",

@@ -159,8 +159,7 @@ const Module* Compiler::moduleForProgramKind(ProgramKind kind) {
         case ProgramKind::kPrivateRuntimeColorFilter:
         case ProgramKind::kPrivateRuntimeBlender:
         case ProgramKind::kMeshVertex:
-        case ProgramKind::kMeshFragment:
-        case ProgramKind::kGeneric:               return m.loadPublicModule(this);
+        case ProgramKind::kMeshFragment:          return m.loadPublicModule(this);
     }
     SkUNREACHABLE;
 }
@@ -195,12 +194,6 @@ void Compiler::FinalizeSettings(ProgramSettings* settings, ProgramKind kind) {
     settings->fInlineThreshold *= (int)settings->fOptimize;
     settings->fRemoveDeadFunctions &= settings->fOptimize;
     settings->fRemoveDeadVariables &= settings->fOptimize;
-
-    if (kind == ProgramKind::kGeneric) {
-        // For "generic" interpreter programs, leave all functions intact. (The SkVM API supports
-        // calling any function, not just 'main').
-        settings->fRemoveDeadFunctions = false;
-    }
 
     // Runtime effects always allow narrowing conversions.
     if (ProgramConfig::IsRuntimeEffect(kind)) {

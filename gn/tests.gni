@@ -260,7 +260,6 @@ tests_sources = [
   "$_tests/SkSLES2ConformanceTest.cpp",
   "$_tests/SkSLErrorTest.cpp",
   "$_tests/SkSLGLSLTestbed.cpp",
-  "$_tests/SkSLInterpreterTest.cpp",
   "$_tests/SkSLMemoryLayoutTest.cpp",
   "$_tests/SkSLMetalTestbed.cpp",
   "$_tests/SkSLSPIRVTestbed.cpp",
