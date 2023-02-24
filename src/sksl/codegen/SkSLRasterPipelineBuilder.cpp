@@ -162,6 +162,7 @@ void Builder::discard_stack(int32_t count) {
             case BuilderOp::push_slots:
             case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform:
+            case BuilderOp::push_uniform_indirect:
                 // Our last op was a multi-slot push; cancel out one discard and eliminate the op
                 // if its count reached zero.
                 --count;
@@ -338,6 +339,19 @@ void Builder::push_uniform(SlotRange src) {
     if (src.count > 0) {
         fInstructions.push_back({BuilderOp::push_uniform, {src.index}, src.count});
     }
+}
+
+void Builder::push_uniform_indirect(SlotRange fixedRange,
+                                    int dynamicStackID,
+                                    SlotRange limitRange) {
+    // SlotA: fixed-range start
+    // SlotB: limit-range end
+    // immA: number of slots
+    // immB: dynamic stack ID
+    fInstructions.push_back({BuilderOp::push_uniform_indirect,
+                             {fixedRange.index, limitRange.index + limitRange.count},
+                             fixedRange.count,
+                             dynamicStackID});
 }
 
 void Builder::push_duplicates(int count) {
@@ -782,6 +796,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_slots:
         case BuilderOp::push_slots_indirect:
         case BuilderOp::push_uniform:
+        case BuilderOp::push_uniform_indirect:
         case BuilderOp::push_zeros:
         case BuilderOp::push_clone:
         case BuilderOp::push_clone_from_stack:
@@ -1346,19 +1361,27 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, SlotA(), inst.fImmA);
                 break;
             }
-            case BuilderOp::push_slots_indirect: {
+            case BuilderOp::push_slots_indirect:
+            case BuilderOp::push_uniform_indirect: {
                 // SlotA: fixed-range start
                 // SlotB: limit-range end
                 //  immA: number of slots to copy
                 //  immB: dynamic stack ID
+                ProgramOp op;
                 auto* ctx = alloc->make<SkRasterPipeline_CopyIndirectCtx>();
                 ctx->dst = tempStackPtr;
-                ctx->src = SlotA();
                 ctx->indirectOffset =
                         reinterpret_cast<const uint32_t*>(tempStackMap[inst.fImmB]) - (1 * N);
                 ctx->indirectLimit = inst.fSlotB - inst.fSlotA - inst.fImmA;
                 ctx->slots = inst.fImmA;
-                pipeline->push_back({ProgramOp::copy_from_indirect_unmasked, ctx});
+                if (inst.fOp == BuilderOp::push_slots_indirect) {
+                    op = ProgramOp::copy_from_indirect_unmasked;
+                    ctx->src = SlotA();
+                } else {
+                    op = ProgramOp::copy_from_indirect_uniform_unmasked;
+                    ctx->src = UniformA();
+                }
+                pipeline->push_back({op, ctx});
                 break;
             }
             case BuilderOp::push_uniform: {
@@ -2008,6 +2031,13 @@ void Program::dump(SkWStream* out) const {
                 opArg3 = PtrCtx(ctx->indirectOffset, 1);
                 break;
             }
+            case POp::copy_from_indirect_uniform_unmasked: {
+                const auto* ctx = static_cast<SkRasterPipeline_CopyIndirectCtx*>(stage.ctx);
+                opArg1 = PtrCtx(ctx->dst, ctx->slots);
+                opArg2 = UniformPtrCtx(ctx->src, ctx->slots);
+                opArg3 = PtrCtx(ctx->indirectOffset, 1);
+                break;
+            }
             case POp::merge_condition_mask:
             case POp::add_float:   case POp::add_int:
             case POp::sub_float:   case POp::sub_int:
@@ -2128,7 +2158,7 @@ void Program::dump(SkWStream* out) const {
                 break;
         }
 
-        const char* opName = "";
+        std::string_view opName;
         switch (stage.op) {
         #define M(x) case POp::x: opName = #x; break;
             SK_RASTER_PIPELINE_OPS_ALL(M)
@@ -2294,6 +2324,7 @@ void Program::dump(SkWStream* out) const {
                 break;
 
             case POp::copy_from_indirect_unmasked:
+            case POp::copy_from_indirect_uniform_unmasked:
                 opText = opArg1 + " = Indirect(" + opArg2 + " + " + opArg3 + ")";
                 break;
 
@@ -2475,11 +2506,17 @@ void Program::dump(SkWStream* out) const {
                 break;
         }
 
-        std::string line = !opText.empty()
-                ? SkSL::String::printf("% 5d. %-30s %s\n", index + 1, opName, opText.c_str())
-                : SkSL::String::printf("% 5d. %s\n", index + 1, opName);
-
-        out->writeText(line.c_str());
+        opName = opName.substr(0, 30);
+        if (!opText.empty()) {
+            out->writeText(SkSL::String::printf("% 5d. %-30.*s %s\n",
+                                                index + 1,
+                                                (int)opName.size(), opName.data(),
+                                                opText.c_str()).c_str());
+        } else {
+            out->writeText(SkSL::String::printf("% 5d. %.*s\n",
+                                                index + 1,
+                                                (int)opName.size(), opName.data()).c_str());
+        }
     }
 }
 

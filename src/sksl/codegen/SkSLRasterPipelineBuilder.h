@@ -80,6 +80,7 @@ enum class BuilderOp {
     push_slots,
     push_slots_indirect,
     push_uniform,
+    push_uniform_indirect,
     push_zeros,
     push_clone,
     push_clone_from_stack,
@@ -349,6 +350,12 @@ public:
 
     // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
     void push_uniform(SlotRange src);
+
+    // Translates into copy_from_indirect_uniform_unmasked (from values into temp stack) in Raster
+    // Pipeline. `fixedRange` denotes a fixed set of slots; this range is pushed forward by the
+    // value at the top of stack `dynamicStack`. Pass the range of the uniform being indexed as
+    // `limitRange`; this is used as a hard cap, to avoid indexing outside of bounds.
+    void push_uniform_indirect(SlotRange fixedRange, int dynamicStack, SlotRange limitRange);
 
     void push_zeros(int count) {
         // Translates into zero_slot_unmasked in Raster Pipeline.
