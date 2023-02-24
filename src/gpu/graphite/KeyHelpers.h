@@ -174,6 +174,21 @@ struct ImageShaderBlock {
 
 };
 
+struct CoordClampShaderBlock {
+
+    struct CoordClampData {
+        CoordClampData(SkRect subset) : fSubset(subset) {}
+
+        SkRect fSubset;
+    };
+
+    // The gatherer and data should be null or non-null together
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*,
+                           const CoordClampData*);
+};
+
 struct PorterDuffBlendShaderBlock {
     struct PorterDuffBlendShaderData {
         SkSpan<const float> fPorterDuffConstants;

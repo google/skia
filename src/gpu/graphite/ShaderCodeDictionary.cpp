@@ -628,6 +628,54 @@ static_assert(4 == static_cast<int>(ReadSwizzle::kBGRA),
 static constexpr char kImageShaderName[] = "sk_image_shader";
 
 //--------------------------------------------------------------------------------------------------
+static constexpr Uniform kCoordClampShaderUniforms[] = {
+        { "subset", SkSLType::kFloat4 },
+};
+
+static constexpr char kCoordClampShaderName[] = "CoordClamp";
+
+static constexpr int kNumCoordClampShaderChildren = 1;
+
+// TODO: this has a lot of overlap with GenerateLocalMatrixPreamble
+void GenerateCoordClampPreamble(const ShaderInfo& shaderInfo,
+                                int* entryIndex,
+                                const PaintParamsKey::BlockReader& reader,
+                                std::string* preamble) {
+    const ShaderSnippet* entry = reader.entry();
+    SkASSERT(entry->fNumChildren == kNumCoordClampShaderChildren);
+
+    // Advance over the parent entry.
+    int curEntryIndex = *entryIndex;
+    *entryIndex += 1;
+
+    // Get the child's evaluation expression.
+    static constexpr char kUnusedDestColor[] = "half4(1)";
+    std::string childExpr = emit_expression_for_entry(shaderInfo, *entryIndex,
+                                                      {"inColor", kUnusedDestColor, "coords"});
+    // Emit preamble code for child.
+    emit_preamble_for_entry(shaderInfo, entryIndex, preamble);
+
+    std::string subsetUni = reader.entry()->getMangledUniformName(shaderInfo, 0, curEntryIndex);
+
+    /**
+     * Create a helper function that clamps the local coords to the subset, invokes the child
+     * entry with those updated coordinates, and returns the result. This helper function meets the
+     * requirements for use with GenerateDefaultExpression, so there's no need to have a separate
+     * special GenerateLocalMatrixExpression.
+     */
+    std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, curEntryIndex);
+    SkSL::String::appendf(preamble,
+                          "half4 %s(half4 inColor, half4 destColor, float2 coords) {"
+                              "coords = clamp(coords, %s.LT, %s.RB);"
+                              "return %s;"
+                          "}",
+                          helperFnName.c_str(),
+                          subsetUni.c_str(),
+                          subsetUni.c_str(),
+                          childExpr.c_str());
+}
+
+//--------------------------------------------------------------------------------------------------
 static constexpr Uniform kPorterDuffBlendShaderUniforms[] = {
         { "blendConstants", SkSLType::kHalf4 },
 };
@@ -1264,6 +1312,17 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
             kNoChildren,
+            { }      // no data payload
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCoordClampShader] = {
+            "CoordClampShader",
+            SkSpan(kCoordClampShaderUniforms),
+            SnippetRequirementFlags::kLocalCoords,
+            { },     // no samplers
+            kCoordClampShaderName,
+            GenerateDefaultExpression,
+            GenerateCoordClampPreamble,
+            kNumCoordClampShaderChildren,
             { }      // no data payload
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPorterDuffBlendShader] = {

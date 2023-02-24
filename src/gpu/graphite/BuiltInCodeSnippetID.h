@@ -33,6 +33,7 @@ enum class BuiltInCodeSnippetID : int32_t {
 
     kLocalMatrixShader,
     kImageShader,
+    kCoordClampShader,
     kPorterDuffBlendShader,     // ComposeShader (lightweight, only supports Porter-Duff blends)
     kBlendShader,               // ComposeShader (more code, but supports every SkBlendMode)
     kColorFilterShader,

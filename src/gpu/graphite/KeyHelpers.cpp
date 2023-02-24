@@ -343,8 +343,6 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps, PipelineDataG
         gatherer->write(SkTo<int>(skcms_TFType::skcms_TFType_Invalid));
         gatherer->writeHalfArray({kEmptyXferFn, kNumXferFnCoeffs});
     }
-
-
 }
 
 void add_image_uniform_data(const ShaderCodeDictionary* dict,
@@ -410,6 +408,36 @@ void ImageShaderBlock::BeginBlock(const KeyContext& keyContext,
     }
 
     builder->beginBlock(BuiltInCodeSnippetID::kImageShader);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+namespace {
+
+void add_coordclamp_uniform_data(const ShaderCodeDictionary* dict,
+                                 const CoordClampShaderBlock::CoordClampData& clampData,
+                                 PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCoordClampShader)
+
+    gatherer->write(clampData.fSubset);
+
+    gatherer->addFlags(dict->getSnippetRequirementFlags(BuiltInCodeSnippetID::kCoordClampShader));
+}
+
+} // anonymous namespace
+
+void CoordClampShaderBlock::BeginBlock(const KeyContext& keyContext,
+                                       PaintParamsKeyBuilder* builder,
+                                       PipelineDataGatherer* gatherer,
+                                       const CoordClampData* clampData) {
+    SkASSERT(!gatherer == !clampData);
+
+    auto dict = keyContext.dict();
+    if (gatherer) {
+        add_coordclamp_uniform_data(dict, *clampData, gatherer);
+    }
+
+    builder->beginBlock(BuiltInCodeSnippetID::kCoordClampShader);
 }
 
 //--------------------------------------------------------------------------------------------------

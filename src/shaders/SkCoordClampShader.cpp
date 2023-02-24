@@ -19,9 +19,13 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #endif
+
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
+#endif // SK_GRAPHITE_ENABLED
 
 class SkShader_CoordClamp final : public SkShaderBase {
 public:
@@ -31,6 +35,11 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
+#endif
+#ifdef SK_GRAPHITE_ENABLED
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 protected:
@@ -140,6 +149,20 @@ std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
     return success ? std::move(fp) : nullptr;
 }
 #endif  // SK_SUPPORT_GPU
+
+#ifdef SK_GRAPHITE_ENABLED
+void SkShader_CoordClamp::addToKey(const skgpu::graphite::KeyContext& keyContext,
+                                   skgpu::graphite::PaintParamsKeyBuilder* builder,
+                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
+    CoordClampShaderBlock::CoordClampData data(fSubset);
+
+    CoordClampShaderBlock::BeginBlock(keyContext, builder, gatherer, &data);
+        as_SB(fShader)->addToKey(keyContext, builder, gatherer);
+    builder->endBlock();
+}
+#endif // SK_GRAPHITE_ENABLED
 
 void SkRegisterCoordClampShaderFlattenable() { SK_REGISTER_FLATTENABLE(SkShader_CoordClamp); }
 
