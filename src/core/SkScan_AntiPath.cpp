@@ -7,6 +7,7 @@
 
 #include "src/core/SkScanPriv.h"
 
+#include "include/core/SkGraphics.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
@@ -597,12 +598,22 @@ static SkIRect safeRoundOut(const SkRect& src) {
     return dst;
 }
 
+SkGraphics::PathAnalyticAADeciderProc gAnalyticAADeciderProc = nullptr;
+
+void SkGraphics::SetPathAnalyticAADecider(SkGraphics::PathAnalyticAADeciderProc decider) {
+    gAnalyticAADeciderProc = decider;
+}
+
 static bool ShouldUseAAA(const SkPath& path) {
 #if defined(SK_DISABLE_AAA)
     return false;
 #elif defined(SK_FORCE_AAA)
     return true;
 #else
+    if (gAnalyticAADeciderProc) {
+        return gAnalyticAADeciderProc(path);
+    }
+
     if (gSkForceAnalyticAA) {
         return true;
     }

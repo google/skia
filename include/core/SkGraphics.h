@@ -15,6 +15,7 @@
 class SkData;
 class SkImageGenerator;
 class SkOpenTypeSVGDecoder;
+class SkPath;
 class SkTraceMemoryDump;
 
 class SK_API SkGraphics {
@@ -146,6 +147,16 @@ public:
      *  Call early in main() to allow Skia to use a JIT to accelerate CPU-bound operations.
      */
     static void AllowJIT();
+
+    /**
+     *  To override the default AA algorithm choice in the CPU backend, provide a function that
+     *  returns whether to use analytic (true) or supersampled (false) for a given path.
+     *
+     *  NOTE: This is a temporary API, intended for migration of all clients to one algorithm,
+     *        and should not be used.
+     */
+    typedef bool (*PathAnalyticAADeciderProc)(const SkPath&);
+    static void SetPathAnalyticAADecider(PathAnalyticAADeciderProc);
 };
 
 class SkAutoGraphics {
