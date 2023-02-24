@@ -34,13 +34,11 @@ private:
 
     NSView*              fMainView;
     CAMetalLayer*        fMetalLayer;
-
-    using INHERITED = GraphiteDawnWindowContext;
 };
 
 GraphiteDawnMetalWindowContext_mac::GraphiteDawnMetalWindowContext_mac(const MacWindowInfo& info,
                                                                        const DisplayParams& params)
-    : INHERITED(params, wgpu::TextureFormat::BGRA8Unorm)
+    : GraphiteDawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm)
     , fMainView(info.fMainView) {
 
     CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(fMainView);

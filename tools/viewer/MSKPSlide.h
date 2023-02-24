@@ -48,8 +48,6 @@ private:
     std::vector<SkString>         fLayerIDStrings;
     int                           fDrawLayerID = -1;  // -1 means just draw the root layer
     bool                          fListAllLayers = true;
-
-    using INHERITED = Slide;
 };
 
 #endif

@@ -102,8 +102,6 @@ private:
     }
 
     const sk_sp<Slide> fSlide;
-
-    using INHERITED = sksg::RenderNode;
 };
 
 SkMatrix SlideMatrix(const sk_sp<Slide>& slide, const SkRect& dst) {
@@ -258,8 +256,6 @@ private:
                     fOpacity1 = 1,
                     fTimeBase = 0;
     State           fState    = State::kIdle;
-
-    using INHERITED = Animator;
 };
 
 SlideDir::SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&& slides, int columns)

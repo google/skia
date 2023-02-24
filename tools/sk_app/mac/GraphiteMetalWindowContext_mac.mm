@@ -30,13 +30,11 @@ public:
 
 private:
     NSView*              fMainView;
-
-    using INHERITED = GraphiteMetalWindowContext;
 };
 
 GraphiteMetalWindowContext_mac::GraphiteMetalWindowContext_mac(const MacWindowInfo& info,
                                                                const DisplayParams& params)
-    : INHERITED(params)
+    : GraphiteMetalWindowContext(params)
     , fMainView(info.fMainView) {
 
     // any config code here (particularly for msaa)?

@@ -25,8 +25,6 @@ private:
     const SkString  fPath;
 
     sk_sp<SkSVGDOM> fDom;
-
-    using INHERITED = Slide;
 };
 
 #endif // SvgSlide_DEFINED

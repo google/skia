@@ -412,7 +412,7 @@ void Window_win::setRequestedDisplayParams(const DisplayParams& params, bool all
         }
     }
 
-    INHERITED::setRequestedDisplayParams(params, allowReattach);
+    Window::setRequestedDisplayParams(params, allowReattach);
 }
 
 }   // namespace sk_app

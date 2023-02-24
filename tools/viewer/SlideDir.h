@@ -66,8 +66,6 @@ private:
 
     const Rec*                         fTrackingCell = nullptr;
     SkPoint                            fTrackingPos  = SkPoint::Make(0, 0);
-
-    using INHERITED = Slide;
 };
 
 #endif // SlideDir_DEFINED

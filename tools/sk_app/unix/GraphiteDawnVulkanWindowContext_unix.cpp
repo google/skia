@@ -28,14 +28,12 @@ public:
 private:
     Display*     fDisplay;
     XWindow      fWindow;
-
-    using INHERITED = GraphiteDawnWindowContext;
 };
 
 GraphiteDawnVulkanWindowContext_unix::GraphiteDawnVulkanWindowContext_unix(
     const XlibWindowInfo& info,
     const DisplayParams& params)
-        : INHERITED(params, wgpu::TextureFormat::BGRA8Unorm)
+        : GraphiteDawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm)
         , fDisplay(info.fDisplay)
         , fWindow(info.fWindow)  {
     XWindow root;

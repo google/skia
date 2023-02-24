@@ -200,9 +200,6 @@ protected:
         r.outset(border, border);
         return r;
     }
-
-private:
-    using INHERITED = SkDrawable;
 };
 
 class DrawAtlasSlide : public Slide {

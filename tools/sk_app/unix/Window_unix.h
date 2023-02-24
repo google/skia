@@ -101,8 +101,6 @@ private:
     BackendType fBackend = BackendType::kRaster_BackendType;
 
     std::string fClipboardText;
-
-    using INHERITED = Window;
 };
 
 }   // namespace sk_app

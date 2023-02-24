@@ -66,8 +66,6 @@ private:
                                        fShowSlotManager      = false,
                                        fDraggingProgress     = false,
                                        fPreferGlyphPaths     = false;
-
-    using INHERITED = Slide;
 };
 
 #endif // SK_ENABLE_SKOTTIE

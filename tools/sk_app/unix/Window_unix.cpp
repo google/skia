@@ -459,7 +459,7 @@ void Window_unix::setRequestedDisplayParams(const DisplayParams& params, bool al
     }
 #endif
 
-    INHERITED::setRequestedDisplayParams(params, allowReattach);
+    Window::setRequestedDisplayParams(params, allowReattach);
 }
 
 const char* Window_unix::getClipboardText() {

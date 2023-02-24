@@ -48,15 +48,13 @@ private:
     EAGLContext*         fGLContext;
     GLuint               fFramebuffer;
     GLuint               fRenderbuffer;
-
-    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_ios::GLWindowContext_ios(const IOSWindowInfo& info, const DisplayParams& params)
-    : INHERITED(params)
-    , fWindow(info.fWindow)
-    , fViewController(info.fViewController)
-    , fGLContext(nil) {
+        : GLWindowContext(params)
+        , fWindow(info.fWindow)
+        , fViewController(info.fViewController)
+        , fGLContext(nil) {
 
     // any config code here (particularly for msaa)?
 
@@ -148,7 +146,7 @@ void GLWindowContext_ios::onSwapBuffers() {
 void GLWindowContext_ios::resize(int w, int h) {
     // TODO: handle rotation
     // [fGLContext update];
-     INHERITED::resize(w, h);
+    GLWindowContext::resize(w, h);
 }
 
 }  // anonymous namespace

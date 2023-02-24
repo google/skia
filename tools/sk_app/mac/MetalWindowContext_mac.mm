@@ -30,13 +30,11 @@ public:
 
 private:
     NSView*              fMainView;
-
-    using INHERITED = MetalWindowContext;
 };
 
 MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info,
                                                const DisplayParams& params)
-    : INHERITED(params)
+    : MetalWindowContext(params)
     , fMainView(info.fMainView) {
 
     // any config code here (particularly for msaa)?

@@ -35,13 +35,11 @@ private:
     Display*     fDisplay;
     XWindow      fWindow;
     VkSurfaceKHR fVkSurface = nullptr;
-
-    using INHERITED = DawnWindowContext;
 };
 
 DawnVulkanWindowContext_xlib::DawnVulkanWindowContext_xlib(const XlibWindowInfo& winInfo,
                                                            const DisplayParams& params)
-        : INHERITED(params, wgpu::TextureFormat::BGRA8Unorm)
+        : DawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm)
         , fDisplay(winInfo.fDisplay)
         , fWindow(winInfo.fWindow) {
     XWindow root;

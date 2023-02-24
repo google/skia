@@ -26,13 +26,11 @@ public:
 
 private:
     HWND fWindow;
-
-    using INHERITED = GraphiteDawnWindowContext;
 };
 
 GraphiteDawnD3D12WindowContext_win::GraphiteDawnD3D12WindowContext_win(HWND hwnd,
                                                                        const DisplayParams& params)
-        : INHERITED(params, wgpu::TextureFormat::BGRA8Unorm), fWindow(hwnd) {
+        : GraphiteDawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm), fWindow(hwnd) {
     RECT rect;
     GetClientRect(hwnd, &rect);
     this->initializeContext(rect.right - rect.left, rect.bottom - rect.top);

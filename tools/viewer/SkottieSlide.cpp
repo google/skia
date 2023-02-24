@@ -62,7 +62,7 @@ private:
 class AudioProviderProxy final : public skresources::ResourceProviderProxyBase {
 public:
     explicit AudioProviderProxy(sk_sp<skresources::ResourceProvider> rp)
-        : INHERITED(std::move(rp)) {}
+        : skresources::ResourceProviderProxyBase(std::move(rp)) {}
 
 private:
     sk_sp<skresources::ExternalTrackAsset> loadAudioAsset(const char path[],
@@ -76,8 +76,6 @@ private:
 
         return nullptr;
     }
-
-    using INHERITED = skresources::ResourceProviderProxyBase;
 };
 
 class Decorator : public SkNoncopyable {
@@ -624,7 +622,7 @@ bool SkottieSlide::onChar(SkUnichar c) {
         return true;
     }
 
-    return INHERITED::onChar(c);
+    return Slide::onChar(c);
 }
 
 bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey mod) {
