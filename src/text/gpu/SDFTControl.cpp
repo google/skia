@@ -90,28 +90,34 @@ SDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix,
 
     SkScalar dfMaskScaleFloor;
     SkScalar dfMaskScaleCeil;
+    SkScalar dfMaskSize;
     if (scaledTextSize <= kSmallDFFontLimit) {
         dfMaskScaleFloor = fMinDistanceFieldFontSize;
         dfMaskScaleCeil = kSmallDFFontLimit;
+        dfMaskSize = kSmallDFFontLimit;
     } else if (scaledTextSize <= kMediumDFFontLimit) {
         dfMaskScaleFloor = kSmallDFFontLimit;
         dfMaskScaleCeil = kMediumDFFontLimit;
+        dfMaskSize = kMediumDFFontLimit;
 #ifdef SK_BUILD_FOR_MAC
     } else if (scaledTextSize <= kLargeDFFontLimit) {
         dfMaskScaleFloor = kMediumDFFontLimit;
         dfMaskScaleCeil = kLargeDFFontLimit;
+        dfMaskSize = kLargeDFFontLimit;
     } else {
         dfMaskScaleFloor = kLargeDFFontLimit;
-        dfMaskScaleCeil = kExtraLargeDFFontLimit;
+        dfMaskScaleCeil = fMaxDistanceFieldFontSize;
+        dfMaskSize = kExtraLargeDFFontLimit;
     }
 #else
     } else {
         dfMaskScaleFloor = kMediumDFFontLimit;
-        dfMaskScaleCeil = kLargeDFFontLimit;
+        dfMaskScaleCeil = fMaxDistanceFieldFontSize;
+        dfMaskSize = kLargeDFFontLimit;
     }
 #endif
 
-    dfFont.setSize(SkIntToScalar(dfMaskScaleCeil));
+    dfFont.setSize(dfMaskSize);
     dfFont.setEdging(SkFont::Edging::kAntiAlias);
     dfFont.setForceAutoHinting(false);
     dfFont.setHinting(SkFontHinting::kNormal);
