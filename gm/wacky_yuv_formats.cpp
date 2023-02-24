@@ -61,8 +61,6 @@ static const int kLabelHeight = 32;
 static const int kSubsetPadding = 8;
 static const int kPad = 1;
 
-using Recorder = skgpu::graphite::Recorder;
-
 enum YUVFormat {
     // 4:2:0 formats, 24 bpp
     kP016_YUVFormat, // 16-bit Y plane + 2x2 down sampled interleaved U/V plane (2 textures)
@@ -824,7 +822,7 @@ protected:
         }
     }
 
-    bool createImages(GrDirectContext* dContext, Recorder* recorder) {
+    bool createImages(GrDirectContext* dContext) {
         int origin = 0;
         for (bool opaque : { false, true }) {
             for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
@@ -848,14 +846,8 @@ protected:
                                                          resultBMs,
                                                          numPlanes);
                     auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps));
-#ifdef SK_GRAPHITE_ENABLED
-                    if (recorder) {
-                        fImages[opaque][cs][format] = lazyYUV->refImage(recorder, fImageType);
-                    } else
-#endif
-                    {
-                        fImages[opaque][cs][format] = lazyYUV->refImage(dContext, fImageType);
-                    }
+
+                    fImages[opaque][cs][format] = lazyYUV->refImage(dContext, fImageType);
                 }
                 origin = (origin + 1) % 8;
             }
@@ -874,7 +866,6 @@ protected:
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
         auto dContext = GrAsDirectContext(canvas->recordingContext());
-        auto recorder = canvas->recorder();
         this->createBitmaps();
 
         if (dContext && dContext->abandoned()) {
@@ -884,11 +875,11 @@ protected:
         }
 
         // Only the generator is expected to work with the CPU backend.
-        if (fImageType != Type::kFromGenerator && !dContext && !recorder) {
+        if (fImageType != Type::kFromGenerator && !dContext) {
             return DrawResult::kSkip;
         }
 
-        if (!this->createImages(dContext, recorder)) {
+        if (!this->createImages(dContext)) {
             *errorMsg = "Failed to create YUV images";
             return DrawResult::kFail;
         }
@@ -908,9 +899,6 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         auto direct = GrAsDirectContext(canvas->recordingContext());
-#ifdef SK_GRAPHITE_ENABLED
-        auto recorder = canvas->recorder();
-#endif
 
         float cellWidth = kTileWidthHeight, cellHeight = kTileWidthHeight;
         if (fUseSubset) {
@@ -954,17 +942,8 @@ protected:
                         // Making a CS-specific version of a kIdentity_SkYUVColorSpace YUV image
                         // doesn't make a whole lot of sense. The colorSpace conversion will
                         // operate on the YUV components rather than the RGB components.
-                        sk_sp<SkImage> csImage;
-#ifdef SK_GRAPHITE_ENABLED
-                        if (recorder) {
-                            csImage = fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace,
-                                                                                  recorder);
-                        } else
-#endif
-                        {
-                            csImage = fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace,
-                                                                                  direct);
-                        }
+                        sk_sp<SkImage> csImage =
+                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace, direct);
                         canvas->drawImageRect(csImage, srcRect, dstRect, sampling,
                                               &paint, constraint);
                     } else {
