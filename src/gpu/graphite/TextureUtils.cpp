@@ -113,7 +113,7 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     // Add UploadTask to Recorder
     UploadInstance upload = UploadInstance::Make(
             recorder, proxy, colorInfo, colorInfo, texels,
-            SkIRect::MakeSize(bmpToUpload.dimensions()), nullptr);
+            SkIRect::MakeSize(bmpToUpload.dimensions()), std::make_unique<ImageUploadContext>());
     if (!upload.isValid()) {
         SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadInstance");
         return {};

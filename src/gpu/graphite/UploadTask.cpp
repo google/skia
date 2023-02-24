@@ -223,6 +223,10 @@ void UploadInstance::addCommand(Context* context,
         commandBuffer->copyBufferToTexture(
                 fBuffer, fTextureProxy->refTexture(), &transformedCopyData, 1);
     }
+
+    if (fConditionalContext) {
+        fConditionalContext->uploadSubmitted();
+    }
 }
 
 //---------------------------------------------------------------------------

@@ -39,6 +39,29 @@ public:
     virtual ~ConditionalUploadContext() {}
 
     virtual bool needsUpload(Context*) const = 0;
+
+    virtual void uploadSubmitted() {}
+};
+
+/**
+ * ImageUploadContext is an implementation of ConditionalUploadContext that returns true on
+ * the first call to needsUpload() and then returns false on subsequent calls. This is used to
+ * upload an image once and then avoid redundant uploads after that.
+ */
+class ImageUploadContext : public ConditionalUploadContext {
+public:
+    ~ImageUploadContext() override {}
+
+    bool needsUpload(Context* context) const override {
+        return fNeedsUpload;
+    }
+
+    void uploadSubmitted() override {
+        fNeedsUpload = false;
+    }
+
+private:
+    bool fNeedsUpload = true;
 };
 
 /**

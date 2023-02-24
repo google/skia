@@ -300,7 +300,7 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
                                                  colorInfo, colorInfo,
                                                  mipLevels,
                                                  SkIRect::MakeSize(backendTex.dimensions()),
-                                                 nullptr);
+                                                 std::make_unique<ImageUploadContext>());
     if (!upload.isValid()) {
         SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create UploadInstance");
         return false;
