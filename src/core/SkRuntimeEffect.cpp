@@ -63,7 +63,9 @@
 #endif
 
 // This flag can be enabled to use the new Raster Pipeline code generator for SkSL.
-//#define SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+#if !defined(SKSL_STANDALONE)
+#define SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+#endif
 
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 #include "src/core/SkStreamPriv.h"
