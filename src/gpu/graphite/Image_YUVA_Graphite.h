@@ -19,7 +19,7 @@ class Image_YUVA final : public Image_Base {
 public:
     Image_YUVA(uint32_t uniqueID,
                YUVATextureProxies proxies,
-               const SkColorInfo&);
+               sk_sp<SkColorSpace>);
 
     ~Image_YUVA() override {}
 

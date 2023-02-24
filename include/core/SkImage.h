@@ -1251,6 +1251,35 @@ public:
         skgpu::Mipmapped fMipmapped;
     };
 
+    /** Creates SkImage from SkYUVAPixmaps.
+
+        The image will remain planar with each plane converted to a texture using the passed
+        Recorder.
+
+        SkYUVAPixmaps has a SkYUVAInfo which specifies the transformation from YUV to RGB.
+        The SkColorSpace of the resulting RGB values is specified by imgColorSpace. This will
+        be the SkColorSpace reported by the image and when drawn the RGB values will be converted
+        from this space into the destination space (if the destination is tagged).
+
+        This is only supported using the GPU backend and will fail if recorder is nullptr.
+
+        SkYUVAPixmaps does not need to remain valid after this returns.
+
+        @param Recorder                 The Recorder to use for storing commands
+        @param pixmaps                  The planes as pixmaps with supported SkYUVAInfo that
+                                        specifies conversion to RGB.
+        @param RequiredImageProperties  Properties the returned SkImage must possess (e.g.,
+                                        mipmaps)
+        @param limitToMaxTextureSize    Downscale image to GPU maximum texture size, if necessary
+        @param imgColorSpace            Range of colors of the resulting image; may be nullptr
+        @return                         Created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeGraphiteFromYUVAPixmaps(skgpu::graphite::Recorder*,
+                                                      const SkYUVAPixmaps& pixmaps,
+                                                      RequiredImageProperties = {},
+                                                      bool limitToMaxTextureSize = false,
+                                                      sk_sp<SkColorSpace> imgColorSpace = nullptr);
+
     /** Graphite version of makeTextureImage.
 
         Returns an SkImage backed by a Graphite texture, using the provided Recorder for creation
