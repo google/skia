@@ -62,6 +62,12 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     if (src.empty()) {
         return;
     }
+    // Create a rewind context if `src` has one already, but we don't. If we _do_ already have one,
+    // we need to keep it, since we already have rewind ops that reference it. Either way, we need
+    // to rewrite all the rewind ops to point to _our_ rewind context; we only get that checkpoint.
+    if (src.fRewindCtx && !fRewindCtx) {
+        fRewindCtx = fAlloc->make<SkRasterPipeline_RewindCtx>();
+    }
     auto stages = fAlloc->makeArrayDefault<StageList>(src.fNumStages);
 
     int n = src.fNumStages;
@@ -69,6 +75,12 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     while (n --> 1) {
         stages[n]      = *st;
         stages[n].prev = &stages[n-1];
+
+        if (stages[n].stage == Op::stack_rewind) {
+            // We make sure that all stack rewinds use _our_ stack context.
+            stages[n].ctx = fRewindCtx;
+        }
+
         st = st->prev;
     }
     stages[0]      = *st;
