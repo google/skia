@@ -420,6 +420,7 @@ skia_core_sources = [
   "$_src/core/SkMipmap.h",
   "$_src/core/SkMipmapAccessor.cpp",
   "$_src/core/SkMipmapAccessor.h",
+  "$_src/core/SkMipmapBuilder.cpp",
   "$_src/core/SkMipmapBuilder.h",
   "$_src/core/SkModeColorFilter.cpp",
   "$_src/core/SkNextID.h",

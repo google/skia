@@ -531,6 +531,7 @@ BASE_SRCS_ALL = [
     "src/core/SkMipmap.h",
     "src/core/SkMipmapAccessor.cpp",
     "src/core/SkMipmapAccessor.h",
+    "src/core/SkMipmapBuilder.cpp",
     "src/core/SkMipmapBuilder.h",
     "src/core/SkModeColorFilter.cpp",
     "src/core/SkNextID.h",

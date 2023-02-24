@@ -30,7 +30,6 @@
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMipmap.h"
-#include "src/core/SkMipmapBuilder.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkSpecialImage.h"
@@ -846,28 +845,6 @@ void SkImage_unpinAsTexture(const SkImage* image, GrRecordingContext* rContext) 
     as_IB(image)->onUnpinAsTexture(rContext);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkMipmapBuilder::SkMipmapBuilder(const SkImageInfo& info) {
-    fMM = sk_sp<SkMipmap>(SkMipmap::Build({info, nullptr, 0}, nullptr, false));
-}
-
-SkMipmapBuilder::~SkMipmapBuilder() {}
-
-int SkMipmapBuilder::countLevels() const {
-    return fMM ? fMM->countLevels() : 0;
-}
-
-SkPixmap SkMipmapBuilder::level(int index) const {
-    SkPixmap pm;
-
-    SkMipmap::Level level;
-    if (fMM && fMM->getLevel(index, &level)) {
-        pm = level.fPixmap;
-    }
-    return pm;
-}
-
 bool SkImage::hasMipmaps() const { return as_IB(this)->onHasMipmaps(); }
 
 sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
@@ -881,26 +858,4 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
 
 sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
     return this->withMipmaps(nullptr);
-}
-
-sk_sp<SkImage> SkMipmapBuilder::attachTo(const SkImage* src) {
-    return src->withMipmaps(fMM);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkSamplingOptions SkSamplingPriv::FromFQ(SkLegacyFQ fq, SkMediumAs behavior) {
-    switch (fq) {
-        case kHigh_SkLegacyFQ:
-            return SkSamplingOptions(SkCubicResampler{1/3.0f, 1/3.0f});
-        case kMedium_SkLegacyFQ:
-            return SkSamplingOptions(SkFilterMode::kLinear,
-                                      behavior == kNearest_SkMediumAs ? SkMipmapMode::kNearest
-                                                                      : SkMipmapMode::kLinear);
-        case kLow_SkLegacyFQ:
-            return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
-        case kNone_SkLegacyFQ:
-            break;
-    }
-    return SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
 }
