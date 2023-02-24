@@ -82,4 +82,4 @@ static constexpr char SKSL_MINIFIED_sksl_gpu[] =
 " cross_length_2d(float2 c,float2 d){return determinant(float2x2(c,d));}$pure"
 " half cross_length_2d(half2 c,half2 d){return determinant(half2x2(c,d));}$pure"
 " float2 perp(float2 a){return float2(-a.y,a.x);}$pure half2 perp(half2 a){return"
-" half2(-a.y,a.x);}";
+" half2(-a.y,a.x);}$pure float coverage_bias(float a){return 1.-.5*a;}";

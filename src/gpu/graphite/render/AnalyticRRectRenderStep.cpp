@@ -346,58 +346,58 @@ static void write_vertex_buffer(VertexWriter writer) {
     static constexpr Vertex kVertexTemplate[kVertexCount] = {
         // ** TL **
         // Device-space AA outsets from outer curve
-        { {-1.0f,  0.0f}, {-1.0f,  0.0f}, kOutset, _______ },
-        { {-1.0f,  0.0f}, {-kHR2, -kHR2}, kOutset, _______ },
-        { { 0.0f, -1.0f}, {-kHR2, -kHR2}, kOutset, _______ },
-        { { 0.0f, -1.0f}, { 0.0f, -1.0f}, kOutset, _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset, _______ },
 
         // Outer anchors (no local or device-space normal outset)
-        { {-1.0f,  0.0f}, {-kHR2, -kHR2}, _______, _______ },
-        { { 0.0f, -1.0f}, {-kHR2, -kHR2}, _______, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, _______, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, _______, _______ },
 
         // Inner curve (with additional AA inset in the common case)
-        { {-1.0f,  0.0f}, {-1.0f,  0.0f}, kInset, _______ },
-        { { 0.0f, -1.0f}, { 0.0f, -1.0f}, kInset, _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset, _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset, _______ },
 
         // Center filling vertices (equal to inner AA insets unless 'center' triggers a fill).
         // TODO: On backends that support "cull" distances (and with SkSL support), these vertices
         // and their corresponding triangles can be completely removed. The inset vertices can
         // set their cull distance value to cause all filling triangles to be discarded or not
         // depending on the instance's style.
-        { {-1.0f,  0.0f}, {-1.0f,  0.0f}, kInset,  kCenter },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  kCenter },
 
         // ** TR **
-        { { 0.0f, -1.0f}, { 0.0f, -1.0f}, kOutset, _______ },
-        { { 0.0f, -1.0f}, { kHR2, -kHR2}, kOutset, _______ },
-        { { 1.0f,  0.0f}, { kHR2, -kHR2}, kOutset, _______ },
-        { { 1.0f,  0.0f}, { 1.0f,  0.0f}, kOutset, _______ },
-        { { 0.0f, -1.0f}, { kHR2, -kHR2}, _______, _______ },
-        { { 1.0f,  0.0f}, { kHR2, -kHR2}, _______, _______ },
-        { { 0.0f, -1.0f}, { 0.0f, -1.0f}, kInset,  _______ },
-        { { 1.0f,  0.0f}, { 1.0f,  0.0f}, kInset,  _______ },
-        { { 0.0f, -1.0f}, { 0.0f, -1.0f}, kInset,  kCenter },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, _______, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, _______, _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  kCenter },
 
         // ** BR **
-        { { 1.0f,  0.0f}, { 1.0f,  0.0f}, kOutset, _______ },
-        { { 1.0f,  0.0f}, { kHR2,  kHR2}, kOutset, _______ },
-        { { 0.0f,  1.0f}, { kHR2,  kHR2}, kOutset, _______ },
-        { { 0.0f,  1.0f}, { 0.0f,  1.0f}, kOutset, _______ },
-        { { 1.0f,  0.0f}, { kHR2,  kHR2}, _______, _______ },
-        { { 0.0f,  1.0f}, { kHR2,  kHR2}, _______, _______ },
-        { { 1.0f,  0.0f}, { 1.0f,  0.0f}, kInset,  _______ },
-        { { 0.0f,  1.0f}, { 0.0f,  1.0f}, kInset,  _______ },
-        { { 1.0f,  0.0f}, { 1.0f,  0.0f}, kInset,  kCenter },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, _______, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, _______, _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  kCenter },
 
         // ** BL **
-        { { 0.0f,  1.0f}, { 0.0f,  1.0f}, kOutset, _______ },
-        { { 0.0f,  1.0f}, {-kHR2,  kHR2}, kOutset, _______ },
-        { {-1.0f,  0.0f}, {-kHR2,  kHR2}, kOutset, _______ },
-        { {-1.0f,  0.0f}, {-1.0f,  0.0f}, kOutset, _______ },
-        { { 0.0f,  1.0f}, {-kHR2,  kHR2}, _______, _______ },
-        { {-1.0f,  0.0f}, {-kHR2,  kHR2}, _______, _______ },
-        { { 0.0f,  1.0f}, { 0.0f,  1.0f}, kInset,  _______ },
-        { {-1.0f,  0.0f}, {-1.0f,  0.0f}, kInset,  _______ },
-        { { 0.0f,  1.0f}, { 0.0f,  1.0f}, kInset,  kCenter },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
+        { {0.0f, 1.0f}, {kHR2, kHR2}, _______, _______ },
+        { {1.0f, 0.0f}, {kHR2, kHR2}, _______, _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  _______ },
+        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  _______ },
+        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  kCenter },
     };
 
     writer << kVertexTemplate;
@@ -412,7 +412,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                      kDirectDepthGreaterPass,
                      /*vertexAttrs=*/{
                             {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                            {"normalAttr", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                            {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
                             // TODO: These values are all +1/0/-1, or +1/0, so could be packed
                             // much more densely than as three floats.
                             {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
@@ -443,28 +443,43 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                              // reconstruct the Jacobian in the fragment shader using the existing
                              // local coordinates varying
                              {"jacobian", SkSLType::kFloat4}, // float2x2
+                             // Distance to LTRB edges of unstroked shape. Depending on
+                             // 'perPixelControl' these will either be local or device-space values.
                              {"edgeDistances", SkSLType::kFloat4}, // distance to LTRB edges
                              // TODO: These are constant for all fragments for a given instance,
                              // could we store them in the draw's SSBO?
                              {"xRadii", SkSLType::kFloat4},
                              {"yRadii", SkSLType::kFloat4},
                              // Matches the StrokeStyle struct (X is radius, Y < 0 is round join,
-                             // Y = 0 is bevel, Y > 0 is miter join). However, 0 < Y <= 1 is used to
-                             // signal a miter join that needs to be applied per-corner. Y > 1 is
-                             // used when all corner coverage calculations are known to be mitered.
+                             // Y = 0 is bevel, Y > 0 is miter join).
                              // TODO: These could easily be considered part of the draw's uniforms.
                              {"strokeParams", SkSLType::kFloat2},
-                             // A negative X value represents an additional reduction in coverage
-                             // from a device-space outset.
+                             // 'perPixelControl' is a tightly packed description of how to
+                             // evaluate the possible edges that influence coverage in a pixel.
+                             // The decision points and encoded values are spread across X and Y
+                             // so that they are consistent regardless of whether or not MSAA is
+                             // used and does not require centroid sampling.
                              //
-                             // A positive Y value overrides all per-pixel coverage calculations and
-                             // sets the pixel to full coverage. Otherwise the fragment shader
-                             // calculates coverage against the four edges and possibly four corners
-                             // (see strokeParams note).
+                             // The signs of values are used to determine the type of coverage to
+                             // calculate in the fragment shader and depending on the state, extra
+                             // varying state is encoded in the fields:
+                             //  - A positive X value overrides all per-pixel coverage calculations
+                             //    and sets the pixel to full coverage. Y is ignored in this case.
+                             //  - A zero X value represents a solid interior shape.
+                             //  - X much less than 0 represents bidirectional coverage for a
+                             //    stroke, using a sufficiently negative value to avoid
+                             //    extrapolation from fill triangles. For actual shapes with
+                             //    bidirectional coverage, the fill triangles are zero area.
                              //
-                             // Y = 0 denotes a solid interior with per-pixel AA and Y = -1 is a
-                             // stroked/hairline interior with per-pixel AA. Small negative values
-                             // are assumed to be extrapolation errors and treated as Y = 0.
+                             //  - Y much greater than 0 takes precedence over the latter two X
+                             //    rules and signals that 'edgeDistances' holds device-space values
+                             //    and does not require additional per-pixel calculations. The
+                             //    coverage scale is encoded as (1+scale*w) and the bias is
+                             //    reconstructed from that. X is always 0 for non-fill triangles
+                             //    since device-space edge distance is only used for solid interiors
+                             //  - Otherwise, any negative Y value represents an additional
+                             //    reduction in coverage due to a device-space outset. It is clamped
+                             //    below 0 to avoid adding coverage from extrapolation.
                              {"perPixelControl", SkSLType::kFloat2},
                      }) {
     // Initialize the static buffers we'll use when recording draw calls.
@@ -495,6 +510,7 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
 
         // Unpack instance-level state that determines the vertex placement and style of shape.
         bool bidirectionalCoverage = center.z <= 0.0;
+        bool deviceSpaceDistances = false;
         float4 xs, ys; // ordered TL, TR, BR, BL
         if (xRadiiOrFlags.x < -1.0) {
             // Stroked rect or round rect
@@ -507,7 +523,7 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
                 xRadii = -xRadiiOrFlags - 2.0;
                 yRadii = radiiOrQuadXs;
 
-                // All hairlines use miter joins
+                // All hairlines use miter joins (join style > 0)
                 strokeParams = float2(0.0, 1.0);
             } else {
                 xRadii = radiiOrQuadXs;
@@ -528,7 +544,7 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
             xRadii = xRadiiOrFlags;
             yRadii = radiiOrQuadXs;
 
-            strokeParams = float2(0.0, -1.0); // Send negative value to not skip corner coverage
+            strokeParams = float2(0.0, -1.0); // A negative join style is "round"
         } else {
             // Per-edge quadrilateral, so we have to calculate the corner's basis from the
             // quad's edges.
@@ -538,7 +554,8 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
             xRadii = float4(0.0);
             yRadii = float4(0.0);
 
-            strokeParams = float2(0.0, 2.0); // No corner calculations necessary
+            strokeParams = float2(0.0, 1.0); // Will be ignored, but set to a "miter"
+            deviceSpaceDistances = true;
         }
 
         // Adjust state on a per-corner basis
@@ -546,15 +563,18 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
         float strokeRadius = strokeParams.x; // alias
         float2 cornerRadii = float2(xRadii[cornerID], yRadii[cornerID]);
 
+        float2 cornerAspectRatio = float2(1.0);
         if (cornerRadii.x > kEpsilon && cornerRadii.y > kEpsilon) {
             // Position vertices for an elliptical corner; overriding any previous join style since
             // that only applies when radii are 0.
             joinScale = kRoundScale;
+            cornerAspectRatio = cornerRadii.yx;
         } else if (cornerRadii.x != 0 && cornerRadii.y != 0) {
             // A very small rounded corner, which technically ignores style (i.e. should not be
             // beveled or mitered), but place the vertices as a miter to fully cover it and let
             // the fragment shader evaluate the curve per pixel.
             joinScale = kMiterScale;
+            cornerAspectRatio = cornerRadii.yx;
         } else if (strokeRadius > 0.0 && strokeRadius <= kEpsilon) {
             // A stroked rectangular corner that could have a very small bevel or round join,
             // so place vertices as a miter.
@@ -567,29 +587,34 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
             cornerRadii = float2(0.0); // (will only affect vertex placement, not FS coverage)
         }
 
-        float2 normal = normalAttr;
-        bool isMidVertex = normal.x != 0.0 && normal.y != 0.0;
-        if (isMidVertex && cornerRadii.y != cornerRadii.x) {
-            // Update normals for elliptical corners.
-            normal = normalize(cornerRadii.yx * normal);
+        // Calculate the local edge vectors, ordered L, T, R, B starting from the bottom left point.
+        // For quadrilaterals these are not necessarily axis-aligned, but in all cases they orient
+        // the +X/+Y normalized vertex template for each corner.
+        // TODO: Correct edge vectors for points, lines, and triangles.
+        float4 dx = xs - xs.wxyz;
+        float4 dy = ys - ys.wxyz;
+        float4 invEdgeLen = inversesqrt(dx*dx + dy*dy);
+        dx *= invEdgeLen;
+        dy *= invEdgeLen;
+
+        float2 xAxis, yAxis;
+        if (cornerID % 2 == 0) {
+            xAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
+            yAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
+        } else {
+            xAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
+            yAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
         }
 
         // Calculate local coordinate for the vertex
-        float winding = cornerID % 2 != 0 ? -1.0 : 1.0;
-        float2 xySigns = sign(position + winding*position.yx);
-
-        float2 corner = float2(xs[cornerID], ys[cornerID]);
-        float2 localPos = position + (joinScale * winding * mirrorOffset * position.yx);
-        float2 origin = corner - cornerRadii * xySigns;
-
+        float2 localPos = position + (joinScale * mirrorOffset * position.yx);
+        bool snapToCenter = false;
         if (normalScale < 0.0) {
             // Vertex is inset from the base shape, so we scale by (cornerRadii - strokeRadius)
             // and have to check for the possibility of an inner miter. It is always inset by an
             // additional conservative AA amount.
-            bool snapToCenter = centerWeight * center.z != 0.0 ||
-                                (center.w < 0.0 && normalScale < 0.0);
-            if (snapToCenter) {
-                localPos = center.xy;
+            if (centerWeight * center.z != 0.0 || (center.w < 0.0 && normalScale < 0.0)) {
+                snapToCenter = true;
             } else {
                 float localAARadius = center.w; // Only used when center.w >= 0
                 float2 insetRadii =
@@ -597,22 +622,27 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
                 if (joinScale == kMiterScale ||
                     insetRadii.x <= localAARadius || insetRadii.y <= localAARadius) {
                     // Miter the inset position
-                    localPos = origin + xySigns * (insetRadii - localAARadius);
+                    localPos = (insetRadii - localAARadius);
                 } else {
-                    localPos = origin + insetRadii*localPos - localAARadius*normal;
+                    localPos = insetRadii*localPos - localAARadius*normal;
                 }
             }
         } else {
             // Vertex is outset from the base shape (and possibly with an additional AA outset later
             // in device space).
-            localPos = origin + (cornerRadii + strokeRadius) * localPos;
+            localPos = (cornerRadii + strokeRadius) * localPos;
+        }
+
+        if (snapToCenter) {
+            localPos = center.xy;
+        } else {
+            localPos -= cornerRadii;
+            localPos = float2(xs[cornerID], ys[cornerID]) + xAxis*localPos.x + yAxis*localPos.y;
         }
 
         // Calculate edge distances and device space coordinate for the vertex
-        float4 dx = xs - xs.wxyz;
-        float4 dy = ys - ys.wxyz;
         // TODO: Apply edge AA flags to these values to turn off AA when necessary.
-        edgeDistances = inversesqrt(dx*dx + dy*dy) * (dy*(xs - localPos.x) - dx*(ys - localPos.y));
+        edgeDistances = dy*(xs - localPos.x) - dx*(ys - localPos.y);
 
         float3x3 localToDevice = float3x3(mat0, mat1, mat2);
         // NOTE: This 3x3 inverse is different than just taking the 1st two columns of the 4x4
@@ -624,14 +654,36 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
         jacobian = float4(deviceToLocal[0].xy - deviceToLocal[0].z*localPos,
                           deviceToLocal[1].xy - deviceToLocal[1].z*localPos);
 
+        if (deviceSpaceDistances) {
+            // Apply the Jacobian in the vertex shader so any quadrilateral normals do not have to
+            // be passed to the fragment shader. However, it's important to use the Jacobian at a
+            // vertex on the edge, not the current vertex's Jacobian.
+            float4 gx = -dy*(deviceToLocal[0].x - deviceToLocal[0].z*xs) +
+                         dx*(deviceToLocal[0].y - deviceToLocal[0].z*ys);
+            float4 gy = -dy*(deviceToLocal[1].x - deviceToLocal[1].z*xs) +
+                         dx*(deviceToLocal[1].y - deviceToLocal[1].z*ys);
+            // NOTE: The gradient is missing a W term so edgeDistances must still be multiplied by
+            // 1/w in the fragment shader. The same goes for the encoded coverage scale.
+            edgeDistances *= inversesqrt(gx*gx + gy*gy);
+
+            float2 dim = edgeDistances.xy + edgeDistances.zw;
+            // TODO: Mixed AA flags should always use the (1,0.5) scale and bias since the set of
+            // tiled quads forms a larger shape that would not get subpixel treatment.
+            perPixelControl.y = 1.0 + min(min(dim.x, dim.y), abs(devPos.z));
+        }
+
         // Only outset for a vertex that is in front of the w=0 plane to avoid dealing with outset
         // triangles rasterizing differently from the main triangles as w crosses 0.
         if (normalScale > 0.0 && devPos.z > 0.0) {
             // Note that when there's no perspective, the jacobian is equivalent to the normal
             // matrix (inverse transpose), but produces correct results when there's perspective
             // because it accounts for the position's influence on a line's projected direction.
-            float2 nx = normal.x * jacobian.xz;
-            float2 ny = normal.y * jacobian.yw;
+            float s = sign(xAxis.x*yAxis.y - yAxis.x*xAxis.y);
+            float2x2 J = float2x2(jacobian.xy, jacobian.zw);
+            float2 nx = s * cornerAspectRatio.x * normal.x * perp(-yAxis) * J;
+            float2 ny = s * cornerAspectRatio.y * normal.y * perp( xAxis) * J;
+
+            bool isMidVertex = normal.x != 0.0 && normal.y != 0.0;
             if (joinScale == kMiterScale && isMidVertex) {
                 // Produce a bisecting vector in device space (ignoring 'normal' since that was
                 // previously corrected to match the mitered edge normals).
@@ -650,28 +702,30 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
             // bisector between the original nx and ny.
             //
             // We multiply by W so that after perspective division the new point is offset by the
-            // normal.
+            // now-unit normal.
             devPos.xy += devPos.z * normalize(nx + ny);
 
             // By construction these points are 1px away from the outer edge in device space.
-            perPixelControl.x = -devPos.z;
-        } else {
+            if (deviceSpaceDistances) {
+                // Apply directly to edgeDistances to save work per pixel later on.
+                edgeDistances -= devPos.z;
+            } else {
+                // Otherwise store separately so edgeDistances can be used to reconstruct corner pos
+                perPixelControl.y = -devPos.z;
+            }
+        } else if (!deviceSpaceDistances) {
             // Triangles are within the original shape so there's no additional outsetting to
             // take into account for coverage calculations.
-            perPixelControl.x = 0.0;
+            perPixelControl.y = 0.0;
         }
 
         if (centerWeight != 0.0) {
-            // A positive value signals that a pixel is trivially full coverage. By construction,
-            // the fill triangles have 0 area when this is not valid. MSAA extrapolation is not
-            // a concern because extrapolation from fill triangles just ends computing a coverage
-            // value that is full or near full.
-            perPixelControl.y = 1.0;
+            // A positive value signals that a pixel is trivially full coverage.
+            perPixelControl.x = 1.0;
         } else {
             // A negative value signals bidirectional coverage, and a zero value signals a solid
-            // interior with per-pixel coverage. All non-fill vertices use the same value so that
-            // MSAA extrapolation from their triangles does not influence decisions.
-            perPixelControl.y = bidirectionalCoverage ? -1.0 : 0.0;
+            // interior with per-pixel coverage.
+            perPixelControl.x = bidirectionalCoverage ? -1.0 : 0.0;
         }
 
         // Write out final results
@@ -683,9 +737,21 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
 const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
     // TODO: Further modularize this
     return R"(
-        if (perPixelControl.y > 0.0) {
-            // A trivially solid interior pixel.
+        if (perPixelControl.x > 0.0) {
+            // A trivially solid interior pixel, either from a filled rect or round rect, or a
+            // stroke with sufficiently large width that the interior completely overlaps itself.
             outputCoverage = half4(1.0);
+        } else if (perPixelControl.y > 1.0) {
+            // This represents a filled rectangle or quadrilateral, where the distances have already
+            // been converted to device space. Mitered strokes cannot use this optimization because
+            // their scale and bias is not uniform over the shape; Rounded shapes cannot use this
+            // because they rely on the edge distances being in local space to reconstruct the
+            // per-corner positions for the elliptical implicit functions.
+            float2 outerDist = min(edgeDistances.xy, edgeDistances.zw);
+            float c = min(outerDist.x, outerDist.y) * sk_FragCoord.w;
+            float scale = (perPixelControl.y - 1.0) * sk_FragCoord.w;
+            float bias = coverage_bias(scale);
+            outputCoverage = half4(clamp(scale * (c + bias), 0.0, 1.0));
         } else {
             // Compute per-pixel coverage, mixing four outer edge distances, possibly four inner
             // edge distances, and per-corner elliptical distances into a final coverage value.
@@ -701,15 +767,16 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
             // d.y tracks negative maximum inner distance (so min() over c accumulates min and outer
             // and max inner simultaneously).)
             float2 d = float2(min(outerDist.x, outerDist.y), -1.0);
-            float2 scaleBias;
+            float scale, bias;
 
             // Check for bidirectional coverage, which is is marked as a -1 from the vertex shader.
             // We don't just check for < 0 since extrapolated fill triangle samples can have small
             // negative values.
-            if (perPixelControl.y > -0.95) {
+            if (perPixelControl.x > -0.95) {
                 // A solid interior, so update scale and bias based on full width and height
                 float2 dim = invGradLen * (edgeDistances.xy + edgeDistances.zw + 2*strokeParams.xx);
-                scaleBias = coverage_scale_and_bias(min(dim.x, dim.y));
+                scale = min(min(dim.x, dim.y), 1.0);
+                bias = coverage_bias(scale);
                 // Since we leave d.y = -1.0, no inner curve coverage will adjust it closer to 0,
                 // so 'finalCoverage' is based solely on outer edges and curves.
             } else {
@@ -727,20 +794,19 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
                     if (innerDist.x >= -0.5 && strokeWidth.x > strokeDim) {
                         strokeDim = strokeWidth.x;
                     }
-                    scaleBias = coverage_scale_and_bias(strokeDim);
+                    scale = min(strokeDim, 1.0);
+                    bias = coverage_bias(scale);
                 } else {
                     // A hairline, so scale and bias should both be 1
-                     scaleBias = float2(1.0);
+                     scale = bias = 1.0;
                 }
             }
 
-            if (strokeParams.y <= 1.0) {
-                // Check all corners, although most pixels should only be influenced by 1.
-                corner_distances(d, J, strokeParams, edgeDistances, xRadii, yRadii);
-            } // else the shape was fully rectangular so 'd' fully defines inner/outer coverage
+            // Check all corners, although most pixels should only be influenced by 1.
+            corner_distances(d, J, strokeParams, edgeDistances, xRadii, yRadii);
 
-            float outsetDist = min(perPixelControl.x, 0.0) * sk_FragCoord.w;
-            float finalCoverage = scaleBias.x * (min(d.x + outsetDist, -d.y) + scaleBias.y);
+            float outsetDist = min(perPixelControl.y, 0.0) * sk_FragCoord.w;
+            float finalCoverage = scale * (min(d.x + outsetDist, -d.y) + bias);
 
             outputCoverage = half4(clamp(finalCoverage, 0.0, 1.0));
         }
@@ -790,9 +856,8 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
                 if (params.strokeStyle().miterLimit() < SK_ScalarSqrt2) {
                     joinStyle = 0.f; // == bevel
                 } else {
-                    // Discard actual miter limit because a 90-degree corner never exceeds that, and
-                    // set either +1 for per-corner mitering or +2 for if all corners are mitered.
-                    joinStyle = all(xRadii == skvx::float4(0.f)) ? 2.f : 1.f;
+                    // Discard actual miter limit because a 90-degree corner never exceeds it.
+                    joinStyle = 1.f;
                 }
             }
             // Write a negative value outside [-1, 0] to signal a stroked shape, then the style

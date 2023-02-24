@@ -314,3 +314,11 @@ $pure float2 perp(float2 v) {
 $pure half2 perp(half2 v) {
     return half2(-v.y, v.x);
 }
+
+// Returns a bias given a scale factor, such that 'scale * (dist + bias)' converts the distance to
+// a per-pixel coverage value, automatically widening the visible coverage ramp for subpixel
+// dimensions. The 'scale' must already be equal to the narrowest dimension of the shape and clamped
+// to [0, 1.0].
+$pure float coverage_bias(float scale) {
+    return 1.0 - 0.5 * scale;
+}

@@ -777,13 +777,6 @@ $pure half4 sk_gaussian_colorfilter(half4 inColor) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Support functions for analytic round rectangles
 
-// Returns a scale and bias such that 'scale * (dist + bias)' represents a per-pixel coverage value,
-// taking into account the approximate device-space dimensions of the shape.
-$pure float2 coverage_scale_and_bias(float minDim) {
-    float width = min(1.0, minDim);
-    return float2(width, 1.0 - 0.5 * width);
-}
-
 // Calculates 1/|∇| in device space by applying the chain rule to a local gradient vector and the
 // 2x2 Jacobian describing the transform from local-to-device space. For non-perspective, this is
 // equivalent to the "normal matrix", or the inverse transpose. For perspective, J should be
