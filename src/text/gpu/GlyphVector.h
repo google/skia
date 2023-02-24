@@ -82,7 +82,6 @@ public:
 
 private:
     friend class GlyphVectorTestingPeer;
-    static Variant* MakeGlyphs(SkSpan<const SkPackedGlyphID> glyphs, SubRunAllocator* alloc);
 
     SkStrikePromise fStrikePromise;
     SkSpan<Variant> fGlyphs;
