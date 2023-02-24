@@ -692,20 +692,17 @@ PathOpSubmitter PathOpSubmitter::Make(SkZip<const SkPackedGlyphID, const SkPoint
                                       SkScalar strikeToSourceScale,
                                       SkStrikePromise&& strikePromise,
                                       SubRunAllocator* alloc) {
-    int glyphCount = SkCount(accepted);
-    SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
-    IDOrPath* idsOrPaths = alloc->makeUniqueArray<IDOrPath>(glyphCount).release();
+    auto mapToIDOrPath = [](SkPackedGlyphID packedID) {
+        return IDOrPath{packedID.glyphID()};
+    };
 
-    for (auto [dstIdOrPath, dstPosition, srcPackedGlyphID, srcPosition] :
-            SkMakeZip(idsOrPaths, positions, get_packedIDs(accepted), get_positions(accepted))) {
-        dstPosition = srcPosition;
-        dstIdOrPath.fGlyphID = srcPackedGlyphID.glyphID();
-    }
+    IDOrPath* const rawIDsOrPaths =
+            alloc->makeUniqueArray<IDOrPath>(get_packedIDs(accepted), mapToIDOrPath).release();
 
     return PathOpSubmitter{isAntiAliased,
                            strikeToSourceScale,
-                           SkSpan(positions, glyphCount),
-                           SkSpan(idsOrPaths, glyphCount),
+                           alloc->makePODSpan(get_positions(accepted)),
+                           SkSpan(rawIDsOrPaths, accepted.size()),
                            std::move(strikePromise)};
 }
 
@@ -870,7 +867,17 @@ public:
     static DrawableOpSubmitter Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
                                     SkScalar strikeToSourceScale,
                                     SkStrikePromise&& strikePromise,
-                                    SubRunAllocator* alloc);
+                                    SubRunAllocator* alloc) {
+        auto mapToIDOrDrawable = [](const SkPackedGlyphID packedID) {
+            return IDOrDrawable{packedID.glyphID()};
+        };
+
+        return DrawableOpSubmitter{
+            strikeToSourceScale,
+            alloc->makePODSpan(get_positions(accepted)),
+            alloc->makePODArray<IDOrDrawable>(get_packedIDs(accepted), mapToIDOrDrawable),
+            std::move(strikePromise)};
+    }
 
     int unflattenSize() const;
     void flatten(SkWriteBuffer& buffer) const;
@@ -942,24 +949,6 @@ DrawableOpSubmitter::DrawableOpSubmitter(
         , fIDsOrDrawables{idsOrDrawables}
         , fStrikePromise(std::move(strikePromise)) {
     SkASSERT(!fPositions.empty());
-}
-
-DrawableOpSubmitter DrawableOpSubmitter::Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
-                                              SkScalar strikeToSourceScale,
-                                              SkStrikePromise&& strikePromise,
-                                              SubRunAllocator* alloc) {
-    int glyphCount = SkCount(accepted);
-    SkPoint* positions = alloc->makePODArray<SkPoint>(glyphCount);
-    IDOrDrawable* idsOrDrawables = alloc->makePODArray<IDOrDrawable>(glyphCount);
-    for (auto [i, variant, pos] : SkMakeEnumerate(accepted)) {
-        positions[i] = pos;
-        idsOrDrawables[i].fGlyphID = variant.glyphID();
-    }
-
-    return DrawableOpSubmitter{strikeToSourceScale,
-                               SkSpan(positions, glyphCount),
-                               SkSpan(idsOrDrawables, glyphCount),
-                               std::move(strikePromise)};
 }
 
 void

@@ -298,6 +298,17 @@ public:
         return std::unique_ptr<T[], ArrayDestroyer>{array, ArrayDestroyer{n}};
     }
 
+    template<typename T, typename U, typename Map>
+    std::unique_ptr<T[], ArrayDestroyer> makeUniqueArray(SkSpan<const U> src, Map map) {
+        static_assert(!HasNoDestructor<T>, "This is POD. Use makePODArray.");
+        int count = SkCount(src);
+        T* array = reinterpret_cast<T*>(fAlloc.template allocateBytesFor<T>(src.size()));
+        for (int i = 0; i < count; ++i) {
+            new (&array[i]) T(map(src[i]));
+        }
+        return std::unique_ptr<T[], ArrayDestroyer>{array, ArrayDestroyer{count}};
+    }
+
     void* alignedBytes(int size, int alignment);
 
 private:

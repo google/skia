@@ -99,6 +99,7 @@ public:
 // prepareForPathDrawing uses this union to convert glyph ids to paths.
 union IDOrPath {
     IDOrPath() {}
+    IDOrPath(SkGlyphID glyphID) : fGlyphID{glyphID} {}
 
     // PathOpSubmitter takes care of destroying the paths.
     ~IDOrPath() {}
