@@ -10,7 +10,7 @@
 
 #include "include/core/SkColorType.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/core/SkGlyphBuffer.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkScalerContext.h"
 
 class SkColorSpace;

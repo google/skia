@@ -15,7 +15,6 @@
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/text/StrikeForGPU.h"

@@ -14,7 +14,6 @@
 #include "src/base/SkTLazy.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 

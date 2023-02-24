@@ -9,7 +9,6 @@
 #define sktext_gpu_GlyphVector_DEFINED
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkGlyphBuffer.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/Glyph.h"

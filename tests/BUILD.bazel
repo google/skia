@@ -152,7 +152,6 @@ CPU_ONLY_TESTS = [
     "SkDOMTest.cpp",
     "SkEnumBitMaskTest.cpp",
     "SkGaussFilterTest.cpp",
-    "SkGlyphBufferTest.cpp",
     "SkGlyphTest.cpp",
     "SkImageTest.cpp",
     "SkMallocTest.cpp",

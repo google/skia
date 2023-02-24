@@ -11,17 +11,16 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkZip.h"
-#include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkGlyphBuffer.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
@@ -36,6 +35,9 @@
 #include <functional>
 #include <initializer_list>
 #include <memory>
+#include <tuple>
+
+struct SkRect;
 
 using namespace sktext;
 using namespace skglyph;
@@ -53,27 +55,43 @@ private:
 };
 
 // This should stay in sync with the implementation from SubRunContainer.
-static SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
-                                       SkDrawableGlyphBuffer* accepted,
-                                       SkSourceGlyphBuffer* rejected) {
+static
+std::tuple<SkZip<const SkPackedGlyphID, const SkPoint>,
+        SkZip<SkGlyphID, SkPoint>,
+        SkRect>
+prepare_for_mask_drawing(
+        StrikeForGPU* strike,
+        SkZip<const SkGlyphID, const SkPoint> source,
+        SkZip<SkPackedGlyphID, SkPoint> acceptedBuffer,
+        SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
     SkGlyphRect boundingRect = skglyph::empty_rect();
+    int acceptedSize = 0,
+        rejectedSize = 0;
     StrikeMutationMonitor m{strike};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = strike->digestFor(kDirectMask, packedID);
-            if (!digest.isEmpty()) {
-                if (digest.fitsInAtlasDirect()) {
-                    const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
-                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-                } else {
-                    rejected->reject(i);
-                }
+    for (auto [glyphID, pos] : source) {
+        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+            continue;
+        }
+        const SkPackedGlyphID packedID{glyphID};
+        switch (const SkGlyphDigest digest = strike->digestFor(kDirectMask, packedID);
+                digest.actionFor(kDirectMask)) {
+            case GlyphAction::kAccept: {
+                const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
+                boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                acceptedBuffer[acceptedSize++] = std::make_tuple(packedID, glyphBounds.leftTop());
+                break;
             }
+            case GlyphAction::kReject:
+                rejectedBuffer[rejectedSize++] = std::make_tuple(glyphID, pos);
+                break;
+            default:
+                break;
         }
     }
 
-    return boundingRect.rect();
+    return {acceptedBuffer.first(acceptedSize),
+            rejectedBuffer.first(rejectedSize),
+            boundingRect.rect()};
 }
 
 DEF_TEST(SkStrikeMultiThread, Reporter) {
@@ -115,16 +133,26 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
 
             auto local = data.subspan(threadIndex * 2, data.size() - kThreadCount * 2);
             for (int i = 0; i < 100; i++) {
-                SkDrawableGlyphBuffer accepted;
-                SkSourceGlyphBuffer rejected;
+                // Accepted buffers.
+                SkSTArray<64, SkPackedGlyphID> acceptedPackedGlyphIDs;
+                SkSTArray<64, SkPoint> acceptedPositions;
+                SkSTArray<64, SkMask::Format> acceptedFormats;
+                acceptedPackedGlyphIDs.resize(glyphCount);
+                acceptedPositions.resize(glyphCount);
+                const auto acceptedBuffer = SkMakeZip(acceptedPackedGlyphIDs, acceptedPositions);
 
-                accepted.ensureSize(glyphCount);
-                rejected.setSource(local);
+                // Rejected buffers.
+                SkSTArray<64, SkGlyphID> rejectedGlyphIDs;
+                SkSTArray<64, SkPoint> rejectedPositions;
+                rejectedGlyphIDs.resize(glyphCount);
+                rejectedPositions.resize(glyphCount);
+                const auto rejectedBuffer = SkMakeZip(rejectedGlyphIDs, rejectedPositions);
 
-                accepted.startSource(rejected.source());
-                prepare_for_mask_drawing(&strike, &accepted, &rejected);
-                rejected.flipRejectsToSource();
-                accepted.reset();
+                SkZip<const SkGlyphID, const SkPoint> source = local;
+
+                auto [accepted, rejected, bounds] =
+                prepare_for_mask_drawing(&strike, source, acceptedBuffer, rejectedBuffer);
+                source = rejected;
             }
         };
 

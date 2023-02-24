@@ -14,7 +14,6 @@
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkMutex.h"
-#include "src/core/SkGlyphBuffer.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkStrike.h"
 
