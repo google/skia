@@ -814,6 +814,7 @@ sksl_rte_tests = [
   "runtime/Commutative.rts",
   "runtime/ConstPreservation.rts",
   "runtime/ConversionConstructors.rts",
+  "runtime/DivideByZero.rts",
   "runtime/GLSLTypeNames.rts",
   "runtime/GlobalVariables.rts",
   "runtime/HSLColorFilter.rtcf",

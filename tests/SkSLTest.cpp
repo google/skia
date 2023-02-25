@@ -596,6 +596,7 @@ SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicUintBitsToFloat,        "intrinsi
 
 SKSL_TEST(GPU_ES3,       kNever,      ArrayNarrowingConversions,       "runtime/ArrayNarrowingConversions.rts")
 SKSL_TEST(RP + GPU_ES3,  kNever,      Commutative,                     "runtime/Commutative.rts")
+SKSL_TEST(RP,            kNever,      DivideByZero,                    "runtime/DivideByZero.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, LoopFloat,                       "runtime/LoopFloat.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, LoopInt,                         "runtime/LoopInt.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, Ossfuzz52603,                    "runtime/Ossfuzz52603.rts")

@@ -3646,7 +3646,12 @@ SI void mul_fn(T* dst, T* src) {
 
 template <typename T>
 SI void div_fn(T* dst, T* src) {
-    *dst /= *src;
+    T divisor = *src;
+    if constexpr (!std::is_same_v<T, F>) {
+        // We will crash if we integer-divide against zero. Convert 0 to ~0 to avoid this.
+        divisor |= cond_to_mask(divisor == 0);
+    }
+    *dst /= divisor;
 }
 
 SI void bitwise_and_fn(I32* dst, I32* src) {
