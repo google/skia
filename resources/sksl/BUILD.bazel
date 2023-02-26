@@ -955,6 +955,7 @@ skia_filegroup(
         "shared/SwizzleScalar.sksl",
         "shared/SwizzleScalarBool.sksl",
         "shared/SwizzleScalarInt.sksl",
+        "shared/TemporaryIndexLookup.sksl",
         "shared/TernaryAsLValueEntirelyFoldable.sksl",
         "shared/TernaryAsLValueFoldableTest.sksl",
         "shared/TernaryExpression.sksl",

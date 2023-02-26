@@ -700,6 +700,7 @@ SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleOpt,                      "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleScalar,                   "shared/SwizzleScalar.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleScalarBool,               "shared/SwizzleScalarBool.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleScalarInt,                "shared/SwizzleScalarInt.sksl")
+SKSL_TEST(VM + GPU,          kNextRelease,TemporaryIndexLookup,            "shared/TemporaryIndexLookup.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, TernaryAsLValueEntirelyFoldable, "shared/TernaryAsLValueEntirelyFoldable.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, TernaryAsLValueFoldableTest,     "shared/TernaryAsLValueFoldableTest.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, TernaryExpression,               "shared/TernaryExpression.sksl")
