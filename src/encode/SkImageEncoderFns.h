@@ -183,10 +183,10 @@ static inline void transform_scanline_F32_premul(char* dst, const char* src, int
           skcms_PixelFormat_RGBA_16161616BE, skcms_AlphaFormat_Unpremul);
 }
 
-static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info,
+static inline sk_sp<SkData> icc_from_color_space(const SkColorSpace* cs,
                                                  const skcms_ICCProfile* profile,
                                                  const char* profile_description) {
-    SkColorSpace* cs = info.colorSpace();
+    // TODO(ccameron): Remove this check.
     if (!cs) {
         return nullptr;
     }
@@ -202,6 +202,12 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info,
         return SkWriteICCProfile(fn, toXYZD50);
     }
     return nullptr;
+}
+
+static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info,
+                                                 const skcms_ICCProfile* profile,
+                                                 const char* profile_description) {
+    return icc_from_color_space(info.colorSpace(), profile, profile_description);
 }
 
 #endif  // SkImageEncoderFns_DEFINED

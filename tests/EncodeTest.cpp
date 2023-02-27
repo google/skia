@@ -531,8 +531,9 @@ DEF_TEST(Encode_Alpha, r) {
             bm.allocPixels(SkImageInfo::Make(10, 10, ct, kPremul_SkAlphaType));
             sk_bzero(bm.getPixels(), bm.computeByteSize());
             auto data = SkEncodeBitmap(bm, format, 100);
-            if (format == SkEncodedImageFormat::kPNG && ct == kAlpha_8_SkColorType) {
-                // We support encoding alpha8 to png with our own private meaning.
+            if ((format == SkEncodedImageFormat::kJPEG || format == SkEncodedImageFormat::kPNG) &&
+                ct == kAlpha_8_SkColorType) {
+                // We support encoding alpha8 to png and jpeg with our own private meaning.
                 REPORTER_ASSERT(r, data != nullptr);
             } else {
                 REPORTER_ASSERT(r, data == nullptr);
