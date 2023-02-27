@@ -3,7 +3,7 @@
 # list the autoroller as an owner (see b/199385287 and skbug.com/12454), so this
 # would prevent the autoroller from working. Please get a review from one of the
 # following:
-# - djsollen@google.com
+# - nscobie@google.com
 # - scroggo@google.com
 # - skia-staff@google.com
 *
