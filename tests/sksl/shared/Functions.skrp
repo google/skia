@@ -12,17 +12,15 @@
    12. copy_2_slots_unmasked          v = y[0], y[1]
    13. copy_2_slots_unmasked          $0..1 = v
    14. mul_float                      $0 *= $1
-   15. copy_slot_unmasked             [foo].result = $0
-   16. label                          label 0x00000001
-   17. copy_slot_unmasked             x₁ = $0
-   18. copy_slot_unmasked             x = $0
-   19. label                          label 0x00000000
-   20. copy_slot_unmasked             $0 = x
-   21. copy_constant                  $1 = 0x43480000 (200.0)
-   22. cmpeq_float                    $0 = equal($0, $1)
-   23. swizzle_4                      $0..3 = ($0..3).xxxx
-   24. copy_4_constants               $4..7 = colorRed
-   25. copy_4_constants               $8..11 = colorGreen
-   26. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   27. copy_4_slots_unmasked          [main].result = $0..3
-   28. load_src                       src.rgba = [main].result
+   15. label                          label 0x00000001
+   16. copy_slot_unmasked             x₁ = $0
+   17. copy_slot_unmasked             x = $0
+   18. label                          label 0x00000000
+   19. copy_slot_unmasked             $0 = x
+   20. copy_constant                  $1 = 0x43480000 (200.0)
+   21. cmpeq_float                    $0 = equal($0, $1)
+   22. swizzle_4                      $0..3 = ($0..3).xxxx
+   23. copy_4_constants               $4..7 = colorRed
+   24. copy_4_constants               $8..11 = colorGreen
+   25. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   26. load_src                       src.rgba = $0..3

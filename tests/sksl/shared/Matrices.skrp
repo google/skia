@@ -158,7 +158,7 @@
   158. copy_slot_unmasked             $42 = _0_ok
   159. zero_slot_unmasked             $44 = 0
   160. merge_condition_mask           CondMask = $41 & $42
-  161. branch_if_no_active_lanes      branch_if_no_active_lanes +224 (label 2 at #385)
+  161. branch_if_no_active_lanes      branch_if_no_active_lanes +223 (label 2 at #384)
   162. copy_constant                  ok = 0xFFFFFFFF
   163. copy_constant                  m1(0) = 0x3F800000 (1.0)
   164. copy_constant                  m1(1) = 0x40000000 (2.0)
@@ -379,39 +379,36 @@
   379. bitwise_and_int                $46 &= $47
   380. bitwise_and_int                $45 &= $46
   381. copy_slot_masked               ok = Mask($45)
-  382. copy_slot_masked               [test_half].result = Mask($45)
-  383. label                          label 0x00000003
-  384. copy_slot_masked               $44 = Mask($45)
-  385. label                          label 0x00000002
-  386. load_condition_mask            CondMask = $41
-  387. zero_slot_unmasked             $0 = 0
-  388. merge_condition_mask           CondMask = $43 & $44
-  389. branch_if_no_active_lanes      branch_if_no_active_lanes +21 (label 1 at #410)
-  390. zero_4_slots_unmasked          x = 0
-  391. zero_4_slots_unmasked          y = 0
-  392. copy_constant                  $1 = 0x3F800000 (1.0)
-  393. copy_constant                  $2 = 0x40000000 (2.0)
-  394. copy_constant                  $3 = 0x40400000 (3.0)
-  395. copy_constant                  $4 = 0x40800000 (4.0)
-  396. copy_4_slots_masked            x = Mask($1..4)
-  397. copy_constant                  $1 = 0x3F800000 (1.0)
-  398. copy_constant                  $2 = 0x40000000 (2.0)
-  399. copy_constant                  $3 = 0x40400000 (3.0)
-  400. copy_constant                  $4 = 0x40800000 (4.0)
-  401. copy_4_slots_masked            y = Mask($1..4)
-  402. copy_4_slots_unmasked          $1..4 = x
-  403. copy_4_slots_unmasked          $5..8 = y
-  404. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
-  405. bitwise_and_2_ints             $1..2 &= $3..4
-  406. bitwise_and_int                $1 &= $2
-  407. copy_slot_masked               [test_comma].result = Mask($1)
-  408. label                          label 0x00000004
-  409. copy_slot_masked               $0 = Mask($1)
-  410. label                          label 0x00000001
-  411. load_condition_mask            CondMask = $43
-  412. swizzle_4                      $0..3 = ($0..3).xxxx
-  413. copy_4_constants               $4..7 = colorRed
-  414. copy_4_constants               $8..11 = colorGreen
-  415. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-  416. copy_4_slots_unmasked          [main].result = $0..3
-  417. load_src                       src.rgba = [main].result
+  382. label                          label 0x00000003
+  383. copy_slot_masked               $44 = Mask($45)
+  384. label                          label 0x00000002
+  385. load_condition_mask            CondMask = $41
+  386. zero_slot_unmasked             $0 = 0
+  387. merge_condition_mask           CondMask = $43 & $44
+  388. branch_if_no_active_lanes      branch_if_no_active_lanes +20 (label 1 at #408)
+  389. zero_4_slots_unmasked          x = 0
+  390. zero_4_slots_unmasked          y = 0
+  391. copy_constant                  $1 = 0x3F800000 (1.0)
+  392. copy_constant                  $2 = 0x40000000 (2.0)
+  393. copy_constant                  $3 = 0x40400000 (3.0)
+  394. copy_constant                  $4 = 0x40800000 (4.0)
+  395. copy_4_slots_masked            x = Mask($1..4)
+  396. copy_constant                  $1 = 0x3F800000 (1.0)
+  397. copy_constant                  $2 = 0x40000000 (2.0)
+  398. copy_constant                  $3 = 0x40400000 (3.0)
+  399. copy_constant                  $4 = 0x40800000 (4.0)
+  400. copy_4_slots_masked            y = Mask($1..4)
+  401. copy_4_slots_unmasked          $1..4 = x
+  402. copy_4_slots_unmasked          $5..8 = y
+  403. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
+  404. bitwise_and_2_ints             $1..2 &= $3..4
+  405. bitwise_and_int                $1 &= $2
+  406. label                          label 0x00000004
+  407. copy_slot_masked               $0 = Mask($1)
+  408. label                          label 0x00000001
+  409. load_condition_mask            CondMask = $43
+  410. swizzle_4                      $0..3 = ($0..3).xxxx
+  411. copy_4_constants               $4..7 = colorRed
+  412. copy_4_constants               $8..11 = colorGreen
+  413. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+  414. load_src                       src.rgba = $0..3

@@ -10,14 +10,11 @@
    10. copy_constant                  $2 = 0x40000000 (2.0)
    11. cmpeq_float                    $1 = equal($1, $2)
    12. bitwise_and_int                $0 &= $1
-   13. copy_slot_unmasked             [out_params_are_distinct_from_global].result = $0
-   14. copy_slot_unmasked             $0 = y
-   15. copy_slot_unmasked             x = $0
-   16. copy_slot_unmasked             $0 = [out_params_are_distinct_from_global].result
-   17. label                          label 0x00000001
-   18. swizzle_4                      $0..3 = ($0..3).xxxx
-   19. copy_4_constants               $4..7 = colorRed
-   20. copy_4_constants               $8..11 = colorGreen
-   21. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   22. copy_4_slots_unmasked          [main].result = $0..3
-   23. load_src                       src.rgba = [main].result
+   13. copy_slot_unmasked             $1 = y
+   14. copy_slot_unmasked             x = $1
+   15. label                          label 0x00000001
+   16. swizzle_4                      $0..3 = ($0..3).xxxx
+   17. copy_4_constants               $4..7 = colorRed
+   18. copy_4_constants               $8..11 = colorGreen
+   19. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   20. load_src                       src.rgba = $0..3

@@ -608,5 +608,4 @@
   608. copy_4_constants               $4..7 = colorRed
   609. copy_4_constants               $8..11 = colorGreen
   610. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-  611. copy_4_slots_unmasked          [main].result = $0..3
-  612. load_src                       src.rgba = [main].result
+  611. load_src                       src.rgba = $0..3

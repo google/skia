@@ -5,5 +5,5 @@
     5. swizzle_4                      $0..3 = ($0..3).xxxx
     6. copy_4_slots_unmasked          color = $0..3
     7. label                          label 0x00000000
-    8. copy_4_slots_unmasked          [main].result = color
-    9. load_src                       src.rgba = [main].result
+    8. copy_4_slots_unmasked          $0..3 = color
+    9. load_src                       src.rgba = $0..3

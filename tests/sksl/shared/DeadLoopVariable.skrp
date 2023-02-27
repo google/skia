@@ -14,5 +14,4 @@
    14. branch_if_any_active_lanes     branch_if_any_active_lanes -8 (label 1 at #6)
    15. load_loop_mask                 LoopMask = $0
    16. copy_4_constants               $0..3 = colorGreen
-   17. copy_4_slots_unmasked          [main].result = $0..3
-   18. load_src                       src.rgba = [main].result
+   17. load_src                       src.rgba = $0..3

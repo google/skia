@@ -10,11 +10,9 @@
    10. copy_constant                  $2 = 0x0000000A (1.401298e-44)
    11. cmpeq_int                      $1 = equal($1, $2)
    12. bitwise_and_int                $0 &= $1
-   13. copy_slot_unmasked             [verify_const_globals].result = $0
-   14. label                          label 0x00000001
-   15. swizzle_4                      $0..3 = ($0..3).xxxx
-   16. copy_4_constants               $4..7 = colorRed
-   17. copy_4_constants               $8..11 = colorGreen
-   18. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   19. copy_4_slots_unmasked          [main].result = $0..3
-   20. load_src                       src.rgba = [main].result
+   13. label                          label 0x00000001
+   14. swizzle_4                      $0..3 = ($0..3).xxxx
+   15. copy_4_constants               $4..7 = colorRed
+   16. copy_4_constants               $8..11 = colorGreen
+   17. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   18. load_src                       src.rgba = $0..3

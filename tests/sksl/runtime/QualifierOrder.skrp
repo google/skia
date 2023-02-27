@@ -11,5 +11,4 @@
    11. copy_2_slots_unmasked          coords = $0..1
    12. label                          label 0x00000002
    13. copy_4_constants               $0..3 = colorGreen
-   14. copy_4_slots_unmasked          [main].result = $0..3
-   15. load_src                       src.rgba = [main].result
+   14. load_src                       src.rgba = $0..3

@@ -25,5 +25,5 @@
    25. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    26. label                          label 0x00000002
    27. load_loop_mask                 LoopMask = $0
-   28. copy_4_slots_unmasked          [main].result = color
-   29. load_src                       src.rgba = [main].result
+   28. copy_4_slots_unmasked          $0..3 = color
+   29. load_src                       src.rgba = $0..3

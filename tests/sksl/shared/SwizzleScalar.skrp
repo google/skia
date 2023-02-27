@@ -18,5 +18,4 @@
    18. zero_slot_unmasked             $2 = 0
    19. copy_constant                  $3 = unknownInput
    20. copy_4_slots_unmasked          h4 = $0..3
-   21. copy_4_slots_unmasked          [main].result = $0..3
-   22. load_src                       src.rgba = [main].result
+   21. load_src                       src.rgba = $0..3

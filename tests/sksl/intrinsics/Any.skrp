@@ -38,5 +38,4 @@
    38. copy_4_constants               $4..7 = colorRed
    39. copy_4_constants               $8..11 = colorGreen
    40. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   41. copy_4_slots_unmasked          [main].result = $0..3
-   42. load_src                       src.rgba = [main].result
+   41. load_src                       src.rgba = $0..3

@@ -57,5 +57,4 @@
    57. label                          label 0x00000000
    58. copy_4_constants               $0..3 = colorRed
    59. label                          label 0x00000001
-   60. copy_4_slots_unmasked          [main].result = $0..3
-   61. load_src                       src.rgba = [main].result
+   60. load_src                       src.rgba = $0..3

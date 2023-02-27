@@ -37,5 +37,4 @@
    37. copy_slot_unmasked             $4 = I(2)
    38. mul_int                        $3 *= $4
    39. cast_to_float_from_int         $3 = IntToFloat($3)
-   40. copy_4_slots_unmasked          [main].result = $0..3
-   41. load_src                       src.rgba = [main].result
+   40. load_src                       src.rgba = $0..3

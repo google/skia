@@ -28,5 +28,4 @@
    28. invoke_blender                 invoke_blender 0x00000004
    29. load_dst                       dst.rgba = $0..3
    30. store_src                      $0..3 = src.rgba
-   31. copy_4_slots_unmasked          [main].result = $0..3
-   32. load_src                       src.rgba = [main].result
+   31. load_src                       src.rgba = $0..3

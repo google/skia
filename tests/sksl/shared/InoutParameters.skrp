@@ -30,5 +30,5 @@
    30. copy_4_slots_unmasked          $0..3 = x₂
    31. copy_4_slots_unmasked          c = $0..3
    32. label                          label 0x00000004
-   33. copy_4_slots_unmasked          [main].result = c
-   34. load_src                       src.rgba = [main].result
+   33. copy_4_slots_unmasked          $0..3 = c
+   34. load_src                       src.rgba = $0..3

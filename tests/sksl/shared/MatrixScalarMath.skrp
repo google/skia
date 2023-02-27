@@ -74,7 +74,7 @@
    74. bitwise_and_int                $13 &= $14
    75. zero_slot_unmasked             $18 = 0
    76. merge_condition_mask           CondMask = $12 & $13
-   77. branch_if_no_active_lanes      branch_if_no_active_lanes +94 (label 4 at #171)
+   77. branch_if_no_active_lanes      branch_if_no_active_lanes +93 (label 4 at #170)
    78. copy_slot_unmasked             op = minus
    79. copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
    80. copy_slot_unmasked             $19 = f1
@@ -165,260 +165,255 @@
   165. swizzle_1                      $21 = ($21..22).y
   166. cmpeq_float                    $20 = equal($20, $21)
   167. bitwise_and_int                $19 &= $20
-  168. copy_slot_masked               [test].result = Mask($19)
-  169. label                          label 0x00000005
-  170. copy_slot_masked               $18 = Mask($19)
-  171. label                          label 0x00000004
-  172. load_condition_mask            CondMask = $12
-  173. zero_slot_unmasked             $31 = 0
-  174. merge_condition_mask           CondMask = $17 & $18
-  175. branch_if_no_active_lanes      branch_if_no_active_lanes +94 (label 3 at #269)
-  176. copy_slot_unmasked             op = star
-  177. copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
-  178. copy_slot_unmasked             $32 = f1
-  179. copy_constant                  $33 = 0x40000000 (2.0)
-  180. mul_float                      $32 *= $33
-  181. copy_slot_unmasked             $33 = f2
-  182. copy_constant                  $34 = 0x40000000 (2.0)
-  183. mul_float                      $33 *= $34
-  184. copy_slot_unmasked             $34 = f3
-  185. copy_constant                  $35 = 0x40000000 (2.0)
-  186. mul_float                      $34 *= $35
-  187. copy_slot_unmasked             $35 = f4
-  188. copy_constant                  $36 = 0x40000000 (2.0)
-  189. mul_float                      $35 *= $36
-  190. copy_4_slots_unmasked          expected = $32..35
-  191. copy_constant                  $32 = colorRed(0)
-  192. copy_slot_unmasked             one = $32
-  193. copy_slot_unmasked             $32 = m11
-  194. copy_slot_unmasked             $33 = one
-  195. mul_float                      $32 *= $33
-  196. copy_slot_unmasked             $33 = m12
-  197. copy_slot_unmasked             $34 = one
-  198. mul_float                      $33 *= $34
-  199. copy_slot_unmasked             $34 = m21
-  200. copy_slot_unmasked             $35 = one
-  201. mul_float                      $34 *= $35
-  202. copy_slot_unmasked             $35 = m22
-  203. copy_slot_unmasked             $36 = one
-  204. mul_float                      $35 *= $36
-  205. copy_4_slots_unmasked          m2 = $32..35
-  206. store_loop_mask                $32 = LoopMask
-  207. copy_slot_unmasked             $33 = op
-  208. store_loop_mask                $34 = LoopMask
-  209. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  210. case_op                        if ($33 == 0x00000001) { LoopMask = true; $34 = false; }
-  211. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 11 at #218)
-  212. copy_4_slots_unmasked          $35..38 = m2
-  213. copy_constant                  $39 = 0x3F800000 (1.0)
-  214. swizzle_4                      $39..42 = ($39..42).xxxx
-  215. add_4_floats                   $35..38 += $39..42
-  216. copy_4_slots_masked            m2 = Mask($35..38)
-  217. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  218. label                          label 0x0000000B
-  219. case_op                        if ($33 == 0x00000002) { LoopMask = true; $34 = false; }
-  220. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 12 at #227)
-  221. copy_4_slots_unmasked          $35..38 = m2
-  222. copy_constant                  $39 = 0x3F800000 (1.0)
-  223. swizzle_4                      $39..42 = ($39..42).xxxx
-  224. sub_4_floats                   $35..38 -= $39..42
-  225. copy_4_slots_masked            m2 = Mask($35..38)
-  226. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  227. label                          label 0x0000000C
-  228. case_op                        if ($33 == 0x00000003) { LoopMask = true; $34 = false; }
-  229. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 13 at #236)
-  230. copy_4_slots_unmasked          $35..38 = m2
-  231. copy_constant                  $39 = 0x40000000 (2.0)
-  232. swizzle_4                      $39..42 = ($39..42).xxxx
-  233. mul_4_floats                   $35..38 *= $39..42
-  234. copy_4_slots_masked            m2 = Mask($35..38)
-  235. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  236. label                          label 0x0000000D
-  237. case_op                        if ($33 == 0x00000004) { LoopMask = true; $34 = false; }
-  238. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 14 at #245)
-  239. copy_4_slots_unmasked          $35..38 = m2
-  240. copy_constant                  $39 = 0x3F000000 (0.5)
-  241. swizzle_4                      $39..42 = ($39..42).xxxx
-  242. mul_4_floats                   $35..38 *= $39..42
-  243. copy_4_slots_masked            m2 = Mask($35..38)
-  244. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  245. label                          label 0x0000000E
-  246. load_loop_mask                 LoopMask = $32
-  247. copy_slot_unmasked             $32 = m2(0)
-  248. copy_slot_unmasked             $33 = expected(0)
-  249. cmpeq_float                    $32 = equal($32, $33)
-  250. copy_2_slots_unmasked          $33..34 = m2(0..1)
-  251. swizzle_1                      $33 = ($33..34).y
-  252. copy_2_slots_unmasked          $34..35 = expected(0..1)
-  253. swizzle_1                      $34 = ($34..35).y
-  254. cmpeq_float                    $33 = equal($33, $34)
-  255. bitwise_and_int                $32 &= $33
-  256. copy_slot_unmasked             $33 = m2(2)
-  257. copy_slot_unmasked             $34 = expected(2)
-  258. cmpeq_float                    $33 = equal($33, $34)
-  259. bitwise_and_int                $32 &= $33
-  260. copy_2_slots_unmasked          $33..34 = m2(2..3)
-  261. swizzle_1                      $33 = ($33..34).y
-  262. copy_2_slots_unmasked          $34..35 = expected(2..3)
-  263. swizzle_1                      $34 = ($34..35).y
-  264. cmpeq_float                    $33 = equal($33, $34)
-  265. bitwise_and_int                $32 &= $33
-  266. copy_slot_masked               [test].result = Mask($32)
-  267. label                          label 0x0000000A
-  268. copy_slot_masked               $31 = Mask($32)
-  269. label                          label 0x00000003
-  270. load_condition_mask            CondMask = $17
-  271. zero_slot_unmasked             $44 = 0
-  272. merge_condition_mask           CondMask = $30 & $31
-  273. branch_if_no_active_lanes      branch_if_no_active_lanes +94 (label 2 at #367)
-  274. copy_slot_unmasked             op = slash
-  275. copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
-  276. copy_slot_unmasked             $45 = f1
-  277. copy_constant                  $46 = 0x3F000000 (0.5)
-  278. mul_float                      $45 *= $46
-  279. copy_slot_unmasked             $46 = f2
-  280. copy_constant                  $47 = 0x3F000000 (0.5)
-  281. mul_float                      $46 *= $47
-  282. copy_slot_unmasked             $47 = f3
-  283. copy_constant                  $48 = 0x3F000000 (0.5)
-  284. mul_float                      $47 *= $48
-  285. copy_slot_unmasked             $48 = f4
-  286. copy_constant                  $49 = 0x3F000000 (0.5)
-  287. mul_float                      $48 *= $49
-  288. copy_4_slots_unmasked          expected = $45..48
-  289. copy_constant                  $45 = colorRed(0)
-  290. copy_slot_unmasked             one = $45
-  291. copy_slot_unmasked             $45 = m11
-  292. copy_slot_unmasked             $46 = one
-  293. mul_float                      $45 *= $46
-  294. copy_slot_unmasked             $46 = m12
-  295. copy_slot_unmasked             $47 = one
-  296. mul_float                      $46 *= $47
-  297. copy_slot_unmasked             $47 = m21
-  298. copy_slot_unmasked             $48 = one
-  299. mul_float                      $47 *= $48
-  300. copy_slot_unmasked             $48 = m22
-  301. copy_slot_unmasked             $49 = one
-  302. mul_float                      $48 *= $49
-  303. copy_4_slots_unmasked          m2 = $45..48
-  304. store_loop_mask                $45 = LoopMask
-  305. copy_slot_unmasked             $46 = op
-  306. store_loop_mask                $47 = LoopMask
-  307. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  308. case_op                        if ($46 == 0x00000001) { LoopMask = true; $47 = false; }
-  309. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 16 at #316)
-  310. copy_4_slots_unmasked          $48..51 = m2
-  311. copy_constant                  $52 = 0x3F800000 (1.0)
-  312. swizzle_4                      $52..55 = ($52..55).xxxx
-  313. add_4_floats                   $48..51 += $52..55
-  314. copy_4_slots_masked            m2 = Mask($48..51)
-  315. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  316. label                          label 0x00000010
-  317. case_op                        if ($46 == 0x00000002) { LoopMask = true; $47 = false; }
-  318. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 17 at #325)
-  319. copy_4_slots_unmasked          $48..51 = m2
-  320. copy_constant                  $52 = 0x3F800000 (1.0)
-  321. swizzle_4                      $52..55 = ($52..55).xxxx
-  322. sub_4_floats                   $48..51 -= $52..55
-  323. copy_4_slots_masked            m2 = Mask($48..51)
-  324. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  325. label                          label 0x00000011
-  326. case_op                        if ($46 == 0x00000003) { LoopMask = true; $47 = false; }
-  327. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 18 at #334)
-  328. copy_4_slots_unmasked          $48..51 = m2
-  329. copy_constant                  $52 = 0x40000000 (2.0)
-  330. swizzle_4                      $52..55 = ($52..55).xxxx
-  331. mul_4_floats                   $48..51 *= $52..55
-  332. copy_4_slots_masked            m2 = Mask($48..51)
-  333. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  334. label                          label 0x00000012
-  335. case_op                        if ($46 == 0x00000004) { LoopMask = true; $47 = false; }
-  336. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 19 at #343)
-  337. copy_4_slots_unmasked          $48..51 = m2
-  338. copy_constant                  $52 = 0x3F000000 (0.5)
-  339. swizzle_4                      $52..55 = ($52..55).xxxx
-  340. mul_4_floats                   $48..51 *= $52..55
-  341. copy_4_slots_masked            m2 = Mask($48..51)
-  342. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  343. label                          label 0x00000013
-  344. load_loop_mask                 LoopMask = $45
-  345. copy_slot_unmasked             $45 = m2(0)
-  346. copy_slot_unmasked             $46 = expected(0)
-  347. cmpeq_float                    $45 = equal($45, $46)
-  348. copy_2_slots_unmasked          $46..47 = m2(0..1)
-  349. swizzle_1                      $46 = ($46..47).y
-  350. copy_2_slots_unmasked          $47..48 = expected(0..1)
-  351. swizzle_1                      $47 = ($47..48).y
-  352. cmpeq_float                    $46 = equal($46, $47)
-  353. bitwise_and_int                $45 &= $46
-  354. copy_slot_unmasked             $46 = m2(2)
-  355. copy_slot_unmasked             $47 = expected(2)
-  356. cmpeq_float                    $46 = equal($46, $47)
-  357. bitwise_and_int                $45 &= $46
-  358. copy_2_slots_unmasked          $46..47 = m2(2..3)
-  359. swizzle_1                      $46 = ($46..47).y
-  360. copy_2_slots_unmasked          $47..48 = expected(2..3)
-  361. swizzle_1                      $47 = ($47..48).y
-  362. cmpeq_float                    $46 = equal($46, $47)
-  363. bitwise_and_int                $45 &= $46
-  364. copy_slot_masked               [test].result = Mask($45)
-  365. label                          label 0x0000000F
-  366. copy_slot_masked               $44 = Mask($45)
-  367. label                          label 0x00000002
-  368. load_condition_mask            CondMask = $30
-  369. zero_slot_unmasked             $0 = 0
-  370. merge_condition_mask           CondMask = $43 & $44
-  371. branch_if_no_active_lanes      branch_if_no_active_lanes +46 (label 1 at #417)
-  372. copy_constant                  $1 = colorRed(0)
-  373. copy_constant                  $2 = 0x41200000 (10.0)
-  374. mul_float                      $1 *= $2
-  375. copy_slot_unmasked             ten = $1
-  376. copy_slot_unmasked             $2 = $1
-  377. copy_slot_unmasked             $3 = ten
-  378. copy_slot_unmasked             $4 = $3
-  379. copy_4_slots_unmasked          mat = $1..4
-  380. copy_constant                  $5 = 0x3F800000 (1.0)
-  381. copy_constant                  $6 = testInputs(0)
-  382. div_float                      $5 /= $6
-  383. swizzle_4                      $5..8 = ($5..8).xxxx
-  384. mul_4_floats                   $1..4 *= $5..8
-  385. copy_4_slots_unmasked          div = $1..4
-  386. copy_4_slots_unmasked          $1..4 = mat
-  387. copy_constant                  $5 = 0x3F800000 (1.0)
-  388. copy_constant                  $6 = testInputs(0)
-  389. div_float                      $5 /= $6
-  390. swizzle_4                      $5..8 = ($5..8).xxxx
-  391. mul_4_floats                   $1..4 *= $5..8
-  392. copy_4_slots_masked            mat = Mask($1..4)
-  393. copy_4_slots_unmasked          $1..4 = div
-  394. copy_constant                  $5 = 0x41000000 (8.0)
-  395. swizzle_4                      $5..8 = ($5..8).xxxx
-  396. add_4_floats                   $1..4 += $5..8
-  397. abs_4_floats                   $1..4 = abs($1..4)
-  398. copy_constant                  $5 = 0x3C23D70A (0.01)
-  399. swizzle_4                      $5..8 = ($5..8).xxxx
-  400. cmplt_4_floats                 $1..4 = lessThan($1..4, $5..8)
-  401. bitwise_and_2_ints             $1..2 &= $3..4
-  402. bitwise_and_int                $1 &= $2
-  403. copy_4_slots_unmasked          $2..5 = mat
-  404. copy_constant                  $6 = 0x41000000 (8.0)
-  405. swizzle_4                      $6..9 = ($6..9).xxxx
-  406. add_4_floats                   $2..5 += $6..9
-  407. abs_4_floats                   $2..5 = abs($2..5)
-  408. copy_constant                  $6 = 0x3C23D70A (0.01)
-  409. swizzle_4                      $6..9 = ($6..9).xxxx
-  410. cmplt_4_floats                 $2..5 = lessThan($2..5, $6..9)
-  411. bitwise_and_2_ints             $2..3 &= $4..5
-  412. bitwise_and_int                $2 &= $3
-  413. bitwise_and_int                $1 &= $2
-  414. copy_slot_masked               [divisionTest].result = Mask($1)
-  415. label                          label 0x00000014
-  416. copy_slot_masked               $0 = Mask($1)
-  417. label                          label 0x00000001
-  418. load_condition_mask            CondMask = $43
-  419. swizzle_4                      $0..3 = ($0..3).xxxx
-  420. copy_4_constants               $4..7 = colorRed
-  421. copy_4_constants               $8..11 = colorGreen
-  422. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-  423. copy_4_slots_unmasked          [main].result = $0..3
-  424. load_src                       src.rgba = [main].result
+  168. label                          label 0x00000005
+  169. copy_slot_masked               $18 = Mask($19)
+  170. label                          label 0x00000004
+  171. load_condition_mask            CondMask = $12
+  172. zero_slot_unmasked             $31 = 0
+  173. merge_condition_mask           CondMask = $17 & $18
+  174. branch_if_no_active_lanes      branch_if_no_active_lanes +93 (label 3 at #267)
+  175. copy_slot_unmasked             op = star
+  176. copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
+  177. copy_slot_unmasked             $32 = f1
+  178. copy_constant                  $33 = 0x40000000 (2.0)
+  179. mul_float                      $32 *= $33
+  180. copy_slot_unmasked             $33 = f2
+  181. copy_constant                  $34 = 0x40000000 (2.0)
+  182. mul_float                      $33 *= $34
+  183. copy_slot_unmasked             $34 = f3
+  184. copy_constant                  $35 = 0x40000000 (2.0)
+  185. mul_float                      $34 *= $35
+  186. copy_slot_unmasked             $35 = f4
+  187. copy_constant                  $36 = 0x40000000 (2.0)
+  188. mul_float                      $35 *= $36
+  189. copy_4_slots_unmasked          expected = $32..35
+  190. copy_constant                  $32 = colorRed(0)
+  191. copy_slot_unmasked             one = $32
+  192. copy_slot_unmasked             $32 = m11
+  193. copy_slot_unmasked             $33 = one
+  194. mul_float                      $32 *= $33
+  195. copy_slot_unmasked             $33 = m12
+  196. copy_slot_unmasked             $34 = one
+  197. mul_float                      $33 *= $34
+  198. copy_slot_unmasked             $34 = m21
+  199. copy_slot_unmasked             $35 = one
+  200. mul_float                      $34 *= $35
+  201. copy_slot_unmasked             $35 = m22
+  202. copy_slot_unmasked             $36 = one
+  203. mul_float                      $35 *= $36
+  204. copy_4_slots_unmasked          m2 = $32..35
+  205. store_loop_mask                $32 = LoopMask
+  206. copy_slot_unmasked             $33 = op
+  207. store_loop_mask                $34 = LoopMask
+  208. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  209. case_op                        if ($33 == 0x00000001) { LoopMask = true; $34 = false; }
+  210. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 11 at #217)
+  211. copy_4_slots_unmasked          $35..38 = m2
+  212. copy_constant                  $39 = 0x3F800000 (1.0)
+  213. swizzle_4                      $39..42 = ($39..42).xxxx
+  214. add_4_floats                   $35..38 += $39..42
+  215. copy_4_slots_masked            m2 = Mask($35..38)
+  216. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  217. label                          label 0x0000000B
+  218. case_op                        if ($33 == 0x00000002) { LoopMask = true; $34 = false; }
+  219. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 12 at #226)
+  220. copy_4_slots_unmasked          $35..38 = m2
+  221. copy_constant                  $39 = 0x3F800000 (1.0)
+  222. swizzle_4                      $39..42 = ($39..42).xxxx
+  223. sub_4_floats                   $35..38 -= $39..42
+  224. copy_4_slots_masked            m2 = Mask($35..38)
+  225. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  226. label                          label 0x0000000C
+  227. case_op                        if ($33 == 0x00000003) { LoopMask = true; $34 = false; }
+  228. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 13 at #235)
+  229. copy_4_slots_unmasked          $35..38 = m2
+  230. copy_constant                  $39 = 0x40000000 (2.0)
+  231. swizzle_4                      $39..42 = ($39..42).xxxx
+  232. mul_4_floats                   $35..38 *= $39..42
+  233. copy_4_slots_masked            m2 = Mask($35..38)
+  234. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  235. label                          label 0x0000000D
+  236. case_op                        if ($33 == 0x00000004) { LoopMask = true; $34 = false; }
+  237. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 14 at #244)
+  238. copy_4_slots_unmasked          $35..38 = m2
+  239. copy_constant                  $39 = 0x3F000000 (0.5)
+  240. swizzle_4                      $39..42 = ($39..42).xxxx
+  241. mul_4_floats                   $35..38 *= $39..42
+  242. copy_4_slots_masked            m2 = Mask($35..38)
+  243. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  244. label                          label 0x0000000E
+  245. load_loop_mask                 LoopMask = $32
+  246. copy_slot_unmasked             $32 = m2(0)
+  247. copy_slot_unmasked             $33 = expected(0)
+  248. cmpeq_float                    $32 = equal($32, $33)
+  249. copy_2_slots_unmasked          $33..34 = m2(0..1)
+  250. swizzle_1                      $33 = ($33..34).y
+  251. copy_2_slots_unmasked          $34..35 = expected(0..1)
+  252. swizzle_1                      $34 = ($34..35).y
+  253. cmpeq_float                    $33 = equal($33, $34)
+  254. bitwise_and_int                $32 &= $33
+  255. copy_slot_unmasked             $33 = m2(2)
+  256. copy_slot_unmasked             $34 = expected(2)
+  257. cmpeq_float                    $33 = equal($33, $34)
+  258. bitwise_and_int                $32 &= $33
+  259. copy_2_slots_unmasked          $33..34 = m2(2..3)
+  260. swizzle_1                      $33 = ($33..34).y
+  261. copy_2_slots_unmasked          $34..35 = expected(2..3)
+  262. swizzle_1                      $34 = ($34..35).y
+  263. cmpeq_float                    $33 = equal($33, $34)
+  264. bitwise_and_int                $32 &= $33
+  265. label                          label 0x0000000A
+  266. copy_slot_masked               $31 = Mask($32)
+  267. label                          label 0x00000003
+  268. load_condition_mask            CondMask = $17
+  269. zero_slot_unmasked             $44 = 0
+  270. merge_condition_mask           CondMask = $30 & $31
+  271. branch_if_no_active_lanes      branch_if_no_active_lanes +93 (label 2 at #364)
+  272. copy_slot_unmasked             op = slash
+  273. copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
+  274. copy_slot_unmasked             $45 = f1
+  275. copy_constant                  $46 = 0x3F000000 (0.5)
+  276. mul_float                      $45 *= $46
+  277. copy_slot_unmasked             $46 = f2
+  278. copy_constant                  $47 = 0x3F000000 (0.5)
+  279. mul_float                      $46 *= $47
+  280. copy_slot_unmasked             $47 = f3
+  281. copy_constant                  $48 = 0x3F000000 (0.5)
+  282. mul_float                      $47 *= $48
+  283. copy_slot_unmasked             $48 = f4
+  284. copy_constant                  $49 = 0x3F000000 (0.5)
+  285. mul_float                      $48 *= $49
+  286. copy_4_slots_unmasked          expected = $45..48
+  287. copy_constant                  $45 = colorRed(0)
+  288. copy_slot_unmasked             one = $45
+  289. copy_slot_unmasked             $45 = m11
+  290. copy_slot_unmasked             $46 = one
+  291. mul_float                      $45 *= $46
+  292. copy_slot_unmasked             $46 = m12
+  293. copy_slot_unmasked             $47 = one
+  294. mul_float                      $46 *= $47
+  295. copy_slot_unmasked             $47 = m21
+  296. copy_slot_unmasked             $48 = one
+  297. mul_float                      $47 *= $48
+  298. copy_slot_unmasked             $48 = m22
+  299. copy_slot_unmasked             $49 = one
+  300. mul_float                      $48 *= $49
+  301. copy_4_slots_unmasked          m2 = $45..48
+  302. store_loop_mask                $45 = LoopMask
+  303. copy_slot_unmasked             $46 = op
+  304. store_loop_mask                $47 = LoopMask
+  305. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  306. case_op                        if ($46 == 0x00000001) { LoopMask = true; $47 = false; }
+  307. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 16 at #314)
+  308. copy_4_slots_unmasked          $48..51 = m2
+  309. copy_constant                  $52 = 0x3F800000 (1.0)
+  310. swizzle_4                      $52..55 = ($52..55).xxxx
+  311. add_4_floats                   $48..51 += $52..55
+  312. copy_4_slots_masked            m2 = Mask($48..51)
+  313. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  314. label                          label 0x00000010
+  315. case_op                        if ($46 == 0x00000002) { LoopMask = true; $47 = false; }
+  316. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 17 at #323)
+  317. copy_4_slots_unmasked          $48..51 = m2
+  318. copy_constant                  $52 = 0x3F800000 (1.0)
+  319. swizzle_4                      $52..55 = ($52..55).xxxx
+  320. sub_4_floats                   $48..51 -= $52..55
+  321. copy_4_slots_masked            m2 = Mask($48..51)
+  322. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  323. label                          label 0x00000011
+  324. case_op                        if ($46 == 0x00000003) { LoopMask = true; $47 = false; }
+  325. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 18 at #332)
+  326. copy_4_slots_unmasked          $48..51 = m2
+  327. copy_constant                  $52 = 0x40000000 (2.0)
+  328. swizzle_4                      $52..55 = ($52..55).xxxx
+  329. mul_4_floats                   $48..51 *= $52..55
+  330. copy_4_slots_masked            m2 = Mask($48..51)
+  331. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  332. label                          label 0x00000012
+  333. case_op                        if ($46 == 0x00000004) { LoopMask = true; $47 = false; }
+  334. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 19 at #341)
+  335. copy_4_slots_unmasked          $48..51 = m2
+  336. copy_constant                  $52 = 0x3F000000 (0.5)
+  337. swizzle_4                      $52..55 = ($52..55).xxxx
+  338. mul_4_floats                   $48..51 *= $52..55
+  339. copy_4_slots_masked            m2 = Mask($48..51)
+  340. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  341. label                          label 0x00000013
+  342. load_loop_mask                 LoopMask = $45
+  343. copy_slot_unmasked             $45 = m2(0)
+  344. copy_slot_unmasked             $46 = expected(0)
+  345. cmpeq_float                    $45 = equal($45, $46)
+  346. copy_2_slots_unmasked          $46..47 = m2(0..1)
+  347. swizzle_1                      $46 = ($46..47).y
+  348. copy_2_slots_unmasked          $47..48 = expected(0..1)
+  349. swizzle_1                      $47 = ($47..48).y
+  350. cmpeq_float                    $46 = equal($46, $47)
+  351. bitwise_and_int                $45 &= $46
+  352. copy_slot_unmasked             $46 = m2(2)
+  353. copy_slot_unmasked             $47 = expected(2)
+  354. cmpeq_float                    $46 = equal($46, $47)
+  355. bitwise_and_int                $45 &= $46
+  356. copy_2_slots_unmasked          $46..47 = m2(2..3)
+  357. swizzle_1                      $46 = ($46..47).y
+  358. copy_2_slots_unmasked          $47..48 = expected(2..3)
+  359. swizzle_1                      $47 = ($47..48).y
+  360. cmpeq_float                    $46 = equal($46, $47)
+  361. bitwise_and_int                $45 &= $46
+  362. label                          label 0x0000000F
+  363. copy_slot_masked               $44 = Mask($45)
+  364. label                          label 0x00000002
+  365. load_condition_mask            CondMask = $30
+  366. zero_slot_unmasked             $0 = 0
+  367. merge_condition_mask           CondMask = $43 & $44
+  368. branch_if_no_active_lanes      branch_if_no_active_lanes +45 (label 1 at #413)
+  369. copy_constant                  $1 = colorRed(0)
+  370. copy_constant                  $2 = 0x41200000 (10.0)
+  371. mul_float                      $1 *= $2
+  372. copy_slot_unmasked             ten = $1
+  373. copy_slot_unmasked             $2 = $1
+  374. copy_slot_unmasked             $3 = ten
+  375. copy_slot_unmasked             $4 = $3
+  376. copy_4_slots_unmasked          mat = $1..4
+  377. copy_constant                  $5 = 0x3F800000 (1.0)
+  378. copy_constant                  $6 = testInputs(0)
+  379. div_float                      $5 /= $6
+  380. swizzle_4                      $5..8 = ($5..8).xxxx
+  381. mul_4_floats                   $1..4 *= $5..8
+  382. copy_4_slots_unmasked          div = $1..4
+  383. copy_4_slots_unmasked          $1..4 = mat
+  384. copy_constant                  $5 = 0x3F800000 (1.0)
+  385. copy_constant                  $6 = testInputs(0)
+  386. div_float                      $5 /= $6
+  387. swizzle_4                      $5..8 = ($5..8).xxxx
+  388. mul_4_floats                   $1..4 *= $5..8
+  389. copy_4_slots_masked            mat = Mask($1..4)
+  390. copy_4_slots_unmasked          $1..4 = div
+  391. copy_constant                  $5 = 0x41000000 (8.0)
+  392. swizzle_4                      $5..8 = ($5..8).xxxx
+  393. add_4_floats                   $1..4 += $5..8
+  394. abs_4_floats                   $1..4 = abs($1..4)
+  395. copy_constant                  $5 = 0x3C23D70A (0.01)
+  396. swizzle_4                      $5..8 = ($5..8).xxxx
+  397. cmplt_4_floats                 $1..4 = lessThan($1..4, $5..8)
+  398. bitwise_and_2_ints             $1..2 &= $3..4
+  399. bitwise_and_int                $1 &= $2
+  400. copy_4_slots_unmasked          $2..5 = mat
+  401. copy_constant                  $6 = 0x41000000 (8.0)
+  402. swizzle_4                      $6..9 = ($6..9).xxxx
+  403. add_4_floats                   $2..5 += $6..9
+  404. abs_4_floats                   $2..5 = abs($2..5)
+  405. copy_constant                  $6 = 0x3C23D70A (0.01)
+  406. swizzle_4                      $6..9 = ($6..9).xxxx
+  407. cmplt_4_floats                 $2..5 = lessThan($2..5, $6..9)
+  408. bitwise_and_2_ints             $2..3 &= $4..5
+  409. bitwise_and_int                $2 &= $3
+  410. bitwise_and_int                $1 &= $2
+  411. label                          label 0x00000014
+  412. copy_slot_masked               $0 = Mask($1)
+  413. label                          label 0x00000001
+  414. load_condition_mask            CondMask = $43
+  415. swizzle_4                      $0..3 = ($0..3).xxxx
+  416. copy_4_constants               $4..7 = colorRed
+  417. copy_4_constants               $8..11 = colorGreen
+  418. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+  419. load_src                       src.rgba = $0..3

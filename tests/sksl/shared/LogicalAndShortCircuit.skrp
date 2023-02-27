@@ -150,5 +150,4 @@
   150. copy_4_constants               $4..7 = colorRed
   151. copy_4_constants               $8..11 = colorGreen
   152. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-  153. copy_4_slots_unmasked          [main].result = $0..3
-  154. load_src                       src.rgba = [main].result
+  153. load_src                       src.rgba = $0..3

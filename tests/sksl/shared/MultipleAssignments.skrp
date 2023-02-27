@@ -11,8 +11,7 @@
    11. copy_slot_unmasked             a = $0
    12. copy_slot_unmasked             $1 = b
    13. mul_float                      $0 *= $1
-   14. copy_slot_unmasked             [main].result(1) = x
-   15. copy_slot_unmasked             [main].result(2) = c
-   16. copy_slot_unmasked             [main].result(3) = y
-   17. copy_slot_unmasked             [main].result(0) = $0
-   18. load_src                       src.rgba = [main].result
+   14. copy_slot_unmasked             $1 = x
+   15. copy_slot_unmasked             $2 = c
+   16. copy_slot_unmasked             $3 = y
+   17. load_src                       src.rgba = $0..3

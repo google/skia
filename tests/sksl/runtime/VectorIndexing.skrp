@@ -65,5 +65,4 @@
    65. load_return_mask               RetMask = $3
    66. copy_slot_unmasked             $3 = [index_clamped_out_of_bounds].result
    67. label                          label 0x00000005
-   68. copy_4_slots_unmasked          [main].result = $0..3
-   69. load_src                       src.rgba = [main].result
+   68. load_src                       src.rgba = $0..3

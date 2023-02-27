@@ -4,5 +4,4 @@
     4. cast_to_int_from_float         $0 = FloatToInt($0)
     5. cast_to_float_from_int         $0 = IntToFloat($0)
     6. copy_3_constants               $1..3 = colorGreen(1..3)
-    7. copy_4_slots_unmasked          [main].result = $0..3
-    8. load_src                       src.rgba = [main].result
+    7. load_src                       src.rgba = $0..3

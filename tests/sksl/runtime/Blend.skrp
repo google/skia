@@ -12,5 +12,4 @@
    12. sub_4_floats                   $8..11 -= $12..15
    13. mul_4_floats                   $4..7 *= $8..11
    14. add_4_floats                   $0..3 += $4..7
-   15. copy_4_slots_unmasked          [main].result = $0..3
-   16. load_src                       src.rgba = [main].result
+   15. load_src                       src.rgba = $0..3

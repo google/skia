@@ -4,5 +4,4 @@
     4. copy_slot_unmasked             $0 = f
     5. swizzle_4                      $0..3 = ($0..3).xxxx
     6. copy_4_slots_unmasked          fv = $0..3
-    7. copy_4_slots_unmasked          [main].result = $0..3
-    8. load_src                       src.rgba = [main].result
+    7. load_src                       src.rgba = $0..3
