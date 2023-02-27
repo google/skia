@@ -4,6 +4,7 @@
 
 #include "experimental/sktext/include/Types.h"
 #include "experimental/sktext/src/Line.h"
+#include "include/private/base/SkTArray.h"
 #include "modules/skshaper/include/SkShaper.h"
 
 namespace skia {

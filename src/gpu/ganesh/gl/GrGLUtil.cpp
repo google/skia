@@ -7,7 +7,9 @@
 
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkString.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkStringUtils.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include <stdio.h>

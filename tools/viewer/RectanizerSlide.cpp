@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"

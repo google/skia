@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkSurface.h"
+#include "include/private/base/SkTArray.h"
 #include "tools/viewer/Slide.h"
 
 namespace skiagm {

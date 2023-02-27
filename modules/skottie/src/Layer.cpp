@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/Layer.h"
 
+#include "include/private/base/SkTArray.h"
 #include "modules/skottie/src/Camera.h"
 #include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieJson.h"

@@ -11,6 +11,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkSurface.h"
+#include "include/private/base/SkMalloc.h"
 
 class GraphicsPort {
 protected:

@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/private/base/SkTArray.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 #include <tuple>

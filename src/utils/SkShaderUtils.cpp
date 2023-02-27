@@ -10,6 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkSLString.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkStringUtils.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 #include <cstddef>

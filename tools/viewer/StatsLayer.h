@@ -10,6 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkTArray.h"
 #include "tools/sk_app/Window.h"
 
 class StatsLayer : public sk_app::Window::Layer {

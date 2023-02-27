@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkMesh.h"
+#include "include/private/base/SkTArray.h"
 
 #include "fuzz/Fuzz.h"
 

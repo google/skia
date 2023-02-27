@@ -17,8 +17,8 @@
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkMath.h"
-#include "src/base/SkHalf.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkHalf.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkOpts.h"
 

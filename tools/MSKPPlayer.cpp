@@ -17,6 +17,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkStringUtils.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
 

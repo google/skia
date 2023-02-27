@@ -8,6 +8,7 @@
 #include "tools/skiaserve/urlhandlers/UrlHandler.h"
 
 #include "microhttpd.h"
+#include "src/core/SkStringUtils.h"
 #include "tools/skiaserve/Request.h"
 #include "tools/skiaserve/Response.h"
 

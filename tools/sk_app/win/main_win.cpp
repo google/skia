@@ -9,6 +9,7 @@
 #include <tchar.h>
 
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkMalloc.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/win/Window_win.h"
 #include "tools/timer/Timer.h"

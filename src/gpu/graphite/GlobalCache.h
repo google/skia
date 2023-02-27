@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
 

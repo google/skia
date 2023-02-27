@@ -11,6 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkTArray.h"
 #include "tools/Registry.h"
 
 #define DEF_BENCH3(code, N) \
