@@ -99,14 +99,6 @@ public:
                           Position pos,
                           bool isFunctionReturnValue);
 
-    /**
-     * Creates a single temporary slot for scratch storage. Temporary slots can be recycled, which
-     * frees them up for reuse. Temporary slots are not assigned a name and have an arbitrary type.
-     */
-    SlotRange createTemporarySlot(const Type& type);
-    void recycleTemporarySlot(SlotRange temporarySlot);
-
-
     /** Looks up the slots associated with an SkSL variable; creates the slot if necessary. */
     SlotRange getVariableSlots(const Variable& v);
 
@@ -124,48 +116,12 @@ private:
     std::string makeTempName() { return SkSL::String::printf("[temporary %d]", fTemporaryCount++); }
 
     SkTHashMap<const IRNode*, SlotRange> fSlotMap;
-    SkTArray<Slot> fRecycledSlots;
     int fSlotCount = 0;
     int fTemporaryCount = 0;
     std::vector<SlotDebugInfo>* fSlotDebugInfo;
 };
 
-class AutoContinueMask {
-public:
-    AutoContinueMask() = default;
-
-    ~AutoContinueMask() {
-        if (fSlotRange) {
-            fSlotManager->recycleTemporarySlot(*fSlotRange);
-            *fSlotRange = fPreviousSlotRange;
-        }
-    }
-
-    void enable(SlotManager* mgr, const Type& type, SlotRange* range) {
-        fSlotManager = mgr;
-        fSlotRange = range;
-        fPreviousSlotRange = *fSlotRange;
-        *fSlotRange = fSlotManager->createTemporarySlot(type);
-    }
-
-    void enterLoopBody(Builder& builder) {
-        if (fSlotRange) {
-            builder.zero_slots_unmasked(*fSlotRange);
-        }
-    }
-
-    void exitLoopBody(Builder& builder) {
-        if (fSlotRange) {
-            builder.reenable_loop_mask(*fSlotRange);
-        }
-    }
-
-private:
-    SlotManager* fSlotManager = nullptr;
-    SlotRange* fSlotRange = nullptr;
-    SlotRange fPreviousSlotRange;
-};
-
+class AutoContinueMask;
 class LValue;
 
 class Generator {
@@ -395,7 +351,7 @@ private:
 
     const FunctionDefinition* fCurrentFunction = nullptr;
     SlotRange fCurrentFunctionResult;
-    SlotRange fCurrentContinueMask;
+    AutoContinueMask* fCurrentContinueMask = nullptr;
     int fCurrentStack = 0;
     int fNextStackID = 0;
     SkTArray<int> fRecycledStacks;
@@ -450,6 +406,7 @@ private:
                                              BuilderOp::unsupported,
                                              BuilderOp::unsupported,
                                              BuilderOp::unsupported};
+    friend class AutoContinueMask;
 };
 
 class AutoStack {
@@ -493,6 +450,56 @@ private:
     Generator* fGenerator;
     int fStackID = 0;
     int fParentStackID = 0;
+};
+
+class AutoContinueMask {
+public:
+    AutoContinueMask(Generator* gen) : fGenerator(gen) {}
+
+    ~AutoContinueMask() {
+        if (fPreviousContinueMask) {
+            fGenerator->fCurrentContinueMask = fPreviousContinueMask;
+        }
+    }
+
+    void enable() {
+        SkASSERT(!fContinueMaskStack.has_value());
+
+        fContinueMaskStack.emplace(fGenerator);
+        fPreviousContinueMask = fGenerator->fCurrentContinueMask;
+        fGenerator->fCurrentContinueMask = this;
+    }
+
+    void enter() {
+        SkASSERT(fContinueMaskStack.has_value());
+        fContinueMaskStack->enter();
+    }
+
+    void exit() {
+        SkASSERT(fContinueMaskStack.has_value());
+        fContinueMaskStack->exit();
+    }
+
+    void enterLoopBody() {
+        if (fContinueMaskStack.has_value()) {
+            fContinueMaskStack->enter();
+            fGenerator->builder()->push_literal_i(0);
+            fContinueMaskStack->exit();
+        }
+    }
+
+    void exitLoopBody() {
+        if (fContinueMaskStack.has_value()) {
+            fContinueMaskStack->enter();
+            fGenerator->builder()->pop_and_reenable_loop_mask();
+            fContinueMaskStack->exit();
+        }
+    }
+
+private:
+    std::optional<AutoStack> fContinueMaskStack;
+    Generator* fGenerator = nullptr;
+    AutoContinueMask* fPreviousContinueMask = nullptr;
 };
 
 class LValue {
@@ -917,40 +924,6 @@ void SlotManager::addSlotDebugInfo(const std::string& varName,
     SkASSERT((size_t)groupIndex == type.slotCount());
 }
 
-SlotRange SlotManager::createTemporarySlot(const Type& type) {
-    SkASSERT(type.slotCount() == 1);
-
-    // If we have an available slot to reclaim, take it now.
-    if (!fRecycledSlots.empty()) {
-        SlotRange result = {fRecycledSlots.back(), 1};
-        fRecycledSlots.pop_back();
-        return result;
-    }
-
-    // Synthesize a new temporary slot.
-    if (fSlotDebugInfo) {
-        // Our debug slot-info table should have the same length as the actual slot table.
-        SkASSERT(fSlotDebugInfo->size() == (size_t)fSlotCount);
-
-        // Add this temporary slot to the debug slot-info table. It's just scratch space which can
-        // be reused over the course of execution, so it doesn't get a name or type (uint will do).
-        this->addSlotDebugInfo(this->makeTempName(), type, Position{},
-                               /*isFunctionReturnValue=*/false);
-
-        // Confirm that we added the expected number of slots.
-        SkASSERT(fSlotDebugInfo->size() == (size_t)(fSlotCount + 1));
-    }
-
-    SlotRange result = {fSlotCount, 1};
-    ++fSlotCount;
-    return result;
-}
-
-void SlotManager::recycleTemporarySlot(SlotRange temporarySlot) {
-    SkASSERT(temporarySlot.count == 1);
-    fRecycledSlots.push_back(temporarySlot.index);
-}
-
 SlotRange SlotManager::createSlots(std::string name,
                                    const Type& type,
                                    Position pos,
@@ -1259,13 +1232,15 @@ bool Generator::writeContinueStatement(const ContinueStatement&) {
     // This could be written as one hand-tuned RasterPipeline op, but for now, we reuse existing ops
     // to assemble a continue op.
 
-    // Set any currently-executing lanes in the continue-mask to true via push-pop.
-    SkASSERT(fCurrentContinueMask.count == 1);
+    // Set any currently-executing lanes in the continue-mask to true via `select.`
+    fCurrentContinueMask->enter();
     fBuilder.push_literal_i(~0);
-    this->popToSlotRange(fCurrentContinueMask);
+    fBuilder.select(/*slots=*/1);
 
     // Disable any currently-executing lanes from the loop mask.
     fBuilder.mask_off_loop_mask();
+    fCurrentContinueMask->exit();
+
     return true;
 }
 
@@ -1276,24 +1251,23 @@ bool Generator::writeDoStatement(const DoStatement& d) {
 
     // If `continue` is used in the loop...
     Analysis::LoopControlFlowInfo loopInfo = Analysis::GetLoopControlFlowInfo(*d.statement());
-    AutoContinueMask autoContinueMask;
+    AutoContinueMask autoContinueMask(this);
     if (loopInfo.fHasContinue) {
         // ... create a temporary slot for continue-mask storage.
-        autoContinueMask.enable(&fProgramSlots, *fProgram.fContext->fTypes.fUInt,
-                                &fCurrentContinueMask);
+        autoContinueMask.enable();
     }
 
     // Write the do-loop body.
     int labelID = fBuilder.nextLabelID();
     fBuilder.label(labelID);
 
-    autoContinueMask.enterLoopBody(fBuilder);
+    autoContinueMask.enterLoopBody();
 
     if (!this->writeStatement(*d.statement())) {
         return false;
     }
 
-    autoContinueMask.exitLoopBody(fBuilder);
+    autoContinueMask.exitLoopBody();
 
     // Emit the test-expression, in order to combine it with the loop mask.
     if (!this->pushExpression(*d.test())) {
@@ -1384,11 +1358,10 @@ bool Generator::writeForStatement(const ForStatement& f) {
         return unsupported();
     }
 
-    AutoContinueMask autoContinueMask;
+    AutoContinueMask autoContinueMask(this);
     if (loopInfo.fHasContinue) {
         // Acquire a temporary slot for continue-mask storage.
-        autoContinueMask.enable(&fProgramSlots, *fProgram.fContext->fTypes.fUInt,
-                                &fCurrentContinueMask);
+        autoContinueMask.enable();
     }
 
     // Save off the original loop mask.
@@ -1404,13 +1377,13 @@ bool Generator::writeForStatement(const ForStatement& f) {
     // Write the for-loop body.
     fBuilder.label(loopBodyID);
 
-    autoContinueMask.enterLoopBody(fBuilder);
+    autoContinueMask.enterLoopBody();
 
     if (!this->writeStatement(*f.statement())) {
         return unsupported();
     }
 
-    autoContinueMask.exitLoopBody(fBuilder);
+    autoContinueMask.exitLoopBody();
 
     // Run the next-expression. Immediately discard its result.
     if (f.next()) {
