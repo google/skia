@@ -57,6 +57,7 @@ if (skia_enable_tools) {
       "../..:tool_utils",
       "../../modules/svg:svg",
     ]
+    defines = [ "SK_GANESH_ENABLED" ]
   }
 }
 
@@ -70,6 +71,7 @@ component("debugger") {
     "../../tools/debugger/DrawCommand.cpp",
     "../../tools/debugger/JsonWriteBuffer.cpp",
   ]
+  defines = [ "SK_GANESH_ENABLED" ]
 }
 
 action("create_notomono_cpp") {
