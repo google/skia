@@ -230,7 +230,7 @@ private:
     bool fHaveSentFontMetrics{false};
 
     // The masks and paths that currently reside in the GPU process.
-    SkTHashMap<SkPackedGlyphID, SkGlyphDigest, SkPackedGlyphID::Hash> fSentGlyphs;
+    SkTHashTable<SkGlyphDigest, SkPackedGlyphID, SkGlyphDigest> fSentGlyphs;
 
     // The Masks, SDFT Mask, and Paths that need to be sent to the GPU task for the processed
     // TextBlobs. Cleared after diffs are serialized.
@@ -400,7 +400,7 @@ SkGlyphDigest RemoteStrike::digestFor(ActionType actionType, SkPackedGlyphID pac
     }
 
     if (digestPtr == nullptr) {
-        digestPtr = fSentGlyphs.set(packedGlyphID, SkGlyphDigest{0, *glyph});
+        digestPtr = fSentGlyphs.set(SkGlyphDigest{0, *glyph});
     }
 
     digestPtr->setActionFor(actionType, glyph, this);

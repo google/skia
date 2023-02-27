@@ -163,7 +163,7 @@ private:
     // SkGlyphDigest's fIndex field stores the index. This pointer provides an unchanging
     // reference to the SkGlyph as long as the strike is alive, and fGlyphForIndex
     // provides a dense index for glyphs.
-    SkTHashMap<SkPackedGlyphID, SkGlyphDigest, SkPackedGlyphID::Hash>
+    SkTHashTable<SkGlyphDigest, SkPackedGlyphID, SkGlyphDigest>
             fDigestForPackedGlyphID SK_GUARDED_BY(fStrikeLock);
 
     // Maps from a glyphIndex to a glyph

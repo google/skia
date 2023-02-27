@@ -425,7 +425,8 @@ uint32_t init_actions(const SkGlyph& glyph) {
 
 // -- SkGlyphDigest --------------------------------------------------------------------------------
 SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
-        : fIndex{SkTo<uint32_t>(index)}
+        : fPackedID{SkTo<uint64_t>(glyph.getPackedID().value())}
+        , fIndex{SkTo<uint64_t>(index)}
         , fIsEmpty(glyph.isEmpty())
         , fFormat(glyph.maskFormat())
         , fActions{init_actions(glyph)}

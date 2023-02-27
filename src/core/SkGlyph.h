@@ -360,24 +360,33 @@ public:
 
     static bool FitsInAtlas(const SkGlyph& glyph);
 
+    // GetKey and Hash implement the required methods for SkTHashTable.
+    static SkPackedGlyphID GetKey(SkGlyphDigest digest) {
+        return SkPackedGlyphID{SkTo<uint32_t>(digest.fPackedID)};
+    }
+    static uint32_t Hash(SkPackedGlyphID packedID) {
+        return packedID.hash();
+    }
+
 private:
     void setAction(skglyph::ActionType actionType, skglyph::GlyphAction action) {
         using namespace skglyph;
         SkASSERT(action != GlyphAction::kUnset);
         SkASSERT(this->actionFor(actionType) == GlyphAction::kUnset);
-        const uint32_t mask = 0b11 << actionType;
+        const uint64_t mask = 0b11 << actionType;
         fActions &= ~mask;
-        fActions |= SkTo<uint32_t>(action) << actionType;
+        fActions |= SkTo<uint64_t>(action) << actionType;
     }
 
     static_assert(SkPackedGlyphID::kEndData == 20);
     static_assert(SkMask::kCountMaskFormats <= 8);
     static_assert(SkTo<int>(skglyph::GlyphAction::kSize) <= 4);
     struct {
-        uint32_t fIndex            : SkPackedGlyphID::kEndData;
-        uint16_t fIsEmpty          : 1;
-        uint32_t fFormat           : 3;
-        uint32_t fActions          : skglyph::ActionTypeSize::kTotalBits;
+        uint64_t fPackedID : SkPackedGlyphID::kEndData;
+        uint64_t fIndex    : SkPackedGlyphID::kEndData;
+        uint64_t fIsEmpty  : 1;
+        uint64_t fFormat   : 3;
+        uint64_t fActions  : skglyph::ActionTypeSize::kTotalBits;
     };
     int16_t fLeft, fTop;
     uint16_t fWidth, fHeight;

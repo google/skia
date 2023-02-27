@@ -267,7 +267,7 @@ SkGlyphDigest SkStrike::digestFor(ActionType actionType, SkPackedGlyphID packedG
 SkGlyphDigest* SkStrike::addGlyphAndDigest(SkGlyph* glyph) {
     size_t index = fGlyphForIndex.size();
     SkGlyphDigest digest = SkGlyphDigest{index, *glyph};
-    SkGlyphDigest* newDigest = fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
+    SkGlyphDigest* newDigest = fDigestForPackedGlyphID.set(digest);
     fGlyphForIndex.push_back(glyph);
     return newDigest;
 }
