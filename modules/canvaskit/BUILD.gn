@@ -348,7 +348,6 @@ skia_wasm_lib("canvaskit") {
     "SK_DISABLE_AAA",
     "SK_FORCE_8_BYTE_ALIGNMENT",
     "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
-    "SK_HAS_ANDROID_CODEC",
     "SK_SHAPER_HARFBUZZ_AVAILABLE",
   ]
   if (skia_canvaskit_enable_paragraph) {

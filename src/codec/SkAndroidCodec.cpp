@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <utility>
 
 class SkPngChunkReader;
@@ -349,8 +350,20 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& requestInfo,
         }
     }
 
+    // We may need to have handleFrameIndex recursively call this method
+    // to resolve one frame depending on another. The recursion stops
+    // when we find a frame which does not require an earlier frame
+    // e.g. frame->getRequiredFrame() returns kNoFrame
+    auto getPixelsFn = [&](const SkImageInfo& info, void* pixels, size_t rowBytes,
+                           const SkCodec::Options& opts, int requiredFrame
+                           ) -> SkCodec::Result {
+        SkAndroidCodec::AndroidOptions prevFrameOptions(
+                        reinterpret_cast<const SkAndroidCodec::AndroidOptions&>(opts));
+        prevFrameOptions.fFrameIndex = requiredFrame;
+        return this->getAndroidPixels(info, pixels, rowBytes, &prevFrameOptions);
+    };
     if (auto result = fCodec->handleFrameIndex(requestInfo, requestPixels, requestRowBytes,
-            *options, this); result != SkCodec::kSuccess) {
+            *options, getPixelsFn); result != SkCodec::kSuccess) {
         return result;
     }
 

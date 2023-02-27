@@ -29,10 +29,6 @@
 
 #include <utility>
 
-#ifdef SK_HAS_ANDROID_CODEC
-#include "include/codec/SkAndroidCodec.h"
-#endif
-
 #ifdef SK_CODEC_DECODES_AVIF
 #include "src/codec/SkAvifCodec.h"
 #endif
@@ -317,12 +313,12 @@ bool zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
 }
 
 SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                          const Options& options, SkAndroidCodec* androidCodec) {
-    if (androidCodec) {
-        // This is never set back to false. If SkAndroidCodec is calling this method, its fCodec
-        // should never call it directly.
-        fAndroidCodecHandlesFrameIndex = true;
-    } else if (fAndroidCodecHandlesFrameIndex) {
+                                          const Options& options, GetPixelsCallback getPixelsFn) {
+    if (getPixelsFn) {
+        // If a callback is used, it handles the frame index, so calls from this SkCodec
+        // should always short-circuit in the else case below.
+        fUsingCallbackForHandleFrameIndex = true;
+    } else if (fUsingCallbackForHandleFrameIndex) {
         return kSuccess;
     }
 
@@ -358,16 +354,15 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
 
     const int requiredFrame = frame->getRequiredFrame();
     if (requiredFrame != kNoFrame) {
+        // Decode earlier frame if necessary
         const SkFrame* preppedFrame = nullptr;
         if (options.fPriorFrame == kNoFrame) {
             Result result = kInternalError;
-            if (androidCodec) {
-#ifdef SK_HAS_ANDROID_CODEC
-                SkAndroidCodec::AndroidOptions prevFrameOptions(
-                        reinterpret_cast<const SkAndroidCodec::AndroidOptions&>(options));
-                prevFrameOptions.fFrameIndex = requiredFrame;
-                result = androidCodec->getAndroidPixels(info, pixels, rowBytes, &prevFrameOptions);
-#endif
+            // getPixelsFn will be set when things like SkAndroidCodec are calling this function.
+            // Thus, we call the provided function when recursively decoding previous frames,
+            // but only when necessary (i.e. there is a required frame).
+            if (getPixelsFn) {
+                result = getPixelsFn(info, pixels, rowBytes, options, requiredFrame);
             } else {
                 Options prevFrameOptions(options);
                 prevFrameOptions.fFrameIndex = requiredFrame;
@@ -612,9 +607,9 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& info,
     // so that when onStartScanlineDecode calls rewindIfNeeded it would not
     // rewind. But it also relies on that call to rewindIfNeeded to set
     // fNeedsRewind to true for future decodes. When
-    // fAndroidCodecHandlesFrameIndex is true, that call to rewindIfNeeded is
+    // fUsingCallbackForHandleFrameIndex is true, that call to rewindIfNeeded is
     // skipped, so this method sets it back to true.
-    SkASSERT(fAndroidCodecHandlesFrameIndex || fNeedsRewind);
+    SkASSERT(fUsingCallbackForHandleFrameIndex || fNeedsRewind);
     fNeedsRewind = true;
 
     fCurrScanline = 0;
