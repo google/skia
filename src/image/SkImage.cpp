@@ -561,6 +561,10 @@ std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Base::asView(
     if (!as_IB(this)->isGraphiteBacked()) {
         return {};
     }
+    // TODO(b/238756380): YUVA not supported yet
+    if (as_IB(this)->isYUVA()) {
+        return {};
+    }
 
     auto image = reinterpret_cast<const skgpu::graphite::Image*>(this);
 

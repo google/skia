@@ -307,9 +307,7 @@ void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext
     image = image->makeTextureImage(keyContext.recorder(), { skgpu::Mipmapped::kNo });
 
     if (as_IB(image)->isGraphiteBacked()) {
-        skgpu::graphite::Image* grImage = static_cast<skgpu::graphite::Image*>(image.get());
-
-        auto [view, _] = grImage->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
+        auto [view, _] = as_IB(image)->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
         data.fTextureProxy = view.refProxy();
     }
 

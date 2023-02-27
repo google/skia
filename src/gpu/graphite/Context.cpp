@@ -139,6 +139,11 @@ void Context::asyncReadPixels(const SkImage* image,
         callback(callbackContext, nullptr);
         return;
     }
+    // TODO(b/238756380): YUVA read not supported right now
+    if (as_IB(image)->isYUVA()) {
+        callback(callbackContext, nullptr);
+        return;
+    }
     auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
     TextureProxyView proxyView = graphiteImage->textureProxyView();
 
