@@ -26,11 +26,14 @@
 #include <climits>
 #include <cstdint>
 
-#if !defined(SK_SUPPORT_GPU)
-#  define SK_SUPPORT_GPU 1
+// Legacy flag
+#if defined(SK_SUPPORT_GPU)
+#if SK_SUPPORT_GPU && !defined(SK_GANESH_ENABLED)
+#  define SK_GANESH_ENABLED
+#endif
 #endif
 
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
 #  if !defined(SK_ENABLE_SKSL)
 #    define SK_ENABLE_SKSL
 #  endif
@@ -98,11 +101,6 @@
 #  define GR_TEST_UTILS 0
 #endif
 
-#if !SK_SUPPORT_GPU
-   #define SK_GPU_V1 0 // always false if Ganesh is disabled
-#elif !defined(SK_GPU_V1)
-#  define SK_GPU_V1 1   // otherwise default to v1 enabled
-#endif
 
 #if defined(SK_HISTOGRAM_ENUMERATION)  || \
     defined(SK_HISTOGRAM_BOOLEAN)      || \

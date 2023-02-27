@@ -16,7 +16,7 @@
 #include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkMask.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/shaders/SkShaderBase.h"
 #endif
@@ -65,7 +65,7 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const = 0;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     /**
      *  Returns a processor if the filter can be expressed a single-pass GrProcessor without
      *  requiring an explicit input mask. Per-pixel, the effect receives the incoming mask's
@@ -172,7 +172,7 @@ public:
 protected:
     SkMaskFilterBase() {}
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     using MatrixRec = SkShaderBase::MatrixRec;
     virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&,
                                                                        const MatrixRec&) const;

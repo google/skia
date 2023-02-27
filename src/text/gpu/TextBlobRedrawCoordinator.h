@@ -32,7 +32,7 @@ namespace sktext::gpu {
 class TextBlobRedrawCoordinator {
 public:
     TextBlobRedrawCoordinator(uint32_t messageBusID);
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void drawGlyphRunList(SkCanvas* canvas,
                           const GrClip* clip,
                           const SkMatrixProvider& viewMatrix,

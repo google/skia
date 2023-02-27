@@ -11,13 +11,13 @@
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkYUVAInfoLocation.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #endif
 
 
 SkYUVAPixmapInfo::SupportedDataTypes::SupportedDataTypes(const GrImageContext& context) {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     for (int n = 1; n <= 4; ++n) {
         if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm8, n),
                                          GrRenderable::kNo).isValid()) {

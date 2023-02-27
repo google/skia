@@ -39,9 +39,6 @@ config("skia_public") {
   if (skia_enable_flutter_defines) {
     defines += flutter_defines
   }
-  if (!skia_enable_gpu) {
-    defines += [ "SK_SUPPORT_GPU=0" ]
-  }
   if (skia_enable_optimize_size) {
     defines += [
       "SK_ENABLE_OPTIMIZE_SIZE",
@@ -70,8 +67,11 @@ config("skia_public") {
       "SK_USE_WEBGL",
     ]
   }
-  if (!skia_enable_ganesh) {
-    defines += [ "SK_GPU_V1=0" ]
+  if (skia_enable_gpu || skia_enable_ganesh) {
+    defines += [ "SK_GANESH_ENABLED" ]
+  }
+  if (skia_enable_graphite) {
+    defines += [ "SK_GRAPHITE_ENABLED" ]
   }
   if (skia_use_perfetto) {
     defines += [ "SK_USE_PERFETTO" ]
@@ -980,20 +980,13 @@ if (skia_compile_sksl_tests) {
 }
 
 optional("gpu_shared") {
-  enabled = skia_enable_gpu || skia_enable_graphite
+  enabled = skia_enable_gpu || skia_enable_ganesh || skia_enable_graphite
 
   deps = []
   libs = []
   public_defines = []
   public_deps = []
   frameworks = []
-
-  if (skia_enable_gpu) {
-    public_defines += [ "SK_SUPPORT_GPU=1" ]
-  }
-  if (skia_enable_graphite) {
-    public_defines += [ "SK_GRAPHITE_ENABLED" ]
-  }
 
   if (skia_use_dawn) {
     public_defines += [ "SK_DAWN" ]

@@ -13,7 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #endif
 
@@ -66,7 +66,7 @@ public:
     */
     sk_sp<SkSpecialImage> makeImageSnapshot();
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     /**
      *  Allocate a new GPU-backed SkSpecialSurface. If the requested surface cannot
      *  be created, nullptr will be returned.

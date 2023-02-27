@@ -16,7 +16,7 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkVM.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 // This shouldn't be needed but IWYU needs both (identical) defs of GrFPResult.
 #include "src/shaders/SkShaderBase.h"
@@ -56,7 +56,7 @@ public:
         return true;
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*,
                                    const GrColorInfo&,
@@ -94,7 +94,7 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
     return SkColorFilterPriv::MakeGaussian();
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkRuntimeEffectPriv.h"

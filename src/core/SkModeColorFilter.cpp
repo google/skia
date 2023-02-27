@@ -43,7 +43,7 @@ public:
 
     bool onIsAlphaUnchanged() const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*,
                                    const GrColorInfo&,
@@ -134,7 +134,7 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/Blend.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

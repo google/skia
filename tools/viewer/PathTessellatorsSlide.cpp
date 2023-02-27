@@ -9,7 +9,7 @@
 #include "src/core/SkPathPriv.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -330,4 +330,4 @@ DEF_SLIDE( return new PathTessellatorsSlide; )
 
 }  // namespace skgpu::v1
 
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)

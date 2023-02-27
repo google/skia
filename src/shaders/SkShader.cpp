@@ -21,7 +21,7 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/SkTransformShader.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #endif
@@ -81,7 +81,7 @@ SkShaderBase::MatrixRec::apply(skvm::Builder* p,
                      /*ctmApplied=*/true};
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 GrFPResult SkShaderBase::MatrixRec::apply(std::unique_ptr<GrFragmentProcessor> fp,
                                           const SkMatrix& postInv) const {
     // FP matrices work differently than SkRasterPipeline and SkVM. The starting coordinates
@@ -179,7 +179,7 @@ SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
     return as_SB(this)->onIsAImage(localMatrix, xy);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor>
 SkShaderBase::asRootFragmentProcessor(const GrFPArgs& args, const SkMatrix& ctm) const {
     return this->asFragmentProcessor(args, MatrixRec(ctm));

@@ -37,7 +37,7 @@ class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
 #endif
 
@@ -238,7 +238,7 @@ public:
                                                              skvm::Uniforms*,
                                                              const SkMatrix& postInv = {}) const;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
         /**
          * Produces an FP that muls its input coords by the inverse of the pending matrix and then
          * samples the passed FP with those coordinates. 'postInv' is an additional matrix to
@@ -330,7 +330,7 @@ public:
      */
     Context* makeContext(const ContextRec&, SkArenaAlloc*) const;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     /**
      * Call on the root SkShader to produce a GrFragmentProcessor.
      *

@@ -213,7 +213,6 @@ public:
         bool fIsIntersectionOfRects;
 
         uint32_t fGenID;
-
         Element(int saveCount) {
             this->initCommon(saveCount, SkClipOp::kIntersect, false);
             this->setEmpty();

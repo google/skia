@@ -33,7 +33,7 @@ public:
             , fSrc(std::move(src))
             , fMode(mode) {}
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -155,7 +155,7 @@ skvm::Color SkShader_Blend::program(skvm::Builder* p,
     return {};
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrFPArgs.h"

@@ -39,7 +39,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
@@ -88,7 +88,7 @@ public:
         fBitmap.setImmutable();
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*, const GrColorInfo&,
                                    const SkSurfaceProps&) const override;
@@ -157,7 +157,7 @@ sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
@@ -290,7 +290,7 @@ GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentPr
     return cte ? GrFPSuccess(std::move(cte)) : GrFPFailure(nullptr);
 }
 
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 #ifdef SK_GRAPHITE_ENABLED
 

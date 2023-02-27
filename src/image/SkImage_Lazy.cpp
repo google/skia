@@ -16,14 +16,13 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkYUVAInfo.h"
-#include "include/private/base/SkAssert.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkYUVPlanesCache.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
@@ -203,7 +202,7 @@ bool SkImage_Lazy::getROPixels(GrDirectContext* ctx, SkBitmap* bitmap,
 }
 
 bool SkImage_Lazy::readPixelsProxy(GrDirectContext* ctx, const SkPixmap& pixmap) const {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (!ctx) {
         return false;
     }
@@ -225,7 +224,7 @@ bool SkImage_Lazy::readPixelsProxy(GrDirectContext* ctx, const SkPixmap& pixmap)
     return sContext->readPixels(ctx, {this->imageInfo(), pixmap.writable_addr(), rowBytes}, {0, 0});
 #else
     return false;
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,7 +263,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext
     // TODO: can we do this more efficiently, by telling the generator we want to
     //       "realize" a subset?
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     auto pixels = direct ? this->makeTextureImage(direct)
                          : this->makeRasterImage();
 #else
@@ -331,7 +330,7 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
     return validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Lazy::onAsView(
         GrRecordingContext* context,
@@ -619,7 +618,7 @@ GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const 
 void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const {
     fUniqueIDListeners.add(std::move(listener));
 }
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 #ifdef SK_GRAPHITE_ENABLED
 

@@ -11,7 +11,7 @@
 #include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
 

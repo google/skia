@@ -23,7 +23,7 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
@@ -64,7 +64,7 @@ bool SkColorFilterBase::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 GrFPResult SkColorFilterBase::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                   GrRecordingContext* context,
                                                   const GrColorInfo& dstColorInfo,
@@ -180,7 +180,7 @@ public:
         return c ? fOuter->program(p, c, dst, uniforms, alloc) : skvm::Color{};
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,
@@ -273,7 +273,7 @@ public:
 
     {}
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,
@@ -404,7 +404,7 @@ public:
         return SkColorSpace::MakeRGB(tf, gamut);
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,

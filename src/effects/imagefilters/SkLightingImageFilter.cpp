@@ -35,7 +35,7 @@
 #include <memory>
 #include <utility>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
@@ -74,7 +74,7 @@ const SkScalar gTwoThirds = SkIntToScalar(2) / 3;
 const SkScalar gOneHalf = 0.5f;
 const SkScalar gOneQuarter = 0.25f;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 static void setUniformPoint3(const GrGLSLProgramDataManager& pdman, UniformHandle uni,
                              const SkPoint3& point) {
     static_assert(sizeof(SkPoint3) == 3 * sizeof(float));
@@ -458,7 +458,7 @@ protected:
     inline sk_sp<const SkImageFilterLight> refLight() const { return fLight; }
     SkScalar surfaceScale() const { return fSurfaceScale; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     sk_sp<SkSpecialImage> filterImageGPU(const Context& ctx,
                                          SkSpecialImage* input,
                                          const SkIRect& bounds,
@@ -472,7 +472,7 @@ protected:
 #endif
 
 private:
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void drawRect(skgpu::v1::SurfaceFillContext*,
                   GrSurfaceProxyView srcView,
                   const SkIPoint& viewOffset,
@@ -490,7 +490,7 @@ private:
 };
 }  // anonymous namespace
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 void SkLightingImageFilterInternal::drawRect(skgpu::v1::SurfaceFillContext* sfc,
                                              GrSurfaceProxyView srcView,
                                              const SkIPoint& viewOffset,
@@ -596,7 +596,7 @@ protected:
 
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> makeFragmentProcessor(GrSurfaceProxyView,
                                                                const SkIPoint& viewOffset,
                                                                const SkMatrix&,
@@ -632,7 +632,7 @@ protected:
 
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> makeFragmentProcessor(GrSurfaceProxyView,
                                                                const SkIPoint& viewOffset,
                                                                const SkMatrix&,
@@ -651,7 +651,7 @@ private:
     using INHERITED = SkLightingImageFilterInternal;
 };
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 class LightingEffect : public GrFragmentProcessor {
 public:
@@ -917,7 +917,7 @@ public:
     LightType type() const override { return kDistant_LightType; }
     const SkPoint3& direction() const { return fDirection; }
     std::unique_ptr<GpuLight> createGpuLight() const override {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
         return std::make_unique<GpuDistantLight>();
 #else
         SkDEBUGFAIL("Should not call in GPU-less build");
@@ -974,7 +974,7 @@ public:
     LightType type() const override { return kPoint_LightType; }
     const SkPoint3& location() const { return fLocation; }
     std::unique_ptr<GpuLight> createGpuLight() const override {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
         return std::make_unique<GpuPointLight>();
 #else
         SkDEBUGFAIL("Should not call in GPU-less build");
@@ -1086,7 +1086,7 @@ public:
         return this->color().makeScale(scale);
     }
     std::unique_ptr<GpuLight> createGpuLight() const override {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
         return std::make_unique<GpuSpotLight>();
 #else
         SkDEBUGFAIL("Should not call in GPU-less build");
@@ -1321,7 +1321,7 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(const Context&
     offset->fY = bounds.top();
     bounds.offset(-inputOffset);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (ctx.gpuBacked()) {
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
@@ -1372,7 +1372,7 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(const Context&
                                           dst, ctx.surfaceProps());
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor> SkDiffuseLightingImageFilter::makeFragmentProcessor(
         GrSurfaceProxyView view,
         const SkIPoint& viewOffset,
@@ -1464,7 +1464,7 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(const Context
     offset->fY = bounds.top();
     bounds.offset(-inputOffset);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (ctx.gpuBacked()) {
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
@@ -1516,7 +1516,7 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(const Context
                                           ctx.surfaceProps());
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor> SkSpecularLightingImageFilter::makeFragmentProcessor(
         GrSurfaceProxyView view,
         const SkIPoint& viewOffset,
@@ -1540,7 +1540,7 @@ std::unique_ptr<GrFragmentProcessor> SkSpecularLightingImageFilter::makeFragment
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 static SkString emitNormalFunc(BoundaryMode mode,
                                const char* pointToNormalName,

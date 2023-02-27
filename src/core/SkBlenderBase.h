@@ -46,7 +46,7 @@ public:
         return this->onProgram(p, src, dst, colorInfo, uniforms, alloc);
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     /**
      * Returns a GrFragmentProcessor that implements this blend for the GPU backend.
      * The GrFragmentProcessor expects premultiplied inputs and returns a premultiplied output.

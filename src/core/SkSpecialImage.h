@@ -14,7 +14,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkNextID.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
@@ -98,7 +98,7 @@ public:
     static sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
                                                 const SkSurfaceProps&);
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
@@ -178,7 +178,7 @@ public:
      */
     GrRecordingContext* getContext() const { return this->onGetContext(); }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     /**
      * Regardless of how the underlying backing data is stored, returns the contents as a
      * GrSurfaceProxyView. The returned view's proxy represents the entire backing image, so texture
@@ -218,7 +218,7 @@ protected:
 
     virtual GrRecordingContext* onGetContext() const { return nullptr; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     virtual GrSurfaceProxyView onView(GrRecordingContext*) const = 0;
 #endif
 

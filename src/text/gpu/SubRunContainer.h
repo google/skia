@@ -30,7 +30,7 @@ class StrikeForGPUCacheInterface;
     }
 }
 
-#if SK_SUPPORT_GPU  // Ganesh support
+#if defined(SK_GANESH_ENABLED)  // Ganesh support
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
@@ -80,7 +80,7 @@ public:
     virtual int glyphCount() const = 0;
     virtual skgpu::MaskFormat maskFormat() const = 0;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
 
     virtual std::tuple<const GrClip*, GrOp::Owner>
@@ -142,7 +142,7 @@ using SubRunOwner = std::unique_ptr<SubRun, SubRunAllocator::Destroyer>;
 class SubRun {
 public:
     virtual ~SubRun();
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     // Produce GPU ops for this subRun or just draw them.
     virtual void draw(SkCanvas*,
                       const GrClip*,
@@ -264,7 +264,7 @@ public:
 
     static size_t EstimateAllocSize(const GlyphRunList& glyphRunList);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void draw(SkCanvas* canvas,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,

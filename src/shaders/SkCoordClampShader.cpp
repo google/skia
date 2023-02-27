@@ -14,7 +14,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
@@ -32,7 +32,7 @@ public:
     SkShader_CoordClamp(sk_sp<SkShader> shader, const SkRect& subset)
             : fShader(std::move(shader)), fSubset(subset) {}
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -116,7 +116,7 @@ skvm::Color SkShader_CoordClamp::program(skvm::Builder* p,
     return as_SB(fShader)->program(p, device, local, paint, *childMRec, cinfo, uniforms, alloc);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
         const GrFPArgs& args, const MatrixRec& mRec) const {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
@@ -148,7 +148,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
     std::tie(success, fp) = mRec.apply(std::move(fp));
     return success ? std::move(fp) : nullptr;
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #ifdef SK_GRAPHITE_ENABLED
 void SkShader_CoordClamp::addToKey(const skgpu::graphite::KeyContext& keyContext,

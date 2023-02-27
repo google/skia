@@ -59,7 +59,7 @@ public:
 
     TextureProxyView readSurfaceView() const;
 
-#if GRAPHITE_TEST_UTILS && SK_SUPPORT_GPU
+#if GRAPHITE_TEST_UTILS && defined(SK_GANESH_ENABLED)
     // TODO: The long-term for the public API around surfaces and flushing/submitting will likely
     // be replaced with explicit control over Recorders and submitting Recordings to the Context
     // directly. For now, internal tools often rely on surface/canvas flushing to control what's

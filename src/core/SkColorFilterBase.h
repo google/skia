@@ -45,7 +45,7 @@ public:
     */
     virtual bool onIsAlphaUnchanged() const { return false; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
      *  a GrFragmentProcessor that implements the color filter in GPU shader code.

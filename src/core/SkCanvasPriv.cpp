@@ -101,12 +101,10 @@ void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[]
     *totalMatrixCount = maxMatrixIndex + 1;
 }
 
-#if GR_TEST_UTILS
+#if GR_TEST_UTILS && defined(SK_GANESH_ENABLED)
 
-#if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/Device_v1.h"
 
-#if SK_GPU_V1
 skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
         return gpuDevice->surfaceDrawContext();
@@ -123,25 +121,10 @@ skgpu::v1::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanva
     return nullptr;
 }
 
-#endif // SK_GPU_V1
+#endif // GR_TEST_UTILS && defined(SK_GANESH_ENABLED)
 
-#else // SK_SUPPORT_GPU
 
-#if SK_GPU_V1
-skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
-    return nullptr;
-}
-
-skgpu::v1::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
-    return nullptr;
-}
-#endif // SK_GPU_V1
-
-#endif // SK_SUPPORT_GPU
-
-#endif // GR_TEST_UTILS
-
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/Device_v1.h"
 
 GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
@@ -152,13 +135,13 @@ GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
     return nullptr;
 }
 
-#else // SK_SUPPORT_GPU
+#else // defined(SK_GANESH_ENABLED)
 
 GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
     return nullptr;
 }
 
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 #if GRAPHITE_TEST_UTILS
 #include "src/gpu/graphite/Device.h"

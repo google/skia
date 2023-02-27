@@ -24,7 +24,7 @@
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
-#if SK_SUPPORT_GPU  // Ganesh Support
+#if defined(SK_GANESH_ENABLED)  // Ganesh Support
 #include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -102,7 +102,7 @@ public:
                                       const SkStrikeClient* client);
     void doFlatten(SkWriteBuffer& buffer) const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void surfaceDraw(SkCanvas*,
                      const GrClip* clip,
                      const SkMatrixProvider& viewMatrix,
@@ -145,7 +145,7 @@ SlugImpl::SlugImpl(SubRunAllocator&& alloc,
         , fInitialPaint{paint}
         , fOrigin{origin} {}
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 void SlugImpl::surfaceDraw(SkCanvas* canvas, const GrClip* clip, const SkMatrixProvider& viewMatrix,
                            const SkPaint& drawingPaint, skgpu::v1::SurfaceDrawContext* sdc) const {
     fSubRuns->draw(canvas, clip, viewMatrix, fOrigin, drawingPaint, this, sdc);
@@ -379,7 +379,7 @@ bool TextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) co
 
 const TextBlob::Key& TextBlob::key() const { return fKey; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 void TextBlob::draw(SkCanvas* canvas,
                     const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
@@ -432,7 +432,7 @@ sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* cli
 }
 }  // namespace sktext::gpu
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 namespace skgpu::v1 {
 sk_sp<Slug>
 Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,

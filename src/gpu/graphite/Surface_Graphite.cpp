@@ -113,7 +113,7 @@ sk_sp<const SkCapabilities> Surface::onCapabilities() {
     return fDevice->recorder()->priv().caps()->capabilities();
 }
 
-#if GRAPHITE_TEST_UTILS && SK_SUPPORT_GPU
+#if GRAPHITE_TEST_UTILS && defined(SK_GANESH_ENABLED)
 GrSemaphoresSubmitted Surface::onFlush(BackendSurfaceAccess,
                                        const GrFlushInfo&,
                                        const skgpu::MutableTextureState*) {

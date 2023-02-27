@@ -17,7 +17,7 @@
 class SkDeferredDisplayListPriv {
 public:
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     int numRenderTasks() const {
         return fDDL->fRenderTasks.size();
     }

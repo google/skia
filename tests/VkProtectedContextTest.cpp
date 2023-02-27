@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_VULKAN)
+#if defined(SK_GANESH_ENABLED) && defined(SK_VULKAN)
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
@@ -360,4 +360,4 @@ DEF_GANESH_TEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface,
     canvas->drawImage(image, 0, 0);
 }
 
-#endif  // SK_SUPPORT_GPU && defined(SK_VULKAN)
+#endif  // defined(SK_GANESH_ENABLED) && defined(SK_VULKAN)

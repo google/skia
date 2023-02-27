@@ -35,14 +35,12 @@
 #include <memory>
 #include <utility>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#if SK_GPU_V1
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#endif // SK_GPU_V1
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>
@@ -75,7 +73,7 @@ private:
     friend void ::SkRegisterBlurImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkBlurImageFilter)
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     sk_sp<SkSpecialImage> gpuFilter(
             const Context& ctx, SkVector sigma,
             const sk_sp<SkSpecialImage> &input,
@@ -961,7 +959,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
              SkScalarIsFinite(sigma.y()) && sigma.y() >= 0.f && sigma.y() <= kMaxSigma);
 
     sk_sp<SkSpecialImage> result;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (ctx.gpuBacked()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
@@ -982,11 +980,10 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
     return result;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(
         const Context& ctx, SkVector sigma, const sk_sp<SkSpecialImage> &input, SkIRect inputBounds,
         SkIRect dstBounds, SkIPoint inputOffset, SkIPoint* offset) const {
-#if SK_GPU_V1
     if (SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma.x()) &&
         SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma.y())) {
         offset->fX = inputBounds.x() + inputOffset.fX;
@@ -1025,9 +1022,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(
                                                sdc->readSurfaceView(),
                                                sdc->colorInfo(),
                                                ctx.surfaceProps());
-#else // SK_GPU_V1
-    return nullptr;
-#endif // SK_GPU_V1
 }
 #endif
 

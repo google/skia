@@ -15,7 +15,7 @@ public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif

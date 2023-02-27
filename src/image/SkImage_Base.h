@@ -22,7 +22,7 @@
 #include <string_view>
 #include <tuple>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/SkGr.h"
 #endif
@@ -109,7 +109,7 @@ public:
     /** this->context() try-casted to GrDirectContext. Useful for migrations – avoid otherwise! */
     GrDirectContext* directContext() const;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     virtual GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) const {
         return GrSemaphoresSubmitted::kNo;
     }
@@ -155,7 +155,7 @@ public:
             skgpu::Mipmapped) const;
 
 #endif
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
     virtual bool isYUVA() const { return false; }
 #endif
 
@@ -219,7 +219,7 @@ public:
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     // Utility for making a copy of an existing view when the GrImageTexGenPolicy is not kDraw.
     static GrSurfaceProxyView CopyView(GrRecordingContext*,
                                        GrSurfaceProxyView src,
@@ -249,7 +249,7 @@ protected:
 #endif
 
 private:
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     virtual std::tuple<GrSurfaceProxyView, GrColorType> onAsView(
             GrRecordingContext*,
             GrMipmapped,

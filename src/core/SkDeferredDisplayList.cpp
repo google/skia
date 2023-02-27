@@ -15,7 +15,7 @@
 
 class SkSurfaceCharacterization;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
@@ -25,19 +25,19 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
                                              sk_sp<GrRenderTargetProxy> targetProxy,
                                              sk_sp<LazyProxyData> lazyProxyData)
         : fCharacterization(characterization)
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
         , fArenas(true)
         , fTargetProxy(std::move(targetProxy))
         , fLazyProxyData(std::move(lazyProxyData))
 #endif
 {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     SkASSERT(fTargetProxy->isDDLTarget());
 #endif
 }
 
 SkDeferredDisplayList::~SkDeferredDisplayList() {
-#if SK_SUPPORT_GPU && defined(SK_DEBUG)
+#if defined(SK_GANESH_ENABLED) && defined(SK_DEBUG)
     for (auto& renderTask : fRenderTasks) {
         SkASSERT(renderTask->unique());
     }
@@ -45,7 +45,7 @@ SkDeferredDisplayList::~SkDeferredDisplayList() {
 }
 
 //-------------------------------------------------------------------------------------------------
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 SkDeferredDisplayList::ProgramIterator::ProgramIterator(GrDirectContext* dContext,
                                                         SkDeferredDisplayList* ddl)

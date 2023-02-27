@@ -27,7 +27,7 @@
 #include "include/core/SkVertices.h"
 #include "src/core/SkDrawShadowInfo.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -300,7 +300,7 @@ RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         sk_sp<const SkTextBlob> blob;
         SkScalar x;
         SkScalar y)
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 RECORD(DrawSlug, kDraw_Tag|kHasText_Tag,
        sk_sp<const sktext::gpu::Slug> slug)
 #else

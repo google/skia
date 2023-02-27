@@ -23,7 +23,7 @@ public:
     virtual GrRecordingContext* onGetRecordingContext();
     virtual skgpu::graphite::Recorder* onGetRecorder();
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
     virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
     virtual bool onReplaceBackendTexture(const GrBackendTexture&,

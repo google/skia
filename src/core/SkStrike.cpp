@@ -19,7 +19,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/text/StrikeForGPU.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     #include "src/text/gpu/StrikeCache.h"
 #endif
 

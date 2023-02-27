@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
@@ -229,4 +229,4 @@ bool StrokeVerbSlide::onChar(SkUnichar unichar) {
 
 DEF_SLIDE(return new StrokeVerbSlide;)
 
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)

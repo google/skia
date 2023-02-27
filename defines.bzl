@@ -59,21 +59,16 @@ GENERAL_DEFINES = [
 GPU_DEFINES = select_multi({
     "//src/gpu:gl_backend": [
         "SK_GL",
-        "SK_SUPPORT_GPU=1",
+        "SK_GANESH_ENABLED",
     ],
     "//src/gpu:vulkan_backend": [
         "SK_VULKAN",
-        "SK_SUPPORT_GPU=1",
+        "SK_GANESH_ENABLED",
     ],
     "//src/gpu:dawn_backend": [
         "SK_DAWN",
-        "SK_SUPPORT_GPU=1",
+        "SK_GANESH_ENABLED",
         "VK_USE_PLATFORM_XCB_KHR",  # TODO(kjlubick) support dawn's dawn_enable_vulkan etc
-    ],
-}) + select({
-    "//src/gpu:has_gpu_backend": [],
-    "//conditions:default": [
-        "SK_SUPPORT_GPU=0",
     ],
 }) + select({
     "//src/gpu:gl_standard": [

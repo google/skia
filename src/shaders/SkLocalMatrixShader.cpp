@@ -10,7 +10,7 @@
 #include "src/core/SkVM.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
@@ -31,7 +31,7 @@ SkShaderBase::GradientType SkLocalMatrixShader::asGradient(GradientInfo* info,
     return type;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
         const GrFPArgs& args, const MatrixRec& mRec) const {
     return as_SB(fWrappedShader)->asFragmentProcessor(args, mRec.concat(fLocalMatrix));
@@ -158,7 +158,7 @@ public:
         return as_SB(fProxyShader)->asGradient(info, localMatrix);
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -191,7 +191,7 @@ private:
 };
 
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(const GrFPArgs& args,
                                                                       const MatrixRec& mRec) const {
     SkMatrix ctmInv;

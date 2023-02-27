@@ -176,7 +176,7 @@ protected:
     static std::unique_ptr<ShaderCaps> MakeShaderCaps();
 };
 
-#if !defined(SKSL_STANDALONE) && (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+#if !defined(SKSL_STANDALONE) && (defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED))
 bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outType);
 #endif
 

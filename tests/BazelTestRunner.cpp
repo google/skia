@@ -16,7 +16,7 @@
 
 #include "tests/TestHarness.h"
 
-#if SK_GPU_V1
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -37,7 +37,7 @@ private:
     bool fFailed = false;
 };
 
-#if SK_GPU_V1
+#if defined(SK_GANESH_ENABLED)
 namespace skiatest {
 bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
@@ -109,7 +109,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
 }
 
 } // namespace skiatest
-#endif // #if SK_GPU_V1
+#endif // #if defined(SK_GANESH_ENABLED)
 
 TestHarness CurrentTestHarness() {
     return TestHarness::kBazelTestRunner;
@@ -125,7 +125,7 @@ int main() {
         }
     }
 
-#if SK_GPU_V1
+#if defined(SK_GANESH_ENABLED)
     GrContextOptions grCtxOptions;
     // TODO(kjlubick) DM has grContextOptions set via flags. Should this runner have that too?
     grCtxOptions.fExecutor = nullptr;
