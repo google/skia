@@ -156,10 +156,35 @@ public:
     }
 
     static std::optional<TransformedMaskVertexFiller> MakeFromBuffer(
-            SkReadBuffer& buffer, SubRunAllocator* alloc);
+            SkReadBuffer& buffer, SubRunAllocator* alloc) {
+        int checkingMaskType = buffer.readInt();
+        if (!buffer.validate(0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
+            return std::nullopt;
+        }
+        MaskFormat maskType = (MaskFormat)checkingMaskType;
 
-    int unflattenSize() const;
-    void flatten(SkWriteBuffer& buffer) const;
+        SkMatrix creationMatrix;
+        buffer.readMatrix(&creationMatrix);
+
+        SkRect creationBounds = buffer.readRect();
+
+        SkSpan<SkPoint> leftTop = make_points_from_buffer(buffer, alloc);
+        if (leftTop.empty()) { return std::nullopt; }
+
+        SkASSERT(buffer.isValid());
+        return TransformedMaskVertexFiller{maskType, creationMatrix, creationBounds, leftTop};
+    }
+
+    int unflattenSize() const {
+        return fLeftTop.size_bytes();
+    }
+
+    void flatten(SkWriteBuffer& buffer) const {
+        buffer.writeInt(static_cast<int>(fMaskType));
+        buffer.writeMatrix(fCreationMatrix);
+        buffer.writeRect(fCreationBounds);
+        buffer.writePointArray(fLeftTop.data(), SkCount(fLeftTop));
+    }
 
     SkMatrix viewDifference(const SkMatrix& positionMatrix) const {
         if (SkMatrix inverse; fCreationMatrix.invert(&inverse)) {
@@ -184,9 +209,46 @@ public:
                         GrColor color,
                         const SkMatrix& positionMatrix,
                         SkIRect clip,
-                        void* vertexBuffer) const;
+                        void* vertexBuffer) const {
+        auto quadData = [&](auto dst) {
+            return SkMakeZip(dst,
+                             glyphs.subspan(offset, count),
+                             fLeftTop.subspan(offset, count));
+        };
 
-    AtlasTextOp::MaskType opMaskType() const;
+        SkMatrix viewDifference = this->viewDifference(positionMatrix);
+
+        if (!positionMatrix.hasPerspective()) {
+            if (fMaskType == MaskFormat::kARGB) {
+                using Quad = ARGB2DVertex[4];
+                SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
+                this->fill2D(quadData((Quad*)vertexBuffer), color, viewDifference);
+            } else {
+                using Quad = Mask2DVertex[4];
+                SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
+                this->fill2D(quadData((Quad*)vertexBuffer), color, viewDifference);
+            }
+        } else {
+            if (fMaskType == MaskFormat::kARGB) {
+                using Quad = ARGB3DVertex[4];
+                SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
+                this->fill3D(quadData((Quad*)vertexBuffer), color, viewDifference);
+            } else {
+                using Quad = Mask3DVertex[4];
+                SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
+                this->fill3D(quadData((Quad*)vertexBuffer), color, viewDifference);
+            }
+        }
+    }
+
+    AtlasTextOp::MaskType opMaskType() const {
+        switch (fMaskType) {
+            case MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
+            case MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
+            case MaskFormat::kARGB: return AtlasTextOp::MaskType::kColorBitmap;
+        }
+        SkUNREACHABLE;
+    }
 #endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
@@ -195,15 +257,73 @@ public:
                         int ssboIndex,
                         SkSpan<const Glyph*> glyphs,
                         SkScalar depth,
-                        const skgpu::graphite::Transform& toDevice) const;
+                        const skgpu::graphite::Transform& toDevice) const {
+        auto quadData = [&]() {
+        return SkMakeZip(glyphs.subspan(offset, count),
+                         fLeftTop.subspan(offset, count));
+        };
+
+        // TODO: can't handle perspective right now
+        if (toDevice.type() == Transform::Type::kProjection) {
+            return;
+        }
+
+        DrawWriter::Vertices verts{*dw};
+        verts.reserve(6*count);
+        for (auto [glyph, leftTop]: quadData()) {
+            auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+            auto [l, t] = leftTop;
+            auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
+            SkV2 localCorners[4] = {{l, t}, {r, t}, {r, b}, {l, b}};
+            SkV4 devOut[4];
+            toDevice.mapPoints(localCorners, devOut, 4);
+            // TODO: Ganesh uses indices but that's not available with dynamic vertex data
+            // TODO: we should really use instances as well.
+            verts.append(6) << SkPoint{devOut[0].x, devOut[0].y} << depth << AtlasPt{al, at}  // L,T
+                            << ssboIndex
+                            << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
+                            << ssboIndex
+                            << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
+                            << ssboIndex
+                            << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
+                            << ssboIndex
+                            << SkPoint{devOut[2].x, devOut[2].y} << depth << AtlasPt{ar, ab}  // R,B
+                            << ssboIndex
+                            << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
+                            << ssboIndex;
+        }
+    }
     void fillInstanceData(DrawWriter* dw,
                           int offset, int count,
                           unsigned short flags,
                           int ssboIndex,
                           SkSpan<const Glyph*> glyphs,
-                          SkScalar depth) const;
+                          SkScalar depth) const {
+        auto quadData = [&]() {
+        return SkMakeZip(glyphs.subspan(offset, count),
+                         fLeftTop.subspan(offset, count));
+        };
+
+        DrawWriter::Instances instances{*dw, {}, {}, 4};
+        instances.reserve(count);
+        // Need to send width, height, uvPos, xyPos, and strikeToSourceScale
+        // pre-transform coords = (s*w*b_x + t_x, s*h*b_y + t_y)
+        // where (b_x, b_y) are the vertexID coords
+        for (auto [glyph, leftTop]: quadData()) {
+            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+            instances.append(1) << AtlasPt{uint16_t(ar-al), uint16_t(ab-at)}
+                                << AtlasPt{uint16_t(al & 0x1fff), at}
+                                << leftTop << /*index=*/uint16_t(al >> 13) << flags
+                                << 1.0f
+                                << depth << ssboIndex;
+        }
+    }
 #endif
-    SkRect deviceRect(const SkMatrix& positionMatrix) const;
+    SkRect deviceRect(const SkMatrix& positionMatrix) const {
+        SkMatrix viewDiff = this->viewDifference(positionMatrix);
+        return viewDiff.mapRect(fCreationBounds);
+    }
+
     SkRect creationBounds() const { return fCreationBounds; }
     MaskFormat grMaskType() const { return fMaskType; }
     int count() const { return SkCount(fLeftTop); }
@@ -246,12 +366,46 @@ private:
     template<typename Quad, typename VertexData>
     void fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                 GrColor color,
-                const SkMatrix& viewDifference) const;
+                const SkMatrix& viewDifference) const {
+        for (auto [quad, glyph, leftTop] : quadData) {
+            auto [l, t] = leftTop;
+            auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
+            SkPoint lt = viewDifference.mapXY(l, t),
+                    lb = viewDifference.mapXY(l, b),
+                    rt = viewDifference.mapXY(r, t),
+                    rb = viewDifference.mapXY(r, b);
+            auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+            quad[0] = {lt, color, {al, at}};  // L,T
+            quad[1] = {lb, color, {al, ab}};  // L,B
+            quad[2] = {rt, color, {ar, at}};  // R,T
+            quad[3] = {rb, color, {ar, ab}};  // R,B
+        }
+    }
 
     template<typename Quad, typename VertexData>
     void fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                 GrColor color,
-                const SkMatrix& viewDifference) const;
+                const SkMatrix& viewDifference) const {
+        auto mapXYZ = [&](SkScalar x, SkScalar y) {
+            SkPoint pt{x, y};
+            SkPoint3 result;
+            viewDifference.mapHomogeneousPoints(&result, &pt, 1);
+            return result;
+        };
+        for (auto [quad, glyph, leftTop] : quadData) {
+            auto [l, t] = leftTop;
+            auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
+            SkPoint3 lt = mapXYZ(l, t),
+                    lb = mapXYZ(l, b),
+                    rt = mapXYZ(r, t),
+                    rb = mapXYZ(r, b);
+            auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+            quad[0] = {lt, color, {al, at}};  // L,T
+            quad[1] = {lb, color, {al, ab}};  // L,B
+            quad[2] = {rt, color, {ar, at}};  // R,T
+            quad[3] = {rb, color, {ar, ab}};  // R,B
+        }
+    }
 #endif  // defined(SK_GANESH_ENABLED)
 
     const MaskFormat fMaskType;
@@ -259,204 +413,6 @@ private:
     const SkRect fCreationBounds;
     const SkSpan<const SkPoint> fLeftTop;
 };
-
-std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFromBuffer(
-        SkReadBuffer& buffer, SubRunAllocator* alloc) {
-    int checkingMaskType = buffer.readInt();
-    if (!buffer.validate(0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
-        return std::nullopt;
-    }
-    MaskFormat maskType = (MaskFormat)checkingMaskType;
-
-    SkMatrix creationMatrix;
-    buffer.readMatrix(&creationMatrix);
-
-    SkRect creationBounds = buffer.readRect();
-
-    SkSpan<SkPoint> leftTop = make_points_from_buffer(buffer, alloc);
-    if (leftTop.empty()) { return std::nullopt; }
-
-    SkASSERT(buffer.isValid());
-    return TransformedMaskVertexFiller{maskType, creationMatrix, creationBounds, leftTop};
-}
-
-void TransformedMaskVertexFiller::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(static_cast<int>(fMaskType));
-    buffer.writeMatrix(fCreationMatrix);
-    buffer.writeRect(fCreationBounds);
-    buffer.writePointArray(fLeftTop.data(), SkCount(fLeftTop));
-}
-
-SkRect TransformedMaskVertexFiller::deviceRect(const SkMatrix& positionMatrix) const {
-    SkMatrix viewDiff = this->viewDifference(positionMatrix);
-    return viewDiff.mapRect(fCreationBounds);
-}
-
-int TransformedMaskVertexFiller::unflattenSize() const {
-    return fLeftTop.size_bytes();
-}
-
-#if defined(SK_GANESH_ENABLED)
-void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
-                                                 SkSpan<const Glyph*> glyphs,
-                                                 GrColor color,
-                                                 const SkMatrix& positionMatrix,
-                                                 SkIRect clip,
-                                                 void* vertexBuffer) const {
-    auto quadData = [&](auto dst) {
-        return SkMakeZip(dst,
-                         glyphs.subspan(offset, count),
-                         fLeftTop.subspan(offset, count));
-    };
-
-    SkMatrix viewDifference = this->viewDifference(positionMatrix);
-
-    if (!positionMatrix.hasPerspective()) {
-        if (fMaskType == MaskFormat::kARGB) {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
-            this->fill2D(quadData((Quad*)vertexBuffer), color, viewDifference);
-        } else {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
-            this->fill2D(quadData((Quad*)vertexBuffer), color, viewDifference);
-        }
-    } else {
-        if (fMaskType == MaskFormat::kARGB) {
-            using Quad = ARGB3DVertex[4];
-            SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
-            this->fill3D(quadData((Quad*)vertexBuffer), color, viewDifference);
-        } else {
-            using Quad = Mask3DVertex[4];
-            SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
-            this->fill3D(quadData((Quad*)vertexBuffer), color, viewDifference);
-        }
-    }
-}
-
-template <typename Quad, typename VertexData>
-void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                                         GrColor color,
-                                         const SkMatrix& viewDifference) const {
-    for (auto [quad, glyph, leftTop] : quadData) {
-        auto [l, t] = leftTop;
-        auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
-        SkPoint lt = viewDifference.mapXY(l, t),
-                lb = viewDifference.mapXY(l, b),
-                rt = viewDifference.mapXY(r, t),
-                rb = viewDifference.mapXY(r, b);
-        auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        quad[0] = {lt, color, {al, at}};  // L,T
-        quad[1] = {lb, color, {al, ab}};  // L,B
-        quad[2] = {rt, color, {ar, at}};  // R,T
-        quad[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-
-template <typename Quad, typename VertexData>
-void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                                         GrColor color,
-                                         const SkMatrix& viewDifference) const {
-    auto mapXYZ = [&](SkScalar x, SkScalar y) {
-        SkPoint pt{x, y};
-        SkPoint3 result;
-        viewDifference.mapHomogeneousPoints(&result, &pt, 1);
-        return result;
-    };
-    for (auto [quad, glyph, leftTop] : quadData) {
-        auto [l, t] = leftTop;
-        auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
-        SkPoint3 lt = mapXYZ(l, t),
-                 lb = mapXYZ(l, b),
-                 rt = mapXYZ(r, t),
-                 rb = mapXYZ(r, b);
-        auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        quad[0] = {lt, color, {al, at}};  // L,T
-        quad[1] = {lb, color, {al, ab}};  // L,B
-        quad[2] = {rt, color, {ar, at}};  // R,T
-        quad[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-
-AtlasTextOp::MaskType TransformedMaskVertexFiller::opMaskType() const {
-    switch (fMaskType) {
-        case MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
-        case MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
-        case MaskFormat::kARGB: return AtlasTextOp::MaskType::kColorBitmap;
-    }
-    SkUNREACHABLE;
-}
-#endif  // defined(SK_GANESH_ENABLED)
-
-#if defined(SK_GRAPHITE_ENABLED)
-void TransformedMaskVertexFiller::fillVertexData(DrawWriter* dw,
-                                                 int offset, int count,
-                                                 int ssboIndex,
-                                                 SkSpan<const Glyph*> glyphs,
-                                                 SkScalar depth,
-                                                 const Transform& toDevice) const {
-    auto quadData = [&]() {
-        return SkMakeZip(glyphs.subspan(offset, count),
-                         fLeftTop.subspan(offset, count));
-    };
-
-    // TODO: can't handle perspective right now
-    if (toDevice.type() == Transform::Type::kProjection) {
-        return;
-    }
-
-    DrawWriter::Vertices verts{*dw};
-    verts.reserve(6*count);
-    for (auto [glyph, leftTop]: quadData()) {
-        auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        auto [l, t] = leftTop;
-        auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
-        SkV2 localCorners[4] = {{l, t}, {r, t}, {r, b}, {l, b}};
-        SkV4 devOut[4];
-        toDevice.mapPoints(localCorners, devOut, 4);
-        // TODO: Ganesh uses indices but that's not available with dynamic vertex data
-        // TODO: we should really use instances as well.
-        verts.append(6) << SkPoint{devOut[0].x, devOut[0].y} << depth << AtlasPt{al, at}  // L,T
-                        << ssboIndex
-                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
-                        << ssboIndex
-                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
-                        << ssboIndex
-                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
-                        << ssboIndex
-                        << SkPoint{devOut[2].x, devOut[2].y} << depth << AtlasPt{ar, ab}  // R,B
-                        << ssboIndex
-                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
-                        << ssboIndex;
-    }
-}
-
-void TransformedMaskVertexFiller::fillInstanceData(DrawWriter* dw,
-                                                   int offset, int count,
-                                                   unsigned short flags,
-                                                   int ssboIndex,
-                                                   SkSpan<const Glyph*> glyphs,
-                                                   SkScalar depth) const {
-    auto quadData = [&]() {
-        return SkMakeZip(glyphs.subspan(offset, count),
-                         fLeftTop.subspan(offset, count));
-    };
-
-    DrawWriter::Instances instances{*dw, {}, {}, 4};
-    instances.reserve(count);
-    // Need to send width, height, uvPos, xyPos, and strikeToSourceScale
-    // pre-transform coords = (s*w*b_x + t_x, s*h*b_y + t_y)
-    // where (b_x, b_y) are the vertexID coords
-    for (auto [glyph, leftTop]: quadData()) {
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        instances.append(1) << AtlasPt{uint16_t(ar-al), uint16_t(ab-at)}
-                            << AtlasPt{uint16_t(al & 0x1fff), at}
-                            << leftTop << /*index=*/uint16_t(al >> 13) << flags
-                            << 1.0f
-                            << depth << ssboIndex;
-    }
-}
-#endif
 
 struct AtlasPt {
     uint16_t u;
