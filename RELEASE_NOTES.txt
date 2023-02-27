@@ -18,6 +18,7 @@ Milestone 112
     requires custom allocators to also implement this change.
   * The particles module has been deleted.
   * SkJpegEncoder::Options includes a parameter for XMP metadata.
+  * SkJpegEncoder includes support for encoding SkYUVAPixmaps directly.
 
 Milestone 111
 -------------
