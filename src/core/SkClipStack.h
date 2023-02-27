@@ -18,12 +18,6 @@
 #include "src/base/SkTLazy.h"
 #include "src/core/SkMessageBus.h"
 
-#if SK_SUPPORT_GPU
-class GrProxyProvider;
-
-#include "src/gpu/ResourceKey.h"
-#endif
-
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.
 // Each clip in fDeque stores the stack state to which it belongs
@@ -189,24 +183,6 @@ public:
         void dump() const;
 #endif
 
-#if SK_SUPPORT_GPU
-        /**
-         * This is used to purge any GPU resource cache items that become unreachable when
-         * the element is destroyed because their key is based on this element's gen ID.
-         */
-        void addResourceInvalidationMessage(GrProxyProvider* proxyProvider,
-                                            const skgpu::UniqueKey& key) const {
-            SkASSERT(proxyProvider);
-
-            if (!fProxyProvider) {
-                fProxyProvider = proxyProvider;
-            }
-            SkASSERT(fProxyProvider == proxyProvider);
-
-            fKeysToInvalidate.push_back(key);
-        }
-#endif
-
     private:
         friend class SkClipStack;
 
@@ -237,10 +213,7 @@ public:
         bool fIsIntersectionOfRects;
 
         uint32_t fGenID;
-#if SK_SUPPORT_GPU
-        mutable GrProxyProvider*           fProxyProvider = nullptr;
-        mutable SkTArray<skgpu::UniqueKey> fKeysToInvalidate;
-#endif
+
         Element(int saveCount) {
             this->initCommon(saveCount, SkClipOp::kIntersect, false);
             this->setEmpty();

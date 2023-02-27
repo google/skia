@@ -14,10 +14,6 @@
 #include <atomic>
 #include <new>
 
-#if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#endif
-
 SkClipStack::Element::Element(const Element& that) {
     switch (that.getDeviceSpaceType()) {
         case DeviceSpaceType::kEmpty:
@@ -52,14 +48,7 @@ SkClipStack::Element::Element(const Element& that) {
     fGenID = that.fGenID;
 }
 
-SkClipStack::Element::~Element() {
-#if SK_SUPPORT_GPU
-    for (int i = 0; i < fKeysToInvalidate.size(); ++i) {
-        fProxyProvider->processInvalidUniqueKey(fKeysToInvalidate[i], nullptr,
-                                                GrProxyProvider::InvalidateGPUResource::kYes);
-    }
-#endif
-}
+SkClipStack::Element::~Element() = default;
 
 bool SkClipStack::Element::operator== (const Element& element) const {
     if (this == &element) {
