@@ -15,6 +15,8 @@
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 
+using namespace skia_private;
+
 struct ETC1Block {
     uint32_t fHigh;
     uint32_t fLow;
@@ -243,7 +245,7 @@ bool SkDecompress(sk_sp<SkData> data,
 }
 
 size_t SkCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
-                            SkTArray<size_t>* individualMipOffsets, bool mipmapped) {
+                            TArray<size_t>* individualMipOffsets, bool mipmapped) {
     SkASSERT(!individualMipOffsets || !individualMipOffsets->size());
 
     int numMipLevels = 1;

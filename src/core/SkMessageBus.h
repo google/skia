@@ -50,12 +50,12 @@ public:
         IDType uniqueID() const { return fUniqueID; }
 
         // Overwrite out with all the messages we've received since the last call.  Threadsafe.
-        void poll(SkTArray<Message>* out);
+        void poll(skia_private::TArray<Message>* out);
 
     private:
-        SkTArray<Message> fMessages;
-        SkMutex           fMessagesMutex;
-        const IDType      fUniqueID;
+        skia_private::TArray<Message> fMessages;
+        SkMutex                       fMessagesMutex;
+        const IDType                  fUniqueID;
 
         friend class SkMessageBus;
         void receive(Message m);  // SkMessageBus is a friend only to call this.
@@ -113,7 +113,8 @@ void SkMessageBus<Message, IDType, AllowCopyableMessage>::Inbox::receive(Message
 }
 
 template <typename Message, typename IDType, bool AllowCopyableMessage>
-void SkMessageBus<Message, IDType, AllowCopyableMessage>::Inbox::poll(SkTArray<Message>* messages) {
+void SkMessageBus<Message, IDType, AllowCopyableMessage>::Inbox::poll(
+        skia_private::TArray<Message>* messages) {
     SkASSERT(messages);
     messages->clear();
     SkAutoMutexExclusive lock(fMessagesMutex);

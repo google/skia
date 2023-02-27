@@ -30,11 +30,11 @@ public:
         return fDDL->fLazyProxyData.get();
     }
 
-    const SkTArray<GrRecordingContext::ProgramData>& programData() const {
+    const skia_private::TArray<GrRecordingContext::ProgramData>& programData() const {
         return fDDL->programData();
     }
 
-    const SkTArray<sk_sp<GrRenderTask>>& renderTasks() const {
+    const skia_private::TArray<sk_sp<GrRenderTask>>& renderTasks() const {
         return fDDL->fRenderTasks;
     }
 #endif

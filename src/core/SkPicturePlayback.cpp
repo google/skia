@@ -390,7 +390,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 // there aren't enough bytes to provide that many matrices
                 break;
             }
-            SkTArray<SkMatrix> matrices(matrixCount);
+            TArray<SkMatrix> matrices(matrixCount);
             for (int i = 0; i < matrixCount && reader->isValid(); ++i) {
                 reader->readMatrix(&matrices.push_back());
             }

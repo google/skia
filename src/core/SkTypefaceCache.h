@@ -68,7 +68,7 @@ private:
 
     void purge(int count);
 
-    SkTArray<sk_sp<SkTypeface>> fTypefaces;
+    skia_private::TArray<sk_sp<SkTypeface>> fTypefaces;
 };
 
 #endif

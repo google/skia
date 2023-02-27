@@ -19,6 +19,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+using namespace skia_private;
+
 DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage, uint32_t, true)
 
 static inline bool SkShouldPostMessageToBus(
@@ -443,7 +445,7 @@ size_t SkResourceCache::getEffectiveSingleAllocationByteLimit() const {
 }
 
 void SkResourceCache::checkMessages() {
-    SkTArray<PurgeSharedIDMessage> msgs;
+    TArray<PurgeSharedIDMessage> msgs;
     fPurgeSharedIDInbox.poll(&msgs);
     for (int i = 0; i < msgs.size(); ++i) {
         this->purgeSharedID(msgs[i].fSharedID);

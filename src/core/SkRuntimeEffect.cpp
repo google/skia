@@ -74,6 +74,8 @@ constexpr bool kRPEnableLiveTrace = false;
 
 #include <algorithm>
 
+using namespace skia_private;
+
 #if defined(SK_BUILD_FOR_DEBUGGER)
     #define SK_LENIENT_SKSL_DESERIALIZATION 1
 #else
@@ -364,7 +366,7 @@ static bool verify_child_effects(const std::vector<SkRuntimeEffect::Child>& refl
  */
 static bool read_child_effects(SkReadBuffer& buffer,
                                const SkRuntimeEffect* effect,
-                               SkTArray<SkRuntimeEffect::ChildPtr>* children) {
+                               TArray<SkRuntimeEffect::ChildPtr>* children) {
     size_t childCount = buffer.read32();
     if (effect && !buffer.validate(childCount == effect->children().size())) {
         return false;

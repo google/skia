@@ -61,12 +61,12 @@ public:
     }
 
 private:
-    SkTArray<int> fSrcX;
-    SkTArray<int> fSrcY;
-    SkTArray<SkScalar> fDstX;
-    SkTArray<SkScalar> fDstY;
-    SkTArray<SkCanvas::Lattice::RectType> fRectTypes;
-    SkTArray<SkColor> fColors;
+    skia_private::TArray<int> fSrcX;
+    skia_private::TArray<int> fSrcY;
+    skia_private::TArray<SkScalar> fDstX;
+    skia_private::TArray<SkScalar> fDstY;
+    skia_private::TArray<SkCanvas::Lattice::RectType> fRectTypes;
+    skia_private::TArray<SkColor> fColors;
 
     int  fCurrX;
     int  fCurrY;

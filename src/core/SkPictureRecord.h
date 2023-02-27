@@ -36,29 +36,29 @@ public:
 
     SkPictureRecord(const SkIRect& dimensions, uint32_t recordFlags);
 
-    const SkTArray<sk_sp<const SkPicture>>& getPictures() const {
+    const skia_private::TArray<sk_sp<const SkPicture>>& getPictures() const {
         return fPictures;
     }
 
-    const SkTArray<sk_sp<SkDrawable>>& getDrawables() const {
+    const skia_private::TArray<sk_sp<SkDrawable>>& getDrawables() const {
         return fDrawables;
     }
 
-    const SkTArray<sk_sp<const SkTextBlob>>& getTextBlobs() const {
+    const skia_private::TArray<sk_sp<const SkTextBlob>>& getTextBlobs() const {
         return fTextBlobs;
     }
 
 #if defined(SK_GANESH_ENABLED)
-    const SkTArray<sk_sp<const sktext::gpu::Slug>>& getSlugs() const {
+    const skia_private::TArray<sk_sp<const sktext::gpu::Slug>>& getSlugs() const {
         return fSlugs;
     }
 #endif
 
-    const SkTArray<sk_sp<const SkVertices>>& getVertices() const {
+    const skia_private::TArray<sk_sp<const SkVertices>>& getVertices() const {
         return fVertices;
     }
 
-    const SkTArray<sk_sp<const SkImage>>& getImages() const {
+    const skia_private::TArray<sk_sp<const SkImage>>& getImages() const {
         return fImages;
     }
 
@@ -242,7 +242,7 @@ protected:
     void recordRestore(bool fillInSkips = true);
 
 private:
-    SkTArray<SkPaint>  fPaints;
+    skia_private::TArray<SkPaint>  fPaints;
 
     struct PathHash {
         uint32_t operator()(const SkPath& p) { return p.getGenerationID(); }
@@ -251,13 +251,13 @@ private:
 
     SkWriter32 fWriter;
 
-    SkTArray<sk_sp<const SkImage>>    fImages;
-    SkTArray<sk_sp<const SkPicture>>  fPictures;
-    SkTArray<sk_sp<SkDrawable>>       fDrawables;
-    SkTArray<sk_sp<const SkTextBlob>> fTextBlobs;
-    SkTArray<sk_sp<const SkVertices>> fVertices;
+    skia_private::TArray<sk_sp<const SkImage>>    fImages;
+    skia_private::TArray<sk_sp<const SkPicture>>  fPictures;
+    skia_private::TArray<sk_sp<SkDrawable>>       fDrawables;
+    skia_private::TArray<sk_sp<const SkTextBlob>> fTextBlobs;
+    skia_private::TArray<sk_sp<const SkVertices>> fVertices;
 #if defined(SK_GANESH_ENABLED)
-    SkTArray<sk_sp<const sktext::gpu::Slug>> fSlugs;
+    skia_private::TArray<sk_sp<const sktext::gpu::Slug>> fSlugs;
 #endif
 
     uint32_t fRecordFlags;

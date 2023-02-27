@@ -24,6 +24,8 @@
 #include "include/private/chromium/Slug.h"
 #endif
 
+using namespace skia_private;
+
 #define HEAP_BLOCK_SIZE 4096
 
 enum {
@@ -820,7 +822,7 @@ bool equals(SkDrawable* a, SkDrawable* b) {
 }
 
 template <typename T>
-static int find_or_append(SkTArray<sk_sp<T>>& array, T* obj) {
+static int find_or_append(TArray<sk_sp<T>>& array, T* obj) {
     for (int i = 0; i < array.size(); i++) {
         if (equals(array[i].get(), obj)) {
             return i;
