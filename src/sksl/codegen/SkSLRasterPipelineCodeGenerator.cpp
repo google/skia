@@ -462,8 +462,17 @@ public:
         fGenerator->setCurrentStack(fParentStackID);
     }
 
-    void pushClone(int slots, int offsetFromStackTop = 0) {
-        fGenerator->builder()->push_clone_from_stack(slots, fStackID, offsetFromStackTop);
+    void pushClone(int slots) {
+        this->pushClone(SlotRange{0, slots}, /*offsetFromStackTop=*/slots);
+    }
+
+    void pushClone(SlotRange range, int offsetFromStackTop) {
+        fGenerator->builder()->push_clone_from_stack(range, fStackID, offsetFromStackTop);
+    }
+
+    void pushCloneIndirect(SlotRange range, int dynamicStackID, int offsetFromStackTop) {
+        fGenerator->builder()->push_clone_indirect_from_stack(
+                range, dynamicStackID, /*otherStackID=*/fStackID, offsetFromStackTop);
     }
 
     int stackID() const {
@@ -552,11 +561,9 @@ public:
         }
 
         if (dynamicOffset) {
-            // TODO: implement indirect access inside scratch lvalues
-            return unsupported();
+            fDedicatedStack->pushCloneIndirect(fixedOffset, dynamicOffset->stackID(), fNumSlots);
         } else {
-            fDedicatedStack->pushClone(fixedOffset.count,
-                                       fNumSlots - fixedOffset.count - fixedOffset.index);
+            fDedicatedStack->pushClone(fixedOffset, fNumSlots);
         }
         if (!swizzle.empty()) {
             gen->builder()->swizzle(fixedOffset.count, swizzle);
@@ -1746,8 +1753,8 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
     matrixStack.exit();
 
     // Calculate the offsets of the left- and right-matrix, relative to the stack-top.
-    int leftMtxBase  = left.type().slotCount() + right.type().slotCount() - leftColumns;
-    int rightMtxBase = right.type().slotCount() - leftColumns;
+    int leftMtxBase  = left.type().slotCount() + right.type().slotCount();
+    int rightMtxBase = right.type().slotCount();
 
     // Emit each matrix element.
     for (int c = 0; c < outColumns; ++c) {
@@ -1755,8 +1762,8 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
             // Dot a vector from left[*][r] with right[c][*].
             // (Because the left=matrix has been transposed, we actually pull left[r][*], which
             // allows us to clone a column at once instead of cloning each slot individually.)
-            matrixStack.pushClone(leftColumns, leftMtxBase  - r * leftColumns);
-            matrixStack.pushClone(leftColumns, rightMtxBase - c * leftColumns);
+            matrixStack.pushClone(SlotRange{r * leftColumns, leftColumns}, leftMtxBase);
+            matrixStack.pushClone(SlotRange{c * leftColumns, leftColumns}, rightMtxBase);
             fBuilder.dot_floats(leftColumns);
         }
     }
@@ -2576,7 +2583,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                 return unsupported();
             }
             subexpressionStack.exit();
-            subexpressionStack.pushClone(3);
+            subexpressionStack.pushClone(/*slots=*/3);
 
             fBuilder.swizzle(/*consumedSlots=*/3, {1, 2, 0});
             subexpressionStack.enter();
@@ -2591,7 +2598,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                 return unsupported();
             }
             subexpressionStack.exit();
-            subexpressionStack.pushClone(3);
+            subexpressionStack.pushClone(/*slots=*/3);
 
             fBuilder.swizzle(/*consumedSlots=*/3, {2, 0, 1});
             fBuilder.binary_op(BuilderOp::mul_n_floats, 3);
@@ -2603,7 +2610,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
 
             // Migrate the result of the second subexpression (`arg0.zxy * arg1.yzx`) back onto the
             // main stack and subtract it from the first subexpression (`arg0.yzx * arg1.zxy`).
-            subexpressionStack.pushClone(3);
+            subexpressionStack.pushClone(/*slots=*/3);
             fBuilder.binary_op(BuilderOp::sub_n_floats, 3);
 
             // Now that the calculation is complete, discard the subexpression on the next stack.

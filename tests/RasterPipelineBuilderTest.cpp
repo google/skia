@@ -199,12 +199,13 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     builder.push_literal_i(999);                                          // push into 2
     builder.set_current_stack(0);
     builder.push_literal_f(13.5f);                                        // push into 0
-    builder.push_clone_from_stack(/*numSlots=*/1, /*otherStackIndex=*/1); // push into 1 from 2
+    builder.push_clone_from_stack(one_slot_at(0), /*otherStackID=*/1, /*offsetFromStackTop=*/1);
+                                                                          // push into 1 from 2
     builder.discard_stack();                                              // discard 2
     builder.push_literal_u(357);                                          // push into 2
     builder.set_current_stack(1);
-    builder.push_clone_from_stack(/*numSlots=*/1, /*otherStackIndex=*/0,
-                                  /*offsetFromStackTop=*/1);              // push into 3 from 0
+    builder.push_clone_from_stack(one_slot_at(0), /*otherStackID=*/0, /*offsetFromStackTop=*/1);
+                                                                          // push into 3 from 0
     builder.discard_stack(2);                                             // discard 2 and 3
     builder.set_current_stack(0);
     builder.discard_stack(2);                                             // discard 0 and 1

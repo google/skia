@@ -159,6 +159,7 @@ void Builder::discard_stack(int32_t count) {
             case BuilderOp::push_zeros:
             case BuilderOp::push_clone:
             case BuilderOp::push_clone_from_stack:
+            case BuilderOp::push_clone_indirect_from_stack:
             case BuilderOp::push_slots:
             case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform:
@@ -383,8 +384,11 @@ void Builder::push_duplicates(int count) {
     }
 }
 
-void Builder::push_clone_from_stack(int numSlots, int otherStackIndex, int offsetFromStackTop) {
-    offsetFromStackTop += numSlots;
+void Builder::push_clone_from_stack(SlotRange range, int otherStackID, int offsetFromStackTop) {
+    // immA: number of slots
+    // immB: other stack ID
+    // immC: offset from stack top
+    offsetFromStackTop -= range.index;
 
     if (!fInstructions.empty()) {
         Instruction& lastInstruction = fInstructions.back();
@@ -392,17 +396,31 @@ void Builder::push_clone_from_stack(int numSlots, int otherStackIndex, int offse
         // If the previous op is also pushing a clone...
         if (lastInstruction.fOp == BuilderOp::push_clone_from_stack &&
             // ... from the same stack...
-            lastInstruction.fImmB == otherStackIndex &&
+            lastInstruction.fImmB == otherStackID &&
             // ... and this clone starts at the same place that the last clone ends...
             lastInstruction.fImmC - lastInstruction.fImmA == offsetFromStackTop) {
             // ... just extend the existing clone-op.
-            lastInstruction.fImmA += numSlots;
+            lastInstruction.fImmA += range.count;
             return;
         }
     }
 
     fInstructions.push_back({BuilderOp::push_clone_from_stack, {},
-                             numSlots, otherStackIndex, offsetFromStackTop});
+                             range.count, otherStackID, offsetFromStackTop});
+}
+
+void Builder::push_clone_indirect_from_stack(SlotRange fixedOffset,
+                                             int dynamicStackID,
+                                             int otherStackID,
+                                             int offsetFromStackTop) {
+    // immA: number of slots
+    // immB: other stack ID
+    // immC: offset from stack top
+    // immD: dynamic stack ID
+    offsetFromStackTop -= fixedOffset.index;
+
+    fInstructions.push_back({BuilderOp::push_clone_indirect_from_stack, {},
+                             fixedOffset.count, otherStackID, offsetFromStackTop, dynamicStackID});
 }
 
 void Builder::pop_slots(SlotRange dst) {
@@ -800,6 +818,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_zeros:
         case BuilderOp::push_clone:
         case BuilderOp::push_clone_from_stack:
+        case BuilderOp::push_clone_indirect_from_stack:
             return inst.fImmA;
 
         case BuilderOp::pop_condition_mask:
@@ -1492,10 +1511,30 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 break;
             }
             case BuilderOp::push_clone_from_stack: {
+                // immA: number of slots
+                // immB: other stack ID
+                // immC: offset from stack top
                 float* sourceStackPtr = tempStackMap[inst.fImmB];
                 float* src = sourceStackPtr - (inst.fImmC * N);
                 float* dst = tempStackPtr;
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
+                break;
+            }
+            case BuilderOp::push_clone_indirect_from_stack: {
+                // immA: number of slots
+                // immB: other stack ID
+                // immC: offset from stack top
+                // immD: dynamic stack ID
+                float* sourceStackPtr = tempStackMap[inst.fImmB];
+
+                auto* ctx = alloc->make<SkRasterPipeline_CopyIndirectCtx>();
+                ctx->dst = tempStackPtr;
+                ctx->src = sourceStackPtr - (inst.fImmC * N);
+                ctx->indirectOffset =
+                        reinterpret_cast<const uint32_t*>(tempStackMap[inst.fImmD]) - (1 * N);
+                ctx->indirectLimit = inst.fImmC - inst.fImmA;
+                ctx->slots = inst.fImmA;
+                pipeline->push_back({ProgramOp::copy_from_indirect_unmasked, ctx});
                 break;
             }
             case BuilderOp::case_op: {
