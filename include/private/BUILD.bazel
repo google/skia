@@ -31,7 +31,6 @@ skia_filegroup(
         "SkChecksum.h",
         "SkColorData.h",
         "SkEncodedInfo.h",
-        "SkFixed.h",
         "SkGainmapInfo.h",
         "SkGainmapShader.h",
         "SkIDChangeListener.h",

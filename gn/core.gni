@@ -147,7 +147,6 @@ skia_core_sources = [
   "$_include/private/SkChecksum.h",
   "$_include/private/SkColorData.h",
   "$_include/private/SkEncodedInfo.h",
-  "$_include/private/SkFixed.h",
   "$_include/private/SkGainmapInfo.h",
   "$_include/private/SkGainmapShader.h",
   "$_include/private/SkIDChangeListener.h",

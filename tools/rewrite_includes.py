@@ -46,10 +46,6 @@ ignorelist = [
   # Some node_modules/ files (used by CanvasKit et al) have c++ code which we should ignore.
   'node_modules',
   'include/third_party/skcms',
-  # Temporary (hopefully) shims for Android
-  'SkFixed.h',
-  'SkMalloc.h',
-  'SkTSearch.h',
 ]
 
 assert '/' in [os.sep, os.altsep]
