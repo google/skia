@@ -1280,7 +1280,7 @@ bool Generator::writeDoStatement(const DoStatement& d) {
     this->discardExpression(/*slots=*/1);
 
     // If any lanes are still running, go back to the top and run the loop body again.
-    fBuilder.branch_if_any_active_lanes(labelID);
+    fBuilder.branch_if_any_lanes_active(labelID);
 
     // Restore the loop mask.
     fBuilder.pop_loop_mask();
@@ -1301,7 +1301,7 @@ bool Generator::writeMasklessForStatement(const ForStatement& f) {
     // we'd never make forward progress.
     int loopExitID = fBuilder.nextLabelID();
     int loopBodyID = fBuilder.nextLabelID();
-    fBuilder.branch_if_no_active_lanes(loopExitID);
+    fBuilder.branch_if_no_lanes_active(loopExitID);
 
     // Run the loop initializer.
     if (!this->writeStatement(*f.initializer())) {
@@ -1406,7 +1406,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
     }
 
     // If any lanes are still running, go back to the top and run the loop body again.
-    fBuilder.branch_if_any_active_lanes(loopBodyID);
+    fBuilder.branch_if_any_lanes_active(loopBodyID);
 
     // Restore the loop mask.
     fBuilder.pop_loop_mask();
@@ -1552,7 +1552,7 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
             // Keep whatever lanes are executing now, and also enable any lanes in the default mask.
             fBuilder.pop_and_reenable_loop_mask();
             // Execute the switch-case block, if any lanes are alive to see it.
-            fBuilder.branch_if_no_active_lanes(skipLabelID);
+            fBuilder.branch_if_no_lanes_active(skipLabelID);
             if (!this->writeStatement(*sc.statement())) {
                 return unsupported();
             }
@@ -1561,7 +1561,7 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
             // from the default-mask.
             fBuilder.case_op(sc.value());
             // Execute the switch-case block, if any lanes are alive to see it.
-            fBuilder.branch_if_no_active_lanes(skipLabelID);
+            fBuilder.branch_if_no_lanes_active(skipLabelID);
             if (!this->writeStatement(*sc.statement())) {
                 return unsupported();
             }
@@ -2269,7 +2269,7 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     // (If the function call was trivial, it would likely have been inlined in the frontend, so this
     // is likely to save a significant amount of work if the lanes are all dead.)
     int skipLabelID = fBuilder.nextLabelID();
-    fBuilder.branch_if_no_active_lanes(skipLabelID);
+    fBuilder.branch_if_no_lanes_active(skipLabelID);
 
     // Save off the return mask.
     if (this->needsReturnMask()) {
@@ -3015,7 +3015,7 @@ bool Generator::pushTernaryExpression(const Expression& test,
         // If no lanes are active, we can skip the true-expression entirely. This isn't super likely
         // to happen, so it's probably only a win for non-trivial true-expressions.
         if (!ifTrueIsTrivial) {
-            fBuilder.branch_if_no_active_lanes(cleanupLabelID);
+            fBuilder.branch_if_no_lanes_active(cleanupLabelID);
         }
 
         // Push the true-expression onto the primary stack, immediately after the false-expression.

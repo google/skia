@@ -112,9 +112,9 @@
   112. bitwise_and_int                $15 &= $16
   113. zero_slot_unmasked             $0 = 0
   114. merge_condition_mask           CondMask = $14 & $15
-  115. branch_if_no_active_lanes      branch_if_no_active_lanes +17 (label 6 at #132)
+  115. branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #132)
   116. copy_slot_unmasked             $1 = s.x₁
-  117. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (label 7 at #124)
+  117. branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #124)
   118. zero_2_slots_unmasked          s.x, s.y = 0
   119. copy_constant                  $12 = 0x3F800000 (1.0)
   120. copy_slot_masked               s.x = Mask($12)

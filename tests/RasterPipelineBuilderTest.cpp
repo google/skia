@@ -444,10 +444,10 @@ R"(    1. jump                           jump +9 (label 3 at #10)
     3. zero_slot_unmasked             v0 = 0
     4. label                          label 0x00000001
     5. zero_slot_unmasked             v1 = 0
-    6. branch_if_no_active_lanes      branch_if_no_active_lanes -2 (label 1 at #4)
+    6. branch_if_no_lanes_active      branch_if_no_lanes_active -2 (label 1 at #4)
     7. label                          label 0x00000002
     8. zero_slot_unmasked             v2 = 0
-    9. branch_if_any_active_lanes     branch_if_any_active_lanes -7 (label 0 at #2)
+    9. branch_if_any_lanes_active     branch_if_any_lanes_active -7 (label 0 at #2)
    10. label                          label 0x00000003
    11. branch_if_no_active_lanes_eq   branch -4 (label 2 at #7) if no lanes of v2 == 0x00000000 (0.0)
    12. branch_if_no_active_lanes_eq   branch -10 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
@@ -478,11 +478,11 @@ R"(    1. jump                           jump +11 (label 3 at #12)
     4. label                          label 0x00000001
     5. zero_slot_unmasked             v1 = 0
     6. stack_rewind
-    7. branch_if_no_active_lanes      branch_if_no_active_lanes -3 (label 1 at #4)
+    7. branch_if_no_lanes_active      branch_if_no_lanes_active -3 (label 1 at #4)
     8. label                          label 0x00000002
     9. zero_slot_unmasked             v2 = 0
    10. stack_rewind
-   11. branch_if_any_active_lanes     branch_if_any_active_lanes -9 (label 0 at #2)
+   11. branch_if_any_lanes_active     branch_if_any_lanes_active -9 (label 0 at #2)
    12. label                          label 0x00000003
    13. stack_rewind
    14. branch_if_no_active_lanes_eq   branch -6 (label 2 at #8) if no lanes of v2 == 0x00000000 (0.0)
@@ -508,12 +508,12 @@ R"(    1. jump                           jump +11 (label 3 at #12)
         builder.zero_slots_unmasked(one_slot_at(0));
         builder.label(label2);
         builder.zero_slots_unmasked(one_slot_at(1));
-        builder.branch_if_no_active_lanes(label2);
-        builder.branch_if_no_active_lanes(label3);
+        builder.branch_if_no_lanes_active(label2);
+        builder.branch_if_no_lanes_active(label3);
         builder.label(label3);
         builder.zero_slots_unmasked(one_slot_at(2));
-        builder.branch_if_any_active_lanes(label1);
-        builder.branch_if_any_active_lanes(label1);
+        builder.branch_if_any_lanes_active(label1);
+        builder.branch_if_any_lanes_active(label1);
         builder.label(label4);
         builder.branch_if_no_active_lanes_on_stack_top_equal(0, label3);
         builder.branch_if_no_active_lanes_on_stack_top_equal(0, label2);

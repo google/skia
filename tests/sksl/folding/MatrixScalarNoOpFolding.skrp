@@ -5,7 +5,7 @@
     5. store_condition_mask           $97 = CondMask
     6. store_condition_mask           $66 = CondMask
     7. store_condition_mask           $51 = CondMask
-    8. branch_if_no_active_lanes      branch_if_no_active_lanes +74 (label 6 at #82)
+    8. branch_if_no_lanes_active      branch_if_no_lanes_active +74 (label 6 at #82)
     9. store_return_mask              $52 = RetMask
    10. zero_4_slots_unmasked          m = 0
    11. zero_4_slots_unmasked          mm = 0
@@ -82,7 +82,7 @@
    82. label                          label 0x00000006
    83. zero_slot_unmasked             $67 = 0
    84. merge_condition_mask           CondMask = $51 & $52
-   85. branch_if_no_active_lanes      branch_if_no_active_lanes +129 (label 5 at #214)
+   85. branch_if_no_lanes_active      branch_if_no_lanes_active +129 (label 5 at #214)
    86. store_return_mask              $68 = RetMask
    87. zero_4_slots_unmasked          m₁(0..3) = 0
    88. zero_4_slots_unmasked          m₁(4..7) = 0
@@ -215,7 +215,7 @@
   215. load_condition_mask            CondMask = $51
   216. zero_slot_unmasked             $98 = 0
   217. merge_condition_mask           CondMask = $66 & $67
-  218. branch_if_no_active_lanes      branch_if_no_active_lanes +165 (label 4 at #383)
+  218. branch_if_no_lanes_active      branch_if_no_lanes_active +165 (label 4 at #383)
   219. store_return_mask              $99 = RetMask
   220. copy_4_constants               $100..103 = testInputs
   221. copy_4_constants               $104..107 = testInputs
@@ -384,7 +384,7 @@
   384. load_condition_mask            CondMask = $66
   385. zero_slot_unmasked             $150 = 0
   386. merge_condition_mask           CondMask = $97 & $98
-  387. branch_if_no_active_lanes      branch_if_no_active_lanes +118 (label 3 at #505)
+  387. branch_if_no_lanes_active      branch_if_no_lanes_active +118 (label 3 at #505)
   388. store_return_mask              $151 = RetMask
   389. zero_4_slots_unmasked          m₃ = 0
   390. zero_4_slots_unmasked          mm₃ = 0
@@ -506,7 +506,7 @@
   506. load_condition_mask            CondMask = $97
   507. zero_slot_unmasked             $166 = 0
   508. merge_condition_mask           CondMask = $149 & $150
-  509. branch_if_no_active_lanes      branch_if_no_active_lanes +187 (label 2 at #696)
+  509. branch_if_no_lanes_active      branch_if_no_lanes_active +187 (label 2 at #696)
   510. store_return_mask              $167 = RetMask
   511. zero_4_slots_unmasked          m₄(0..3) = 0
   512. zero_4_slots_unmasked          m₄(4..7) = 0
@@ -697,7 +697,7 @@
   697. load_condition_mask            CondMask = $149
   698. zero_slot_unmasked             $0 = 0
   699. merge_condition_mask           CondMask = $165 & $166
-  700. branch_if_no_active_lanes      branch_if_no_active_lanes +227 (label 1 at #927)
+  700. branch_if_no_lanes_active      branch_if_no_lanes_active +227 (label 1 at #927)
   701. store_return_mask              $1 = RetMask
   702. zero_4_slots_unmasked          m₅(0..3) = 0
   703. zero_4_slots_unmasked          m₅(4..7) = 0

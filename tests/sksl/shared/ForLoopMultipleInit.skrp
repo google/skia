@@ -31,7 +31,7 @@
    31. bitwise_and_int                $1 &= $2
    32. merge_loop_mask                LoopMask &= $1
    33. stack_rewind
-   34. branch_if_any_active_lanes     branch_if_any_active_lanes -27 (label 1 at #7)
+   34. branch_if_any_lanes_active     branch_if_any_lanes_active -27 (label 1 at #7)
    35. load_loop_mask                 LoopMask = $0
    36. zero_slot_unmasked             c = 0
    37. store_loop_mask                $0 = LoopMask
@@ -51,7 +51,7 @@
    51. cmplt_int                      $1 = lessThan($1, $2)
    52. merge_loop_mask                LoopMask &= $1
    53. stack_rewind
-   54. branch_if_any_active_lanes     branch_if_any_active_lanes -15 (label 3 at #39)
+   54. branch_if_any_lanes_active     branch_if_any_lanes_active -15 (label 3 at #39)
    55. load_loop_mask                 LoopMask = $0
    56. zero_slot_unmasked             d[0] = 0
    57. copy_constant                  d[1] = 0x41200000 (10.0)
@@ -76,7 +76,7 @@
    76. cmplt_float                    $1 = lessThan($1, $2)
    77. merge_loop_mask                LoopMask &= $1
    78. stack_rewind
-   79. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 5 at #65)
+   79. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 5 at #65)
    80. load_loop_mask                 LoopMask = $0
    81. store_loop_mask                $0 = LoopMask
    82. jump                           jump +3 (label 6 at #85)
@@ -84,7 +84,7 @@
    84. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    85. label                          label 0x00000006
    86. stack_rewind
-   87. branch_if_any_active_lanes     branch_if_any_active_lanes -4 (label 7 at #83)
+   87. branch_if_any_lanes_active     branch_if_any_lanes_active -4 (label 7 at #83)
    88. load_loop_mask                 LoopMask = $0
    89. store_loop_mask                $0 = LoopMask
    90. jump                           jump +3 (label 8 at #93)
@@ -92,7 +92,7 @@
    92. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    93. label                          label 0x00000008
    94. stack_rewind
-   95. branch_if_any_active_lanes     branch_if_any_active_lanes -4 (label 9 at #91)
+   95. branch_if_any_lanes_active     branch_if_any_lanes_active -4 (label 9 at #91)
    96. load_loop_mask                 LoopMask = $0
    97. copy_4_slots_unmasked          $0..3 = result
    98. load_src                       src.rgba = $0..3

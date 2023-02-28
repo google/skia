@@ -3312,11 +3312,11 @@ STAGE_TAIL(mask_off_return_mask, NoCtx) {
     update_execution_mask();
 }
 
-STAGE_BRANCH(branch_if_any_active_lanes, SkRasterPipeline_BranchCtx* ctx) {
+STAGE_BRANCH(branch_if_any_lanes_active, SkRasterPipeline_BranchCtx* ctx) {
     return any(execution_mask()) ? ctx->offset : 1;
 }
 
-STAGE_BRANCH(branch_if_no_active_lanes, SkRasterPipeline_BranchCtx* ctx) {
+STAGE_BRANCH(branch_if_no_lanes_active, SkRasterPipeline_BranchCtx* ctx) {
     return any(execution_mask()) ? 1 : ctx->offset;
 }
 

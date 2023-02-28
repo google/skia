@@ -6,7 +6,7 @@
     6. store_condition_mask           $13 = CondMask
     7. copy_constant                  $12 = 0xFFFFFFFF
     8. branch_if_no_active_lanes_eq   branch +16 (label 5 at #24) if no lanes of $12 == 0xFFFFFFFF
-    9. branch_if_no_active_lanes      branch_if_no_active_lanes +13 (label 7 at #22)
+    9. branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 7 at #22)
    10. copy_constant                  $14 = unknownInput
    11. copy_constant                  $15 = 0x3F800000 (1.0)
    12. cmpeq_float                    $14 = equal($14, $15)
@@ -26,7 +26,7 @@
    26. label                          label 0x00000006
    27. zero_slot_unmasked             $17 = 0
    28. merge_condition_mask           CondMask = $13 & $14
-   29. branch_if_no_active_lanes      branch_if_no_active_lanes +25 (label 4 at #54)
+   29. branch_if_no_lanes_active      branch_if_no_lanes_active +25 (label 4 at #54)
    30. store_return_mask              $18 = RetMask
    31. zero_slot_unmasked             x = 0
    32. store_loop_mask                $19 = LoopMask
@@ -45,7 +45,7 @@
    45. cmple_int                      $20 = lessThanEqual($20, $21)
    46. merge_loop_mask                LoopMask &= $20
    47. stack_rewind
-   48. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 12 at #34)
+   48. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 12 at #34)
    49. load_loop_mask                 LoopMask = $19
    50. load_return_mask               RetMask = $18
    51. copy_slot_unmasked             $18 = [for_inside_body].result
@@ -55,7 +55,7 @@
    55. load_condition_mask            CondMask = $13
    56. zero_slot_unmasked             $23 = 0
    57. merge_condition_mask           CondMask = $16 & $17
-   58. branch_if_no_active_lanes      branch_if_no_active_lanes +15 (label 3 at #73)
+   58. branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 3 at #73)
    59. zero_slot_unmasked             x₁ = 0
    60. label                          label 0x0000000F
    61. copy_slot_unmasked             $24 = x₁
@@ -74,7 +74,7 @@
    74. load_condition_mask            CondMask = $16
    75. zero_slot_unmasked             $27 = 0
    76. merge_condition_mask           CondMask = $22 & $23
-   77. branch_if_no_active_lanes      branch_if_no_active_lanes +35 (label 2 at #112)
+   77. branch_if_no_lanes_active      branch_if_no_lanes_active +35 (label 2 at #112)
    78. store_return_mask              $28 = RetMask
    79. zero_slot_unmasked             x₂ = 0
    80. store_loop_mask                $29 = LoopMask
@@ -103,7 +103,7 @@
   103. cmple_int                      $30 = lessThanEqual($30, $31)
   104. merge_loop_mask                LoopMask &= $30
   105. stack_rewind
-  106. branch_if_any_active_lanes     branch_if_any_active_lanes -24 (label 18 at #82)
+  106. branch_if_any_lanes_active     branch_if_any_lanes_active -24 (label 18 at #82)
   107. load_loop_mask                 LoopMask = $29
   108. load_return_mask               RetMask = $28
   109. copy_slot_unmasked             $28 = [for_with_double_sided_conditional_return].result
@@ -113,7 +113,7 @@
   113. load_condition_mask            CondMask = $22
   114. zero_slot_unmasked             $0 = 0
   115. merge_condition_mask           CondMask = $26 & $27
-  116. branch_if_no_active_lanes      branch_if_no_active_lanes +42 (label 1 at #158)
+  116. branch_if_no_lanes_active      branch_if_no_lanes_active +42 (label 1 at #158)
   117. copy_constant                  $1 = unknownInput
   118. copy_constant                  $2 = 0x3F800000 (1.0)
   119. cmpeq_float                    $1 = equal($1, $2)

@@ -51,7 +51,7 @@
    51. cmplt_int                      $1 = lessThan($1, $2)
    52. merge_loop_mask                LoopMask &= $1
    53. stack_rewind
-   54. branch_if_any_active_lanes     branch_if_any_active_lanes -16 (label 3 at #38)
+   54. branch_if_any_lanes_active     branch_if_any_lanes_active -16 (label 3 at #38)
    55. load_loop_mask                 LoopMask = $0
    56. copy_slot_unmasked             d = c
    57. copy_constant                  $0 = 0x40400000 (3.0)

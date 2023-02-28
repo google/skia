@@ -26,7 +26,7 @@
    26. cmpeq_float                    $1 = equal($1, $2)
    27. merge_loop_mask                LoopMask &= $1
    28. stack_rewind
-   29. branch_if_any_active_lanes     branch_if_any_active_lanes -7 (label 5 at #22)
+   29. branch_if_any_lanes_active     branch_if_any_lanes_active -7 (label 5 at #22)
    30. load_loop_mask                 LoopMask = $0
    31. store_loop_mask                $0 = LoopMask
    32. label                          label 0x00000006
@@ -35,7 +35,7 @@
    35. cmpeq_float                    $1 = equal($1, $2)
    36. merge_loop_mask                LoopMask &= $1
    37. stack_rewind
-   38. branch_if_any_active_lanes     branch_if_any_active_lanes -6 (label 6 at #32)
+   38. branch_if_any_lanes_active     branch_if_any_lanes_active -6 (label 6 at #32)
    39. load_loop_mask                 LoopMask = $0
    40. copy_4_slots_unmasked          $0..3 = color
    41. load_src                       src.rgba = $0..3

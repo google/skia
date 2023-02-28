@@ -412,7 +412,7 @@
   412. copy_slot_unmasked             $13 = _0_ok
   413. zero_slot_unmasked             $0 = 0
   414. merge_condition_mask           CondMask = $12 & $13
-  415. branch_if_no_active_lanes      branch_if_no_active_lanes +413 (label 1 at #828)
+  415. branch_if_no_lanes_active      branch_if_no_lanes_active +413 (label 1 at #828)
   416. copy_constant                  ok = 0xFFFFFFFF
   417. copy_constant                  x(0) = 0x00000006 (8.407791e-45)
   418. copy_constant                  x(1) = 0x00000006 (8.407791e-45)

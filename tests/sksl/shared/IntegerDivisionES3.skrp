@@ -32,7 +32,7 @@
    32. cmple_int                      $3 = lessThanEqual($3, $4)
    33. merge_loop_mask                LoopMask &= $3
    34. stack_rewind
-   35. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 5 at #21)
+   35. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 5 at #21)
    36. load_loop_mask                 LoopMask = $2
    37. store_condition_mask           $2 = CondMask
    38. copy_2_slots_unmasked          $3..4 = x, y
@@ -63,7 +63,7 @@
    63. cmplt_int                      $2 = lessThan($2, $3)
    64. merge_loop_mask                LoopMask &= $2
    65. stack_rewind
-   66. branch_if_any_active_lanes     branch_if_any_active_lanes -50 (label 3 at #16)
+   66. branch_if_any_lanes_active     branch_if_any_lanes_active -50 (label 3 at #16)
    67. load_loop_mask                 LoopMask = $1
    68. copy_slot_unmasked             $1 = x
    69. copy_constant                  $2 = 0x00000001 (1.401298e-45)
@@ -75,7 +75,7 @@
    75. cmplt_int                      $1 = lessThan($1, $2)
    76. merge_loop_mask                LoopMask &= $1
    77. stack_rewind
-   78. branch_if_any_active_lanes     branch_if_any_active_lanes -66 (label 1 at #12)
+   78. branch_if_any_lanes_active     branch_if_any_lanes_active -66 (label 1 at #12)
    79. load_loop_mask                 LoopMask = $0
    80. copy_4_constants               $0..3 = colorGreen
    81. copy_4_slots_masked            [main].result = Mask($0..3)

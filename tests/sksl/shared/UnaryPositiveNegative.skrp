@@ -17,7 +17,7 @@
    17. cmpeq_float                    $76 = equal($76, $77)
    18. zero_slot_unmasked             $79 = 0
    19. merge_condition_mask           CondMask = $75 & $76
-   20. branch_if_no_active_lanes      branch_if_no_active_lanes +12 (label 6 at #32)
+   20. branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 6 at #32)
    21. copy_constant                  $80 = colorWhite(0)
    22. cast_to_int_from_float         $80 = FloatToInt($80)
    23. copy_slot_unmasked             x = $80
@@ -33,7 +33,7 @@
    33. load_condition_mask            CondMask = $75
    34. zero_slot_unmasked             $54 = 0
    35. merge_condition_mask           CondMask = $78 & $79
-   36. branch_if_no_active_lanes      branch_if_no_active_lanes +13 (label 5 at #49)
+   36. branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 5 at #49)
    37. copy_2_constants               $55..56 = colorWhite(0..1)
    38. copy_2_slots_unmasked          x₁ = $55..56
    39. zero_2_slots_unmasked          $55..56 = 0
@@ -50,7 +50,7 @@
    50. load_condition_mask            CondMask = $78
    51. zero_slot_unmasked             $70 = 0
    52. merge_condition_mask           CondMask = $53 & $54
-   53. branch_if_no_active_lanes      branch_if_no_active_lanes +15 (label 4 at #68)
+   53. branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 4 at #68)
    54. copy_constant                  $71 = colorWhite(0)
    55. cast_to_int_from_float         $71 = FloatToInt($71)
    56. copy_slot_unmasked             $72 = $71
@@ -69,7 +69,7 @@
    69. load_condition_mask            CondMask = $53
    70. zero_slot_unmasked             $60 = 0
    71. merge_condition_mask           CondMask = $69 & $70
-   72. branch_if_no_active_lanes      branch_if_no_active_lanes +17 (label 3 at #89)
+   72. branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 3 at #89)
    73. copy_constant                  negated(0) = 0xBF800000 (-1.0)
    74. copy_constant                  negated(1) = 0xC0000000 (-2.0)
    75. copy_constant                  negated(2) = 0xC0400000 (-3.0)
@@ -90,7 +90,7 @@
    90. load_condition_mask            CondMask = $69
    91. zero_slot_unmasked             $34 = 0
    92. merge_condition_mask           CondMask = $59 & $60
-   93. branch_if_no_active_lanes      branch_if_no_active_lanes +36 (label 2 at #129)
+   93. branch_if_no_lanes_active      branch_if_no_lanes_active +36 (label 2 at #129)
    94. copy_constant                  negated₁(0) = 0xBF800000 (-1.0)
    95. copy_constant                  negated₁(1) = 0xC0000000 (-2.0)
    96. copy_constant                  negated₁(2) = 0xC0400000 (-3.0)
@@ -130,7 +130,7 @@
   130. load_condition_mask            CondMask = $59
   131. zero_slot_unmasked             $0 = 0
   132. merge_condition_mask           CondMask = $33 & $34
-  133. branch_if_no_active_lanes      branch_if_no_active_lanes +50 (label 1 at #183)
+  133. branch_if_no_lanes_active      branch_if_no_lanes_active +50 (label 1 at #183)
   134. copy_constant                  negated₂(0) = 0xBF800000 (-1.0)
   135. copy_constant                  negated₂(1) = 0xC0000000 (-2.0)
   136. copy_constant                  negated₂(2) = 0xC0400000 (-3.0)

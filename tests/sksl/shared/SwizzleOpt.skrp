@@ -44,7 +44,7 @@
    44. cmple_int                      $2 = lessThanEqual($2, $3)
    45. merge_loop_mask                LoopMask &= $2
    46. stack_rewind
-   47. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 2 at #33)
+   47. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 2 at #33)
    48. load_loop_mask                 LoopMask = $1
    49. load_return_mask               RetMask = $0
    50. copy_slot_unmasked             $0 = [fn].result
@@ -72,7 +72,7 @@
    72. cmple_int                      $2 = lessThanEqual($2, $3)
    73. merge_loop_mask                LoopMask &= $2
    74. stack_rewind
-   75. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 5 at #61)
+   75. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 5 at #61)
    76. load_loop_mask                 LoopMask = $1
    77. load_return_mask               RetMask = $0
    78. copy_slot_unmasked             $0 = [fn].result
@@ -103,7 +103,7 @@
   103. cmple_int                      $5 = lessThanEqual($5, $6)
   104. merge_loop_mask                LoopMask &= $5
   105. stack_rewind
-  106. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 8 at #92)
+  106. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 8 at #92)
   107. load_loop_mask                 LoopMask = $4
   108. load_return_mask               RetMask = $3
   109. copy_slot_unmasked             $3 = [fn].result
@@ -131,7 +131,7 @@
   131. cmple_int                      $5 = lessThanEqual($5, $6)
   132. merge_loop_mask                LoopMask &= $5
   133. stack_rewind
-  134. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 11 at #120)
+  134. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 11 at #120)
   135. load_loop_mask                 LoopMask = $4
   136. load_return_mask               RetMask = $3
   137. copy_slot_unmasked             $3 = [fn].result
@@ -156,7 +156,7 @@
   156. cmple_int                      $2 = lessThanEqual($2, $3)
   157. merge_loop_mask                LoopMask &= $2
   158. stack_rewind
-  159. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 14 at #145)
+  159. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 14 at #145)
   160. load_loop_mask                 LoopMask = $1
   161. load_return_mask               RetMask = $0
   162. copy_slot_unmasked             $0 = [fn].result
@@ -184,7 +184,7 @@
   184. cmple_int                      $2 = lessThanEqual($2, $3)
   185. merge_loop_mask                LoopMask &= $2
   186. stack_rewind
-  187. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 17 at #173)
+  187. branch_if_any_lanes_active     branch_if_any_lanes_active -14 (label 17 at #173)
   188. load_loop_mask                 LoopMask = $1
   189. load_return_mask               RetMask = $0
   190. copy_slot_unmasked             $0 = [fn].result

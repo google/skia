@@ -71,7 +71,7 @@
    71. cmpne_float                    $17 = notEqual($17, $18)
    72. copy_slot_unmasked             $0 = y
    73. merge_condition_mask           CondMask = $16 & $17
-   74. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 4 at #80)
+   74. branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 4 at #80)
    75. copy_slot_unmasked             $1 = x
    76. copy_constant                  $2 = 0x3F800000 (1.0)
    77. add_float                      $1 += $2
@@ -84,7 +84,7 @@
    84. cmpeq_float                    $17 = equal($17, $18)
    85. copy_slot_unmasked             $0 = y
    86. merge_condition_mask           CondMask = $16 & $17
-   87. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 5 at #93)
+   87. branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 5 at #93)
    88. copy_slot_unmasked             $1 = x
    89. copy_constant                  $2 = 0x40000000 (2.0)
    90. add_float                      $1 += $2

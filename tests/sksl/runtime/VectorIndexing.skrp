@@ -60,7 +60,7 @@
    60. cmplt_int                      $5 = lessThan($5, $6)
    61. merge_loop_mask                LoopMask &= $5
    62. stack_rewind
-   63. branch_if_any_active_lanes     branch_if_any_active_lanes -15 (label 7 at #48)
+   63. branch_if_any_lanes_active     branch_if_any_lanes_active -15 (label 7 at #48)
    64. load_loop_mask                 LoopMask = $4
    65. load_return_mask               RetMask = $3
    66. copy_slot_unmasked             $3 = [index_clamped_out_of_bounds].result
