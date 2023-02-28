@@ -1066,6 +1066,12 @@ DSLType Parser::type(DSLModifiers* modifiers) {
         return DSLType::Invalid();
     }
     DSLType result(this->text(type), modifiers, this->position(type));
+    if (result.isInterfaceBlock()) {
+        // SkSL puts interface blocks into the symbol table, but they aren't general-purpose types;
+        // you can't use them to declare a variable type or a function return type.
+        this->error(type, "expected a type, found '" + std::string(this->text(type)) + "'");
+        return DSLType::Invalid();
+    }
     Token bracket;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {

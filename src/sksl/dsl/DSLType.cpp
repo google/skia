@@ -250,6 +250,10 @@ bool DSLType::isStruct() const {
     return this->skslType().isStruct();
 }
 
+bool DSLType::isInterfaceBlock() const {
+    return this->skslType().isInterfaceBlock();
+}
+
 bool DSLType::isEffectChild() const {
     return this->skslType().isEffectChild();
 }

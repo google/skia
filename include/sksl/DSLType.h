@@ -156,6 +156,11 @@ public:
     bool isStruct() const;
 
     /**
+     * Returns true if this is an interface block
+     */
+    bool isInterfaceBlock() const;
+
+    /**
      * Returns true if this is a Skia object type (shader, colorFilter, blender).
      */
     bool isEffectChild() const;

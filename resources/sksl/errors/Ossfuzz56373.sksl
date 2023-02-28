@@ -1,0 +1,8 @@
+bufferThree {half z;};
+layout (binding=0) uniform bufferThree t;
+void main(){}
+
+/*%%*
+expected a type, found 'bufferThree'
+invalid type
+*%%*/
