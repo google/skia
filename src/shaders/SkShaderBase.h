@@ -139,7 +139,6 @@ public:
             , fDstColorSpace(dstColorSpace)
             , fProps(props) {
                 fPaintAlpha = paint.getAlpha();
-                fPaintDither = paint.isDither();
             }
 
         const SkMatrix* fMatrix;           // the current matrix in the canvas
@@ -148,7 +147,6 @@ public:
         SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
         SkSurfaceProps  fProps;            // props of the dest surface
         SkAlpha         fPaintAlpha;
-        bool            fPaintDither;
 
         bool isLegacyCompatible(SkColorSpace* shadersColorSpace) const;
     };
