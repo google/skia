@@ -235,12 +235,12 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Graphite' in extra_tokens:
     args['skia_enable_graphite'] = 'true'
   if 'NoGpu' in extra_tokens:
-    args['skia_enable_gpu'] = 'false'
+    args['skia_enable_ganesh'] = 'false'
   if 'NoDEPS' in extra_tokens:
     args.update({
       'is_official_build':             'true',
       'skia_enable_fontmgr_empty':     'true',
-      'skia_enable_gpu':               'true',
+      'skia_enable_ganesh':            'true',
 
       'skia_enable_pdf':               'false',
       'skia_use_expat':                'false',

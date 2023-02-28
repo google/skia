@@ -525,10 +525,11 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_android_framework_use_perfetto'] = 'true'
 
   if enable_gpu:
-    d['skia_use_vulkan']   = 'true'
+    d['skia_use_vulkan']    = 'true'
+    d['skia_enable_ganesh'] = 'true'
   else:
-    d['skia_use_vulkan']   = 'false'
-    d['skia_enable_gpu']   = 'false'
+    d['skia_use_vulkan']    = 'false'
+    d['skia_enable_ganesh'] = 'false'
 
   if target_os == '"win"':
     # The Android Windows build system does not provide FontSub.h

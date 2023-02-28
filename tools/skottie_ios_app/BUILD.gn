@@ -18,13 +18,13 @@ if (is_ios) {
       "SkottieViewController.mm",
       "main.mm",
     ]
-    if (skia_enable_gpu && skia_use_metal) {
+    if (skia_enable_ganesh && skia_use_metal) {
       sources += [
         "SkMetalViewBridge.h",
         "SkMetalViewBridge.mm",
         "SkiaMetalContext.mm",
       ]
-    } else if (skia_enable_gpu && skia_use_gl) {
+    } else if (skia_enable_ganesh && skia_use_gl) {
       sources += [ "SkiaGLContext.mm" ]
     } else {
       sources += [ "SkiaUIContext.mm" ]
@@ -57,12 +57,12 @@ if (is_ios) {
       "QuartzCore.framework",
       "UIKit.framework",
     ]
-    if (skia_enable_gpu && skia_use_metal) {
+    if (skia_enable_ganesh && skia_use_metal) {
       frameworks += [
         "Metal.framework",
         "MetalKit.framework",
       ]
-    } else if (skia_enable_gpu && skia_use_gl) {
+    } else if (skia_enable_ganesh && skia_use_gl) {
       frameworks += [
         "GLKit.framework",
         "OpenGLES.framework",
