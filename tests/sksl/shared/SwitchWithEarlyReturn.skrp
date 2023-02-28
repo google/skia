@@ -16,7 +16,7 @@
    16. store_condition_mask           $12 = CondMask
    17. store_condition_mask           $78 = CondMask
    18. store_condition_mask           $71 = CondMask
-   19. branch_if_no_lanes_active      branch_if_no_lanes_active +32 (label 14 at #51)
+   19. branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 14 at #52)
    20. store_return_mask              $72 = RetMask
    21. copy_slot_unmasked             x₁ = x
    22. zero_slot_unmasked             val = 0
@@ -25,7 +25,7 @@
    25. store_loop_mask                $75 = LoopMask
    26. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    27. case_op                        if ($74 == 0x00000001) { LoopMask = true; $75 = false; }
-   28. branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 15 at #36)
+   28. branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 16 at #36)
    29. copy_slot_unmasked             $76 = val
    30. copy_constant                  $77 = 0x00000001 (1.401298e-45)
    31. add_int                        $76 += $77
@@ -33,484 +33,500 @@
    33. zero_slot_unmasked             $76 = 0
    34. copy_slot_masked               [return_in_one_case].result = Mask($76)
    35. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   36. label                          label 0x0000000F
+   36. label                          label 0x00000010
    37. reenable_loop_mask             LoopMask |= $75
-   38. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 16 at #43)
+   38. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 17 at #43)
    39. copy_slot_unmasked             $75 = val
    40. copy_constant                  $76 = 0x00000001 (1.401298e-45)
    41. add_int                        $75 += $76
    42. copy_slot_masked               val = Mask($75)
-   43. label                          label 0x00000010
-   44. load_loop_mask                 LoopMask = $73
-   45. copy_slot_unmasked             $73 = val
-   46. copy_constant                  $74 = 0x00000001 (1.401298e-45)
-   47. cmpeq_int                      $73 = equal($73, $74)
-   48. copy_slot_masked               [return_in_one_case].result = Mask($73)
-   49. load_return_mask               RetMask = $72
-   50. copy_slot_unmasked             $72 = [return_in_one_case].result
-   51. label                          label 0x0000000E
-   52. zero_slot_unmasked             $79 = 0
-   53. merge_condition_mask           CondMask = $71 & $72
-   54. branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 13 at #72)
-   55. store_return_mask              $80 = RetMask
-   56. copy_slot_unmasked             x₂ = x
-   57. store_loop_mask                $81 = LoopMask
-   58. copy_slot_unmasked             $82 = x₂
-   59. store_loop_mask                $83 = LoopMask
-   60. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-   61. reenable_loop_mask             LoopMask |= $83
-   62. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 18 at #66)
-   63. copy_constant                  $83 = 0xFFFFFFFF
-   64. copy_slot_masked               [return_in_default].result = Mask($83)
-   65. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   66. label                          label 0x00000012
-   67. load_loop_mask                 LoopMask = $81
-   68. load_return_mask               RetMask = $80
-   69. copy_slot_unmasked             $80 = [return_in_default].result
-   70. label                          label 0x00000011
-   71. copy_slot_masked               $79 = Mask($80)
-   72. label                          label 0x0000000D
-   73. load_condition_mask            CondMask = $71
-   74. zero_slot_unmasked             $13 = 0
-   75. merge_condition_mask           CondMask = $78 & $79
-   76. branch_if_no_lanes_active      branch_if_no_lanes_active +24 (label 12 at #100)
-   77. store_return_mask              $14 = RetMask
-   78. copy_slot_unmasked             x₃ = x
-   79. store_loop_mask                $15 = LoopMask
-   80. copy_slot_unmasked             $16 = x₃
-   81. store_loop_mask                $17 = LoopMask
-   82. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-   83. case_op                        if ($16 == 0x00000001) { LoopMask = true; $17 = false; }
-   84. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 20 at #88)
-   85. zero_slot_unmasked             $18 = 0
-   86. copy_slot_masked               [return_in_every_case].result = Mask($18)
-   87. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   88. label                          label 0x00000014
-   89. reenable_loop_mask             LoopMask |= $17
-   90. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 21 at #94)
-   91. copy_constant                  $17 = 0xFFFFFFFF
-   92. copy_slot_masked               [return_in_every_case].result = Mask($17)
-   93. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   94. label                          label 0x00000015
-   95. load_loop_mask                 LoopMask = $15
-   96. load_return_mask               RetMask = $14
-   97. copy_slot_unmasked             $14 = [return_in_every_case].result
-   98. label                          label 0x00000013
-   99. copy_slot_masked               $13 = Mask($14)
-  100. label                          label 0x0000000C
-  101. load_condition_mask            CondMask = $78
-  102. zero_slot_unmasked             $65 = 0
-  103. merge_condition_mask           CondMask = $12 & $13
-  104. branch_if_no_lanes_active      branch_if_no_lanes_active +32 (label 11 at #136)
-  105. store_return_mask              $66 = RetMask
-  106. copy_slot_unmasked             x₄ = x
-  107. zero_slot_unmasked             val₁ = 0
-  108. store_loop_mask                $67 = LoopMask
-  109. copy_slot_unmasked             $68 = x₄
-  110. store_loop_mask                $69 = LoopMask
-  111. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  112. case_op                        if ($68 == 0x00000001) { LoopMask = true; $69 = false; }
-  113. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 23 at #117)
-  114. zero_slot_unmasked             $70 = 0
-  115. copy_slot_masked               [return_in_every_case_no_default].result = Mask($70)
-  116. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  117. label                          label 0x00000017
-  118. case_op                        if ($68 == 0x00000002) { LoopMask = true; $69 = false; }
-  119. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 24 at #123)
-  120. copy_constant                  $70 = 0xFFFFFFFF
-  121. copy_slot_masked               [return_in_every_case_no_default].result = Mask($70)
-  122. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  123. label                          label 0x00000018
-  124. load_loop_mask                 LoopMask = $67
-  125. copy_slot_unmasked             $67 = val₁
-  126. copy_constant                  $68 = 0x00000001 (1.401298e-45)
-  127. add_int                        $67 += $68
-  128. copy_slot_masked               val₁ = Mask($67)
-  129. copy_constant                  $68 = 0x00000001 (1.401298e-45)
-  130. cmpeq_int                      $67 = equal($67, $68)
-  131. copy_slot_masked               [return_in_every_case_no_default].result = Mask($67)
-  132. load_return_mask               RetMask = $66
-  133. copy_slot_unmasked             $66 = [return_in_every_case_no_default].result
-  134. label                          label 0x00000016
-  135. copy_slot_masked               $65 = Mask($66)
-  136. label                          label 0x0000000B
-  137. load_condition_mask            CondMask = $12
-  138. zero_slot_unmasked             $85 = 0
-  139. merge_condition_mask           CondMask = $64 & $65
-  140. branch_if_no_lanes_active      branch_if_no_lanes_active +36 (label 10 at #176)
-  141. store_return_mask              $86 = RetMask
-  142. copy_slot_unmasked             x₅ = x
-  143. zero_slot_unmasked             val₂ = 0
-  144. store_loop_mask                $87 = LoopMask
-  145. copy_slot_unmasked             $88 = x₅
-  146. store_loop_mask                $89 = LoopMask
-  147. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  148. case_op                        if ($88 == 0x00000001) { LoopMask = true; $89 = false; }
-  149. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 26 at #151)
-  150. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  151. label                          label 0x0000001A
-  152. case_op                        if ($88 == 0x00000002) { LoopMask = true; $89 = false; }
-  153. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 27 at #157)
-  154. copy_constant                  $90 = 0xFFFFFFFF
-  155. copy_slot_masked               [case_has_break_before_return].result = Mask($90)
-  156. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  157. label                          label 0x0000001B
-  158. reenable_loop_mask             LoopMask |= $89
-  159. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 28 at #163)
-  160. copy_constant                  $89 = 0xFFFFFFFF
-  161. copy_slot_masked               [case_has_break_before_return].result = Mask($89)
-  162. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  163. label                          label 0x0000001C
-  164. load_loop_mask                 LoopMask = $87
-  165. copy_slot_unmasked             $87 = val₂
-  166. copy_constant                  $88 = 0x00000001 (1.401298e-45)
-  167. add_int                        $87 += $88
-  168. copy_slot_masked               val₂ = Mask($87)
-  169. copy_constant                  $88 = 0x00000001 (1.401298e-45)
-  170. cmpeq_int                      $87 = equal($87, $88)
-  171. copy_slot_masked               [case_has_break_before_return].result = Mask($87)
-  172. load_return_mask               RetMask = $86
-  173. copy_slot_unmasked             $86 = [case_has_break_before_return].result
-  174. label                          label 0x00000019
-  175. copy_slot_masked               $85 = Mask($86)
-  176. label                          label 0x0000000A
-  177. load_condition_mask            CondMask = $64
-  178. zero_slot_unmasked             $51 = 0
-  179. merge_condition_mask           CondMask = $84 & $85
-  180. branch_if_no_lanes_active      branch_if_no_lanes_active +30 (label 9 at #210)
-  181. store_return_mask              $52 = RetMask
-  182. copy_slot_unmasked             x₆ = x
-  183. store_loop_mask                $53 = LoopMask
-  184. copy_slot_unmasked             $54 = x₆
-  185. store_loop_mask                $55 = LoopMask
-  186. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  187. case_op                        if ($54 == 0x00000001) { LoopMask = true; $55 = false; }
-  188. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 30 at #192)
-  189. zero_slot_unmasked             $56 = 0
-  190. copy_slot_masked               [case_has_break_after_return].result = Mask($56)
-  191. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  192. label                          label 0x0000001E
-  193. case_op                        if ($54 == 0x00000002) { LoopMask = true; $55 = false; }
-  194. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 31 at #198)
-  195. copy_constant                  $56 = 0xFFFFFFFF
-  196. copy_slot_masked               [case_has_break_after_return].result = Mask($56)
-  197. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  198. label                          label 0x0000001F
-  199. reenable_loop_mask             LoopMask |= $55
-  200. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 32 at #204)
-  201. copy_constant                  $55 = 0xFFFFFFFF
-  202. copy_slot_masked               [case_has_break_after_return].result = Mask($55)
-  203. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  204. label                          label 0x00000020
-  205. load_loop_mask                 LoopMask = $53
-  206. load_return_mask               RetMask = $52
-  207. copy_slot_unmasked             $52 = [case_has_break_after_return].result
-  208. label                          label 0x0000001D
-  209. copy_slot_masked               $51 = Mask($52)
-  210. label                          label 0x00000009
-  211. load_condition_mask            CondMask = $84
-  212. zero_slot_unmasked             $20 = 0
-  213. merge_condition_mask           CondMask = $50 & $51
-  214. branch_if_no_lanes_active      branch_if_no_lanes_active +36 (label 8 at #250)
-  215. store_return_mask              $21 = RetMask
-  216. copy_slot_unmasked             x₇ = x
-  217. zero_slot_unmasked             val₃ = 0
-  218. store_loop_mask                $22 = LoopMask
-  219. copy_slot_unmasked             $23 = x₇
-  220. store_loop_mask                $24 = LoopMask
-  221. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  222. case_op                        if ($23 == 0x00000001) { LoopMask = true; $24 = false; }
-  223. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 34 at #227)
-  224. zero_slot_unmasked             $25 = 0
-  225. copy_slot_masked               [no_return_in_default].result = Mask($25)
-  226. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  227. label                          label 0x00000022
-  228. case_op                        if ($23 == 0x00000002) { LoopMask = true; $24 = false; }
-  229. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 35 at #233)
-  230. copy_constant                  $25 = 0xFFFFFFFF
+   43. label                          label 0x00000011
+   44. label                          label 0x0000000F
+   45. load_loop_mask                 LoopMask = $73
+   46. copy_slot_unmasked             $73 = val
+   47. copy_constant                  $74 = 0x00000001 (1.401298e-45)
+   48. cmpeq_int                      $73 = equal($73, $74)
+   49. copy_slot_masked               [return_in_one_case].result = Mask($73)
+   50. load_return_mask               RetMask = $72
+   51. copy_slot_unmasked             $72 = [return_in_one_case].result
+   52. label                          label 0x0000000E
+   53. zero_slot_unmasked             $79 = 0
+   54. merge_condition_mask           CondMask = $71 & $72
+   55. branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 13 at #74)
+   56. store_return_mask              $80 = RetMask
+   57. copy_slot_unmasked             x₂ = x
+   58. store_loop_mask                $81 = LoopMask
+   59. copy_slot_unmasked             $82 = x₂
+   60. store_loop_mask                $83 = LoopMask
+   61. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   62. reenable_loop_mask             LoopMask |= $83
+   63. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 20 at #67)
+   64. copy_constant                  $83 = 0xFFFFFFFF
+   65. copy_slot_masked               [return_in_default].result = Mask($83)
+   66. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   67. label                          label 0x00000014
+   68. label                          label 0x00000013
+   69. load_loop_mask                 LoopMask = $81
+   70. load_return_mask               RetMask = $80
+   71. copy_slot_unmasked             $80 = [return_in_default].result
+   72. label                          label 0x00000012
+   73. copy_slot_masked               $79 = Mask($80)
+   74. label                          label 0x0000000D
+   75. load_condition_mask            CondMask = $71
+   76. zero_slot_unmasked             $13 = 0
+   77. merge_condition_mask           CondMask = $78 & $79
+   78. branch_if_no_lanes_active      branch_if_no_lanes_active +25 (label 12 at #103)
+   79. store_return_mask              $14 = RetMask
+   80. copy_slot_unmasked             x₃ = x
+   81. store_loop_mask                $15 = LoopMask
+   82. copy_slot_unmasked             $16 = x₃
+   83. store_loop_mask                $17 = LoopMask
+   84. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   85. case_op                        if ($16 == 0x00000001) { LoopMask = true; $17 = false; }
+   86. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 23 at #90)
+   87. zero_slot_unmasked             $18 = 0
+   88. copy_slot_masked               [return_in_every_case].result = Mask($18)
+   89. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   90. label                          label 0x00000017
+   91. reenable_loop_mask             LoopMask |= $17
+   92. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 24 at #96)
+   93. copy_constant                  $17 = 0xFFFFFFFF
+   94. copy_slot_masked               [return_in_every_case].result = Mask($17)
+   95. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   96. label                          label 0x00000018
+   97. label                          label 0x00000016
+   98. load_loop_mask                 LoopMask = $15
+   99. load_return_mask               RetMask = $14
+  100. copy_slot_unmasked             $14 = [return_in_every_case].result
+  101. label                          label 0x00000015
+  102. copy_slot_masked               $13 = Mask($14)
+  103. label                          label 0x0000000C
+  104. load_condition_mask            CondMask = $78
+  105. zero_slot_unmasked             $65 = 0
+  106. merge_condition_mask           CondMask = $12 & $13
+  107. branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 11 at #140)
+  108. store_return_mask              $66 = RetMask
+  109. copy_slot_unmasked             x₄ = x
+  110. zero_slot_unmasked             val₁ = 0
+  111. store_loop_mask                $67 = LoopMask
+  112. copy_slot_unmasked             $68 = x₄
+  113. store_loop_mask                $69 = LoopMask
+  114. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  115. case_op                        if ($68 == 0x00000001) { LoopMask = true; $69 = false; }
+  116. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 27 at #120)
+  117. zero_slot_unmasked             $70 = 0
+  118. copy_slot_masked               [return_in_every_case_no_default].result = Mask($70)
+  119. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  120. label                          label 0x0000001B
+  121. case_op                        if ($68 == 0x00000002) { LoopMask = true; $69 = false; }
+  122. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 28 at #126)
+  123. copy_constant                  $70 = 0xFFFFFFFF
+  124. copy_slot_masked               [return_in_every_case_no_default].result = Mask($70)
+  125. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  126. label                          label 0x0000001C
+  127. label                          label 0x0000001A
+  128. load_loop_mask                 LoopMask = $67
+  129. copy_slot_unmasked             $67 = val₁
+  130. copy_constant                  $68 = 0x00000001 (1.401298e-45)
+  131. add_int                        $67 += $68
+  132. copy_slot_masked               val₁ = Mask($67)
+  133. copy_constant                  $68 = 0x00000001 (1.401298e-45)
+  134. cmpeq_int                      $67 = equal($67, $68)
+  135. copy_slot_masked               [return_in_every_case_no_default].result = Mask($67)
+  136. load_return_mask               RetMask = $66
+  137. copy_slot_unmasked             $66 = [return_in_every_case_no_default].result
+  138. label                          label 0x00000019
+  139. copy_slot_masked               $65 = Mask($66)
+  140. label                          label 0x0000000B
+  141. load_condition_mask            CondMask = $12
+  142. zero_slot_unmasked             $85 = 0
+  143. merge_condition_mask           CondMask = $64 & $65
+  144. branch_if_no_lanes_active      branch_if_no_lanes_active +37 (label 10 at #181)
+  145. store_return_mask              $86 = RetMask
+  146. copy_slot_unmasked             x₅ = x
+  147. zero_slot_unmasked             val₂ = 0
+  148. store_loop_mask                $87 = LoopMask
+  149. copy_slot_unmasked             $88 = x₅
+  150. store_loop_mask                $89 = LoopMask
+  151. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  152. case_op                        if ($88 == 0x00000001) { LoopMask = true; $89 = false; }
+  153. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 31 at #155)
+  154. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  155. label                          label 0x0000001F
+  156. case_op                        if ($88 == 0x00000002) { LoopMask = true; $89 = false; }
+  157. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 32 at #161)
+  158. copy_constant                  $90 = 0xFFFFFFFF
+  159. copy_slot_masked               [case_has_break_before_return].result = Mask($90)
+  160. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  161. label                          label 0x00000020
+  162. reenable_loop_mask             LoopMask |= $89
+  163. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 33 at #167)
+  164. copy_constant                  $89 = 0xFFFFFFFF
+  165. copy_slot_masked               [case_has_break_before_return].result = Mask($89)
+  166. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  167. label                          label 0x00000021
+  168. label                          label 0x0000001E
+  169. load_loop_mask                 LoopMask = $87
+  170. copy_slot_unmasked             $87 = val₂
+  171. copy_constant                  $88 = 0x00000001 (1.401298e-45)
+  172. add_int                        $87 += $88
+  173. copy_slot_masked               val₂ = Mask($87)
+  174. copy_constant                  $88 = 0x00000001 (1.401298e-45)
+  175. cmpeq_int                      $87 = equal($87, $88)
+  176. copy_slot_masked               [case_has_break_before_return].result = Mask($87)
+  177. load_return_mask               RetMask = $86
+  178. copy_slot_unmasked             $86 = [case_has_break_before_return].result
+  179. label                          label 0x0000001D
+  180. copy_slot_masked               $85 = Mask($86)
+  181. label                          label 0x0000000A
+  182. load_condition_mask            CondMask = $64
+  183. zero_slot_unmasked             $51 = 0
+  184. merge_condition_mask           CondMask = $84 & $85
+  185. branch_if_no_lanes_active      branch_if_no_lanes_active +31 (label 9 at #216)
+  186. store_return_mask              $52 = RetMask
+  187. copy_slot_unmasked             x₆ = x
+  188. store_loop_mask                $53 = LoopMask
+  189. copy_slot_unmasked             $54 = x₆
+  190. store_loop_mask                $55 = LoopMask
+  191. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  192. case_op                        if ($54 == 0x00000001) { LoopMask = true; $55 = false; }
+  193. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 36 at #197)
+  194. zero_slot_unmasked             $56 = 0
+  195. copy_slot_masked               [case_has_break_after_return].result = Mask($56)
+  196. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  197. label                          label 0x00000024
+  198. case_op                        if ($54 == 0x00000002) { LoopMask = true; $55 = false; }
+  199. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 37 at #203)
+  200. copy_constant                  $56 = 0xFFFFFFFF
+  201. copy_slot_masked               [case_has_break_after_return].result = Mask($56)
+  202. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  203. label                          label 0x00000025
+  204. reenable_loop_mask             LoopMask |= $55
+  205. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 38 at #209)
+  206. copy_constant                  $55 = 0xFFFFFFFF
+  207. copy_slot_masked               [case_has_break_after_return].result = Mask($55)
+  208. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  209. label                          label 0x00000026
+  210. label                          label 0x00000023
+  211. load_loop_mask                 LoopMask = $53
+  212. load_return_mask               RetMask = $52
+  213. copy_slot_unmasked             $52 = [case_has_break_after_return].result
+  214. label                          label 0x00000022
+  215. copy_slot_masked               $51 = Mask($52)
+  216. label                          label 0x00000009
+  217. load_condition_mask            CondMask = $84
+  218. zero_slot_unmasked             $20 = 0
+  219. merge_condition_mask           CondMask = $50 & $51
+  220. branch_if_no_lanes_active      branch_if_no_lanes_active +37 (label 8 at #257)
+  221. store_return_mask              $21 = RetMask
+  222. copy_slot_unmasked             x₇ = x
+  223. zero_slot_unmasked             val₃ = 0
+  224. store_loop_mask                $22 = LoopMask
+  225. copy_slot_unmasked             $23 = x₇
+  226. store_loop_mask                $24 = LoopMask
+  227. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  228. case_op                        if ($23 == 0x00000001) { LoopMask = true; $24 = false; }
+  229. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 41 at #233)
+  230. zero_slot_unmasked             $25 = 0
   231. copy_slot_masked               [no_return_in_default].result = Mask($25)
   232. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  233. label                          label 0x00000023
-  234. reenable_loop_mask             LoopMask |= $24
-  235. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 36 at #237)
-  236. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  237. label                          label 0x00000024
-  238. load_loop_mask                 LoopMask = $22
-  239. copy_slot_unmasked             $22 = val₃
-  240. copy_constant                  $23 = 0x00000001 (1.401298e-45)
-  241. add_int                        $22 += $23
-  242. copy_slot_masked               val₃ = Mask($22)
-  243. copy_constant                  $23 = 0x00000001 (1.401298e-45)
-  244. cmpeq_int                      $22 = equal($22, $23)
-  245. copy_slot_masked               [no_return_in_default].result = Mask($22)
-  246. load_return_mask               RetMask = $21
-  247. copy_slot_unmasked             $21 = [no_return_in_default].result
-  248. label                          label 0x00000021
-  249. copy_slot_masked               $20 = Mask($21)
-  250. label                          label 0x00000008
-  251. load_condition_mask            CondMask = $50
-  252. zero_slot_unmasked             $44 = 0
-  253. merge_condition_mask           CondMask = $19 & $20
-  254. branch_if_no_lanes_active      branch_if_no_lanes_active +34 (label 7 at #288)
-  255. store_return_mask              $45 = RetMask
-  256. copy_slot_unmasked             x₈ = x
-  257. zero_slot_unmasked             val₄ = 0
-  258. store_loop_mask                $46 = LoopMask
-  259. copy_slot_unmasked             $47 = x₈
-  260. store_loop_mask                $48 = LoopMask
-  261. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  262. case_op                        if ($47 == 0x00000001) { LoopMask = true; $48 = false; }
-  263. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 38 at #267)
-  264. zero_slot_unmasked             $49 = 0
-  265. copy_slot_masked               [empty_default].result = Mask($49)
-  266. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  267. label                          label 0x00000026
-  268. case_op                        if ($47 == 0x00000002) { LoopMask = true; $48 = false; }
-  269. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 39 at #273)
-  270. copy_constant                  $49 = 0xFFFFFFFF
-  271. copy_slot_masked               [empty_default].result = Mask($49)
-  272. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  273. label                          label 0x00000027
-  274. reenable_loop_mask             LoopMask |= $48
-  275. label                          label 0x00000028
-  276. load_loop_mask                 LoopMask = $46
-  277. copy_slot_unmasked             $46 = val₄
-  278. copy_constant                  $47 = 0x00000001 (1.401298e-45)
-  279. add_int                        $46 += $47
-  280. copy_slot_masked               val₄ = Mask($46)
-  281. copy_constant                  $47 = 0x00000001 (1.401298e-45)
-  282. cmpeq_int                      $46 = equal($46, $47)
-  283. copy_slot_masked               [empty_default].result = Mask($46)
-  284. load_return_mask               RetMask = $45
-  285. copy_slot_unmasked             $45 = [empty_default].result
-  286. label                          label 0x00000025
-  287. copy_slot_masked               $44 = Mask($45)
-  288. label                          label 0x00000007
-  289. load_condition_mask            CondMask = $19
-  290. zero_slot_unmasked             $58 = 0
-  291. merge_condition_mask           CondMask = $43 & $44
-  292. branch_if_no_lanes_active      branch_if_no_lanes_active +26 (label 6 at #318)
-  293. store_return_mask              $59 = RetMask
-  294. copy_slot_unmasked             x₉ = x
-  295. store_loop_mask                $60 = LoopMask
-  296. copy_slot_unmasked             $61 = x₉
-  297. store_loop_mask                $62 = LoopMask
-  298. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  299. case_op                        if ($61 == 0x00000001) { LoopMask = true; $62 = false; }
-  300. label                          label 0x0000002A
-  301. case_op                        if ($61 == 0x00000002) { LoopMask = true; $62 = false; }
-  302. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 43 at #306)
-  303. copy_constant                  $63 = 0xFFFFFFFF
-  304. copy_slot_masked               [return_with_fallthrough].result = Mask($63)
-  305. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  306. label                          label 0x0000002B
-  307. reenable_loop_mask             LoopMask |= $62
-  308. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 44 at #312)
-  309. zero_slot_unmasked             $62 = 0
-  310. copy_slot_masked               [return_with_fallthrough].result = Mask($62)
-  311. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  312. label                          label 0x0000002C
-  313. load_loop_mask                 LoopMask = $60
-  314. load_return_mask               RetMask = $59
-  315. copy_slot_unmasked             $59 = [return_with_fallthrough].result
-  316. label                          label 0x00000029
-  317. copy_slot_masked               $58 = Mask($59)
-  318. label                          label 0x00000006
-  319. load_condition_mask            CondMask = $43
-  320. zero_slot_unmasked             $27 = 0
-  321. merge_condition_mask           CondMask = $57 & $58
-  322. branch_if_no_lanes_active      branch_if_no_lanes_active +32 (label 5 at #354)
-  323. store_return_mask              $28 = RetMask
-  324. copy_slot_unmasked             x₁₀ = x
-  325. zero_slot_unmasked             val₅ = 0
-  326. store_loop_mask                $29 = LoopMask
-  327. copy_slot_unmasked             $30 = x₁₀
-  328. store_loop_mask                $31 = LoopMask
-  329. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  330. case_op                        if ($30 == 0x00000001) { LoopMask = true; $31 = false; }
-  331. label                          label 0x0000002E
-  332. case_op                        if ($30 == 0x00000002) { LoopMask = true; $31 = false; }
-  333. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 47 at #335)
-  334. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  335. label                          label 0x0000002F
-  336. reenable_loop_mask             LoopMask |= $31
-  337. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 48 at #341)
-  338. zero_slot_unmasked             $31 = 0
-  339. copy_slot_masked               [fallthrough_ends_in_break].result = Mask($31)
-  340. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  341. label                          label 0x00000030
-  342. load_loop_mask                 LoopMask = $29
-  343. copy_slot_unmasked             $29 = val₅
-  344. copy_constant                  $30 = 0x00000001 (1.401298e-45)
-  345. add_int                        $29 += $30
-  346. copy_slot_masked               val₅ = Mask($29)
-  347. copy_constant                  $30 = 0x00000001 (1.401298e-45)
-  348. cmpeq_int                      $29 = equal($29, $30)
-  349. copy_slot_masked               [fallthrough_ends_in_break].result = Mask($29)
-  350. load_return_mask               RetMask = $28
-  351. copy_slot_unmasked             $28 = [fallthrough_ends_in_break].result
-  352. label                          label 0x0000002D
-  353. copy_slot_masked               $27 = Mask($28)
-  354. label                          label 0x00000005
-  355. load_condition_mask            CondMask = $57
-  356. zero_slot_unmasked             $39 = 0
-  357. merge_condition_mask           CondMask = $26 & $27
-  358. branch_if_no_lanes_active      branch_if_no_lanes_active +24 (label 4 at #382)
-  359. copy_slot_unmasked             x₁₁ = x
-  360. zero_slot_unmasked             val₆ = 0
-  361. store_loop_mask                $40 = LoopMask
-  362. copy_slot_unmasked             $41 = x₁₁
-  363. store_loop_mask                $42 = LoopMask
-  364. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  365. case_op                        if ($41 == 0x00000001) { LoopMask = true; $42 = false; }
-  366. label                          label 0x00000032
-  367. case_op                        if ($41 == 0x00000002) { LoopMask = true; $42 = false; }
-  368. label                          label 0x00000033
-  369. reenable_loop_mask             LoopMask |= $42
-  370. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 52 at #372)
-  371. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  372. label                          label 0x00000034
-  373. load_loop_mask                 LoopMask = $40
-  374. copy_slot_unmasked             $40 = val₆
-  375. copy_constant                  $41 = 0x00000001 (1.401298e-45)
-  376. add_int                        $40 += $41
-  377. copy_slot_masked               val₆ = Mask($40)
-  378. copy_constant                  $41 = 0x00000001 (1.401298e-45)
-  379. cmpeq_int                      $40 = equal($40, $41)
-  380. label                          label 0x00000031
-  381. copy_slot_masked               $39 = Mask($40)
-  382. label                          label 0x00000004
-  383. load_condition_mask            CondMask = $26
-  384. zero_slot_unmasked             $33 = 0
-  385. merge_condition_mask           CondMask = $38 & $39
-  386. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 3 at #408)
-  387. store_return_mask              $34 = RetMask
-  388. copy_slot_unmasked             x₁₂ = x
-  389. store_loop_mask                $35 = LoopMask
-  390. copy_slot_unmasked             $36 = x₁₂
-  391. store_loop_mask                $37 = LoopMask
-  392. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  393. case_op                        if ($36 == 0x00000001) { LoopMask = true; $37 = false; }
-  394. label                          label 0x00000036
-  395. case_op                        if ($36 == 0x00000002) { LoopMask = true; $37 = false; }
-  396. label                          label 0x00000037
-  397. reenable_loop_mask             LoopMask |= $37
-  398. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 56 at #402)
-  399. copy_constant                  $37 = 0xFFFFFFFF
-  400. copy_slot_masked               [fallthrough_to_default_with_return].result = Mask($37)
-  401. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  402. label                          label 0x00000038
-  403. load_loop_mask                 LoopMask = $35
-  404. load_return_mask               RetMask = $34
-  405. copy_slot_unmasked             $34 = [fallthrough_to_default_with_return].result
-  406. label                          label 0x00000035
-  407. copy_slot_masked               $33 = Mask($34)
-  408. label                          label 0x00000003
-  409. load_condition_mask            CondMask = $38
-  410. zero_slot_unmasked             $92 = 0
-  411. merge_condition_mask           CondMask = $32 & $33
-  412. branch_if_no_lanes_active      branch_if_no_lanes_active +45 (label 2 at #457)
-  413. store_return_mask              $93 = RetMask
-  414. copy_slot_unmasked             x₁₃ = x
-  415. zero_slot_unmasked             val₇ = 0
-  416. store_loop_mask                $94 = LoopMask
-  417. copy_slot_unmasked             $95 = x₁₃
-  418. store_loop_mask                $96 = LoopMask
-  419. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  420. case_op                        if ($95 == 0x00000001) { LoopMask = true; $96 = false; }
-  421. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 58 at #443)
-  422. zero_slot_unmasked             i = 0
-  423. store_loop_mask                $97 = LoopMask
-  424. jump                           jump +11 (label 59 at #435)
-  425. label                          label 0x0000003C
-  426. copy_slot_unmasked             $98 = val₇
-  427. copy_constant                  $99 = 0x00000001 (1.401298e-45)
-  428. add_int                        $98 += $99
-  429. copy_slot_masked               val₇ = Mask($98)
-  430. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  431. copy_slot_unmasked             $98 = i
-  432. copy_constant                  $99 = 0x00000001 (1.401298e-45)
-  433. add_int                        $98 += $99
-  434. copy_slot_masked               i = Mask($98)
-  435. label                          label 0x0000003B
-  436. copy_slot_unmasked             $98 = i
-  437. copy_constant                  $99 = 0x00000005 (7.006492e-45)
-  438. cmplt_int                      $98 = lessThan($98, $99)
-  439. merge_loop_mask                LoopMask &= $98
-  440. stack_rewind
-  441. branch_if_any_lanes_active     branch_if_any_lanes_active -16 (label 60 at #425)
-  442. load_loop_mask                 LoopMask = $97
-  443. label                          label 0x0000003A
-  444. case_op                        if ($95 == 0x00000002) { LoopMask = true; $96 = false; }
-  445. label                          label 0x0000003D
-  446. reenable_loop_mask             LoopMask |= $96
-  447. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 62 at #451)
-  448. copy_constant                  $96 = 0xFFFFFFFF
-  449. copy_slot_masked               [fallthrough_with_loop_break].result = Mask($96)
-  450. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  451. label                          label 0x0000003E
-  452. load_loop_mask                 LoopMask = $94
-  453. load_return_mask               RetMask = $93
-  454. copy_slot_unmasked             $93 = [fallthrough_with_loop_break].result
-  455. label                          label 0x00000039
-  456. copy_slot_masked               $92 = Mask($93)
-  457. label                          label 0x00000002
-  458. load_condition_mask            CondMask = $32
-  459. zero_slot_unmasked             $0 = 0
-  460. merge_condition_mask           CondMask = $91 & $92
-  461. branch_if_no_lanes_active      branch_if_no_lanes_active +49 (label 1 at #510)
-  462. store_return_mask              $1 = RetMask
-  463. copy_slot_unmasked             x₁₄ = x
-  464. zero_slot_unmasked             val₈ = 0
-  465. store_loop_mask                $2 = LoopMask
-  466. copy_slot_unmasked             $3 = x₁₄
-  467. store_loop_mask                $4 = LoopMask
-  468. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  469. case_op                        if ($3 == 0x00000001) { LoopMask = true; $4 = false; }
-  470. branch_if_no_lanes_active      branch_if_no_lanes_active +26 (label 64 at #496)
-  471. zero_slot_unmasked             i₁ = 0
-  472. store_loop_mask                $5 = LoopMask
-  473. jump                           jump +15 (label 65 at #488)
-  474. label                          label 0x00000042
-  475. zero_slot_unmasked             $32 = 0
-  476. copy_slot_unmasked             $6 = val₈
-  477. copy_constant                  $7 = 0x00000001 (1.401298e-45)
-  478. add_int                        $6 += $7
-  479. copy_slot_masked               val₈ = Mask($6)
-  480. copy_constant                  $33 = 0xFFFFFFFF
-  481. copy_slot_masked               $32 = Mask($33)
+  233. label                          label 0x00000029
+  234. case_op                        if ($23 == 0x00000002) { LoopMask = true; $24 = false; }
+  235. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 42 at #239)
+  236. copy_constant                  $25 = 0xFFFFFFFF
+  237. copy_slot_masked               [no_return_in_default].result = Mask($25)
+  238. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  239. label                          label 0x0000002A
+  240. reenable_loop_mask             LoopMask |= $24
+  241. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 43 at #243)
+  242. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  243. label                          label 0x0000002B
+  244. label                          label 0x00000028
+  245. load_loop_mask                 LoopMask = $22
+  246. copy_slot_unmasked             $22 = val₃
+  247. copy_constant                  $23 = 0x00000001 (1.401298e-45)
+  248. add_int                        $22 += $23
+  249. copy_slot_masked               val₃ = Mask($22)
+  250. copy_constant                  $23 = 0x00000001 (1.401298e-45)
+  251. cmpeq_int                      $22 = equal($22, $23)
+  252. copy_slot_masked               [no_return_in_default].result = Mask($22)
+  253. load_return_mask               RetMask = $21
+  254. copy_slot_unmasked             $21 = [no_return_in_default].result
+  255. label                          label 0x00000027
+  256. copy_slot_masked               $20 = Mask($21)
+  257. label                          label 0x00000008
+  258. load_condition_mask            CondMask = $50
+  259. zero_slot_unmasked             $44 = 0
+  260. merge_condition_mask           CondMask = $19 & $20
+  261. branch_if_no_lanes_active      branch_if_no_lanes_active +35 (label 7 at #296)
+  262. store_return_mask              $45 = RetMask
+  263. copy_slot_unmasked             x₈ = x
+  264. zero_slot_unmasked             val₄ = 0
+  265. store_loop_mask                $46 = LoopMask
+  266. copy_slot_unmasked             $47 = x₈
+  267. store_loop_mask                $48 = LoopMask
+  268. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  269. case_op                        if ($47 == 0x00000001) { LoopMask = true; $48 = false; }
+  270. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 46 at #274)
+  271. zero_slot_unmasked             $49 = 0
+  272. copy_slot_masked               [empty_default].result = Mask($49)
+  273. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  274. label                          label 0x0000002E
+  275. case_op                        if ($47 == 0x00000002) { LoopMask = true; $48 = false; }
+  276. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 47 at #280)
+  277. copy_constant                  $49 = 0xFFFFFFFF
+  278. copy_slot_masked               [empty_default].result = Mask($49)
+  279. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  280. label                          label 0x0000002F
+  281. reenable_loop_mask             LoopMask |= $48
+  282. label                          label 0x00000030
+  283. label                          label 0x0000002D
+  284. load_loop_mask                 LoopMask = $46
+  285. copy_slot_unmasked             $46 = val₄
+  286. copy_constant                  $47 = 0x00000001 (1.401298e-45)
+  287. add_int                        $46 += $47
+  288. copy_slot_masked               val₄ = Mask($46)
+  289. copy_constant                  $47 = 0x00000001 (1.401298e-45)
+  290. cmpeq_int                      $46 = equal($46, $47)
+  291. copy_slot_masked               [empty_default].result = Mask($46)
+  292. load_return_mask               RetMask = $45
+  293. copy_slot_unmasked             $45 = [empty_default].result
+  294. label                          label 0x0000002C
+  295. copy_slot_masked               $44 = Mask($45)
+  296. label                          label 0x00000007
+  297. load_condition_mask            CondMask = $19
+  298. zero_slot_unmasked             $58 = 0
+  299. merge_condition_mask           CondMask = $43 & $44
+  300. branch_if_no_lanes_active      branch_if_no_lanes_active +27 (label 6 at #327)
+  301. store_return_mask              $59 = RetMask
+  302. copy_slot_unmasked             x₉ = x
+  303. store_loop_mask                $60 = LoopMask
+  304. copy_slot_unmasked             $61 = x₉
+  305. store_loop_mask                $62 = LoopMask
+  306. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  307. case_op                        if ($61 == 0x00000001) { LoopMask = true; $62 = false; }
+  308. label                          label 0x00000033
+  309. case_op                        if ($61 == 0x00000002) { LoopMask = true; $62 = false; }
+  310. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 52 at #314)
+  311. copy_constant                  $63 = 0xFFFFFFFF
+  312. copy_slot_masked               [return_with_fallthrough].result = Mask($63)
+  313. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  314. label                          label 0x00000034
+  315. reenable_loop_mask             LoopMask |= $62
+  316. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 53 at #320)
+  317. zero_slot_unmasked             $62 = 0
+  318. copy_slot_masked               [return_with_fallthrough].result = Mask($62)
+  319. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  320. label                          label 0x00000035
+  321. label                          label 0x00000032
+  322. load_loop_mask                 LoopMask = $60
+  323. load_return_mask               RetMask = $59
+  324. copy_slot_unmasked             $59 = [return_with_fallthrough].result
+  325. label                          label 0x00000031
+  326. copy_slot_masked               $58 = Mask($59)
+  327. label                          label 0x00000006
+  328. load_condition_mask            CondMask = $43
+  329. zero_slot_unmasked             $27 = 0
+  330. merge_condition_mask           CondMask = $57 & $58
+  331. branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 5 at #364)
+  332. store_return_mask              $28 = RetMask
+  333. copy_slot_unmasked             x₁₀ = x
+  334. zero_slot_unmasked             val₅ = 0
+  335. store_loop_mask                $29 = LoopMask
+  336. copy_slot_unmasked             $30 = x₁₀
+  337. store_loop_mask                $31 = LoopMask
+  338. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  339. case_op                        if ($30 == 0x00000001) { LoopMask = true; $31 = false; }
+  340. label                          label 0x00000038
+  341. case_op                        if ($30 == 0x00000002) { LoopMask = true; $31 = false; }
+  342. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 57 at #344)
+  343. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  344. label                          label 0x00000039
+  345. reenable_loop_mask             LoopMask |= $31
+  346. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 58 at #350)
+  347. zero_slot_unmasked             $31 = 0
+  348. copy_slot_masked               [fallthrough_ends_in_break].result = Mask($31)
+  349. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  350. label                          label 0x0000003A
+  351. label                          label 0x00000037
+  352. load_loop_mask                 LoopMask = $29
+  353. copy_slot_unmasked             $29 = val₅
+  354. copy_constant                  $30 = 0x00000001 (1.401298e-45)
+  355. add_int                        $29 += $30
+  356. copy_slot_masked               val₅ = Mask($29)
+  357. copy_constant                  $30 = 0x00000001 (1.401298e-45)
+  358. cmpeq_int                      $29 = equal($29, $30)
+  359. copy_slot_masked               [fallthrough_ends_in_break].result = Mask($29)
+  360. load_return_mask               RetMask = $28
+  361. copy_slot_unmasked             $28 = [fallthrough_ends_in_break].result
+  362. label                          label 0x00000036
+  363. copy_slot_masked               $27 = Mask($28)
+  364. label                          label 0x00000005
+  365. load_condition_mask            CondMask = $57
+  366. zero_slot_unmasked             $39 = 0
+  367. merge_condition_mask           CondMask = $26 & $27
+  368. branch_if_no_lanes_active      branch_if_no_lanes_active +25 (label 4 at #393)
+  369. copy_slot_unmasked             x₁₁ = x
+  370. zero_slot_unmasked             val₆ = 0
+  371. store_loop_mask                $40 = LoopMask
+  372. copy_slot_unmasked             $41 = x₁₁
+  373. store_loop_mask                $42 = LoopMask
+  374. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  375. case_op                        if ($41 == 0x00000001) { LoopMask = true; $42 = false; }
+  376. label                          label 0x0000003D
+  377. case_op                        if ($41 == 0x00000002) { LoopMask = true; $42 = false; }
+  378. label                          label 0x0000003E
+  379. reenable_loop_mask             LoopMask |= $42
+  380. branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 63 at #382)
+  381. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  382. label                          label 0x0000003F
+  383. label                          label 0x0000003C
+  384. load_loop_mask                 LoopMask = $40
+  385. copy_slot_unmasked             $40 = val₆
+  386. copy_constant                  $41 = 0x00000001 (1.401298e-45)
+  387. add_int                        $40 += $41
+  388. copy_slot_masked               val₆ = Mask($40)
+  389. copy_constant                  $41 = 0x00000001 (1.401298e-45)
+  390. cmpeq_int                      $40 = equal($40, $41)
+  391. label                          label 0x0000003B
+  392. copy_slot_masked               $39 = Mask($40)
+  393. label                          label 0x00000004
+  394. load_condition_mask            CondMask = $26
+  395. zero_slot_unmasked             $33 = 0
+  396. merge_condition_mask           CondMask = $38 & $39
+  397. branch_if_no_lanes_active      branch_if_no_lanes_active +23 (label 3 at #420)
+  398. store_return_mask              $34 = RetMask
+  399. copy_slot_unmasked             x₁₂ = x
+  400. store_loop_mask                $35 = LoopMask
+  401. copy_slot_unmasked             $36 = x₁₂
+  402. store_loop_mask                $37 = LoopMask
+  403. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  404. case_op                        if ($36 == 0x00000001) { LoopMask = true; $37 = false; }
+  405. label                          label 0x00000042
+  406. case_op                        if ($36 == 0x00000002) { LoopMask = true; $37 = false; }
+  407. label                          label 0x00000043
+  408. reenable_loop_mask             LoopMask |= $37
+  409. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 68 at #413)
+  410. copy_constant                  $37 = 0xFFFFFFFF
+  411. copy_slot_masked               [fallthrough_to_default_with_return].result = Mask($37)
+  412. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  413. label                          label 0x00000044
+  414. label                          label 0x00000041
+  415. load_loop_mask                 LoopMask = $35
+  416. load_return_mask               RetMask = $34
+  417. copy_slot_unmasked             $34 = [fallthrough_to_default_with_return].result
+  418. label                          label 0x00000040
+  419. copy_slot_masked               $33 = Mask($34)
+  420. label                          label 0x00000003
+  421. load_condition_mask            CondMask = $38
+  422. zero_slot_unmasked             $92 = 0
+  423. merge_condition_mask           CondMask = $32 & $33
+  424. branch_if_no_lanes_active      branch_if_no_lanes_active +47 (label 2 at #471)
+  425. store_return_mask              $93 = RetMask
+  426. copy_slot_unmasked             x₁₃ = x
+  427. zero_slot_unmasked             val₇ = 0
+  428. store_loop_mask                $94 = LoopMask
+  429. copy_slot_unmasked             $95 = x₁₃
+  430. store_loop_mask                $96 = LoopMask
+  431. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  432. case_op                        if ($95 == 0x00000001) { LoopMask = true; $96 = false; }
+  433. branch_if_no_lanes_active      branch_if_no_lanes_active +23 (label 71 at #456)
+  434. zero_slot_unmasked             i = 0
+  435. store_loop_mask                $97 = LoopMask
+  436. jump                           jump +12 (label 73 at #448)
+  437. label                          label 0x0000004A
+  438. copy_slot_unmasked             $98 = val₇
+  439. copy_constant                  $99 = 0x00000001 (1.401298e-45)
+  440. add_int                        $98 += $99
+  441. copy_slot_masked               val₇ = Mask($98)
+  442. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  443. label                          label 0x00000048
+  444. copy_slot_unmasked             $98 = i
+  445. copy_constant                  $99 = 0x00000001 (1.401298e-45)
+  446. add_int                        $98 += $99
+  447. copy_slot_masked               i = Mask($98)
+  448. label                          label 0x00000049
+  449. copy_slot_unmasked             $98 = i
+  450. copy_constant                  $99 = 0x00000005 (7.006492e-45)
+  451. cmplt_int                      $98 = lessThan($98, $99)
+  452. merge_loop_mask                LoopMask &= $98
+  453. stack_rewind
+  454. branch_if_any_lanes_active     branch_if_any_lanes_active -17 (label 74 at #437)
+  455. load_loop_mask                 LoopMask = $97
+  456. label                          label 0x00000047
+  457. case_op                        if ($95 == 0x00000002) { LoopMask = true; $96 = false; }
+  458. label                          label 0x0000004B
+  459. reenable_loop_mask             LoopMask |= $96
+  460. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 76 at #464)
+  461. copy_constant                  $96 = 0xFFFFFFFF
+  462. copy_slot_masked               [fallthrough_with_loop_break].result = Mask($96)
+  463. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  464. label                          label 0x0000004C
+  465. label                          label 0x00000046
+  466. load_loop_mask                 LoopMask = $94
+  467. load_return_mask               RetMask = $93
+  468. copy_slot_unmasked             $93 = [fallthrough_with_loop_break].result
+  469. label                          label 0x00000045
+  470. copy_slot_masked               $92 = Mask($93)
+  471. label                          label 0x00000002
+  472. load_condition_mask            CondMask = $32
+  473. zero_slot_unmasked             $0 = 0
+  474. merge_condition_mask           CondMask = $91 & $92
+  475. branch_if_no_lanes_active      branch_if_no_lanes_active +51 (label 1 at #526)
+  476. store_return_mask              $1 = RetMask
+  477. copy_slot_unmasked             x₁₄ = x
+  478. zero_slot_unmasked             val₈ = 0
+  479. store_loop_mask                $2 = LoopMask
+  480. copy_slot_unmasked             $3 = x₁₄
+  481. store_loop_mask                $4 = LoopMask
   482. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  483. reenable_loop_mask             LoopMask |= $32
-  484. copy_slot_unmasked             $6 = i₁
-  485. copy_constant                  $7 = 0x00000001 (1.401298e-45)
-  486. add_int                        $6 += $7
-  487. copy_slot_masked               i₁ = Mask($6)
-  488. label                          label 0x00000041
-  489. copy_slot_unmasked             $6 = i₁
-  490. copy_constant                  $7 = 0x00000005 (7.006492e-45)
-  491. cmplt_int                      $6 = lessThan($6, $7)
-  492. merge_loop_mask                LoopMask &= $6
-  493. stack_rewind
-  494. branch_if_any_lanes_active     branch_if_any_lanes_active -20 (label 66 at #474)
-  495. load_loop_mask                 LoopMask = $5
-  496. label                          label 0x00000040
-  497. case_op                        if ($3 == 0x00000002) { LoopMask = true; $4 = false; }
-  498. label                          label 0x00000043
-  499. reenable_loop_mask             LoopMask |= $4
-  500. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 68 at #504)
-  501. copy_constant                  $4 = 0xFFFFFFFF
-  502. copy_slot_masked               [fallthrough_with_loop_continue].result = Mask($4)
-  503. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  504. label                          label 0x00000044
-  505. load_loop_mask                 LoopMask = $2
-  506. load_return_mask               RetMask = $1
-  507. copy_slot_unmasked             $1 = [fallthrough_with_loop_continue].result
-  508. label                          label 0x0000003F
-  509. copy_slot_masked               $0 = Mask($1)
-  510. label                          label 0x00000001
-  511. load_condition_mask            CondMask = $91
-  512. swizzle_4                      $0..3 = ($0..3).xxxx
-  513. copy_4_constants               $4..7 = colorRed
-  514. copy_4_constants               $8..11 = colorGreen
-  515. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-  516. load_src                       src.rgba = $0..3
+  483. case_op                        if ($3 == 0x00000001) { LoopMask = true; $4 = false; }
+  484. branch_if_no_lanes_active      branch_if_no_lanes_active +27 (label 79 at #511)
+  485. zero_slot_unmasked             i₁ = 0
+  486. store_loop_mask                $5 = LoopMask
+  487. jump                           jump +16 (label 81 at #503)
+  488. label                          label 0x00000052
+  489. zero_slot_unmasked             $32 = 0
+  490. copy_slot_unmasked             $6 = val₈
+  491. copy_constant                  $7 = 0x00000001 (1.401298e-45)
+  492. add_int                        $6 += $7
+  493. copy_slot_masked               val₈ = Mask($6)
+  494. copy_constant                  $33 = 0xFFFFFFFF
+  495. copy_slot_masked               $32 = Mask($33)
+  496. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  497. reenable_loop_mask             LoopMask |= $32
+  498. label                          label 0x00000050
+  499. copy_slot_unmasked             $6 = i₁
+  500. copy_constant                  $7 = 0x00000001 (1.401298e-45)
+  501. add_int                        $6 += $7
+  502. copy_slot_masked               i₁ = Mask($6)
+  503. label                          label 0x00000051
+  504. copy_slot_unmasked             $6 = i₁
+  505. copy_constant                  $7 = 0x00000005 (7.006492e-45)
+  506. cmplt_int                      $6 = lessThan($6, $7)
+  507. merge_loop_mask                LoopMask &= $6
+  508. stack_rewind
+  509. branch_if_any_lanes_active     branch_if_any_lanes_active -21 (label 82 at #488)
+  510. load_loop_mask                 LoopMask = $5
+  511. label                          label 0x0000004F
+  512. case_op                        if ($3 == 0x00000002) { LoopMask = true; $4 = false; }
+  513. label                          label 0x00000053
+  514. reenable_loop_mask             LoopMask |= $4
+  515. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 84 at #519)
+  516. copy_constant                  $4 = 0xFFFFFFFF
+  517. copy_slot_masked               [fallthrough_with_loop_continue].result = Mask($4)
+  518. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  519. label                          label 0x00000054
+  520. label                          label 0x0000004E
+  521. load_loop_mask                 LoopMask = $2
+  522. load_return_mask               RetMask = $1
+  523. copy_slot_unmasked             $1 = [fallthrough_with_loop_continue].result
+  524. label                          label 0x0000004D
+  525. copy_slot_masked               $0 = Mask($1)
+  526. label                          label 0x00000001
+  527. load_condition_mask            CondMask = $91
+  528. swizzle_4                      $0..3 = ($0..3).xxxx
+  529. copy_4_constants               $4..7 = colorRed
+  530. copy_4_constants               $8..11 = colorGreen
+  531. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+  532. load_src                       src.rgba = $0..3

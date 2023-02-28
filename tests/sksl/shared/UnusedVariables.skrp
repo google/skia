@@ -34,50 +34,51 @@
    34. copy_slot_unmasked             b = $0
    35. zero_slot_unmasked             x = 0
    36. store_loop_mask                $0 = LoopMask
-   37. jump                           jump +11 (label 2 at #48)
-   38. label                          label 0x00000003
+   37. jump                           jump +12 (label 3 at #49)
+   38. label                          label 0x00000004
    39. zero_slot_unmasked             $5 = 0
    40. copy_constant                  $6 = 0xFFFFFFFF
    41. copy_slot_masked               $5 = Mask($6)
    42. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    43. reenable_loop_mask             LoopMask |= $5
-   44. copy_slot_unmasked             $1 = x
-   45. copy_constant                  $2 = 0x00000001 (1.401298e-45)
-   46. add_int                        $1 += $2
-   47. copy_slot_masked               x = Mask($1)
-   48. label                          label 0x00000002
-   49. copy_slot_unmasked             $1 = x
-   50. copy_constant                  $2 = 0x00000001 (1.401298e-45)
-   51. cmplt_int                      $1 = lessThan($1, $2)
-   52. merge_loop_mask                LoopMask &= $1
-   53. stack_rewind
-   54. branch_if_any_lanes_active     branch_if_any_lanes_active -16 (label 3 at #38)
-   55. load_loop_mask                 LoopMask = $0
-   56. copy_slot_unmasked             d = c
-   57. copy_constant                  $0 = 0x40400000 (3.0)
-   58. copy_slot_unmasked             b = $0
-   59. copy_slot_unmasked             $0 = d
-   60. copy_constant                  $1 = 0x3F800000 (1.0)
-   61. add_float                      $0 += $1
-   62. copy_slot_unmasked             d = $0
-   63. copy_slot_unmasked             $0 = b
-   64. copy_constant                  $1 = 0x40000000 (2.0)
-   65. cmpeq_float                    $0 = equal($0, $1)
-   66. copy_constant                  $1 = 0x3F800000 (1.0)
-   67. bitwise_and_int                $0 &= $1
-   68. copy_slot_unmasked             $1 = b
-   69. copy_constant                  $2 = 0x40400000 (3.0)
-   70. cmpeq_float                    $1 = equal($1, $2)
-   71. copy_constant                  $2 = 0x3F800000 (1.0)
-   72. bitwise_and_int                $1 &= $2
-   73. copy_slot_unmasked             $2 = d
-   74. copy_constant                  $3 = 0x40A00000 (5.0)
-   75. cmpeq_float                    $2 = equal($2, $3)
-   76. copy_constant                  $3 = 0x3F800000 (1.0)
-   77. bitwise_and_int                $2 &= $3
-   78. copy_slot_unmasked             $3 = d
-   79. copy_constant                  $4 = 0x40800000 (4.0)
-   80. cmpeq_float                    $3 = equal($3, $4)
-   81. copy_constant                  $4 = 0x3F800000 (1.0)
-   82. bitwise_and_int                $3 &= $4
-   83. load_src                       src.rgba = $0..3
+   44. label                          label 0x00000002
+   45. copy_slot_unmasked             $1 = x
+   46. copy_constant                  $2 = 0x00000001 (1.401298e-45)
+   47. add_int                        $1 += $2
+   48. copy_slot_masked               x = Mask($1)
+   49. label                          label 0x00000003
+   50. copy_slot_unmasked             $1 = x
+   51. copy_constant                  $2 = 0x00000001 (1.401298e-45)
+   52. cmplt_int                      $1 = lessThan($1, $2)
+   53. merge_loop_mask                LoopMask &= $1
+   54. stack_rewind
+   55. branch_if_any_lanes_active     branch_if_any_lanes_active -17 (label 4 at #38)
+   56. load_loop_mask                 LoopMask = $0
+   57. copy_slot_unmasked             d = c
+   58. copy_constant                  $0 = 0x40400000 (3.0)
+   59. copy_slot_unmasked             b = $0
+   60. copy_slot_unmasked             $0 = d
+   61. copy_constant                  $1 = 0x3F800000 (1.0)
+   62. add_float                      $0 += $1
+   63. copy_slot_unmasked             d = $0
+   64. copy_slot_unmasked             $0 = b
+   65. copy_constant                  $1 = 0x40000000 (2.0)
+   66. cmpeq_float                    $0 = equal($0, $1)
+   67. copy_constant                  $1 = 0x3F800000 (1.0)
+   68. bitwise_and_int                $0 &= $1
+   69. copy_slot_unmasked             $1 = b
+   70. copy_constant                  $2 = 0x40400000 (3.0)
+   71. cmpeq_float                    $1 = equal($1, $2)
+   72. copy_constant                  $2 = 0x3F800000 (1.0)
+   73. bitwise_and_int                $1 &= $2
+   74. copy_slot_unmasked             $2 = d
+   75. copy_constant                  $3 = 0x40A00000 (5.0)
+   76. cmpeq_float                    $2 = equal($2, $3)
+   77. copy_constant                  $3 = 0x3F800000 (1.0)
+   78. bitwise_and_int                $2 &= $3
+   79. copy_slot_unmasked             $3 = d
+   80. copy_constant                  $4 = 0x40800000 (4.0)
+   81. cmpeq_float                    $3 = equal($3, $4)
+   82. copy_constant                  $4 = 0x3F800000 (1.0)
+   83. bitwise_and_int                $3 &= $4
+   84. load_src                       src.rgba = $0..3

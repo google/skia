@@ -1245,6 +1245,9 @@ bool Generator::writeContinueStatement(const ContinueStatement&) {
 }
 
 bool Generator::writeDoStatement(const DoStatement& d) {
+    // Set up a break target.
+    int breakTargetID = fBuilder.nextLabelID();
+
     // Save off the original loop mask.
     fBuilder.enableExecutionMaskWrites();
     fBuilder.push_loop_mask();
@@ -1268,6 +1271,8 @@ bool Generator::writeDoStatement(const DoStatement& d) {
     }
 
     autoContinueMask.exitLoopBody();
+
+    fBuilder.label(breakTargetID);
 
     // Emit the test-expression, in order to combine it with the loop mask.
     if (!this->pushExpression(*d.test())) {
@@ -1353,6 +1358,9 @@ bool Generator::writeForStatement(const ForStatement& f) {
         return this->writeMasklessForStatement(f);
     }
 
+    // Set up a break target.
+    int breakTargetID = fBuilder.nextLabelID();
+
     // Run the loop initializer.
     if (f.initializer() && !this->writeStatement(*f.initializer())) {
         return unsupported();
@@ -1384,6 +1392,8 @@ bool Generator::writeForStatement(const ForStatement& f) {
     }
 
     autoContinueMask.exitLoopBody();
+
+    fBuilder.label(breakTargetID);
 
     // Run the next-expression. Immediately discard its result.
     if (f.next()) {
@@ -1522,6 +1532,9 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
         return stmt->is<SwitchCase>();
     }));
 
+    // Set up a break target.
+    int breakTargetID = fBuilder.nextLabelID();
+
     // Save off the original loop mask.
     fBuilder.enableExecutionMaskWrites();
     fBuilder.push_loop_mask();
@@ -1568,6 +1581,8 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
         }
         fBuilder.label(skipLabelID);
     }
+
+    fBuilder.label(breakTargetID);
 
     // Jettison the switch value, and the default case mask if it was never consumed above.
     this->discardExpression(/*slots=*/foundDefaultCase ? 1 : 2);
