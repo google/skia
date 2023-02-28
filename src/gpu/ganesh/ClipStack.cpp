@@ -143,15 +143,15 @@ bool shape_contains_rect(const GrShape& a, const SkMatrix& aToDevice, const SkMa
     // Test each corner for contains; since a is convex, if all 4 corners of b's bounds are
     // contained, then the entirety of b is within a.
     GrQuad deviceQuad = GrQuad::MakeFromRect(b, bToDevice);
-    if (any(deviceQuad.w4f() < SkPathPriv::kW0PlaneDistance)) {
-        // Something in B actually projects behind the W = 0 plane and would be clipped to infinity,
-        // so it's extremely unlikely that A can contain B.
-        return false;
-    }
     if (mixedAAMode) {
         // Outset it so its edges are 1/2px out, giving us a buffer to avoid cases where a non-AA
         // clip or draw would snap outside an aa element.
         GrQuadUtils::Outset({0.5f, 0.5f, 0.5f, 0.5f}, &deviceQuad);
+    }
+    if (any(deviceQuad.w4f() < SkPathPriv::kW0PlaneDistance)) {
+        // Something in B actually projects behind the W = 0 plane and would be clipped to infinity,
+        // so it's extremely unlikely that A can contain B.
+        return false;
     }
 
     for (int i = 0; i < 4; ++i) {
