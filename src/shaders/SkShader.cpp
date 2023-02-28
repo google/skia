@@ -215,15 +215,12 @@ bool SkShaderBase::appendStages(const SkStageRec& rec, const MatrixRec& mRec) co
     // SkShader::Context::shadeSpan() handles the paint opacity internally,
     // but SkRasterPipelineBlitter applies it as a separate stage.
     // We skip the internal shadeSpan() step by forcing the paint opaque.
-    SkTCopyOnFirstWrite<SkPaint> opaquePaint(rec.fPaint);
-    if (rec.fPaint.getAlpha() != SK_AlphaOPAQUE) {
-        opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
-    }
+    SkColor4f opaquePaintColor = rec.fPaint.getColor4f().makeOpaque();
 
     // We don't have a separate ctm and local matrix at this point. Just pass the combined matrix
     // as the CTM. TODO: thread the MatrixRec through the legacy context system.
     auto tm = mRec.totalMatrix();
-    ContextRec cr(*opaquePaint,
+    ContextRec cr(opaquePaintColor,
                   tm,
                   nullptr,
                   rec.fDstColorType,
