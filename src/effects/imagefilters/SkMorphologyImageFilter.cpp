@@ -34,7 +34,7 @@
 #include <memory>
 #include <utility>
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
@@ -205,7 +205,7 @@ SkIRect SkMorphologyImageFilter::onFilterNodeBounds(
     return src.makeOutset(SkScalarCeilToInt(radius.width()), SkScalarCeilToInt(radius.height()));
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
@@ -693,7 +693,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(const Context& ctx,
         return input->makeSubset(srcBounds);
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 

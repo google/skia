@@ -23,7 +23,7 @@ public:
     virtual GrRecordingContext* onGetRecordingContext();
     virtual skgpu::graphite::Recorder* onGetRecorder();
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
     virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess);
     virtual bool onReplaceBackendTexture(const GrBackendTexture&,
@@ -66,7 +66,7 @@ public:
      */
     virtual sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset = nullptr) { return nullptr; }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     virtual sk_sp<SkImage> onAsImage() { return nullptr; }
 
     virtual sk_sp<SkImage> onMakeImageCopy(const SkIRect* /* subset */,

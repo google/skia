@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_GANESH_ENABLED) && defined(SK_VULKAN)
+#if defined(SK_GANESH) && defined(SK_VULKAN)
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"

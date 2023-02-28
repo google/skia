@@ -34,10 +34,10 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
-#endif  // defined(SK_GANESH_ENABLED)
+#endif  // defined(SK_GANESH)
 
 #include <locale>
 #include <string>
@@ -655,7 +655,7 @@ sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, const void* data
     if (!dc) {
         return SkMeshPriv::CpuIndexBuffer::Make(data, size);
     }
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     return SkMeshPriv::GpuIndexBuffer::Make(dc, data, size);
 #else
     return nullptr;
@@ -678,7 +678,7 @@ sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, const void* da
     if (!dc) {
         return SkMeshPriv::CpuVertexBuffer::Make(data, size);
     }
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     return SkMeshPriv::GpuVertexBuffer::Make(dc, data, size);
 #else
     return nullptr;
@@ -868,7 +868,7 @@ bool SkMesh::VertexBuffer::update(GrDirectContext* dc,
     return check_update(data, offset, size, this->size()) && this->onUpdate(dc, data, offset, size);
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
                                  sk_sp<GrGpuBuffer> buffer,
                                  const void* data,
@@ -920,6 +920,6 @@ bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
 
     return true;
 }
-#endif  // defined(SK_GANESH_ENABLED)
+#endif  // defined(SK_GANESH)
 
 #endif  // SK_ENABLE_SKSL

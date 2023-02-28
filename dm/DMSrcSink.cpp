@@ -82,7 +82,7 @@
     #include "src/xml/SkXMLWriter.h"
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
@@ -1098,12 +1098,12 @@ Result SKPSrc::draw(SkCanvas* canvas) const {
 
     struct DeserializationContext {
         GrDirectContext*           fDirectContext = nullptr;
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         skgpu::graphite::Recorder* fRecorder = nullptr;
 #endif
     } ctx {
         GrAsDirectContext(canvas->recordingContext()),
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         canvas->recorder()
 #endif
     };
@@ -2096,7 +2096,7 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 GraphiteSink::GraphiteSink(const SkCommandLineConfigGraphite* config)
         : fContextType(config->getContextType())

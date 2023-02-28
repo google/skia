@@ -11,7 +11,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -89,7 +89,7 @@ SkShaderBase::GradientType SkLinearGradient::asGradient(GradientInfo* info,
 
 /////////////////////////////////////////////////////////////////////
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "src/gpu/ganesh/gradients/GrGradientShader.h"
 
@@ -100,7 +100,7 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 void SkLinearGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
                                 skgpu::graphite::PipelineDataGatherer* gatherer) const {

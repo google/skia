@@ -7,7 +7,7 @@
 
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 
-#if defined(SKSL_STANDALONE) || defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
+#if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"

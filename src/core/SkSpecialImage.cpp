@@ -18,7 +18,7 @@
 #include "src/core/SkSurfacePriv.h"
 #include "src/image/SkImage_Base.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/SkBackingFit.h"
@@ -86,7 +86,7 @@ sk_sp<SkShader> SkSpecialImage::asShader(const SkSamplingOptions& sampling,
     return this->asShader(SkTileMode::kClamp, sampling, lm);
 }
 
-#if SK_GRAPHITE_ENABLED
+#if SK_GRAPHITE
 #include "src/gpu/graphite/TextureProxyView.h"
 
 bool SkSpecialImage::isGraphiteBacked() const {
@@ -127,7 +127,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* rContext
                                                     const SkSurfaceProps& props) {
     SkASSERT(RectFits(subset, image->width(), image->height()));
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     if (rContext) {
         auto [view, ct] = as_IB(image)->asView(rContext, GrMipmapped::kNo);
         return MakeDeferredFromGpu(rContext,
@@ -173,7 +173,7 @@ public:
         return fBitmap.extractSubset(bm, this->subset());
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     GrSurfaceProxyView onView(GrRecordingContext* context) const override {
         if (context) {
             return std::get<0>(GrMakeCachedBitmapProxyView(
@@ -288,7 +288,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
             SkIRect::MakeWH(subset.width(), subset.height()), tmp, props);
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 ///////////////////////////////////////////////////////////////////////////////
 static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context,
                                           GrSurfaceProxyView view,

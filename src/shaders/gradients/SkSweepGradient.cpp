@@ -11,7 +11,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -25,11 +25,11 @@ public:
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
@@ -146,7 +146,7 @@ skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms
 
 /////////////////////////////////////////////////////////////////////
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -190,7 +190,7 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
 
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 void SkSweepGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                skgpu::graphite::PaintParamsKeyBuilder* builder,
                                skgpu::graphite::PipelineDataGatherer* gatherer) const {

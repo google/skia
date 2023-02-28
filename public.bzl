@@ -2054,7 +2054,7 @@ VULKAN_SRCS = [
 
 BASE_DEFINES = [
     # Our legacy G3 rule *always* has the ganesh backend enabled.
-    "SK_GANESH_ENABLED",
+    "SK_GANESH",
     # Chrome DEFINES.
     "SK_USE_FREETYPE_EMBOLDEN",
     # Turn on a few Google3-specific build fixes.

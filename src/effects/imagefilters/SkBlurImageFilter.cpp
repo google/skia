@@ -35,12 +35,12 @@
 #include <memory>
 #include <utility>
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>
@@ -73,7 +73,7 @@ private:
     friend void ::SkRegisterBlurImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkBlurImageFilter)
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     sk_sp<SkSpecialImage> gpuFilter(
             const Context& ctx, SkVector sigma,
             const sk_sp<SkSpecialImage> &input,
@@ -959,7 +959,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
              SkScalarIsFinite(sigma.y()) && sigma.y() >= 0.f && sigma.y() <= kMaxSigma);
 
     sk_sp<SkSpecialImage> result;
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     if (ctx.gpuBacked()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
@@ -980,7 +980,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
     return result;
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(
         const Context& ctx, SkVector sigma, const sk_sp<SkSpecialImage> &input, SkIRect inputBounds,
         SkIRect dstBounds, SkIPoint inputOffset, SkIPoint* offset) const {

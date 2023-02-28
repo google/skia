@@ -25,7 +25,7 @@
 #include "src/shaders/SkImageShader.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -39,7 +39,7 @@
 #include "src/shaders/SkLocalMatrixShader.h"
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
@@ -362,7 +362,7 @@ const {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "src/gpu/ganesh/GrProxyProvider.h"
 
@@ -445,7 +445,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 }
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 void SkPictureShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                skgpu::graphite::PaintParamsKeyBuilder* builder,
                                skgpu::graphite::PipelineDataGatherer* gatherer) const {
@@ -498,4 +498,4 @@ void SkPictureShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
 
     as_SB(shader)->addToKey(keyContext, builder, gatherer);
 }
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE

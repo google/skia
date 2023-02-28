@@ -21,7 +21,7 @@
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/SkBackingFit.h"
@@ -43,7 +43,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)
 
 using namespace skia_private;
 
@@ -56,7 +56,7 @@ public:
     bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                     SkIPoint* margin) const override;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     bool canFilterMaskGPU(const GrStyledShape& shape,
                           const SkIRect& devSpaceShapeBounds,
                           const SkIRect& clipBounds,
@@ -579,7 +579,7 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 }
 
 
-#if defined(SK_GANESH_ENABLED) && defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH) && defined(SK_GANESH)
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Circle Blur
@@ -1077,7 +1077,7 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                const SkRRect& rrectToDraw,
                                const SkISize& dimensions,
                                float xformedSigma) {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
 
     // We cache blur masks. Use default surface props here so we can use the same cached mask
@@ -1667,7 +1667,7 @@ GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* conte
     return surfaceDrawContext->readSurfaceView();
 }
 
-#endif // defined(SK_GANESH_ENABLED) && defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH) && defined(SK_GANESH)
 
 void sk_register_blur_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(SkBlurMaskFilterImpl); }
 

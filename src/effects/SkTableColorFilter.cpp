@@ -28,7 +28,7 @@
 #include <tuple>
 #include <utility>
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
@@ -39,7 +39,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
@@ -88,13 +88,13 @@ public:
         fBitmap.setImmutable();
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*, const GrColorInfo&,
                                    const SkSurfaceProps&) const override;
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
@@ -157,7 +157,7 @@ sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
@@ -290,9 +290,9 @@ GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentPr
     return cte ? GrFPSuccess(std::move(cte)) : GrFPFailure(nullptr);
 }
 
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,

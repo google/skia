@@ -133,7 +133,7 @@ public:
         return read_index_base_1_or_null(reader, fTextBlobs);
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     const sktext::gpu::Slug* getSlug(SkReadBuffer* reader) const {
         return read_index_base_1_or_null(reader, fSlugs);
     }
@@ -165,7 +165,7 @@ private:
     skia_private::TArray<sk_sp<const SkTextBlob>>  fTextBlobs;
     skia_private::TArray<sk_sp<const SkVertices>>  fVertices;
     skia_private::TArray<sk_sp<const SkImage>>     fImages;
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     skia_private::TArray<sk_sp<const sktext::gpu::Slug>> fSlugs;
 #endif
 

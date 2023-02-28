@@ -22,7 +22,7 @@
 
 #include <atomic>
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/private/chromium/Slug.h"
 #endif
 

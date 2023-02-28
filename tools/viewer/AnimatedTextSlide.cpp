@@ -16,7 +16,7 @@
 #include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
@@ -69,7 +69,7 @@ public:
 
         canvas->save();
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
         auto direct = GrAsDirectContext(canvas->recordingContext());
         if (direct) {
             SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNearest);

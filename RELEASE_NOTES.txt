@@ -4,7 +4,7 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 113
 -------------
-  * The define SK_SUPPORT_GPU is now SK_GANESH_ENABLED. It is no longer detected as a 0 or 1, but
+  * The define SK_SUPPORT_GPU is now SK_GANESH. It is no longer detected as a 0 or 1, but
     as the absence or presence of that define. As a result, it defaults to off (not defined) if
     not defined (SK_SUPPORT_GPU would default to SK_SUPPORT_GPU=1 if not defined).
   * SkStrSplit is no longer part of the public API.

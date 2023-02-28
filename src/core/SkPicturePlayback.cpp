@@ -611,7 +611,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->drawTextBlob(blob, x, y, paint);
         } break;
         case DRAW_SLUG: {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
             const sktext::gpu::Slug* slug = fPictureData->getSlug(reader);
             BREAK_ON_READ_ERROR(reader);
 

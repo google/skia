@@ -7,7 +7,7 @@
 
 #include "tests/Test.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -755,4 +755,4 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     }
 }
 
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE

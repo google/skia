@@ -45,7 +45,7 @@ class SkRegion;
 class UrlDataManager;
 struct SkDrawShadowRec;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #endif
 
@@ -164,7 +164,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     DebugPaintFilterCanvas filterCanvas(originalCanvas);
     SkCanvas* finalCanvas = fOverdrawViz ? &filterCanvas : originalCanvas;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     auto dContext = GrAsDirectContext(finalCanvas->recordingContext());
 
     // If we have a GPU backend we can also visualize the op information
@@ -176,7 +176,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 #endif
 
     for (int i = 0; i <= index; i++) {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
         GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
             // We need to flush any pending operations, or they might combine with commands below.
@@ -191,7 +191,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         if (fCommandVector[i]->isVisible()) {
             fCommandVector[i]->execute(finalCanvas);
         }
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
         if (at && acb) {
             delete acb;
         }
@@ -225,7 +225,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         finalCanvas->drawRect(fAndroidClip, androidClipPaint);
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     // draw any ops if required and issue a full reset onto GrAuditTrail
     if (at) {
         // just in case there is global reordering, we flush the canvas before querying
@@ -293,7 +293,7 @@ DrawCommand* DebugCanvas::getDrawCommandAt(int index) const {
     return fCommandVector[index];
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 GrAuditTrail* DebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at  = nullptr;
     auto ctx = canvas->recordingContext();
@@ -331,12 +331,12 @@ void DebugCanvas::cleanupAuditTrail(GrAuditTrail* at) {
         at->fullReset();
     }
 }
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)
 
 void DebugCanvas::toJSON(SkJSONWriter&   writer,
                          UrlDataManager& urlDataManager,
                          SkCanvas*       canvas) {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     this->drawAndCollectOps(canvas);
 
     // now collect json
@@ -349,7 +349,7 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
         writer.beginObject();  // command
         this->getDrawCommandAt(i)->toJSON(writer, urlDataManager);
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
         if (at) {
             writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL);
             at->toJson(writer, i);
@@ -359,13 +359,13 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
     }
 
     writer.endArray();  // commands
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     this->cleanupAuditTrail(at);
 #endif
 }
 
 void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, SkCanvas* canvas) {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     this->drawAndCollectOps(canvas);
 
     GrAuditTrail* at = this->getAuditTrail(canvas);

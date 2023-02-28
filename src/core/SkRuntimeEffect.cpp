@@ -42,7 +42,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -56,7 +56,7 @@
 #include "src/image/SkImage_Gpu.h"
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -1002,7 +1002,7 @@ const SkFilterColorProgram* SkRuntimeEffect::getFilterColorProgram() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
                                  const char* name,
                                  sk_sp<const SkData> uniforms,
@@ -1060,7 +1060,7 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
 }
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children,
                                 SkSpan<const SkRuntimeEffect::Child> childInfo,
                                 const skgpu::graphite::KeyContext& keyContext,
@@ -1190,7 +1190,7 @@ public:
             , fUniforms(std::move(uniforms))
             , fChildren(children.begin(), children.end()) {}
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& colorInfo,
@@ -1212,7 +1212,7 @@ public:
     }
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer) const override {
@@ -1384,7 +1384,7 @@ public:
 
     bool isOpaque() const override { return fEffect->alwaysOpaque(); }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args,
                                                              const MatrixRec& mRec) const override {
         if (!SkRuntimeEffectPriv::CanDraw(args.fContext->priv().caps(), fEffect.get())) {
@@ -1418,7 +1418,7 @@ public:
     }
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer) const override {
@@ -1610,7 +1610,7 @@ public:
                                    src, dst, &callbacks);
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             std::unique_ptr<GrFragmentProcessor> srcFP,
             std::unique_ptr<GrFragmentProcessor> dstFP,
@@ -1636,7 +1636,7 @@ public:
     }
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer,
@@ -1748,7 +1748,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
     }
     sk_sp<SkSurface> surface;
     if (rContext) {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
         if (!rContext->priv().caps()->mipmapSupport()) {
             mipmapped = false;
         }

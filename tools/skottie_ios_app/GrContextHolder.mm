@@ -5,7 +5,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"

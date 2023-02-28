@@ -74,7 +74,7 @@ protected:
 
     sk_sp<GrImageContext> fContext;
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       RequiredImageProperties) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset,

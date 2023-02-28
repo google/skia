@@ -221,7 +221,7 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->append<SkRecords::DrawTextBlob>(paint, sk_ref_sp(blob), x, y);
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 void SkRecorder::onDrawSlug(const sktext::gpu::Slug* slug) {
     this->append<SkRecords::DrawSlug>(sk_ref_sp(slug));
 }

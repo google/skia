@@ -126,7 +126,7 @@ bool Window_mac::attach(BackendType attachType) {
         case kDawn_BackendType:
             fWindowContext = MakeDawnMTLForMac(info, fRequestedDisplayParams);
             break;
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         case kGraphiteDawn_BackendType:
             fWindowContext = MakeGraphiteDawnMetalForMac(info, fRequestedDisplayParams);
             break;
@@ -141,7 +141,7 @@ bool Window_mac::attach(BackendType attachType) {
         case kMetal_BackendType:
             fWindowContext = MakeMetalForMac(info, fRequestedDisplayParams);
             break;
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         case kGraphiteMetal_BackendType:
             fWindowContext = MakeGraphiteMetalForMac(info, fRequestedDisplayParams);
             break;

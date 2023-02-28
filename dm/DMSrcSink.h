@@ -580,7 +580,7 @@ private:
     int fPageIndex;
 };
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 class GraphiteSink : public Sink {
 public:

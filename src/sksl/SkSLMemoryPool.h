@@ -12,7 +12,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "src/gpu/ganesh/GrMemoryPool.h"
 
@@ -40,5 +40,5 @@ public:
 
 }  // namespace SkSL
 
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)
 #endif // SKSL_MEMORYPOOL

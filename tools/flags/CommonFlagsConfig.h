@@ -110,7 +110,7 @@ private:
     SurfType            fSurfType;
 };
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 #include "tools/graphite/ContextFactory.h"
 
@@ -140,7 +140,7 @@ private:
     SkAlphaType         fAlphaType;
 };
 
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE
 
 // SkCommandLineConfigSvg is a SkCommandLineConfig that extracts information out of the backend
 // part of the tag. It is constructed tags that have:

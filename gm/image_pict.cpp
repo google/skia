@@ -174,7 +174,7 @@ public:
             surface = SkSurface::MakeRenderTarget(fRContext.get(), skgpu::Budgeted::kYes, info,
                                                   0, kTopLeft_GrSurfaceOrigin, nullptr);
         }
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         if (skgpu::graphite::Recorder* recorder = canvas->recorder()) {
             surface = SkSurface::MakeGraphite(recorder, info);
         }
@@ -220,7 +220,7 @@ protected:
                 /*label=*/"SurfaceProxyView_GenerateTexture");
     }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       const SkImageInfo&,
                                       skgpu::Mipmapped) override {
@@ -304,7 +304,7 @@ protected:
                 fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset,
                                                                                       dContext);
             } else {
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
                 auto recorder = canvas->recorder();
                 fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset,
                                                                                       recorder);

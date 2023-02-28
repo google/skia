@@ -134,7 +134,7 @@ static const struct {
     { "d3dmsaa8",              "gpu", "api=direct3d,samples=8" },
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #ifdef SK_DIRECT3D
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
@@ -471,7 +471,7 @@ public:
         return parse_option_gpu_api(*optionValue, outContextType, outFakeGLESVersion2);
     }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     bool get_option_graphite_api(const char*                               optionKey,
                                  SkCommandLineConfigGraphite::ContextType* outContextType) const {
         SkString* optionValue = fOptionsMap.find(SkString(optionKey));
@@ -660,7 +660,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
                                       surfType);
 }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString&           tag,
                                                                 const SkTArray<SkString>& vias,
@@ -765,7 +765,7 @@ void ParseConfigs(const CommandLineFlags::StringArray& configs,
         if (extendedBackend.equals("gpu")) {
             parsedConfig = parse_command_line_config_gpu(tag, vias, extendedOptions);
         }
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         if (extendedBackend.equals("graphite")) {
             parsedConfig = parse_command_line_config_graphite(tag, vias, extendedOptions);
         }

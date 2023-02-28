@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "include/core/SkImageInfo.h"
 #include "include/gpu/GrContextOptions.h"
@@ -160,7 +160,7 @@ private:
     std::atomic<bool>                                       fAbandoned{false};
 };
 
-#else // !defined(SK_GANESH_ENABLED)
+#else // !defined(SK_GANESH)
 class SK_API GrContextThreadSafeProxy final : public SkNVRefCnt<GrContextThreadSafeProxy> {};
 #endif
 

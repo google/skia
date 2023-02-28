@@ -56,7 +56,7 @@
 
 class GrDirectContext;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
 #endif
 
@@ -674,7 +674,7 @@ bool DrawCommand::flatten(const SkImage&  image,
             SkImageInfo::Make(image.dimensions(), kN32_SkColorType, kPremul_SkAlphaType);
     // "cheat" for this debug tool and use image's context
     GrDirectContext* dContext = nullptr;
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     dContext = GrAsDirectContext(as_IB(&image)->context());
 #endif
     if (!image.readPixels(dContext, dstInfo, buffer.get(), rowBytes, 0, 0)) {

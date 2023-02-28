@@ -13,7 +13,7 @@
 
 class GrDirectContext;
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 namespace skgpu::graphite { class Context; }
 #endif
 
@@ -32,7 +32,7 @@ public:
     }
 
     FlushFinishTracker(GrDirectContext* context) : fContext(context) {}
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     FlushFinishTracker(skgpu::graphite::Context* context) : fGraphiteContext(context) {}
 #endif
 
@@ -42,7 +42,7 @@ public:
 
 private:
     GrDirectContext* fContext = nullptr;
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     skgpu::graphite::Context*  fGraphiteContext = nullptr;
 #endif
 

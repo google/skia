@@ -332,7 +332,7 @@ void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y
     }
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 void SkNWayCanvas::onDrawSlug(const sktext::gpu::Slug* slug) {
     Iter iter(fList);
     while (iter.next()) {

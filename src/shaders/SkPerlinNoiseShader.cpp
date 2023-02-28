@@ -19,7 +19,7 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
@@ -89,7 +89,7 @@ public:
                 this->stitch();
             }
 
-    #if defined(SK_GANESH_ENABLED)
+    #if defined(SK_GANESH)
             SkImageInfo info = SkImageInfo::MakeA8(kBlockSize, 1);
             fPermutationsBitmap.installPixels(info, fLatticeSelector, info.minRowBytes());
             fPermutationsBitmap.setImmutable();
@@ -100,7 +100,7 @@ public:
     #endif
         }
 
-    #if defined(SK_GANESH_ENABLED)
+    #if defined(SK_GANESH)
         PaintingData(const PaintingData& that)
                 : fSeed(that.fSeed)
                 , fTileSize(that.fTileSize)
@@ -124,7 +124,7 @@ public:
 
     private:
 
-    #if defined(SK_GANESH_ENABLED)
+    #if defined(SK_GANESH)
         SkBitmap fPermutationsBitmap;
         SkBitmap fNoiseBitmap;
     #endif
@@ -252,7 +252,7 @@ public:
 
     public:
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
         const SkBitmap& getPermutationsBitmap() const { return fPermutationsBitmap; }
 
         const SkBitmap& getNoiseBitmap() const { return fNoiseBitmap; }
@@ -300,7 +300,7 @@ public:
         using INHERITED = Context;
     };
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -573,7 +573,7 @@ void SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shadeSpan(
 
 /////////////////////////////////////////////////////////////////////
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:

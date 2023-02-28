@@ -15,7 +15,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/viewer/Slide.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
@@ -139,7 +139,7 @@ public:
         paint.setColor(0xDE000000);
 
         if (fAfterFirstFrame) {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
             auto direct = GrAsDirectContext(canvas->recordingContext());
             if (direct) {
                 sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8,

@@ -848,7 +848,7 @@ protected:
                                                          resultBMs,
                                                          numPlanes);
                     auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps));
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
                     if (recorder) {
                         fImages[opaque][cs][format] = lazyYUV->refImage(recorder, fImageType);
                     } else
@@ -908,7 +908,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         auto direct = GrAsDirectContext(canvas->recordingContext());
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         auto recorder = canvas->recorder();
 #endif
 
@@ -955,7 +955,7 @@ protected:
                         // doesn't make a whole lot of sense. The colorSpace conversion will
                         // operate on the YUV components rather than the RGB components.
                         sk_sp<SkImage> csImage;
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
                         if (recorder) {
                             csImage = fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace,
                                                                                   recorder);

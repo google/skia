@@ -57,7 +57,7 @@ class GrD3DResourceState;
 class SkString;
 #endif
 
-#if !defined(SK_GANESH_ENABLED)
+#if !defined(SK_GANESH)
 
 // SkSurfaceCharacterization always needs a minimal version of this
 class SK_API GrBackendFormat {

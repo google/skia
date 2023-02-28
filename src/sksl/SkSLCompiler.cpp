@@ -46,7 +46,7 @@
 #include <fstream>
 #endif
 
-#if defined(SKSL_STANDALONE) || defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
+#if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
@@ -452,7 +452,7 @@ bool Compiler::finalize(Program& program) {
     return this->errorCount() == 0;
 }
 
-#if defined(SKSL_STANDALONE) || defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
+#if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
 
 #if defined(SK_ENABLE_SPIRV_VALIDATION)
 static bool validate_spirv(ErrorReporter& reporter, std::string_view program) {
@@ -622,7 +622,7 @@ bool Compiler::toWGSL(Program& program, OutputStream& out) {
     return result;
 }
 
-#endif // defined(SKSL_STANDALONE) || defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
+#endif // defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
 
 void Compiler::handleError(std::string_view msg, Position pos) {
     fErrorText += "error: ";

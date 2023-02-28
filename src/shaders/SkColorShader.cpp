@@ -17,7 +17,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
@@ -40,12 +40,12 @@ public:
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
@@ -83,11 +83,11 @@ public:
     bool isOpaque()   const override { return fColor.isOpaque(); }
     bool isConstant() const override { return true; }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
@@ -212,7 +212,7 @@ skvm::Color SkColor4Shader::program(skvm::Builder* p,
     return p->uniformColor(color, uniforms);
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
@@ -236,7 +236,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const G
 
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 void SkColorShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
                              skgpu::graphite::PipelineDataGatherer* gatherer) const {

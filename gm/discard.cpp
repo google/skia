@@ -54,7 +54,7 @@ protected:
             surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
         }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         auto recorder = canvas->recorder();
         if (recorder) {
             surface = SkSurface::MakeGraphite(recorder, info);

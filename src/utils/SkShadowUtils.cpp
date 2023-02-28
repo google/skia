@@ -38,7 +38,7 @@
 #include "src/utils/SkShadowTessellator.h"
 #endif
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #endif
@@ -347,14 +347,14 @@ public:
     ShadowedPath(const SkPath* path, const SkMatrix* viewMatrix)
             : fPath(path)
             , fViewMatrix(viewMatrix)
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
             , fShapeForKey(*path, GrStyle::SimpleFill())
 #endif
     {}
 
     const SkPath& path() const { return *fPath; }
     const SkMatrix& viewMatrix() const { return *fViewMatrix; }
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     /** Negative means the vertices should not be cached for this path. */
     int keyBytes() const { return fShapeForKey.unstyledKeySize() * sizeof(uint32_t); }
     void writeKey(void* key) const {
@@ -370,7 +370,7 @@ public:
 private:
     const SkPath* fPath;
     const SkMatrix* fViewMatrix;
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     GrStyledShape fShapeForKey;
 #endif
 };

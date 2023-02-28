@@ -14,7 +14,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkNextID.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
@@ -98,7 +98,7 @@ public:
     static sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
                                                 const SkSurfaceProps&);
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
@@ -107,7 +107,7 @@ public:
                                                      const SkSurfaceProps&);
 #endif
 
-#if SK_GRAPHITE_ENABLED
+#if SK_GRAPHITE
     static sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder*,
                                               const SkIRect& subset,
                                               uint32_t uniqueID,
@@ -178,7 +178,7 @@ public:
      */
     GrRecordingContext* getContext() const { return this->onGetContext(); }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     /**
      * Regardless of how the underlying backing data is stored, returns the contents as a
      * GrSurfaceProxyView. The returned view's proxy represents the entire backing image, so texture
@@ -188,7 +188,7 @@ public:
     GrSurfaceProxyView view(GrRecordingContext* context) const { return this->onView(context); }
 #endif
 
-#if SK_GRAPHITE_ENABLED
+#if SK_GRAPHITE
     bool isGraphiteBacked() const;
 
     skgpu::graphite::TextureProxyView textureProxyView() const;
@@ -218,11 +218,11 @@ protected:
 
     virtual GrRecordingContext* onGetContext() const { return nullptr; }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     virtual GrSurfaceProxyView onView(GrRecordingContext*) const = 0;
 #endif
 
-#if SK_GRAPHITE_ENABLED
+#if SK_GRAPHITE
     virtual skgpu::graphite::TextureProxyView onTextureProxyView() const;
 #endif
 

@@ -219,7 +219,7 @@ sk_sp<SkImage> LazyYUVImage::refImage(GrRecordingContext* rContext, Type type) {
     }
 }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 sk_sp<SkImage> LazyYUVImage::refImage(skgpu::graphite::Recorder* recorder, Type type) {
     if (this->ensureYUVImage(recorder, type)) {
         size_t idx = static_cast<size_t>(type);
@@ -341,7 +341,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
     return fYUVImage[idx] != nullptr;
 }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 bool LazyYUVImage::ensureYUVImage(skgpu::graphite::Recorder* recorder, Type type) {
     size_t idx = static_cast<size_t>(type);
     SkASSERT(idx < std::size(fYUVImage));

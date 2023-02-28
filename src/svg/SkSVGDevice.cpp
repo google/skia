@@ -63,7 +63,7 @@
 
 using namespace skia_private;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 class SkMesh;
 #endif
 class SkBlender;

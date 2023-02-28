@@ -49,7 +49,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     bounds.intersect(fPic->cullRect().roundOut());
     SkAssertResult(!bounds.isEmpty());
 
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
     const bool gpu = canvas->recordingContext() != nullptr || canvas->recorder() != nullptr;
 #else
     const bool gpu = canvas->recordingContext() != nullptr;

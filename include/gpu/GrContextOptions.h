@@ -20,7 +20,7 @@
 
 class SkExecutor;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 struct SK_API GrContextOptions {
     enum class Enable {
         /** Forces an option to be disabled. */

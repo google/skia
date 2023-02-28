@@ -9,7 +9,7 @@
 
 #include "src/core/SkStrikeCache.h"
 #include "src/text/GlyphRun.h"
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
@@ -28,7 +28,7 @@ TextBlobRedrawCoordinator::TextBlobRedrawCoordinator(uint32_t messageBusID)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                  const GrClip* clip,
                                                  const SkMatrixProvider& viewMatrix,
@@ -43,7 +43,7 @@ void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
 }
 #endif
 
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
 void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                  const SkMatrix& viewMatrix,
                                                  const sktext::GlyphRunList& glyphRunList,

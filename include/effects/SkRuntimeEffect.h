@@ -311,7 +311,7 @@ private:
     const SkFilterColorProgram* getFilterColorProgram() const;
     const SkSL::RP::Program* getRPProgram() const;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
     friend class GrGLSLSkSLFP;         //
 #endif

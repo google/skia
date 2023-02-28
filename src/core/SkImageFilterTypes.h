@@ -728,7 +728,7 @@ public:
     // The output device's color type, which can be used for intermediate images to be
     // compatible with the eventual target of the filtered result.
     SkColorType colorType() const { return fColorType; }
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     GrColorType grColorType() const { return SkColorTypeToGrColorType(fColorType); }
 #endif
     // The output device's color space, so intermediate images can match, and so filtering can

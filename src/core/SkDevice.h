@@ -351,7 +351,7 @@ protected:
                                     const SkPaint& drawingPaint) = 0;
 
     // Slug handling routines.
-#if (defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED))
+#if (defined(SK_GANESH) || defined(SK_GRAPHITE))
     virtual sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(
             const sktext::GlyphRunList& glyphRunList,
             const SkPaint& initialPaint,
@@ -577,7 +577,7 @@ protected:
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
 #endif
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     void drawSlug(SkCanvas*, const sktext::gpu::Slug*, const SkPaint&) override {}
 #endif
 
