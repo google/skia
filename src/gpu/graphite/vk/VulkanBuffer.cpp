@@ -149,7 +149,8 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
                                           type,
                                           prioritizeGpuReads,
                                           std::move(buffer),
-                                          alloc));
+                                          alloc,
+                                          bufInfo.usage));
 }
 
 VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
@@ -157,10 +158,12 @@ VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            BufferType type,
                            PrioritizeGpuReads prioritizeGpuReads,
                            VkBuffer buffer,
-                           const skgpu::VulkanAlloc& alloc)
+                           const skgpu::VulkanAlloc& alloc,
+                           const VkBufferUsageFlags usageFlags)
         : Buffer(sharedContext, size)
         , fBuffer(std::move(buffer))
         , fAlloc(alloc)
+        , fBufferUsageFlags (usageFlags)
         // We assume a buffer is used for CPU reads only in the case of GPU->CPU transfer buffers.
         , fBufferUsedForCPURead(type == BufferType::kXferGpuToCpu) {}
 

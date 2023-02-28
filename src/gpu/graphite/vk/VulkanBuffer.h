@@ -19,10 +19,11 @@ public:
     static sk_sp<Buffer> Make(const VulkanSharedContext*, size_t, BufferType, PrioritizeGpuReads);
     void freeGpuData() override;
     VkBuffer vkBuffer() const { return fBuffer; }
+    VkBufferUsageFlags bufferUsageFlags() const { return fBufferUsageFlags; }
 
 private:
     VulkanBuffer(const VulkanSharedContext*, size_t, BufferType, PrioritizeGpuReads, VkBuffer,
-                 const skgpu::VulkanAlloc&);
+                 const skgpu::VulkanAlloc&, VkBufferUsageFlags);
 
     void onMap() override;
     void onUnmap() override;
@@ -38,6 +39,7 @@ private:
 
     VkBuffer fBuffer;
     skgpu::VulkanAlloc fAlloc;
+    const VkBufferUsageFlags fBufferUsageFlags;
     /**
      * Buffers can either be mapped for:
      * 1) Reading from the CPU (The effect of writing would be undefined)
