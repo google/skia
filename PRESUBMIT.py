@@ -445,6 +445,13 @@ def _CheckBannedAPIs(input_api, output_api):
     (r'std::stold\(', 'std::strtold(), which does not throw'),
   ]
 
+  # These defines are either there or not, and using them with just an #if is a
+  # subtle, frustrating bug.
+  existence_defines = ['SK_GANESH', 'SK_GRAPHITE', 'SK_GL', 'SK_VULKAN', 'SK_DAWN',
+                       'SK_METAL', 'SK_DIRECT3D', 'SK_DEBUG']
+  for d in existence_defines:
+    banned_replacements.append(('#if {}'.format(d),
+                                '#if defined({})'.format(d)))
   compiled_replacements = []
   for rep in banned_replacements:
     exceptions = []
