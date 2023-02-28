@@ -269,7 +269,7 @@ public:
             return as_SB(shader)->appendStages(fStage, nonPassthroughMatrix);
         }
         // Return the paint color when a null child shader is evaluated.
-        fStage.fPipeline->append_constant_color(fStage.fAlloc, fStage.fPaint.getColor4f());
+        fStage.fPipeline->append_constant_color(fStage.fAlloc, fStage.fPaintColor);
         return true;
     }
     bool appendColorFilter(int index) override {

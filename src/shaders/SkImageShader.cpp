@@ -733,8 +733,7 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
 
         // Color for alpha-only images comes from the paint.
         if (SkColorTypeIsAlphaOnly(upper.pm.colorType()) && !fRaw) {
-            SkColor4f rgb = rec.fPaint.getColor4f();
-            p->append_set_rgb(alloc, rgb);
+            p->append_set_rgb(alloc, rec.fPaintColor);
 
             cs = sk_srgb_singleton();
             at = kUnpremul_SkAlphaType;

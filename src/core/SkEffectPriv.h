@@ -24,7 +24,7 @@ struct SkStageRec {
     SkArenaAlloc*           fAlloc;
     SkColorType             fDstColorType;
     SkColorSpace*           fDstCS;         // may be nullptr
-    const SkPaint&          fPaint;
+    SkColor4f               fPaintColor;
     const SkSurfaceProps&   fSurfaceProps;
 };
 
