@@ -904,6 +904,10 @@ bool ComputeBlurredRRectParams(const SkRRect& srcRRect,
 // TODO: it seems like there should be some synergy with SkBlurMask::ComputeBlurProfile
 // TODO: maybe cache this on the cpu side?
 int CreateIntegralTable(float sixSigma, SkBitmap* table) {
+    // Check for NaN
+    if (sk_float_isnan(sixSigma)) {
+        return 0;
+    }
     // Avoid overflow, covers both multiplying by 2 and finding next power of 2:
     // 2*((2^31-1)/4 + 1) = 2*(2^29-1) + 2 = 2^30 and SkNextPow2(2^30) = 2^30
     if (sixSigma > SK_MaxS32/4 + 1) {
