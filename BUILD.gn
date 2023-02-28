@@ -67,7 +67,7 @@ config("skia_public") {
       "SK_USE_WEBGL",
     ]
   }
-  if (skia_enable_gpu || skia_enable_ganesh) {
+  if (skia_enable_ganesh) {
     defines += [ "SK_GANESH" ]
   }
   if (skia_enable_graphite) {
@@ -980,7 +980,7 @@ if (skia_compile_sksl_tests) {
 }
 
 optional("gpu_shared") {
-  enabled = skia_enable_gpu || skia_enable_ganesh || skia_enable_graphite
+  enabled = skia_enable_ganesh || skia_enable_graphite
 
   deps = []
   libs = []
@@ -1043,7 +1043,7 @@ optional("gpu_shared") {
 }
 
 optional("gpu") {
-  enabled = skia_enable_gpu
+  enabled = skia_enable_ganesh
   deps = [
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",
@@ -1428,7 +1428,7 @@ optional("skvm_jit") {
   public_defines = [ "SKVM_JIT_WHEN_POSSIBLE" ]
 }
 
-if (skia_enable_gpu && skia_generate_workarounds) {
+if (skia_enable_ganesh && skia_generate_workarounds) {
   action("workaround_list") {
     script = "tools/build_workaround_header.py"
 
@@ -3368,7 +3368,7 @@ if (skia_enable_tools) {
       deps = []
     }
 
-    if (skia_enable_gpu) {
+    if (skia_enable_ganesh) {
       libfuzzer_app("api_mock_gpu_canvas") {
         include_dirs = [
           "tools",
@@ -3575,7 +3575,7 @@ if (skia_enable_tools) {
   }
 }
 
-if (is_ios && skia_use_metal && skia_enable_gpu &&
+if (is_ios && skia_use_metal && skia_enable_ganesh &&
     !skia_enable_flutter_defines) {
   group("minimal_ios_mtl_skia_app") {
     deps = [ "experimental/minimal_ios_mtl_skia_app" ]

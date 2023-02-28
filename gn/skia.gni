@@ -79,10 +79,9 @@ declare_args() {
   skia_use_x11 = is_linux
   skia_use_xps = true
 
-  # deprecated, used to mean the same as skia_enable_ganesh
+  # deprecated, we will eventually use just skia_enable_ganesh
   skia_enable_gpu = true
   skia_enable_graphite = false
-  skia_enable_ganesh = true
   skia_use_zlib = true
 
   if (is_ios) {
@@ -97,11 +96,15 @@ declare_args() {
 }
 
 declare_args() {
+  skia_enable_ganesh = skia_enable_gpu
+}
+
+declare_args() {
   if (is_mac) {
     skia_gl_standard = "gl"
   } else if (is_ios) {
     skia_gl_standard = "gles"
-  } else if (is_wasm && skia_enable_gpu) {
+  } else if (is_wasm && skia_enable_ganesh) {
     skia_gl_standard = "webgl"
   } else {
     skia_gl_standard = ""
@@ -182,11 +185,13 @@ declare_args() {
   }
 }
 
-# Our tools require static linking (they use non-exported symbols), and the GPU backend.
-skia_enable_tools = skia_enable_tools && !is_component_build && skia_enable_gpu
+# Our tools require static linking (they use non-exported symbols), and the Ganesh backend.
+skia_enable_tools =
+    skia_enable_tools && !is_component_build && skia_enable_ganesh
 
 # The GPU build requires SkSL
-skia_enable_sksl = skia_enable_sksl || skia_enable_gpu
+skia_enable_sksl =
+    skia_enable_sksl || skia_enable_ganesh || skia_enable_graphite
 
 if (skia_enable_optimize_size) {
   assert(
