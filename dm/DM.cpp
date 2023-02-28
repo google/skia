@@ -62,6 +62,8 @@
     #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
 #endif
 
+using namespace skia_private;
+
 extern bool gSkForceRasterPipelineBlitter;
 extern bool gForceHighPrecisionRasterPipeline;
 extern bool gUseSkVMBlitter;
@@ -229,7 +231,7 @@ static void info(const char* fmt, ...) {
     va_end(args);
 }
 
-static SkTArray<SkString>* gFailures = new SkTArray<SkString>;
+static TArray<SkString>* gFailures = new TArray<SkString>;
 
 static void fail(const SkString& err) {
     static SkSpinlock mutex;
@@ -256,7 +258,7 @@ static void dump_json() {
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
 static SkSpinlock*        gMutex = new SkSpinlock;
 static int                gPending;
-static SkTArray<Running>* gRunning = new SkTArray<Running>;
+static TArray<Running>*   gRunning = new TArray<Running>;
 
 static void done(const char* config, const char* src, const char* srcOptions, const char* name) {
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
@@ -459,7 +461,7 @@ static void gather_uninteresting_hashes() {
         // Copy to a string to make sure SkStrSplit has a terminating \0 to find.
         SkString contents((const char*)data->data(), data->size());
 
-        SkTArray<SkString> hashes;
+        TArray<SkString> hashes;
         SkStrSplit(contents.c_str(), kNewline, &hashes);
         for (const SkString& hash : hashes) {
             gUninterestingHashes->add(hash);
@@ -482,8 +484,8 @@ struct TaggedSink : public std::unique_ptr<Sink> {
 
 static constexpr bool kMemcpyOK = true;
 
-static SkTArray<TaggedSrc,  kMemcpyOK>* gSrcs  = new SkTArray<TaggedSrc,  kMemcpyOK>;
-static SkTArray<TaggedSink, kMemcpyOK>* gSinks = new SkTArray<TaggedSink, kMemcpyOK>;
+static TArray<TaggedSrc,  kMemcpyOK>* gSrcs  = new TArray<TaggedSrc,  kMemcpyOK>;
+static TArray<TaggedSink, kMemcpyOK>* gSinks = new TArray<TaggedSink, kMemcpyOK>;
 
 static bool in_shard() {
     static int N = 0;
@@ -710,7 +712,7 @@ static void push_codec_srcs(Path path) {
     // native scaling is only supported by WEBP and JPEG
     bool supportsNativeScaling = false;
 
-    SkTArray<CodecSrc::Mode> nativeModes;
+    TArray<CodecSrc::Mode> nativeModes;
     nativeModes.push_back(CodecSrc::kCodec_Mode);
     nativeModes.push_back(CodecSrc::kCodecZeroInit_Mode);
     switch (codec->getEncodedFormat()) {
@@ -731,7 +733,7 @@ static void push_codec_srcs(Path path) {
             break;
     }
 
-    SkTArray<CodecSrc::DstColorType> colorTypes;
+    TArray<CodecSrc::DstColorType> colorTypes;
     colorTypes.push_back(CodecSrc::kGetFromCanvas_DstColorType);
     colorTypes.push_back(CodecSrc::kNonNative8888_Always_DstColorType);
     switch (codec->getInfo().colorType()) {
@@ -742,7 +744,7 @@ static void push_codec_srcs(Path path) {
             break;
     }
 
-    SkTArray<SkAlphaType> alphaModes;
+    TArray<SkAlphaType> alphaModes;
     alphaModes.push_back(kPremul_SkAlphaType);
     if (codec->getInfo().alphaType() != kOpaque_SkAlphaType) {
         alphaModes.push_back(kUnpremul_SkAlphaType);
@@ -908,7 +910,7 @@ static bool gather_srcs() {
                  new BisectSrc(FLAGS_bisect[0], FLAGS_bisect.size() > 1 ? FLAGS_bisect[1] : ""));
     }
 
-    SkTArray<SkString> images;
+    TArray<SkString> images;
     if (!CommonFlags::CollectImages(FLAGS_images, &images)) {
         return false;
     }
@@ -917,7 +919,7 @@ static bool gather_srcs() {
         push_codec_srcs(image);
     }
 
-    SkTArray<SkString> colorImages;
+    TArray<SkString> colorImages;
     if (!CommonFlags::CollectImages(FLAGS_colorImages, &colorImages)) {
         return false;
     }
@@ -1071,7 +1073,7 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
         // The command line config already parsed out the via-style color space. Apply it here.
         sink->setColorSpace(config.refColorSpace());
 
-        const SkTArray<SkString>& parts = config.getViaParts();
+        const TArray<SkString>& parts = config.getViaParts();
         for (int j = parts.size(); j-- > 0;) {
             const SkString& part = parts[j];
             Sink* next = create_via(part, sink);
@@ -1617,7 +1619,7 @@ int main(int argc, char** argv) {
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     SkTaskGroup parallel;
-    SkTArray<Task> serial;
+    TArray<Task> serial;
 
     for (TaggedSink& sink : *gSinks) {
         for (TaggedSrc& src : *gSrcs) {

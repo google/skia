@@ -351,7 +351,7 @@ public:
 
 private:
     Path fPath;
-    mutable SkTArray<SkDocumentPage> fPages;
+    mutable skia_private::TArray<SkDocumentPage> fPages;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

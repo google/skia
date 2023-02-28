@@ -100,6 +100,8 @@
 #include <cmath>
 #include <functional>
 
+using namespace skia_private;
+
 static DEFINE_bool(multiPage, false,
                    "For document-type backends, render the source into multiple pages");
 static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
@@ -1178,14 +1180,14 @@ Result BisectSrc::draw(SkCanvas* canvas) const {
     class PathFindingCanvas : public SkCanvas {
     public:
         PathFindingCanvas(int width, int height) : SkCanvas(width, height, nullptr) {}
-        const SkTArray<FoundPath>& foundPaths() const { return fFoundPaths; }
+        const TArray<FoundPath>& foundPaths() const { return fFoundPaths; }
 
     private:
         void onDrawPath(const SkPath& path, const SkPaint& paint) override {
             fFoundPaths.push_back() = {path, paint, this->getTotalMatrix()};
         }
 
-        SkTArray<FoundPath> fFoundPaths;
+        TArray<FoundPath> fFoundPaths;
     };
 
     PathFindingCanvas pathFinder(canvas->getBaseLayerSize().width(),
