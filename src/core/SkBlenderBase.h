@@ -18,6 +18,7 @@ struct GrFPArgs;
 class GrFragmentProcessor;
 class SkColorInfo;
 class SkRuntimeEffect;
+struct SkStageRec;
 
 namespace skgpu::graphite {
 class KeyContext;
@@ -37,6 +38,9 @@ public:
      * SkBlendMode in `mode`. Returns false for other types of blends.
      */
     virtual std::optional<SkBlendMode> asBlendMode() const { return {}; }
+
+    SK_WARN_UNUSED_RESULT
+    virtual bool appendStages(const SkStageRec& rec) const = 0;
 
     /** Creates the blend program in SkVM. */
     SK_WARN_UNUSED_RESULT

@@ -280,8 +280,12 @@ public:
         return true;
     }
     bool appendBlender(int index) override {
-        // TODO: SkBlender does not yet support appendStages
-        return false;
+        if (SkBlender* blender = fChildren[index].blender()) {
+            return as_BB(blender)->appendStages(fStage);
+        }
+        // Return a source-over blend when a null blender is evaluated.
+        fStage.fPipeline->append(SkRasterPipelineOp::srcover);
+        return true;
     }
 
     // TODO: If an effect calls these intrinsics more than once, we could cache and re-use the steps
@@ -1601,6 +1605,28 @@ public:
             , fChildren(children.begin(), children.end()) {}
 
     SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }
+
+    bool appendStages(const SkStageRec& rec) const override {
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
+            // SkRP has support for many parts of #version 300 already, but for now, we restrict its
+            // usage in runtime effects to just #version 100.
+            return false;
+        }
+        if (const SkSL::RP::Program* program = fEffect->getRPProgram()) {
+            SkSpan<const float> uniforms = uniforms_as_span(fEffect->uniforms(),
+                                                            fUniforms,
+                                                            rec.fDstCS,
+                                                            rec.fAlloc);
+            SkShaderBase::MatrixRec matrix(SkMatrix::I());
+            matrix.markCTMApplied();
+            RuntimeEffectRPCallbacks callbacks(rec, matrix, fChildren, fEffect->fSampleUsages);
+            bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks, uniforms);
+            return success;
+        }
+#endif
+        return false;
+    }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,

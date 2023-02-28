@@ -6,6 +6,9 @@
  */
 
 #include "src/core/SkBlendModeBlender.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkEffectPriv.h"
+#include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -100,6 +103,11 @@ std::unique_ptr<GrFragmentProcessor> SkBlendModeBlender::asFragmentProcessor(
     return GrBlendFragmentProcessor::Make(std::move(srcFP), std::move(dstFP), fMode);
 }
 #endif
+
+bool SkBlendModeBlender::appendStages(const SkStageRec& rec) const {
+    SkBlendMode_AppendStages(fMode, rec.fPipeline);
+    return true;
+}
 
 skvm::Color SkBlendModeBlender::onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
