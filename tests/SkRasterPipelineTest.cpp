@@ -1723,7 +1723,52 @@ DEF_TEST(SkRasterPipeline_Jump, r) {
     }
 }
 
-DEF_TEST(SkRasterPipeline_BranchIfAnyActiveLanes, r) {
+DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
+    // Allocate space for 4 slots.
+    alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    alignas(64) static constexpr float kTransparentHyperRed[4] = {2.0f, 0.0f, 0.0f, 0.5f};
+    alignas(64) static constexpr float kColorRed[4]            = {1.0f, 0.0f, 0.0f, 1.0f};
+    SkRasterPipeline_BranchCtx ctx;
+    ctx.offset = 2;
+
+    // An array of all zeros.
+    alignas(64) static constexpr int32_t kNoLanesActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
+
+    // An array of all zeros, except for a single ~0 in the second dA slot.
+    alignas(64) int32_t oneLaneActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    oneLaneActive[3*N + 1] = ~0;
+
+    // Make a program which conditionally branches past two append_constant_color ops.
+    for (int lanes = 1; lanes <= N; ++lanes) {
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        p.append(SkRasterPipelineOp::init_lane_masks);                 // execution mask all-on
+        p.append_constant_color(&alloc, kTransparentHyperRed);         // set the color to hyper-red
+        p.append(SkRasterPipelineOp::branch_if_all_lanes_active, &ctx);// skip past next line
+        p.append(SkRasterPipelineOp::swap_rb);                         // (not executed)
+        p.append(SkRasterPipelineOp::load_dst, oneLaneActive);         // set one lane active
+        p.append(SkRasterPipelineOp::branch_if_all_lanes_active, &ctx);// do not skip past next line
+        p.append(SkRasterPipelineOp::force_opaque);                    // set alpha to 1
+        p.append(SkRasterPipelineOp::load_dst, kNoLanesActive);        // set no lanes active
+        p.append(SkRasterPipelineOp::branch_if_all_lanes_active, &ctx);// do not skip past next line
+        p.append(SkRasterPipelineOp::clamp_x_1);                       // clamp red to 1
+        p.append(SkRasterPipelineOp::store_src, slots);                // store final color
+        p.run(0,0,lanes,1);
+
+        // Verify that the slots contain green.
+        float* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                REPORTER_ASSERT(r, *destPtr == kColorRed[checkSlot]);
+                ++destPtr;
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_BranchIfAnyLanesActive, r) {
     // Allocate space for 4 slots.
     alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};
     const int N = SkOpts::raster_pipeline_highp_stride;
@@ -1754,7 +1799,7 @@ DEF_TEST(SkRasterPipeline_BranchIfAnyActiveLanes, r) {
     p.append(SkRasterPipelineOp::branch_if_any_lanes_active, &ctx);    // skip past next line
     p.append_constant_color(&alloc, kColorDarkRed);                    // (not executed)
     p.append(SkRasterPipelineOp::store_src, slots);                    // store final color
-    p.run(0,0,1,1);
+    p.run(0,0,N,1);
 
     // Verify that the slots contain green.
     float* destPtr = &slots[0];
@@ -1766,7 +1811,7 @@ DEF_TEST(SkRasterPipeline_BranchIfAnyActiveLanes, r) {
     }
 }
 
-DEF_TEST(SkRasterPipeline_BranchIfNoActiveLanes, r) {
+DEF_TEST(SkRasterPipeline_BranchIfNoLanesActive, r) {
     // Allocate space for 4 slots.
     alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};
     const int N = SkOpts::raster_pipeline_highp_stride;
@@ -1798,7 +1843,7 @@ DEF_TEST(SkRasterPipeline_BranchIfNoActiveLanes, r) {
     p.append(SkRasterPipelineOp::branch_if_no_lanes_active, &ctx);     // skip past next line
     p.append_constant_color(&alloc, kColorBlack);                      // (not executed)
     p.append(SkRasterPipelineOp::store_src, slots);                    // store final blue color
-    p.run(0,0,1,1);
+    p.run(0,0,N,1);
 
     // Verify that the slots contain blue.
     float* destPtr = &slots[0];

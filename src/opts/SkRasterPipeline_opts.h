@@ -3312,6 +3312,16 @@ STAGE_TAIL(mask_off_return_mask, NoCtx) {
     update_execution_mask();
 }
 
+STAGE_BRANCH(branch_if_all_lanes_active, SkRasterPipeline_BranchCtx* ctx) {
+    if (tail) {
+        uint32_t iota[] = {0,1,2,3,4,5,6,7};
+        I32 tailLanes = cond_to_mask(tail <= sk_unaligned_load<U32>(iota));
+        return all(execution_mask() | tailLanes) ? ctx->offset : 1;
+    } else {
+        return all(execution_mask()) ? ctx->offset : 1;
+    }
+}
+
 STAGE_BRANCH(branch_if_any_lanes_active, SkRasterPipeline_BranchCtx* ctx) {
     return any(execution_mask()) ? ctx->offset : 1;
 }
