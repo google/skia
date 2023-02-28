@@ -14,57 +14,25 @@ struct SPIRV_Cross_Output
 
 float4 main(float2 _24)
 {
-    bool ok = true;
-    bool _41 = false;
-    if (true)
+    int check = 0;
+    int _38 = 0 + ((_10_colorGreen.y == 1.0f) ? 0 : 1);
+    check = _38;
+    int _44 = _38 + int(_10_colorGreen.x == 1.0f);
+    check = _44;
+    int _55 = _44 + (all(bool2(_10_colorGreen.yx.x == _10_colorRed.xy.x, _10_colorGreen.yx.y == _10_colorRed.xy.y)) ? 0 : 1);
+    check = _55;
+    int _65 = _55 + int(any(bool2(_10_colorGreen.yx.x != _10_colorRed.xy.x, _10_colorGreen.yx.y != _10_colorRed.xy.y)));
+    check = _65;
+    float4 _67 = 0.0f.xxxx;
+    if (_65 == 0)
     {
-        _41 = (_10_colorGreen.y == 1.0f) ? true : false;
+        _67 = _10_colorGreen;
     }
     else
     {
-        _41 = false;
+        _67 = _10_colorRed;
     }
-    ok = _41;
-    bool _49 = false;
-    if (_41)
-    {
-        _49 = (_10_colorGreen.x == 1.0f) ? false : true;
-    }
-    else
-    {
-        _49 = false;
-    }
-    ok = _49;
-    bool _63 = false;
-    if (_49)
-    {
-        _63 = all(bool2(_10_colorGreen.yx.x == _10_colorRed.xy.x, _10_colorGreen.yx.y == _10_colorRed.xy.y)) ? true : false;
-    }
-    else
-    {
-        _63 = false;
-    }
-    ok = _63;
-    bool _75 = false;
-    if (_63)
-    {
-        _75 = any(bool2(_10_colorGreen.yx.x != _10_colorRed.xy.x, _10_colorGreen.yx.y != _10_colorRed.xy.y)) ? false : true;
-    }
-    else
-    {
-        _75 = false;
-    }
-    ok = _75;
-    float4 _76 = 0.0f.xxxx;
-    if (_75)
-    {
-        _76 = _10_colorGreen;
-    }
-    else
-    {
-        _76 = _10_colorRed;
-    }
-    return _76;
+    return _67;
 }
 
 void frag_main()

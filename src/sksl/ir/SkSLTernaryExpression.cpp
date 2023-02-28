@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
 
 namespace SkSL {
 
@@ -83,11 +84,11 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
         }
     }
 
-    // A ternary with matching true- and false-cases does not need to branch.
     if (context.fConfig->fSettings.fOptimize) {
         const Expression* ifTrueExpr  = ConstantFolder::GetConstantValueForVariable(*ifTrue);
         const Expression* ifFalseExpr = ConstantFolder::GetConstantValueForVariable(*ifFalse);
 
+        // A ternary with matching true- and false-cases does not need to branch.
         if (Analysis::IsSameExpressionTree(*ifTrueExpr, *ifFalseExpr)) {
             // If `test` has no side-effects, we can eliminate it too, and just return `ifTrue`.
             if (!Analysis::HasSideEffects(*test)) {
@@ -97,6 +98,25 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
             // Return a comma-expression containing `(test, ifTrue)`.
             return BinaryExpression::Make(context, pos, std::move(test),
                                           Operator::Kind::COMMA, std::move(ifTrue));
+        }
+
+        // A ternary of the form `test ? expr : false` can be simplified to `test && expr`.
+        if (ifFalseExpr->isBoolLiteral() && !ifFalseExpr->as<Literal>().boolValue()) {
+            return BinaryExpression::Make(context, pos, std::move(test),
+                                          Operator::Kind::LOGICALAND, std::move(ifTrue));
+        }
+
+        // A ternary of the form `test ? true : expr` can be simplified to `test || expr`.
+        if (ifTrueExpr->isBoolLiteral() && ifTrueExpr->as<Literal>().boolValue()) {
+            return BinaryExpression::Make(context, pos, std::move(test),
+                                          Operator::Kind::LOGICALOR, std::move(ifFalse));
+        }
+
+        // A ternary of the form `test ? false : true` can be simplified to `!test`.
+        if (ifTrueExpr->isBoolLiteral() && !ifTrueExpr->as<Literal>().boolValue() &&
+            ifFalseExpr->isBoolLiteral() && ifFalseExpr->as<Literal>().boolValue()) {
+            return PrefixExpression::Make(context, pos, Operator::Kind::LOGICALNOT,
+                                          std::move(test));
         }
     }
 

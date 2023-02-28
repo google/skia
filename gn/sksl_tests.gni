@@ -659,6 +659,7 @@ sksl_shared_tests = [
   "shared/TernaryAsLValueFoldableTest.sksl",
   "shared/TernaryExpression.sksl",
   "shared/TernarySideEffects.sksl",
+  "shared/TernaryTrueFalseOptimization.sksl",
   "shared/Texture2D.sksl",
   "shared/TextureSharpen.sksl",
   "shared/UnaryPositiveNegative.sksl",

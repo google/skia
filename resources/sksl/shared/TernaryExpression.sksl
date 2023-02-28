@@ -4,27 +4,27 @@ half4 main(float2 coords) {
     const bool TRUE = true;
     const bool FALSE = false;
 
-    bool ok = true;
+    int check = 0;
 
     // Literal test
-    ok = ok && (true ? true : false);
-    ok = ok && (false ? false : true);
+    check += (true ? 0 : 1);
+    check += (false ? 1 : 0);
 
     // Constant boolean test
-    ok = ok && (TRUE ? true : false);
-    ok = ok && (FALSE ? false : true);
+    check += (TRUE ? 0 : 1);
+    check += (FALSE ? 1 : 0);
 
     // Constant-foldable test
-    ok = ok && (1 == 1 ? true : false);
-    ok = ok && (0 == 1 ? false : true);
+    check += (1 == 1 ? 0 : 1);
+    check += (0 == 1 ? 1 : 0);
 
     // Unknown-value test
-    ok = ok && (colorGreen.g == 1 ? true : false);
-    ok = ok && (colorGreen.r == 1 ? false : true);
+    check += (colorGreen.g == 1 ? 0 : 1);
+    check += (colorGreen.r == 1 ? 1 : 0);
 
     // Composite comparison test.
-    ok = ok && (colorGreen.gr == colorRed.rg ? true : false);
-    ok = ok && (colorGreen.gr != colorRed.rg ? false : true);
+    check += (colorGreen.gr == colorRed.rg ? 0 : 1);
+    check += (colorGreen.gr != colorRed.rg ? 1 : 0);
 
-    return ok ? colorGreen : colorRed;
+    return check == 0 ? colorGreen : colorRed;
 }
