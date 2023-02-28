@@ -17,7 +17,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
 namespace skgpu::graphite {
     class Recorder;
 }
@@ -77,7 +77,7 @@ public:
                                                     GrSurfaceOrigin);
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
     static sk_sp<SkSpecialSurface> MakeGraphite(skgpu::graphite::Recorder*,
                                                 const SkImageInfo&,
                                                 const SkSurfaceProps&);

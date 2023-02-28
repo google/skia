@@ -108,7 +108,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* r
 #endif // defined(SK_GANESH)
 
 ///////////////////////////////////////////////////////////////////////////////
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Device.h"
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeGraphite(skgpu::graphite::Recorder* recorder,

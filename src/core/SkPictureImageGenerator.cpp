@@ -32,7 +32,7 @@ protected:
                                          GrMipmapped, GrImageTexGenPolicy) override;
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       const SkImageInfo&,
                                       skgpu::Mipmapped) override;
@@ -139,7 +139,7 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Log.h"
 
 sk_sp<SkImage> SkPictureImageGenerator::onMakeTextureImage(skgpu::graphite::Recorder* recorder,

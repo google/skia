@@ -80,7 +80,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1,
     }
 }
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/TextureInfo.h"

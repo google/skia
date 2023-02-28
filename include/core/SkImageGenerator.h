@@ -141,7 +141,7 @@ public:
                                        GrImageTexGenPolicy);
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
     sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
                                     const SkImageInfo&,
                                     skgpu::Mipmapped);
@@ -193,7 +193,7 @@ protected:
     virtual GrSurfaceOrigin origin() const { return kTopLeft_GrSurfaceOrigin; }
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
     virtual sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                               const SkImageInfo&,
                                               skgpu::Mipmapped);

@@ -86,7 +86,7 @@ sk_sp<SkShader> SkSpecialImage::asShader(const SkSamplingOptions& sampling,
     return this->asShader(SkTileMode::kClamp, sampling, lm);
 }
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/TextureProxyView.h"
 
 bool SkSpecialImage::isGraphiteBacked() const {

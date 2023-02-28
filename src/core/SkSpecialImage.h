@@ -107,7 +107,7 @@ public:
                                                      const SkSurfaceProps&);
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
     static sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder*,
                                               const SkIRect& subset,
                                               uint32_t uniqueID,
@@ -188,7 +188,7 @@ public:
     GrSurfaceProxyView view(GrRecordingContext* context) const { return this->onView(context); }
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
     bool isGraphiteBacked() const;
 
     skgpu::graphite::TextureProxyView textureProxyView() const;
@@ -222,7 +222,7 @@ protected:
     virtual GrSurfaceProxyView onView(GrRecordingContext*) const = 0;
 #endif
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
     virtual skgpu::graphite::TextureProxyView onTextureProxyView() const;
 #endif
 

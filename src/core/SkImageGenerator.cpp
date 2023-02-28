@@ -70,7 +70,7 @@ GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
 }
 #endif // defined(SK_GANESH)
 
-#if SK_GRAPHITE
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Image_Graphite.h"
 
 sk_sp<SkImage> SkImageGenerator::makeTextureImage(skgpu::graphite::Recorder* recorder,
