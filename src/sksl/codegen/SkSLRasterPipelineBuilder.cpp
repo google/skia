@@ -1120,6 +1120,20 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                 }
                 break;
 
+            case ProgramOp::invoke_to_linear_srgb:
+                if (!callbacks) {
+                    return false;
+                }
+                callbacks->toLinearSrgb();
+                break;
+
+            case ProgramOp::invoke_from_linear_srgb:
+                if (!callbacks) {
+                    return false;
+                }
+                callbacks->fromLinearSrgb();
+                break;
+
             case ProgramOp::label: {
                 // Remember the absolute pipeline position of this label.
                 int labelID = sk_bit_cast<intptr_t>(stage.ctx);
@@ -1361,18 +1375,18 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 break;
             }
             case BuilderOp::pop_src_rg: {
-                float* dst = tempStackPtr - (2 * N);
-                pipeline->push_back({ProgramOp::load_src_rg, dst});
+                float* src = tempStackPtr - (2 * N);
+                pipeline->push_back({ProgramOp::load_src_rg, src});
                 break;
             }
             case BuilderOp::pop_src_rgba: {
-                float* dst = tempStackPtr - (4 * N);
-                pipeline->push_back({ProgramOp::load_src, dst});
+                float* src = tempStackPtr - (4 * N);
+                pipeline->push_back({ProgramOp::load_src, src});
                 break;
             }
             case BuilderOp::pop_dst_rgba: {
-                float* dst = tempStackPtr - (4 * N);
-                pipeline->push_back({ProgramOp::load_dst, dst});
+                float* src = tempStackPtr - (4 * N);
+                pipeline->push_back({ProgramOp::load_dst, src});
                 break;
             }
             case BuilderOp::push_slots: {
@@ -1555,6 +1569,11 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
             case BuilderOp::invoke_color_filter:
             case BuilderOp::invoke_blender:
                 pipeline->push_back({(ProgramOp)inst.fOp, context_bit_pun(inst.fImmA)});
+                break;
+
+            case BuilderOp::invoke_to_linear_srgb:
+            case BuilderOp::invoke_from_linear_srgb:
+                pipeline->push_back({(ProgramOp)inst.fOp, nullptr});
                 break;
 
             default:
@@ -2202,10 +2221,12 @@ void Program::dump(SkWStream* out) const {
         #define M(x) case POp::x: opName = #x; break;
             SK_RASTER_PIPELINE_OPS_ALL(M)
         #undef M
-            case POp::label:               opName = "label";               break;
-            case POp::invoke_shader:       opName = "invoke_shader";       break;
-            case POp::invoke_color_filter: opName = "invoke_color_filter"; break;
-            case POp::invoke_blender:      opName = "invoke_blender";      break;
+            case POp::label:                   opName = "label";                   break;
+            case POp::invoke_shader:           opName = "invoke_shader";           break;
+            case POp::invoke_color_filter:     opName = "invoke_color_filter";     break;
+            case POp::invoke_blender:          opName = "invoke_blender";          break;
+            case POp::invoke_to_linear_srgb:   opName = "invoke_to_linear_srgb";   break;
+            case POp::invoke_from_linear_srgb: opName = "invoke_from_linear_srgb"; break;
         }
 
         std::string opText;
@@ -2526,6 +2547,14 @@ void Program::dump(SkWStream* out) const {
             case POp::invoke_color_filter:
             case POp::invoke_blender:
                 opText = std::string(opName) + " " + opArg1;
+                break;
+
+            case POp::invoke_to_linear_srgb:
+                opText = "src.rgba = toLinearSrgb(src.rgba)";
+                break;
+
+            case POp::invoke_from_linear_srgb:
+                opText = "src.rgba = fromLinearSrgb(src.rgba)";
                 break;
 
             case POp::branch_if_no_active_lanes_eq:

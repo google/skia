@@ -283,11 +283,28 @@ public:
         // TODO: SkBlender does not yet support appendStages
         return false;
     }
+
+    // TODO: If an effect calls these intrinsics more than once, we could cache and re-use the steps
+    // object(s), rather than re-creating them in the arena repeatedly.
     void toLinearSrgb() override {
-        // TODO: SkColorSpaceXformSteps?
+        if (!fStage.fDstCS) {
+            // These intrinsics do nothing when color management is disabled
+            return;
+        }
+        fStage.fAlloc
+                ->make<SkColorSpaceXformSteps>(fStage.fDstCS,              kUnpremul_SkAlphaType,
+                                               sk_srgb_linear_singleton(), kUnpremul_SkAlphaType)
+                ->apply(fStage.fPipeline);
     }
     void fromLinearSrgb() override {
-        // TODO: SkColorSpaceXformSteps?
+        if (!fStage.fDstCS) {
+            // These intrinsics do nothing when color management is disabled
+            return;
+        }
+        fStage.fAlloc
+                ->make<SkColorSpaceXformSteps>(sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
+                                               fStage.fDstCS,              kUnpremul_SkAlphaType)
+                ->apply(fStage.fPipeline);
     }
 
     const SkStageRec& fStage;

@@ -2530,6 +2530,31 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.transpose(arg0.type().columns(), arg0.type().rows());
             return true;
 
+        case IntrinsicKind::k_fromLinearSrgb_IntrinsicKind:
+        case IntrinsicKind::k_toLinearSrgb_IntrinsicKind: {
+            // The argument must be a half3.
+            SkASSERT(arg0.type().matches(*fProgram.fContext->fTypes.fHalf3));
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            // The intrinsics accept a three-component value; add alpha for the push/pop_src_rgba
+            fBuilder.push_literal_f(1.0f);
+            // Copy arguments from the stack into src
+            fBuilder.pop_src_rgba();
+
+            if (intrinsic == IntrinsicKind::k_fromLinearSrgb_IntrinsicKind) {
+                fBuilder.invoke_from_linear_srgb();
+            } else {
+                fBuilder.invoke_to_linear_srgb();
+            }
+
+            // The xform has left the result color in src.rgba; push it onto the stack
+            fBuilder.push_src_rgba();
+            // The intrinsic returns a three-component value; discard alpha
+            this->discardExpression(/*slots=*/1);
+            return true;
+        }
+
         default:
             break;
     }

@@ -48,10 +48,14 @@ enum class ProgramOp {
     // ... has branch targets...
     label,
 
-    // ... and can invoke child programs.
+    // ... can invoke child programs ...
     invoke_shader,
     invoke_color_filter,
     invoke_blender,
+
+    // ... and can invoke color space transforms.
+    invoke_to_linear_srgb,
+    invoke_from_linear_srgb,
 };
 
 // BuilderOps are a superset of ProgramOps. They are used by the RP::Builder, which works in terms
@@ -73,6 +77,10 @@ enum class BuilderOp {
     invoke_shader,
     invoke_color_filter,
     invoke_blender,
+
+    // ... can invoke color space transforms ...
+    invoke_to_linear_srgb,
+    invoke_from_linear_srgb,
 
     // ... and also has Builder-specific ops. These ops generally interface with the stack, and are
     // converted into ProgramOps during `makeStages`.
@@ -108,10 +116,12 @@ enum class BuilderOp {
 };
 
 // If the child-invocation enums are not in sync between enums, program creation will not work.
-static_assert((int)ProgramOp::label               == (int)BuilderOp::label);
-static_assert((int)ProgramOp::invoke_shader       == (int)BuilderOp::invoke_shader);
-static_assert((int)ProgramOp::invoke_color_filter == (int)BuilderOp::invoke_color_filter);
-static_assert((int)ProgramOp::invoke_blender      == (int)BuilderOp::invoke_blender);
+static_assert((int)ProgramOp::label                   == (int)BuilderOp::label);
+static_assert((int)ProgramOp::invoke_shader           == (int)BuilderOp::invoke_shader);
+static_assert((int)ProgramOp::invoke_color_filter     == (int)BuilderOp::invoke_color_filter);
+static_assert((int)ProgramOp::invoke_blender          == (int)BuilderOp::invoke_blender);
+static_assert((int)ProgramOp::invoke_to_linear_srgb   == (int)BuilderOp::invoke_to_linear_srgb);
+static_assert((int)ProgramOp::invoke_from_linear_srgb == (int)BuilderOp::invoke_from_linear_srgb);
 
 // Represents a single raster-pipeline SkSL instruction.
 struct Instruction {
@@ -573,6 +583,14 @@ public:
 
     void invoke_blender(int childIdx) {
         fInstructions.push_back({BuilderOp::invoke_blender, {}, childIdx});
+    }
+
+    void invoke_to_linear_srgb() {
+        fInstructions.push_back({BuilderOp::invoke_to_linear_srgb, {}});
+    }
+
+    void invoke_from_linear_srgb() {
+        fInstructions.push_back({BuilderOp::invoke_from_linear_srgb, {}});
     }
 
 private:
