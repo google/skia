@@ -333,6 +333,9 @@ public:
     // Unconditionally branches to a label.
     void jump(int labelID);
 
+    // Branches to a label if the execution mask is active in every lane.
+    void branch_if_all_lanes_active(int labelID);
+
     // Branches to a label if the execution mask is active in any lane.
     void branch_if_any_lanes_active(int labelID);
 

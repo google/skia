@@ -204,6 +204,7 @@ void Builder::label(int labelID) {
         Instruction& lastInstruction = fInstructions.back();
         switch (lastInstruction.fOp) {
             case BuilderOp::jump:
+            case BuilderOp::branch_if_all_lanes_active:
             case BuilderOp::branch_if_any_lanes_active:
             case BuilderOp::branch_if_no_lanes_active:
             case BuilderOp::branch_if_no_active_lanes_on_stack_top_equal:
@@ -245,6 +246,23 @@ void Builder::branch_if_any_lanes_active(int labelID) {
         return;
     }
     fInstructions.push_back({BuilderOp::branch_if_any_lanes_active, {}, labelID});
+}
+
+void Builder::branch_if_all_lanes_active(int labelID) {
+    if (!this->executionMaskWritesAreEnabled()) {
+        this->jump(labelID);
+        return;
+    }
+
+    SkASSERT(labelID >= 0 && labelID < fNumLabels);
+    if (!fInstructions.empty() &&
+        (fInstructions.back().fOp == BuilderOp::branch_if_all_lanes_active ||
+         fInstructions.back().fOp == BuilderOp::jump)) {
+        // The previous instruction was `jump` or `branch_if_all_lanes_active`, so this branch
+        // could never possibly occur.
+        return;
+    }
+    fInstructions.push_back({BuilderOp::branch_if_all_lanes_active, {}, labelID});
 }
 
 void Builder::branch_if_no_lanes_active(int labelID) {
@@ -1142,6 +1160,7 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                 break;
             }
             case ProgramOp::jump:
+            case ProgramOp::branch_if_all_lanes_active:
             case ProgramOp::branch_if_any_lanes_active:
             case ProgramOp::branch_if_no_lanes_active:
             case ProgramOp::branch_if_no_active_lanes_eq: {
@@ -1233,6 +1252,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 break;
 
             case BuilderOp::jump:
+            case BuilderOp::branch_if_all_lanes_active:
             case BuilderOp::branch_if_any_lanes_active:
             case BuilderOp::branch_if_no_lanes_active: {
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
@@ -2200,6 +2220,7 @@ void Program::dump(SkWStream* out) const {
                 break;
 
             case POp::jump:
+            case POp::branch_if_all_lanes_active:
             case POp::branch_if_any_lanes_active:
             case POp::branch_if_no_lanes_active:
                 opArg1 = BranchOffset(static_cast<SkRasterPipeline_BranchCtx*>(stage.ctx));
@@ -2541,6 +2562,7 @@ void Program::dump(SkWStream* out) const {
                 break;
 
             case POp::jump:
+            case POp::branch_if_all_lanes_active:
             case POp::branch_if_any_lanes_active:
             case POp::branch_if_no_lanes_active:
             case POp::invoke_shader:
