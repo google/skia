@@ -13,6 +13,7 @@
 #include "src/core/SkVM_fwd.h"
 
 #include <memory>
+#include <tuple>
 
 class GrColorInfo;
 class GrFragmentProcessor;

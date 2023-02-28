@@ -19,6 +19,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 
 #include <memory>
+#include <tuple>
 #include <vector>
 
 class GrDirectContext;

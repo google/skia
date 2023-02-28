@@ -19,6 +19,8 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkVM_fwd.h"
 
+#include <tuple>
+
 class GrFragmentProcessor;
 struct GrFPArgs;
 class SkArenaAlloc;

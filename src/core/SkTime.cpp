@@ -14,6 +14,7 @@
 #include "src/base/SkLeanWindows.h"
 
 #include <chrono>
+#include <ratio>
 
 void SkTime::DateTime::toISO8601(SkString* dst) const {
     if (dst) {

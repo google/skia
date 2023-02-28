@@ -37,6 +37,7 @@
 #include <chrono>
 #include <cmath>
 #include <memory>
+#include <ratio>
 
 #include <stdlib.h>
 

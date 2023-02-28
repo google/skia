@@ -26,6 +26,7 @@
 #include <cstdint>           // intXX_t
 #include <cstring>           // memcpy()
 #include <initializer_list>  // std::initializer_list
+#include <type_traits>
 #include <utility>           // std::index_sequence
 
 // Users may disable SIMD with SKNX_NO_SIMD, which may be set via compiler flags.
