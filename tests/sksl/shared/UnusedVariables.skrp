@@ -34,25 +34,25 @@
    34. copy_slot_unmasked             b = $0
    35. zero_slot_unmasked             x = 0
    36. store_loop_mask                $0 = LoopMask
-   37. jump                           jump +12 (label 3 at #49)
+   37. jump                           jump +11 (label 3 at #48)
    38. label                          label 0x00000004
    39. zero_slot_unmasked             $5 = 0
    40. copy_constant                  $6 = 0xFFFFFFFF
    41. copy_slot_masked               $5 = Mask($6)
    42. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    43. reenable_loop_mask             LoopMask |= $5
-   44. label                          label 0x00000002
-   45. copy_slot_unmasked             $1 = x
-   46. copy_constant                  $2 = 0x00000001 (1.401298e-45)
-   47. add_int                        $1 += $2
-   48. copy_slot_masked               x = Mask($1)
-   49. label                          label 0x00000003
-   50. copy_slot_unmasked             $1 = x
-   51. copy_constant                  $2 = 0x00000001 (1.401298e-45)
-   52. cmplt_int                      $1 = lessThan($1, $2)
-   53. merge_loop_mask                LoopMask &= $1
-   54. stack_rewind
-   55. branch_if_any_lanes_active     branch_if_any_lanes_active -17 (label 4 at #38)
+   44. copy_slot_unmasked             $1 = x
+   45. copy_constant                  $2 = 0x00000001 (1.401298e-45)
+   46. add_int                        $1 += $2
+   47. copy_slot_masked               x = Mask($1)
+   48. label                          label 0x00000003
+   49. copy_slot_unmasked             $1 = x
+   50. copy_constant                  $2 = 0x00000001 (1.401298e-45)
+   51. cmplt_int                      $1 = lessThan($1, $2)
+   52. merge_loop_mask                LoopMask &= $1
+   53. stack_rewind
+   54. branch_if_any_lanes_active     branch_if_any_lanes_active -16 (label 4 at #38)
+   55. label                          label 0x00000002
    56. load_loop_mask                 LoopMask = $0
    57. copy_slot_unmasked             d = c
    58. copy_constant                  $0 = 0x40400000 (3.0)

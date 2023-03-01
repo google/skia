@@ -352,6 +352,7 @@ private:
     const FunctionDefinition* fCurrentFunction = nullptr;
     SlotRange fCurrentFunctionResult;
     AutoContinueMask* fCurrentContinueMask = nullptr;
+    int fCurrentBreakTarget = -1;
     int fCurrentStack = 0;
     int fNextStackID = 0;
     SkTArray<int> fRecycledStacks;
@@ -500,6 +501,29 @@ private:
     std::optional<AutoStack> fContinueMaskStack;
     Generator* fGenerator = nullptr;
     AutoContinueMask* fPreviousContinueMask = nullptr;
+};
+
+class AutoLoopTarget {
+public:
+    AutoLoopTarget(Generator* gen, int* targetPtr) : fGenerator(gen), fLoopTargetPtr(targetPtr) {
+        fLabelID = fGenerator->builder()->nextLabelID();
+        fPreviousLoopTarget = *fLoopTargetPtr;
+        *fLoopTargetPtr = fLabelID;
+    }
+
+    ~AutoLoopTarget() {
+        *fLoopTargetPtr = fPreviousLoopTarget;
+    }
+
+    int labelID() {
+        return fLabelID;
+    }
+
+private:
+    Generator* fGenerator = nullptr;
+    int* fLoopTargetPtr = nullptr;
+    int fPreviousLoopTarget;
+    int fLabelID;
 };
 
 class LValue {
@@ -1224,6 +1248,9 @@ bool Generator::writeBlock(const Block& b) {
 }
 
 bool Generator::writeBreakStatement(const BreakStatement&) {
+    // If all lanes have reached this break, we can just branch straight to the break target instead
+    // of updating masks.
+    fBuilder.branch_if_all_lanes_active(fCurrentBreakTarget);
     fBuilder.mask_off_loop_mask();
     return true;
 }
@@ -1246,7 +1273,7 @@ bool Generator::writeContinueStatement(const ContinueStatement&) {
 
 bool Generator::writeDoStatement(const DoStatement& d) {
     // Set up a break target.
-    int breakTargetID = fBuilder.nextLabelID();
+    AutoLoopTarget breakTarget(this, &fCurrentBreakTarget);
 
     // Save off the original loop mask.
     fBuilder.enableExecutionMaskWrites();
@@ -1272,8 +1299,6 @@ bool Generator::writeDoStatement(const DoStatement& d) {
 
     autoContinueMask.exitLoopBody();
 
-    fBuilder.label(breakTargetID);
-
     // Emit the test-expression, in order to combine it with the loop mask.
     if (!this->pushExpression(*d.test())) {
         return false;
@@ -1286,6 +1311,9 @@ bool Generator::writeDoStatement(const DoStatement& d) {
 
     // If any lanes are still running, go back to the top and run the loop body again.
     fBuilder.branch_if_any_lanes_active(labelID);
+
+    // If we hit a break statement on all lanes, we will branch here to escape from the loop.
+    fBuilder.label(breakTarget.labelID());
 
     // Restore the loop mask.
     fBuilder.pop_loop_mask();
@@ -1359,7 +1387,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
     }
 
     // Set up a break target.
-    int breakTargetID = fBuilder.nextLabelID();
+    AutoLoopTarget breakTarget(this, &fCurrentBreakTarget);
 
     // Run the loop initializer.
     if (f.initializer() && !this->writeStatement(*f.initializer())) {
@@ -1393,8 +1421,6 @@ bool Generator::writeForStatement(const ForStatement& f) {
 
     autoContinueMask.exitLoopBody();
 
-    fBuilder.label(breakTargetID);
-
     // Run the next-expression. Immediately discard its result.
     if (f.next()) {
         if (!this->pushExpression(*f.next(), /*usesResult=*/false)) {
@@ -1417,6 +1443,9 @@ bool Generator::writeForStatement(const ForStatement& f) {
 
     // If any lanes are still running, go back to the top and run the loop body again.
     fBuilder.branch_if_any_lanes_active(loopBodyID);
+
+    // If we hit a break statement on all lanes, we will branch here to escape from the loop.
+    fBuilder.label(breakTarget.labelID());
 
     // Restore the loop mask.
     fBuilder.pop_loop_mask();
@@ -1533,7 +1562,7 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
     }));
 
     // Set up a break target.
-    int breakTargetID = fBuilder.nextLabelID();
+    AutoLoopTarget breakTarget(this, &fCurrentBreakTarget);
 
     // Save off the original loop mask.
     fBuilder.enableExecutionMaskWrites();
@@ -1582,10 +1611,11 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
         fBuilder.label(skipLabelID);
     }
 
-    fBuilder.label(breakTargetID);
-
     // Jettison the switch value, and the default case mask if it was never consumed above.
     this->discardExpression(/*slots=*/foundDefaultCase ? 1 : 2);
+
+    // If we hit a break statement on all lanes, we will branch here to escape from the switch.
+    fBuilder.label(breakTarget.labelID());
 
     // Restore the loop mask.
     fBuilder.pop_loop_mask();

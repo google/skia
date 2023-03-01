@@ -70,7 +70,7 @@
    70. store_return_mask              $1 = RetMask
    71. zero_slot_unmasked             x = 0
    72. store_loop_mask                $2 = LoopMask
-   73. jump                           jump +20 (label 13 at #93)
+   73. jump                           jump +19 (label 13 at #92)
    74. label                          label 0x0000000E
    75. copy_constant                  $3 = colorGreen(1)
    76. zero_slot_unmasked             $4 = 0
@@ -85,18 +85,18 @@
    85. copy_slot_masked               [test_loop_if].result = Mask($4)
    86. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    87. label                          label 0x00000010
-   88. label                          label 0x0000000C
-   89. copy_slot_unmasked             $3 = x
-   90. copy_constant                  $4 = 0x00000001 (1.401298e-45)
-   91. add_int                        $3 += $4
-   92. copy_slot_masked               x = Mask($3)
-   93. label                          label 0x0000000D
-   94. copy_slot_unmasked             $3 = x
-   95. copy_constant                  $4 = 0x00000001 (1.401298e-45)
-   96. cmple_int                      $3 = lessThanEqual($3, $4)
-   97. merge_loop_mask                LoopMask &= $3
-   98. stack_rewind
-   99. branch_if_any_lanes_active     branch_if_any_lanes_active -25 (label 14 at #74)
+   88. copy_slot_unmasked             $3 = x
+   89. copy_constant                  $4 = 0x00000001 (1.401298e-45)
+   90. add_int                        $3 += $4
+   91. copy_slot_masked               x = Mask($3)
+   92. label                          label 0x0000000D
+   93. copy_slot_unmasked             $3 = x
+   94. copy_constant                  $4 = 0x00000001 (1.401298e-45)
+   95. cmple_int                      $3 = lessThanEqual($3, $4)
+   96. merge_loop_mask                LoopMask &= $3
+   97. stack_rewind
+   98. branch_if_any_lanes_active     branch_if_any_lanes_active -24 (label 14 at #74)
+   99. label                          label 0x0000000C
   100. load_loop_mask                 LoopMask = $2
   101. copy_slot_unmasked             $2 = scratchVar
   102. copy_constant                  $3 = 0x00000001 (1.401298e-45)

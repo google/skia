@@ -17,9 +17,9 @@
    17. zero_slot_unmasked             $3 = 0
    18. cmpeq_float                    $2 = equal($2, $3)
    19. merge_condition_mask           CondMask = $1 & $2
-   20. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-   21. load_condition_mask            CondMask = $1
-   22. label                          label 0x00000000
+   20. branch_if_all_lanes_active     branch_if_all_lanes_active +14 (label 0 at #34)
+   21. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   22. load_condition_mask            CondMask = $1
    23. copy_slot_unmasked             $1 = r
    24. copy_constant                  $2 = 0x3F800000 (1.0)
    25. add_float                      $1 += $2
@@ -31,27 +31,27 @@
    31. merge_loop_mask                LoopMask &= $1
    32. stack_rewind
    33. branch_if_any_lanes_active     branch_if_any_lanes_active -25 (label 2 at #8)
-   34. load_loop_mask                 LoopMask = $0
-   35. copy_constant                  b = 0x40A00000 (5.0)
-   36. store_loop_mask                $0 = LoopMask
-   37. jump                           jump +22 (label 4 at #59)
-   38. label                          label 0x00000005
-   39. zero_slot_unmasked             $4 = 0
-   40. copy_slot_unmasked             $1 = b
-   41. copy_slot_masked               x(2) = Mask($1)
-   42. store_condition_mask           $1 = CondMask
-   43. copy_slot_unmasked             $2 = x(3)
-   44. copy_constant                  $3 = 0x3F800000 (1.0)
-   45. cmpeq_float                    $2 = equal($2, $3)
-   46. merge_condition_mask           CondMask = $1 & $2
-   47. copy_constant                  $5 = 0xFFFFFFFF
-   48. copy_slot_masked               $4 = Mask($5)
-   49. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-   50. load_condition_mask            CondMask = $1
-   51. zero_slot_unmasked             $1 = 0
-   52. copy_slot_masked               x(1) = Mask($1)
-   53. reenable_loop_mask             LoopMask |= $4
-   54. label                          label 0x00000003
+   34. label                          label 0x00000000
+   35. load_loop_mask                 LoopMask = $0
+   36. copy_constant                  b = 0x40A00000 (5.0)
+   37. store_loop_mask                $0 = LoopMask
+   38. jump                           jump +21 (label 4 at #59)
+   39. label                          label 0x00000005
+   40. zero_slot_unmasked             $4 = 0
+   41. copy_slot_unmasked             $1 = b
+   42. copy_slot_masked               x(2) = Mask($1)
+   43. store_condition_mask           $1 = CondMask
+   44. copy_slot_unmasked             $2 = x(3)
+   45. copy_constant                  $3 = 0x3F800000 (1.0)
+   46. cmpeq_float                    $2 = equal($2, $3)
+   47. merge_condition_mask           CondMask = $1 & $2
+   48. copy_constant                  $5 = 0xFFFFFFFF
+   49. copy_slot_masked               $4 = Mask($5)
+   50. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   51. load_condition_mask            CondMask = $1
+   52. zero_slot_unmasked             $1 = 0
+   53. copy_slot_masked               x(1) = Mask($1)
+   54. reenable_loop_mask             LoopMask |= $4
    55. copy_slot_unmasked             $1 = b
    56. copy_constant                  $2 = 0x3F800000 (1.0)
    57. sub_float                      $1 -= $2
@@ -62,7 +62,8 @@
    62. cmple_float                    $1 = lessThanEqual($1, $2)
    63. merge_loop_mask                LoopMask &= $1
    64. stack_rewind
-   65. branch_if_any_lanes_active     branch_if_any_lanes_active -27 (label 5 at #38)
-   66. load_loop_mask                 LoopMask = $0
-   67. copy_4_slots_unmasked          $0..3 = x
-   68. load_src                       src.rgba = $0..3
+   65. branch_if_any_lanes_active     branch_if_any_lanes_active -26 (label 5 at #39)
+   66. label                          label 0x00000003
+   67. load_loop_mask                 LoopMask = $0
+   68. copy_4_slots_unmasked          $0..3 = x
+   69. load_src                       src.rgba = $0..3
