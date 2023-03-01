@@ -32,6 +32,10 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
     if (shaper) {
         return shaper;
     }
+#elif defined(SK_SHAPER_CORETEXT_AVAILABLE)
+    if (auto shaper = SkShaper::MakeCoreText()) {
+        return shaper;
+    }
 #endif
     return SkShaper::MakePrimitive();
 }
