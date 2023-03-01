@@ -145,41 +145,41 @@ std::tuple<bool, SkVector> can_use_direct(
             translation};
 }
 
-// -- TransformedMaskVertexFiller ------------------------------------------------------------------
-// The TransformedMaskVertexFiller assumes that all points, glyph atlas entries, and bounds are
-// created with respect to the CreationMatrix. This assumes that mapping any point, mask or
-// bounds through the CreationMatrix will result in the proper device position. In order to draw
-// using an arbitrary PositionMatrix, calculate a
+// -- VertexFiller ---------------------------------------------------------------------------------
+// The VertexFiller assumes that all points, glyph atlas entries, and bounds are created with
+// respect to the CreationMatrix. This assumes that mapping any point, mask or bounds through the
+// CreationMatrix will result in the proper device position. In order to draw using an arbitrary
+// PositionMatrix, calculate a
 //
 //    viewDifference = [PositionMatrix] * [CreationMatrix] ^ -1.
 //
 // The viewDifference is used to map all points, masks and bounds to position to the device
 // respecting the PositionMatrix.
-class TransformedMaskVertexFiller {
+class VertexFiller {
 public:
-    TransformedMaskVertexFiller(MaskFormat maskFormat,
-                                const SkMatrix& creationMatrix,
-                                SkRect creationBounds,
-                                SkSpan<const SkPoint> leftTop,
-                                bool canDrawDirect)
+    VertexFiller(MaskFormat maskFormat,
+                 const SkMatrix& creationMatrix,
+                 SkRect creationBounds,
+                 SkSpan<const SkPoint> leftTop,
+                 bool canDrawDirect)
             : fMaskType{maskFormat}
             , fCanDrawDirect{canDrawDirect}
             , fCreationMatrix{creationMatrix}
             , fCreationBounds{creationBounds}
             , fLeftTop{leftTop} {}
 
-    static TransformedMaskVertexFiller Make(MaskFormat maskType,
-                                            const SkMatrix& creationMatrix,
-                                            SkRect creationBounds,
-                                            SkSpan<const SkPoint> positions,
-                                            SubRunAllocator* alloc,
-                                            bool canDrawDirect = false) {
+    static VertexFiller Make(MaskFormat maskType,
+                             const SkMatrix& creationMatrix,
+                             SkRect creationBounds,
+                             SkSpan<const SkPoint> positions,
+                             SubRunAllocator* alloc,
+                             bool canDrawDirect = false) {
         SkSpan<SkPoint> leftTop = alloc->makePODSpan<SkPoint>(positions);
-        return TransformedMaskVertexFiller{
+        return VertexFiller{
             maskType, creationMatrix, creationBounds, leftTop, canDrawDirect};
     }
 
-    static std::optional<TransformedMaskVertexFiller> MakeFromBuffer(
+    static std::optional<VertexFiller> MakeFromBuffer(
             SkReadBuffer& buffer, SubRunAllocator* alloc) {
         int checkingMaskType = buffer.readInt();
         if (!buffer.validate(0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
@@ -198,8 +198,7 @@ public:
         if (leftTop.empty()) { return std::nullopt; }
 
         SkASSERT(buffer.isValid());
-        return TransformedMaskVertexFiller{
-            maskType, creationMatrix, creationBounds, leftTop, canDrawDirect};
+        return VertexFiller{maskType, creationMatrix, creationBounds, leftTop, canDrawDirect};
     }
 
     int unflattenSize() const {
@@ -1192,7 +1191,7 @@ calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
 // -- DirectMaskSubRun -----------------------------------------------------------------------------
 class DirectMaskSubRun final : public SubRun, public AtlasSubRun {
 public:
-    DirectMaskSubRun(TransformedMaskVertexFiller&& vertexFiller,
+    DirectMaskSubRun(VertexFiller&& vertexFiller,
                      GlyphVector&& glyphs)
             : fVertexFiller{std::move(vertexFiller)}
             , fGlyphs{std::move(glyphs)} {}
@@ -1203,7 +1202,7 @@ public:
                             SkStrikePromise&& strikePromise,
                             MaskFormat maskType,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = TransformedMaskVertexFiller::Make(
+        auto vertexFiller = VertexFiller::Make(
                 maskType, creationMatrix, creationBounds, get_positions(accepted), alloc, true);
 
         auto glyphVector =
@@ -1216,7 +1215,7 @@ public:
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client) {
-        auto vertexFiller = TransformedMaskVertexFiller::MakeFromBuffer(buffer, alloc);
+        auto vertexFiller = VertexFiller::MakeFromBuffer(buffer, alloc);
         if (!buffer.validate(vertexFiller.has_value())) { return nullptr; }
 
         auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
@@ -1412,7 +1411,7 @@ protected:
     }
 
 private:
-    const TransformedMaskVertexFiller fVertexFiller;
+    const VertexFiller fVertexFiller;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -1423,7 +1422,7 @@ private:
 class TransformedMaskSubRun final : public SubRun, public AtlasSubRun {
 public:
     TransformedMaskSubRun(const SkMatrix& initialPositionMatrix,
-                          TransformedMaskVertexFiller&& vertexFiller,
+                          VertexFiller&& vertexFiller,
                           GlyphVector&& glyphs)
             : fInitialPositionMatrix{initialPositionMatrix}
             , fVertexFiller{std::move(vertexFiller)}
@@ -1436,7 +1435,7 @@ public:
                             SkRect creationBounds,
                             MaskFormat maskType,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = TransformedMaskVertexFiller::Make(
+        auto vertexFiller = VertexFiller::Make(
                 maskType, creationMatrix, creationBounds, get_positions(accepted), alloc);
 
         auto glyphVector = GlyphVector::Make(
@@ -1450,7 +1449,7 @@ public:
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client) {
-        auto vertexFiller = TransformedMaskVertexFiller::MakeFromBuffer(buffer, alloc);
+        auto vertexFiller = VertexFiller::MakeFromBuffer(buffer, alloc);
         if (!buffer.validate(vertexFiller.has_value())) { return nullptr; }
 
         auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
@@ -1616,7 +1615,7 @@ protected:
 private:
     const SkMatrix& fInitialPositionMatrix;
 
-    const TransformedMaskVertexFiller fVertexFiller;
+    const VertexFiller fVertexFiller;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -1671,7 +1670,7 @@ public:
     SDFTSubRun(bool useLCDText,
                bool antiAliased,
                const SDFTMatrixRange& matrixRange,
-               TransformedMaskVertexFiller&& vertexFiller,
+               VertexFiller&& vertexFiller,
                GlyphVector&& glyphs)
         : fUseLCDText{useLCDText}
         , fAntiAliased{antiAliased}
@@ -1686,7 +1685,7 @@ public:
                             SkRect creationBounds,
                             const SDFTMatrixRange& matrixRange,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = TransformedMaskVertexFiller::Make(
+        auto vertexFiller = VertexFiller::Make(
                 MaskFormat::kA8,
                 creationMatrix,
                 creationBounds,
@@ -1711,7 +1710,7 @@ public:
         int useLCD = buffer.readInt();
         int isAntiAliased = buffer.readInt();
         SDFTMatrixRange matrixRange = SDFTMatrixRange::MakeFromBuffer(buffer);
-        auto vertexFiller = TransformedMaskVertexFiller::MakeFromBuffer(buffer, alloc);
+        auto vertexFiller = VertexFiller::MakeFromBuffer(buffer, alloc);
         if (!buffer.validate(vertexFiller.has_value())) { return nullptr; }
         auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
         if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
@@ -1881,7 +1880,7 @@ private:
     const bool fAntiAliased;
     const SDFTMatrixRange fMatrixRange;
 
-    const TransformedMaskVertexFiller fVertexFiller;
+    const VertexFiller fVertexFiller;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
