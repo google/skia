@@ -590,7 +590,7 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicSignFloat,              "intrinsi
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicSignInt,                "intrinsics/SignInt.sksl")
 SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicSqrt,                   "intrinsics/Sqrt.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicStep,                   "intrinsics/Step.sksl")
-SKSL_TEST(GPU_ES3,       kNever,      IntrinsicTrunc,                  "intrinsics/Trunc.sksl")
+SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicTrunc,                  "intrinsics/Trunc.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicTranspose,              "intrinsics/Transpose.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicUintBitsToFloat,        "intrinsics/UintBitsToFloat.sksl")
 
