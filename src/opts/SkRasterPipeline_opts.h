@@ -128,6 +128,11 @@ namespace SK_OPTS_NS {
     template <typename T>
     SI T gather(const T* p, U32 ix) { return p[ix]; }
 
+    template <typename T>
+    SI void scatter_masked(T src, T* dst, U32 ix, I32 mask) {
+        dst[ix] = mask ? src : dst[ix];
+    }
+
     SI void load2(const uint16_t* ptr, size_t tail, U16* r, U16* g) {
         *r = ptr[0];
         *g = ptr[1];
@@ -243,6 +248,15 @@ namespace SK_OPTS_NS {
     template <typename T>
     SI V<T> gather(const T* p, U32 ix) {
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
+    }
+    template <typename V, typename S>
+    SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
+        V before = gather(dst, ix);
+        V after = if_then_else(mask, src, before);
+        dst[ix[0]] = after[0];
+        dst[ix[1]] = after[1];
+        dst[ix[2]] = after[2];
+        dst[ix[3]] = after[3];
     }
     SI void load2(const uint16_t* ptr, size_t tail, U16* r, U16* g) {
         uint16x4x2_t rg;
@@ -406,6 +420,19 @@ namespace SK_OPTS_NS {
             _mm256_i32gather_epi64(p, _mm256_extracti128_si256(ix,1), 8),
         };
         return sk_bit_cast<U64>(parts);
+    }
+    template <typename V, typename S>
+    SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
+        V before = gather(dst, ix);
+        V after = if_then_else(mask, src, before);
+        dst[ix[0]] = after[0];
+        dst[ix[1]] = after[1];
+        dst[ix[2]] = after[2];
+        dst[ix[3]] = after[3];
+        dst[ix[4]] = after[4];
+        dst[ix[5]] = after[5];
+        dst[ix[6]] = after[6];
+        dst[ix[7]] = after[7];
     }
 
     SI void load2(const uint16_t* ptr, size_t tail, U16* r, U16* g) {
@@ -783,7 +810,15 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI V<T> gather(const T* p, U32 ix) {
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
-
+    template <typename V, typename S>
+    SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
+        V before = gather(dst, ix);
+        V after = if_then_else(mask, src, before);
+        dst[ix[0]] = after[0];
+        dst[ix[1]] = after[1];
+        dst[ix[2]] = after[2];
+        dst[ix[3]] = after[3];
+    }
     SI void load2(const uint16_t* ptr, size_t tail, U16* r, U16* g) {
         __m128i _01;
         if (__builtin_expect(tail,0)) {
@@ -3524,6 +3559,30 @@ STAGE_TAIL(copy_from_indirect_uniform_unmasked, SkRasterPipeline_CopyIndirectCtx
         dst += 1;
         src += 1;
     } while (dst != end);
+}
+
+STAGE_TAIL(copy_to_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
+    // Clamp the indirect offsets to stay within the limit.
+    U32 offsets = *(U32*)ctx->indirectOffset;
+    offsets = min(offsets, ctx->indirectLimit);
+
+    // Scale up the offsets to account for the N lanes per value.
+    offsets *= N;
+
+    // Adjust the offsets forward so that they store into the correct lane.
+    static constexpr uint32_t iota[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    offsets += sk_unaligned_load<I32>(iota);
+
+    // Perform indirect, masked writes into `dst`.
+    const F* src = (F*)ctx->src;
+    const F* end = src + ctx->slots;
+    float*   dst = ctx->dst;
+    I32      mask = execution_mask();
+    do {
+        scatter_masked(*src, dst, offsets, mask);
+        dst += N;
+        src += 1;
+    } while (src != end);
 }
 
 // Unary operations take a single input, and overwrite it with their output.
