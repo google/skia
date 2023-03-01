@@ -1960,11 +1960,7 @@ public:
     }
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override {
-        if (drawMatrix.hasPerspective()) {
-            return sizeof(Mask3DVertex);
-        } else {
-            return sizeof(Mask2DVertex);
-        }
+        return fVertexFiller.vertexStride(drawMatrix);
     }
 
 #endif  // defined(SK_GANESH)
