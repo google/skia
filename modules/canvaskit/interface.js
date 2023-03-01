@@ -374,6 +374,17 @@ CanvasKit.onRuntimeInitialized = function() {
     return null;
   };
 
+  CanvasKit.Image.prototype.encodeToBytes = function(fmt, quality) {
+    var grCtx = CanvasKit.getCurrentGrDirectContext();
+    fmt = fmt || CanvasKit.ImageFormat.PNG;
+    quality = quality || 100;
+    if (grCtx) {
+      return this._encodeToBytes(fmt, quality, grCtx);
+    } else {
+      return this._encodeToBytes(fmt, quality);
+    }
+  };
+
   // makeShaderCubic returns a shader for a given image, allowing it to be used on
   // a paint as well as other purposes. This shader will be higher quality than
   // other shader functions. See CubicResampler in SkSamplingOptions.h for more information

@@ -1067,6 +1067,7 @@ public:
         error. When used, quality equaling 100 encodes with the least error. quality may
         be ignored by the encoder.
 
+        @param context             the GrDirectContext in play, if it exists; can be nullptr
         @param encodedImageFormat  one of: SkEncodedImageFormat::kJPEG, SkEncodedImageFormat::kPNG,
                                    SkEncodedImageFormat::kWEBP
         @param quality             encoder specific metric with 100 equaling best
@@ -1074,7 +1075,13 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_encodeToData
     */
+    sk_sp<SkData> encodeToData(GrDirectContext* context,
+                               SkEncodedImageFormat encodedImageFormat,
+                               int quality) const;
+#ifndef SK_IMAGE_READ_PIXELS_DISABLE_LEGACY_API
+    // Deprecated, use above version instead
     sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const;
+#endif
 
     /** Encodes SkImage pixels, returning result as SkData. Returns existing encoded data
         if present; otherwise, SkImage is encoded with SkEncodedImageFormat::kPNG. Skia
@@ -1087,7 +1094,11 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_encodeToData_2
     */
+    sk_sp<SkData> encodeToData(GrDirectContext* context) const;
+#ifndef SK_IMAGE_READ_PIXELS_DISABLE_LEGACY_API
+    // Deprecated, use above version instead
     sk_sp<SkData> encodeToData() const;
+#endif
 
     /** Returns encoded SkImage pixels as SkData, if SkImage was created from supported
         encoded stream format. Platform support for formats vary and may require building

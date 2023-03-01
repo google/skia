@@ -1498,21 +1498,27 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return result;
         }))
         .function("height", &SkImage::height)
-        .function("encodeToBytes", optional_override([](sk_sp<SkImage> self) -> Uint8Array {
-            sk_sp<SkData> data = self->encodeToData();
-            if (!data) {
-                return emscripten::val::null();
-            }
-            return toBytes(data);
-        }))
-       .function("encodeToBytes", optional_override([](sk_sp<SkImage> self,
-                                            SkEncodedImageFormat fmt, int quality) -> Uint8Array {
+       .function("_encodeToBytes", optional_override([](sk_sp<SkImage> self,
+                                                        SkEncodedImageFormat fmt,
+                                                        int quality) -> Uint8Array {
             sk_sp<SkData> data = self->encodeToData(fmt, quality);
             if (!data) {
                 return emscripten::val::null();
             }
             return toBytes(data);
         }))
+#if defined(ENABLE_GPU)
+        .function("_encodeToBytes", optional_override([](sk_sp<SkImage> self,
+                                                         SkEncodedImageFormat fmt,
+                                                         int quality,
+                                                         GrDirectContext* dContext) -> Uint8Array {
+            sk_sp<SkData> data = self->encodeToData(dContext, fmt, quality);
+            if (!data) {
+                return emscripten::val::null();
+            }
+            return toBytes(data);
+        }), allow_raw_pointers())
+#endif
         .function("makeCopyWithDefaultMipmaps", optional_override([](sk_sp<SkImage> self)->sk_sp<SkImage> {
             return self->withDefaultMipmaps();
         }))

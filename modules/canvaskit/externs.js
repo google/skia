@@ -444,9 +444,10 @@ var CanvasKit = {
       makeShaderOptions: function() {},
     },
     // private API
+    _encodeToBytes: function() {},
+    _makeFromGenerator: function() {},
     _makeShaderCubic: function() {},
     _makeShaderOptions: function() {},
-    _makeFromGenerator: function() {},
   },
 
   ImageFilter: {

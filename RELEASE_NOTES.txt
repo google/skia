@@ -8,6 +8,8 @@ Milestone 113
     as the absence or presence of that define. As a result, it defaults to off (not defined) if
     not defined (SK_SUPPORT_GPU would default to SK_SUPPORT_GPU=1 if not defined).
   * SkStrSplit is no longer part of the public API.
+  * SkImage::encodeToData now takes a GrDirectContext. The versions which do not have that are
+    deprecated and will be removed at some point.
 
 * * *
 
