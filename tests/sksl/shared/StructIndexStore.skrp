@@ -1,0 +1,145 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          data.valueAtRoot, data.outer[0].inner[0].values = 0
+    4. zero_4_slots_unmasked          data.outer[0].inner[1].values, data.outer[0].inner[2].values(0) = 0
+    5. zero_4_slots_unmasked          data.outer[0].inner[2].values(1..2), data.outer[1].inner[0].values(0..1) = 0
+    6. zero_4_slots_unmasked          data.outer[1].inner[0].values(2), data.outer[1].inner[1].values = 0
+    7. zero_4_slots_unmasked          data.outer[1].inner[2].values, data.outer[2].inner[0].values(0) = 0
+    8. zero_4_slots_unmasked          data.outer[2].inner[0].values(1..2), data.outer[2].inner[1].values(0..1) = 0
+    9. zero_4_slots_unmasked          data.outer[2].inner[1].values(2), data.outer[2].inner[2].values = 0
+   10. copy_constant                  $0 = 0x000004D2 (1.729202e-42)
+   11. copy_slot_unmasked             data.valueAtRoot = $0
+   12. zero_4_slots_unmasked          values, i = 0
+   13. label                          label 0x00000001
+   14. zero_slot_unmasked             j = 0
+   15. label                          label 0x00000003
+   16. copy_3_slots_unmasked          $0..2 = values
+   17. copy_constant                  $3 = 0x3F800000 (1.0)
+   18. copy_constant                  $4 = 0x41200000 (10.0)
+   19. copy_constant                  $5 = 0x42C80000 (100.0)
+   20. add_3_floats                   $0..2 += $3..5
+   21. copy_3_slots_unmasked          values = $0..2
+   22. zero_slot_unmasked             k = 0
+   23. label                          label 0x00000005
+   24. copy_slot_unmasked             $17 = i
+   25. copy_constant                  $18 = 0x00000009 (1.261169e-44)
+   26. mul_int                        $17 *= $18
+   27. copy_slot_unmasked             $15 = j
+   28. copy_constant                  $16 = 0x00000003 (4.203895e-45)
+   29. mul_int                        $15 *= $16
+   30. copy_slot_unmasked             $16 = $17
+   31. add_int                        $15 += $16
+   32. copy_slot_unmasked             $13 = k
+   33. copy_slot_unmasked             $14 = $15
+   34. add_int                        $13 += $14
+   35. copy_slot_unmasked             $12 = k
+   36. copy_from_indirect_unmasked    $0 = Indirect(values(0) + $12)
+   37. copy_to_indirect_masked        Indirect(data.outer[0].inner[0].values(0) + $13) = Mask($0)
+   38. copy_slot_unmasked             $0 = k
+   39. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   40. add_int                        $0 += $1
+   41. copy_slot_unmasked             k = $0
+   42. copy_constant                  $1 = 0x00000003 (4.203895e-45)
+   43. cmplt_int                      $0 = lessThan($0, $1)
+   44. stack_rewind
+   45. branch_if_no_active_lanes_eq   branch -22 (label 5 at #23) if no lanes of $0 == 0x00000000 (0.0)
+   46. label                          label 0x00000004
+   47. copy_slot_unmasked             $0 = j
+   48. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   49. add_int                        $0 += $1
+   50. copy_slot_unmasked             j = $0
+   51. copy_constant                  $1 = 0x00000003 (4.203895e-45)
+   52. cmplt_int                      $0 = lessThan($0, $1)
+   53. stack_rewind
+   54. branch_if_no_active_lanes_eq   branch -39 (label 3 at #15) if no lanes of $0 == 0x00000000 (0.0)
+   55. label                          label 0x00000002
+   56. copy_slot_unmasked             $0 = i
+   57. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   58. add_int                        $0 += $1
+   59. copy_slot_unmasked             i = $0
+   60. copy_constant                  $1 = 0x00000003 (4.203895e-45)
+   61. cmplt_int                      $0 = lessThan($0, $1)
+   62. stack_rewind
+   63. branch_if_no_active_lanes_eq   branch -50 (label 1 at #13) if no lanes of $0 == 0x00000000 (0.0)
+   64. label                          label 0x00000000
+   65. copy_slot_unmasked             $0 = data.valueAtRoot
+   66. copy_constant                  $1 = 0x000004D2 (1.729202e-42)
+   67. cmpeq_int                      $0 = equal($0, $1)
+   68. copy_3_slots_unmasked          $1..3 = data.outer[0].inner[0].values
+   69. copy_constant                  $4 = 0x3F800000 (1.0)
+   70. copy_constant                  $5 = 0x41200000 (10.0)
+   71. copy_constant                  $6 = 0x42C80000 (100.0)
+   72. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+   73. bitwise_and_int                $2 &= $3
+   74. bitwise_and_int                $1 &= $2
+   75. bitwise_and_int                $0 &= $1
+   76. copy_3_slots_unmasked          $1..3 = data.outer[0].inner[1].values
+   77. copy_constant                  $4 = 0x40000000 (2.0)
+   78. copy_constant                  $5 = 0x41A00000 (20.0)
+   79. copy_constant                  $6 = 0x43480000 (200.0)
+   80. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+   81. bitwise_and_int                $2 &= $3
+   82. bitwise_and_int                $1 &= $2
+   83. bitwise_and_int                $0 &= $1
+   84. copy_3_slots_unmasked          $1..3 = data.outer[0].inner[2].values
+   85. copy_constant                  $4 = 0x40400000 (3.0)
+   86. copy_constant                  $5 = 0x41F00000 (30.0)
+   87. copy_constant                  $6 = 0x43960000 (300.0)
+   88. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+   89. bitwise_and_int                $2 &= $3
+   90. bitwise_and_int                $1 &= $2
+   91. bitwise_and_int                $0 &= $1
+   92. copy_3_slots_unmasked          $1..3 = data.outer[1].inner[0].values
+   93. copy_constant                  $4 = 0x40800000 (4.0)
+   94. copy_constant                  $5 = 0x42200000 (40.0)
+   95. copy_constant                  $6 = 0x43C80000 (400.0)
+   96. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+   97. bitwise_and_int                $2 &= $3
+   98. bitwise_and_int                $1 &= $2
+   99. bitwise_and_int                $0 &= $1
+  100. copy_3_slots_unmasked          $1..3 = data.outer[1].inner[1].values
+  101. copy_constant                  $4 = 0x40A00000 (5.0)
+  102. copy_constant                  $5 = 0x42480000 (50.0)
+  103. copy_constant                  $6 = 0x43FA0000 (500.0)
+  104. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+  105. bitwise_and_int                $2 &= $3
+  106. bitwise_and_int                $1 &= $2
+  107. bitwise_and_int                $0 &= $1
+  108. copy_3_slots_unmasked          $1..3 = data.outer[1].inner[2].values
+  109. copy_constant                  $4 = 0x40C00000 (6.0)
+  110. copy_constant                  $5 = 0x42700000 (60.0)
+  111. copy_constant                  $6 = 0x44160000 (600.0)
+  112. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+  113. bitwise_and_int                $2 &= $3
+  114. bitwise_and_int                $1 &= $2
+  115. bitwise_and_int                $0 &= $1
+  116. copy_3_slots_unmasked          $1..3 = data.outer[2].inner[0].values
+  117. copy_constant                  $4 = 0x40E00000 (7.0)
+  118. copy_constant                  $5 = 0x428C0000 (70.0)
+  119. copy_constant                  $6 = 0x442F0000 (700.0)
+  120. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+  121. bitwise_and_int                $2 &= $3
+  122. bitwise_and_int                $1 &= $2
+  123. bitwise_and_int                $0 &= $1
+  124. copy_3_slots_unmasked          $1..3 = data.outer[2].inner[1].values
+  125. copy_constant                  $4 = 0x41000000 (8.0)
+  126. copy_constant                  $5 = 0x42A00000 (80.0)
+  127. copy_constant                  $6 = 0x44480000 (800.0)
+  128. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+  129. bitwise_and_int                $2 &= $3
+  130. bitwise_and_int                $1 &= $2
+  131. bitwise_and_int                $0 &= $1
+  132. copy_3_slots_unmasked          $1..3 = data.outer[2].inner[2].values
+  133. copy_constant                  $4 = 0x41100000 (9.0)
+  134. copy_constant                  $5 = 0x42B40000 (90.0)
+  135. copy_constant                  $6 = 0x44610000 (900.0)
+  136. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+  137. bitwise_and_int                $2 &= $3
+  138. bitwise_and_int                $1 &= $2
+  139. bitwise_and_int                $0 &= $1
+  140. copy_slot_unmasked             ok = $0
+  141. swizzle_4                      $0..3 = ($0..3).xxxx
+  142. copy_4_constants               $4..7 = colorRed
+  143. copy_4_constants               $8..11 = colorGreen
+  144. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+  145. load_src                       src.rgba = $0..3

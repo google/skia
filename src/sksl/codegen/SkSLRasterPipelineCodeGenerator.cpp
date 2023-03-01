@@ -670,10 +670,10 @@ public:
 
         if (swizzle.empty()) {
             if (dynamicOffset) {
-                // TODO: implement indirect store
-                return unsupported();
+                gen->builder()->copy_stack_to_slots_indirect(fixedOffset, dynamicOffset->stackID(),
+                                                             this->fixedSlotRange(gen));
             } else {
-                gen->builder()->copy_stack_to_slots(fixedOffset, fixedOffset.count);
+                gen->builder()->copy_stack_to_slots(fixedOffset);
             }
         } else {
             if (dynamicOffset) {
