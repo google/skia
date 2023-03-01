@@ -12,7 +12,6 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
@@ -113,11 +112,8 @@ public:
     int slotCount() const { return fSlotCount; }
 
 private:
-    std::string makeTempName() { return SkSL::String::printf("[temporary %d]", fTemporaryCount++); }
-
     SkTHashMap<const IRNode*, SlotRange> fSlotMap;
     int fSlotCount = 0;
-    int fTemporaryCount = 0;
     std::vector<SlotDebugInfo>* fSlotDebugInfo;
 };
 
