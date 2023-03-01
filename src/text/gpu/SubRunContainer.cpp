@@ -481,20 +481,22 @@ SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
 #endif  // defined(SK_GANESH)
 
 // Check for integer translate with the same 2x2 matrix.
-// Returns the translation, and true if the change from initial matrix to the position matrix
-// support using direct glyph masks.
+// Returns the translation, and true if the change from creation matrix to the position matrix
+// supports using direct glyph masks.
 std::tuple<bool, SkVector> can_use_direct(
-        const SkMatrix& initialPositionMatrix, const SkMatrix& positionMatrix) {
-    // The existing direct glyph info can be used if the initialPositionMatrix, and the
-    // positionMatrix have the same 2x2, and the translation between them is integer.
-    // Calculate the translation in source space to a translation in device space by mapping
-    // (0, 0) through both the initial position matrix and the position matrix; take the difference.
-    SkVector translation = positionMatrix.mapOrigin() - initialPositionMatrix.mapOrigin();
-    return {initialPositionMatrix.getScaleX() == positionMatrix.getScaleX() &&
-                    initialPositionMatrix.getScaleY() == positionMatrix.getScaleY() &&
-                    initialPositionMatrix.getSkewX()  == positionMatrix.getSkewX()  &&
-                    initialPositionMatrix.getSkewY()  == positionMatrix.getSkewY()  &&
-                    SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y()),
+        const SkMatrix& creationMatrix, const SkMatrix& positionMatrix) {
+    // The existing direct glyph info can be used if the creationMatrix, and the
+    // positionMatrix have the same 2x2, the translation between them is integer, and no
+    // perspective is involved. Calculate the translation in source space to a translation in
+    // device space by mapping (0, 0) through both the creationMatrix and the positionMatrix;
+    // take the difference.
+    SkVector translation = positionMatrix.mapOrigin() - creationMatrix.mapOrigin();
+    return {creationMatrix.getScaleX() == positionMatrix.getScaleX() &&
+            creationMatrix.getScaleY() == positionMatrix.getScaleY() &&
+            creationMatrix.getSkewX()  == positionMatrix.getSkewX()  &&
+            creationMatrix.getSkewY()  == positionMatrix.getSkewY()  &&
+            !positionMatrix.hasPerspective() && !creationMatrix.hasPerspective() &&
+            SkScalarIsInt(translation.x()) && SkScalarIsInt(translation.y()),
             translation};
 }
 
