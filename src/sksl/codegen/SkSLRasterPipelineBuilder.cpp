@@ -564,6 +564,19 @@ void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
                              dst.count, offsetFromStackTop});
 }
 
+void Builder::copy_stack_to_slots_indirect(SlotRange fixedRange,
+                                           int dynamicStackID,
+                                           SlotRange limitRange) {
+    // SlotA: fixed-range start
+    // SlotB: limit-range end
+    // immA: number of slots
+    // immB: dynamic stack ID
+    fInstructions.push_back({BuilderOp::copy_stack_to_slots_indirect,
+                             {fixedRange.index, limitRange.index + limitRange.count},
+                             fixedRange.count,
+                             dynamicStackID});
+}
+
 static bool slot_ranges_overlap(SlotRange x, SlotRange y) {
     return x.index < y.index + y.count &&
            y.index < x.index + x.count;
@@ -1414,6 +1427,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, SlotA(), inst.fImmA);
                 break;
             }
+            case BuilderOp::copy_stack_to_slots_indirect:
             case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform_indirect: {
                 // SlotA: fixed-range start
@@ -1422,7 +1436,6 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 //  immB: dynamic stack ID
                 ProgramOp op;
                 auto* ctx = alloc->make<SkRasterPipeline_CopyIndirectCtx>();
-                ctx->dst = tempStackPtr;
                 ctx->indirectOffset =
                         reinterpret_cast<const uint32_t*>(tempStackMap[inst.fImmB]) - (1 * N);
                 ctx->indirectLimit = inst.fSlotB - inst.fSlotA - inst.fImmA;
@@ -1430,9 +1443,15 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 if (inst.fOp == BuilderOp::push_slots_indirect) {
                     op = ProgramOp::copy_from_indirect_unmasked;
                     ctx->src = SlotA();
-                } else {
+                    ctx->dst = tempStackPtr;
+                } else if (inst.fOp == BuilderOp::push_uniform_indirect) {
                     op = ProgramOp::copy_from_indirect_uniform_unmasked;
                     ctx->src = UniformA();
+                    ctx->dst = tempStackPtr;
+                } else {
+                    op = ProgramOp::copy_to_indirect_masked;
+                    ctx->src = tempStackPtr - (ctx->slots * N);
+                    ctx->dst = SlotA();
                 }
                 pipeline->push_back({op, ctx});
                 break;
@@ -2101,7 +2120,8 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 4);
                 break;
 
-            case POp::copy_from_indirect_unmasked: {
+            case POp::copy_from_indirect_unmasked:
+            case POp::copy_to_indirect_masked: {
                 const auto* ctx = static_cast<SkRasterPipeline_CopyIndirectCtx*>(stage.ctx);
                 // We don't incorporate the indirect-limit in the output
                 opArg1 = PtrCtx(ctx->dst, ctx->slots);
@@ -2407,6 +2427,10 @@ void Program::dump(SkWStream* out) const {
             case POp::copy_from_indirect_unmasked:
             case POp::copy_from_indirect_uniform_unmasked:
                 opText = opArg1 + " = Indirect(" + opArg2 + " + " + opArg3 + ")";
+                break;
+
+            case POp::copy_to_indirect_masked:
+                opText = "Indirect(" + opArg1 + " + " + opArg3 + ") = Mask(" + opArg2 + ")";
                 break;
 
             case POp::zero_slot_unmasked:    case POp::zero_2_slots_unmasked:

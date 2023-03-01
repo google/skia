@@ -228,10 +228,10 @@ DEF_TEST(RasterPipelineBuilderPushPopIndirect, r) {
     builder.push_slots_indirect(four_slots_at(10), /*dynamicStack=*/1, ten_slots_at(10));
     builder.push_uniform_indirect(one_slot_at(0), /*dynamicStack=*/1, five_slots_at(0));
     builder.push_uniform_indirect(three_slots_at(5), /*dynamicStack=*/1, five_slots_at(5));
+    builder.pop_slots_indirect(five_slots_at(0), /*dynamicStackID=*/1, ten_slots_at(0));
+    builder.pop_slots_indirect(five_slots_at(10), /*dynamicStackID=*/1, ten_slots_at(10));
     builder.set_current_stack(1);
     builder.discard_stack(1);
-    builder.set_current_stack(0);
-    builder.discard_stack(10);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/20,
                                                                 /*numUniformSlots=*/10);
     check(r, *program,
@@ -240,6 +240,8 @@ R"(    1. copy_constant                  $10 = 0x00000003 (4.203895e-45)
     3. copy_from_indirect_unmasked    $2..5 = Indirect(v10..13 + $10)
     4. copy_from_indirect_uniform_unm $6 = Indirect(u0 + $10)
     5. copy_from_indirect_uniform_unm $7..9 = Indirect(u5..7 + $10)
+    6. copy_to_indirect_masked        Indirect(v0..4 + $10) = Mask($5..9)
+    7. copy_to_indirect_masked        Indirect(v10..14 + $10) = Mask($0..4)
 )");
 }
 

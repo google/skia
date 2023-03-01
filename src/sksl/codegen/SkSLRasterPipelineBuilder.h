@@ -95,6 +95,7 @@ enum class BuilderOp {
     push_clone_indirect_from_stack,
     copy_stack_to_slots,
     copy_stack_to_slots_unmasked,
+    copy_stack_to_slots_indirect,
     swizzle_copy_stack_to_slots,
     discard_stack,
     select,
@@ -411,6 +412,20 @@ public:
     }
 
     void copy_stack_to_slots_unmasked(SlotRange dst, int offsetFromStackTop);
+
+    // Translates into copy_to_indirect_masked (from temp stack into values) in Raster Pipeline.
+    // `fixedRange` denotes a fixed set of slots; this range is pushed forward by the value at the
+    // top of stack `dynamicStack`. Pass the slot range of the variable being indexed as
+    // `limitRange`; this is used as a hard cap, to avoid indexing outside of bounds.
+    void copy_stack_to_slots_indirect(SlotRange fixedRange,
+                                      int dynamicStackID,
+                                      SlotRange limitRange);
+
+    // Copies from temp stack to slots, including an indirect offset, then shrinks the temp stack.
+    void pop_slots_indirect(SlotRange fixedRange, int dynamicStackID, SlotRange limitRange) {
+        this->copy_stack_to_slots_indirect(fixedRange, dynamicStackID, limitRange);
+        this->discard_stack(fixedRange.count);
+    }
 
     // Performs a unary op (like `bitwise_not`), given a slot count of `slots`. The stack top is
     // replaced with the result.
