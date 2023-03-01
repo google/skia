@@ -465,18 +465,26 @@ public:
         SkColorInfo dst = {rec.fDstColorType, kPremul_SkAlphaType, dstCS},
                 working = {rec.fDstColorType, workingAT, workingCS};
 
+        const auto* dstToWorking = rec.fAlloc->make<SkColorSpaceXformSteps>(dst, working);
+        const auto* workingToDst = rec.fAlloc->make<SkColorSpaceXformSteps>(working, dst);
+
+        // Any SkSL effects might reference the paint color, which is already in the destination
+        // color space. We need to transform it to the working space for consistency.
+        SkColor4f paintColorInWorkingSpace = rec.fPaintColor;
+        dstToWorking->apply(paintColorInWorkingSpace.vec());
+
         SkStageRec workingRec = {rec.fPipeline,
                                  rec.fAlloc,
                                  rec.fDstColorType,
                                  workingCS.get(),
-                                 rec.fPaintColor,
+                                 paintColorInWorkingSpace,
                                  rec.fSurfaceProps};
 
-        rec.fAlloc->make<SkColorSpaceXformSteps>(dst, working)->apply(rec.fPipeline);
+        dstToWorking->apply(rec.fPipeline);
         if (!as_CFB(fChild)->appendStages(workingRec, shaderIsOpaque)) {
             return false;
         }
-        rec.fAlloc->make<SkColorSpaceXformSteps>(working, dst)->apply(rec.fPipeline);
+        workingToDst->apply(rec.fPipeline);
         return true;
     }
 

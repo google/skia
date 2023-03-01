@@ -29,9 +29,13 @@
 class SkRasterPipelineBlitter final : public SkBlitter {
 public:
     // This is our common entrypoint for creating the blitter once we've sorted out shaders.
-    static SkBlitter* Create(const SkPixmap&, const SkPaint&, SkArenaAlloc*,
+    static SkBlitter* Create(const SkPixmap& dst,
+                             const SkPaint& paint,
+                             const SkColor4f& dstPaintColor,
+                             SkArenaAlloc* alloc,
                              const SkRasterPipeline& shaderPipeline,
-                             bool is_opaque, bool is_constant,
+                             bool is_opaque,
+                             bool is_constant,
                              sk_sp<SkShader> clipShader);
 
     SkRasterPipelineBlitter(SkPixmap dst,
@@ -92,6 +96,13 @@ private:
     using INHERITED = SkBlitter;
 };
 
+static SkColor4f paint_color_to_dst(const SkPaint& paint, const SkPixmap& dst) {
+    SkColor4f paintColor = paint.getColor4f();
+    SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                           dst.colorSpace(),    kUnpremul_SkAlphaType).apply(paintColor.vec());
+    return paintColor;
+}
+
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
@@ -100,35 +111,31 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkSurfaceProps& props) {
     SkColorSpace* dstCS = dst.colorSpace();
     SkColorType dstCT = dst.colorType();
-    SkColor4f paintColor = paint.getColor4f();
+    SkColor4f dstPaintColor = paint_color_to_dst(paint, dst);
 
     auto shader = as_SB(paint.getShader());
 
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
-        // Having no shader makes things nice and easy... just use the paint color, but transform
-        // to destination color space first
-        SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
-                               dstCS,               kUnpremul_SkAlphaType).apply(paintColor.vec());
-        shaderPipeline.append_constant_color(alloc, paintColor.premul().vec());
-        bool is_opaque    = paintColor.fA == 1.0f,
+        // Having no shader makes things nice and easy... just use the paint color
+        shaderPipeline.append_constant_color(alloc, dstPaintColor.premul().vec());
+        bool is_opaque    = dstPaintColor.fA == 1.0f,
              is_constant  = true;
-        return SkRasterPipelineBlitter::Create(dst, paint, alloc,
-                                               shaderPipeline, is_opaque, is_constant,
-                                               std::move(clipShader));
+        return SkRasterPipelineBlitter::Create(dst, paint, dstPaintColor, alloc, shaderPipeline,
+                                               is_opaque, is_constant, std::move(clipShader));
     }
 
-    bool is_opaque    = shader->isOpaque() && paintColor.fA == 1.0f;
+    bool is_opaque    = shader->isOpaque() && dstPaintColor.fA == 1.0f;
     bool is_constant  = shader->isConstant();
 
-    if (shader->appendRootStages({&shaderPipeline, alloc, dstCT, dstCS, paintColor, props}, ctm)) {
-        if (paintColor.fA != 1.0f) {
+    if (shader->appendRootStages({&shaderPipeline, alloc, dstCT, dstCS, dstPaintColor, props},
+                                 ctm)) {
+        if (dstPaintColor.fA != 1.0f) {
             shaderPipeline.append(SkRasterPipelineOp::scale_1_float,
-                                  alloc->make<float>(paintColor.fA));
+                                  alloc->make<float>(dstPaintColor.fA));
         }
-        return SkRasterPipelineBlitter::Create(dst, paint, alloc,
-                                               shaderPipeline, is_opaque, is_constant,
-                                               std::move(clipShader));
+        return SkRasterPipelineBlitter::Create(dst, paint, dstPaintColor, alloc, shaderPipeline,
+                                               is_opaque, is_constant, std::move(clipShader));
     }
 
     // The shader can't draw with SkRasterPipeline.
@@ -142,13 +149,14 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          SkArenaAlloc* alloc,
                                          sk_sp<SkShader> clipShader) {
     bool is_constant = false;  // If this were the case, it'd be better to just set a paint color.
-    return SkRasterPipelineBlitter::Create(dst, paint, alloc,
+    return SkRasterPipelineBlitter::Create(dst, paint, paint_color_to_dst(paint, dst), alloc,
                                            shaderPipeline, is_opaque, is_constant,
-                                           clipShader);
+                                           std::move(clipShader));
 }
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
+                                           const SkColor4f& dstPaintColor,
                                            SkArenaAlloc* alloc,
                                            const SkRasterPipeline& shaderPipeline,
                                            bool is_opaque,
@@ -194,7 +202,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     if (auto colorFilter = paint.getColorFilter()) {
         SkSurfaceProps props{}; // default OK; colorFilter doesn't render text
         SkStageRec rec = {
-                colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint.getColor4f(), props};
+                colorPipeline, alloc, dst.colorType(), dst.colorSpace(), dstPaintColor, props};
         if (!as_CFB(colorFilter)->appendStages(rec, is_opaque)) {
             return nullptr;
         }
@@ -314,7 +322,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     {
         SkSurfaceProps props{};  // default OK; blender doesn't render text
         SkStageRec rec = {
-                blendPipeline, alloc, dst.colorType(), dst.colorSpace(), paint.getColor4f(), props};
+                blendPipeline, alloc, dst.colorType(), dst.colorSpace(), dstPaintColor, props};
         if (!as_BB(blender)->appendStages(rec)) {
             return nullptr;
         }

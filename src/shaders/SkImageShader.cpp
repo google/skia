@@ -731,11 +731,11 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
         SkColorSpace* cs = upper.pm.colorSpace();
         SkAlphaType   at = upper.pm.alphaType();
 
-        // Color for alpha-only images comes from the paint.
+        // Color for alpha-only images comes from the paint (already converted to dst color space).
         if (SkColorTypeIsAlphaOnly(upper.pm.colorType()) && !fRaw) {
             p->append_set_rgb(alloc, rec.fPaintColor);
 
-            cs = sk_srgb_singleton();
+            cs = rec.fDstCS;
             at = kUnpremul_SkAlphaType;
         }
 

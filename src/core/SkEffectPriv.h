@@ -8,13 +8,11 @@
 #ifndef SkEffectPriv_DEFINED
 #define SkEffectPriv_DEFINED
 
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 
 class SkArenaAlloc;
 class SkColorSpace;
-class SkMatrixProvider;
-class SkPaint;
 class SkRasterPipeline;
 class SkSurfaceProps;
 
