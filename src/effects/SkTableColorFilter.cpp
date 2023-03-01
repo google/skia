@@ -32,7 +32,9 @@
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 
 namespace skgpu::graphite {
 class PipelineDataGatherer;
@@ -299,17 +301,20 @@ void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
+    sk_sp<SkImage> image = RecorderPriv::CreateCachedImage(keyContext.recorder(), fBitmap);
+    if (!image) {
+        SKGPU_LOG_W("Couldn't create TableColorFilter's table");
+
+        // Return the input color as-is.
+        PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+        builder->endBlock();
+        return;
+    }
+
     TableColorFilterBlock::TableColorFilterData data;
 
-    // TODO(b/239604347): remove this hack. This is just here until we determine what Graphite's
-    // Recorder-level caching story is going to be.
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(fBitmap);
-    image = image->makeTextureImage(keyContext.recorder(), { skgpu::Mipmapped::kNo });
-
-    if (as_IB(image)->isGraphiteBacked()) {
-        auto [view, _] = as_IB(image)->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
-        data.fTextureProxy = view.refProxy();
-    }
+    auto [view, _] = as_IB(image)->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
+    data.fTextureProxy = view.refProxy();
 
     TableColorFilterBlock::BeginBlock(keyContext, builder, gatherer, data);
     builder->endBlock();

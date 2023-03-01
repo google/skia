@@ -13,6 +13,9 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/SharedContext.h"
 
+class SkBitmap;
+class SkImage;
+
 namespace skgpu::graphite {
 
 class ShaderCodeDictionary;
@@ -55,6 +58,10 @@ public:
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {
         return fRecorder->fTextBlobCache.get();
     }
+
+    static sk_sp<SkImage> CreateCachedImage(Recorder*,
+                                            const SkBitmap&,
+                                            Mipmapped = skgpu::Mipmapped::kNo);
 
 #if GRAPHITE_TEST_UTILS
     // used by the Context that created this Recorder to set a back pointer
