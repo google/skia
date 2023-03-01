@@ -10,8 +10,8 @@
 
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkNoncopyable.h"
 
 #include <cstddef>
 #include <cstdint>

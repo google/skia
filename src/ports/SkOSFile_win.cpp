@@ -8,8 +8,8 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "src/base/SkLeanWindows.h"
 #include "src/core/SkOSFile.h"

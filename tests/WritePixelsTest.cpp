@@ -27,9 +27,9 @@
 #include "include/gpu/graphite/Context.h"
 #endif
 #include "include/private/SkColorData.h"
-#include "include/private/base/SkSafe32.h"
-#include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkMathPriv.h"

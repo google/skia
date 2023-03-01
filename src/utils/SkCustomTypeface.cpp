@@ -27,8 +27,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h" // IWYU pragma: keep
