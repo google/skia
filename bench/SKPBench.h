@@ -28,7 +28,9 @@ public:
         return fDoLooping ? defaultLoops : 1;
     }
 
-    void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) override;
+    void getGpuStats(SkCanvas*,
+                     skia_private::TArray<SkString>* keys,
+                     skia_private::TArray<double>* values) override;
     bool getDMSAAStats(GrRecordingContext*) override;
 
 protected:
@@ -44,7 +46,7 @@ protected:
     virtual void drawPicture();
 
     const SkPicture* picture() const { return fPic.get(); }
-    const SkTArray<sk_sp<SkSurface>>& surfaces() const { return fSurfaces; }
+    const skia_private::TArray<sk_sp<SkSurface>>& surfaces() const { return fSurfaces; }
     const SkTDArray<SkIRect>& tileRects() const { return fTileRects; }
 
 private:
@@ -54,7 +56,7 @@ private:
     SkString fName;
     SkString fUniqueName;
 
-    SkTArray<sk_sp<SkSurface>> fSurfaces;   // for MultiPictureDraw
+    skia_private::TArray<sk_sp<SkSurface>> fSurfaces;   // for MultiPictureDraw
     SkTDArray<SkIRect> fTileRects;     // for MultiPictureDraw
 
     const bool fDoLooping;

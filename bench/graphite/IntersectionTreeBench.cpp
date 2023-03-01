@@ -13,6 +13,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 
+using namespace skia_private;
+
 static DEFINE_string(intersectionTreeFile, "",
                      "svg or skp for the IntersectionTree bench to sniff paths from.");
 
@@ -27,7 +29,7 @@ protected:
     }
 
     void onDelayedSetup() final {
-        SkTArray<SkRect> rects;
+        TArray<SkRect> rects;
         this->gatherRects(&rects);
         fRectCount = rects.size();
         fRects = fAlignedAllocator.makeArray<Rect>(fRectCount);
@@ -38,7 +40,7 @@ protected:
         fRectBufferB = fAlignedAllocator.makeArray<Rect>(fRectCount);
     }
 
-    virtual void gatherRects(SkTArray<SkRect>* rects) = 0;
+    virtual void gatherRects(TArray<SkRect>* rects) = 0;
 
     void onDraw(int loops, SkCanvas*) final {
         for (int i = 0; i < loops; ++i) {
@@ -84,7 +86,7 @@ public:
     }
 
 private:
-    void gatherRects(SkTArray<SkRect>* rects) override {
+    void gatherRects(TArray<SkRect>* rects) override {
         SkRandom rand;
         for (int i = 0; i < fNumRandomRects; ++i) {
             rects->push_back(SkRect::MakeXYWH(rand.nextRangeF(0, 2000),
@@ -120,7 +122,7 @@ private:
         return IntersectionTreeBench::isSuitableFor(backend);
     }
 
-    void gatherRects(SkTArray<SkRect>* rects) override {
+    void gatherRects(TArray<SkRect>* rects) override {
         if (FLAGS_intersectionTreeFile.isEmpty()) {
             return;
         }

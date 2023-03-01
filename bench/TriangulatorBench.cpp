@@ -89,7 +89,7 @@ protected:
     virtual void doLoop() = 0;
 
     SkString fName;
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
     AutoTMalloc<char> fVertexData;
     size_t fVertexAllocSize = 0;
     SkArenaAllocWithReset fArena{GrTriangulator::kArenaDefaultChunkSize};

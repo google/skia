@@ -80,7 +80,9 @@ public:
     // Bench framework can tune loops to be large enough for stable timing.
     void draw(int loops, SkCanvas*);
 
-    virtual void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) {}
+    virtual void getGpuStats(SkCanvas*,
+                             skia_private::TArray<SkString>* keys,
+                             skia_private::TArray<double>* values) {}
 
     // Replaces the GrRecordingContext's dmsaaStats() with a single frame of this benchmark.
     virtual bool getDMSAAStats(GrRecordingContext*) { return false; }

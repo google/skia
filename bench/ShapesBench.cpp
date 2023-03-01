@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <functional>
 
+using namespace skia_private;
+
 #define ENABLE_COMMAND_LINE_SHAPES_BENCH 0
 
 #if ENABLE_COMMAND_LINE_SHAPES_BENCH
@@ -243,7 +245,7 @@ private:
     SkRRect               fInnerRect;
     SkRRect               fInnerOval;
     SkRRect               fInnerRRect;
-    SkTArray<ShapeInfo>   fShapes;
+    TArray<ShapeInfo>   fShapes;
 
 
     using INHERITED = Benchmark;

@@ -11,6 +11,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/flags/CommandLineFlags.h"
 
+using namespace skia_private;
 
 // These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
 static DEFINE_int(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
@@ -144,8 +145,8 @@ void SKPBench::drawPicture() {
 static void draw_pic_for_stats(SkCanvas* canvas,
                                GrDirectContext* dContext,
                                const SkPicture* picture,
-                               SkTArray<SkString>* keys,
-                               SkTArray<double>* values) {
+                               TArray<SkString>* keys,
+                               TArray<double>* values) {
     dContext->priv().resetGpuStats();
     dContext->priv().resetContextStats();
     canvas->drawPicture(picture);
@@ -156,7 +157,7 @@ static void draw_pic_for_stats(SkCanvas* canvas,
     dContext->priv().dumpContextStatsKeyValuePairs(keys, values);
 }
 
-void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<double>* values) {
+void SKPBench::getGpuStats(SkCanvas* canvas, TArray<SkString>* keys, TArray<double>* values) {
     // we do a special single draw and then dump the key / value pairs
     auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
                                              : nullptr;
