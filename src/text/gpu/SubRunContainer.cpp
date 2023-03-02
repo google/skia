@@ -145,6 +145,11 @@ std::tuple<bool, SkVector> can_use_direct(
             translation};
 }
 
+enum FillerType {
+    kIsDirect,
+    kIsTransformed
+};
+
 // -- VertexFiller ---------------------------------------------------------------------------------
 // The VertexFiller assumes that all points, glyph atlas entries, and bounds are created with
 // respect to the CreationMatrix. This assumes that mapping any point, mask or bounds through the
@@ -173,10 +178,10 @@ public:
                              SkRect creationBounds,
                              SkSpan<const SkPoint> positions,
                              SubRunAllocator* alloc,
-                             bool canDrawDirect = false) {
+                             FillerType fillerType) {
         SkSpan<SkPoint> leftTop = alloc->makePODSpan<SkPoint>(positions);
         return VertexFiller{
-            maskType, creationMatrix, creationBounds, leftTop, canDrawDirect};
+            maskType, creationMatrix, creationBounds, leftTop, fillerType == kIsDirect};
     }
 
     static std::optional<VertexFiller> MakeFromBuffer(
@@ -1202,8 +1207,12 @@ public:
                             SkStrikePromise&& strikePromise,
                             MaskFormat maskType,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = VertexFiller::Make(
-                maskType, creationMatrix, creationBounds, get_positions(accepted), alloc, true);
+        auto vertexFiller = VertexFiller::Make(maskType,
+                                               creationMatrix,
+                                               creationBounds,
+                                               get_positions(accepted),
+                                               alloc,
+                                               kIsDirect);
 
         auto glyphVector =
                 GlyphVector::Make(std::move(strikePromise), get_packedIDs(accepted), alloc);
@@ -1435,8 +1444,12 @@ public:
                             SkRect creationBounds,
                             MaskFormat maskType,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = VertexFiller::Make(
-                maskType, creationMatrix, creationBounds, get_positions(accepted), alloc);
+        auto vertexFiller = VertexFiller::Make(maskType,
+                                               creationMatrix,
+                                               creationBounds,
+                                               get_positions(accepted),
+                                               alloc,
+                                               kIsTransformed);
 
         auto glyphVector = GlyphVector::Make(
                 std::move(strikePromise), get_packedIDs(accepted), alloc);
@@ -1685,12 +1698,12 @@ public:
                             SkRect creationBounds,
                             const SDFTMatrixRange& matrixRange,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = VertexFiller::Make(
-                MaskFormat::kA8,
-                creationMatrix,
-                creationBounds,
-                get_positions(accepted),
-                alloc);
+        auto vertexFiller = VertexFiller::Make(MaskFormat::kA8,
+                                               creationMatrix,
+                                               creationBounds,
+                                               get_positions(accepted),
+                                               alloc,
+                                               kIsTransformed);
 
         auto glyphVector = GlyphVector::Make(
                 std::move(strikePromise), get_packedIDs(accepted), alloc);
