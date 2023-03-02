@@ -1248,6 +1248,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_GPU")
 		// Some AMD GPUs miscompile the all() intrinsic. (skia:14034)
 		skip(ALL, "tests", ALL, "SkSLIntrinsicAll_GPU")
+		// Some AMD GPUs do not like storing into deeply-nested structs. (skia:14159)
+		skip(ALL, "tests", ALL, "SkSLStructIndexStore_GPU")
 	}
 
 	if b.extraConfig("Vulkan") && b.gpu("RadeonVega6") {
