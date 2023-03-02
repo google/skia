@@ -7,6 +7,7 @@
 
 #include "tools/gpu/YUVUtils.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"

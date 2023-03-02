@@ -12,6 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "src/base/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 
@@ -48,6 +49,14 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<SkImageGenerator>
+SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
+                                  const SkMatrix* matrix, const SkPaint* paint,
+                                  SkImage::BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace) {
+    return SkImageGenerator::MakeFromPicture(size, picture, matrix, paint, bitDepth,
+                                             colorSpace, {});
+}
 
 std::unique_ptr<SkImageGenerator>
 SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,

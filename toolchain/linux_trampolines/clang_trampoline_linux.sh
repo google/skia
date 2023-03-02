@@ -45,6 +45,7 @@ supported_files_or_dirs=(
   "src/core/SkGlyph.cpp"
   "src/core/SkICC.cpp"
   "src/core/SkImageInfo.cpp"
+  "src/core/SkImageGenerator.cpp"
   "src/core/SkLineClipper.cpp"
   "src/core/SkMD5.cpp"
   "src/core/SkMaskFilter.cpp"
