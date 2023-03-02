@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/image/SkSurface_Raster.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
@@ -13,7 +15,6 @@
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/private/base/SkAssert.h"
@@ -22,7 +23,6 @@
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/image/SkSurface_Base.h"
 
 #include <cstdint>
 #include <cstring>
@@ -32,33 +32,6 @@ class SkImage;
 class SkPaint;
 class SkPixmap;
 class SkSurfaceProps;
-
-class SkSurface_Raster : public SkSurface_Base {
-public:
-    SkSurface_Raster(const SkImageInfo&, void*, size_t rb,
-                     void (*releaseProc)(void* pixels, void* context), void* context,
-                     const SkSurfaceProps*);
-    SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef>, const SkSurfaceProps*);
-
-    SkImageInfo imageInfo() const override { return fBitmap.info(); }
-
-    SkCanvas* onNewCanvas() override;
-    sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
-    sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
-    void onWritePixels(const SkPixmap&, int x, int y) override;
-    void onDraw(SkCanvas*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override;
-    bool onCopyOnWrite(ContentChangeMode) override;
-    void onRestoreBackingMutability() override;
-    sk_sp<const SkCapabilities> onCapabilities() override;
-
-private:
-    SkBitmap    fBitmap;
-    bool        fWeOwnThePixels;
-
-    using INHERITED = SkSurface_Base;
-};
-
-///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
     if (!SkImageInfoIsValid(info)) {

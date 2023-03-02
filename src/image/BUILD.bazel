@@ -6,15 +6,20 @@ exports_files_legacy()
 
 CORE_FILES = [
     "SkImage.cpp",
+    "SkImage_Base.cpp",
     "SkImage_Base.h",
     "SkImage_Lazy.cpp",
     "SkImage_Lazy.h",
     "SkImage_Raster.cpp",
+    "SkImage_Raster.h",
     "SkRescaleAndReadPixels.cpp",
     "SkRescaleAndReadPixels.h",
     "SkSurface.cpp",
     "SkSurface_Base.h",
+    "SkSurface_Base.cpp",
+    "SkSurface_Null.cpp",
     "SkSurface_Raster.cpp",
+    "SkSurface_Raster.h",
 ]
 
 split_srcs_and_hdrs(
