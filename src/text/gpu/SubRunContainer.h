@@ -162,8 +162,7 @@ public:
 #endif
 
     void flatten(SkWriteBuffer& buffer) const;
-    static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
-                                      SkReadBuffer& buffer,
+    static SubRunOwner MakeFromBuffer(SkReadBuffer& buffer,
                                       sktext::gpu::SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
 
