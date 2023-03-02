@@ -23,7 +23,6 @@
 #include "src/gpu/ganesh/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
-#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #if GR_TEST_UTILS
     #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
@@ -1002,7 +1001,7 @@ GrCaps::SurfaceReadPixelsSupport GrMtlCaps::surfaceSupportsReadPixels(
         const GrSurface* surface) const {
     if (auto tex = static_cast<const GrMtlTexture*>(surface->asTexture())) {
         // We disallow reading back directly from compressed textures.
-        if (skgpu::MtlFormatIsCompressed(tex->attachment()->mtlFormat())) {
+        if (GrMtlFormatIsCompressed(tex->attachment()->mtlFormat())) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
     }

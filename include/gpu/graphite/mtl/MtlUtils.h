@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_MtlGraphiteUtils_DEFINED
-#define skgpu_graphite_MtlGraphiteUtils_DEFINED
+#ifndef skgpu_graphite_MtlUtils_DEFINED
+#define skgpu_graphite_MtlUtils_DEFINED
 
 #include <memory>
 
@@ -22,4 +22,4 @@ std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOption
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_MtlGraphiteUtils_DEFINED
+#endif // skgpu_graphite_MtlUtils_DEFINED

@@ -13,7 +13,6 @@
 #include "src/gpu/ganesh/mtl/GrMtlPipelineState.h"
 #include "src/gpu/ganesh/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/ganesh/mtl/GrMtlSemaphore.h"
-#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -23,7 +22,7 @@ GR_NORETAIN_BEGIN
 
 sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
 #ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
+    if (GrMtlIsAppInBackground()) {
         NSLog(@"GrMtlCommandBuffer: WARNING: Creating MTLCommandBuffer while in background.");
     }
 #endif
@@ -77,7 +76,7 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
         return nullptr;
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
+    if (GrMtlIsAppInBackground()) {
         fActiveBlitCommandEncoder = nil;
         NSLog(@"GrMtlCommandBuffer: tried to create MTLBlitCommandEncoder while in background.");
         return nil;
@@ -180,7 +179,7 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
         return nullptr;
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
+    if (GrMtlIsAppInBackground()) {
         fActiveRenderCommandEncoder = nullptr;
         NSLog(@"GrMtlCommandBuffer: tried to create MTLRenderCommandEncoder while in background.");
         return nullptr;
@@ -204,7 +203,7 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
         return false;
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
+    if (GrMtlIsAppInBackground()) {
         NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in background.\n");
         return false;
     }

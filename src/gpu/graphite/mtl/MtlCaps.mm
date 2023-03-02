@@ -8,14 +8,13 @@
 #include "src/gpu/graphite/mtl/MtlCaps.h"
 
 #include "include/gpu/graphite/TextureInfo.h"
-#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/gpu/graphite/mtl/MtlTypes.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/mtl/MtlGraphiteUtilsPriv.h"
-#include "src/gpu/mtl/MtlUtilsPriv.h"
+#include "src/gpu/graphite/mtl/MtlUtilsPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::graphite {

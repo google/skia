@@ -20,7 +20,7 @@
 #include "src/gpu/graphite/mtl/MtlSampler.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
-#include "src/gpu/mtl/MtlUtilsPriv.h"
+#include "src/gpu/graphite/mtl/MtlUtilsPriv.h"
 
 namespace skgpu::graphite {
 

@@ -9,7 +9,7 @@
 
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
-#include "src/gpu/mtl/MtlUtilsPriv.h"
+#include "src/gpu/ganesh/mtl/GrMtlUtil.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -33,7 +33,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
     }
     SkASSERT(!mtlTexture.framebufferOnly);
     this->registerWithCache(budgeted);
-    if (skgpu::MtlFormatIsCompressed(fTexture->mtlFormat())) {
+    if (GrMtlFormatIsCompressed(fTexture->mtlFormat())) {
         this->setReadOnly();
     }
 }

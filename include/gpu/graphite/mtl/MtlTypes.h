@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_MtlGraphiteTypes_DEFINED
-#define skgpu_graphite_MtlGraphiteTypes_DEFINED
+#ifndef skgpu_graphite_MtlTypes_DEFINED
+#define skgpu_graphite_MtlTypes_DEFINED
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/ports/SkCFObject.h"
@@ -66,4 +66,4 @@ struct MtlTextureInfo {
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_MtlGraphiteTypes_DEFINED
+#endif // skgpu_graphite_MtlTypes_DEFINED

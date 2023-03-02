@@ -18,7 +18,7 @@
 #endif
 
 #ifdef SK_METAL
-#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/gpu/graphite/mtl/MtlTypes.h"
 #endif
 
 #ifdef SK_VULKAN
