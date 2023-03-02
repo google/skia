@@ -22,6 +22,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "src/gpu/ganesh/mtl/GrMtlPipelineState.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #import <simd/simd.h>
 
@@ -568,20 +569,20 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                     std::string cached_sksl[kGrShaderTypeCount];
                     if (GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
                                                                     kGrShaderTypeCount)) {
-                        bool success = GrSkSLToMSL(fGpu,
-                                                   cached_sksl[kVertex_GrShaderType],
-                                                   SkSL::ProgramKind::kVertex,
-                                                   settings,
-                                                   &msl[kVertex_GrShaderType],
-                                                   &inputs[kVertex_GrShaderType],
-                                                   errorHandler);
-                        success = success && GrSkSLToMSL(fGpu,
-                                                         cached_sksl[kFragment_GrShaderType],
-                                                         SkSL::ProgramKind::kFragment,
-                                                         settings,
-                                                         &msl[kFragment_GrShaderType],
-                                                         &inputs[kFragment_GrShaderType],
-                                                         errorHandler);
+                        bool success = skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                                                        cached_sksl[kVertex_GrShaderType],
+                                                        SkSL::ProgramKind::kVertex,
+                                                        settings,
+                                                        &msl[kVertex_GrShaderType],
+                                                        &inputs[kVertex_GrShaderType],
+                                                        errorHandler);
+                        success = success && skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                                                              cached_sksl[kFragment_GrShaderType],
+                                                              SkSL::ProgramKind::kFragment,
+                                                              settings,
+                                                              &msl[kFragment_GrShaderType],
+                                                              &inputs[kFragment_GrShaderType],
+                                                              errorHandler);
                         if (!success) {
                             return nullptr;
                         }
@@ -599,22 +600,22 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         if (msl[kVertex_GrShaderType].empty() || msl[kFragment_GrShaderType].empty()) {
             bool success = true;
             if (msl[kVertex_GrShaderType].empty()) {
-                success = GrSkSLToMSL(fGpu,
-                                      fVS.fCompilerString,
-                                      SkSL::ProgramKind::kVertex,
-                                      settings,
-                                      &msl[kVertex_GrShaderType],
-                                      &inputs[kVertex_GrShaderType],
-                                      errorHandler);
+                success = skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                                           fVS.fCompilerString,
+                                           SkSL::ProgramKind::kVertex,
+                                           settings,
+                                           &msl[kVertex_GrShaderType],
+                                           &inputs[kVertex_GrShaderType],
+                                           errorHandler);
             }
             if (success && msl[kFragment_GrShaderType].empty()) {
-                success = GrSkSLToMSL(fGpu,
-                                      fFS.fCompilerString,
-                                      SkSL::ProgramKind::kFragment,
-                                      settings,
-                                      &msl[kFragment_GrShaderType],
-                                      &inputs[kFragment_GrShaderType],
-                                      errorHandler);
+                success = skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                                           fFS.fCompilerString,
+                                           SkSL::ProgramKind::kFragment,
+                                           settings,
+                                           &msl[kFragment_GrShaderType],
+                                           &inputs[kFragment_GrShaderType],
+                                           errorHandler);
             }
             if (!success) {
                 return nullptr;
@@ -765,22 +766,22 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
 
         case kSKSL_Tag: {
             std::string msl[kGrShaderTypeCount];
-            if (!GrSkSLToMSL(gpu,
-                           shaders[kVertex_GrShaderType],
-                           SkSL::ProgramKind::kVertex,
-                           settings,
-                           &msl[kVertex_GrShaderType],
-                           &inputs[kVertex_GrShaderType],
-                           errorHandler)) {
+            if (!skgpu::SkSLToMSL(gpu->shaderCompiler(),
+                                  shaders[kVertex_GrShaderType],
+                                  SkSL::ProgramKind::kVertex,
+                                  settings,
+                                  &msl[kVertex_GrShaderType],
+                                  &inputs[kVertex_GrShaderType],
+                                  errorHandler)) {
                 return false;
             }
-            if (!GrSkSLToMSL(gpu,
-                           shaders[kFragment_GrShaderType],
-                           SkSL::ProgramKind::kFragment,
-                           settings,
-                           &msl[kFragment_GrShaderType],
-                           &inputs[kFragment_GrShaderType],
-                           errorHandler)) {
+            if (!skgpu::SkSLToMSL(gpu->shaderCompiler(),
+                                  shaders[kFragment_GrShaderType],
+                                  SkSL::ProgramKind::kFragment,
+                                  settings,
+                                  &msl[kFragment_GrShaderType],
+                                  &inputs[kFragment_GrShaderType],
+                                  errorHandler)) {
                 return false;
             }
             precompiledLibs->fVertexLibrary =

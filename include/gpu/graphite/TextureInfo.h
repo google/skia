@@ -15,7 +15,7 @@
 #endif
 
 #ifdef SK_METAL
-#include "include/private/gpu/graphite/MtlTypesPriv.h"
+#include "include/private/gpu/graphite/MtlGraphiteTypesPriv.h"
 #endif
 
 #ifdef SK_VULKAN

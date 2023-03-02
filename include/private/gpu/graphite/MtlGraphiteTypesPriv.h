@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_MtlTypesPriv_DEFINED
-#define skgpu_graphite_MtlTypesPriv_DEFINED
+#ifndef skgpu_graphite_MtlGraphiteTypesPriv_DEFINED
+#define skgpu_graphite_MtlGraphiteTypesPriv_DEFINED
 
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/gpu/graphite/mtl/MtlTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -71,4 +71,4 @@ MtlTextureInfo MtlTextureSpecToTextureInfo(const MtlTextureSpec& mtlSpec,
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_graphite_MtlTypesPriv_DEFINED
+#endif  // skgpu_graphite_MtlGraphiteTypesPriv_DEFINED

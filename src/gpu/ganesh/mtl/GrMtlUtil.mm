@@ -7,6 +7,8 @@
 
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
 
+#import <Metal/Metal.h>
+
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -15,14 +17,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "src/gpu/ganesh/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/utils/SkShaderUtils.h"
-
-#import <Metal/Metal.h>
-#ifdef SK_BUILD_FOR_IOS
-#import <UIKit/UIApplication.h>
-#endif
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -52,48 +47,6 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
         texDesc.usage = mtlTexture.usage;
     }
     return texDesc;
-}
-
-// Print the source code for all shaders generated.
-static const bool gPrintSKSL = false;
-static const bool gPrintMSL = false;
-
-bool GrSkSLToMSL(const GrMtlGpu* gpu,
-                 const std::string& sksl,
-                 SkSL::ProgramKind programKind,
-                 const SkSL::ProgramSettings& settings,
-                 std::string* msl,
-                 SkSL::Program::Inputs* outInputs,
-                 GrContextOptions::ShaderErrorHandler* errorHandler) {
-#ifdef SK_DEBUG
-    std::string src = SkShaderUtils::PrettyPrint(sksl);
-#else
-    const std::string& src = sksl;
-#endif
-    SkSL::Compiler* compiler = gpu->shaderCompiler();
-    std::unique_ptr<SkSL::Program> program =
-            gpu->shaderCompiler()->convertProgram(programKind,
-                                                  src,
-                                                  settings);
-    if (!program || !compiler->toMetal(*program, msl)) {
-        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
-        return false;
-    }
-
-    if (gPrintSKSL || gPrintMSL) {
-        SkShaderUtils::PrintShaderBanner(programKind);
-        if (gPrintSKSL) {
-            SkDebugf("SKSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
-        }
-        if (gPrintMSL) {
-            SkDebugf("MSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*msl));
-        }
-    }
-
-    *outInputs = program->fInputs;
-    return true;
 }
 
 id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
@@ -358,19 +311,6 @@ SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendForm
     return GrMtlFormatToCompressionType(mtlFormat);
 }
 
-bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
-    switch (mtlFormat) {
-        case MTLPixelFormatETC2_RGB8:
-            return true;
-#ifdef SK_BUILD_FOR_MAC
-        case MTLPixelFormatBC1_RGBA:
-            return true;
-#endif
-        default:
-            return false;
-    }
-}
-
 SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
         case MTLPixelFormatETC2_RGB8: return SkImage::CompressionType::kETC2_RGB8_UNORM;
@@ -439,47 +379,14 @@ int GrMtlFormatStencilBits(MTLPixelFormat mtlFormat) {
     }
 }
 
-#ifdef SK_BUILD_FOR_IOS
-bool GrMtlIsAppInBackground() {
-    return [NSThread isMainThread] &&
-           ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground);
-}
-#endif
-
 #if defined(SK_DEBUG) || GR_TEST_UTILS
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {
     return mtlFormat == MTLPixelFormatBGRA8Unorm;
 }
 
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
-    switch (mtlFormat) {
-        case MTLPixelFormatInvalid:         return "Invalid";
-        case MTLPixelFormatRGBA8Unorm:      return "RGBA8Unorm";
-        case MTLPixelFormatR8Unorm:         return "R8Unorm";
-        case MTLPixelFormatA8Unorm:         return "A8Unorm";
-        case MTLPixelFormatBGRA8Unorm:      return "BGRA8Unorm";
-        case MTLPixelFormatB5G6R5Unorm:     return "B5G6R5Unorm";
-        case MTLPixelFormatRGBA16Float:     return "RGBA16Float";
-        case MTLPixelFormatR16Float:        return "R16Float";
-        case MTLPixelFormatRG8Unorm:        return "RG8Unorm";
-        case MTLPixelFormatRGB10A2Unorm:    return "RGB10A2Unorm";
-        case MTLPixelFormatBGR10A2Unorm:    return "BGR10A2Unorm";
-        case MTLPixelFormatABGR4Unorm:      return "ABGR4Unorm";
-        case MTLPixelFormatRGBA8Unorm_sRGB: return "RGBA8Unorm_sRGB";
-        case MTLPixelFormatR16Unorm:        return "R16Unorm";
-        case MTLPixelFormatRG16Unorm:       return "RG16Unorm";
-        case MTLPixelFormatETC2_RGB8:       return "ETC2_RGB8";
-#ifdef SK_BUILD_FOR_MAC
-        case MTLPixelFormatBC1_RGBA:        return "BC1_RGBA";
-#endif
-        case MTLPixelFormatRGBA16Unorm:     return "RGBA16Unorm";
-        case MTLPixelFormatRG16Float:       return "RG16Float";
-        case MTLPixelFormatStencil8:        return "Stencil8";
-
-        default:                            return "Unknown";
-    }
+    return skgpu::MtlFormatToString((MTLPixelFormat) mtlFormat);
 }
-
 #endif
 
 GR_NORETAIN_END

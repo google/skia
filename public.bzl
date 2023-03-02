@@ -1976,6 +1976,7 @@ MTL_SRCS = [
     "src/gpu/ganesh/mtl/GrMtlUtil.mm",
     "src/gpu/ganesh/mtl/GrMtlVaryingHandler.mm",
     "src/gpu/mtl/MtlMemoryAllocatorImpl.mm",
+    "src/gpu/mtl/MtlUtilsPriv.h",
     "src/image/SkSurface_GpuMtl.mm",
 ]
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/gpu/graphite/MtlTypesPriv.h"
+#include "include/private/gpu/graphite/MtlGraphiteTypesPriv.h"
 
 #import <Metal/Metal.h>
 

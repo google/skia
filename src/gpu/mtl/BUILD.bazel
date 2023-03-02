@@ -11,5 +11,7 @@ skia_filegroup(
     srcs = [
         "MtlMemoryAllocatorImpl.h",
         "MtlMemoryAllocatorImpl.mm",
+        "MtlUtils.mm",
+        "MtlUtilsPriv.h",
     ],
 )

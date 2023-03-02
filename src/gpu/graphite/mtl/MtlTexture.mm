@@ -7,13 +7,13 @@
 
 #include "src/gpu/graphite/mtl/MtlTexture.h"
 
-#include "include/gpu/graphite/mtl/MtlTypes.h"
-#include "include/private/gpu/graphite/MtlTypesPriv.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/private/gpu/graphite/MtlGraphiteTypesPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
-#include "src/gpu/graphite/mtl/MtlUtilsPriv.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 namespace skgpu::graphite {
 

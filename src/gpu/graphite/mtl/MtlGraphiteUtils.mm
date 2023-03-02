@@ -5,23 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/graphite/mtl/MtlUtils.h"
-#include "src/gpu/graphite/mtl/MtlUtilsPriv.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
+#include "src/gpu/graphite/mtl/MtlGraphiteUtilsPriv.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/Context.h"
-#include "include/private/SkSLString.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/utils/SkShaderUtils.h"
-
-#ifdef SK_BUILD_FOR_IOS
-#import <UIKit/UIApplication.h>
-#endif
 
 namespace skgpu::graphite {
 
@@ -48,37 +40,6 @@ std::unique_ptr<Context> MakeMetal(const MtlBackendContext& backendContext,
 
 } // namespace ContextFactory
 
-bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {
-    switch (format) {
-        case MTLPixelFormatStencil8: // fallthrough
-        case MTLPixelFormatDepth32Float:
-        case MTLPixelFormatDepth32Float_Stencil8:
-            return true;
-        default:
-            return false;
-    }
-}
-
-bool MtlFormatIsDepth(MTLPixelFormat format) {
-    switch (format) {
-        case MTLPixelFormatDepth32Float:
-        case MTLPixelFormatDepth32Float_Stencil8:
-            return true;
-        default:
-            return false;
-    }
-}
-
-bool MtlFormatIsStencil(MTLPixelFormat format) {
-    switch (format) {
-        case MTLPixelFormatStencil8: // fallthrough
-        case MTLPixelFormatDepth32Float_Stencil8:
-            return true;
-        default:
-            return false;
-    }
-}
-
 MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mask) {
     // TODO: Decide if we want to change this to always return a combined depth and stencil format
     // to allow more sharing of depth stencil allocations.
@@ -93,55 +54,6 @@ MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mas
     }
     SkASSERT(false);
     return MTLPixelFormatInvalid;
-}
-
-// Print the source code for all shaders generated.
-#ifdef SK_PRINT_SKSL_SHADERS
-static const bool gPrintSKSL = true;
-#else
-static const bool gPrintSKSL = false;
-#endif
-
-#ifdef SK_PRINT_NATIVE_SHADERS
-static const bool gPrintMSL = true;
-#else
-static const bool gPrintMSL = false;
-#endif
-
-bool SkSLToMSL(SkSL::Compiler* compiler,
-               const std::string& sksl,
-               SkSL::ProgramKind programKind,
-               const SkSL::ProgramSettings& settings,
-               std::string* msl,
-               SkSL::Program::Inputs* outInputs,
-               ShaderErrorHandler* errorHandler) {
-#ifdef SK_DEBUG
-    std::string src = SkShaderUtils::PrettyPrint(sksl);
-#else
-    const std::string& src = sksl;
-#endif
-    std::unique_ptr<SkSL::Program> program = compiler->convertProgram(programKind,
-                                                                      src,
-                                                                      settings);
-    if (!program || !compiler->toMetal(*program, msl)) {
-        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
-        return false;
-    }
-
-    if (gPrintSKSL || gPrintMSL) {
-        SkShaderUtils::PrintShaderBanner(programKind);
-        if (gPrintSKSL) {
-            SkDebugf("SKSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
-        }
-        if (gPrintMSL) {
-            SkDebugf("MSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*msl));
-        }
-    }
-
-    *outInputs = program->fInputs;
-    return true;
 }
 
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
@@ -180,23 +92,4 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
     return compiledLibrary;
 }
 
-bool MtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
-    switch (mtlFormat) {
-        case MTLPixelFormatETC2_RGB8:
-            return true;
-#ifdef SK_BUILD_FOR_MAC
-        case MTLPixelFormatBC1_RGBA:
-            return true;
-#endif
-        default:
-            return false;
-    }
-}
-
-#ifdef SK_BUILD_FOR_IOS
-bool MtlIsAppInBackground() {
-    return [NSThread isMainThread] &&
-           ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground);
-}
-#endif
 } // namespace skgpu::graphite
