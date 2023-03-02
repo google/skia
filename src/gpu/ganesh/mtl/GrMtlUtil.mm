@@ -230,7 +230,31 @@ GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& i
 }
 
 uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
-    return skgpu::MtlFormatChannels((MTLPixelFormat)mtlFormat);
+    switch (mtlFormat) {
+        case MTLPixelFormatRGBA8Unorm:      return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatR8Unorm:         return kRed_SkColorChannelFlag;
+        case MTLPixelFormatA8Unorm:         return kAlpha_SkColorChannelFlag;
+        case MTLPixelFormatBGRA8Unorm:      return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatB5G6R5Unorm:     return kRGB_SkColorChannelFlags;
+        case MTLPixelFormatRGBA16Float:     return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatR16Float:        return kRed_SkColorChannelFlag;
+        case MTLPixelFormatRG8Unorm:        return kRG_SkColorChannelFlags;
+        case MTLPixelFormatRGB10A2Unorm:    return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatBGR10A2Unorm:    return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatABGR4Unorm:      return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatRGBA8Unorm_sRGB: return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatR16Unorm:        return kRed_SkColorChannelFlag;
+        case MTLPixelFormatRG16Unorm:       return kRG_SkColorChannelFlags;
+        case MTLPixelFormatETC2_RGB8:       return kRGB_SkColorChannelFlags;
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBC1_RGBA:        return kRGBA_SkColorChannelFlags;
+#endif
+        case MTLPixelFormatRGBA16Unorm:     return kRGBA_SkColorChannelFlags;
+        case MTLPixelFormatRG16Float:       return kRG_SkColorChannelFlags;
+        case MTLPixelFormatStencil8:        return 0;
+
+        default:                            return 0;
+    }
 }
 
 GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat mtlFormat)  {
