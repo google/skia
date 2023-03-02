@@ -1430,10 +1430,10 @@ private:
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
 class TransformedMaskSubRun final : public SubRun, public AtlasSubRun {
 public:
-    TransformedMaskSubRun(const SkMatrix& initialPositionMatrix,
+    TransformedMaskSubRun(bool isBigEnough,
                           VertexFiller&& vertexFiller,
                           GlyphVector&& glyphs)
-            : fInitialPositionMatrix{initialPositionMatrix}
+            : fIsBigEnough{isBigEnough}
             , fVertexFiller{std::move(vertexFiller)}
             , fGlyphs{std::move(glyphs)} {}
 
@@ -1455,7 +1455,9 @@ public:
                 std::move(strikePromise), get_packedIDs(accepted), alloc);
 
         return alloc->makeUnique<TransformedMaskSubRun>(
-                initialPositionMatrix, std::move(vertexFiller), std::move(glyphVector));
+                initialPositionMatrix.getMaxScale() >= 1,
+                std::move(vertexFiller),
+                std::move(glyphVector));
     }
 
     static SubRunOwner MakeFromBuffer(const SkMatrix& initialPositionMatrix,
@@ -1470,8 +1472,9 @@ public:
         if (!buffer.validate(SkCount(glyphVector->glyphs()) == vertexFiller->count())) {
             return nullptr;
         }
+        const bool isBigEnough = buffer.readBool();
         return alloc->makeUnique<TransformedMaskSubRun>(
-                initialPositionMatrix, std::move(*vertexFiller), std::move(*glyphVector));
+                isBigEnough, std::move(*vertexFiller), std::move(*glyphVector));
     }
 
     int unflattenSize() const override {
@@ -1483,10 +1486,7 @@ public:
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
         // If we are not scaling the cache entry to be larger, than a cache with smaller glyphs may
         // be better.
-        if (fInitialPositionMatrix.getMaxScale() < 1) {
-            return false;
-        }
-        return true;
+        return fIsBigEnough;
     }
 
     const AtlasSubRun* testingOnly_atlasSubRun() const override { return this; }
@@ -1623,10 +1623,11 @@ protected:
     void doFlatten(SkWriteBuffer& buffer) const override {
         fVertexFiller.flatten(buffer);
         fGlyphs.flatten(buffer);
+        buffer.writeBool(fIsBigEnough);
     }
 
 private:
-    const SkMatrix& fInitialPositionMatrix;
+    const bool fIsBigEnough;
 
     const VertexFiller fVertexFiller;
 
