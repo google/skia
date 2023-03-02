@@ -50,6 +50,11 @@ DawnCaps::DawnCaps(const wgpu::Device& device, const ContextOptions& options)
 
 DawnCaps::~DawnCaps() = default;
 
+uint32_t DawnCaps::channelMask(const TextureInfo&) const {
+    // TODO(b/238756380): Move GrDawnFormatChannels() to shared loc and use
+    return 0;
+}
+
 bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
     if (!(info.dawnTextureSpec().fUsage & wgpu::TextureUsage::TextureBinding)) {
         return false;
