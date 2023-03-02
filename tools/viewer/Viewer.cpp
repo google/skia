@@ -78,6 +78,8 @@
 #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
 #endif
 
+using namespace skia_private;
+
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
 public:
     void compileError(const char* shader, const char* errors) override {
@@ -90,8 +92,8 @@ public:
         fErrors.clear();
     }
 
-    SkTArray<SkString> fShaders;
-    SkTArray<SkString> fErrors;
+    TArray<SkString> fShaders;
+    TArray<SkString> fErrors;
 };
 
 static CapturingShaderErrorHandler gShaderErrorHandler;
@@ -802,7 +804,7 @@ void Viewer::initSlides() {
 #endif
     };
 
-    SkTArray<sk_sp<Slide>> dirSlides;
+    TArray<sk_sp<Slide>> dirSlides;
 
     const auto addSlide = [&](const SkString& name, const SkString& path, const SlideMaker& fact) {
         if (CommandLineFlags::ShouldSkip(FLAGS_match, name.c_str())) {
@@ -899,7 +901,7 @@ void Viewer::initSlides() {
             } else {
                 // directory
                 SkString name;
-                SkTArray<SkString> sortedFilenames;
+                TArray<SkString> sortedFilenames;
                 SkOSFile::Iter it(flag.c_str(), info.fExtension);
                 while (it.next(&name)) {
                     sortedFilenames.push_back(name);
@@ -2921,7 +2923,7 @@ void Viewer::dumpShadersToResources() {
 }
 
 void Viewer::onIdle() {
-    SkTArray<std::function<void()>> actionsToRun;
+    TArray<std::function<void()>> actionsToRun;
     actionsToRun.swap(fDeferredActions);
 
     for (const auto& fn : actionsToRun) {

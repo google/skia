@@ -8,6 +8,7 @@
 #ifndef SKSL_WGSLCODEGENERATOR
 #define SKSL_WGSLCODEGENERATOR
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
@@ -19,10 +20,7 @@
 #include <initializer_list>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
-
-template <typename T> class SkSpan;
 
 namespace sknonstd {
 template <typename T> struct is_bitmask_enum;

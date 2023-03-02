@@ -42,7 +42,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
-#include <utility>
 
 class GrResourceProvider;
 struct GrContextOptions;

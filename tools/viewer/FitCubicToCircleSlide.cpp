@@ -14,6 +14,8 @@
 
 #include <tuple>
 
+using namespace skia_private;
+
 // Math constants are not always defined.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288
@@ -57,7 +59,7 @@ private:
     std::array<double, 4> fCubicY;
     double fMaxError;  // Max error (in pixels) between the cubic and the screen-space arc.
     double fTheta;  // Angle of the arc. This is only used for informational purposes.
-    SkTArray<SkString> fInfoStrings;
+    TArray<SkString> fInfoStrings;
 
     class Click;
 };

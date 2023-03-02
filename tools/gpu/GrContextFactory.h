@@ -168,12 +168,12 @@ private:
 
         bool              fAbandoned;
     };
-    SkTArray<Context, true>         fContexts;
+    skia_private::TArray<Context, true> fContexts;
 #ifdef SK_GL
-    std::unique_ptr<GLTestContext>  fSentinelGLContext;
+    std::unique_ptr<GLTestContext>      fSentinelGLContext;
 #endif
 
-    const GrContextOptions          fGlobalOptions;
+    const GrContextOptions              fGlobalOptions;
 };
 
 class ContextInfo {

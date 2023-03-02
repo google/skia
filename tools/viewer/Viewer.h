@@ -176,7 +176,7 @@ private:
     StatsLayer::Timer      fAnimateTimer;
 
     AnimTimer              fAnimTimer;
-    SkTArray<sk_sp<Slide>> fSlides;
+    skia_private::TArray<sk_sp<Slide>> fSlides;
     int                    fCurrentSlide;
 
     bool                   fRefresh; // whether to continuously refresh for measuring render time
@@ -237,7 +237,7 @@ private:
     PerspectiveMode        fPerspectiveMode;
     SkPoint                fPerspectivePoints[4];
 
-    SkTArray<std::function<void()>> fDeferredActions;
+    skia_private::TArray<std::function<void()>> fDeferredActions;
 
     // fPaint contains override values, fPaintOverrides controls if overrides are applied.
     SkPaint fPaint;
@@ -265,7 +265,7 @@ private:
     };
 
     sk_gpu_test::MemoryCache fPersistentCache;
-    SkTArray<CachedShader>   fCachedShaders;
+    skia_private::TArray<CachedShader>   fCachedShaders;
 
     enum ShaderOptLevel : int {
         kShaderOptLevel_Source,

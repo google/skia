@@ -112,9 +112,9 @@ private:
         kAlphabetical_HelpMode,
     };
 
-    Window*           fWindow;
-    SkTArray<Command> fCommands;
-    HelpMode          fHelpMode;
+    Window*                       fWindow;
+    skia_private::TArray<Command> fCommands;
+    HelpMode                      fHelpMode;
 };
 
 }   // namespace sk_app

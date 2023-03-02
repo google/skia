@@ -235,11 +235,11 @@ private:
     // returns -1 on failure
     int findOrDefineImage(SkImage* image);
 
-    SkYUVAPixmapInfo::SupportedDataTypes fSupportedYUVADataTypes;
-    SkTArray<PromiseImageInfo>           fImageInfo;
+    SkYUVAPixmapInfo::SupportedDataTypes   fSupportedYUVADataTypes;
+    skia_private::TArray<PromiseImageInfo> fImageInfo;
 
     // TODO: review the use of 'fPromiseImages' - it doesn't seem useful/necessary
-    SkTArray<sk_sp<SkImage>>             fPromiseImages;    // All the promise images in the
+    skia_private::TArray<sk_sp<SkImage>>   fPromiseImages;    // All the promise images in the
                                                             // reconstituted picture
 };
 

@@ -37,7 +37,7 @@ private:
         SkColor fColor;
         SkColor fLabelColor;
     };
-    SkTArray<TimerData> fTimers;
+    skia_private::TArray<TimerData> fTimers;
     double fTotalTimes[kMeasurementCount];
     int fCurrentMeasurement;
     double fLastTotalBegin;

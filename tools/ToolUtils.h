@@ -223,7 +223,7 @@ public:
     static uint32_t      GetID(TopoTestNode* node) { return node->id(); }
 
     // Helper functions for TopoSortBench & TopoSortTest
-    static void AllocNodes(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
+    static void AllocNodes(skia_private::TArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
         graph->reserve_back(num);
 
         for (int i = 0; i < num; ++i) {
@@ -232,7 +232,7 @@ public:
     }
 
 #ifdef SK_DEBUG
-    static void Print(const SkTArray<TopoTestNode*>& graph) {
+    static void Print(const skia_private::TArray<TopoTestNode*>& graph) {
         for (int i = 0; i < graph.size(); ++i) {
             SkDebugf("%d, ", graph[i]->id());
         }

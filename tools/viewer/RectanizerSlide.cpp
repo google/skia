@@ -16,6 +16,7 @@
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
 
+using namespace skia_private;
 using namespace skgpu;
 
 // This slide visualizes the various Rectanizer-derived classes behavior
@@ -140,7 +141,7 @@ private:
     SkTDArray<SkISize>                    fRects[3];
     SkTDArray<SkISize>*                   fCurRects;
     SkTDArray<SkIPoint16>                 fRectLocations;
-    SkTArray<std::unique_ptr<Rectanizer>> fRectanizers;
+    TArray<std::unique_ptr<Rectanizer>> fRectanizers;
     int                                   fCurRectanizer;
 
     const char* getRectanizerName() const {

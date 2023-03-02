@@ -76,7 +76,7 @@ private:
     TraceEventBlock fCurBlock;
     size_t          fCurBlockUsed;
 
-    SkTArray<TraceEventBlock> fBlocks;
+    skia_private::TArray<TraceEventBlock> fBlocks;
 };
 
 #endif

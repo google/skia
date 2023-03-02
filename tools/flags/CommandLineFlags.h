@@ -126,7 +126,7 @@ public:
     class StringArray {
     public:
         StringArray() {}
-        explicit StringArray(const SkTArray<SkString>& strings) : fStrings(strings) {}
+        explicit StringArray(const skia_private::TArray<SkString>& strings) : fStrings(strings) {}
         const char* operator[](int i) const {
             SkASSERT(i >= 0 && i < fStrings.size());
             return fStrings[i].c_str();
@@ -166,7 +166,7 @@ public:
 
         void append(const char* string, size_t length) { fStrings.push_back().set(string, length); }
 
-        SkTArray<SkString> fStrings;
+        skia_private::TArray<SkString> fStrings;
 
         friend class SkFlagInfo;
     };

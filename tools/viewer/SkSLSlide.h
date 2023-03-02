@@ -36,7 +36,7 @@ private:
     bool fCodeIsDirty;
     sk_sp<SkRuntimeEffect> fEffect;
     skia_private::AutoTMalloc<char> fInputs;
-    SkTArray<sk_sp<SkShader>> fChildren;
+    skia_private::TArray<sk_sp<SkShader>> fChildren;
     float fSeconds = 0.0f;
 
     enum Geometry {
@@ -53,7 +53,7 @@ private:
     bool fShadertoyUniforms = true;
 
     // Named shaders that can be selected as inputs
-    SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
+    skia_private::TArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
 };
 
 #endif

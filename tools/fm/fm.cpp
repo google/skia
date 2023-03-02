@@ -49,6 +49,8 @@
     #include "modules/skresources/include/SkResources.h"
 #endif
 
+using namespace skia_private;
+
 using sk_gpu_test::GrContextFactory;
 
 static DEFINE_bool(listGMs  , false, "Print GM names and exit.");
@@ -438,7 +440,7 @@ int main(int argc, char** argv) {
 
     const int replicas = std::max(1, FLAGS_race);
 
-    SkTArray<Source> sources;
+    TArray<Source> sources;
     for (const SkString& name : FLAGS_sources)
     for (int replica = 0; replica < replicas; replica++) {
         Source* source = &sources.push_back();

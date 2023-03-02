@@ -25,6 +25,8 @@
 #include <cmath>
 #include <utility>
 
+using namespace skia_private;
+
 class SlideDir::Animator : public SkRefCnt {
 public:
     Animator(const Animator&) = delete;
@@ -258,7 +260,7 @@ private:
     State           fState    = State::kIdle;
 };
 
-SlideDir::SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&& slides, int columns)
+SlideDir::SlideDir(const SkString& name, TArray<sk_sp<Slide>>&& slides, int columns)
     : fSlides(std::move(slides))
     , fColumns(columns) {
     fName = name;

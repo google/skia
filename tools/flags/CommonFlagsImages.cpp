@@ -5,8 +5,10 @@
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommonFlags.h"
 
+using namespace skia_private;
+
 namespace CommonFlags {
-bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* output) {
+bool CollectImages(CommandLineFlags::StringArray images, TArray<SkString>* output) {
     SkASSERT(output);
 
     static const char* const exts[] = {

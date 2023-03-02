@@ -26,7 +26,7 @@ class Scene;
 
 class SlideDir final : public Slide {
 public:
-    SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&&,
+    SlideDir(const SkString& name, skia_private::TArray<sk_sp<Slide>>&&,
              int columns = kDefaultColumnCount);
 
     class Animator;
@@ -51,7 +51,7 @@ private:
 
     const Rec* findCell(float x, float y) const;
 
-    const SkTArray<sk_sp<Slide>>       fSlides;
+    const skia_private::TArray<sk_sp<Slide>>       fSlides;
     std::unique_ptr<FocusController>   fFocusController;
     const int                          fColumns;
 

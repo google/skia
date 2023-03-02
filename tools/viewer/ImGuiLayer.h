@@ -135,7 +135,7 @@ public:
 private:
     sk_app::Window* fWindow;
     SkPaint fFontPaint;
-    SkTArray<SkiaWidgetFunc> fSkiaWidgetFuncs;
+    skia_private::TArray<SkiaWidgetFunc> fSkiaWidgetFuncs;
 };
 
 #endif

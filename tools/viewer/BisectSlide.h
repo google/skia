@@ -44,10 +44,11 @@ private:
 
     SkString fFilePath;
     SkIRect fDrawBounds = SkIRect::MakeEmpty();
-    SkTArray<FoundPath> fFoundPaths;
-    SkTArray<FoundPath> fTossedPaths;
-    SkTArray<char> fTrail;
-    std::stack<std::pair<SkTArray<FoundPath>, SkTArray<FoundPath>>> fPathHistory;
+    skia_private::TArray<FoundPath> fFoundPaths;
+    skia_private::TArray<FoundPath> fTossedPaths;
+    skia_private::TArray<char> fTrail;
+    std::stack<std::pair<skia_private::TArray<FoundPath>, skia_private::TArray<FoundPath>>>
+        fPathHistory;
 };
 
 #endif

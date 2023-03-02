@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 
+using namespace skia_private;
+
 /**
  * skdiff
  *
@@ -33,7 +35,7 @@
  * Returns zero exit code if all images match across baseDir and comparisonDir.
  */
 
-typedef SkTArray<SkString> StringArray;
+typedef TArray<SkString> StringArray;
 typedef StringArray FileArray;
 
 static void add_unique_basename(StringArray* array, const SkString& filename) {

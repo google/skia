@@ -17,11 +17,13 @@
 #include "tools/ToolUtils.h"
 #include "tools/viewer/Slide.h"
 
+using namespace skia_private;
+
 ////////////////////////////////////////////////////////////////////////////
 
 class ShadowUtilsSlide : public Slide {
-    SkTArray<SkPath> fConvexPaths;
-    SkTArray<SkPath> fConcavePaths;
+    TArray<SkPath> fConvexPaths;
+    TArray<SkPath> fConcavePaths;
     SkScalar         fZDelta;
 
     bool      fShowAmbient;

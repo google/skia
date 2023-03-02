@@ -21,7 +21,7 @@
 #endif
 
 struct Stats {
-    Stats(const SkTArray<double>& samples, bool want_plot) {
+    Stats(const skia_private::TArray<double>& samples, bool want_plot) {
         int n = samples.size();
         if (!n) {
             min = max = mean = var = median = 0;

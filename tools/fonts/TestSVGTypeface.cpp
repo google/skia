@@ -455,7 +455,7 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
 
 void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
                                       const char*               type,
-                                      const SkTArray<GlyfInfo>* glyfInfo) const {
+                                      const TArray<GlyfInfo>* glyfInfo) const {
     int totalGlyphs = fGlyphCount;
     out->writeText("  <GlyphOrder>\n");
     for (int i = 0; i < fGlyphCount; ++i) {
@@ -1139,7 +1139,7 @@ namespace {
 
 void convert_noninflect_cubic_to_quads(const SkPoint            p[4],
                                        SkScalar                 toleranceSqd,
-                                       SkTArray<SkPoint, true>* quads,
+                                       TArray<SkPoint, true>* quads,
                                        int                      sublevel = 0) {
     // Notation: Point a is always p[0]. Point b is p[1] unless p[1] == p[0], in which case it is
     // p[2]. Point d is always p[3]. Point c is p[2] unless p[2] == p[3], in which case it is p[1].
@@ -1191,7 +1191,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint            p[4],
     convert_noninflect_cubic_to_quads(choppedPts + 3, toleranceSqd, quads, sublevel + 1);
 }
 
-void convertCubicToQuads(const SkPoint p[4], SkScalar tolScale, SkTArray<SkPoint, true>* quads) {
+void convertCubicToQuads(const SkPoint p[4], SkScalar tolScale, TArray<SkPoint, true>* quads) {
     if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
         return;
     }
@@ -1208,7 +1208,7 @@ void convertCubicToQuads(const SkPoint p[4], SkScalar tolScale, SkTArray<SkPoint
 
 void path_to_quads(const SkPath& path, SkPath* quadPath) {
     quadPath->reset();
-    SkTArray<SkPoint, true> qPts;
+    TArray<SkPoint, true> qPts;
     SkAutoConicToQuads      converter;
     const SkPoint*          quadPts;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
@@ -1444,7 +1444,7 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("<ttFont sfntVersion=\"\\x00\\x01\\x00\\x00\" ttLibVersion=\"3.19\">\n");
 
     SkTHashMap<SkColor, int> colors;
-    SkTArray<GlyfInfo>       glyfInfos(fGlyphCount);
+    TArray<GlyfInfo>       glyfInfos(fGlyphCount);
 
     // Need to know all the glyphs up front for the common tables.
     SkDynamicMemoryWStream glyfOut;

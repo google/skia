@@ -8,6 +8,7 @@
 #ifndef SKSL_SPIRVCODEGENERATOR
 #define SKSL_SPIRVCODEGENERATOR
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
@@ -30,8 +31,6 @@
 #include <string_view>
 #include <tuple>
 #include <vector>
-
-template <typename T> class SkSpan;
 
 namespace SkSL {
 

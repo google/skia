@@ -13,6 +13,8 @@
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 
+using namespace skia_private;
+
 /**
  * This sample exercises heavy texture updates and uploads.
  */
@@ -121,7 +123,7 @@ private:
     sk_sp<SkSurface> fBlueSurface;
     sk_sp<SkSurface> fGraySurface;
 
-    SkTArray<sk_sp<RenderTargetTexture>> fTextures;
+    TArray<sk_sp<RenderTargetTexture>> fTextures;
 
     GrDirectContext* fCachedContext = nullptr;
 

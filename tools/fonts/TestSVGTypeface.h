@@ -70,12 +70,13 @@ public:
     };
     struct GlyfInfo {
         GlyfInfo() : fBounds(SkIRect::MakeEmpty()) {}
-        SkIRect                 fBounds;
-        SkTArray<GlyfLayerInfo> fLayers;
+        SkIRect                             fBounds;
+        skia_private::TArray<GlyfLayerInfo> fLayers;
     };
 
 protected:
-    void exportTtxCommon(SkWStream*, const char* type, const SkTArray<GlyfInfo>* = nullptr) const;
+    void exportTtxCommon(
+            SkWStream*, const char* type, const skia_private::TArray<GlyfInfo>* = nullptr) const;
 
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
                                                            const SkDescriptor* desc) const override;
