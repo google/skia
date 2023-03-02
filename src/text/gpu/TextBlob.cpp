@@ -130,7 +130,6 @@ private:
     SubRunContainerOwner fSubRuns;
     const SkRect fSourceBounds;
     const SkPaint fInitialPaint;
-    const SkMatrix fInitialPositionMatrix;
     const SkPoint fOrigin;
 };
 
