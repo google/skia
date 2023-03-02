@@ -112,7 +112,6 @@ public:
     const Key& key() { return fKey; }
 
     void addKey(const Key& key);
-    bool hasPerspective() const;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 

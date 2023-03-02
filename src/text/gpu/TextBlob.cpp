@@ -355,10 +355,6 @@ void TextBlob::addKey(const Key& key) {
     fKey = key;
 }
 
-bool TextBlob::hasPerspective() const {
-    return fSubRuns->initialPosition().hasPerspective();
-}
-
 bool TextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
     // A singular matrix will create a TextBlob with no SubRuns, but unknown glyphs can also
     // cause empty runs. If there are no subRuns, then regenerate when the matrices don't match.
