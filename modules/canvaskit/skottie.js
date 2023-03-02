@@ -125,7 +125,7 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soun
 
     CanvasKit.ManagedAnimation.prototype.setTransform = function(key, anchor, position, scale, rotation, skew, skew_axis) {
       let transformData = [anchor[0], anchor[1], position[0], position[1], scale[0], scale[1], rotation, skew, skew_axis];
-      const tPtr = CanvasKit.copy1dArray(transformData, 'HEAPU32', _scratch3x3MatrixPtr);
+      const tPtr = copy1dArray(transformData, 'HEAPF32', _scratch3x3MatrixPtr);
       return this._setTransform(key, tPtr);
     };
 
