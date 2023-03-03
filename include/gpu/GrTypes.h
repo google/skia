@@ -187,6 +187,9 @@ typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
 typedef void* GrGpuSubmittedContext;
 typedef void (*GrGpuSubmittedProc)(GrGpuSubmittedContext submittedContext, bool success);
 
+typedef void* GrDirectContextDestroyedContext;
+typedef void (*GrDirectContextDestroyedProc)(GrDirectContextDestroyedContext destroyedContext);
+
 /**
  * Struct to supply options to flush calls.
  *
