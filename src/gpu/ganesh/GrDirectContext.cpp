@@ -74,6 +74,8 @@ GrDirectContext::DirectContextID GrDirectContext::DirectContextID::Next() {
 
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
         : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options), false)
+        , fDeleteCallbackHelper(new DeleteCallbackHelper(options.fContextDeleteContext,
+                                                         options.fContextDeleteProc))
         , fDirectContextID(DirectContextID::Next()) {
 }
 

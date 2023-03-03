@@ -872,6 +872,28 @@ private:
     // bool is used for this signal.
     void syncAllOutstandingGpuWork(bool shouldExecuteWhileAbandoned);
 
+    // This delete callback needs to be the first thing on the GrDirectContext so that it is the
+    // last thing destroyed. The callback may signal the client to clean up things that may need
+    // to survive the lifetime of some of the other objects on the GrDirectCotnext. So make sure
+    // we don't call it until all else has been destroyed.
+    class DeleteCallbackHelper {
+    public:
+        DeleteCallbackHelper(GrDirectContextDestroyedContext context,
+                             GrDirectContextDestroyedProc proc)
+                : fContext(context), fProc(proc) {}
+
+        ~DeleteCallbackHelper() {
+            if (fProc) {
+                fProc(fContext);
+            }
+        }
+
+    private:
+        GrDirectContextDestroyedContext fContext;
+        GrDirectContextDestroyedProc fProc;
+    };
+    std::unique_ptr<DeleteCallbackHelper> fDeleteCallbackHelper;
+
     const DirectContextID                   fDirectContextID;
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
