@@ -9,6 +9,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
@@ -22,6 +24,7 @@
 
 #include <climits>
 #include <initializer_list>
+#include <string>
 
 static bool has_green_pixels(const SkBitmap& bm) {
     for (int j = 0; j < bm.height(); ++j) {
@@ -275,6 +278,101 @@ DEF_TEST(Rect_subtract_overflow, reporter) {
     exact = SkRectPriv::Subtract(reasonable, reallyBig, &difference);
     REPORTER_ASSERT(reporter, exact);
     REPORTER_ASSERT(reporter, difference == reasonable);
+}
+
+DEF_TEST(Rect_QuadContainsRect, reporter) {
+    struct TestCase {
+        std::string label;
+        bool expect;
+        SkMatrix m;
+        SkIRect a;
+        SkIRect b;
+    };
+
+    TestCase tests[] = {
+        { "Identity matrix contains success", /*expect=*/true,
+          /*m=*/SkMatrix::I(), /*a=*/{0,0,15,15}, /*b=*/{2,2,10,10} },
+
+        { "Identity matrix contains failure", /*expect=*/false,
+          /*m=*/SkMatrix::I(), /*a=*/{0,0,15,15}, /*b=*/{-2,-2,10,10} },
+
+        { "Identity mapped rect contains itself", /*expect=*/true,
+          /*m=*/SkMatrix::I(), /*a=*/{0,0,10,10}, /*b=*/{ 0,0,10,10} },
+
+        { "Scaled rect contains success", /*expect=*/true,
+          /*m=*/SkMatrix::Scale(2.f, 3.4f), /*a=*/{0,0,4,4}, /*b=*/{1,1,6,6}},
+
+        { "Scaled rect contains failure", /*expect=*/false,
+          /*m=*/SkMatrix::Scale(0.25f, 0.3f), /*a=*/{0,0,8,8}, /*b=*/{0,0,5,5}},
+
+        { "Rotate rect contains success", /*expect=*/true,
+          /*m=*/SkMatrix::RotateDeg(45.f, {10.f, 10.f}), /*a=*/{0,0,20,20}, /*b=*/{3,3,17,17}},
+
+        { "Rotate rect contains failure", /*expect=*/false,
+          /*m=*/SkMatrix::RotateDeg(45.f, {10.f, 10.f}), /*a=*/{0,0,20,20}, /*b=*/{2,2,18,18}},
+
+        { "Negative scale contains success", /*expect=*/true,
+          /*m=*/SkMatrix::Scale(-1.f, 1.f), /*a=*/{0,0,10,10}, /*b=*/{-9,1,-1,9}},
+
+        { "Empty rect contains nothing", /*expect=*/false,
+          /*m=*/SkMatrix::RotateDeg(45.f, {0.f, 0.f}), /*a=*/{10,10,10,20}, /*b=*/{10,14,10,16}},
+
+        { "MakeEmpty() contains nothing", /*expect=*/false,
+          /*m=*/SkMatrix::RotateDeg(45.f, {0.f, 0.f}), /*a=*/SkIRect::MakeEmpty(), /*b=*/{0,0,1,1}},
+
+        { "Unsorted rect contains nothing", /*expect=*/false,
+          /*m=*/SkMatrix::I(), /*a=*/{10,10,0,0}, /*b=*/{2,2,8,8}},
+
+        { "Unsorted rect is contained", /*expect=*/true,
+          /*m=*/SkMatrix::I(), /*a=*/{0,0,10,10}, /*b=*/{8,8,2,2}},
+    };
+
+    for (const TestCase& t : tests) {
+        skiatest::ReporterContext c{reporter, t.label};
+        REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(t.m, t.a, t.b) == t.expect);
+
+        // Generate equivalent tests for SkRect and SkM44 by translating a by 1/2px and 'b' by
+        // 1/2px in post-transform space
+        SkVector bOffset = t.m.mapVector(0.5f, 0.5f);
+        SkRect af = SkRect::Make(t.a).makeOffset(0.5f, 0.5f);
+        SkRect bf = SkRect::Make(t.b).makeOffset(bOffset.fX, bOffset.fY);
+        REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(SkM44(t.m), af, bf) == t.expect);
+    }
+
+    // Test some more complicated scenarios with perspective that don't fit into the TestCase
+    // structure as nicely.
+    const SkRect a = SkRect::MakeLTRB(1.83f, -0.48f, 15.53f, 30.68f); // arbitrary
+
+    // Perspective matrix where the mapped A has all corners' W > 0
+    {
+        skiatest::ReporterContext c{reporter, "Perspective, W > 0"};
+        SkM44 p = SkM44::Perspective(0.01f, 10.f, SK_ScalarPI / 3.f);
+        p.preTranslate(0.f, 5.f, -0.1f);
+        p.preConcat(SkM44::Rotate({0.f, 1.f, 0.f}, 0.008f /* radians */));
+        REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(p, a, {4.f,10.f,20.f,45.f}));
+        REPORTER_ASSERT(reporter, !SkRectPriv::QuadContainsRect(p, a, {2.f,6.f,23.f,50.f}));
+    }
+    // Perspective matrix where the mapped A has some corners' W < 0
+    {
+        skiatest::ReporterContext c{reporter, "Perspective, some W > 0"};
+        SkM44 p;
+        p.setRow(3, {-.2f, -.6f, 0.f, 8.f});
+        REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(p, a, {10.f,50.f,20.f,60.f}));
+        REPORTER_ASSERT(reporter, !SkRectPriv::QuadContainsRect(p, a, {0.f,1.f,10.f,10.f}));
+    }
+    // Perspective matrix where the mapped A has all corners' W < 0)
+    // For B, we use the previous success contains query above; a rectangle that is inside the
+    // convex hull of the mapped corners of A, projecting each corner with its negative W; and a
+    // rectangle that contains said convex hull.
+    {
+        skiatest::ReporterContext c{reporter, "Perspective, no W > 0"};
+        SkM44 p;
+        p.setRow(3, {-.2f, -.6f, 0.f, 8.f});
+        const SkRect na = a.makeOffset(16.f, 31.f);
+        REPORTER_ASSERT(reporter, !SkRectPriv::QuadContainsRect(p, na, {10.f,50.f,20.f,60.f}));
+        REPORTER_ASSERT(reporter, !SkRectPriv::QuadContainsRect(p, na, {-1.1f,-1.8f,-1.f,-1.79f}));
+        REPORTER_ASSERT(reporter, !SkRectPriv::QuadContainsRect(p, na, {-1.9f,-2.3f,-0.4f,-1.6f}));
+    }
 }
 
 // Before the fix, this sequence would trigger a release_assert in the Tiler

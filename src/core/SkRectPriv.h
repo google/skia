@@ -11,6 +11,9 @@
 #include "include/core/SkRect.h"
 #include "src/base/SkMathPriv.h"
 
+class SkM44;
+class SkMatrix;
+
 class SkRectPriv {
 public:
     // Returns an irect that is very large, and can be safely round-trip with SkRect and still
@@ -86,6 +89,10 @@ public:
         Subtract(a, b, &diff);
         return diff;
     }
+
+    // Returns true if the quadrilateral formed by transforming the four corners of 'a' contains 'b'
+    static bool QuadContainsRect(const SkMatrix& m, const SkIRect& a, const SkIRect& b);
+    static bool QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect& b);
 };
 
 
