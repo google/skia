@@ -2435,13 +2435,6 @@ if (skia_enable_tools) {
   }
 
   if (!is_win) {
-    test_app("remote_demo") {
-      sources = [ "tools/remote_demo.cpp" ]
-      deps = [ ":skia" ]
-    }
-  }
-
-  if (!is_win) {
     test_app("blob_cache_sim") {
       sources = [ "tools/blob_cache_sim.cpp" ]
       deps = [ ":skia" ]
