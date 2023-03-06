@@ -29,6 +29,7 @@
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ReadWriteSwizzle.h"
 #include "src/gpu/graphite/TextureProxyView.h"
@@ -46,7 +47,8 @@ static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swiz
     } else if (swizzle == skgpu::Swizzle::BGRA()) {
         return skgpu::graphite::ReadSwizzle::kBGRA;
     } else {
-        SkDebugf("Encountered unsupported read swizzle. Defaulting to RGBA.");
+        SKGPU_LOG_W("%s is an unsupported read swizzle. Defaulting to RGBA.\n",
+                    swizzle.asString().data());
         return skgpu::graphite::ReadSwizzle::kRGBA;
     }
 }
@@ -426,7 +428,12 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
 
         auto [view, _] = as_IB(imageToDraw)->asView(keyContext.recorder(), mipmapped);
         imgData.fTextureProxy = view.refProxy();
-        imgData.fReadSwizzle = swizzle_class_to_read_enum(view.swizzle());
+        skgpu::Swizzle readSwizzle = view.swizzle();
+        // If the color type is alpha-only, propagate the alpha value to the other channels.
+        if (imageToDraw->isAlphaOnly()) {
+            readSwizzle = skgpu::Swizzle::Concat(readSwizzle, skgpu::Swizzle("aaaa"));
+        }
+        imgData.fReadSwizzle = swizzle_class_to_read_enum(readSwizzle);
     }
 
     if (!fRaw) {
