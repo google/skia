@@ -30,6 +30,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 namespace skiagm {
 
 // Each method of this type must draw its geometry inside 'r' using 'p'
@@ -93,14 +95,14 @@ constexpr drawMth gDrawMthds[] = {
     draw_rect, draw_oval, draw_rrect, draw_drrect, draw_path, draw_points, draw_bitmap
 };
 
-static void add_paint(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> filter) {
+static void add_paint(TArray<SkPaint>* paints, sk_sp<SkImageFilter> filter) {
     SkPaint& p = paints->push_back();
     p.setImageFilter(std::move(filter));
     SkASSERT(p.canComputeFastBounds());
 }
 
 // Create a selection of imagefilter-based paints to test
-static void create_paints(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> source) {
+static void create_paints(TArray<SkPaint>* paints, sk_sp<SkImageFilter> source) {
     {
         SkMatrix scale;
         scale.setScale(2.0f, 2.0f);
@@ -233,7 +235,7 @@ protected:
 
         //-----------
         // Normal paints (no source)
-        SkTArray<SkPaint> paints;
+        TArray<SkPaint> paints;
         create_paints(&paints, nullptr);
 
         //-----------
@@ -248,7 +250,7 @@ protected:
             pic = rec.finishRecordingAsPicture();
         }
 
-        SkTArray<SkPaint> pifPaints;
+        TArray<SkPaint> pifPaints;
         create_paints(&pifPaints, SkImageFilters::Picture(pic));
 
         //-----------
@@ -267,7 +269,7 @@ protected:
 
         sk_sp<SkImage> image(surface->makeImageSnapshot());
         sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(std::move(image)));
-        SkTArray<SkPaint> bmsPaints;
+        TArray<SkPaint> bmsPaints;
         create_paints(&bmsPaints, std::move(imageSource));
 
         //-----------

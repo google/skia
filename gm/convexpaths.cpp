@@ -20,6 +20,8 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkRandom.h"
 
+using namespace skia_private;
+
 namespace {
 
 class SkDoOnce {
@@ -258,7 +260,7 @@ class ConvexPathsGM : public skiagm::GM {
         }
     }
 
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
 };
 }  // namespace
 

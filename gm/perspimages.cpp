@@ -21,6 +21,8 @@
 
 #include <initializer_list>
 
+using namespace skia_private;
+
 static sk_sp<SkImage> make_image1() { return GetResourceAsImage("images/mandrill_128.png"); }
 
 static sk_sp<SkImage> make_image2() {
@@ -126,7 +128,7 @@ protected:
 
 private:
     inline static constexpr int kNumImages = 4;
-    SkTArray<sk_sp<SkImage>> fImages;
+    TArray<sk_sp<SkImage>> fImages;
 
     using INHERITED = GM;
 };

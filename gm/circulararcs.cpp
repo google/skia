@@ -21,6 +21,9 @@
 #include <functional>
 
 #include "include/effects/SkStrokeAndFillPathEffect.h"
+
+using namespace skia_private;
+
 static void set_strokeandfill(SkPaint* paint) {
     SkASSERT(paint->getPathEffect() == nullptr);
     paint->setPathEffect(SkStrokeAndFillPathEffect::Make());
@@ -177,7 +180,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
         // generic large sweep and large start
         {SkRect::MakeWH(kS, kS),  1125.f,  990.f},
     };
-    SkTArray<SkPaint> paints;
+    TArray<SkPaint> paints;
     // fill
     paints.push_back();
     // stroke
@@ -276,7 +279,7 @@ DEF_SIMPLE_GM(circular_arc_stroke_matrix, canvas, 820, 1090) {
     static constexpr SkScalar kStart = 89.f;
     static constexpr SkScalar kSweep = 180.f/SK_ScalarPI; // one radian
 
-    SkTArray<SkMatrix> matrices;
+    TArray<SkMatrix> matrices;
     matrices.push_back().setRotate(kRadius, kRadius, 45.f);
     matrices.push_back(SkMatrix::I());
     matrices.push_back().setAll(-1,  0,  2*kRadius,

@@ -18,6 +18,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 
+using namespace skia_private;
+
 namespace skiagm {
 
 class HairlinesGM : public GM {
@@ -191,7 +193,7 @@ protected:
     }
 
 private:
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
     using INHERITED = GM;
 };
 

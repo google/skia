@@ -14,6 +14,8 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 
+using namespace skia_private;
+
 namespace skiagm {
 
 // this GM tests hairlines which fill nearly the entire render target
@@ -90,7 +92,7 @@ protected:
     const SkScalar kHeight = 256;
 
 private:
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
     using INHERITED = GM;
 };
 

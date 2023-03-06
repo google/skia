@@ -23,6 +23,8 @@
 #include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
 
+using namespace skia_private;
+
 namespace skiagm {
 
 class OvalGM : public GM {
@@ -298,8 +300,8 @@ protected:
     }
 
 private:
-    SkTArray<SkPaint> fPaints;
-    SkTArray<SkMatrix> fMatrices;
+    TArray<SkPaint> fPaints;
+    TArray<SkMatrix> fMatrices;
 
     using INHERITED = GM;
 };

@@ -37,6 +37,8 @@
 #include <string.h>
 #include <utility>
 
+using namespace skia_private;
+
 static const int kNumMatrices = 6;
 static const int kImageSize = 128;
 static const int kLabelSize = 32;
@@ -109,7 +111,7 @@ static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
 static sk_sp<SkImage> make_reference_image(SkCanvas* mainCanvas,
-                                           const SkTArray<sk_sp<SkImage>>& labels,
+                                           const TArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
     SkASSERT(kNumLabels == labels.size());
 
@@ -308,7 +310,7 @@ private:
     }
 
 private:
-    SkTArray<sk_sp<SkImage>> fLabels;
+    TArray<sk_sp<SkImage>> fLabels;
     sk_sp<SkImage> fReferenceImages[2];
 
     using INHERITED = GM;

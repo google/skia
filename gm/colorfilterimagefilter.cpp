@@ -29,6 +29,8 @@
 #include <string.h>
 #include <utility>
 
+using namespace skia_private;
+
 #define FILTER_WIDTH    SkIntToScalar(30)
 #define FILTER_HEIGHT   SkIntToScalar(30)
 #define MARGIN          SkIntToScalar(10)
@@ -56,7 +58,7 @@ static sk_sp<SkColorFilter> cf_make_colorize(SkColor color) {
     return SkColorFilters::Blend(color, SkBlendMode::kSrc);
 }
 
-static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
+static void sk_gm_get_colorfilters(TArray<sk_sp<SkColorFilter>>* array) {
     array->push_back(cf_make_brightness(0.5f));
     array->push_back(cf_make_grayscale());
     array->push_back(cf_make_colorize(SK_ColorBLUE));
@@ -84,7 +86,7 @@ static sk_sp<SkShader> sh_make_image() {
     return image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions());
 }
 
-static void sk_gm_get_shaders(SkTArray<sk_sp<SkShader>>* array) {
+static void sk_gm_get_shaders(TArray<sk_sp<SkShader>>* array) {
     if (auto shader = sh_make_lineargradient0()) {
         array->push_back(std::move(shader));
     }
@@ -196,10 +198,10 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
-    SkTArray<sk_sp<SkColorFilter>> filters;
+    TArray<sk_sp<SkColorFilter>> filters;
     sk_gm_get_colorfilters(&filters);
 
-    SkTArray<sk_sp<SkShader>> shaders;
+    TArray<sk_sp<SkShader>> shaders;
     sk_gm_get_shaders(&shaders);
 
     const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };

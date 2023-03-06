@@ -31,6 +31,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 using MipmapMode = GrSamplerState::MipmapMode;
 using Filter     = GrSamplerState::Filter;
 using Wrap       = GrSamplerState::WrapMode;
@@ -115,7 +117,7 @@ protected:
                                             3*fBitmap.width()/5 + 2, 4*fBitmap.height()/5 + 2);
         }
 
-        SkTArray<SkMatrix> textureMatrices;
+        TArray<SkMatrix> textureMatrices;
 
         SkRect a = SkRect::Make(texelSubset);
         SkRect b = fUpscale ? a.makeInset (.31f * a.width(), .31f * a.height())

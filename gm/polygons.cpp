@@ -18,6 +18,8 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkRandom.h"
 
+using namespace skia_private;
+
 namespace skiagm {
 
 // This GM tests a grab-bag of convex and concave polygons. They are triangles,
@@ -166,7 +168,7 @@ private:
     inline static constexpr int kNumStrokeWidths = 3;
     inline static constexpr int kNumJoins = 3;
 
-    SkTArray<SkPath> fPolygons;
+    TArray<SkPath> fPolygons;
     using INHERITED = GM;
 };
 

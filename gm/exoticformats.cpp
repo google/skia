@@ -22,6 +22,8 @@
 #include "tools/Resources.h"
 #include "tools/gpu/ProxyUtils.h"
 
+using namespace skia_private;
+
 //-------------------------------------------------------------------------------------------------
 struct ImageInfo {
     SkISize                  fDim;
@@ -129,7 +131,7 @@ static sk_sp<SkData> load_ktx(const char* filename, ImageInfo* imageInfo) {
         return nullptr;
     }
 
-    SkTArray<size_t> individualMipOffsets(numberOfMipmapLevels);
+    TArray<size_t> individualMipOffsets(numberOfMipmapLevels);
 
     size_t dataSize = SkCompressedDataSize(imageInfo->fCompressionType,
                                            { (int) pixelWidth, (int) pixelHeight },
@@ -283,7 +285,7 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
             return nullptr;
     }
 
-    SkTArray<size_t> individualMipOffsets(numberOfMipmapLevels);
+    TArray<size_t> individualMipOffsets(numberOfMipmapLevels);
 
     size_t dataSize = SkCompressedDataSize(imageInfo->fCompressionType,
                                            { (int) header.dwWidth, (int) header.dwHeight },

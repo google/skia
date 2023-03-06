@@ -27,6 +27,8 @@
 
 #include <initializer_list>
 
+using namespace skia_private;
+
 /**
  * This GM tests reusing the same text blobs with distance fields rendering using various
  * combinations of perspective and non-perspetive matrices, scissor clips, and different x,y params
@@ -145,7 +147,7 @@ private:
         canvas->restore();
     }
 
-    SkTArray<sk_sp<SkTextBlob>> fBlobs;
+    TArray<sk_sp<SkTextBlob>> fBlobs;
     using INHERITED = skiagm::GM;
 };
 

@@ -17,6 +17,8 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 
+using namespace skia_private;
+
 /** This GM draws with invalid paints. It should draw nothing other than the background. */
 class BadPaintGM : public skiagm::GM {
  public:
@@ -54,7 +56,7 @@ protected:
     }
 
 private:
-    SkTArray<SkPaint> fPaints;
+    TArray<SkPaint> fPaints;
 
     using INHERITED = skiagm::GM;
 };

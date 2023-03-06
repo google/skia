@@ -21,6 +21,8 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkRandom.h"
 
+using namespace skia_private;
+
 namespace skiagm {
 
 /*
@@ -89,8 +91,8 @@ protected:
     SkString             fName;
     bool                 fAntialias;
     SkPaint              fPaint;
-    SkTArray<SkRRect>    fShapes;
-    SkTArray<SkScalar>   fRotations;
+    TArray<SkRRect>    fShapes;
+    TArray<SkScalar>   fRotations;
     int                  fSimpleShapeCount;
 
 private:

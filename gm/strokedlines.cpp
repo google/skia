@@ -30,6 +30,8 @@
 
 #include <initializer_list>
 
+using namespace skia_private;
+
 constexpr int kNumColumns = 6;
 constexpr int kNumRows = 8;
 constexpr int kRadius = 40;  // radius of the snowflake
@@ -230,8 +232,8 @@ protected:
     }
 
 private:
-    SkTArray<SkPaint> fPaints;
-    SkTArray<SkMatrix> fMatrices;
+    TArray<SkPaint> fPaints;
+    TArray<SkMatrix> fMatrices;
 
     using INHERITED = GM;
 };

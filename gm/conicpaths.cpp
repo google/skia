@@ -19,6 +19,8 @@
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkTArray.h"
 
+using namespace skia_private;
+
 class ConicPathsGM : public skiagm::GM {
 protected:
 
@@ -139,7 +141,7 @@ protected:
     }
 
 private:
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
     SkPath           fGiantCircle;
     using INHERITED = skiagm::GM;
 };

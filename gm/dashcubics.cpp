@@ -24,6 +24,8 @@
 #include <math.h>
 #include <utility>
 
+using namespace skia_private;
+
 /*
  *  Inspired by http://code.google.com/p/chromium/issues/detail?id=112145
  */
@@ -170,7 +172,7 @@ protected:
     }
 
 private:
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
     SkScalar         fOffset = 0;
 
     using INHERITED = skiagm::GM;
