@@ -332,10 +332,44 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     // Our builder is very fragile, and can't be called with spans/rects out of Y->X order.
     // To ensure this, we only "fill" clipped to a rect (the clip's bounds), and if the
     // clip is more complex than that, we just post-intersect the result with the clip.
+    const SkIRect clipBounds = clip.getBounds();
     if (clip.isComplex()) {
-        if (!this->setPath(path, SkRegion(clip.getBounds()))) {
+        if (!this->setPath(path, SkRegion(clipBounds))) {
             return false;
         }
+        return this->op(clip, kIntersect_Op);
+    }
+
+    // SkScan::FillPath has limits on the coordinate range of the clipping SkRegion. If it's too
+    // big, tile the clip bounds and union the pieces back together.
+    if (SkScan::PathRequiresTiling(clipBounds)) {
+        static constexpr int kTileSize = 32767 >> 1; // Limit so coords can fit into SkFixed (16.16)
+        const SkIRect pathBounds = path.getBounds().roundOut();
+
+        this->setEmpty();
+        for (int top = clipBounds.fTop; top < clipBounds.fBottom; top += kTileSize) {
+            int bot = std::min(top + kTileSize, clipBounds.fBottom);
+            for (int left = clipBounds.fLeft; left < clipBounds.fRight; left += kTileSize) {
+                int right = std::min(left + kTileSize, clipBounds.fRight);
+
+                SkIRect tileClipBounds = {left, top, right, bot};
+                if (!SkIRect::Intersects(pathBounds, tileClipBounds)) {
+                    continue;
+                }
+
+                // Shift coordinates so the top left is (0,0) during scan conversion and then
+                // translate the SkRegion afterwards.
+                tileClipBounds.offset(-left, -top);
+                SkASSERT(!SkScan::PathRequiresTiling(tileClipBounds));
+                SkRegion tile;
+                tile.setPath(path.makeTransform(SkMatrix::Translate(-left, -top)),
+                             SkRegion(tileClipBounds));
+                tile.translate(left, top);
+                this->op(tile, kUnion_Op);
+            }
+        }
+        // During tiling we only applied the bounds of the tile, now that we have a full SkRegion,
+        // apply the original clip.
         return this->op(clip, kIntersect_Op);
     }
 

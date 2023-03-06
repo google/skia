@@ -17,6 +17,7 @@
 #include "include/private/base/SkDebug.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkScan.h"
 #include "tests/Test.h"
 
 #include <array>
@@ -526,4 +527,60 @@ DEF_TEST(region_empty_iter, reporter) {
     REPORTER_ASSERT(reporter, !spanIter.next(&left, &right));
     REPORTER_ASSERT(reporter, !left);
     REPORTER_ASSERT(reporter, !right);
+}
+
+DEF_TEST(region_very_large, reporter) {
+    SkIRect clipBounds = {-45000, -45000, 45000, 45000};
+    REPORTER_ASSERT(reporter, SkScan::PathRequiresTiling(clipBounds));
+
+    // Create a path that is larger than the scan conversion limits of SkScan, which is internally
+    // used to convert a path to a region.
+    SkPath largePath = SkPath::RRect(SkRRect::MakeRectXY(SkRect::Make(clipBounds), 200.f, 200.f));
+
+    SkRegion largeRegion;
+    REPORTER_ASSERT(reporter, largeRegion.setPath(largePath, SkRegion{clipBounds}));
+
+    // The path should have been converted successfully, so the corners of clipBounds should not be
+    // contained due to the path's rounded corners.
+    REPORTER_ASSERT(reporter, !largeRegion.contains(-44995, -44995));
+    REPORTER_ASSERT(reporter, !largeRegion.contains(-44995,  44995));
+    REPORTER_ASSERT(reporter, !largeRegion.contains( 44995, -44995));
+    REPORTER_ASSERT(reporter, !largeRegion.contains( 44995,  44995));
+
+    // But these points should be within the rounded corners.
+    REPORTER_ASSERT(reporter, largeRegion.contains(-44600, -44600));
+    REPORTER_ASSERT(reporter, largeRegion.contains(-44600,  44600));
+    REPORTER_ASSERT(reporter, largeRegion.contains( 44600, -44600));
+    REPORTER_ASSERT(reporter, largeRegion.contains( 44600,  44600));
+
+    // Make another path shaped like a D, so two corners will have its large radii and the other two
+    // will be rectangular and thus clipped by the original region.
+    static const SkVector kLargeRadii[4] = { {0.f, 0.f},       // TL
+                                             {2000.f, 2000.f}, // TR
+                                             {2000.f, 2000.f}, // BR
+                                             {0.f, 0.f}};      // BL
+    SkRRect largeRRect;
+    largeRRect.setRectRadii(SkRect::Make(clipBounds), kLargeRadii);
+    REPORTER_ASSERT(reporter, largeRegion.setPath(SkPath::RRect(largeRRect), SkRegion{largeRegion}));
+
+    REPORTER_ASSERT(reporter, !largeRegion.contains(-44995, -44995));
+    REPORTER_ASSERT(reporter, !largeRegion.contains(-44995,  44995));
+    REPORTER_ASSERT(reporter, !largeRegion.contains( 44995, -44995));
+    REPORTER_ASSERT(reporter, !largeRegion.contains( 44995,  44995));
+
+    REPORTER_ASSERT(reporter, largeRegion.contains(-44600, -44600));
+    REPORTER_ASSERT(reporter, largeRegion.contains(-44600,  44600));
+    // Right side has been clipped by an even larger corner radii
+    REPORTER_ASSERT(reporter, !largeRegion.contains( 44600, -44600));
+    REPORTER_ASSERT(reporter, !largeRegion.contains( 44600,  44600));
+
+    // Now test that the very large path with a small clip also works
+    largePath = SkPath::RRect(SkRRect::MakeRectXY({0.f, 0.f, 45000.f, 45000.f}, 200.f, 200.f));
+    SkRegion smallRegion;
+    REPORTER_ASSERT(reporter, smallRegion.setPath(largePath, SkRegion{{0, 0, 500, 500}}));
+
+    REPORTER_ASSERT(reporter, !smallRegion.contains(5, 5));
+    REPORTER_ASSERT(reporter, smallRegion.contains(0, 499));
+    REPORTER_ASSERT(reporter, smallRegion.contains(499, 0));
+    REPORTER_ASSERT(reporter, smallRegion.contains(499, 499));
 }
