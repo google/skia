@@ -266,19 +266,17 @@ void print_diff_page(const int matchCount,
 
     outputStream.writeText(
         "<html>\n<head>\n"
-        "<script src=\"https://ajax.googleapis.com/ajax/"
-        "libs/jquery/1.7.2/jquery.min.js\"></script>\n"
         "<script type=\"text/javascript\">\n"
         "function generateCheckedList() {\n"
-        "var boxes = $(\":checkbox:checked\");\n"
-        "var fileCmdLineString = '';\n"
-        "var fileMultiLineString = '';\n"
-        "for (var i = 0; i < boxes.length; i++) {\n"
-        "fileMultiLineString += boxes[i].name + '<br>';\n"
-        "fileCmdLineString += boxes[i].name + '&nbsp;';\n"
-        "}\n"
-        "$(\"#checkedList\").html(fileCmdLineString + "
-        "'<br><br>' + fileMultiLineString);\n"
+        "    const boxes = document.querySelectorAll('input[type=checkbox]:checked');\n"
+        "    let fileCmdLineString = '';\n"
+        "    let fileMultiLineString = '';\n"
+        "    for (let i = 0; i < boxes.length; i++) {\n"
+        "        fileMultiLineString += boxes[i].name + '<br>';\n"
+        "        fileCmdLineString += boxes[i].name + '&nbsp;';\n"
+        "    }\n"
+        "    const checkedList = document.querySelector('#checkedList');\n"
+        "    checkedList.innerHTML = fileCmdLineString + '<br><br>' + fileMultiLineString;\n"
         "}\n"
         "</script>\n</head>\n<body>\n");
     print_table_header(&outputStream, matchCount, colorThreshold, differences,
