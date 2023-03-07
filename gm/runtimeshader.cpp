@@ -1082,8 +1082,16 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
         // color managed, we won't convert it BACK, so we'll still see a color-spin happen.
         // Instead, convert the image back to sRGB, and the resulting image will look correct for
         // all modes (assuming the paint color was handled correctly above):
-        auto direct = GrAsDirectContext(canvas->recordingContext());
-        auto image = surface->makeImageSnapshot()->makeColorSpace(SkColorSpace::MakeSRGB(), direct);
+        auto image = surface->makeImageSnapshot();
+#if defined(SK_GRAPHITE)
+        if (auto recorder = canvas->recorder()) {
+            image = image->makeColorSpace(SkColorSpace::MakeSRGB(), recorder);
+        } else
+#endif
+        {
+            auto direct = GrAsDirectContext(canvas->recordingContext());
+            image = image->makeColorSpace(SkColorSpace::MakeSRGB(), direct);
+        }
 
         canvas->drawImage(image, 0, 0);
         canvas->translate(50, 0);
