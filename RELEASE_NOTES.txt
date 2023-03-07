@@ -10,7 +10,8 @@ Milestone 113
   * SkStrSplit is no longer part of the public API.
   * SkImage::encodeToData now takes a GrDirectContext. The versions which do not have that are
     deprecated and will be removed at some point.
-
+  * SkMatrix::Scale, preScale, setScale, etc. with any scale factor of 0 correctly no longer
+    return true from rectStaysRect(), consistent with rectStaysRect() implying a non-zero scale.
 * * *
 
 Milestone 112

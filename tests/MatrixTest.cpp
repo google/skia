@@ -1081,3 +1081,72 @@ DEF_TEST(Matrix_SetRotateSnap, r) {
     m.setRotate(0.01f);
     REPORTER_ASSERT(r, !m.rectStaysRect());
 }
+
+DEF_TEST(Matrix_rectStaysRect_zeroScale, r) {
+    // rectStaysRect() returns true if the scale factors are non-zero, so preScale(0,0),
+    // setScale(0,0), setScaleTranslate(0,0,...), ::Scale(), should not have the flag set.
+    REPORTER_ASSERT(r, !SkMatrix::Scale(0.f, 0.f).rectStaysRect());
+    REPORTER_ASSERT(r, !SkMatrix::Scale(0.f, 2.f).rectStaysRect());
+    REPORTER_ASSERT(r, !SkMatrix::Scale(2.f, 0.f).rectStaysRect());
+
+    // RectToRect() is like scaling. It fails if the source rect is empty, but if the dst rect is
+    // empty it's as if it had a zero scale factor, so it's type mask should reflect that.
+    const SkRect src = {0.f,0.f,10.f,10.f};
+    REPORTER_ASSERT(r, !SkMatrix::RectToRect(src, {0.f,0.f,0.f,0.f}).rectStaysRect());
+    REPORTER_ASSERT(r, !SkMatrix::RectToRect(src, {0.f,0.f,0.f,20.f}).rectStaysRect());
+    REPORTER_ASSERT(r, !SkMatrix::RectToRect(src, {0.f,0.f,20.f,0.f}).rectStaysRect());
+
+    {
+        SkMatrix rectMatrix = SkMatrix::I(); // trivially
+        REPORTER_ASSERT(r, rectMatrix.rectStaysRect());
+
+        SkMatrix nonRectMatrix = rectMatrix;
+        nonRectMatrix.preScale(0.f, 0.f);
+        REPORTER_ASSERT(r, !nonRectMatrix.rectStaysRect());
+
+        nonRectMatrix = rectMatrix;
+        nonRectMatrix.preScale(0.f, 2.f);
+        REPORTER_ASSERT(r, !nonRectMatrix.rectStaysRect());
+
+        nonRectMatrix = rectMatrix;
+        nonRectMatrix.preScale(2.f, 0.f);
+        REPORTER_ASSERT(r, !nonRectMatrix.rectStaysRect());
+    }
+
+    {
+        SkMatrix m;
+        m.setScale(0.f, 0.f);
+        REPORTER_ASSERT(r, !m.rectStaysRect());
+    }
+
+    {
+        SkMatrix m;
+        m.setScale(0.f, 2.f);
+        REPORTER_ASSERT(r, !m.rectStaysRect());
+    }
+
+    {
+        SkMatrix m;
+        m.setScale(2.f, 0.f);
+        REPORTER_ASSERT(r, !m.rectStaysRect());
+    }
+
+    {
+        SkMatrix m;
+        m.setScaleTranslate(0.f, 0.f, 10.f, 10.f);
+        REPORTER_ASSERT(r, !m.rectStaysRect());
+    }
+
+    {
+        SkMatrix m;
+        m.setScaleTranslate(0.f, 2.f, 10.f, 10.f);
+        REPORTER_ASSERT(r, !m.rectStaysRect());
+    }
+
+    {
+        SkMatrix m;
+        m.setScaleTranslate(2.f, 0.f, 10.f, 10.f);
+        REPORTER_ASSERT(r, !m.rectStaysRect());
+    }
+
+    }

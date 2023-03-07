@@ -1819,7 +1819,10 @@ public:
         if (tx != 0.0f || ty != 0.0f) {
             mask |= kTranslate_Mask;
         }
-        this->setTypeMask(mask | kRectStaysRect_Mask);
+        if (sx != 0 && sy != 0) {
+            mask |= kRectStaysRect_Mask;
+        }
+        this->setTypeMask(mask);
     }
 
     /** Returns true if all elements of the matrix are finite. Returns false if any

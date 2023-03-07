@@ -304,11 +304,12 @@ SkMatrix& SkMatrix::setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
 }
 
 SkMatrix& SkMatrix::setScale(SkScalar sx, SkScalar sy) {
+    auto rectMask = (sx == 0 || sy == 0) ? 0 : kRectStaysRect_Mask;
     *this = SkMatrix(sx, 0,  0,
                      0,  sy, 0,
                      0,  0,  1,
-                     (sx == 1 && sy == 1) ? kIdentity_Mask | kRectStaysRect_Mask
-                                          : kScale_Mask    | kRectStaysRect_Mask);
+                     (sx == 1 && sy == 1) ? kIdentity_Mask | rectMask
+                                          : kScale_Mask    | rectMask);
     return *this;
 }
 
@@ -349,6 +350,10 @@ SkMatrix& SkMatrix::preScale(SkScalar sx, SkScalar sy) {
         this->clearTypeMask(kScale_Mask);
     } else {
         this->orTypeMask(kScale_Mask);
+        // Remove kRectStaysRect if the preScale factors were 0
+        if (!sx || !sy) {
+            this->clearTypeMask(kRectStaysRect_Mask);
+        }
     }
     return *this;
 }
@@ -540,7 +545,7 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit al
     if (dst.isEmpty()) {
         sk_bzero(fMat, 8 * sizeof(SkScalar));
         fMat[kMPersp2] = 1;
-        this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
+        this->setTypeMask(kScale_Mask);
     } else {
         SkScalar    tx, sx = dst.width() / src.width();
         SkScalar    ty, sy = dst.height() / src.height();
