@@ -17,15 +17,6 @@ skia_filegroup(
 
 skia_cc_deps(
     name = "deps",
-    linkopts = [
-        "-lX11",
-        "-lxcb",  # dep of X11
-        "-lXau",  # dep of xcb
-        "-lXdmcp",  # dep of xcb
-    ] + select({
-        "//src/gpu:vulkan_backend": ["-lX11-xcb"],
-        "//conditions:default": [],
-    }),
     visibility = ["//tools/window:__pkg__"],
     deps = select({
         "//src/gpu:vulkan_backend": ["//tools/gpu/vk:testutils"],
