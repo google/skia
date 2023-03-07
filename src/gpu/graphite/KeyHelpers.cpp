@@ -442,6 +442,46 @@ void CoordClampShaderBlock::BeginBlock(const KeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
+namespace {
+
+void add_perlin_noise_uniform_data(const ShaderCodeDictionary* dict,
+                                   const PerlinNoiseShaderBlock::PerlinNoiseData& noiseData,
+                                   PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kPerlinNoiseShader)
+
+    gatherer->write(noiseData.fBaseFrequency);
+    gatherer->write(noiseData.fStitchData);
+    gatherer->write(static_cast<int>(noiseData.fType));
+    gatherer->write(noiseData.fNumOctaves);
+    gatherer->write(static_cast<int>(noiseData.stitching()));
+
+    static const SkTileMode kRepeatXTileModes[2] = { SkTileMode::kRepeat, SkTileMode::kClamp };
+    static const SkSamplingOptions kNearestSampling { SkFilterMode::kNearest };
+
+    gatherer->add(kNearestSampling, kRepeatXTileModes, noiseData.fPermutationsProxy);
+    gatherer->add(kNearestSampling, kRepeatXTileModes, noiseData.fNoiseProxy);
+
+    gatherer->addFlags(dict->getSnippetRequirementFlags(BuiltInCodeSnippetID::kPerlinNoiseShader));
+}
+
+} // anonymous namespace
+
+void PerlinNoiseShaderBlock::BeginBlock(const KeyContext& keyContext,
+                                        PaintParamsKeyBuilder* builder,
+                                        PipelineDataGatherer* gatherer,
+                                        const PerlinNoiseData* noiseData) {
+    SkASSERT(!gatherer == !noiseData);
+
+    auto dict = keyContext.dict();
+    if (gatherer) {
+        add_perlin_noise_uniform_data(dict, *noiseData, gatherer);
+    }
+
+    builder->beginBlock(BuiltInCodeSnippetID::kPerlinNoiseShader);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void PorterDuffBlendShaderBlock::BeginBlock(const KeyContext& keyContext,
                                             PaintParamsKeyBuilder* builder,
                                             PipelineDataGatherer* gatherer,
@@ -581,6 +621,9 @@ void add_table_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
                                         PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kTableColorFilter)
 
+    static const SkTileMode kTileModes[2] = { SkTileMode::kClamp, SkTileMode::kClamp };
+    gatherer->add(SkSamplingOptions(), kTileModes, data.fTextureProxy);
+
     gatherer->addFlags(dict->getSnippetRequirementFlags(BuiltInCodeSnippetID::kTableColorFilter));
 }
 
@@ -600,9 +643,6 @@ void TableColorFilterBlock::BeginBlock(const KeyContext& keyContext,
             PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
             return;
         }
-
-        static const SkTileMode kTileModes[2] = { SkTileMode::kClamp, SkTileMode::kClamp };
-        gatherer->add(SkSamplingOptions(), kTileModes, data.fTextureProxy);
 
         add_table_colorfilter_uniform_data(dict, data, gatherer);
     }
