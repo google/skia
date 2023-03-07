@@ -748,7 +748,7 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
     return std::make_unique<SkCanvas>(std::move(trackingDevice));
 }
 
-sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
+sk_sp<SkData> SkStrikeServer::serializeTypefaceForTest(SkTypeface* tf) {
     return fImpl->serializeTypeface(tf);
 }
 
@@ -1064,7 +1064,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     return fImpl->readStrikeData(memory, memorySize);
 }
 
-sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
+sk_sp<SkTypeface> SkStrikeClient::deserializeTypefaceForTest(const void* buf, size_t len) {
     return fImpl->deserializeTypeface(buf, len);
 }
 
@@ -1073,7 +1073,7 @@ bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
 }
 
 #if defined(SK_GANESH)
-sk_sp<sktext::gpu::Slug> SkStrikeClient::deserializeSlug(const void* data, size_t size) const {
+sk_sp<sktext::gpu::Slug> SkStrikeClient::deserializeSlugForTest(const void* data, size_t size) const {
     return sktext::gpu::Slug::Deserialize(data, size, this);
 }
 #endif  // defined(SK_GANESH)
