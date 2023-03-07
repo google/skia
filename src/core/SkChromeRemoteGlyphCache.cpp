@@ -441,7 +441,6 @@ public:
             SkStrikeServer::DiscardableHandleManager* discardableHandleManager);
 
     // SkStrikeServer API methods
-    sk_sp<SkData> serializeTypeface(SkTypeface*);
     void writeStrikeData(std::vector<uint8_t>* memory);
 
     sk_sp<sktext::StrikeForGPU> findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) override;
@@ -474,9 +473,6 @@ private:
     SkTHashSet<SkTypefaceID> fCachedTypefaces;
     size_t fMaxEntriesInDescriptorMap = kMaxEntriesInDescriptorMap;
 
-    // Cached serialized typefaces.
-    SkTHashMap<SkTypefaceID, sk_sp<SkData>> fSerializedTypefaces;
-
     // State cached until the next serialization.
     SkTHashSet<RemoteStrike*> fRemoteStrikesToSend;
     std::vector<WireTypeface> fTypefacesToSend;
@@ -492,19 +488,6 @@ void SkStrikeServerImpl::setMaxEntriesInDescriptorMapForTesting(size_t count) {
 }
 size_t SkStrikeServerImpl::remoteStrikeMapSizeForTesting() const {
     return fDescToRemoteStrike.size();
-}
-
-sk_sp<SkData> SkStrikeServerImpl::serializeTypeface(SkTypeface* tf) {
-    auto* data = fSerializedTypefaces.find(SkTypeface::UniqueID(tf));
-    if (data) {
-        return *data;
-    }
-
-    WireTypeface wire(SkTypeface::UniqueID(tf), tf->countGlyphs(), tf->fontStyle(),
-                      tf->isFixedPitch(), tf->glyphMaskNeedsCurrentColor());
-    data = fSerializedTypefaces.set(SkTypeface::UniqueID(tf),
-                                    SkData::MakeWithCopy(&wire, sizeof(wire)));
-    return *data;
 }
 
 #if defined(SK_SUPPORT_LEGACY_STRIKE_SERIALIZATION)
@@ -749,10 +732,6 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
     return std::make_unique<SkCanvas>(std::move(trackingDevice));
 }
 
-sk_sp<SkData> SkStrikeServer::serializeTypefaceForTest(SkTypeface* tf) {
-    return fImpl->serializeTypeface(tf);
-}
-
 void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
     fImpl->writeStrikeData(memory);
 }
@@ -788,8 +767,6 @@ public:
     explicit SkStrikeClientImpl(sk_sp<SkStrikeClient::DiscardableHandleManager>,
                                 bool isLogging = true,
                                 SkStrikeCache* strikeCache = nullptr);
-
-    sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
 
     bool readStrikeData(const volatile void* memory, size_t memorySize);
     bool translateTypefaceID(SkAutoDescriptor* descriptor) const;
@@ -1041,13 +1018,6 @@ sk_sp<SkTypeface> SkStrikeClientImpl::retrieveTypefaceUsingServerID(SkTypefaceID
     return tfPtr != nullptr ? *tfPtr : nullptr;
 }
 
-sk_sp<SkTypeface> SkStrikeClientImpl::deserializeTypeface(const void* buf, size_t len) {
-    WireTypeface wire;
-    if (len != sizeof(wire)) return nullptr;
-    memcpy(&wire, buf, sizeof(wire));
-    return this->addTypeface(wire);
-}
-
 sk_sp<SkTypeface> SkStrikeClientImpl::addTypeface(const WireTypeface& wire) {
     auto* typeface = fRemoteTypefaceIdToTypeface.find(wire.fTypefaceID);
     if (typeface) return *typeface;
@@ -1069,10 +1039,6 @@ SkStrikeClient::~SkStrikeClient() = default;
 
 bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySize) {
     return fImpl->readStrikeData(memory, memorySize);
-}
-
-sk_sp<SkTypeface> SkStrikeClient::deserializeTypefaceForTest(const void* buf, size_t len) {
-    return fImpl->deserializeTypeface(buf, len);
 }
 
 sk_sp<SkTypeface> SkStrikeClient::retrieveTypefaceUsingServerIDForTest(
