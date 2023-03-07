@@ -711,6 +711,12 @@ $pure half noise_function(half chanCoord,
 
     half2 latticeIdx = half2(sampleX, sampleY);
 
+    const half kInv255 = 0.003921569;   // 1.0 / 255.0
+
+    // Aggressively round to the nearest exact (N / 255) floating point values.
+    // This prevents rounding errors on some platforms (e.g., Tegras)
+    latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(kInv255);
+
     // TODO: the section of this method above this line could be pulled out and
     // shared between the four calls in perlin_noise_shader
 
@@ -719,7 +725,7 @@ $pure half noise_function(half chanCoord,
 
     // This is used to convert the two 16bit integers packed into rgba 8 bit input into
     // a [-1,1] vector
-    const half k8bitToFloat = 0.00390625;  // 1.0 / 256.0
+    const half kInv256 = 0.00390625;  // 1.0 / 256.0
 
     half4 sampleA = sample(noiseSampler, half2(bcoords.x/kBlockSize, chanCoord));
     half4 sampleB = sample(noiseSampler, half2(bcoords.y/kBlockSize, chanCoord));
@@ -729,11 +735,11 @@ $pure half noise_function(half chanCoord,
     half2 uv;
 
     // Compute u, at offset (0,0)
-    uv.x = dot((sampleA.ga + sampleA.rb*k8bitToFloat)*2 - half2(1), fractVal);
+    uv.x = dot((sampleA.ga + sampleA.rb*kInv256)*2 - half2(1), fractVal);
 
     // Compute v, at offset (-1,0)
     fractVal.x -= 1.0;
-    uv.y = dot((sampleB.ga + sampleB.rb*k8bitToFloat)*2 - half2(1), fractVal);
+    uv.y = dot((sampleB.ga + sampleB.rb*kInv256)*2 - half2(1), fractVal);
 
     // Compute 'a' as a linear interpolation of 'u' and 'v'
     half2 ab;
@@ -741,11 +747,11 @@ $pure half noise_function(half chanCoord,
 
     // Compute v, at offset (-1,-1)
     fractVal.y -= 1.0;
-    uv.y = dot((sampleC.ga + sampleC.rb*k8bitToFloat)*2 - half2(1), fractVal);
+    uv.y = dot((sampleC.ga + sampleC.rb*kInv256)*2 - half2(1), fractVal);
 
     // Compute u, at offset (0,-1)
     fractVal.x += 1.0;
-    uv.x = dot((sampleD.ga + sampleD.rb*k8bitToFloat)*2 - half2(1), fractVal);
+    uv.x = dot((sampleD.ga + sampleD.rb*kInv256)*2 - half2(1), fractVal);
 
     // Compute 'b' as a linear interpolation of 'u' and 'v'
     ab.y = mix(uv.x, uv.y, noiseSmooth.x);

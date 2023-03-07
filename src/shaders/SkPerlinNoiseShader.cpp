@@ -629,6 +629,7 @@ public:
 private:
     class Impl : public ProgramImpl {
     public:
+        SkString emitHelper(EmitArgs& args);
         void emitCode(EmitArgs&) override;
 
     private:
@@ -712,22 +713,10 @@ std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcesso
 }
 #endif
 
-void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
+SkString GrPerlinNoise2Effect::Impl::emitHelper(EmitArgs& args) {
     const GrPerlinNoise2Effect& pne = args.fFp.cast<GrPerlinNoise2Effect>();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-
-    fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
-                                                   "baseFrequency");
-    const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
-
-    const char* stitchDataUni = nullptr;
-    if (pne.stitchTiles()) {
-        fStitchDataUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
-                                                    "stitchData");
-        stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
-    }
 
     // Add noise function
     const GrShaderVar gPerlinNoiseArgs[] = {{"chanCoord", SkSLType::kHalf },
@@ -765,7 +754,6 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     SkString sampleY = this->invokeChild(0, "half4(1)", args, "half2(floorVal.z, 0.5)");
     noiseCode.appendf("half2 latticeIdx = half2(%s.a, %s.a);", sampleX.c_str(), sampleY.c_str());
 
-#if defined(SK_BUILD_FOR_ANDROID)
     // Android rounding for Tegra devices, like, for example: Xoom (Tegra 2), Nexus 7 (Tegra 3).
     // The issue is that colors aren't accurate enough on Tegra devices. For example, if an 8 bit
     // value of 124 (or 0.486275 here) is entered, we can get a texture value of 123.513725
@@ -774,7 +762,6 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     // (Note that 1/255 is about 0.003921569, which is the value used here).
     noiseCode.append(
             "latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(0.003921569);");
-#endif
 
     // Get (x,y) coordinates with the permuted x
     noiseCode.append("half4 bcoords = 256*latticeIdx.xyxy + floorVal.yyww;");
@@ -830,6 +817,29 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
         fragBuilder->emitFunction(SkSLType::kHalf, noiseFuncName.c_str(),
                                   {gPerlinNoiseArgs, std::size(gPerlinNoiseArgs)},
                                   noiseCode.c_str());
+    }
+
+    return noiseFuncName;
+}
+
+void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
+
+    SkString noiseFuncName = this->emitHelper(args);
+
+    const GrPerlinNoise2Effect& pne = args.fFp.cast<GrPerlinNoise2Effect>();
+
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+
+    fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
+                                                   "baseFrequency");
+    const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
+
+    const char* stitchDataUni = nullptr;
+    if (pne.stitchTiles()) {
+        fStitchDataUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
+                                                    "stitchData");
+        stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
     }
 
     // There are rounding errors if the floor operation is not performed here
