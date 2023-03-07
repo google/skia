@@ -2728,8 +2728,6 @@ if (skia_enable_tools) {
       sources = [
         "modules/jetski/src/Canvas.cpp",
         "modules/jetski/src/ColorFilters.cpp",
-        "modules/jetski/src/Font.cpp",
-        "modules/jetski/src/FontChainAdapter.cpp",
         "modules/jetski/src/Gradients.cpp",
         "modules/jetski/src/Image.cpp",
         "modules/jetski/src/ImageFilter.cpp",
@@ -2745,7 +2743,6 @@ if (skia_enable_tools) {
         "modules/jetski/src/Surface.h",
         "modules/jetski/src/SurfaceThread.cpp",
         "modules/jetski/src/SurfaceThread.h",
-        "modules/jetski/src/Text.cpp",
         "modules/jetski/src/Utils.cpp",
       ]
       libs = [
@@ -2755,7 +2752,6 @@ if (skia_enable_tools) {
 
       deps = [
         ":skia",
-        "experimental/sktext:sktext",
         "modules/skottie:skottie",
         "tools/window:window",
       ]

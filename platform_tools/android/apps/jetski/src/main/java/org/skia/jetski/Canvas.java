@@ -126,28 +126,6 @@ public class Canvas {
         nDrawPath(mNativeInstance, path.getNativeInstance(), paint.getNativeInstance());
     }
 
-    /**
-     *
-     * @param glyphs: glyph IDs, passed into native code as unsigned 16 bits
-     * @param positions: array of floats in the form of [x1, y1, x2, y2, ...]
-     *                   for where to draw each glyph relative to origin, should be double the length
-     *                   of glyph ID array
-     * @param xOrigin: x-value of origin
-     * @param yOrigin: y-value of origin
-     * @param font: typeface, text size and so, used to describe the text
-     * @param paint blend, color, and so on, used to draw
-     */
-    public void drawGlyphs(char[] glyphs, float[] positions, float xOrigin, float yOrigin,
-                           Font font, Paint paint) {
-        if (glyphs.length * 2 == positions.length) {
-            nDrawGlyphs(mNativeInstance, glyphs, positions, xOrigin, yOrigin,
-                        font.getNativeInstance(), paint.getNativeInstance());
-        } else {
-            throw new IllegalArgumentException("Positions array must be double the length of " +
-                    "glyphIDs, one x and y per id");
-        }
-    }
-
     // package private
     Canvas(Surface surface, long native_instance) {
         mNativeInstance = native_instance;
