@@ -13,6 +13,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypeface.h"
 #include "include/utils/SkNoDrawCanvas.h"
 
 struct SkPackedGlyphID;
@@ -21,7 +22,6 @@ class SkStrikeCache;
 class SkStrikeClientImpl;
 class SkStrikeServer;
 class SkStrikeServerImpl;
-class SkTypeface;
 namespace sktext::gpu { class Slug; }
 
 using SkDiscardableHandleId = uint32_t;
@@ -141,6 +141,8 @@ public:
     // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
     // data is invalid.
     sk_sp<SkTypeface> deserializeTypefaceForTest(const void* data, size_t length);
+
+    sk_sp<SkTypeface> retrieveTypefaceUsingServerIDForTest(SkTypefaceID) const;
 
     // Given a buffer, unflatten into a slug making sure to do the typefaceID translation from
     // renderer to GPU. Returns nullptr if there was a problem.

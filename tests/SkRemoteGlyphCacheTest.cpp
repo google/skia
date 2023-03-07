@@ -250,23 +250,6 @@ SkBitmap RasterSlug(sk_sp<Slug> slug, int width, int height, const SkPaint& pain
     return bitmap;
 }
 
-DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
-    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
-
-    auto server_tf = SkTypeface::MakeDefault();
-    auto tf_data = server.serializeTypefaceForTest(server_tf.get());
-
-    auto client_tf = client.deserializeTypefaceForTest(tf_data->data(), tf_data->size());
-    REPORTER_ASSERT(reporter, client_tf);
-    REPORTER_ASSERT(reporter, static_cast<SkTypefaceProxy*>(client_tf.get())->remoteTypefaceID() ==
-                                      server_tf->uniqueID());
-
-    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
-    discardableManager->unlockAndDeleteAll();
-}
-
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization,
                                        reporter,
                                        ctxInfo,
@@ -278,25 +261,31 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization,
     const SkPaint paint;
 
     // Server.
-    auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
-    auto serverTfData = server.serializeTypefaceForTest(serverTf.get());
+    auto serverTypeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    SkTypefaceID serverTypefaceID = serverTypeface->uniqueID();
 
     int glyphCount = 10;
-    auto serverBlob = buildTextBlob(serverTf, glyphCount);
+    auto serverBlob = buildTextBlob(serverTypeface, glyphCount);
     auto props = FindSurfaceProps(dContext);
-    std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
+    std::unique_ptr<SkCanvas> analysisCanvas = server.makeAnalysisCanvas(
             10, 10, props, nullptr, dContext->supportsDistanceFieldText(),
             !dContext->priv().caps()->disablePerspectiveSDFText());
-    cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
+    analysisCanvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
     std::vector<uint8_t> serverStrikeData;
     server.writeStrikeData(&serverStrikeData);
 
     // Client.
-    auto clientTf = client.deserializeTypefaceForTest(serverTfData->data(), serverTfData->size());
     REPORTER_ASSERT(reporter,
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
-    auto clientBlob = buildTextBlob(clientTf, glyphCount);
+    auto clientTypeface = client.retrieveTypefaceUsingServerIDForTest(serverTypefaceID);
+
+    // Ensure typeface serialization/deserialization worked.
+    REPORTER_ASSERT(reporter,
+                    static_cast<SkTypefaceProxy*>(clientTypeface.get())->remoteTypefaceID() ==
+                        serverTypefaceID);
+
+    auto clientBlob = buildTextBlob(clientTypeface, glyphCount);
 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, dContext);
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, dContext);

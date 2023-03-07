@@ -513,6 +513,7 @@ void SkStrikeServerImpl::writeStrikeData(std::vector<uint8_t>* memory) {
         SkString msg;
         msg.appendf("\nBegin send strike differences\n");
     #endif
+
     size_t strikesToSend = 0;
     fRemoteStrikesToSend.foreach ([&](RemoteStrike* strike) {
         if (strike->hasPendingGlyphs()) {
@@ -792,6 +793,7 @@ public:
 
     bool readStrikeData(const volatile void* memory, size_t memorySize);
     bool translateTypefaceID(SkAutoDescriptor* descriptor) const;
+    sk_sp<SkTypeface> retrieveTypefaceUsingServerID(SkTypefaceID) const;
 
 private:
     class PictureBackedGlyphDrawable final : public SkDrawable {
@@ -1034,6 +1036,11 @@ bool SkStrikeClientImpl::translateTypefaceID(SkAutoDescriptor* toChange) const {
     return true;
 }
 
+sk_sp<SkTypeface> SkStrikeClientImpl::retrieveTypefaceUsingServerID(SkTypefaceID typefaceID) const {
+    auto* tfPtr = fRemoteTypefaceIdToTypeface.find(typefaceID);
+    return tfPtr != nullptr ? *tfPtr : nullptr;
+}
+
 sk_sp<SkTypeface> SkStrikeClientImpl::deserializeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len != sizeof(wire)) return nullptr;
@@ -1066,6 +1073,11 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 
 sk_sp<SkTypeface> SkStrikeClient::deserializeTypefaceForTest(const void* buf, size_t len) {
     return fImpl->deserializeTypeface(buf, len);
+}
+
+sk_sp<SkTypeface> SkStrikeClient::retrieveTypefaceUsingServerIDForTest(
+        SkTypefaceID typefaceID) const {
+    return fImpl->retrieveTypefaceUsingServerID(typefaceID);
 }
 
 bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
