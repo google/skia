@@ -16,6 +16,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
+#include "include/utils/SkBase64.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -62,6 +63,7 @@
 
 #include <cstdlib>
 #include <map>
+#include <regex>
 
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"  // For ImGui support of std::string
@@ -765,6 +767,52 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     this->setCurrentSlide(this->startupSlide());
 }
 
+static sk_sp<SkData> data_from_file(FILE* fp) {
+    SkDynamicMemoryWStream stream;
+    char buf[4096];
+    while (size_t bytesRead = fread(buf, 1, 4096, fp)) {
+        stream.write(buf, bytesRead);
+    }
+    return stream.detachAsData();
+}
+
+static sk_sp<SkData> base64_string_to_data(const std::string& s) {
+    size_t dataLen;
+    if (SkBase64::Decode(s.c_str(), s.size(), nullptr, &dataLen) != SkBase64::kNoError) {
+        return nullptr;
+    }
+
+    sk_sp<SkData> decodedData = SkData::MakeUninitialized(dataLen);
+    void* rawData = decodedData->writable_data();
+    if (SkBase64::Decode(s.c_str(), s.size(), rawData, &dataLen) != SkBase64::kNoError) {
+        return nullptr;
+    }
+
+    return decodedData;
+}
+
+static std::vector<sk_sp<SkImage>> find_data_uri_images(sk_sp<SkData> data) {
+    std::string str(reinterpret_cast<const char*>(data->data()), data->size());
+    std::regex re("data:image/png;base64,([a-zA-Z0-9+/=]+)");
+    std::sregex_iterator images_begin(str.begin(), str.end(), re);
+    std::sregex_iterator images_end;
+    std::vector<sk_sp<SkImage>> images;
+
+    for (auto iter = images_begin; iter != images_end; ++iter) {
+        const std::smatch& match = *iter;
+        auto raw = base64_string_to_data(match[1].str());
+        if (!raw) {
+            continue;
+        }
+        auto image = SkImage::MakeFromEncoded(std::move(raw));
+        if (image) {
+            images.push_back(std::move(image));
+        }
+    }
+
+    return images;
+}
+
 void Viewer::initSlides() {
     using SlideMaker = sk_sp<Slide> (*)(const SkString& name, const SkString& path);
     static const struct {
@@ -820,6 +868,23 @@ void Viewer::initSlides() {
     if (!FLAGS_file.isEmpty()) {
         // single file mode
         const SkString file(FLAGS_file[0]);
+
+        // `--file -` parses stdin, looking for data URIs that encode images
+        if (file.equals("stdin")) {
+            sk_sp<SkData> data = data_from_file(stdin);
+            std::vector<sk_sp<SkImage>> images = find_data_uri_images(std::move(data));
+            // TODO: If there is an even number of images, create diff images from consecutive pairs
+            // (Maybe do this optionally? Or add a dedicated diff-slide that can show diff stats?)
+            for (auto image : images) {
+                char imageID = 'A' + fSlides.size();
+                fSlides.push_back(sk_make_sp<ImageSlide>(SkStringPrintf("Image %c", imageID),
+                                                         std::move(image)));
+            }
+            if (!fSlides.empty()) {
+                fShowZoomWindow = true;
+                return;
+            }
+        }
 
         if (sk_exists(file.c_str(), kRead_SkFILE_Flag)) {
             for (const auto& sinfo : gExternalSlidesInfo) {
