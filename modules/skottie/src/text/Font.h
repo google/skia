@@ -40,7 +40,8 @@ public:
     private:
         static bool ParseGlyphPath(const AnimationBuilder*, const skjson::ObjectValue&, SkPath*);
         static sk_sp<sksg::RenderNode> ParseGlyphComp(const AnimationBuilder*,
-                                                      const skjson::ObjectValue&);
+                                                      const skjson::ObjectValue&,
+                                                      SkSize*);
 
         GlyphCompMap            fGlyphComps;
         SkCustomTypefaceBuilder fCustomBuilder;

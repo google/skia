@@ -77,7 +77,7 @@ private:
     void reshape();
     void addFragment(Shaper::Fragment&, sksg::Group* container);
     void buildDomainMaps(const Shaper::Result&);
-    std::vector<sk_sp<sksg::RenderNode>> buildGlyphCompNodes(Shaper::Fragment&) const;
+    std::vector<sk_sp<sksg::RenderNode>> buildGlyphCompNodes(Shaper::ShapedGlyphs&) const;
 
     void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&,
                              const SkV2& frag_offset, const SkV2& grouping_alignment,

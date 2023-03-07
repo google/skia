@@ -176,8 +176,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
                                        time_remapper;
 
     // Precomp layers are sized explicitly.
-    layer_info->fSize = SkSize::Make(ParseDefault<float>(jlayer["w"], 0.0f),
-                                     ParseDefault<float>(jlayer["h"], 0.0f));
+    auto parse_size = [](const skjson::ObjectValue& jlayer) {
+        return SkSize::Make(ParseDefault<float>(jlayer["w"], 0.0f),
+                            ParseDefault<float>(jlayer["h"], 0.0f));
+    };
+    layer_info->fSize = parse_size(jlayer);
 
     SkTLazy<AutoScope> local_scope;
     if (requires_time_mapping) {
@@ -189,6 +192,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     if (!precomp_layer) {
         const ScopedAssetRef precomp_asset(this, jlayer);
         if (precomp_asset) {
+            // Unlike regular precomp layers, glyph precomps don't have an explicit size - they
+            // use the actual asset comp size.
+            if (layer_info->fSize.isEmpty()) {
+                layer_info->fSize = parse_size(*precomp_asset);
+            }
+
             AutoPropertyTracker apt(this, *precomp_asset, PropertyObserver::NodeType::COMPOSITION);
             precomp_layer =
                 CompositionBuilder(*this, layer_info->fSize, *precomp_asset).build(*this);
