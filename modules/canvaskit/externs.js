@@ -167,6 +167,8 @@ var CanvasKit = {
     Make: function() {},
     MakeFromFontProvider: function() {},
     ShapeText: function() {},
+    RequiresClientICU() {},
+
     addText: function() {},
     build: function() {},
 

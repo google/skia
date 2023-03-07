@@ -3310,6 +3310,12 @@ export interface ParagraphBuilderFactory {
      * Return a shaped array of lines
      */
     ShapeText(text: string, runs: FontBlock[], width?: number): ShapedLine[];
+
+    /**
+     * Whether the paragraph builder requires ICU data to be provided by the
+     * client.
+     */
+    RequiresClientICU(): boolean;
 }
 
 export interface ParagraphStyleConstructor {

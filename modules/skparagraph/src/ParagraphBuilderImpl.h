@@ -87,6 +87,8 @@ public:
     // Just until we fix all the code; calls icu::make inside
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
                                                   sk_sp<FontCollection> fontCollection);
+
+    static bool RequiresClientICU();
 protected:
     void startStyledBlock();
     void endRunIfNeeded();

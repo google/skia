@@ -553,6 +553,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                 return GetShapedLines(*pa);
             }),
             allow_raw_pointers())
+            .class_function("RequiresClientICU", &para::ParagraphBuilderImpl::RequiresClientICU)
             .function("addText",
                       optional_override([](para::ParagraphBuilderImpl& self, std::string text) {
                           return self.addText(text.c_str(), text.length());

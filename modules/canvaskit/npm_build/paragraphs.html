@@ -158,6 +158,8 @@ ate a hamburger.
     const mallocedLineBreaks = CanvasKit.Malloc(Uint32Array, lineBreaks.length);
     mallocedLineBreaks.toTypedArray().set(lineBreaks);
 
+    console.log('RequiresClientICU:', CanvasKit.ParagraphBuilder.RequiresClientICU());
+
     builder.setWordsUtf16(mallocedWords);
     builder.setGraphemeBreaksUtf16(mallocedGraphemes);
     builder.setLineBreaksUtf16(mallocedLineBreaks);

@@ -299,5 +299,13 @@ void ParagraphBuilderImpl::Reset() {
     startStyledBlock();
 }
 
+bool ParagraphBuilderImpl::RequiresClientICU() {
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+    return true;
+#else
+    return false;
+#endif
+}
+
 }  // namespace textlayout
 }  // namespace skia
