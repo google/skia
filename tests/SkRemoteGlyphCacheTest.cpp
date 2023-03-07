@@ -59,10 +59,6 @@
 #include <memory>
 #include <vector>
 
-// Since SkRemoteGlyphCache is not re-entrant, we can't use it while drawing slugs to simulate
-// text blobs in the GPU stack.
-#if !defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_STRIKE_SERIALIZE)
-
 using Slug = sktext::gpu::Slug;
 
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
@@ -1207,4 +1203,3 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithPaths_Path
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
-#endif

@@ -62,18 +62,7 @@ struct SK_API ContextOptions {
      * fGlypheCacheTextureMaximumBytes.
      */
     bool fAllowMultipleGlyphCacheTextures = true;
-
-    /**
-     * If true, then add 1 pixel padding to all glyph masks in the atlas to support bi-lerp
-     * rendering of all glyphs. This must be set to true to use Slugs.
-     */
-    #if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG) || \
-        defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE) || \
-        defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_STRIKE_SERIALIZE)
-    bool fSupportBilerpFromGlyphAtlas = true;
-    #else
     bool fSupportBilerpFromGlyphAtlas = false;
-    #endif
 
 #if GRAPHITE_TEST_UTILS
     /**
