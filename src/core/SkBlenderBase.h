@@ -21,6 +21,7 @@ class SkRuntimeEffect;
 struct SkStageRec;
 
 namespace skgpu::graphite {
+enum class DstColorType;
 class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
@@ -66,14 +67,14 @@ public:
 #if defined(SK_GRAPHITE)
     /**
      * TODO: Make pure virtual.
-     * primitiveColorBlender = true when blending the result of the paint evaluation with a
-     * primitive color (which is supplied by certain geometries). primitiveColorBlender = false when
-     * blending the result of the paint evaluation with the back buffer.
+     * dstColorType = kPrimitive when blending the result of the paint evaluation with a primitive
+     * color (which is supplied by certain geometries). dstColorType = kSurface when blending the
+     * result of the paint evaluation with the back buffer.
      */
     virtual void addToKey(const skgpu::graphite::KeyContext&,
                           skgpu::graphite::PaintParamsKeyBuilder*,
                           skgpu::graphite::PipelineDataGatherer*,
-                          bool primitiveColorBlender) const;
+                          skgpu::graphite::DstColorType dstColorType) const;
 #endif
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }

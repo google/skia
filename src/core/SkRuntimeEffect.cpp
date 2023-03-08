@@ -1099,8 +1099,8 @@ static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children
         } else if (type == ChildType::kColorFilter) {
             as_CFB(child.colorFilter())->addToKey(keyContext, builder, gatherer);
         } else if (type == ChildType::kBlender) {
-            as_BB(child.blender())->addToKey(keyContext, builder, gatherer,
-                                             /*primitiveColorBlender=*/false);
+            as_BB(child.blender())
+                    ->addToKey(keyContext, builder, gatherer, DstColorType::kChildOutput);
         } else {
             // We don't have a child effect. Substitute in a no-op effect.
             switch (childInfo[index].type) {
@@ -1683,8 +1683,10 @@ public:
     void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer,
-                  bool primitiveColorBlender) const override {
+                  skgpu::graphite::DstColorType dstColorType) const override {
         using namespace skgpu::graphite;
+        SkASSERT(dstColorType == DstColorType::kSurface ||
+                 dstColorType == DstColorType::kChildOutput);
 
         sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
                 fEffect->uniforms(),
@@ -1692,6 +1694,8 @@ public:
                 keyContext.dstColorInfo().colorSpace());
         SkASSERT(uniforms);
 
+        // TODO(b/238757201): Pass into RuntimeEffectBlock::BeginBlock that this runtime effect
+        // needs a dst read, if dstColorType == kSurface.
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
                                        { fEffect, std::move(uniforms) });
 

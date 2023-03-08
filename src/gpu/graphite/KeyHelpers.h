@@ -32,6 +32,16 @@ class PipelineDataGatherer;
 class UniquePaintParamsID;
 enum class ReadSwizzle;
 
+// Types of logical "destinations" that a blender might blend into.
+enum class DstColorType {
+    // A color read from the framebuffer.
+    kSurface,
+    // A color provided by geometry.
+    kPrimitive,
+    // A color evaluated by a child shader.
+    kChildOutput,
+};
+
 /**
  * The KeyHelpers can be used to manually construct an SkPaintParamsKey.
  *
