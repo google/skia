@@ -754,15 +754,6 @@ SkString GrPerlinNoise2Effect::Impl::emitHelper(EmitArgs& args) {
     SkString sampleY = this->invokeChild(0, "half4(1)", args, "half2(floorVal.z, 0.5)");
     noiseCode.appendf("half2 latticeIdx = half2(%s.a, %s.a);", sampleX.c_str(), sampleY.c_str());
 
-    // Android rounding for Tegra devices, like, for example: Xoom (Tegra 2), Nexus 7 (Tegra 3).
-    // The issue is that colors aren't accurate enough on Tegra devices. For example, if an 8 bit
-    // value of 124 (or 0.486275 here) is entered, we can get a texture value of 123.513725
-    // (or 0.484368 here). The following rounding operation prevents these precision issues from
-    // affecting the result of the noise by making sure that we only have multiples of 1/255.
-    // (Note that 1/255 is about 0.003921569, which is the value used here).
-    noiseCode.append(
-            "latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(0.003921569);");
-
     // Get (x,y) coordinates with the permuted x
     noiseCode.append("half4 bcoords = 256*latticeIdx.xyxy + floorVal.yyww;");
 
