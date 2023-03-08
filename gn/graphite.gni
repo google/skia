@@ -17,6 +17,7 @@ skia_graphite_public = [
   "$_include/Recorder.h",
   "$_include/Recording.h",
   "$_include/TextureInfo.h",
+  "$_include/YUVABackendTextures.h",
 ]
 
 skia_graphite_sources = [
@@ -148,6 +149,7 @@ skia_graphite_sources = [
   "$_src/UploadBufferManager.h",
   "$_src/UploadTask.cpp",
   "$_src/UploadTask.h",
+  "$_src/YUVABackendTextures.cpp",
   "$_src/YUVATextureProxies.cpp",
   "$_src/YUVATextureProxies.h",
   "$_src/compute/ComputeStep.cpp",

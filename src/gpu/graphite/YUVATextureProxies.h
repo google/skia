@@ -23,9 +23,9 @@ public:
      * pixmaps' channels are swizzled into the texture during upload. This will compute a swizzle
      * for each texture based on the original color types and the views' swizzles.
      */
-    YUVATextureProxies(const SkYUVAInfo&,
-                       TextureProxyView[SkYUVAInfo::kMaxPlanes],
-                       SkColorType[SkYUVAInfo::kMaxPlanes]);
+    YUVATextureProxies(const Recorder*,
+                       const SkYUVAInfo&,
+                       TextureProxyView[SkYUVAInfo::kMaxPlanes]);
 
     YUVATextureProxies(const YUVATextureProxies&) = default;
     YUVATextureProxies(YUVATextureProxies&&) = default;

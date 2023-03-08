@@ -7,14 +7,17 @@
 
 #include "src/gpu/graphite/YUVATextureProxies.h"
 
+#include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
 
-YUVATextureProxies::YUVATextureProxies(const SkYUVAInfo& yuvaInfo,
-                                       TextureProxyView views[SkYUVAInfo::kMaxPlanes],
-                                       SkColorType colorTypes[SkYUVAInfo::kMaxPlanes])
+YUVATextureProxies::YUVATextureProxies(const Recorder* recorder,
+                                       const SkYUVAInfo& yuvaInfo,
+                                       TextureProxyView views[SkYUVAInfo::kMaxPlanes])
         : fYUVAInfo(yuvaInfo) {
     uint32_t pixmapChannelMasks[SkYUVAInfo::kMaxPlanes];
     int n = yuvaInfo.numPlanes();
@@ -25,12 +28,13 @@ YUVATextureProxies::YUVATextureProxies(const SkYUVAInfo& yuvaInfo,
     }
     fMipmapped = Mipmapped::kYes;
     for (int i = 0; i < n; ++i) {
-        pixmapChannelMasks[i] = SkColorTypeChannelFlags(colorTypes[i]);
         if (!views[i]) {
             *this = {};
             SkASSERT(!this->isValid());
             return;
         }
+        pixmapChannelMasks[i] =
+                recorder->priv().caps()->channelMask(views[i].proxy()->textureInfo());
         if (views[i].proxy()->mipmapped() == Mipmapped::kNo) {
             fMipmapped = Mipmapped::kNo;
         }

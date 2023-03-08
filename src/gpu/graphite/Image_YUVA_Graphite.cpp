@@ -95,7 +95,6 @@ sk_sp<SkImage> SkImage::MakeGraphiteFromYUVAPixmaps(Recorder* recorder,
 
     // Convert to texture proxies.
     TextureProxyView views[SkYUVAInfo::kMaxPlanes];
-    SkColorType pixmapColorTypes[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < numPlanes; ++i) {
         // Turn the pixmap into a TextureProxy
         SkBitmap bmp;
@@ -108,10 +107,9 @@ sk_sp<SkImage> SkImage::MakeGraphiteFromYUVAPixmaps(Recorder* recorder,
         if (!views[i]) {
             return nullptr;
         }
-        pixmapColorTypes[i] = bmp.colorType();
     }
 
-    YUVATextureProxies yuvaProxies(pixmapsToUpload->yuvaInfo(), views, pixmapColorTypes);
+    YUVATextureProxies yuvaProxies(recorder, pixmapsToUpload->yuvaInfo(), views);
     SkASSERT(yuvaProxies.isValid());
     return sk_make_sp<Image_YUVA>(kNeedNewImageUniqueID,
                                   std::move(yuvaProxies),
