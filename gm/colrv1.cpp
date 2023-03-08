@@ -298,6 +298,15 @@ DEF_GM(return F(C(sweep_varsweep),
                  {"SWC2"_t, 0.083333333f},
                  {"SWC3"_t, 0.083333333f},
                  {"SWC4"_t, +0.25f}}))
+DEF_GM(return F(C(sweep_varsweep),
+                0.0f,
+                0.0f,
+                {{"SWPS"_t, 45.f},
+                 {"SWPE"_t, -45.f},
+                 {"SWC1"_t, -0.25f},
+                 {"SWC2"_t, -0.416687f},
+                 {"SWC3"_t, -0.583313f},
+                 {"SWC4"_t, -0.75f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH1"_t, -0.7f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH2"_t, -0.7f}, {"APH3"_t, -0.2f}}))
