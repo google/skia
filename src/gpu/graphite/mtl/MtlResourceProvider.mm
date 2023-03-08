@@ -24,10 +24,11 @@
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlComputePipeline.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
+#include "src/gpu/graphite/mtl/MtlGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/mtl/MtlSampler.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
-#include "src/gpu/graphite/mtl/MtlUtilsPriv.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 #import <Metal/Metal.h>

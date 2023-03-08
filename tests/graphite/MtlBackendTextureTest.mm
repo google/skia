@@ -10,7 +10,7 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/gpu/graphite/mtl/MtlTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 
 #import <Metal/Metal.h>
 

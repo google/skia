@@ -9,8 +9,8 @@
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
-#include "include/gpu/graphite/mtl/MtlTypes.h"
-#include "include/gpu/graphite/mtl/MtlUtils.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
 
 #import <Metal/Metal.h>
 

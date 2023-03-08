@@ -30,6 +30,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
 #include "src/gpu/ganesh/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #import <simd/simd.h>
 
@@ -537,7 +538,7 @@ sk_sp<GrAttachment> GrMtlGpu::makeMSAAAttachment(SkISize dimensions,
 
     MTLPixelFormat pixelFormat = (MTLPixelFormat) format.asMtlFormat();
     SkASSERT(pixelFormat != MTLPixelFormatInvalid);
-    SkASSERT(!GrMtlFormatIsCompressed(pixelFormat));
+    SkASSERT(!skgpu::MtlFormatIsCompressed(pixelFormat));
     SkASSERT(this->mtlCaps().isFormatRenderable(pixelFormat, numSamples));
 
     fStats.incMSAAAttachmentCreates();

@@ -1,0 +1,149 @@
+/*
+ * Copyright 2021 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/gpu/mtl/MtlUtilsPriv.h"
+
+#include "include/gpu/ShaderErrorHandler.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/utils/SkShaderUtils.h"
+
+#ifdef SK_BUILD_FOR_IOS
+#import <UIKit/UIApplication.h>
+#endif
+
+namespace skgpu {
+
+bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatStencil8: // fallthrough
+        case MTLPixelFormatDepth32Float:
+        case MTLPixelFormatDepth32Float_Stencil8:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool MtlFormatIsDepth(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatDepth32Float:
+        case MTLPixelFormatDepth32Float_Stencil8:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool MtlFormatIsStencil(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatStencil8: // fallthrough
+        case MTLPixelFormatDepth32Float_Stencil8:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool MtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
+    switch (mtlFormat) {
+        case MTLPixelFormatETC2_RGB8:
+            return true;
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBC1_RGBA:
+            return true;
+#endif
+        default:
+            return false;
+    }
+}
+
+const char* MtlFormatToString(MTLPixelFormat mtlFormat) {
+    switch (mtlFormat) {
+        case MTLPixelFormatInvalid:         return "Invalid";
+        case MTLPixelFormatRGBA8Unorm:      return "RGBA8Unorm";
+        case MTLPixelFormatR8Unorm:         return "R8Unorm";
+        case MTLPixelFormatA8Unorm:         return "A8Unorm";
+        case MTLPixelFormatBGRA8Unorm:      return "BGRA8Unorm";
+        case MTLPixelFormatB5G6R5Unorm:     return "B5G6R5Unorm";
+        case MTLPixelFormatRGBA16Float:     return "RGBA16Float";
+        case MTLPixelFormatR16Float:        return "R16Float";
+        case MTLPixelFormatRG8Unorm:        return "RG8Unorm";
+        case MTLPixelFormatRGB10A2Unorm:    return "RGB10A2Unorm";
+        case MTLPixelFormatBGR10A2Unorm:    return "BGR10A2Unorm";
+        case MTLPixelFormatABGR4Unorm:      return "ABGR4Unorm";
+        case MTLPixelFormatRGBA8Unorm_sRGB: return "RGBA8Unorm_sRGB";
+        case MTLPixelFormatR16Unorm:        return "R16Unorm";
+        case MTLPixelFormatRG16Unorm:       return "RG16Unorm";
+        case MTLPixelFormatETC2_RGB8:       return "ETC2_RGB8";
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBC1_RGBA:        return "BC1_RGBA";
+#endif
+        case MTLPixelFormatRGBA16Unorm:     return "RGBA16Unorm";
+        case MTLPixelFormatRG16Float:       return "RG16Float";
+        case MTLPixelFormatStencil8:        return "Stencil8";
+
+        default:                            return "Unknown";
+    }
+}
+
+// Print the source code for all shaders generated.
+#ifdef SK_PRINT_SKSL_SHADERS
+static const bool gPrintSKSL = true;
+#else
+static const bool gPrintSKSL = false;
+#endif
+
+#ifdef SK_PRINT_NATIVE_SHADERS
+static const bool gPrintMSL = true;
+#else
+static const bool gPrintMSL = false;
+#endif
+
+bool SkSLToMSL(SkSL::Compiler* compiler,
+               const std::string& sksl,
+               SkSL::ProgramKind programKind,
+               const SkSL::ProgramSettings& settings,
+               std::string* msl,
+               SkSL::Program::Inputs* outInputs,
+               ShaderErrorHandler* errorHandler) {
+#ifdef SK_DEBUG
+    std::string src = SkShaderUtils::PrettyPrint(sksl);
+#else
+    const std::string& src = sksl;
+#endif
+    std::unique_ptr<SkSL::Program> program = compiler->convertProgram(programKind,
+                                                                      src,
+                                                                      settings);
+    if (!program || !compiler->toMetal(*program, msl)) {
+        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
+        return false;
+    }
+
+    if (gPrintSKSL || gPrintMSL) {
+        SkShaderUtils::PrintShaderBanner(programKind);
+        if (gPrintSKSL) {
+            SkDebugf("SKSL:\n");
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
+        }
+        if (gPrintMSL) {
+            SkDebugf("MSL:\n");
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*msl));
+        }
+    }
+
+    *outInputs = program->fInputs;
+    return true;
+}
+
+#ifdef SK_BUILD_FOR_IOS
+bool MtlIsAppInBackground() {
+    return [NSThread isMainThread] &&
+           ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground);
+}
+#endif
+} // namespace skgpu

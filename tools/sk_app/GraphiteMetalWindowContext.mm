@@ -15,8 +15,8 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
-#include "include/gpu/graphite/mtl/MtlTypes.h"
-#include "include/gpu/graphite/mtl/MtlUtils.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
 #include "tools/ToolUtils.h"
 
 using sk_app::DisplayParams;
