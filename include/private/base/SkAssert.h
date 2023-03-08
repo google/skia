@@ -43,6 +43,12 @@
     } while (false)
 #endif
 
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#  define SK_ABORT_IN_ANDROID_FRAMEWORK(message, ...) SK_ABORT(message, ##__VA_ARGS__)
+#else
+#  define SK_ABORT_IN_ANDROID_FRAMEWORK(message, ...)
+#endif
+
 // SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.
 //    uint32_t foo(int x) {
 //        SkASSERT(x > 4);

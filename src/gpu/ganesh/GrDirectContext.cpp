@@ -220,11 +220,13 @@ void GrDirectContext::freeGpuResources() {
 bool GrDirectContext::init() {
     ASSERT_SINGLE_OWNER
     if (!fGpu) {
+        SK_ABORT_IN_ANDROID_FRAMEWORK("fGpu creation failed");
         return false;
     }
 
     fThreadSafeProxy->priv().init(fGpu->refCaps(), fGpu->refPipelineBuilder());
     if (!INHERITED::init()) {
+        SK_ABORT_IN_ANDROID_FRAMEWORK("Inherited initialization failed");
         return false;
     }
 
@@ -1106,6 +1108,7 @@ sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& bac
 
     direct->fGpu = GrVkGpu::Make(backendContext, options, direct.get());
     if (!direct->init()) {
+        SK_ABORT_IN_ANDROID_FRAMEWORK("GrDirectContext initialization failed");
         return nullptr;
     }
 

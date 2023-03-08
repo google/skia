@@ -64,9 +64,16 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         backendContext.fPhysicalDevice == VK_NULL_HANDLE ||
         backendContext.fDevice == VK_NULL_HANDLE ||
         backendContext.fQueue == VK_NULL_HANDLE) {
+        SK_ABORT_IN_ANDROID_FRAMEWORK("Backend context invalid: %s%s%s%s",
+                backendContext.fInstance == VK_NULL_HANDLE ? "[instance null]" : "",
+                backendContext.fPhysicalDevice == VK_NULL_HANDLE ? "[physical device null]" : "",
+                backendContext.fDevice == VK_NULL_HANDLE ? "[device null]" : "",
+                backendContext.fQueue == VK_NULL_HANDLE ? "[queue null]" : ""
+                );
         return nullptr;
     }
     if (!backendContext.fGetProc) {
+        SK_ABORT_IN_ANDROID_FRAMEWORK("Backend context's fGetProc is null");
         return nullptr;
     }
 
@@ -80,6 +87,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
     } else {
         VkResult err = localEnumerateInstanceVersion(&instanceVersion);
         if (err) {
+            SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to enumerate instance version. Err: %d\n", err);
             SkDebugf("Failed to enumerate instance version. Err: %d\n", err);
             return nullptr;
         }
@@ -92,6 +100,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                             VK_NULL_HANDLE));
 
     if (!localGetPhysicalDeviceProperties) {
+        SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to get local vkGetPhysicalDeviceProperties proc");
         return nullptr;
     }
     VkPhysicalDeviceProperties physDeviceProperties;
@@ -114,6 +123,8 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                                    physDevVersion,
                                                    backendContext.fVkExtensions));
         if (!interface->validate(instanceVersion, physDevVersion, backendContext.fVkExtensions)) {
+            SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to validate VulkanInterface (with " \
+                                          "given extensions)");
             return nullptr;
         }
     } else {
@@ -133,6 +144,15 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                                    physDevVersion,
                                                    &extensions));
         if (!interface->validate(instanceVersion, physDevVersion, &extensions)) {
+            if (backendContext.fExtensions & kKHR_swapchain_GrVkExtensionFlag) {
+                SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to validate VulkanInterface (with " \
+                                              "only swapchain extension)");
+            }
+            else {
+                SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to validate VulkanInterface (with " \
+                                              "no extensions)");
+            }
+
             return nullptr;
         }
     }
@@ -142,6 +162,10 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         caps.reset(new GrVkCaps(options, interface.get(), backendContext.fPhysicalDevice,
                                 *backendContext.fDeviceFeatures2, instanceVersion, physDevVersion,
                                 *backendContext.fVkExtensions, backendContext.fProtectedContext));
+        if (!caps) {
+            SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to initialize GrVkCaps (with " \
+                                          "given VkPhysicalDeviceFeatures2 (extensible))");
+        }
     } else if (backendContext.fDeviceFeatures) {
         VkPhysicalDeviceFeatures2 features2;
         features2.pNext = nullptr;
@@ -149,6 +173,10 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         caps.reset(new GrVkCaps(options, interface.get(), backendContext.fPhysicalDevice,
                                 features2, instanceVersion, physDevVersion,
                                 *backendContext.fVkExtensions, backendContext.fProtectedContext));
+        if (!caps) {
+            SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to initialize GrVkCaps (with " \
+                                          "given VkPhysicalDeviceFeatures)");
+        }
     } else {
         VkPhysicalDeviceFeatures2 features;
         memset(&features, 0, sizeof(VkPhysicalDeviceFeatures2));
@@ -174,6 +202,10 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         caps.reset(new GrVkCaps(options, interface.get(), backendContext.fPhysicalDevice,
                                 features, instanceVersion, physDevVersion, extensions,
                                 backendContext.fProtectedContext));
+        if (!caps) {
+            SK_ABORT_IN_ANDROID_FRAMEWORK("Failed to initialize GrVkCaps (with " \
+                                          "minimal set of features and extensions)");
+        }
     }
 
     if (!caps) {
@@ -194,6 +226,8 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                                                 /*=threadSafe=*/false);
     }
     if (!memoryAllocator) {
+        SK_ABORT_IN_ANDROID_FRAMEWORK("No supplied vulkan memory allocator and unable to create " \
+                                      "one internally.");
         SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
         return nullptr;
     }
@@ -203,6 +237,8 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                       std::move(memoryAllocator)));
      if (backendContext.fProtectedContext == GrProtected::kYes &&
          !vkGpu->vkCaps().supportsProtectedMemory()) {
+         SK_ABORT_IN_ANDROID_FRAMEWORK("Backend content is in a protected context, but protected " \
+                                       "memory is not supported by current GrVkCaps");
          return nullptr;
      }
      return std::move(vkGpu);
