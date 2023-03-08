@@ -713,6 +713,10 @@ UniqueKey MtlCaps::makeComputePipelineKey(const ComputePipelineDesc& pipelineDes
     return pipelineKey;
 }
 
+uint32_t MtlCaps::channelMask(const TextureInfo& info) const {
+    return skgpu::MtlFormatChannels((MTLPixelFormat)info.mtlTextureSpec().fFormat);
+}
+
 bool MtlCaps::onIsTexturable(const TextureInfo& info) const {
     if (!(info.mtlTextureSpec().fUsage & MTLTextureUsageShaderRead)) {
         return false;

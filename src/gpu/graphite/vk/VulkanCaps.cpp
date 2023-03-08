@@ -13,6 +13,7 @@
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
@@ -217,6 +218,10 @@ TextureInfo VulkanCaps::getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthSte
     info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
     return info;
+}
+
+uint32_t VulkanCaps::channelMask(const TextureInfo& textureInfo) const {
+    return skgpu::VkFormatChannels(textureInfo.vulkanTextureSpec().fFormat);
 }
 
 void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
