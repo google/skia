@@ -457,7 +457,7 @@ void truncateToStopInterpolating(SkScalar zeroRadiusStop,
                                  std::vector<SkScalar>& stops,
                                  TruncateStops truncateStops) {
     if (stops.size() <= 1u ||
-        zeroRadiusStop < *stops.begin() || *(stops.end() - 1) < zeroRadiusStop)
+        zeroRadiusStop < stops.front() || stops.back() < zeroRadiusStop)
     {
         return;
     }
@@ -729,8 +729,8 @@ bool colrv1_configure_skpaint(FT_Face face,
                 // color, everything after this spot is painted with the last color. Not adding this
                 // stop will skip the projection and result in specifying non-normalized color stops
                 // to the shader.
-                stops.push_back(*(stops.end() - 1) + 1.0f);
-                colors.push_back(*(colors.end()-1));
+                stops.push_back(stops.back() + 1.0f);
+                colors.push_back(colors.back());
                 colorStopRange = 1.0f;
               }
             }
@@ -803,8 +803,8 @@ bool colrv1_configure_skpaint(FT_Face face,
                 // color, everything after this spot is painted with the last color. Not adding this
                 // stop will skip the projection and result in specifying non-normalized color stops
                 // to the shader.
-                stops.push_back(*(stops.end() - 1) + 1.0f);
-                colors.push_back(*(colors.end()-1));
+                stops.push_back(stops.back() + 1.0f);
+                colors.push_back(colors.back());
                 colorStopRange = 1.0f;
               }
             }
@@ -1004,8 +1004,8 @@ bool colrv1_configure_skpaint(FT_Face face,
                 // first color, everything after this spot is painted with the last color. Not
                 // adding this stop will skip the projection and result in specifying non-normalized
                 // color stops to the shader.
-                stops.push_back(*(stops.end() - 1) + 1.0f);
-                colors.push_back(*(colors.end()-1));
+                stops.push_back(stops.back() + 1.0f);
+                colors.push_back(colors.back());
                 colorStopRange = 1.0f;
                 colorStopInserted = true;
               }
