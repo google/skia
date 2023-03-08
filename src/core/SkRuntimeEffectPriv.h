@@ -27,6 +27,22 @@ struct SkColorSpaceXformSteps;
 
 class SkRuntimeEffectPriv {
 public:
+    struct UniformsCallbackContext {
+        const SkColorSpace* fDstColorSpace;
+    };
+
+    // Private (experimental) API for creating runtime shaders with late-bound uniforms.
+    // The callback must produce a uniform data blob of the correct size for the effect.
+    // It is invoked at "draw" time (essentially, when a draw call is made against the canvas
+    // using the resulting shader). There are no strong guarantees about timing.
+    // Serializing the resulting shader will immediately invoke the callback (and record the
+    // resulting uniforms).
+    using UniformsCallback = std::function<sk_sp<const SkData>(const UniformsCallbackContext&)>;
+    static sk_sp<SkShader> MakeDeferredShader(const SkRuntimeEffect* effect,
+                                              UniformsCallback uniformsCallback,
+                                              SkSpan<SkRuntimeEffect::ChildPtr> children,
+                                              const SkMatrix* localMatrix = nullptr);
+
     // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
     // implement the constant output for constant input optimization flag.
     static bool SupportsConstantOutputForConstantInput(const SkRuntimeEffect* effect) {
