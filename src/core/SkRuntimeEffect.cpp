@@ -1383,6 +1383,8 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+using UniformsCallback = SkRuntimeEffectPriv::UniformsCallback;
+
 class SkRTShader : public SkShaderBase {
 public:
     SkRTShader(sk_sp<SkRuntimeEffect> effect,
@@ -1391,14 +1393,23 @@ public:
                SkSpan<SkRuntimeEffect::ChildPtr> children)
             : fEffect(std::move(effect))
             , fDebugTrace(std::move(debugTrace))
-            , fUniforms(std::move(uniforms))
+            , fUniformData(std::move(uniforms))
+            , fChildren(children.begin(), children.end()) {}
+
+    SkRTShader(sk_sp<SkRuntimeEffect> effect,
+               sk_sp<SkSL::SkVMDebugTrace> debugTrace,
+               UniformsCallback uniformsCallback,
+               SkSpan<SkRuntimeEffect::ChildPtr> children)
+            : fEffect(std::move(effect))
+            , fDebugTrace(std::move(debugTrace))
+            , fUniformsCallback(std::move(uniformsCallback))
             , fChildren(children.begin(), children.end()) {}
 
     SkRuntimeEffect::TracedShader makeTracedClone(const SkIPoint& coord) {
         sk_sp<SkRuntimeEffect> unoptimized = fEffect->makeUnoptimizedClone();
         sk_sp<SkSL::SkVMDebugTrace> debugTrace = make_skvm_debug_trace(unoptimized.get(), coord);
-        auto debugShader = sk_make_sp<SkRTShader>(unoptimized, debugTrace, fUniforms,
-                                                  SkSpan(fChildren));
+        auto debugShader = sk_make_sp<SkRTShader>(
+                unoptimized, debugTrace, this->uniformData(nullptr), SkSpan(fChildren));
 
         return SkRuntimeEffect::TracedShader{std::move(debugShader), std::move(debugTrace)};
     }
@@ -1414,7 +1425,7 @@ public:
 
         sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
                 fEffect->uniforms(),
-                fUniforms,
+                this->uniformData(args.fDstColorInfo->colorSpace()),
                 args.fDstColorInfo->colorSpace());
         SkASSERT(uniforms);
 
@@ -1447,7 +1458,7 @@ public:
 
         sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
                 fEffect->uniforms(),
-                fUniforms,
+                this->uniformData(keyContext.dstColorInfo().colorSpace()),
                 keyContext.dstColorInfo().colorSpace());
         SkASSERT(uniforms);
 
@@ -1477,7 +1488,7 @@ public:
                 return false;
             }
             SkSpan<const float> uniforms = uniforms_as_span(fEffect->uniforms(),
-                                                            fUniforms,
+                                                            this->uniformData(rec.fDstCS),
                                                             rec.fDstCS,
                                                             rec.fAlloc);
             RuntimeEffectRPCallbacks callbacks(rec, *newMRec, fChildren, fEffect->fSampleUsages);
@@ -1500,9 +1511,10 @@ public:
             return {};
         }
 
-        sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
-                                                                            fUniforms,
-                                                                            colorInfo.colorSpace());
+        sk_sp<const SkData> inputs =
+                SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
+                                                       this->uniformData(colorInfo.colorSpace()),
+                                                       colorInfo.colorSpace());
         SkASSERT(inputs);
 
         // Ensure any pending transform is applied before running the runtime shader's code, which
@@ -1530,7 +1542,7 @@ public:
 
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
-        buffer.writeDataAsByteArray(fUniforms.get());
+        buffer.writeDataAsByteArray(this->uniformData(nullptr).get());
         write_child_effects(buffer, fChildren);
     }
 
@@ -1543,9 +1555,21 @@ private:
         kHasLegacyLocalMatrix_Flag = 1 << 1,
     };
 
+    sk_sp<const SkData> uniformData(const SkColorSpace* dstCS) const {
+        if (fUniformData) {
+            return fUniformData;
+        }
+
+        SkASSERT(fUniformsCallback);
+        sk_sp<const SkData> uniforms = fUniformsCallback({dstCS});
+        SkASSERT(uniforms && uniforms->size() == fEffect->uniformSize());
+        return uniforms;
+    }
+
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkSL::SkVMDebugTrace> fDebugTrace;
-    sk_sp<const SkData> fUniforms;
+    sk_sp<const SkData> fUniformData;
+    UniformsCallback fUniformsCallback;
     std::vector<SkRuntimeEffect::ChildPtr> fChildren;
 };
 
@@ -1749,6 +1773,26 @@ sk_sp<SkFlattenable> SkRuntimeBlender::CreateProc(SkReadBuffer& buffer) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(const SkRuntimeEffect* effect,
+                                                        UniformsCallback uniformsCallback,
+                                                        SkSpan<SkRuntimeEffect::ChildPtr> children,
+                                                        const SkMatrix* localMatrix) {
+    if (!effect->allowShader()) {
+        return nullptr;
+    }
+    if (!verify_child_effects(effect->fChildren, children)) {
+        return nullptr;
+    }
+    if (!uniformsCallback) {
+        return nullptr;
+    }
+    return SkLocalMatrixShader::MakeWrapped<SkRTShader>(localMatrix,
+                                                        sk_ref_sp(effect),
+                                                        /*debugTrace=*/nullptr,
+                                                        std::move(uniformsCallback),
+                                                        children);
+}
 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
                                             sk_sp<SkShader> childShaders[],
