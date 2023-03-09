@@ -1921,15 +1921,14 @@ sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingCo
                                                  bool mipmapped) {
     return this->effect()->makeImage(recordingContext,
                                      this->uniforms(),
-                                     SkSpan(this->children(), this->numChildren()),
+                                     this->children(),
                                      localMatrix,
                                      resultInfo,
                                      mipmapped);
 }
 
 sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix) {
-    return this->effect()->makeShader(
-            this->uniforms(), SkSpan(this->children(), this->numChildren()), localMatrix);
+    return this->effect()->makeShader(this->uniforms(), this->children(), localMatrix);
 }
 
 SkRuntimeBlendBuilder::SkRuntimeBlendBuilder(sk_sp<SkRuntimeEffect> effect)
@@ -1938,8 +1937,7 @@ SkRuntimeBlendBuilder::SkRuntimeBlendBuilder(sk_sp<SkRuntimeEffect> effect)
 SkRuntimeBlendBuilder::~SkRuntimeBlendBuilder() = default;
 
 sk_sp<SkBlender> SkRuntimeBlendBuilder::makeBlender() {
-    return this->effect()->makeBlender(this->uniforms(),
-                                       SkSpan(this->children(), this->numChildren()));
+    return this->effect()->makeBlender(this->uniforms(), this->children());
 }
 
 SkRuntimeColorFilterBuilder::SkRuntimeColorFilterBuilder(sk_sp<SkRuntimeEffect> effect)
@@ -1948,8 +1946,7 @@ SkRuntimeColorFilterBuilder::SkRuntimeColorFilterBuilder(sk_sp<SkRuntimeEffect> 
 SkRuntimeColorFilterBuilder::~SkRuntimeColorFilterBuilder() = default;
 
 sk_sp<SkColorFilter> SkRuntimeColorFilterBuilder::makeColorFilter() {
-    return this->effect()->makeColorFilter(this->uniforms(),
-                                           SkSpan(this->children(), this->numChildren()));
+    return this->effect()->makeColorFilter(this->uniforms(), this->children());
 }
 
 #endif  // SK_ENABLE_SKSL
