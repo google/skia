@@ -713,6 +713,10 @@ $pure half noise_function(half chanCoord,
 
     const half kInv255 = 0.003921569;   // 1.0 / 255.0
 
+    // Aggressively round to the nearest exact (N / 255) floating point values.
+    // This prevents rounding errors on some platforms (e.g., Tegras)
+    latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(kInv255);
+
     // TODO: the section of this method above this line could be pulled out and
     // shared between the four calls in perlin_noise_shader
 
