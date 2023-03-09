@@ -184,10 +184,11 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(fUsingClientInfo);
     fUTF8IndexForUTF16Index.clear();
+    fUTF16IndexForUTF8Index.clear();
 
     // This is the place where SkUnicode is paired with SkParagraph
     fUnicode = SkUnicode::MakeClientBasedUnicode(this->getText(),
-                                                 std::move(fWordsUtf8),
+                                                 std::move(fWordsUtf16),
                                                  std::move(fGraphemeBreaksUtf8),
                                                  std::move(fLineBreaksUtf8));
 #endif
@@ -210,23 +211,23 @@ void ParagraphBuilderImpl::ensureUTF16Mapping() {
         SkUnicode::extractUtfConversionMapping(
                 this->getText(),
                 [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
-                [&](size_t index) {});
+                [&](size_t index) { fUTF16IndexForUTF8Index.emplace_back(index); });
     });
 }
 
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
 void ParagraphBuilderImpl::setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) {
-    fUsingClientInfo = true;
-    fWordsUtf8 = std::move(wordsUtf8);
+    ensureUTF16Mapping();
+    std::vector<SkUnicode::Position> wordsUtf16;
+    for (SkUnicode::Position indexUtf8: wordsUtf8) {
+        wordsUtf16.emplace_back(fUTF16IndexForUTF8Index[indexUtf8]);
+    }
+    setWordsUtf16(wordsUtf16);
 }
 
 void ParagraphBuilderImpl::setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16) {
-    ensureUTF16Mapping();
-    std::vector<SkUnicode::Position> wordsUtf8;
-    for (SkUnicode::Position indexUtf16: wordsUtf16) {
-        wordsUtf8.emplace_back(fUTF8IndexForUTF16Index[indexUtf16]);
-    }
-    setWordsUtf8(wordsUtf8);
+    fUsingClientInfo = true;
+    fWordsUtf16 = std::move(wordsUtf16);
 }
 
 void ParagraphBuilderImpl::setGraphemeBreaksUtf8(std::vector<SkUnicode::Position> graphemeBreaksUtf8) {
@@ -291,7 +292,8 @@ void ParagraphBuilderImpl::Reset() {
     fPlaceholders.clear();
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     fUTF8IndexForUTF16Index.clear();
-    fWordsUtf8.clear();
+    fUTF16IndexForUTF8Index.clear();
+    fWordsUtf16.clear();
     fGraphemeBreaksUtf8.clear();
     fLineBreaksUtf8.clear();
     fTextIsFinalized = false;

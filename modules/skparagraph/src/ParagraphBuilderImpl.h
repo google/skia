@@ -108,10 +108,11 @@ private:
     SkOnce fillUTF16MappingOnce;
     void ensureUTF16Mapping();
     SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
+    SkTArray<TextIndex, true> fUTF16IndexForUTF8Index;
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     bool fTextIsFinalized;
     bool fUsingClientInfo;
-    std::vector<SkUnicode::Position> fWordsUtf8;
+    std::vector<SkUnicode::Position> fWordsUtf16;
     std::vector<SkUnicode::Position> fGraphemeBreaksUtf8;
     std::vector<SkUnicode::LineBreakBefore> fLineBreaksUtf8;
 #endif
