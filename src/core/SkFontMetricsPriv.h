@@ -4,9 +4,7 @@
 #ifndef SkFontMetricsPriv_DEFINED
 #define SkFontMetricsPriv_DEFINED
 
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkFontMetrics.h"
-#include "src/core/SkWriteBuffer.h"
 
 #include <optional>
 
