@@ -681,22 +681,17 @@ $pure half4 sk_matrix_colorfilter(half4 colorIn, float4x4 m, float4 v, int inHSL
     return colorOut;
 }
 
-// TODO: Move this to sksl_shared.sksl and try to share with Ganesh
-$pure half noise_function(half chanCoord,
-                          half2 noiseVec,
-                          half2 stitchData,
-                          int stitching,
-                          sampler2D permutationSampler,
-                          sampler2D noiseSampler) {
+// This method computes the 4 x-coodinates ([0..1]) that should be used to look
+// up in the Perlin noise shader's noise table.
+$pure half4 noise_helper(half2 noiseVec,
+                         half2 stitchData,
+                         int stitching,
+                         sampler2D permutationSampler) {
     const half kBlockSize = 256.0;
 
     half4 floorVal;
     floorVal.xy = floor(noiseVec);
     floorVal.zw = floorVal.xy + half2(1);
-    half2 fractVal = fract(noiseVec);
-
-    // smooth curve : t^2*(3 - 2*t)
-    half2 noiseSmooth = fractVal*fractVal*(half2(3) - 2*fractVal);
 
     // Adjust frequencies if we're stitching tiles
     if (bool(stitching)) {
@@ -717,47 +712,69 @@ $pure half noise_function(half chanCoord,
     // This prevents rounding errors on some platforms (e.g., Tegras)
     latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(kInv255);
 
-    // TODO: the section of this method above this line could be pulled out and
-    // shared between the four calls in perlin_noise_shader
-
     // Get (x,y) coordinates with the permuted x
-    half4 bcoords = kBlockSize*latticeIdx.xyxy + floorVal.yyww;
+    half4 noiseXCoords = kBlockSize*latticeIdx.xyxy + floorVal.yyww;
+
+    noiseXCoords /= half4(kBlockSize);
+    return noiseXCoords;
+}
+
+// TODO: Move this to sksl_shared.sksl and try to share with Ganesh
+$pure half4 noise_function(half2 noiseVec,
+                           half4 noiseXCoords,
+                           sampler2D noiseSampler) {
+
+    half2 fractVal = fract(noiseVec);
+
+    // smooth curve : t^2*(3 - 2*t)
+    half2 noiseSmooth = fractVal*fractVal*(half2(3) - 2*fractVal);
 
     // This is used to convert the two 16bit integers packed into rgba 8 bit input into
     // a [-1,1] vector
     const half kInv256 = 0.00390625;  // 1.0 / 256.0
 
-    half4 sampleA = sample(noiseSampler, half2(bcoords.x/kBlockSize, chanCoord));
-    half4 sampleB = sample(noiseSampler, half2(bcoords.y/kBlockSize, chanCoord));
-    half4 sampleC = sample(noiseSampler, half2(bcoords.w/kBlockSize, chanCoord));
-    half4 sampleD = sample(noiseSampler, half2(bcoords.z/kBlockSize, chanCoord));
+    half4 result;
 
-    half2 uv;
+    for (int channel = 0; channel < 4; channel++) {
 
-    // Compute u, at offset (0,0)
-    uv.x = dot((sampleA.ga + sampleA.rb*kInv256)*2 - half2(1), fractVal);
+        // There are 4 lines in the noise texture, put y coords at center of each.
+        half chanCoord = (half(channel) + 0.5) / 4.0;
 
-    // Compute v, at offset (-1,0)
-    fractVal.x -= 1.0;
-    uv.y = dot((sampleB.ga + sampleB.rb*kInv256)*2 - half2(1), fractVal);
+        half4 sampleA = sample(noiseSampler, half2(noiseXCoords.x, chanCoord));
+        half4 sampleB = sample(noiseSampler, half2(noiseXCoords.y, chanCoord));
+        half4 sampleC = sample(noiseSampler, half2(noiseXCoords.w, chanCoord));
+        half4 sampleD = sample(noiseSampler, half2(noiseXCoords.z, chanCoord));
 
-    // Compute 'a' as a linear interpolation of 'u' and 'v'
-    half2 ab;
-    ab.x = mix(uv.x, uv.y, noiseSmooth.x);
+        half2 uv;
+        half2 tmpFractVal = fractVal;
 
-    // Compute v, at offset (-1,-1)
-    fractVal.y -= 1.0;
-    uv.y = dot((sampleC.ga + sampleC.rb*kInv256)*2 - half2(1), fractVal);
+        // Compute u, at offset (0,0)
+        uv.x = dot((sampleA.ga + sampleA.rb*kInv256)*2 - half2(1), tmpFractVal);
 
-    // Compute u, at offset (0,-1)
-    fractVal.x += 1.0;
-    uv.x = dot((sampleD.ga + sampleD.rb*kInv256)*2 - half2(1), fractVal);
+        // Compute v, at offset (-1,0)
+        tmpFractVal.x -= 1.0;
+        uv.y = dot((sampleB.ga + sampleB.rb*kInv256)*2 - half2(1), tmpFractVal);
 
-    // Compute 'b' as a linear interpolation of 'u' and 'v'
-    ab.y = mix(uv.x, uv.y, noiseSmooth.x);
+        // Compute 'a' as a linear interpolation of 'u' and 'v'
+        half2 ab;
+        ab.x = mix(uv.x, uv.y, noiseSmooth.x);
 
-    // Compute the noise as a linear interpolation of 'a' and 'b'
-    return mix(ab.x, ab.y, noiseSmooth.y);
+        // Compute v, at offset (-1,-1)
+        tmpFractVal.y -= 1.0;
+        uv.y = dot((sampleC.ga + sampleC.rb*kInv256)*2 - half2(1), tmpFractVal);
+
+        // Compute u, at offset (0,-1)
+        tmpFractVal.x += 1.0;
+        uv.x = dot((sampleD.ga + sampleD.rb*kInv256)*2 - half2(1), tmpFractVal);
+
+        // Compute 'b' as a linear interpolation of 'u' and 'v'
+        ab.y = mix(uv.x, uv.y, noiseSmooth.x);
+
+        // Compute the noise as a linear interpolation of 'a' and 'b'
+        result[channel] =  mix(ab.x, ab.y, noiseSmooth.y);
+    }
+
+    return result;
 }
 
 // permutationSampler is [kBlockSize x 1] A8
@@ -770,12 +787,6 @@ $pure half4 perlin_noise_shader(float2 coords,
                                 int stitching,
                                 sampler2D permutationSampler,
                                 sampler2D noiseSampler) {
-    // There are 4 lines in the noise texture, put y coords at center of each.
-    const half kChanCoordR = 0.5 / 4.0;
-    const half kChanCoordG = 1.5 / 4.0;
-    const half kChanCoordB = 2.5 / 4.0;
-    const half kChanCoordA = 3.5 / 4.0;
-
     const int kFractalNoise_Type = 0;
     const int kTurbulence_Type = 1;
 
@@ -791,14 +802,9 @@ $pure half4 perlin_noise_shader(float2 coords,
 
     // Loop over all octaves
     for (int octave = 0; octave < numOctaves; ++octave) {
-        half4 tmp = half4(noise_function(kChanCoordR, noiseVec, stitchData, stitching,
-                                         permutationSampler, noiseSampler),
-                          noise_function(kChanCoordG, noiseVec, stitchData, stitching,
-                                         permutationSampler, noiseSampler),
-                          noise_function(kChanCoordB, noiseVec, stitchData, stitching,
-                                         permutationSampler, noiseSampler),
-                          noise_function(kChanCoordA, noiseVec, stitchData, stitching,
-                                         permutationSampler, noiseSampler));
+        half4 noiseXCoords = noise_helper(noiseVec, stitchData, stitching, permutationSampler);
+
+        half4 tmp = noise_function(noiseVec, noiseXCoords, noiseSampler);
 
         if (noiseType != kFractalNoise_Type) {
             // For kTurbulence_Type the result is: abs(noise[-1,1])
