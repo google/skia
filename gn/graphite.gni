@@ -204,6 +204,8 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnCommandBuffer.h",
   "$_src/dawn/DawnGraphicsPipeline.cpp",
   "$_src/dawn/DawnGraphicsPipeline.h",
+  "$_src/dawn/DawnGraphiteUtils.cpp",
+  "$_src/dawn/DawnGraphiteUtilsPriv.h",
   "$_src/dawn/DawnQueueManager.cpp",
   "$_src/dawn/DawnQueueManager.h",
   "$_src/dawn/DawnResourceProvider.cpp",
@@ -215,8 +217,6 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnTexture.cpp",
   "$_src/dawn/DawnTexture.h",
   "$_src/dawn/DawnTypesPriv.cpp",
-  "$_src/dawn/DawnUtils.cpp",
-  "$_src/dawn/DawnUtilsPriv.h",
 ]
 
 skia_graphite_mtl_sources = [

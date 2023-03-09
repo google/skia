@@ -15,7 +15,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/UniformManager.h"
-#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
 namespace {

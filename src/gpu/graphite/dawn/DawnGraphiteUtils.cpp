@@ -6,7 +6,7 @@
  */
 
 #include "include/gpu/graphite/dawn/DawnUtils.h"
-#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/Context.h"

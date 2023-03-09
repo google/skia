@@ -13,8 +13,8 @@
 #include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
-#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 
 namespace skgpu::graphite {
 namespace {
