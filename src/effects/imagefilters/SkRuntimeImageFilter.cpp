@@ -167,7 +167,7 @@ void SkRuntimeImageFilter::flatten(SkWriteBuffer& buffer) const {
     for (const SkString& name : fChildShaderNames) {
         buffer.writeString(name.c_str());
     }
-    for (size_t x = 0; x < fShaderBuilder.numChildren(); x++) {
+    for (size_t x = 0; x < fShaderBuilder.children().size(); x++) {
         buffer.writeFlattenable(fShaderBuilder.children()[x].flattenable());
     }
     fShaderBuilderLock.release();
