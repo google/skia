@@ -462,6 +462,8 @@ BASE_SRCS_ALL = [
     "src/core/SkFont.cpp",
     "src/core/SkFontDescriptor.cpp",
     "src/core/SkFontDescriptor.h",
+    "src/core/SkFontMetricsPriv.cpp",
+    "src/core/SkFontMetricsPriv.h",
     "src/core/SkFontMgr.cpp",
     "src/core/SkFontMgrPriv.h",
     "src/core/SkFontPriv.h",
