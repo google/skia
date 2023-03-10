@@ -32,7 +32,6 @@ if command -v lsb_release > /dev/null ; then
 		freeglut3-dev
 		libfontconfig-dev
 		libfreetype6-dev
-		libgif-dev
 		libgl1-mesa-dev
 		libglu1-mesa-dev
 		libharfbuzz-dev
