@@ -50,7 +50,7 @@ public:
                     bool glyphMaskNeedsCurrentColor,
                     sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
                     bool isLogging = true)
-            : INHERITED{style, false}
+            : INHERITED{style, isFixed}
             , fTypefaceID{typefaceID}
             , fGlyphCount{glyphCount}
             , fIsLogging{isLogging}
