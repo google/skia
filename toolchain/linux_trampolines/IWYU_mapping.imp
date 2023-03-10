@@ -170,6 +170,21 @@
   { symbol: ["std::size", "private", "<unordered_set>", "public"] },
   { symbol: ["std::size", "private", "<vector>", "public"] },
 
+  # std::data is available from all of these
+  { symbol: ["std::data", "private", "<iterator>", "public"] },
+  { symbol: ["std::data", "private", "<array>", "public"] },
+  { symbol: ["std::data", "private", "<deque>", "public"] },
+  { symbol: ["std::data", "private", "<forward_list>", "public"] },
+  { symbol: ["std::data", "private", "<list>", "public"] },
+  { symbol: ["std::data", "private", "<map>", "public"] },
+  { symbol: ["std::data", "private", "<regex>", "public"] },
+  { symbol: ["std::data", "private", "<set>", "public"] },
+  { symbol: ["std::data", "private", "<string>", "public"] },
+  { symbol: ["std::data", "private", "<string_view>", "public"] },
+  { symbol: ["std::data", "private", "<unordered_map>", "public"] },
+  { symbol: ["std::data", "private", "<unordered_set>", "public"] },
+  { symbol: ["std::data", "private", "<vector>", "public"] },
+
   { include: ["<__locale>", "private", "<locale>", "public"] },
 
   { include: ["<__numeric/accumulate.h>", "private", "<numeric>", "public"] },

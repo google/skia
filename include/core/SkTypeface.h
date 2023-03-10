@@ -441,7 +441,8 @@ private:
      *  typefaces that contain a COLR table.
      */
     bool glyphMaskNeedsCurrentColor() const;
-    friend class SkStrikeServerImpl; // glyphMaskNeedsCurrentColor
+    friend class SkStrikeServerImpl;  // glyphMaskNeedsCurrentColor
+    friend class SkTypefaceProxyPrototype;  // glyphMaskNeedsCurrentColor
 
     /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
     std::unique_ptr<SkAdvancedTypefaceMetrics> getAdvancedMetrics() const;

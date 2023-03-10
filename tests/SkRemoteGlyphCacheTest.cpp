@@ -38,9 +38,11 @@
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTypeface_remote.h"
+#include "src/core/SkWriteBuffer.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -57,6 +59,7 @@
 #include <cstring>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <vector>
 
 using Slug = sktext::gpu::Slug;
@@ -1123,4 +1126,32 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithPaths_Path
     }
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
+}
+
+DEF_TEST(SkTypefaceProxy_Basic_Serial, reporter) {
+    auto typeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkTypefaceProxyPrototype srcProto{*typeface};
+
+    SkBinaryWriteBuffer writeBuffer;
+    srcProto.flatten(writeBuffer);
+
+    auto data = writeBuffer.snapshotAsData();
+    SkReadBuffer readBuffer{data->data(), data->size()};
+    std::optional<SkTypefaceProxyPrototype> dstProto =
+            SkTypefaceProxyPrototype::MakeFromBuffer(readBuffer);
+    REPORTER_ASSERT(reporter, dstProto.has_value());
+    auto proxy = sk_make_sp<SkTypefaceProxy>(dstProto.value(), discardableManager, false);
+    REPORTER_ASSERT(reporter, typeface->uniqueID() == proxy->remoteTypefaceID());
+    REPORTER_ASSERT(reporter, typeface->uniqueID() != proxy->uniqueID());
+    REPORTER_ASSERT(reporter, typeface->countGlyphs() == proxy->countGlyphs());
+    REPORTER_ASSERT(reporter, typeface->fontStyle() == proxy->fontStyle());
+    REPORTER_ASSERT(reporter, typeface->isFixedPitch() == proxy->isFixedPitch());
+
+    // Must be multiple of 4 bytes or the buffer will be invalid.
+    uint8_t brokenBytes[] = {1, 2, 3, 4, 5, 6, 7, 8};
+    SkReadBuffer brokenBuffer{std::data(brokenBytes), std::size(brokenBytes)};
+    std::optional<SkTypefaceProxyPrototype> brokenProto =
+            SkTypefaceProxyPrototype::MakeFromBuffer(brokenBuffer);
+    REPORTER_ASSERT(reporter, !brokenProto.has_value());
 }

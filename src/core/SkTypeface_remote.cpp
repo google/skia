@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google Inc.
+ * Copyright 2018 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -7,10 +7,14 @@
 
 #include "include/core/SkPaint.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"
+#include "src/core/SkWriteBuffer.h"
+
+#include <optional>
 
 SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
                                            const SkScalerContextEffects& effects,
@@ -82,6 +86,72 @@ void SkScalerContextProxy::generateFontMetrics(SkFontMetrics* metrics) {
             SkStrikeClient::CacheMissType::kFontMetrics, fRec.fTextSize);
     sk_bzero(metrics, sizeof(*metrics));
 }
+
+std::optional<SkTypefaceProxyPrototype>
+SkTypefaceProxyPrototype::MakeFromBuffer(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isValid());
+    const SkTypefaceID typefaceID = buffer.readUInt();
+    const int glyphCount = buffer.readInt();
+    const int32_t styleValue = buffer.read32();
+    const bool isFixedPitch = buffer.readBool();
+    const bool glyphMaskNeedsCurrentColor = buffer.readBool();
+
+    if (buffer.isValid()) {
+        return SkTypefaceProxyPrototype{
+            typefaceID, glyphCount, styleValue, isFixedPitch, glyphMaskNeedsCurrentColor};
+    }
+
+    return std::nullopt;
+}
+
+SkTypefaceProxyPrototype::SkTypefaceProxyPrototype(const SkTypeface& typeface)
+        : fServerTypefaceID{typeface.uniqueID()}
+        , fGlyphCount{typeface.countGlyphs()}
+        , fStyleValue{typeface.fontStyle().fValue}
+        , fIsFixedPitch{typeface.isFixedPitch()}
+        , fGlyphMaskNeedsCurrentColor{typeface.glyphMaskNeedsCurrentColor()} {}
+
+SkTypefaceProxyPrototype::SkTypefaceProxyPrototype(SkTypefaceID typefaceID, int glyphCount,
+                                                   int32_t styleValue, bool isFixedPitch,
+                                                   bool glyphMaskNeedsCurrentColor)
+        : fServerTypefaceID {typefaceID}
+        , fGlyphCount{glyphCount}
+        , fStyleValue{styleValue}
+        , fIsFixedPitch{isFixedPitch}
+        , fGlyphMaskNeedsCurrentColor{glyphMaskNeedsCurrentColor} {}
+
+void SkTypefaceProxyPrototype::flatten(SkWriteBuffer& buffer) {
+    buffer.writeUInt(fServerTypefaceID);
+    buffer.writeInt(fGlyphCount);
+    buffer.write32(fStyleValue);
+    buffer.writeBool(fIsFixedPitch);
+    buffer.writeBool(fGlyphMaskNeedsCurrentColor);
+}
+
+
+SkTypefaceProxy::SkTypefaceProxy(const SkTypefaceProxyPrototype& prototype,
+                                 sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
+                                 bool isLogging)
+        : SkTypeface{prototype.style(), prototype.fIsFixedPitch}
+        , fTypefaceID{prototype.fServerTypefaceID}
+        , fGlyphCount{prototype.fGlyphCount}
+        , fIsLogging{isLogging}
+        , fGlyphMaskNeedsCurrentColor{prototype.fGlyphMaskNeedsCurrentColor}
+        , fDiscardableManager{std::move(manager)} {}
+
+SkTypefaceProxy::SkTypefaceProxy(SkTypefaceID typefaceID,
+                                 int glyphCount,
+                                 const SkFontStyle& style,
+                                 bool isFixedPitch,
+                                 bool glyphMaskNeedsCurrentColor,
+                                 sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
+                                 bool isLogging)
+        : SkTypeface{style, isFixedPitch}
+        , fTypefaceID{typefaceID}
+        , fGlyphCount{glyphCount}
+        , fIsLogging{isLogging}
+        , fGlyphMaskNeedsCurrentColor(glyphMaskNeedsCurrentColor)
+        , fDiscardableManager{std::move(manager)} {}
 
 SkTypefaceProxy* SkScalerContextProxy::getProxyTypeface() const {
     return (SkTypefaceProxy*)this->getTypeface();
