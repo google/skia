@@ -16,6 +16,7 @@
 
 #ifdef SK_DAWN
 #include "include/gpu/dawn/GrDawnTypes.h"
+#include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/ganesh/dawn/GrDawnUtil.h"
 #endif
 
@@ -242,7 +243,7 @@ uint32_t GrBackendFormat::channelMask() const {
 #endif
 #ifdef SK_DAWN
         case GrBackendApi::kDawn:
-            return GrDawnFormatChannels(fDawnFormat);
+            return skgpu::DawnFormatChannels(fDawnFormat);
 #endif
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D:

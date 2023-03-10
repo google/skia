@@ -7,6 +7,7 @@
 
 #include "src/gpu/dawn/DawnUtilsPriv.h"
 
+#include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 
 namespace skgpu {
@@ -29,6 +30,18 @@ size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format) {
         default:
             SkUNREACHABLE;
     }
+}
+
+uint32_t DawnFormatChannels(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:   return kRGBA_SkColorChannelFlags;
+        case wgpu::TextureFormat::BGRA8Unorm:   return kRGBA_SkColorChannelFlags;
+        case wgpu::TextureFormat::R8Unorm:      return kRed_SkColorChannelFlag;
+        case wgpu::TextureFormat::RGBA16Float:  return kRGBA_SkColorChannelFlags;
+
+        default:                                return 0;
+    }
+    SkUNREACHABLE;
 }
 
 } // namespace skgpu
