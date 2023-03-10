@@ -88,6 +88,9 @@ public:
                                     Shareable,
                                     GraphiteResourceKey*) const = 0;
 
+    // Returns the number of bytes for the backend format in the TextureInfo
+    virtual size_t bytesPerPixel(const TextureInfo&) const = 0;
+
     const ResourceBindingRequirements& resourceBindingRequirements() const {
         return fResourceBindingReqs;
     }

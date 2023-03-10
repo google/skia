@@ -250,7 +250,7 @@ private:
 
     MtlRenderCommandEncoder(const SharedContext* sharedContext,
                             sk_cfp<id<MTLRenderCommandEncoder>> encoder)
-            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes)
+            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0)
             , fCommandEncoder(std::move(encoder)) {
         for (int i = 0; i < kMaxExpectedBuffers; i++) {
             fCurrentVertexBuffer[i] = nil;

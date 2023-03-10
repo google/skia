@@ -1268,7 +1268,7 @@ void GrMtlCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     writer->beginObject("Preferred Stencil Format");
     writer->appendS32("stencil bits", GrMtlFormatStencilBits(fPreferredStencilFormat));
-    writer->appendS32("total bytes", GrMtlFormatBytesPerBlock(fPreferredStencilFormat));
+    writer->appendS32("total bytes", skgpu::MtlFormatBytesPerBlock(fPreferredStencilFormat));
     writer->endObject();
 
     switch (fGPUFamily) {

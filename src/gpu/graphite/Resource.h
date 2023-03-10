@@ -84,6 +84,10 @@ public:
 
     skgpu::Budgeted budgeted() const { return fBudgeted; }
 
+    // Retrieves the amount of GPU memory used by this resource in bytes. It is approximate since we
+    // aren't aware of additional padding or copies made by the driver.
+    size_t gpuMemorySize() const { return fGpuMemorySize; }
+
     // Tests whether a object has been abandoned or released. All objects will be in this state
     // after their creating Context is destroyed or abandoned.
     //
@@ -103,7 +107,7 @@ public:
     }
 
 protected:
-    Resource(const SharedContext*, Ownership, skgpu::Budgeted);
+    Resource(const SharedContext*, Ownership, skgpu::Budgeted, size_t gpuMemorySize);
     virtual ~Resource();
 
     const SharedContext* sharedContext() const { return fSharedContext; }
@@ -242,6 +246,9 @@ private:
     mutable int fReturnIndex = -1;
 
     Ownership fOwnership;
+
+    static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
+    mutable size_t fGpuMemorySize = kInvalidGpuMemorySize;
 
     // All resource created internally by Graphite and held in the ResourceCache as a shared
     // shared resource or available scratch resource are considered budgeted. Resources that back
