@@ -14,6 +14,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSLProgramKind.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
@@ -425,7 +426,7 @@ bool GrDawnGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
         return false;
     }
 
-    size_t bpp = GrDawnBytesPerBlock(info.fFormat);
+    size_t bpp = skgpu::DawnFormatBytesPerBlock(info.fFormat);
     size_t baseLayerSize = bpp * backendTexture.width() * backendTexture.height();
     SkAutoMalloc defaultStorage(baseLayerSize);
     GrImageInfo imageInfo(colorType, kUnpremul_SkAlphaType, nullptr, backendTexture.dimensions());
