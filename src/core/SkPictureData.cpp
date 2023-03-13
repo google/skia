@@ -7,23 +7,27 @@
 
 #include "src/core/SkPictureData.h"
 
-#include "include/core/SkImageGenerator.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkPictureRecord.h"
+#include "src/core/SkPtrRecorder.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/core/SkWriteBuffer.h"
 
-#include <new>
-
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
+#include <cstring>
+#include <utility>
 
 using namespace skia_private;
 

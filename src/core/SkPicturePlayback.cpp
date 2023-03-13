@@ -4,26 +4,48 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkPicturePlayback.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRSXform.h"
-#include "include/core/SkTextBlob.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTDArray.h"
-#include "include/private/chromium/Slug.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDrawShadowInfo.h"
-#include "src/core/SkFontPriv.h"
-#include "src/core/SkPaintPriv.h"
 #include "src/core/SkPictureData.h"
 #include "src/core/SkPictureFlat.h"
-#include "src/core/SkPicturePlayback.h"
-#include "src/core/SkPictureRecord.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkPatchUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/private/chromium/Slug.h"
+#endif
+
+class SkDrawable;
+class SkPath;
+class SkTextBlob;
+class SkVertices;
 
 using namespace skia_private;
 

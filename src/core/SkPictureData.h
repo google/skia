@@ -9,24 +9,36 @@
 #define SkPictureData_DEFINED
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkPictureFlat.h"
+#include "src/core/SkReadBuffer.h"
 
+#if defined(SK_GANESH)
+#include "include/private/chromium/Slug.h"
+#endif
+
+#include <cstdint>
 #include <memory>
 
-class SkData;
+class SkFactorySet;
 class SkPictureRecord;
-struct SkSerialProcs;
+class SkRefCntSet;
 class SkStream;
 class SkWStream;
-class SkBBoxHierarchy;
-class SkMatrix;
-class SkPaint;
-class SkPath;
-class SkReadBuffer;
-class SkTextBlob;
+class SkWriteBuffer;
+struct SkDeserialProcs;
+struct SkSerialProcs;
 
 struct SkPictInfo {
     SkPictInfo() : fVersion(~0U) {}
