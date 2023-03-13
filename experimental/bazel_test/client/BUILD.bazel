@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "generate_cpp_files_for_headers")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers")
 
 package(features = ["layering_check"])
 

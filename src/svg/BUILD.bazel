@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:flags.bzl", "bool_flag")
 
 licenses(["notice"])
 

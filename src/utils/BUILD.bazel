@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:flags.bzl", "selects")
 
 licenses(["notice"])
 
