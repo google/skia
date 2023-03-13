@@ -9,13 +9,49 @@
 #define SkRecorder_DEFINED
 
 #include "include/core/SkCanvasVirtualEnforcer.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkBigPicture.h"
-#include "src/core/SkRecord.h"
-#include "src/core/SkRecords.h"
 
-class SkBBHFactory;
+#include <cstddef>
+#include <memory>
+#include <utility>
+
+class SkBlender;
+class SkData;
+class SkDrawable;
+class SkImage;
+class SkMatrix;
+class SkMesh;
+class SkPaint;
+class SkPath;
+class SkPicture;
+class SkRRect;
+class SkRecord;
+class SkRegion;
+class SkShader;
+class SkSurface;
+class SkSurfaceProps;
+class SkTextBlob;
+class SkVertices;
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkDrawShadowRec;
+struct SkImageInfo;
+struct SkPoint;
+struct SkRSXform;
+struct SkRect;
+
+namespace sktext {
+    class GlyphRunList;
+    namespace gpu { class Slug; }
+}
 
 class SkDrawableList : SkNoncopyable {
 public:
