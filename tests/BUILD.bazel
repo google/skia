@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "bool_flag", "selects", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//bazel:flags.bzl", "bool_flag", "selects")
 load(":tests.bzl", "skia_cpu_tests", "skia_ganesh_tests")
 
 CODEC_TESTS = [

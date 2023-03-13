@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
 ## Tests in sksl_minify_tests_sources will be compiled with sksl-minify, and are expected to
 ## generate a .minified.sksl file.

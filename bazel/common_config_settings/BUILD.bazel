@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "bool_flag", "selects", "string_flag_with_values")
+load("//bazel:flags.bzl", "bool_flag", "selects", "string_flag_with_values")
 
 licenses(["notice"])
 

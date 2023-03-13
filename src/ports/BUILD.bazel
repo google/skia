@@ -1,12 +1,12 @@
 load(
-    "//bazel:macros.bzl",
+    "//bazel:skia_rules.bzl",
     "exports_files_legacy",
     "select_multi",
-    "selects",
     "skia_cc_deps",
     "skia_cc_library",
     "skia_filegroup",
 )
+load("//bazel:flags.bzl", "selects")
 
 licenses(["notice"])
 
