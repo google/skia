@@ -359,7 +359,7 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 if (helper.init(uploaderRaw->data().getMaskBounds())) {
                     helper.drawShape(uploaderRaw->data().getShape(),
                                      *uploaderRaw->data().getViewMatrix(),
-                                     SkRegion::kReplace_Op, uploaderRaw->data().getAA(), 0xFF);
+                                     uploaderRaw->data().getAA(), 0xFF);
                 } else {
                     SkDEBUGFAIL("Unable to allocate SW mask.");
                 }
@@ -372,7 +372,7 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             if (!helper.init(*boundsForMask)) {
                 return false;
             }
-            helper.drawShape(*args.fShape, *args.fViewMatrix, SkRegion::kReplace_Op, aa, 0xFF);
+            helper.drawShape(*args.fShape, *args.fViewMatrix, aa, 0xFF);
             view = helper.toTextureView(args.fContext, fit);
         }
 

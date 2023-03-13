@@ -301,9 +301,9 @@ void draw_to_sw_mask(GrSWMaskHelper* helper,
         // the inverse fill type.
         GrShape inverted(e.fShape);
         inverted.setInverted(true);
-        helper->drawShape(inverted, e.fLocalToDevice, SkRegion::kReplace_Op, e.fAA, alpha);
+        helper->drawShape(inverted, e.fLocalToDevice, e.fAA, alpha);
     } else {
-        helper->drawShape(e.fShape, e.fLocalToDevice, SkRegion::kReplace_Op, e.fAA, alpha);
+        helper->drawShape(e.fShape, e.fLocalToDevice, e.fAA, alpha);
     }
 }
 
