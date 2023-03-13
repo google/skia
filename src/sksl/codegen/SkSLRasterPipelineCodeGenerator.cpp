@@ -542,6 +542,9 @@ public:
      */
     virtual AutoStack* dynamicSlotRange() = 0;
 
+    /** Returns the swizzle components of the lvalue, or an empty span for non-swizzle LValues. */
+    virtual SkSpan<const int8_t> swizzle() { return {}; }
+
     /** Pushes values directly onto the stack. */
     [[nodiscard]] virtual bool push(Generator* gen,
                                     SlotRange fixedOffset,
@@ -710,6 +713,10 @@ public:
         return fParent->dynamicSlotRange();
     }
 
+    SkSpan<const int8_t> swizzle() override {
+        return fComponents;
+    }
+
     [[nodiscard]] bool push(Generator* gen,
                             SlotRange fixedOffset,
                             AutoStack* dynamicOffset,
@@ -826,6 +833,11 @@ public:
         SkASSERT(!fGenerator);
         fGenerator = gen;
         fDedicatedStack.emplace(fGenerator);
+
+        // TODO: add support for dynamically indexing into a swizzle
+        if (!fParent->swizzle().empty()) {
+            return unsupported();
+        }
 
         // Push the index expression onto the dedicated stack.
         fDedicatedStack->enter();
