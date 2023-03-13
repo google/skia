@@ -79,18 +79,21 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
     SkASSERT(fYUVAProxies.isValid());
 }
 
-// For onMakeColorSpace()
+// For onMakeColorTypeAndColorSpace() / onReinterpretColorSpace()
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  const SkImage_GpuYUVA* image,
-                                 sk_sp<SkColorSpace> targetCS)
+                                 sk_sp<SkColorSpace> targetCS,
+                                 ColorSpaceMode csMode)
         : INHERITED(std::move(context),
                     image->imageInfo().makeColorSpace(std::move(targetCS)),
                     kNeedNewImageUniqueID)
         , fYUVAProxies(image->fYUVAProxies)
-        // Since null fFromColorSpace means no GrColorSpaceXform, we turn a null
-        // image->refColorSpace() into an explicit SRGB.
-        , fFromColorSpace(image->colorSpace() ? image->refColorSpace() : SkColorSpace::MakeSRGB()) {
-}
+        // If we're *reinterpreting* in a new color space, leave fFromColorSpace null.
+        // If we're *converting* to a new color space, it must be non-null, so turn null into sRGB.
+        , fFromColorSpace(csMode == ColorSpaceMode::kReinterpret
+                                  ? nullptr
+                                  : (image->colorSpace() ? image->refColorSpace()
+                                                         : SkColorSpace::MakeSRGB())) {}
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     if (!context || !fContext->priv().matches(context)) {
@@ -166,7 +169,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(SkColorType,
         SkColorSpace::Equals(targetCS.get(), fOnMakeColorSpaceTarget.get())) {
         return fOnMakeColorSpaceResult;
     }
-    sk_sp<SkImage> result = sk_sp<SkImage>(new SkImage_GpuYUVA(sk_ref_sp(direct), this, targetCS));
+    sk_sp<SkImage> result = sk_sp<SkImage>(
+            new SkImage_GpuYUVA(sk_ref_sp(direct), this, targetCS, ColorSpaceMode::kConvert));
     if (result) {
         fOnMakeColorSpaceTarget = targetCS;
         fOnMakeColorSpaceResult = result;
@@ -175,7 +179,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(SkColorType,
 }
 
 sk_sp<SkImage> SkImage_GpuYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
-    return sk_sp<SkImage>(new SkImage_GpuYUVA(fContext, this, std::move(newCS)));
+    return sk_sp<SkImage>(
+            new SkImage_GpuYUVA(fContext, this, std::move(newCS), ColorSpaceMode::kReinterpret));
 }
 
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(

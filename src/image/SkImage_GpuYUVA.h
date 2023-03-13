@@ -67,7 +67,14 @@ public:
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
 
 private:
-    SkImage_GpuYUVA(sk_sp<GrImageContext>, const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
+    enum class ColorSpaceMode {
+        kConvert,
+        kReinterpret,
+    };
+    SkImage_GpuYUVA(sk_sp<GrImageContext>,
+                    const SkImage_GpuYUVA* image,
+                    sk_sp<SkColorSpace> targetCS,
+                    ColorSpaceMode csMode);
 
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          skgpu::Mipmapped,
