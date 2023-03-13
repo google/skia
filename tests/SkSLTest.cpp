@@ -698,6 +698,7 @@ SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleBoolConstants,            "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(RP + GPU_ES3,      kNever,      SwizzleByIndex,                  "shared/SwizzleByIndex.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleConstants,                "shared/SwizzleConstants.sksl")
+SKSL_TEST(VM + GPU,          kNextRelease,SwizzleIndexLookup,              "shared/SwizzleIndexLookup.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleLTRB,                     "shared/SwizzleLTRB.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleOpt,                      "shared/SwizzleOpt.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleScalar,                   "shared/SwizzleScalar.sksl")
