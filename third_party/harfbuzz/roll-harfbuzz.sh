@@ -23,6 +23,12 @@ rolldeps() {
   git add DEPS
 }
 
+rollbazel() {
+  STEP="roll-bazel" &&
+  sed -i'' -e "s!commit = \"${HB_PREVIOUS_REV}\",!commit = \"${HB_NEXT_REV}\",!" bazel/deps.bzl &&
+  git add bazel/deps.bzl
+}
+
 check_all_files_are_categorized() {
   #for each file name in ${HB_GIT_DIR}/src/hb-*.{cc,h,hh}
   #  if the file name is not present in BUILD.gn
@@ -87,6 +93,7 @@ Disable: treat-URL-as-trailer"
 previousrev &&
 nextrev &&
 rolldeps "$@" &&
+rollbazel &&
 check_all_files_are_categorized &&
 commit &&
 true || { echo "Failed step ${STEP}"; exit 1; }
