@@ -156,7 +156,9 @@ public:
 
 #endif
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
-    virtual bool isYUVA() const { return false; }
+    bool isYUVA() const {
+        return this->type() == Type::kGaneshYUVA || this->type() == Type::kGraphiteYUVA;
+    }
 #endif
 
     virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
@@ -174,14 +176,31 @@ public:
 
     virtual bool onAsLegacyBitmap(GrDirectContext*, SkBitmap*) const;
 
+    enum class Type {
+        kUnknown,
+        kRaster,
+        kRasterPinnable,
+        kLazy,
+        kGanesh,
+        kGaneshYUVA,
+        kGraphite,
+        kGraphiteYUVA,
+    };
+
+    virtual Type type() const { return Type::kUnknown; }
+
     // True for picture-backed and codec-backed
-    virtual bool onIsLazyGenerated() const { return false; }
+    bool onIsLazyGenerated() const { return this->type() == Type::kLazy; }
 
     // True for images instantiated by Ganesh in GPU memory
-    virtual bool isGaneshBacked() const { return false; }
+    bool isGaneshBacked() const {
+        return this->type() == Type::kGanesh || this->type() == Type::kGaneshYUVA;
+    }
 
     // True for images instantiated by Graphite in GPU memory
-    virtual bool isGraphiteBacked() const { return false; }
+    bool isGraphiteBacked() const {
+        return this->type() == Type::kGraphite || this->type() == Type::kGraphiteYUVA;
+    }
 
     // Amount of texture memory used by texture-backed images.
     virtual size_t onTextureSize() const { return 0; }

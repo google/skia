@@ -85,7 +85,7 @@ public:
                                                 RequiredImageProperties) const override;
 #endif
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
-    bool onIsLazyGenerated() const override { return true; }
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kLazy; }
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const override;
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;

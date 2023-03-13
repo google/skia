@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "SkAndroidFrameworkUtils.h",
         "SkAnimatedImage.h",
+        "SkImageAndroid.h",
     ],
     visibility = ["//include:__pkg__"],
 )

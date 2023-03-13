@@ -92,7 +92,7 @@ SkImage_Raster::SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable)
 }
 
 SkImage_Raster::~SkImage_Raster() {
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
     SkASSERT(!fPinnedView);  // want the caller to have manually unpinned
 #endif
 }
@@ -117,7 +117,7 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
     return true;
 }
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
 bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
@@ -445,6 +445,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         GrRecordingContext* rContext,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
+#if !defined(SK_DISABLE_LEGACY_PIN_APIS)
     if (fPinnedView) {
         // We ignore the mipmap request here. If the pinned view isn't mipmapped then we will
         // fallback to bilinear. The pin API is used by Android Framework which does not expose
@@ -461,6 +462,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         }
         return {fPinnedView, fPinnedColorType};
     }
+#endif
     if (policy == GrImageTexGenPolicy::kDraw) {
         // If the draw doesn't require mipmaps but this SkImage has them go ahead and make a
         // mipmapped texture. There are three reasons for this:

@@ -96,6 +96,7 @@ skia_gpu_public = [
 #  //src/gpu/ganesh/tessellate:tessellate_srcs
 #  //src/gpu/ganesh/text:private_hdrs
 #  //src/gpu/ganesh/text:srcs
+#  //src/image:android_srcs
 #  //src/image:gpu_hdrs
 #  //src/image:gpu_srcs
 #  //src/gpu/ganesh/ops:ops_hdrs
@@ -225,6 +226,7 @@ skia_gpu_private = [
   "$_src/gpu/ganesh/GrPaint.h",
   "$_src/gpu/ganesh/GrPersistentCacheUtils.cpp",
   "$_src/gpu/ganesh/GrPersistentCacheUtils.h",
+  "$_src/gpu/ganesh/GrPinnableImage.cpp",
   "$_src/gpu/ganesh/GrPipeline.cpp",
   "$_src/gpu/ganesh/GrPipeline.h",
   "$_src/gpu/ganesh/GrPixmap.h",
@@ -533,6 +535,7 @@ skia_gpu_private = [
   "$_src/gpu/ganesh/tessellate/VertexChunkPatchAllocator.h",
   "$_src/gpu/ganesh/text/GrAtlasManager.cpp",
   "$_src/gpu/ganesh/text/GrAtlasManager.h",
+  "$_src/image/SkImage_AndroidFactories.cpp",
   "$_src/image/SkImage_Gpu.cpp",
   "$_src/image/SkImage_Gpu.h",
   "$_src/image/SkImage_GpuBase.cpp",

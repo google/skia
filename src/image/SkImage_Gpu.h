@@ -15,6 +15,7 @@
 #include "include/private/base/SkThreadAnnotations.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
 
 #include <cstddef>
@@ -74,7 +75,7 @@ public:
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
 
-    bool isGaneshBacked() const override { return true; }
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGanesh; }
 
     size_t onTextureSize() const override;
 

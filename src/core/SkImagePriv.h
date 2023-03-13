@@ -59,6 +59,7 @@ extern SK_SPI sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopy
 // in which case the surface may need to perform a copy-on-write.
 extern const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* rasterImage);
 
+#if !defined(SK_DISABLE_LEGACY_PIN_APIS)
 /**
  *  Will attempt to upload and lock the contents of the image as a texture, so that subsequent
  *  draws to a gpu-target will come from that texture (and not by looking at the original image
@@ -84,5 +85,7 @@ bool SkImage_pinAsTexture(const SkImage*, GrRecordingContext*);
  *  The context passed to unpin must match the one passed to pin.
  */
 void SkImage_unpinAsTexture(const SkImage*, GrRecordingContext*);
+#endif // !SK_DISABLE_LEGACY_PIN_APIS
+
 
 #endif

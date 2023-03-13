@@ -32,8 +32,6 @@ public:
                       int srcY,
                       CachingHint) const override { return false; }
 
-    bool isGraphiteBacked() const override { return true; }
-
     bool getROPixels(GrDirectContext*,
                      SkBitmap*,
                      CachingHint = kAllow_CachingHint) const override { return false; }

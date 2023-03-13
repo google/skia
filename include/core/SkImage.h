@@ -568,44 +568,6 @@ public:
 
 #endif // defined(SK_GANESH)
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-    /** (See Skia bug 7447)
-        Creates SkImage from Android hardware buffer.
-        Returned SkImage takes a reference on the buffer.
-
-        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
-
-        @param hardwareBuffer  AHardwareBuffer Android hardware buffer
-        @param colorSpace      range of colors; may be nullptr
-        @return                created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromAHardwareBuffer(
-            AHardwareBuffer* hardwareBuffer,
-            SkAlphaType alphaType = kPremul_SkAlphaType);
-    static sk_sp<SkImage> MakeFromAHardwareBuffer(
-            AHardwareBuffer* hardwareBuffer,
-            SkAlphaType alphaType,
-            sk_sp<SkColorSpace> colorSpace,
-            GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
-
-    /** Creates SkImage from Android hardware buffer and uploads the data from the SkPixmap to it.
-        Returned SkImage takes a reference on the buffer.
-
-        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
-
-        @param context         GPU context
-        @param pixmap          SkPixmap that contains data to be uploaded to the AHardwareBuffer
-        @param hardwareBuffer  AHardwareBuffer Android hardware buffer
-        @param surfaceOrigin   surface origin for resulting image
-        @return                created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromAHardwareBufferWithData(
-            GrDirectContext* context,
-            const SkPixmap& pixmap,
-            AHardwareBuffer* hardwareBuffer,
-            GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
-#endif
-
     /** Returns a SkImageInfo describing the width, height, color type, alpha type, and color space
         of the SkImage.
 
@@ -1553,6 +1515,48 @@ private:
     sk_sp<SkImage> withMipmaps(sk_sp<SkMipmap>) const;
 
     using INHERITED = SkRefCnt;
+
+public:
+#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES)
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+    /** (See Skia bug 7447)
+        Creates SkImage from Android hardware buffer.
+        Returned SkImage takes a reference on the buffer.
+
+        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+
+        @param hardwareBuffer  AHardwareBuffer Android hardware buffer
+        @param colorSpace      range of colors; may be nullptr
+        @return                created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromAHardwareBuffer(
+            AHardwareBuffer* hardwareBuffer,
+            SkAlphaType alphaType = kPremul_SkAlphaType);
+    static sk_sp<SkImage> MakeFromAHardwareBuffer(
+            AHardwareBuffer* hardwareBuffer,
+            SkAlphaType alphaType,
+            sk_sp<SkColorSpace> colorSpace,
+            GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
+
+    /** Creates SkImage from Android hardware buffer and uploads the data from the SkPixmap to it.
+        Returned SkImage takes a reference on the buffer.
+
+        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+
+        @param context         GPU context
+        @param pixmap          SkPixmap that contains data to be uploaded to the AHardwareBuffer
+        @param hardwareBuffer  AHardwareBuffer Android hardware buffer
+        @param surfaceOrigin   surface origin for resulting image
+        @return                created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromAHardwareBufferWithData(
+            GrDirectContext* context,
+            const SkPixmap& pixmap,
+            AHardwareBuffer* hardwareBuffer,
+            GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
+#endif // SK_BUILD_FOR_ANDROID && __ANDROID_API__ >= 26
+
+#endif // !SK_DISABLE_LEGACY_IMAGE_FACTORIES
 };
 
 #endif

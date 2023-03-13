@@ -244,6 +244,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/tessellate:tessellate_srcs",
 				"//src/gpu/ganesh/text:private_hdrs",
 				"//src/gpu/ganesh/text:srcs",
+				"//src/image:android_srcs",
 				"//src/image:gpu_hdrs",
 				"//src/image:gpu_srcs",
 				"//src/gpu/ganesh/ops:ops_hdrs",

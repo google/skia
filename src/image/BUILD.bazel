@@ -43,6 +43,11 @@ split_srcs_and_hdrs(
     files = GPU_FILES,
 )
 
+skia_filegroup(
+    name = "android_srcs",
+    srcs = ["SkImage_AndroidFactories.cpp"],
+)
+
 # Not referenced by Bazel target.
 # File group use to export to //gn/gpu.gni:skia_metal_sources.
 skia_filegroup(

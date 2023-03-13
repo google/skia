@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
+#include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
 
 #include <cstddef>
@@ -53,7 +54,7 @@ public:
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) const override;
 
-    bool isGaneshBacked() const override { return true; }
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGaneshYUVA; }
 
     size_t onTextureSize() const override;
 
@@ -62,9 +63,6 @@ public:
                                                 GrDirectContext*) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
-
-public:
-    bool isYUVA() const override { return true; }
 
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
 

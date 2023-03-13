@@ -94,7 +94,9 @@ public:
         fBitmap.pixelRef()->notifyAddedToCache();
     }
 
-#if defined(SK_GANESH)
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kRaster; }
+
+#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
     bool onPinAsTexture(GrRecordingContext*) const override;
     void onUnpinAsTexture(GrRecordingContext*) const override;
     bool isPinnedOnContext(GrRecordingContext*) const override;
@@ -121,6 +123,9 @@ public:
         return img;
     }
 
+protected:
+    SkBitmap fBitmap;
+
 private:
 #if defined(SK_GANESH)
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
@@ -143,9 +148,7 @@ private:
                                                 RequiredImageProperties) const override;
 #endif
 
-    SkBitmap fBitmap;
-
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
     mutable GrSurfaceProxyView fPinnedView;
     mutable int32_t fPinnedCount = 0;
     mutable uint32_t fPinnedUniqueID = SK_InvalidUniqueID;

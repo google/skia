@@ -129,6 +129,7 @@ CORE_FILES = [
     "GrPaint.h",
     "GrPersistentCacheUtils.cpp",
     "GrPersistentCacheUtils.h",
+    "GrPinnableImage.cpp",
     "GrPipeline.cpp",
     "GrPipeline.h",
     "GrPixmap.h",

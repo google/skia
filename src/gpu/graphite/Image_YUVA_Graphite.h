@@ -23,7 +23,7 @@ public:
 
     ~Image_YUVA() override {}
 
-    bool isYUVA() const override { return true; }
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphiteYUVA; }
 
     bool onHasMipmaps() const override {
         // TODO: Add mipmap support
