@@ -7,6 +7,20 @@
 
 #include "src/gpu/ganesh/dawn/GrDawnUtil.h"
 
+size_t GrDawnBytesPerBlock(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:
+        case wgpu::TextureFormat::BGRA8Unorm:
+            return 4;
+        case wgpu::TextureFormat::R8Unorm:
+            return 1;
+        case wgpu::TextureFormat::Depth24PlusStencil8:
+            return 4;
+        default:
+            SkUNREACHABLE;
+    }
+}
+
 int GrDawnFormatStencilBits(wgpu::TextureFormat format) {
     switch (format) {
         case wgpu::TextureFormat::RGBA8Unorm:

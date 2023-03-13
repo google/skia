@@ -27,7 +27,6 @@
 #endif
 
 #ifdef SK_DAWN
-#include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/ganesh/dawn/GrDawnUtil.h"
 #endif
 
@@ -139,7 +138,7 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
 #ifdef SK_DAWN
             wgpu::TextureFormat dawnFormat;
             SkAssertResult(format.asDawnFormat(&dawnFormat));
-            return skgpu::DawnFormatBytesPerBlock(dawnFormat);
+            return GrDawnBytesPerBlock(dawnFormat);
 #else
             break;
 #endif

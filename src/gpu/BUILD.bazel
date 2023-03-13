@@ -100,12 +100,10 @@ skia_filegroup(
         ":shared_srcs",
         "//src/gpu/ganesh:srcs",
         "//src/gpu/tessellate:srcs",
-    ] + select_multi(
-        {
-            "//src/gpu:dawn_backend": ["//src/gpu/dawn:srcs"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/vk:srcs"],
-        }
-    ),
+    ] + select({
+        "//src/gpu:vulkan_backend": ["//src/gpu/vk:srcs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//src:__pkg__"],
 )
 
@@ -116,12 +114,10 @@ skia_filegroup(
         ":shared_hdrs",
         "//src/gpu/ganesh:private_hdrs",
         "//src/gpu/tessellate:private_hdrs",
-    ] + select_multi(
-        {
-            "//src/gpu:dawn_backend": ["//src/gpu/dawn:private_hdrs"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
-        }
-    ),
+    ] + select({
+        "//src/gpu:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//src:__pkg__"],
 )
 
