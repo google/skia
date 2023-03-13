@@ -57,7 +57,7 @@ public:
 
 private:
     TestResource(const SharedContext* sharedContext, Ownership owned, skgpu::Budgeted budgeted)
-            : Resource(sharedContext, owned, budgeted, /*gpuMemorySize=*/0) {}
+            : Resource(sharedContext, owned, budgeted) {}
 
     void freeGpuData() override {}
 };

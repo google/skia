@@ -116,7 +116,7 @@ public:
 private:
     MtlBlitCommandEncoder(const SharedContext* sharedContext,
                           sk_cfp<id<MTLBlitCommandEncoder>> encoder)
-            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0)
+            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes)
             , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {
