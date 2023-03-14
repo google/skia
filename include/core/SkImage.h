@@ -70,6 +70,7 @@ class BackendTexture;
 class Recorder;
 class TextureInfo;
 enum class Volatile : bool;
+class YUVABackendTextures;
 }
 #endif
 
@@ -1215,6 +1216,24 @@ public:
                                                      GraphitePromiseImageReleaseProc,
                                                      GraphitePromiseTextureReleaseProc,
                                                      GraphitePromiseImageContext);
+
+    /** Creates an SkImage from YUV[A] planar textures associated with the recorder.
+
+         @param recorder            The recorder.
+         @param yuvaBackendTextures A set of textures containing YUVA data and a description of the
+                                    data and transformation to RGBA.
+         @param imageColorSpace     range of colors of the resulting image after conversion to RGB;
+                                    may be nullptr
+         @param TextureReleaseProc  called when the backend textures can be released
+         @param ReleaseContext      state passed to TextureReleaseProc
+         @return                    created SkImage, or nullptr
+     */
+    static sk_sp<SkImage> MakeGraphiteFromYUVABackendTextures(
+            skgpu::graphite::Recorder* recorder,
+            const skgpu::graphite::YUVABackendTextures& yuvaBackendTextures,
+            sk_sp<SkColorSpace> imageColorSpace,
+            TextureReleaseProc = nullptr,
+            ReleaseContext = nullptr);
 
     struct RequiredImageProperties {
         skgpu::Mipmapped fMipmapped;

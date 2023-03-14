@@ -368,7 +368,7 @@ bool LazyYUVImage::ensureYUVImage(skgpu::graphite::Recorder* recorder, Type type
             break;
         }
         case Type::kFromTextures:
-            // TODO: implement this and MakeGraphiteFromYUVATextures()
+            // TODO: implement this
             return false;
     }
     return fYUVImage[idx] != nullptr;

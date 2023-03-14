@@ -13,9 +13,15 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/YUVABackendTextures.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
 
 namespace {
@@ -47,6 +53,39 @@ Image_YUVA::Image_YUVA(uint32_t uniqueID,
 using namespace skgpu::graphite;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkImage::MakeGraphiteFromYUVABackendTextures(Recorder* recorder,
+                                                            const YUVABackendTextures& yuvaTextures,
+                                                            sk_sp<SkColorSpace> imageColorSpace,
+                                                            TextureReleaseProc releaseP,
+                                                            ReleaseContext releaseC) {
+    auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
+    if (!recorder) {
+        return nullptr;
+    }
+
+    int numPlanes = yuvaTextures.yuvaInfo().numPlanes();
+    TextureProxyView textureProxyViews[SkYUVAInfo::kMaxPlanes];
+    for (int plane = 0; plane < numPlanes; ++plane) {
+        sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(
+                                         yuvaTextures.planeTexture(plane));
+        if (!texture) {
+            SKGPU_LOG_W("Texture creation failed");
+            return nullptr;
+        }
+        texture->setReleaseCallback(releaseHelper);
+
+        sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
+        textureProxyViews[plane] = TextureProxyView(std::move(proxy));
+    }
+    YUVATextureProxies yuvaProxies(recorder,
+                                   yuvaTextures.yuvaInfo(),
+                                   textureProxyViews);
+    SkASSERT(yuvaProxies.isValid());
+    return sk_make_sp<Image_YUVA>(kNeedNewImageUniqueID,
+                                  std::move(yuvaProxies),
+                                  std::move(imageColorSpace));
+}
 
 sk_sp<SkImage> SkImage::MakeGraphiteFromYUVAPixmaps(Recorder* recorder,
                                                     const SkYUVAPixmaps& pixmaps,
