@@ -37,13 +37,13 @@ public:
         if (!matrixProvider) {
             matrixProvider = draw.fMatrixProvider;
         }
-        fBlitter = SkBlitter::Choose(draw.fDst,
-                                     matrixProvider->localToDevice(),
-                                     paint,
-                                     &fAlloc,
-                                     drawCoverage,
-                                     draw.fRC->clipShader(),
-                                     SkSurfacePropsCopyOrDefault(draw.fProps));
+        fBlitter = draw.fBlitterChooser(draw.fDst,
+                                        matrixProvider->localToDevice(),
+                                        paint,
+                                        &fAlloc,
+                                        drawCoverage,
+                                        draw.fRC->clipShader(),
+                                        SkSurfacePropsCopyOrDefault(draw.fProps));
         return fBlitter;
     }
 

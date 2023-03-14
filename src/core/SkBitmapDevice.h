@@ -138,6 +138,7 @@ protected:
 private:
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkDrawBase;
     friend class SkDrawTiler;
     friend class SkSurface_Raster;
 

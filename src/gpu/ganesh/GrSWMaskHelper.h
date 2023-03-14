@@ -13,7 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkDraw.h"
+#include "src/core/SkDrawBase.h"
 #include "src/core/SkRasterClip.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
@@ -71,7 +71,7 @@ private:
     SkVector             fTranslate;
     SkAutoPixmapStorage* fPixels;
     SkAutoPixmapStorage  fPixelsStorage;
-    SkDraw               fDraw;
+    SkDrawBase           fDraw;
     SkRasterClip         fRasterClip;
 
     using INHERITED = SkNoncopyable;

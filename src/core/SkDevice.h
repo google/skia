@@ -465,6 +465,7 @@ private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkDrawBase;
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 

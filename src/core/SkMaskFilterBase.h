@@ -224,6 +224,7 @@ protected:
 
 private:
     friend class SkDraw;
+    friend class SkDrawBase;
 
     /** Helper method that, given a path in device space, will rasterize it into a kA8_Format mask
      and then call filterMask(). If this returns true, the specified blitter will be called
