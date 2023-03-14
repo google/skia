@@ -10,13 +10,17 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "modules/skunicode/include/SkUnicode.h"
 #include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
+
+#ifdef SK_UNICODE_AVAILABLE
+#include "modules/skunicode/include/SkUnicode.h"
+#endif
 
 #include <algorithm>
 #include <limits.h>
