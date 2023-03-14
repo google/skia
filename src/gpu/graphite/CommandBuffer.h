@@ -41,6 +41,7 @@ class TextureProxy;
 
 class CommandBuffer {
 public:
+    using DrawPassList = SkTArray<std::unique_ptr<DrawPass>>;
     using DispatchGroupList = SkTArray<std::unique_ptr<DispatchGroup>>;
 
     virtual ~CommandBuffer();
@@ -64,7 +65,7 @@ public:
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
                        SkRect viewport,
-                       const std::vector<std::unique_ptr<DrawPass>>& drawPasses);
+                       const DrawPassList& drawPasses);
 
     bool addComputePass(const DispatchGroupList& dispatchGroups);
 
@@ -118,7 +119,7 @@ private:
                                  const Texture* resolveTexture,
                                  const Texture* depthStencilTexture,
                                  SkRect viewport,
-                                 const std::vector<std::unique_ptr<DrawPass>>& drawPasses) = 0;
+                                 const DrawPassList& drawPasses) = 0;
 
     virtual bool onAddComputePass(const DispatchGroupList& dispatchGroups) = 0;
 

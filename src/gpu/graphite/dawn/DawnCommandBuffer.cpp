@@ -89,7 +89,7 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                         const Texture* resolveTexture,
                                         const Texture* depthStencilTexture,
                                         SkRect viewport,
-                                        const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+                                        const DrawPassList& drawPasses) {
     // Update viewport's constant buffer before starting a render pass.
     this->preprocessViewport(viewport);
 
@@ -99,8 +99,8 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
 
     this->setViewport(viewport);
 
-    for (size_t i = 0; i < drawPasses.size(); ++i) {
-        this->addDrawPass(drawPasses[i].get());
+    for (const auto& drawPass : drawPasses) {
+        this->addDrawPass(drawPass.get());
     }
 
     this->endRenderPass();

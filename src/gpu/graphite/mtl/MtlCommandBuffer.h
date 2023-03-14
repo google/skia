@@ -78,7 +78,7 @@ private:
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
                          SkRect viewport,
-                         const std::vector<std::unique_ptr<DrawPass>>& drawPasses) override;
+                         const DrawPassList&) override;
     bool onAddComputePass(const DispatchGroupList&) override;
 
     // Methods for populating a MTLRenderCommandEncoder:

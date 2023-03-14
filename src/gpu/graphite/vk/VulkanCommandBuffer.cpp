@@ -238,13 +238,12 @@ void VulkanCommandBuffer::waitUntilFinished() {
                                                                     /*timeout=*/UINT64_MAX));
 }
 
-bool VulkanCommandBuffer::onAddRenderPass(
-        const RenderPassDesc&,
-        const Texture* colorTexture,
-        const Texture* resolveTexture,
-        const Texture* depthStencilTexture,
-        SkRect viewport,
-        const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc&,
+                                          const Texture* colorTexture,
+                                          const Texture* resolveTexture,
+                                          const Texture* depthStencilTexture,
+                                          SkRect viewport,
+                                          const DrawPassList& drawPasses) {
     return false;
 }
 

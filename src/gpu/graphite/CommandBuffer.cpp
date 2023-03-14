@@ -59,7 +59,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   sk_sp<Texture> resolveTexture,
                                   sk_sp<Texture> depthStencilTexture,
                                   SkRect viewport,
-                                  const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+                                  const DrawPassList& drawPasses) {
     fRenderPassSize = colorTexture->dimensions();
     if (!this->onAddRenderPass(renderPassDesc,
                                colorTexture.get(),

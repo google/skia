@@ -108,15 +108,15 @@ bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                        const Texture* resolveTexture,
                                        const Texture* depthStencilTexture,
                                        SkRect viewport,
-                                       const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+                                       const DrawPassList& drawPasses) {
     if (!this->beginRenderPass(renderPassDesc, colorTexture, resolveTexture, depthStencilTexture)) {
         return false;
     }
 
     this->setViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height(), 0, 1);
 
-    for (size_t i = 0; i < drawPasses.size(); ++i) {
-        this->addDrawPass(drawPasses[i].get());
+    for (const auto& drawPass : drawPasses) {
+        this->addDrawPass(drawPass.get());
     }
 
     this->endRenderPass();

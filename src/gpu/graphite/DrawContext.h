@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkTArray.h"
 
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/DrawList.h"
@@ -148,7 +149,7 @@ private:
     // TODO: It will be easier to debug/understand the DrawPass structure of a context if
     // consecutive DrawPasses to the same target are stored in a DrawPassChain. A DrawContext with
     // multiple DrawPassChains is then clearly accumulating subpasses across multiple targets.
-    std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
+    SkTArray<std::unique_ptr<DrawPass>> fDrawPasses;
 
     // Stores the most immediately recorded uploads into Textures. This list is mutable and
     // can be appended to, or have its commands rewritten if they are inlined into a parent DC.
