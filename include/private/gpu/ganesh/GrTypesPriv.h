@@ -17,6 +17,9 @@
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTypeTraits.h"
 
+// TODO(kjlubick) Remove this after fixing Chrome.
+#include "include/core/SkImage.h"
+
 #include <chrono>
 #include <functional>
 
