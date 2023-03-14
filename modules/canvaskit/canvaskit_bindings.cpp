@@ -112,7 +112,7 @@
 #endif
 
 #ifndef CK_NO_FONTS
-sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(sk_sp<SkData>* datas, int n);
+#include "include/ports/SkFontMgr_data.h"
 #endif
 
 struct OptionalMatrix : SkMatrix {
@@ -1446,7 +1446,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 skdatas[i] = SkData::MakeFromMalloc(datas[i], sizes[i]);
             }
 
-            return SkFontMgr_New_Custom_Data(skdatas.get(), numFonts);
+            return SkFontMgr_New_Custom_Data(SkSpan(skdatas.get(), numFonts));
         }), allow_raw_pointers())
         .function("countFamilies", &SkFontMgr::countFamilies)
         .function("getFamilyName", optional_override([](SkFontMgr& self, int index)->JSString {
