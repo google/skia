@@ -1540,6 +1540,26 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
 }
 
 void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
+    // Metal does not seem to handle assignment into `vec.zyx[i]` properly--it compiles, but the
+    // results are wrong. We rewrite the expression as `vec[uint3(2,1,0)[i]]` instead. (Filed with
+    // Apple as FB12055941.)
+    if (expr.base()->is<Swizzle>()) {
+        const Swizzle& swizzle = expr.base()->as<Swizzle>();
+        if (swizzle.components().size() > 1) {
+            this->writeExpression(*swizzle.base(), Precedence::kPostfix);
+            this->write("[uint" + std::to_string(swizzle.components().size()) + "(");
+            auto separator = SkSL::String::Separator();
+            for (int8_t component : swizzle.components()) {
+                this->write(separator());
+                this->write(std::to_string(component));
+            }
+            this->write(")[");
+            this->writeExpression(*expr.index(), Precedence::kTopLevel);
+            this->write("]]");
+            return;
+        }
+    }
+
     this->writeExpression(*expr.base(), Precedence::kPostfix);
     this->write("[");
     this->writeExpression(*expr.index(), Precedence::kTopLevel);

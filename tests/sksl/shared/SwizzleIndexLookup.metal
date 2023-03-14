@@ -17,7 +17,7 @@ bool test3x3_b(Uniforms _uniforms) {
     for (int c = 0;c < 3; ++c) {
         float3 vec = _uniforms.testMatrix3x3[c];
         for (int r = 0;r < 3; ++r) {
-            if (vec.zyx[r] != expected[r]) {
+            if (vec[uint3(2, 1, 0)[r]] != expected[r]) {
                 return false;
             }
         }
@@ -30,7 +30,7 @@ bool test4x4_b(Uniforms _uniforms) {
     for (int c = 0;c < 4; ++c) {
         float4 vec = _uniforms.testMatrix4x4[c];
         for (int r = 0;r < 4; ++r) {
-            if (vec.wzyx[r] != expected[r]) {
+            if (vec[uint4(3, 2, 1, 0)[r]] != expected[r]) {
                 return false;
             }
         }

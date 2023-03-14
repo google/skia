@@ -2248,6 +2248,36 @@ SkTArray<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Outpu
     switch (expr.kind()) {
         case Expression::Kind::kIndex: {
             const IndexExpression& indexExpr = expr.as<IndexExpression>();
+            if (indexExpr.base()->is<Swizzle>()) {
+                // We rewrite dynamically-indexed swizzles here. Specifically, given a swizzle such
+                // as `myVec.zyx[i]`, we create a scratch vector of uints which matches the swizzle
+                // pattern--in this case, uvec3(2, 1, 0). Then, we rewrite the expression as
+                // `myVec[uvec3(2, 1, 0)[i]]`. This matches glslang's behavior.
+                const Swizzle& swizzle = indexExpr.base()->as<Swizzle>();
+
+                // Convert the swizzle component array to a constant uvec.
+                ExpressionArray uvecArray;
+                uvecArray.reserve(swizzle.components().size());
+                for (int8_t component : swizzle.components()) {
+                    uvecArray.push_back(Literal::Make(expr.fPosition, component,
+                                                      fContext.fTypes.fUInt.get()));
+                }
+                const Type& uvecType = fContext.fTypes.fUInt->toCompound(fContext,
+                                                                         uvecArray.size(),
+                                                                         /*rows=*/1);
+                std::unique_ptr<Expression> uvec = ConstructorCompound::Make(
+                        fContext, expr.fPosition, uvecType, std::move(uvecArray));
+
+                // Create a temporary expression corresponding to `uvec[originalIndex]`.
+                std::unique_ptr<Expression> tempExpr = IndexExpression::Make(
+                        fContext, Position{}, std::move(uvec), indexExpr.index()->clone());
+
+                // Evaluate the temporary expression and index into the access chain.
+                SkTArray<SpvId> chain = this->getAccessChain(*swizzle.base(), out);
+                chain.push_back(this->writeExpression(*tempExpr, out));
+                return chain;
+            }
+            // All other index-expressions can be represented as typical access chains.
             SkTArray<SpvId> chain = this->getAccessChain(*indexExpr.base(), out);
             chain.push_back(this->writeExpression(*indexExpr.index(), out));
             return chain;
