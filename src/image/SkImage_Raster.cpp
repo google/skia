@@ -36,19 +36,15 @@
 #include <utility>
 
 class GrDirectContext;
-class GrFragmentProcessor;
 class SkMatrix;
 enum class SkTextureCompressionType;
 enum class SkTileMode;
 
 #if defined(SK_GANESH)
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/SkBackingFit.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h" // IWYU pragma: keep
+#include "src/gpu/ganesh/GrSurfaceProxyView.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/SkGr.h"
 #endif
 
@@ -92,11 +88,7 @@ SkImage_Raster::SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable)
     SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
 }
 
-SkImage_Raster::~SkImage_Raster() {
-#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
-    SkASSERT(!fPinnedView);  // want the caller to have manually unpinned
-#endif
-}
+SkImage_Raster::~SkImage_Raster() {}
 
 bool SkImage_Raster::onReadPixels(GrDirectContext*,
                                   const SkImageInfo& dstInfo,
@@ -117,57 +109,6 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
     *dst = fBitmap;
     return true;
 }
-
-#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
-bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
-    if (fPinnedView) {
-        SkASSERT(fPinnedCount > 0);
-        SkASSERT(fPinnedUniqueID != 0);
-        if (rContext->priv().contextID() != fPinnedContextID) {
-            return false;
-        }
-    } else {
-        SkASSERT(fPinnedCount == 0);
-        SkASSERT(fPinnedUniqueID == 0);
-        std::tie(fPinnedView, fPinnedColorType) =
-                GrMakeCachedBitmapProxyView(rContext,
-                                            fBitmap,
-                                            /*label=*/"SkImageRaster_PinAsTexture",
-                                            GrMipmapped::kNo);
-        if (!fPinnedView) {
-            fPinnedColorType = GrColorType::kUnknown;
-            return false;
-        }
-        fPinnedUniqueID = fBitmap.getGenerationID();
-        fPinnedContextID = rContext->priv().contextID();
-    }
-    // Note: we only increment if the texture was successfully pinned
-    ++fPinnedCount;
-    return true;
-}
-
-void SkImage_Raster::onUnpinAsTexture(GrRecordingContext* rContext) const {
-    // Note: we always decrement, even if fPinnedTexture is null
-    SkASSERT(fPinnedCount > 0);
-    SkASSERT(fPinnedUniqueID != 0);
-#if 0 // This would be better but Android currently calls with an already freed context ptr.
-    if (rContext->priv().contextID() != fPinnedContextID) {
-        return;
-    }
-#endif
-
-    if (0 == --fPinnedCount) {
-        fPinnedView = GrSurfaceProxyView();
-        fPinnedUniqueID = SK_InvalidUniqueID;
-        fPinnedContextID = SK_InvalidUniqueID;
-        fPinnedColorType = GrColorType::kUnknown;
-    }
-}
-
-bool SkImage_Raster::isPinnedOnContext(GrRecordingContext* rContext) const {
-    return fPinnedContextID == rContext->priv().contextID();
-}
-#endif
 
 static SkBitmap copy_bitmap_subset(const SkBitmap& orig, const SkIRect& subset) {
     SkImageInfo info = orig.info().makeDimensions(subset.size());
@@ -446,24 +387,6 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         GrRecordingContext* rContext,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
-#if !defined(SK_DISABLE_LEGACY_PIN_APIS)
-    if (fPinnedView) {
-        // We ignore the mipmap request here. If the pinned view isn't mipmapped then we will
-        // fallback to bilinear. The pin API is used by Android Framework which does not expose
-        // mipmapping . Moreover, we're moving towards requiring that images be made with mip levels
-        // if mipmapping is desired (skbug.com/10411)
-        mipmapped = GrMipmapped::kNo;
-        if (policy != GrImageTexGenPolicy::kDraw) {
-            return {CopyView(rContext,
-                             fPinnedView,
-                             mipmapped,
-                             policy,
-                             /*label=*/"TextureForImageRasterWithPolicyNotEqualKDraw"),
-                    fPinnedColorType};
-        }
-        return {fPinnedView, fPinnedColorType};
-    }
-#endif
     if (policy == GrImageTexGenPolicy::kDraw) {
         // If the draw doesn't require mipmaps but this SkImage has them go ahead and make a
         // mipmapped texture. There are three reasons for this:

@@ -28,11 +28,13 @@
 class GrDirectContext;
 class GrFragmentProcessor;
 class GrRecordingContext;
+class GrSurfaceProxyView;
 class SkColorSpace;
 class SkData;
 class SkMatrix;
 class SkPixmap;
 enum SkColorType : int;
+enum class GrColorType;
 enum class GrImageTexGenPolicy : int;
 enum class SkTileMode;
 struct SkIRect;
@@ -41,8 +43,6 @@ struct SkRect;
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
 
 #if defined(SK_GRAPHITE)
@@ -96,12 +96,6 @@ public:
 
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kRaster; }
 
-#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
-    bool onPinAsTexture(GrRecordingContext*) const override;
-    void onUnpinAsTexture(GrRecordingContext*) const override;
-    bool isPinnedOnContext(GrRecordingContext*) const override;
-#endif
-
     bool onHasMipmaps() const override { return SkToBool(fBitmap.fMips); }
 
     SkMipmap* onPeekMips() const override { return fBitmap.fMips.get(); }
@@ -148,13 +142,6 @@ private:
                                                 RequiredImageProperties) const override;
 #endif
 
-#if defined(SK_GANESH) && !defined(SK_DISABLE_LEGACY_PIN_APIS)
-    mutable GrSurfaceProxyView fPinnedView;
-    mutable int32_t fPinnedCount = 0;
-    mutable uint32_t fPinnedUniqueID = SK_InvalidUniqueID;
-    mutable uint32_t fPinnedContextID = SK_InvalidUniqueID;
-    mutable GrColorType fPinnedColorType = GrColorType::kUnknown;
-#endif
 };
 
 #endif // SkImage_Raster_DEFINED

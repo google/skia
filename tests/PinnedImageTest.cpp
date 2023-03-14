@@ -20,7 +20,6 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/mock/GrMockTypes.h"
-#include "src/core/SkImagePriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/FenceSync.h"
@@ -48,102 +47,6 @@ static bool surface_is_expected_color(SkSurface* surf, const SkImageInfo& ii, Sk
 
     return true;
 }
-
-#if !defined(SK_DISABLE_LEGACY_PIN_APIS)
-static void legacy_basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
-    skiatest::ReporterContext subtest(reporter, "legacy_basic_test");
-    const SkImageInfo ii = SkImageInfo::Make(64, 64, kN32_SkColorType, kPremul_SkAlphaType);
-
-    SkBitmap bm;
-    bm.allocPixels(ii);
-
-    SkCanvas bmCanvas(bm);
-    bmCanvas.clear(SK_ColorRED);
-
-    // We start off with the raster image being all red.
-    sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bm, kNever_SkCopyPixelsMode);
-
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, ii);
-    SkCanvas* canvas = gpuSurface->getCanvas();
-
-    // w/o pinning - the gpu draw always reflects the current state of the underlying bitmap
-    {
-        canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorRED));
-
-        bmCanvas.clear(SK_ColorGREEN);
-
-        canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
-    }
-
-    // w/ pinning - the gpu draw is stuck at the pinned state
-    {
-        SkImage_pinAsTexture(img.get(), rContext); // pin at blue
-
-        canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
-
-        bmCanvas.clear(SK_ColorBLUE);
-
-        canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
-
-        SkImage_unpinAsTexture(img.get(), rContext);
-    }
-
-    // once unpinned local changes will be picked up
-    {
-        canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorBLUE));
-    }
-}
-
-// Deleting the context while there are still pinned images shouldn't result in a crash.
-static void legacy_cleanup_test(skiatest::Reporter* reporter) {
-    skiatest::ReporterContext subtest(reporter, "legacy_cleanup_test");
-    const SkImageInfo ii = SkImageInfo::Make(64, 64, kN32_SkColorType, kPremul_SkAlphaType);
-
-    SkBitmap bm;
-    bm.allocPixels(ii);
-
-    SkCanvas bmCanvas(bm);
-    bmCanvas.clear(SK_ColorRED);
-
-    GrMockOptions options;
-    sk_sp<GrDirectContext> mockContext = GrDirectContext::MakeMock(&options);
-
-    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
-        GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
-
-        {
-            sk_sp<SkImage> img;
-            GrDirectContext* dContext = nullptr;
-
-            {
-                GrContextFactory testFactory;
-                ContextInfo info = testFactory.getContextInfo(ctxType);
-                dContext = info.directContext();
-                if (!dContext) {
-                    continue;
-                }
-
-                img = SkMakeImageFromRasterBitmap(bm, kNever_SkCopyPixelsMode);
-                if (!SkImage_pinAsTexture(img.get(), dContext)) {
-                    continue;
-                }
-                // Pinning on a second context should be blocked.
-                REPORTER_ASSERT(reporter, !SkImage_pinAsTexture(img.get(), mockContext.get()));
-            }
-
-            // The context used to pin the image is gone at this point!
-            // "context" isn't technically used in this call but it can't be null!
-            // We don't really want to support this use case but it currently happens.
-            SkImage_unpinAsTexture(img.get(), dContext);
-        }
-    }
-}
-#endif // !SK_DISABLE_LEGACY_PIN_APIS
 
 static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
     skiatest::ReporterContext subtest(reporter, "basic_test");
@@ -241,16 +144,6 @@ static void cleanup_test(skiatest::Reporter* reporter) {
         }
     }
 }
-
-#if !defined(SK_DISABLE_LEGACY_PIN_APIS)
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest_Legacy,
-                                       reporter,
-                                       ctxInfo,
-                                       CtsEnforcement::kApiLevel_T) {
-    legacy_basic_test(reporter, ctxInfo.directContext());
-    legacy_cleanup_test(reporter);
-}
-#endif
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest,
                                        reporter,
