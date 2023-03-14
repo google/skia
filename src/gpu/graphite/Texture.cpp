@@ -29,6 +29,14 @@ void Texture::setReleaseCallback(sk_sp<RefCntedCallback> releaseCallback) {
     fReleaseCallback = std::move(releaseCallback);
 }
 
+void Texture::invokeReleaseProc() {
+    if (fReleaseCallback) {
+        // Depending on the ref count of fReleaseCallback this may or may not actually trigger
+        // the ReleaseProc to be called.
+        fReleaseCallback.reset();
+    }
+}
+
 MutableTextureStateRef* Texture::mutableState() const { return fMutableState.get(); }
 
 } // namespace skgpu::graphite

@@ -43,6 +43,8 @@ protected:
 
     MutableTextureStateRef* mutableState() const;
 
+    void invokeReleaseProc() override;
+
 private:
     SkISize fDimensions;
     TextureInfo fInfo;

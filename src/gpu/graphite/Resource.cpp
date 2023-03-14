@@ -60,6 +60,7 @@ bool Resource::notifyARefIsZero(LastRemovedRef removedRef) const {
 
 void Resource::internalDispose() {
     SkASSERT(fSharedContext);
+    this->invokeReleaseProc();
     this->freeGpuData();
     fSharedContext = nullptr;
     // TODO: If we ever support freeing all the backend objects without deleting the object, we'll

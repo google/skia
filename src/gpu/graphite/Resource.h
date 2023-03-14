@@ -111,6 +111,9 @@ protected:
     // Overridden to free GPU resources in the backend API.
     virtual void freeGpuData() = 0;
 
+    // Overridden to call any release callbacks, if necessary
+    virtual void invokeReleaseProc() {}
+
 #ifdef SK_DEBUG
     bool debugHasCommandBufferRef() const {
         return hasCommandBufferRef();
