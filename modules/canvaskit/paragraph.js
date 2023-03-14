@@ -278,6 +278,8 @@
       CanvasKit._free(textStyle['_shadowBlurRadiiPtr']);
       CanvasKit._free(textStyle['_fontFeatureNamesPtr']);
       CanvasKit._free(textStyle['_fontFeatureValuesPtr']);
+      CanvasKit._free(textStyle['_fontVariationAxesPtr']);
+      CanvasKit._free(textStyle['_fontVariationValuesPtr']);
     }
 
     CanvasKit.ParagraphBuilder.Make = function(paragraphStyle, fontManager) {
