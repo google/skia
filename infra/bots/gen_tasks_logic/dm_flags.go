@@ -1218,6 +1218,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.matchOs("Mac") && b.extraConfig("ANGLE") {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU")  // https://anglebug.com/7525
+		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // Apple bug FB12055941
+	}
+
+	if b.matchOs("Mac") && b.gpu("Intel") && !b.extraConfig("Metal") {
+		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // skia:14177
+	}
+
+	if b.matchOs("Win10") && b.gpu("IntelIris655") {
+		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // skia:14177
 	}
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
