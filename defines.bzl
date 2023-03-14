@@ -3,7 +3,7 @@ This file contains defines used by all builds of Skia.
 """
 
 load("//bazel:extra_defines.bzl", "EXTRA_DEFINES")
-load("//bazel:macros.bzl", "select_multi")
+load("//bazel:skia_rules.bzl", "select_multi")
 
 GENERAL_DEFINES = [
     "SK_GAMMA_APPLY_TO_A8",
