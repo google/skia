@@ -12,7 +12,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/core/SkMessageBus.h"
 
-#if !SK_SUPPORT_GPU
+#if !defined(SK_GANESH_ENABLED)
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&) {}
 
 SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {}

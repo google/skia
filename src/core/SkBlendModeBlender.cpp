@@ -9,7 +9,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #endif
@@ -92,7 +92,7 @@ void SkBlendModeBlender::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt((int)fMode);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor> SkBlendModeBlender::asFragmentProcessor(
         std::unique_ptr<GrFragmentProcessor> srcFP,
         std::unique_ptr<GrFragmentProcessor> dstFP,

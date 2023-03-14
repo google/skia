@@ -16,7 +16,7 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/image/SkSurface_Gpu.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/mtl/GrMtlTextureRenderTarget.h"

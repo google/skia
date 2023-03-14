@@ -20,7 +20,7 @@
 
 class SkExecutor;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 struct SK_API GrContextOptions {
     enum class Enable {
         /** Forces an option to be disabled. */

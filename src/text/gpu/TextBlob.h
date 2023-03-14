@@ -31,7 +31,7 @@ class GlyphRunList;
     }
 }
 
-#if SK_SUPPORT_GPU  // Ganesh support
+#if defined(SK_GANESH_ENABLED)  // Ganesh support
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 class GrAtlasManager;
@@ -119,7 +119,7 @@ public:
     const Key& key() const;
     size_t size() const { return SkTo<size_t>(fSize); }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void draw(SkCanvas*,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,

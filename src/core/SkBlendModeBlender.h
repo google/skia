@@ -16,7 +16,7 @@ public:
 
     std::optional<SkBlendMode> asBlendMode() const final { return fMode; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             std::unique_ptr<GrFragmentProcessor> srcFP,
             std::unique_ptr<GrFragmentProcessor> dstFP,

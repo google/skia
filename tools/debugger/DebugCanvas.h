@@ -251,7 +251,7 @@ private:
      */
     void addDrawCommand(DrawCommand* command);
 
-#if SK_GPU_V1
+#if defined(SK_GANESH_ENABLED)
     GrAuditTrail* getAuditTrail(SkCanvas*);
     void drawAndCollectOps(SkCanvas*);
     void cleanupAuditTrail(GrAuditTrail*);

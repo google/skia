@@ -25,7 +25,7 @@ public:
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -146,7 +146,7 @@ skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms
 
 /////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"

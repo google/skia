@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSurface.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
@@ -17,9 +19,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -38,14 +38,10 @@ class GrBackendSemaphore;
 class GrRecordingContext;
 class SkPaint;
 class SkSurfaceCharacterization;
-enum GrSurfaceOrigin : int;
-enum class GrSemaphoresSubmitted : bool;
 namespace skgpu { class MutableTextureState; }
 namespace skgpu { namespace graphite { class Recorder; } }
-struct GrFlushInfo;
-struct SkSamplingOptions;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrBackendSurface.h"
 #endif
 
@@ -73,7 +69,7 @@ SkSurface_Base::~SkSurface_Base() {
     if (fCachedCanvas) {
         fCachedCanvas->setSurfaceBase(nullptr);
     }
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (fCachedImage) {
         as_IB(fCachedImage.get())->generatingSurfaceIsDeleted();
     }
@@ -88,7 +84,7 @@ skgpu::graphite::Recorder* SkSurface_Base::onGetRecorder() {
     return nullptr;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 GrBackendTexture SkSurface_Base::onGetBackendTexture(BackendHandleAccess) {
     return GrBackendTexture(); // invalid
 }
@@ -403,7 +399,7 @@ bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yO
     return asSB(this)->onDraw(std::move(ddl), { xOffset, yOffset });
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
     return asSB(this)->onGetBackendTexture(access);
 }

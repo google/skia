@@ -10,7 +10,7 @@
 
 #include "src/image/SkImage_Base.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
 
@@ -68,7 +68,7 @@ protected:
 
 private:
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(
             GrRecordingContext*,
             SkSamplingOptions,

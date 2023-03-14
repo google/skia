@@ -35,7 +35,7 @@
 #include <tuple>
 #include <unordered_map>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/text/gpu/SDFTControl.h"
@@ -638,7 +638,7 @@ sk_sp<RemoteStrike> SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& str
 }
 
 // -- GlyphTrackingDevice --------------------------------------------------------------------------
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 class GlyphTrackingDevice final : public SkNoPixelsDevice {
 public:
     GlyphTrackingDevice(
@@ -731,7 +731,7 @@ private:
     SkStrikeServerImpl* const fStrikeServerImpl;
     const sktext::gpu::SDFTControl fSDFTControl;
 };
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 // -- SkStrikeServer -------------------------------------------------------------------------------
 SkStrikeServer::SkStrikeServer(DiscardableHandleManager* dhm)
@@ -744,7 +744,7 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
                                                              sk_sp<SkColorSpace> colorSpace,
                                                              bool DFTSupport,
                                                              bool DFTPerspSupport) {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrContextOptions ctxOptions;
 #if !defined(SK_DISABLE_SDF_TEXT)
     auto control = sktext::gpu::SDFTControl{DFTSupport,
@@ -1086,8 +1086,8 @@ bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
     return fImpl->translateTypefaceID(descriptor);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 sk_sp<sktext::gpu::Slug> SkStrikeClient::deserializeSlug(const void* data, size_t size) const {
     return sktext::gpu::Slug::Deserialize(data, size, this);
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)

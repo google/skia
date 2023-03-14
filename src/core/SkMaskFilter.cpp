@@ -29,7 +29,7 @@
 #include <cstdint>
 #include <memory>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
@@ -41,7 +41,7 @@ enum class GrColorType;
 struct GrFPArgs;
 namespace skgpu { namespace v1 { class SurfaceDrawContext; } }
 #endif
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)
 #include "src/text/gpu/SDFMaskFilter.h"
 #endif
 
@@ -330,7 +330,7 @@ SkMaskFilterBase::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
     return kUnimplemented_FilterReturn;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor>
 SkMaskFilterBase::asFragmentProcessor(const GrFPArgs& args, const SkMatrix& ctm) const {
     auto fp = this->onAsFragmentProcessor(args, MatrixRec(ctm));
@@ -397,7 +397,7 @@ SkRect SkMaskFilter::approximateFilteredBounds(const SkRect& src) const {
 
 void SkMaskFilter::RegisterFlattenables() {
     sk_register_blur_maskfilter_createproc();
-#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)) && !defined(SK_DISABLE_SDF_TEXT)
+#if (defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED)) && !defined(SK_DISABLE_SDF_TEXT)
     sktext::gpu::register_sdf_maskfilter_createproc();
 #endif
 }

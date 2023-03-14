@@ -11,7 +11,7 @@
 #include "include/core/SkRect.h"
 #include "src/base/SkMathPriv.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -21,7 +21,6 @@
 #include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
-#if SK_GPU_V1
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
@@ -524,11 +523,9 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> two_pass_gaussian(
                              colorSpace,
                              fit);
 }
-#endif  // SK_GPU_V1
 
 namespace SkGpuBlurUtils {
 
-#if SK_GPU_V1
 std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(GrRecordingContext* rContext,
                                                             GrSurfaceProxyView srcView,
                                                             GrColorType srcColorType,
@@ -822,7 +819,6 @@ std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(GrRecordingContext* 
                     std::move(colorSpace),
                     fit);
 }
-#endif  // SK_GPU_V1
 
 bool ComputeBlurredRRectParams(const SkRRect& srcRRect,
                                const SkRRect& devRRect,
@@ -1036,4 +1032,4 @@ void Compute1DLinearGaussianKernel(float* kernel, float* offset, float sigma, in
 
 }  // namespace SkGpuBlurUtils
 
-#endif
+#endif  // defined(SK_GANESH_ENABLED)

@@ -15,7 +15,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkColorFilterShader.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
@@ -94,7 +94,7 @@ skvm::Color SkColorFilterShader::program(skvm::Builder* p,
     return fFilter->program(p,c, dst, uniforms,alloc);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 /////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor>

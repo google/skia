@@ -39,12 +39,12 @@ mkdir -p $BUILD_DIR
 # we get a fresh build.
 rm -f $BUILD_DIR/*.a
 
-ENABLE_GPU="true"
+ENABLE_GANESH="true"
 ENABLE_WEBGL="false"
 ENABLE_WEBGPU="false"
 if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
-  ENABLE_GPU="false"
+  ENABLE_GANESH="false"
 elif [[ $@ == *webgpu* ]]; then
   echo "Using WebGPU instead of WebGL"
   ENABLE_WEBGPU="true"
@@ -227,7 +227,8 @@ echo "Compiling"
   skia_use_vulkan=false \
   skia_use_wuffs=true \
   skia_use_zlib=true \
-  skia_enable_gpu=${ENABLE_GPU} \
+  skia_enable_ganesh=${ENABLE_GANESH} \
+  skia_enable_gpu=${ENABLE_GANESH} \
   skia_build_for_debugger=${DEBUGGER_ENABLED} \
   skia_enable_sksl_tracing=${ENABLE_SKSL_TRACE} \
   \

@@ -42,7 +42,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         canvas->clear(0xFFFFFFFF);
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
         auto direct = GrAsDirectContext(canvas->recordingContext());
         if (direct) {
             // One-time context-specific setup.

@@ -28,14 +28,14 @@
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
-#if SK_SUPPORT_GPU  // Ganesh Support
+#if defined(SK_GANESH_ENABLED)  // Ganesh Support
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/Device.h"
@@ -172,7 +172,7 @@ public:
         return SkMatrix::I();
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     size_t vertexStride(const SkMatrix& matrix) const {
         if (fMaskType != MaskFormat::kARGB) {
             // For formats MaskFormat::kA565 and MaskFormat::kA8 where A8 include SDF.
@@ -191,7 +191,7 @@ public:
                         void* vertexBuffer) const;
 
     AtlasTextOp::MaskType opMaskType() const;
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
     void fillVertexData(DrawWriter* dw,
@@ -218,7 +218,7 @@ private:
         uint16_t v;
     };
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     // Normal text mask, SDFT, or color.
     struct Mask2DVertex {
         SkPoint devicePos;
@@ -256,7 +256,7 @@ private:
     void fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                 GrColor color,
                 const SkMatrix& viewDifference) const;
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
     const MaskFormat fMaskType;
     const SkMatrix fCreationMatrix;
@@ -300,7 +300,7 @@ int TransformedMaskVertexFiller::unflattenSize() const {
     return fLeftTop.size_bytes();
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
                                                  SkSpan<const Glyph*> glyphs,
                                                  GrColor color,
@@ -390,7 +390,7 @@ AtlasTextOp::MaskType TransformedMaskVertexFiller::opMaskType() const {
     }
     SkUNREACHABLE;
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
 void TransformedMaskVertexFiller::fillVertexData(DrawWriter* dw,
@@ -467,7 +467,7 @@ struct AtlasPt {
     uint16_t v;
 };
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 // Normal text mask, SDFT, or color.
 struct Mask2DVertex {
     SkPoint devicePos;
@@ -526,7 +526,7 @@ SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
     SkMatrix position_matrix = drawMatrix;
     return position_matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 // Check for integer translate with the same 2x2 matrix.
 // Returns the translation, and true if the change from initial matrix to the position matrix
@@ -780,7 +780,7 @@ public:
                     accepted, isAntiAliased, strikeToSourceScale, std::move(strikePromise), alloc));
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void draw(SkCanvas* canvas,
               const GrClip*,
               const SkMatrixProvider&,
@@ -790,7 +790,7 @@ public:
               skgpu::v1::SurfaceDrawContext*) const override {
         fPathDrawing.submitDraws(canvas, drawOrigin, paint);
     }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 #if defined(SK_GRAPHITE_ENABLED)
     void draw(SkCanvas* canvas,
               SkPoint drawOrigin,
@@ -1011,7 +1011,7 @@ public:
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void draw(SkCanvas* canvas,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -1021,7 +1021,7 @@ public:
               skgpu::v1::SurfaceDrawContext* sdc) const override {
         fDrawingDrawing.submitDraws(canvas, drawOrigin, paint);
     }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 #if defined(SK_GRAPHITE_ENABLED)
     void draw(SkCanvas* canvas,
               SkPoint drawOrigin,
@@ -1071,7 +1071,7 @@ const AtlasSubRun* DrawableSubRun::testingOnly_atlasSubRun() const {
     return nullptr;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 enum ClipMethod {
     kClippedOut,
     kUnclipped,
@@ -1179,7 +1179,7 @@ void direct_2D(SkZip<Mask2DVertex[4],
         quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
     }
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 // -- DirectMaskSubRun -------------------------------------------------------------------------
 class DirectMaskSubRun final : public SubRun, public AtlasSubRun {
@@ -1201,7 +1201,7 @@ public:
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client);
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void draw(SkCanvas*,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -1209,7 +1209,7 @@ public:
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunOwner,
               skgpu::v1::SurfaceDrawContext* sdc) const override;
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #ifdef SK_GRAPHITE_ENABLED
     void draw(SkCanvas*,
@@ -1226,7 +1226,7 @@ public:
 
     void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     size_t vertexStride(const SkMatrix& drawMatrix) const override;
 
     std::tuple<const GrClip*, GrOp::Owner>
@@ -1244,7 +1244,7 @@ public:
                         GrColor color,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
                         SkIRect clip) const override;
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
     std::tuple<bool, int>
@@ -1366,7 +1366,7 @@ int DirectMaskSubRun::glyphCount() const {
     return SkCount(fGlyphs.glyphs());
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 size_t DirectMaskSubRun::vertexStride(const SkMatrix& positionMatrix) const {
     if (!positionMatrix.hasPerspective()) {
         if (fMaskFormat != MaskFormat::kARGB) {
@@ -1464,7 +1464,7 @@ std::tuple<const GrClip*, GrOp::Owner> DirectMaskSubRun::makeAtlasTextOp(
                                              std::move(grPaint));
     return {clip, std::move(op)};
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #ifdef SK_GRAPHITE_ENABLED
 void DirectMaskSubRun::draw(SkCanvas*,
@@ -1480,7 +1480,7 @@ void DirectMaskSubRun::testingOnly_packedGlyphIDToGlyph(StrikeCache *cache) cons
     fGlyphs.packedGlyphIDToGlyph(cache);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end,
                                                         GrMeshDrawTarget* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
@@ -1595,7 +1595,7 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count,
         }
     }
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
 std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end,
@@ -1753,7 +1753,7 @@ public:
 
     MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
     void draw(SkCanvas*,
               const GrClip* clip,
@@ -1830,7 +1830,7 @@ public:
         return fVertexFiller.vertexStride(drawMatrix);
     }
 
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
 
@@ -1905,7 +1905,7 @@ bool has_some_antialiasing(const SkFont& font ) {
 
 #if !defined(SK_DISABLE_SDF_TEXT)
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
         const skgpu::v1::SurfaceDrawContext& sdc,
@@ -1936,7 +1936,7 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
     return {maskType, DFGPFlags, useGammaCorrectDistanceTable};
 }
 
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 class SDFTSubRun final : public SubRun, public AtlasSubRun {
 public:
@@ -2013,7 +2013,7 @@ public:
     int glyphCount() const override { return fVertexFiller.count(); }
     MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void draw(SkCanvas*,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -2101,7 +2101,7 @@ public:
         }
     }
 
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
 
@@ -2746,7 +2746,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
     return container;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 void SubRunContainer::draw(SkCanvas* canvas,
                            const GrClip* clip,
                            const SkMatrixProvider& viewMatrix,
@@ -2758,7 +2758,7 @@ void SubRunContainer::draw(SkCanvas* canvas,
         subRun.draw(canvas, clip, viewMatrix, drawOrigin, paint, sk_ref_sp(subRunStorage), sdc);
     }
 }
-#endif  // SK_SUPPORT_GPU
+#endif  // defined(SK_GANESH_ENABLED)
 
 #if defined(SK_GRAPHITE_ENABLED)
 void SubRunContainer::draw(SkCanvas* canvas,

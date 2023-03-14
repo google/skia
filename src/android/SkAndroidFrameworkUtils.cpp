@@ -16,7 +16,7 @@
 
 #include <log/log.h>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 bool SkAndroidFrameworkUtils::clipWithStencil(SkCanvas* canvas) {
     return canvas->baseDevice()->android_utils_clipWithStencil();
 }

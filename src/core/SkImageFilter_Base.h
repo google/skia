@@ -303,7 +303,7 @@ protected:
     // other filters to need to call it.
     Context mapContext(const Context& ctx) const;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
                                             std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,

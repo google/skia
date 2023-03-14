@@ -34,7 +34,7 @@
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -253,7 +253,7 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->append<SkRecords::DrawTextBlob>(paint, sk_ref_sp(blob), x, y);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 void SkRecorder::onDrawSlug(const sktext::gpu::Slug* slug) {
     this->append<SkRecords::DrawSlug>(sk_ref_sp(slug));
 }

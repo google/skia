@@ -43,7 +43,7 @@ public:
 
     bool onIsAlphaUnchanged() const override { return fAlphaIsUnchanged; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*,
                                    const GrColorInfo&,
@@ -159,7 +159,7 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
     return premul(clamp01(c));
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 
 static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmentProcessor> child) {
@@ -209,7 +209,7 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
     return GrFPSuccess(std::move(fp));
 }
 
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 #ifdef SK_GRAPHITE_ENABLED
 void SkColorFilter_Matrix::addToKey(const skgpu::graphite::KeyContext& keyContext,

@@ -34,7 +34,7 @@
 #include <memory>
 #include <utility>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
@@ -180,7 +180,7 @@ void SkDisplacementMapImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 namespace {
 
@@ -314,7 +314,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
     SkVector scale = SkVector::Make(fScale, fScale);
     ctx.ctm().mapVectors(&scale, 1);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (ctx.gpuBacked()) {
         auto rContext = ctx.getContext();
 
@@ -431,7 +431,7 @@ SkIRect SkDisplacementMapImageFilter::onFilterBounds(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 class GrDisplacementMapEffect::Impl : public ProgramImpl {
 public:
     void emitCode(EmitArgs&) override;

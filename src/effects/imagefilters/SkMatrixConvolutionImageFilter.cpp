@@ -35,7 +35,7 @@
 #include <utility>
 class SkMatrix;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -380,7 +380,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(const Contex
         }
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 

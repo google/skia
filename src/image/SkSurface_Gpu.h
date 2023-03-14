@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -90,6 +90,6 @@ private:
     using INHERITED = SkSurface_Base;
 };
 
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 #endif // SkSurface_Gpu_DEFINED

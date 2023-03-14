@@ -89,7 +89,7 @@ SkShaderBase::GradientType SkLinearGradient::asGradient(GradientInfo* info,
 
 /////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "src/gpu/ganesh/gradients/GrGradientShader.h"
 

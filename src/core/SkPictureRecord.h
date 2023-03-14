@@ -48,7 +48,7 @@ public:
         return fTextBlobs;
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     const SkTArray<sk_sp<const sktext::gpu::Slug>>& getSlugs() const {
         return fSlugs;
     }
@@ -180,7 +180,7 @@ protected:
 
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) override;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void onDrawSlug(const sktext::gpu::Slug* slug) override;
 #endif
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
@@ -256,7 +256,7 @@ private:
     SkTArray<sk_sp<SkDrawable>>       fDrawables;
     SkTArray<sk_sp<const SkTextBlob>> fTextBlobs;
     SkTArray<sk_sp<const SkVertices>> fVertices;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     SkTArray<sk_sp<const sktext::gpu::Slug>> fSlugs;
 #endif
 

@@ -40,7 +40,7 @@ class GrFragmentProcessor;
 class SkMatrix;
 enum class SkTileMode;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -155,7 +155,7 @@ public:
         fBitmap.pixelRef()->notifyAddedToCache();
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     bool onPinAsTexture(GrRecordingContext*) const override;
     void onUnpinAsTexture(GrRecordingContext*) const override;
     bool isPinnedOnContext(GrRecordingContext*) const override;
@@ -183,7 +183,7 @@ public:
     }
 
 private:
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
@@ -206,7 +206,7 @@ private:
 
     SkBitmap fBitmap;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     mutable GrSurfaceProxyView fPinnedView;
     mutable int32_t fPinnedCount = 0;
     mutable uint32_t fPinnedUniqueID = SK_InvalidUniqueID;
@@ -234,7 +234,7 @@ SkImage_Raster::SkImage_Raster(const SkImageInfo& info, sk_sp<SkData> data, size
 }
 
 SkImage_Raster::~SkImage_Raster() {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     SkASSERT(!fPinnedView);  // want the caller to have manually unpinned
 #endif
 }
@@ -259,7 +259,7 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
     return true;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
@@ -542,7 +542,7 @@ sk_sp<SkImage> SkImage_Raster::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS
     return SkImage::MakeRasterCopy(pixmap);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         GrRecordingContext* rContext,
         GrMipmapped mipmapped,

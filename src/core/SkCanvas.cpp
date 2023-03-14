@@ -70,7 +70,7 @@
 #include <utility>
 #include <vector>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/Device_v1.h"
@@ -85,7 +85,7 @@
 #include "src/gpu/graphite/Device.h"
 #endif
 
-#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+#if (defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED))
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
 #endif
@@ -543,7 +543,7 @@ void SkCanvas::flush() {
 }
 
 void SkCanvas::onFlush() {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     auto dContext = GrAsDirectContext(this->recordingContext());
 
     if (dContext) {
@@ -1794,7 +1794,7 @@ SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
 
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && SK_SUPPORT_GPU
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_GANESH_ENABLED)
 
 SkIRect SkCanvas::topLayerBounds() const {
     return this->topDevice()->getGlobalBounds();
@@ -1811,7 +1811,7 @@ GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
 #endif
 
 GrRecordingContext* SkCanvas::recordingContext() {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (auto gpuDevice = this->topDevice()->asGaneshDevice()) {
         return gpuDevice->recordingContext();
     }
@@ -2449,7 +2449,7 @@ void SkCanvas::onDrawGlyphRunList(const sktext::GlyphRunList& glyphRunList, cons
     }
 }
 
-#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+#if (defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED))
 sk_sp<Slug> SkCanvas::convertBlobToSlug(
         const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2563,7 +2563,7 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform x
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
-#if SK_SUPPORT_GPU && GR_TEST_UTILS
+#if defined(SK_GANESH_ENABLED) && GR_TEST_UTILS
 bool gSkBlobAsSlugTesting = false;
 #endif
 
@@ -2586,7 +2586,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         totalGlyphCount += r.fGlyphCount;
     }
 
-#if SK_SUPPORT_GPU && GR_TEST_UTILS
+#if defined(SK_GANESH_ENABLED) && GR_TEST_UTILS
     // Draw using text blob normally or if the blob has RSX form because slugs can't convert that
     // form.
     if (!gSkBlobAsSlugTesting ||
@@ -2596,7 +2596,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     {
         this->onDrawTextBlob(blob, x, y, paint);
     }
-#if SK_SUPPORT_GPU && GR_TEST_UTILS
+#if defined(SK_GANESH_ENABLED) && GR_TEST_UTILS
     else {
         auto slug = Slug::ConvertBlob(this, *blob, {x, y}, paint);
         slug->draw(this);
@@ -2996,7 +2996,7 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-#if SK_SUPPORT_GPU && GR_TEST_UTILS
+#if defined(SK_GANESH_ENABLED) && GR_TEST_UTILS
 SkTestCanvas<SkSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
         : SkCanvas(sk_ref_sp(canvas->baseDevice())) {}
 

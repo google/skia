@@ -108,7 +108,7 @@ public:
                         SkScalar x,
                         SkScalar y,
                         const SkPaint& paint) override;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     void onDrawSlug(const sktext::gpu::Slug* slug) override;
 #endif
     void onDrawGlyphRunList(

@@ -40,7 +40,7 @@ public:
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -83,7 +83,7 @@ public:
     bool isOpaque()   const override { return fColor.isOpaque(); }
     bool isConstant() const override { return true; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -212,7 +212,7 @@ skvm::Color SkColor4Shader::program(skvm::Builder* p,
     return p->uniformColor(color, uniforms);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"

@@ -31,7 +31,7 @@
 #include <memory>
 #include <utility>
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
@@ -109,7 +109,7 @@ void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 static std::unique_ptr<GrFragmentProcessor> make_magnifier_fp(
         std::unique_ptr<GrFragmentProcessor> input,
         SkIRect bounds,
@@ -186,7 +186,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(const Context& ctx,
     SkScalar invYZoom = fSrcRect.height() / bounds.height();
 
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 

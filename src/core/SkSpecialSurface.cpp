@@ -73,7 +73,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
@@ -105,7 +105,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* r
     return sk_make_sp<SkSpecialSurface>(std::move(device), subset);
 }
 
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_GRAPHITE_ENABLED

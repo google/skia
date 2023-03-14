@@ -38,7 +38,7 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkPatchUtils.h"
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -633,7 +633,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->drawTextBlob(blob, x, y, paint);
         } break;
         case DRAW_SLUG: {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
             const sktext::gpu::Slug* slug = fPictureData->getSlug(reader);
             BREAK_ON_READ_ERROR(reader);
 

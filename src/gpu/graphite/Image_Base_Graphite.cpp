@@ -10,7 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "src/gpu/graphite/Log.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
 
@@ -50,7 +50,7 @@ void Image_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace
     callback(context, nullptr);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 std::unique_ptr<GrFragmentProcessor> Image_Base::onAsFragmentProcessor(
         GrRecordingContext*,
         SkSamplingOptions,

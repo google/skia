@@ -15,7 +15,7 @@
 #include "src/base/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #endif
 
@@ -27,7 +27,7 @@ public:
 protected:
     bool onGetPixels(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&) override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                          GrMipmapped, GrImageTexGenPolicy) override;
 #endif
@@ -102,7 +102,7 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -135,7 +135,7 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
     return view;
 }
 
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -359,7 +359,7 @@ skia_wasm_lib("canvaskit") {
   }
   if (skia_enable_gpu) {
     defines += [
-      "SK_SUPPORT_GPU=1",
+      "SK_GANESH_ENABLED",
       "SK_DISABLE_LEGACY_SHADERCONTEXT",
     ]
     if (skia_canvaskit_enable_webgl) {
@@ -375,10 +375,7 @@ skia_wasm_lib("canvaskit") {
       ]
     }
   } else {
-    defines += [
-      "SK_SUPPORT_GPU=0",
-      "SK_ENABLE_SKSL",
-    ]
+    defines += [ "SK_ENABLE_SKSL" ]
   }
 
   if (skia_canvaskit_enable_pathops) {

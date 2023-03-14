@@ -25,7 +25,7 @@
 #include "include/private/chromium/Slug.h"
 #include "tools/ToolUtils.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrContextOptions.h"
 
 class SlugGM : public skiagm::GM {

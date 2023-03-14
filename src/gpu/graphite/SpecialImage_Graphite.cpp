@@ -48,7 +48,7 @@ public:
                               sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     GrSurfaceProxyView onView(GrRecordingContext*) const override {
         // To get here we would have to be requesting a Ganesh resource from a Graphite-backed
         // special image. That should never happen.

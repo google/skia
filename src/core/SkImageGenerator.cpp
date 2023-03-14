@@ -10,7 +10,7 @@
 #include "include/core/SkImage.h"
 #include "src/core/SkNextID.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/gpu/GrRecordingContext.h"
 #endif
 
@@ -46,7 +46,7 @@ bool SkImageGenerator::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     return this->onGetYUVAPlanes(yuvaPixmaps);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 GrSurfaceProxyView SkImageGenerator::generateTexture(GrRecordingContext* ctx,
@@ -68,7 +68,7 @@ GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
                                                        GrImageTexGenPolicy) {
     return {};
 }
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH_ENABLED)
 
 #if SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/Image_Graphite.h"

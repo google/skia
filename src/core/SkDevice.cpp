@@ -33,7 +33,7 @@
 #include "src/shaders/SkLocalMatrixShader.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -477,7 +477,7 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
     }
 }
 
-#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+#if (defined(SK_GANESH_ENABLED) || defined(SK_GRAPHITE_ENABLED))
 sk_sp<sktext::gpu::Slug> SkBaseDevice::convertGlyphRunListToSlug(
         const sktext::GlyphRunList& glyphRunList,
         const SkPaint& initialPaint,

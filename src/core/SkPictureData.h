@@ -24,7 +24,7 @@
 #include "src/core/SkPictureFlat.h"
 #include "src/core/SkReadBuffer.h"
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH_ENABLED)
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -144,7 +144,7 @@ public:
         return read_index_base_1_or_null(reader, fTextBlobs);
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     const sktext::gpu::Slug* getSlug(SkReadBuffer* reader) const {
         return read_index_base_1_or_null(reader, fSlugs);
     }
@@ -176,7 +176,7 @@ private:
     SkTArray<sk_sp<const SkTextBlob>>  fTextBlobs;
     SkTArray<sk_sp<const SkVertices>>  fVertices;
     SkTArray<sk_sp<const SkImage>>     fImages;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     SkTArray<sk_sp<const sktext::gpu::Slug>>      fSlugs;
 #endif
 

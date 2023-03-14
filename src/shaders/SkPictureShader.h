@@ -27,7 +27,7 @@ public:
     static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, SkFilterMode,
                                 const SkMatrix*, const SkRect*);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif

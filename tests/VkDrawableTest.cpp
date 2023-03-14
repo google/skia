@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_VULKAN)
+#if defined(SK_GANESH_ENABLED) && defined(SK_VULKAN)
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"

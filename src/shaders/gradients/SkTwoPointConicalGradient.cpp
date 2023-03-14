@@ -60,7 +60,7 @@ public:
                                   const Descriptor&, const SkMatrix* localMatrix);
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -372,7 +372,7 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
 
 /////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH_ENABLED)
 
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"

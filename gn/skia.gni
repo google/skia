@@ -78,6 +78,8 @@ declare_args() {
   skia_use_wuffs = true
   skia_use_x11 = is_linux
   skia_use_xps = true
+
+  # deprecated, used to mean the same as skia_enable_ganesh
   skia_enable_gpu = true
   skia_enable_graphite = false
   skia_enable_ganesh = true
