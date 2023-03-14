@@ -14,6 +14,8 @@ namespace skgpu {
 
 size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format);
 
+uint32_t DawnFormatChannels(wgpu::TextureFormat format);
+
 } // namespace skgpu
 
 #endif // skgpu_DawnUtilsPriv_DEFINED
