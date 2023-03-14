@@ -1070,6 +1070,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(std::max(1, sampleCnt))
         , fStencilBits(stencilBits)
+        , fBackend(GrBackendApi::kMock)
         , fMockInfo(mockInfo) {}
 
 GrBackendRenderTarget::~GrBackendRenderTarget() {
