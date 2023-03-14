@@ -13,12 +13,14 @@
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
+class GrBackendRenderTarget;
+class GrContextThreadSafeProxy;
 class GrImageContext;
 class GrSurfaceProxyView;
-class GrBackendRenderTarget;
-struct GrVkDrawableInfo;
 class SkBitmap;
 class SkImage;
+enum class SkTextureCompressionType;
+struct GrVkDrawableInfo;
 
 /*
  * A factory for creating GrSurfaceProxy-derived objects.
@@ -103,7 +105,7 @@ public:
                                                        skgpu::Budgeted,
                                                        GrMipmapped,
                                                        GrProtected,
-                                                       SkImage::CompressionType,
+                                                       SkTextureCompressionType,
                                                        sk_sp<SkData> data);
 
     // These match the definitions in SkImage & GrTexture.h, for whence they came

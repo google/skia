@@ -8,33 +8,36 @@
 #ifndef SkCompressedDataUtils_DEFINED
 #define SkCompressedDataUtils_DEFINED
 
-#include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSize.h"
+#include "include/core/SkTextureCompressionType.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
+
+#include <cstddef>
 
 class SkBitmap;
 class SkData;
+struct SkISize;
 
-static constexpr bool SkCompressionTypeIsOpaque(SkImage::CompressionType compression) {
+static constexpr bool SkTextureCompressionTypeIsOpaque(SkTextureCompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:            return true;
-        case SkImage::CompressionType::kETC2_RGB8_UNORM: return true;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return true;
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: return false;
+        case SkTextureCompressionType::kNone:            return true;
+        case SkTextureCompressionType::kETC2_RGB8_UNORM: return true;
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:  return true;
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: return false;
     }
 
     SkUNREACHABLE;
 }
 
-size_t SkCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,
+size_t SkCompressedDataSize(SkTextureCompressionType, SkISize baseDimensions,
                             skia_private::TArray<size_t>* individualMipOffsets, bool mipmapped);
-size_t SkCompressedBlockSize(SkImage::CompressionType type);
+size_t SkCompressedBlockSize(SkTextureCompressionType type);
 
 /**
- * Returns the data size for the given SkImage::CompressionType
+ * Returns the data size for the given SkTextureCompressionType
  */
-size_t SkCompressedFormatDataSize(SkImage::CompressionType compressionType,
+size_t SkCompressedFormatDataSize(SkTextureCompressionType compressionType,
                                   SkISize dimensions, bool mipmapped);
 
  /*
@@ -42,7 +45,7 @@ size_t SkCompressedFormatDataSize(SkImage::CompressionType compressionType,
   */
 bool SkDecompress(sk_sp<SkData> data,
                   SkISize dimensions,
-                  SkImage::CompressionType compressionType,
+                  SkTextureCompressionType compressionType,
                   SkBitmap* dst);
 
 #endif

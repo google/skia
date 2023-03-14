@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
@@ -26,9 +27,9 @@ using namespace skia_private;
 
 //-------------------------------------------------------------------------------------------------
 struct ImageInfo {
-    SkISize                  fDim;
-    GrMipmapped              fMipmapped;
-    SkImage::CompressionType fCompressionType;
+    SkISize           fDim;
+    GrMipmapped       fMipmapped;
+    SkTextureCompressionType fCompressionType;
 };
 
 /*
@@ -94,13 +95,13 @@ static sk_sp<SkData> load_ktx(const char* filename, ImageInfo* imageInfo) {
     switch (glInternalFormat) {
         case GR_GL_COMPRESSED_ETC1_RGB8:
         case GR_GL_COMPRESSED_RGB8_ETC2:
-            imageInfo->fCompressionType = SkImage::CompressionType::kETC2_RGB8_UNORM;
+            imageInfo->fCompressionType = SkTextureCompressionType::kETC2_RGB8_UNORM;
             break;
         case GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-            imageInfo->fCompressionType = SkImage::CompressionType::kBC1_RGB8_UNORM;
+            imageInfo->fCompressionType = SkTextureCompressionType::kBC1_RGB8_UNORM;
             break;
         case GR_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-            imageInfo->fCompressionType = SkImage::CompressionType::kBC1_RGBA8_UNORM;
+            imageInfo->fCompressionType = SkTextureCompressionType::kBC1_RGBA8_UNORM;
             break;
         default:
             return nullptr;
@@ -279,7 +280,7 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
     // We only handle these one format right now
     switch (header.ddspf.dwFourCC) {
         case 0x31545844: // DXT1
-            imageInfo->fCompressionType = SkImage::CompressionType::kBC1_RGB8_UNORM;
+            imageInfo->fCompressionType = SkTextureCompressionType::kBC1_RGB8_UNORM;
             break;
         default:
             return nullptr;
@@ -350,7 +351,7 @@ protected:
             if (data) {
                 SkASSERT(info.fDim.equals(kImgWidthHeight, kImgWidthHeight));
                 SkASSERT(info.fMipmapped == GrMipmapped::kNo);
-                SkASSERT(info.fCompressionType == SkImage::CompressionType::kETC2_RGB8_UNORM);
+                SkASSERT(info.fCompressionType == SkTextureCompressionType::kETC2_RGB8_UNORM);
 
                 fETC1Image = data_to_img(direct, std::move(data), info);
             } else {
@@ -365,7 +366,7 @@ protected:
             if (data) {
                 SkASSERT(info.fDim.equals(kImgWidthHeight, kImgWidthHeight));
                 SkASSERT(info.fMipmapped == GrMipmapped::kNo);
-                SkASSERT(info.fCompressionType == SkImage::CompressionType::kBC1_RGB8_UNORM);
+                SkASSERT(info.fCompressionType == SkTextureCompressionType::kBC1_RGB8_UNORM);
 
                 fBC1Image = data_to_img(direct, std::move(data), info);
             } else {

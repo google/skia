@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/Caps.h"
 
 #include "include/core/SkCapabilities.h"
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
@@ -50,14 +51,14 @@ bool Caps::isTexturable(const TextureInfo& info) const {
 }
 
 bool Caps::areColorTypeAndTextureInfoCompatible(SkColorType ct, const TextureInfo& info) const {
-    // TODO: add SkImage::CompressionType handling
+    // TODO: add SkTextureCompressionType handling
     // (can be handled by setting up the colorTypeInfo instead?)
 
     return SkToBool(this->getColorTypeInfo(ct, info));
 }
 
 skgpu::Swizzle Caps::getReadSwizzle(SkColorType ct, const TextureInfo& info) const {
-    // TODO: add SkImage::CompressionType handling
+    // TODO: add SkTextureCompressionType handling
     // (can be handled by setting up the colorTypeInfo instead?)
 
     auto colorTypeInfo = this->getColorTypeInfo(ct, info);

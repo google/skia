@@ -12,6 +12,9 @@ Milestone 113
     deprecated and will be removed at some point.
   * SkMatrix::Scale, preScale, setScale, etc. with any scale factor of 0 correctly no longer
     return true from rectStaysRect(), consistent with rectStaysRect() implying a non-zero scale.
+  * `SkImage::CompressionType` has been renamed to `SkTextureCompressionType` and moved to
+    `include/core/SkTextureCompressionType.h`
+
 * * *
 
 Milestone 112

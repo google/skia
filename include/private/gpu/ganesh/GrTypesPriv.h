@@ -8,15 +8,17 @@
 #ifndef GrTypesPriv_DEFINED
 #define GrTypesPriv_DEFINED
 
-#include <chrono>
 #include "include/core/SkColor.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTypeTraits.h"
+
+#include <chrono>
+#include <functional>
 
 class GrBackendFormat;
 class GrCaps;
@@ -926,12 +928,12 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
 
 // In general we try to not mix CompressionType and ColorType, but currently SkImage still requires
 // an SkColorType even for CompressedTypes so we need some conversion.
-static constexpr SkColorType GrCompressionTypeToSkColorType(SkImage::CompressionType compression) {
+static constexpr SkColorType GrCompressionTypeToSkColorType(SkTextureCompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:            return kUnknown_SkColorType;
-        case SkImage::CompressionType::kETC2_RGB8_UNORM: return kRGB_888x_SkColorType;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return kRGB_888x_SkColorType;
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: return kRGBA_8888_SkColorType;
+        case SkTextureCompressionType::kNone:            return kUnknown_SkColorType;
+        case SkTextureCompressionType::kETC2_RGB8_UNORM: return kRGB_888x_SkColorType;
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:  return kRGB_888x_SkColorType;
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: return kRGBA_8888_SkColorType;
     }
 
     SkUNREACHABLE;
@@ -997,12 +999,12 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
     SkUNREACHABLE;
 }
 
-static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
+static constexpr const char* GrCompressionTypeToStr(SkTextureCompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:            return "kNone";
-        case SkImage::CompressionType::kETC2_RGB8_UNORM: return "kETC2_RGB8_UNORM";
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return "kBC1_RGB8_UNORM";
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: return "kBC1_RGBA8_UNORM";
+        case SkTextureCompressionType::kNone:            return "kNone";
+        case SkTextureCompressionType::kETC2_RGB8_UNORM: return "kETC2_RGB8_UNORM";
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:  return "kBC1_RGB8_UNORM";
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: return "kBC1_RGBA8_UNORM";
     }
     SkUNREACHABLE;
 }

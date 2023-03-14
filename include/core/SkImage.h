@@ -34,6 +34,9 @@
 #include <android/hardware_buffer.h>
 #endif
 
+// TODO(kjlubick) remove when Chrome has been migrated
+#include "include/core/SkTextureCompressionType.h"
+
 class GrBackendFormat;
 class GrBackendTexture;
 class GrContextThreadSafeProxy;
@@ -212,29 +215,8 @@ public:
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded,
                                           std::optional<SkAlphaType> alphaType = std::nullopt);
 
-    /*
-     * Experimental:
-     *   Skia                | GL_COMPRESSED_*     | MTLPixelFormat*      | VK_FORMAT_*_BLOCK
-     *  --------------------------------------------------------------------------------------
-     *   kETC2_RGB8_UNORM    | ETC1_RGB8           | ETC2_RGB8 (iOS-only) | ETC2_R8G8B8_UNORM
-     *                       | RGB8_ETC2           |                      |
-     *  --------------------------------------------------------------------------------------
-     *   kBC1_RGB8_UNORM     | RGB_S3TC_DXT1_EXT   | N/A                  | BC1_RGB_UNORM
-     *  --------------------------------------------------------------------------------------
-     *   kBC1_RGBA8_UNORM    | RGBA_S3TC_DXT1_EXT  | BC1_RGBA (macOS-only)| BC1_RGBA_UNORM
-     */
-    enum class CompressionType {
-        kNone,
-        kETC2_RGB8_UNORM, // the same as ETC1
-
-        kBC1_RGB8_UNORM,
-        kBC1_RGBA8_UNORM,
-        kLast = kBC1_RGBA8_UNORM,
-    };
-
-    static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
-
-    static const CompressionType kETC1_CompressionType = CompressionType::kETC2_RGB8_UNORM;
+    // TODO(kjlubick) remove this once Chrome has been migrated to new type
+    static const SkTextureCompressionType kETC1_SkTextureCompressionType = SkTextureCompressionType::kETC1_RGB8;
 
     /** Creates a CPU-backed SkImage from compressed data.
 
@@ -249,7 +231,7 @@ public:
     */
     static sk_sp<SkImage> MakeRasterFromCompressed(sk_sp<SkData> data,
                                                    int width, int height,
-                                                   CompressionType type);
+                                                   SkTextureCompressionType type);
 
     enum class BitDepth {
         kU8,  //!< uses 8-bit unsigned int per color component
@@ -301,7 +283,7 @@ public:
     static sk_sp<SkImage> MakeTextureFromCompressed(GrDirectContext* direct,
                                                     sk_sp<SkData> data,
                                                     int width, int height,
-                                                    CompressionType type,
+                                                    SkTextureCompressionType type,
                                                     GrMipmapped mipmapped = GrMipmapped::kNo,
                                                     GrProtected isProtected = GrProtected::kNo);
 

@@ -25,6 +25,7 @@ SKIA_PUBLIC_HDRS = [
     "include/core/SkColorPriv.h",
     "include/core/SkColorSpace.h",
     "include/core/SkColorType.h",
+    "include/core/SkTextureCompressionType.h",
     "include/core/SkContourMeasure.h",
     "include/core/SkCoverageMode.h",
     "include/core/SkCubicMap.h",

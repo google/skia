@@ -35,6 +35,7 @@
 class GrVkImageLayout;
 class GrGLTextureParameters;
 class GrColorFormatDesc;
+enum class SkTextureCompressionType;
 
 namespace skgpu {
 class MutableTextureStateRef;
@@ -124,7 +125,7 @@ public:
     }
 #endif
 
-    static GrBackendFormat MakeMock(GrColorType colorType, SkImage::CompressionType compression,
+    static GrBackendFormat MakeMock(GrColorType colorType, SkTextureCompressionType compression,
                                     bool isStencilFormat = false);
 
     bool operator==(const GrBackendFormat& that) const;
@@ -191,7 +192,7 @@ public:
      * kUnknown, the compression type is not kNone, or this is a mock stencil format.
      */
     GrColorType asMockColorType() const;
-    SkImage::CompressionType asMockCompressionType() const;
+    SkTextureCompressionType asMockCompressionType() const;
     bool isMockStencilFormat() const;
 
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
@@ -228,7 +229,7 @@ private:
     GrBackendFormat(DXGI_FORMAT dxgiFormat);
 #endif
 
-    GrBackendFormat(GrColorType, SkImage::CompressionType, bool isStencilFormat);
+    GrBackendFormat(GrColorType, SkTextureCompressionType, bool isStencilFormat);
 
 #ifdef SK_DEBUG
     bool validateMock() const;
@@ -259,9 +260,9 @@ private:
         DXGI_FORMAT fDxgiFormat;
 #endif
         struct {
-            GrColorType              fColorType;
-            SkImage::CompressionType fCompressionType;
-            bool                     fIsStencilFormat;
+            GrColorType       fColorType;
+            SkTextureCompressionType fCompressionType;
+            bool              fIsStencilFormat;
         } fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;

@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
@@ -79,7 +80,7 @@ static void create_BC1_block(BC1Block* block, bool transparent) {
 static sk_sp<SkData> make_compressed_data() {
     SkISize dim{ kImgWidth, kImgHeight };
 
-    size_t totalSize = SkCompressedDataSize(SkImage::CompressionType::kBC1_RGB8_UNORM, dim,
+    size_t totalSize = SkCompressedDataSize(SkTextureCompressionType::kBC1_RGB8_UNORM, dim,
                                             nullptr, false);
 
     sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
@@ -102,7 +103,7 @@ static sk_sp<SkData> make_compressed_data() {
 }
 
 static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
-                                  SkImage::CompressionType compression) {
+                                  SkTextureCompressionType compression) {
     if (direct) {
         return SkImage::MakeTextureFromCompressed(direct, std::move(data),
                                                   kImgWidth,
@@ -186,9 +187,9 @@ protected:
 
         sk_sp<SkData> bc1Data = make_compressed_data();
 
-        fRGBImage = data_to_img(dContext, bc1Data, SkImage::CompressionType::kBC1_RGB8_UNORM);
+        fRGBImage = data_to_img(dContext, bc1Data, SkTextureCompressionType::kBC1_RGB8_UNORM);
         fRGBAImage = data_to_img(dContext, std::move(bc1Data),
-                                 SkImage::CompressionType::kBC1_RGBA8_UNORM);
+                                 SkTextureCompressionType::kBC1_RGBA8_UNORM);
         if (!fRGBImage || !fRGBAImage) {
             *errorMsg = "Failed to create BC1 images.";
             return DrawResult::kFail;

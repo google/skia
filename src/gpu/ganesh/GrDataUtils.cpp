@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrDataUtils.h"
 
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkTextureCompressionType.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkMathPriv.h"
@@ -159,13 +160,13 @@ static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
     }
 }
 
-size_t GrNumBlocks(SkImage::CompressionType type, SkISize baseDimensions) {
+size_t GrNumBlocks(SkTextureCompressionType type, SkISize baseDimensions) {
     switch (type) {
-        case SkImage::CompressionType::kNone:
+        case SkTextureCompressionType::kNone:
             return baseDimensions.width() * baseDimensions.height();
-        case SkImage::CompressionType::kETC2_RGB8_UNORM:
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
+        case SkTextureCompressionType::kETC2_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: {
             int numBlocksWidth = num_4x4_blocks(baseDimensions.width());
             int numBlocksHeight = num_4x4_blocks(baseDimensions.height());
 
@@ -175,13 +176,13 @@ size_t GrNumBlocks(SkImage::CompressionType type, SkISize baseDimensions) {
     SkUNREACHABLE;
 }
 
-size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
+size_t GrCompressedRowBytes(SkTextureCompressionType type, int width) {
     switch (type) {
-        case SkImage::CompressionType::kNone:
+        case SkTextureCompressionType::kNone:
             return 0;
-        case SkImage::CompressionType::kETC2_RGB8_UNORM:
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
+        case SkTextureCompressionType::kETC2_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: {
             int numBlocksWidth = num_4x4_blocks(width);
 
             static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
@@ -191,13 +192,13 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     SkUNREACHABLE;
 }
 
-SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimensions) {
+SkISize GrCompressedDimensions(SkTextureCompressionType type, SkISize baseDimensions) {
     switch (type) {
-        case SkImage::CompressionType::kNone:
+        case SkTextureCompressionType::kNone:
             return baseDimensions;
-        case SkImage::CompressionType::kETC2_RGB8_UNORM:
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
+        case SkTextureCompressionType::kETC2_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: {
             int numBlocksWidth = num_4x4_blocks(baseDimensions.width());
             int numBlocksHeight = num_4x4_blocks(baseDimensions.height());
 
@@ -318,7 +319,7 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimens
     return combinedBufferSize;
 }
 
-void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
+void GrFillInCompressedData(SkTextureCompressionType type, SkISize dimensions,
                             GrMipmapped mipmapped, char* dstPixels, const SkColor4f& colorf) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
@@ -332,11 +333,11 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
     for (int i = 0; i < numMipLevels; ++i) {
         size_t levelSize = SkCompressedDataSize(type, dimensions, nullptr, false);
 
-        if (SkImage::CompressionType::kETC2_RGB8_UNORM == type) {
+        if (SkTextureCompressionType::kETC2_RGB8_UNORM == type) {
             fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);
         } else {
-            SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM ||
-                     type == SkImage::CompressionType::kBC1_RGBA8_UNORM);
+            SkASSERT(type == SkTextureCompressionType::kBC1_RGB8_UNORM ||
+                     type == SkTextureCompressionType::kBC1_RGBA8_UNORM);
             fillin_BC1_with_color(dimensions, colorf, &dstPixels[offset]);
         }
 

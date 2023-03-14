@@ -20,6 +20,7 @@ class PromiseImageCallbackContext;
 class SkCanvas;
 class SkData;
 class SkDeferredDisplayListRecorder;
+class SkImage;
 class SkPicture;
 class SkSurface;
 class SkSurfaceCharacterization;

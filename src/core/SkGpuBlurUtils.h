@@ -20,6 +20,8 @@ namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrSurfaceProxyView;
 class GrTexture;
 
+class SkBitmap;
+enum class SkTileMode;
 struct SkRect;
 
 namespace SkGpuBlurUtils {

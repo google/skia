@@ -8,7 +8,6 @@
 #ifndef GrMtlCppUtil_DEFINED
 #define GrMtlCppUtil_DEFINED
 
-#include "include/core/SkImage.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
@@ -26,7 +25,7 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat);
 
 GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat);
 
-SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format);
+SkTextureCompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format);
 
 /**
  * Gets the sample count of a texture held by GrMtlTextureInfo or zero if the texture is nil.

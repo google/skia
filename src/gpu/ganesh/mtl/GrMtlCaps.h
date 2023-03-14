@@ -15,6 +15,7 @@
 #import <Metal/Metal.h>
 
 class GrMtlRenderTarget;
+enum class SkTextureCompressionType;
 
 /**
  * Stores some capabilities of a Mtl backend.
@@ -69,7 +70,7 @@ public:
                           const SkIPoint& dstPoint,
                           bool areDstSrcSameObj) const;
 
-    GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
+    GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     MTLPixelFormat getFormatFromColorType(GrColorType colorType) const {
         int idx = static_cast<int>(colorType);
