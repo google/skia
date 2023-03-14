@@ -32,7 +32,7 @@ class PipelineDataGatherer;
 class UniquePaintParamsID;
 enum class ReadSwizzle;
 
-// Types of logical "destinations" that a blender might blend into.
+// Types of logical "destinations" that a blender might blend with.
 enum class DstColorType {
     // A color read from the framebuffer.
     kSurface,
