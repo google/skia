@@ -1221,7 +1221,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // Apple bug FB12055941
 	}
 
-	if b.matchOs("Mac") && b.gpu("Intel") && !b.extraConfig("Metal") {
+	if b.matchOs("Mac") && b.matchGpu("Intel") && !b.extraConfig("Metal") {
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // skia:14177
 	}
 
