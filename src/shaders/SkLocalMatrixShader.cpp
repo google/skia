@@ -10,13 +10,13 @@
 #include "src/core/SkVM.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -31,14 +31,14 @@ SkShaderBase::GradientType SkLocalMatrixShader::asGradient(GradientInfo* info,
     return type;
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
         const GrFPArgs& args, const MatrixRec& mRec) const {
     return as_SB(fWrappedShader)->asFragmentProcessor(args, mRec.concat(fLocalMatrix));
 }
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 void SkLocalMatrixShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
@@ -158,7 +158,7 @@ public:
         return as_SB(fProxyShader)->asGradient(info, localMatrix);
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -191,7 +191,7 @@ private:
 };
 
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 std::unique_ptr<GrFragmentProcessor> SkCTMShader::asFragmentProcessor(const GrFPArgs& args,
                                                                       const MatrixRec& mRec) const {
     SkMatrix ctmInv;

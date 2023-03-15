@@ -14,7 +14,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
@@ -28,7 +28,7 @@ public:
     SkShader_CoordClamp(sk_sp<SkShader> shader, const SkRect& subset)
             : fShader(std::move(shader)), fSubset(subset) {}
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
                                                              const MatrixRec&) const override;
 #endif
@@ -107,7 +107,7 @@ skvm::Color SkShader_CoordClamp::program(skvm::Builder* p,
     return as_SB(fShader)->program(p, device, local, paint, *childMRec, cinfo, uniforms, alloc);
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
         const GrFPArgs& args, const MatrixRec& mRec) const {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
@@ -139,7 +139,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(
     std::tie(success, fp) = mRec.apply(std::move(fp));
     return success ? std::move(fp) : nullptr;
 }
-#endif  // defined(SK_GANESH_ENABLED)
+#endif  // defined(SK_GANESH)
 
 void SkRegisterCoordClampShaderFlattenable() { SK_REGISTER_FLATTENABLE(SkShader_CoordClamp); }
 

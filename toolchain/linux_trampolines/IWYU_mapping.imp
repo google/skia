@@ -408,10 +408,9 @@
   { symbol: ["SK_DEBUG", "private", "\"include/private/base/SkDebug.h\"", "public"] },
   { symbol: ["SK_DEBUG", "private", "\"include/private/base/SkLoadUserConfig.h\"", "public"] },
 
-  # Pretend SK_GANESH_ENABLED is defined in any of these
-  { symbol: ["SK_DEBUG", "private", "\"include/private/base/SkLoadUserConfig.h\"", "public"] },
-  { symbol: ["SK_DEBUG", "private", "\"include/core/SkTypes.h\"", "public"] },
-
+  # Pretend SK_GANESH is defined in any of these
+  { symbol: ["SK_GANESH", "private", "\"include/private/base/SkLoadUserConfig.h\"", "public"] },
+  { symbol: ["SK_GANESH", "private", "\"include/core/SkTypes.h\"", "public"] },
 
   { symbol: ["SkScalar", "private", "\"include/core/SkScalar.h\"", "public"] },
 

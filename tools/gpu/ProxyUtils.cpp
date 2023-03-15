@@ -22,7 +22,7 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/image/SkImage_Base.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #endif
 
@@ -92,7 +92,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
     return sContext->readSurfaceView();
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                  SkArenaAlloc* arena,
                                  const GrSurfaceProxyView& writeView,
@@ -123,6 +123,6 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                                        primitiveType, renderPassXferBarriers,
                                                        colorLoadOp, flags, stencilSettings);
 }
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)
 
 }  // namespace sk_gpu_test

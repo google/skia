@@ -11,7 +11,7 @@
 #include "include/core/SkRect.h"
 #include "src/base/SkMathPriv.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -1032,4 +1032,4 @@ void Compute1DLinearGaussianKernel(float* kernel, float* offset, float sigma, in
 
 }  // namespace SkGpuBlurUtils
 
-#endif  // defined(SK_GANESH_ENABLED)
+#endif  // defined(SK_GANESH)

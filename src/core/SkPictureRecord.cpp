@@ -20,7 +20,7 @@
 #include "src/image/SkImage_Base.h"
 #include "src/utils/SkPatchUtils.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/private/chromium/Slug.h"
 #endif
 
@@ -581,7 +581,7 @@ void SkPictureRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScala
     this->validate(initialOffset, size);
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 void SkPictureRecord::onDrawSlug(const sktext::gpu::Slug* slug) {
     // op + slug id
     size_t size = 2 * kUInt32Size;
@@ -936,7 +936,7 @@ void SkPictureRecord::addTextBlob(const SkTextBlob* blob) {
     this->addInt(find_or_append(fTextBlobs, blob) + 1);
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 void SkPictureRecord::addSlug(const sktext::gpu::Slug* slug) {
     // follow the convention of recording a 1-based index
     this->addInt(find_or_append(fSlugs, slug) + 1);

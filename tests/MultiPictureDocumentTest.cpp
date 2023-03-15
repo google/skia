@@ -179,7 +179,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
 }
 
 
-#if defined(SK_GANESH_ENABLED) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"

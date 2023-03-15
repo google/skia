@@ -63,7 +63,7 @@
 #include "client_utils/android/BitmapRegionDecoder.h"
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
@@ -302,7 +302,7 @@ struct GPUTarget : public Target {
     }
 };
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 struct GraphiteTarget : public Target {
     explicit GraphiteTarget(const Config& c) : Target(c) {}
     using TestContext = skiatest::graphite::GraphiteTestContext;
@@ -381,7 +381,7 @@ struct GraphiteTarget : public Target {
     void dumpStats() override {
     }
 };
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE
 
 static double time(int loops, Benchmark* bench, Target* target) {
     SkCanvas* canvas = target->getCanvas();
@@ -593,7 +593,7 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
                       ctxOverrides,
                       gpuConfig->getSurfaceFlags()};
     }
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     if (const auto* gpuConfig = config->asConfigGraphite()) {
         if (!FLAGS_gpu) {
             SkDebugf("Skipping config '%s' as requested.\n", config->getTag().c_str());
@@ -718,7 +718,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     case Benchmark::kGPU_Backend:
         target = new GPUTarget(config);
         break;
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     case Benchmark::kGraphite_Backend:
         target = new GraphiteTarget(config);
         break;

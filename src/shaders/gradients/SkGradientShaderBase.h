@@ -16,7 +16,7 @@
 #include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyHelpers.h"
 #endif
 
@@ -119,7 +119,7 @@ protected:
     const SkMatrix fPtsToUnit;
     SkTileMode     fTileMode;
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     static void MakeInterpolatedToDst(const skgpu::graphite::KeyContext&,
                                       skgpu::graphite::PaintParamsKeyBuilder*,
                                       skgpu::graphite::PipelineDataGatherer*,

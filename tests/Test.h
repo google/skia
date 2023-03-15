@@ -15,7 +15,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tools/Registry.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "tools/gpu/GrContextFactory.h" // IWYU pragma: export (because it is used by a macro)
 #else
 namespace sk_gpu_test { class ContextInfo; }
@@ -174,7 +174,7 @@ private:
 
 using TestRegistry = sk_tools::Registry<Test>;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 using GrContextFactoryContextType = sk_gpu_test::GrContextFactory::ContextType;
 #else
 using GrContextFactoryContextType = nullptr_t;

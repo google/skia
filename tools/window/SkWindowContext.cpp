@@ -8,7 +8,7 @@
 #include "tools/window/SkWindowContext.h"
 
 #include "include/gpu/GrDirectContext.h"
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #endif

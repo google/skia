@@ -14,7 +14,7 @@
 
 class SkDeferredDisplayListPriv;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/base/SkTArray.h"
 #include <map>
@@ -36,7 +36,7 @@ public:
         return fCharacterization;
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     /**
      * Iterate through the programs required by the DDL.
      */
@@ -70,7 +70,7 @@ private:
     // texture when the DDL is replayed. It has to be separately ref counted bc the lazy proxy
     // can outlive the DDL.
     class LazyProxyData : public SkRefCnt {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     public:
         // Upon being replayed - this field will be filled in (by the DrawingManager) with the
         // proxy backing the destination SkSurface. Note that, since there is no good place to
@@ -87,7 +87,7 @@ private:
                                  sk_sp<GrRenderTargetProxy> fTargetProxy,
                                  sk_sp<LazyProxyData>);
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     const SkTArray<GrRecordingContext::ProgramData>& programData() const {
         return fProgramData;
     }
@@ -95,7 +95,7 @@ private:
 
     const SkSurfaceCharacterization fCharacterization;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     // These are ordered such that the destructor cleans op tasks up first (which may refer back
     // to the arena and memory pool in their destructors).
     GrRecordingContext::OwnedArenas fArenas;

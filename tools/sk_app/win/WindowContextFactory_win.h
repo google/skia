@@ -32,7 +32,7 @@ std::unique_ptr<WindowContext> MakeD3D12ForWin(HWND, const DisplayParams&);
 
 #ifdef SK_DAWN
 std::unique_ptr<WindowContext> MakeDawnD3D12ForWin(HWND, const DisplayParams&);
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 std::unique_ptr<WindowContext> MakeGraphiteDawnD3D12ForWin(HWND, const DisplayParams&);
 #endif
 #endif

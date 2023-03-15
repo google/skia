@@ -57,6 +57,7 @@ if (skia_enable_tools) {
       "../..:tool_utils",
       "../../modules/svg:svg",
     ]
+    defines = [ "SK_GANESH" ]
   }
 }
 
@@ -70,6 +71,7 @@ component("debugger") {
     "../../tools/debugger/DrawCommand.cpp",
     "../../tools/debugger/JsonWriteBuffer.cpp",
   ]
+  defines = [ "SK_GANESH" ]
 }
 
 action("create_notomono_cpp") {
@@ -359,7 +361,7 @@ skia_wasm_lib("canvaskit") {
   }
   if (skia_enable_gpu) {
     defines += [
-      "SK_GANESH_ENABLED",
+      "SK_GANESH",
       "SK_DISABLE_LEGACY_SHADERCONTEXT",
     ]
     if (skia_canvaskit_enable_webgl) {

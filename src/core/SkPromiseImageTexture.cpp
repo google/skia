@@ -7,7 +7,7 @@
 
 #include "include/core/SkPromiseImageTexture.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 SkPromiseImageTexture::SkPromiseImageTexture(const GrBackendTexture& backendTexture) {
     SkASSERT(backendTexture.isValid());
@@ -16,4 +16,4 @@ SkPromiseImageTexture::SkPromiseImageTexture(const GrBackendTexture& backendText
 
 SkPromiseImageTexture::~SkPromiseImageTexture() {}
 
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)

@@ -64,7 +64,7 @@ const MakerT makers[] = {
             surface = SkSurface::MakeRenderTarget(c->recordingContext(),
                                                   skgpu::Budgeted::kNo, info);
         } else {
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
             surface = SkSurface::MakeGraphite(c->recorder(), info);
 #endif
         }
@@ -96,7 +96,7 @@ DEF_SIMPLE_GM(imagemasksubset, canvas, 480, 480) {
             if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
                 subset = image->makeSubset(kSubset, direct);
             } else {
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
                 subset = image->makeSubset(kSubset, canvas->recorder());
 #endif
             }

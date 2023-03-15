@@ -311,7 +311,7 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
     GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
     bool isGPU = SkToBool(dContext);
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     skgpu::graphite::Recorder* recorder = canvas->recorder();
     isGPU = isGPU || SkToBool(recorder);
 #endif
@@ -376,7 +376,7 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
                 if (dContext) {
                     surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kYes, ii);
                 } else {
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
                     surface = SkSurface::MakeGraphite(recorder, ii);
 #endif
                 }
@@ -399,7 +399,7 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
                     texImage = image->makeTextureImage(dContext,
                                                        mm ? GrMipmapped::kYes : GrMipmapped::kNo);
                 } else {
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
                     texImage = image->makeTextureImage(recorder,
                                                        { mm ? skgpu::Mipmapped::kYes
                                                             : skgpu::Mipmapped::kNo });
@@ -486,7 +486,7 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
     }
 
     GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     auto recorder = canvas->recorder();
 #endif
 
@@ -494,7 +494,7 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
 
     sk_sp<SkImage> subset;
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     if (recorder) {
         subset = img->makeSubset({100, 100, 200, 200}, recorder);
     } else

@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
 /**
@@ -41,6 +41,6 @@ private:
 
     GrBackendTexture fBackendTexture;
 };
-#endif // defined(SK_GANESH_ENABLED)
+#endif // defined(SK_GANESH)
 
 #endif // SkPromiseImageTexture_DEFINED

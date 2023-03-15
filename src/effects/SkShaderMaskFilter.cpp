@@ -31,7 +31,7 @@
 
 class SkMatrix;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 struct GrFPArgs;
 #endif
@@ -52,7 +52,7 @@ public:
     bool asABlur(BlurRec*) const override { return false; }
 
 protected:
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&,
                                                                const MatrixRec&) const override;
     bool onHasFragmentProcessor() const override;
@@ -134,7 +134,7 @@ bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 std::unique_ptr<GrFragmentProcessor>
 SkShaderMF::onAsFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {

@@ -29,6 +29,10 @@
 #include <cstring>
 #include <utility>
 
+#if defined(SK_GANESH)
+#include "include/private/chromium/Slug.h"
+#endif
+
 using namespace skia_private;
 
 template <typename T> int SafeCount(const T* obj) {
@@ -52,7 +56,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
     , fTextBlobs(record.getTextBlobs())
     , fVertices(record.getVertices())
     , fImages(record.getImages())
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     , fSlugs(record.getSlugs())
 #endif
     , fInfo(info) {
@@ -181,7 +185,7 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) c
         }
     }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     if (!textBlobsOnly) {
         write_tag_size(buffer, SK_PICT_SLUG_BUFFER_TAG, fSlugs.size());
         for (const auto& slug : fSlugs) {
@@ -481,7 +485,7 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             new_array_from_buffer(buffer, size, fTextBlobs, SkTextBlobPriv::MakeFromBuffer);
             break;
         case SK_PICT_SLUG_BUFFER_TAG:
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
             new_array_from_buffer(buffer, size, fSlugs, sktext::gpu::Slug::MakeFromBuffer);
 #endif
             break;

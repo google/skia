@@ -30,7 +30,7 @@
 #include <cstdint>
 
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #endif
 
@@ -741,7 +741,7 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
 
 
 // tesselation tolerance values, in device space pixels
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 static constexpr SkScalar kQuadTolerance = 0.2f;
 static constexpr SkScalar kCubicTolerance = 0.2f;
 static constexpr SkScalar kQuadToleranceSqd = kQuadTolerance * kQuadTolerance;
@@ -789,7 +789,7 @@ void SkBaseShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {
 }
 
 void SkBaseShadowTessellator::handleQuad(const SkPoint pts[3]) {
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     // check for degeneracy
     SkVector v0 = pts[1] - pts[0];
     SkVector v1 = pts[2] - pts[0];
@@ -820,7 +820,7 @@ void SkBaseShadowTessellator::handleQuad(const SkMatrix& m, SkPoint pts[3]) {
 
 void SkBaseShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) {
     m.mapPoints(pts, 4);
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     // TODO: Pull PathUtils out of Ganesh?
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
     fPointBuffer.resize(maxCount);

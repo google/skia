@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_GANESH_ENABLED) && defined(SK_VULKAN)
+#if defined(SK_GANESH) && defined(SK_VULKAN)
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -161,4 +161,4 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_NoYcbcrSurface,
     }
 }
 
-#endif  // defined(SK_GANESH_ENABLED) && defined(SK_VULKAN)
+#endif  // defined(SK_GANESH) && defined(SK_VULKAN)

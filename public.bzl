@@ -2054,6 +2054,8 @@ VULKAN_SRCS = [
 ################################################################################
 
 BASE_DEFINES = [
+    # Our legacy G3 rule *always* has the ganesh backend enabled.
+    "SK_GANESH",
     # Chrome DEFINES.
     "SK_USE_FREETYPE_EMBOLDEN",
     # Turn on a few Google3-specific build fixes.
@@ -2102,7 +2104,7 @@ WASM_DEFINES = [
     "SK_DISABLE_LEGACY_SHADERCONTEXT",
     "SK_DISABLE_TRACING",
     "SK_GL",
-    "SK_GANESH_ENABLED",
+    "SK_GANESH",
     "SK_DISABLE_AAA",
     "SK_DISABLE_EFFECT_DESERIALIZATION",
     "SK_FORCE_8_BYTE_ALIGNMENT",

@@ -13,11 +13,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #endif
 
-#if SK_GRAPHITE_ENABLED
+#if SK_GRAPHITE
 namespace skgpu::graphite {
     class Recorder;
 }
@@ -66,7 +66,7 @@ public:
     */
     sk_sp<SkSpecialImage> makeImageSnapshot();
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     /**
      *  Allocate a new GPU-backed SkSpecialSurface. If the requested surface cannot
      *  be created, nullptr will be returned.
@@ -77,7 +77,7 @@ public:
                                                     GrSurfaceOrigin);
 #endif
 
-#if SK_GRAPHITE_ENABLED
+#if SK_GRAPHITE
     static sk_sp<SkSpecialSurface> MakeGraphite(skgpu::graphite::Recorder*,
                                                 const SkImageInfo&,
                                                 const SkSurfaceProps&);

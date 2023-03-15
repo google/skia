@@ -7,7 +7,7 @@
 
 #include "src/image/SkSurface_Gpu.h"
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"

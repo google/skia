@@ -12,7 +12,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "tools/graphite/ContextFactory.h"
 #endif
@@ -88,7 +88,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
     }
 }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 namespace graphite {
 
@@ -113,6 +113,6 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test, GrContextTypeFilterFn* fi
 
 } // namespace graphite
 
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE
 
 } // namespace skiatest

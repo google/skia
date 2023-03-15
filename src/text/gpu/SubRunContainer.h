@@ -30,7 +30,7 @@ class StrikeForGPUCacheInterface;
     }
 }
 
-#if defined(SK_GANESH_ENABLED)  // Ganesh support
+#if defined(SK_GANESH)  // Ganesh support
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
@@ -41,7 +41,7 @@ class GrClip;
 namespace skgpu::v1 { class SurfaceDrawContext; }
 #endif
 
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/SubRunData.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
@@ -80,7 +80,7 @@ public:
     virtual int glyphCount() const = 0;
     virtual skgpu::MaskFormat maskFormat() const = 0;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
 
     virtual std::tuple<const GrClip*, GrOp::Owner>
@@ -105,7 +105,7 @@ public:
             int begin, int end, GrMeshDrawTarget* target) const = 0;
 #endif
 
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
     virtual std::tuple<bool, int> regenerateAtlas(
             int begin, int end, skgpu::graphite::Recorder*) const = 0;
 
@@ -126,7 +126,7 @@ public:
     virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const = 0;
 
 protected:
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
     void draw(skgpu::graphite::Device*,
               SkPoint drawOrigin,
               const SkPaint&,
@@ -142,7 +142,7 @@ using SubRunOwner = std::unique_ptr<SubRun, SubRunAllocator::Destroyer>;
 class SubRun {
 public:
     virtual ~SubRun();
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     // Produce GPU ops for this subRun or just draw them.
     virtual void draw(SkCanvas*,
                       const GrClip*,
@@ -152,7 +152,7 @@ public:
                       sk_sp<SkRefCnt> subRunStorage,
                       skgpu::v1::SurfaceDrawContext*) const = 0;
 #endif
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
     // Produce uploads and draws for this subRun
     virtual void draw(SkCanvas*,
                       SkPoint drawOrigin,
@@ -264,7 +264,7 @@ public:
 
     static size_t EstimateAllocSize(const GlyphRunList& glyphRunList);
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     void draw(SkCanvas* canvas,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -273,7 +273,7 @@ public:
               const SkRefCnt* subRunStorage,
               skgpu::v1::SurfaceDrawContext* sdc) const;
 #endif
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void draw(SkCanvas*,
               SkPoint drawOrigin,
               const SkPaint&,

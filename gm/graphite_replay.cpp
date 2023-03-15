@@ -13,7 +13,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
@@ -42,7 +42,7 @@ protected:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         skgpu::graphite::Recorder* recorder = canvas->recorder();
         if (recorder) {
             this->drawGraphite(canvas, recorder);
@@ -96,7 +96,7 @@ private:
         canvas->restore();
     }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     void drawGraphite(SkCanvas* canvas, skgpu::graphite::Recorder* canvasRecorder) {
         SkImageInfo tileImageInfo =
                 canvas->imageInfo().makeDimensions(SkISize::Make(kTileWidth, kTileHeight));

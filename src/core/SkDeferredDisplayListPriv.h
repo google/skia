@@ -17,7 +17,7 @@
 class SkDeferredDisplayListPriv {
 public:
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     int numRenderTasks() const {
         return fDDL->fRenderTasks.size();
     }

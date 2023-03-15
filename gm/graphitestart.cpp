@@ -327,7 +327,7 @@ protected:
         canvas->restore();
 
         // Bottom-left corner
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
         // TODO: failing serialize test on Linux, not sure what's going on
         canvas->writePixels(fBitmap, 0, 2*kTileHeight);
 #endif

@@ -147,7 +147,7 @@ static void imagesubsetproc(SkCanvas* canvas, sk_sp<SkImage> image, const SkBitm
     if (sk_sp<SkImage> subset = image->makeSubset(srcR, direct)) {
         canvas->drawImageRect(subset, dstR, sampling, paint);
     }
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     if (sk_sp<SkImage> subset = image->makeSubset(srcR, canvas->recorder())) {
         canvas->drawImageRect(subset, dstR, sampling, paint);
     }

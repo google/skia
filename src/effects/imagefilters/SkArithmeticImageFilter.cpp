@@ -40,7 +40,7 @@
 #include <memory>
 #include <utility>
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
@@ -73,7 +73,7 @@ protected:
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     sk_sp<SkSpecialImage> filterImageGPU(const Context& ctx,
                                          sk_sp<SkSpecialImage> background,
                                          const SkIPoint& backgroundOffset,
@@ -244,7 +244,7 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::onFilterImage(const Context& ctx,
     offset->fX = bounds.left();
     offset->fY = bounds.top();
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
     if (ctx.gpuBacked()) {
         return this->filterImageGPU(ctx, background, backgroundOffset, foreground,
                                     foregroundOffset, bounds);
@@ -328,7 +328,7 @@ SkIRect SkArithmeticImageFilter::onFilterBounds(const SkIRect& src,
     return SkIRect::MakeEmpty();
 }
 
-#if defined(SK_GANESH_ENABLED)
+#if defined(SK_GANESH)
 
 std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
         std::unique_ptr<GrFragmentProcessor> srcFP,

@@ -44,7 +44,7 @@ std::unique_ptr<WindowContext> MakeGLForXlib(const XlibWindowInfo&, const Displa
 std::unique_ptr<WindowContext> MakeDawnVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
 #endif
 
-#if defined(SK_DAWN) && defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_DAWN) && defined(SK_GRAPHITE)
 std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForXlib(const XlibWindowInfo&,
                                                              const DisplayParams&);
 #endif
