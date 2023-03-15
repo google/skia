@@ -1,5 +1,3 @@
-// TODO(b/243079493, b/243078879, b/243077639): Move this test to shared/ once storage buffers are
-// supported in other backends
 struct SomeData {
     float4 a;
     float2 b;
@@ -11,6 +9,12 @@ layout(set=0, binding=0) readonly buffer storageBuffer
     SomeData[] inputData;
 };
 
+layout(set=0, binding=1) buffer outputBuffer
+{
+    SomeData[] outputData;
+};
+
 half4 main(float2 coords) {
+    outputData[offset] = inputData[offset];
     return half4(inputData[offset].a * inputData[offset].b.x);
 }

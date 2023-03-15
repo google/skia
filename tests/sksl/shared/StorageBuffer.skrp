@@ -1,0 +1,60 @@
+### Compilation failed:
+
+error: 9: unsized arrays are not permitted here
+    SomeData[] inputData;
+            ^^
+error: 6: 'readonly' is not permitted here
+layout(set=0, binding=0) readonly buffer storageBuffer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 6: 'buffer' is not permitted here
+layout(set=0, binding=0) readonly buffer storageBuffer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 6: layout qualifier 'binding' is not permitted here
+layout(set=0, binding=0) readonly buffer storageBuffer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 6: layout qualifier 'set' is not permitted here
+layout(set=0, binding=0) readonly buffer storageBuffer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 6: interface blocks are not allowed in this kind of program
+layout(set=0, binding=0) readonly buffer storageBuffer
+                                         ^^^^^^^^^^^^^
+error: 14: unsized arrays are not permitted here
+    SomeData[] outputData;
+            ^^
+error: 12: 'buffer' is not permitted here
+layout(set=0, binding=1) buffer outputBuffer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 12: layout qualifier 'binding' is not permitted here
+layout(set=0, binding=1) buffer outputBuffer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 12: layout qualifier 'set' is not permitted here
+layout(set=0, binding=1) buffer outputBuffer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 12: interface blocks are not allowed in this kind of program
+layout(set=0, binding=1) buffer outputBuffer
+                                ^^^^^^^^^^^^
+error: 18: unknown identifier 'outputData'
+    outputData[offset] = inputData[offset];
+    ^^^^^^^^^^
+error: 18: unknown identifier 'offset'
+    outputData[offset] = inputData[offset];
+               ^^^^^^
+error: 18: unknown identifier 'inputData'
+    outputData[offset] = inputData[offset];
+                         ^^^^^^^^^
+error: 18: unknown identifier 'offset'
+    outputData[offset] = inputData[offset];
+                                   ^^^^^^
+error: 19: unknown identifier 'inputData'
+    return half4(inputData[offset].a * inputData[offset].b.x);
+                 ^^^^^^^^^
+error: 19: unknown identifier 'offset'
+    return half4(inputData[offset].a * inputData[offset].b.x);
+                           ^^^^^^
+error: 19: unknown identifier 'inputData'
+    return half4(inputData[offset].a * inputData[offset].b.x);
+                                       ^^^^^^^^^
+error: 19: unknown identifier 'offset'
+    return half4(inputData[offset].a * inputData[offset].b.x);
+                                                 ^^^^^^
+19 errors

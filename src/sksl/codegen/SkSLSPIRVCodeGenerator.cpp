@@ -1094,17 +1094,19 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                                          "' is not permitted here");
                 return NA;
             }
-            if (type->columns() == 0) {
-                // We do not support runtime-sized arrays.
-                fContext.fErrors->error(type->fPosition, "runtime-sized arrays are not supported");
-                return NA;
-            }
             size_t stride = layout.stride(*type);
             SpvId typeId = this->getType(type->componentType(), layout);
-            SpvId countId = this->writeLiteral(type->columns(), *fContext.fTypes.fInt);
-            SpvId result = this->writeInstruction(SpvOpTypeArray,
-                                                  Words{Word::KeyedResult(stride), typeId, countId},
-                                                  fConstantBuffer);
+            SpvId result = NA;
+            if (type->isUnsizedArray()) {
+                result = this->writeInstruction(SpvOpTypeRuntimeArray,
+                                                Words{Word::KeyedResult(stride), typeId},
+                                                fConstantBuffer);
+            } else {
+                SpvId countId = this->writeLiteral(type->columns(), *fContext.fTypes.fInt);
+                result = this->writeInstruction(SpvOpTypeArray,
+                                                Words{Word::KeyedResult(stride), typeId, countId},
+                                                fConstantBuffer);
+            }
             this->writeInstruction(SpvOpDecorate,
                                    {result, SpvDecorationArrayStride, Word::Number(stride)},
                                    fDecorationBuffer);
@@ -2222,6 +2224,15 @@ static SpvStorageClass_ get_storage_class_for_global_variable(
             var.type().typeKind() == Type::TypeKind::kTexture) {
             return SpvStorageClassUniformConstant;
         }
+        return SpvStorageClassUniform;
+    }
+    if (modifiers.fFlags & Modifiers::kBuffer_Flag) {
+        // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
+        // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"
+        // storage class and the "BufferBlock" decoration) is deprecated. Since we target SPIR-V
+        // 1.0, we have to use the deprecated approach which is well supported in Vulkan and
+        // addresses SkSL use cases (notably SkSL currently doesn't support pointer features that
+        // would benefit from SPV_KHR_variable_pointers capabilities).
         return SpvStorageClassUniform;
     }
     return fallbackStorageClass;
@@ -3565,7 +3576,17 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     const Modifiers& intfModifiers = intfVar.modifiers();
     SpvId typeId = this->getType(type, memoryLayout);
     if (intfModifiers.fLayout.fBuiltin == -1) {
-        this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBlock, fDecorationBuffer);
+        // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
+        // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"
+        // storage class and the "BufferBlock" decoration) is deprecated. Since we target SPIR-V
+        // 1.0, we have to use the deprecated approach which is well supported in Vulkan and
+        // addresses SkSL use cases (notably SkSL currently doesn't support pointer features that
+        // would benefit from SPV_KHR_variable_pointers capabilities).
+        bool isStorageBuffer = intfModifiers.fFlags & Modifiers::kBuffer_Flag;
+        this->writeInstruction(SpvOpDecorate,
+                               typeId,
+                               isStorageBuffer ? SpvDecorationBufferBlock : SpvDecorationBlock,
+                               fDecorationBuffer);
     }
     SpvId ptrType = this->nextId(nullptr);
     this->writeInstruction(SpvOpTypePointer, ptrType, storageClass, typeId, fConstantBuffer);

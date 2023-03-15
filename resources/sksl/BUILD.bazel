@@ -577,8 +577,6 @@ skia_filegroup(
         "metal/OutParams.sksl",
         "metal/OutVarsRequireLocation.sksl",
         "metal/SamplerGlobals.sksl",
-        "metal/StorageBuffer.sksl",
-        "metal/StorageBufferVertex.vert",
         "metal/SwizzleHelper.sksl",
     ],
 )
@@ -940,6 +938,8 @@ skia_filegroup(
         "shared/StaticSwitchWithFallthroughB.sksl",
         "shared/StaticSwitchWithStaticConditionalBreak.sksl",
         "shared/StaticSwitchWithStaticConditionalBreakInsideBlock.sksl",
+        "shared/StorageBuffer.sksl",
+        "shared/StorageBufferVertex.vert",
         "shared/StructArrayFollowedByScalar.sksl",
         "shared/StructComparison.sksl",
         "shared/StructIndexLookup.sksl",

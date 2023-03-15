@@ -348,8 +348,6 @@ sksl_metal_tests = [
   "metal/OutParams.sksl",
   "metal/OutVarsRequireLocation.sksl",
   "metal/SamplerGlobals.sksl",
-  "metal/StorageBuffer.sksl",
-  "metal/StorageBufferVertex.vert",
   "metal/SwizzleHelper.sksl",
 ]
 
@@ -648,6 +646,8 @@ sksl_shared_tests = [
   "shared/StaticSwitchWithFallthroughB.sksl",
   "shared/StaticSwitchWithStaticConditionalBreak.sksl",
   "shared/StaticSwitchWithStaticConditionalBreakInsideBlock.sksl",
+  "shared/StorageBuffer.sksl",
+  "shared/StorageBufferVertex.vert",
   "shared/StructArrayFollowedByScalar.sksl",
   "shared/StructComparison.sksl",
   "shared/StructIndexLookup.sksl",
