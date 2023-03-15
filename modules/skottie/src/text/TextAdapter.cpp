@@ -126,8 +126,7 @@ public:
         this->INHERITED::onRender(canvas, local_ctx);
 
         fDecorator->onDecorate(canvas, {
-            fDecoratorInfo.get(),
-            fFragCount,
+            SkSpan(fDecoratorInfo.get(), fFragCount),
             fScale
         });
     }

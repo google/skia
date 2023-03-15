@@ -129,13 +129,13 @@ void SkottieTextEditor::drawCursor(SkCanvas* canvas, const TextInfo& tinfo) cons
         }
 
         const auto prev_index = prev_utf8(txt_prop.fText, fCursorIndex);
-        for (size_t i = 0; i < tinfo.fGlyphCount; ++i) {
+        for (size_t i = 0; i < tinfo.fGlyphs.size(); ++i) {
             if (tinfo.fGlyphs[i].fCluster >= prev_index) {
                 return i;
             }
         }
 
-        return tinfo.fGlyphCount - 1;
+        return tinfo.fGlyphs.size() - 1;
     }();
 
     // Cursor index mapping:
@@ -219,7 +219,7 @@ void SkottieTextEditor::onDecorate(SkCanvas* canvas, const TextInfo& tinfo) {
 
     fGlyphData.clear();
 
-    for (size_t i = 0; i < tinfo.fGlyphCount; ++i) {
+    for (size_t i = 0; i < tinfo.fGlyphs.size(); ++i) {
         const auto& ginfo = tinfo.fGlyphs[i];
 
         SkAutoCanvasRestore acr(canvas, true);
