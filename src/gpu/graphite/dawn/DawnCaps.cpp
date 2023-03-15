@@ -482,4 +482,8 @@ void DawnCaps::buildKeyForTexture(SkISize dimensions,
                  (static_cast<uint32_t>(dawnSpec.fUsage)       << 4);
 }
 
+size_t DawnCaps::bytesPerPixel(const TextureInfo& info) const {
+    return DawnFormatBytesPerBlock(info.dawnTextureSpec().fFormat);
+}
+
 } // namespace skgpu::graphite

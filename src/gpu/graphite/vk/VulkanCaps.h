@@ -51,6 +51,8 @@ public:
                             Shareable,
                             GraphiteResourceKey*) const override {}
 
+    size_t bytesPerPixel(const TextureInfo&) const override;
+
     bool shouldAlwaysUseDedicatedImageMemory() const {
         return fShouldAlwaysUseDedicatedImageMemory;
     }

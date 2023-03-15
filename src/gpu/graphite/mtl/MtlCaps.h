@@ -55,6 +55,8 @@ public:
                             Shareable,
                             GraphiteResourceKey*) const override;
 
+    size_t bytesPerPixel(const TextureInfo&) const override;
+
 private:
     void initGPUFamily(const id<MTLDevice>);
 

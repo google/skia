@@ -111,8 +111,6 @@ static inline MTLPixelFormat GrBackendFormatAsMTLPixelFormat(const GrBackendForm
  */
 SkTextureCompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat);
 
-size_t GrMtlFormatBytesPerBlock(MTLPixelFormat);
-
 int GrMtlFormatStencilBits(MTLPixelFormat);
 
 GR_NORETAIN_END

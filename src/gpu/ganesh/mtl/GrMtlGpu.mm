@@ -582,7 +582,9 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
     }
 
     if (levelClearMask) {
-        this->clearTexture(tex.get(), GrMtlFormatBytesPerBlock(mtlPixelFormat), levelClearMask);
+        this->clearTexture(tex.get(),
+                           skgpu::MtlFormatBytesPerBlock(mtlPixelFormat),
+                           levelClearMask);
     }
 
     return std::move(tex);
@@ -936,7 +938,7 @@ bool GrMtlGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
     const MTLPixelFormat mtlFormat = mtlTexture.pixelFormat;
 
     // Create a transfer buffer and fill with data.
-    size_t bytesPerPixel = GrMtlFormatBytesPerBlock(mtlFormat);
+    size_t bytesPerPixel = skgpu::MtlFormatBytesPerBlock(mtlFormat);
     size_t combinedBufferSize;
 
     // Reuse the same buffer for all levels. Should be ok since we made the row bytes tight.

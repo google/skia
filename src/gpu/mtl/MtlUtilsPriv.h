@@ -28,6 +28,8 @@ bool MtlFormatIsCompressed(MTLPixelFormat);
 
 uint32_t MtlFormatChannels(MTLPixelFormat);
 
+size_t MtlFormatBytesPerBlock(MTLPixelFormat);
+
 #if defined(SK_DEBUG) || GR_TEST_UTILS
 const char* MtlFormatToString(MTLPixelFormat);
 #endif

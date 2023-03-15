@@ -11,7 +11,6 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
-#include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
@@ -198,7 +197,7 @@ TextureInfo VulkanCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampl
 TextureInfo VulkanCaps::getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags> flags,
                                                           uint32_t sampleCount,
                                                           Protected isProtected) const {
-    VkFormat format = getFormatFromDepthStencilFlags(flags);
+    VkFormat format = this->getFormatFromDepthStencilFlags(flags);
     const DepthStencilFormatInfo& formatInfo = this->getDepthStencilFormatInfo(format);
     if ( (isProtected == Protected::kYes && !this->protectedSupport()) ||
          !formatInfo.isDepthStencilSupported(formatInfo.fFormatProperties.optimalTilingFeatures) ||
@@ -222,6 +221,11 @@ TextureInfo VulkanCaps::getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthSte
 
 uint32_t VulkanCaps::channelMask(const TextureInfo& textureInfo) const {
     return skgpu::VkFormatChannels(textureInfo.vulkanTextureSpec().fFormat);
+}
+
+size_t VulkanCaps::bytesPerPixel(const TextureInfo& info) const {
+    const VkFormat format = info.vulkanTextureSpec().fFormat;
+    return VkFormatBytesPerBlock(format);
 }
 
 void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
