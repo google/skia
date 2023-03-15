@@ -132,7 +132,6 @@ HARFBUZZ_SRCS = [
     "src/graph/pairpos-graph.hh",
     "src/graph/serialize.hh",
     "src/graph/split-helpers.hh",
-    "src/graph/test-classdef-graph.cc",
     "src/hb-aat-layout-ankr-table.hh",
     "src/hb-aat-layout-bsln-table.hh",
     "src/hb-aat-layout-common.hh",
