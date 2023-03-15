@@ -148,7 +148,6 @@ if (skia_use_system_harfbuzz) {
       "$_src/graph/pairpos-graph.hh",
       "$_src/graph/serialize.hh",
       "$_src/graph/split-helpers.hh",
-      "$_src/graph/test-classdef-graph.cc",
       "$_src/hb-aat-layout-ankr-table.hh",
       "$_src/hb-aat-layout-bsln-table.hh",
       "$_src/hb-aat-layout-common.hh",
@@ -364,6 +363,7 @@ if (skia_use_system_harfbuzz) {
     # The following sources are explicitly not used.
     # They are referenced to aid in detecting previously uncategorized files.
     unused_sources = [
+      "$_src/graph/test-classdef-graph.cc",
       "$_src/harfbuzz-subset.cc",
       "$_src/harfbuzz.cc",
       "$_src/hb-cairo-utils.cc",
