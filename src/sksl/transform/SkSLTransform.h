@@ -40,8 +40,8 @@ const Modifiers* AddConstToVarModifiers(const Context& context,
 
 /**
  * Rewrites indexed swizzles of the form `myVec.zyx[i]` by replacing the swizzle with a lookup into
- * a constant vector. e.g., the above expression would be rewritten as `myVec[uvec3(2, 1, 0)[i]]`.
- * This matches glslang's handling of the code.
+ * a constant vector. e.g., the above expression would be rewritten as `myVec[vec3(2, 1, 0)[i]]`.
+ * This roughly matches glslang's handling of the code.
  */
 std::unique_ptr<Expression> RewriteIndexedSwizzle(const Context& context,
                                                   const IndexExpression& swizzle);

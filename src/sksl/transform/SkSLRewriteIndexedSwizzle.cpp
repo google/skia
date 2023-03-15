@@ -31,22 +31,22 @@ std::unique_ptr<Expression> Transform::RewriteIndexedSwizzle(const Context& cont
     const Swizzle& swizzle = indexExpr.base()->as<Swizzle>();
 
     // Convert the swizzle components to a literal array.
-    ExpressionArray uvecArray;
-    uvecArray.reserve(swizzle.components().size());
+    ExpressionArray vecArray;
+    vecArray.reserve(swizzle.components().size());
     for (int8_t comp : swizzle.components()) {
-        uvecArray.push_back(Literal::Make(indexExpr.fPosition, comp, context.fTypes.fUInt.get()));
+        vecArray.push_back(Literal::Make(indexExpr.fPosition, comp, context.fTypes.fInt.get()));
     }
 
     // Make a compound constructor with the literal array.
-    const Type& uvecType = context.fTypes.fUInt->toCompound(context, uvecArray.size(), /*rows=*/1);
-    std::unique_ptr<Expression> uvec =
-            ConstructorCompound::Make(context, indexExpr.fPosition, uvecType, std::move(uvecArray));
+    const Type& vecType = context.fTypes.fInt->toCompound(context, vecArray.size(), /*rows=*/1);
+    std::unique_ptr<Expression> vec =
+            ConstructorCompound::Make(context, indexExpr.fPosition, vecType, std::move(vecArray));
 
-    // Create a rewritten inner-expression corresponding to `uvec(1,2,3)[originalIndex]`.
+    // Create a rewritten inner-expression corresponding to `vec(1,2,3)[originalIndex]`.
     std::unique_ptr<Expression> innerExpr = IndexExpression::Make(
-            context, indexExpr.fPosition, std::move(uvec), indexExpr.index()->clone());
+            context, indexExpr.fPosition, std::move(vec), indexExpr.index()->clone());
 
-    // Return a rewritten outer-expression corresponding to `base[uvec(1,2,3)[originalIndex]]`.
+    // Return a rewritten outer-expression corresponding to `base[vec(1,2,3)[originalIndex]]`.
     return IndexExpression::Make(
             context, indexExpr.fPosition, swizzle.base()->clone(), std::move(innerExpr));
 }
