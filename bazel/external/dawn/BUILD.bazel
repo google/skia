@@ -690,6 +690,7 @@ TINT_SRCS = [
     "src/tint/scope_stack.h",
     "src/tint/source.cc",
     "src/tint/source.h",
+    "src/tint/switch.h",
     "src/tint/symbol.cc",
     "src/tint/symbol.h",
     "src/tint/symbol_table.cc",
@@ -718,6 +719,8 @@ TINT_SRCS = [
     "src/tint/utils/slice.h",
     "src/tint/utils/string.cc",
     "src/tint/utils/string.h",
+    "src/tint/utils/string_stream.cc",
+    "src/tint/utils/string_stream.h",
     "src/tint/utils/transform.h",
     "src/tint/utils/unique_allocator.h",
     "src/tint/utils/unique_vector.h",
@@ -734,10 +737,10 @@ TINT_SRCS = [
     "src/tint/program_builder.h",
     "src/tint/resolver/const_eval.cc",
     "src/tint/resolver/const_eval.h",
+    "src/tint/resolver/ctor_conv_intrinsic.cc",
+    "src/tint/resolver/ctor_conv_intrinsic.h",
     "src/tint/resolver/dependency_graph.cc",
     "src/tint/resolver/dependency_graph.h",
-    "src/tint/resolver/init_conv_intrinsic.cc",
-    "src/tint/resolver/init_conv_intrinsic.h",
     "src/tint/resolver/intrinsic_table.cc",
     "src/tint/resolver/intrinsic_table.h",
     "src/tint/resolver/intrinsic_table.inl",
@@ -750,9 +753,12 @@ TINT_SRCS = [
     "src/tint/resolver/validator.cc",
     "src/tint/resolver/validator.h",
 
-    # From dawn/src/tint/BUILD.gn:libtint_text_src
+    # From dawn/src/tint/BUILD.gn:libtint_demangler_src
     "src/tint/demangler.cc",
     "src/tint/demangler.h",
+
+    # From dawn/src/tint/BUILD.gn:libtint_initializer_src
+    "src/tint/tint.cc",
 
     # From dawn/src/tint/BUILD.gn:libtint_inspector_src
     "src/tint/inspector/entry_point.cc",
@@ -900,6 +906,7 @@ TINT_SRCS = [
     "src/tint/ast/discard_statement.h",
     "src/tint/ast/enable.h",
     "src/tint/ast/expression.h",
+    "src/tint/ast/extension.h",
     "src/tint/ast/float_literal_expression.h",
     "src/tint/ast/for_loop_statement.h",
     "src/tint/ast/function.h",
@@ -977,6 +984,7 @@ TINT_SRCS = [
     "src/tint/ast/discard_statement.cc",
     "src/tint/ast/enable.cc",
     "src/tint/ast/expression.cc",
+    "src/tint/ast/extension.cc",
     "src/tint/ast/float_literal_expression.cc",
     "src/tint/ast/for_loop_statement.cc",
     "src/tint/ast/function.cc",
@@ -1029,6 +1037,8 @@ TINT_SRCS = [
     "src/tint/builtin/access.h",
     "src/tint/builtin/address_space.cc",
     "src/tint/builtin/address_space.h",
+    "src/tint/builtin/attribute.cc",
+    "src/tint/builtin/attribute.h",
     "src/tint/builtin/builtin.cc",
     "src/tint/builtin/builtin.h",
     "src/tint/builtin/builtin_value.cc",
@@ -1039,6 +1049,8 @@ TINT_SRCS = [
     "src/tint/builtin/diagnostic_severity.h",
     "src/tint/builtin/extension.cc",
     "src/tint/builtin/extension.h",
+    "src/tint/builtin/function.cc",
+    "src/tint/builtin/function.h",
     "src/tint/builtin/interpolation_sampling.cc",
     "src/tint/builtin/interpolation_sampling.h",
     "src/tint/builtin/interpolation_type.cc",
@@ -1046,7 +1058,7 @@ TINT_SRCS = [
     "src/tint/builtin/texel_format.cc",
     "src/tint/builtin/texel_format.h",
 
-    # From dawn/src/tint/BUILD.gn:libtint_type_src
+    # From dawn/src/tint/BUILD.gn:libtint_sem_src
     "src/tint/sem/array_count.cc",
     "src/tint/sem/array_count.h",
     "src/tint/sem/behavior.cc",
@@ -1060,8 +1072,6 @@ TINT_SRCS = [
     "src/tint/sem/builtin.h",
     "src/tint/sem/builtin_enum_expression.cc",
     "src/tint/sem/builtin_enum_expression.h",
-    "src/tint/sem/builtin_type.cc",
-    "src/tint/sem/builtin_type.h",
     "src/tint/sem/call.cc",
     "src/tint/sem/call.h",
     "src/tint/sem/call_target.cc",
@@ -1069,6 +1079,7 @@ TINT_SRCS = [
     "src/tint/sem/evaluation_stage.h",
     "src/tint/sem/expression.cc",
     "src/tint/sem/expression.h",
+    "src/tint/sem/external_texture.h",
     "src/tint/sem/for_loop_statement.cc",
     "src/tint/sem/for_loop_statement.h",
     "src/tint/sem/function.cc",
@@ -1103,13 +1114,13 @@ TINT_SRCS = [
     "src/tint/sem/struct.h",
     "src/tint/sem/switch_statement.cc",
     "src/tint/sem/switch_statement.h",
-    "src/tint/sem/type_conversion.cc",
-    "src/tint/sem/type_conversion.h",
     "src/tint/sem/type_expression.cc",
     "src/tint/sem/type_expression.h",
-    "src/tint/sem/type_initializer.cc",
-    "src/tint/sem/type_initializer.h",
     "src/tint/sem/type_mappings.h",
+    "src/tint/sem/value_constructor.cc",
+    "src/tint/sem/value_constructor.h",
+    "src/tint/sem/value_conversion.cc",
+    "src/tint/sem/value_conversion.h",
     "src/tint/sem/value_expression.cc",
     "src/tint/sem/value_expression.h",
     "src/tint/sem/variable.cc",
@@ -1181,24 +1192,6 @@ TINT_SRCS = [
     "src/tint/type/vector.h",
     "src/tint/type/void.cc",
     "src/tint/type/void.h",
-    "src/tint/writer/append_vector.cc",
-    "src/tint/writer/append_vector.h",
-    "src/tint/writer/array_length_from_uniform_options.cc",
-    "src/tint/writer/array_length_from_uniform_options.h",
-    "src/tint/writer/check_supported_extensions.cc",
-    "src/tint/writer/check_supported_extensions.h",
-    "src/tint/writer/flatten_bindings.cc",
-    "src/tint/writer/flatten_bindings.h",
-    "src/tint/writer/float_to_string.cc",
-    "src/tint/writer/float_to_string.h",
-    "src/tint/writer/generate_external_texture_bindings.cc",
-    "src/tint/writer/generate_external_texture_bindings.h",
-    "src/tint/writer/text.cc",
-    "src/tint/writer/text.h",
-    "src/tint/writer/text_generator.cc",
-    "src/tint/writer/text_generator.h",
-    "src/tint/writer/writer.cc",
-    "src/tint/writer/writer.h",
 
     # From dawn/src/tint/BUILD.gn:libtint_constant_src
     "src/tint/constant/clone_context.h",
@@ -1216,6 +1209,29 @@ TINT_SRCS = [
     # From dawn/src/tint/BUILD.gn:libtint_reader_src
     "src/tint/reader/reader.cc",
     "src/tint/reader/reader.h",
+
+    # From dawn/src/tint/BUILD.gn:From libtint_writer_src
+    "src/tint/writer/append_vector.cc",
+    "src/tint/writer/append_vector.h",
+    "src/tint/writer/array_length_from_uniform_options.cc",
+    "src/tint/writer/array_length_from_uniform_options.h",
+    "src/tint/writer/binding_point.h",
+    "src/tint/writer/binding_remapper_options.cc",
+    "src/tint/writer/binding_remapper_options.h",
+    "src/tint/writer/check_supported_extensions.cc",
+    "src/tint/writer/check_supported_extensions.h",
+    "src/tint/writer/external_texture_options.cc",
+    "src/tint/writer/external_texture_options.h",
+    "src/tint/writer/flatten_bindings.cc",
+    "src/tint/writer/flatten_bindings.h",
+    "src/tint/writer/float_to_string.cc",
+    "src/tint/writer/float_to_string.h",
+    "src/tint/writer/text.cc",
+    "src/tint/writer/text.h",
+    "src/tint/writer/text_generator.cc",
+    "src/tint/writer/text_generator.h",
+    "src/tint/writer/writer.cc",
+    "src/tint/writer/writer.h",
 
     # Dawn sets the following tint GN variables
     #    tint_build_spv_reader = true
@@ -1283,7 +1299,7 @@ cc_library(
     srcs = TINT_SRCS,
     hdrs = TINT_HDRS,
     defines = [
-        # From From dawn/src/tint/BUILD.gn:tint_public_config, using the options
+        # From dawn/src/tint/BUILD.gn:tint_public_config, using the options
         # set by Skia in //build_overrides/tint.gni
         "TINT_BUILD_SPV_READER=1",
         "TINT_BUILD_SPV_WRITER=1",
@@ -1291,11 +1307,12 @@ cc_library(
         "TINT_BUILD_WGSL_WRITER=1",
     ],
     includes = [
-        "",
         "include",
     ],
     visibility = ["//visibility:public"],
     deps = [
+        # Tint depends on abseil-cpp:strings for absl/strings/charconv.h
+        "@abseil_cpp//absl/strings",
         # Tint specifically depends on spirv-tools/BUILD.gn:spirv_opt
         "@spirv_tools//:spirv_tools_opt",
         # Tint requires "include/spirv/unified1/spirv.hpp11", which is provided

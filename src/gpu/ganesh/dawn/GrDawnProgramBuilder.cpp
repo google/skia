@@ -207,6 +207,8 @@ static wgpu::DepthStencilState create_depth_stencil_state(
 
     wgpu::DepthStencilState state;
     state.format = depthStencilFormat;
+    state.depthWriteEnabled = false;
+    state.depthCompare = wgpu::CompareFunction::Always;
     if (!stencilSettings.isDisabled()) {
         if (stencilSettings.isTwoSided()) {
             auto front = stencilSettings.postOriginCCWFace(origin);

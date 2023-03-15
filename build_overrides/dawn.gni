@@ -9,6 +9,7 @@
 dawn_has_build = false
 
 dawn_abseil_dir = "//third_party/externals/abseil-cpp"
+dawn_angle_dir = "//third_party/externals/angle2"
 dawn_jinja2_dir = "//third_party/externals/jinja2"
 dawn_spirv_tools_dir = "//third_party/externals/spirv-tools"
 dawn_spirv_cross_dir = "//third_party/externals/spirv-cross"
