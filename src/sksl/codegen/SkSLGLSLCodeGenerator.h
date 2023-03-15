@@ -33,6 +33,7 @@ class FunctionDeclaration;
 class FunctionDefinition;
 class FunctionPrototype;
 class IfStatement;
+class IndexExpression;
 class InterfaceBlock;
 class Literal;
 class OutputStream;
@@ -43,18 +44,17 @@ class ReturnStatement;
 class Statement;
 class StructDefinition;
 class SwitchStatement;
+class Swizzle;
 class TernaryExpression;
 class Type;
 class VarDeclaration;
 class Variable;
 class VariableReference;
 enum class OperatorPrecedence : uint8_t;
-struct IndexExpression;
 struct Layout;
 struct Modifiers;
 struct Program;
 struct ShaderCaps;
-struct Swizzle;
 
 /**
  * Converts a Program into GLSL code.

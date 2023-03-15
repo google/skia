@@ -16,13 +16,13 @@ namespace SkSL {
 
 class Context;
 class Expression;
+class IndexExpression;
 struct Modifiers;
 struct Module;
 struct Program;
 class ProgramElement;
 class ProgramUsage;
 class Statement;
-struct IndexExpression;
 class Variable;
 enum class ProgramKind : int8_t;
 

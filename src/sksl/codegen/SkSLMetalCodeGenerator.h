@@ -41,6 +41,7 @@ class FunctionDeclaration;
 class FunctionDefinition;
 class FunctionPrototype;
 class IfStatement;
+class IndexExpression;
 class InterfaceBlock;
 class Literal;
 class Operator;
@@ -53,17 +54,16 @@ class ReturnStatement;
 class Statement;
 class StructDefinition;
 class SwitchStatement;
+class Swizzle;
 class TernaryExpression;
 class VarDeclaration;
 class Variable;
 class VariableReference;
 enum class OperatorPrecedence : uint8_t;
 enum IntrinsicKind : int8_t;
-struct IndexExpression;
 struct Layout;
 struct Modifiers;
 struct Program;
-struct Swizzle;
 
 /**
  * Converts a Program into Metal code.
