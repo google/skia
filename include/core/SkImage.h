@@ -216,7 +216,8 @@ public:
                                           std::optional<SkAlphaType> alphaType = std::nullopt);
 
     // TODO(kjlubick) remove this once Chrome has been migrated to new type
-    static const SkTextureCompressionType kETC1_SkTextureCompressionType = SkTextureCompressionType::kETC1_RGB8;
+    static const SkTextureCompressionType kETC1_CompressionType =
+            SkTextureCompressionType::kETC1_RGB8;
 
     /** Creates a CPU-backed SkImage from compressed data.
 
