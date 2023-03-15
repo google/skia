@@ -60,6 +60,7 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -2417,6 +2418,9 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 }
 
 bool Generator::pushIndexExpression(const IndexExpression& i) {
+    if (i.base()->is<Swizzle>()) {
+        return this->pushExpression(*Transform::RewriteIndexedSwizzle(fContext, i));
+    }
     std::unique_ptr<LValue> lvalue = this->makeLValue(i, /*allowScratch=*/true);
     return lvalue && this->push(*lvalue);
 }
