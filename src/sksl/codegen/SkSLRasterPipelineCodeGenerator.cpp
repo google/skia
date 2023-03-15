@@ -568,6 +568,11 @@ public:
                                      SlotRange fixedOffset,
                                      AutoStack* dynamicOffset,
                                      SkSpan<const int8_t> swizzle) = 0;
+    /**
+     * Some lvalues refer to a temporary expression; these temps can be held in the
+     * scratch-expression field to ensure that they exist for the lifetime of the lvalue.
+     */
+    std::unique_ptr<Expression> fScratchExpression;
 };
 
 class ScratchLValue final : public LValue {
@@ -846,8 +851,8 @@ public:
         fGenerator = gen;
         fDedicatedStack.emplace(fGenerator);
 
-        // TODO: add support for dynamically indexing into a swizzle
         if (!fParent->swizzle().empty()) {
+            SkDEBUGFAIL("an indexed-swizzle should have been handled by RewriteIndexedSwizzle");
             return unsupported();
         }
 
@@ -1061,6 +1066,20 @@ std::unique_ptr<LValue> Generator::makeLValue(const Expression& e, bool allowScr
     }
     if (e.is<IndexExpression>()) {
         const IndexExpression& indexExpr = e.as<IndexExpression>();
+
+        // If the index base is swizzled (`vec.zyx[idx]`), rewrite it into an equivalent
+        // non-swizzled form (`vec[uint3(2,1,0)[idx]]`).
+        if (std::unique_ptr<Expression> rewritten = Transform::RewriteIndexedSwizzle(fContext,
+                                                                                     indexExpr)) {
+            // Convert the rewritten expression into an lvalue.
+            std::unique_ptr<LValue> lvalue = this->makeLValue(*rewritten, allowScratch);
+            if (!lvalue) {
+                return nullptr;
+            }
+            // We need to hold onto the rewritten expression for the lifetime of the lvalue.
+            lvalue->fScratchExpression = std::move(rewritten);
+            return lvalue;
+        }
         if (std::unique_ptr<LValue> base = this->makeLValue(*indexExpr.base(),
                                                             allowScratch)) {
             // If the index is a compile-time constant, we can represent it with a fixed slice.
@@ -2418,9 +2437,6 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 }
 
 bool Generator::pushIndexExpression(const IndexExpression& i) {
-    if (i.base()->is<Swizzle>()) {
-        return this->pushExpression(*Transform::RewriteIndexedSwizzle(fContext, i));
-    }
     std::unique_ptr<LValue> lvalue = this->makeLValue(i, /*allowScratch=*/true);
     return lvalue && this->push(*lvalue);
 }
