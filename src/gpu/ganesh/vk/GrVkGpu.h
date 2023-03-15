@@ -73,7 +73,7 @@ public:
     const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties() const {
         return fPhysDevMemProps;
     }
-    bool protectedContext() const { return fProtectedContext == GrProtected::kYes; }
+    bool protectedContext() const { return fProtectedContext == skgpu::Protected::kYes; }
 
     GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
 
@@ -426,7 +426,7 @@ private:
     // vulkan context.
     bool                                                  fDisconnected;
 
-    GrProtected                                           fProtectedContext;
+    skgpu::Protected                                      fProtectedContext;
 
     std::unique_ptr<GrVkOpsRenderPass>                    fCachedOpsRenderPass;
 

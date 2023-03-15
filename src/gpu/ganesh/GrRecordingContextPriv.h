@@ -128,8 +128,8 @@ public:
                                           const SkImageInfo&,
                                           SkBackingFit,
                                           int sampleCount,
-                                          GrMipmapped,
-                                          GrProtected,
+                                          skgpu::Mipmapped,
+                                          skgpu::Protected,
                                           GrSurfaceOrigin,
                                           const SkSurfaceProps&,
                                           skgpu::v1::Device::InitContents);
@@ -146,10 +146,10 @@ public:
                                                       std::string_view label,
                                                       SkBackingFit = SkBackingFit::kExact,
                                                       GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                      GrRenderable = GrRenderable::kNo,
+                                                      skgpu::Renderable = skgpu::Renderable::kNo,
                                                       int renderTargetSampleCnt = 1,
-                                                      GrMipmapped = GrMipmapped::kNo,
-                                                      GrProtected = GrProtected::kNo,
+                                                      skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+                                                      skgpu::Protected = skgpu::Protected::kNo,
                                                       skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     /**
@@ -161,8 +161,8 @@ public:
             std::string_view label,
             SkBackingFit = SkBackingFit::kExact,
             int sampleCount = 1,
-            GrMipmapped = GrMipmapped::kNo,
-            GrProtected = GrProtected::kNo,
+            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+            skgpu::Protected = skgpu::Protected::kNo,
             GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
             skgpu::Budgeted = skgpu::Budgeted::kYes);
 
@@ -177,8 +177,8 @@ public:
                                                            SkBackingFit,
                                                            const GrBackendFormat&,
                                                            int sampleCount,
-                                                           GrMipmapped,
-                                                           GrProtected,
+                                                           skgpu::Mipmapped,
+                                                           skgpu::Protected,
                                                            skgpu::Swizzle readSwizzle,
                                                            skgpu::Swizzle writeSwizzle,
                                                            GrSurfaceOrigin,
@@ -193,8 +193,8 @@ public:
             GrImageInfo,
             SkBackingFit = SkBackingFit::kExact,
             int sampleCount = 1,
-            GrMipmapped = GrMipmapped::kNo,
-            GrProtected = GrProtected::kNo,
+            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+            skgpu::Protected = skgpu::Protected::kNo,
             GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
             skgpu::Budgeted = skgpu::Budgeted::kYes);
 

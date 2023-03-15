@@ -28,7 +28,7 @@ GrVkImageInfo GrVkBackendSurfaceInfo::snapImageInfo(
 GrVkSurfaceInfo GrVkImageSpecToSurfaceInfo(const GrVkImageSpec& vkSpec,
                                            uint32_t sampleCount,
                                            uint32_t levelCount,
-                                           GrProtected isProtected) {
+                                           skgpu::Protected isProtected) {
     GrVkSurfaceInfo info;
     // Shared info
     info.fSampleCount = sampleCount;

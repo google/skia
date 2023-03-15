@@ -187,7 +187,7 @@ void setup_test_context(Context* context,
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
                                                                  skgpu::Mipmapped::kNo,
                                                                  skgpu::Protected::kNo,
-                                                                 Renderable::kYes);
+                                                                 skgpu::Renderable::kYes);
 
     if (invalidBackendTex) {
         // Having invalid backend textures will invalidate all the fulfill calls

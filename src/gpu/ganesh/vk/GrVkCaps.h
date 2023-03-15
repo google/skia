@@ -37,7 +37,7 @@ public:
              uint32_t instanceVersion,
              uint32_t physicalDeviceVersion,
              const skgpu::VulkanExtensions& extensions,
-             GrProtected isProtected = GrProtected::kNo);
+             skgpu::Protected isProtected = skgpu::Protected::kNo);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
 

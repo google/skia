@@ -484,8 +484,8 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     ctx->fGetProc = skgpuCtx.fGetProc;
     ctx->fOwnsInstanceAndDevice = false;
     ctx->fProtectedContext =
-            skgpuCtx.fProtectedContext == skgpu::Protected::kYes ? GrProtected::kYes
-                                                                 : GrProtected::kNo;
+            skgpuCtx.fProtectedContext == skgpu::Protected::kYes ? skgpu::Protected::kYes
+                                                                 : skgpu::Protected::kNo;
     return true;
 }
 

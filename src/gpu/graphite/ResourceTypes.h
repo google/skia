@@ -16,14 +16,6 @@ namespace skgpu::graphite {
 
 class Buffer;
 
-/**
- * Is the Texture renderable or not
- */
-enum class Renderable : bool {
-    kNo = false,
-    kYes = true,
-};
-
 enum class DepthStencilFlags : int {
     kNone = 0b000,
     kDepth = 0b001,

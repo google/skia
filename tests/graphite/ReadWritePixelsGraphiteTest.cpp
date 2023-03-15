@@ -514,7 +514,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
                                          context) {
     using Image = sk_sp<SkImage>;
     using Recorder = skgpu::graphite::Recorder;
-    using Renderable = skgpu::graphite::Renderable;
+    using Renderable = skgpu::Renderable;
     using TextureInfo = skgpu::graphite::TextureInfo;
 
     auto reader = std::function<GraphiteReadSrcFn<Image>>([context](const Image& image,

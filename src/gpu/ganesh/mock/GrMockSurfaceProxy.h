@@ -19,7 +19,7 @@ public:
                              SkISize::Make(1, 1),
                              SkBackingFit::kExact,
                              skgpu::Budgeted::kNo,
-                             GrProtected::kNo,
+                             skgpu::Protected::kNo,
                              GrInternalSurfaceFlags::kNone,
                              UseAllocator::kNo,
                              label) {

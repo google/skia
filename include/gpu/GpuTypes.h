@@ -58,6 +58,14 @@ enum class Protected : bool {
     kYes = true,
 };
 
+/**
+ * Is a texture renderable or not
+ */
+enum class Renderable : bool {
+    kNo = false,
+    kYes = true,
+};
+
 } // namespace skgpu
 
 

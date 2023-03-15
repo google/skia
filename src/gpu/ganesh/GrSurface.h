@@ -10,7 +10,7 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 
@@ -81,7 +81,7 @@ public:
     }
 
     // Returns true if we are working with protected content.
-    bool isProtected() const { return fIsProtected == GrProtected::kYes; }
+    bool isProtected() const { return fIsProtected == skgpu::Protected::kYes; }
 
     void setFramebufferOnly() {
         SkASSERT(this->asRenderTarget());
@@ -132,7 +132,7 @@ protected:
 
     GrSurface(GrGpu* gpu,
               const SkISize& dimensions,
-              GrProtected isProtected,
+              skgpu::Protected isProtected,
               std::string_view label)
             : INHERITED(gpu, label)
             , fDimensions(dimensions)
@@ -162,7 +162,7 @@ private:
 
     SkISize                    fDimensions;
     GrInternalSurfaceFlags     fSurfaceFlags;
-    GrProtected                fIsProtected;
+    skgpu::Protected           fIsProtected;
     sk_sp<RefCntedReleaseProc> fReleaseHelper;
 
     using INHERITED = GrGpuResource;

@@ -20,7 +20,6 @@ enum SkColorType : int;
 namespace skgpu::graphite {
 
 class Caps;
-enum class Renderable : bool;
 class ResourceProvider;
 class Texture;
 

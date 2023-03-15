@@ -97,7 +97,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Graphite, reporter, cont
         TextureInfo info = caps->getDefaultSampledTextureInfo(colorType,
                                                               skgpu::Mipmapped::kNo,
                                                               skgpu::Protected::kNo,
-                                                              Renderable::kYes);
+                                                              skgpu::Renderable::kYes);
         if (!info.isValid()) {
             continue;
         }

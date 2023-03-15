@@ -51,7 +51,7 @@
 class GrRecordingContext;
 class SkSurfaceProps;
 enum GrSurfaceOrigin : int;
-enum class GrProtected : bool;
+namespace skgpu { enum class Protected : bool; }
 
 #endif // defined(SK_GANESH)
 
@@ -218,7 +218,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdImageFilter::onFilterImage(const Context& 
 
         GrSurfaceProxyView inputView = (input->view(context));
         SkASSERT(inputView.asTextureProxy());
-        const GrProtected isProtected = inputView.proxy()->isProtected();
+        const skgpu::Protected isProtected = inputView.proxy()->isProtected();
         const GrSurfaceOrigin origin = inputView.origin();
 
         offset->fX = bounds.left();

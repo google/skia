@@ -9,7 +9,7 @@
 #define GrMockOptions_DEFINED
 
 #include "include/core/SkTextureCompressionType.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 class GrBackendFormat;
@@ -83,7 +83,7 @@ private:
 struct GrMockSurfaceInfo {
     uint32_t fSampleCount = 1;
     uint32_t fLevelCount = 0;
-    GrProtected fProtected = GrProtected::kNo;
+    skgpu::Protected fProtected = skgpu::Protected::kNo;
 
     GrColorType fColorType = GrColorType::kUnknown;
     SkTextureCompressionType fCompressionType = SkTextureCompressionType::kNone;

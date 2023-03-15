@@ -214,7 +214,7 @@ public:
                                                               fWithMips ? Mipmapped::kYes
                                                                         : Mipmapped::kNo,
                                                               skgpu::Protected::kNo,
-                                                              Renderable::kNo);
+                                                              skgpu::Renderable::kNo);
         REPORTER_ASSERT(fReporter, info.isValid());
 
         fBETexture = fRecorder->createBackendTexture(kImageSize, info);
@@ -299,7 +299,7 @@ public:
                                                               fWithMips ? Mipmapped::kYes
                                                                         : Mipmapped::kNo,
                                                               skgpu::Protected::kNo,
-                                                              Renderable::kNo);
+                                                              skgpu::Renderable::kNo);
         REPORTER_ASSERT(fReporter, info.isValid());
 
         fBETextures[0] = fRecorder->createBackendTexture(kImageSize, info);

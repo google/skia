@@ -21,7 +21,7 @@ public:
                      int sampleCnt,
                      std::string_view label)
             : INHERITED(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
-                        GrProtected::kNo, label) {
+                        skgpu::Protected::kNo, label) {
         SkASSERT(supportedUsages == UsageFlags::kStencilAttachment);
         this->registerWithCache(skgpu::Budgeted::kYes);
     }

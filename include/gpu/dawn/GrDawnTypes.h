@@ -8,7 +8,7 @@
 #ifndef GrDawnTypes_DEFINED
 #define GrDawnTypes_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/GpuTypes.h"
 
 #ifdef Always
 #undef Always
@@ -87,7 +87,7 @@ struct GrDawnRenderTargetInfo {
 struct GrDawnSurfaceInfo {
     uint32_t fSampleCount = 1;
     uint32_t fLevelCount = 0;
-    GrProtected fProtected = GrProtected::kNo;
+    skgpu::Protected fProtected = skgpu::Protected::kNo;
 
     wgpu::TextureFormat fFormat;
 };

@@ -80,8 +80,8 @@ public:
                                                     const SkSurfaceProps&,
                                                     std::string_view label,
                                                     int sampleCnt = 1,
-                                                    GrMipmapped = GrMipmapped::kNo,
-                                                    GrProtected = GrProtected::kNo,
+                                                    skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+                                                    skgpu::Protected = skgpu::Protected::kNo,
                                                     GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
                                                     skgpu::Budgeted = skgpu::Budgeted::kYes);
 
@@ -95,8 +95,8 @@ public:
                                                     SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     int sampleCnt,
-                                                    GrMipmapped,
-                                                    GrProtected,
+                                                    skgpu::Mipmapped,
+                                                    skgpu::Protected,
                                                     skgpu::Swizzle readSwizzle,
                                                     skgpu::Swizzle writeSwizzle,
                                                     GrSurfaceOrigin,
@@ -116,8 +116,8 @@ public:
             SkISize dimensions,
             const SkSurfaceProps&,
             int sampleCnt = 1,
-            GrMipmapped = GrMipmapped::kNo,
-            GrProtected = GrProtected::kNo,
+            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+            skgpu::Protected = skgpu::Protected::kNo,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             skgpu::Budgeted = skgpu::Budgeted::kYes);
 

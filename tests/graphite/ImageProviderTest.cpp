@@ -398,7 +398,7 @@ SkColorType pick_colortype(const Caps* caps, Mipmapped mipmapped) {
     TextureInfo info = caps->getDefaultSampledTextureInfo(kRGB_565_SkColorType,
                                                           mipmapped,
                                                           skgpu::Protected::kNo,
-                                                          Renderable::kYes);
+                                                          skgpu::Renderable::kYes);
     if (info.isValid()) {
         return kRGB_565_SkColorType;
     }
@@ -406,7 +406,7 @@ SkColorType pick_colortype(const Caps* caps, Mipmapped mipmapped) {
     info = caps->getDefaultSampledTextureInfo(kRGBA_F16_SkColorType,
                                               mipmapped,
                                               skgpu::Protected::kNo,
-                                              Renderable::kYes);
+                                              skgpu::Renderable::kYes);
     if (info.isValid()) {
         return kRGBA_F16_SkColorType;
     }
