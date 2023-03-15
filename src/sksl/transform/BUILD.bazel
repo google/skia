@@ -16,6 +16,7 @@ TRANSFORM_FILES = [
     "SkSLProgramWriter.h",
     "SkSLRenamePrivateSymbols.cpp",
     "SkSLReplaceConstVarsWithLiterals.cpp",
+    "SkSLRewriteIndexedSwizzle.cpp",
     "SkSLTransform.h",
 ]
 

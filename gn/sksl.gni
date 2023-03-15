@@ -255,6 +255,7 @@ skia_sksl_sources = [
   "$_src/sksl/transform/SkSLProgramWriter.h",
   "$_src/sksl/transform/SkSLRenamePrivateSymbols.cpp",
   "$_src/sksl/transform/SkSLReplaceConstVarsWithLiterals.cpp",
+  "$_src/sksl/transform/SkSLRewriteIndexedSwizzle.cpp",
   "$_src/sksl/transform/SkSLTransform.h",
 ]
 
