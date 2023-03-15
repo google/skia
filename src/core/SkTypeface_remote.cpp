@@ -120,7 +120,7 @@ SkTypefaceProxyPrototype::SkTypefaceProxyPrototype(SkTypefaceID typefaceID, int 
         , fIsFixedPitch{isFixedPitch}
         , fGlyphMaskNeedsCurrentColor{glyphMaskNeedsCurrentColor} {}
 
-void SkTypefaceProxyPrototype::flatten(SkWriteBuffer& buffer) {
+void SkTypefaceProxyPrototype::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fServerTypefaceID);
     buffer.writeInt(fGlyphCount);
     buffer.write32(fStyleValue);

@@ -54,7 +54,7 @@ public:
                              bool isFixedPitch,
                              bool glyphMaskNeedsCurrentColor);
 
-    void flatten(SkWriteBuffer&buffer);
+    void flatten(SkWriteBuffer&buffer) const;
     SkTypefaceID serverTypefaceID() const { return fServerTypefaceID; }
 
 private:
