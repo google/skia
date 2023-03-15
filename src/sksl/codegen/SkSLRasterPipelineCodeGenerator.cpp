@@ -21,7 +21,9 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicList.h"
+#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -124,9 +126,16 @@ class Generator {
 public:
     Generator(const SkSL::Program& program, SkRPDebugTrace* debugTrace)
             : fProgram(program)
+            , fContext(fProgram.fContext->fTypes,
+                       fProgram.fContext->fCaps,
+                       *fProgram.fContext->fErrors)
             , fDebugTrace(debugTrace)
             , fProgramSlots(debugTrace ? &debugTrace->fSlotInfo : nullptr)
-            , fUniformSlots(debugTrace ? &debugTrace->fUniformInfo : nullptr) {}
+            , fUniformSlots(debugTrace ? &debugTrace->fUniformInfo : nullptr) {
+        fContext.fModifiersPool = &fModifiersPool;
+        fContext.fConfig = fProgram.fConfig.get();
+        fContext.fModule = fProgram.fContext->fModule;
+    }
 
     /** Converts the SkSL main() function into a set of Instructions. */
     bool writeProgram(const FunctionDefinition& function);
@@ -338,6 +347,8 @@ public:
 
 private:
     const SkSL::Program& fProgram;
+    SkSL::Context fContext;
+    SkSL::ModifiersPool fModifiersPool;
     Builder fBuilder;
     SkRPDebugTrace* fDebugTrace = nullptr;
     SkTHashMap<const Variable*, int> fChildEffectMap;
@@ -2162,7 +2173,7 @@ bool Generator::pushChildCall(const ChildCall& c) {
         case Type::TypeKind::kShader: {
             // The argument must be a float2.
             SkASSERT(c.arguments().size() == 1);
-            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fFloat2));
+            SkASSERT(arg->type().matches(*fContext.fTypes.fFloat2));
             fBuilder.pop_src_rg();
             fBuilder.invoke_shader(*childIdx);
             break;
@@ -2170,8 +2181,8 @@ bool Generator::pushChildCall(const ChildCall& c) {
         case Type::TypeKind::kColorFilter: {
             // The argument must be a half4/float4.
             SkASSERT(c.arguments().size() == 1);
-            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
-                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
+            SkASSERT(arg->type().matches(*fContext.fTypes.fHalf4) ||
+                     arg->type().matches(*fContext.fTypes.fFloat4));
             fBuilder.pop_src_rgba();
             fBuilder.invoke_color_filter(*childIdx);
             break;
@@ -2179,13 +2190,13 @@ bool Generator::pushChildCall(const ChildCall& c) {
         case Type::TypeKind::kBlender: {
             // The first argument must be a half4/float4.
             SkASSERT(c.arguments().size() == 2);
-            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
-                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
+            SkASSERT(arg->type().matches(*fContext.fTypes.fHalf4) ||
+                     arg->type().matches(*fContext.fTypes.fFloat4));
 
             // The second argument must also be a half4/float4.
             arg = c.arguments()[1].get();
-            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
-                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
+            SkASSERT(arg->type().matches(*fContext.fTypes.fHalf4) ||
+                     arg->type().matches(*fContext.fTypes.fFloat4));
 
             if (!this->pushExpression(*arg)) {
                 return unsupported();
@@ -2596,7 +2607,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
         case IntrinsicKind::k_fromLinearSrgb_IntrinsicKind:
         case IntrinsicKind::k_toLinearSrgb_IntrinsicKind: {
             // The argument must be a half3.
-            SkASSERT(arg0.type().matches(*fProgram.fContext->fTypes.fHalf3));
+            SkASSERT(arg0.type().matches(*fContext.fTypes.fHalf3));
             if (!this->pushExpression(arg0)) {
                 return unsupported();
             }
