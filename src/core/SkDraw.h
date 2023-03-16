@@ -39,7 +39,6 @@ struct SkRect;
 class SkDraw : public SkDrawBase {
 public:
     SkDraw();
-    SkDraw(const SkDrawBase&);
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,

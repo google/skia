@@ -60,10 +60,6 @@ SkDraw::SkDraw() {
     fBlitterChooser = SkBlitter::Choose;
 }
 
-SkDraw::SkDraw(const SkDrawBase& b) : SkDrawBase(b) {
-    fBlitterChooser = SkBlitter::Choose;
-}
-
 struct PtProcRec {
     SkCanvas::PointMode fMode;
     const SkPaint*  fPaint;

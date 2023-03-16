@@ -14,7 +14,6 @@ SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkPixmap& device, const SkPai
     : fDevice(device)
 {
     SkASSERT(nullptr == paint.getShader());
-    SkASSERT(paint.isSrcOver());
     SkASSERT(nullptr == paint.getColorFilter());
 }
 
@@ -184,7 +183,6 @@ SkA8_Blitter::SkA8_Blitter(const SkPixmap& device,
                            const SkPaint& paint) : fDevice(device) {
     SkASSERT(nullptr == paint.getShader());
     SkASSERT(nullptr == paint.getColorFilter());
-    SkASSERT(nullptr == paint.getBlender());
     auto mode = paint.asBlendMode();
     SkASSERT(mode);
     auto pair = find_a8_rowproc_pair(*mode);
@@ -232,7 +230,7 @@ void SkA8_Blitter::blitV(int x, int y, int height, SkAlpha aa) {
 
     if (aa == 0xFF) {
         while (--height >= 0) {
-            *device = fOneProc(*device, fSrc);
+            *device = fOneProc(fSrc, *device);
             device += dstRB;
         }
     } else if (aa != 0) {
@@ -271,7 +269,7 @@ void SkA8_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
     while (--height >= 0) {
         for (int i = 0; i < width; ++i) {
-            dst[i] = fOneProc(div255(src[i] * fSrc), dst[i]);
+            dst[i] = u8_lerp(dst[i], fOneProc(fSrc, dst[i]), src[i]);
         }
         dst += dstRB;
         src += srcRB;
