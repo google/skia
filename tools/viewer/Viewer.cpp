@@ -869,7 +869,7 @@ void Viewer::initSlides() {
         // single file mode
         const SkString file(FLAGS_file[0]);
 
-        // `--file -` parses stdin, looking for data URIs that encode images
+        // `--file stdin` parses stdin, looking for data URIs that encode images
         if (file.equals("stdin")) {
             sk_sp<SkData> data = data_from_file(stdin);
             std::vector<sk_sp<SkImage>> images = find_data_uri_images(std::move(data));
