@@ -2539,6 +2539,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::floor_float, arg0.type().slotCount());
             return this->binaryOp(arg0.type(), kSubtractOps);
 
+        case IntrinsicKind::k_inversesqrt_IntrinsicKind: {
+            // Implement inversesqrt as `1.0 / sqrt(x)`.
+            Literal oneLiteral{Position{}, 1.0, &arg0.type().componentType()};
+            return this->pushVectorizedExpression(oneLiteral, arg0.type()) &&
+                   this->pushIntrinsic(k_sqrt_IntrinsicKind, arg0) &&
+                   this->binaryOp(arg0.type(), kDivideOps);
+        }
         case IntrinsicKind::k_length_IntrinsicKind:
             if (!this->pushExpression(arg0)) {
                 return unsupported();
