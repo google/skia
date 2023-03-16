@@ -228,6 +228,10 @@ DEF_TEST(RasterPipelineBuilderPushPopIndirect, r) {
     builder.push_slots_indirect(four_slots_at(10), /*dynamicStack=*/1, ten_slots_at(10));
     builder.push_uniform_indirect(one_slot_at(0), /*dynamicStack=*/1, five_slots_at(0));
     builder.push_uniform_indirect(three_slots_at(5), /*dynamicStack=*/1, five_slots_at(5));
+    builder.swizzle_copy_stack_to_slots_indirect(three_slots_at(6), /*dynamicStackID=*/1,
+                                                 ten_slots_at(0), {2, 1, 0},
+                                                 /*offsetFromStackTop=*/3);
+    builder.copy_stack_to_slots_indirect(three_slots_at(4), /*dynamicStackID=*/1, ten_slots_at(0));
     builder.pop_slots_indirect(five_slots_at(0), /*dynamicStackID=*/1, ten_slots_at(0));
     builder.pop_slots_indirect(five_slots_at(10), /*dynamicStackID=*/1, ten_slots_at(10));
     builder.set_current_stack(1);
@@ -240,8 +244,10 @@ R"(    1. copy_constant                  $10 = 0x00000003 (4.203895e-45)
     3. copy_from_indirect_unmasked    $2..5 = Indirect(v10..13 + $10)
     4. copy_from_indirect_uniform_unm $6 = Indirect(u0 + $10)
     5. copy_from_indirect_uniform_unm $7..9 = Indirect(u5..7 + $10)
-    6. copy_to_indirect_masked        Indirect(v0..4 + $10) = Mask($5..9)
-    7. copy_to_indirect_masked        Indirect(v10..14 + $10) = Mask($0..4)
+    6. swizzle_copy_to_indirect_maske Indirect(v6..8 + $10).zyx = Mask($7..9)
+    7. copy_to_indirect_masked        Indirect(v4..6 + $10) = Mask($7..9)
+    8. copy_to_indirect_masked        Indirect(v0..4 + $10) = Mask($5..9)
+    9. copy_to_indirect_masked        Indirect(v10..14 + $10) = Mask($0..4)
 )");
 }
 

@@ -97,6 +97,7 @@ enum class BuilderOp {
     copy_stack_to_slots_unmasked,
     copy_stack_to_slots_indirect,
     swizzle_copy_stack_to_slots,
+    swizzle_copy_stack_to_slots_indirect,
     discard_stack,
     select,
     push_condition_mask,
@@ -404,6 +405,14 @@ public:
     void swizzle_copy_stack_to_slots(SlotRange dst,
                                      SkSpan<const int8_t> components,
                                      int offsetFromStackTop);
+
+    // Translates into swizzle_copy_to_indirect_masked (from temp stack to values) in Raster
+    // Pipeline. Does not discard any values on the temp stack.
+    void swizzle_copy_stack_to_slots_indirect(SlotRange fixedRange,
+                                              int dynamicStackID,
+                                              SlotRange limitRange,
+                                              SkSpan<const int8_t> components,
+                                              int offsetFromStackTop);
 
     // Translates into copy_slots_unmasked (from temp stack to values) in Raster Pipeline.
     // Does not discard any values on the temp stack.
