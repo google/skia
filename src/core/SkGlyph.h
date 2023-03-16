@@ -28,10 +28,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <optional>
 
 class SkArenaAlloc;
 class SkGlyph;
+class SkReadBuffer;
 class SkScalerContext;
+class SkWriteBuffer;
 namespace sktext {
 class StrikeForGPU;
 }  // namespace sktext
@@ -394,6 +397,7 @@ private:
 
 class SkGlyph {
 public:
+    static std::optional<SkGlyph> MakeFromBuffer(SkReadBuffer&);
     // SkGlyph() is used for testing.
     constexpr SkGlyph() : SkGlyph{SkPackedGlyphID()} { }
     SkGlyph(const SkGlyph&);
@@ -507,7 +511,31 @@ public:
     void ensureIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                           SkScalar* array, int* count, SkArenaAlloc* alloc);
 
+    // Deprecated. Do not use. The last use is in SkChromeRemoteCache, and will be deleted soon.
     void setImage(void* image) { fImage = image; }
+
+    // Serialize/deserialize functions.
+    // Flatten the metrics portions, but no drawing data.
+    void flattenMetrics(SkWriteBuffer&) const;
+
+    // Flatten just the the mask data.
+    void flattenImage(SkWriteBuffer&) const;
+
+    // Read the image data, store it in the alloc, and add it to the glyph.
+    size_t addImageFromBuffer(SkReadBuffer&, SkArenaAlloc*);
+
+    // Flatten just the the path data.
+    void flattenPath(SkWriteBuffer&) const;
+
+    // Read the path data, create the glyph's path data in the alloc, and add it to the glyph.
+    size_t addPathFromBuffer(SkReadBuffer&, SkArenaAlloc*);
+
+    // Flatten just the drawable data.
+    void flattenDrawable(SkWriteBuffer&) const;
+
+    // Read the drawable data, create the glyph's drawable data in the alloc, and add it to the
+    // glyph.
+    size_t addDrawableFromBuffer(SkReadBuffer&, SkArenaAlloc*);
 
 private:
     // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
@@ -528,6 +556,7 @@ private:
     friend class SkUserScalerContext;
     friend class TestSVGTypeface;
     friend class TestTypeface;
+    friend class SkGlyphTestPeer;
 
     inline static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
 
@@ -560,6 +589,11 @@ private:
     };
 
     size_t allocImage(SkArenaAlloc* alloc);
+
+    void installImage(void* imageData) {
+        SkASSERT(!this->setImageHasBeenCalled());
+        fImage = imageData;
+    }
 
     // path == nullptr indicates that there is no path.
     void installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline);
