@@ -4,27 +4,45 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "src/base/SkArenaAlloc.h"
-#include "src/core/SkAutoBlitterChoose.h"
-#include "src/core/SkBlendModePriv.h"
-#include "src/core/SkBlenderBase.h"
-#include "src/core/SkBlitter.h"
-#include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkColorSpaceXformSteps.h"
-#include "src/core/SkCoreBlitters.h"
-#include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
+
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTileMode.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkTLazy.h"
+#include "src/core/SkAutoBlitterChoose.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkRasterClip.h"
-#include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
-#include "src/shaders/SkTransformShader.h"
+
+#include <cstdint>
+
+#if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
+#include "src/core/SkMaskFilterBase.h"
+#endif
 
 using namespace skia_private;
 

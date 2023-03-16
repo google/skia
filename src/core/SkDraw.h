@@ -11,26 +11,29 @@
 #define SkDraw_DEFINED
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkPixmap.h"
-#include "include/core/SkStrokeRec.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkDrawBase.h"
-#include "src/core/SkGlyphRunPainter.h"
-#include "src/core/SkMask.h"
 
-class SkBitmap;
-class SkClipStack;
+#include <cstddef>
+
+class SkArenaAlloc;
 class SkBaseDevice;
-class SkBlitter;
+class SkBitmap;
+class SkBlender;
+class SkGlyph;
+class SkGlyphRunListPainterCPU;
 class SkMatrix;
-class SkMatrixProvider;
-class SkPath;
-class SkSurfaceProps;
-class SkRegion;
-class SkRasterClip;
-struct SkRect;
-class SkRRect;
+class SkPaint;
 class SkVertices;
+namespace sktext { class GlyphRunList; }
+struct SkPoint3;
+struct SkPoint;
+struct SkRSXform;
+struct SkRect;
+
 
 // defaults to use SkBlitter::Choose()
 class SkDraw : public SkDrawBase {

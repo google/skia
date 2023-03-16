@@ -4,33 +4,45 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkDrawBase.h"
 
-#include "src/core/SkDraw.h"
-
-#include "include/core/SkBitmap.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPathEffect.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/base/SkTLazy.h"
-#include "src/base/SkUtils.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkAutoBlitterChoose.h"
 #include "src/core/SkBlendModePriv.h"
-#include "src/core/SkDevice.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkDrawProcs.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkPathEffectBase.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
-#include "src/core/SkStroke.h"
 
-#include <utility>
+#include <algorithm>
+#include <cstddef>
+#include <optional>
+
+class SkBitmap;
+class SkBlitter;
+class SkGlyph;
+class SkMaskFilter;
 
 using namespace skia_private;
 
@@ -481,11 +493,6 @@ void SkDrawBase::validate() const {
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkPath.h"
-#include "include/core/SkRegion.h"
-#include "src/core/SkBlitter.h"
-#include "src/core/SkDraw.h"
 
 bool SkDrawBase::ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
                                const SkMaskFilter* filter, const SkMatrix* filterMatrix,

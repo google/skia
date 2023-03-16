@@ -42,7 +42,6 @@ skia_filegroup(
         "SkDeferredDisplayList.h",
         "SkDeferredDisplayListRecorder.h",
         "SkDocument.h",
-        "SkDrawLooper.h",
         "SkDrawable.h",
         "SkEncodedImageFormat.h",
         "SkExecutor.h",
@@ -115,6 +114,13 @@ skia_filegroup(
         ":skpicture_public_hdrs",
     ],
     visibility = ["//include:__pkg__"],
+)
+
+skia_filegroup(
+    name = "legacy_draw_looper",
+    srcs = [
+        "SkDrawLooper.h",
+    ],
 )
 
 # This filegroup is for the (experimental) buffet build

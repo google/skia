@@ -10,22 +10,29 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/base/SkAttributes.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
 
+class SkArenaAlloc;
 class SkBitmap;
-class SkClipStack;
-class SkBaseDevice;
 class SkBlitter;
+class SkGlyph;
+class SkMaskFilter;
 class SkMatrix;
 class SkMatrixProvider;
 class SkPath;
-class SkSurfaceProps;
-class SkRegion;
-class SkRasterClip;
-struct SkRect;
 class SkRRect;
+class SkRasterClip;
+class SkShader;
+class SkSurfaceProps;
+struct SkIRect;
+struct SkPoint;
+struct SkRect;
 
 class SkDrawBase : public SkGlyphRunListPainterCPU::BitmapDevicePainter {
 public:

@@ -135,12 +135,13 @@ generate_cpp_files_for_headers(
     # compile it. This allows us to run IWYU on these files.
     to_generate = [
         "src/core/SkColorSpacePriv.h",
+        "src/core/SkDrawProcs.h",
         "src/core/SkICCPriv.h",
         "src/core/SkMatrixPriv.h",
         "src/core/SkPathPriv.h",
-        "src/image/SkImage_Base.h",
         "src/encode/SkImageEncoderFns.h",
         "src/encode/SkImageEncoderPriv.h",
+        "src/image/SkImage_Base.h",
     ],
 )
 

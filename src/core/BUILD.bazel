@@ -114,7 +114,6 @@ CORE_FILES = [
     "SkDraw.h",
     "SkDrawBase.cpp",
     "SkDrawBase.h",
-    "SkDrawLooper.cpp",
     "SkDrawProcs.h",
     "SkDrawShadowInfo.cpp",
     "SkDrawShadowInfo.h",
@@ -376,6 +375,13 @@ SKSL_FILES = [
 split_srcs_and_hdrs(
     name = "sksl",
     files = SKSL_FILES,
+)
+
+skia_filegroup(
+    name = "legacy_draw_looper",
+    srcs = [
+        "SkDrawLooper.cpp",
+    ],
 )
 
 # SkPicture files are maintained as a separate skia_filegroups for backward compatability

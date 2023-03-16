@@ -4,10 +4,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkDrawable.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkDrawable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
+
+class SkPicture;
 
 static int32_t next_generation_id() {
     static std::atomic<int32_t> nextID{1};
@@ -74,8 +85,6 @@ void SkDrawable::notifyDrawingChanged() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkPictureRecorder.h"
 
 SkPicture* SkDrawable::onNewPictureSnapshot() {
     SkPictureRecorder recorder;

@@ -6,16 +6,30 @@
  */
 
 #include "include/core/SkBitmap.h"
-#include "src/base/SkUtils.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkZip.h"
+#include "src/core/SkAAClip.h"
+#include "src/core/SkBlitter.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkMatrixProvider.h"
-#include "src/core/SkPaintPriv.h"
 #include "src/core/SkRasterClip.h"
-#include "src/core/SkScalerContext.h"
-#include "src/core/SkStrike.h"
-#include "src/text/GlyphRun.h"
+#include "src/core/SkSurfacePriv.h"
+
+#include <cstdint>
 #include <climits>
+
+class SkCanvas;
+class SkPaint;
+namespace sktext { class GlyphRunList; }
 
 // disable warning : local variable used without having been initialized
 #if defined _WIN32
