@@ -242,6 +242,10 @@ static bool opposite_insets_intersect(const SkRRect& rrect, float strokeRadius, 
            maxInset >= rrect.height() - rrect.radii(SkRRect::kUpperRight_Corner).fY;
 }
 
+static bool opposite_insets_intersect(const Rect& rect, float strokeRadius, float aaRadius) {
+    return any(rect.size() <= 2.f * (strokeRadius + aaRadius));
+}
+
 static bool opposite_insets_intersect(const Geometry& geometry,
                                       float strokeRadius,
                                       float aaRadius) {
@@ -249,27 +253,60 @@ static bool opposite_insets_intersect(const Geometry& geometry,
         SkASSERT(strokeRadius == 0.f);
         const EdgeAAQuad& quad = geometry.edgeAAQuad();
         if (quad.edgeFlags() == AAFlags::kNone) {
-            // If all edges are non-AA, there won't be any insetting.
+            // If all edges are non-AA, there won't be any insetting. This allows completely non-AA
+            // quads to use the fill triangles for simpler fragment shader work.
             return false;
-        } else if (quad.isRect()) {
-            auto inset = skvx::float2(quad.edgeFlags() & AAFlags::kLeft   ? aaRadius : 0.f,
-                                      quad.edgeFlags() & AAFlags::kTop    ? aaRadius : 0.f) +
-                         skvx::float2(quad.edgeFlags() & AAFlags::kRight  ? aaRadius : 0.f,
-                                      quad.edgeFlags() & AAFlags::kBottom ? aaRadius : 0.f);
-            return any(quad.bounds().size() <= inset);
+        } else if (quad.isRect() && quad.edgeFlags() == AAFlags::kAll) {
+            return opposite_insets_intersect(quad.bounds(), 0.f, aaRadius);
         } else {
-            // For simplicity an arbitrary quadrilateral with any AA assumes the insets intersect.
+            // Quads with mixed AA edges are tiles where non-AA edges must seam perfectly together.
+            // If we were to inset along just the axis with AA at a corner, two adjacent quads could
+            // arrive at slightly different inset coordinates and then we wouldn't have a perfect
+            // mesh. Forcing insets to snap to the center means all non-AA edges are formed solely
+            // by the original quad coordinates and should seam perfectly assuming perfect input.
+            // The only downside to this is the fill triangles cannot be used since they would
+            // partially extend into the coverage ramp from adjacent AA edges.
             return true;
         }
     } else {
         const Shape& shape = geometry.shape();
         if (shape.isRect()) {
-            return any(shape.rect().size() <= 2.f * (strokeRadius + aaRadius));
+            return opposite_insets_intersect(shape.rect(), strokeRadius, aaRadius);
         } else {
             SkASSERT(shape.isRRect());
             return opposite_insets_intersect(shape.rrect(), strokeRadius, aaRadius);
         }
     }
+}
+
+static bool is_clockwise(const EdgeAAQuad& quad) {
+    if (quad.isRect()) {
+        return true; // by construction, these are always locally clockwise
+    }
+
+    // This assumes that each corner has a consistent winding, which is the case for convex inputs,
+    // which is an assumption of the per-edge AA API. Check the sign of cross product between the
+    // first two edges.
+    const skvx::float4& xs = quad.xs();
+    const skvx::float4& ys = quad.ys();
+
+    float winding = (xs[0] - xs[3])*(ys[1] - ys[0]) - (ys[0] - ys[3])*(xs[1] - xs[0]);
+    if (winding == 0.f) {
+        // The input possibly forms a triangle with duplicate vertices, so check the opposite corner
+        winding = (xs[2] - xs[1])*(ys[3] - ys[2]) - (ys[2] - ys[1])*(xs[3] - xs[2]);
+    }
+
+    // At this point if winding is < 0, the quad's vertices are CCW. If it's still 0, the vertices
+    // form a line, in which case the vertex shader constructs a correct CW winding. Otherwise,
+    // the quad or triangle vertices produce a positive winding and are CW.
+    return winding >= 0.f;
+}
+
+static skvx::float2 quad_center(const EdgeAAQuad& quad) {
+    // The center of the bounding box is *not* a good center to use. Take the average of the
+    // four points instead (which is slightly biased if they form a triangle, but still okay).
+    return skvx::float2(dot(quad.xs(), skvx::float4(0.25f)),
+                        dot(quad.ys(), skvx::float4(0.25f)));
 }
 
 // Represents the per-vertex attributes used in each instance.
@@ -343,8 +380,7 @@ static void write_vertex_buffer(VertexWriter writer) {
     // The vertex ID is used to lookup per-corner instance properties such as corner radii or
     // positions, but otherwise this vertex data produces a consistent clockwise mesh from
     // TL -> TR -> BR -> BL.
-    static constexpr Vertex kVertexTemplate[kVertexCount] = {
-        // ** TL **
+    static constexpr Vertex kCornerTemplate[kCornerVertexCount] = {
         // Device-space AA outsets from outer curve
         { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
         { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
@@ -365,42 +401,12 @@ static void write_vertex_buffer(VertexWriter writer) {
         // set their cull distance value to cause all filling triangles to be discarded or not
         // depending on the instance's style.
         { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  kCenter },
-
-        // ** TR **
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset, _______ },
-        { {0.0f, 1.0f}, {kHR2, kHR2}, kOutset, _______ },
-        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
-        { {0.0f, 1.0f}, {kHR2, kHR2}, _______, _______ },
-        { {1.0f, 0.0f}, {kHR2, kHR2}, _______, _______ },
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  _______ },
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  _______ },
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  kCenter },
-
-        // ** BR **
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
-        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
-        { {0.0f, 1.0f}, {kHR2, kHR2}, kOutset, _______ },
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset, _______ },
-        { {1.0f, 0.0f}, {kHR2, kHR2}, _______, _______ },
-        { {0.0f, 1.0f}, {kHR2, kHR2}, _______, _______ },
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  _______ },
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  _______ },
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  kCenter },
-
-        // ** BL **
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset, _______ },
-        { {0.0f, 1.0f}, {kHR2, kHR2}, kOutset, _______ },
-        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset, _______ },
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset, _______ },
-        { {0.0f, 1.0f}, {kHR2, kHR2}, _______, _______ },
-        { {1.0f, 0.0f}, {kHR2, kHR2}, _______, _______ },
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  _______ },
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  _______ },
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kInset,  kCenter },
     };
 
-    writer << kVertexTemplate;
+    writer << kCornerTemplate  // TL
+           << kCornerTemplate  // TR
+           << kCornerTemplate  // BR
+           << kCornerTemplate; // BL
 }
 
 AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferManager)
@@ -562,6 +568,12 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
         int cornerID = sk_VertexID / kCornerVertexCount;
         float strokeRadius = strokeParams.x; // alias
         float2 cornerRadii = float2(xRadii[cornerID], yRadii[cornerID]);
+        if (cornerID % 2 != 0) {
+            // Corner radii are uploaded in the local coordinate frame, but vertex placement happens
+            // in a consistent winding before transforming to final local coords, so swap the
+            // radii for odd corners.
+            cornerRadii = cornerRadii.yx;
+        }
 
         float2 cornerAspectRatio = float2(1.0);
         if (cornerRadii.x > kEpsilon && cornerRadii.y > kEpsilon) {
@@ -575,16 +587,11 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
             // the fragment shader evaluate the curve per pixel.
             joinScale = kMiterScale;
             cornerAspectRatio = cornerRadii.yx;
+            cornerRadii = float2(0.0);
         } else if (strokeRadius > 0.0 && strokeRadius <= kEpsilon) {
             // A stroked rectangular corner that could have a very small bevel or round join,
             // so place vertices as a miter.
             joinScale = kMiterScale;
-        }
-
-        float mirrorOffset = normalScale >= 0.0 ? 1.0 : 0.0;
-        if (joinScale == kMiterScale) {
-            mirrorOffset = 1.0;
-            cornerRadii = float2(0.0); // (will only affect vertex placement, not FS coverage)
         }
 
         // Calculate the local edge vectors, ordered L, T, R, B starting from the bottom left point.
@@ -597,26 +604,19 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
         dx *= invEdgeLen;
         dy *= invEdgeLen;
 
-        float2 xAxis, yAxis;
-        if (cornerID % 2 == 0) {
-            xAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
-            yAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
-        } else {
-            xAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
-            yAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
-        }
-
-        // Calculate local coordinate for the vertex
-        float2 localPos = position + (joinScale * mirrorOffset * position.yx);
+        // Calculate local coordinate for the vertex (relative to xAxis and yAxis at first).
+        float2 xAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
+        float2 yAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
+        float2 localPos;
         bool snapToCenter = false;
         if (normalScale < 0.0) {
             // Vertex is inset from the base shape, so we scale by (cornerRadii - strokeRadius)
             // and have to check for the possibility of an inner miter. It is always inset by an
             // additional conservative AA amount.
-            if (centerWeight * center.z != 0.0 || (center.w < 0.0 && normalScale < 0.0)) {
+            if (center.w < 0.0 || centerWeight * center.z != 0.0) {
                 snapToCenter = true;
             } else {
-                float localAARadius = center.w; // Only used when center.w >= 0
+                float localAARadius = center.w;
                 float2 insetRadii =
                         cornerRadii + (bidirectionalCoverage ? -strokeRadius : strokeRadius);
                 if (joinScale == kMiterScale ||
@@ -624,18 +624,20 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
                     // Miter the inset position
                     localPos = (insetRadii - localAARadius);
                 } else {
-                    localPos = insetRadii*localPos - localAARadius*normal;
+                    localPos = insetRadii*position - localAARadius*normal;
                 }
             }
         } else {
             // Vertex is outset from the base shape (and possibly with an additional AA outset later
             // in device space).
-            localPos = (cornerRadii + strokeRadius) * localPos;
+            localPos = (cornerRadii + strokeRadius) * (position + joinScale*position.yx);
         }
 
         if (snapToCenter) {
+            // Center is already relative to true local coords, not the corner basis.
             localPos = center.xy;
         } else {
+            // Transform from corner basis to true local coords.
             localPos -= cornerRadii;
             localPos = float2(xs[cornerID], ys[cornerID]) + xAxis*localPos.x + yAxis*localPos.y;
         }
@@ -678,10 +680,9 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
             // Note that when there's no perspective, the jacobian is equivalent to the normal
             // matrix (inverse transpose), but produces correct results when there's perspective
             // because it accounts for the position's influence on a line's projected direction.
-            float s = sign(xAxis.x*yAxis.y - yAxis.x*xAxis.y);
             float2x2 J = float2x2(jacobian.xy, jacobian.zw);
-            float2 nx = s * cornerAspectRatio.x * normal.x * perp(-yAxis) * J;
-            float2 ny = s * cornerAspectRatio.y * normal.y * perp( xAxis) * J;
+            float2 nx = cornerAspectRatio.x * normal.x * perp(-yAxis) * J;
+            float2 ny = cornerAspectRatio.y * normal.y * perp( xAxis) * J;
 
             bool isMidVertex = normal.x != 0.0 && normal.y != 0.0;
             if (joinScale == kMiterScale && isMidVertex) {
@@ -875,12 +876,29 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
             // NOTE: If quad.isRect() && quad.edgeFlags() == kAll, the written data is identical to
             // Shape.isRect() case below.
             const EdgeAAQuad& quad = params.geometry().edgeAAQuad();
+
+            // If all edges are non-AA, set localAARadius to 0 so that the fill triangles cover the
+            // entire shape. Otherwise leave it as-is for the full AA rect case; in the event it's
+            // mixed-AA or a quad, it'll be converted to complex insets down below.
+            if (quad.edgeFlags() == EdgeAAQuad::Flags::kNone) {
+                aaRadius = 0.f;
+            }
+
             // -1 for AA on, 0 for AA off
             auto edgeSigns = skvx::float4{quad.edgeFlags() & AAFlags::kLeft   ? -1.f : 0.f,
                                           quad.edgeFlags() & AAFlags::kTop    ? -1.f : 0.f,
                                           quad.edgeFlags() & AAFlags::kRight  ? -1.f : 0.f,
                                           quad.edgeFlags() & AAFlags::kBottom ? -1.f : 0.f};
-            vw << edgeSigns << quad.xs() << quad.ys();
+
+            // The vertex shader expects points to be in clockwise order. EdgeAAQuad is the only
+            // shape that *might* have counter-clockwise input.
+            if (is_clockwise(quad)) {
+                vw << edgeSigns << quad.xs() << quad.ys();
+            } else {
+                vw << skvx::shuffle<2,1,0,3>(edgeSigns)  // swap left and right AA bits
+                   << skvx::shuffle<1,0,3,2>(quad.xs())  // swap TL with TR, and BL with BR
+                   << skvx::shuffle<1,0,3,2>(quad.ys()); //   ""
+            }
         } else {
             const Shape& shape = params.geometry().shape();
             if (shape.isRect() || (shape.isRRect() && shape.rrect().isRect())) {
@@ -909,8 +927,9 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
 
     // All instance types share the remaining instance attribute definitions
     const SkM44& m = params.transform().matrix();
-
-    vw << bounds.center() << centerWeight << aaRadius
+    auto center = params.geometry().isEdgeAAQuad() ? quad_center(params.geometry().edgeAAQuad())
+                                                   : bounds.center();
+    vw << center << centerWeight << aaRadius
        << params.order().depthAsFloat()
        << ssboIndex
        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)  // mat0
