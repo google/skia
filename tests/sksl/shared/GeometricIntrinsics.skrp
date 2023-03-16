@@ -1,4 +1,47 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  _0_x = 0x3F800000 (1.0)
+    4. copy_slot_unmasked             $0 = _0_x
+    5. abs_float                      $0 = abs($0)
+    6. copy_slot_unmasked             _0_x = $0
+    7. copy_constant                  $1 = 0x40000000 (2.0)
+    8. sub_float                      $0 -= $1
+    9. abs_float                      $0 = abs($0)
+   10. copy_slot_unmasked             _0_x = $0
+   11. copy_constant                  $1 = 0x40000000 (2.0)
+   12. mul_float                      $0 *= $1
+   13. copy_slot_unmasked             _0_x = $0
+   14. copy_slot_unmasked             $1 = $0
+   15. abs_float                      $1 = abs($1)
+   16. div_float                      $0 /= $1
+   17. copy_slot_unmasked             _0_x = $0
+   18. copy_constant                  _1_x(0) = 0x3F800000 (1.0)
+   19. copy_constant                  _1_x(1) = 0x40000000 (2.0)
+   20. copy_2_slots_unmasked          $0..1 = _1_x
+   21. copy_2_slots_unmasked          $2..3 = $0..1
+   22. dot_2_floats                   $0 = dot($0..1, $2..3)
+   23. sqrt_float                     $0 = sqrt($0)
+   24. copy_slot_unmasked             $1 = $0
+   25. copy_2_slots_unmasked          _1_x = $0..1
+   26. copy_constant                  $2 = 0x40400000 (3.0)
+   27. copy_constant                  $3 = 0x40800000 (4.0)
+   28. sub_2_floats                   $0..1 -= $2..3
+   29. copy_2_slots_unmasked          $2..3 = $0..1
+   30. dot_2_floats                   $0 = dot($0..1, $2..3)
+   31. sqrt_float                     $0 = sqrt($0)
+   32. copy_slot_unmasked             $1 = $0
+   33. copy_2_slots_unmasked          _1_x = $0..1
+   34. copy_constant                  $2 = 0x40400000 (3.0)
+   35. copy_constant                  $3 = 0x40800000 (4.0)
+   36. dot_2_floats                   $0 = dot($0..1, $2..3)
+   37. copy_slot_unmasked             $1 = $0
+   38. copy_2_slots_unmasked          _1_x = $0..1
+   39. copy_2_slots_unmasked          $2..3 = $0..1
+   40. copy_2_slots_unmasked          $4..5 = $2..3
+   41. dot_2_floats                   $2 = dot($2..3, $4..5)
+   42. sqrt_float                     $2 = sqrt($2)
+   43. copy_slot_unmasked             $3 = $2
+   44. div_2_floats                   $0..1 /= $2..3
+   45. copy_2_slots_unmasked          _1_x = $0..1
+   46. copy_4_constants               $0..3 = colorGreen
+   47. load_src                       src.rgba = $0..3

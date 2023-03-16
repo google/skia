@@ -2564,6 +2564,20 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             return this->pushExpression(arg0) &&
                    this->pushLengthIntrinsic(arg0.type().slotCount());
 
+        case IntrinsicKind::k_normalize_IntrinsicKind:
+            // Implement normalize as `x / length(x)`. First, push the expression.
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            // Clone the expression and calculate its length.
+            fBuilder.push_clone(arg0.type().slotCount());
+            if (!this->pushLengthIntrinsic(arg0.type().slotCount())) {
+                return unsupported();
+            }
+            // Finally, vectorize the length and divide.
+            fBuilder.push_duplicates(arg0.type().slotCount() - 1);
+            return this->binaryOp(arg0.type(), kDivideOps);
+
         case IntrinsicKind::k_not_IntrinsicKind:
             return this->pushPrefixExpression(OperatorKind::LOGICALNOT, arg0);
 

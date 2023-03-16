@@ -641,7 +641,7 @@ SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionArgTypeMatch,            "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionReturnTypeMatch,         "shared/FunctionReturnTypeMatch.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Functions,                       "shared/Functions.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionPrototype,               "shared/FunctionPrototype.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, GeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, GeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, HelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Hex,                             "shared/Hex.sksl")
 SKSL_TEST(RP + GPU_ES3,      kNever,      HexUnsigned,                     "shared/HexUnsigned.sksl")

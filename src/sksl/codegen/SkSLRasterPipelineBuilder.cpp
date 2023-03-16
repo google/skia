@@ -397,7 +397,7 @@ void Builder::push_duplicates(int count) {
     switch (count) {
         case 3:  this->swizzle(/*consumedSlots=*/1, {0, 0, 0, 0}); break;
         case 2:  this->swizzle(/*consumedSlots=*/1, {0, 0, 0});    break;
-        case 1:  this->push_clone(/*numSlots=*/1);              break;
+        case 1:  this->push_clone(/*numSlots=*/1);                 break;
         default: break;
     }
 }
