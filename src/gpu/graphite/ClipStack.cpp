@@ -1082,17 +1082,20 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
         const Geometry& geometry,
         const SkStrokeRec& style,
         PaintersDepth z) {
+    static const std::pair<Clip, CompressedPaintersOrder> kClippedOut =
+            {{Rect::InfiniteInverted(), SkIRect::MakeEmpty()}, DrawOrder::kNoIntersection};
+
     const SaveRecord& cs = this->currentSaveRecord();
     if (cs.state() == ClipState::kEmpty) {
         // We know the draw is clipped out so don't bother computing the base draw bounds.
-        return {Clip{Rect::InfiniteInverted(), SkIRect::MakeEmpty()}, DrawOrder::kNoIntersection};
+        return kClippedOut;
     }
     // Compute draw bounds, clipped only to our device bounds since we need to return that even if
     // the clip stack is known to be wide-open.
     const Rect deviceBounds = this->deviceBounds();
 
     // When 'style' isn't fill, 'shape' describes the pre-stroke shape so we can't use it to check
-    // against clip elements and this will be set to the bounds of the post-stroked shape instead.
+    // against clip elements and so 'styledShape' will be set to the bounds post-stroking.
     SkTCopyOnFirstWrite<Shape> styledShape;
     if (geometry.isShape()) {
         styledShape.init(geometry.shape());
@@ -1102,12 +1105,32 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
         styledShape.initIfNeeded(geometry.bounds());
     }
 
+    auto origSize = geometry.bounds().size();
+    if (!std::isfinite(origSize.x()) || !std::isfinite(origSize.y())) {
+        // Discard all non-fininte geometry as if it were clipped out
+        return kClippedOut;
+    }
+
     Rect drawBounds; // defined in device space
+    bool shapeInDeviceSpace = false;
     if (styledShape->inverted()) {
         // Inverse-filled shapes always fill the entire device (restricted to the clip).
         drawBounds = deviceBounds;
         styledShape.writable()->setRect(drawBounds);
+        shapeInDeviceSpace = true;
     } else {
+        // Discard fills and strokes that cannot produce any coverage: an empty fill, or a
+        // zero-length stroke that has butt caps. Otherwise the stroke style applies to a vertical
+        // or horizontal line (making it non-empty), or it's a zero-length path segment that
+        // must produce round or square caps (making it non-empty):
+        //     https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes
+        if (any(origSize == 0.f)) {
+            if (style.isFillStyle() ||
+                (style.getCap() == SkPaint::kButt_Cap && all(origSize == 0.f))) {
+                return kClippedOut;
+            }
+        }
+
         // Regular filled shapes and strokes get larger based on style and transform
         drawBounds = styledShape->bounds();
         if (!style.isHairlineStyle()) {
@@ -1128,7 +1151,9 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
             // and the associated transform must be kIdentity since drawBounds has been mapped by
             // localToDevice already.
             styledShape.writable()->setRect(drawBounds);
+            shapeInDeviceSpace = true;
         }
+        // TODO: b/273924867 incorporate any outset required for analytic AA, too.
 
         // Restrict bounds to the device limits
         drawBounds.intersect(deviceBounds);
@@ -1146,7 +1171,7 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
     // Simplify is effectively performed in computing the scissor rect.
     // Given that, we can skip iterating over the clip elements when:
     //  - the draw's *scissored* bounds are empty, which happens when the draw was clipped out.
-    //  - the draw's *bounds* are contained in our inner bounds, which happens if all we need to
+    //  - the scissored bounds are contained in our inner bounds, which happens if all we need to
     //    apply to the draw is the computed scissor rect.
     // TODO: The Clip's scissor is defined in terms of integer pixel coords, but if we move to
     // clip plane distances in the vertex shader, it can be defined in terms of the original float
@@ -1163,7 +1188,7 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
     // there's currently no way to re-write the draw as the clip's geometry, so there's no need to
     // check if the draw contains the clip (vice versa is still checked and represents an unclipped
     // draw so is very useful to identify).
-    TransformedShape draw{style.isHairlineStyle() ? kIdentity : localToDevice,
+    TransformedShape draw{shapeInDeviceSpace ? kIdentity : localToDevice,
                           *styledShape,
                           /*outerBounds=*/drawBounds,
                           /*innerBounds=*/Rect::InfiniteInverted(),
