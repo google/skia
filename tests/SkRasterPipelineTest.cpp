@@ -649,6 +649,147 @@ DEF_TEST(SkRasterPipeline_CopyToIndirectMasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
+    // Allocate space for 5 source slots, and 5 dest slots.
+    alignas(64) float src[5 * SkRasterPipeline_kMaxStride_highp];
+    alignas(64) float dst[5 * SkRasterPipeline_kMaxStride_highp];
+
+    // Test with various mixes of indirect offsets.
+    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
+    alignas(64) const uint32_t kOffsets1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    alignas(64) const uint32_t kOffsets2[8] = {2, 2, 2, 2, 2, 2, 2, 2};
+    alignas(64) const uint32_t kOffsets3[8] = {0, 2, 0, 2, 0, 2, 0, 2};
+    alignas(64) const uint32_t kOffsets4[8] = {99, ~99u, 0, 0, ~99u, 99, 0, 0};
+
+    // Test with various masks.
+    alignas(64) const int32_t kMask1[8]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0};
+    alignas(64) const int32_t kMask2[8]  = {~0,  0, ~0, ~0,  0,  0,  0, ~0};
+    alignas(64) const int32_t kMask3[8]  = {~0, ~0,  0, ~0,  0,  0, ~0, ~0};
+    alignas(64) const int32_t kMask4[8]  = { 0,  0,  0,  0,  0,  0,  0,  0};
+
+    // Test with various swizzle permutations.
+    struct TestPattern {
+        int swizzleSize;
+        int swizzleUpperBound;
+        uint16_t swizzle[4];
+    };
+
+    static const TestPattern kPatterns[] = {
+        {1, 4, {3}},          // v.w    = (1)
+        {2, 2, {1, 0}},       // v.yx   = (1,2)
+        {3, 3, {2, 1, 0}},    // v.zyx  = (1,2,3)
+        {4, 4, {3, 0, 1, 2}}, // v.wxyz = (1,2,3,4)
+    };
+
+    enum Result {
+        kOutOfBounds = 0,
+        kUnchanged = 1,
+        S0 = 2,
+        S1 = 3,
+        S2 = 4,
+        S3 = 5,
+        S4 = 6,
+    };
+
+#define __ kUnchanged
+#define XX kOutOfBounds
+    static const Result kExpectationsAtZero[4][5] = {
+    //  d[0].w = 1        d[0].yx = (1,2)   d[0].zyx = (1,2,3) d[0].wxyz = (1,2,3,4)
+        {__,__,__,S0,__}, {S1,S0,__,__,__}, {S2,S1,S0,__,__},  {S1,S2,S3,S0,__},
+    };
+    static const Result kExpectationsAtTwo[4][5] = {
+    //  d[2].w = 1        d[2].yx = (1,2)   d[2].zyx = (1,2,3) d[2].wxyz = (1,2,3,4)
+        {XX,XX,XX,XX,XX}, {__,__,S1,S0,__}, {__,__,S2,S1,S0},  {XX,XX,XX,XX,XX},
+    };
+#undef __
+#undef XX
+
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    for (const int32_t* mask : {kMask1, kMask2, kMask3, kMask4}) {
+        for (const uint32_t* offsets : {kOffsets1, kOffsets2, kOffsets3, kOffsets4}) {
+            for (size_t patternIndex = 0; patternIndex < std::size(kPatterns); ++patternIndex) {
+                const TestPattern& pattern = kPatterns[patternIndex];
+
+                // Initialize the destination slots to 0,1,2.. and the source slots to
+                // 1000,1001,1002...
+                std::iota(&dst[0], &dst[5 * N], 0.0f);
+                std::iota(&src[0], &src[5 * N], 1000.0f);
+
+                // Run `swizzle_copy_to_indirect_masked` over our data.
+                SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+                SkRasterPipeline p(&alloc);
+                auto* ctx = alloc.make<SkRasterPipeline_SwizzleCopyIndirectCtx>();
+                ctx->dst = &dst[0];
+                ctx->src = &src[0];
+                ctx->indirectOffset = offsets;
+                ctx->indirectLimit = 5 - pattern.swizzleUpperBound;
+                ctx->slots = pattern.swizzleSize;
+                ctx->offsets[0] = pattern.swizzle[0] * N * sizeof(float);
+                ctx->offsets[1] = pattern.swizzle[1] * N * sizeof(float);
+                ctx->offsets[2] = pattern.swizzle[2] * N * sizeof(float);
+                ctx->offsets[3] = pattern.swizzle[3] * N * sizeof(float);
+
+                p.append(SkRasterPipelineOp::init_lane_masks);
+                p.append(SkRasterPipelineOp::load_condition_mask, mask);
+                p.append(SkRasterPipelineOp::swizzle_copy_to_indirect_masked, ctx);
+                p.run(0,0,N,1);
+
+                // If the offset plus copy-size would overflow the destination, the results don't
+                // matter; indexing off the end of the buffer is UB, and we don't make any promises
+                // about the values you get. If we didn't crash, that's success. (In practice, we
+                // will have clamped the destination pointer so that we don't read past the end.)
+                uint32_t maxOffset = *std::max_element(offsets, offsets + N);
+                if (pattern.swizzleUpperBound + maxOffset > 5) {
+                    continue;
+                }
+
+                // Verify that the destination has been overwritten in the mask-on fields, and has
+                // not been overwritten in the mask-off fields, for each destination slot.
+                float expectedUnchanged = 0.0f;
+                float* destPtr = dst;
+                for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
+                    for (int checkLane = 0; checkLane < N; ++checkLane) {
+                        Result expectedType = kUnchanged;
+                        if (offsets[checkLane] == 0) {
+                            expectedType = kExpectationsAtZero[patternIndex][checkSlot];
+                        } else if (offsets[checkLane] == 2) {
+                            expectedType = kExpectationsAtTwo[patternIndex][checkSlot];
+                        }
+                        if (!mask[checkLane]) {
+                            expectedType = kUnchanged;
+                        }
+                        switch (expectedType) {
+                            case kOutOfBounds: // out of bounds; ignore result
+                                break;
+                            case kUnchanged:
+                                REPORTER_ASSERT(r, *destPtr == expectedUnchanged);
+                                break;
+                            case S0: // destination should match source 0
+                                REPORTER_ASSERT(r, *destPtr == src[0*N + checkLane]);
+                                break;
+                            case S1: // destination should match source 1
+                                REPORTER_ASSERT(r, *destPtr == src[1*N + checkLane]);
+                                break;
+                            case S2: // destination should match source 2
+                                REPORTER_ASSERT(r, *destPtr == src[2*N + checkLane]);
+                                break;
+                            case S3: // destination should match source 3
+                                REPORTER_ASSERT(r, *destPtr == src[3*N + checkLane]);
+                                break;
+                            case S4: // destination should match source 4
+                                REPORTER_ASSERT(r, *destPtr == src[4*N + checkLane]);
+                                break;
+                        }
+
+                        ++destPtr;
+                        expectedUnchanged += 1.0f;
+                    }
+                }
+            }
+        }
+    }
+}
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
     // Allocate space for 5 source slots and 5 dest slots.

@@ -3585,6 +3585,32 @@ STAGE_TAIL(copy_to_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     } while (src != end);
 }
 
+STAGE_TAIL(swizzle_copy_to_indirect_masked, SkRasterPipeline_SwizzleCopyIndirectCtx* ctx) {
+    // Clamp the indirect offsets to stay within the limit.
+    U32 offsets = *(U32*)ctx->indirectOffset;
+    offsets = min(offsets, ctx->indirectLimit);
+
+    // Scale up the offsets to account for the N lanes per value.
+    offsets *= N;
+
+    // Adjust the offsets forward so that they store into the correct lane.
+    static constexpr uint32_t iota[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    offsets += sk_unaligned_load<I32>(iota);
+
+    // Perform indirect, masked, swizzled writes into `dst`.
+    const F*        src     = (F*)ctx->src;
+    const F*        end     = src + ctx->slots;
+    std::byte*      dstB    = (std::byte*)ctx->dst;
+    const uint16_t* swizzle = ctx->offsets;
+    I32             mask    = execution_mask();
+    do {
+        float* dst = (float*)(dstB + *swizzle);
+        scatter_masked(*src, dst, offsets, mask);
+        swizzle += 1;
+        src     += 1;
+    } while (src != end);
+}
+
 // Unary operations take a single input, and overwrite it with their output.
 // Unlike binary or ternary operations, we provide variations of 1-4 slots, but don't provide
 // an arbitrary-width "n-slot" variation; the Builder can chain together longer sequences manually.
