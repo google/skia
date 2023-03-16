@@ -887,6 +887,7 @@ skia_filegroup(
         "shared/MatrixOpEqualsES2.sksl",
         "shared/MatrixOpEqualsES3.sksl",
         "shared/MatrixScalarMath.sksl",
+        "shared/MatrixSwizzleStore.sksl",
         "shared/MatrixToVectorCast.sksl",
         "shared/MultipleAssignments.sksl",
         "shared/NoFragCoordsPos.vert",
