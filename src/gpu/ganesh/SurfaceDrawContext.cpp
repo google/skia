@@ -113,7 +113,7 @@ void op_bounds(SkRect* bounds, const GrOp* op) {
 
 } // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 using DoSimplify = GrStyledShape::DoSimplify;
 
@@ -2122,4 +2122,4 @@ OpsTask* SurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
     return this->getOpsTask();
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

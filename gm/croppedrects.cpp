@@ -45,7 +45,7 @@ static sk_sp<SkImage> create_image(SkCanvas* destCanvas) {
 }
 
 /*
- * The purpose of this test is to exercise all three codepaths in skgpu::v1::SurfaceDrawContext
+ * The purpose of this test is to exercise all three codepaths in skgpu::ganesh::SurfaceDrawContext
  * (drawFilledRect, fillRectToRect, fillRectWithLocalMatrix) that pre-crop filled rects based on the
  * clip.
  *
@@ -69,7 +69,7 @@ private:
         canvas->clear(SK_ColorWHITE);
 
         {
-            // skgpu::v1::SurfaceDrawContext::drawFilledRect.
+            // skgpu::ganesh::SurfaceDrawContext::drawFilledRect.
             SkAutoCanvasRestore acr(canvas, true);
             SkPaint paint;
             paint.setShader(fSrcImageShader);
@@ -78,7 +78,7 @@ private:
         }
 
         {
-            // skgpu::v1::SurfaceDrawContext::fillRectToRect.
+            // skgpu::ganesh::SurfaceDrawContext::fillRectToRect.
             SkAutoCanvasRestore acr(canvas, true);
             SkRect drawRect = SkRect::MakeXYWH(350, 100, 100, 300);
             canvas->clipRect(drawRect);
@@ -91,7 +91,7 @@ private:
         }
 
         {
-            // skgpu::v1::SurfaceDrawContext::fillRectWithLocalMatrix.
+            // skgpu::ganesh::SurfaceDrawContext::fillRectWithLocalMatrix.
             SkAutoCanvasRestore acr(canvas, true);
             SkPath path = SkPath::Line(
                    {kSrcImageClip.fLeft - kSrcImageClip.width(), kSrcImageClip.centerY()},

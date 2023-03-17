@@ -1306,7 +1306,7 @@ GR_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 PathRenderer::CanDrawPath AAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (GrAAType::kCoverage != args.fAAType) {
@@ -1346,4 +1346,4 @@ bool AAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

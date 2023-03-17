@@ -21,7 +21,7 @@ class GrTextureProxy;
 class SkMatrix;
 struct SkRect;
 
-namespace skgpu::v1::LatticeOp {
+namespace skgpu::ganesh::LatticeOp {
 
 GrOp::Owner MakeNonAA(GrRecordingContext*,
                       GrPaint&&,
@@ -33,6 +33,6 @@ GrOp::Owner MakeNonAA(GrRecordingContext*,
                       std::unique_ptr<SkLatticeIter>,
                       const SkRect& dst);
 
-}  // namespace skgpu::v1::LatticeOp
+}  // namespace skgpu::ganesh::LatticeOp
 
 #endif // LatticeOp_DEFINED

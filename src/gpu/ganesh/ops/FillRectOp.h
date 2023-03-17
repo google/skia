@@ -22,7 +22,7 @@ struct GrUserStencilSettings;
 class SkMatrix;
 struct SkRect;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -81,6 +81,6 @@ private:
                               int* numConsumed);
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // FillRectOp_DEFINED

@@ -13,7 +13,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // This class encapsulates all the necessary steps for an instanced GrGeometryProcessor to clip
 // against a path mask from an atlas.
@@ -95,6 +95,6 @@ private:
 
 GR_MAKE_BITFIELD_CLASS_OPS(AtlasInstancedHelper::ShaderFlags)
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // AtlasInstancedHelper_DEFINED

@@ -167,7 +167,7 @@ bool SkDeferredDisplayListRecorder::init() {
                                                 fCharacterization.refColorSpace(),
                                                 fCharacterization.origin(),
                                                 fCharacterization.surfaceProps(),
-                                                skgpu::v1::Device::InitContents::kUninit);
+                                                skgpu::ganesh::Device::InitContents::kUninit);
     if (!device) {
         return false;
     }

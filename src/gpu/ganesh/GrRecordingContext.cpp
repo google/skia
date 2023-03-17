@@ -58,7 +58,7 @@ bool GrRecordingContext::init() {
         return false;
     }
 
-    skgpu::v1::PathRendererChain::Options prcOptions;
+    skgpu::ganesh::PathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
     prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;

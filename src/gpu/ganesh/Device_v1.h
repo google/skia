@@ -23,7 +23,7 @@ class SkSurface;
 class SkSurface_Gpu;
 class SkVertices;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceContext;
 class SurfaceFillContext;
@@ -271,6 +271,6 @@ private:
 
 GR_MAKE_BITFIELD_CLASS_OPS(Device::DeviceFlags)
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // skgpu_v1_Device_DEFINED

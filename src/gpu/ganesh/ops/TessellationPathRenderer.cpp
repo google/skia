@@ -28,7 +28,7 @@ using namespace skgpu::tess;
 
 GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                     SkArenaAlloc* arena,
-                                    skgpu::v1::FillPathFlags fillPathFlags,
+                                    skgpu::ganesh::FillPathFlags fillPathFlags,
                                     GrAAType aaType,
                                     const SkRect& drawBounds,
                                     const SkIRect& clipBounds,
@@ -50,31 +50,25 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
             constexpr static float kCpuWeight = 512;
             constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
             if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
-                return GrOp::Make<skgpu::v1::PathInnerTriangulateOp>(rContext,
-                                                                     viewMatrix,
-                                                                     path,
-                                                                     std::move(paint),
-                                                                     aaType,
-                                                                     fillPathFlags,
-                                                                     drawBounds);
+                return GrOp::Make<skgpu::ganesh::PathInnerTriangulateOp>(rContext,
+                                                                         viewMatrix,
+                                                                         path,
+                                                                         std::move(paint),
+                                                                         aaType,
+                                                                         fillPathFlags,
+                                                                         drawBounds);
             }
         } // we should be clipped out when the GrClip is analyzed, so just return the default op
     }
 #endif
 
-    return GrOp::Make<skgpu::v1::PathStencilCoverOp>(rContext,
-                                                     arena,
-                                                     viewMatrix,
-                                                     path,
-                                                     std::move(paint),
-                                                     aaType,
-                                                     fillPathFlags,
-                                                     drawBounds);
+    return GrOp::Make<skgpu::ganesh::PathStencilCoverOp>(
+            rContext, arena, viewMatrix, path, std::move(paint), aaType, fillPathFlags, drawBounds);
 }
 
 } // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 bool TessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return !caps.avoidStencilBuffers() &&
@@ -270,4 +264,4 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     sdc->addDrawOp(args.fClip, std::move(op));
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

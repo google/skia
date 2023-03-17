@@ -426,7 +426,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest,
 }
 
 // Create a new render target and draw 'mipmapView' into it using the provided 'filter'.
-static std::unique_ptr<skgpu::v1::SurfaceDrawContext> draw_mipmap_into_new_render_target(
+static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> draw_mipmap_into_new_render_target(
         GrRecordingContext* rContext,
         GrColorType colorType,
         SkAlphaType alphaType,
@@ -444,12 +444,12 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> draw_mipmap_into_new_rende
                                        GrProtected::kNo,
                                        /*label=*/"DrawMipMapViewTest");
 
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(rContext,
-                                                   colorType,
-                                                   std::move(renderTarget),
-                                                   nullptr,
-                                                   kTopLeft_GrSurfaceOrigin,
-                                                   SkSurfaceProps());
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(rContext,
+                                                       colorType,
+                                                       std::move(renderTarget),
+                                                       nullptr,
+                                                       kTopLeft_GrSurfaceOrigin,
+                                                       SkSurfaceProps());
 
     sdc->drawTexture(nullptr,
                      std::move(mipmapView),
@@ -514,9 +514,12 @@ DEF_GANESH_TEST(GrManyDependentsMipMappedTest,
         // dirty again until GrRenderTask::makeClosed().
         mipmapProxy->markMipmapsClean();
 
-        auto mipmapSDC = skgpu::v1::SurfaceDrawContext::Make(
-            dContext.get(), colorType, mipmapProxy, nullptr, kTopLeft_GrSurfaceOrigin,
-            SkSurfaceProps());
+        auto mipmapSDC = skgpu::ganesh::SurfaceDrawContext::Make(dContext.get(),
+                                                                 colorType,
+                                                                 mipmapProxy,
+                                                                 nullptr,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 SkSurfaceProps());
 
         mipmapSDC->clear(SkPMColor4f{.1f, .2f, .3f, .4f});
         REPORTER_ASSERT(reporter, drawingManager->getLastRenderTask(mipmapProxy.get()));

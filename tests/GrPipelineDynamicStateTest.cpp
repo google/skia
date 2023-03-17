@@ -228,9 +228,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest,
     auto dContext = ctxInfo.directContext();
     GrResourceProvider* rp = dContext->priv().resourceProvider();
 
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
-            dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kScreenSize, kScreenSize}, SkSurfaceProps(), /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kExact,
+                                                       {kScreenSize, kScreenSize},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/{});
     if (!sdc) {
         ERRORF(reporter, "could not create render target context.");
         return;

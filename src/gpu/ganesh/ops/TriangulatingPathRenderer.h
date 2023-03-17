@@ -12,7 +12,7 @@
 
 #include "src/gpu/ganesh/PathRenderer.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 /**
  *  Subclass that renders the path by converting to screen-space trapezoids plus
@@ -39,7 +39,7 @@ private:
     int fMaxVerbCount;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE
 

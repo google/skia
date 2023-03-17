@@ -157,8 +157,8 @@ sk_sp<SkImage> TextureFromAHardwareBufferWithData(GrDirectContext* dContext,
         return nullptr;
     }
 
-    skgpu::v1::SurfaceContext surfaceContext(
-            dContext, std::move(framebufferView),image->imageInfo().colorInfo());
+    skgpu::ganesh::SurfaceContext surfaceContext(
+            dContext, std::move(framebufferView), image->imageInfo().colorInfo());
 
     surfaceContext.writePixels(dContext, pixmap, {0, 0});
 

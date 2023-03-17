@@ -32,7 +32,11 @@ class SkSurfaceCharacterization;
 enum GrSurfaceOrigin : int;
 enum class GrSemaphoresSubmitted : bool;
 namespace skgpu { class MutableTextureState; }
-namespace skgpu { namespace v1 { class Device; } }
+namespace skgpu {
+namespace ganesh {
+class Device;
+}
+}  // namespace skgpu
 struct GrFlushInfo;
 struct SkIPoint;
 struct SkIRect;
@@ -40,7 +44,7 @@ struct SkISize;
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:
-    SkSurface_Gpu(sk_sp<skgpu::v1::Device>);
+    SkSurface_Gpu(sk_sp<skgpu::ganesh::Device>);
     ~SkSurface_Gpu() override;
 
     SkImageInfo imageInfo() const override;
@@ -82,10 +86,10 @@ public:
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
     sk_sp<const SkCapabilities> onCapabilities() override;
-    skgpu::v1::Device* getDevice();
+    skgpu::ganesh::Device* getDevice();
 
 private:
-    sk_sp<skgpu::v1::Device> fDevice;
+    sk_sp<skgpu::ganesh::Device> fDevice;
 
     using INHERITED = SkSurface_Base;
 };

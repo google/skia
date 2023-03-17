@@ -41,8 +41,8 @@
 
 class GrRecordingContext;
 
-using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
-using ClearOp = skgpu::v1::ClearOp;
+using SurfaceDrawContext = skgpu::ganesh::SurfaceDrawContext;
+using ClearOp = skgpu::ganesh::ClearOp;
 
 static bool check_rect(GrDirectContext* dContext,
                        SurfaceDrawContext* sdc,

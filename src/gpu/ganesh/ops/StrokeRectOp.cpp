@@ -976,7 +976,7 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
         }
         DrawQuad quad{GrQuad::MakeFromRect(rects[0], viewMatrix), GrQuad(rects[0]),
                       GrQuadAAFlags::kAll};
-        return v1::FillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
+        return ganesh::FillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
     }
 
     return AAStrokeRectOp::Make(context, std::move(paint), viewMatrix, devOutside,

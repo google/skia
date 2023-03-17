@@ -35,7 +35,7 @@ class GrGpuBuffer;
 class GrRenderTargetProxy;
 class OpsTaskTestingAccess;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -267,7 +267,7 @@ private:
     // clearing can be done natively, in which case the op list's load ops are sufficient. In other
     // cases, draw ops must be used, which makes the SDC the best place for those decisions. This,
     // however, requires that the SDC be able to coordinate with the op list to achieve similar ends
-    friend class skgpu::v1::SurfaceDrawContext;
+    friend class skgpu::ganesh::SurfaceDrawContext;
 
     GrAuditTrail* fAuditTrail;
 
@@ -301,6 +301,6 @@ private:
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // OpsTask_DEFINED

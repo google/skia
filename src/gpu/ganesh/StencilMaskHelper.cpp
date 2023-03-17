@@ -255,11 +255,11 @@ static constexpr GrUserStencilSettings gDrawToStencil(
 // This returns a null-terminated list of const GrUserStencilSettings*
 GrUserStencilSettings const* const* get_stencil_passes(
         SkRegion::Op op,
-        skgpu::v1::PathRenderer::StencilSupport stencilSupport,
+        skgpu::ganesh::PathRenderer::StencilSupport stencilSupport,
         bool fillInverted,
         bool* drawDirectToClip) {
     bool canRenderDirectToStencil =
-            skgpu::v1::PathRenderer::kNoRestriction_StencilSupport == stencilSupport;
+            skgpu::ganesh::PathRenderer::kNoRestriction_StencilSupport == stencilSupport;
 
     // TODO: inverse fill + intersect op can be direct.
     // TODO: this can be greatly simplified when we only need intersect and difference ops and
@@ -276,19 +276,20 @@ GrUserStencilSettings const* const* get_stencil_passes(
     return gUserToClipTable[fillInverted][op];
 }
 
-void draw_stencil_rect(skgpu::v1::SurfaceDrawContext* sdc,
+void draw_stencil_rect(skgpu::ganesh::SurfaceDrawContext* sdc,
                        const GrHardClip& clip,
                        const GrUserStencilSettings* ss,
                        const SkMatrix& matrix,
-                       const SkRect& rect, GrAA aa) {
+                       const SkRect& rect,
+                       GrAA aa) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
     sdc->stencilRect(&clip, ss, std::move(paint), aa, matrix, rect);
 }
 
 void draw_path(GrRecordingContext* rContext,
-               skgpu::v1::SurfaceDrawContext* sdc,
-               skgpu::v1::PathRenderer* pr,
+               skgpu::ganesh::SurfaceDrawContext* sdc,
+               skgpu::ganesh::PathRenderer* pr,
                const GrHardClip& clip,
                const SkIRect& bounds,
                const GrUserStencilSettings* ss,
@@ -301,27 +302,27 @@ void draw_path(GrRecordingContext* rContext,
     // kMSAA is the only type of AA that's possible on a stencil buffer.
     GrAAType pathAAType = aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone;
 
-    skgpu::v1::PathRenderer::DrawPathArgs args{rContext,
-                                               std::move(paint),
-                                               ss,
-                                               sdc,
-                                               &clip,
-                                               &bounds,
-                                               &matrix,
-                                               &shape,
-                                               pathAAType,
-                                               false};
+    skgpu::ganesh::PathRenderer::DrawPathArgs args{rContext,
+                                                   std::move(paint),
+                                                   ss,
+                                                   sdc,
+                                                   &clip,
+                                                   &bounds,
+                                                   &matrix,
+                                                   &shape,
+                                                   pathAAType,
+                                                   false};
     pr->drawPath(args);
 }
 
 void stencil_path(GrRecordingContext* rContext,
-                  skgpu::v1::SurfaceDrawContext* sdc,
-                  skgpu::v1::PathRenderer* pr,
+                  skgpu::ganesh::SurfaceDrawContext* sdc,
+                  skgpu::ganesh::PathRenderer* pr,
                   const GrFixedClip& clip,
                   const SkMatrix& matrix,
                   const GrStyledShape& shape,
                   GrAA aa) {
-    skgpu::v1::PathRenderer::StencilPathArgs args;
+    skgpu::ganesh::PathRenderer::StencilPathArgs args;
     args.fContext = rContext;
     args.fSurfaceDrawContext = sdc;
     args.fClip = &clip;
@@ -333,13 +334,13 @@ void stencil_path(GrRecordingContext* rContext,
     pr->stencilPath(args);
 }
 
-GrAA supported_aa(skgpu::v1::SurfaceDrawContext* sdc, GrAA aa) {
+GrAA supported_aa(skgpu::ganesh::SurfaceDrawContext* sdc, GrAA aa) {
     return GrAA(sdc->numSamples() > 1 || sdc->canUseDynamicMSAA());
 }
 
 }  // namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 StencilMaskHelper::StencilMaskHelper(GrRecordingContext* rContext,
                                      SurfaceDrawContext* sdc)
@@ -499,4 +500,4 @@ void StencilMaskHelper::finish() {
     fSDC->setLastClip(fClip.stencilStackID(), fClip.fixedClip().scissorRect(), fNumFPs);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

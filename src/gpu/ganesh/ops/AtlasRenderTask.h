@@ -17,7 +17,7 @@
 
 struct SkIPoint16;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // Represents a GrRenderTask that draws paths into an atlas. This task gets added the DAG and left
 // open, lays out its atlas while future tasks call addPath(), and finally adds its internal draw
@@ -92,6 +92,6 @@ private:
     AtlasPathList fEvenOddPathList;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // AtlasRenderTask_DEFINED

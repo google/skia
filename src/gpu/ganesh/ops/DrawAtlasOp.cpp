@@ -307,7 +307,7 @@ GrProcessorSet::Analysis DrawAtlasOpImpl::finalize(const GrCaps& caps,
 
 } // anonymous namespace
 
-namespace skgpu::v1::DrawAtlasOp {
+namespace skgpu::ganesh::DrawAtlasOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
@@ -323,7 +323,7 @@ GrOp::Owner Make(GrRecordingContext* context,
                                                                     rects, colors);
 }
 
-} // namespace skgpu::v1::DrawAtlasOp
+}  // namespace skgpu::ganesh::DrawAtlasOp
 
 #if GR_TEST_UTILS
 #include "src/gpu/ganesh/GrDrawOpTest.h"
@@ -386,9 +386,14 @@ GR_DRAW_OP_TEST_DEFINE(DrawAtlasOp) {
         aaType = GrAAType::kMSAA;
     }
 
-    return skgpu::v1::DrawAtlasOp::Make(context, std::move(paint), viewMatrix, aaType, spriteCount,
-                                        xforms.begin(), texRects.begin(),
-                                        hasColors ? colors.begin() : nullptr);
+    return skgpu::ganesh::DrawAtlasOp::Make(context,
+                                            std::move(paint),
+                                            viewMatrix,
+                                            aaType,
+                                            spriteCount,
+                                            xforms.begin(),
+                                            texRects.begin(),
+                                            hasColors ? colors.begin() : nullptr);
 }
 
 #endif

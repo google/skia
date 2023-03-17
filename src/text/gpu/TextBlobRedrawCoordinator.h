@@ -39,7 +39,7 @@ public:
                           const GlyphRunList& glyphRunList,
                           const SkPaint& paint,
                           SkStrikeDeviceInfo strikeDeviceInfo,
-                          skgpu::v1::SurfaceDrawContext* sdc);
+                          skgpu::ganesh::SurfaceDrawContext* sdc);
 #endif
 #if defined(SK_GRAPHITE)
     void drawGlyphRunList(SkCanvas* canvas,

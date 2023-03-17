@@ -389,9 +389,9 @@ bool GrDirectContext::wait(int numSemaphores, const GrBackendSemaphore waitSemap
 }
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-skgpu::v1::SmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
+skgpu::ganesh::SmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
     if (!fSmallPathAtlasMgr) {
-        fSmallPathAtlasMgr = std::make_unique<skgpu::v1::SmallPathAtlasMgr>();
+        fSmallPathAtlasMgr = std::make_unique<skgpu::ganesh::SmallPathAtlasMgr>();
 
         this->priv().addOnFlushCallbackObject(fSmallPathAtlasMgr.get());
     }
@@ -554,7 +554,8 @@ static bool update_texture_with_pixmaps(GrDirectContext* context,
 
     skgpu::Swizzle swizzle = context->priv().caps()->getReadSwizzle(format, ct);
     GrSurfaceProxyView view(std::move(proxy), textureOrigin, swizzle);
-    skgpu::v1::SurfaceContext surfaceContext(context, std::move(view), src[0].info().colorInfo());
+    skgpu::ganesh::SurfaceContext surfaceContext(
+            context, std::move(view), src[0].info().colorInfo());
     AutoSTArray<15, GrCPixmap> tmpSrc(numLevels);
     for (int i = 0; i < numLevels; ++i) {
         tmpSrc[i] = src[i];

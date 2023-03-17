@@ -2125,10 +2125,10 @@ void Viewer::drawImGui() {
 #if defined(SK_GANESH)
                         if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
                             const auto* caps = ctx->priv().caps();
-                            if (skgpu::v1::AtlasPathRenderer::IsSupported(ctx)) {
+                            if (skgpu::ganesh::AtlasPathRenderer::IsSupported(ctx)) {
                                 prButton(GpuPathRenderers::kAtlas);
                             }
-                            if (skgpu::v1::TessellationPathRenderer::IsSupported(*caps)) {
+                            if (skgpu::ganesh::TessellationPathRenderer::IsSupported(*caps)) {
                                 prButton(GpuPathRenderers::kTessellation);
                             }
                         }
@@ -3085,10 +3085,10 @@ void Viewer::updateUIState() {
 #if defined(SK_GANESH)
                 if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
                     const auto* caps = ctx->priv().caps();
-                    if (skgpu::v1::AtlasPathRenderer::IsSupported(ctx)) {
+                    if (skgpu::ganesh::AtlasPathRenderer::IsSupported(ctx)) {
                         writer.appendString(gPathRendererNames[GpuPathRenderers::kAtlas]);
                     }
-                    if (skgpu::v1::TessellationPathRenderer::IsSupported(*caps)) {
+                    if (skgpu::ganesh::TessellationPathRenderer::IsSupported(*caps)) {
                         writer.appendString(gPathRendererNames[GpuPathRenderers::kTessellation]);
                     }
                 }

@@ -670,12 +670,12 @@ protected:
         positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
         // Use the SkStrikeServer's strike cache to generate the Slug.
-        return skgpu::v1::MakeSlug(this->localToDevice(),
-                                   glyphRunList,
-                                   initialPaint,
-                                   drawingPaint,
-                                   this->strikeDeviceInfo(),
-                                   fStrikeServerImpl);
+        return skgpu::ganesh::MakeSlug(this->localToDevice(),
+                                       glyphRunList,
+                                       initialPaint,
+                                       drawingPaint,
+                                       this->strikeDeviceInfo(),
+                                       fStrikeServerImpl);
     }
 
 private:

@@ -76,7 +76,7 @@ enum class SavePolicy {
 
 class TestCase {
 public:
-    using ClipStack = skgpu::v1::ClipStack;
+    using ClipStack = skgpu::ganesh::ClipStack;
 
     // Provides fluent API to describe actual clip commands and expected clip elements:
     // TestCase test = TestCase::Build("example", deviceBounds)
@@ -136,7 +136,7 @@ private:
 
 class ElementsBuilder {
 public:
-    using ClipStack = skgpu::v1::ClipStack;
+    using ClipStack = skgpu::ganesh::ClipStack;
 
     // Update the default matrix, aa, and op state for elements that are added.
     ElementsBuilder& localToDevice(const SkMatrix& m) {  fLocalToDevice = m; return *this; }
@@ -202,7 +202,7 @@ private:
 
 class TestCaseBuilder {
 public:
-    using ClipStack = skgpu::v1::ClipStack;
+    using ClipStack = skgpu::ganesh::ClipStack;
 
     ElementsBuilder actual() { return ElementsBuilder(this, &fActualElements); }
     ElementsBuilder expect() { return ElementsBuilder(this, &fExpectedElements); }
@@ -312,8 +312,8 @@ std::pair<SkIRect, bool> TestCase::getOptimalBounds() const {
     return {region.getBounds(), expectOptimal};
 }
 
-static bool compare_elements(const skgpu::v1::ClipStack::Element& a,
-                             const skgpu::v1::ClipStack::Element& b) {
+static bool compare_elements(const skgpu::ganesh::ClipStack::Element& a,
+                             const skgpu::ganesh::ClipStack::Element& b) {
     if (a.fAA != b.fAA || a.fOp != b.fOp || a.fLocalToDevice != b.fLocalToDevice ||
         a.fShape.type() != b.fShape.type()) {
         return false;
@@ -543,7 +543,7 @@ DEF_TEST(ClipStack_InitialState, r) {
 // Tests that intersection of rects combine to a single element when they have the same AA type,
 // or are pixel-aligned.
 DEF_TEST(ClipStack_RectRectAACombine, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect pixelAligned = {0, 0, 10, 10};
     SkRect fracRect1 = pixelAligned.makeOffset(5.3f, 3.7f);
@@ -605,7 +605,7 @@ DEF_TEST(ClipStack_RectRectAACombine, r) {
 // Tests that an intersection and a difference op do not combine, even if they would have if both
 // were intersection ops.
 DEF_TEST(ClipStack_DifferenceNoCombine, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect r1 = {15.f, 14.f, 23.22f, 58.2f};
     SkRect r2 = r1.makeOffset(5.f, 8.f);
@@ -623,7 +623,7 @@ DEF_TEST(ClipStack_DifferenceNoCombine, r) {
 // Tests that intersection of rects in the same coordinate space can still be combined, but do not
 // when the spaces differ.
 DEF_TEST(ClipStack_RectRectNonAxisAligned, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect pixelAligned = {0, 0, 10, 10};
     SkRect fracRect1 = pixelAligned.makeOffset(5.3f, 3.7f);
@@ -669,7 +669,7 @@ DEF_TEST(ClipStack_RectRectNonAxisAligned, r) {
 // Tests that intersection of two round rects can simplify to a single round rect when they have
 // the same AA type.
 DEF_TEST(ClipStack_RRectRRectAACombine, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRRect r1 = SkRRect::MakeRectXY(SkRect::MakeWH(12, 12), 2.f, 2.f);
     SkRRect r2 = r1.makeOffset(6.f, 6.f);
@@ -726,7 +726,7 @@ DEF_TEST(ClipStack_RRectRRectAACombine, r) {
 
 // Tests that intersection of a round rect and rect can simplify to a new round rect or even a rect.
 DEF_TEST(ClipStack_RectRRectCombine, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRRect rrect = SkRRect::MakeRectXY({0, 0, 10, 10}, 2.f, 2.f);
     SkRect cutTop = {-10, -10, 10, 4};
@@ -761,7 +761,7 @@ DEF_TEST(ClipStack_RectRRectCombine, r) {
 
 // Tests that a rect shape is actually pre-clipped to the device bounds
 DEF_TEST(ClipStack_RectDeviceClip, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect crossesDeviceEdge = {20.f, kDeviceBounds.fTop - 13.2f,
                                 kDeviceBounds.fRight + 15.5f, 30.f};
@@ -782,7 +782,7 @@ DEF_TEST(ClipStack_RectDeviceClip, r) {
 
 // Tests that other shapes' bounds are contained by the device bounds, even if their shape is not.
 DEF_TEST(ClipStack_ShapeDeviceBoundsClip, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect crossesDeviceEdge = {20.f, kDeviceBounds.fTop - 13.2f,
                                 kDeviceBounds.fRight + 15.5f, 30.f};
@@ -808,7 +808,7 @@ DEF_TEST(ClipStack_ShapeDeviceBoundsClip, r) {
 
 // Tests that a simplifiable path turns into a simpler element type
 DEF_TEST(ClipStack_PathSimplify, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     // Empty, point, and line paths -> empty
     SkPath empty;
@@ -863,7 +863,7 @@ DEF_TEST(ClipStack_PathSimplify, r) {
 
 // Tests that repeated identical clip operations are idempotent
 DEF_TEST(ClipStack_RepeatElement, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     // Same rect
     SkRect rect = {5.3f, 62.f, 20.f, 85.f};
@@ -935,7 +935,7 @@ DEF_TEST(ClipStack_RepeatElement, r) {
 
 // Tests that inverse-filled paths are canonicalized to a regular fill and a swapped clip op
 DEF_TEST(ClipStack_InverseFilledPath, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect rect = {0.f, 0.f, 16.f, 17.f};
     SkPath rectPath;
@@ -979,7 +979,7 @@ DEF_TEST(ClipStack_InverseFilledPath, r) {
 
 // Tests that clip operations that are offscreen either make the clip empty or stay wide open
 DEF_TEST(ClipStack_Offscreen, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect offscreenRect = {kDeviceBounds.fRight + 10.f, kDeviceBounds.fTop + 20.f,
                             kDeviceBounds.fRight + 40.f, kDeviceBounds.fTop + 60.f};
@@ -1047,7 +1047,7 @@ DEF_TEST(ClipStack_Offscreen, r) {
 
 // Tests that an empty shape updates the clip state directly without needing an element
 DEF_TEST(ClipStack_EmptyShape, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     // Intersect -> empty
     run_test_case(r, TestCase::Build("empty-intersect", kDeviceBounds)
@@ -1072,7 +1072,7 @@ DEF_TEST(ClipStack_EmptyShape, r) {
 
 // Tests that sufficiently large difference operations can shrink the conservative bounds
 DEF_TEST(ClipStack_DifferenceBounds, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect rightSide = {50.f, -10.f, 2.f * kDeviceBounds.fRight, kDeviceBounds.fBottom + 10.f};
     SkRect clipped = rightSide;
@@ -1087,7 +1087,7 @@ DEF_TEST(ClipStack_DifferenceBounds, r) {
 
 // Tests that intersections can combine even if there's a difference operation in the middle
 DEF_TEST(ClipStack_NoDifferenceInterference, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect intR1 = {0.f, 0.f, 30.f, 30.f};
     SkRect intR2 = {15.f, 15.f, 45.f, 45.f};
@@ -1108,7 +1108,7 @@ DEF_TEST(ClipStack_NoDifferenceInterference, r) {
 
 // Tests that multiple path operations are all recorded, but not otherwise consolidated
 DEF_TEST(ClipStack_MultiplePaths, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     // Chosen to be greater than the number of inline-allocated elements and save records of the
     // ClipStack so that we test heap allocation as well.
@@ -1145,7 +1145,7 @@ DEF_TEST(ClipStack_MultiplePaths, r) {
 
 // Tests that a single rect is treated as kDeviceRect state when it's axis-aligned and intersect.
 DEF_TEST(ClipStack_DeviceRect, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     // Axis-aligned + intersect -> kDeviceRect
     SkRect rect = {0, 0, 20, 20};
@@ -1174,7 +1174,7 @@ DEF_TEST(ClipStack_DeviceRect, r) {
 
 // Tests that a single rrect is treated as kDeviceRRect state when it's axis-aligned and intersect.
 DEF_TEST(ClipStack_DeviceRRect, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     // Axis-aligned + intersect -> kDeviceRRect
     SkRect rect = {0, 0, 20, 20};
@@ -1206,7 +1206,7 @@ DEF_TEST(ClipStack_DeviceRRect, r) {
 // elements with different scale+translate matrices to be consolidated as if they were in the same
 // coordinate space.
 DEF_TEST(ClipStack_ScaleTranslate, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkMatrix lm = SkMatrix::Scale(2.f, 4.f);
     lm.postTranslate(15.5f, 14.3f);
@@ -1245,7 +1245,7 @@ DEF_TEST(ClipStack_ScaleTranslate, r) {
 
 // Tests that rect-stays-rect matrices that are not scale+translate matrices are pre-applied.
 DEF_TEST(ClipStack_PreserveAxisAlignment, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkMatrix lm = SkMatrix::RotateDeg(90.f);
     lm.postTranslate(15.5f, 14.3f);
@@ -1285,7 +1285,7 @@ DEF_TEST(ClipStack_PreserveAxisAlignment, r) {
 // Tests that a convex path element can contain a rect or round rect, allowing the stack to be
 // simplified
 DEF_TEST(ClipStack_ConvexPathContains, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect rect = {15.f, 15.f, 30.f, 30.f};
     SkRRect rrect = SkRRect::MakeRectXY(rect, 5.f, 5.f);
@@ -1346,7 +1346,7 @@ DEF_TEST(ClipStack_ConvexPathContains, r) {
 // Tests that rects/rrects in different coordinate spaces can be consolidated when one is fully
 // contained by the other.
 DEF_TEST(ClipStack_NonAxisAlignedContains, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkMatrix lm1 = SkMatrix::RotateDeg(45.f);
     SkRect bigR = {-20.f, -20.f, 20.f, 20.f};
@@ -1484,7 +1484,7 @@ DEF_TEST(ClipStack_NonAxisAlignedContains, r) {
 // Tests that shapes with mixed AA state that contain each other can still be consolidated,
 // unless they are too close to the edge and non-AA snapping can't be predicted
 DEF_TEST(ClipStack_MixedAAContains, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkMatrix lm1 = SkMatrix::RotateDeg(45.f);
     SkRect r1 = {-20.f, -20.f, 20.f, 20.f};
@@ -1531,7 +1531,7 @@ DEF_TEST(ClipStack_MixedAAContains, r) {
 
 // Tests that a shape that contains the device bounds updates the clip state directly
 DEF_TEST(ClipStack_ShapeContainsDevice, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect rect = SkRect::Make(kDeviceBounds).makeOutset(10.f, 10.f);
     SkRRect rrect = SkRRect::MakeRectXY(rect, 10.f, 10.f);
@@ -1569,7 +1569,7 @@ DEF_TEST(ClipStack_ShapeContainsDevice, r) {
 // Tests that shapes that do not overlap make for an empty clip (when intersecting), pick just the
 // intersecting op (when mixed), or are all kept (when diff'ing).
 DEF_TEST(ClipStack_DisjointShapes, r) {
-    using ClipState = skgpu::v1::ClipStack::ClipState;
+    using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect rt = {10.f, 10.f, 20.f, 20.f};
     SkRRect rr = SkRRect::MakeOval(rt.makeOffset({20.f, 0.f}));
@@ -1618,7 +1618,7 @@ DEF_TEST(ClipStack_DisjointShapes, r) {
 }
 
 DEF_TEST(ClipStack_ComplexClip, reporter) {
-    using ClipStack = skgpu::v1::ClipStack;
+    using ClipStack = skgpu::ganesh::ClipStack;
 
     static constexpr float kN = 10.f;
     static constexpr float kR = kN / 3.f;
@@ -1716,7 +1716,7 @@ DEF_TEST(ClipStack_ComplexClip, reporter) {
 
 // Tests that replaceClip() works as expected across save/restores
 DEF_TEST(ClipStack_ReplaceClip, r) {
-    using ClipStack = skgpu::v1::ClipStack;
+    using ClipStack = skgpu::ganesh::ClipStack;
 
     ClipStack cs(kDeviceBounds, nullptr, false);
 
@@ -1751,8 +1751,8 @@ DEF_TEST(ClipStack_ReplaceClip, r) {
 
 // Try to overflow the number of allowed window rects (see skbug.com/10989)
 DEF_TEST(ClipStack_DiffRects, r) {
-    using ClipStack = skgpu::v1::ClipStack;
-    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+    using ClipStack = skgpu::ganesh::ClipStack;
+    using SurfaceDrawContext = skgpu::ganesh::SurfaceDrawContext;
 
     GrMockOptions options;
     options.fMaxWindowRectangles = 8;
@@ -1787,7 +1787,7 @@ DEF_TEST(ClipStack_DiffRects, r) {
 
 // Tests that when a stack is forced to always be AA, non-AA elements become AA
 DEF_TEST(ClipStack_ForceAA, r) {
-    using ClipStack = skgpu::v1::ClipStack;
+    using ClipStack = skgpu::ganesh::ClipStack;
 
     ClipStack cs(kDeviceBounds, nullptr, true);
 
@@ -1834,7 +1834,7 @@ DEF_TEST(ClipStack_ForceAA, r) {
 // Tests preApply works as expected for device rects, rrects, and reports clipped-out, etc. as
 // expected.
 DEF_TEST(ClipStack_PreApply, r) {
-    using ClipStack = skgpu::v1::ClipStack;
+    using ClipStack = skgpu::ganesh::ClipStack;
 
     ClipStack cs(kDeviceBounds, nullptr, false);
 
@@ -1907,8 +1907,8 @@ DEF_TEST(ClipStack_PreApply, r) {
 
 // Tests the clip shader entry point
 DEF_TEST(ClipStack_Shader, r) {
-    using ClipStack = skgpu::v1::ClipStack;
-    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+    using ClipStack = skgpu::ganesh::ClipStack;
+    using SurfaceDrawContext = skgpu::ganesh::SurfaceDrawContext;
 
     sk_sp<SkShader> shader = SkShaders::Color({0.f, 0.f, 0.f, 0.5f}, nullptr);
 
@@ -1963,8 +1963,8 @@ DEF_TEST(ClipStack_Shader, r) {
 // - This is not exhaustive and is challenging to unit test, so apply() is predominantly tested by
 //   the GMs instead.
 DEF_TEST(ClipStack_SimpleApply, r) {
-    using ClipStack = skgpu::v1::ClipStack;
-    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+    using ClipStack = skgpu::ganesh::ClipStack;
+    using SurfaceDrawContext = skgpu::ganesh::SurfaceDrawContext;
 
     SkMatrixProvider matrixProvider = SkMatrix::I();
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
@@ -2101,8 +2101,8 @@ DEF_GANESH_TEST_FOR_CONTEXTS(ClipStack_SWMask,
                              ctxInfo,
                              disable_tessellation_atlas,
                              CtsEnforcement::kNever) {
-    using ClipStack = skgpu::v1::ClipStack;
-    using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
+    using ClipStack = skgpu::ganesh::ClipStack;
+    using SurfaceDrawContext = skgpu::ganesh::SurfaceDrawContext;
 
     GrDirectContext* context = ctxInfo.directContext();
     std::unique_ptr<SurfaceDrawContext> sdc = SurfaceDrawContext::Make(

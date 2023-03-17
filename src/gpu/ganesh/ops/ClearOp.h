@@ -15,7 +15,7 @@
 class GrOpFlushState;
 class GrRecordingContext;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class ClearOp final : public GrOp {
 public:
@@ -81,6 +81,6 @@ private:
 
 GR_MAKE_BITFIELD_CLASS_OPS(ClearOp::Buffer)
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // ClearOp_DEFINED

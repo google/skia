@@ -206,13 +206,13 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(VertexAttributeCount,
     GrGpu* gpu = dContext->priv().getGpu();
 #endif
 
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext,
-                                                   GrColorType::kRGBA_8888,
-                                                   nullptr,
-                                                   SkBackingFit::kApprox,
-                                                   {1, 1},
-                                                   SkSurfaceProps(),
-                                                   /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {1, 1},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/{});
     if (!sdc) {
         ERRORF(reporter, "Could not create render target context.");
         return;

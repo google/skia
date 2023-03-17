@@ -38,7 +38,7 @@ using namespace skia_private;
 #define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }
 #define RETURN_NULLPTR_IF_ABANDONED if (this->fContext->abandoned()) { return nullptr; }
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 SurfaceContext::SurfaceContext(GrRecordingContext* context,
                                GrSurfaceProxyView readView,
@@ -1303,4 +1303,4 @@ void SurfaceContext::validate() const {
 }
 #endif
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

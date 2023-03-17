@@ -88,7 +88,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
                                                 std::move(colorSpace),
                                                 origin,
                                                 SkSurfacePropsCopyOrDefault(surfaceProps),
-                                                skgpu::v1::Device::InitContents::kUninit);
+                                                skgpu::ganesh::Device::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }
@@ -151,13 +151,12 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-
     auto device = rContext->priv().createDevice(grColorType,
                                                 std::move(proxy),
                                                 std::move(colorSpace),
                                                 origin,
                                                 SkSurfacePropsCopyOrDefault(surfaceProps),
-                                                skgpu::v1::Device::InitContents::kUninit);
+                                                skgpu::ganesh::Device::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

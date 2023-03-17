@@ -37,7 +37,9 @@ class GlyphRunList;
 class GrAtlasManager;
 class GrDeferredUploadTarget;
 class GrMeshDrawTarget;
-namespace skgpu::v1 { class SurfaceDrawContext; }
+namespace skgpu::ganesh {
+class SurfaceDrawContext;
+}
 #endif
 
 namespace sktext::gpu {
@@ -124,7 +126,7 @@ public:
               const SkMatrixProvider& viewMatrix,
               SkPoint drawOrigin,
               const SkPaint& paint,
-              skgpu::v1::SurfaceDrawContext* sdc);
+              skgpu::ganesh::SurfaceDrawContext* sdc);
 #endif
 #if defined(SK_GRAPHITE)
     void draw(SkCanvas*,
@@ -151,12 +153,12 @@ private:
 
 }  // namespace sktext::gpu
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
                                   const sktext::GlyphRunList& glyphRunList,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint,
                                   SkStrikeDeviceInfo strikeDeviceInfo,
                                   sktext::StrikeForGPUCacheInterface* strikeCache);
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 #endif  // sktext_gpu_TextBlob_DEFINED

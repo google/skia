@@ -18,7 +18,7 @@
 #include "src/gpu/tessellate/StrokeIterator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 namespace {
 
@@ -191,4 +191,4 @@ void StrokeTessellator::draw(GrOpFlushState* flushState) const {
     }
 }
 
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh

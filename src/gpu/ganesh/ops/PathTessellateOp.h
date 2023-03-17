@@ -13,7 +13,7 @@
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // Tessellates a path directly to the color buffer, using one single render pass. This currently
 // only works for convex paths.
@@ -78,6 +78,6 @@ private:
     friend class GrOp;  // For ctor.
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // PathTessellateOp_DEFINED

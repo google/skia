@@ -47,7 +47,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
                                                 imageInfo.refColorSpace(),
                                                 kTopLeft_GrSurfaceOrigin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::v1::Device::InitContents::kUninit);
+                                                skgpu::ganesh::Device::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }
@@ -56,10 +56,9 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
                                                                             props));
 }
 
-GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<skgpu::v1::Device> device,
+GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<skgpu::ganesh::Device> device,
                                                        const SkSurfaceProps* props)
-    : fDevice(device)
-    , fProps(SkSurfacePropsCopyOrDefault(props)) {}
+        : fDevice(device), fProps(SkSurfacePropsCopyOrDefault(props)) {}
 
 GrVkSecondaryCBDrawContext::~GrVkSecondaryCBDrawContext() {
     SkASSERT(!fDevice);

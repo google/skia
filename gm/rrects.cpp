@@ -147,7 +147,7 @@ protected:
                                 bounds.outset(2.f, 2.f);
                             }
 
-                            sdc->addDrawOp(skgpu::v1::FillRectOp::MakeNonAARect(
+                            sdc->addDrawOp(skgpu::ganesh::FillRectOp::MakeNonAARect(
                                     rContext, std::move(grPaint), SkMatrix::I(), bounds));
                         } else {
                             drew = false;

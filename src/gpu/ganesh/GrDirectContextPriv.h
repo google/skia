@@ -95,7 +95,7 @@ public:
 
     // This accessor should only ever be called by the GrOpFlushState.
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-    skgpu::v1::SmallPathAtlasMgr* getSmallPathAtlasMgr() {
+    skgpu::ganesh::SmallPathAtlasMgr* getSmallPathAtlasMgr() {
         return this->context()->onGetSmallPathAtlasMgr();
     }
 #endif

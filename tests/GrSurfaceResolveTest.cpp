@@ -254,12 +254,12 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(NonmippedDrawBeforeMippedDraw,
         if (sampleCount > 1) {
             // Make sure MSAA surface needs a resolve by drawing to it. This also adds a last
             // render task to the proxy.
-            auto drawContext = skgpu::v1::SurfaceDrawContext::Make(dc,
-                                                                   GrColorType::kRGBA_8888,
-                                                                   mmProxy,
-                                                                   nullptr,
-                                                                   kBottomLeft_GrSurfaceOrigin,
-                                                                   SkSurfaceProps{});
+            auto drawContext = skgpu::ganesh::SurfaceDrawContext::Make(dc,
+                                                                       GrColorType::kRGBA_8888,
+                                                                       mmProxy,
+                                                                       nullptr,
+                                                                       kBottomLeft_GrSurfaceOrigin,
+                                                                       SkSurfaceProps{});
             drawContext->fillWithFP(GrFragmentProcessor::MakeColor(SK_PMColor4fWHITE));
         } else {
             // Use a copy, as in the original bug, to dirty the mipmap status and also install
@@ -273,19 +273,18 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(NonmippedDrawBeforeMippedDraw,
                                                                skgpu::Budgeted::kYes,
                                                                GrProtected::kNo,
                                                                "testSrc");
-            skgpu::v1::SurfaceContext mmSC(dc,
-                                           mmProxyView,
-                                           {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr});
+            skgpu::ganesh::SurfaceContext mmSC(
+                    dc, mmProxyView, {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr});
             mmSC.testCopy(src);
         }
 
-        auto drawDst = skgpu::v1::SurfaceDrawContext::Make(dc,
-                                                           GrColorType::kRGBA_8888,
-                                                           nullptr,
-                                                           SkBackingFit::kExact,
-                                                           {8, 8},
-                                                           SkSurfaceProps{},
-                                                           "testDrawDst");
+        auto drawDst = skgpu::ganesh::SurfaceDrawContext::Make(dc,
+                                                               GrColorType::kRGBA_8888,
+                                                               nullptr,
+                                                               SkBackingFit::kExact,
+                                                               {8, 8},
+                                                               SkSurfaceProps{},
+                                                               "testDrawDst");
 
         // Do a non-mipmapped draw from the mipmapped texture. This should add a dependency on the
         // copy task recorded above. If the src texture is also multisampled this should record a

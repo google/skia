@@ -26,7 +26,7 @@
 #include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 #include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 PathRendererChain::PathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
@@ -118,4 +118,4 @@ PathRenderer* PathRendererChain::getPathRenderer(const PathRenderer::CanDrawPath
     return bestPathRenderer;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

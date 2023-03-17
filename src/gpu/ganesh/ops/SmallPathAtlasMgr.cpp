@@ -20,7 +20,7 @@ static int g_NumCachedShapes = 0;
 static int g_NumFreedShapes = 0;
 #endif
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 SmallPathAtlasMgr::SmallPathAtlasMgr() {}
 
@@ -144,6 +144,6 @@ void SmallPathAtlasMgr::evict(skgpu::PlotLocator plotLocator) {
     }
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

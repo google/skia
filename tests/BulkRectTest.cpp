@@ -55,10 +55,14 @@ struct GrContextOptions;
 
 using namespace skgpu::ganesh;
 
-static std::unique_ptr<skgpu::v1::SurfaceDrawContext> new_SDC(GrRecordingContext* rContext) {
-    return skgpu::v1::SurfaceDrawContext::Make(
-            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {128, 128},
-            SkSurfaceProps(), /*label=*/{});
+static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> new_SDC(GrRecordingContext* rContext) {
+    return skgpu::ganesh::SurfaceDrawContext::Make(rContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {128, 128},
+                                                   SkSurfaceProps(),
+                                                   /*label=*/{});
 }
 
 static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
@@ -102,7 +106,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
         return;
     }
 
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc = new_SDC(dContext);
+    std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> sdc = new_SDC(dContext);
 
     auto quads = new GrQuadSetEntry[requestedTotNumQuads];
 
@@ -116,8 +120,14 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
     GrPaint paint;
     paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
-    skgpu::v1::FillRectOp::AddFillRectOps(sdc.get(), nullptr, dContext, std::move(paint), overallAA,
-                                          SkMatrix::I(), quads, requestedTotNumQuads);
+    skgpu::ganesh::FillRectOp::AddFillRectOps(sdc.get(),
+                                              nullptr,
+                                              dContext,
+                                              std::move(paint),
+                                              overallAA,
+                                              SkMatrix::I(),
+                                              quads,
+                                              requestedTotNumQuads);
 
     auto opsTask = sdc->testingOnly_PeekLastOpsTask();
     int actualNumOps = opsTask->numOpChains();
@@ -126,7 +136,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
 
     for (int i = 0; i < actualNumOps; ++i) {
         const GrOp* tmp = opsTask->getChain(i);
-        REPORTER_ASSERT(reporter, tmp->classID() == skgpu::v1::FillRectOp::ClassID());
+        REPORTER_ASSERT(reporter, tmp->classID() == skgpu::ganesh::FillRectOp::ClassID());
         REPORTER_ASSERT(reporter, tmp->isChainTail());
         actualTotNumQuads += ((GrDrawOp*) tmp)->numQuads();
     }
@@ -145,8 +155,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
                                     SkBlendMode blendMode, bool addOneByOne,
                                     bool allUniqueProxies,
                                     int requestedTotNumQuads, int expectedNumOps) {
-
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc = new_SDC(dContext);
+    std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> sdc = new_SDC(dContext);
 
     GrSurfaceProxyView proxyViewA, proxyViewB;
 
@@ -237,8 +246,8 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
         expectedNumOps = requestedTotNumQuads;
     }
     uint32_t expectedOpID = blendMode == SkBlendMode::kSrcOver
-                                                 ? TextureOp::ClassID()
-                                                 : skgpu::v1::FillRectOp::ClassID();
+                                    ? TextureOp::ClassID()
+                                    : skgpu::ganesh::FillRectOp::ClassID();
     for (int i = 0; i < actualNumOps; ++i) {
         const GrOp* tmp = opsTask->getChain(i);
         REPORTER_ASSERT(reporter, allUniqueProxies || tmp->isChainTail());

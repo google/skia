@@ -17,7 +17,7 @@ struct GrUserStencilSettings;
 class SkMatrix;
 class SkRegion;
 
-namespace skgpu::v1::RegionOp {
+namespace skgpu::ganesh::RegionOp {
 
 /** GrAAType must be kNone or kMSAA. */
 GrOp::Owner Make(GrRecordingContext*,
@@ -27,6 +27,6 @@ GrOp::Owner Make(GrRecordingContext*,
                  GrAAType,
                  const GrUserStencilSettings* stencilSettings = nullptr);
 
-} // namespace skgpu::v1::RegionOp
+}  // namespace skgpu::ganesh::RegionOp
 
 #endif // RegionOp_DEFINED

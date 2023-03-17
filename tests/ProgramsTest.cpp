@@ -158,10 +158,8 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static std::unique_ptr<skgpu::v1::SurfaceDrawContext> random_surface_draw_context(
-        GrRecordingContext* rContext,
-        SkRandom* random,
-        const GrCaps* caps) {
+static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> random_surface_draw_context(
+        GrRecordingContext* rContext, SkRandom* random, const GrCaps* caps) {
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
                                                 : kBottomLeft_GrSurfaceOrigin;
 
@@ -172,10 +170,17 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> random_surface_draw_contex
     // Above could be 0 if msaa isn't supported.
     sampleCnt = std::max(1, sampleCnt);
 
-    return skgpu::v1::SurfaceDrawContext::Make(
-            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps(), /*label=*/{},
-            sampleCnt, GrMipmapped::kNo, GrProtected::kNo, origin);
+    return skgpu::ganesh::SurfaceDrawContext::Make(rContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {kRenderTargetWidth, kRenderTargetHeight},
+                                                   SkSurfaceProps(),
+                                                   /*label=*/{},
+                                                   sampleCnt,
+                                                   GrMipmapped::kNo,
+                                                   GrProtected::kNo,
+                                                   origin);
 }
 
 #if GR_TEST_UTILS
@@ -333,10 +338,13 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     direct->submit(false);
 
     // Validate that GrFPs work correctly without an input.
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
-            direct, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps(),
-            /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(direct,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kExact,
+                                                       {kRenderTargetWidth, kRenderTargetHeight},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/{});
     if (!sdc) {
         SkDebugf("Could not allocate a surfaceDrawContext");
         return false;

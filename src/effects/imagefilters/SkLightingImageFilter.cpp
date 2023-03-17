@@ -473,7 +473,7 @@ protected:
 
 private:
 #if defined(SK_GANESH)
-    void drawRect(skgpu::v1::SurfaceFillContext*,
+    void drawRect(skgpu::ganesh::SurfaceFillContext*,
                   GrSurfaceProxyView srcView,
                   const SkIPoint& viewOffset,
                   const SkMatrix& matrix,
@@ -491,7 +491,7 @@ private:
 }  // anonymous namespace
 
 #if defined(SK_GANESH)
-void SkLightingImageFilterInternal::drawRect(skgpu::v1::SurfaceFillContext* sfc,
+void SkLightingImageFilterInternal::drawRect(skgpu::ganesh::SurfaceFillContext* sfc,
                                              GrSurfaceProxyView srcView,
                                              const SkIPoint& viewOffset,
                                              const SkMatrix& matrix,

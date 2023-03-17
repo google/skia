@@ -45,7 +45,9 @@ enum class SkTextureCompressionType;
 namespace skgpu {
 class Swizzle;
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-namespace v1 { class SmallPathAtlasMgr; }
+namespace ganesh {
+class SmallPathAtlasMgr;
+}
 #endif
 }
 
@@ -855,7 +857,7 @@ protected:
 
     GrAtlasManager* onGetAtlasManager() { return fAtlasManager.get(); }
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-    skgpu::v1::SmallPathAtlasMgr* onGetSmallPathAtlasMgr();
+    skgpu::ganesh::SmallPathAtlasMgr* onGetSmallPathAtlasMgr();
 #endif
 
     GrDirectContext* asDirectContext() override { return this; }
@@ -923,7 +925,7 @@ private:
     std::unique_ptr<GrAtlasManager> fAtlasManager;
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-    std::unique_ptr<skgpu::v1::SmallPathAtlasMgr> fSmallPathAtlasMgr;
+    std::unique_ptr<skgpu::ganesh::SmallPathAtlasMgr> fSmallPathAtlasMgr;
 #endif
 
     friend class GrDirectContextPriv;

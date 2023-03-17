@@ -168,7 +168,7 @@ bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
 }
 
 void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
-    // Higher-level skgpu::v1::SurfaceDrawContext and clips should have already ensured draw
+    // Higher-level skgpu::ganesh::SurfaceDrawContext and clips should have already ensured draw
     // bounds are restricted to the render target.
     SkASSERT(SkIRect::MakeSize(fRenderTarget->dimensions()).contains(scissor));
     auto nativeScissorRect =

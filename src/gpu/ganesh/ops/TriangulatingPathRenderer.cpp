@@ -577,7 +577,7 @@ GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 TriangulatingPathRenderer::TriangulatingPathRenderer()
     : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
@@ -631,6 +631,6 @@ bool TriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

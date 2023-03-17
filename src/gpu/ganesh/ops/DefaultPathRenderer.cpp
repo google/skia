@@ -613,9 +613,9 @@ GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
-bool DefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
+bool DefaultPathRenderer::internalDrawPath(skgpu::ganesh::SurfaceDrawContext* sdc,
                                            GrPaint&& paint,
                                            GrAAType aaType,
                                            const GrUserStencilSettings& userStencilSettings,
@@ -760,7 +760,6 @@ bool DefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
     return true;
 }
 
-
 PathRenderer::StencilSupport
 DefaultPathRenderer::onGetStencilSupport(const GrStyledShape& shape) const {
     if (single_pass_shape(shape)) {
@@ -815,4 +814,4 @@ void DefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
             args.fClip, *args.fViewMatrix, *args.fShape, true);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

@@ -17,7 +17,7 @@ class GrRecordingContext;
 class SkMatrix;
 class SkRRect;
 
-namespace skgpu::v1::ShadowRRectOp {
+namespace skgpu::ganesh::ShadowRRectOp {
 
 GrOp::Owner Make(GrRecordingContext*,
                  GrColor,
@@ -26,6 +26,6 @@ GrOp::Owner Make(GrRecordingContext*,
                  SkScalar blurWidth,
                  SkScalar insetWidth);
 
-} // namespace skgpu::v1::ShadowRRectOp
+}  // namespace skgpu::ganesh::ShadowRRectOp
 
 #endif // ShadowRRectOp_DEFINED

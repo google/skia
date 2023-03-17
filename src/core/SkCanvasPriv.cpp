@@ -105,7 +105,7 @@ void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[]
 
 #include "src/gpu/ganesh/Device_v1.h"
 
-skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
+skgpu::ganesh::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
         return gpuDevice->surfaceDrawContext();
     }
@@ -113,7 +113,7 @@ skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanva
     return nullptr;
 }
 
-skgpu::v1::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
+skgpu::ganesh::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
         return gpuDevice->surfaceFillContext();
     }

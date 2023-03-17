@@ -565,11 +565,10 @@ GrRenderTask* GrDrawingManager::getLastRenderTask(const GrSurfaceProxy* proxy) c
     return entry ? *entry : nullptr;
 }
 
-skgpu::v1::OpsTask* GrDrawingManager::getLastOpsTask(const GrSurfaceProxy* proxy) const {
+skgpu::ganesh::OpsTask* GrDrawingManager::getLastOpsTask(const GrSurfaceProxy* proxy) const {
     GrRenderTask* task = this->getLastRenderTask(proxy);
     return task ? task->asOpsTask() : nullptr;
 }
-
 
 void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
@@ -683,17 +682,15 @@ void GrDrawingManager::closeActiveOpsTask() {
     }
 }
 
-sk_sp<skgpu::v1::OpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
-                                                       sk_sp<GrArenas> arenas) {
+sk_sp<skgpu::ganesh::OpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
+                                                           sk_sp<GrArenas> arenas) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     this->closeActiveOpsTask();
 
-    sk_sp<skgpu::v1::OpsTask> opsTask(new skgpu::v1::OpsTask(this,
-                                                             std::move(surfaceView),
-                                                             fContext->priv().auditTrail(),
-                                                             std::move(arenas)));
+    sk_sp<skgpu::ganesh::OpsTask> opsTask(new skgpu::ganesh::OpsTask(
+            this, std::move(surfaceView), fContext->priv().auditTrail(), std::move(arenas)));
 
     SkASSERT(this->getLastRenderTask(opsTask->target(0)) == opsTask.get());
 
@@ -1006,12 +1003,11 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
  * Due to its expense, the software path renderer has split out so it can
  * can be individually allowed/disallowed via the "allowSW" boolean.
  */
-skgpu::v1::PathRenderer* GrDrawingManager::getPathRenderer(
+skgpu::ganesh::PathRenderer* GrDrawingManager::getPathRenderer(
         const PathRenderer::CanDrawPathArgs& args,
         bool allowSW,
         PathRendererChain::DrawType drawType,
         PathRenderer::StencilSupport* stencilSupport) {
-
     if (!fPathRendererChain) {
         fPathRendererChain =
                 std::make_unique<PathRendererChain>(fContext, fOptionsForPathRendererChain);
@@ -1034,15 +1030,16 @@ skgpu::v1::PathRenderer* GrDrawingManager::getPathRenderer(
     return pr;
 }
 
-skgpu::v1::PathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
+skgpu::ganesh::PathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     if (!fSoftwarePathRenderer) {
-        fSoftwarePathRenderer.reset(new skgpu::v1::SoftwarePathRenderer(
-            fContext->priv().proxyProvider(), fOptionsForPathRendererChain.fAllowPathMaskCaching));
+        fSoftwarePathRenderer.reset(new skgpu::ganesh::SoftwarePathRenderer(
+                fContext->priv().proxyProvider(),
+                fOptionsForPathRendererChain.fAllowPathMaskCaching));
     }
     return fSoftwarePathRenderer.get();
 }
 
-skgpu::v1::AtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
+skgpu::ganesh::AtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
     if (!fPathRendererChain) {
         fPathRendererChain = std::make_unique<PathRendererChain>(fContext,
                                                                  fOptionsForPathRendererChain);
@@ -1050,7 +1047,7 @@ skgpu::v1::AtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
     return fPathRendererChain->getAtlasPathRenderer();
 }
 
-skgpu::v1::PathRenderer* GrDrawingManager::getTessellationPathRenderer() {
+skgpu::ganesh::PathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     if (!fPathRendererChain) {
         fPathRendererChain = std::make_unique<PathRendererChain>(fContext,
                                                                  fOptionsForPathRendererChain);

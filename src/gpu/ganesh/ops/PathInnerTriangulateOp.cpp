@@ -18,7 +18,7 @@
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 namespace {
 
@@ -473,6 +473,6 @@ void PathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect&
     }
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

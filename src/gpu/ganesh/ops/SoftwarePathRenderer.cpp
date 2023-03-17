@@ -107,7 +107,7 @@ GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
 
 } // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 PathRenderer::CanDrawPath SoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -405,4 +405,4 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

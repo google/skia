@@ -603,7 +603,7 @@ private:
 };
 
 #if defined(SK_GANESH)
-SkPMColor4f calculate_colors(skgpu::v1::SurfaceDrawContext* sdc,
+SkPMColor4f calculate_colors(skgpu::ganesh::SurfaceDrawContext* sdc,
                              const SkPaint& paint,
                              const SkMatrix& matrix,
                              MaskFormat maskFormat,
@@ -875,7 +875,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt>,
-              skgpu::v1::SurfaceDrawContext*) const override {
+              skgpu::ganesh::SurfaceDrawContext*) const override {
         fPathDrawing.submitDraws(canvas, drawOrigin, paint);
     }
 #endif  // defined(SK_GANESH)
@@ -1095,7 +1095,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              skgpu::v1::SurfaceDrawContext* sdc) const override {
+              skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         fDrawingDrawing.submitDraws(canvas, drawOrigin, paint);
     }
 #endif  // defined(SK_GANESH)
@@ -1240,7 +1240,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              skgpu::v1::SurfaceDrawContext* sdc) const override {
+              skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         auto[drawingClip, op] = this->makeAtlasTextOp(
                 clip, viewMatrix, drawOrigin, paint, std::move(subRunStorage), sdc);
         if (op != nullptr) {
@@ -1280,13 +1280,13 @@ public:
         return fVertexFiller.vertexStride(drawMatrix);
     }
 
-    std::tuple<const GrClip*, GrOp::Owner>
-    makeAtlasTextOp(const GrClip* clip,
-                    const SkMatrixProvider& viewMatrix,
-                    SkPoint drawOrigin,
-                    const SkPaint& paint,
-                    sk_sp<SkRefCnt>&& subRunStorage,
-                    skgpu::v1::SurfaceDrawContext* sdc) const override {
+    std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
+            const GrClip* clip,
+            const SkMatrixProvider& viewMatrix,
+            SkPoint drawOrigin,
+            const SkPaint& paint,
+            sk_sp<SkRefCnt>&& subRunStorage,
+            skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         SkASSERT(this->glyphCount() != 0);
         const SkMatrix& drawMatrix = viewMatrix.localToDevice();
         const SkMatrix& positionMatrix = position_matrix(drawMatrix, drawOrigin);
@@ -1501,7 +1501,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              skgpu::v1::SurfaceDrawContext* sdc) const override {
+              skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         auto[drawingClip, op] = this->makeAtlasTextOp(
                 clip, viewMatrix, drawOrigin, paint, std::move(subRunStorage), sdc);
         if (op != nullptr) {
@@ -1509,13 +1509,13 @@ public:
         }
     }
 
-    std::tuple<const GrClip*, GrOp::Owner>
-    makeAtlasTextOp(const GrClip* clip,
-                    const SkMatrixProvider& viewMatrix,
-                    SkPoint drawOrigin,
-                    const SkPaint& paint,
-                    sk_sp<SkRefCnt>&& subRunStorage,
-                    skgpu::v1::SurfaceDrawContext* sdc) const override {
+    std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
+            const GrClip* clip,
+            const SkMatrixProvider& viewMatrix,
+            SkPoint drawOrigin,
+            const SkPaint& paint,
+            sk_sp<SkRefCnt>&& subRunStorage,
+            skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         SkASSERT(this->glyphCount() != 0);
 
         const SkMatrix& drawMatrix = viewMatrix.localToDevice();
@@ -1643,7 +1643,7 @@ bool has_some_antialiasing(const SkFont& font ) {
 #if defined(SK_GANESH)
 
 static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
-        const skgpu::v1::SurfaceDrawContext& sdc,
+        const skgpu::ganesh::SurfaceDrawContext& sdc,
         const SkMatrix& drawMatrix,
         bool useLCDText,
         bool isAntiAliased) {
@@ -1755,7 +1755,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              skgpu::v1::SurfaceDrawContext* sdc) const override {
+              skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         auto[drawingClip, op] = this->makeAtlasTextOp(
                 clip, viewMatrix, drawOrigin, paint, std::move(subRunStorage), sdc);
         if (op != nullptr) {
@@ -1769,7 +1769,7 @@ public:
             SkPoint drawOrigin,
             const SkPaint& paint,
             sk_sp<SkRefCnt>&& subRunStorage,
-            skgpu::v1::SurfaceDrawContext* sdc) const override {
+            skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         SkASSERT(this->glyphCount() != 0);
 
         const SkMatrix& drawMatrix = viewMatrix.localToDevice();
@@ -2537,7 +2537,7 @@ void SubRunContainer::draw(SkCanvas* canvas,
                            SkPoint drawOrigin,
                            const SkPaint& paint,
                            const SkRefCnt* subRunStorage,
-                           skgpu::v1::SurfaceDrawContext* sdc) const {
+                           skgpu::ganesh::SurfaceDrawContext* sdc) const {
     for (auto& subRun : fSubRuns) {
         subRun.draw(canvas, clip, viewMatrix, drawOrigin, paint, sk_ref_sp(subRunStorage), sdc);
     }

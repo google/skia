@@ -98,7 +98,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
                                                 GrProtected::kNo,
                                                 kBottomLeft_GrSurfaceOrigin,
                                                 SkSurfaceProps(),
-                                                skgpu::v1::Device::InitContents::kClear);
+                                                skgpu::ganesh::Device::InitContents::kClear);
 
     SkBitmap bm;
     SkAssertResult(bm.tryAllocN32Pixels(kWidth, kHeight));

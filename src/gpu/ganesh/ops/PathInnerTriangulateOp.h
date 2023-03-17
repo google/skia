@@ -17,7 +17,7 @@
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class PathCurveTessellator;
 
@@ -105,7 +105,7 @@ private:
     friend class GrOp;  // For ctor.
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE
 

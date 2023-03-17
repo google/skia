@@ -12,7 +12,7 @@
 
 #include "src/gpu/ganesh/ops/OpsTask.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceFillContext : public SurfaceContext {
 public:
@@ -181,6 +181,6 @@ std::array<float, 4> SurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaType
     return (AlphaType == this->colorInfo().alphaType()) ? color.array() : ConvertColor(color);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SurfaceFillContext_DEFINED

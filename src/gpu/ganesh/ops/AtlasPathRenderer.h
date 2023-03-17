@@ -19,7 +19,7 @@
 class GrOp;
 class GrRecordingContext;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class AtlasRenderTask;
 
@@ -42,7 +42,7 @@ public:
     // 128^2 total pixels if the surfaceDrawContext supports MSAA or DMSAA.)
     //
     // Also returns GrFPFailure() if the view matrix has perspective.
-    GrFPResult makeAtlasClipEffect(const skgpu::v1::SurfaceDrawContext*,
+    GrFPResult makeAtlasClipEffect(const skgpu::ganesh::SurfaceDrawContext*,
                                    const GrOp* opBeingClipped,
                                    std::unique_ptr<GrFragmentProcessor> inputFP,
                                    const SkIRect& drawBounds,
@@ -112,6 +112,6 @@ private:
     SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // GrAtlasPathRenderer_DEFINED

@@ -62,7 +62,8 @@ bool is_visible(const SkRect& pathDevBounds, const SkIRect& clipBounds) {
 // Ensures the atlas dependencies are set up such that each atlas will be totally out of service
 // before we render the next one in line. This means there will only ever be one atlas active at a
 // time and that they can all share the same texture.
-void validate_atlas_dependencies(const SkTArray<sk_sp<skgpu::v1::AtlasRenderTask>>& atlasTasks) {
+void validate_atlas_dependencies(
+        const SkTArray<sk_sp<skgpu::ganesh::AtlasRenderTask>>& atlasTasks) {
     for (int i = atlasTasks.size() - 1; i >= 1; --i) {
         auto atlasTask = atlasTasks[i].get();
         auto previousAtlasTask = atlasTasks[i - 1].get();
@@ -79,7 +80,7 @@ void validate_atlas_dependencies(const SkTArray<sk_sp<skgpu::v1::AtlasRenderTask
 
 } // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 constexpr static auto kAtlasAlpha8Type = GrColorType::kAlpha_8;
 constexpr static int kAtlasInitialSize = 512;
@@ -441,4 +442,4 @@ bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP) {
     return successful;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

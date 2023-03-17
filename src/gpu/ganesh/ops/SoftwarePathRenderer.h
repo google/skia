@@ -13,7 +13,7 @@
 
 class GrProxyProvider;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 /**
  * This class uses the software side to render a path to an SkBitmap and
@@ -77,6 +77,6 @@ private:
     bool             fAllowCaching;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SoftwarePathRenderer_DEFINED

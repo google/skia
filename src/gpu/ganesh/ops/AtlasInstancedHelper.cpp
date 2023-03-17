@@ -13,7 +13,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 void AtlasInstancedHelper::getKeyBits(KeyBuilder* b) const {
     b->addBits(kNumShaderFlags, (int)fShaderFlags, "atlasFlags");
@@ -107,4 +107,4 @@ void AtlasInstancedHelper::setUniformData(
     pdman.set2f(atlasAdjustUniformHandle, 1.f / dimensions.width(), 1.f / dimensions.height());
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

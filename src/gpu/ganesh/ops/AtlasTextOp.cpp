@@ -508,7 +508,7 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 #endif // !defined(SK_DISABLE_SDF_TEXT)
 
 #if GR_TEST_UTILS
-GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext* sdc,
+GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext* sdc,
                                              const SkPaint& skPaint,
                                              const SkFont& font,
                                              const SkMatrixProvider& mtxProvider,

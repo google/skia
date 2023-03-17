@@ -18,7 +18,7 @@
 #include "src/gpu/ganesh/ops/FillRectOp.h"
 #include "src/gpu/ganesh/ops/PathStencilCoverOp.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 AtlasRenderTask::AtlasRenderTask(GrRecordingContext* rContext,
                                  sk_sp<GrArenas> arenas,
@@ -192,4 +192,4 @@ bool AtlasRenderTask::onExecute(GrOpFlushState* flushState) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

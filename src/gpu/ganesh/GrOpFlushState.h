@@ -185,7 +185,7 @@ public:
     // SmallPathAtlasMgr is required (and permissible).
     GrAtlasManager* atlasManager() const final;
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-    skgpu::v1::SmallPathAtlasMgr* smallPathAtlasManager() const final;
+    skgpu::ganesh::SmallPathAtlasMgr* smallPathAtlasManager() const final;
 #endif
 
     /** GrMeshDrawTarget override. */

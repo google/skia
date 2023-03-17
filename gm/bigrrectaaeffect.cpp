@@ -105,7 +105,7 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    sdc->addDrawOp(skgpu::v1::FillRectOp::MakeNonAARect(
+                    sdc->addDrawOp(skgpu::ganesh::FillRectOp::MakeNonAARect(
                             rContext, std::move(grPaint), SkMatrix::I(), bounds));
                 }
             canvas->restore();

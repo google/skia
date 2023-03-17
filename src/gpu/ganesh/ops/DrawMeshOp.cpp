@@ -1049,7 +1049,7 @@ GrOp::CombineResult MeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const Gr
 
 }  // anonymous namespace
 
-namespace skgpu::v1::DrawMeshOp {
+namespace skgpu::ganesh::DrawMeshOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
@@ -1081,4 +1081,4 @@ GrOp::Owner Make(GrRecordingContext* context,
                                                            matrixProvider);
 }
 
-}  // namespace skgpu::v1::DrawMeshOp
+}  // namespace skgpu::ganesh::DrawMeshOp

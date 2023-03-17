@@ -24,7 +24,7 @@
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 namespace {
 
@@ -198,7 +198,7 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
     SkString error;
     if (!sdc || !ctx) {
         error = "GPU Only.";
-    } else if (!skgpu::v1::TessellationPathRenderer::IsSupported(*ctx->priv().caps())) {
+    } else if (!skgpu::ganesh::TessellationPathRenderer::IsSupported(*ctx->priv().caps())) {
         error = "TessellationPathRenderer not supported.";
     }
     if (!error.isEmpty()) {
@@ -328,6 +328,6 @@ bool PathTessellatorsSlide::onChar(SkUnichar unichar) {
 
 DEF_SLIDE( return new PathTessellatorsSlide; )
 
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif  // defined(SK_GANESH)

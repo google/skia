@@ -148,7 +148,7 @@ static SkBitmap create_bitmap(SkIRect contentRect, SkISize fullSize, GrSurfaceOr
 }
 
 static void draw_texture(const GrCaps* caps,
-                         skgpu::v1::SurfaceDrawContext* sdc,
+                         skgpu::ganesh::SurfaceDrawContext* sdc,
                          const GrSurfaceProxyView& src,
                          const SkIRect& srcRect,
                          const SkIRect& drawRect,

@@ -33,7 +33,7 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 namespace {
 
@@ -932,7 +932,7 @@ bool AAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #if GR_TEST_UTILS
 
@@ -940,8 +940,8 @@ GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     const SkPath& path = GrTest::TestPathConvex(random);
     const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
-    return skgpu::v1::AAConvexPathOp::Make(context, std::move(paint), viewMatrix, path,
-                                           stencilSettings);
+    return skgpu::ganesh::AAConvexPathOp::Make(
+            context, std::move(paint), viewMatrix, path, stencilSettings);
 }
 
 #endif

@@ -29,7 +29,7 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 namespace {
 
@@ -410,7 +410,7 @@ bool AALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #if GR_TEST_UTILS
 
@@ -438,9 +438,15 @@ GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
         miterLimit = random->nextRangeF(0.5f, 2.0f);
     }
     const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
-    return skgpu::v1::AAFlatteningConvexPathOp::Make(context, std::move(paint), viewMatrix, path,
-                                                     strokeWidth, style, join, miterLimit,
-                                                     stencilSettings);
+    return skgpu::ganesh::AAFlatteningConvexPathOp::Make(context,
+                                                         std::move(paint),
+                                                         viewMatrix,
+                                                         path,
+                                                         strokeWidth,
+                                                         style,
+                                                         join,
+                                                         miterLimit,
+                                                         stencilSettings);
 }
 
 #endif

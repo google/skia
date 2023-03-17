@@ -104,7 +104,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> BoundingBoxShader::makeProgram
 
 }  // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 void PathStencilCoverOp::visitProxies(const GrVisitProxyFunc& func) const {
     if (fCoverBBoxProgram) {
@@ -350,4 +350,4 @@ void PathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     }
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

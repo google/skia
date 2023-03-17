@@ -35,7 +35,7 @@ void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                  const GlyphRunList& glyphRunList,
                                                  const SkPaint& paint,
                                                  SkStrikeDeviceInfo strikeDeviceInfo,
-                                                 skgpu::v1::SurfaceDrawContext* sdc) {
+                                                 skgpu::ganesh::SurfaceDrawContext* sdc) {
     sk_sp<TextBlob> blob = this->findOrCreateBlob(viewMatrix, glyphRunList, paint,
                                                   strikeDeviceInfo);
 

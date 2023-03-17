@@ -21,10 +21,10 @@ class SkDeferredDisplayList;
 namespace skgpu {
     class Swizzle;
 }
-namespace skgpu::v1 {
-    class SurfaceContext;
-    class SurfaceFillContext;
-}
+namespace skgpu::ganesh {
+class SurfaceContext;
+class SurfaceFillContext;
+}  // namespace skgpu::ganesh
 
 /** Class that exposes methods on GrRecordingContext that are only intended for use internal to
     Skia. This class is purely a privileged window into GrRecordingContext. It should never have
@@ -118,45 +118,46 @@ public:
      */
     static sk_sp<GrRecordingContext> MakeDDL(sk_sp<GrContextThreadSafeProxy>);
 
-    sk_sp<skgpu::v1::Device> createDevice(GrColorType,
-                                          sk_sp<GrSurfaceProxy>,
-                                          sk_sp<SkColorSpace>,
-                                          GrSurfaceOrigin,
-                                          const SkSurfaceProps&,
-                                          skgpu::v1::Device::InitContents);
-    sk_sp<skgpu::v1::Device> createDevice(skgpu::Budgeted,
-                                          const SkImageInfo&,
-                                          SkBackingFit,
-                                          int sampleCount,
-                                          skgpu::Mipmapped,
-                                          skgpu::Protected,
-                                          GrSurfaceOrigin,
-                                          const SkSurfaceProps&,
-                                          skgpu::v1::Device::InitContents);
+    sk_sp<skgpu::ganesh::Device> createDevice(GrColorType,
+                                              sk_sp<GrSurfaceProxy>,
+                                              sk_sp<SkColorSpace>,
+                                              GrSurfaceOrigin,
+                                              const SkSurfaceProps&,
+                                              skgpu::ganesh::Device::InitContents);
+    sk_sp<skgpu::ganesh::Device> createDevice(skgpu::Budgeted,
+                                              const SkImageInfo&,
+                                              SkBackingFit,
+                                              int sampleCount,
+                                              skgpu::Mipmapped,
+                                              skgpu::Protected,
+                                              GrSurfaceOrigin,
+                                              const SkSurfaceProps&,
+                                              skgpu::ganesh::Device::InitContents);
 
     // If the passed in GrSurfaceProxy is renderable this will return a SurfaceDrawContext,
     // otherwise it will return a SurfaceContext.
-    std::unique_ptr<skgpu::v1::SurfaceContext> makeSC(GrSurfaceProxyView readView,
-                                                      const GrColorInfo&);
+    std::unique_ptr<skgpu::ganesh::SurfaceContext> makeSC(GrSurfaceProxyView readView,
+                                                          const GrColorInfo&);
 
     // Makes either a SurfaceContext, SurfaceFillContext, or a SurfaceDrawContext, depending on
     // GrRenderable and the GrImageInfo.
-    std::unique_ptr<skgpu::v1::SurfaceContext> makeSC(const GrImageInfo&,
-                                                      const GrBackendFormat&,
-                                                      std::string_view label,
-                                                      SkBackingFit = SkBackingFit::kExact,
-                                                      GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                      skgpu::Renderable = skgpu::Renderable::kNo,
-                                                      int renderTargetSampleCnt = 1,
-                                                      skgpu::Mipmapped = skgpu::Mipmapped::kNo,
-                                                      skgpu::Protected = skgpu::Protected::kNo,
-                                                      skgpu::Budgeted = skgpu::Budgeted::kYes);
+    std::unique_ptr<skgpu::ganesh::SurfaceContext> makeSC(
+            const GrImageInfo&,
+            const GrBackendFormat&,
+            std::string_view label,
+            SkBackingFit = SkBackingFit::kExact,
+            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+            skgpu::Renderable = skgpu::Renderable::kNo,
+            int renderTargetSampleCnt = 1,
+            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+            skgpu::Protected = skgpu::Protected::kNo,
+            skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     /**
      * Uses GrImageInfo's color type to pick the default texture format. Will return a
      * SurfaceDrawContext if possible.
      */
-    std::unique_ptr<skgpu::v1::SurfaceFillContext> makeSFC(
+    std::unique_ptr<skgpu::ganesh::SurfaceFillContext> makeSFC(
             GrImageInfo,
             std::string_view label,
             SkBackingFit = SkBackingFit::kExact,
@@ -171,25 +172,25 @@ public:
      * texture format and swizzles. The color type will be kUnknown. Returns a SurfaceDrawContext
      * if possible.
      */
-    std::unique_ptr<skgpu::v1::SurfaceFillContext> makeSFC(SkAlphaType,
-                                                           sk_sp<SkColorSpace>,
-                                                           SkISize dimensions,
-                                                           SkBackingFit,
-                                                           const GrBackendFormat&,
-                                                           int sampleCount,
-                                                           skgpu::Mipmapped,
-                                                           skgpu::Protected,
-                                                           skgpu::Swizzle readSwizzle,
-                                                           skgpu::Swizzle writeSwizzle,
-                                                           GrSurfaceOrigin,
-                                                           skgpu::Budgeted,
-                                                           std::string_view label);
+    std::unique_ptr<skgpu::ganesh::SurfaceFillContext> makeSFC(SkAlphaType,
+                                                               sk_sp<SkColorSpace>,
+                                                               SkISize dimensions,
+                                                               SkBackingFit,
+                                                               const GrBackendFormat&,
+                                                               int sampleCount,
+                                                               skgpu::Mipmapped,
+                                                               skgpu::Protected,
+                                                               skgpu::Swizzle readSwizzle,
+                                                               skgpu::Swizzle writeSwizzle,
+                                                               GrSurfaceOrigin,
+                                                               skgpu::Budgeted,
+                                                               std::string_view label);
 
     /**
      * Like the above but uses GetFallbackColorTypeAndFormat to find a fallback color type (and
      * compatible format) if the passed GrImageInfo's color type is not renderable.
      */
-    std::unique_ptr<skgpu::v1::SurfaceFillContext> makeSFCWithFallback(
+    std::unique_ptr<skgpu::ganesh::SurfaceFillContext> makeSFCWithFallback(
             GrImageInfo,
             SkBackingFit = SkBackingFit::kExact,
             int sampleCount = 1,
@@ -203,7 +204,7 @@ public:
      * type must be compatible with backend texture's format or this will fail. All formats are
      * considered compatible with kUnknown. Returns a SurfaceDrawContext if possible.
      */
-    std::unique_ptr<skgpu::v1::SurfaceFillContext> makeSFCFromBackendTexture(
+    std::unique_ptr<skgpu::ganesh::SurfaceFillContext> makeSFCFromBackendTexture(
             GrColorInfo,
             const GrBackendTexture&,
             int sampleCount,

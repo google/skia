@@ -223,7 +223,7 @@ GrAtlasManager* GrOpFlushState::atlasManager() const {
 }
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-skgpu::v1::SmallPathAtlasMgr* GrOpFlushState::smallPathAtlasManager() const {
+skgpu::ganesh::SmallPathAtlasMgr* GrOpFlushState::smallPathAtlasManager() const {
     return fGpu->getContext()->priv().getSmallPathAtlasMgr();
 }
 #endif

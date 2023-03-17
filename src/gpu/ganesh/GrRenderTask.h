@@ -19,7 +19,11 @@ class GrMockRenderTask;
 class GrOpFlushState;
 class GrResourceAllocator;
 class GrTextureResolveRenderTask;
-namespace skgpu { namespace v1 { class OpsTask; }}
+namespace skgpu {
+namespace ganesh {
+class OpsTask;
+}
+}  // namespace skgpu
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
@@ -99,7 +103,7 @@ public:
     /*
      * Safely cast this GrRenderTask to a OpsTask (if possible).
      */
-    virtual skgpu::v1::OpsTask* asOpsTask() { return nullptr; }
+    virtual skgpu::ganesh::OpsTask* asOpsTask() { return nullptr; }
 
 #if GR_TEST_UTILS
     /*

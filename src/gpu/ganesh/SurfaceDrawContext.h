@@ -57,7 +57,7 @@ namespace sktext {
 class GlyphRunList;
 }
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
@@ -696,6 +696,6 @@ private:
 #endif
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SurfaceDrawContext_v1_DEFINED

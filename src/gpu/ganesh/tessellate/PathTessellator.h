@@ -19,7 +19,7 @@ class GrMeshDrawTarget;
 class GrOpFlushState;
 class SkPath;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // Prepares GPU data for, and then draws a path's tessellated geometry. Depending on the subclass,
 // the caller may or may not be required to draw the path's inner fan separately.
@@ -148,6 +148,6 @@ public:
     void draw(GrOpFlushState*) const final;
 };
 
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif  // PathTessellator_DEFINED

@@ -95,7 +95,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* r
                                                 GrProtected::kNo,
                                                 surfaceOrigin,
                                                 {props.flags(), kUnknown_SkPixelGeometry},
-                                                skgpu::v1::Device::InitContents::kUninit);
+                                                skgpu::ganesh::Device::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

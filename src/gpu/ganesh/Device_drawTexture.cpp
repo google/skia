@@ -257,7 +257,7 @@ inline void clamped_outset_with_offset(SkIRect* iRect, int outset, SkPoint* offs
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//  Helper functions for drawing an image with v1::SurfaceDrawContext
+//  Helper functions for drawing an image with ganesh::SurfaceDrawContext
 
 enum class ImageDrawMode {
     // Src and dst have been restricted to the image content. May need to clamp, no need to decal.
@@ -348,7 +348,7 @@ SkPMColor4f texture_color(SkColor4f paintColor, float entryAlpha, GrColorType sr
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy
-void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
+void draw_texture(skgpu::ganesh::SurfaceDrawContext* sdc,
                   const GrClip* clip,
                   const SkMatrix& ctm,
                   const SkPaint& paint,
@@ -419,7 +419,7 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
 void draw_image(GrRecordingContext* rContext,
-                skgpu::v1::SurfaceDrawContext* sdc,
+                skgpu::ganesh::SurfaceDrawContext* sdc,
                 const GrClip* clip,
                 const SkMatrixProvider& matrixProvider,
                 const SkPaint& paint,
@@ -570,7 +570,7 @@ void draw_image(GrRecordingContext* rContext,
 }
 
 void draw_tiled_bitmap(GrRecordingContext* rContext,
-                       skgpu::v1::SurfaceDrawContext* sdc,
+                       skgpu::ganesh::SurfaceDrawContext* sdc,
                        const GrClip* clip,
                        const SkBitmap& bitmap,
                        int tileSize,
@@ -703,7 +703,7 @@ bool can_disable_mipmap(const SkMatrix& viewM, const SkMatrix& localM) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 void Device::drawSpecial(SkSpecialImage* special,
                          const SkMatrix& localToDevice,
@@ -980,4 +980,4 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
     draw(count);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

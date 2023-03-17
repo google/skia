@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/PathRenderer.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class AAHairLinePathRenderer final : public PathRenderer {
 public:
@@ -24,6 +24,6 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // AAHairLinePathRenderer_DEFINED

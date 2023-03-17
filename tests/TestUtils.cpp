@@ -43,7 +43,7 @@
 
 void TestReadPixels(skiatest::Reporter* reporter,
                     GrDirectContext* dContext,
-                    skgpu::v1::SurfaceContext* srcContext,
+                    skgpu::ganesh::SurfaceContext* srcContext,
                     uint32_t expectedPixelValues[],
                     const char* testName) {
     int pixelCnt = srcContext->width() * srcContext->height();
@@ -70,7 +70,7 @@ void TestReadPixels(skiatest::Reporter* reporter,
 
 void TestWritePixels(skiatest::Reporter* reporter,
                      GrDirectContext* dContext,
-                     skgpu::v1::SurfaceContext* dstContext,
+                     skgpu::ganesh::SurfaceContext* dstContext,
                      bool expectedToWork,
                      const char* testName) {
     SkImageInfo ii = SkImageInfo::Make(dstContext->dimensions(),
@@ -279,15 +279,15 @@ void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
 }
 
-std::unique_ptr<skgpu::v1::SurfaceContext> CreateSurfaceContext(GrRecordingContext* rContext,
-                                                                const GrImageInfo& info,
-                                                                SkBackingFit fit,
-                                                                GrSurfaceOrigin origin,
-                                                                GrRenderable renderable,
-                                                                int sampleCount,
-                                                                GrMipmapped mipmapped,
-                                                                GrProtected isProtected,
-                                                                skgpu::Budgeted budgeted) {
+std::unique_ptr<skgpu::ganesh::SurfaceContext> CreateSurfaceContext(GrRecordingContext* rContext,
+                                                                    const GrImageInfo& info,
+                                                                    SkBackingFit fit,
+                                                                    GrSurfaceOrigin origin,
+                                                                    GrRenderable renderable,
+                                                                    int sampleCount,
+                                                                    GrMipmapped mipmapped,
+                                                                    GrProtected isProtected,
+                                                                    skgpu::Budgeted budgeted) {
     GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(info.colorType(),
                                                                               renderable);
     return rContext->priv().makeSC(info,

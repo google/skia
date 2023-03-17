@@ -229,7 +229,7 @@ public:
             return SkIRect::MakeSize(fAtlas->dimensions());
         }
         Effect apply(GrRecordingContext* rContext,
-                     skgpu::v1::SurfaceDrawContext*,
+                     skgpu::ganesh::SurfaceDrawContext*,
                      GrDrawOp*,
                      GrAAType,
                      GrAppliedClip* out,
@@ -259,14 +259,21 @@ DEF_GANESH_TEST(LazyProxyTest, reporter, /* options */, CtsEnforcement::kApiLeve
     for (bool nullTexture : {false, true}) {
         LazyProxyTest test(reporter);
         ctx->priv().addOnFlushCallbackObject(&test);
-        auto sdc = skgpu::v1::SurfaceDrawContext::Make(ctx.get(), GrColorType::kRGBA_8888, nullptr,
-                                                       SkBackingFit::kExact, {100, 100},
-                                                       SkSurfaceProps(), /*label=*/{});
+        auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(ctx.get(),
+                                                           GrColorType::kRGBA_8888,
+                                                           nullptr,
+                                                           SkBackingFit::kExact,
+                                                           {100, 100},
+                                                           SkSurfaceProps(),
+                                                           /*label=*/{});
         REPORTER_ASSERT(reporter, sdc);
-        auto mockAtlas = skgpu::v1::SurfaceDrawContext::Make(ctx.get(), GrColorType::kAlpha_F16,
-                                                             nullptr, SkBackingFit::kExact,
-                                                             {10, 10}, SkSurfaceProps(),
-                                                             /*label=*/{});
+        auto mockAtlas = skgpu::ganesh::SurfaceDrawContext::Make(ctx.get(),
+                                                                 GrColorType::kAlpha_F16,
+                                                                 nullptr,
+                                                                 SkBackingFit::kExact,
+                                                                 {10, 10},
+                                                                 SkSurfaceProps(),
+                                                                 /*label=*/{});
         REPORTER_ASSERT(reporter, mockAtlas);
         LazyProxyTest::Clip clip(&test, mockAtlas->asTextureProxy());
         sdc->addDrawOp(&clip,
@@ -465,9 +472,13 @@ DEF_GANESH_TEST(LazyProxyFailedInstantiationTest,
     sk_sp<GrDirectContext> ctx = GrDirectContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     for (bool failInstantiation : {false, true}) {
-        auto sdc = skgpu::v1::SurfaceDrawContext::Make(ctx.get(), GrColorType::kRGBA_8888, nullptr,
-                                                       SkBackingFit::kExact, {100, 100},
-                                                       SkSurfaceProps(), /*label=*/{});
+        auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(ctx.get(),
+                                                           GrColorType::kRGBA_8888,
+                                                           nullptr,
+                                                           SkBackingFit::kExact,
+                                                           {100, 100},
+                                                           SkSurfaceProps(),
+                                                           /*label=*/{});
         REPORTER_ASSERT(reporter, sdc);
 
         sdc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));

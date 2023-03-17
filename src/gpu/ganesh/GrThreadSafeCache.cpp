@@ -366,7 +366,7 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
             GrSurfaceProxy::UseAllocator::kYes);
 
     // TODO: It seems like this 'newCT' usage should be 'origCT' but this is
-    // what skgpu::v1::SurfaceDrawContext::MakeWithFallback does
+    // what skgpu::ganesh::SurfaceDrawContext::MakeWithFallback does
     skgpu::Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, newCT);
 
     return {{std::move(proxy), origin, swizzle}, std::move(trampoline)};

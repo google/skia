@@ -273,18 +273,18 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
 
     // Draw the test to an off-screen, top-down render target.
     GrColorType sdcColorType = sdc->colorInfo().colorType();
-    if (auto topLeftSDC = skgpu::v1::SurfaceDrawContext::Make(rContext,
-                                                              sdcColorType,
-                                                              nullptr,
-                                                              SkBackingFit::kExact,
-                                                              {100, 200},
-                                                              SkSurfaceProps(),
-                                                              /*label=*/{},
-                                                              1,
-                                                              GrMipmapped::kNo,
-                                                              GrProtected::kNo,
-                                                              kTopLeft_GrSurfaceOrigin,
-                                                              skgpu::Budgeted::kYes)) {
+    if (auto topLeftSDC = skgpu::ganesh::SurfaceDrawContext::Make(rContext,
+                                                                  sdcColorType,
+                                                                  nullptr,
+                                                                  SkBackingFit::kExact,
+                                                                  {100, 200},
+                                                                  SkSurfaceProps(),
+                                                                  /*label=*/{},
+                                                                  1,
+                                                                  GrMipmapped::kNo,
+                                                                  GrProtected::kNo,
+                                                                  kTopLeft_GrSurfaceOrigin,
+                                                                  skgpu::Budgeted::kYes)) {
         topLeftSDC->clear(SK_PMColor4fTRANSPARENT);
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
@@ -304,18 +304,18 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
     }
 
     // Draw the test to an off-screen, bottom-up render target.
-    if (auto topLeftSDC = skgpu::v1::SurfaceDrawContext::Make(rContext,
-                                                              sdcColorType,
-                                                              nullptr,
-                                                              SkBackingFit::kExact,
-                                                              {100, 200},
-                                                              SkSurfaceProps(),
-                                                              /*label=*/{},
-                                                              1,
-                                                              GrMipmapped::kNo,
-                                                              GrProtected::kNo,
-                                                              kBottomLeft_GrSurfaceOrigin,
-                                                              skgpu::Budgeted::kYes)) {
+    if (auto topLeftSDC = skgpu::ganesh::SurfaceDrawContext::Make(rContext,
+                                                                  sdcColorType,
+                                                                  nullptr,
+                                                                  SkBackingFit::kExact,
+                                                                  {100, 200},
+                                                                  SkSurfaceProps(),
+                                                                  /*label=*/{},
+                                                                  1,
+                                                                  GrMipmapped::kNo,
+                                                                  GrProtected::kNo,
+                                                                  kBottomLeft_GrSurfaceOrigin,
+                                                                  skgpu::Budgeted::kYes)) {
         topLeftSDC->clear(SK_PMColor4fTRANSPARENT);
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));

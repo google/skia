@@ -95,20 +95,20 @@ static SkImageInfo default_ii(int wh) {
     return SkImageInfo::Make(wh, wh, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 }
 
-static std::unique_ptr<skgpu::v1::SurfaceDrawContext> new_SDC(GrRecordingContext* rContext,
-                                                              int wh) {
-    return skgpu::v1::SurfaceDrawContext::Make(rContext,
-                                               GrColorType::kRGBA_8888,
-                                               nullptr,
-                                               SkBackingFit::kExact,
-                                               {wh, wh},
-                                               SkSurfaceProps(),
-                                               /*label=*/{},
-                                               1,
-                                               GrMipmapped::kNo,
-                                               GrProtected::kNo,
-                                               kImageOrigin,
-                                               skgpu::Budgeted::kYes);
+static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> new_SDC(GrRecordingContext* rContext,
+                                                                  int wh) {
+    return skgpu::ganesh::SurfaceDrawContext::Make(rContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {wh, wh},
+                                                   SkSurfaceProps(),
+                                                   /*label=*/{},
+                                                   1,
+                                                   GrMipmapped::kNo,
+                                                   GrProtected::kNo,
+                                                   kImageOrigin,
+                                                   skgpu::Budgeted::kYes);
 }
 
 static void create_view_key(skgpu::UniqueKey* key, int wh, int id) {
@@ -699,8 +699,7 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
 bool TestHelper::FillInViewOnGpu(GrDirectContext* dContext, int wh, Stats* stats,
                                  const GrSurfaceProxyView& lazyView,
                                  sk_sp<GrThreadSafeCache::Trampoline> trampoline) {
-
-    std::unique_ptr<skgpu::v1::SurfaceDrawContext> sdc = new_SDC(dContext, wh);
+    std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> sdc = new_SDC(dContext, wh);
 
     GrPaint paint;
     paint.setColor4f({0.0f, 0.0f, 1.0f, 1.0f});

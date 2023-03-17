@@ -16,7 +16,7 @@
 class GrRecordingContext;
 class GrStrokeTessellationShader;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // Renders strokes by linearizing them into sorted "parametric" and "radial" edges. See
 // GrStrokeTessellationShader.
@@ -81,6 +81,6 @@ private:
     const GrProgramInfo* fFillProgram = nullptr;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // StrokeTessellateOp_DEFINED

@@ -57,7 +57,7 @@ constexpr static int kWidth=10, kHeight=10;
 
 }
 
-static void draw_paint_with_aa(skgpu::v1::SurfaceDrawContext* sdc,
+static void draw_paint_with_aa(skgpu::ganesh::SurfaceDrawContext* sdc,
                                const SkPMColor4f& color,
                                SkBlendMode blendMode) {
     GrPaint paint;
@@ -67,7 +67,7 @@ static void draw_paint_with_aa(skgpu::v1::SurfaceDrawContext* sdc,
                   SkRect::MakeIWH(kWidth, kHeight), nullptr);
 }
 
-static void draw_paint_with_dmsaa(skgpu::v1::SurfaceDrawContext* sdc,
+static void draw_paint_with_dmsaa(skgpu::ganesh::SurfaceDrawContext* sdc,
                                   const SkPMColor4f& color,
                                   SkBlendMode blendMode) {
     // drawVertices should always trigger dmsaa, but draw something non-rectangular just to be 100%
@@ -94,7 +94,7 @@ static bool fuzzy_equals(const float a[4], const SkPMColor4f& b) {
 }
 
 static void check_sdc_color(skiatest::Reporter* reporter,
-                            skgpu::v1::SurfaceDrawContext* sdc,
+                            skgpu::ganesh::SurfaceDrawContext* sdc,
                             GrDirectContext* ctx,
                             const SkPMColor4f& color) {
     auto info = SkImageInfo::Make(kWidth, kHeight, kRGBA_F32_SkColorType, kPremul_SkAlphaType);
@@ -122,9 +122,13 @@ DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_preserve_contents,
                              nullptr,
                              CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                   SkBackingFit::kApprox, {kWidth, kHeight},
-                                                   kDMSAAProps, /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {kWidth, kHeight},
+                                                       kDMSAAProps,
+                                                       /*label=*/{});
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
@@ -157,9 +161,13 @@ DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_dst_read,
                              require_dst_reads,
                              CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                   SkBackingFit::kApprox, {kWidth, kHeight},
-                                                   kDMSAAProps, /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {kWidth, kHeight},
+                                                       kDMSAAProps,
+                                                       /*label=*/{});
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
@@ -184,9 +192,13 @@ DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_aa_dst_read_after_dmsaa,
                              require_dst_reads,
                              CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                   SkBackingFit::kApprox, {kWidth, kHeight},
-                                                   kDMSAAProps, /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {kWidth, kHeight},
+                                                       kDMSAAProps,
+                                                       /*label=*/{});
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
@@ -212,9 +224,13 @@ DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_dst_read_with_existing_barrier,
                              require_dst_reads,
                              CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                   SkBackingFit::kApprox, {kWidth, kHeight},
-                                                   kDMSAAProps, /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {kWidth, kHeight},
+                                                       kDMSAAProps,
+                                                       /*label=*/{});
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);

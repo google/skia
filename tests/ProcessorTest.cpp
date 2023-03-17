@@ -209,9 +209,13 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo, CtsEnforce
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-            auto sdc = skgpu::v1::SurfaceDrawContext::Make(
-                    dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1},
-                    SkSurfaceProps(), /*label=*/{});
+            auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                               GrColorType::kRGBA_8888,
+                                                               nullptr,
+                                                               SkBackingFit::kApprox,
+                                                               {1, 1},
+                                                               SkSurfaceProps(),
+                                                               /*label=*/{});
             {
                 sk_sp<GrTextureProxy> proxy =
                         proxyProvider->createProxy(format,
@@ -288,7 +292,7 @@ static GrColor input_texel_color(int x, int y, SkScalar delta) {
 
 // The output buffer must be the same size as the render-target context.
 static void render_fp(GrDirectContext* dContext,
-                      skgpu::v1::SurfaceDrawContext* sdc,
+                      skgpu::ganesh::SurfaceDrawContext* sdc,
                       std::unique_ptr<GrFragmentProcessor> fp,
                       GrColor* outBuffer) {
     sdc->fillWithFP(std::move(fp));
@@ -592,9 +596,13 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest,
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 256;
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderSize, kRenderSize}, SkSurfaceProps(), /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(context,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kExact,
+                                                       {kRenderSize, kRenderSize},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/{});
 
     // Coverage optimization uses three frames with a linearly transformed input texture.  The first
     // frame has no offset, second frames add .2 and .4, which should then be present as a fixed
@@ -956,9 +964,13 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest,
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 1024;
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderSize, kRenderSize}, SkSurfaceProps(), /*label=*/{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(context,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kExact,
+                                                       {kRenderSize, kRenderSize},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/{});
 
     std::vector<GrColor> inputPixels = make_input_pixels(kRenderSize, kRenderSize, 0.0f);
     GrSurfaceProxyView inputTexture =

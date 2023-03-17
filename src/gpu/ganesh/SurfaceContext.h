@@ -35,7 +35,7 @@ namespace skgpu {
 class SingleOwner;
 }
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceFillContext;
 
@@ -259,6 +259,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SurfaceContext_DEFINED

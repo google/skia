@@ -15,7 +15,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class AtlasPathRenderer;
 
@@ -51,9 +51,7 @@ public:
 
     /** Returns a direct pointer to the atlas path renderer, or null if it is not in the
         chain. */
-    skgpu::v1::AtlasPathRenderer* getAtlasPathRenderer() {
-        return fAtlasPathRenderer;
-    }
+    skgpu::ganesh::AtlasPathRenderer* getAtlasPathRenderer() { return fAtlasPathRenderer; }
 
     /** Returns a direct pointer to the tessellation path renderer, or null if it is not in the
         chain. */
@@ -70,6 +68,6 @@ private:
     PathRenderer*                                  fTessellationPathRenderer = nullptr;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // PathRendererChain_DEFINED

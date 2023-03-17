@@ -13,7 +13,11 @@
 #include "src/gpu/ganesh/GrAppliedClip.h"
 
 class GrDrawOp;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
+namespace skgpu {
+namespace ganesh {
+class SurfaceDrawContext;
+}
+}  // namespace skgpu
 
 /**
  * GrClip is an abstract base class for applying a clip. It constructs a clip mask if necessary, and
@@ -64,8 +68,12 @@ public:
      * clips). If kNoDraw is returned, 'bounds' and the applied clip are in an undetermined state
      * and should be ignored (and the draw should be skipped).
      */
-    virtual Effect apply(GrRecordingContext*, skgpu::v1::SurfaceDrawContext*, GrDrawOp*, GrAAType,
-                         GrAppliedClip*, SkRect* bounds) const = 0;
+    virtual Effect apply(GrRecordingContext*,
+                         skgpu::ganesh::SurfaceDrawContext*,
+                         GrDrawOp*,
+                         GrAAType,
+                         GrAppliedClip*,
+                         SkRect* bounds) const = 0;
 
     /**
      * Perform preliminary, conservative analysis on the draw bounds as if it were provided to
@@ -212,7 +220,7 @@ public:
 
 private:
     Effect apply(GrRecordingContext*,
-                 skgpu::v1::SurfaceDrawContext*,
+                 skgpu::ganesh::SurfaceDrawContext*,
                  GrDrawOp*,
                  GrAAType aa,
                  GrAppliedClip* out,

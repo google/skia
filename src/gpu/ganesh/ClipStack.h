@@ -21,11 +21,15 @@
 class GrAppliedClip;
 class GrProxyProvider;
 class GrRecordingContext;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
+namespace skgpu {
+namespace ganesh {
+class SurfaceDrawContext;
+}
+}  // namespace skgpu
 class GrSWMaskHelper;
 class SkMatrixProvider;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class ClipStack final : public GrClip {
 public:
@@ -82,8 +86,12 @@ public:
     void replaceClip(const SkIRect& rect);
 
     // GrClip implementation
-    GrClip::Effect apply(GrRecordingContext*, skgpu::v1::SurfaceDrawContext*, GrDrawOp*, GrAAType,
-                         GrAppliedClip*, SkRect* bounds) const override;
+    GrClip::Effect apply(GrRecordingContext*,
+                         skgpu::ganesh::SurfaceDrawContext*,
+                         GrDrawOp*,
+                         GrAAType,
+                         GrAppliedClip*,
+                         SkRect* bounds) const override;
     GrClip::PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const override;
     SkIRect getConservativeBounds() const override;
 
@@ -365,6 +373,6 @@ ClipStack::ElementIter ClipStack::end() const {
     return ElementIter(fElements.ritems().end(), 0);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // ClipStack_DEFINED

@@ -74,7 +74,7 @@ GrOpsRenderPass* create_render_pass(GrGpu* gpu,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 inline OpsTask::OpChain::List::List(GrOp::Owner op)
         : fHead(std::move(op)), fTail(fHead.get()) {
@@ -1064,4 +1064,4 @@ GrRenderTask::ExpectedOutcome OpsTask::onMakeClosed(GrRecordingContext* rContext
     return ExpectedOutcome::kTargetUnchanged;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

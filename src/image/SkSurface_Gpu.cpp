@@ -64,9 +64,9 @@ class SkPaint;
 class SkPixmap;
 namespace skgpu { class MutableTextureState; }
 
-SkSurface_Gpu::SkSurface_Gpu(sk_sp<skgpu::v1::Device> device)
-    : INHERITED(device->width(), device->height(), &device->surfaceProps())
-    , fDevice(std::move(device)) {
+SkSurface_Gpu::SkSurface_Gpu(sk_sp<skgpu::ganesh::Device> device)
+        : INHERITED(device->width(), device->height(), &device->surfaceProps())
+        , fDevice(std::move(device)) {
     SkASSERT(fDevice->targetProxy()->priv().isExact());
 }
 
@@ -77,9 +77,7 @@ GrRecordingContext* SkSurface_Gpu::onGetRecordingContext() {
     return fDevice->recordingContext();
 }
 
-skgpu::v1::Device* SkSurface_Gpu::getDevice() {
-    return fDevice.get();
-}
+skgpu::ganesh::Device* SkSurface_Gpu::getDevice() { return fDevice.get(); }
 
 SkImageInfo SkSurface_Gpu::imageInfo() const {
     return fDevice->imageInfo();
@@ -456,10 +454,15 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    auto device = rContext->priv().createDevice(budgeted, c.imageInfo(), SkBackingFit::kExact,
-                                                c.sampleCount(), GrMipmapped(c.isMipMapped()),
-                                                c.isProtected(), c.origin(), c.surfaceProps(),
-                                                skgpu::v1::Device::InitContents::kClear);
+    auto device = rContext->priv().createDevice(budgeted,
+                                                c.imageInfo(),
+                                                SkBackingFit::kExact,
+                                                c.sampleCount(),
+                                                GrMipmapped(c.isMipMapped()),
+                                                c.isProtected(),
+                                                c.origin(),
+                                                c.surfaceProps(),
+                                                skgpu::ganesh::Device::InitContents::kClear);
     if (!device) {
         return nullptr;
     }
@@ -529,10 +532,15 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
         mipmapped = GrMipmapped::kNo;
     }
 
-    auto device = rContext->priv().createDevice(budgeted, info, SkBackingFit::kExact,
-                                                sampleCount, mipmapped, GrProtected::kNo, origin,
+    auto device = rContext->priv().createDevice(budgeted,
+                                                info,
+                                                SkBackingFit::kExact,
+                                                sampleCount,
+                                                mipmapped,
+                                                GrProtected::kNo,
+                                                origin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::v1::Device::InitContents::kClear);
+                                                skgpu::ganesh::Device::InitContents::kClear);
     if (!device) {
         return nullptr;
     }
@@ -586,10 +594,12 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    auto device = rContext->priv().createDevice(grColorType, std::move(proxy),
-                                                std::move(colorSpace), origin,
+    auto device = rContext->priv().createDevice(grColorType,
+                                                std::move(proxy),
+                                                std::move(colorSpace),
+                                                origin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::v1::Device::InitContents::kUninit);
+                                                skgpu::ganesh::Device::InitContents::kUninit);
     if (!device) {
         RENDERENGINE_ABORTF("%s failed to wrap the renderTarget into a surface", __func__);
         return nullptr;
@@ -703,10 +713,12 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* rCon
         return nullptr;
     }
 
-    auto device = rContext->priv().createDevice(grColorType, std::move(proxy),
-                                                std::move(colorSpace), origin,
+    auto device = rContext->priv().createDevice(grColorType,
+                                                std::move(proxy),
+                                                std::move(colorSpace),
+                                                origin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                skgpu::v1::Device::InitContents::kUninit);
+                                                skgpu::ganesh::Device::InitContents::kUninit);
     if (!device) {
         return nullptr;
     }

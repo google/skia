@@ -15,7 +15,7 @@
 
 class GrStyledShape;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SmallPathShapeDataKey {
 public:
@@ -67,7 +67,7 @@ public:
     }
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE
 

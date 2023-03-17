@@ -39,7 +39,11 @@ class GrRecordingContext;
 class GrStyledShape;
 enum class GrColorType;
 struct GrFPArgs;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; } }
+namespace skgpu {
+namespace ganesh {
+class SurfaceDrawContext;
+}
+}  // namespace skgpu
 #endif
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/text/gpu/SDFMaskFilter.h"
@@ -356,7 +360,7 @@ bool SkMaskFilterBase::canFilterMaskGPU(const GrStyledShape& shape,
 }
 
 bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
-                                           skgpu::v1::SurfaceDrawContext*,
+                                           skgpu::ganesh::SurfaceDrawContext*,
                                            GrPaint&&,
                                            const GrClip*,
                                            const SkMatrix& viewMatrix,

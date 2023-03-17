@@ -29,17 +29,25 @@ class SkPixmap;
 class SkString;
 enum class GrColorType;
 namespace skiatest { class Reporter; }
-namespace skgpu::v1 { class SurfaceContext; }
+namespace skgpu::ganesh {
+class SurfaceContext;
+}
 typedef uint32_t GrColor;
 
 // Ensure that reading back from 'srcContext' as RGBA 8888 matches 'expectedPixelValues
-void TestReadPixels(skiatest::Reporter*, GrDirectContext*, skgpu::v1::SurfaceContext*,
-                    uint32_t expectedPixelValues[], const char* testName);
+void TestReadPixels(skiatest::Reporter*,
+                    GrDirectContext*,
+                    skgpu::ganesh::SurfaceContext*,
+                    uint32_t expectedPixelValues[],
+                    const char* testName);
 
 // See if trying to write RGBA 8888 pixels to 'dstContext' matches the
 // expectation ('expectedToWork')
-void TestWritePixels(skiatest::Reporter*, GrDirectContext*, skgpu::v1::SurfaceContext*,
-                     bool expectedToWork, const char* testName);
+void TestWritePixels(skiatest::Reporter*,
+                     GrDirectContext*,
+                     skgpu::ganesh::SurfaceContext*,
+                     bool expectedToWork,
+                     const char* testName);
 
 // Ensure that the pixels can be copied from 'proxy' viewed as colorType, to an RGBA 8888
 // destination (both texture-backed and rendertarget-backed).
@@ -101,7 +109,7 @@ void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
 // Makes either a SurfaceContext, SurfaceFillContext, or a SurfaceDrawContext, depending on
 // GrRenderable and the GrImageInfo.
 // The texture format is the default for the provided color type.
-std::unique_ptr<skgpu::v1::SurfaceContext> CreateSurfaceContext(
+std::unique_ptr<skgpu::ganesh::SurfaceContext> CreateSurfaceContext(
         GrRecordingContext*,
         const GrImageInfo&,
         SkBackingFit = SkBackingFit::kExact,

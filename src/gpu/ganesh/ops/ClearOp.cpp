@@ -22,7 +22,7 @@ bool contains_scissor(const GrScissorState& a, const GrScissorState& b) {
 
 } // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 GrOp::Owner ClearOp::MakeColor(GrRecordingContext* context,
                                const GrScissorState& scissor,
@@ -94,5 +94,4 @@ void ClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     }
 }
 
-} // namespace skgpu::v1
-
+}  // namespace skgpu::ganesh
