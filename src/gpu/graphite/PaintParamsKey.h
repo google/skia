@@ -223,6 +223,14 @@ public:
         SkDEBUGCODE(this->checkReset();)
     }
 
+    void discard() {
+        SkASSERT(!fIsValid && !fLocked);
+        fData.clear();
+        fBlendInfo = {};
+        fIsValid = true;
+        SkDEBUGCODE(this->checkReset());
+    }
+
     SkDEBUGCODE(bool isLocked() const { return fLocked; })
 
 private:

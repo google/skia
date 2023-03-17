@@ -704,59 +704,83 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
                        DrawFlags::kIgnoreMaskFilter | DrawFlags::kIgnorePathEffect);
 }
 
-void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,
+void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                 const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                const SkSamplingOptions&, const SkPaint&,
-                                SkCanvas::SrcRectConstraint) {
-    // TODO: Implement this by merging the logic of drawImageRect and drawEdgeAAQuad.
+                                const SkSamplingOptions& sampling, const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
+    SkASSERT(count > 0);
+
+    SkPaint paintWithShader(paint);
+    int dstClipIndex = 0;
+    for (int i = 0; i < count; ++i) {
+        // If the entry is clipped by 'dstClips', that must be provided
+        SkASSERT(!set[i].fHasClip || dstClips);
+        // Similarly, if it has an extra transform, those must be provided
+        SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
+
+        SkRect imgBounds = SkRect::Make(set[i].fImage->bounds());
+        SkRect src = set[i].fSrcRect;
+        SkRect dst = set[i].fDstRect;
+
+        // TODO: All of this logic should be handled in SkCanvas, since it's the same for every
+        // backend.
+        SkASSERT(src.isFinite() && dst.isFinite() && dst.isSorted());
+        SkMatrix localMatrix = SkMatrix::RectToRect(src, dst);
+        if (!imgBounds.contains(src)) {
+            if (!src.intersect(imgBounds)) {
+                continue; // Nothing to draw for this entry
+            }
+            // Update dst to match smaller src
+            dst = localMatrix.mapRect(src);
+        }
+
+        auto [ imageToDraw, newSampling ] =
+                skgpu::graphite::GetGraphiteBacked(this->recorder(), set[i].fImage.get(), sampling);
+        if (!imageToDraw) {
+            SKGPU_LOG_W("Device::drawImageRect: Creation of Graphite-backed image failed");
+            return;
+        }
+
+        // TODO: Produce an image shading paint key and data directly without having to reconstruct
+        // the equivalent SkPaint for each entry. Reuse the key and data between entries if possible
+        paintWithShader.setShader(paint.refShader());
+        if (!create_img_shader_paint(std::move(imageToDraw), src, newSampling,
+                                     &localMatrix, &paintWithShader)) {
+            return;
+        }
+        paintWithShader.setAlphaf(paint.getAlphaf() * set[i].fAlpha);
+
+        auto flags =
+                SkEnumBitMask<EdgeAAQuad::Flags>(static_cast<EdgeAAQuad::Flags>(set[i].fAAFlags));
+        EdgeAAQuad quad = set[i].fHasClip ? EdgeAAQuad(dstClips + dstClipIndex, flags)
+                                          : EdgeAAQuad(dst, flags);
+
+        // TODO: Calling drawGeometry() for each entry re-evaluates the clip stack every time, which
+        // is consistent with Ganesh's behavior. It also matches the behavior if edge-AA images were
+        // submitted one at a time by SkiaRenderer (a nice client simplification). However, we
+        // should explore the performance trade off with doing one bulk evaluation for the whole set
+        if (set[i].fMatrixIndex < 0) {
+            this->drawGeometry(this->localToDeviceTransform(), Geometry(quad),
+                               paintWithShader, kFillStyle, DrawFlags::kIgnorePathEffect);
+        } else {
+            SkM44 xtraTransform(preViewMatrices[set[i].fMatrixIndex]);
+            this->drawGeometry(this->localToDeviceTransform().concat(xtraTransform), Geometry(quad),
+                               paintWithShader, kFillStyle, DrawFlags::kIgnorePathEffect);
+        }
+
+        dstClipIndex += 4 * set[i].fHasClip;
+    }
 }
 
 void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                            const SkSamplingOptions& sampling, const SkPaint& paint,
                            SkCanvas::SrcRectConstraint constraint) {
-    SkASSERT(dst.isFinite());
-    SkASSERT(dst.isSorted());
-
-    // TODO: All of this logic should be handled in SkCanvas, since it's the same for every backend
-    SkRect tmpSrc, tmpDst = dst;
-    SkRect imgBounds = SkRect::Make(image->bounds());
-
-    if (src) {
-        tmpSrc = *src;
-    } else {
-        tmpSrc = SkRect::Make(image->bounds());
-    }
-    SkMatrix matrix = SkMatrix::RectToRect(tmpSrc, dst);
-
-    // clip the tmpSrc to the bounds of the image, and recompute the dest rect if
-    // needed (i.e., if the src was clipped). No check needed if src==null.
-    if (src) {
-        if (!imgBounds.contains(tmpSrc)) {
-            if (!tmpSrc.intersect(imgBounds)) {
-                return; // nothing to draw
-            }
-            // recompute dst, based on the smaller tmpSrc
-            matrix.mapRect(&tmpDst, tmpSrc);
-            if (!tmpDst.isFinite()) {
-                return;
-            }
-        }
-    }
-
-    auto [ imageToDraw, newSampling ] = skgpu::graphite::GetGraphiteBacked(this->recorder(),
-                                                                           image, sampling);
-    if (!imageToDraw) {
-        SKGPU_LOG_W("Device::drawImageRect: Creation of Graphite-backed image failed");
-        return;
-    }
-
-    SkPaint paintWithShader(paint);
-    if (!create_img_shader_paint(std::move(imageToDraw), tmpSrc, newSampling,
-                                 &matrix, &paintWithShader)) {
-        return;
-    }
-
-    this->drawRect(tmpDst, paintWithShader);
+    SkCanvas::ImageSetEntry single{sk_ref_sp(image),
+                                   src ? *src : SkRect::Make(image->bounds()),
+                                   dst,
+                                   /*alpha=*/1.f,
+                                   SkCanvas::kAll_QuadAAFlags};
+    this->drawEdgeAAImageSet(&single, 1, nullptr, nullptr, sampling, paint, constraint);
 }
 
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
