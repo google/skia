@@ -647,15 +647,15 @@ static void compute_alpha_below_line(SkAlpha* alphas,
 }
 
 // Note that if fullAlpha != 0xFF, we'll multiply alpha by fullAlpha
-static SK_ALWAYS_INLINE void blit_single_alpha(AdditiveBlitter* blitter,
-                                               int              y,
-                                               int              x,
-                                               SkAlpha          alpha,
-                                               SkAlpha          fullAlpha,
-                                               SkAlpha*         maskRow,
-                                               bool             isUsingMask,
-                                               bool             noRealBlitter,
-                                               bool             needSafeCheck) {
+static void blit_single_alpha(AdditiveBlitter* blitter,
+                              int y,
+                              int x,
+                              SkAlpha alpha,
+                              SkAlpha fullAlpha,
+                              SkAlpha* maskRow,
+                              bool isUsingMask,
+                              bool noRealBlitter,
+                              bool needSafeCheck) {
     if (isUsingMask) {
         if (fullAlpha == 0xFF && !noRealBlitter) {  // noRealBlitter is needed for concave paths
             maskRow[x] = alpha;
@@ -673,16 +673,16 @@ static SK_ALWAYS_INLINE void blit_single_alpha(AdditiveBlitter* blitter,
     }
 }
 
-static SK_ALWAYS_INLINE void blit_two_alphas(AdditiveBlitter* blitter,
-                                             int              y,
-                                             int              x,
-                                             SkAlpha          a1,
-                                             SkAlpha          a2,
-                                             SkAlpha          fullAlpha,
-                                             SkAlpha*         maskRow,
-                                             bool             isUsingMask,
-                                             bool             noRealBlitter,
-                                             bool             needSafeCheck) {
+static void blit_two_alphas(AdditiveBlitter* blitter,
+                            int y,
+                            int x,
+                            SkAlpha a1,
+                            SkAlpha a2,
+                            SkAlpha fullAlpha,
+                            SkAlpha* maskRow,
+                            bool isUsingMask,
+                            bool noRealBlitter,
+                            bool needSafeCheck) {
     if (isUsingMask) {
         if (needSafeCheck) {
             safely_add_alpha(&maskRow[x], a1);
@@ -701,15 +701,15 @@ static SK_ALWAYS_INLINE void blit_two_alphas(AdditiveBlitter* blitter,
     }
 }
 
-static SK_ALWAYS_INLINE void blit_full_alpha(AdditiveBlitter* blitter,
-                                             int              y,
-                                             int              x,
-                                             int              len,
-                                             SkAlpha          fullAlpha,
-                                             SkAlpha*         maskRow,
-                                             bool             isUsingMask,
-                                             bool             noRealBlitter,
-                                             bool             needSafeCheck) {
+static void blit_full_alpha(AdditiveBlitter* blitter,
+                            int y,
+                            int x,
+                            int len,
+                            SkAlpha fullAlpha,
+                            SkAlpha* maskRow,
+                            bool isUsingMask,
+                            bool noRealBlitter,
+                            bool needSafeCheck) {
     if (isUsingMask) {
         for (int i = 0; i < len; ++i) {
             if (needSafeCheck) {
@@ -840,19 +840,19 @@ static void blit_aaa_trapezoid_row(AdditiveBlitter* blitter,
     }
 }
 
-static SK_ALWAYS_INLINE void blit_trapezoid_row(AdditiveBlitter* blitter,
-                                                int              y,
-                                                SkFixed          ul,
-                                                SkFixed          ur,
-                                                SkFixed          ll,
-                                                SkFixed          lr,
-                                                SkFixed          lDY,
-                                                SkFixed          rDY,
-                                                SkAlpha          fullAlpha,
-                                                SkAlpha*         maskRow,
-                                                bool             isUsingMask,
-                                                bool             noRealBlitter = false,
-                                                bool             needSafeCheck = false) {
+static void blit_trapezoid_row(AdditiveBlitter* blitter,
+                               int y,
+                               SkFixed ul,
+                               SkFixed ur,
+                               SkFixed ll,
+                               SkFixed lr,
+                               SkFixed lDY,
+                               SkFixed rDY,
+                               SkAlpha fullAlpha,
+                               SkAlpha* maskRow,
+                               bool isUsingMask,
+                               bool noRealBlitter = false,
+                               bool needSafeCheck = false) {
     SkASSERT(lDY >= 0 && rDY >= 0);  // We should only send in the absolte value
 
     if (ul > ur) {
@@ -1844,15 +1844,14 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
     }
 }
 
-static SK_ALWAYS_INLINE void aaa_fill_path(
-        const SkPath&    path,
-        const SkIRect&   clipRect,
-        AdditiveBlitter* blitter,
-        int              start_y,
-        int              stop_y,
-        bool             pathContainedInClip,
-        bool             isUsingMask,
-        bool             forceRLE) {  // forceRLE implies that SkAAClip is calling us
+static void aaa_fill_path(const SkPath& path,
+                          const SkIRect& clipRect,
+                          AdditiveBlitter* blitter,
+                          int start_y,
+                          int stop_y,
+                          bool pathContainedInClip,
+                          bool isUsingMask,
+                          bool forceRLE) {  // forceRLE implies that SkAAClip is calling us
     SkASSERT(blitter);
 
     SkAnalyticEdgeBuilder builder;
