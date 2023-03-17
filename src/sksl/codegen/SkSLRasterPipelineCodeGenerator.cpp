@@ -2519,6 +2519,12 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             this->foldWithMultiOp(BuilderOp::bitwise_and_n_ints, arg0.type().slotCount());
             return true;
 
+        case IntrinsicKind::k_acos_IntrinsicKind:
+            return this->pushIntrinsic(BuilderOp::acos_float, arg0);
+
+        case IntrinsicKind::k_asin_IntrinsicKind:
+            return this->pushIntrinsic(BuilderOp::asin_float, arg0);
+
         case IntrinsicKind::k_atan_IntrinsicKind:
             return this->pushIntrinsic(BuilderOp::atan_float, arg0);
 

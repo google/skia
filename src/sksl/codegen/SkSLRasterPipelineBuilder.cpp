@@ -37,7 +37,9 @@ namespace SkSL {
 namespace RP {
 
 #define ALL_SINGLE_SLOT_UNARY_OP_CASES  \
-         BuilderOp::atan_float:         \
+         BuilderOp::acos_float:         \
+    case BuilderOp::asin_float:         \
+    case BuilderOp::atan_float:         \
     case BuilderOp::cos_float:          \
     case BuilderOp::exp_float:          \
     case BuilderOp::sin_float:          \
@@ -2037,6 +2039,8 @@ void Program::dump(SkWStream* out) const {
             case POp::cast_to_float_from_int: case POp::cast_to_float_from_uint:
             case POp::cast_to_int_from_float: case POp::cast_to_uint_from_float:
             case POp::abs_float:              case POp::abs_int:
+            case POp::acos_float:
+            case POp::asin_float:
             case POp::atan_float:
             case POp::ceil_float:
             case POp::cos_float:
@@ -2443,6 +2447,14 @@ void Program::dump(SkWStream* out) const {
             case POp::abs_3_floats: case POp::abs_3_ints:
             case POp::abs_4_floats: case POp::abs_4_ints:
                 opText = opArg1 + " = abs(" + opArg1 + ")";
+                break;
+
+            case POp::acos_float:
+                opText = opArg1 + " = acos(" + opArg1 + ")";
+                break;
+
+            case POp::asin_float:
+                opText = opArg1 + " = asin(" + opArg1 + ")";
                 break;
 
             case POp::atan_float:

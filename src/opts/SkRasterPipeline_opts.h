@@ -3714,6 +3714,8 @@ DECLARE_UNARY_FLOAT(ceil)
 STAGE_TAIL(sin_float, F* dst)  { *dst = sin_(*dst); }
 STAGE_TAIL(cos_float, F* dst)  { *dst = cos_(*dst); }
 STAGE_TAIL(tan_float, F* dst)  { *dst = tan_(*dst); }
+STAGE_TAIL(asin_float, F* dst) { *dst = asin_(*dst); }
+STAGE_TAIL(acos_float, F* dst) { *dst = acos_(*dst); }
 STAGE_TAIL(atan_float, F* dst) { *dst = atan_(*dst); }
 STAGE_TAIL(sqrt_float, F* dst) { *dst = sqrt_(*dst); }
 STAGE_TAIL(exp_float, F* dst)  { *dst = approx_exp(*dst); }
