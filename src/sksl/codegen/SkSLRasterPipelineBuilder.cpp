@@ -42,6 +42,8 @@ namespace RP {
     case BuilderOp::atan_float:         \
     case BuilderOp::cos_float:          \
     case BuilderOp::exp_float:          \
+    case BuilderOp::log_float:          \
+    case BuilderOp::log2_float:         \
     case BuilderOp::sin_float:          \
     case BuilderOp::sqrt_float:         \
     case BuilderOp::tan_float
@@ -2045,6 +2047,8 @@ void Program::dump(SkWStream* out) const {
             case POp::ceil_float:
             case POp::cos_float:
             case POp::exp_float:
+            case POp::log_float:
+            case POp::log2_float:
             case POp::floor_float:
             case POp::sin_float:
             case POp::sqrt_float:
@@ -2484,6 +2488,14 @@ void Program::dump(SkWStream* out) const {
 
             case POp::exp_float:
                 opText = opArg1 + " = exp(" + opArg1 + ")";
+                break;
+
+            case POp::log_float:
+                opText = opArg1 + " = log(" + opArg1 + ")";
+                break;
+
+            case POp::log2_float:
+                opText = opArg1 + " = log2(" + opArg1 + ")";
                 break;
 
             case POp::pow_n_floats:

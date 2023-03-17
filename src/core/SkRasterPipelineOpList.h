@@ -130,6 +130,7 @@
     M(sin_float)        M(cos_float)           M(tan_float)                                   \
     M(asin_float)       M(acos_float)          M(atan_float)          M(atan2_n_floats)       \
     M(sqrt_float)       M(pow_n_floats)        M(exp_float)                                   \
+    M(log_float)        M(log2_float)                                                         \
     M(copy_constant)    M(copy_2_constants)    M(copy_3_constants)    M(copy_4_constants)     \
     M(copy_slot_masked) M(copy_2_slots_masked) M(copy_3_slots_masked) M(copy_4_slots_masked)  \
     M(copy_from_indirect_unmasked) M(copy_from_indirect_uniform_unmasked)                     \

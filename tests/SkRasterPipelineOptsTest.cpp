@@ -175,3 +175,16 @@ DEF_TEST(SkRasterPipelineOpts_Atan2, r) {
         }
     }
 }
+
+DEF_TEST(SkRasterPipelineOpts_Log2, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.001f;
+    for (float value : {0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f}) {
+        F result = SK_OPTS_NS::approx_log2(value);
+        F expected = std::log2(value);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+}

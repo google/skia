@@ -2570,6 +2570,20 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             return this->pushExpression(arg0) &&
                    this->pushLengthIntrinsic(arg0.type().slotCount());
 
+        case IntrinsicKind::k_log_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::log_float, arg0.type().slotCount());
+            return true;
+
+        case IntrinsicKind::k_log2_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::log2_float, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_normalize_IntrinsicKind:
             // Implement normalize as `x / length(x)`. First, push the expression.
             if (!this->pushExpression(arg0)) {

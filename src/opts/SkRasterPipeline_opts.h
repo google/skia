@@ -1035,7 +1035,7 @@ SI U16 bswap(U16 x) {
 
 SI F fract(F v) { return v - floor_(v); }
 
-// See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
+// See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html
 SI F approx_log2(F x) {
     // e - 127 is a fair approximation of log2(x) in its own right...
     F e = cast(sk_bit_cast<U32>(x)) * (1.0f / (1<<23));
@@ -3719,6 +3719,8 @@ STAGE_TAIL(acos_float, F* dst) { *dst = acos_(*dst); }
 STAGE_TAIL(atan_float, F* dst) { *dst = atan_(*dst); }
 STAGE_TAIL(sqrt_float, F* dst) { *dst = sqrt_(*dst); }
 STAGE_TAIL(exp_float, F* dst)  { *dst = approx_exp(*dst); }
+STAGE_TAIL(log_float, F* dst)  { *dst = approx_log(*dst); }
+STAGE_TAIL(log2_float, F* dst) { *dst = approx_log2(*dst); }
 
 // Binary operations take two adjacent inputs, and write their output in the first position.
 template <typename T, void (*ApplyFn)(T*, T*)>
