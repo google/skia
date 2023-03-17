@@ -249,10 +249,17 @@ static int compute_metric(const SkFontStyle& a, const SkFontStyle& b) {
            sqr((a.slant() != b.slant()) * 900);
 }
 
+static SkUniqueCFRef<CFSetRef> name_required() {
+    CFStringRef set_values[] = {kCTFontFamilyNameAttribute};
+    return SkUniqueCFRef<CFSetRef>(CFSetCreate(kCFAllocatorDefault,
+        reinterpret_cast<const void**>(set_values), std::size(set_values),
+        &kCFTypeSetCallBacks));
+}
+
 class SkFontStyleSet_Mac : public SkFontStyleSet {
 public:
     SkFontStyleSet_Mac(CTFontDescriptorRef desc)
-        : fArray(CTFontDescriptorCreateMatchingFontDescriptors(desc, nullptr))
+        : fArray(CTFontDescriptorCreateMatchingFontDescriptors(desc, name_required().get()))
         , fCount(0)
     {
         if (!fArray) {
@@ -433,8 +440,16 @@ protected:
 
     SkTypeface* onMatchFamilyStyle(const char familyName[],
                                    const SkFontStyle& style) const override {
-        SkUniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
-        return create_from_desc(desc.get()).release();
+        SkUniqueCFRef<CTFontDescriptorRef> reqDesc = create_descriptor(familyName, style);
+        if (!familyName) {
+            return create_from_desc(reqDesc.get()).release();
+        }
+        SkUniqueCFRef<CTFontDescriptorRef> resolvedDesc(
+            CTFontDescriptorCreateMatchingFontDescriptor(reqDesc.get(), name_required().get()));
+        if (!resolvedDesc) {
+            return nullptr;
+        }
+        return create_from_desc(resolvedDesc.get()).release();
     }
 
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
