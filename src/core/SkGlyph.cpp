@@ -284,7 +284,10 @@ void SkGlyph::flattenMetrics(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fID.value());
     buffer.writePoint({fAdvanceX, fAdvanceY});
     buffer.writeUInt(fWidth << 16 | fHeight);
-    buffer.writeUInt(fLeft << 16 | fTop);
+    // Note: << has undefined behavior for negative values.
+    const uint32_t left = fLeft;
+    const uint32_t top = fTop;
+    buffer.writeUInt(left << 16 | top);
     buffer.writeUInt(SkTo<uint32_t>(fMaskFormat));
 }
 
