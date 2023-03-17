@@ -2791,6 +2791,32 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             SkASSERT(arg0.type().matches(arg1.type()));
             return this->pushIntrinsic(BuilderOp::pow_n_floats, arg0, arg1);
 
+        case IntrinsicKind::k_reflect_IntrinsicKind: {
+            // Implement reflect as `I - (N * dot(I,N) * 2)`.
+            SkASSERT(arg0.type().matches(arg1.type()));
+            SkASSERT(arg0.type().slotCount() == arg1.type().slotCount());
+            SkASSERT(arg0.type().componentType().isFloat());
+            int slotCount = arg0.type().slotCount();
+
+            // Stack: I, N.
+            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            // Stack: I, N, I, N.
+            fBuilder.push_clone(2 * slotCount);
+            // Stack: I, N, dot(I,N)
+            fBuilder.dot_floats(slotCount);
+            // Stack: I, N, dot(I,N), 2
+            fBuilder.push_literal_f(2.0);
+            // Stack: I, N, dot(I,N) * 2
+            fBuilder.binary_op(BuilderOp::mul_n_floats, 1);
+            // Stack: I, N * dot(I,N) * 2
+            fBuilder.push_duplicates(slotCount - 1);
+            fBuilder.binary_op(BuilderOp::mul_n_floats, slotCount);
+            // Stack: I - (N * dot(I,N) * 2)
+            fBuilder.binary_op(BuilderOp::sub_n_floats, slotCount);
+            return true;
+        }
         case IntrinsicKind::k_step_IntrinsicKind: {
             // Compute step as `float(lessThan(edge, x))`. We convert from boolean 0/~0 to floating
             // point zero/one by using a bitwise-and against the bit-pattern of 1.0.
