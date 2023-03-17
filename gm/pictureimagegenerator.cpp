@@ -176,9 +176,12 @@ protected:
                 m.postTranslate(0, SkIntToScalar(configs[i].size.height()));
             }
             std::unique_ptr<SkImageGenerator> gen =
-                SkImageGenerator::MakeFromPicture(configs[i].size, fPicture, &m,
-                                                 p.getAlpha() != 255 ? &p : nullptr,
-                                                 SkImage::BitDepth::kU8, srgbColorSpace);
+                    SkImageGenerator::MakeFromPicture(configs[i].size,
+                                                      fPicture,
+                                                      &m,
+                                                      p.getAlpha() != 255 ? &p : nullptr,
+                                                      SkImages::BitDepth::kU8,
+                                                      srgbColorSpace);
 
             SkImageInfo bmInfo = gen->getInfo().makeColorSpace(canvas->imageInfo().refColorSpace());
 

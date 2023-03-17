@@ -462,7 +462,7 @@ static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
 
     const void* srcPixels = five_reference_pixels(srcInfo.colorType());
     SkPixmap srcPixmap(srcInfo, srcPixels, srcInfo.minRowBytes());
-    sk_sp<SkImage> src = SkImage::MakeFromRaster(srcPixmap, nullptr, nullptr);
+    sk_sp<SkImage> src = SkImages::RasterFromPixmap(srcPixmap, nullptr, nullptr);
     REPORTER_ASSERT(r, src);
 
     // Enough space for 5 pixels when color type is F16, more than enough space in other cases.

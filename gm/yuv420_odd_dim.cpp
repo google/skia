@@ -15,6 +15,7 @@
 #include "include/core/SkSurface.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"
@@ -111,11 +112,11 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
         planes[i]->peekPixels(&pixmaps[i]);
     }
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
-    image = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(),
-                                         yuvaPixmaps,
-                                         GrMipmapped::kYes,
-                                         /* limit to max tex size */ false,
-                                         /* color space */ nullptr);
+    image = SkImages::TextureFromYUVAPixmaps(canvas->recordingContext(),
+                                             yuvaPixmaps,
+                                             GrMipmapped::kYes,
+                                             /* limit to max tex size */ false,
+                                             /* color space */ nullptr);
     if (!image) {
         *errMsg = "Could not make YUVA image";
         return rContext->abandoned() ? skiagm::DrawResult::kSkip : skiagm::DrawResult::kFail;

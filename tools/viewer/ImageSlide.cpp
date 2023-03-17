@@ -34,7 +34,7 @@ void ImageSlide::load(SkScalar, SkScalar) {
         SkASSERT(fImage);
     } else {
         sk_sp<SkData> encoded = SkData::MakeFromFileName(fPath.c_str());
-        fImage = SkImage::MakeFromEncoded(encoded);
+        fImage = SkImages::DeferredFromEncodedData(encoded);
     }
 }
 

@@ -20,7 +20,7 @@ int main() {
     SkBitmap bitmaps[kImgCount];
     for (int i = 1; i < kImgCount; ++i) {
         SkString path = SkStringPrintf("resources/images/example_%d.png", i);
-        images[i] = SkImage::MakeFromEncoded(SkData::MakeFromFileName(path.c_str()));
+        images[i] = SkImages::DeferredFromEncodedData(SkData::MakeFromFileName(path.c_str()));
         SkAssertResult(images[i] && images[i]->asLegacyBitmap(&bitmaps[i]));
     }
     for (const fiddle::Example& example : sk_tools::Registry<fiddle::Example>::Range()) {

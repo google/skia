@@ -22,6 +22,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -126,8 +127,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
     }
     surf.reset();
     GrBackendTexture btex;
-    SkImage::BackendTextureReleaseProc texRelease;
-    if (!SkImage::MakeBackendTextureFromSkImage(dContext, std::move(img), &btex, &texRelease)) {
+    SkImages::BackendTextureReleaseProc texRelease;
+    if (!SkImages::GetBackendTextureFromImage(dContext, std::move(img), &btex, &texRelease)) {
         // Not all backends support stealing textures yet.
         // ERRORF(reporter, "Could not turn image into texture");
         return;
@@ -135,8 +136,12 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
     REPORTER_ASSERT(reporter, btex.hasMipmaps());
     // Reimport the texture as an image and perform a downsampling draw with medium quality which
     // should use the upper MIP levels.
-    img = SkImage::MakeFromTexture(dContext, btex, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                                   kPremul_SkAlphaType, nullptr);
+    img = SkImages::BorrowTextureFrom(dContext,
+                                      btex,
+                                      kTopLeft_GrSurfaceOrigin,
+                                      kRGBA_8888_SkColorType,
+                                      kPremul_SkAlphaType,
+                                      nullptr);
     const auto singlePixelInfo =
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
     surf = SkSurface::MakeRenderTarget(

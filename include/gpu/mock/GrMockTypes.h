@@ -89,7 +89,8 @@ struct GrMockSurfaceInfo {
     SkTextureCompressionType fCompressionType = SkTextureCompressionType::kNone;
 };
 
-static constexpr int kSkTextureCompressionTypeCount = static_cast<int>(SkTextureCompressionType::kLast) + 1;
+static constexpr int kSkTextureCompressionTypeCount =
+        static_cast<int>(SkTextureCompressionType::kLast) + 1;
 
 /**
  * A pointer to this type is used as the GrBackendContext when creating a Mock GrContext. It can be

@@ -273,7 +273,6 @@ GANESH_TESTS = [
     "MessageBusTest.cpp",
     "OpChainTest.cpp",
     "PathRendererCacheTests.cpp",
-    "PinnedImageTest.cpp",
     "PreChopPathCurvesTest.cpp",
     "PremulAlphaRoundTripTest.cpp",
     "PrimitiveProcessorTest.cpp",

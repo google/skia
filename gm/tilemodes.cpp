@@ -48,7 +48,7 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
 
 static void setup(SkCanvas* canvas, SkPaint* paint, const SkBitmap& bm, SkFilterMode fm,
                   SkTileMode tmx, SkTileMode tmy) {
-    sk_sp<SkImage> img = SkImage::MakeFromBitmap(bm);
+    sk_sp<SkImage> img = SkImages::RasterFromBitmap(bm);
     img = ToolUtils::MakeTextureImage(canvas, std::move(img));
     if (img) {
         // img can be null if the GPU context has been abandoned.

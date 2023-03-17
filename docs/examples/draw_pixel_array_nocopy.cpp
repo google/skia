@@ -14,7 +14,7 @@ static const uint32_t kPixels[kHeight * kWidth] = {
 void draw(SkCanvas* canvas) {
     SkPixmap pixmap(SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType),
                     kPixels, sizeof(uint32_t) * kWidth);
-    sk_sp<SkImage> img = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
+    sk_sp<SkImage> img = SkImages::RasterFromPixmap(pixmap, nullptr, nullptr);
 
     canvas->scale(16, 16);
     canvas->drawImage(img, 6, 6);

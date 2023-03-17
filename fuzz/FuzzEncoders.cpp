@@ -79,7 +79,7 @@ DEF_FUZZ(WEBPEncoder, fuzz) {
 DEF_FUZZ(_MakeEncoderCorpus, fuzz) {
     auto bytes = fuzz->fBytes;
     SkDebugf("bytes %zu\n", bytes->size());
-    auto img = SkImage::MakeFromEncoded(bytes);
+    auto img = SkImages::DeferredFromEncodedData(bytes);
     if (nullptr == img.get()) {
         SkDebugf("invalid image, could not decode\n");
         return;

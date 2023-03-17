@@ -62,7 +62,7 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
     SkASSERT(SkIRect::MakeWH(kWidth, kHeight) == special->subset());
 
     // Create a raster-backed special image from a raster-backed SkImage
-    sk_sp<SkImage> image(SkImage::MakeFromBitmap(bm));
+    sk_sp<SkImage> image(SkImages::RasterFromBitmap(bm));
     special = DeviceTestingAccess::MakeSpecial(bmDev.get(), image.get());
     SkASSERT(!special->isTextureBacked());
     SkASSERT(kWidth == special->width());

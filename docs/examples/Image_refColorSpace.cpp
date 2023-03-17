@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
         sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);
         for (int index = 0; index < 2; ++index) {
             pixmap.setColorSpace(colorSpace);
-            sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);
+            sk_sp<SkImage> image = SkImages::RasterFromPixmapCopy(pixmap);
             canvas->drawImage(image, x, y);
             colorSpace = image->refColorSpace()->makeColorSpin();
             x += 512;

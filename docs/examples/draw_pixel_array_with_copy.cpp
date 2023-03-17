@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     };
     SkPixmap pixmap(SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType),
                     pixels, sizeof(uint32_t) * width);
-    sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
+    sk_sp<SkImage> img = SkImages::RasterFromPixmapCopy(pixmap);
 
     canvas->scale(16,16);
     canvas->drawImage(img, 6, 6);

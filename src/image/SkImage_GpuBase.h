@@ -9,6 +9,7 @@
 #define SkImage_GpuBase_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/image/SkImage_Base.h"
 
@@ -66,7 +67,7 @@ public:
             SkISize dimensions,
             GrBackendFormat,
             skgpu::Mipmapped,
-            PromiseImageTextureFulfillProc,
+            SkImages::PromiseImageTextureFulfillProc,
             sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
 protected:

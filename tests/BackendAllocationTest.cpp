@@ -9,7 +9,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
@@ -25,6 +24,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -88,6 +88,8 @@
 #include <vulkan/vulkan_core.h>
 #endif
 
+class SkImage;
+
 using sk_gpu_test::ManagedBackendTexture;
 
 // Test wrapping of GrBackendObjects in SkSurfaces and SkImages (non-static since used in Mtl test)
@@ -149,12 +151,12 @@ void test_wrapping(GrDirectContext* dContext,
     }
 
     {
-        sk_sp<SkImage> img = SkImage::MakeFromTexture(dContext,
-                                                      mbet->texture(),
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      skColorType,
-                                                      kUnpremul_SkAlphaType,
-                                                      nullptr);
+        sk_sp<SkImage> img = SkImages::BorrowTextureFrom(dContext,
+                                                         mbet->texture(),
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         skColorType,
+                                                         kUnpremul_SkAlphaType,
+                                                         nullptr);
         if (!img) {
             ERRORF(reporter, "Couldn't make SkImage from backendTexture for %s\n",
                    ToolUtils::colortype_name(skColorType));

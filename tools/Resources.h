@@ -31,7 +31,7 @@ inline bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
 }
 
 inline sk_sp<SkImage> GetResourceAsImage(const char* resource) {
-    return SkImage::MakeFromEncoded(GetResourceAsData(resource));
+    return SkImages::DeferredFromEncodedData(GetResourceAsData(resource));
 }
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource,

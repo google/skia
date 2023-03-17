@@ -59,8 +59,8 @@ static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContex
     bmCanvas.clear(SK_ColorRED);
 
     // We start off with the raster image being all red.
-    sk_sp<SkImage> img = sk_image_factory::MakePinnableFromRasterBitmap(bm);
-    REPORTER_ASSERT(reporter, img, "MakePinnableFromRasterBitmap returned null");
+    sk_sp<SkImage> img = SkImages::PinnableRasterFromBitmap(bm);
+    REPORTER_ASSERT(reporter, img, "PinnableImageFromBitmap returned null");
 
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, ii);
     SkCanvas* canvas = gpuSurface->getCanvas();
@@ -128,7 +128,7 @@ static void cleanup_test(skiatest::Reporter* reporter) {
                     continue;
                 }
 
-                img = sk_image_factory::MakePinnableFromRasterBitmap(bm);
+                img = SkImages::PinnableRasterFromBitmap(bm);
                 if (!skgpu::ganesh::PinAsTexture(dContext, img.get())) {
                     continue;
                 }

@@ -10,10 +10,6 @@
 
 #include "src/image/SkImage_Base.h"
 
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#endif
-
 namespace skgpu::graphite {
 
 class Context;
@@ -31,6 +27,8 @@ public:
                       int srcX,
                       int srcY,
                       CachingHint) const override { return false; }
+
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
 
     bool getROPixels(GrDirectContext*,
                      SkBitmap*,
@@ -64,24 +62,6 @@ protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID)
         : SkImage_Base(info, uniqueID) {}
 
-private:
-
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(
-            GrRecordingContext*,
-            SkSamplingOptions,
-            const SkTileMode[2],
-            const SkMatrix&,
-            const SkRect* subset,
-            const SkRect* domain) const override;
-
-    std::tuple<GrSurfaceProxyView, GrColorType> onAsView(
-            GrRecordingContext*,
-            GrMipmapped,
-            GrImageTexGenPolicy policy) const override {
-        return {};
-    }
-#endif
 };
 
 } // namespace skgpu::graphite

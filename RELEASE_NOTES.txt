@@ -14,6 +14,29 @@ Milestone 113
     return true from rectStaysRect(), consistent with rectStaysRect() implying a non-zero scale.
   * `SkImage::CompressionType` has been renamed to `SkTextureCompressionType` and moved to
     `include/core/SkTextureCompressionType.h`
+  * SkImage factory methods have been moved to the SkImages namespace. Many have been renamed to
+    be more succinct or self-consistent. Factory methods specific to the Ganesh GPU backend are
+    defined publicly in include/gpu/ganesh/SkImageGanesh.h.
+      * SkImage::MakeBackendTextureFromSkImage -> SkImages::GetBackendTextureFromImage
+      * SkImage::MakeCrossContextFromPixmap -> SkImages::CrossContextTextureFromPixmap
+      * SkImage::MakeFromAdoptedTexture -> SkImages::AdoptTextureFrom
+      * SkImage::MakeFromBitmap -> SkImages::RasterFromBitmap
+      * SkImage::MakeFromCompressedTexture -> SkImages::TextureFromCompressedTexture
+      * SkImage::MakeFromEncoded -> SkImages::DeferredFromEncodedData
+      * SkImage::MakeFromGenerator -> SkImages::DeferredFromGenerator
+      * SkImage::MakeFromPicture -> SkImages::DeferredFromPicture
+      * SkImage::MakeFromRaster -> SkImages::RasterFromPixmap
+      * SkImage::MakeFromTexture -> SkImages::BorrowTextureFrom
+      * SkImage::MakeFromYUVAPixmaps -> SkImages::TextureFromYUVAPixmaps
+      * SkImage::MakeFromYUVATextures -> SkImages::TextureFromYUVATextures
+      * SkImage::MakePromiseTexture -> SkImages::PromiseTextureFrom
+      * SkImage::MakePromiseYUVATexture -> SkImages::PromiseTextureFromYUVA
+      * SkImage::MakeRasterCopy -> SkImages::RasterFromPixmapCopy
+      * SkImage::MakeRasterData -> SkImages::RasterFromData
+      * SkImage::MakeRasterFromCompressed -> SkImages::RasterFromCompressedTextureData
+      * SkImage::MakeTextureFromCompressed -> SkImages::TextureFromCompressedTextureData
+    To help in the transition, there is some temporary bridge code (e.g. aliases) which will
+    eventually be removed.
 
 * * *
 

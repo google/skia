@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GpuTypes.h"
 
 class GrMipMapBench: public Benchmark {
     sk_sp<SkSurface> fSurface;

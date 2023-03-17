@@ -13,6 +13,7 @@
 #if defined(SK_GANESH)
 
 #include "include/core/SkImageInfo.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrTypes.h"
 

@@ -11,6 +11,7 @@
 
 #if defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
+#include "include/android/SkImageAndroid.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -170,8 +171,8 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
     // Wrap AHardwareBuffer in SkImage
     ///////////////////////////////////////////////////////////////////////////
 
-    sk_sp<SkImage> image = SkImage::MakeFromAHardwareBuffer(buffer, kPremul_SkAlphaType,
-                                                            nullptr, surfaceOrigin);
+    sk_sp<SkImage> image = SkImages::DeferredFromAHardwareBuffer(
+            buffer, kPremul_SkAlphaType, nullptr, surfaceOrigin);
     REPORTER_ASSERT(reporter, image);
 
     ///////////////////////////////////////////////////////////////////////////

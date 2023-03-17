@@ -79,8 +79,8 @@ protected:
 
     sk_sp<SkImageFilter> make(sk_sp<SkPicture> pic, SkRect r, const SkSamplingOptions& sampling) {
         SkISize dim = { SkScalarRoundToInt(r.width()), SkScalarRoundToInt(r.height()) };
-        auto img = SkImage::MakeFromPicture(pic, dim, nullptr, nullptr,
-                                            SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
+        auto img = SkImages::DeferredFromPicture(
+                pic, dim, nullptr, nullptr, SkImages::BitDepth::kU8, SkColorSpace::MakeSRGB());
         return SkImageFilters::Image(img, r, r, sampling);
     }
     sk_sp<SkImageFilter> make(const SkSamplingOptions& sampling) {

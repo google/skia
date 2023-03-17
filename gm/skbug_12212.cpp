@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/gpu/GpuTypes.h"
 
 DEF_SIMPLE_GM_BG(skbug_12212, canvas, 400, 400, SK_ColorCYAN) {
     // Create an Alpha_8 surface to draw into (strangely, with RGB pixel geometry).

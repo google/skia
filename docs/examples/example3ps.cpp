@@ -61,7 +61,7 @@ void draw(SkCanvas* canvas) {
     sk_sp<SkData> data = SkData::MakeWithoutCopy((unsigned char*)d, sizeof(d));
     SkImageInfo info =
             SkImageInfo::Make(3, 2, SkColorType::kGray_8_SkColorType, kOpaque_SkAlphaType);
-    sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, 3);
+    sk_sp<SkImage> image = SkImages::RasterFromData(info, data, 3);
 
     canvas->save();
     m = setpsmatrix(1, 0, 0, 1, -1, -24, 2);
