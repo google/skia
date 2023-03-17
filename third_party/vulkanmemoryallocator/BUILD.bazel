@@ -9,6 +9,15 @@ skia_cc_library(
     srcs = [
         "GrVulkanMemoryAllocator.cpp",
     ],
+    copts = [
+        # Because `copts` options don't propagate up the stack, some static errors in
+        # `vk_mem_alloc.h` need to be suppressed in the BUILD rule which includes the library.
+        #
+        # https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/issues/298
+        "-Wno-unused-variable",
+        # https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/issues/299
+        "-Wno-implicit-fallthrough",
+    ],
     includes = [
         ".",
     ],
