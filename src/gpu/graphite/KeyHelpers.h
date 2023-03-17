@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_KeyHelpers_DEFINED
 #define skgpu_graphite_KeyHelpers_DEFINED
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkSamplingOptions.h"
@@ -78,8 +79,9 @@ struct SolidColorShaderBlock {
 struct GradientShaderBlocks {
 
     struct GradientData {
-        // TODO: For the sprint we only support 8 stops in the gradients
-        static constexpr int kMaxStops = 8;
+        // The number of stops stored internal to this data structure before falling back to
+        // bitmap storage.
+        static constexpr int kNumInternalStorageStops = 8;
 
         // This ctor is used during pre-compilation when we don't have enough information to
         // extract uniform data. However, we must be able to provide enough data to make all the
@@ -124,10 +126,16 @@ struct GradientShaderBlocks {
 
         SkTileMode             fTM;
         int                    fNumStops;
-        SkPMColor4f            fColors[kMaxStops];
-        float                  fOffsets[kMaxStops];
+
+        // For gradients w/ <= kNumInternalStorageStops stops we use fColors and fOffsets.
+        // Otherwise we use fColorsAndOffsetsBitmap.
+        SkPMColor4f            fColors[kNumInternalStorageStops];
+        float                  fOffsets[kNumInternalStorageStops];
+        SkBitmap               fColorsAndOffsetsBitmap;
+
 
         SkGradientShader::Interpolation fInterpolation;
+        bool                   fValid = true;
     };
 
     static void BeginBlock(const KeyContext&,
