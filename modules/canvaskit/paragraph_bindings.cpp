@@ -495,6 +495,17 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                     }),
                     allow_raw_pointers())
             .class_function(
+                    "_MakeFromFontCollection",
+                    optional_override([](SimpleParagraphStyle style,
+                                         sk_sp<para::FontCollection> fontCollection)
+                                              -> std::unique_ptr<para::ParagraphBuilderImpl> {
+                        auto ps = toParagraphStyle(style);
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fontCollection);
+                        return std::unique_ptr<para::ParagraphBuilderImpl>(
+                                static_cast<para::ParagraphBuilderImpl*>(pb.release()));
+                    }),
+                    allow_raw_pointers())
+            .class_function(
                     "_ShapeText",
                     optional_override([](JSString jtext, JSArray jruns, float width) -> JSArray {
                 std::string textStorage = jtext.as<std::string>();
@@ -659,6 +670,16 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
           self.registerTypeface(typeface, fStr);
       }), allow_raw_pointers());
 
+    class_<para::FontCollection>("FontCollection")
+      .smart_ptr<sk_sp<para::FontCollection>>("sk_sp<FontCollection>")
+      .class_function("Make", optional_override([]()-> sk_sp<para::FontCollection> {
+          return sk_make_sp<para::FontCollection>();
+      }))
+      .function("setDefaultFontManager", optional_override([](para::FontCollection& self,
+                                                              const sk_sp<para::TypefaceFontProvider>& fontManager) {
+        self.setDefaultFontManager(fontManager);
+      }), allow_raw_pointers())
+      .function("enableFontFallback", &para::FontCollection::enableFontFallback);
 
     // These value objects make it easier to send data across the wire.
     value_object<para::PositionWithAffinity>("PositionWithAffinity")

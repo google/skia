@@ -298,6 +298,15 @@
         return result;
     };
 
+    CanvasKit.ParagraphBuilder.MakeFromFontCollection = function(paragraphStyle, fontCollection) {
+        copyArrays(paragraphStyle['textStyle']);
+
+        var result = CanvasKit.ParagraphBuilder._MakeFromFontCollection(
+	    paragraphStyle, fontCollection);
+        freeArrays(paragraphStyle['textStyle']);
+        return result;
+    };
+
     CanvasKit.ParagraphBuilder.ShapeText = function(text, blocks, width) {
         let length = 0;
         for (const b of blocks) {

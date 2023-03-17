@@ -759,6 +759,42 @@ describe('Paragraph Behavior', function() {
         fontSrc.delete();
     });
 
+    gm('paragraph_font_collection', (canvas) => {
+        const paint = new CanvasKit.Paint();
+
+        paint.setColor(CanvasKit.RED);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        // Register Noto Serif as 'sans-serif'.
+        const fontSrc = CanvasKit.TypefaceFontProvider.Make();
+        fontSrc.registerFont(notoSerifFontBuffer, 'sans-serif');
+        const fontCollection = CanvasKit.FontCollection.Make();
+        fontCollection.setDefaultFontManager(fontSrc);
+
+        const wrapTo = 250;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontFamilies: ['sans-serif'],
+                fontSize: 20,
+            },
+            disableHinting: true,
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.MakeFromFontCollection(
+	    paraStyle, fontCollection);
+        builder.addText('ABC DEF GHI');
+
+        const paragraph = builder.build();
+        paragraph.layout(wrapTo);
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        paint.delete();
+        paragraph.delete();
+        builder.delete();
+        fontSrc.delete();
+    });
+
     gm('paragraph_text_styles', (canvas) => {
         const paint = new CanvasKit.Paint();
 

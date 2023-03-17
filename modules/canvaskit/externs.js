@@ -166,6 +166,7 @@ var CanvasKit = {
   ParagraphBuilder: {
     Make: function() {},
     MakeFromFontProvider: function() {},
+    MakeFromFontCollection: function() {},
     ShapeText: function() {},
     RequiresClientICU() {},
 
@@ -192,6 +193,7 @@ var CanvasKit = {
     // private API
     _Make: function() {},
     _MakeFromFontProvider: function() {},
+    _MakeFromFontCollection: function() {},
     _ShapeText: function() {},
     _pushStyle: function() {},
     _pushPaintStyle: function() {},
@@ -430,6 +432,13 @@ var CanvasKit = {
 
     // private API
     _registerFont: function() {},
+  },
+
+  FontCollection: {
+    // public API (from C++ and JS bindings)
+    Make: function() {},
+    setDefaultFontManager: function() {},
+    enableFontFallback: function() {},
   },
 
   Image: {
