@@ -361,7 +361,8 @@ TextureProxyView TextureProxyView::Copy(Recorder* recorder,
                                         const TextureProxyView& srcView,
                                         SkIRect srcRect,
                                         Mipmapped mipmapped) {
-    SkASSERT(SkIRect::MakeSize(srcView.proxy()->dimensions()).contains(srcRect));
+    SkASSERT(srcView.proxy()->isFullyLazy() ||
+             SkIRect::MakeSize(srcView.proxy()->dimensions()).contains(srcRect));
 
     sk_sp<TextureProxy> dest = TextureProxy::Make(recorder->priv().caps(),
                                                   srcRect.size(),
@@ -1192,11 +1193,15 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
     this->flushPendingWorkToRecorder();
 
     SkIRect finalSubset = subset;
-    TextureProxyView view = fDC->readSurfaceView(fRecorder->priv().caps());
-    if (forceCopy || !view) {
-        // TODO: fill this in. 'forceCopy' is only true for backdrop saveLayers. A non-readable
-        // surface view could happen any time though.
-        return nullptr;
+    TextureProxyView view = this->readSurfaceView();
+    if (forceCopy || !view || view.proxy()->isFullyLazy()) {
+        // TODO: this doesn't address the non-readable surface view case, in which view is empty and
+        // createCopy will return an empty view as well.
+        view = this->createCopy(&subset, Mipmapped::kNo);
+        if (!view) {
+            return nullptr;
+        }
+        finalSubset = SkIRect::MakeWH(view.width(), view.height());
     }
 
     return SkSpecialImage::MakeGraphite(fRecorder,
