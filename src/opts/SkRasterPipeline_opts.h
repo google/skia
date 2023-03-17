@@ -1561,6 +1561,23 @@ SI F atan_(F x) {
     return x;
 }
 
+
+// Handbook of Mathematical Functions, by Milton Abramowitz and Irene Stegun:
+// https://books.google.com/books/content?id=ZboM5tOFWtsC&pg=PA81&img=1&zoom=3&hl=en&bul=1&sig=ACfU3U2M75tG_iGVOS92eQspr14LTq02Nw&ci=0%2C15%2C999%2C1279&edge=0
+// http://screen/8YGJxUGFQ49bVX6
+SI F asin_(F x) {
+    I32 neg = (x < 0.0f);
+    x = if_then_else(neg, -x, x);
+    F poly = x * (x * (x * -0.0187293f + 0.0742610f) - 0.2121144f) + 1.5707288f;
+    x = SK_ScalarPI/2 - sqrt_(1 - x) * poly;
+    x = if_then_else(neg, -x, x);
+    return x;
+}
+
+SI F acos_(F x) {
+    return SK_ScalarPI/2 - asin_(x);
+}
+
 /*  Use identity atan(x) = pi/2 - atan(1/x) for x > 1
     By swapping y,x to ensure the ratio is <= 1, we can safely call atan_unit()
     which avoids a 2nd divide instruction if we had instead called atan().

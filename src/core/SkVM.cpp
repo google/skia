@@ -909,16 +909,16 @@ namespace skvm {
         return x;
     }
 
-     // http://mathforum.org/library/drmath/view/54137.html
-     // referencing Handbook of Mathematical Functions,
-     //             by Milton Abramowitz and Irene Stegun
-     F32 Builder::approx_asin(F32 x) {
+    // http://mathforum.org/library/drmath/view/54137.html
+    // referencing Handbook of Mathematical Functions,
+    //             by Milton Abramowitz and Irene Stegun
+    F32 Builder::approx_asin(F32 x) {
          I32 neg = (x < 0.0f);
          x = select(neg, -x, x);
          x = SK_ScalarPI/2 - sqrt(1-x) * poly(x, -0.0187293f, 0.0742610f, -0.2121144f, 1.5707288f);
          x = select(neg, -x, x);
          return x;
-     }
+    }
 
     /*  Use 4th order polynomial approximation from https://arachnoid.com/polysolve/
      *      with 129 values of x,atan(x) for x:[0...1]

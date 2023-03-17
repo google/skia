@@ -122,6 +122,32 @@ DEF_TEST(SkRasterPipelineOpts_Tan, r) {
     }
 }
 
+DEF_TEST(SkRasterPipelineOpts_Asin, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.00175f;
+    for (float x = -1; x <= 1; x += 1.0f/64) {
+        F result = SK_OPTS_NS::asin_(x);
+        F expected = asinf(x);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+}
+
+DEF_TEST(SkRasterPipelineOpts_Acos, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.00175f;
+    for (float x = -1; x <= 1; x += 1.0f/64) {
+        F result = SK_OPTS_NS::acos_(x);
+        F expected = acosf(x);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+}
+
 DEF_TEST(SkRasterPipelineOpts_Atan, r) {
     using F = SK_OPTS_NS::F;
 
