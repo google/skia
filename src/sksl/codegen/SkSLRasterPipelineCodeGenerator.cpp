@@ -2884,6 +2884,35 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             }
             return true;
 
+        case IntrinsicKind::k_faceforward_IntrinsicKind: {
+            // Implement faceforward as `N ^ ((0 <= dot(I, NRef)) & 0x80000000)`.
+            // In other words, flip the sign bit of N if `0 <= dot(I, NRef)`.
+            SkASSERT(arg0.type().matches(arg1.type()));
+            SkASSERT(arg0.type().matches(arg2.type()));
+            int slotCount = arg0.type().slotCount();
+
+            // Stack: N, 0, I, Nref
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.push_literal_f(0.0);
+            if (!this->pushExpression(arg1) || !this->pushExpression(arg2)) {
+                return unsupported();
+            }
+            // Stack: N, 0, dot(I,NRef)
+            fBuilder.dot_floats(slotCount);
+            // Stack: N, (0 <= dot(I,NRef))
+            fBuilder.binary_op(BuilderOp::cmple_n_floats, 1);
+            // Stack: N, (0 <= dot(I,NRef)), 0x80000000
+            fBuilder.push_literal_i(0x80000000);
+            // Stack: N, (0 <= dot(I,NRef)) & 0x80000000)
+            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
+            // Stack: N, vec(0 <= dot(I,NRef)) & 0x80000000)
+            fBuilder.push_duplicates(slotCount - 1);
+            // Stack: N ^ vec((0 <= dot(I,NRef)) & 0x80000000)
+            fBuilder.binary_op(BuilderOp::bitwise_xor_n_ints, slotCount);
+            return true;
+        }
         case IntrinsicKind::k_mix_IntrinsicKind:
             // Note: our SkRP mix op takes the interpolation point first, not the interpolants.
             SkASSERT(arg0.type().matches(arg1.type()));
