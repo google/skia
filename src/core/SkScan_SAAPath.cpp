@@ -14,6 +14,14 @@
 #include "src/core/SkAntiRun.h"
 #include "src/core/SkBlitter.h"
 
+#if defined(SK_FORCE_AAA)
+
+void SkScan::SAAFillPath(const SkPath&, SkBlitter*, const SkIRect&, const SkIRect&, bool) {
+    SkDEBUGFAIL("SAA Disabled");
+}
+
+#else
+
 #define SHIFT   SK_SUPERSAMPLE_SHIFT
 #define SCALE   (1 << SHIFT)
 #define MASK    (SCALE - 1)
@@ -599,3 +607,5 @@ void SkScan::SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         sk_fill_path(path, clipBounds, &superBlit, ir.fTop, ir.fBottom, SHIFT, containedInClip);
     }
 }
+
+#endif  // defined(SK_FORCE_AAA)
