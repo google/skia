@@ -698,8 +698,11 @@ public:
             }
         } else {
             if (dynamicOffset) {
-                // TODO: implement indirect swizzled store
-                return unsupported();
+                gen->builder()->swizzle_copy_stack_to_slots_indirect(fixedOffset,
+                                                                     dynamicOffset->stackID(),
+                                                                     this->fixedSlotRange(gen),
+                                                                     swizzle,
+                                                                     swizzle.size());
             } else {
                 gen->builder()->swizzle_copy_stack_to_slots(fixedOffset, swizzle, swizzle.size());
             }

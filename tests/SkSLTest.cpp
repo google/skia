@@ -662,7 +662,7 @@ SKSL_TEST(RP + VM + GPU,     kNextRelease,MatrixIndexStore,                "shar
 SKSL_TEST(RP + VM + GPU,     kApiLevel_U, MatrixOpEqualsES2,               "shared/MatrixOpEqualsES2.sksl")
 SKSL_TEST(RP + GPU_ES3,      kApiLevel_U, MatrixOpEqualsES3,               "shared/MatrixOpEqualsES3.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MatrixScalarMath,                "shared/MatrixScalarMath.sksl")
-SKSL_TEST(VM + GPU,          kNextRelease,MatrixSwizzleStore,              "shared/MatrixSwizzleStore.sksl")
+SKSL_TEST(RP + VM + GPU,     kNextRelease,MatrixSwizzleStore,              "shared/MatrixSwizzleStore.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MultipleAssignments,             "shared/MultipleAssignments.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, NumberCasts,                     "shared/NumberCasts.sksl")
