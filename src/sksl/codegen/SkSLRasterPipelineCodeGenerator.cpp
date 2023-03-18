@@ -2958,6 +2958,19 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             }
             return unsupported();
 
+        case IntrinsicKind::k_smoothstep_IntrinsicKind:
+            SkASSERT(arg0.type().componentType().isFloat());
+            SkASSERT(arg1.type().matches(arg0.type()));
+            SkASSERT(arg2.type().componentType().isFloat());
+
+            if (!this->pushVectorizedExpression(arg0, arg2.type()) ||
+                !this->pushVectorizedExpression(arg1, arg2.type()) ||
+                !this->pushExpression(arg2)) {
+                return unsupported();
+            }
+            fBuilder.ternary_op(BuilderOp::smoothstep_n_floats, arg2.type().slotCount());
+            return true;
+
         default:
             break;
     }
