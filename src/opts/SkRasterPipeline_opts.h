@@ -1561,7 +1561,6 @@ SI F atan_(F x) {
     return x;
 }
 
-
 // Handbook of Mathematical Functions, by Milton Abramowitz and Irene Stegun:
 // https://books.google.com/books/content?id=ZboM5tOFWtsC&pg=PA81&img=1&zoom=3&hl=en&bul=1&sig=ACfU3U2M75tG_iGVOS92eQspr14LTq02Nw&ci=0%2C15%2C999%2C1279&edge=0
 // http://screen/8YGJxUGFQ49bVX6
@@ -3922,14 +3921,22 @@ SI void mix_fn(I32* a, I32* x, I32* y) {
     *a = if_then_else(*a, *y, *x);
 }
 
+SI void smoothstep_fn(F* edge0, F* edge1, F* x) {
+    F t = clamp_01_((*x - *edge0) / (*edge1 - *edge0));
+    *edge0 = t * t * (3.0 - 2.0 * t);
+}
+
+#define DECLARE_N_WAY_TERNARY_FLOAT(name)                                                  \
+    STAGE_TAIL(name##_n_floats, SkRasterPipeline_TernaryOpCtx* ctx) {                      \
+        apply_adjacent_ternary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src0, (F*)ctx->src1); \
+    }
+
 #define DECLARE_TERNARY_FLOAT(name)                                                           \
     STAGE_TAIL(name##_float, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+1, p+2); }    \
     STAGE_TAIL(name##_2_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+2, p+4); } \
     STAGE_TAIL(name##_3_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+3, p+6); } \
     STAGE_TAIL(name##_4_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+4, p+8); } \
-    STAGE_TAIL(name##_n_floats, SkRasterPipeline_TernaryOpCtx* ctx) {                         \
-        apply_adjacent_ternary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src0, (F*)ctx->src1);    \
-    }
+    DECLARE_N_WAY_TERNARY_FLOAT(name)
 
 #define DECLARE_TERNARY_INT(name)                                                                  \
     STAGE_TAIL(name##_int, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+1, p+2); }       \
@@ -3940,9 +3947,11 @@ SI void mix_fn(I32* a, I32* x, I32* y) {
         apply_adjacent_ternary<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src0, (I32*)ctx->src1); \
     }
 
+DECLARE_N_WAY_TERNARY_FLOAT(smoothstep)
 DECLARE_TERNARY_FLOAT(mix)
 DECLARE_TERNARY_INT(mix)
 
+#undef DECLARE_N_WAY_TERNARY_FLOAT
 #undef DECLARE_TERNARY_FLOAT
 #undef DECLARE_TERNARY_INT
 
