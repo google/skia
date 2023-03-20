@@ -61,6 +61,10 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
         return false;
     }
 
+    if (dstCT == kUnknown_SkColorType) {
+        return false;
+    }
+
     // We always dither 565 or 4444 when requested.
     if (dstCT == kRGB_565_SkColorType || dstCT == kARGB_4444_SkColorType) {
         return true;
