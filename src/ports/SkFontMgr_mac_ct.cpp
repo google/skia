@@ -18,6 +18,7 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <dlfcn.h>
+#include "modules/skunicode/include/SkUnicode.h"
 #endif
 
 #include "include/core/SkData.h"
@@ -507,6 +508,14 @@ protected:
         if (!string) {
             return nullptr;
         }
+#ifdef SK_BUILD_FOR_IOS
+        if (familyName == NULL && SkUnicode::isEmoji(character)) {
+            CFStringRef fontName = CFSTR("Apple Color Emoji");
+            CGFloat fontSize =16;
+            SkUniqueCFRef<CTFontRef> ret(CTFontCreateWithName(fontName, fontSize, NULL));
+            return SkTypeface_Mac::Make(std::move(ret), OpszVariation(), nullptr).release();
+        }
+#endif
         CFRange range = CFRangeMake(0, CFStringGetLength(string.get()));  // in UniChar units.
         SkUniqueCFRef<CTFontRef> fallbackFont(
                 CTFontCreateForString(familyFont.get(), string.get(), range));

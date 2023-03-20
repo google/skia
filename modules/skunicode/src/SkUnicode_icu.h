@@ -24,6 +24,7 @@
     SKICU_FUNC(u_iscntrl)             \
     SKICU_FUNC(u_isspace)             \
     SKICU_FUNC(u_isWhitespace)        \
+    SKICU_FUNC(u_hasBinaryProperty)   \
     SKICU_FUNC(u_strToUpper)          \
     SKICU_FUNC(ubidi_close)           \
     SKICU_FUNC(ubidi_getDirection)    \
