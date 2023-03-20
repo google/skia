@@ -288,6 +288,7 @@ skia_core_sources = [
   "$_src/core/SkCanvas.cpp",
   "$_src/core/SkCanvasPriv.cpp",
   "$_src/core/SkCanvasPriv.h",
+  "$_src/core/SkCanvas_Raster.cpp",
   "$_src/core/SkCapabilities.cpp",
   "$_src/core/SkChromeRemoteGlyphCache.cpp",
   "$_src/core/SkClipStack.cpp",
