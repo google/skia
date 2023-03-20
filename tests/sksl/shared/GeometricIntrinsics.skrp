@@ -39,9 +39,9 @@
    39. copy_2_slots_unmasked          $2..3 = $0..1
    40. copy_2_slots_unmasked          $4..5 = $2..3
    41. dot_2_floats                   $2 = dot($2..3, $4..5)
-   42. sqrt_float                     $2 = sqrt($2)
+   42. invsqrt_float                  $2 = inversesqrt($2)
    43. copy_slot_unmasked             $3 = $2
-   44. div_2_floats                   $0..1 /= $2..3
+   44. mul_2_floats                   $0..1 *= $2..3
    45. copy_2_slots_unmasked          _1_x = $0..1
    46. copy_4_constants               $0..3 = colorGreen
    47. load_src                       src.rgba = $0..3

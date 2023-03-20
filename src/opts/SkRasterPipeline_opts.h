@@ -3679,6 +3679,10 @@ SI void ceil_fn(F* dst) {
     *dst = ceil_(*dst);
 }
 
+SI void invsqrt_fn(F* dst) {
+    *dst = rsqrt(*dst);
+}
+
 #define DECLARE_UNARY_FLOAT(name)                                                              \
     STAGE_TAIL(name##_float, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 1); }    \
     STAGE_TAIL(name##_2_floats, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 2); } \
@@ -3704,6 +3708,7 @@ DECLARE_UNARY_FLOAT(cast_to_uint_from)
 DECLARE_UNARY_FLOAT(abs) DECLARE_UNARY_INT(abs)
 DECLARE_UNARY_FLOAT(floor)
 DECLARE_UNARY_FLOAT(ceil)
+DECLARE_UNARY_FLOAT(invsqrt)
 
 #undef DECLARE_UNARY_FLOAT
 #undef DECLARE_UNARY_INT

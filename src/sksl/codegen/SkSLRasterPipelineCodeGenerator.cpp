@@ -420,6 +420,10 @@ private:
                                              BuilderOp::unsupported,
                                              BuilderOp::unsupported,
                                              BuilderOp::unsupported};
+    static constexpr auto kInverseSqrtOps = TypedOps{BuilderOp::invsqrt_float,
+                                                     BuilderOp::unsupported,
+                                                     BuilderOp::unsupported,
+                                                     BuilderOp::unsupported};
     friend class AutoContinueMask;
 };
 
@@ -2567,11 +2571,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             return this->binaryOp(arg0.type(), kSubtractOps);
 
         case IntrinsicKind::k_inversesqrt_IntrinsicKind: {
-            // Implement inversesqrt as `1.0 / sqrt(x)`.
-            Literal oneLiteral{Position{}, 1.0, &arg0.type().componentType()};
-            return this->pushVectorizedExpression(oneLiteral, arg0.type()) &&
-                   this->pushIntrinsic(k_sqrt_IntrinsicKind, arg0) &&
-                   this->binaryOp(arg0.type(), kDivideOps);
+            return this->pushIntrinsic(kInverseSqrtOps, arg0);
         }
         case IntrinsicKind::k_length_IntrinsicKind:
             return this->pushExpression(arg0) &&
@@ -2591,20 +2591,32 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::log2_float, arg0.type().slotCount());
             return true;
 
-        case IntrinsicKind::k_normalize_IntrinsicKind:
+        case IntrinsicKind::k_normalize_IntrinsicKind: {
             // Implement normalize as `x / length(x)`. First, push the expression.
             if (!this->pushExpression(arg0)) {
                 return unsupported();
             }
-            // Clone the expression and calculate its length.
-            fBuilder.push_clone(arg0.type().slotCount());
-            if (!this->pushLengthIntrinsic(arg0.type().slotCount())) {
-                return unsupported();
-            }
-            // Finally, vectorize the length and divide.
-            fBuilder.push_duplicates(arg0.type().slotCount() - 1);
-            return this->binaryOp(arg0.type(), kDivideOps);
+            int slotCount = arg0.type().slotCount();
+            if (slotCount > 1) {
+                // Instead of `x / sqrt(dot(x, x))`, we can get roughly the same result in less time
+                // by computing `x * invsqrt(dot(x, x))`.
+                fBuilder.push_clone(slotCount);
+                fBuilder.push_clone(slotCount);
+                fBuilder.dot_floats(slotCount);
 
+                // Compute `vec(inversesqrt(dot(x, x)))`.
+                fBuilder.unary_op(BuilderOp::invsqrt_float, 1);
+                fBuilder.push_duplicates(slotCount - 1);
+
+                // Return `x * vec(inversesqrt(dot(x, x)))`.
+                return this->binaryOp(arg0.type(), kMultiplyOps);
+            } else {
+                // For single-slot normalization, we can simplify `sqrt(x * x)` into `abs(x)`.
+                fBuilder.push_clone(slotCount);
+                fBuilder.unary_op(BuilderOp::abs_float, 1);
+                return this->binaryOp(arg0.type(), kDivideOps);
+            }
+        }
         case IntrinsicKind::k_not_IntrinsicKind:
             return this->pushPrefixExpression(OperatorKind::LOGICALNOT, arg0);
 
