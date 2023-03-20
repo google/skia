@@ -22,7 +22,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok = ok && all(half4_from_half2x2(_uniforms.testMatrix2x2) == half4(1.0h, 2.0h, 3.0h, 4.0h));
     ok = ok && all(float4(half4_from_half2x2(_uniforms.testMatrix2x2)) == float4(1.0, 2.0, 3.0, 4.0));
     ok = ok && all(int4(half4_from_half2x2(_uniforms.testMatrix2x2)) == int4(1, 2, 3, 4));
-    ok = ok && all(bool4(half4_from_half2x2(_uniforms.testMatrix2x2)) == bool4(true, true, true, true));
+    ok = ok && all(bool4(half4_from_half2x2(_uniforms.testMatrix2x2)) == bool4(true));
     _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

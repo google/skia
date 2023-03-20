@@ -13,13 +13,14 @@
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorAnalysis.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
 class GrGLSLXPFragmentBuilder;
 class GrGLSLProgramDataManager;
 struct GrShaderCaps;
-
+namespace skgpu {
+    class KeyBuilder;
+}
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
  * required after a pixel has been written, before it can be safely read again.

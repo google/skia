@@ -21,8 +21,8 @@
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPictureRecorder.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkGlyph.h"
@@ -755,7 +755,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
 
      // GetAlphaTextureBounds succeeds but sometimes returns empty bounds like
      // { 0x80000000, 0x80000000, 0x80000000, 0x80000000 }
-     // for small, but not quite zero, sized glyphs.
+     // for small but not quite zero and large (but not really large) glyphs,
      // Only set as non-empty if the returned bounds are non-empty.
     auto glyphCheckAndSetBounds = [](SkGlyph* glyph, const RECT& bbox) {
         if (bbox.left >= bbox.right || bbox.top >= bbox.bottom) {
@@ -835,6 +835,22 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     }
     // TODO: handle the case where a request for DWRITE_TEXTURE_ALIASED_1x1
     // fails, and try DWRITE_TEXTURE_CLEARTYPE_3x1.
+
+    // GetAlphaTextureBounds can fail for various reasons. As a fallback, attempt to generate the
+    // metrics from the path
+    SkDEBUGCODE(glyph->fAdvancesBoundsFormatAndInitialPathDone = true;)
+    this->getPath(*glyph, alloc);
+    const SkPath* devPath = glyph->path();
+    if (devPath) {
+        // Sometimes all the above fails. If so, try to create the glyph from path.
+        const SkMask::Format format = glyph->maskFormat();
+        const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
+        const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
+        const bool hairline = glyph->pathIsHairline();
+        if (GenerateMetricsFromPath(glyph, *devPath, format, doVert, a8LCD, hairline)) {
+            glyph->fScalerContextBits |= ScalerContextBits::PATH;
+        }
+    }
 }
 
 void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
@@ -954,6 +970,16 @@ void SkScalerContext_DW::BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGly
         src += bitCount;
         dst += dstRB;
     }
+
+    if constexpr (kSkShowTextBlitCoverage) {
+        dst = static_cast<uint8_t*>(glyph.fImage);
+        for (unsigned y = 0; y < (unsigned)glyph.height(); y += 2) {
+            for (unsigned x = (y & 0x2); x < (unsigned)glyph.width(); x+=4) {
+                uint8_t& b = dst[(dstRB * y) + (x >> 3)];
+                b = b ^ (1 << (0x7 - (x & 0x7)));
+            }
+        }
+    }
 }
 
 template<bool APPLY_PREBLEND>
@@ -968,6 +994,9 @@ void SkScalerContext_DW::GrayscaleToA8(const uint8_t* SK_RESTRICT src,
         for (int i = 0; i < width; i++) {
             U8CPU a = *(src++);
             dst[i] = sk_apply_lut_if<APPLY_PREBLEND>(a, table8);
+            if constexpr (kSkShowTextBlitCoverage) {
+                dst[i] = std::max<U8CPU>(0x30, dst[i]);
+            }
         }
         dst = SkTAddOffset<uint8_t>(dst, dstRB);
     }
@@ -987,6 +1016,9 @@ void SkScalerContext_DW::RGBToA8(const uint8_t* SK_RESTRICT src,
             U8CPU g = *(src++);
             U8CPU b = *(src++);
             dst[i] = sk_apply_lut_if<APPLY_PREBLEND>((r + g + b) / 3, table8);
+            if constexpr (kSkShowTextBlitCoverage) {
+                dst[i] = std::max<U8CPU>(0x30, dst[i]);
+            }
         }
         dst = SkTAddOffset<uint8_t>(dst, dstRB);
     }
@@ -1012,6 +1044,11 @@ void SkScalerContext_DW::RGBToLcd16(const uint8_t* SK_RESTRICT src, const SkGlyp
                 g = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableG);
                 r = sk_apply_lut_if<APPLY_PREBLEND>(*(src++), tableR);
             }
+            if constexpr (kSkShowTextBlitCoverage) {
+                r = std::max<U8CPU>(0x30, r);
+                g = std::max<U8CPU>(0x30, g);
+                b = std::max<U8CPU>(0x30, b);
+            }
             dst[i] = SkPack888ToRGB16(r, g, b);
         }
         dst = SkTAddOffset<uint16_t>(dst, dstRB);
@@ -1028,8 +1065,8 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     if (DWRITE_TEXTURE_CLEARTYPE_3x1 == textureType) {
         sizeNeeded *= 3;
     }
-    if (sizeNeeded > fBits.count()) {
-        fBits.setCount(sizeNeeded);
+    if (sizeNeeded > fBits.size()) {
+        fBits.resize(sizeNeeded);
     }
 
     // erase
@@ -1311,6 +1348,18 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
     if (format == ScalerContextBits::PNG) {
         this->generatePngGlyphImage(glyph);
+        return;
+    }
+    if (format == ScalerContextBits::PATH) {
+        const SkPath* devPath = glyph.path();
+        SkASSERT_RELEASE(devPath);
+        SkMask mask = glyph.mask();
+        SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
+        const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
+        const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
+        const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
+        const bool hairline = glyph.pathIsHairline();
+        GenerateImageFromPath(mask, *devPath, fPreBlend, doBGR, doVert, a8LCD, hairline);
         return;
     }
 

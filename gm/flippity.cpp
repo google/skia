@@ -26,7 +26,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/image/SkImage_Base.h"
@@ -36,6 +36,8 @@
 
 #include <string.h>
 #include <utility>
+
+using namespace skia_private;
 
 static const int kNumMatrices = 6;
 static const int kImageSize = 128;
@@ -80,7 +82,7 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
 
 
 // Create a fixed size text label like "LL" or "LR".
-static sk_sp<SkImage> make_text_image(GrDirectContext* dContext, const char* text, SkColor color) {
+static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(color);
@@ -103,43 +105,51 @@ static sk_sp<SkImage> make_text_image(GrDirectContext* dContext, const char* tex
     canvas->concat(mat);
     canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
-    sk_sp<SkImage> image = surf->makeImageSnapshot();
-
-    return image->makeTextureImage(dContext);
+    return surf->makeImageSnapshot();
 }
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
-static sk_sp<SkImage> make_reference_image(GrDirectContext* dContext,
-                                           const SkTArray<sk_sp<SkImage>>& labels,
+static sk_sp<SkImage> make_reference_image(SkCanvas* mainCanvas,
+                                           const TArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
-    SkASSERT(kNumLabels == labels.count());
+    SkASSERT(kNumLabels == labels.size());
 
-    SkImageInfo ii =
-            SkImageInfo::Make(kImageSize, kImageSize, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+    SkImageInfo ii = SkImageInfo::Make(kImageSize, kImageSize,
+                                       kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(ii);
-    SkCanvas canvas(bm);
 
-    canvas.clear(SK_ColorWHITE);
-    for (int i = 0; i < kNumLabels; ++i) {
-        canvas.drawImage(labels[i],
-                         0.0 != kPoints[i].fX ? kPoints[i].fX-kLabelSize-kInset : kInset,
-                         0.0 != kPoints[i].fY ? kPoints[i].fY-kLabelSize-kInset : kInset);
+    {
+        SkCanvas canvas(bm);
+
+        canvas.clear(SK_ColorWHITE);
+        for (int i = 0; i < kNumLabels; ++i) {
+            canvas.drawImage(labels[i],
+                             0.0 != kPoints[i].fX ? kPoints[i].fX-kLabelSize-kInset : kInset,
+                             0.0 != kPoints[i].fY ? kPoints[i].fY-kLabelSize-kInset : kInset);
+        }
+
+        bm.setImmutable();
     }
 
-    auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
+    auto dContext = GrAsDirectContext(mainCanvas->recordingContext());
+    if (dContext && !dContext->abandoned()) {
+        auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    auto view = sk_gpu_test::MakeTextureProxyViewFromData(dContext, GrRenderable::kNo, origin,
-                                                          bm.pixmap());
-    if (!view) {
-        return nullptr;
+        auto view = sk_gpu_test::MakeTextureProxyViewFromData(dContext, GrRenderable::kNo, origin,
+                                                              bm.pixmap());
+        if (!view) {
+            return nullptr;
+        }
+
+        return sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
+                                       kNeedNewImageUniqueID,
+                                       std::move(view),
+                                       ii.colorInfo());
     }
 
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
-                                   kNeedNewImageUniqueID,
-                                   std::move(view),
-                                   ii.colorInfo());
+    return SkImage::MakeFromBitmap(bm);
 }
 
 // Here we're converting from a matrix that is intended for UVs to a matrix that is intended
@@ -228,8 +238,8 @@ private:
         canvas->restore();
     }
 
-    void makeLabels(GrDirectContext* dContext) {
-        if (fLabels.count()) {
+    void makeLabels() {
+        if (fLabels.size()) {
             return;
         }
 
@@ -243,20 +253,15 @@ private:
         };
 
         for (int i = 0; i < kNumLabels; ++i) {
-            fLabels.push_back(make_text_image(dContext, kLabelText[i], kLabelColors[i]));
+            fLabels.push_back(make_text_image(kLabelText[i], kLabelColors[i]));
         }
-        SkASSERT(kNumLabels == fLabels.count());
+        SkASSERT(kNumLabels == fLabels.size());
     }
 
-    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
-        if (!dContext || dContext->abandoned()) {
-            *errorMsg = "DirectContext required to create reference images";
-            return DrawResult::kSkip;
-        }
-
-        this->makeLabels(dContext);
-        fReferenceImages[0] = make_reference_image(dContext, fLabels, false);
-        fReferenceImages[1] = make_reference_image(dContext, fLabels, true);
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
+        this->makeLabels();
+        fReferenceImages[0] = make_reference_image(canvas, fLabels, false);
+        fReferenceImages[1] = make_reference_image(canvas, fLabels, true);
         if (!fReferenceImages[0] || !fReferenceImages[1]) {
             *errorMsg = "Failed to create reference images.";
             return DrawResult::kFail;
@@ -266,7 +271,7 @@ private:
     }
 
     void onGpuTeardown() override {
-        fLabels.reset();
+        fLabels.clear();
         fReferenceImages[0] = fReferenceImages[1] = nullptr;
     }
 
@@ -305,7 +310,7 @@ private:
     }
 
 private:
-    SkTArray<sk_sp<SkImage>> fLabels;
+    TArray<sk_sp<SkImage>> fLabels;
     sk_sp<SkImage> fReferenceImages[2];
 
     using INHERITED = GM;

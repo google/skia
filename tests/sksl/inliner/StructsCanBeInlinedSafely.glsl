@@ -6,14 +6,11 @@ struct Color {
     float blue;
     float alpha;
 };
-vec4 helper_h4() {
-    Color c;
-    c.red = 0.0;
-    c.green = 1.0;
-    c.blue = 0.0;
-    c.alpha = 1.0;
-    return vec4(c.red, c.green, c.blue, c.alpha);
-}
 vec4 main() {
-    return helper_h4();
+    Color _0_c;
+    _0_c.red = 0.0;
+    _0_c.green = 1.0;
+    _0_c.blue = 0.0;
+    _0_c.alpha = 1.0;
+    return vec4(_0_c.red, _0_c.green, _0_c.blue, _0_c.alpha);
 }

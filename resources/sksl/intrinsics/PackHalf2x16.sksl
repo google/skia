@@ -1,0 +1,17 @@
+uniform half4 colorGreen, colorRed;
+uniform float4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
+
+half4 main(float2 coords) {
+    const float4 constVal = float4(-1.25, 0, 0.75, 2.25);
+    const float4 expected = constVal;
+    const uint constXY = packHalf2x16(constVal.xy);
+    const uint constZW = packHalf2x16(constVal.zw);
+    uint xy = packHalf2x16(testInputs.xy);
+    uint zw = packHalf2x16(testInputs.zw);
+
+    return (unpackHalf2x16(xy)      == float2(expected.xy) &&
+            unpackHalf2x16(zw)      == float2(expected.zw) &&
+            unpackHalf2x16(constXY) == float2(expected.xy) &&
+            unpackHalf2x16(constZW) == float2(expected.zw))
+              ? colorGreen : colorRed;
+}

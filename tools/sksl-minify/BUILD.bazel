@@ -1,0 +1,143 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary_with_flags")
+load("//bazel:macros.bzl", "py_binary")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# Run these py_binary rules like bazel run //tools/sksl-minify:minify_srcs
+# https://bazel.build/reference/be/python#py_binary
+py_binary(
+    name = "minify_srcs",
+    srcs = [":sksl_minify_srcs.py"],
+    data = [
+        ":sksl_minify",
+        "//gn:minify_sksl",
+        "//src/sksl:sksl_srcs",
+    ],
+    main = ":sksl_minify_srcs.py",
+    # We can compile remotely, but because we are running the executable to modify files in
+    # the source tree, running it in a remote, sandboxed would have no effect locally.
+    tags = ["no-remote"],
+)
+
+py_binary(
+    name = "minify_tests",
+    srcs = [":sksl_minify_tests.py"],
+    data = [
+        ":sksl_minify",
+        "//gn:minify_sksl_tests",
+        "//resources/sksl:sksl_minify_tests_sources",
+    ],
+    main = ":sksl_minify_tests.py",
+    tags = ["no-remote"],
+)
+
+skia_cc_binary_with_flags(
+    name = "sksl_minify",
+    srcs = ["SkSLMinify.cpp"],
+    set_flags = {
+        "enable_sksl": ["True"],
+        "enable_skslc": ["True"],
+    },
+    deps = [
+        "//:skia_internal",
+        "//tools:get_executable_path",
+        "//tools/skslc:process_worklist",
+    ],
+)
+
+_SKSL_MINIFY_SRCS = """
+import os
+import subprocess
+import glob
+
+# Change into the Skia root directory
+# https://bazel.build/docs/user-manual#running-executables
+# Note: Bazel eats single quotes, so we must use double quotes.
+os.chdir(os.environ["BUILD_WORKSPACE_DIRECTORY"])
+
+# execpath returns the path to the given label relative to the Skia root.
+# This will be something like:
+#   bazel-out/k8-opt-exec-81C6BA4F/bin/tools/sksl-minify/sksl_minify
+# https://bazel.build/reference/be/make-variables#predefined_label_variables
+# We then find the absolute path because this is easier to debug and more
+# consistent if the script we are calling changes the working directory.
+sksl_minify_exe = os.path.abspath("$(execpath //tools/sksl-minify:sksl_minify)")
+minify_script = os.path.abspath("$(execpath //gn:minify_sksl)")
+
+print(subprocess.check_output([
+    minify_script,
+    sksl_minify_exe,
+    "src/sksl/generated",
+] + glob.glob("src/sksl/*.sksl"), encoding="utf-8"))
+"""
+
+genrule(
+    name = "create_sksl_minify_srcs_script",
+    outs = ["sksl_minify_srcs.py"],
+    cmd = "echo '%s' > $@" % _SKSL_MINIFY_SRCS,
+    # note: exec_tools are not transitive, so anything that depends on sksl_minify_srcs.sh
+    # should also specify these so they are properly built/available.
+    exec_tools = [
+        ":sksl_minify",
+        "//gn:minify_sksl",
+    ],
+)
+
+_SKSL_MINIFY_TESTS = """
+import os
+import subprocess
+import sys
+
+# Change into the Skia root directory
+# https://bazel.build/docs/user-manual#running-executables
+# Note: Bazel eats single quotes, so we must use double quotes.
+os.chdir(os.environ["BUILD_WORKSPACE_DIRECTORY"])
+
+# execpath returns the path to the given label relative to the Skia root.
+# This will be something like:
+#   bazel-out/k8-opt-exec-81C6BA4F/bin/tools/sksl-minify/sksl_minify
+# https://bazel.build/reference/be/make-variables#predefined_label_variables
+# We then find the absolute path because this is easier to debug and more
+# consistent if the script we are calling changes the working directory.
+sksl_minify_exe = os.path.abspath("$(execpath //tools/sksl-minify:sksl_minify)")
+minify_script = os.path.abspath("$(execpath //gn:minify_sksl_tests)")
+test_inputs = os.path.abspath("$(execpath :test_input_list.txt)")
+
+result = subprocess.run([
+    minify_script,
+    sksl_minify_exe,
+    "src/sksl/sksl_shared.sksl",
+    "src/sksl/sksl_public.sksl",
+    "resources",
+    "tests",
+    test_inputs,
+], capture_output=True, encoding="utf-8")
+if result.returncode != 0:
+    print(result.stdout)
+    print(result.stderr)
+    sys.exit(result.returncode)
+"""
+
+genrule(
+    name = "create_sksl_minify_tests_script",
+    outs = ["sksl_minify_tests.py"],
+    cmd = "echo '%s' > $@" % _SKSL_MINIFY_TESTS,
+    exec_tools = [
+        ":sksl_minify",
+        "//gn:minify_sksl_tests",
+        ":test_input_list.txt",
+    ],
+)
+
+genrule(
+    name = "enumerate_test_input_list",
+    srcs = ["//resources/sksl:sksl_minify_tests_sources"],
+    outs = ["test_input_list.txt"],
+    # Put a space seperated list of file names into the one output
+    # This is done because the list could be quite long and overflow
+    # the command line length
+    # https://bazel.build/reference/be/make-variables#predefined_genrule_variables
+    cmd = "echo $(SRCS) > $@",
+)

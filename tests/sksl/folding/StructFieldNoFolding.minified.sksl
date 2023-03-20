@@ -1,0 +1,1 @@
+uniform half4 colorRed;uniform half4 colorGreen;struct S{int a;int b;int c;};int numSideEffects=0;noinline int a(int b){numSideEffects++;return b;}bool b(){int c=2;int d=1;int e=S(--c,a(2),3).a;int f=S(a(1),2,3).b;int g=S(1,d+=1,3).c;return((((e==1&&f==2)&&g==3)&&c==1)&&d==2)&&numSideEffects==2;}half4 main(float2 c){return b()?colorGreen:colorRed;}

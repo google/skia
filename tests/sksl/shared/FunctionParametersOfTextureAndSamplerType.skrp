@@ -1,0 +1,24 @@
+### Compilation failed:
+
+error: 1: invalid type
+layout(set = 0, binding = 1) uniform texture2D aTexture;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 2: invalid type
+layout(set = 0, binding = 2) uniform sampler2D aSampledTexture;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 4: 'in' is not permitted here
+layout(location = 1) in float2 c;
+^^^^^^^^^^^^^^^^^^^^^^^
+error: 4: layout qualifier 'location' is not permitted here
+layout(location = 1) in float2 c;
+^^^^^^^^^^^^^^^^^^^^^^^
+error: 7: unknown identifier 'sample'
+    return sample(s, c);
+           ^^^^^^
+error: 14: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 15: unknown identifier 'sk_FragColor'
+    sk_FragColor = helper(aTexture, aSampledTexture);
+    ^^^^^^^^^^^^
+7 errors

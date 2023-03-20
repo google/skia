@@ -6,13 +6,30 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTDArray.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <algorithm>
+#include <cstring>
+#include <functional>
+#include <iterator>
 
 static sk_sp<SkImage> picture_to_image(sk_sp<SkPicture> pic) {
     SkIRect r = pic->cullRect().round();
@@ -124,9 +141,11 @@ static sk_sp<SkPicture> array_deserial_proc(const void* data, size_t size, void*
     SkPicture* pic;
     memcpy(&pic, data, size);
 
-    int index = c->fArray.find(pic);
-    SkASSERT(index >= 0);
-    c->fArray.removeShuffle(index);
+    auto found = std::find(c->fArray.begin(), c->fArray.end(), pic);
+    SkASSERT(found != c->fArray.end());
+    if (found != c->fArray.end()) {
+        c->fArray.removeShuffle(std::distance(c->fArray.begin(), found));
+    }
 
     return sk_ref_sp(pic);
 }
@@ -140,10 +159,10 @@ static void test_pictures(skiatest::Reporter* reporter, sk_sp<SkPicture> p0, int
 
     SkSerialProcs sprocs = makes(array_serial_proc, &ctx);
     auto d0 = p0->serialize(&sprocs);
-    REPORTER_ASSERT(reporter, ctx.fArray.count() == count);
+    REPORTER_ASSERT(reporter, ctx.fArray.size() == count);
     SkDeserialProcs dprocs = maked(array_deserial_proc, &ctx);
     p0 = SkPicture::MakeFromData(d0.get(), &dprocs);
-    REPORTER_ASSERT(reporter, ctx.fArray.count() == 0);
+    REPORTER_ASSERT(reporter, ctx.fArray.size() == 0);
 }
 
 DEF_TEST(serial_procs_picture, reporter) {

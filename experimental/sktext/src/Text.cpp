@@ -4,6 +4,9 @@
 #include "experimental/sktext/src/VisualRun.h"
 #include <memory>
 #include <stack>
+
+using namespace skia_private;
+
 namespace skia {
 namespace text {
 UnicodeText::UnicodeText(std::unique_ptr<SkUnicode> unicode, SkSpan<uint16_t> utf16)
@@ -95,7 +98,7 @@ bool FontResolvedText::resolveChain(UnicodeText* unicodeText, TextRange textRang
             auto start = newUnresolvedTexts.size();
             unicodeText->forEachGrapheme(unresolvedText, [&](TextRange grapheme) {
                 auto count = typeface->textToGlyphs(unicodeText->getText16().data() + grapheme.fStart, grapheme.width() * 2, SkTextEncoding::kUTF16, nullptr, 0);
-                SkAutoTArray<SkGlyphID> glyphs(count);
+                AutoTArray<SkGlyphID> glyphs(count);
                 typeface->textToGlyphs(unicodeText->getText16().data() + grapheme.fStart, grapheme.width() * 2, SkTextEncoding::kUTF16, glyphs.data(), count);
                 for (auto i = 0; i < count; ++i) {
                     if (glyphs[i] == 0) {
@@ -254,7 +257,7 @@ std::unique_ptr<ShapedText> FontResolvedText::shape(UnicodeText* unicodeText,
             unicodeText->getUnicode(), text8.c_str(), text8.size(), textDirection == TextDirection::kLtr ? 0 : 1));
     std::unique_ptr<SkShaper::ScriptRunIterator> scriptIter(
         SkShaper::MakeSkUnicodeHbScriptRunIterator(text8.c_str(), text8.size()));
-    auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
+    auto shaper = SkShaper::MakeShapeDontWrapOrReorder(unicodeText->getUnicode()->copy());
     if (shaper == nullptr) {
         // For instance, loadICU does not work. We have to stop the process
         return nullptr;

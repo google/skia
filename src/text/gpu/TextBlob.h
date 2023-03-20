@@ -13,8 +13,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/chromium/Slug.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/text/gpu/SubRunContainer.h"
 
 class SkMatrixProvider;
@@ -31,7 +31,7 @@ class GlyphRunList;
     }
 }
 
-#if SK_SUPPORT_GPU  // Ganesh support
+#if defined(SK_GANESH)  // Ganesh support
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 class GrAtlasManager;
@@ -112,14 +112,13 @@ public:
     const Key& key() { return fKey; }
 
     void addKey(const Key& key);
-    bool hasPerspective() const;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 
     const Key& key() const;
     size_t size() const { return SkTo<size_t>(fSize); }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     void draw(SkCanvas*,
               const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -127,7 +126,7 @@ public:
               const SkPaint& paint,
               skgpu::v1::SurfaceDrawContext* sdc);
 #endif
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
     void draw(SkCanvas*,
               SkPoint drawOrigin,
               const SkPaint& paint,

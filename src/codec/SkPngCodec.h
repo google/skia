@@ -10,7 +10,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -89,7 +89,7 @@ protected:
     // These are stored here so they can be used both by normal decoding and scanline decoding.
     sk_sp<SkColorTable>         fColorTable;    // May be unpremul.
     std::unique_ptr<SkSwizzler> fSwizzler;
-    SkAutoTMalloc<uint8_t>      fStorage;
+    skia_private::AutoTMalloc<uint8_t>      fStorage;
     void*                       fColorXformSrcRow;
     const int                   fBitDepth;
 

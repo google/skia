@@ -8,9 +8,14 @@ void ctor_mat_private()      { $mat(0); }
 void ctor_literal_private()  { $floatLiteral(0); }
 
 /*%%*
-type '$bvec' is private
-type '$ivec' is private
-type '$genType' is private
-type '$mat' is private
-type '$floatLiteral' is private
+name '$bvec' is reserved
+type '$bvec' is generic
+name '$ivec' is reserved
+type '$ivec' is generic
+name '$genType' is reserved
+type '$genType' is generic
+name '$mat' is reserved
+type '$mat' is generic
+name '$floatLiteral' is reserved
+type '$floatLiteral' is generic
 *%%*/

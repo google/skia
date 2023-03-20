@@ -52,14 +52,14 @@ public:
                 SkSpan<GrSurfaceProxy*>,
                 SkSurface::BackendSurfaceAccess = SkSurface::BackendSurfaceAccess::kNoAccess,
                 const GrFlushInfo& = {},
-                const GrBackendSurfaceMutableState* newState = nullptr);
+                const skgpu::MutableTextureState* newState = nullptr);
 
     /** Version of above that flushes for a single proxy. Null is allowed. */
     GrSemaphoresSubmitted flushSurface(
                 GrSurfaceProxy* proxy,
                 SkSurface::BackendSurfaceAccess access = SkSurface::BackendSurfaceAccess::kNoAccess,
                 const GrFlushInfo& info = {},
-                const GrBackendSurfaceMutableState* newState = nullptr) {
+                const skgpu::MutableTextureState* newState = nullptr) {
         size_t size = proxy ? 1 : 0;
         return this->flushSurfaces({&proxy, size}, access, info, newState);
     }
@@ -94,9 +94,11 @@ public:
     }
 
     // This accessor should only ever be called by the GrOpFlushState.
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     skgpu::v1::SmallPathAtlasMgr* getSmallPathAtlasMgr() {
         return this->context()->onGetSmallPathAtlasMgr();
     }
+#endif
 
     void createDDLTask(sk_sp<const SkDeferredDisplayList>,
                        sk_sp<GrRenderTargetProxy> newDest,
@@ -110,6 +112,15 @@ public:
 
     GrClientMappedBufferManager* clientMappedBufferManager() {
         return this->context()->fMappedBufferManager.get();
+    }
+
+    void setInsideReleaseProc(bool inside) {
+        if (inside) {
+            this->context()->fInsideReleaseProcCnt++;
+        } else {
+            SkASSERT(this->context()->fInsideReleaseProcCnt > 0);
+            this->context()->fInsideReleaseProcCnt--;
+        }
     }
 
 #if GR_TEST_UTILS

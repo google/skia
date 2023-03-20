@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "gazelle", "skia_cc_library")
+load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 
 licenses(["notice"])
 
@@ -9,13 +10,15 @@ skia_cc_library(
     name = "skia_public",
     srcs = [
         "//include:private_hdrs",
+        "//include:srcs",
         "//src:private_hdrs",
         "//src:srcs",
     ],
     hdrs = ["//include:public_hdrs"],
+    defines = DEFAULT_DEFINES,
+    local_defines = DEFAULT_LOCAL_DEFINES,
     visibility = ["//visibility:public"],
     deps = [
-        "//bazel:defines_from_flags",
         "//src:deps",
     ],
 )
@@ -25,6 +28,7 @@ skia_cc_library(
 skia_cc_library(
     name = "skia_internal",
     srcs = [
+        "//include:srcs",
         "//src:srcs",
     ],
     hdrs = [
@@ -32,6 +36,8 @@ skia_cc_library(
         "//include:public_hdrs",
         "//src:private_hdrs",
     ],
+    defines = DEFAULT_DEFINES,
+    local_defines = DEFAULT_LOCAL_DEFINES,
     visibility = [
         "//dm:__subpackages__",
         "//modules:__subpackages__",
@@ -39,20 +45,45 @@ skia_cc_library(
         "//tools:__subpackages__",
     ],
     deps = [
-        "//bazel:defines_from_flags",
         "//src:deps",
     ],
 )
 
-# gazelle:prefix go.skia.org/skia
-gazelle(name = "gazelle")
-
-###########
-# Mockery #
-###########
+####################################################################
+# Experimental public buffet targets below
 
 alias(
-    name = "mockery",
-    actual = "@com_github_vektra_mockery_v2//:v2",
+    name = "core",
+    actual = "//src:core",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "pathops",
+    actual = "//src:pathops",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "default_malloc",
+    actual = "//src/ports:default_malloc",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "default_logging",
+    actual = "//src/ports:default_logging",
+    visibility = ["//visibility:public"],
+)
+
+# Load bearing comment below - gazelle looks here (and not in any other BUILD.bazel files)
+# for a special comment indicating the prefix.
+# gazelle:prefix go.skia.org/skia
+
+# This is an alias to avoid having to load the golang toolchain code just to
+# create the rules in our primary BUILD.bazel file
+alias(
+    name = "gazelle",
+    actual = "//infra:gazelle",
     visibility = ["//visibility:public"],
 )

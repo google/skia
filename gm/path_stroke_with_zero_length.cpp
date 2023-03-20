@@ -35,19 +35,21 @@
 // Each test is drawn to a 50x20 offscreen surface, and expected to produce some number (0 - 2) of
 // visible pieces of cap geometry. These are counted by scanning horizontally for peaks (blobs).
 
-static bool draw_path_cell(GrDirectContext* dContext, SkCanvas* canvas, SkImage* img,
+static void draw_path_cell(SkCanvas* canvas,
+                           SkSurface* surface,
                            int expectedCaps) {
-    // Draw the image
-    canvas->drawImage(img, 0, 0);
+    static const SkColor kFailureRed = 0x7F7F0000;
+    static const SkColor kFailureYellow = 0x7F7F7F00;
+    static const SkColor kSuccessGreen = 0x7F007f00;
 
-    int w = img->width(), h = img->height();
+    int w = surface->width(), h = surface->height();
 
     // Read the pixels back
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     SkAutoPixmapStorage pmap;
     pmap.alloc(info);
-    if (!img->readPixels(dContext, pmap, 0, 0)) {
-        return false;
+    if (!surface->readPixels(pmap, 0, 0)) {
+        return;
     }
 
     // To account for rasterization differences, we scan the middle two rows [y, y+1] of the image
@@ -67,18 +69,19 @@ static bool draw_path_cell(GrDirectContext* dContext, SkCanvas* canvas, SkImage*
         inBlob = SkToBool(v);
     }
 
-    SkPaint outline;
-    outline.setStyle(SkPaint::kStroke_Style);
+    SkPaint result;
+
     if (numBlobs == expectedCaps) {
-        outline.setColor(0xFF007F00); // Green
+        result.setColor(kSuccessGreen); // Green
     } else if (numBlobs > expectedCaps) {
-        outline.setColor(0xFF7F7F00); // Yellow -- more geometry than expected
+        result.setColor(kFailureYellow); // Yellow -- more geometry than expected
     } else {
-        outline.setColor(0xFF7F0000); // Red -- missing some geometry
+        result.setColor(kFailureRed); // Red -- missing some geometry
     }
 
-    canvas->drawRect(SkRect::MakeWH(w, h), outline);
-    return numBlobs == expectedCaps;
+    auto img = surface->makeImageSnapshot();
+    canvas->drawImage(img, 0, 0);
+    canvas->drawRect(SkRect::MakeWH(w, h), result);
 }
 
 static const SkPaint::Cap kCaps[] = {
@@ -125,20 +128,8 @@ static const int kTotalHeight = kNumRows * (kCellHeight + kCellPad) + kCellPad;
 static const int kDblContourNumColums = std::size(kSomeVerbs) * std::size(kSomeVerbs);
 static const int kDblContourTotalWidth = kDblContourNumColums * (kCellWidth + kCellPad) + kCellPad;
 
-// 50% transparent versions of the colors used for positive/negative triage icons on gold.skia.org
-static const SkColor kFailureRed = 0x7FE7298A;
-static const SkColor kSuccessGreen = 0x7F1B9E77;
-
 static skiagm::DrawResult draw_zero_length_capped_paths(SkCanvas* canvas, bool aa,
                                                         SkString* errorMsg) {
-    auto rContext = canvas->recordingContext();
-    auto dContext = GrAsDirectContext(rContext);
-
-    if (!dContext && rContext) {
-        *errorMsg = "Not supported in DDL mode";
-        return skiagm::DrawResult::kSkip;
-    }
-
     canvas->translate(kCellPad, kCellPad);
 
     SkImageInfo info = canvas->imageInfo().makeWH(kCellWidth, kCellHeight);
@@ -152,7 +143,6 @@ static skiagm::DrawResult draw_zero_length_capped_paths(SkCanvas* canvas, bool a
     paint.setAntiAlias(aa);
     paint.setStyle(SkPaint::kStroke_Style);
 
-    int numFailedTests = 0;
     for (auto cap : kCaps) {
         for (auto width : kWidths) {
             paint.setStrokeCap(cap);
@@ -171,15 +161,12 @@ static skiagm::DrawResult draw_zero_length_capped_paths(SkCanvas* canvas, bool a
 
                 surface->getCanvas()->clear(SK_ColorTRANSPARENT);
                 surface->getCanvas()->drawPath(path, paint);
-                auto img = surface->makeImageSnapshot();
 
                 // All cases should draw one cap, except for butt capped, and dangling moves
                 // (without a verb or close), which shouldn't draw anything.
                 int expectedCaps = ((SkPaint::kButt_Cap == cap) || !verb) ? 0 : 1;
 
-                if (!draw_path_cell(dContext, canvas, img.get(), expectedCaps)) {
-                    ++numFailedTests;
-                }
+                draw_path_cell(canvas, surface.get(), expectedCaps);
                 canvas->translate(kCellWidth + kCellPad, 0);
             }
             canvas->restore();
@@ -187,7 +174,6 @@ static skiagm::DrawResult draw_zero_length_capped_paths(SkCanvas* canvas, bool a
         }
     }
 
-    canvas->drawColor(numFailedTests > 0 ? kFailureRed : kSuccessGreen);
     return skiagm::DrawResult::kOk;
 }
 
@@ -223,7 +209,6 @@ static skiagm::DrawResult draw_zero_length_capped_paths_dbl_contour(SkCanvas* ca
     paint.setAntiAlias(aa);
     paint.setStyle(SkPaint::kStroke_Style);
 
-    int numFailedTests = 0;
     for (auto cap : kCaps) {
         for (auto width : kWidths) {
             paint.setStrokeCap(cap);
@@ -251,15 +236,12 @@ static skiagm::DrawResult draw_zero_length_capped_paths_dbl_contour(SkCanvas* ca
 
                     surface->getCanvas()->clear(SK_ColorTRANSPARENT);
                     surface->getCanvas()->drawPath(path, paint);
-                    auto img = surface->makeImageSnapshot();
 
                     if (SkPaint::kButt_Cap == cap) {
                         expectedCaps = 0;
                     }
 
-                    if (!draw_path_cell(dContext, canvas, img.get(), expectedCaps)) {
-                        ++numFailedTests;
-                    }
+                    draw_path_cell(canvas, surface.get(), expectedCaps);
                     canvas->translate(kCellWidth + kCellPad, 0);
                 }
             }
@@ -268,7 +250,6 @@ static skiagm::DrawResult draw_zero_length_capped_paths_dbl_contour(SkCanvas* ca
         }
     }
 
-    canvas->drawColor(numFailedTests > 0 ? kFailureRed : kSuccessGreen);
     return skiagm::DrawResult::kOk;
 }
 

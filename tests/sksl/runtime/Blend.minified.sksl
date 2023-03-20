@@ -1,0 +1,1 @@
+half4 a(half4 b,half4 c){return b+(1.-b.w)*c;}half4 main(half4 b,half4 c){return a(b,half4(1.)-c);}

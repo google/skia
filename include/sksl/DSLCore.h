@@ -10,11 +10,11 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/DSLCase.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"
-#include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLVar.h"  // IWYU pragma: keep
 #include "include/sksl/SkSLPosition.h"
 
 #include <memory>
@@ -72,12 +72,6 @@ ErrorReporter& GetErrorReporter();
  * Installs an ErrorReporter which will be notified of any errors that occur during DSL calls.
  */
 void SetErrorReporter(ErrorReporter* errorReporter);
-
-DSLGlobalVar sk_FragColor();
-
-DSLGlobalVar sk_FragCoord();
-
-DSLExpression sk_Position();
 
 /**
  * #extension <name> : enable
@@ -149,9 +143,9 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement(),
                 Position pos = {});
 
-DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
-                            SkTArray<DSLField> fields, std::string_view varName = "",
-                            int arraySize = 0, Position pos = {});
+DSLExpression InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
+                             SkTArray<DSLField> fields, std::string_view varName = "",
+                             int arraySize = 0, Position pos = {});
 
 /**
  * return [value];
@@ -164,24 +158,6 @@ DSLStatement Return(DSLExpression value = DSLExpression(),
  */
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position  = {});
-
-DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue,
-                      DSLStatement ifFalse = DSLStatement(),
-                      Position pos = {});
-
-// Internal use only
-DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases, Position pos = {});
-
-/**
- * @switch (value) { cases }
- */
-template<class... Cases>
-DSLStatement StaticSwitch(DSLExpression value, Cases... cases) {
-    SkTArray<DSLCase> caseArray;
-    caseArray.reserve_back(sizeof...(cases));
-    (caseArray.push_back(std::move(cases)), ...);
-    return StaticSwitch(std::move(value), std::move(caseArray), Position{});
-}
 
 // Internal use only
 DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos = {});

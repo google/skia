@@ -15,6 +15,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     half4 expected = half4(0.0h);
-    _out.sk_FragColor = ((((((dfdy(_uniforms.testInputs.x)) == expected.x && all((dfdy(_uniforms.testInputs.xy)) == expected.xy)) && all((dfdy(_uniforms.testInputs.xyz)) == expected.xyz)) && all((dfdy(_uniforms.testInputs)) == expected)) && all(sign((dfdy(coords.xx))) == float2(0.0, 0.0))) && all(sign((dfdy(coords.yy))) == float2(1.0, 1.0))) && all(sign((dfdy(coords))) == float2(0.0, 1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((dfdy(_uniforms.testInputs.x)) == expected.x && all((dfdy(_uniforms.testInputs.xy)) == expected.xy)) && all((dfdy(_uniforms.testInputs.xyz)) == expected.xyz)) && all((dfdy(_uniforms.testInputs)) == expected)) && all(sign((dfdy(coords.xx))) == float2(0.0))) && all(sign((dfdy(coords.yy))) == float2(1.0))) && all(sign((dfdy(coords))) == float2(0.0, 1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

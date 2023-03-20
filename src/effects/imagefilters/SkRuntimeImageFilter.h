@@ -9,10 +9,10 @@
 #define SkRuntimeImageFilter_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
 class SkData;
 class SkImageFilter;
-struct SkRect;
 class SkRuntimeEffect;
 
 SK_API sk_sp<SkImageFilter> SkMakeRuntimeImageFilter(sk_sp<SkRuntimeEffect> effect,

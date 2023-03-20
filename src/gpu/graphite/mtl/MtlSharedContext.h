@@ -17,6 +17,10 @@
 
 #import <Metal/Metal.h>
 
+namespace skgpu {
+class MtlMemoryAllocator;
+}
+
 namespace skgpu::graphite {
 struct ContextOptions;
 
@@ -25,6 +29,8 @@ public:
     static sk_sp<SharedContext> Make(const MtlBackendContext&, const ContextOptions&);
     ~MtlSharedContext() override;
 
+    skgpu::MtlMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
+
     id<MTLDevice> device() const { return fDevice.get(); }
 
     const MtlCaps& mtlCaps() const { return static_cast<const MtlCaps&>(*this->caps()); }
@@ -32,7 +38,12 @@ public:
     std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) override;
 
 private:
-    MtlSharedContext(sk_cfp<id<MTLDevice>>, std::unique_ptr<const MtlCaps>);
+
+    MtlSharedContext(sk_cfp<id<MTLDevice>>,
+                     sk_sp<skgpu::MtlMemoryAllocator> memoryAllocator,
+                     std::unique_ptr<const MtlCaps>);
+
+    sk_sp<skgpu::MtlMemoryAllocator> fMemoryAllocator;
 
     sk_cfp<id<MTLDevice>> fDevice;
 };

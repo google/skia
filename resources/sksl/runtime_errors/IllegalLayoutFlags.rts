@@ -7,6 +7,8 @@ layout(push_constant)            float push_constant;
 layout(location=0)               float location;
 layout(offset=0)                 float offset;
 layout(binding=0)                float binding;
+layout(texture=0)                float texture;
+layout(sampler=0)                float mySampler;
 layout(index=0)                  float index;
 layout(set=0)                    float set;
 layout(input_attachment_index=0) float input_attachment_index;
@@ -24,6 +26,8 @@ layout qualifier 'push_constant' is not permitted here
 layout qualifier 'location' is not permitted here
 layout qualifier 'offset' is not permitted here
 layout qualifier 'binding' is not permitted here
+layout qualifier 'texture' is not permitted here
+layout qualifier 'sampler' is not permitted here
 layout qualifier 'index' is not permitted here
 layout qualifier 'set' is not permitted here
 layout qualifier 'input_attachment_index' is not permitted here

@@ -98,7 +98,7 @@ public:
      * to create the device.
      */
     static sk_sp<Device> Make(GrRecordingContext*,
-                              SkBudgeted,
+                              skgpu::Budgeted,
                               const SkImageInfo&,
                               SkBackingFit,
                               int sampleCount,
@@ -133,7 +133,9 @@ public:
 
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
+#endif
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
                    const SkPaint&) override;
 
@@ -158,6 +160,7 @@ public:
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
+    sk_sp<SkSpecialImage> snapSpecialScaled(const SkIRect& subset, const SkISize& dstDims) override;
 
     bool onAccessPixels(SkPixmap*) override;
 
@@ -246,27 +249,6 @@ private:
     bool forceConservativeRasterClip() const override { return true; }
 
     const GrClip* clip() const { return &fClip; }
-#if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG)
-    void testingOnly_drawGlyphRunListWithSlug(SkCanvas* canvas,
-                                              const sktext::GlyphRunList& glyphRunList,
-                                              const SkPaint& initialPaint,
-                                              const SkPaint& drawingPaint);
-#endif
-
-#if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_SERIALIZE)
-    void testingOnly_drawGlyphRunListWithSerializedSlug(SkCanvas* canvas,
-                                                        const sktext::GlyphRunList& glyphRunList,
-                                                        const SkPaint& initialPaint,
-                                                        const SkPaint& drawingPaint);
-#endif
-
-#if defined(SK_EXPERIMENTAL_SIMULATE_DRAWGLYPHRUNLIST_WITH_SLUG_STRIKE_SERIALIZE)
-    void testingOnly_drawGlyphRunListWithSerializedSlugAndStrike(
-            SkCanvas* canvas,
-            const sktext::GlyphRunList& glyphRunList,
-            const SkPaint& initialPaint,
-            const SkPaint& drawingPaint);
-#endif
 
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.

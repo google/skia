@@ -7,7 +7,7 @@
 
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkGaussFilter.h"
 #include <cmath>
 

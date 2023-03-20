@@ -6,14 +6,34 @@
  */
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/effects/imagefilters/SkRuntimeImageFilter.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+#include <vector>
+
+struct GrContextOptions;
 
 static void test_unscaled(skiatest::Reporter* reporter) {
     static const int kWidth = 10;
@@ -113,7 +133,7 @@ static void test_scaled(skiatest::Reporter* reporter) {
     }
 }
 
-DEF_TEST(PaintImageFilter, reporter) {
+DEF_TEST(ShaderImageFilter, reporter) {
     test_unscaled(reporter);
     test_scaled(reporter);
 }
@@ -129,9 +149,7 @@ static void test_runtime_shader(skiatest::Reporter* r, SkSurface* surface) {
     SkRuntimeShaderBuilder builder(effect);
 
     // create a red image filter to feed as input into the SkImageFilters::RuntimeShader
-    SkPaint redPaint;
-    redPaint.setColor(SK_ColorRED);
-    sk_sp<SkImageFilter> input = SkImageFilters::Paint(redPaint);
+    sk_sp<SkImageFilter> input = SkImageFilters::Shader(SkShaders::Color(SK_ColorRED));
 
     // Create the different variations of SkImageFilters::RuntimeShader
     // All 3 variations should produce the same pixel output
@@ -186,12 +204,12 @@ DEF_TEST(SkRuntimeShaderImageFilter_CPU, r) {
     test_runtime_shader(r, surface.get());
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
-                                   r,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
+                                       r,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
     sk_sp<SkSurface> surface(
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));
+            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     test_runtime_shader(r, surface.get());
 }

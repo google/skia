@@ -292,4 +292,182 @@ DEF_GM( return new RRectGM(RRectGM::kAA_Clip_Type); )
 DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
 DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
 
+// This GM is designed to test a variety of fill and stroked rectangles and round rectangles, with
+// different stroke width and join type scenarios. The geometry parameters are chosen so that
+// Graphite should be able to use its AnalyticRoundRectRenderStep and batch into a single draw.
+DEF_SIMPLE_GM(stroke_rect_rrects, canvas, 1350, 700) {
+    canvas->scale(0.5f, 0.5f);
+    canvas->translate(50.f, 50.f);
+
+    auto draw = [&](int cx, int cy, bool rrect, float width, SkPaint::Join join) {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStrokeWidth(width);
+        p.setStyle(width >= 0.f ? SkPaint::kStroke_Style : SkPaint::kFill_Style);
+        p.setStrokeJoin(join);
+
+        canvas->save();
+        canvas->translate(cx * 110.f, cy * 110.f);
+        float dx = cx % 2 ? 0.5f : 0.f;
+        float dy = cy % 2 ? 0.5f : 0.f;
+        SkRect rect = SkRect::MakeWH(50.f, 40.f);
+        rect.offset(dx, dy);
+
+        if (width < 0.0) {
+            rect.outset(25.f, 25.f); // make it the same size as the largest stroke
+        }
+
+        // Filled rounded rects can have arbitrary corners
+        float cornerScale = std::min(rect.width(), rect.height());
+        SkVector outerRadii[4] = { { 0.25f * cornerScale, 0.75f * cornerScale },
+                                   { 0.f, 0.f},
+                                   { 0.50f * cornerScale, 0.50f * cornerScale },
+                                   { 0.75f * cornerScale, 0.25f * cornerScale } };
+        // Stroked rounded rects will only have circular corners so that they remain compatible with
+        // Graphite's AnalyticRoundRectRenderStep's requirements.
+        SkVector strokeRadii[4] = { { 0.25f * cornerScale, 0.25f * cornerScale },
+                                    { 0.f, 0.f }, // this corner matches join type
+                                    { 0.50f * cornerScale, 0.50f * cornerScale },
+                                    { 0.75f * cornerScale, 0.75f * cornerScale } };
+
+        if (rrect) {
+            SkRRect r;
+            if (width >= 0.0) {
+                r.setRectRadii(rect, strokeRadii);
+            } else {
+                r.setRectRadii(rect, outerRadii);
+            }
+            canvas->drawRRect(r, p);
+        } else {
+            canvas->drawRect(rect, p);
+        }
+        canvas->restore();
+    };
+
+    // The stroke widths are chosen to test when the inner stroke edges have completely crossed
+    // over (50); when the inner corner circles intersect each other (30); a typical "nice"
+    // stroke (10); a skinny stroke (1); and a hairline (0).
+    int i = 0;
+    for (float width : {-1.f, 50.f, 30.f, 10.f, 1.f, 0.f}) {
+        int j = 0;
+        for (SkPaint::Join join : { SkPaint::kMiter_Join,
+                                    SkPaint::kBevel_Join,
+                                    SkPaint::kRound_Join }) {
+            if (width < 0 && join != SkPaint::kMiter_Join) {
+                continue; // Don't repeat fills, since join type is ignored
+            }
+            draw(2*i, 2*j, false, width, join);
+            draw(2*i+1, 2*j, false, width, join);
+            draw(2*i, 2*j+1, false, width, join);
+            draw(2*i+1, 2*j+1, false, width, join);
+            j++;
+        }
+        i++;
+    }
+
+    canvas->translate(0.f, 50.f);
+
+    i = 0;
+    for (float width : {-1.f, 50.f, 30.f, 10.f, 1.f, 0.f}) {
+        int j = 3;
+        for (SkPaint::Join join : { SkPaint::kMiter_Join,
+                                    SkPaint::kBevel_Join,
+                                    SkPaint::kRound_Join }) {
+            if (width < 0 && join != SkPaint::kMiter_Join) {
+                continue;
+            }
+            draw(2*i, 2*j, true, width, join);
+            draw(2*i+1, 2*j, true, width, join);
+            draw(2*i, 2*j+1, true, width, join);
+            draw(2*i+1, 2*j+1, true, width, join);
+            j++;
+        }
+        i++;
+    }
+
+    // Rotated "footballs"
+    auto drawComplex = [&](int cx, int cy, float width, float stretch) {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStrokeWidth(width);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeJoin(SkPaint::kBevel_Join);
+
+        canvas->save();
+        canvas->translate(cx * 110.f, cy * 110.f);
+
+        SkRect rect = SkRect::MakeWH(cx % 2 ? 50.f : (40.f + stretch),
+                                     cx % 2 ? (40.f + stretch) : 50.f);
+        const SkVector kBigCorner{30.f, 30.f};
+        const SkVector kRectCorner{0.f, 0.f};
+
+        SkVector strokeRadii[4] = { cy % 2 ? kRectCorner : kBigCorner,
+                                    cy % 2 ? kBigCorner : kRectCorner,
+                                    cy % 2 ? kRectCorner : kBigCorner,
+                                    cy % 2 ? kBigCorner : kRectCorner };
+
+        SkRRect r;
+        r.setRectRadii(rect, strokeRadii);
+        canvas->drawRRect(r, p);
+
+        canvas->restore();
+    };
+
+    canvas->translate(0.f, -50.f);
+    i = 6;
+    for (float width : {50.f, 30.f, 20.f, 10.f, 1.f, 0.f}) {
+        int j = 0;
+        for (float stretch: {0.f, 5.f, 10.f}) {
+            drawComplex(2*i, 2*j, width, stretch);
+            drawComplex(2*i+1, 2*j, width, stretch);
+            drawComplex(2*i, 2*j+1, width, stretch);
+            drawComplex(2*i+1, 2*j+1, width, stretch);
+            j++;
+        }
+        i++;
+    }
+
+    // Rotated "D"s
+    auto drawComplex2 = [&](int cx, int cy, float width, float stretch) {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStrokeWidth(width);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeJoin(SkPaint::kMiter_Join);
+
+        canvas->save();
+        canvas->translate(cx * 110.f, cy * 110.f);
+
+        SkRect rect = SkRect::MakeWH(cx % 2 ? 50.f : (40.f + stretch),
+                                     cx % 2 ? (40.f + stretch) : 50.f);
+        const SkVector kBigCorner{30.f, 30.f};
+        const SkVector kRectCorner{0.f, 0.f};
+
+        SkVector strokeRadii[4] = { cx % 2 ? kRectCorner : kBigCorner,
+                                    (cx % 2) ^ (cy % 2) ? kBigCorner : kRectCorner,
+                                    cx % 2 ? kBigCorner : kRectCorner,
+                                    (cx % 2) ^ (cy % 2) ? kRectCorner : kBigCorner };
+
+        SkRRect r;
+        r.setRectRadii(rect, strokeRadii);
+        canvas->drawRRect(r, p);
+
+        canvas->restore();
+    };
+
+    canvas->translate(0.f, 50.f);
+    i = 6;
+    for (float width : {50.f, 30.f, 20.f, 10.f, 1.f, 0.f}) {
+        int j = 3;
+        for (float stretch: {0.f, 5.f, 10.f}) {
+            drawComplex2(2*i, 2*j, width, stretch);
+            drawComplex2(2*i+1, 2*j, width, stretch);
+            drawComplex2(2*i, 2*j+1, width, stretch);
+            drawComplex2(2*i+1, 2*j+1, width, stretch);
+            j++;
+        }
+        i++;
+    }
+}
+
 }  // namespace skiagm

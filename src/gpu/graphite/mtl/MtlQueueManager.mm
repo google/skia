@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 
+#include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
@@ -27,7 +28,8 @@ const MtlSharedContext* MtlQueueManager::mtlSharedContext() const {
     return static_cast<const MtlSharedContext*>(fSharedContext);
 }
 
-sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer(ResourceProvider* resourceProvider) {
+std::unique_ptr<CommandBuffer> MtlQueueManager::getNewCommandBuffer(
+        ResourceProvider* resourceProvider) {
     MtlResourceProvider* mtlResourceProvider = static_cast<MtlResourceProvider*>(resourceProvider);
     auto cmdBuffer = MtlCommandBuffer::Make(fQueue.get(),
                                             this->mtlSharedContext(),
@@ -40,17 +42,17 @@ sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer(ResourceProvider* reso
     return std::move(cmdBuffer);
 }
 
-class WorkSubmission final : public GpuWorkSubmission {
+class MtlWorkSubmission final : public GpuWorkSubmission {
 public:
-    WorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
-        : GpuWorkSubmission(std::move(cmdBuffer)) {}
-    ~WorkSubmission() override {}
+    MtlWorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer, QueueManager* queueManager)
+        : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {}
+    ~MtlWorkSubmission() override {}
 
     bool isFinished() override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->isFinished();
     }
-    void waitUntilFinished(const SharedContext* context) override {
-        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished(context);
+    void waitUntilFinished() override {
+        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 };
 
@@ -63,12 +65,12 @@ QueueManager::OutstandingSubmission MtlQueueManager::onSubmitToGpu() {
     }
 
     std::unique_ptr<GpuWorkSubmission> submission(
-            new WorkSubmission(std::move(fCurrentCommandBuffer)));
+            new MtlWorkSubmission(std::move(fCurrentCommandBuffer), this));
     return submission;
 }
 
 #if GRAPHITE_TEST_UTILS
-void MtlQueueManager::testingOnly_startCapture() {
+void MtlQueueManager::startCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         // TODO: add newer Metal interface as well
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
@@ -90,7 +92,7 @@ void MtlQueueManager::testingOnly_startCapture() {
      }
 }
 
-void MtlQueueManager::testingOnly_endCapture() {
+void MtlQueueManager::stopCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {

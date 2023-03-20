@@ -1,0 +1,21 @@
+/*#pragma settings SPIRVDawnCompatMode*/
+layout(wgsl, set=1, texture=2, sampler=3) uniform sampler2D aSampler;
+layout(wgsl, set=1, texture=4, sampler=5) uniform sampler2D anotherSampler;
+
+noinline half4 helpers_helper(sampler2D s) {
+    return sample(s, float2(1));
+}
+
+noinline half4 helper(sampler2D s) {
+    return helpers_helper(s);
+}
+
+noinline half4 helper2(sampler2D s1, sampler2D s2) {
+    return sample(s1, float2(1)) + helper(s2);
+}
+
+void main() {
+    sk_FragColor = sample(aSampler, float2(0)) +
+                   helper(aSampler) +
+                   helper2(aSampler, anotherSampler);
+}

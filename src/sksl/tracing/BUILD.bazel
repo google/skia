@@ -1,27 +1,44 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
-    name = "srcs",
-    srcs = [
-        "SkVMDebugTrace.cpp",
-    ] + select({
+# In own group for exporting to sksl.gni:skia_sksl_tracing_sources.
+skia_filegroup(
+    name = "enabled_srcs",
+    srcs = select({
         "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.cpp"],
         "//src/sksl:enable_sksl_tracing_false": [],
     }),
-    visibility = ["//src/sksl:__pkg__"],
 )
 
-filegroup(
-    name = "private_hdrs",
-    srcs = [
-        "SkVMDebugTrace.h",
-    ] + select({
+# In own group for exporting to sksl.gni:skia_sksl_tracing_sources.
+skia_filegroup(
+    name = "enabled_hdrs",
+    srcs = select({
         "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.h"],
         "//src/sksl:enable_sksl_tracing_false": [],
     }),
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkRPDebugTrace.cpp",
+        "SkVMDebugTrace.cpp",
+        ":enabled_srcs",
+    ],
+    visibility = ["//src/sksl:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "SkRPDebugTrace.h",
+        "SkSLDebugInfo.h",
+        "SkVMDebugTrace.h",
+        ":enabled_hdrs",
+    ],
     visibility = ["//src/sksl:__pkg__"],
 )

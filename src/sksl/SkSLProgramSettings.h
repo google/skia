@@ -16,13 +16,12 @@
 
 namespace SkSL {
 
-class ExternalFunction;
-
 /**
  * Holds the compiler settings for a program.
  */
 struct ProgramSettings {
-    // If true the destination fragment color is read sk_FragColor. It must be declared inout.
+    // If true, the destination fragment color can be read from sk_FragColor. It must be declared
+    // inout. This is only supported in GLSL, when framebuffer-fetch is used.
     bool fFragColorIsInOut = false;
     // if true, all halfs are forced to be floats
     bool fForceHighPrecision = false;
@@ -82,10 +81,9 @@ struct ProgramSettings {
     // If true, VarDeclaration can be cloned for testing purposes. See VarDeclaration::clone for
     // more information.
     bool fAllowVarDeclarationCloneForTesting = false;
-    // External functions available for use in runtime effects. These values are registered in the
-    // symbol table of the Program, but ownership is *not* transferred. It is up to the caller to
-    // keep them alive.
-    const std::vector<std::unique_ptr<ExternalFunction>>* fExternalFunctions = nullptr;
+    // If true, SPIR-V codegen restricted to a subset supported by Dawn.
+    // TODO(skia:13840, skia:14023): Remove this setting when Skia can use WGSL on Dawn.
+    bool fSPIRVDawnCompatMode = false;
 };
 
 /**
@@ -102,7 +100,7 @@ struct ProgramConfig {
     SkSL::Version fRequiredSkSLVersion = SkSL::Version::k100;
 
     bool enforcesSkSLVersion() const {
-        return IsRuntimeEffect(fKind) || fKind == ProgramKind::kGeneric;
+        return IsRuntimeEffect(fKind);
     }
 
     bool strictES2Mode() const {
@@ -141,9 +139,19 @@ struct ProgramConfig {
         return (kind == ProgramKind::kRuntimeColorFilter ||
                 kind == ProgramKind::kRuntimeShader ||
                 kind == ProgramKind::kRuntimeBlender ||
+                kind == ProgramKind::kPrivateRuntimeColorFilter ||
                 kind == ProgramKind::kPrivateRuntimeShader ||
+                kind == ProgramKind::kPrivateRuntimeBlender ||
                 kind == ProgramKind::kMeshVertex ||
                 kind == ProgramKind::kMeshFragment);
+    }
+
+    static bool AllowsPrivateIdentifiers(ProgramKind kind) {
+        return (kind != ProgramKind::kRuntimeColorFilter &&
+                kind != ProgramKind::kRuntimeShader &&
+                kind != ProgramKind::kRuntimeBlender &&
+                kind != ProgramKind::kMeshVertex &&
+                kind != ProgramKind::kMeshFragment);
     }
 };
 

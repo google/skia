@@ -9,23 +9,24 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/SkSLErrorReporter.h"
-#include "src/core/SkSafeMath.h"
+#include "src/base/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -35,11 +36,13 @@
 #include <algorithm>
 #include <cstddef>
 #include <forward_list>
+#include <string_view>
 
 namespace SkSL {
 
 static void append_rtadjust_fixup_to_vertex_main(const Context& context,
-        const FunctionDeclaration& decl, Block& body) {
+                                                 const FunctionDeclaration& decl,
+                                                 Block& body) {
     using namespace SkSL::dsl;
     using SkSL::dsl::Swizzle;  // disambiguate from SkSL::Swizzle
     using OwnerKind = SkSL::FieldAccess::OwnerKind;
@@ -48,24 +51,18 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
     ThreadContext::RTAdjustData& rtAdjust = ThreadContext::RTAdjustState();
     if (rtAdjust.fVar || rtAdjust.fInterfaceBlock) {
         // ...append a line to the end of the function body which fixes up sk_Position.
-        const Variable* skPerVertex = nullptr;
-        if (const ProgramElement* perVertexDecl =
-                context.fBuiltins->find(Compiler::PERVERTEX_NAME)) {
-            SkASSERT(perVertexDecl->is<SkSL::InterfaceBlock>());
-            skPerVertex = &perVertexDecl->as<SkSL::InterfaceBlock>().variable();
-        }
+        const SymbolTable* symbolTable = ThreadContext::SymbolTable().get();
+        const Field& skPositionField = symbolTable->find(Compiler::POSITION_NAME)->as<Field>();
 
-        SkASSERT(skPerVertex);
         auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
             return VariableReference::Make(Position(), var);
         };
         auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
             return FieldAccess::Make(context, Position(), Ref(var), idx,
-                    OwnerKind::kAnonymousInterfaceBlock);
+                                     OwnerKind::kAnonymousInterfaceBlock);
         };
         auto Pos = [&]() -> DSLExpression {
-            return DSLExpression(FieldAccess::Make(context, Position(), Ref(skPerVertex),
-                    /*fieldIndex=*/0, OwnerKind::kAnonymousInterfaceBlock));
+            return DSLExpression(Field(&skPositionField.owner(), skPositionField.fieldIndex()));
         };
         auto Adjust = [&]() -> DSLExpression {
             return DSLExpression(rtAdjust.fInterfaceBlock
@@ -117,20 +114,19 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // (i.e., RelaxedPrecision math doesn't mean your variable takes less space.)
                     // We also don't attempt to reclaim slots at the end of a Block.
                     size_t prevSlotsUsed = fSlotsUsed;
-                    if (stmt.as<VarDeclaration>().var().type().isUnsizedArray()) {
+                    const Variable* var = stmt.as<VarDeclaration>().var();
+                    if (var->type().isOrContainsUnsizedArray()) {
                         fContext.fErrors->error(stmt.fPosition,
                                                 "unsized arrays are not permitted here");
                         break;
                     }
-                    fSlotsUsed = SkSafeMath::Add(
-                            fSlotsUsed, stmt.as<VarDeclaration>().var().type().slotCount());
+                    fSlotsUsed = SkSafeMath::Add(fSlotsUsed, var->type().slotCount());
                     // To avoid overzealous error reporting, only trigger the error at the first
                     // place where the stack limit is exceeded.
                     if (prevSlotsUsed < kVariableSlotLimit && fSlotsUsed >= kVariableSlotLimit) {
-                        fContext.fErrors->error(
-                                stmt.fPosition,
-                                "variable '" + std::string(stmt.as<VarDeclaration>().var().name()) +
-                                "' exceeds the stack size limit");
+                        fContext.fErrors->error(stmt.fPosition,
+                                                "variable '" + std::string(var->name()) +
+                                                "' exceeds the stack size limit");
                     }
                     break;
                 }
@@ -233,8 +229,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                                                 "' can exit without returning a value");
     }
 
-    SkASSERTF(!function.isIntrinsic(), "Intrinsic %s should not have a definition",
-              std::string(function.name()).c_str());
+    SkASSERTF(!function.isIntrinsic(), "Intrinsic function '%.*s' should not have a definition",
+              (int)function.name().size(), function.name().data());
     return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
 }
 

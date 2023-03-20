@@ -5,11 +5,24 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <string>
+#include <vector>
+
+enum class SkPathConvexity;
 
 static void is_empty(skiatest::Reporter* reporter, const SkPath& p) {
     REPORTER_ASSERT(reporter, p.getBounds().isEmpty());
@@ -229,8 +242,6 @@ DEF_TEST(pathbuilder_addRRect, reporter) {
     }
 }
 
-#include "include/utils/SkRandom.h"
-
 DEF_TEST(pathbuilder_make, reporter) {
     constexpr int N = 100;
     uint8_t vbs[N];
@@ -289,26 +300,6 @@ DEF_TEST(pathbuilder_addPolygon, reporter) {
     }
 }
 
-DEF_TEST(pathbuilder_shrinkToFit, reporter) {
-    // SkPathBuilder::snapshot() creates copies of its arrays for perfectly sized paths,
-    // where SkPathBuilder::detach() moves its larger scratch arrays for speed.
-    bool any_smaller = false;
-    for (int pts = 0; pts < 10; pts++) {
-
-        SkPathBuilder b;
-        for (int i = 0; i < pts; i++) {
-            b.lineTo(i,i);
-        }
-        b.close();
-
-        SkPath s = b.snapshot(),
-               d = b.detach();
-        REPORTER_ASSERT(reporter, s.approximateBytesUsed() <= d.approximateBytesUsed());
-        any_smaller |=            s.approximateBytesUsed() <  d.approximateBytesUsed();
-    }
-    REPORTER_ASSERT(reporter, any_smaller);
-}
-
 DEF_TEST(pathbuilder_addPath, reporter) {
     const auto p = SkPath()
         .moveTo(10, 10)
@@ -355,4 +346,73 @@ DEF_TEST(pathbuilder_lastmoveindex, reporter) {
             REPORTER_ASSERT(reporter, b_last == expected);
         }
     }
+}
+
+static void assertIsMoveTo(skiatest::Reporter* reporter, SkPathPriv::RangeIter* iter,
+                           SkScalar x0, SkScalar y0) {
+    auto [v, pts, w] = *(*iter)++;
+    REPORTER_ASSERT(reporter, v == SkPathVerb::kMove, "%d != %d (move)",
+                    (int)v, (int)SkPathVerb::kMove);
+    REPORTER_ASSERT(reporter, pts[0].fX == x0, "X mismatch %f != %f", pts[0].fX, x0);
+    REPORTER_ASSERT(reporter, pts[0].fY == y0, "Y mismatch %f != %f", pts[0].fY, y0);
+}
+
+static void assertIsLineTo(skiatest::Reporter* reporter, SkPathPriv::RangeIter* iter,
+                           SkScalar x1, SkScalar y1) {
+    auto [v, pts, w] = *(*iter)++;
+    REPORTER_ASSERT(reporter, v == SkPathVerb::kLine, "%d != %d (line)",
+                    (int)v, (int)SkPathVerb::kLine);
+    // pts[0] is the moveTo before this line. See pts_backset_for_verb in SkPath::RangeIter
+    REPORTER_ASSERT(reporter, pts[1].fX == x1, "X mismatch %f != %f", pts[1].fX, x1);
+    REPORTER_ASSERT(reporter, pts[1].fY == y1, "Y mismatch %f != %f", pts[1].fY, y1);
+}
+
+static void assertIsDone(skiatest::Reporter* reporter, SkPathPriv::RangeIter* iter, SkPath* p) {
+    REPORTER_ASSERT(reporter, *iter == SkPathPriv::Iterate(*p).end(), "Iterator is not done yet");
+}
+
+DEF_TEST(SkPathBuilder_lineToMoveTo, reporter) {
+    SkPathBuilder pb;
+    pb.moveTo(5, -1);
+    pb.moveTo(20, 3);
+    pb.lineTo(7, 11);
+    pb.lineTo(8, 12);
+    pb.moveTo(2, 3);
+    pb.lineTo(20, 30);
+
+    SkPath result = pb.detach();
+
+    auto iter = SkPathPriv::Iterate(result).begin();
+    assertIsMoveTo(reporter, &iter, 5, -1);
+    assertIsMoveTo(reporter, &iter, 20, 3);
+    assertIsLineTo(reporter, &iter, 7, 11);
+    assertIsLineTo(reporter, &iter, 8, 12);
+    assertIsMoveTo(reporter, &iter, 2, 3);
+    assertIsLineTo(reporter, &iter, 20, 30);
+    assertIsDone(reporter, &iter, &result);
+}
+
+DEF_TEST(SkPathBuilder_arcToPtPtRad_invalidInputsResultInALine, reporter) {
+    auto test = [&](std::string name, SkPoint start, SkPoint end, SkScalar radius,
+                    SkPoint expectedLineTo) {
+        SkPathBuilder pb;
+        // Remember there is an implicit moveTo(0, 0) if arcTo is the first command called.
+        pb.arcTo(start, end, radius);
+        SkPath result = pb.detach();
+
+        reporter->push(name);
+        auto iter = SkPathPriv::Iterate(result).begin();
+        assertIsMoveTo(reporter, &iter, 0, 0);
+        assertIsLineTo(reporter, &iter, expectedLineTo.fX, expectedLineTo.fY);
+        assertIsDone(reporter, &iter, &result);
+        reporter->pop();
+    };
+    // From SkPathBuilder docs:
+    //   Arc is contained by tangent from last SkPath point to p1, and tangent from p1 to p2. Arc
+    //   is part of circle sized to radius, positioned so it touches both tangent lines.
+    // If the values cannot construct an arc, a line to the first point is constructed instead.
+    test("first point equals previous point", {0, 0}, {1, 2}, 1, {0, 0});
+    test("two points equal", {5, 7}, {5, 7}, 1, {5, 7});
+    test("radius is zero", {-3, 5}, {-7, 11}, 0, {-3, 5});
+    test("second point equals previous point", {5, 4}, {0, 0}, 1, {5, 4});
 }

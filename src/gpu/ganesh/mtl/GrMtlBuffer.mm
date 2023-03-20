@@ -74,7 +74,7 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     fMtlBuffer.label = kBufferTypeNames[(int)intendedType];
 #endif
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(skgpu::Budgeted::kYes);
     VALIDATE();
 }
 

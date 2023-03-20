@@ -5,29 +5,56 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPathUtils.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
+#include "include/pathops/SkPathOps.h"
 #include "include/private/SkIDChangeListener.h"
-#include "include/private/SkTo.h"
+#include "include/private/SkPathRef.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkPathEnums.h"
+#include "include/private/base/SkTo.h"
 #include "include/utils/SkNullCanvas.h"
 #include "include/utils/SkParse.h"
 #include "include/utils/SkParsePath.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
 
+#include <algorithm>
+#include <cfloat>
 #include <cmath>
-#include <utility>
+#include <cstdint>
+#include <cstring>
+#include <initializer_list>
+#include <memory>
 #include <vector>
 
 static void set_radii(SkVector radii[4], int index, float rad) {
@@ -455,7 +482,7 @@ static void test_bad_cubic_crbug229478() {
     SkPath dst;
     // Before the fix, this would infinite-recurse, and run out of stack
     // because we would keep trying to subdivide a degenerate cubic segment.
-    paint.getFillPath(path, &dst, nullptr);
+    skpathutils::FillPathWithPaint(path, paint, &dst, nullptr);
 }
 
 static void build_path_170666(SkPath& path) {
@@ -752,7 +779,6 @@ static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
 #endif
 }
 
-#include "include/core/SkSurface.h"
 static void test_fuzz_crbug_627414(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(0, 0);
@@ -1205,7 +1231,7 @@ static void stroke_cubic(const SkPoint pts[4]) {
     paint.setStrokeWidth(SK_Scalar1 * 2);
 
     SkPath fill;
-    paint.getFillPath(path, &fill);
+    skpathutils::FillPathWithPaint(path, paint, &fill);
 }
 
 // just ensure this can run w/o any SkASSERTS firing in the debug build
@@ -2592,7 +2618,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);
     strokePaint.setStrokeWidth(2);
-    strokePaint.getFillPath(src, &dst);
+    skpathutils::FillPathWithPaint(src, strokePaint, &dst);
     REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(dst, nullptr));
 }
 
@@ -3963,7 +3989,6 @@ static void test_arcTo(skiatest::Reporter* reporter) {
     p.arcTo(noOvalHeight, 0, 360, false);
     REPORTER_ASSERT(reporter, p.isEmpty());
 
-#ifndef SK_LEGACY_PATH_ARCTO_ENDPOINT
     // Inspired by http://code.google.com/p/chromium/issues/detail?id=1001768
     {
       p.reset();
@@ -3975,7 +4000,6 @@ static void test_arcTo(skiatest::Reporter* reporter) {
       int n = p.countPoints();
       REPORTER_ASSERT(reporter, p.getPoint(0) == p.getPoint(n - 1));
     }
-#endif
 
     // This test, if improperly handled, can create an infinite loop in angles_to_unit_vectors
     p.reset();
@@ -4247,8 +4271,8 @@ static void test_contains(skiatest::Reporter* reporter) {
 class PathRefTest_Private {
 public:
     static size_t GetFreeSpace(const SkPathRef& ref) {
-        return   (ref.fPoints.reserved() - ref.fPoints.count()) * sizeof(SkPoint)
-               + (ref.fVerbs.reserved()  - ref.fVerbs.count())  * sizeof(uint8_t);
+        return   (ref.fPoints.capacity() - ref.fPoints.size()) * sizeof(SkPoint)
+               + (ref.fVerbs.capacity()  - ref.fVerbs.size())  * sizeof(uint8_t);
     }
 
     static void TestPathRef(skiatest::Reporter* reporter) {
@@ -4818,7 +4842,6 @@ DEF_TEST(PathInterp, reporter) {
     test_interp(reporter);
 }
 
-#include "include/core/SkSurface.h"
 DEF_TEST(PathBigCubic, reporter) {
     SkPath path;
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
@@ -5052,7 +5075,6 @@ static void rand_path(SkPath* path, SkRandom& rand, SkPath::Verb verb, int n) {
     }
 }
 
-#include "include/pathops/SkPathOps.h"
 DEF_TEST(path_tight_bounds, reporter) {
     SkRandom rand;
 
@@ -5409,7 +5431,6 @@ DEF_TEST(Path_self_add, reporter) {
     }
 }
 
-#include "include/core/SkVertices.h"
 static void draw_triangle(SkCanvas* canvas, const SkPoint pts[]) {
     // draw in different ways, looking for an assert
 
@@ -5466,7 +5487,6 @@ static void add_verbs(SkPath* path, int count) {
 // Make sure when we call shrinkToFit() that we always shrink (or stay the same)
 // and that if we call twice, we stay the same.
 DEF_TEST(Path_shrinkToFit, reporter) {
-    size_t max_free = 0;
     for (int verbs = 0; verbs < 100; ++verbs) {
         SkPath unique_path, shared_path;
         add_verbs(&unique_path, verbs);
@@ -5482,9 +5502,6 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         uint32_t cID =        copy.getGenerationID();
         REPORTER_ASSERT(reporter, sID == cID);
 
-#ifdef SK_DEBUG
-        size_t before = PathTest_Private::GetFreeSpace(unique_path);
-#endif
         SkPathPriv::ShrinkToFit(&unique_path);
         SkPathPriv::ShrinkToFit(&shared_path);
         REPORTER_ASSERT(reporter, shared_path == unique_path);
@@ -5500,18 +5517,6 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         // outstanding Iterators active on copy, which could have been invalidated during
         // shrinkToFit.
         REPORTER_ASSERT(reporter, sID != shared_path.getGenerationID());
-
-#ifdef SK_DEBUG
-        size_t after = PathTest_Private::GetFreeSpace(unique_path);
-        REPORTER_ASSERT(reporter, before >= after);
-        max_free = std::max(max_free, before - after);
-
-        size_t after2 = PathTest_Private::GetFreeSpace(unique_path);
-        REPORTER_ASSERT(reporter, after == after2);
-#endif
-    }
-    if ((false)) {
-        SkDebugf("max_free %zu\n", max_free);
     }
 }
 

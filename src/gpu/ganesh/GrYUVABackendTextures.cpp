@@ -45,6 +45,7 @@ GrYUVABackendTextureInfo::GrYUVABackendTextureInfo(const SkYUVAInfo& yuvaInfo,
         if (numActualChannels < numRequiredChannels) {
             *this = {};
             SkASSERT(!this->isValid());
+            return;
         }
         fPlaneFormats[i] = formats[i];
     }

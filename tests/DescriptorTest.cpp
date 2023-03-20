@@ -5,17 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkFontPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "tests/Test.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <optional>
 
 class SkDescriptorTestHelper {
 public:

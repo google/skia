@@ -65,10 +65,10 @@ public:
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
     void addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater*, skgpu::MaskFormat,
-                                      sktext::gpu::Glyph*, skgpu::DrawToken);
+                                      sktext::gpu::Glyph*, skgpu::AtlasToken);
 
     void setUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
-                         skgpu::DrawToken token,
+                         skgpu::AtlasToken token,
                          skgpu::MaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
@@ -102,7 +102,7 @@ public:
         return true;
     }
 
-    void postFlush(skgpu::DrawToken startTokenForNextFlush) override {
+    void postFlush(skgpu::AtlasToken startTokenForNextFlush) override {
         for (int i = 0; i < skgpu::kMaskFormatCount; ++i) {
             if (fAtlases[i]) {
                 fAtlases[i]->compact(startTokenForNextFlush);

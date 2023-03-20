@@ -1,0 +1,10 @@
+    1. store_src_rg                   p = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. store_dst                      $0..3 = dst.rgba
+    4. copy_2_slots_unmasked          $4..5 = p
+    5. swizzle_2                      $4..5 = ($4..5).yx
+    6. load_src_rg                    src.rg = $4..5
+    7. invoke_shader                  invoke_shader 0x00000000
+    8. load_dst                       dst.rgba = $0..3
+    9. store_src                      $0..3 = src.rgba
+   10. load_src                       src.rgba = $0..3

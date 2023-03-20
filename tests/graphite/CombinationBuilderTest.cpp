@@ -7,14 +7,16 @@
 
 #include "tests/Test.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
-#include "include/core/SkCombinationBuilder.h"
+#include "include/core/SkColorSpace.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/core/SkFactoryFunctions.h"
-#include "src/core/SkPrecompile.h"
 #include "src/gpu/graphite/ContextPriv.h"
-#include "tests/graphite/CombinationBuilderTestAccess.h"
+#include "src/gpu/graphite/FactoryFunctions.h"
+#include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/PaintOptionsPriv.h"
+#include "src/gpu/graphite/Precompile.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 
 #include <array>
 
@@ -22,71 +24,97 @@ using namespace::skgpu::graphite;
 
 namespace {
 
-// For an entirely empty combination builder, both solid color shader and kSrcOver options
-// will be added
-void empty_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+// The default PaintOptions should create a single combination with a solid color shader and
+// kSrcOver blending
+void empty_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
+    PaintOptions paintOptions;
 
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
+
+    std::vector<UniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(keyContext,
+                                          /* addPrimitiveBlender= */ false,
+                                          [&](UniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 1);
 }
 
-// It is expected that the builder will supply a default solid color shader if no other shader
-// option is provided
-void no_shader_option_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+// A PaintOptions will supply a default solid color shader if needed.
+void no_shader_option_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
+    SkBlendMode blendModes[] = { SkBlendMode::kSrcOver };
 
-    builder.addOption(SkBlendMode::kSrcOver);
+    PaintOptions paintOptions;
+    paintOptions.setBlendModes(blendModes);
 
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
+
+    std::vector<UniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(keyContext,
+                                          /* addPrimitiveBlender= */ false,
+                                          [&](UniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 1);
 }
 
-// It is expected that the builder will supply a default kSrcOver blend mode if no other
-// options are added
-void no_blend_mode_option_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
+// A default kSrcOver blend mode will be supplied if no other blend options are added
+void no_blend_mode_option_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ PrecompileShaders::Color() });
 
-    builder.addOption(SkShaderType::kSolidColor);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
+    std::vector<UniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(keyContext,
+                                          /* addPrimitiveBlender= */ false,
+                                          [&](UniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 1);
 }
 
-void big_test_new(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-
-    // paintOptions
-    //  |- sweepGrad_0 | blendShader_0
-    //  |                     0: linearGrad_0 | solid_0
-    //  |                     1: linearGrad_1 | blendShader_1
-    //  |                                            0: radGrad_0 | solid_1
-    //  |                                            1: imageShader_0
+void big_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
+    // paintOptions (17)
+    //  |- sweepGrad_0 (2) | blendShader_0 (15)
+    //  |                     0: kSrc (1)
+    //  |                     1: (dsts) linearGrad_0 (2) | solid_0 (1)
+    //  |                     2: (srcs) linearGrad_1 (2) | blendShader_1 (3)
+    //  |                                            0: kDst (1)
+    //  |                                            1: (dsts) radGrad_0 (2) | solid_1 (1)
+    //  |                                            2: (srcs) imageShader_0 (1)
     //  |
-    //  |- 4-built-in-blend-modes
+    //  |- 4-built-in-blend-modes (just 1 since all are PorterDuff)
 
-    SkPaintOptions paintOptions;
+    PaintOptions paintOptions;
 
     // first, shaders. First top-level option (sweepGrad_0)
-    sk_sp<SkPrecompileShader> sweepGrad_0 = SkPrecompileShaders::SweepGradient();
+    sk_sp<PrecompileShader> sweepGrad_0 = PrecompileShaders::SweepGradient();
 
     std::array<SkBlendMode, 1> blendModes{ SkBlendMode::kSrc };
 
     std::vector<SkBlendMode> moreBlendModes{ SkBlendMode::kDst };
 
     // Second top-level option (blendShader_0)
-    auto blendShader_0 = SkPrecompileShaders::Blend(
+    auto blendShader_0 = PrecompileShaders::Blend(
                                 SkSpan<SkBlendMode>(blendModes),                // std::array
                                 {                                               // initializer_list
-                                    SkPrecompileShaders::LinearGradient(),
-                                    SkPrecompileShaders::Color()
+                                    PrecompileShaders::LinearGradient(),
+                                    PrecompileShaders::Color()
                                 },
                                 {
-                                    SkPrecompileShaders::LinearGradient(),
-                                    SkPrecompileShaders::Blend(
+                                    PrecompileShaders::LinearGradient(),
+                                    PrecompileShaders::Blend(
                                             SkSpan<SkBlendMode>(moreBlendModes),// std::vector
                                             {
-                                                SkPrecompileShaders::RadialGradient(),
-                                                 SkPrecompileShaders::Color()
+                                                PrecompileShaders::RadialGradient(),
+                                                PrecompileShaders::Color()
                                             },
                                             {
-                                                  SkPrecompileShaders::Image()
+                                                PrecompileShaders::Image()
                                             })
                                 });
 
@@ -102,7 +130,16 @@ void big_test_new(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
     // now, blend modes
     paintOptions.setBlendModes(evenMoreBlendModes);                             // c array
 
-//    context->precompile({paintOptions});
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 17);
+
+    std::vector<UniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(keyContext,
+                                          /* addPrimitiveBlender= */ false,
+                                          [&](UniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 17);
 }
 
 template <typename T>
@@ -110,7 +147,7 @@ std::vector<sk_sp<T>> create_runtime_combos(
         skiatest::Reporter* reporter,
         SkRuntimeEffect::Result effectFactory(SkString),
         sk_sp<T> precompileFactory(sk_sp<SkRuntimeEffect>,
-                                   SkSpan<const SkPrecompileChildOptions> childOptions),
+                                   SkSpan<const PrecompileChildOptions> childOptions),
         const char* redCode,
         const char* greenCode,
         const char* combineCode) {
@@ -133,21 +170,21 @@ std::vector<sk_sp<T>> create_runtime_combos(
     return { combine };
 }
 
-void runtime_effect_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    // paintOptions
-    //  |- combineShader
+void runtime_effect_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
+    // paintOptions (8)
+    //  |- combineShader (2)
     //  |       0: redShader   | greenShader
     //  |       1: greenShader | redShader
     //  |
-    //  |- combineColorFilter
+    //  |- combineColorFilter (2)
     //  |       0: redColorFilter   | greenColorFilter
     //  |       1: greenColorFilter | redColorFilter
     //  |
-    //  |- combineBlender
+    //  |- combineBlender (2)
     //  |       0: redBlender   | greenBlender
     //  |       1: greenBlender | redBlender
 
-    SkPaintOptions paintOptions;
+    PaintOptions paintOptions;
 
     // shaders
     {
@@ -166,13 +203,13 @@ void runtime_effect_test(SkShaderCodeDictionary* dict, skiatest::Reporter* repor
             }
         )";
 
-        std::vector<sk_sp<SkPrecompileShader>> combinations =
-                create_runtime_combos<SkPrecompileShader>(reporter,
-                                                          SkRuntimeEffect::MakeForShader,
-                                                          MakePrecompileShader,
-                                                          kRedS,
-                                                          kGreenS,
-                                                          kCombineS);
+        std::vector<sk_sp<PrecompileShader>> combinations =
+                create_runtime_combos<PrecompileShader>(reporter,
+                                                        SkRuntimeEffect::MakeForShader,
+                                                        MakePrecompileShader,
+                                                        kRedS,
+                                                        kGreenS,
+                                                        kCombineS);
         paintOptions.setShaders(combinations);
     }
 
@@ -191,13 +228,13 @@ void runtime_effect_test(SkShaderCodeDictionary* dict, skiatest::Reporter* repor
             half4 main(half4 color) { return first.eval(color) + second.eval(color); }
         )";
 
-        std::vector<sk_sp<SkPrecompileColorFilter>> combinations =
-                create_runtime_combos<SkPrecompileColorFilter>(reporter,
-                                                               SkRuntimeEffect::MakeForColorFilter,
-                                                               MakePrecompileColorFilter,
-                                                               kRedCF,
-                                                               kGreenCF,
-                                                               kCombineCF);
+        std::vector<sk_sp<PrecompileColorFilter>> combinations =
+                create_runtime_combos<PrecompileColorFilter>(reporter,
+                                                             SkRuntimeEffect::MakeForColorFilter,
+                                                             MakePrecompileColorFilter,
+                                                             kRedCF,
+                                                             kGreenCF,
+                                                             kCombineCF);
         paintOptions.setColorFilters(combinations);
     }
 
@@ -218,134 +255,43 @@ void runtime_effect_test(SkShaderCodeDictionary* dict, skiatest::Reporter* repor
             }
         )";
 
-        std::vector<sk_sp<SkPrecompileBlender>> combinations =
-                create_runtime_combos<SkPrecompileBlender>(reporter,
-                                                           SkRuntimeEffect::MakeForBlender,
-                                                           MakePrecompileBlender,
-                                                           kRedB,
-                                                           kGreenB,
-                                                           kCombineB);
+        std::vector<sk_sp<PrecompileBlender>> combinations =
+                create_runtime_combos<PrecompileBlender>(reporter,
+                                                         SkRuntimeEffect::MakeForBlender,
+                                                         MakePrecompileBlender,
+                                                         kRedB,
+                                                         kGreenB,
+                                                         kCombineB);
         paintOptions.setBlenders(combinations);
     }
 
-    // context->precompile({paintOptions});
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 8);
+
+    std::vector<UniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(keyContext,
+                                          /* addPrimitiveBlender= */ false,
+                                          [&](UniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 8);
 }
-
-void big_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
-
-    static constexpr int kMinNumStops = 4;
-    static constexpr int kMaxNumStops = 8;
-
-    // The resulting number of combinations are in braces
-    //
-    // builder {428}
-    //  |- {107} sweepGrad_0 {5} | blendShader_0 {102}
-    //  |                            0  {6}: linearGrad_0 {5} | solid_0 {1}
-    //  |                            1 {17}: linearGrad_1 {5} | blendShader_1 {12}
-    //  |                                                         0 {6}: radGrad_0 {5} | solid_1 {1}
-    //  |                                                         1 {2}: imageShader_0 {2}
-    //  |
-    //  |- {4} 4-built-in-blend-modes {4}
-
-    // first, shaders. First top-level option (sweepGrad_0)
-    [[maybe_unused]] auto sweepGrad_0 = builder.addOption(SkShaderType::kSweepGradient,
-                                                          kMinNumStops, kMaxNumStops);
-
-    // Second top-level option (blendShader_0)
-    auto blendShader_0 = builder.addOption(SkShaderType::kBlendShader);
-
-    // first child slot of blendShader_0
-    {
-        // first option (linearGrad_0)
-        [[maybe_unused]] auto linearGrad_0 = blendShader_0.addChildOption(
-                0, SkShaderType::kLinearGradient,
-                kMinNumStops, kMaxNumStops);
-
-        // second option (solid_0)
-        [[maybe_unused]] auto solid_0 = blendShader_0.addChildOption(0,
-                                                                     SkShaderType::kSolidColor);
-    }
-
-    // second child slot of blendShader_0
-    {
-        // first option (linearGrad_1)
-        {
-            [[maybe_unused]] auto linearGrad_1 = blendShader_0.addChildOption(
-                    1, SkShaderType::kLinearGradient,
-                    kMinNumStops, kMaxNumStops);
-        }
-
-        // second option (blendShader_1)
-        {
-            auto blendShader_1 = blendShader_0.addChildOption(1, SkShaderType::kBlendShader);
-
-            // nested: first child slot of blendShader_1
-            {
-                // first option (radialGrad_0)
-                [[maybe_unused]] auto radialGrad_0 = blendShader_1.addChildOption(
-                        0, SkShaderType::kRadialGradient,
-                        kMinNumStops, kMaxNumStops);
-
-                // second option (solid_1)
-                [[maybe_unused]] auto solid_1 = blendShader_1.addChildOption(
-                        0, SkShaderType::kSolidColor);
-            }
-
-            // nested: second child slot of blendShader_1
-            {
-                SkTileModePair tilingOptions[] = {
-                        { SkTileMode::kRepeat, SkTileMode::kRepeat },
-                        { SkTileMode::kClamp,  SkTileMode::kClamp }
-                };
-
-                // only option (imageShader_0)
-                [[maybe_unused]] auto imageShader_0 = blendShader_1.addChildOption(
-                        1, SkShaderType::kImage, tilingOptions);
-            }
-        }
-    }
-
-    // now, blend modes
-    builder.addOption(SkBlendMode::kSrcOver);
-    builder.addOption(SkBlendMode::kSrc);
-    builder.addOption(SkBlendMode::kDstOver);
-    builder.addOption(SkBlendMode::kDst);
-
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 428);
-}
-
-#ifdef SK_DEBUG
-void epoch_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    SkCombinationBuilder builder(dict);
-
-    // Check that epochs are updated upon builder reset
-    {
-        SkCombinationOption solid_0 = builder.addOption(SkShaderType::kSolidColor);
-
-        int optionEpoch = CombinationBuilderTestAccess::Epoch(solid_0);
-        REPORTER_ASSERT(reporter, optionEpoch == CombinationBuilderTestAccess::Epoch(builder));
-
-        builder.reset();
-
-        REPORTER_ASSERT(reporter, optionEpoch != CombinationBuilderTestAccess::Epoch(builder));
-    }
-}
-#endif
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(CombinationBuilderTest, reporter, context) {
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
-    big_test_new(dict, reporter);
-    runtime_effect_test(dict, reporter);
+    auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
 
-    empty_test(dict, reporter);
-    no_shader_option_test(dict, reporter);
-    no_blend_mode_option_test(dict, reporter);
-    big_test(dict, reporter);
-    SkDEBUGCODE(epoch_test(dict, reporter));
+    SkColorInfo ci(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+    KeyContext keyContext(dict, rtEffectDict.get(), ci);
+
+    empty_test(keyContext, reporter);
+    no_shader_option_test(keyContext, reporter);
+    no_blend_mode_option_test(keyContext, reporter);
+    big_test(keyContext, reporter);
+    runtime_effect_test(keyContext, reporter);
 }
 
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE

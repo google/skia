@@ -17,6 +17,7 @@
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
@@ -31,6 +32,8 @@
 
 #include <utility>
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+
 using skgpu::VertexWriter;
 using skgpu::VertexColor;
 
@@ -41,7 +44,7 @@ static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarit
 // Produces TriStrip vertex data for an origin-centered rectangle from [-x, -y] to [x, y]
 static inline VertexWriter::TriStrip<float> origin_centered_tri_strip(float x, float y) {
     return VertexWriter::TriStrip<float>{ -x, -y, x, y };
-};
+}
 
 }  // namespace
 
@@ -220,9 +223,9 @@ private:
                     // is no double counting.
                     fragBuilder->codeAppendf(
                             "half dcap1 = half(circleEdge.z * (%s - length(circleEdge.xy - "
-                            "                                              roundCapCenters.xy)));"
+                                                                          "roundCapCenters.xy)));"
                             "half dcap2 = half(circleEdge.z * (%s - length(circleEdge.xy - "
-                            "                                              roundCapCenters.zw)));"
+                                                                          "roundCapCenters.zw)));"
                             "half capAlpha = (1 - clip) * (max(dcap1, 0) + max(dcap2, 0));"
                             "edgeAlpha = min(edgeAlpha + capAlpha, 1.0);",
                             capRadius.fsIn(), capRadius.fsIn());
@@ -252,7 +255,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
@@ -357,44 +360,44 @@ private:
             // interval. When 2pi is not perfectly divisible dashParams.y this is a boundary case.
             // We compute the dash begin/end angles in the vertex shader and apply them in the
             // fragment shader when we detect we're in the first/last interval.
-            vertBuilder->codeAppend(R"(
+            vertBuilder->codeAppend(
                     // The two boundary dash intervals are stored in wrapDashes.xy and .zw and fed
                     // to the fragment shader as a varying.
-                    float4 wrapDashes;
-                    half lastIntervalLength = mod(6.28318530718, half(dashParams.y));
+                    "float4 wrapDashes;"
+                    "half lastIntervalLength = mod(6.28318530718, half(dashParams.y));"
                     // We can happen to be perfectly divisible.
-                    if (0 == lastIntervalLength) {
-                        lastIntervalLength = half(dashParams.y);
-                    }
+                    "if (0 == lastIntervalLength) {"
+                        "lastIntervalLength = half(dashParams.y);"
+                    "}"
                     // Let 'l' be the last interval before reaching 2 pi.
                     // Based on the phase determine whether (l-1)th, l-th, or (l+1)th interval's
                     // "corresponding" dash appears in the l-th interval and is closest to the 0-th
                     // interval.
-                    half offset = 0;
-                    if (-dashParams.w >= lastIntervalLength) {
-                         offset = half(-dashParams.y);
-                    } else if (dashParams.w > dashParams.y - lastIntervalLength) {
-                         offset = half(dashParams.y);
-                    }
-                    wrapDashes.x = -lastIntervalLength + offset - dashParams.w;
+                    "half offset = 0;"
+                    "if (-dashParams.w >= lastIntervalLength) {"
+                         "offset = half(-dashParams.y);"
+                    "} else if (dashParams.w > dashParams.y - lastIntervalLength) {"
+                         "offset = half(dashParams.y);"
+                    "}"
+                    "wrapDashes.x = -lastIntervalLength + offset - dashParams.w;"
                     // The end of this dash may be beyond the 2 pi and therefore clipped. Hence the
                     // min.
-                    wrapDashes.y = min(wrapDashes.x + dashParams.x, 0);
+                    "wrapDashes.y = min(wrapDashes.x + dashParams.x, 0);"
 
                     // Based on the phase determine whether the -1st, 0th, or 1st interval's
                     // "corresponding" dash appears in the 0th interval and is closest to l.
-                    offset = 0;
-                    if (dashParams.w >= dashParams.x) {
-                        offset = half(dashParams.y);
-                    } else if (-dashParams.w > dashParams.y - dashParams.x) {
-                        offset = half(-dashParams.y);
-                    }
-                    wrapDashes.z = lastIntervalLength + offset - dashParams.w;
-                    wrapDashes.w = wrapDashes.z + dashParams.x;
+                    "offset = 0;"
+                    "if (dashParams.w >= dashParams.x) {"
+                        "offset = half(dashParams.y);"
+                    "} else if (-dashParams.w > dashParams.y - dashParams.x) {"
+                        "offset = half(-dashParams.y);"
+                    "}"
+                    "wrapDashes.z = lastIntervalLength + offset - dashParams.w;"
+                    "wrapDashes.w = wrapDashes.z + dashParams.x;"
                     // The start of the dash we're considering may be clipped by the start of the
                     // circle.
-                    wrapDashes.z = max(wrapDashes.z, lastIntervalLength);
-            )");
+                    "wrapDashes.z = max(wrapDashes.z, lastIntervalLength);"
+            );
             vertBuilder->codeAppendf("%s = half4(wrapDashes);", wrapDashes.vsOut());
             vertBuilder->codeAppendf("%s = lastIntervalLength;", lastIntervalLength.vsOut());
             fragBuilder->codeAppendf("half4 wrapDashes = %s;", wrapDashes.fsIn());
@@ -423,71 +426,71 @@ private:
             };
             SkString fnName = fragBuilder->getMangledFunctionName("coverage_from_dash_edge");
             fragBuilder->emitFunction(SkSLType::kFloat, fnName.c_str(),
-                                      {fnArgs, std::size(fnArgs)}, R"(
-                    float linearDist;
-                    angleToEdge = clamp(angleToEdge, -3.1415, 3.1415);
-                    linearDist = diameter * sin(angleToEdge / 2);
-                    return saturate(linearDist + 0.5);
-            )");
-            fragBuilder->codeAppend(R"(
-                    float d = length(circleEdge.xy) * circleEdge.z;
+                                      {fnArgs, std::size(fnArgs)},
+                    "float linearDist;"
+                    "angleToEdge = clamp(angleToEdge, -3.1415, 3.1415);"
+                    "linearDist = diameter * sin(angleToEdge / 2);"
+                    "return saturate(linearDist + 0.5);"
+            );
+            fragBuilder->codeAppend(
+                    "float d = length(circleEdge.xy) * circleEdge.z;"
 
                     // Compute coverage from outer/inner edges of the stroke.
-                    half distanceToOuterEdge = half(circleEdge.z - d);
-                    half edgeAlpha = saturate(distanceToOuterEdge);
-                    half distanceToInnerEdge = half(d - circleEdge.z * circleEdge.w);
-                    half innerAlpha = saturate(distanceToInnerEdge);
-                    edgeAlpha *= innerAlpha;
+                    "half distanceToOuterEdge = half(circleEdge.z - d);"
+                    "half edgeAlpha = saturate(distanceToOuterEdge);"
+                    "half distanceToInnerEdge = half(d - circleEdge.z * circleEdge.w);"
+                    "half innerAlpha = saturate(distanceToInnerEdge);"
+                    "edgeAlpha *= innerAlpha;"
 
-                    half angleFromStart = half(atan(circleEdge.y, circleEdge.x) - dashParams.z);
-                    angleFromStart = mod(angleFromStart, 6.28318530718);
-                    float x = mod(angleFromStart, dashParams.y);
+                    "half angleFromStart = half(atan(circleEdge.y, circleEdge.x) - dashParams.z);"
+                    "angleFromStart = mod(angleFromStart, 6.28318530718);"
+                    "float x = mod(angleFromStart, dashParams.y);"
                     // Convert the radial distance from center to pixel into a diameter.
-                    d *= 2;
-                    half2 currDash = half2(half(-dashParams.w), half(dashParams.x) -
-                                                                half(dashParams.w));
-                    half2 nextDash = half2(half(dashParams.y) - half(dashParams.w),
-                                           half(dashParams.y) + half(dashParams.x) -
-                                                                half(dashParams.w));
-                    half2 prevDash = half2(half(-dashParams.y) - half(dashParams.w),
-                                           half(-dashParams.y) + half(dashParams.x) -
-                                                                 half(dashParams.w));
-                    half dashAlpha = 0;
-                )");
-            fragBuilder->codeAppendf(R"(
-                    if (angleFromStart - x + dashParams.y >= 6.28318530718) {
-                         dashAlpha += half(%s(x - wrapDashes.z, d) * %s(wrapDashes.w - x, d));
-                         currDash.y = min(currDash.y, lastIntervalLength);
-                         if (nextDash.x >= lastIntervalLength) {
+                    "d *= 2;"
+                    "half2 currDash = half2(half(-dashParams.w), half(dashParams.x) -"
+                                                                "half(dashParams.w));"
+                    "half2 nextDash = half2(half(dashParams.y) - half(dashParams.w),"
+                                           "half(dashParams.y) + half(dashParams.x) -"
+                                                                "half(dashParams.w));"
+                    "half2 prevDash = half2(half(-dashParams.y) - half(dashParams.w),"
+                                           "half(-dashParams.y) + half(dashParams.x) -"
+                                                                 "half(dashParams.w));"
+                    "half dashAlpha = 0;"
+                );
+            fragBuilder->codeAppendf(
+                    "if (angleFromStart - x + dashParams.y >= 6.28318530718) {"
+                         "dashAlpha += half(%s(x - wrapDashes.z, d) * %s(wrapDashes.w - x, d));"
+                         "currDash.y = min(currDash.y, lastIntervalLength);"
+                         "if (nextDash.x >= lastIntervalLength) {"
                              // The next dash is outside the 0..2pi range, throw it away
-                             nextDash.xy = half2(1000);
-                         } else {
+                             "nextDash.xy = half2(1000);"
+                         "} else {"
                              // Clip the end of the next dash to the end of the circle
-                             nextDash.y = min(nextDash.y, lastIntervalLength);
-                         }
-                    }
-            )", fnName.c_str(), fnName.c_str());
-            fragBuilder->codeAppendf(R"(
-                    if (angleFromStart - x - dashParams.y < -0.01) {
-                         dashAlpha += half(%s(x - wrapDashes.x, d) * %s(wrapDashes.y - x, d));
-                         currDash.x = max(currDash.x, 0);
-                         if (prevDash.y <= 0) {
+                             "nextDash.y = min(nextDash.y, lastIntervalLength);"
+                         "}"
+                    "}"
+            , fnName.c_str(), fnName.c_str());
+            fragBuilder->codeAppendf(
+                    "if (angleFromStart - x - dashParams.y < -0.01) {"
+                         "dashAlpha += half(%s(x - wrapDashes.x, d) * %s(wrapDashes.y - x, d));"
+                         "currDash.x = max(currDash.x, 0);"
+                         "if (prevDash.y <= 0) {"
                              // The previous dash is outside the 0..2pi range, throw it away
-                             prevDash.xy = half2(1000);
-                         } else {
+                             "prevDash.xy = half2(1000);"
+                         "} else {"
                              // Clip the start previous dash to the start of the circle
-                             prevDash.x = max(prevDash.x, 0);
-                         }
-                    }
-            )", fnName.c_str(), fnName.c_str());
-            fragBuilder->codeAppendf(R"(
-                    dashAlpha += half(%s(x - currDash.x, d) * %s(currDash.y - x, d));
-                    dashAlpha += half(%s(x - nextDash.x, d) * %s(nextDash.y - x, d));
-                    dashAlpha += half(%s(x - prevDash.x, d) * %s(prevDash.y - x, d));
-                    dashAlpha = min(dashAlpha, 1);
-                    edgeAlpha *= dashAlpha;
-            )", fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(),
-                fnName.c_str());
+                             "prevDash.x = max(prevDash.x, 0);"
+                         "}"
+                    "}"
+            , fnName.c_str(), fnName.c_str());
+            fragBuilder->codeAppendf(
+                    "dashAlpha += half(%s(x - currDash.x, d) * %s(currDash.y - x, d));"
+                    "dashAlpha += half(%s(x - nextDash.x, d) * %s(nextDash.y - x, d));"
+                    "dashAlpha += half(%s(x - prevDash.x, d) * %s(prevDash.y - x, d));"
+                    "dashAlpha = min(dashAlpha, 1);"
+                    "edgeAlpha *= dashAlpha;"
+            , fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(),
+              fnName.c_str());
             fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
@@ -696,7 +699,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
@@ -886,7 +889,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
@@ -1436,7 +1439,7 @@ private:
         fRoundCaps |= that->fRoundCaps;
         fWideColor |= that->fWideColor;
 
-        fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
+        fCircles.push_back_n(that->fCircles.size(), that->fCircles.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
@@ -1446,7 +1449,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fCircles.count(); ++i) {
+        for (int i = 0; i < fCircles.size(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
@@ -1759,7 +1762,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
+        fCircles.push_back_n(that->fCircles.size(), that->fCircles.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fWideColor |= that->fWideColor;
@@ -1769,7 +1772,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fCircles.count(); ++i) {
+        for (int i = 0; i < fCircles.size(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f, OnAngle: %.2f, TotalAngle: %.2f, "
@@ -1987,7 +1990,7 @@ private:
             }
         }
 
-        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
+        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.size());
         VertexWriter verts{helper.vertices()};
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -2058,7 +2061,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
+        fEllipses.push_back_n(that->fEllipses.size(), that->fEllipses.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
@@ -2263,7 +2266,7 @@ private:
             this->createProgramInfo(target);
         }
 
-        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
+        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.size());
         VertexWriter verts{helper.vertices()};
         if (!verts) {
             return;
@@ -2330,7 +2333,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
+        fEllipses.push_back_n(that->fEllipses.size(), that->fEllipses.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
@@ -2797,7 +2800,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
+        fRRects.push_back_n(that->fRRects.size(), that->fRRects.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
@@ -2808,7 +2811,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fRRects.count(); ++i) {
+        for (int i = 0; i < fRRects.size(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
@@ -3014,7 +3017,7 @@ private:
         PatternHelper helper(target, GrPrimitiveType::kTriangles,
                              fProgramInfo->geomProc().vertexStride(),
                              std::move(indexBuffer), kVertsPerStandardRRect, indicesPerInstance,
-                             fRRects.count(), kNumRRectsInIndexBuffer);
+                             fRRects.size(), kNumRRectsInIndexBuffer);
         VertexWriter verts{helper.vertices()};
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -3119,7 +3122,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
+        fRRects.push_back_n(that->fRRects.size(), that->fRRects.begin());
         fWideColor = fWideColor || that->fWideColor;
         return CombineResult::kMerged;
     }
@@ -3524,3 +3527,5 @@ GR_DRAW_OP_TEST_DEFINE(RRectOp) {
 }
 
 #endif
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

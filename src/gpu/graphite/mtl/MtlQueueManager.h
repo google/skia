@@ -20,7 +20,6 @@
 namespace skgpu::graphite {
 
 class MtlSharedContext;
-class SharedContext;
 
 class MtlQueueManager : public QueueManager {
 public:
@@ -30,12 +29,12 @@ public:
 private:
     const MtlSharedContext* mtlSharedContext() const;
 
-    sk_sp<CommandBuffer> getNewCommandBuffer(ResourceProvider*) override;
+    std::unique_ptr<CommandBuffer> getNewCommandBuffer(ResourceProvider*) override;
     OutstandingSubmission onSubmitToGpu() override;
 
 #if GRAPHITE_TEST_UTILS
-    void testingOnly_startCapture() override;
-    void testingOnly_endCapture() override;
+    void startCapture() override;
+    void stopCapture() override;
 #endif
 
     sk_cfp<id<MTLCommandQueue>> fQueue;

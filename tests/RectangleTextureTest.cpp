@@ -6,28 +6,63 @@
  */
 
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
 
+#ifdef SK_GL
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#ifdef SK_GL
-#include "src/gpu/ganesh/gl/GrGLGpu.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
-#endif
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/TestUtils.h"
 #include "tools/gpu/ProxyUtils.h"
+
+#include <cstdint>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+using namespace skia_private;
+
+struct GrContextOptions;
 
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                    GrSurfaceProxyView rectView, GrColorType colorType,
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
     auto sfc = dContext->priv().makeSFC(
-            {colorType, kPremul_SkAlphaType, nullptr, rectView.dimensions()});
+            {colorType, kPremul_SkAlphaType, nullptr, rectView.dimensions()}, /*label=*/{});
     for (auto filter : {GrSamplerState::Filter::kNearest, GrSamplerState::Filter::kLinear}) {
         for (auto mm : {GrSamplerState::MipmapMode::kNone, GrSamplerState::MipmapMode::kLinear}) {
             sfc->clear(SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA));
@@ -49,7 +84,7 @@ static void test_clear(skiatest::Reporter* reporter, GrDirectContext* dContext,
         int w = sfc->width();
         int h = sfc->height();
         int pixelCnt = w * h;
-        SkAutoTMalloc<uint32_t> expectedPixels(pixelCnt);
+        AutoTMalloc<uint32_t> expectedPixels(pixelCnt);
 
         // The clear color is a GrColor, our readback is to kRGBA_8888, which may be different.
         uint32_t expectedColor0 = 0;
@@ -90,7 +125,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
                                  const char* testName) {
 
     int pixelCnt = dstContext->width() * dstContext->height();
-    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    AutoTMalloc<uint32_t> pixels(pixelCnt);
     for (int y = 0; y < dstContext->width(); ++y) {
         for (int x = 0; x < dstContext->height(); ++x) {
             pixels.get()[y * dstContext->width() + x] =
@@ -116,11 +151,10 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
     }
 }
 
-#ifdef SK_GL
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture,
-                                      reporter,
-                                      ctxInfo,
-                                      CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture,
+                                          reporter,
+                                          ctxInfo,
+                                          CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();

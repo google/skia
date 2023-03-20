@@ -1,0 +1,5 @@
+void main() {
+    float3x4 a = float3x4(1);
+    float3x4 b = float3x4(float4x4(1));
+    sk_FragColor.x = (a[0] == b[0]) ? 0 : 1;
+}

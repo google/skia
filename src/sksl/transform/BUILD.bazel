@@ -1,10 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 TRANSFORM_FILES = [
+    "SkSLAddConstToVarModifiers.cpp",
     "SkSLEliminateDeadFunctions.cpp",
     "SkSLEliminateDeadGlobalVariables.cpp",
     "SkSLEliminateDeadLocalVariables.cpp",
@@ -13,6 +14,9 @@ TRANSFORM_FILES = [
     "SkSLFindAndDeclareBuiltinFunctions.cpp",
     "SkSLFindAndDeclareBuiltinVariables.cpp",
     "SkSLProgramWriter.h",
+    "SkSLRenamePrivateSymbols.cpp",
+    "SkSLReplaceConstVarsWithLiterals.cpp",
+    "SkSLRewriteIndexedSwizzle.cpp",
     "SkSLTransform.h",
 ]
 
@@ -21,13 +25,13 @@ split_srcs_and_hdrs(
     files = TRANSFORM_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":transform_srcs"],
     visibility = ["//src/sksl:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":transform_hdrs"],
     visibility = ["//src/sksl:__pkg__"],

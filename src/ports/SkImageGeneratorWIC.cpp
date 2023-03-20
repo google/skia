@@ -7,7 +7,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/ports/SkImageGeneratorWIC.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/utils/win/SkIStream.h"
 #include "src/utils/win/SkTScopedComPtr.h"
 

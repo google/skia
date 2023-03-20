@@ -50,7 +50,7 @@ public:
 
     sk_sp<SkDeferredDisplayList> detach();
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     using PromiseImageTextureContext     = SkImage::PromiseImageTextureContext;
     using PromiseImageTextureFulfillProc = SkImage::PromiseImageTextureFulfillProc;
     using PromiseImageTextureReleaseProc = SkImage::PromiseImageTextureReleaseProc;
@@ -76,7 +76,7 @@ public:
                                           PromiseImageTextureReleaseProc textureReleaseProc,
                                           PromiseImageTextureContext textureContexts[]);
 #endif // SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH)
 
 private:
     SkDeferredDisplayListRecorder(const SkDeferredDisplayListRecorder&) = delete;
@@ -86,7 +86,7 @@ private:
 
     const SkSurfaceCharacterization             fCharacterization;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     sk_sp<GrRecordingContext>                   fContext;
     sk_sp<GrRenderTargetProxy>                  fTargetProxy;
     sk_sp<SkDeferredDisplayList::LazyProxyData> fLazyProxyData;

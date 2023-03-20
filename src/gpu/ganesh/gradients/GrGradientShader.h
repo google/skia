@@ -14,17 +14,19 @@
 #include "src/shaders/gradients/SkLinearGradient.h"
 
 #if GR_TEST_UTILS
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #endif
 
 namespace GrGradientShader {
     std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& shader,
                                                         const GrFPArgs& args,
+                                                        const SkShaderBase::MatrixRec&,
                                                         std::unique_ptr<GrFragmentProcessor> layout,
                                                         const SkMatrix* overrideMatrix = nullptr);
 
     std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
-                                                    const GrFPArgs& args);
+                                                    const GrFPArgs& args,
+                                                    const SkShaderBase::MatrixRec&);
 
 #if GR_TEST_UTILS
     /** Helper struct that stores (and populates) parameters to construct a random gradient.

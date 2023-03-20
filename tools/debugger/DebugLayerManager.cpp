@@ -16,9 +16,11 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
+#include "include/private/base/SkDebug.h"
+#include "src/core/SkTHash.h"
 #include "tools/debugger/DebugCanvas.h"
 
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <utility>

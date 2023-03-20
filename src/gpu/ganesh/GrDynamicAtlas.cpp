@@ -14,9 +14,11 @@
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTexture.h"
 
 using namespace skgpu;
 
@@ -215,5 +217,5 @@ bool GrDynamicAtlas::instantiate(GrOnFlushResourceProvider* onFlushRP,
         // it will just wrap 'fBackingTexture' if it is non-null.
         fBackingTexture = std::move(backingTexture);
     }
-    return onFlushRP->instatiateProxy(fTextureProxy.get());
+    return onFlushRP->instantiateProxy(fTextureProxy.get());
 }

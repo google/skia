@@ -296,7 +296,8 @@ TestDashPathEffect::TestDashPathEffect(const SkScalar* intervals, int count, SkS
 bool TestDashPathEffect::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                       const SkRect* cullRect, const SkMatrix&) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals.get(), fCount,
-                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength,
+                                      fPhase);
 }
 
 SkPathEffect::DashType TestDashPathEffect::onAsADash(DashInfo* info) const {
@@ -343,13 +344,10 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
 }
 
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
-        : fMatrixProvider(TestMatrix(d->fRandom))
-        , fColorInfoStorage(std::make_unique<GrColorInfo>(
-                  GrColorType::kRGBA_8888, kPremul_SkAlphaType, TestColorSpace(d->fRandom)))
-        , fArgs(d->context(),
-                fMatrixProvider,
-                fColorInfoStorage.get(),
-                fSurfaceProps) {}
+        : fColorInfoStorage(std::make_unique<GrColorInfo>(GrColorType::kRGBA_8888,
+                                                          kPremul_SkAlphaType,
+                                                          TestColorSpace(d->fRandom)))
+        , fArgs(d->context(), fColorInfoStorage.get(), fSurfaceProps) {}
 
 TestAsFPArgs::~TestAsFPArgs() {}
 

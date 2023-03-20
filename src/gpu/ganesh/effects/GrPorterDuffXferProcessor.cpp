@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 
 #include "include/gpu/GrTypes.h"
-#include "include/private/SkMacros.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -828,7 +828,7 @@ GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
     return analysis_properties(color, coverage, caps, clampType, fBlendMode);
 }
 
-GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
+GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory)
 
 #if GR_TEST_UTILS
 const GrXPFactory* GrPorterDuffXPFactory::TestGet(GrProcessorTestData* d) {

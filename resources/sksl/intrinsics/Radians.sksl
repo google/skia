@@ -1,14 +1,18 @@
-uniform half4 inputVal, expected;
+uniform float4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    const half4 constVal = half4(0);
-    return (radians(inputVal.x)    == expected.x     &&
-            radians(inputVal.xy)   == expected.xy    &&
-            radians(inputVal.xyz)  == expected.xyz   &&
-            radians(inputVal.xyzw) == expected.xyzw  &&
-            radians(constVal.x)    == expected.x     &&
-            radians(constVal.xy)   == expected.xy    &&
-            radians(constVal.xyz)  == expected.xyz   &&
-            radians(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+    const float4 constVal = half4(-1.25, 0, 0.75, 2.25);
+    const float4 expected = constVal * 0.01745329251;
+    const float4 allowedDelta = float4(0.0005);
+
+    return (   (        (abs(radians(testInputs.x)     - expected.x)   < allowedDelta.x))     &&
+            all(lessThan(abs(radians(testInputs.xy)    - expected.xy),   allowedDelta.xy))    &&
+            all(lessThan(abs(radians(testInputs.xyz)   - expected.xyz),  allowedDelta.xyz))   &&
+            all(lessThan(abs(radians(testInputs.xyzw)  - expected.xyzw), allowedDelta.xyzw))  &&
+               (        (abs(radians(constVal.x)       - expected.x)   < allowedDelta.x))     &&
+            all(lessThan(abs(radians(constVal.xy)      - expected.xy),   allowedDelta.xy))    &&
+            all(lessThan(abs(radians(constVal.xyz)     - expected.xyz),  allowedDelta.xyz))   &&
+            all(lessThan(abs(radians(constVal.xyzw)    - expected.xyzw), allowedDelta.xyzw)))
+                ? colorGreen : colorRed;
 }

@@ -8,10 +8,12 @@
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -29,6 +31,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
 #include "src/gpu/ganesh/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #import <simd/simd.h>
 
@@ -229,7 +232,7 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     this->checkForFinishedCommandBuffers();
 
 #if GR_METAL_CAPTURE_COMMANDBUFFER
-    this->testingOnly_endCapture();
+    this->testingOnly_stopCapture();
 #endif
     return didCommit;
 }
@@ -536,7 +539,7 @@ sk_sp<GrAttachment> GrMtlGpu::makeMSAAAttachment(SkISize dimensions,
 
     MTLPixelFormat pixelFormat = (MTLPixelFormat) format.asMtlFormat();
     SkASSERT(pixelFormat != MTLPixelFormatInvalid);
-    SkASSERT(!GrMtlFormatIsCompressed(pixelFormat));
+    SkASSERT(!skgpu::MtlFormatIsCompressed(pixelFormat));
     SkASSERT(this->mtlCaps().isFormatRenderable(pixelFormat, numSamples));
 
     fStats.incMSAAAttachmentCreates();
@@ -547,7 +550,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
                                            const GrBackendFormat& format,
                                            GrRenderable renderable,
                                            int renderTargetSampleCnt,
-                                           SkBudgeted budgeted,
+                                           skgpu::Budgeted budgeted,
                                            GrProtected isProtected,
                                            int mipLevelCount,
                                            uint32_t levelClearMask,
@@ -579,7 +582,9 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
     }
 
     if (levelClearMask) {
-        this->clearTexture(tex.get(), GrMtlFormatBytesPerBlock(mtlPixelFormat), levelClearMask);
+        this->clearTexture(tex.get(),
+                           skgpu::MtlFormatBytesPerBlock(mtlPixelFormat),
+                           levelClearMask);
     }
 
     return std::move(tex);
@@ -587,7 +592,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
 
 sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                                                      const GrBackendFormat& format,
-                                                     SkBudgeted budgeted,
+                                                     skgpu::Budgeted budgeted,
                                                      GrMipmapped mipmapped,
                                                      GrProtected isProtected,
                                                      const void* data, size_t dataSize) {
@@ -627,13 +632,13 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     SkASSERT(mtlTexture);
 
     auto compressionType = GrBackendFormatToCompressionType(format);
-    SkASSERT(compressionType != SkImage::CompressionType::kNone);
+    SkASSERT(compressionType != SkTextureCompressionType::kNone);
 
     SkTArray<size_t> individualMipOffsets(numMipLevels);
     SkDEBUGCODE(size_t combinedBufferSize =) SkCompressedDataSize(compressionType, dimensions,
                                                                   &individualMipOffsets,
                                                                   mipmapped == GrMipmapped::kYes);
-    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    SkASSERT(individualMipOffsets.size() == numMipLevels);
     SkASSERT(dataSize == combinedBufferSize);
 
     // offset value must be a multiple of the destination texture's pixel size in bytes
@@ -820,20 +825,15 @@ static GrColorType mtl_format_to_backend_tex_clear_colortype(MTLPixelFormat form
     switch(format) {
         case MTLPixelFormatA8Unorm:         return GrColorType::kAlpha_8;
         case MTLPixelFormatR8Unorm:         return GrColorType::kR_8;
-
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatB5G6R5Unorm:     return GrColorType::kBGR_565;
         case MTLPixelFormatABGR4Unorm:      return GrColorType::kABGR_4444;
-#endif
         case MTLPixelFormatRGBA8Unorm:      return GrColorType::kRGBA_8888;
         case MTLPixelFormatRGBA8Unorm_sRGB: return GrColorType::kRGBA_8888_SRGB;
 
         case MTLPixelFormatRG8Unorm:        return GrColorType::kRG_88;
         case MTLPixelFormatBGRA8Unorm:      return GrColorType::kBGRA_8888;
         case MTLPixelFormatRGB10A2Unorm:    return GrColorType::kRGBA_1010102;
-#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBGR10A2Unorm:    return GrColorType::kBGRA_1010102;
-#endif
         case MTLPixelFormatR16Float:        return GrColorType::kR_F16;
         case MTLPixelFormatRGBA16Float:     return GrColorType::kRGBA_F16;
         case MTLPixelFormatR16Unorm:        return GrColorType::kR_16;
@@ -853,7 +853,7 @@ void copy_src_data(char* dst,
                    int numMipLevels,
                    size_t bufferSize) {
     SkASSERT(srcData && numMipLevels);
-    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    SkASSERT(individualMipOffsets.size() == numMipLevels);
 
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].width() * bytesPerPixel;
@@ -938,7 +938,7 @@ bool GrMtlGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
     const MTLPixelFormat mtlFormat = mtlTexture.pixelFormat;
 
     // Create a transfer buffer and fill with data.
-    size_t bytesPerPixel = GrMtlFormatBytesPerBlock(mtlFormat);
+    size_t bytesPerPixel = skgpu::MtlFormatBytesPerBlock(mtlFormat);
     size_t combinedBufferSize;
 
     // Reuse the same buffer for all levels. Should be ok since we made the row bytes tight.
@@ -1041,9 +1041,9 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
     int numMipLevels = mtlTexture.mipmapLevelCount;
     GrMipmapped mipmapped = numMipLevels > 1 ? GrMipmapped::kYes : GrMipmapped::kNo;
 
-    SkImage::CompressionType compression =
+    SkTextureCompressionType compression =
             GrBackendFormatToCompressionType(backendTexture.getBackendFormat());
-    SkASSERT(compression != SkImage::CompressionType::kNone);
+    SkASSERT(compression != SkTextureCompressionType::kNone);
 
     // Create a transfer buffer and fill with data.
     SkSTArray<16, size_t> individualMipOffsets;
@@ -1052,7 +1052,7 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
                                               backendTexture.dimensions(),
                                               &individualMipOffsets,
                                               mipmapped == GrMipmapped::kYes);
-    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    SkASSERT(individualMipOffsets.size() == numMipLevels);
 
     size_t alignment = std::max(SkCompressedBlockSize(compression),
                                 this->mtlCaps().getMinBufferAlignment());
@@ -1247,9 +1247,14 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src,
     cmdBuffer->addGrSurface(sk_ref_sp<const GrSurface>(src));
 }
 
-bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                             const SkIPoint& dstPoint) {
+bool GrMtlGpu::onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                             GrSurface* src, const SkIRect& srcRect,
+                             GrSamplerState::Filter) {
     SkASSERT(!src->isProtected() && !dst->isProtected());
+
+    if (srcRect.size() != dstRect.size()) {
+        return false;
+    }
 
     GrMtlAttachment* dstAttachment;
     GrMtlAttachment* srcAttachment;
@@ -1295,6 +1300,7 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
     int dstSampleCnt = dstAttachment->sampleCount();
     int srcSampleCnt = srcAttachment->sampleCount();
 
+    const SkIPoint dstPoint = dstRect.topLeft();
     if (this->mtlCaps().canCopyAsResolve(dstFormat, dstSampleCnt,
                                          srcFormat, srcSampleCnt,
                                          SkToBool(srcRT), src->dimensions(),
@@ -1770,7 +1776,7 @@ void GrMtlGpu::testingOnly_startCapture() {
      }
 }
 
-void GrMtlGpu::testingOnly_endCapture() {
+void GrMtlGpu::testingOnly_stopCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {

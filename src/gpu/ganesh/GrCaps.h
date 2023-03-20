@@ -9,30 +9,43 @@
 #define GrCaps_DEFINED
 
 #include "include/core/SkCapabilities.h"
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDriverBugWorkarounds.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <tuple>
+#include <vector>
+
 class GrBackendFormat;
 class GrBackendRenderTarget;
-class GrBackendTexture;
-struct GrContextOptions;
 class GrProgramDesc;
 class GrProgramInfo;
+class GrRenderTarget;
 class GrRenderTargetProxy;
 class GrSurface;
 class SkJSONWriter;
+struct GrContextOptions;
+struct SkIRect;
+struct SkISize;
+enum class SkTextureCompressionType;
 
 namespace skgpu {
-class KeyBuilder;
+    class KeyBuilder;
+}
+namespace GrTest {
+    struct TestFormatColorTypeCombination;
 }
 
 /**
@@ -388,8 +401,8 @@ public:
     /**
      * Returns whether or not we will be able to do a copy given the passed in params
      */
-    bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+    bool canCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                        const GrSurfaceProxy* src, const SkIRect& srcRect) const;
 
     bool dynamicStateArrayGeometryProcessorTextureSupport() const {
         return fDynamicStateArrayGeometryProcessorTextureSupport;
@@ -445,7 +458,7 @@ public:
     /** These are used when creating a new texture internally. */
     GrBackendFormat getDefaultBackendFormat(GrColorType, GrRenderable) const;
 
-    virtual GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const = 0;
+    virtual GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const = 0;
 
     /**
      * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
@@ -531,12 +544,7 @@ public:
                                                                            int sampleCount) const;
 
 #if GR_TEST_UTILS
-    struct TestFormatColorTypeCombination {
-        GrColorType fColorType;
-        GrBackendFormat fFormat;
-    };
-
-    virtual std::vector<TestFormatColorTypeCombination> getTestingCombinations() const = 0;
+    virtual std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const = 0;
 #endif
 
 protected:
@@ -635,8 +643,8 @@ private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
-    virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                                  const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
+    virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                                  const GrSurfaceProxy* src, const SkIRect& srcRect) const = 0;
     virtual GrBackendFormat onGetDefaultBackendFormat(GrColorType) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window

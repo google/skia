@@ -20,19 +20,15 @@ namespace SkSL {
  */
 class FunctionReference final : public Expression {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kFunctionReference;
+    inline static constexpr Kind kIRNodeKind = Kind::kFunctionReference;
 
     FunctionReference(const Context& context, Position pos,
                       const FunctionDeclaration* overloadChain)
-        : INHERITED(pos, kExpressionKind, context.fTypes.fInvalid.get())
+        : INHERITED(pos, kIRNodeKind, context.fTypes.fInvalid.get())
         , fOverloadChain(overloadChain) {}
 
     const FunctionDeclaration* overloadChain() const {
         return fOverloadChain;
-    }
-
-    bool hasProperty(Property property) const override {
-        return false;
     }
 
     std::unique_ptr<Expression> clone(Position pos) const override {
@@ -40,13 +36,13 @@ public:
                                                                  &this->type()));
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         return "<function>";
     }
 
 private:
     FunctionReference(Position pos, const FunctionDeclaration* overloadChain, const Type* type)
-            : INHERITED(pos, kExpressionKind, type)
+            : INHERITED(pos, kIRNodeKind, type)
             , fOverloadChain(overloadChain) {}
 
     const FunctionDeclaration* fOverloadChain;

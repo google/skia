@@ -9,6 +9,7 @@
 
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/mtl/MtlBlitCommandEncoder.h"
 #include "src/gpu/graphite/mtl/MtlBuffer.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
@@ -20,14 +21,43 @@
 #include "src/gpu/graphite/mtl/MtlSampler.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
-#include "src/gpu/graphite/mtl/MtlUtils.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 namespace skgpu::graphite {
 
-sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> queue,
-                                               const MtlSharedContext* sharedContext,
-                                               MtlResourceProvider* resourceProvider) {
-    sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
+std::unique_ptr<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> queue,
+                                                         const MtlSharedContext* sharedContext,
+                                                         MtlResourceProvider* resourceProvider) {
+    auto commandBuffer = std::unique_ptr<MtlCommandBuffer>(
+            new MtlCommandBuffer(queue, sharedContext, resourceProvider));
+    if (!commandBuffer) {
+        return nullptr;
+    }
+    if (!commandBuffer->createNewMTLCommandBuffer()) {
+        return nullptr;
+    }
+    return commandBuffer;
+}
+
+MtlCommandBuffer::MtlCommandBuffer(id<MTLCommandQueue> queue,
+                                   const MtlSharedContext* sharedContext,
+                                   MtlResourceProvider* resourceProvider)
+        : fQueue(queue)
+        , fSharedContext(sharedContext)
+        , fResourceProvider(resourceProvider) {}
+
+MtlCommandBuffer::~MtlCommandBuffer() {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+    SkASSERT(!fActiveBlitCommandEncoder);
+}
+
+bool MtlCommandBuffer::setNewCommandBufferResources() {
+    return this->createNewMTLCommandBuffer();
+}
+
+bool MtlCommandBuffer::createNewMTLCommandBuffer() {
+    SkASSERT(fCommandBuffer == nil);
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
         (*desc).retainedReferences = NO;
@@ -35,31 +65,13 @@ sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> queue,
         (*desc).errorOptions = MTLCommandBufferErrorOptionEncoderExecutionStatus;
 #endif
         // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
-        cmdBuffer.reset([[queue commandBufferWithDescriptor:desc.get()] retain]);
+        fCommandBuffer.reset([[fQueue commandBufferWithDescriptor:desc.get()] retain]);
     } else {
         // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
-        cmdBuffer.reset([[queue commandBufferWithUnretainedReferences] retain]);
+        fCommandBuffer.reset([[fQueue commandBufferWithUnretainedReferences] retain]);
     }
-    if (cmdBuffer == nil) {
-        return nullptr;
-    }
-
-#ifdef SK_ENABLE_MTL_DEBUG_INFO
-     (*cmdBuffer).label = @"MtlCommandBuffer::Make";
-#endif
-
-    return sk_sp<MtlCommandBuffer>(
-            new MtlCommandBuffer(std::move(cmdBuffer), sharedContext, resourceProvider));
+    return fCommandBuffer != nil;
 }
-
-MtlCommandBuffer::MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer,
-                                   const MtlSharedContext* sharedContext,
-                                   MtlResourceProvider* resourceProvider)
-        : fCommandBuffer(std::move(cmdBuffer))
-        , fSharedContext(sharedContext)
-        , fResourceProvider(resourceProvider) {}
-
-MtlCommandBuffer::~MtlCommandBuffer() {}
 
 bool MtlCommandBuffer::commit() {
     SkASSERT(!fActiveRenderCommandEncoder);
@@ -82,34 +94,48 @@ bool MtlCommandBuffer::commit() {
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
 }
 
+void MtlCommandBuffer::onResetCommandBuffer() {
+    fCommandBuffer.reset();
+    fActiveRenderCommandEncoder.reset();
+    fActiveComputeCommandEncoder.reset();
+    fActiveBlitCommandEncoder.reset();
+    fCurrentIndexBuffer = nil;
+    fCurrentIndexBufferOffset = 0;
+}
+
 bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                        const Texture* colorTexture,
                                        const Texture* resolveTexture,
                                        const Texture* depthStencilTexture,
-                                       const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+                                       SkRect viewport,
+                                       const DrawPassList& drawPasses) {
     if (!this->beginRenderPass(renderPassDesc, colorTexture, resolveTexture, depthStencilTexture)) {
         return false;
     }
 
-    for (size_t i = 0; i < drawPasses.size(); ++i) {
-        this->addDrawPass(drawPasses[i].get());
+    this->setViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height(), 0, 1);
+
+    for (const auto& drawPass : drawPasses) {
+        this->addDrawPass(drawPass.get());
     }
 
     this->endRenderPass();
     return true;
 }
 
-bool MtlCommandBuffer::onAddComputePass(const ComputePassDesc& computePassDesc,
-                                        const ComputePipeline* pipeline,
-                                        const std::vector<ResourceBinding>& bindings) {
+bool MtlCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
     this->beginComputePass();
-    this->bindComputePipeline(pipeline);
-    for (const ResourceBinding& binding : bindings) {
-        this->bindBuffer(
-                binding.fResource.fBuffer.get(), binding.fResource.fOffset, binding.fIndex);
+    for (const auto& group : groups) {
+        group->addResourceRefs(this);
+        for (const auto& dispatch : group->dispatches()) {
+            this->bindComputePipeline(group->getPipeline(dispatch.fPipelineIndex));
+            for (const ResourceBinding& binding : dispatch.fBindings) {
+                this->bindBuffer(binding.fBuffer.fBuffer, binding.fBuffer.fOffset, binding.fIndex);
+            }
+            this->dispatchThreadgroups(dispatch.fParams.fGlobalDispatchSize,
+                                       dispatch.fParams.fLocalDispatchSize);
+        }
     }
-    this->dispatchThreadgroups(computePassDesc.fGlobalDispatchSize,
-                               computePassDesc.fLocalDispatchSize);
     this->endComputePass();
     return true;
 }
@@ -238,12 +264,35 @@ void MtlCommandBuffer::endRenderPass() {
     SkASSERT(fActiveRenderCommandEncoder);
     fActiveRenderCommandEncoder->endEncoding();
     fActiveRenderCommandEncoder.reset();
+    fDrawIsOffscreen = false;
 }
 
 void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
+    SkIRect replayPassBounds = drawPass->bounds().makeOffset(fReplayTranslation.x(),
+                                                             fReplayTranslation.y());
+    if (!SkIRect::Intersects(replayPassBounds, SkIRect::MakeSize(fRenderPassSize))) {
+        // The entire DrawPass is offscreen given the replay translation so skip adding any
+        // commands. When the DrawPass is partially offscreen individual draw commands will be
+        // culled while preserving state changing commands.
+        return;
+    }
+
     drawPass->addResourceRefs(this);
 
     for (auto[type, cmdPtr] : drawPass->commands()) {
+        // Skip draw commands if they'd be offscreen.
+        if (fDrawIsOffscreen) {
+            switch (type) {
+                case DrawPassCommands::Type::kDraw:
+                case DrawPassCommands::Type::kDrawIndexed:
+                case DrawPassCommands::Type::kDrawInstanced:
+                case DrawPassCommands::Type::kDrawIndexedInstanced:
+                    continue;
+                default:
+                    break;
+            }
+        }
+
         switch (type) {
             case DrawPassCommands::Type::kBindGraphicsPipeline: {
                 auto bgp = static_cast<DrawPassCommands::BindGraphicsPipeline*>(cmdPtr);
@@ -262,7 +311,8 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
             }
             case DrawPassCommands::Type::kBindDrawBuffers: {
                 auto bdb = static_cast<DrawPassCommands::BindDrawBuffers*>(cmdPtr);
-                this->bindDrawBuffers(bdb->fVertices, bdb->fInstances, bdb->fIndices);
+                this->bindDrawBuffers(
+                        bdb->fVertices, bdb->fInstances, bdb->fIndices, bdb->fIndirect);
                 break;
             }
             case DrawPassCommands::Type::kBindTexturesAndSamplers: {
@@ -272,16 +322,6 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                                                 drawPass->getSampler(bts->fSamplerIndices[j]),
                                                 j);
                 }
-                break;
-            }
-            case DrawPassCommands::Type::kSetViewport: {
-                auto sv = static_cast<DrawPassCommands::SetViewport*>(cmdPtr);
-                this->setViewport(sv->fViewport.fLeft,
-                                  sv->fViewport.fTop,
-                                  sv->fViewport.width(),
-                                  sv->fViewport.height(),
-                                  sv->fMinDepth,
-                                  sv->fMaxDepth);
                 break;
             }
             case DrawPassCommands::Type::kSetScissor: {
@@ -320,6 +360,16 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                                            draw->fBaseVertex,
                                            draw->fBaseInstance,
                                            draw->fInstanceCount);
+                break;
+            }
+            case DrawPassCommands::Type::kDrawIndirect: {
+                auto draw = static_cast<DrawPassCommands::DrawIndirect*>(cmdPtr);
+                this->drawIndirect(draw->fType);
+                break;
+            }
+            case DrawPassCommands::Type::kDrawIndexedIndirect: {
+                auto draw = static_cast<DrawPassCommands::DrawIndexedIndirect*>(cmdPtr);
+                this->drawIndexedIndirect(draw->fType);
                 break;
             }
         }
@@ -390,12 +440,14 @@ void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot
 
 void MtlCommandBuffer::bindDrawBuffers(const BindBufferInfo& vertices,
                                        const BindBufferInfo& instances,
-                                       const BindBufferInfo& indices) {
+                                       const BindBufferInfo& indices,
+                                       const BindBufferInfo& indirect) {
     this->bindVertexBuffers(vertices.fBuffer,
                             vertices.fOffset,
                             instances.fBuffer,
                             instances.fOffset);
     this->bindIndexBuffer(indices.fBuffer, indices.fOffset);
+    this->bindIndirectBuffer(indirect.fBuffer, indirect.fOffset);
 }
 
 void MtlCommandBuffer::bindVertexBuffers(const Buffer* vertexBuffer,
@@ -430,6 +482,16 @@ void MtlCommandBuffer::bindIndexBuffer(const Buffer* indexBuffer, size_t offset)
     }
 }
 
+void MtlCommandBuffer::bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset) {
+    if (indirectBuffer) {
+        fCurrentIndirectBuffer = static_cast<const MtlBuffer*>(indirectBuffer)->mtlBuffer();
+        fCurrentIndirectBufferOffset = offset;
+    } else {
+        fCurrentIndirectBuffer = nil;
+        fCurrentIndirectBufferOffset = 0;
+    }
+}
+
 void MtlCommandBuffer::bindTextureAndSampler(const Texture* texture,
                                              const Sampler* sampler,
                                              unsigned int bindIndex) {
@@ -444,14 +506,30 @@ void MtlCommandBuffer::bindTextureAndSampler(const Texture* texture,
 void MtlCommandBuffer::setScissor(unsigned int left, unsigned int top,
                                   unsigned int width, unsigned int height) {
     SkASSERT(fActiveRenderCommandEncoder);
-    MTLScissorRect scissorRect = { left, top, width, height };
-    fActiveRenderCommandEncoder->setScissorRect(scissorRect);
+    SkIRect scissor = SkIRect::MakeXYWH(
+            left + fReplayTranslation.x(), top + fReplayTranslation.y(), width, height);
+    fDrawIsOffscreen = !scissor.intersect(SkIRect::MakeSize(fRenderPassSize));
+    if (fDrawIsOffscreen) {
+        scissor.setEmpty();
+    }
+
+    fActiveRenderCommandEncoder->setScissorRect({
+            static_cast<unsigned int>(scissor.x()),
+            static_cast<unsigned int>(scissor.y()),
+            static_cast<unsigned int>(scissor.width()),
+            static_cast<unsigned int>(scissor.height()),
+    });
 }
 
 void MtlCommandBuffer::setViewport(float x, float y, float width, float height,
                                    float minDepth, float maxDepth) {
     SkASSERT(fActiveRenderCommandEncoder);
-    MTLViewport viewport = { x, y, width, height, minDepth, maxDepth };
+    MTLViewport viewport = {x + fReplayTranslation.x(),
+                            y + fReplayTranslation.y(),
+                            width,
+                            height,
+                            minDepth,
+                            maxDepth};
     fActiveRenderCommandEncoder->setViewport(viewport);
 
     float invTwoW = 2.f / width;
@@ -508,7 +586,6 @@ void MtlCommandBuffer::drawIndexed(PrimitiveType type, unsigned int baseIndex,
                                                            indexOffset, 1, baseVertex, 0);
 
     } else {
-        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting?
         SKGPU_LOG_E("Skipping unsupported draw call.");
     }
 }
@@ -541,8 +618,37 @@ void MtlCommandBuffer::drawIndexedInstanced(PrimitiveType type,
                                                            indexOffset, instanceCount,
                                                            baseVertex, baseInstance);
     } else {
-        // TODO: Do nothing, fatal failure, or just the regular graphite error reporting?
-        SKGPU_LOG_W("Skipping unsupported draw call.");
+        SKGPU_LOG_E("Skipping unsupported draw call.");
+    }
+}
+
+void MtlCommandBuffer::drawIndirect(PrimitiveType type) {
+    SkASSERT(fActiveRenderCommandEncoder);
+    SkASSERT(fCurrentIndirectBuffer);
+
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
+        fActiveRenderCommandEncoder->drawPrimitives(
+                mtlPrimitiveType, fCurrentIndirectBuffer, fCurrentIndirectBufferOffset);
+    } else {
+        SKGPU_LOG_E("Skipping unsupported draw call.");
+    }
+}
+
+void MtlCommandBuffer::drawIndexedIndirect(PrimitiveType type) {
+    SkASSERT(fActiveRenderCommandEncoder);
+    SkASSERT(fCurrentIndirectBuffer);
+
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
+        fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType,
+                                                           MTLIndexTypeUInt32,
+                                                           fCurrentIndexBuffer,
+                                                           fCurrentIndexBufferOffset,
+                                                           fCurrentIndirectBuffer,
+                                                           fCurrentIndirectBufferOffset);
+    } else {
+        SKGPU_LOG_E("Skipping unsupported draw call.");
     }
 }
 
@@ -588,6 +694,32 @@ static bool check_max_blit_width(int widthInPixels) {
     return true;
 }
 
+bool MtlCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
+                                            size_t srcOffset,
+                                            const Buffer* dstBuffer,
+                                            size_t dstOffset,
+                                            size_t size) {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+
+    id<MTLBuffer> mtlSrcBuffer = static_cast<const MtlBuffer*>(srcBuffer)->mtlBuffer();
+    id<MTLBuffer> mtlDstBuffer = static_cast<const MtlBuffer*>(dstBuffer)->mtlBuffer();
+
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->pushDebugGroup(@"copyBufferToBuffer");
+#endif
+    blitCmdEncoder->copyBufferToBuffer(mtlSrcBuffer, srcOffset, mtlDstBuffer, dstOffset, size);
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->popDebugGroup();
+#endif
+    return true;
+}
+
 bool MtlCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
                                              SkIRect srcRect,
                                              const Buffer* buffer,
@@ -609,7 +741,7 @@ bool MtlCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     }
 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
-    blitCmdEncoder->pushDebugGroup(@"readOrTransferPixels");
+    blitCmdEncoder->pushDebugGroup(@"copyTextureToBuffer");
 #endif
     blitCmdEncoder->copyFromTexture(mtlTexture, srcRect, mtlBuffer, bufferOffset, bufferRowBytes);
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
@@ -634,7 +766,7 @@ bool MtlCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     }
 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
-    blitCmdEncoder->pushDebugGroup(@"uploadToTexture");
+    blitCmdEncoder->pushDebugGroup(@"copyBufferToTexture");
 #endif
     for (int i = 0; i < count; ++i) {
         if (!check_max_blit_width(copyData[i].fRect.width())) {
@@ -648,6 +780,33 @@ bool MtlCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
                                        copyData[i].fRect,
                                        copyData[i].fMipLevel);
     }
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->popDebugGroup();
+#endif
+    return true;
+}
+
+bool MtlCommandBuffer::onCopyTextureToTexture(const Texture* src,
+                                              SkIRect srcRect,
+                                              const Texture* dst,
+                                              SkIPoint dstPoint) {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+
+    id<MTLTexture> srcMtlTexture = static_cast<const MtlTexture*>(src)->mtlTexture();
+    id<MTLTexture> dstMtlTexture = static_cast<const MtlTexture*>(dst)->mtlTexture();
+
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->pushDebugGroup(@"copyTextureToTexture");
+#endif
+
+    blitCmdEncoder->copyTextureToTexture(srcMtlTexture, srcRect, dstMtlTexture, dstPoint);
 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     blitCmdEncoder->popDebugGroup();
@@ -687,6 +846,21 @@ bool MtlCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* outD
     *outDidResultInWork = false;
     return true;
 #endif  // SK_BUILD_FOR_MAC
+}
+
+bool MtlCommandBuffer::onClearBuffer(const Buffer* buffer, size_t offset, size_t size) {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+    id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(buffer)->mtlBuffer();
+    blitCmdEncoder->fillBuffer(mtlBuffer, offset, size, 0);
+
+    return true;
 }
 
 #ifdef SK_ENABLE_PIET_GPU

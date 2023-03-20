@@ -9,15 +9,17 @@
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkTSearch.h"
 #include "src/core/SkOSFile.h"
-#include "src/core/SkTSearch.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/skdiff/skdiff.h"
 #include "tools/skdiff/skdiff_html.h"
 #include "tools/skdiff/skdiff_utils.h"
 
 #include <stdlib.h>
+
+using namespace skia_private;
 
 /**
  * skdiff
@@ -33,7 +35,7 @@
  * Returns zero exit code if all images match across baseDir and comparisonDir.
  */
 
-typedef SkTArray<SkString> StringArray;
+typedef TArray<SkString> StringArray;
 typedef StringArray FileArray;
 
 static void add_unique_basename(StringArray* array, const SkString& filename) {
@@ -52,7 +54,7 @@ static void add_unique_basename(StringArray* array, const SkString& filename) {
     SkString result(trimmed, end - trimmed);
 
     // only add unique entries
-    for (int i = 0; i < array->count(); ++i) {
+    for (int i = 0; i < array->size(); ++i) {
         if (array->at(i) == result) {
             return;
         }
@@ -80,7 +82,7 @@ struct DiffSummary {
     void printContents(const FileArray& fileArray,
                        const char* baseStatus, const char* comparisonStatus,
                        bool listFilenames) {
-        int n = fileArray.count();
+        int n = fileArray.size();
         printf("%d file pairs %s in baseDir and %s in comparisonDir",
                 n,            baseStatus,       comparisonStatus);
         if (listFilenames) {
@@ -102,7 +104,7 @@ struct DiffSummary {
             for (int comparison = 0; comparison < DiffResource::kStatusCount; ++comparison) {
                 Status comparisonStatus = static_cast<Status>(comparison);
                 const FileArray& fileArray = fStatusOfType[base][comparison];
-                if (fileArray.count() > 0) {
+                if (fileArray.size() > 0) {
                     if (failOnStatusType[base][comparison]) {
                         printf("   [*] ");
                     } else {
@@ -119,7 +121,7 @@ struct DiffSummary {
 
     // Print a line about the contents of this FileArray to stdout.
     void printContents(const FileArray& fileArray, const char* headerText, bool listFilenames) {
-        int n = fileArray.count();
+        int n = fileArray.size();
         printf("%d file pairs %s", n, headerText);
         if (listFilenames) {
             printf(": ");
@@ -158,9 +160,9 @@ struct DiffSummary {
     void printfFailingBaseNames(const char separator[]) {
         for (int resultInt = 0; resultInt < DiffRecord::kResultCount; ++resultInt) {
             const StringArray& array = fFailedBaseNames[resultInt];
-            if (array.count()) {
-                printf("%s [%d]%s", DiffRecord::ResultNames[resultInt], array.count(), separator);
-                for (int j = 0; j < array.count(); ++j) {
+            if (array.size()) {
+                printf("%s [%d]%s", DiffRecord::ResultNames[resultInt], array.size(), separator);
+                for (int j = 0; j < array.size(); ++j) {
                     printf("%s%s", array[j].c_str(), separator);
                 }
                 printf("\n");
@@ -229,7 +231,7 @@ struct DiffSummary {
 /// Returns true if string contains any of these substrings.
 static bool string_contains_any_of(const SkString& string,
                                    const StringArray& substrings) {
-    for (int i = 0; i < substrings.count(); i++) {
+    for (int i = 0; i < substrings.size(); i++) {
         if (string.contains(substrings[i].c_str())) {
             return true;
         }
@@ -382,11 +384,11 @@ static void create_diff_images (DiffMetricProc dmp,
                   &comparisonFiles);
 
     if (!baseFiles.empty()) {
-        qsort(baseFiles.begin(), baseFiles.count(), sizeof(SkString),
+        qsort(baseFiles.begin(), baseFiles.size(), sizeof(SkString),
               SkCastForQSort(compare_file_name_metrics));
     }
     if (!comparisonFiles.empty()) {
-        qsort(comparisonFiles.begin(), comparisonFiles.count(), sizeof(SkString),
+        qsort(comparisonFiles.begin(), comparisonFiles.size(), sizeof(SkString),
               SkCastForQSort(compare_file_name_metrics));
     }
 
@@ -397,8 +399,8 @@ static void create_diff_images (DiffMetricProc dmp,
     int i = 0;
     int j = 0;
 
-    while (i < baseFiles.count() &&
-           j < comparisonFiles.count()) {
+    while (i < baseFiles.size() &&
+           j < comparisonFiles.size()) {
 
         SkString basePath(baseDir);
         SkString comparisonPath(comparisonDir);
@@ -505,7 +507,7 @@ static void create_diff_images (DiffMetricProc dmp,
         differences->push_back(std::move(drp));
     }
 
-    for (; i < baseFiles.count(); ++i) {
+    for (; i < baseFiles.size(); ++i) {
         // files only in baseDir
         DiffRecord drp;
         drp.fBase.fFilename = baseFiles[i];
@@ -526,7 +528,7 @@ static void create_diff_images (DiffMetricProc dmp,
         differences->push_back(std::move(drp));
     }
 
-    for (; j < comparisonFiles.count(); ++j) {
+    for (; j < comparisonFiles.size(); ++j) {
         // files only in comparisonDir
         DiffRecord drp;
         drp.fBase.fFilename = comparisonFiles[j];
@@ -803,8 +805,8 @@ int main(int argc, char** argv) {
         summary.printfFailingBaseNames("\n");
     }
 
-    if (differences.count()) {
-        qsort(differences.begin(), differences.count(), sizeof(DiffRecord), sortProc);
+    if (differences.size()) {
+        qsort(differences.begin(), differences.size(), sizeof(DiffRecord), sortProc);
     }
 
     if (generateDiffs) {
@@ -815,14 +817,14 @@ int main(int argc, char** argv) {
     int num_failing_results = 0;
     for (int i = 0; i < DiffRecord::kResultCount; i++) {
         if (failOnResultType[i]) {
-            num_failing_results += summary.fResultsOfType[i].count();
+            num_failing_results += summary.fResultsOfType[i].size();
         }
     }
     if (!failOnResultType[DiffRecord::kCouldNotCompare_Result]) {
         for (int base = 0; base < DiffResource::kStatusCount; ++base) {
             for (int comparison = 0; comparison < DiffResource::kStatusCount; ++comparison) {
                 if (failOnStatusType[base][comparison]) {
-                    num_failing_results += summary.fStatusOfType[base][comparison].count();
+                    num_failing_results += summary.fStatusOfType[base][comparison].size();
                 }
             }
         }

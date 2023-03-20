@@ -7,10 +7,10 @@
 
 #include "src/sfnt/SkOTTable_name.h"
 
+#include "src/base/SkTSearch.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkStringUtils.h"
-#include "src/core/SkTSearch.h"
-#include "src/utils/SkUTF.h"
 
 static SkUnichar next_unichar_UTF16BE(const uint8_t** srcPtr, size_t* length) {
     SkASSERT(srcPtr && *srcPtr && length);

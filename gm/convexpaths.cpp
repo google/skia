@@ -17,15 +17,19 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkRandom.h"
+
+using namespace skia_private;
 
 namespace {
 
-class SkDoOnce : SkNoncopyable {
+class SkDoOnce {
 public:
     SkDoOnce() { fDidOnce = false; }
+    // Make noncopyable
+    SkDoOnce(SkDoOnce&) = delete;
+    SkDoOnce& operator=(SkDoOnce&) = delete;
 
     bool needToDo() const { return !fDidOnce; }
     bool alreadyDone() const { return fDidOnce; }
@@ -239,7 +243,7 @@ class ConvexPathsGM : public skiagm::GM {
         // As we've added more paths this has gotten pretty big. Scale the whole thing down.
         canvas->scale(2.0f/3, 2.0f/3);
 
-        for (int i = 0; i < fPaths.count(); ++i) {
+        for (int i = 0; i < fPaths.size(); ++i) {
             canvas->save();
             // position the path, and make it at off-integer coords.
             canvas->translate(200.0f * (i % 5) + 1.0f/10,
@@ -256,7 +260,7 @@ class ConvexPathsGM : public skiagm::GM {
         }
     }
 
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
 };
 }  // namespace
 

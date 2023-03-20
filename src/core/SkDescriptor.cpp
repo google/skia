@@ -8,7 +8,7 @@
 #include "src/core/SkDescriptor.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkReadBuffer.h"

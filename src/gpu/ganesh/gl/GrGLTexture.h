@@ -28,7 +28,7 @@ public:
 
     static GrTextureType TextureTypeFromTarget(GrGLenum textureTarget);
 
-    GrGLTexture(GrGLGpu*, SkBudgeted, const Desc&, GrMipmapStatus, std::string_view label);
+    GrGLTexture(GrGLGpu*, skgpu::Budgeted, const Desc&, GrMipmapStatus, std::string_view label);
 
     ~GrGLTexture() override {}
 

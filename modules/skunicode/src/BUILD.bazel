@@ -1,28 +1,51 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+# In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_builtin_icu_sources.
+skia_filegroup(
+    name = "builtin_srcs",
+    srcs = ["SkUnicode_icu_builtin.cpp"],
+)
+
+# In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_runtime_icu_sources.
+skia_filegroup(
+    name = "runtime_srcs",
+    srcs = ["SkUnicode_icu_runtime.cpp"],
+)
+
+# In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_common_icu_sources.
+skia_filegroup(
     name = "srcs",
     srcs = [
         "SkUnicode.cpp",
-        "SkUnicode_client.cpp",
-        "SkUnicode_icu.cpp",
-        "SkUnicode_icu.h",
-        "SkUnicode_icu_builtin.cpp",
-        # TODO(kjlubick, bungeman): add support for SkUnicdoe_icu_runtime.cpp
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
 
+ICU_BIDI_SRCS = [
+    "SkUnicode_icu_bidi.cpp",
+    "SkUnicode_icu_bidi.h",
+]
 
-filegroup(
-    name = "no_icu",
+skia_filegroup(
+    name = "icu_srcs",
     srcs = [
-        "SkUnicode.cpp",
+        "SkUnicode_icu.cpp",
+        "SkUnicode_icu.h",
+        ":builtin_srcs",
+        # TODO(kjlubick, bungeman): add support for SkUnicode_icu_runtime.cpp
+    ] + ICU_BIDI_SRCS,
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+skia_filegroup(
+    name = "client_srcs",
+    srcs = [
         "SkUnicode_client.cpp",
-    ],
+        "SkUnicode_client.h",
+    ] + ICU_BIDI_SRCS,
     visibility = ["//modules/skunicode:__pkg__"],
 )

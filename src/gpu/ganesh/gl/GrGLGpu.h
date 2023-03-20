@@ -9,7 +9,7 @@
 #define GrGLGpu_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -28,6 +28,7 @@
 class GrGLBuffer;
 class GrGLOpsRenderPass;
 class GrPipeline;
+enum class SkTextureCompressionType;
 
 namespace skgpu {
 class Swizzle;
@@ -122,8 +123,8 @@ public:
     // equal to the proxy bounds. This is because the render pass will have to do a full size
     // resolve back into the single sample FBO when rendering is complete.
     void drawSingleIntoMSAAFBO(GrGLRenderTarget* rt, const SkIRect& drawBounds) {
-        this->copySurfaceAsDraw(rt, true/*drawToMultisampleFBO*/, rt, drawBounds,
-                                drawBounds.topLeft());
+        this->copySurfaceAsDraw(rt, true/*drawToMultisampleFBO*/, rt, drawBounds, drawBounds,
+                                GrSamplerState::Filter::kNearest);
     }
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
@@ -217,6 +218,10 @@ public:
     // Version for programs that aren't GrGLProgram.
     void flushProgram(GrGLuint);
 
+    // GrGLOpsRenderPass directly makes GL draws. GrGLGpu uses this notification to mark the
+    // destination surface dirty if color writes are enabled.
+    void didDrawTo(GrRenderTarget*);
+
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrDirectContext*);
 
@@ -252,17 +257,18 @@ private:
                                      const GrBackendFormat&,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
-                                     SkBudgeted,
+                                     skgpu::Budgeted,
                                      GrProtected,
                                      int mipLevelCount,
                                      uint32_t levelClearMask,
                                      std::string_view label) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
-                                               SkBudgeted,
+                                               skgpu::Budgeted,
                                                GrMipmapped,
                                                GrProtected,
-                                               const void* data, size_t dataSize) override;
+                                               const void* data,
+                                               size_t dataSize) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType, GrAccessPattern) override;
 
@@ -308,7 +314,7 @@ private:
                            std::string_view label);
 
     GrGLuint createCompressedTexture2D(SkISize dimensions,
-                                       SkImage::CompressionType compression,
+                                       SkTextureCompressionType compression,
                                        GrGLFormat,
                                        GrMipmapped,
                                        GrGLTextureParameters::SamplerOverriddenState*);
@@ -367,8 +373,9 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
+    bool onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                       GrSurface* src, const SkIRect& srcRect,
+                       GrSamplerState::Filter) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -393,11 +400,11 @@ private:
     bool waitSync(GrGLsync, uint64_t timeout, bool flush);
 
     bool copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSurface* src,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint);
+                           const SkIRect& srcRect, const SkIRect& dstRect, GrSamplerState::Filter);
     void copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                      const SkIPoint& dstPoint);
+                                      const SkIRect& dstRect, GrSamplerState::Filter);
 
     class ProgramCache : public GrThreadSafePipelineBuilder {
     public:
@@ -455,14 +462,7 @@ private:
     // and the binding for 'target' will change.
     void bindTextureToScratchUnit(GrGLenum target, GrGLint textureID);
 
-    // The passed bounds contains the render target's color values that will subsequently be
-    // written.
-    void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO, GrSurfaceOrigin,
-                           const SkIRect& bounds);
-    // This version has an implicit bounds of the entire render target.
     void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO);
-    // This version can be used when the render target's colors will not be written.
-    void flushRenderTargetNoColorWrites(GrGLRenderTarget*, bool useMultisampleFBO);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();
@@ -510,7 +510,7 @@ private:
 
     // Helper for onCreateCompressedTexture. Compressed textures are read-only so we only use this
     // to populate a new texture. Returns false if we failed to create and upload the texture.
-    bool uploadCompressedTexData(SkImage::CompressionType compressionType,
+    bool uploadCompressedTexData(SkTextureCompressionType compressionType,
                                  GrGLFormat,
                                  SkISize dimensions,
                                  GrMipmapped,
@@ -758,7 +758,7 @@ private:
         };
         TargetBinding fTargetBindings[3];
     };
-    SkAutoTArray<TextureUnitBindings> fHWTextureUnitBindings;
+    skia_private::AutoTArray<TextureUnitBindings> fHWTextureUnitBindings;
 
     GrGLfloat fHWClearColor[4];
 

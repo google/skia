@@ -6,8 +6,8 @@
  */
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
-#include "include/private/SkMutex.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/base/SkMutex.h"
 #include "src/core/SkSharedMutex.h"
 
 template <typename Mutex>

@@ -9,7 +9,7 @@
 #define TouchGesture_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 
 class TouchGesture {
 public:

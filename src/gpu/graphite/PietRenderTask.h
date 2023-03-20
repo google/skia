@@ -43,9 +43,9 @@ public:
 
     ~PietRenderTask() override = default;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     std::vector<PietRenderInstance> fInstances;

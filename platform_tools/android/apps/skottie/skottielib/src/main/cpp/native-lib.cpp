@@ -107,6 +107,20 @@ Java_org_skia_skottie_SkottieRunner_nDeleteProxy(JNIEnv *env, jclass clazz, jlon
     delete skottie;
 }
 
+
+extern "C" JNIEXPORT void
+JNICALL
+Java_org_skia_skottie_SkottieRunner_nSetMaxCacheSize(JNIEnv *env, jclass clazz, jint maxCacheSize,
+                                                                                jlong nativeProxy) {
+    if (!nativeProxy) {
+            return;
+    }
+    SkottieRunner* skottie = reinterpret_cast<SkottieRunner*>(nativeProxy);
+    if (skottie->mDContext) {
+        skottie->mDContext->setResourceCacheLimit(maxCacheSize);
+    }
+}
+
 struct SkottieAnimation {
     SkottieRunner *mRunner;
     std::unique_ptr<SkStream> mStream;

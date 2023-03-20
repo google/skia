@@ -5,10 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPath.h"
-#include "include/core/SkRegion.h"
-#include "include/core/SkStrokeRec.h"
 #include "include/effects/Sk2DPathEffect.h"
+
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -59,7 +68,6 @@ protected:
     const SkMatrix& getMatrix() const { return fMatrix; }
 
     void flatten(SkWriteBuffer& buffer) const override {
-        this->INHERITED::flatten(buffer);
         buffer.writeMatrix(fMatrix);
     }
 
@@ -105,7 +113,6 @@ private:
     bool computeFastBounds(SkRect*) const override { return false; }
 
     friend class Sk2DPathEffectBlitter;
-    using INHERITED = SkPathEffect;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

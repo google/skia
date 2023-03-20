@@ -12,11 +12,14 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 
 #include <tuple>
 
 class SkData;
+#if defined(SK_GRAPHITE)
+namespace skgpu::graphite { class Recorder; }
+#endif
 
 namespace sk_gpu_test {
 
@@ -49,6 +52,9 @@ public:
     SkISize dimensions() const { return fPixmaps.yuvaInfo().dimensions(); }
 
     sk_sp<SkImage> refImage(GrRecordingContext* rContext, Type);
+#if defined(SK_GRAPHITE)
+    sk_sp<SkImage> refImage(skgpu::graphite::Recorder* recorder, Type);
+#endif
 
 private:
     // Decoded YUV data
@@ -67,6 +73,9 @@ private:
     bool reset(SkYUVAPixmaps pixmaps, GrMipmapped, sk_sp<SkColorSpace>);
 
     bool ensureYUVImage(GrRecordingContext* rContext, Type type);
+#if defined(SK_GRAPHITE)
+    bool ensureYUVImage(skgpu::graphite::Recorder* recorder, Type type);
+#endif
 };
 
 } // namespace sk_gpu_test

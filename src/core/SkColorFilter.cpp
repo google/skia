@@ -9,9 +9,9 @@
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "modules/skcms/skcms.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -23,15 +23,16 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
 
-#ifdef SK_ENABLE_SKSL
-#include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPaintParamsKey.h"
+#if defined(SK_GRAPHITE)
+#include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
 bool SkColorFilter::asAColorMode(SkColor* color, SkBlendMode* mode) const {
@@ -63,7 +64,7 @@ bool SkColorFilterBase::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 GrFPResult SkColorFilterBase::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                   GrRecordingContext* context,
                                                   const GrColorInfo& dstColorInfo,
@@ -72,10 +73,6 @@ GrFPResult SkColorFilterBase::asFragmentProcessor(std::unique_ptr<GrFragmentProc
     return GrFPFailure(std::move(inputFP));
 }
 #endif
-
-bool SkColorFilterBase::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
-    return this->onAppendStages(rec, shaderIsOpaque);
-}
 
 skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
                                        const SkColorInfo& dst,
@@ -87,7 +84,7 @@ skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
         }
         return c;
     }
-    //SkDebugf("cannot onProgram %s\n", this->getTypeName());
+    //SkDebugf("cannot program %s\n", this->getTypeName());
     return {};
 }
 
@@ -112,17 +109,14 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
     pipeline.append_constant_color(&alloc, color.vec());
-    SkPaint blankPaint;
     SkMatrixProvider matrixProvider(SkMatrix::I());
     SkSurfaceProps props{}; // default OK; colorFilters don't render text
-    SkStageRec rec = {
-        &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, blankPaint, nullptr, matrixProvider, props
-    };
+    SkStageRec rec = {&pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, color.unpremul(), props};
 
-    if (as_CFB(this)->onAppendStages(rec, color.fA == 1)) {
+    if (as_CFB(this)->appendStages(rec, color.fA == 1)) {
         SkPMColor4f dst;
         SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
-        pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
+        pipeline.append(SkRasterPipelineOp::store_f32, &dstPtr);
         pipeline.run(0,0, 1,1);
         return dst;
     }
@@ -147,10 +141,12 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     return SkPMColor4f{0,0,0,0};
 }
 
-#ifdef SK_ENABLE_SKSL
-void SkColorFilterBase::addToKey(const SkKeyContext& keyContext,
-                                 SkPaintParamsKeyBuilder* builder,
-                                 SkPipelineDataGatherer* gatherer) const {
+#if defined(SK_GRAPHITE)
+void SkColorFilterBase::addToKey(const skgpu::graphite::KeyContext& keyContext,
+                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
+                                 skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     // Return the input color as-is.
     PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
@@ -166,7 +162,7 @@ public:
         return fOuter->isAlphaUnchanged() && fInner->isAlphaUnchanged();
     }
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
         if (!fInner->isAlphaUnchanged()) {
             innerIsOpaque = false;
@@ -182,7 +178,7 @@ public:
         return c ? fOuter->program(p, c, dst, uniforms, alloc) : skvm::Color{};
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,
@@ -207,10 +203,12 @@ public:
     }
 #endif
 
-#ifdef SK_ENABLE_SKSL
-    void addToKey(const SkKeyContext& keyContext,
-                  SkPaintParamsKeyBuilder* builder,
-                  SkPipelineDataGatherer* gatherer) const override {
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
+        using namespace skgpu::graphite;
+
         ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
 
         as_CFB(fInner)->addToKey(keyContext, builder, gatherer);
@@ -218,7 +216,7 @@ public:
 
         builder->endBlock();
     }
-#endif // SK_ENABLE_SKSL
+#endif // SK_GRAPHITE
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
@@ -259,55 +257,56 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkSRGBGammaColorFilter final : public SkColorFilterBase {
+class ColorSpaceXformColorFilter final : public SkColorFilterBase {
 public:
-    enum class Direction {
-        kLinearToSRGB,
-        kSRGBToLinear,
-    };
-    SkSRGBGammaColorFilter(Direction dir) : fDir(dir), fSteps([&]{
-        // We handle premul/unpremul separately, so here just always upm->upm.
-        if (dir == Direction::kLinearToSRGB) {
-            return SkColorSpaceXformSteps{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
-                                          sk_srgb_singleton(),        kUnpremul_SkAlphaType};
-        } else {
-            return SkColorSpaceXformSteps{sk_srgb_singleton(),        kUnpremul_SkAlphaType,
-                                          sk_srgb_linear_singleton(), kUnpremul_SkAlphaType};
-        }
-    }()) {}
+    ColorSpaceXformColorFilter(sk_sp<SkColorSpace> src, sk_sp<SkColorSpace> dst)
+            : fSrc(std::move(src))
+            , fDst(std::move(dst))
+            , fSteps(
+                      // We handle premul/unpremul separately, so here just always upm->upm.
+                      fSrc.get(),
+                      kUnpremul_SkAlphaType,
+                      fDst.get(),
+                      kUnpremul_SkAlphaType)
 
-#if SK_SUPPORT_GPU
+    {}
+
+#if defined(SK_GANESH)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,
                                    const SkSurfaceProps& props) const override {
         // wish our caller would let us know if our input was opaque...
         constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
-        switch (fDir) {
-            case Direction::kLinearToSRGB:
-                return GrFPSuccess(GrColorSpaceXformEffect::Make(
-                                       std::move(inputFP),
-                                       sk_srgb_linear_singleton(), alphaType,
-                                       sk_srgb_singleton(),        alphaType));
-            case Direction::kSRGBToLinear:
-                return GrFPSuccess(GrColorSpaceXformEffect::Make(
-                                       std::move(inputFP),
-                                       sk_srgb_singleton(),        alphaType,
-                                       sk_srgb_linear_singleton(), alphaType));
-        }
+        return GrFPSuccess(GrColorSpaceXformEffect::Make(
+                std::move(inputFP), fSrc.get(), alphaType, fDst.get(), alphaType));
         SkUNREACHABLE;
     }
 #endif
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
+        using namespace skgpu::graphite;
+
+        constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
+        ColorSpaceTransformBlock::ColorSpaceTransformData data(
+                fSrc.get(), alphaType, fDst.get(), alphaType);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data);
+        builder->endBlock();
+    }
+#endif
+
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (!shaderIsOpaque) {
-            rec.fPipeline->append(SkRasterPipeline::unpremul);
+            rec.fPipeline->append(SkRasterPipelineOp::unpremul);
         }
 
         fSteps.apply(rec.fPipeline);
 
         if (!shaderIsOpaque) {
-            rec.fPipeline->append(SkRasterPipeline::premul);
+            rec.fPipeline->append(SkRasterPipelineOp::premul);
         }
         return true;
     }
@@ -319,40 +318,65 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
-        buffer.write32(static_cast<uint32_t>(fDir));
+        buffer.writeDataAsByteArray(fSrc->serialize().get());
+        buffer.writeDataAsByteArray(fDst->serialize().get());
     }
 
 private:
-    friend void ::SkRegisterSRGBGammaColorFilterFlattenable();
-    SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
+    friend void ::SkRegisterColorSpaceXformColorFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(ColorSpaceXformColorFilter)
+    static sk_sp<SkFlattenable> LegacyGammaOnlyCreateProc(SkReadBuffer& buffer);
 
-    const Direction fDir;
+    const sk_sp<SkColorSpace> fSrc;
+    const sk_sp<SkColorSpace> fDst;
     SkColorSpaceXformSteps fSteps;
 
     friend class SkColorFilter;
     using INHERITED = SkColorFilterBase;
 };
 
-sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> ColorSpaceXformColorFilter::LegacyGammaOnlyCreateProc(SkReadBuffer& buffer) {
     uint32_t dir = buffer.read32();
     if (!buffer.validate(dir <= 1)) {
         return nullptr;
     }
-    return sk_sp<SkFlattenable>(new SkSRGBGammaColorFilter(static_cast<Direction>(dir)));
+    if (dir == 0) {
+      return SkColorFilters::LinearToSRGBGamma();
+    }
+	return SkColorFilters::SRGBToLinearGamma();
 }
 
-template <SkSRGBGammaColorFilter::Direction dir>
-sk_sp<SkColorFilter> MakeSRGBGammaCF() {
-    static SkColorFilter* gSingleton = new SkSRGBGammaColorFilter(dir);
-    return sk_ref_sp(gSingleton);
+sk_sp<SkFlattenable> ColorSpaceXformColorFilter::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkColorSpace> colorSpaces[2];
+    for (int i = 0; i < 2; ++i) {
+        auto data = buffer.readByteArrayAsData();
+        if (!buffer.validate(data != nullptr)) {
+            return nullptr;
+        }
+        colorSpaces[i] = SkColorSpace::Deserialize(data->data(), data->size());
+        if (!buffer.validate(colorSpaces[i] != nullptr)) {
+            return nullptr;
+        }
+    }
+    return sk_sp<SkFlattenable>(
+            new ColorSpaceXformColorFilter(std::move(colorSpaces[0]), std::move(colorSpaces[1])));
 }
 
 sk_sp<SkColorFilter> SkColorFilters::LinearToSRGBGamma() {
-    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kLinearToSRGB>();
+    static SkColorFilter* gSingleton = new ColorSpaceXformColorFilter(
+            SkColorSpace::MakeSRGBLinear(), SkColorSpace::MakeSRGB());
+    return sk_ref_sp(gSingleton);
 }
 
 sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
-    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
+    static SkColorFilter* gSingleton = new ColorSpaceXformColorFilter(
+            SkColorSpace::MakeSRGB(), SkColorSpace::MakeSRGBLinear());
+    return sk_ref_sp(gSingleton);
+}
+
+sk_sp<SkColorFilter> SkColorFilterPriv::MakeColorSpaceXform(sk_sp<SkColorSpace> src,
+                                                            sk_sp<SkColorSpace> dst) {
+    return sk_make_sp<ColorSpaceXformColorFilter>(std::move(src), std::move(dst));
 }
 
 class SkWorkingFormatColorFilter final : public SkColorFilterBase {
@@ -378,7 +402,7 @@ public:
         return SkColorSpace::MakeRGB(tf, gamut);
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
                                    const GrColorInfo& dstColorInfo,
@@ -401,7 +425,68 @@ public:
     }
 #endif
 
-    bool onAppendStages(const SkStageRec&, bool) const override { return false; }
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
+        using namespace skgpu::graphite;
+
+        const SkAlphaType dstAT = keyContext.dstColorInfo().alphaType();
+        sk_sp<SkColorSpace> dstCS = keyContext.dstColorInfo().refColorSpace();
+        if (!dstCS) {
+            dstCS = SkColorSpace::MakeSRGB();
+        }
+
+        SkAlphaType workingAT;
+        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
+
+        ColorSpaceTransformBlock::ColorSpaceTransformData data1(
+                dstCS.get(), dstAT, workingCS.get(), workingAT);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data1);
+        builder->endBlock();
+
+        as_CFB(fChild)->addToKey(keyContext, builder, gatherer);
+
+        ColorSpaceTransformBlock::ColorSpaceTransformData data2(
+                workingCS.get(), workingAT, dstCS.get(), dstAT);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data2);
+        builder->endBlock();
+    }
+#endif
+
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        sk_sp<SkColorSpace> dstCS = sk_ref_sp(rec.fDstCS);
+
+        if (!dstCS) { dstCS = SkColorSpace::MakeSRGB(); }
+
+        SkAlphaType workingAT;
+        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
+
+        SkColorInfo dst = {rec.fDstColorType, kPremul_SkAlphaType, dstCS},
+                working = {rec.fDstColorType, workingAT, workingCS};
+
+        const auto* dstToWorking = rec.fAlloc->make<SkColorSpaceXformSteps>(dst, working);
+        const auto* workingToDst = rec.fAlloc->make<SkColorSpaceXformSteps>(working, dst);
+
+        // Any SkSL effects might reference the paint color, which is already in the destination
+        // color space. We need to transform it to the working space for consistency.
+        SkColor4f paintColorInWorkingSpace = rec.fPaintColor;
+        dstToWorking->apply(paintColorInWorkingSpace.vec());
+
+        SkStageRec workingRec = {rec.fPipeline,
+                                 rec.fAlloc,
+                                 rec.fDstColorType,
+                                 workingCS.get(),
+                                 paintColorInWorkingSpace,
+                                 rec.fSurfaceProps};
+
+        dstToWorking->apply(rec.fPipeline);
+        if (!as_CFB(fChild)->appendStages(workingRec, shaderIsOpaque)) {
+            return false;
+        }
+        workingToDst->apply(rec.fPipeline);
+        return true;
+    }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& rawDst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
@@ -536,8 +621,11 @@ void SkRegisterComposeColorFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkComposeColorFilter);
 }
 
-void SkRegisterSRGBGammaColorFilterFlattenable() {
-    SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
+void SkRegisterColorSpaceXformColorFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(ColorSpaceXformColorFilter);
+    // TODO(ccameron): Remove after grace period for SKPs to stop using old serialization.
+    SkFlattenable::Register("SkSRGBGammaColorFilter",
+                            ColorSpaceXformColorFilter::LegacyGammaOnlyCreateProc);
 }
 
 void SkRegisterWorkingFormatColorFilterFlattenable() {

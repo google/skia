@@ -12,8 +12,8 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
-#include "include/private/SkFloatingPoint.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkVx.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
 #define AI [[maybe_unused]] SK_ALWAYS_INLINE

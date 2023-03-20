@@ -1,0 +1,29 @@
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers")
+
+package(features = ["layering_check"])
+
+cc_library(
+    name = "client_lib",
+    srcs = [
+        "gizmo.cpp",
+        ":compile_headers_please",
+    ],
+    hdrs = ["gizmo.h"],
+    copts = ["-Wno-pragma-once-outside-header"],
+    deps = [
+        "//experimental/bazel_test/base",
+        "//experimental/bazel_test/core",
+    ],
+)
+
+cc_binary(
+    name = "client",
+    srcs = ["main.cpp"],
+    deps = [":client_lib"],
+)
+
+generate_cpp_files_for_headers(
+    name = "compile_headers_please",
+    headers = ["gizmo.h"],
+    to_generate = ["experimental/bazel_test/client/gizmo.h"],
+)

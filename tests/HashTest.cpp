@@ -7,12 +7,17 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "include/private/SkChecksum.h"
-#include "include/private/SkTHash.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkTHash.h"
 #include "tests/Test.h"
 
-#include <tuple>
+#include <cstdint>
+#include <cstring>
+#include <initializer_list>
+#include <string>
+#include <string_view>
+#include <utility>
 
 // Tests use of const foreach().  map.count() is of course the better way to do this.
 static int count(const SkTHashMap<int, double>& map) {
@@ -157,6 +162,30 @@ DEF_TEST(HashMapCtor, r) {
     REPORTER_ASSERT(r, !found);
 }
 
+DEF_TEST(HashMapCtorOneElem, r) {
+    // Start out with a single element. The initializer list constructor sets the capacity
+    // conservatively. Searching for elements beyond the capacity should succeed.
+    SkTHashMap<int, std::string_view> map{{1, "one"}};
+    REPORTER_ASSERT(r, map.count() == 1);
+    REPORTER_ASSERT(r, map.approxBytesUsed() >= (sizeof(int) + sizeof(std::string_view)));
+
+    std::string_view* found = map.find(1);
+    REPORTER_ASSERT(r, found);
+    REPORTER_ASSERT(r, *found == "one");
+
+    found = map.find(2);
+    REPORTER_ASSERT(r, !found);
+
+    // Grow the collection by one element. Searching for non-existing elements should still succeed.
+    map.set(2, "two");
+    found = map.find(2);
+    REPORTER_ASSERT(r, found);
+    REPORTER_ASSERT(r, *found == "two");
+
+    found = map.find(3);
+    REPORTER_ASSERT(r, !found);
+}
+
 DEF_TEST(HashSetCtor, r) {
     SkTHashSet<std::string_view> set{"one", "two", "three", "four"};
     REPORTER_ASSERT(r, set.count() == 4);
@@ -168,6 +197,23 @@ DEF_TEST(HashSetCtor, r) {
     REPORTER_ASSERT(r, set.contains("four"));
     REPORTER_ASSERT(r, !set.contains("five"));
     REPORTER_ASSERT(r, !set.contains("six"));
+}
+
+DEF_TEST(HashSetCtorOneElem, r) {
+    // Start out with a single element. The initializer list constructor sets the capacity
+    // conservatively. Searching for elements beyond the capacity should succeed.
+    SkTHashSet<std::string_view> set{"one"};
+    REPORTER_ASSERT(r, set.count() == 1);
+    REPORTER_ASSERT(r, set.approxBytesUsed() >= sizeof(std::string_view));
+
+    REPORTER_ASSERT(r, set.contains("one"));
+    REPORTER_ASSERT(r, !set.contains("two"));
+
+    // Grow the collection by one element. Searching for non-existing elements should still succeed.
+    set.add("two");
+    REPORTER_ASSERT(r, set.contains("one"));
+    REPORTER_ASSERT(r, set.contains("two"));
+    REPORTER_ASSERT(r, !set.contains("three"));
 }
 
 template <typename T>

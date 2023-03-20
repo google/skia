@@ -13,8 +13,8 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/private/gpu/ganesh/GrVkTypesPriv.h"
+#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/ganesh/GrAttachment.h"
-#include "src/gpu/ganesh/GrBackendSurfaceMutableStateImpl.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/GrRefCnt.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -48,13 +48,13 @@ public:
                                         uint32_t mipLevels,
                                         GrRenderable renderable,
                                         int numSamples,
-                                        SkBudgeted budgeted,
+                                        skgpu::Budgeted budgeted,
                                         GrProtected isProtected);
 
     static sk_sp<GrVkImage> MakeWrapped(GrVkGpu* gpu,
                                         SkISize dimensions,
                                         const GrVkImageInfo&,
-                                        sk_sp<GrBackendSurfaceMutableStateImpl>,
+                                        sk_sp<skgpu::MutableTextureStateRef>,
                                         UsageFlags attachmentUsages,
                                         GrWrapOwnership,
                                         GrWrapCacheable,
@@ -124,7 +124,7 @@ public:
     }
     bool isBorrowed() const { return fIsBorrowed; }
 
-    sk_sp<GrBackendSurfaceMutableStateImpl> getMutableState() const { return fMutableState; }
+    sk_sp<skgpu::MutableTextureStateRef> getMutableState() const { return fMutableState; }
 
     VkImageLayout currentLayout() const { return fMutableState->getImageLayout(); }
 
@@ -200,7 +200,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
-    void setResourceRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper);
+    void setResourceRelease(sk_sp<RefCntedReleaseProc> releaseHelper);
 
     // Helpers to use for setting the layout of the VkImage
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
@@ -220,23 +220,23 @@ private:
                                  VkImageUsageFlags vkUsageFlags,
                                  GrProtected isProtected,
                                  GrMemoryless,
-                                 SkBudgeted);
+                                 skgpu::Budgeted);
 
     GrVkImage(GrVkGpu* gpu,
               SkISize dimensions,
               UsageFlags supportedUsages,
               const GrVkImageInfo&,
-              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+              sk_sp<skgpu::MutableTextureStateRef> mutableState,
               sk_sp<const GrVkImageView> framebufferView,
               sk_sp<const GrVkImageView> textureView,
-              SkBudgeted,
+              skgpu::Budgeted,
               std::string_view label);
 
     GrVkImage(GrVkGpu* gpu,
               SkISize dimensions,
               UsageFlags supportedUsages,
               const GrVkImageInfo&,
-              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+              sk_sp<skgpu::MutableTextureStateRef> mutableState,
               sk_sp<const GrVkImageView> framebufferView,
               sk_sp<const GrVkImageView> textureView,
               GrBackendObjectOwnership,
@@ -254,12 +254,12 @@ private:
 
     GrVkGpu* getVkGpu() const;
 
-    GrVkImageInfo                           fInfo;
-    uint32_t                                fInitialQueueFamily;
-    sk_sp<GrBackendSurfaceMutableStateImpl> fMutableState;
+    GrVkImageInfo                        fInfo;
+    uint32_t                             fInitialQueueFamily;
+    sk_sp<skgpu::MutableTextureStateRef> fMutableState;
 
-    sk_sp<const GrVkImageView>              fFramebufferView;
-    sk_sp<const GrVkImageView>              fTextureView;
+    sk_sp<const GrVkImageView>           fFramebufferView;
+    sk_sp<const GrVkImageView>           fTextureView;
 
     bool fIsBorrowed;
 

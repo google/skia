@@ -12,7 +12,6 @@
 #include "tests/CanvasStateHelpers.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
@@ -21,6 +20,8 @@
 #include "include/utils/SkCanvasStateUtils.h"
 
 #include <memory>
+
+enum class SkClipOp;
 
 void complex_layers_draw(SkCanvas* canvas, float left, float top,
                          float right, float bottom, int32_t spacer) {

@@ -15,8 +15,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkRandom.h"
+
+using namespace skia_private;
 
 namespace skiagm {
 
@@ -123,9 +125,9 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         for (int join = 0; join < kNumJoins; ++join) {
             for (int width = 0; width < kNumStrokeWidths; ++width) {
-                for (int i = 0; i < fPolygons.count(); ++i) {
+                for (int i = 0; i < fPolygons.size(); ++i) {
                     canvas->save();
-                    SetLocation(canvas, counter, fPolygons.count());
+                    SetLocation(canvas, counter, fPolygons.size());
 
                     SetColorAndAlpha(&paint, &rand);
                     paint.setStrokeJoin(kJoins[join]);
@@ -148,9 +150,9 @@ protected:
         paint.setStrokeWidth(SkIntToScalar(20));
         for (int style = 0; style < kNumExtraStyles; ++style) {
             paint.setStyle(kStyles[style]);
-            for (int i = 0; i < fPolygons.count(); ++i) {
+            for (int i = 0; i < fPolygons.size(); ++i) {
                 canvas->save();
-                SetLocation(canvas, counter, fPolygons.count());
+                SetLocation(canvas, counter, fPolygons.size());
                 SetColorAndAlpha(&paint, &rand);
                 canvas->drawPath(fPolygons[i], paint);
                 canvas->restore();
@@ -166,7 +168,7 @@ private:
     inline static constexpr int kNumStrokeWidths = 3;
     inline static constexpr int kNumJoins = 3;
 
-    SkTArray<SkPath> fPolygons;
+    TArray<SkPath> fPolygons;
     using INHERITED = GM;
 };
 

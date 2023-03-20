@@ -10,6 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkTArray.h"
 #include "tools/sk_app/Window.h"
 
 class StatsLayer : public sk_app::Window::Layer {
@@ -36,7 +37,7 @@ private:
         SkColor fColor;
         SkColor fLabelColor;
     };
-    SkTArray<TimerData> fTimers;
+    skia_private::TArray<TimerData> fTimers;
     double fTotalTimes[kMeasurementCount];
     int fCurrentMeasurement;
     double fLastTotalBegin;

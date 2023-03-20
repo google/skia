@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
          return;
     }
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(
-            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(64, 64));
+            context, skgpu::Budgeted::kYes, SkImageInfo::MakeN32Premul(64, 64));
     SkSurfaceCharacterization characterization;
     if (!gpuSurface->characterize(&characterization)) {
          canvas->drawString("characterization unsupported", 20, 40, font, paint);

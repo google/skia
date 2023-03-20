@@ -8,7 +8,7 @@
 #ifndef PathTessellator_DEFINED
 #define PathTessellator_DEFINED
 
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrVertexChunkArray.h"
 #include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"

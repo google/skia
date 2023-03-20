@@ -12,6 +12,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/BufferWriter.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -26,7 +27,7 @@ struct GrShaderCaps;
 struct VertexWriter;
 
 namespace skgpu::v1::QuadPerEdgeAA {
-    using Saturate = skgpu::v1::TextureOp::Saturate;
+    using Saturate = skgpu::ganesh::TextureOp::Saturate;
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Subset : bool { kNo = false, kYes = true };

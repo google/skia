@@ -14,7 +14,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 
-class GrContext;
+class GrDirectContext;
 class GrVkGpu;
 
 // This helper will create and hold data for a Vulkan YCbCr backend texture. This format is

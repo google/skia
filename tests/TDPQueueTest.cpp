@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkRandom.h"
-#include "src/core/SkTDPQueue.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
+#include "src/base/SkTDPQueue.h"
 #include "tests/Test.h"
 
 namespace { bool intless(const int& a, const int& b) { return a < b; } }
@@ -86,14 +87,14 @@ void random_test(skiatest::Reporter* reporter) {
         // Create a random set of Mock objects.
         int count = random.nextULessThan(100);
         SkTDArray<Mock> array;
-        array.setReserve(count);
+        array.reserve(count);
         for (int j = 0; j < count; ++j) {
             Mock* mock = array.append();
             mock->fPriority = random.nextS();
             mock->fValue = random.nextS();
             mock->fIndex = -1;
             if (*mock == kSentinel) {
-                array.pop();
+                array.pop_back();
                 --j;
             }
         }
@@ -103,7 +104,7 @@ void random_test(skiatest::Reporter* reporter) {
         for (int j = 0; j < count; ++j) {
             pq.insert(&array[j]);
         }
-        REPORTER_ASSERT(reporter, pq.count() == array.count());
+        REPORTER_ASSERT(reporter, pq.count() == array.size());
         for (int j = 0; j < count; ++j) {
             // every item should have an entry in the queue.
             REPORTER_ASSERT(reporter, -1 != array[j].fIndex);
@@ -159,7 +160,7 @@ void sort_test(skiatest::Reporter* reporter) {
     // Create a random set of Mock objects and populate the test queue.
     int count = random.nextULessThan(100);
     SkTDArray<Mock> testArray;
-    testArray.setReserve(count);
+    testArray.reserve(count);
     for (int i = 0; i < count; i++) {
         Mock *mock = testArray.append();
         mock->fPriority = random.nextS();
@@ -170,7 +171,7 @@ void sort_test(skiatest::Reporter* reporter) {
 
     // Stick equivalent mock objects into the control queue.
     SkTDArray<Mock> controlArray;
-    controlArray.setReserve(count);
+    controlArray.reserve(count);
     for (int i = 0; i < count; i++) {
         Mock *mock = controlArray.append();
         mock->fPriority = testArray[i].fPriority;

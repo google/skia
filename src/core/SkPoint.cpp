@@ -5,8 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkMathPriv.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkPointPriv.h"
+
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////////////////
 

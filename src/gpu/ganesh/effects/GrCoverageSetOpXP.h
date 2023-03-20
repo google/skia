@@ -10,6 +10,7 @@
 
 #include "include/core/SkRegion.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 
 // See the comment above GrXPFactory's definition about this warning suppression.

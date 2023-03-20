@@ -6,10 +6,16 @@
  */
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkTSort.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkTSort.h"
 #include "tests/Test.h"
 
-#include "tools/ToolUtils.h"
+#include <algorithm>
+#include <cstdint>
 
 // A node in the graph. This corresponds to an opsTask in the MDB world.
 class Node : public SkRefCnt {
@@ -21,14 +27,14 @@ public:
 #ifdef SK_DEBUG
     void print() const {
         SkDebugf("%d: id %c", fIndexInSort, fID);
-        if (fNodesIDependOn.count()) {
-            SkDebugf(" I depend on (%d): ", fNodesIDependOn.count());
+        if (fNodesIDependOn.size()) {
+            SkDebugf(" I depend on (%d): ", fNodesIDependOn.size());
             for (Node* tmp : fNodesIDependOn) {
                 SkDebugf("%c, ", tmp->id());
             }
         }
-        if (fNodesThatDependOnMe.count()) {
-            SkDebugf(" (%d) depend on me: ", fNodesThatDependOnMe.count());
+        if (fNodesThatDependOnMe.size()) {
+            SkDebugf(" (%d) depend on me: ", fNodesThatDependOnMe.size());
             for (Node* tmp : fNodesThatDependOnMe) {
                 SkDebugf("%c, ", tmp->id());
             }
@@ -51,9 +57,9 @@ public:
         return a->indexInSort() > b->indexInSort();
     }
 
-    int numDependents() const { return fNodesThatDependOnMe.count(); }
+    int numDependents() const { return fNodesThatDependOnMe.size(); }
     Node* dependent(int index) const {
-        SkASSERT(0 <= index && index < fNodesThatDependOnMe.count());
+        SkASSERT(0 <= index && index < fNodesThatDependOnMe.size());
         return fNodesThatDependOnMe[index];
     }
 
@@ -94,7 +100,7 @@ public:
         sk_sp<Node> tmp(new Node(id));
 
         fNodes.push_back(tmp);       // The graph gets the creation ref
-        tmp->setIndexInSort(fNodes.count()-1);
+        tmp->setIndexInSort(fNodes.size()-1);
         this->validate();
         return tmp.get();
     }
@@ -126,7 +132,7 @@ public:
         this->validate();
 
         // remove any of the new dependencies that are already satisfied
-        for (int i = 0; i < dependedOn->count(); ++i) {
+        for (int i = 0; i < dependedOn->size(); ++i) {
             if ((*dependedOn)[i]->indexInSort() < dependent->indexInSort()) {
                 dependent->addDependency((*dependedOn)[i]);
                 dependedOn->removeShuffle(i);
@@ -136,7 +142,7 @@ public:
             }
         }
 
-        if (dependedOn->isEmpty()) {
+        if (dependedOn->empty()) {
             return;
         }
 
@@ -149,8 +155,8 @@ public:
         // TODO: although this is the general algorithm, I think this can be simplified for our
         // use case (i.e., the same dependent for all the new edges).
 
-        int lowerBound = fNodes.count();  // 'lowerBound' tracks the left of the affected region
-        for (int i = 0; i < dependedOn->count(); ++i) {
+        int lowerBound = fNodes.size();  // 'lowerBound' tracks the left of the affected region
+        for (int i = 0; i < dependedOn->size(); ++i) {
             if ((*dependedOn)[i]->indexInSort() < lowerBound) {
                 this->shift(lowerBound);
             }
@@ -171,9 +177,9 @@ public:
     void getActual(SkString* actual) const {
         this->validate();
 
-        for (int i = 0; i < fNodes.count(); ++i) {
+        for (int i = 0; i < fNodes.size(); ++i) {
             (*actual) += fNodes[i]->id();
-            if (i < fNodes.count()-1) {
+            if (i < fNodes.size()-1) {
                 (*actual) += ',';
             }
         }
@@ -182,7 +188,7 @@ public:
 #ifdef SK_DEBUG
     void print() const {
         SkDebugf("-------------------\n");
-        for (int i = 0; i < fNodes.count(); ++i) {
+        for (int i = 0; i < fNodes.size(); ++i) {
             if (fNodes[i]) {
                 SkDebugf("%c ", fNodes[i]->id());
             } else {
@@ -191,14 +197,14 @@ public:
         }
         SkDebugf("\n");
 
-        for (int i = 0; i < fNodes.count(); ++i) {
+        for (int i = 0; i < fNodes.size(); ++i) {
             if (fNodes[i]) {
                 fNodes[i]->print();
             }
         }
 
         SkDebugf("Stack: ");
-        for (int i = 0; i < fStack.count(); ++i) {
+        for (int i = 0; i < fStack.size(); ++i) {
            SkDebugf("%c/%c ", fStack[i].fNode->id(), fStack[i].fDest->id());
         }
         SkDebugf("\n");
@@ -209,14 +215,14 @@ private:
     void validate() const {
         REPORTER_ASSERT(fReporter, fStack.empty());
 
-        for (int i = 0; i < fNodes.count(); ++i) {
+        for (int i = 0; i < fNodes.size(); ++i) {
             REPORTER_ASSERT(fReporter, fNodes[i]->indexInSort() == i);
 
             fNodes[i]->validate(fReporter);
         }
 
         // All the nodes in the Queue had better have been marked as visited
-        for (int i = 0; i < fStack.count(); ++i) {
+        for (int i = 0; i < fStack.size(); ++i) {
             SkASSERT(fStack[i].fNode->visited());
         }
     }
@@ -251,7 +257,7 @@ private:
     // Does 'fStack' have 'node'? That is, was 'node' discovered to be in violation of the
     // topological constraints?
     bool stackContains(Node* node) {
-        for (int i = 0; i < fStack.count(); ++i) {
+        for (int i = 0; i < fStack.size(); ++i) {
             if (node == fStack[i].fNode.get()) {
                 return true;
             }

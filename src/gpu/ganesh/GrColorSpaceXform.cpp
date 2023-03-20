@@ -43,10 +43,10 @@ uint32_t GrColorSpaceXform::XformKey(const GrColorSpaceXform* xform) {
     const SkColorSpaceXformSteps& steps(xform->fSteps);
     uint32_t key = steps.flags.mask();
     if (steps.flags.linearize) {
-        key |= classify_transfer_fn(steps.srcTF)    << 8;
+        key |= skcms_TransferFunction_getType(&steps.srcTF)    << 8;
     }
     if (steps.flags.encode) {
-        key |= classify_transfer_fn(steps.dstTFInv) << 16;
+        key |= skcms_TransferFunction_getType(&steps.dstTFInv) << 16;
     }
     return key;
 }

@@ -7,9 +7,9 @@
 
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
 
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
 #include "src/pdf/SkPDFUtils.h"
-#include "src/utils/SkUTF.h"
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
                                     bool multibyte) {

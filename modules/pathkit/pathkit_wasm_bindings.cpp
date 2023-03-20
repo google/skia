@@ -9,14 +9,16 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkFloatBits.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPathPriv.h"
@@ -32,6 +34,8 @@ static const int QUAD = 2;
 static const int CONIC = 3;
 static const int CUBIC = 4;
 static const int CLOSE = 5;
+
+
 
 // Just for self-documenting purposes where the main thing being returned is an
 // SkPath, but in an error case, something of type null (which is val) could also be
@@ -208,13 +212,11 @@ void ApplyQuadTo(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) 
 //========================================================================================
 
 JSString EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
-    SkString s;
-    SkParsePath::ToSVGString(path, &s);
     // Wrapping it in val automatically turns it into a JS string.
     // Not too sure on performance implications, but is is simpler than
     // returning a raw pointer to const char * and then using
     // UTF8ToString() on the calling side.
-    return emscripten::val(s.c_str());
+    return emscripten::val(SkParsePath::ToSVGString(path).c_str());
 }
 
 
@@ -409,7 +411,7 @@ bool ApplyStroke(SkPath& path, StrokeOpts opts) {
     if (opts.res_scale <= 0) {
         opts.res_scale = 1.0;
     }
-    return p.getFillPath(path, &path, nullptr, opts.res_scale);
+    return skpathutils::FillPathWithPaint(path, p, &path, nullptr, opts.res_scale);
 }
 
 //========================================================================================

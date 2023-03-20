@@ -7,384 +7,33 @@ package exporter
 
 import (
 	"bytes"
-	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.skia.org/skia/bazel/exporter/build_proto/build"
 	"go.skia.org/skia/bazel/exporter/interfaces/mocks"
+	"google.golang.org/protobuf/proto"
 )
 
-// These test query results are generated with the following command:
-//
-//	bazel cquery --noimplicit_deps \
-//	   'kind("rule", deps(//src/core:core_srcs) + deps(//src/opts:private_hdrs))' \
-//	   --output textproto
-//
-// Then the output data is manually pruned to include only the first three files.
-const publicSrcsTextProto = `results {
-	target {
-	  type: RULE
-	  rule {
-		name: "//src/core:core_srcs"
-		rule_class: "filegroup"
-		location: "/path/to/skia/src/src/core/BUILD.bazel:397:20"
-		attribute {
-		  name: "$config_dependencies"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: ":action_listener"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "applicable_licenses"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "aspect_hints"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "data"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "deprecation"
-		  type: STRING
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "distribs"
-		  type: DISTRIBUTION_SET
-		  string_list_value: "INTERNAL"
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "features"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_function"
-		  type: STRING
-		  string_value: "split_srcs_and_hdrs"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_location"
-		  type: STRING
-		  string_value: "src/core/BUILD.bazel:397:20"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_name"
-		  type: STRING
-		  string_value: "core"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NOTICE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "name"
-		  type: STRING
-		  string_value: "core_srcs"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "output_group"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "output_licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NONE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "path"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "restricted_to"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "srcs"
-		  type: LABEL_LIST
-		  string_list_value: "//src/core:SkAAClip.cpp"
-		  string_list_value: "//src/core:SkATrace.cpp"
-		  string_list_value: "//src/core:SkAlphaRuns.cpp"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "tags"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "target_compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "testonly"
-		  type: BOOLEAN
-		  int_value: 0
-		  string_value: "false"
-		  explicitly_specified: false
-		  boolean_value: false
-		}
-		attribute {
-		  name: "transitive_configs"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: true
-		}
-		attribute {
-		  name: "visibility"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: true
-		}
-		rule_input: "//src/core:SkAAClip.cpp"
-		rule_input: "//src/core:SkATrace.cpp"
-		rule_input: "//src/core:SkAlphaRuns.cpp"
-	  }
-	}
-	configuration {
-	  checksum: "d16aa11033851c6aac7f80d42f69ce16f44935bba14f1c71f7cfc07b0d4d60b2"
-	}
-  }
-  results {
-	target {
-	  type: RULE
-	  rule {
-		name: "//src/opts:private_hdrs"
-		rule_class: "filegroup"
-		location: "/path/to/skia/src/src/opts/BUILD.bazel:26:10"
-		attribute {
-		  name: "$config_dependencies"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: ":action_listener"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "applicable_licenses"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "aspect_hints"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "data"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "deprecation"
-		  type: STRING
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "distribs"
-		  type: DISTRIBUTION_SET
-		  string_list_value: "INTERNAL"
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "features"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_function"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_location"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_name"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NOTICE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "name"
-		  type: STRING
-		  string_value: "private_hdrs"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "output_group"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "output_licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NONE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "path"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "restricted_to"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "srcs"
-		  type: LABEL_LIST
-		  string_list_value: "//src/opts:SkBitmapProcState_opts.h"
-		  string_list_value: "//src/opts:SkBlitMask_opts.h"
-		  string_list_value: "//src/opts:SkBlitRow_opts.h"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "tags"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "target_compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "testonly"
-		  type: BOOLEAN
-		  int_value: 0
-		  string_value: "false"
-		  explicitly_specified: false
-		  boolean_value: false
-		}
-		attribute {
-		  name: "transitive_configs"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: true
-		}
-		attribute {
-		  name: "visibility"
-		  type: STRING_LIST
-		  string_list_value: "//src:__pkg__"
-		  explicitly_specified: true
-		  nodep: true
-		}
-		rule_input: "//src/opts:SkBitmapProcState_opts.h"
-		rule_input: "//src/opts:SkBlitMask_opts.h"
-		rule_input: "//src/opts:SkBlitRow_opts.h"
-	  }
-	}
-	configuration {
-	  checksum: "d16aa11033851c6aac7f80d42f69ce16f44935bba14f1c71f7cfc07b0d4d60b2"
-	}
-  }
-`
-
-// The expected gn/core.gni file contents for publicSrcsTextProto.
+// The expected gn/core.gni file contents for createCoreSourcesQueryResult().
 // This expected result is handmade.
 const publicSrcsExpectedGNI = `# DO NOT EDIT: This is a generated file.
+# See //bazel/exporter_tool/README.md for more information.
+#
+# The sources of truth are:
+#   //src/core/BUILD.bazel
+#   //src/opts/BUILD.bazel
+
+# To update this file, run make -C bazel generate_gni
 
 _src = get_path_info("../src", "abspath")
 
+# List generated by Bazel rules:
+#  //src/core:core_srcs
+#  //src/opts:private_hdrs
 skia_core_sources = [
   "$_src/core/SkAAClip.cpp",
   "$_src/core/SkATrace.cpp",
@@ -416,8 +65,37 @@ var testExporterParams = GNIExporterParams{
 	ExportDescs:  exportDescs,
 }
 
+func createCoreSourcesQueryResult() *build.QueryResult {
+	qr := build.QueryResult{}
+	ruleDesc := build.Target_RULE
+
+	// Rule #1
+	srcs := []string{
+		"//src/core:SkAAClip.cpp",
+		"//src/core:SkATrace.cpp",
+		"//src/core:SkAlphaRuns.cpp",
+	}
+	r1 := createTestBuildRule("//src/core:core_srcs", "filegroup",
+		"/path/to/workspace/src/core/BUILD.bazel:376:20", srcs)
+	t1 := build.Target{Rule: r1, Type: &ruleDesc}
+	qr.Target = append(qr.Target, &t1)
+
+	// Rule #2
+	srcs = []string{
+		"//src/opts:SkBitmapProcState_opts.h",
+		"//src/opts:SkBlitMask_opts.h",
+		"//src/opts:SkBlitRow_opts.h",
+	}
+	r2 := createTestBuildRule("//src/opts:private_hdrs", "filegroup",
+		"/path/to/workspace/src/opts/BUILD.bazel:26:10", srcs)
+	t2 := build.Target{Rule: r2, Type: &ruleDesc}
+	qr.Target = append(qr.Target, &t2)
+	return &qr
+}
+
 func TestGNIExporterExport_ValidInput_Success(t *testing.T) {
-	protoData, err := textProtoToProtobuf(publicSrcsTextProto)
+	qr := createCoreSourcesQueryResult()
+	protoData, err := proto.Marshal(qr)
 	require.NoError(t, err)
 
 	fs := mocks.NewFileSystem(t)
@@ -434,22 +112,6 @@ func TestGNIExporterExport_ValidInput_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, publicSrcsExpectedGNI, contents.String())
-}
-
-func TestGNIExporterCheckCurrent_CurrentData_ReturnZero(t *testing.T) {
-	fs := mocks.NewFileSystem(t)
-	fs.On("ReadFile", mock.Anything).Run(func(args mock.Arguments) {
-		path := args.String(0)
-		assert.True(t, filepath.IsAbs(path))
-		assert.Equal(t, "/path/to/workspace/gn/core.gni", filepath.ToSlash(path))
-	}).Return([]byte(publicSrcsExpectedGNI), nil)
-	e := NewGNIExporter(testExporterParams, fs)
-	qcmd := mocks.NewQueryCommand(t)
-	var errBuff bytes.Buffer
-	numOutOfDate, err := e.CheckCurrent(qcmd, &errBuff)
-	os.Stdout.Write(errBuff.Bytes()) // Echo output messages to stdout.
-	assert.NoError(t, err)
-	assert.Zero(t, numOutOfDate)
 }
 
 func TestMakeRelativeFilePathForGNI_MatchingRootDir_Success(t *testing.T) {
@@ -542,6 +204,35 @@ func TestWorkspaceToAbsPath_ReturnsAbsolutePath(t *testing.T) {
 	test("DirInDir", "foo/bar", "/path/to/workspace/foo/bar")
 	test("RootFile", "root.txt", "/path/to/workspace/root.txt")
 	test("WorkspaceDir", "", "/path/to/workspace")
+}
+
+func TestAbsToWorkspacePath_PathInWorkspace_ReturnsRelativePath(t *testing.T) {
+	fs := mocks.NewFileSystem(t)
+	e := NewGNIExporter(testExporterParams, fs)
+	require.NotNil(t, e)
+
+	test := func(name, input, expected string) {
+		t.Run(name, func(t *testing.T) {
+			path, err := e.absToWorkspacePath(input)
+			assert.NoError(t, err)
+			assert.Equal(t, expected, path)
+		})
+	}
+
+	test("FileInDir", "/path/to/workspace/foo/bar.txt", "foo/bar.txt")
+	test("DirInDir", "/path/to/workspace/foo/bar", "foo/bar")
+	test("RootFile", "/path/to/workspace/root.txt", "root.txt")
+	test("RootFile", "/path/to/workspace/世界", "世界")
+	test("WorkspaceDir", "/path/to/workspace", "")
+}
+
+func TestAbsToWorkspacePath_PathNotInWorkspace_ReturnsError(t *testing.T) {
+	fs := mocks.NewFileSystem(t)
+	e := NewGNIExporter(testExporterParams, fs)
+	require.NotNil(t, e)
+
+	_, err := e.absToWorkspacePath("/path/to/file.txt")
+	assert.Error(t, err)
 }
 
 func TestGetGNILineVariable_LinesWithVariables_ReturnVariable(t *testing.T) {
@@ -706,53 +397,61 @@ func TestFilterDeprecatedFiles_NoDeprecatedFiles_SliceUnchanged(t *testing.T) {
 			"also/not/deprecated/file.h"})
 }
 
-func TestFindDuplicate_ContainsDuplicate_ReturnsTrue(t *testing.T) {
-	test := func(name string, files []string, expected string) {
-		t.Run(name, func(t *testing.T) {
-			path, hasDup := findDuplicate(files)
-			assert.True(t, hasDup)
-			assert.Equal(t, expected, path)
-		})
+func TestRemoveDuplicate_ContainsDuplicates_SortedAndDuplicatesRemoved(t *testing.T) {
+	files := []string{
+		"alpha",
+		"beta",
+		"gamma",
+		"delta",
+		"beta",
+		"Alpha",
+		"alpha",
+		"path/to/file",
+		"path/to/file2",
+		"path/to/file",
 	}
-	test("AllDups",
-		[]string{
-			"path/to/file.h",
-			"path/to/file.h"},
-		"path/to/file.h")
-	test("FirstFileDup",
-		[]string{
-			"path/to/file.h",
-			"path/to/file.h",
-			"path/to/non_dup.h"},
-		"path/to/file.h")
-	test("LastFileDup",
-		[]string{
-			"path/to/a_non_dup.h",
-			"path/to/file.h",
-			"path/to/file.h"},
-		"path/to/file.h")
-	test("CaseInsensitive",
-		[]string{
-			"path/to/file.h",
-			"path/to/File.h"},
-		"path/to/file.h")
+	output := removeDuplicates(files)
+	assert.Equal(t, []string{
+		"Alpha",
+		"alpha",
+		"beta",
+		"delta",
+		"gamma",
+		"path/to/file",
+		"path/to/file2",
+	}, output)
 }
 
-func TestFindDuplicate_NoDuplicates_ReturnsFalse(t *testing.T) {
-	test := func(name string, files []string) {
+func TestRemoveDuplicates_NoDuplicates_ReturnsOnlySorted(t *testing.T) {
+	files := []string{
+		"Beta",
+		"ALPHA",
+		"gamma",
+		"path/to/file2",
+		"path/to/file",
+	}
+	output := removeDuplicates(files)
+	assert.Equal(t, []string{
+		"ALPHA",
+		"Beta",
+		"gamma",
+		"path/to/file",
+		"path/to/file2",
+	}, output)
+}
+
+func TestGetPathToTopDir_ValidRelativePaths_ReturnsExpected(t *testing.T) {
+	test := func(name, expected, input string) {
 		t.Run(name, func(t *testing.T) {
-			_, hasDup := findDuplicate(files)
-			assert.False(t, hasDup)
+			assert.Equal(t, expected, getPathToTopDir(input))
 		})
 	}
-	test("EmptySlice", []string{})
-	test("nilSlice", nil)
-	test("SingleFile",
-		[]string{
-			"path/to/file.h"})
-	test("MultipleFiles",
-		[]string{
-			"path/to/file_a.h",
-			"path/to/file_b.h",
-			"path/to/file_c.h"})
+	test("TopDir", ".", "core.gni")
+	test("OneDown", "..", "gn/core.gni")
+	test("TwoDown", "../..", "modules/skcms/skcms.gni")
+}
+
+func TestGetPathToTopDir_AbsolutePath_ReturnsEmptyString(t *testing.T) {
+	// Exporter shouldn't use absolute paths, but just to be safe.
+	assert.Equal(t, "", getPathToTopDir("/"))
 }

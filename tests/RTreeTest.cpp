@@ -5,9 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkRandom.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkRTree.h"
 #include "tests/Test.h"
+
+#include <cmath>
+#include <cstddef>
+#include <vector>
+
+using namespace skia_private;
 
 static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
@@ -71,7 +80,7 @@ DEF_TEST(RTree, reporter) {
     }
 
     SkRandom rand;
-    SkAutoTMalloc<SkRect> rects(NUM_RECTS);
+    AutoTMalloc<SkRect> rects(NUM_RECTS);
     for (size_t i = 0; i < NUM_ITERATIONS; ++i) {
         SkRTree rtree;
         REPORTER_ASSERT(reporter, 0 == rtree.getCount());

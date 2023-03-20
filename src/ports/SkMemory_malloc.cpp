@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFeatures.h"
+#include "include/private/base/SkMalloc.h"
 
 #include <cstdlib>
 
@@ -17,8 +20,11 @@
 #endif
 #endif
 
-#define SK_DEBUGFAILF(fmt, ...) \
-    SkASSERT((SkDebugf(fmt"\n", __VA_ARGS__), false))
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    #define SK_DEBUGFAILF(fmt, ...) SK_ABORT(fmt"\n", __VA_ARGS__)
+#else
+    #define SK_DEBUGFAILF(fmt, ...) SkASSERT((SkDebugf(fmt"\n", __VA_ARGS__), false))
+#endif
 
 static inline void sk_out_of_memory(size_t size) {
     SK_DEBUGFAILF("sk_out_of_memory (asked for %zu bytes)",
@@ -39,10 +45,6 @@ static inline void* throw_on_failure(size_t size, void* p) {
 }
 
 void sk_abort_no_print() {
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_IS_BOT)
-    // do not display a system dialog before aborting the process
-    _set_abort_behavior(0, _WRITE_ABORT_MSG);
-#endif
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN)
     __fastfail(FAST_FAIL_FATAL_APP_EXIT);
 #elif defined(__clang__)
@@ -62,11 +64,17 @@ void sk_out_of_memory(void) {
 }
 
 void* sk_realloc_throw(void* addr, size_t size) {
+    if (size == 0) {
+        sk_free(addr);
+        return nullptr;
+    }
     return throw_on_failure(size, realloc(addr, size));
 }
 
 void sk_free(void* p) {
-    if (p) {
+    // The guard here produces a performance improvement across many tests, and many platforms.
+    // Removing the check was tried in skia cl 588037.
+    if (p != nullptr) {
         free(p);
     }
 }

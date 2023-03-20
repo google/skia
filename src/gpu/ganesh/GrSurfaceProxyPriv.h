@@ -10,6 +10,8 @@
 
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 
+#include "src/gpu/SkBackingFit.h"
+
 class GrResourceProvider;
 
 /** Class that adds methods to GrSurfaceProxy that are only intended for use internal to Skia.

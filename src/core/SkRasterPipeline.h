@@ -9,16 +9,26 @@
 #define SkRasterPipeline_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkMacros.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 
+class SkMatrix;
+enum SkColorType : int;
+struct SkImageInfo;
 struct skcms_TransferFunction;
+
+#if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__) && !defined(SK_CPU_ARM32)
+    #define SK_HAS_MUSTTAIL 1
+#else
+    #define SK_HAS_MUSTTAIL 0
+#endif
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -35,197 +45,18 @@ struct skcms_TransferFunction;
  * vary depending on CPU feature detection.
  */
 
-// There are two macros here: The first defines stages that have lowp (and highp) implementations
-// The second defines stages that are only present in the highp pipeline.
-#define SK_RASTER_PIPELINE_STAGES_LOWP(M)                          \
-    M(move_src_dst) M(move_dst_src) M(swap_src_dst)                \
-    M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_gamut)                \
-    M(premul) M(premul_dst)                                        \
-    M(force_opaque) M(force_opaque_dst)                            \
-    M(set_rgb) M(swap_rb) M(swap_rb_dst)                           \
-    M(black_color) M(white_color)                                  \
-    M(uniform_color) M(uniform_color_dst)                          \
-    M(seed_shader)                                                 \
-    M(load_a8)     M(load_a8_dst)   M(store_a8)    M(gather_a8)    \
-    M(load_565)    M(load_565_dst)  M(store_565)   M(gather_565)   \
-    M(load_4444)   M(load_4444_dst) M(store_4444)  M(gather_4444)  \
-    M(load_8888)   M(load_8888_dst) M(store_8888)  M(gather_8888)  \
-    M(load_rg88)   M(load_rg88_dst) M(store_rg88)  M(gather_rg88)  \
-    M(store_r8)                                                    \
-    M(alpha_to_gray) M(alpha_to_gray_dst)                          \
-    M(alpha_to_red) M(alpha_to_red_dst)                            \
-    M(bt709_luminance_or_luma_to_alpha) M(bt709_luminance_or_luma_to_rgb) \
-    M(bilerp_clamp_8888)                                           \
-    M(load_src) M(store_src) M(store_src_a) M(load_dst) M(store_dst) \
-    M(scale_u8) M(scale_565) M(scale_1_float) M(scale_native)      \
-    M( lerp_u8) M( lerp_565) M( lerp_1_float) M(lerp_native)       \
-    M(dstatop) M(dstin) M(dstout) M(dstover)                       \
-    M(srcatop) M(srcin) M(srcout) M(srcover)                       \
-    M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)    \
-    M(darken) M(difference)                                        \
-    M(exclusion) M(hardlight) M(lighten) M(overlay)                \
-    M(srcover_rgba_8888)                                           \
-    M(matrix_translate) M(matrix_scale_translate)                  \
-    M(matrix_2x3)                                                  \
-    M(matrix_perspective)                                          \
-    M(decal_x)    M(decal_y)   M(decal_x_and_y)                    \
-    M(check_decal_mask)                                            \
-    M(clamp_x_1) M(mirror_x_1) M(repeat_x_1)                       \
-    M(evenly_spaced_gradient)                                      \
-    M(gradient)                                                    \
-    M(evenly_spaced_2_stop_gradient)                               \
-    M(xy_to_unit_angle)                                            \
-    M(xy_to_radius)                                                \
-    M(emboss)                                                      \
-    M(swizzle)
+// Raster pipeline programs are stored as a contiguous array of SkRasterPipelineStages.
+SK_BEGIN_REQUIRE_DENSE
+struct SkRasterPipelineStage {
+    // A function pointer from `stages_lowp` or `stages_highp`. The exact function pointer type
+    // varies depending on architecture (specifically, see `Stage` in SkRasterPipeline_opts.h).
+    void (*fn)();
 
-#define SK_RASTER_PIPELINE_STAGES_HIGHP_ONLY(M)                    \
-    M(callback)                                                    \
-    M(stack_checkpoint) M(stack_rewind)                            \
-    M(unbounded_set_rgb) M(unbounded_uniform_color)                \
-    M(unpremul) M(dither)                                          \
-    M(load_16161616) M(load_16161616_dst) M(store_16161616) M(gather_16161616) \
-    M(load_a16)    M(load_a16_dst)  M(store_a16)   M(gather_a16)   \
-    M(load_rg1616) M(load_rg1616_dst) M(store_rg1616) M(gather_rg1616) \
-    M(load_f16)    M(load_f16_dst)  M(store_f16)   M(gather_f16)   \
-    M(load_af16)   M(load_af16_dst) M(store_af16)  M(gather_af16)  \
-    M(load_rgf16)  M(load_rgf16_dst) M(store_rgf16) M(gather_rgf16) \
-    M(load_f32)    M(load_f32_dst)  M(store_f32)   M(gather_f32)   \
-    M(load_rgf32)                   M(store_rgf32)                 \
-    M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
-    M(store_u16_be)                                                \
-    M(byte_tables)                                                 \
-    M(colorburn) M(colordodge) M(softlight)                        \
-    M(hue) M(saturation) M(color) M(luminosity)                    \
-    M(matrix_3x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3)        \
-    M(parametric) M(gamma_) M(PQish) M(HLGish) M(HLGinvish)        \
-    M(rgb_to_hsl) M(hsl_to_rgb)                                    \
-    M(gauss_a_to_rgba)                                             \
-    M(mirror_x)   M(repeat_x)                                      \
-    M(mirror_y)   M(repeat_y)                                      \
-    M(negate_x)                                                    \
-    M(bicubic_clamp_8888)                                          \
-    M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
-    M(bicubic_setup)                                               \
-    M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
-    M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)    \
-    M(save_xy) M(accumulate)                                       \
-    M(xy_to_2pt_conical_strip)                                     \
-    M(xy_to_2pt_conical_focal_on_circle)                           \
-    M(xy_to_2pt_conical_well_behaved)                              \
-    M(xy_to_2pt_conical_smaller)                                   \
-    M(xy_to_2pt_conical_greater)                                   \
-    M(alter_2pt_conical_compensate_focal)                          \
-    M(alter_2pt_conical_unswap)                                    \
-    M(mask_2pt_conical_nan)                                        \
-    M(mask_2pt_conical_degenerates) M(apply_vector_mask)
-
-// The combined list of all stages:
-#define SK_RASTER_PIPELINE_STAGES_ALL(M) \
-    SK_RASTER_PIPELINE_STAGES_LOWP(M)    \
-    SK_RASTER_PIPELINE_STAGES_HIGHP_ONLY(M)
-
-// The largest number of pixels we handle at a time. We have a separate value for the largest number
-// of pixels we handle in the highp pipeline. Many of the context structs in this file are only used
-// by stages that have no lowp implementation. They can therefore use the (smaller) highp value to
-// save memory in the arena.
-inline static constexpr int SkRasterPipeline_kMaxStride = 16;
-inline static constexpr int SkRasterPipeline_kMaxStride_highp = 8;
-
-// Structs representing the arguments to some common stages.
-
-struct SkRasterPipeline_MemoryCtx {
-    void* pixels;
-    int   stride;
+    // Data used by the stage function. Most context structures are declared at the top of
+    // SkRasterPipeline.h, and have names ending in Ctx (e.g. "SkRasterPipeline_SamplerCtx").
+    void* ctx;
 };
-
-struct SkRasterPipeline_GatherCtx {
-    const void* pixels;
-    int         stride;
-    float       width;
-    float       height;
-
-    float       weights[16];  // for bicubic and bicubic_clamp_8888
-};
-
-// State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
-struct SkRasterPipeline_SamplerCtx {
-    float      x[SkRasterPipeline_kMaxStride_highp];
-    float      y[SkRasterPipeline_kMaxStride_highp];
-    float     fx[SkRasterPipeline_kMaxStride_highp];
-    float     fy[SkRasterPipeline_kMaxStride_highp];
-    float scalex[SkRasterPipeline_kMaxStride_highp];
-    float scaley[SkRasterPipeline_kMaxStride_highp];
-
-    // for bicubic_[np][13][xy]
-    float weights[16];
-    float wx[4][SkRasterPipeline_kMaxStride_highp];
-    float wy[4][SkRasterPipeline_kMaxStride_highp];
-};
-
-struct SkRasterPipeline_TileCtx {
-    float scale;
-    float invScale; // cache of 1/scale
-};
-
-struct SkRasterPipeline_DecalTileCtx {
-    uint32_t mask[SkRasterPipeline_kMaxStride];
-    float    limit_x;
-    float    limit_y;
-};
-
-struct SkRasterPipeline_CallbackCtx {
-    void (*fn)(SkRasterPipeline_CallbackCtx* self,
-               int active_pixels /*<= SkRasterPipeline_kMaxStride_highp*/);
-
-    // When called, fn() will have our active pixels available in rgba.
-    // When fn() returns, the pipeline will read back those active pixels from read_from.
-    float rgba[4*SkRasterPipeline_kMaxStride_highp];
-    float* read_from = rgba;
-};
-
-// state shared by stack_checkpoint and stack_rewind
-struct SkRasterPipeline_RewindCtx {
-    float  r[SkRasterPipeline_kMaxStride_highp];
-    float  g[SkRasterPipeline_kMaxStride_highp];
-    float  b[SkRasterPipeline_kMaxStride_highp];
-    float  a[SkRasterPipeline_kMaxStride_highp];
-    float dr[SkRasterPipeline_kMaxStride_highp];
-    float dg[SkRasterPipeline_kMaxStride_highp];
-    float db[SkRasterPipeline_kMaxStride_highp];
-    float da[SkRasterPipeline_kMaxStride_highp];
-    void** program;
-};
-
-struct SkRasterPipeline_GradientCtx {
-    size_t stopCount;
-    float* fs[4];
-    float* bs[4];
-    float* ts;
-    bool interpolatedInPremul;
-};
-
-struct SkRasterPipeline_EvenlySpaced2StopGradientCtx {
-    float f[4];
-    float b[4];
-    bool interpolatedInPremul;
-};
-
-struct SkRasterPipeline_2PtConicalCtx {
-    uint32_t fMask[SkRasterPipeline_kMaxStride_highp];
-    float    fP0,
-             fP1;
-};
-
-struct SkRasterPipeline_UniformColorCtx {
-    float r,g,b,a;
-    uint16_t rgba[4];  // [0,255] in a 16-bit lane.
-};
-
-struct SkRasterPipeline_EmbossCtx {
-    SkRasterPipeline_MemoryCtx mul,
-                               add;
-};
+SK_END_REQUIRE_DENSE
 
 class SkRasterPipeline {
 public:
@@ -239,20 +70,9 @@ public:
 
     void reset();
 
-    enum StockStage {
-    #define M(stage) stage,
-        SK_RASTER_PIPELINE_STAGES_ALL(M)
-    #undef M
-    };
-
-#define M(st) +1
-    static constexpr int kNumLowpStages  = SK_RASTER_PIPELINE_STAGES_LOWP(M);
-    static constexpr int kNumHighpStages = SK_RASTER_PIPELINE_STAGES_ALL(M);
-#undef M
-
-    void append(StockStage, void* = nullptr);
-    void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
-    void append(StockStage, uintptr_t ctx);
+    void append(SkRasterPipelineOp, void* = nullptr);
+    void append(SkRasterPipelineOp op, const void* ctx) { this->append(op,const_cast<void*>(ctx)); }
+    void append(SkRasterPipelineOp, uintptr_t ctx);
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -263,6 +83,18 @@ public:
     // Allocates a thunk which amortizes run() setup cost in alloc.
     std::function<void(size_t, size_t, size_t, size_t)> compile() const;
 
+    // Callers can inspect the stage list for debugging purposes.
+    struct StageList {
+        StageList*          prev;
+        SkRasterPipelineOp  stage;
+        void*               ctx;
+    };
+
+    static const char* GetOpName(SkRasterPipelineOp op);
+    const StageList* getStageList() const { return fStages; }
+    int getNumStages() const { return fNumStages; }
+
+    // Prints the entire StageList using SkDebugf.
     void dump() const;
 
     // Appends a stage for the specified matrix.
@@ -288,7 +120,7 @@ public:
     void append_load_dst(SkColorType, const SkRasterPipeline_MemoryCtx*);
     void append_store   (SkColorType, const SkRasterPipeline_MemoryCtx*);
 
-    void append_gamut_clamp_if_normalized(const SkImageInfo&);
+    void append_clamp_if_normalized(const SkImageInfo&);
 
     void append_transfer_function(const skcms_TransferFunction&);
 
@@ -297,17 +129,14 @@ public:
     bool empty() const { return fStages == nullptr; }
 
 private:
-    struct StageList {
-        StageList* prev;
-        StockStage stage;
-        void*      ctx;
-    };
+    bool build_lowp_pipeline(SkRasterPipelineStage* ip) const;
+    void build_highp_pipeline(SkRasterPipelineStage* ip) const;
 
-    using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);
-    StartPipelineFn build_pipeline(void**) const;
+    using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, SkRasterPipelineStage* program);
+    StartPipelineFn build_pipeline(SkRasterPipelineStage*) const;
 
-    void unchecked_append(StockStage, void*);
-    int slots_needed() const;
+    void unchecked_append(SkRasterPipelineOp, void*);
+    int stages_needed() const;
 
     SkArenaAlloc*               fAlloc;
     SkRasterPipeline_RewindCtx* fRewindCtx;

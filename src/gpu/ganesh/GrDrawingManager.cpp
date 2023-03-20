@@ -14,8 +14,8 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrBufferTransferRenderTask.h"
 #include "src/gpu/ganesh/GrBufferUpdateRenderTask.h"
 #include "src/gpu/ganesh/GrClientMappedBufferManager.h"
@@ -24,6 +24,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -42,16 +43,14 @@
 #include "src/gpu/ganesh/GrTransferFromRenderTask.h"
 #include "src/gpu/ganesh/GrWaitRenderTask.h"
 #include "src/gpu/ganesh/GrWritePixelsRenderTask.h"
+#include "src/gpu/ganesh/ops/OpsTask.h"
+#include "src/gpu/ganesh/ops/SoftwarePathRenderer.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "src/text/gpu/SDFTControl.h"
 
-#if SK_GPU_V1
-#include "src/gpu/ganesh/ops/OpsTask.h"
-#include "src/gpu/ganesh/ops/SoftwarePathRenderer.h"
-#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#if SK_GPU_V1
 GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext,
                                    const PathRendererChain::Options& optionsForPathRendererChain,
                                    bool reduceOpsTaskSplitting)
@@ -61,15 +60,6 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext,
         , fSoftwarePathRenderer(nullptr)
         , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) {
 }
-
-#else
-
-GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext, bool reduceOpsTaskSplitting)
-        : fContext(rContext)
-        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) {
-}
-
-#endif
 
 GrDrawingManager::~GrDrawingManager() {
     this->closeAllTasks();
@@ -81,18 +71,16 @@ bool GrDrawingManager::wasAbandoned() const {
 }
 
 void GrDrawingManager::freeGpuResources() {
-    for (int i = fOnFlushCBObjects.count() - 1; i >= 0; --i) {
+    for (int i = fOnFlushCBObjects.size() - 1; i >= 0; --i) {
         if (!fOnFlushCBObjects[i]->retainOnFreeGpuResources()) {
             // it's safe to just do this because we're iterating in reverse
             fOnFlushCBObjects.removeShuffle(i);
         }
     }
 
-#if SK_GPU_V1
     // a path renderer may be holding onto resources
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
-#endif
 }
 
 // MDB TODO: make use of the 'proxies' parameter.
@@ -100,7 +88,7 @@ bool GrDrawingManager::flush(
         SkSpan<GrSurfaceProxy*> proxies,
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
-        const GrBackendSurfaceMutableState* newState) {
+        const skgpu::MutableTextureState* newState) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
@@ -216,7 +204,7 @@ bool GrDrawingManager::flush(
         cachePurgeNeeded = false;
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush());
+        onFlushCBObject->postFlush(fTokenTracker.nextFlushToken());
         cachePurgeNeeded = true;
     }
     if (cachePurgeNeeded) {
@@ -292,7 +280,7 @@ bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
     }
 
     SkASSERT(!flushState->opsRenderPass());
-    SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextTokenToFlush());
+    SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextFlushToken());
 
     // We reset the flush state before the RenderTasks so that the last resources to be freed are
     // those that are written to in the RenderTasks. This helps to make sure the most recently used
@@ -313,14 +301,14 @@ void GrDrawingManager::removeRenderTasks() {
         }
         task->disown(this);
     }
-    fDAG.reset();
+    fDAG.clear();
     fReorderBlockerTaskIndices.clear();
     fLastRenderTasks.reset();
 }
 
 void GrDrawingManager::sortTasks() {
     // We separately sort the ranges around non-reorderable tasks.
-    for (size_t i = 0, start = 0, end; start < fDAG.size(); ++i, start = end + 1) {
+    for (size_t i = 0, start = 0, end; start < SkToSizeT(fDAG.size()); ++i, start = end + 1) {
         end = i == fReorderBlockerTaskIndices.size() ? fDAG.size() : fReorderBlockerTaskIndices[i];
         SkSpan span(fDAG.begin() + start, end - start);
 
@@ -329,14 +317,14 @@ void GrDrawingManager::sortTasks() {
         }));
         SkASSERT(span.end() == fDAG.end() || fDAG[end]->blocksReordering());
 
-#if SK_GPU_V1 && defined(SK_DEBUG)
+#if defined(SK_GANESH) && defined(SK_DEBUG)
         // In order to partition the dag array like this it must be the case that each partition
         // only depends on nodes in the partition or earlier partitions.
         auto check = [&](const GrRenderTask* task, auto&& check) -> void {
             SkASSERT(GrRenderTask::TopoSortTraits::WasOutput(task) ||
                      std::find_if(span.begin(), span.end(), [task](const auto& n) {
                          return n.get() == task; }));
-            for (size_t i = 0; i < task->fDependencies.size(); ++i) {
+            for (int i = 0; i < task->fDependencies.size(); ++i) {
                 check(task->fDependencies[i], check);
             }
         };
@@ -350,7 +338,7 @@ void GrDrawingManager::sortTasks() {
             SkDEBUGFAIL("Render task topo sort failed.");
         }
 
-#if SK_GPU_V1 && defined(SK_DEBUG)
+#ifdef SK_DEBUG
         if (sorted && !span.empty()) {
             // This block checks for any unnecessary splits in the opsTasks. If two sequential
             // opsTasks could have merged it means the opsTask was artificially split.
@@ -380,7 +368,7 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
         [[maybe_unused]] T* old = array->at(i).release();
         array->at(i++).reset(t);
     }
-    SkASSERT(i == array->count());
+    SkASSERT(i == array->size());
 }
 
 bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
@@ -388,7 +376,7 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     // We separately sort the ranges around non-reorderable tasks.
     bool clustered = false;
     SkTInternalLList<GrRenderTask> llist;
-    for (size_t i = 0, start = 0, end; start < fDAG.size(); ++i, start = end + 1) {
+    for (size_t i = 0, start = 0, end; start < SkToSizeT(fDAG.size()); ++i, start = end + 1) {
         end = i == fReorderBlockerTaskIndices.size() ? fDAG.size() : fReorderBlockerTaskIndices[i];
         SkSpan span(fDAG.begin() + start, end - start);
         SkASSERT(std::none_of(span.begin(), span.end(), [](const auto& t) {
@@ -425,9 +413,8 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     reorder_array_by_llist(llist, &fDAG);
 
     int newCount = 0;
-    for (int i = 0; i < fDAG.count(); i++) {
+    for (int i = 0; i < fDAG.size(); i++) {
         sk_sp<GrRenderTask>& task = fDAG[i];
-#if SK_GPU_V1
         if (auto opsTask = task->asOpsTask()) {
             size_t remaining = fDAG.size() - i - 1;
             SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
@@ -437,7 +424,6 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
             }
             i += removeCount;
         }
-#endif
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);
@@ -459,7 +445,7 @@ GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
     if (fDAG.empty()) {
         return fDAG.push_back(std::move(task)).get();
     }
-    if (!fReorderBlockerTaskIndices.empty() && fReorderBlockerTaskIndices.back() == fDAG.count()) {
+    if (!fReorderBlockerTaskIndices.empty() && fReorderBlockerTaskIndices.back() == fDAG.size()) {
         fReorderBlockerTaskIndices.back()++;
     }
     fDAG.push_back(std::move(task));
@@ -473,7 +459,7 @@ GrRenderTask* GrDrawingManager::appendTask(sk_sp<GrRenderTask> task) {
         return nullptr;
     }
     if (task->blocksReordering()) {
-        fReorderBlockerTaskIndices.push_back(fDAG.count());
+        fReorderBlockerTaskIndices.push_back(fDAG.size());
     }
     return fDAG.push_back(std::move(task)).get();
 }
@@ -513,7 +499,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
         SkSpan<GrSurfaceProxy*> proxies,
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
-        const GrBackendSurfaceMutableState* newState) {
+        const skgpu::MutableTextureState* newState) {
     if (this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -555,7 +541,7 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
 void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
     int n = std::find(fOnFlushCBObjects.begin(), fOnFlushCBObjects.end(), cb) -
             fOnFlushCBObjects.begin();
-    SkASSERT(n < fOnFlushCBObjects.count());
+    SkASSERT(n < fOnFlushCBObjects.size());
     fOnFlushCBObjects.removeShuffle(n);
 }
 #endif
@@ -615,7 +601,6 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
                                      SkIPoint offset) {
     SkDEBUGCODE(this->validate());
 
-#if SK_GPU_V1
     if (fActiveOpsTask) {
         // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
@@ -624,7 +609,6 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
         fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
-#endif
 
     // Propagate the DDL proxy's state information to the replay target.
     if (ddl->priv().targetProxy()->isMSAADirty()) {
@@ -655,14 +639,13 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
 
 #ifdef SK_DEBUG
 void GrDrawingManager::validate() const {
-#if SK_GPU_V1
     if (fActiveOpsTask) {
         SkASSERT(!fDAG.empty());
         SkASSERT(!fActiveOpsTask->isClosed());
         SkASSERT(fActiveOpsTask == fDAG.back().get());
     }
 
-    for (int i = 0; i < fDAG.count(); ++i) {
+    for (int i = 0; i < fDAG.size(); ++i) {
         if (fActiveOpsTask != fDAG[i].get()) {
             // The resolveTask associated with the activeTask remains open for as long as the
             // activeTask does.
@@ -686,12 +669,10 @@ void GrDrawingManager::validate() const {
     } else {
         SkASSERT(fActiveOpsTask == nullptr);
     }
-#endif // SK_GPU_V1
 }
 #endif // SK_DEBUG
 
 void GrDrawingManager::closeActiveOpsTask() {
-#if SK_GPU_V1
     if (fActiveOpsTask) {
         // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
@@ -700,10 +681,8 @@ void GrDrawingManager::closeActiveOpsTask() {
         fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
-#endif
 }
 
-#if SK_GPU_V1
 sk_sp<skgpu::v1::OpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
                                                        sk_sp<GrArenas> arenas) {
     SkDEBUGCODE(this->validate());
@@ -751,7 +730,6 @@ void GrDrawingManager::addAtlasTask(sk_sp<GrRenderTask> atlasTask,
 
     SkDEBUGCODE(this->validate());
 }
-#endif // SK_GPU_V1
 
 GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTaskBefore(
         const GrCaps& caps) {
@@ -810,7 +788,6 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
                                                                     std::move(semaphores),
                                                                     numSemaphores);
 
-#if SK_GPU_V1
     if (fActiveOpsTask && (fActiveOpsTask->target(0) == proxy.get())) {
         SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
         this->insertTaskBeforeLast(waitTask);
@@ -828,9 +805,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
         // get a circular self dependency of waitTask on waitTask.
         waitTask->addDependenciesFromOtherTask(fActiveOpsTask);
         fActiveOpsTask->addDependency(waitTask.get());
-    } else
-#endif
-    {
+    } else {
         // In this case we just close the previous RenderTask and start and append the waitTask
         // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
         // there is a lastTask on the proxy we make waitTask depend on that task. This
@@ -937,10 +912,11 @@ void GrDrawingManager::newBufferUpdateTask(sk_sp<SkData> src,
     SkDEBUGCODE(this->validate());
 }
 
-sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
+sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> dst,
+                                                        SkIRect dstRect,
+                                                        sk_sp<GrSurfaceProxy> src,
                                                         SkIRect srcRect,
-                                                        sk_sp<GrSurfaceProxy> dst,
-                                                        SkIPoint dstPoint,
+                                                        GrSamplerState::Filter filter,
                                                         GrSurfaceOrigin origin) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
@@ -958,10 +934,11 @@ sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> sr
     this->closeActiveOpsTask();
 
     sk_sp<GrRenderTask> task = GrCopyRenderTask::Make(this,
+                                                      std::move(dst),
+                                                      dstRect,
                                                       src,
                                                       srcRect,
-                                                      std::move(dst),
-                                                      dstPoint,
+                                                      filter,
                                                       origin);
     if (!task) {
         return nullptr;
@@ -1023,7 +1000,6 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
     return true;
 }
 
-#if SK_GPU_V1
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.
@@ -1081,8 +1057,6 @@ skgpu::v1::PathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     }
     return fPathRendererChain->getTessellationPathRenderer();
 }
-
-#endif // SK_GPU_V1
 
 void GrDrawingManager::flushIfNecessary() {
     auto direct = fContext->asDirectContext();

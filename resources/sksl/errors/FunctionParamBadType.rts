@@ -1,0 +1,7 @@
+void func(Type1 param1, Type2 param2, Type3 param3) {}
+
+/*%%*
+no type named 'Type1'
+no type named 'Type2'
+no type named 'Type3'
+*%%*/

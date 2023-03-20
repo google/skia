@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkMSAN.h"
+#include "src/base/SkMSAN.h"
 #include "src/core/SkOpts.h"
 
 #if defined(__x86_64__) || defined(_M_X64)  // memset16 and memset32 could work on 32-bit x86 too.

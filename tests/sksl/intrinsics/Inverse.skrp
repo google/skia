@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 4: expected an identifier, but found type 'mat2x2'
+    const half2x2 mat2x2 = half2x2(1, 2, 3, 4);
+                  ^^^^^^
+1 error

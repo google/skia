@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'union' is a reserved word
+error: 1: name 'union' is reserved
 int union;
     ^^^^^
 1 error

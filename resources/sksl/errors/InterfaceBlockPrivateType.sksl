@@ -3,5 +3,5 @@ InterfaceBlock {
 };
 
 /*%%*
-type '$mat' is private
+type '$mat' is generic
 *%%*/

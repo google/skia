@@ -51,6 +51,17 @@ SKCMS_API float skcms_TransferFunction_eval  (const skcms_TransferFunction*, flo
 SKCMS_API bool  skcms_TransferFunction_invert(const skcms_TransferFunction*,
                                               skcms_TransferFunction*);
 
+typedef enum skcms_TFType {
+    skcms_TFType_Invalid,
+    skcms_TFType_sRGBish,
+    skcms_TFType_PQish,
+    skcms_TFType_HLGish,
+    skcms_TFType_HLGinvish,
+} skcms_TFType;
+
+// Identify which kind of transfer function is encoded in an skcms_TransferFunction
+SKCMS_API skcms_TFType skcms_TransferFunction_getType(const skcms_TransferFunction*);
+
 // We can jam a couple alternate transfer function forms into skcms_TransferFunction,
 // including those matching the general forms of the SMPTE ST 2084 PQ function or HLG.
 //
@@ -152,6 +163,12 @@ typedef struct skcms_B2A {
     skcms_Curve     output_curves[4];
 } skcms_B2A;
 
+typedef struct skcms_CICP {
+    uint8_t color_primaries;
+    uint8_t transfer_characteristics;
+    uint8_t matrix_coefficients;
+    uint8_t video_full_range_flag;
+} skcms_CICP;
 
 typedef struct skcms_ICCProfile {
     const uint8_t* buffer;
@@ -185,6 +202,10 @@ typedef struct skcms_ICCProfile {
     bool                   has_B2A;
     skcms_B2A              B2A;
 
+    // If the profile has a valid CICP tag, skcms_Parse() sets CICP to that data,
+    // and has_CICP to true.
+    bool                   has_CICP;
+    skcms_CICP             CICP;
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
@@ -297,6 +318,9 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_BGR_fff,        // Pointers must be 32-bit aligned.
     skcms_PixelFormat_RGBA_ffff,
     skcms_PixelFormat_BGRA_ffff,
+
+    skcms_PixelFormat_RGB_101010x_XR,  // Note: This is located here to signal no clamping.
+    skcms_PixelFormat_BGR_101010x_XR,  // Compatible with MTLPixelFormatBGR10_XR.
 } skcms_PixelFormat;
 
 // We always store any alpha channel linearly.  In the chart below, tf-1() is the inverse

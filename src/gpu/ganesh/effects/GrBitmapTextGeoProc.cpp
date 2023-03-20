@@ -196,7 +196,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrBitmapTextGeoProc::makeProgr
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc)
 
 #if GR_TEST_UTILS
 

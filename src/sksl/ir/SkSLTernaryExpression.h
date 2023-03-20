@@ -9,10 +9,12 @@
 #define SKSL_TERNARYEXPRESSION
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -20,17 +22,18 @@
 namespace SkSL {
 
 class Context;
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * A ternary expression (test ? ifTrue : ifFalse).
  */
 class TernaryExpression final : public Expression {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kTernary;
+    inline static constexpr Kind kIRNodeKind = Kind::kTernary;
 
     TernaryExpression(Position pos, std::unique_ptr<Expression> test,
             std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
-        : INHERITED(pos, kExpressionKind, &ifTrue->type())
+        : INHERITED(pos, kIRNodeKind, &ifTrue->type())
         , fTest(std::move(test))
         , fIfTrue(std::move(ifTrue))
         , fIfFalse(std::move(ifFalse)) {
@@ -76,21 +79,13 @@ public:
         return fIfFalse;
     }
 
-    bool hasProperty(Property property) const override {
-        return this->test()->hasProperty(property) || this->ifTrue()->hasProperty(property) ||
-               this->ifFalse()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<TernaryExpression>(pos, this->test()->clone(),
                                                    this->ifTrue()->clone(),
                                                    this->ifFalse()->clone());
     }
 
-    std::string description() const override {
-        return "(" + this->test()->description() + " ? " + this->ifTrue()->description() + " : " +
-               this->ifFalse()->description() + ")";
-    }
+    std::string description(OperatorPrecedence parentPrecedence) const override;
 
 private:
     std::unique_ptr<Expression> fTest;

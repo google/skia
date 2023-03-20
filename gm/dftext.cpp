@@ -26,11 +26,13 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
+
+using namespace skia_private;
 
 class DFTextGM : public skiagm::GM {
 public:
@@ -65,7 +67,7 @@ protected:
         inputCanvas->getProps(&inputProps);
         SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | inputProps.flags(),
                              inputProps.pixelGeometry());
-        auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
+        auto surface(SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props));
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getLocalToDeviceAs3x3());
@@ -130,9 +132,9 @@ protected:
 
             canvas->scale(2.0f, 2.0f);
 
-            SkAutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
+            AutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
             int count = font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs.get(), textLen);
-            SkAutoTArray<SkPoint>  pos(count);
+            AutoTArray<SkPoint>  pos(count);
             font.setSize(textSizes[0]);
             font.getPos(glyphs.get(), count, pos.get(), {340, 75});
 

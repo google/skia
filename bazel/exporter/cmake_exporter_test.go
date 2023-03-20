@@ -25,7 +25,7 @@ const testCMakeOutFname = "/not/necessarily/in/workspace/CMakeLists.txt"
 // This input test data (in textproto format) started as output of
 // a bazel cquery call - like:
 //
-//	bazel cquery --noimplicit_deps 'kind("rule", deps(//:skia_public))' --output textproto > out.txt
+//	bazel cquery --noimplicit_deps 'kind("rule", deps(//:skia_public))' --output textproto
 //
 // and then hand edited to create a small valid query result with specific
 // files, copts, and other cc_library/cc_binary rule attributes.
@@ -261,12 +261,4 @@ func TestGetRuleCopts_CoptsExists_Success(t *testing.T) {
 	copts, err := getRuleCopts(r)
 	require.NoError(t, err)
 	assert.Equal(t, []string{"${DEFAULT_COMPILE_FLAGS}", "-O1"}, copts)
-}
-
-func TestCheckCurrent_Unsupported_ReturnsError(t *testing.T) {
-	fs := mocks.NewFileSystem(t)
-	e := NewCMakeExporter("projName", testWorkspaceDir, testCMakeOutFname, fs)
-	qcmd := mocks.NewQueryCommand(t)
-	_, err := e.CheckCurrent(qcmd, nil)
-	assert.Error(t, err)
 }

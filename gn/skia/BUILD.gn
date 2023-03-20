@@ -10,6 +10,8 @@ if (is_wasm) {
   import("../toolchain/wasm.gni")
 }
 
+import("../skia.gni")
+
 declare_args() {
   extra_asmflags = []
   extra_cflags = []
@@ -61,9 +63,18 @@ config("default") {
   # (These unknown attribute warnings are on by default, so we don't make
   # disabling them part of :warnings, as some targets remove :warnings.)
   if (is_win && !is_clang) {
-    cflags += [ "/wd5030" ]
+    cflags += [
+      "/wd5030",
+      "/wd5051",
+    ]
   } else {
     cflags += [ "-Wno-attributes" ]
+  }
+
+  if (is_clang && !is_win) {
+    # In Clang 14, this default was changed. We turn this off to (hopefully) make our
+    # GMs more consistent in the transition.
+    cflags += [ "-ffp-contract=off" ]
   }
 
   if (is_fuchsia && using_fuchsia_sdk) {
@@ -268,6 +279,19 @@ config("default") {
         "-target",
         "arm64-apple-macos11",
       ]
+    } else {
+      asmflags += [
+        "-target",
+        "x86_64-apple-macos10.13",
+      ]
+      cflags += [
+        "-target",
+        "x86_64-apple-macos10.13",
+      ]
+      ldflags += [
+        "-target",
+        "x86_64-apple-macos10.13",
+      ]
     }
   }
 
@@ -310,8 +334,6 @@ config("default") {
 
     if (is_win) {
       cflags += [
-        "/FI$_suppressions",
-
         # On Release builds, we get strange warnings about string literals.
         "/GF-",
       ]
@@ -319,10 +341,7 @@ config("default") {
       assert(clang_win != "")
       libs += [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan-x86_64.lib" ]
     } else {
-      cflags += [
-        "-include$_suppressions",
-        "-fno-omit-frame-pointer",
-      ]
+      cflags += [ "-fno-omit-frame-pointer" ]
 
       ldflags += [ "-fsanitize=$sanitizers" ]
     }
@@ -457,7 +476,8 @@ config("warnings") {
     cflags += [
       "-Wno-cast-align",
       "-Wno-cast-qual",
-      "-Wno-conversion",  # -Wsign-conversion re-enabled for header sources
+      "-Wno-conversion",  # -Wsign-conversion and -Wshorten-64-to-32,
+                          # are re-enabled for header sources
       "-Wno-disabled-macro-expansion",
       "-Wno-documentation",
       "-Wno-documentation-unknown-command",
@@ -480,6 +500,11 @@ config("warnings") {
       "-Wno-unused-macros",
       "-Wno-unused-member-function",
       "-Wno-non-c-typedef-for-linkage",  # Dawn, not Skia per se.
+
+      # We would like to fix this, otherwise it could cause runtime issues
+      # when compiled for WASM.
+      # https://github.com/emscripten-core/emscripten/issues/16126
+      "-Wno-cast-function-type-strict",
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
@@ -498,6 +523,7 @@ config("warnings") {
       "-Wno-shadow-uncaptured-local",
       "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0
       "-Wno-declaration-after-statement",
+      "-Wno-unsafe-buffer-usage",  # Treats most array accesses as warnings
 
       # https://quuxplusone.github.io/blog/2020/08/26/wrange-loop-analysis/
       # https://bugzilla.mozilla.org/show_bug.cgi?id=1683213
@@ -547,16 +573,27 @@ config("warnings") {
       "-Wdeprecated-this-capture",
       "-Wdeprecated-volatile",
       "-Wdeprecated-writable-str",
+      "-Wc++98-compat-extra-semi",
+    ]
+  }
+
+  # !is_clang is a proxy for gcc.
+  if (!is_clang && !is_win) {
+    cflags += [
+      "-Wno-unreachable-code",  # Causes false positives in old GCC; removed
+                                # from modern GCC entirely
     ]
   }
 
   cflags_objcc += cflags_cc
 }
+
 config("warnings_for_public_headers") {
   if (is_clang) {
     cflags = [
       "-Wsign-conversion",
       "-Wunused-parameter",
+      "-Wshorten-64-to-32",
     ]
   }
 }
@@ -586,7 +623,10 @@ config("debug_symbols") {
       ldflags = [ "/DEBUG:FASTLINK" ]
     }
   } else {
-    cflags = [ "-g" ]
+    cflags = [
+      "-g",
+      "-gdwarf-4",  # older versions of addr2line do not work well with v5
+    ]
   }
 }
 
@@ -602,31 +642,59 @@ config("no_rtti") {
 }
 
 config("optimize") {
+  ldflags = []
   if (is_win) {
     cflags = [
       "/O2",
       "/Zc:inline",
     ]
-    ldflags = [
+    if (skia_enable_optimize_size) {
+      cflags += [ "/Os" ]
+    }
+    ldflags += [
       "/OPT:ICF",
       "/OPT:REF",
     ]
   } else {
-    cflags = [ "-O3" ]
+    if (skia_enable_optimize_size) {
+      cflags = [
+        "-Oz",
+
+        # We currently use bloaty 1.0 on the CI. Newer versions of Bloaty do not
+        # seem to handle newer DWARF data as well.
+        "-gdwarf-4",
+      ]
+      if (!is_android) {
+        cflags += [
+          # Clang 15 turns PIE (Position-indendendent Executable) on by default.
+          "-fno-PIE",
+          "-fno-pie",
+        ]
+        ldflags += [ "-nopie" ]
+      }
+    } else {
+      cflags = [ "-O3" ]
+    }
     if (is_mac || is_ios) {
-      ldflags = [ "-dead_strip" ]
+      ldflags += [ "-dead_strip" ]
     } else if (!is_wasm) {
       cflags += [
         "-fdata-sections",
         "-ffunction-sections",
       ]
-      ldflags = [ "-Wl,--gc-sections" ]
+      ldflags += [ "-Wl,--gc-sections" ]
     }
   }
 }
 
 config("NDEBUG") {
   defines = [ "NDEBUG" ]
+}
+
+config("trivial_abi") {
+  if (is_clang) {
+    defines = [ "SK_TRIVIAL_ABI=[[clang::trivial_abi]]" ]
+  }
 }
 
 config("executable") {

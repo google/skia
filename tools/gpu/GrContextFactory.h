@@ -11,7 +11,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
@@ -168,12 +168,12 @@ private:
 
         bool              fAbandoned;
     };
-    SkTArray<Context, true>         fContexts;
+    skia_private::TArray<Context, true> fContexts;
 #ifdef SK_GL
-    std::unique_ptr<GLTestContext>  fSentinelGLContext;
+    std::unique_ptr<GLTestContext>      fSentinelGLContext;
 #endif
 
-    const GrContextOptions          fGlobalOptions;
+    const GrContextOptions              fGlobalOptions;
 };
 
 class ContextInfo {

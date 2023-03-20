@@ -9,9 +9,10 @@
 #define GrBufferAllocPool_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTypeTraits.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCpuBuffer.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
@@ -146,6 +147,10 @@ private:
     struct BufferBlock {
         size_t fBytesFree;
         sk_sp<GrBuffer> fBuffer;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fBuffer)>::value);
+
+        using sk_is_trivially_relocatable = std::true_type;
     };
 
     bool createBlock(size_t requestSize);

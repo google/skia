@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 GrVkMSAALoadManager::GrVkMSAALoadManager()
         : fVertShaderModule(VK_NULL_HANDLE)
@@ -33,7 +34,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     std::string vertShaderText;
     vertShaderText.append(
-            "layout(set = 0, binding = 0) uniform vertexUniformBuffer {"
+            "layout(spirv, set=0, binding=0) uniform vertexUniformBuffer {"
             "half4 uPosXform;"
             "};"
 
@@ -46,7 +47,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     std::string fragShaderText;
     fragShaderText.append(
-            "layout(input_attachment_index = 0, set = 2, binding = 0) uniform subpassInput uInput;"
+            "layout(spirv, input_attachment_index=0, set=2, binding=0) uniform subpassInput uInput;"
 
             "// MSAA Load Program FS\n"
             "void main() {"

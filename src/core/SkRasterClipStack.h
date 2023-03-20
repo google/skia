@@ -9,15 +9,15 @@
 #define SkRasterClipStack_DEFINED
 
 #include "include/core/SkClipOp.h"
+#include "src/base/SkTBlockList.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
-#include "src/core/SkTBlockList.h"
 
 class SkRasterClipStack : SkNoncopyable {
 public:
     SkRasterClipStack(int width, int height)
             : fRootBounds(SkIRect::MakeWH(width, height))
-            , fDisableAA(SkScan::DowngradeClipAA(fRootBounds)) {
+            , fDisableAA(SkScan::PathRequiresTiling(fRootBounds)) {
         fStack.emplace_back(SkRasterClip(fRootBounds));
         SkASSERT(fStack.count() == 1);
     }

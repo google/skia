@@ -9,11 +9,11 @@
 #define SKSL_FUNCTIONDECLARATION
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -31,57 +31,53 @@ class Variable;
 
 struct Modifiers;
 
-// This enum holds every intrinsic supported by SkSL.
-#define SKSL_INTRINSIC(name) k_##name##_IntrinsicKind,
-enum IntrinsicKind : int8_t {
-    kNotIntrinsic = -1,
-    SKSL_INTRINSIC_LIST
-};
-#undef SKSL_INTRINSIC
-
 /**
  * A function declaration (not a definition -- does not contain a body).
  */
 class FunctionDeclaration final : public Symbol {
 public:
-    inline static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
+    inline static constexpr Kind kIRNodeKind = Kind::kFunctionDeclaration;
 
     FunctionDeclaration(Position pos,
                         const Modifiers* modifiers,
                         std::string_view name,
-                        std::vector<const Variable*> parameters,
+                        std::vector<Variable*> parameters,
                         const Type* returnType,
                         bool builtin);
 
-    static const FunctionDeclaration* Convert(const Context& context,
-                                              SymbolTable& symbols,
-                                              Position pos,
-                                              Position modifiersPos,
-                                              const Modifiers* modifiers,
-                                              std::string_view name,
-                                              std::vector<std::unique_ptr<Variable>> parameters,
-                                              Position returnTypePos,
-                                              const Type* returnType);
+    static FunctionDeclaration* Convert(const Context& context,
+                                        SymbolTable& symbols,
+                                        Position pos,
+                                        Position modifiersPos,
+                                        const Modifiers* modifiers,
+                                        std::string_view name,
+                                        std::vector<std::unique_ptr<Variable>> parameters,
+                                        Position returnTypePos,
+                                        const Type* returnType);
 
     const Modifiers& modifiers() const {
         return *fModifiers;
+    }
+
+    void setModifiers(const Modifiers* m) {
+        fModifiers = m;
     }
 
     const FunctionDefinition* definition() const {
         return fDefinition;
     }
 
-    void setDefinition(const FunctionDefinition* definition) const {
+    void setDefinition(const FunctionDefinition* definition) {
         fDefinition = definition;
         fIntrinsicKind = kNotIntrinsic;
     }
 
-    void setNextOverload(const FunctionDeclaration* overload) {
+    void setNextOverload(FunctionDeclaration* overload) {
         SkASSERT(!overload || overload->name() == this->name());
         fNextOverload = overload;
     }
 
-    const std::vector<const Variable*>& parameters() const {
+    const std::vector<Variable*>& parameters() const {
         return fParameters;
     }
 
@@ -106,6 +102,10 @@ public:
     }
 
     const FunctionDeclaration* nextOverload() const {
+        return fNextOverload;
+    }
+
+    FunctionDeclaration* mutableNextOverload() const {
         return fNextOverload;
     }
 
@@ -136,10 +136,10 @@ public:
                              const Type** outReturnType) const;
 
 private:
-    mutable const FunctionDefinition* fDefinition;
-    const FunctionDeclaration* fNextOverload = nullptr;
+    const FunctionDefinition* fDefinition;
+    FunctionDeclaration* fNextOverload = nullptr;
     const Modifiers* fModifiers;
-    std::vector<const Variable*> fParameters;
+    std::vector<Variable*> fParameters;
     const Type* fReturnType;
     bool fBuiltin;
     bool fIsMain;

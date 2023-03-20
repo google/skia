@@ -122,7 +122,7 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu,
             fBufferID = 0;
         }
     }
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(skgpu::Budgeted::kYes);
     if (!fBufferID) {
         this->resourcePriv().removeScratchKey();
     }

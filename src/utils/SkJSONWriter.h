@@ -11,11 +11,11 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTArray.h"
-#include "src/utils/SkUTF.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkUTF.h"
 
-#include <cstddef>
+#include <cstring>
 #include <cstdint>
 #include <string>
 #include <type_traits>
@@ -68,8 +68,8 @@ public:
     ~SkJSONWriter() {
         this->flush();
         delete[] fBlock;
-        SkASSERT(fScopeStack.count() == 1);
-        SkASSERT(fNewlineStack.count() == 1);
+        SkASSERT(fScopeStack.size() == 1);
+        SkASSERT(fNewlineStack.size() == 1);
     }
 
     /**
@@ -353,7 +353,7 @@ private:
         if (Mode::kPretty == fMode) {
             if (multiline) {
                 this->write("\n", 1);
-                for (int i = 0; i < fScopeStack.count() - 1; ++i) {
+                for (int i = 0; i < fScopeStack.size() - 1; ++i) {
                     this->write("   ", 3);
                 }
             } else {

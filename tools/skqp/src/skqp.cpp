@@ -58,7 +58,8 @@ static std::vector<SkQP::UnitTest> get_unit_tests(int enforcedAndroidAPILevel) {
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
         const auto ctsMode = test.fCTSEnforcement.eval(enforcedAndroidAPILevel);
         if (ctsMode != CtsEnforcement::RunMode::kSkip) {
-            SkASSERTF(test.fNeedsGpu, "Non-GPU test was included in SkQP: %s\n", test.fName);
+            SkASSERTF(test.fTestType != skiatest::TestType::kCPU,
+                      "Non-GPU test was included in SkQP: %s\n", test.fName);
             unitTests.push_back(&test);
         }
     }
@@ -172,7 +173,7 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
     if (test->fContextOptionsProc) {
         test->fContextOptionsProc(&options);
     }
-    test->fProc(&r, options);
+    test->ganesh(&r, options);
     fTestResults.push_back(TestResult{test->fName, r.fErrors});
     return r.fErrors;
 }

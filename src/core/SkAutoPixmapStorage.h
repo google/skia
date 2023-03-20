@@ -9,7 +9,9 @@
 #define SkAutoPixmapStorage_DEFINED
 
 #include "include/core/SkPixmap.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
+
+class SkData;
 
 class SkAutoPixmapStorage : public SkPixmap {
 public:

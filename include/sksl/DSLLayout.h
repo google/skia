@@ -51,6 +51,16 @@ public:
                               "binding", pos);
     }
 
+    DSLLayout& texture(int texture, Position pos = {}) {
+        return this->intValue(&fSkSLLayout.fTexture, texture, SkSL::Layout::kTexture_Flag,
+                              "texture", pos);
+    }
+
+    DSLLayout& sampler(int sampler, Position pos = {}) {
+        return this->intValue(&fSkSLLayout.fSampler, sampler, SkSL::Layout::kSampler_Flag,
+                              "sampler", pos);
+    }
+
     DSLLayout& index(int index, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fIndex, index, SkSL::Layout::kIndex_Flag, "index", pos);
     }
@@ -69,6 +79,22 @@ public:
         return this->intValue(&fSkSLLayout.fInputAttachmentIndex, inputAttachmentIndex,
                               SkSL::Layout::kInputAttachmentIndex_Flag, "input_attachment_index",
                               pos);
+    }
+
+    DSLLayout& spirv(Position pos = {}) {
+        return this->flag(SkSL::Layout::kSPIRV_Flag, "spirv", pos);
+    }
+
+    DSLLayout& metal(Position pos = {}) {
+        return this->flag(SkSL::Layout::kMetal_Flag, "metal", pos);
+    }
+
+    DSLLayout& gl(Position pos = {}) {
+        return this->flag(SkSL::Layout::kGL_Flag, "gl", pos);
+    }
+
+    DSLLayout& wgsl(Position pos = {}) {
+        return this->flag(SkSL::Layout::kWGSL_Flag, "wgsl", pos);
     }
 
 private:

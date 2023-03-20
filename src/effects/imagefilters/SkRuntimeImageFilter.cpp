@@ -5,20 +5,39 @@
  * found in the LICENSE file.
  */
 
+#include "src/effects/imagefilters/SkRuntimeImageFilter.h"
+
+#ifdef SK_ENABLE_SKSL
+
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/base/SkTArray.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkRuntimeImageFilter.h"
 
-#ifdef SK_ENABLE_SKSL
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include <utility>
 
 class SkRuntimeImageFilter final : public SkImageFilter_Base {
 public:
@@ -148,7 +167,7 @@ void SkRuntimeImageFilter::flatten(SkWriteBuffer& buffer) const {
     for (const SkString& name : fChildShaderNames) {
         buffer.writeString(name.c_str());
     }
-    for (size_t x = 0; x < fShaderBuilder.numChildren(); x++) {
+    for (size_t x = 0; x < fShaderBuilder.children().size(); x++) {
         buffer.writeFlattenable(fShaderBuilder.children()[x].flattenable());
     }
     fShaderBuilderLock.release();
@@ -169,7 +188,7 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     SkAssertResult(ctm.invert(&inverse));
 
     const int inputCount = this->countInputs();
-    SkASSERT(inputCount == fChildShaderNames.count());
+    SkASSERT(inputCount == fChildShaderNames.size());
 
     SkSTArray<1, sk_sp<SkShader>> inputShaders;
     for (int i = 0; i < inputCount; i++) {

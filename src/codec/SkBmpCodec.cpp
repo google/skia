@@ -11,6 +11,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
+#include "include/private/base/SkAlign.h"
 #include "src/codec/SkBmpMaskCodec.h"
 #include "src/codec/SkBmpRLECodec.h"
 #include "src/codec/SkBmpStandardCodec.h"
@@ -19,7 +20,6 @@
 
 #include <cstring>
 #include <memory>
-#include <type_traits>
 #include <utility>
 
 /*

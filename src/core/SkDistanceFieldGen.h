@@ -9,6 +9,10 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstddef>
+
+#if !defined(SK_DISABLE_SDF_TEXT)
+
 // the max magnitude for the distance field
 // distance values are limited to the range (-SK_DistanceFieldMagnitude, SK_DistanceFieldMagnitude]
 #define SK_DistanceFieldMagnitude   4
@@ -71,5 +75,7 @@ bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
 inline size_t SkComputeDistanceFieldSize(int w, int h) {
     return (w + 2*SK_DistanceFieldPad) * (h + 2*SK_DistanceFieldPad) * sizeof(unsigned char);
 }
+
+#endif // !defined(SK_DISABLE_SDF_TEXT)
 
 #endif

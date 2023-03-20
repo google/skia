@@ -9,10 +9,14 @@
 #define GrPersistentCacheEntry_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
+#include <string>
+
 class SkReadBuffer;
+namespace SkSL { struct ProgramSettings; }
 
 // The GrPersistentCache stores opaque blobs, as far as clients are concerned. It's helpful to
 // inspect certain kinds of cached data within our tools, so for those cases (GLSL, SPIR-V), we
@@ -22,7 +26,6 @@ namespace GrPersistentCacheUtils {
 struct ShaderMetadata {
     SkSL::ProgramSettings* fSettings = nullptr;
     SkTArray<std::string> fAttributeNames;
-    bool fHasCustomColorOutput = false;
     bool fHasSecondaryColorOutput = false;
     sk_sp<SkData> fPlatformData;
 };

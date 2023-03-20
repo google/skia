@@ -12,7 +12,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkString.h"
 #include "include/private/SkChecksum.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include "bench/gUniqueGlyphIDs.h"
 

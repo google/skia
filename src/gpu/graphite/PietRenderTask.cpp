@@ -33,7 +33,7 @@ bool PietRenderInstance::addCommands(CommandBuffer* commandBuffer) {
 }
 
 bool PietRenderTask::prepareResources(ResourceProvider* resourceProvider,
-                                      const SkRuntimeEffectDictionary*) {
+                                      const RuntimeEffectDictionary*) {
     for (PietRenderInstance& instance : fInstances) {
         if (!instance.prepareResources(resourceProvider)) {
             return false;
@@ -42,7 +42,9 @@ bool PietRenderTask::prepareResources(ResourceProvider* resourceProvider,
     return true;
 }
 
-bool PietRenderTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
+bool PietRenderTask::addCommands(ResourceProvider*,
+                                 CommandBuffer* commandBuffer,
+                                 ReplayTargetData) {
     for (PietRenderInstance& instance : fInstances) {
         instance.addCommands(commandBuffer);
     }

@@ -1,10 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "flags",
     testonly = True,
     srcs = [
@@ -13,6 +13,7 @@ filegroup(
     ],
     visibility = [
         "//modules/skottie:__pkg__",
+        "//tests:__subpackages__",
         "//tools:__subpackages__",
     ],
 )

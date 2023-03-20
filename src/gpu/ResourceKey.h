@@ -10,9 +10,11 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
-#include "include/private/SkOnce.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAlignedStorage.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 
 #include <new>
 
@@ -78,7 +80,7 @@ public:
             size_t size = (count + kMetaDataCnt) * sizeof(uint32_t);
             SkASSERT(SkToU16(size) == size);
             SkASSERT(SkToU16(domain) == domain);
-            key->fKey[kDomainAndSize_MetaDataIdx] = domain | (size << 16);
+            key->fKey[kDomainAndSize_MetaDataIdx] = SkToU32(domain | (size << 16));
         }
 
     private:
@@ -163,7 +165,7 @@ private:
     friend class ::TestResource;  // For unit test to access kMetaDataCnt.
 
     // bmp textures require 5 uint32_t values.
-    SkAutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
+    skia_private::AutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
 };
 
 /**

@@ -255,7 +255,6 @@ private:
             switch (fClipType) {
                 case kPath_ClipType:
                     return SkPathBuilder(fPathBuilder).close().detach();
-                    break;
                 case kRect_ClipType:
                     return SkPath::Rect(fRect);
                 case kNone_ClipType:

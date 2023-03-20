@@ -11,10 +11,8 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include <atomic>
@@ -26,6 +24,8 @@ class GrDstProxyView;
 class GrOpFlushState;
 class GrOpsRenderPass;
 class GrPaint;
+class GrRecordingContext;
+class GrSurfaceProxyView;
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
@@ -173,7 +173,7 @@ public:
     void prePrepare(GrRecordingContext* context, const GrSurfaceProxyView& dstView,
                     GrAppliedClip* clip, const GrDstProxyView& dstProxyView,
                     GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
-        TRACE_EVENT0_ALWAYS("skia.gpu", name());
+        TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
         this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers,
                            colorLoadOp);
     }
@@ -183,13 +183,13 @@ public:
      * necessary before execute() is called.
      */
     void prepare(GrOpFlushState* state) {
-        TRACE_EVENT0_ALWAYS("skia.gpu", name());
+        TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
         this->onPrepare(state);
     }
 
     /** Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state, const SkRect& chainBounds) {
-        TRACE_EVENT0_ALWAYS("skia.gpu", name());
+        TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
         this->onExecute(state, chainBounds);
     }
 

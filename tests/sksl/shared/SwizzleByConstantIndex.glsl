@@ -3,32 +3,18 @@ out vec4 sk_FragColor;
 uniform vec4 testInputs;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-vec4 constant_swizzle_h4() {
-    vec4 v = testInputs;
-    float x = v.x;
-    float y = v.y;
-    float z = v.z;
-    float w = v.w;
-    return vec4(x, y, z, w);
-}
-vec4 foldable_index_h4() {
-    float x = testInputs.x;
-    float y = testInputs.y;
-    float z = testInputs.z;
-    float w = testInputs.w;
-    return vec4(x, y, z, w);
-}
-vec4 foldable_h4() {
-    vec4 v = vec4(0.0, 1.0, 2.0, 3.0);
-    float x = v.x;
-    float y = v.y;
-    float z = v.z;
-    float w = v.w;
-    return vec4(x, y, z, w);
-}
 vec4 main() {
-    vec4 a = constant_swizzle_h4();
-    vec4 b = foldable_index_h4();
-    vec4 c = foldable_h4();
+    vec4 _0_v = testInputs;
+    float _1_x = _0_v.x;
+    float _2_y = _0_v.y;
+    float _3_z = _0_v.z;
+    float _4_w = _0_v.w;
+    vec4 a = vec4(_1_x, _2_y, _3_z, _4_w);
+    float _9_x = testInputs.x;
+    float _10_y = testInputs.y;
+    float _11_z = testInputs.z;
+    float _12_w = testInputs.w;
+    vec4 b = vec4(_9_x, _10_y, _11_z, _12_w);
+    vec4 c = vec4(0.0, 1.0, 2.0, 3.0);
     return (a == vec4(-1.25, 0.0, 0.75, 2.25) && b == vec4(-1.25, 0.0, 0.75, 2.25)) && c == vec4(0.0, 1.0, 2.0, 3.0) ? colorGreen : colorRed;
 }

@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26 && defined(SK_VULKAN)
+#if defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26 && defined(SK_VULKAN)
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -20,7 +20,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -412,7 +412,7 @@ public:
     }
 
     void releaseSurfaceToExternal(SkSurface* surface) override {
-        GrBackendSurfaceMutableState newState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_EXTERNAL);
+        skgpu::MutableTextureState newState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_EXTERNAL);
         surface->flush({}, &newState);
     }
 
@@ -743,6 +743,7 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
             if (supportedFlags == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
                 typeIndex = i;
                 heapIndex = pdmp.memoryTypes[i].heapIndex;
+                REPORTER_ASSERT(reporter, heapIndex < pdmp.memoryHeapCount);
                 foundHeap = true;
             }
         }
@@ -1259,10 +1260,8 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     SkImageInfo imageInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                               kPremul_SkAlphaType, nullptr);
 
-    sk_sp<SkSurface> dstSurf = SkSurface::MakeRenderTarget(direct,
-                                                           SkBudgeted::kNo, imageInfo, 0,
-                                                           kTopLeft_GrSurfaceOrigin,
-                                                           nullptr, false);
+    sk_sp<SkSurface> dstSurf = SkSurface::MakeRenderTarget(
+            direct, skgpu::Budgeted::kNo, imageInfo, 0, kTopLeft_GrSurfaceOrigin, nullptr, false);
     if (!dstSurf.get()) {
         ERRORF(reporter, "Failed to create destination SkSurface");
         wrappedImage.reset();
@@ -1297,51 +1296,63 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_CPU_Vulkan, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_CPU_Vulkan, reporter, options, CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kCPU, DstType::kVulkan, false);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_Vulkan_Vulkan,
+                reporter,
+                options,
+                CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, false);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan_Syncs,
-            reporter,
-            options,
-            CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_Vulkan_Vulkan_Syncs,
+                reporter,
+                options,
+                CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, true);
 }
 
 #if defined(SK_GL)
-DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_EGL_Vulkan, reporter, options, CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kEGL, DstType::kVulkan, false);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_CPU_EGL, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_CPU_EGL, reporter, options, CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kCPU, DstType::kEGL, false);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_EGL_EGL, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_EGL_EGL, reporter, options, CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kEGL, DstType::kEGL, false);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_EGL, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_Vulkan_EGL, reporter, options, CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kVulkan, DstType::kEGL, false);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_EGL_EGL_Syncs, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_EGL_EGL_Syncs,
+                reporter,
+                options,
+                CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kEGL, DstType::kEGL, true);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_EGL_Syncs, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_Vulkan_EGL_Syncs,
+                reporter,
+                options,
+                CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kVulkan, DstType::kEGL, true);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan_Syncs, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VulkanHardwareBuffer_EGL_Vulkan_Syncs,
+                reporter,
+                options,
+                CtsEnforcement::kApiLevel_T) {
     run_test(reporter, options, SrcType::kEGL, DstType::kVulkan, true);
 }
 #endif
 
-#endif  // SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) &&
+#endif  // defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) &&
         // __ANDROID_API__ >= 26 && defined(SK_VULKAN)
 

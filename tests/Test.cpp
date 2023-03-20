@@ -7,11 +7,12 @@
 
 #include "tests/Test.h"
 
-#include <stdlib.h>
-
 #include "include/core/SkString.h"
 #include "include/core/SkTime.h"
 #include "tools/flags/CommandLineFlags.h"
+
+#include <cstdlib>
+#include <string>
 
 static DEFINE_string2(tmpDir, t, nullptr, "Temp directory to use.");
 
@@ -26,7 +27,7 @@ void skiatest::Reporter::reportFailedWithContext(const skiatest::Failure& f) {
     SkString fullMessage = f.message;
     if (!fContextStack.empty()) {
         fullMessage.append(" [");
-        for (int i = 0; i < fContextStack.count(); ++i) {
+        for (int i = 0; i < fContextStack.size(); ++i) {
             if (i > 0) {
                 fullMessage.append(", ");
             }

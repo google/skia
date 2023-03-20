@@ -18,8 +18,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkColorTable.h"
@@ -34,6 +34,8 @@
 
 #include <png.h>
 #include <pngconf.h>
+
+using namespace skia_private;
 
 class SkSampler;
 
@@ -325,7 +327,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
     const int maxColors = 1 << fBitDepth;
     if (numColors < maxColors) {
         SkPMColor lastColor = numColors > 0 ? colorTable[numColors - 1] : SK_ColorBLACK;
-        sk_memset32(colorTable + numColors, lastColor, maxColors - numColors);
+        SkOpts::memset32(colorTable + numColors, lastColor, maxColors - numColors);
     }
 
     fColorTable.reset(new SkColorTable(colorTable, maxColors));
@@ -645,7 +647,7 @@ private:
     int                     fLinesDecoded;
     bool                    fInterlacedComplete;
     size_t                  fPng_rowbytes;
-    SkAutoTMalloc<png_byte> fInterlaceBuffer;
+    AutoTMalloc<png_byte> fInterlaceBuffer;
 
     using INHERITED = SkPngCodec;
 

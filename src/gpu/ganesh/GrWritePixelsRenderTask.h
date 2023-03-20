@@ -41,7 +41,7 @@ private:
     void visitProxies_debugOnly(const GrVisitProxyFunc&) const override {}
 #endif
 
-    SkAutoSTArray<16, GrMipLevel> fLevels;
+    skia_private::AutoSTArray<16, GrMipLevel> fLevels;
     SkIRect fRect;
     GrColorType fSrcColorType;
     GrColorType fDstColorType;

@@ -1,5 +1,5 @@
 int output;
 
 /*%%*
-'output' is a reserved word
+name 'output' is reserved
 *%%*/

@@ -35,56 +35,34 @@
  */
 class SkMatrixProvider {
 public:
-    SkMatrixProvider(const SkMatrix& localToDevice) : SkMatrixProvider(localToDevice, true) {}
-    SkMatrixProvider(const SkM44& localToDevice) : SkMatrixProvider(localToDevice, true) {}
+    SkMatrixProvider(const SkMatrix& localToDevice)
+            : fLocalToDevice(localToDevice), fLocalToDevice33(localToDevice) {}
+
+    SkMatrixProvider(const SkM44& localToDevice)
+            : fLocalToDevice(localToDevice), fLocalToDevice33(localToDevice.asM33()) {}
 
     // These should return the "same" matrix, as either a 3x3 or 4x4. Most sites in Skia still
     // call localToDevice, and operate on SkMatrix.
     const SkMatrix& localToDevice() const { return fLocalToDevice33; }
     const SkM44& localToDevice44() const { return fLocalToDevice; }
 
-    bool localToDeviceHitsPixelCenters() const { return fHitsPixelCenters; }
-
-protected:
-    SkMatrixProvider(const SkMatrix& localToDevice, bool hitsPixelCenters)
-        : fLocalToDevice(localToDevice)
-        , fLocalToDevice33(localToDevice)
-        , fHitsPixelCenters(hitsPixelCenters) {}
-
-    SkMatrixProvider(const SkM44& localToDevice, bool hitsPixelCenters)
-        : fLocalToDevice(localToDevice)
-        , fLocalToDevice33(localToDevice.asM33())
-        , fHitsPixelCenters(hitsPixelCenters) {}
-
 private:
     friend class SkBaseDevice;
 
-    SkM44      fLocalToDevice;
-    SkMatrix   fLocalToDevice33;  // Cached SkMatrix version of above, for legacy usage
-    const bool fHitsPixelCenters;
-};
-
-// Logically, this is equivalent to just making a new SkMatrixProvider, but we keep it distinct.
-// This is for cases where there is an existing matrix provider, but we're replacing the
-// local-to-device. In that scenario, we can't guarantee that we hit pixel centers anymore.
-class SkOverrideDeviceMatrixProvider : public SkMatrixProvider {
-public:
-    SkOverrideDeviceMatrixProvider(const SkMatrix& localToDevice)
-            : SkMatrixProvider(localToDevice, /*hitsPixelCenters=*/false) {}
+    SkM44    fLocalToDevice;
+    SkMatrix fLocalToDevice33;  // Cached SkMatrix version of above, for legacy usage
 };
 
 class SkPostTranslateMatrixProvider : public SkMatrixProvider {
 public:
     SkPostTranslateMatrixProvider(const SkMatrixProvider& parent, SkScalar dx, SkScalar dy)
-            : SkMatrixProvider(SkM44::Translate(dx, dy) * parent.localToDevice44(),
-                               parent.localToDeviceHitsPixelCenters()) {}
+            : SkMatrixProvider(SkM44::Translate(dx, dy) * parent.localToDevice44()) {}
 };
 
 class SkPreConcatMatrixProvider : public SkMatrixProvider {
 public:
     SkPreConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& preMatrix)
-            : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix),
-                               parent.localToDeviceHitsPixelCenters()) {}
+            : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix)) {}
 };
 
 #endif

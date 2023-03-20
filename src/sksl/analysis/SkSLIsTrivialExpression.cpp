@@ -7,6 +7,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -41,7 +42,7 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorStruct:
             // Only consider small arrays/structs of compile-time-constants to be trivial.
-            return expr.type().slotCount() <= 4 && expr.isCompileTimeConstant();
+            return expr.type().slotCount() <= 4 && IsCompileTimeConstant(expr);
 
         case Expression::Kind::kConstructorArrayCast:
         case Expression::Kind::kConstructorMatrixResize:
@@ -50,7 +51,7 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
 
         case Expression::Kind::kConstructorCompound:
             // Only compile-time-constant compound constructors are considered to be trivial.
-            return expr.isCompileTimeConstant();
+            return IsCompileTimeConstant(expr);
 
         case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorScalarCast:

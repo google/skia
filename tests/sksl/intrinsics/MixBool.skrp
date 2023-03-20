@@ -1,0 +1,51 @@
+### Compilation failed:
+
+error: 14: no match for mix(int, int, bool)
+    return (mix(intGreen.x,       intRed.x,       false)        == intGreen.x      &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 15: no match for mix(int2, int2, bool2)
+            mix(intGreen.xy,      intRed.xy,      bool2(false)) == intGreen.xy     &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 16: no match for mix(int3, int3, bool3)
+            mix(intGreen.xyz,     intRed.xyz,     bool3(false)) == intGreen.xyz    &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 17: no match for mix(int4, int4, bool4)
+            mix(intGreen.xyzw,    intRed.xyzw,    bool4(false)) == intGreen.xyzw   &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 18: no match for mix(int, int, bool)
+            mix(intGreen.x,       intRed.x,       true)         == intRed.x        &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 19: no match for mix(int2, int2, bool2)
+            mix(intGreen.xy,      intRed.xy,      bool2(true))  == intRed.xy       &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 20: no match for mix(int3, int3, bool3)
+            mix(intGreen.xyz,     intRed.xyz,     bool3(true))  == intRed.xyz      &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 21: no match for mix(int4, int4, bool4)
+            mix(intGreen.xyzw,    intRed.xyzw,    bool4(true))  == intRed.xyzw     &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 22: no match for mix(int, int, bool)
+            mix(constIGreen.x,    constIRed.x,    false)        == intGreen.x      &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 23: no match for mix(int2, int2, bool2)
+            mix(constIGreen.xy,   constIRed.xy,   bool2(false)) == intGreen.xy     &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 24: no match for mix(int3, int3, bool3)
+            mix(constIGreen.xyz,  constIRed.xyz,  bool3(false)) == intGreen.xyz    &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 25: no match for mix(int4, int4, bool4)
+            mix(constIGreen.xyzw, constIRed.xyzw, bool4(false)) == intGreen.xyzw   &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 26: no match for mix(int, int, bool)
+            mix(constIGreen.x,    constIRed.x,    true)         == intRed.x        &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 27: no match for mix(int2, int2, bool2)
+            mix(constIGreen.xy,   constIRed.xy,   bool2(true))  == intRed.xy       &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 28: no match for mix(int3, int3, bool3)
+            mix(constIGreen.xyz,  constIRed.xyz,  bool3(true))  == intRed.xyz      &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 29: no match for mix(int4, int4, bool4)
+            mix(constIGreen.xyzw, constIRed.xyzw, bool4(true))  == intRed.xyzw     &&
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 errors

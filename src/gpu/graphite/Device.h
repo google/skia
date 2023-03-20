@@ -8,9 +8,9 @@
 #ifndef skgpu_graphite_Device_DEFINED
 #define skgpu_graphite_Device_DEFINED
 
+#include "include/gpu/GpuTypes.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkEnumBitMask.h"
-
 #include "src/gpu/graphite/ClipStack_graphite.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Rect.h"
@@ -20,7 +20,10 @@
 
 class SkStrokeRec;
 
-namespace sktext::gpu { class AtlasSubRun; }
+namespace sktext::gpu {
+class AtlasSubRun;
+enum class Budgeted : bool;
+}  // namespace sktext::gpu
 
 namespace skgpu::graphite {
 
@@ -43,11 +46,18 @@ public:
 
     static sk_sp<Device> Make(Recorder*,
                               const SkImageInfo&,
-                              SkBudgeted,
+                              skgpu::Budgeted,
+                              Mipmapped,
                               const SkSurfaceProps&,
                               bool addInitialClear);
     static sk_sp<Device> Make(Recorder*,
                               sk_sp<TextureProxy>,
+                              const SkColorInfo&,
+                              const SkSurfaceProps&,
+                              bool addInitialClear);
+    static sk_sp<Device> Make(Recorder* recorder,
+                              sk_sp<TextureProxy>,
+                              SkISize deviceSize,
                               const SkColorInfo&,
                               const SkSurfaceProps&,
                               bool addInitialClear);
@@ -63,16 +73,30 @@ public:
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
     void flushPendingWorkToRecorder();
 
-    bool readPixels(Context*, Recorder*, const SkPixmap& dst, int x, int y);
+    TextureProxyView createCopy(const SkIRect* subset, Mipmapped);
+
+    void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                   SkIRect srcRect,
+                                   SkImage::RescaleGamma rescaleGamma,
+                                   SkImage::RescaleMode rescaleMode,
+                                   SkImage::ReadPixelsCallback callback,
+                                   SkImage::ReadPixelsContext context);
+
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         SkIRect srcRect,
+                                         SkISize dstSize,
+                                         SkImage::RescaleGamma rescaleGamma,
+                                         SkImage::RescaleMode,
+                                         SkImage::ReadPixelsCallback callback,
+                                         SkImage::ReadPixelsContext context);
 
     const Transform& localToDeviceTransform();
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
 
-#if GRAPHITE_TEST_UTILS
-    TextureProxy* proxy();
-#endif
-    TextureProxyView readSurfaceView();
+    TextureProxy* target();
+    TextureProxyView readSurfaceView() const;
 
 private:
     class IntersectionTreeSet;
@@ -115,32 +139,25 @@ private:
 
     bool onReadPixels(const SkPixmap&, int x, int y) override;
 
-    /*
-     * TODO: These functions are not in scope to be implemented yet, but will need to be. Call them
-     * out explicitly so it's easy to keep tabs on how close feature-complete actually is.
-     */
-
     bool onWritePixels(const SkPixmap&, int x, int y) override;
 
     void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&,
                             const SkPaint&, const SkPaint&) override;
 
-    // TODO: This will likely be implemented with the same primitive building block that drawRect
-    // and drawRRect will rely on.
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
                         SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color,
-                        SkBlendMode mode) override {}
+                        SkBlendMode mode) override;
 
     void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,
                             const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                             const SkSamplingOptions&, const SkPaint&,
-                            SkCanvas::SrcRectConstraint) override {}
+                            SkCanvas::SrcRectConstraint) override;
 
-    // TODO: These image drawing APIs can likely be implemented with the same primitive building
-    // block that drawEdgeAAImageSet will use.
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
+
+    // TODO: Implement these using per-edge AA quads and an inlined image shader program.
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override {}
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
@@ -151,9 +168,9 @@ private:
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override {}
 
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
+    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice,
-                     const SkSamplingOptions&, const SkPaint&) override {}
+                     const SkSamplingOptions&, const SkPaint&) override;
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
@@ -207,7 +224,10 @@ private:
     // return a retry error code? or does drawGeometry() handle all the fallbacks, knowing that
     // a particular shape type needs to be pre-chopped?
     // TODO: Move this into a RendererSelector object provided by the Context.
-    const Renderer* chooseRenderer(const Geometry&, const Clip&, const SkStrokeRec&) const;
+    const Renderer* chooseRenderer(const Geometry&,
+                                   const Clip&,
+                                   const SkStrokeRec&,
+                                   bool requireMSAA) const;
 
     bool needsFlushBeforeDraw(int numNewDraws) const;
 

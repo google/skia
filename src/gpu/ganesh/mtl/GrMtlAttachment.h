@@ -13,6 +13,7 @@
 
 #import <Metal/Metal.h>
 
+class GrBackendFormat;
 class GrMtlGpu;
 
 class GrMtlAttachment : public GrAttachment {
@@ -33,7 +34,7 @@ public:
                                               uint32_t mipLevels,
                                               GrRenderable renderable,
                                               int numSamples,
-                                              SkBudgeted budgeted);
+                                              skgpu::Budgeted budgeted);
 
     static sk_sp<GrMtlAttachment> MakeWrapped(GrMtlGpu* gpu,
                                               SkISize dimensions,
@@ -44,15 +45,13 @@ public:
 
     ~GrMtlAttachment() override;
 
-    GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
-    }
+    GrBackendFormat backendFormat() const override;
 
     MTLPixelFormat mtlFormat() const { return fTexture.pixelFormat; }
 
     id<MTLTexture> mtlTexture() const { return fTexture; }
 
-    unsigned int sampleCount() const { return fTexture.sampleCount; }
+    unsigned int sampleCount() const { return SkToU32(fTexture.sampleCount); }
 
     bool framebufferOnly() const { return fTexture.framebufferOnly; }
 
@@ -69,13 +68,13 @@ private:
                                        uint32_t mipLevels,
                                        int mtlTextureUsage,
                                        int mtlStorageMode,
-                                       SkBudgeted);
+                                       skgpu::Budgeted);
 
     GrMtlAttachment(GrMtlGpu* gpu,
                     SkISize dimensions,
                     UsageFlags supportedUsages,
                     id<MTLTexture> texture,
-                    SkBudgeted,
+                    skgpu::Budgeted,
                     std::string_view label);
 
     GrMtlAttachment(GrMtlGpu* gpu,

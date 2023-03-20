@@ -7,29 +7,67 @@
 
 #include "src/core/SkRecorder.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/private/SkTo.h"
-#include "include/private/chromium/Slug.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkVertices.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
 
+#if defined(SK_GANESH)
+#include "include/private/chromium/Slug.h"
+#endif
+
+#include <cstdint>
+#include <cstring>
 #include <memory>
 #include <new>
 
+class SkBlender;
+class SkMesh;
+class SkPath;
+class SkRRect;
+class SkRegion;
+class SkSurfaceProps;
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkDrawShadowRec;
+
+using namespace skia_private;
+
 SkDrawableList::~SkDrawableList() {
-    fArray.unrefAll();
+    for(SkDrawable* p : fArray) {
+        p->unref();
+    }
+    fArray.reset();
 }
 
 SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
-    const int count = fArray.count();
+    const int count = fArray.size();
     if (0 == count) {
         return nullptr;
     }
-    SkAutoTMalloc<const SkPicture*> pics(count);
+    AutoTMalloc<const SkPicture*> pics(count);
     for (int i = 0; i < count; ++i) {
         pics[i] = fArray[i]->newPictureSnapshot();
     }
@@ -215,7 +253,7 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->append<SkRecords::DrawTextBlob>(paint, sk_ref_sp(blob), x, y);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 void SkRecorder::onDrawSlug(const sktext::gpu::Slug* slug) {
     this->append<SkRecords::DrawSlug>(sk_ref_sp(slug));
 }
@@ -242,6 +280,12 @@ void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bm
                                           sk_ref_sp(const_cast<SkVertices*>(vertices)),
                                           bmode);
 }
+
+#ifdef SK_ENABLE_SKSL
+void SkRecorder::onDrawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint) {
+    this->append<SkRecords::DrawMesh>(paint, mesh, std::move(blender));
+}
+#endif
 
 void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode bmode,
@@ -289,7 +333,7 @@ void SkRecorder::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
     int totalDstClipCount, totalMatrixCount;
     SkCanvasPriv::GetDstClipAndMatrixCounts(set, count, &totalDstClipCount, &totalMatrixCount);
 
-    SkAutoTArray<ImageSetEntry> setCopy(count);
+    AutoTArray<ImageSetEntry> setCopy(count);
     for (int i = 0; i < count; ++i) {
         setCopy[i] = set[i];
     }

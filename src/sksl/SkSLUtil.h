@@ -8,15 +8,13 @@
 #ifndef SKSL_UTIL
 #define SKSL_UTIL
 
+#include "include/core/SkTypes.h"
 #include "include/sksl/SkSLVersion.h"
-#include "src/core/SkSLTypeShared.h"
 #include "src/sksl/SkSLGLSL.h"
 
 #include <memory>
 
-#ifndef SKSL_STANDALONE
-#include "include/core/SkTypes.h"
-#endif // SKSL_STANDALONE
+enum class SkSLType : char;
 
 namespace SkSL {
 
@@ -84,6 +82,8 @@ struct ShaderCaps {
     SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k330;
 
     bool fShaderDerivativeSupport = false;
+    /** Enables sampleGrad and sampleLod functions that don't rely on implicit derivatives */
+    bool fExplicitTextureLodSupport = false;
     /** Indicates true 32-bit integer support, with unsigned types and bitwise operations */
     bool fIntegerSupport = false;
     bool fNonsquareMatrixSupport = false;
@@ -97,6 +97,9 @@ struct ShaderCaps {
     bool fSampleMaskSupport = false;
     bool fExternalTextureSupport = false;
     bool fFloatIs32Bits = true;
+
+    // isinf() is defined, and floating point infinities are handled according to IEEE standards.
+    bool fInfinitySupport = false;
 
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport = true;
@@ -138,6 +141,8 @@ struct ShaderCaps {
     bool fRewriteMatrixVectorMultiply = false;
     // Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skia:11308)
     bool fRewriteMatrixComparisons = false;
+    // Strips const from function parameters in the GLSL code generator. (skia:13858)
+    bool fRemoveConstFromFunctionParameters = false;
 
     const char* fVersionDeclString = "";
 
@@ -171,7 +176,7 @@ protected:
     static std::unique_ptr<ShaderCaps> MakeShaderCaps();
 };
 
-#if !defined(SKSL_STANDALONE) && (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+#if !defined(SKSL_STANDALONE) && (defined(SK_GANESH) || defined(SK_GRAPHITE))
 bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outType);
 #endif
 

@@ -7,21 +7,36 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkMutex.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkPathPriv.h"
+#include "src/pathops/SkPathOpsDebug.h"
 #include "tests/PathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
+#include "tests/Test.h"
 
-#include <stdlib.h>
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
 std::vector<std::string> gUniqueNames;
 
@@ -413,8 +428,7 @@ static void json_path_out(const SkPath& path, const char* pathName, const char* 
         "InverseEvenOdd",
     };
     if (PathOpsDebug::gOutputSVG) {
-        SkString svg;
-        SkParsePath::ToSVGString(path, &svg);
+        SkString svg = SkParsePath::ToSVGString(path);
         fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
     } else {
                                  // MOVE, LINE, QUAD, CONIC, CUBIC, CLOSE
@@ -641,8 +655,8 @@ void initializeTests(skiatest::Reporter* reporter, const char* test) {
         SkFILEStream inFile("../../experimental/Intersection/op.htm");
         if (inFile.isValid()) {
             SkTDArray<char> inData;
-            inData.setCount((int) inFile.getLength());
-            size_t inLen = inData.count();
+            inData.resize((int) inFile.getLength());
+            size_t inLen = inData.size();
             inFile.read(inData.begin(), inLen);
             inFile.close();
             char* insert = strstr(inData.begin(), marker);

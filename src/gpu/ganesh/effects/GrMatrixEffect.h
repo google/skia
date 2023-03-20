@@ -10,8 +10,8 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkTypes.h"
-
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 
 class GrMatrixEffect : public GrFragmentProcessor {
 public:

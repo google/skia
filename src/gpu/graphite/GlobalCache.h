@@ -10,15 +10,17 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
 
-class SkShaderCodeDictionary;
 
 namespace skgpu::graphite {
 
 class ComputePipeline;
 class GraphicsPipeline;
+class Resource;
+class ShaderCodeDictionary;
 
 /**
  * GlobalCache holds GPU resources that should be shared by every Recorder. The common requirement
@@ -44,10 +46,21 @@ public:
     sk_sp<GraphicsPipeline> addGraphicsPipeline(const UniqueKey&,
                                                 sk_sp<GraphicsPipeline>) SK_EXCLUDES(fSpinLock);
 
+#if GRAPHITE_TEST_UTILS
+    int numGraphicsPipelines() const SK_EXCLUDES(fSpinLock);
+    void resetGraphicsPipelines() SK_EXCLUDES(fSpinLock);
+#endif
+
     // Find amd add operations for ComputePipelines, with the same pattern as GraphicsPipelines.
     sk_sp<ComputePipeline> findComputePipeline(const UniqueKey&) SK_EXCLUDES(fSpinLock);
     sk_sp<ComputePipeline> addComputePipeline(const UniqueKey&,
                                               sk_sp<ComputePipeline>) SK_EXCLUDES(fSpinLock);
+
+    // The GlobalCache holds a ref on the given Resource until the cache is destroyed, keeping it
+    // alive for the lifetime of the SharedContext. This should be used only for Resources that are
+    // immutable after initialization so that anyone can use the resource without synchronization
+    // or reference tracking.
+    void addStaticResource(sk_sp<Resource>) SK_EXCLUDES(fSpinLock);
 
 private:
     struct KeyHash {
@@ -66,7 +79,7 @@ private:
     GraphicsPipelineCache fGraphicsPipelineCache SK_GUARDED_BY(fSpinLock);
     ComputePipelineCache  fComputePipelineCache  SK_GUARDED_BY(fSpinLock);
 
-    // TODO: Cache/own static and GPU-private buffers that RenderSteps create on initialization?
+    SkTArray<sk_sp<Resource>> fStaticResource SK_GUARDED_BY(fSpinLock);
 };
 
 } // namespace skgpu::graphite

@@ -190,6 +190,12 @@ static constexpr bool BlendAllowsCoverageAsAlpha(BlendEquation equation,
 const char* BlendFuncName(SkBlendMode mode);
 
 /**
+ * If a blend can be represented by `blend_porter_duff`, returns the associated blend constants as
+ * an array of four floats. If not, returns an empty span.
+ */
+SkSpan<const float> GetPorterDuffBlendConstants(SkBlendMode mode);
+
+/**
  * Returns a pair of "blend function + uniform data" for a particular SkBlendMode.
  * This allows us to use fewer unique functions when generating shaders, e.g. every Porter-Duff
  * blend can use the same function.

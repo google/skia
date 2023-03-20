@@ -14,8 +14,6 @@ SkPath star() {
 }
 
 void draw(SkCanvas* canvas) {
-    SkString s;
-    SkParsePath::ToSVGString(star(), &s);
-    SkDebugf("%s\n", s.c_str());
+    SkDebugf("%s\n", SkParsePath::ToSVGString(star()).c_str());
 }
 }  // END FIDDLE

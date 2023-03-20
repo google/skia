@@ -12,7 +12,7 @@
 
 #include "include/core/SkPoint.h"
 #include "src/core/SkVM.h"
-#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/tracing/SkSLDebugInfo.h"
 
 #include <cstdint>
 #include <memory>
@@ -23,28 +23,6 @@ class SkStream;
 class SkWStream;
 
 namespace SkSL {
-
-struct SkVMSlotInfo {
-    /** The full name of this variable (without component): (e.g. `myArray[3].myStruct.myVector`) */
-    std::string             name;
-    /** The dimensions of this variable: 1x1 is a scalar, Nx1 is a vector, NxM is a matrix. */
-    uint8_t                 columns = 1, rows = 1;
-    /** Which component of the variable is this slot? (e.g. `vec4.z` is component 2) */
-    uint8_t                 componentIndex = 0;
-    /** Complex types (arrays/structs) can be tracked as a "group" of adjacent slots. */
-    int                     groupIndex = 0;
-    /** What kind of numbers belong in this slot? */
-    SkSL::Type::NumberKind  numberKind = SkSL::Type::NumberKind::kNonnumeric;
-    /** Where is this variable located in the program? */
-    int                     line;
-    /** If this slot holds a function's return value, its FunctionInfo index; if not, -1. */
-    int                     fnReturnValue;
-};
-
-struct SkVMFunctionInfo {
-    /** Full function declaration: `float myFunction(half4 color)`) */
-    std::string             name;
-};
 
 struct SkVMTraceInfo {
     enum class Op {
@@ -91,8 +69,8 @@ public:
     SkIPoint fTraceCoord = {};
 
     /** A 1:1 mapping of slot numbers to debug information. */
-    std::vector<SkVMSlotInfo> fSlotInfo;
-    std::vector<SkVMFunctionInfo> fFuncInfo;
+    std::vector<SlotDebugInfo> fSlotInfo;
+    std::vector<FunctionDebugInfo> fFuncInfo;
 
     /** The SkSL debug trace. */
     std::vector<SkVMTraceInfo> fTraceInfo;

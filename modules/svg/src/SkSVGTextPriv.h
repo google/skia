@@ -11,7 +11,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGText.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 
 #include <functional>
 #include <tuple>
@@ -135,8 +135,8 @@ private:
         }
 
         void reset() {
-            fUtf8.reset();
-            fUtf8PosAdjust.reset();
+            fUtf8.clear();
+            fUtf8PosAdjust.clear();
         }
 
         void append(SkUnichar, PositionAdjustment);

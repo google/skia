@@ -8,9 +8,11 @@
 #include "tools/skiaserve/urlhandlers/UrlHandler.h"
 
 #include "microhttpd.h"
+#include "src/core/SkStringUtils.h"
 #include "tools/skiaserve/Request.h"
 #include "tools/skiaserve/Response.h"
 
+using namespace skia_private;
 using namespace Response;
 
 bool EnableGPUHandler::canHandle(const char* method, const char* url) {
@@ -22,10 +24,10 @@ bool EnableGPUHandler::canHandle(const char* method, const char* url) {
 int EnableGPUHandler::handle(Request* request, MHD_Connection* connection,
                              const char* url, const char* method,
                              const char* upload_data, size_t* upload_data_size) {
-    SkTArray<SkString> commands;
+    TArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (commands.count() != 2) {
+    if (commands.size() != 2) {
         return MHD_NO;
     }
 

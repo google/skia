@@ -11,14 +11,14 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTFitsIn.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
 
 #ifdef SK_UNICODE_AVAILABLE
 #include "modules/skunicode/include/SkUnicode.h"
 #endif
+#include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/utils/SkUTF.h"
 
 #include <limits.h>
 #include <string.h>
@@ -30,6 +30,10 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShaperDrivenWrapper(std::move(fontmgr));
     if (shaper) {
+        return shaper;
+    }
+#elif defined(SK_SHAPER_CORETEXT_AVAILABLE)
+    if (auto shaper = SkShaper::MakeCoreText()) {
         return shaper;
     }
 #endif

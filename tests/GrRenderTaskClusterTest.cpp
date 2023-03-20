@@ -5,10 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkTInternalLList.h"
+#include "src/gpu/ganesh/GrRenderTask.h"
 #include "src/gpu/ganesh/GrRenderTaskCluster.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/mock/GrMockRenderTask.h"
 #include "src/gpu/ganesh/mock/GrMockSurfaceProxy.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <utility>
 
 typedef void (*CreateGraphPF)(SkTArray<sk_sp<GrMockRenderTask>>* graph,
                               SkTArray<sk_sp<GrMockRenderTask>>* expected);
@@ -138,7 +149,7 @@ DEF_TEST(GrRenderTaskCluster, reporter) {
         // TODO: Why does Span not want to convert from sk_sp<GrMockRenderTask> to
         // `const sk_sp<GrRenderTask>`?
         SkSpan<const sk_sp<GrRenderTask>> graphSpan(
-            reinterpret_cast<sk_sp<GrRenderTask>*>(graph.data()), graph.count());
+            reinterpret_cast<sk_sp<GrRenderTask>*>(graph.data()), graph.size());
         bool actualResult = GrClusterRenderTasks(graphSpan, &llist);
 
         if (expectedOutput.empty()) {
@@ -157,7 +168,7 @@ DEF_TEST(GrRenderTaskCluster, reporter) {
             for ([[maybe_unused]] GrRenderTask* t : llist) {
                 newCount++;
             }
-            REPORTER_ASSERT(reporter, newCount == expectedOutput.count());
+            REPORTER_ASSERT(reporter, newCount == expectedOutput.size());
 
             int j = 0;
             for (GrRenderTask* n : llist) {

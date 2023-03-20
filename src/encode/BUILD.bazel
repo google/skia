@@ -1,0 +1,79 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_filegroup")
+load("//bazel:flags.bzl", "string_flag_with_values")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+string_flag_with_values(
+    name = "include_encoder",
+    multiple = True,
+    values = [
+        "jpeg_encode_codec",
+        "png_encode_codec",
+        "webp_encode_codec",
+    ],
+)
+
+# In separate skia_filegroups to export these as gni file lists
+skia_filegroup(
+    name = "jpeg_encode_srcs",
+    srcs = [
+        "SkJPEGWriteUtility.cpp",
+        "SkJpegEncoder.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "jpeg_encode_hdrs",
+    srcs = [
+        "SkJPEGWriteUtility.h",
+    ],
+)
+
+skia_filegroup(
+    name = "png_encode_srcs",
+    srcs = ["SkPngEncoder.cpp"],
+)
+
+skia_filegroup(
+    name = "webp_encode_srcs",
+    srcs = ["SkWebpEncoder.cpp"],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkEncoder.cpp",
+        "SkImageEncoder.cpp",
+    ] + select_multi({
+        ":jpeg_encode_codec": [":jpeg_encode_srcs"],
+        ":png_encode_codec": [":png_encode_srcs"],
+        ":webp_encode_codec": [":webp_encode_srcs"],
+    }),
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "SkImageEncoderFns.h",
+        "SkImageEncoderPriv.h",
+    ] + select({
+        ":jpeg_encode_codec": [":jpeg_encode_hdrs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//src:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//src:__pkg__"],
+    deps = select_multi(
+        {
+            ":jpeg_encode_codec": ["@libjpeg_turbo"],
+            ":png_encode_codec": ["@libpng"],
+            ":webp_encode_codec": ["@libwebp"],
+        },
+    ),
+)

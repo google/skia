@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 
 // Reproduces skbug.com/9331, drawing differently in debug and release builds.

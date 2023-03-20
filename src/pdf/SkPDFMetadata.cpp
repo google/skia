@@ -7,11 +7,11 @@
 
 #include "src/pdf/SkPDFMetadata.h"
 
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkMD5.h"
-#include "src/core/SkUtils.h"
 #include "src/pdf/SkPDFTypes.h"
-#include "src/utils/SkUTF.h"
 
 #include <utility>
 
@@ -195,7 +195,7 @@ SkString escape_xml(const SkString& input,
     size_t afterLen = after ? strlen(after) : 0;
     int extra = count_xml_escape_size(input);
     SkString output(input.size() + extra + beforeLen + afterLen);
-    char* out = output.writable_str();
+    char* out = output.data();
     if (before) {
         strncpy(out, before, beforeLen);
         out += beforeLen;
@@ -218,7 +218,7 @@ SkString escape_xml(const SkString& input,
         out += afterLen;
     }
     // Validate that we haven't written outside of our string.
-    SkASSERT(out == &output.writable_str()[output.size()]);
+    SkASSERT(out == &output.data()[output.size()]);
     *out = '\0';
     return output;
 }
@@ -316,7 +316,7 @@ SkPDFIndirectReference SkPDFMetadata::MakeXMPObject(
     dict->insertName("Subtype", "XML");
     return SkPDFStreamOut(std::move(dict),
                           SkMemoryStream::MakeCopy(value.c_str(), value.size()),
-                          docPtr, false);
+                          docPtr, SkPDFSteamCompressionEnabled::No);
 }
 
 #undef SKPDF_CUSTOM_PRODUCER_KEY

@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "include/core/SkString.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 
 #ifdef SK_BUILD_FOR_WIN
     static const char* kBars[] = { ".", "o", "O" };
@@ -21,8 +21,8 @@
 #endif
 
 struct Stats {
-    Stats(const SkTArray<double>& samples, bool want_plot) {
-        int n = samples.count();
+    Stats(const skia_private::TArray<double>& samples, bool want_plot) {
+        int n = samples.size();
         if (!n) {
             min = max = mean = var = median = 0;
             return;

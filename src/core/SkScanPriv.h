@@ -80,21 +80,4 @@ EdgeType* backward_insert_start(EdgeType* prev, SkFixed x) {
     return prev;
 }
 
-// Check if the path is a rect and fat enough after clipping; if so, blit it.
-static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, const SkIRect& clip) {
-    SkRect rect;
-    if (!path.isRect(&rect)) {
-        return false; // not rect
-    }
-    if (!rect.intersect(SkRect::Make(clip))) {
-        return true; // The intersection is empty. Hence consider it done.
-    }
-    SkIRect bounds = rect.roundOut();
-    if (bounds.width() < 3) {
-        return false; // not fat
-    }
-    blitter->blitFatAntiRect(rect);
-    return true;
-}
-
 #endif

@@ -8,10 +8,12 @@
 #ifndef GrGpuResource_DEFINED
 #define GrGpuResource_DEFINED
 
-#include "include/private/SkNoncopyable.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 
+class GrDirectContext;
 class GrGpu;
 class GrResourceCache;
 class SkTraceMemoryDump;
@@ -222,7 +224,7 @@ public:
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
     // fully initialized (i.e. only from the constructors of the final class).
-    void registerWithCache(SkBudgeted);
+    void registerWithCache(skgpu::Budgeted);
 
     // This must be called by every GrGpuObject that references any wrapped backend objects. It
     // should be called once the object is fully initialized (i.e. only from the constructors of the

@@ -3,6 +3,13 @@
 
 #ifndef SkPixelRefPriv_DEFINED
 #define SkPixelRefPriv_DEFINED
+
+#include "include/core/SkRefCnt.h"
+
+#include <cstddef>
+
+class SkPixelRef;
+
 /**
  *  Return a new SkMallocPixelRef with the provided pixel storage and
  *  rowBytes. On destruction, ReleaseProc will be called.

@@ -7,12 +7,14 @@
 
 #include "src/gpu/ganesh/GrResourceAllocator.h"
 
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "src/gpu/ganesh/GrTexture.h"
 
 #ifdef SK_DEBUG
 #include <atomic>
@@ -160,7 +162,7 @@ bool GrResourceAllocator::Register::instantiateSurface(GrSurfaceProxy* proxy,
 
     GrSurface* surface = newSurface ? newSurface.get() : fExistingSurface.get();
     // Make surface budgeted if this proxy is budgeted.
-    if (SkBudgeted::kYes == proxy->isBudgeted() &&
+    if (skgpu::Budgeted::kYes == proxy->isBudgeted() &&
         GrBudgetedType::kBudgeted != surface->resourcePriv().budgetedType()) {
         // This gets the job done but isn't quite correct. It would be better to try to
         // match budgeted proxies w/ budgeted surfaces and unbudgeted w/ unbudgeted.
@@ -370,7 +372,7 @@ bool GrResourceAllocator::makeBudgetHeadroom() {
     size_t additionalBytesNeeded = 0;
     for (Interval* cur = fFinishedIntvls.peekHead(); cur; cur = cur->next()) {
         GrSurfaceProxy* proxy = cur->proxy();
-        if (SkBudgeted::kNo == proxy->isBudgeted() || proxy->isInstantiated()) {
+        if (skgpu::Budgeted::kNo == proxy->isBudgeted() || proxy->isInstantiated()) {
             continue;
         }
 

@@ -27,7 +27,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     bool f = b || c;
     x += 12.0;
     x -= 12.0;
-    x *= (y /= 10.0);
+    x *= (y *= 0.1);
     x = 6.0;
     y = (((float(b) * float(c)) * float(d)) * float(e)) * float(f);
     y = 6.0;

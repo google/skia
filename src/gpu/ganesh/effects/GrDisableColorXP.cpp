@@ -64,7 +64,7 @@ sk_sp<const GrXferProcessor> GrDisableColorXPFactory::MakeXferProcessor() {
     return sk_make_sp<DisableColorXP>();
 }
 
-GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
+GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory)
 
 #if GR_TEST_UTILS
 const GrXPFactory* GrDisableColorXPFactory::TestGet(GrProcessorTestData*) {

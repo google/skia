@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkScalerCache.h"
+#include "src/core/SkStrike.h"
 
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
@@ -13,8 +13,8 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobTrace.h"
 #include "tools/Resources.h"

@@ -8,11 +8,12 @@
 #ifndef GrDynamicAtlas_DEFINED
 #define GrDynamicAtlas_DEFINED
 
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
 class GrOnFlushResourceProvider;
 class GrResourceProvider;
+class GrSurfaceProxyView;
 struct SkIPoint16;
 struct SkIRect;
 

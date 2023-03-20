@@ -16,7 +16,7 @@
 
 #include <tuple>
 
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/text/gpu/SDFTControl.h"
 
 namespace sktext::gpu {
@@ -76,7 +76,7 @@ public:
     // Make a strike spec for PDF Vector strikes
     static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);
 
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if (defined(SK_GANESH) || defined(SK_GRAPHITE)) && !defined(SK_DISABLE_SDF_TEXT)
     // Create a strike spec for scaled distance field text.
     static std::tuple<SkStrikeSpec, SkScalar, sktext::gpu::SDFTMatrixRange> MakeSDFT(
             const SkFont& font,
@@ -85,11 +85,9 @@ public:
             const SkMatrix& deviceMatrix,
             const SkPoint& textLocation,
             const sktext::gpu::SDFTControl& control);
-
-    sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(sktext::gpu::StrikeCache* cache) const;
 #endif
 
-    sktext::ScopedStrikeForGPU findOrCreateScopedStrike(
+    sk_sp<sktext::StrikeForGPU> findOrCreateScopedStrike(
             sktext::StrikeForGPUCacheInterface* cache) const;
 
     sk_sp<SkStrike> findOrCreateStrike() const;
@@ -128,7 +126,7 @@ public:
 
 private:
     inline static constexpr int kTypicalGlyphCount = 20;
-    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    skia_private::AutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
     sk_sp<SkStrike> fStrike;
 };
 
@@ -144,7 +142,7 @@ public:
 
 private:
     inline static constexpr int kTypicalGlyphCount = 20;
-    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    skia_private::AutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
     sk_sp<SkStrike> fStrike;
 };
 
@@ -158,7 +156,7 @@ public:
 
 private:
     inline static constexpr int kTypicalGlyphCount = 20;
-    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    skia_private::AutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
     sk_sp<SkStrike> fStrike;
 };
 
@@ -173,7 +171,7 @@ public:
 
 private:
     inline static constexpr int kTypicalGlyphCount = 64;
-    SkAutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
+    skia_private::AutoSTArray<kTypicalGlyphCount, const SkGlyph*> fGlyphs;
     sk_sp<SkStrike> fStrike;
 };
 

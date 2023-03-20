@@ -14,12 +14,13 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTypeTraits.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkStringUtils.h"
-#include "src/core/SkTLazy.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrDstProxyView.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
@@ -111,7 +112,7 @@ public:
               bool printDependencies,
               bool close) const override;
     const char* name() const final { return "Ops"; }
-    int numOpChains() const { return fOpChains.count(); }
+    int numOpChains() const { return fOpChains.size(); }
     const GrOp* getChain(int index) const { return fOpChains[index].head(); }
 #endif
 
@@ -199,6 +200,8 @@ private:
             return SkToBool(this->head());
         }
 
+        using sk_is_trivially_relocatable = std::true_type;
+
     private:
         class List {
         public:
@@ -218,9 +221,14 @@ private:
 
             void validate() const;
 
+            using sk_is_trivially_relocatable = std::true_type;
+
         private:
             GrOp::Owner fHead{nullptr};
             GrOp* fTail{nullptr};
+
+            static_assert(::sk_is_trivially_relocatable<decltype(fHead)>::value);
+            static_assert(::sk_is_trivially_relocatable<decltype(fTail)>::value);
         };
 
         void validate() const;
@@ -235,6 +243,11 @@ private:
         GrDstProxyView fDstProxyView;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fProcessorAnalysis)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fDstProxyView)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fAppliedClip)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fBounds)>::value);
     };
 
     void onMakeSkippable() override;

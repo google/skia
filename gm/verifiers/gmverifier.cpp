@@ -69,7 +69,7 @@ SkBitmap GMVerifier::RenderGoldBmp(skiagm::GM* gm, const SkColorInfo& colorInfo)
     goldBmp.allocPixels(SkImageInfo::Make(size, colorInfo));
     SkCanvas canvas(goldBmp);
 
-    if (gm->gpuSetup(nullptr, &canvas) == DrawResult::kOk) {
+    if (gm->gpuSetup(&canvas) == DrawResult::kOk) {
         gm->draw(&canvas);
     }
 

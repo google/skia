@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "py_binary", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_objc_library")
+load("//bazel:macros.bzl", "py_binary")
 
 licenses(["notice"])
 
@@ -30,8 +31,116 @@ skia_cc_library(
     ],
 )
 
+skia_cc_library(
+    name = "registry",
+    hdrs = ["Registry.h"],
+    visibility = ["//tests:__subpackages__"],
+    deps = ["//:skia_internal"],
+)
+
 py_binary(
     name = "embed_resources",
     srcs = ["embed_resources.py"],
     visibility = ["//:__subpackages__"],
+)
+
+skia_cc_library(
+    name = "autorelease_pool",
+    hdrs = ["AutoreleasePool.h"],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_objc_library(
+    name = "autorelease_pool_objc",
+    srcs = ["AutoreleasePool.mm"],
+    hdrs = ["AutoreleasePool.h"],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_cc_library(
+    name = "url_data_manager",
+    srcs = ["UrlDataManager.cpp"],
+    hdrs = ["UrlDataManager.h"],
+    visibility = ["//tools/debugger:__pkg__"],
+    deps = ["//:skia_internal"],
+)
+
+skia_cc_library(
+    name = "sk_sharing_proc",
+    srcs = ["SkSharingProc.cpp"],
+    hdrs = ["SkSharingProc.h"],
+    visibility = ["//tools/debugger:__pkg__"],
+    deps = ["//:skia_internal"],
+)
+
+skia_cc_library(
+    name = "runtime_blend_utils",
+    srcs = ["RuntimeBlendUtils.cpp"],
+    hdrs = ["RuntimeBlendUtils.h"],
+    visibility = ["//tests:__pkg__"],
+    deps = ["//:skia_internal"],
+)
+
+skia_cc_library(
+    name = "get_executable_path",
+    srcs = select({
+        "@platforms//os:windows": ["SkGetExecutablePath_win.cpp"],
+        "@platforms//os:macos": ["SkGetExecutablePath_mac.cpp"],
+        "@platforms//os:linux": ["SkGetExecutablePath_linux.cpp"],
+    }),
+    hdrs = ["SkGetExecutablePath.h"],
+    visibility = [
+        "//src/sksl:__pkg__",
+        "//tools/sksl-minify:__pkg__",
+    ],
+)
+
+# Regenerate workarounds with `bazel run //tools:generate_workarounds`
+py_binary(
+    name = "generate_workarounds",
+    srcs = [":generate_workarounds.py"],
+    args = [
+        "--output-file",
+        "include/gpu/GrDriverBugWorkaroundsAutogen.h",
+        "src/gpu/gpu_workaround_list.txt",
+    ],
+    data = [
+        ":build_workaround_header",
+    ],
+    tags = ["no-remote"],
+)
+
+py_binary(
+    name = "build_workaround_header",
+    srcs = ["build_workaround_header.py"],
+)
+
+_GENERATE_WORKAROUNDS = """
+import os
+import subprocess
+import sys
+
+# https://bazel.build/docs/user-manual#running-executables
+# Note: Bazel eats single quotes, so we must use double quotes.
+os.chdir(os.environ["BUILD_WORKSPACE_DIRECTORY"])
+
+# execpath returns the path to the given label relative to the Skia root.
+# This will be something like:
+#   bazel-out/k8-opt-exec-81C6BA4F/bin/tools/build_workaround_header
+# https://bazel.build/reference/be/make-variables#predefined_label_variables
+generate_script = os.path.abspath("$(execpath :build_workaround_header)")
+
+result = subprocess.run(
+    [generate_script] + sys.argv[1:], capture_output=True, encoding="utf-8")
+if result.returncode != 0:
+    print(result.stdout)
+    print(result.stderr)
+    sys.exit(result.returncode)
+"""
+
+genrule(
+    name = "create_generate_workarounds_script",
+    outs = ["generate_workarounds.py"],
+    cmd = "echo '%s' > $@" % _GENERATE_WORKAROUNDS,
+    exec_tools = [":build_workaround_header"],
 )

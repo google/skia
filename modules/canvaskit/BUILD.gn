@@ -47,7 +47,6 @@ if (skia_enable_tools) {
       "../../tools/viewer/SampleSlide.cpp",
       "../../tools/viewer/SvgSlide.cpp",
     ]
-    deps = [ "../..:samples" ]
   }
 
   component("gm_wasm") {
@@ -58,6 +57,7 @@ if (skia_enable_tools) {
       "../..:tool_utils",
       "../../modules/svg:svg",
     ]
+    defines = [ "SK_GANESH" ]
   }
 }
 
@@ -71,6 +71,7 @@ component("debugger") {
     "../../tools/debugger/DrawCommand.cpp",
     "../../tools/debugger/JsonWriteBuffer.cpp",
   ]
+  defines = [ "SK_GANESH" ]
 }
 
 action("create_notomono_cpp") {
@@ -107,10 +108,7 @@ skia_wasm_lib("canvaskit") {
       "../../modules/sksg:sksg",
     ]
   }
-  if (skia_canvaskit_enable_particles) {
-    deps += [ "../../modules/particles:particles" ]
-  }
-  if (skia_canvaskit_enable_skottie || skia_canvaskit_enable_particles) {
+  if (skia_canvaskit_enable_skottie) {
     deps += [ "../../modules/skresources:skresources" ]
   }
   if (skia_canvaskit_include_viewer) {
@@ -136,10 +134,7 @@ skia_wasm_lib("canvaskit") {
       "skottie_bindings.cpp",
     ]
   }
-  if (skia_canvaskit_enable_particles) {
-    sources += [ "particles_bindings.cpp" ]
-  }
-  if (skia_canvaskit_enable_skottie || skia_canvaskit_enable_particles) {
+  if (skia_canvaskit_enable_skottie) {
     sources += [ "../../modules/skresources/src/SkResources.cpp" ]
   }
   if (skia_canvaskit_include_viewer) {
@@ -256,13 +251,6 @@ skia_wasm_lib("canvaskit") {
     ]
   }
 
-  if (skia_canvaskit_enable_particles) {
-    ldflags += [
-      "--pre-js",
-      rebase_path("particles.js"),
-    ]
-  }
-
   if (skia_canvaskit_enable_pathops) {
     ldflags += [
       "--pre-js",
@@ -362,7 +350,6 @@ skia_wasm_lib("canvaskit") {
     "SK_DISABLE_AAA",
     "SK_FORCE_8_BYTE_ALIGNMENT",
     "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
-    "SK_HAS_ANDROID_CODEC",
     "SK_SHAPER_HARFBUZZ_AVAILABLE",
   ]
   if (skia_canvaskit_enable_paragraph) {
@@ -371,9 +358,9 @@ skia_wasm_lib("canvaskit") {
   if (skia_canvaskit_enable_skp_serialization) {
     defines += [ "CK_SERIALIZE_SKP" ]
   }
-  if (skia_enable_gpu) {
+  if (skia_enable_ganesh) {
     defines += [
-      "SK_SUPPORT_GPU=1",
+      "SK_GANESH",
       "SK_DISABLE_LEGACY_SHADERCONTEXT",
     ]
     if (skia_canvaskit_enable_webgl) {
@@ -389,10 +376,7 @@ skia_wasm_lib("canvaskit") {
       ]
     }
   } else {
-    defines += [
-      "SK_SUPPORT_GPU=0",
-      "SK_ENABLE_SKSL",
-    ]
+    defines += [ "SK_ENABLE_SKSL" ]
   }
 
   if (skia_canvaskit_enable_pathops) {

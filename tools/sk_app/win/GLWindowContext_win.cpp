@@ -45,14 +45,12 @@ protected:
 private:
     HWND              fHWND;
     HGLRC             fHGLRC;
-
-    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_win::GLWindowContext_win(HWND wnd, const DisplayParams& params)
-    : INHERITED(params)
-    , fHWND(wnd)
-    , fHGLRC(nullptr) {
+        : GLWindowContext(params)
+        , fHWND(wnd)
+        , fHGLRC(nullptr) {
 
     // any config code here (particularly for msaa)?
 

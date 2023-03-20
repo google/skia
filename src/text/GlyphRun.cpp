@@ -11,13 +11,13 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTextBlob.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkScalerCache.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/core/SkUtils.h"
 
 namespace sktext {
 // -- GlyphRun -------------------------------------------------------------------------------------
@@ -368,24 +368,5 @@ const GlyphRunList& sktext::GlyphRunBuilder::setGlyphRunList(
         const SkTextBlob* blob, const SkRect& bounds, SkPoint origin) {
     fGlyphRunList.emplace(blob, bounds, origin, SkSpan(fGlyphRunListStorage), this);
     return fGlyphRunList.value();
-}
-
-// -- SKSubRunBuffers ------------------------------------------------------------------------------
-auto SkSubRunBuffers::EnsureBuffers(const GlyphRunList& glyphRunList) -> ScopedBuffers {
-    size_t size = 0;
-    for (const GlyphRun& run : glyphRunList) {
-        size = std::max(run.runSize(), size);
-    }
-    return ScopedBuffers(glyphRunList.buffers(), size);
-}
-
-SkSubRunBuffers::ScopedBuffers::ScopedBuffers(SkSubRunBuffers* buffers, size_t size)
-        : fBuffers{buffers} {
-    fBuffers->fAccepted.ensureSize(size);
-}
-
-SkSubRunBuffers::ScopedBuffers::~ScopedBuffers() {
-    fBuffers->fAccepted.reset();
-    fBuffers->fRejected.reset();
 }
 }  // namespace sktext

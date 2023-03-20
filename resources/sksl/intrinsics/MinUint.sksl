@@ -1,0 +1,28 @@
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    uint4 uintValues = uint4(abs(testInputs) * 100);
+    uint4 uintGreen  = uint4(colorGreen * 100);
+    const uint4 constVal = uint4(125, 0, 75, 225);
+    const uint4 constGreen = uint4(0, 100, 0, 100);
+
+    uint4 expectedA = uint4(50, 0, 50, 50);
+    uint4 expectedB = uint4(0, 0, 0, 100);
+    return (min(uintValues.x,    50)              == expectedA.x     &&
+            min(uintValues.xy,   50)              == expectedA.xy    &&
+            min(uintValues.xyz,  50)              == expectedA.xyz   &&
+            min(uintValues.xyzw, 50)              == expectedA.xyzw  &&
+            min(constVal.x,      50)              == expectedA.x     &&
+            min(constVal.xy,     50)              == expectedA.xy    &&
+            min(constVal.xyz,    50)              == expectedA.xyz   &&
+            min(constVal.xyzw,   50)              == expectedA.xyzw  &&
+            min(uintValues.x,    uintGreen.x)     == expectedB.x     &&
+            min(uintValues.xy,   uintGreen.xy)    == expectedB.xy    &&
+            min(uintValues.xyz,  uintGreen.xyz)   == expectedB.xyz   &&
+            min(uintValues.xyzw, uintGreen.xyzw)  == expectedB.xyzw  &&
+            min(constVal.x,      constGreen.x)    == expectedB.x     &&
+            min(constVal.xy,     constGreen.xy)   == expectedB.xy    &&
+            min(constVal.xyz,    constGreen.xyz)  == expectedB.xyz   &&
+            min(constVal.xyzw,   constGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
+}

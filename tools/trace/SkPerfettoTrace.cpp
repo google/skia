@@ -177,7 +177,7 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag, cons
                                         const char* arg1Name, const uint8_t& arg1Type,
                                         const uint64_t& arg1Val) {
     perfetto::DynamicCategory category{ this->getCategoryGroupName(categoryEnabledFlag) };
-    skia::tracing_internals::TraceValueUnion value;
+    skia_private::TraceValueUnion value;
     value.as_uint = arg1Val;
 
     switch (arg1Type) {
@@ -225,7 +225,6 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag, cons
         }
         default: {
             SkUNREACHABLE;
-            break;
         }
     }
 }
@@ -239,7 +238,7 @@ void begin_event_with_second_arg(const char * categoryName, const char* eventNam
                                  const char* arg1Name, T arg1Val, const char* arg2Name,
                                  const uint8_t& arg2Type, const uint64_t& arg2Val) {
       perfetto::DynamicCategory category{categoryName};
-      skia::tracing_internals::TraceValueUnion value;
+      skia_private::TraceValueUnion value;
       value.as_uint = arg2Val;
 
       switch (arg2Type) {
@@ -300,7 +299,7 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag,
                                         const uint64_t& arg2Val) {
 
     const char * category{ this->getCategoryGroupName(categoryEnabledFlag) };
-    skia::tracing_internals::TraceValueUnion value;
+    skia_private::TraceValueUnion value;
     value.as_uint = arg1Val;
 
     switch (arg1Type) {
@@ -341,7 +340,6 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag,
         }
         default: {
             SkUNREACHABLE;
-            break;
         }
     }
 }

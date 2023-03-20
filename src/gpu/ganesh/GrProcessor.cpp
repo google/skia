@@ -6,12 +6,10 @@
  */
 
 #include "include/private/SkSpinlock.h"
-#include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrProcessor.h"
-#include "src/gpu/ganesh/GrSamplerState.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
+
+#include <memory>
 
 // We use a global pool protected by a mutex(spinlock). Chrome may use the same GrContext on
 // different threads. The GrContext is not used concurrently on different threads and there is a

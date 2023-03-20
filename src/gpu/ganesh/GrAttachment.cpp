@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/GrAttachment.h"
 
+#include "include/core/SkTextureCompressionType.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -23,7 +24,7 @@ size_t GrAttachment::onGpuMemorySize() const {
     // the owned attachments will have no size and be uncached.
     if (!(fSupportedUsages & UsageFlags::kTexture) && fMemoryless == GrMemoryless::kNo) {
         GrBackendFormat format = this->backendFormat();
-        SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+        SkTextureCompressionType compression = GrBackendFormatToCompressionType(format);
 
         uint64_t size = GrNumBlocks(compression, this->dimensions());
         size *= GrBackendFormatBytesPerBlock(this->backendFormat());

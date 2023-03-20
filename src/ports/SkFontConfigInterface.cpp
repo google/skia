@@ -8,7 +8,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/ports/SkFontConfigInterface.h"
-#include "include/private/SkMutex.h"
+#include "include/private/base/SkMutex.h"
 
 static SkMutex& font_config_interface_mutex() {
     static SkMutex& mutex = *(new SkMutex);

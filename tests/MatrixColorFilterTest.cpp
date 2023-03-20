@@ -5,25 +5,41 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack,
-                                   reporter,
-                                   info,
-                                   CtsEnforcement::kApiLevel_T) {
+#include <functional>
+
+struct GrContextOptions;
+
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack,
+                                       reporter,
+                                       info,
+                                       CtsEnforcement::kApiLevel_T) {
     auto context = info.directContext();
     // Make a transparent black image rather than use a paint color to avoid an optimization that
     // applies the color filter on the CPU to paint colors.
-    auto imgSurf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
-                                               SkImageInfo::MakeN32(5, 5, kPremul_SkAlphaType));
+    auto imgSurf = SkSurface::MakeRenderTarget(
+            context, skgpu::Budgeted::kYes, SkImageInfo::MakeN32(5, 5, kPremul_SkAlphaType));
     imgSurf->getCanvas()->drawColor(0x0000000);
     auto shader = imgSurf->makeImageSnapshot()->makeShader(SkSamplingOptions());
     SkColorMatrix m;
@@ -32,8 +48,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack,
     p.setColorFilter(SkColorFilters::Matrix(m));
     p.setShader(shader);
     p.setBlendMode(SkBlendMode::kSrc);
-    auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
-                                            SkImageInfo::MakeN32(5, 5, kPremul_SkAlphaType));
+    auto surf = SkSurface::MakeRenderTarget(
+            context, skgpu::Budgeted::kYes, SkImageInfo::MakeN32(5, 5, kPremul_SkAlphaType));
     // Seed the output surface with red so we would notice if we failed to draw at all.
     surf->getCanvas()->clear(SK_ColorRED);
     surf->getCanvas()->drawPaint(p);

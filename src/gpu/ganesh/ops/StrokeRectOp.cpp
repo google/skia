@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/ops/StrokeRectOp.h"
 
 #include "include/core/SkStrokeRec.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ResourceKey.h"
@@ -24,7 +24,7 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-namespace skgpu::v1::StrokeRectOp {
+namespace skgpu::ganesh::StrokeRectOp {
 
 namespace {
 
@@ -629,7 +629,7 @@ void AAStrokeRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
     int outerVertexNum = this->miterStroke() ? 4 : 8;
     int verticesPerInstance = (outerVertexNum + innerVertexNum) * 2;
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
-    int instanceCount = fRects.count();
+    int instanceCount = fRects.size();
     int maxQuads = this->miterStroke() ? kNumMiterRectsInIndexBuffer : kNumBevelRectsInIndexBuffer;
 
     sk_sp<const GrGpuBuffer> indexBuffer =
@@ -788,7 +788,7 @@ GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, 
         return CombineResult::kCannotCombine;
     }
 
-    fRects.push_back_n(that->fRects.count(), that->fRects.begin());
+    fRects.push_back_n(that->fRects.size(), that->fRects.begin());
     fWideColor |= that->fWideColor;
     return CombineResult::kMerged;
 }
@@ -976,14 +976,14 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
         }
         DrawQuad quad{GrQuad::MakeFromRect(rects[0], viewMatrix), GrQuad(rects[0]),
                       GrQuadAAFlags::kAll};
-        return FillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
+        return v1::FillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
     }
 
     return AAStrokeRectOp::Make(context, std::move(paint), viewMatrix, devOutside,
                                 devInside, SkVector{dx, dy} * .5f);
 }
 
-} // namespace skgpu::v1::StrokeRectOp
+} // namespace skgpu::ganesh::StrokeRectOp
 
 #if GR_TEST_UTILS
 
@@ -1002,8 +1002,9 @@ GR_DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     if (numSamples > 1) {
         aaType = random->nextBool() ? GrAAType::kMSAA : GrAAType::kNone;
     }
-    return skgpu::v1::StrokeRectOp::NonAAStrokeRectOp::Make(context, std::move(paint), viewMatrix,
-                                                            rect, strokeRec, aaType);
+    return skgpu::ganesh::StrokeRectOp::NonAAStrokeRectOp::Make(context, std::move(paint),
+                                                                viewMatrix, rect, strokeRec,
+                                                                aaType);
 }
 
 GR_DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
@@ -1020,8 +1021,8 @@ GR_DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
     rec.setStrokeParams(SkPaint::kButt_Cap,
                         miterStroke ? SkPaint::kMiter_Join : SkPaint::kBevel_Join, 1.f);
     SkMatrix matrix = GrTest::TestMatrixRectStaysRect(random);
-    return skgpu::v1::StrokeRectOp::AAStrokeRectOp::Make(context, std::move(paint), matrix, rect,
-                                                         rec);
+    return skgpu::ganesh::StrokeRectOp::AAStrokeRectOp::Make(context, std::move(paint), matrix,
+                                                             rect, rec);
 }
 
 #endif

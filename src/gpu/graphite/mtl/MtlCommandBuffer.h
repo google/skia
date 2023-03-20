@@ -10,7 +10,6 @@
 
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/DrawPass.h"
-#include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/Log.h"
 
 #include <memory>
@@ -25,25 +24,29 @@
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
+class ComputePipeline;
 class MtlBlitCommandEncoder;
 class MtlComputeCommandEncoder;
 class MtlRenderCommandEncoder;
 class MtlResourceProvider;
 class MtlSharedContext;
+struct WorkgroupSize;
 
 class MtlCommandBuffer final : public CommandBuffer {
 public:
-    static sk_sp<MtlCommandBuffer> Make(id<MTLCommandQueue>,
-                                        const MtlSharedContext*,
-                                        MtlResourceProvider*);
+    static std::unique_ptr<MtlCommandBuffer> Make(id<MTLCommandQueue>,
+                                                  const MtlSharedContext*,
+                                                  MtlResourceProvider*);
     ~MtlCommandBuffer() override;
+
+    bool setNewCommandBufferResources() override;
 
     bool isFinished() {
         return (*fCommandBuffer).status == MTLCommandBufferStatusCompleted ||
                (*fCommandBuffer).status == MTLCommandBufferStatusError;
 
     }
-    void waitUntilFinished(const SharedContext*) {
+    void waitUntilFinished() {
         // TODO: it's not clear what do to if status is Enqueued. Commit and then wait?
         if ((*fCommandBuffer).status == MTLCommandBufferStatusScheduled ||
             (*fCommandBuffer).status == MTLCommandBufferStatusCommitted) {
@@ -62,18 +65,21 @@ public:
 #endif
 
 private:
-    MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer,
+    MtlCommandBuffer(id<MTLCommandQueue>,
                      const MtlSharedContext* sharedContext,
                      MtlResourceProvider* resourceProvider);
+
+    bool createNewMTLCommandBuffer();
+
+    void onResetCommandBuffer() override;
 
     bool onAddRenderPass(const RenderPassDesc&,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
-                         const std::vector<std::unique_ptr<DrawPass>>& drawPasses) override;
-    bool onAddComputePass(const ComputePassDesc&,
-                          const ComputePipeline*,
-                          const std::vector<ResourceBinding>& bindings) override;
+                         SkRect viewport,
+                         const DrawPassList&) override;
+    bool onAddComputePass(const DispatchGroupList&) override;
 
     // Methods for populating a MTLRenderCommandEncoder:
     bool beginRenderPass(const RenderPassDesc&,
@@ -90,10 +96,12 @@ private:
     void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
     void bindDrawBuffers(const BindBufferInfo& vertices,
                          const BindBufferInfo& instances,
-                         const BindBufferInfo& indices);
+                         const BindBufferInfo& indices,
+                         const BindBufferInfo& indirect);
     void bindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
                            const Buffer* instanceBuffer, size_t instanceOffset);
     void bindIndexBuffer(const Buffer* indexBuffer, size_t offset);
+    void bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset);
 
     void bindTextureAndSampler(const Texture*, const Sampler*, unsigned int bindIndex);
 
@@ -111,6 +119,8 @@ private:
     void drawIndexedInstanced(PrimitiveType type, unsigned int baseIndex,
                               unsigned int indexCount, unsigned int baseVertex,
                               unsigned int baseInstance, unsigned int instanceCount);
+    void drawIndirect(PrimitiveType type);
+    void drawIndexedIndirect(PrimitiveType type);
 
     // Methods for populating a MTLComputeCommandEncoder:
     void beginComputePass();
@@ -120,6 +130,11 @@ private:
     void endComputePass();
 
     // Methods for populating a MTLBlitCommandEncoder:
+    bool onCopyBufferToBuffer(const Buffer* srcBuffer,
+                              size_t srcOffset,
+                              const Buffer* dstBuffer,
+                              size_t dstOffset,
+                              size_t size) override;
     bool onCopyTextureToBuffer(const Texture*,
                                SkIRect srcRect,
                                const Buffer*,
@@ -129,7 +144,12 @@ private:
                                const Texture*,
                                const BufferTextureCopyData* copyData,
                                int count) override;
+    bool onCopyTextureToTexture(const Texture* src,
+                                SkIRect srcRect,
+                                const Texture* dst,
+                                SkIPoint dstPoint) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
+    bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
 
 #ifdef SK_ENABLE_PIET_GPU
     void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) override;
@@ -144,10 +164,19 @@ private:
     sk_sp<MtlBlitCommandEncoder> fActiveBlitCommandEncoder;
 
     id<MTLBuffer> fCurrentIndexBuffer;
+    id<MTLBuffer> fCurrentIndirectBuffer;
     size_t fCurrentIndexBufferOffset = 0;
+    size_t fCurrentIndirectBufferOffset = 0;
 
+    // The command buffer will outlive the MtlQueueManager which owns the MTLCommandQueue.
+    id<MTLCommandQueue> fQueue;
     const MtlSharedContext* fSharedContext;
     MtlResourceProvider* fResourceProvider;
+
+    // If true, the draw commands being added are entirely offscreen and can be skipped.
+    // This can happen if a recording is being replayed with a transform that moves the recorded
+    // commands outside of the render target bounds.
+    bool fDrawIsOffscreen = false;
 
 #ifdef SK_ENABLE_PIET_GPU
     const skgpu::piet::MtlRenderer* fPietRenderer = nullptr;  // owned by MtlQueueManager

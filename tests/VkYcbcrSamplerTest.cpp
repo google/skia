@@ -7,17 +7,33 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_VULKAN)
-
+#if defined(SK_GANESH) && defined(SK_VULKAN)
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/vk/VkTestHelper.h"
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
 
+#include <vulkan/vulkan_core.h>
+
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
+
+struct GrContextOptions;
 const size_t kImageWidth = 8;
 const size_t kImageHeight = 8;
 
@@ -28,10 +44,10 @@ static int round_and_clamp(float x) {
     return r;
 }
 
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
-                               reporter,
-                               context_info,
-                               CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
+                                   reporter,
+                                   context_info,
+                                   CtsEnforcement::kApiLevel_T) {
     VkTestHelper testHelper(false);
     if (!testHelper.init()) {
         ERRORF(reporter, "VkTestHelper initialization failed.");
@@ -60,7 +76,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
     }
 
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
-            testHelper.directContext(), SkBudgeted::kNo,
+            testHelper.directContext(),
+            skgpu::Budgeted::kNo,
             SkImageInfo::Make(kImageWidth, kImageHeight, kN32_SkColorType, kPremul_SkAlphaType));
     if (!surface) {
         ERRORF(reporter, "Failed to create target SkSurface");
@@ -120,10 +137,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
 }
 
 // Verifies that it's not possible to allocate Ycbcr texture directly.
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_NoYcbcrSurface,
-                               reporter,
-                               context_info,
-                               CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_NoYcbcrSurface,
+                                   reporter,
+                                   context_info,
+                                   CtsEnforcement::kApiLevel_T) {
     VkTestHelper testHelper(false);
     if (!testHelper.init()) {
         ERRORF(reporter, "VkTestHelper initialization failed.");
@@ -144,4 +161,4 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_NoYcbcrSurface,
     }
 }
 
-#endif  // SK_SUPPORT_GPU && defined(SK_VULKAN)
+#endif  // defined(SK_GANESH) && defined(SK_VULKAN)

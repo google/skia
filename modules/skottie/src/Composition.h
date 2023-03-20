@@ -10,8 +10,8 @@
 
 #include "modules/skottie/src/SkottiePriv.h"
 
-#include "include/private/SkTHash.h"
 #include "modules/skottie/src/Layer.h"
+#include "src/core/SkTHash.h"
 
 #include <vector>
 

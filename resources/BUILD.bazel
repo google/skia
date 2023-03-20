@@ -1,0 +1,7 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+skia_filegroup(
+    name = "resources",
+    srcs = glob(["**"]),
+    visibility = ["//tests:__pkg__"],
+)

@@ -8,9 +8,13 @@
 #ifndef SkWebpEncoder_DEFINED
 #define SkWebpEncoder_DEFINED
 
+#include "include/core/SkSpan.h" // IWYU pragma: keep
 #include "include/encode/SkEncoder.h"
+#include "include/private/base/SkAPI.h"
 
+class SkPixmap;
 class SkWStream;
+struct skcms_ICCProfile;
 
 namespace SkWebpEncoder {
 
@@ -34,6 +38,16 @@ namespace SkWebpEncoder {
          */
         Compression fCompression = Compression::kLossy;
         float fQuality = 100.0f;
+
+        /**
+         * An optional ICC profile to override the default behavior.
+         *
+         * The default behavior is to generate an ICC profile using a primary matrix and
+         * analytic transfer function. If the color space of |src| cannot be represented
+         * in this way (e.g, it is HLG or PQ), then no profile will be embedded.
+         */
+        const skcms_ICCProfile* fICCProfile = nullptr;
+        const char* fICCProfileDescription = nullptr;
     };
 
     /**
@@ -43,6 +57,22 @@ namespace SkWebpEncoder {
      *  Returns true on success.  Returns false on an invalid or unsupported |src|.
      */
     SK_API bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
+
+    /**
+     *  Encode the |src| frames to the |dst| stream.
+     *  |options| may be used to control the encoding behavior.
+     *
+     *  The size of the first frame will be used as the canvas size. If any other frame does
+     *  not match the canvas size, this is an error.
+     *
+     *  Returns true on success.  Returns false on an invalid or unsupported |src|.
+     *
+     *  Note: libwebp API also supports set background color, loop limit and customize
+     *  lossy/lossless for each frame. These could be added later as needed.
+     */
+    SK_API bool EncodeAnimated(SkWStream* dst,
+                               SkSpan<const SkEncoder::Frame> src,
+                               const Options& options);
 } // namespace SkWebpEncoder
 
 #endif

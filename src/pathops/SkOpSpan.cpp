@@ -6,6 +6,7 @@
  */
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"

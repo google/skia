@@ -9,12 +9,12 @@
 #define GrGLProgramDataManager_DEFINED
 
 #include "include/gpu/gl/GrGLTypes.h"
-#include "src/core/SkTBlockList.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 class GrGLGpu;
 class SkMatrix;

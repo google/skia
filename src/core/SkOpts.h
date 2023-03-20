@@ -10,10 +10,56 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
-#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkXfermodePriv.h"
 
+/**
+ * SkOpts (short for SkOptimizations) is a mechanism where we can ship with multiple implementations
+ * of a set of functions and dynamically choose the best one at runtime (e.g. the call to
+ * SkGraphics::Init(), which calls SkOpts::Init()) depending on the detected CPU features. This is
+ * also referred to as having "specializations" of a given function.
+ *
+ * For example, Skia might be compiled to support CPUs that only have the sse2 instruction set
+ * (https://en.wikipedia.org/wiki/X86_instruction_listings#SSE2_instructions)
+ * but may be run on a more modern CPU that supports sse42 instructions.
+ * (https://en.wikipedia.org/wiki/SSE4)
+ * SkOpts allow Skia to have two versions of a CRC32 checksum function, one that uses normal C++
+ * code (e.g. loops, bit operations, table lookups) and one that makes use of the _mm_crc32_u64
+ * intrinsic function which uses the SSE4.2 crc32 machine instruction under the hood. This hash
+ * function is declared here in the SkOpts namespace, and then the implementation (see SkOpts.cpp)
+ * is deferred to a function of the same name in the sse2:: namespace (the minimum Skia is compiled
+ * with) using DEFINE_DEFAULT.
+ *
+ * All implementations of this hash function are done in a header file file in //src/opts
+ * (e.g. //src/opts/SkChecksum_opts.h). ifdefs guard each of the implementations, such that only
+ * one implementation is possible for a given SK_CPU_SSE_LEVEL. This header will be compiled
+ * *multiple* times with a different SK_CPU_SSE_LEVEL each compilation.
+ *
+ * Each CPU instruction set that we want specializations for has a .cpp file in //src/opts which
+ * defines an Init() function that replaces the function pointers in the SkOpts namespace with the
+ * ones from the specialized namespace (e.g. sse42::). These .cpp files don't implement the
+ * specializations, they just refer to the specialization created in the header files (e.g.
+ * SkChecksum_opts.h).
+ *
+ * At compile time:
+ *   - SkOpts.cpp is compiled with the minimum CPU level (e.g. SSE2). Because this
+ *     file includes all the headers in //src/opts/, those headers add "the default implementation"
+ *     of all their functions to the SK_OPTS_NS namespace (e.g. sse2::hash_fn).
+ *   - Each of the specialized .cpp files in //src/opts/ are compiled with their respective
+ *     compiler flags. Because the specialized .cpp file includes the headers that implement the
+ *     functions using intrinsics or other CPU-specific code, those specialized functions end up
+ *     in the specialized namespace, e.g. (sse42::hash_fn).
+ *
+ * At link time, the default implementations and all specializations of all SkOpts functions are
+ * included in the resulting library/binary file.
+ *
+ * At runtime, SkOpts::Init() will run the appropriate Init functions that the current CPU level
+ * supports specializations for (e.g. Init_sse42, Init_ssse3). Note multiple Init functions can
+ * be called as CPU instruction sets are typically super sets of older instruction sets
+ */
+
 struct SkBitmapProcState;
+struct SkRasterPipelineStage;
 namespace skvm {
 struct InterpreterInstruction;
 class TraceHook;
@@ -50,7 +96,7 @@ namespace SkOpts {
                            grayA_to_rgbA;   // i.e. expand to color channels and premultiply
 
     extern void (*memset16)(uint16_t[], uint16_t, int);
-    extern void SK_SPI(*memset32)(uint32_t[], uint32_t, int);
+    extern void (*memset32)(uint32_t[], uint32_t, int);
     extern void (*memset64)(uint64_t[], uint64_t, int);
 
     extern void (*rect_memset16)(uint16_t[], uint16_t, int, size_t, int);
@@ -60,6 +106,7 @@ namespace SkOpts {
     extern float (*cubic_solver)(float, float, float, float);
 
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
+        // hash_fn is defined in SkOpts_spi.h so it can be used by //modules
         return hash_fn(data, bytes, seed);
     }
 
@@ -69,14 +116,17 @@ namespace SkOpts {
     extern void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState&,
                                              const uint32_t* xy, int count, SkPMColor*);
 
-    // We can't necessarily express the type of SkJumper stage functions here,
+    // We can't necessarily express the type of SkRasterPipeline stage functions here,
     // so we just use this void(*)(void) as a stand-in.
     using StageFn = void(*)(void);
-    extern StageFn stages_highp[SkRasterPipeline::kNumHighpStages], just_return_highp;
-    extern StageFn stages_lowp [SkRasterPipeline::kNumLowpStages ], just_return_lowp;
+    extern StageFn ops_highp[kNumRasterPipelineHighpOps], just_return_highp;
+    extern StageFn ops_lowp [kNumRasterPipelineLowpOps ], just_return_lowp;
 
-    extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, void**);
-    extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
+    extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);
+    extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);
+
+    extern size_t raster_pipeline_lowp_stride;
+    extern size_t raster_pipeline_highp_stride;
 
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
                                   int nregs, int loop, const int strides[],
@@ -84,19 +134,4 @@ namespace SkOpts {
                                   int nargs, int n, void* args[]);
 }  // namespace SkOpts
 
-/** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
-    @param buffer   The memory to have value copied into it
-    @param value    The value to be copied into buffer
-    @param count    The number of times value should be copied into the buffer.
-*/
-static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
-    SkOpts::memset16(buffer, value, count);
-}
-static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
-    SkOpts::memset32(buffer, value, count);
-}
-static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
-    SkOpts::memset64(buffer, value, count);
-}
-
-#endif//SkOpts_DEFINED
+#endif // SkOpts_DEFINED

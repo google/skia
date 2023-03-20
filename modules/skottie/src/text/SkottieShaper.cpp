@@ -10,17 +10,23 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "modules/skunicode/include/SkUnicode.h"
+#include "src/base/SkTLazy.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkTLazy.h"
-#include "src/utils/SkUTF.h"
+
+#ifdef SK_UNICODE_AVAILABLE
+#include "modules/skunicode/include/SkUnicode.h"
+#endif
 
 #include <algorithm>
 #include <limits.h>
 #include <numeric>
+
+using namespace skia_private;
 
 namespace skottie {
 namespace {
@@ -29,7 +35,7 @@ static bool is_whitespace(char c) {
     // TODO: we've been getting away with this simple heuristic,
     // but ideally we should use SkUicode::isWhiteSpace().
     return c == ' ' || c == '\t' || c == '\r' || c == '\n';
-};
+}
 
 // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).
@@ -52,7 +58,7 @@ public:
         fLineGlyphs.reset(0);
         fLinePos.reset(0);
         fLineClusters.reset(0);
-        fLineRuns.reset();
+        fLineRuns.clear();
         fLineGlyphCount = 0;
 
         fCurrentPosition = fOffset;
@@ -185,18 +191,22 @@ public:
         //
         //   b) leading/trailing empty lines are still taken into account for alignment purposes
 
-        auto extent_box = [&]() {
+        auto extent_box = [&](bool include_typographical_extent) {
             auto box = fResult.computeVisualBounds();
 
-            // By default, first line is vertically-aligned on a baseline of 0.
-            // The typographical height considered for vertical alignment is the distance between
-            // the first line top (ascent) to the last line bottom (descent).
-            const auto typographical_top    = fBox.fTop + ascent,
-                       typographical_bottom = fBox.fTop + fLastLineDescent + fDesc.fLineHeight *
-                                                           (fLineCount > 0 ? fLineCount - 1 : 0ul);
+            if (include_typographical_extent) {
+                // Hybrid visual alignment mode, based on typographical extent.
 
-            box.fTop    = std::min(box.fTop,    typographical_top);
-            box.fBottom = std::max(box.fBottom, typographical_bottom);
+                // By default, first line is vertically-aligned on a baseline of 0.
+                // The typographical height considered for vertical alignment is the distance
+                // between the first line top (ascent) to the last line bottom (descent).
+                const auto typographical_top    = fBox.fTop + ascent,
+                           typographical_bottom = fBox.fTop + fLastLineDescent +
+                                          fDesc.fLineHeight*(fLineCount > 0 ? fLineCount - 1 : 0ul);
+
+                box.fTop    = std::min(box.fTop,    typographical_top);
+                box.fBottom = std::max(box.fBottom, typographical_bottom);
+            }
 
             return box;
         };
@@ -214,23 +224,26 @@ public:
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
+        case Shaper::VAlign::kHybridTop:
         case Shaper::VAlign::kVisualTop:
-            ebox.init(extent_box());
+            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridTop));
             v_offset += fBox.fTop - ebox->fTop;
             break;
+        case Shaper::VAlign::kHybridCenter:
         case Shaper::VAlign::kVisualCenter:
-            ebox.init(extent_box());
+            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridCenter));
             v_offset += fBox.centerY() - ebox->centerY();
             break;
+        case Shaper::VAlign::kHybridBottom:
         case Shaper::VAlign::kVisualBottom:
-            ebox.init(extent_box());
+            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridBottom));
             v_offset += fBox.fBottom - ebox->fBottom;
             break;
         }
 
         if (shaped_size) {
             if (!ebox.isValid()) {
-                ebox.init(extent_box());
+                ebox.init(extent_box(true));
             }
             *shaped_size = SkSize::Make(ebox->width(), ebox->height());
         }
@@ -244,7 +257,7 @@ public:
         return std::move(fResult);
     }
 
-    void shapeLine(const char* start, const char* end) {
+    void shapeLine(const char* start, const char* end, size_t utf8_offset) {
         if (!fShaper) {
             return;
         }
@@ -254,6 +267,30 @@ public:
             // SkShaper doesn't care for empty lines.
             this->beginLine();
             this->commitLine();
+
+            // The calls above perform bookkeeping, but they do not add any fragments (since there
+            // are no runs to commit).
+            //
+            // Certain Skottie features (line-based range selectors) do require accurate indexing
+            // information even for empty lines though -- so we inject empty fragments solely for
+            // line index tracking.
+            //
+            // Note: we don't add empty fragments in consolidated mode because 1) consolidated mode
+            // assumes there is a single result fragment and 2) kFragmentGlyphs is always enabled
+            // for cases where line index tracking is relevant.
+            //
+            // TODO(fmalita): investigate whether it makes sense to move this special case down
+            // to commitFragmentedRun().
+            if (fDesc.fFlags & Shaper::Flags::kFragmentGlyphs) {
+                fResult.fFragments.push_back({
+                    Shaper::ShapedGlyphs(),
+                    {fBox.x(),fBox.y()},
+                    0, 0,
+                    fLineCount - 1,
+                    false
+                });
+            }
+
             return;
         }
 
@@ -273,6 +310,7 @@ public:
         const auto shape_ltr   = fDesc.fDirection == Shaper::Direction::kLTR;
 
         fUTF8 = start;
+        fUTF8Offset = utf8_offset;
         fShaper->shape(start, SkToSizeT(end - start), fFont, shape_ltr, shape_width, this);
         fUTF8 = nullptr;
     }
@@ -310,6 +348,9 @@ private:
                     { {run.fFont, 1} },
                     { glyphs[i] },
                     { {0,0} },
+                    fDesc.fFlags & Shaper::kClusters
+                        ? std::vector<size_t>{ fUTF8Offset + clusters[i] }
+                        : std::vector<size_t>({}),
                 },
                 { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
                 advance, ascent,
@@ -325,14 +366,14 @@ private:
     void commitConsolidatedRun(const skottie::Shaper::RunRec& run,
                                const SkGlyphID* glyphs,
                                const SkPoint* pos,
-                               const uint32_t*,
+                               const uint32_t* clusters,
                                uint32_t) {
         // In consolidated mode we just accumulate glyphs to a single fragment in ResultBuilder.
         // Glyph positions are baked in the fragment runs (Fragment::fPos only reflects the
         // box origin).
 
         if (fResult.fFragments.empty()) {
-            fResult.fFragments.push_back({{{}, {}, {}}, {fBox.x(), fBox.y()}, 0, 0, 0, false});
+            fResult.fFragments.push_back({{{}, {}, {}, {}}, {fBox.x(), fBox.y()}, 0, 0, 0, false});
         }
 
         auto& current_glyphs = fResult.fFragments.back().fGlyphs;
@@ -342,6 +383,13 @@ private:
 
         for (size_t i = 0; i < run.fSize; ++i) {
             fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
+        }
+
+        if (fDesc.fFlags & Shaper::kClusters) {
+            current_glyphs.fClusters.reserve(current_glyphs.fClusters.size() + run.fSize);
+            for (size_t i = 0; i < run.fSize; ++i) {
+                current_glyphs.fClusters.push_back(fUTF8Offset + clusters[i]);
+            }
         }
     }
 
@@ -369,9 +417,9 @@ private:
     SkFont                    fFont;
     std::unique_ptr<SkShaper> fShaper;
 
-    SkAutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
-    SkAutoSTMalloc<64, SkPoint>            fLinePos;
-    SkAutoSTMalloc<64, uint32_t>           fLineClusters;
+    AutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
+    AutoSTMalloc<64, SkPoint>            fLinePos;
+    AutoSTMalloc<64, uint32_t>           fLineClusters;
     SkSTArray<16, skottie::Shaper::RunRec> fLineRuns;
     size_t                                 fLineGlyphCount = 0;
 
@@ -384,7 +432,8 @@ private:
     float    fFirstLineAscent = 0,
              fLastLineDescent = 0;
 
-    const char* fUTF8 = nullptr; // only valid during shapeLine() calls
+    const char* fUTF8       = nullptr; // only valid during shapeLine() calls
+    size_t      fUTF8Offset = 0;       // current line offset within the original string
 
     Shaper::Result fResult;
 };
@@ -399,16 +448,17 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
 
     const char* ptr        = txt.c_str();
     const char* line_start = ptr;
+    const char* begin      = ptr;
     const char* end        = ptr + txt.size();
 
     ResultBuilder rbuilder(desc, box, fontmgr);
     while (ptr < end) {
         if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
-            rbuilder.shapeLine(line_start, ptr - 1);
+            rbuilder.shapeLine(line_start, ptr - 1, SkToSizeT(line_start - begin));
             line_start = ptr;
         }
     }
-    rbuilder.shapeLine(line_start, ptr);
+    rbuilder.shapeLine(line_start, ptr, SkToSizeT(line_start - begin));
 
     return rbuilder.finalize(shaped_size);
 }
@@ -519,32 +569,33 @@ private:
 
 } // namespace
 
-Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, const SkPoint& point,
+Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkPoint& point,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    const AdjustedText txt(orig_txt, desc);
+    const AdjustedText adjText(text, desc);
 
     return (desc.fResize == ResizePolicy::kScaleToFit ||
             desc.fResize == ResizePolicy::kDownscaleToFit) // makes no sense in point mode
             ? Result()
-            : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
+            : ShapeImpl(adjText, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()),
+                        fontmgr);
 }
 
-Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, const SkRect& box,
+Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkRect& box,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    const AdjustedText txt(orig_txt, desc);
+    const AdjustedText adjText(text, desc);
 
     switch(desc.fResize) {
     case ResizePolicy::kNone:
-        return ShapeImpl(txt, desc, box, fontmgr);
+        return ShapeImpl(adjText, desc, box, fontmgr);
     case ResizePolicy::kScaleToFit:
-        return ShapeToFit(txt, desc, box, fontmgr);
+        return ShapeToFit(adjText, desc, box, fontmgr);
     case ResizePolicy::kDownscaleToFit: {
         SkSize size;
-        auto result = ShapeImpl(txt, desc, box, fontmgr, &size);
+        auto result = ShapeImpl(adjText, desc, box, fontmgr, &size);
 
         return result_fits(result, size, box, desc)
                 ? result
-                : ShapeToFit(txt, desc, box, fontmgr);
+                : ShapeToFit(adjText, desc, box, fontmgr);
     }
     }
 
@@ -554,7 +605,7 @@ Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, con
 SkRect Shaper::ShapedGlyphs::computeBounds(BoundsType btype) const {
     auto bounds = SkRect::MakeEmpty();
 
-    SkAutoSTArray<16, SkRect> glyphBounds;
+    AutoSTArray<16, SkRect> glyphBounds;
 
     size_t offset = 0;
     for (const auto& run : fRuns) {

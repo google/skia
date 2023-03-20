@@ -1,0 +1,11 @@
+half4 colorR,colorGreen;
+
+bool test(){
+    int ok;
+    for(float d[2]=float[2](0,1);d[0]<d[~1];){}
+    return ok==0;
+}
+
+half4 main(){
+    return test()?colorGreen:colorR;
+}

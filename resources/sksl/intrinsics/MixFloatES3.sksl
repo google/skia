@@ -1,0 +1,28 @@
+uniform half4 colorGreen, colorRed, colorBlack, colorWhite, testInputs;
+
+// This test covers mix(vec, vec, bvec).
+// See MixFloatES2 and MixBool for additional forms of mix.
+
+half4 main(float2 coords) {
+    const half4 constBlack = half4(0, 0, 0, 1);
+    const half4 constWhite = half4(1);
+    const half4 constVal = half4(-1.25, 0, 0.75, 2.25);
+
+    const bool4 constTFTF = bool4(true, false, true, false);
+    bool4 FTFT = bool4(colorGreen);
+    bool4 TFTF = FTFT.wzyx;
+
+    return (mix(colorBlack.x,    colorWhite.x,    FTFT.x)         == colorBlack.x    &&
+            mix(colorBlack.xy,   colorWhite.xy,   FTFT.xy)        == colorBlack.x1   &&
+            mix(colorBlack.xyz,  colorWhite.xyz,  FTFT.xyz)       == colorBlack.x1z  &&
+            mix(colorBlack.xyzw, colorWhite.xyzw, FTFT.xyzw)      == colorBlack.x1z1 &&
+            mix(colorWhite.x,    testInputs.x,    TFTF.x)         == testInputs.x    &&
+            mix(colorWhite.xy,   testInputs.xy,   TFTF.xy)        == testInputs.x1   &&
+            mix(colorWhite.xyz,  testInputs.xyz,  TFTF.xyz)       == testInputs.x1z  &&
+            mix(colorWhite.xyzw, testInputs.xyzw, TFTF.xyzw)      == testInputs.x1z1 &&
+            mix(constWhite.x,    constVal.x,      constTFTF.x)    == constVal.x      &&
+            mix(constWhite.xy,   constVal.xy,     constTFTF.xy)   == constVal.x1     &&
+            mix(constWhite.xyz,  constVal.xyz,    constTFTF.xyz)  == constVal.x1z    &&
+            mix(constWhite.xyzw, constVal.xyzw,   constTFTF.xyzw) == constVal.x1z1)
+                ? colorGreen : colorRed;
+}

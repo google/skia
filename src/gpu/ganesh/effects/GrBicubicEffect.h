@@ -8,9 +8,13 @@
 #ifndef GrBicubicTextureEffect_DEFINED
 #define GrBicubicTextureEffect_DEFINED
 
+#include "include/core/SkSamplingOptions.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 
 class GrInvariantOutput;
+class GrSurfaceProxyView;
 
 class GrBicubicEffect : public GrFragmentProcessor {
 public:
@@ -19,8 +23,8 @@ public:
                              // surrounding texels are needed by the kernel in x and y.
     };
 
-    inline static constexpr SkImage::CubicResampler gMitchell = { 1.0f/3, 1.0f/3 };
-    inline static constexpr SkImage::CubicResampler gCatmullRom = {    0, 1.0f/2 };
+    inline static constexpr SkCubicResampler gMitchell = { 1.0f/3, 1.0f/3 };
+    inline static constexpr SkCubicResampler gCatmullRom = {    0, 1.0f/2 };
 
     enum class Direction {
         /** Apply bicubic kernel in local coord x, nearest neighbor in y. */
@@ -43,7 +47,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      SkAlphaType,
                                                      const SkMatrix&,
-                                                     SkImage::CubicResampler,
+                                                     SkCubicResampler,
                                                      Direction);
 
     /**
@@ -54,7 +58,7 @@ public:
                                                      const SkMatrix&,
                                                      const GrSamplerState::WrapMode wrapX,
                                                      const GrSamplerState::WrapMode wrapY,
-                                                     SkImage::CubicResampler,
+                                                     SkCubicResampler,
                                                      Direction,
                                                      const GrCaps&);
 
@@ -68,7 +72,7 @@ public:
                                                            const GrSamplerState::WrapMode wrapX,
                                                            const GrSamplerState::WrapMode wrapY,
                                                            const SkRect& subset,
-                                                           SkImage::CubicResampler,
+                                                           SkCubicResampler,
                                                            Direction,
                                                            const GrCaps&);
 
@@ -83,7 +87,7 @@ public:
                                                            const GrSamplerState::WrapMode wrapY,
                                                            const SkRect& subset,
                                                            const SkRect& domain,
-                                                           SkImage::CubicResampler,
+                                                           SkCubicResampler,
                                                            Direction,
                                                            const GrCaps&);
 
@@ -94,7 +98,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
                                                      SkAlphaType,
                                                      const SkMatrix&,
-                                                     SkImage::CubicResampler,
+                                                     SkCubicResampler,
                                                      Direction);
 
 private:
@@ -106,7 +110,7 @@ private:
     };
 
     GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>,
-                    SkImage::CubicResampler,
+                    SkCubicResampler,
                     Direction,
                     Clamp);
 
@@ -120,7 +124,7 @@ private:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
-    SkImage::CubicResampler fKernel;
+    SkCubicResampler fKernel;
     Direction fDirection;
     Clamp fClamp;
 

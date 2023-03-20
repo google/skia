@@ -1,19 +1,24 @@
-uniform half4 inputVal, expected;
+uniform float2x2 testMatrix2x2;  // = {1, 2, 3, 4}
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    const half4 constVal = half4(1, 4, 16, 64);
-    const half4 negativeVal = half4(-1, -4, -16, -64);  // should not optimize away
-    return (sqrt(inputVal.x)       == expected.x     &&
-            sqrt(inputVal.xy)      == expected.xy    &&
-            sqrt(inputVal.xyz)     == expected.xyz   &&
-            sqrt(inputVal.xyzw)    == expected.xyzw  &&
-            sqrt(constVal.x)       == expected.x     &&
-            sqrt(constVal.xy)      == expected.xy    &&
-            sqrt(constVal.xyz)     == expected.xyz   &&
-            sqrt(constVal.xyzw)    == expected.xyzw  &&
-            sqrt(negativeVal.x)    == expected.x     &&
-            sqrt(negativeVal.xy)   == expected.xy    &&
-            sqrt(negativeVal.xyz)  == expected.xyz   &&
-            sqrt(negativeVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+    // We should not attempt to constant-fold `sqrt(negative values)`. This sqrt call should remain
+    // in the generated code as-is.
+    const float4 negativeVal = half4(-1, -4, -16, -64);
+    coords.xy = sqrt(negativeVal).xy;
+
+    float4       inputVal = float4(testMatrix2x2) + half4(0, 2, 6, 12); // = {1, 4, 9, 16}
+    const float4 constVal = float4(1, 4, 9, 16);
+    const float4 expected = float4(1, 2, 3, 4);
+    const float4 allowedDelta = float4(0.05);
+
+    return (   (        (abs(sqrt(inputVal.x)       - expected.x)   < allowedDelta.x))     &&
+            all(lessThan(abs(sqrt(inputVal.xy)      - expected.xy),   allowedDelta.xy))    &&
+            all(lessThan(abs(sqrt(inputVal.xyz)     - expected.xyz),  allowedDelta.xyz))   &&
+            all(lessThan(abs(sqrt(inputVal.xyzw)    - expected.xyzw), allowedDelta.xyzw))  &&
+               (        (abs(sqrt(constVal.x)       - expected.x)   < allowedDelta.x))     &&
+            all(lessThan(abs(sqrt(constVal.xy)      - expected.xy),   allowedDelta.xy))    &&
+            all(lessThan(abs(sqrt(constVal.xyz)     - expected.xyz),  allowedDelta.xyz))   &&
+            all(lessThan(abs(sqrt(constVal.xyzw)    - expected.xyzw), allowedDelta.xyzw)))
+                ? colorGreen : colorRed;
 }

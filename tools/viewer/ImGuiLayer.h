@@ -9,8 +9,9 @@
 #define ImGuiLayer_DEFINED
 
 #include "include/core/SkPaint.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
 #include "tools/sk_app/Window.h"
 
 #include "imgui.h"
@@ -134,7 +135,7 @@ public:
 private:
     sk_app::Window* fWindow;
     SkPaint fFontPaint;
-    SkTArray<SkiaWidgetFunc> fSkiaWidgetFuncs;
+    skia_private::TArray<SkiaWidgetFunc> fSkiaWidgetFuncs;
 };
 
 #endif

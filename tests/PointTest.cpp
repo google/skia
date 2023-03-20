@@ -4,11 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-// Unit tests for src/core/SkPoint.cpp and its header
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkPointPriv.h"
 #include "tests/Test.h"
+
+#include <cfloat>
+#include <cstdint>
+#include <cstring>
+#include <string>
 
 static void test_casts(skiatest::Reporter* reporter) {
     SkPoint p = { 0, 0 };

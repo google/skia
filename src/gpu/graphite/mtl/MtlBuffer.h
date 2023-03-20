@@ -9,7 +9,7 @@
 #define skgpu_graphite_MtlBuffer_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/graphite/mtl/MtlTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "src/gpu/graphite/Buffer.h"
 
 #import <Metal/Metal.h>
@@ -29,8 +29,6 @@ public:
 private:
     MtlBuffer(const MtlSharedContext*,
               size_t size,
-              BufferType type,
-              PrioritizeGpuReads,
               sk_cfp<id<MTLBuffer>>);
 
     void onMap() override;

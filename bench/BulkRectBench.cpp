@@ -11,7 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -148,10 +148,9 @@ protected:
 
         auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
         SkMatrix view = canvas->getLocalToDeviceAs3x3();
-        SkMatrixProvider matrixProvider(view);
         SkSurfaceProps props;
         GrPaint grPaint;
-        SkPaintToGrPaint(context, sdc->colorInfo(), paint, matrixProvider, props, &grPaint);
+        SkPaintToGrPaint(context, sdc->colorInfo(), paint, view, props, &grPaint);
         sdc->drawQuadSet(nullptr, std::move(grPaint), view, batch, kRectCount);
     }
 

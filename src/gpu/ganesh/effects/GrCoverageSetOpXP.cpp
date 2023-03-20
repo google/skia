@@ -178,7 +178,7 @@ sk_sp<const GrXferProcessor> GrCoverageSetOpXPFactory::makeXferProcessor(
     return sk_sp<GrXferProcessor>(new CoverageSetOpXP(fRegionOp, fInvertCoverage));
 }
 
-GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);
+GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory)
 
 #if GR_TEST_UTILS
 const GrXPFactory* GrCoverageSetOpXPFactory::TestGet(GrProcessorTestData* d) {

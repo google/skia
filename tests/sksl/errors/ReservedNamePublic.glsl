@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'public' is a reserved word
+error: 1: name 'public' is reserved
 int public;
     ^^^^^^
 1 error

@@ -26,10 +26,12 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTArray.h"
-#include "src/core/SkArenaAlloc.h"
-#include "src/core/SkTSort.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkTSort.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"
@@ -277,7 +279,7 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
         sorted.push_back(hit);
         hit = hit->fNext;
     }
-    int count = sorted.count();
+    int count = sorted.size();
     SkTQSort(sorted.begin(), sorted.end(),
              xy_index(dir) ? less_than(dir) ? hit_compare_y : reverse_hit_compare_y
                            : less_than(dir) ? hit_compare_x : reverse_hit_compare_x);

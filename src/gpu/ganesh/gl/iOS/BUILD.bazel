@@ -1,9 +1,12 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+# Used for exporting to //gn/gpu.gni:skia_native_gpu_sources.
+skia_filegroup(
     name = "srcs",
+    srcs = ["GrGLMakeNativeInterface_iOS.cpp"],
+    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
 )

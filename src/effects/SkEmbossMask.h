@@ -11,6 +11,8 @@
 
 #include "src/effects/SkEmbossMaskFilter.h"
 
+struct SkMask;
+
 class SkEmbossMask {
 public:
     static void Emboss(SkMask* mask, const SkEmbossMaskFilter::Light&);

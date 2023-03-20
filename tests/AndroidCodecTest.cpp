@@ -7,24 +7,21 @@
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
-#include "include/core/SkBitmap.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
-#include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkGainmapInfo.h"  // IWYU pragma: keep
 #include "modules/skcms/skcms.h"
-#include "src/codec/SkCodecImageGenerator.h"
-#include "src/core/SkPixmapPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <memory>
 #include <utility>
@@ -160,7 +157,8 @@ DEF_TEST(AndroidCodec_wide, r) {
         return;
     }
 
-    auto expected = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
+    // This image has a gamut that is VERY close to sRGB, so SkColorSpace::MakeRGB snaps to sRGB.
+    auto expected = SkColorSpace::MakeSRGB();
     REPORTER_ASSERT(r, SkColorSpace::Equals(cs.get(), expected.get()));
 }
 

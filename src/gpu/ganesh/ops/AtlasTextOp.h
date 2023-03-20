@@ -5,17 +5,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef AtlasTextOp_DEFINED
-#define AtlasTextOp_DEFINED
+#ifndef skgpu_ganesh_AtlasTextOp_DEFINED
+#define skgpu_ganesh_AtlasTextOp_DEFINED
 
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/text/gpu/TextBlob.h"
 
+class GrProgramInfo;
 class GrRecordingContext;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class AtlasTextOp final : public GrMeshDrawOp {
 public:
@@ -90,16 +91,20 @@ public:
         kGrayscaleCoverage,
         kLCDCoverage,
         kColorBitmap,
+#if !defined(SK_DISABLE_SDF_TEXT)
         kAliasedDistanceField,
         kGrayscaleDistanceField,
         kLCDDistanceField,
         kLCDBGRDistanceField,
 
         kLast = kLCDBGRDistanceField
+#else
+        kLast = kColorBitmap
+#endif
     };
     inline static constexpr int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
 
-#if GR_TEST_UTILS && SK_GPU_V1
+#if GR_TEST_UTILS
     static GrOp::Owner CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext*,
                                            const SkPaint&,
                                            const SkFont&,
@@ -188,16 +193,19 @@ private:
             case MaskType::kColorBitmap:
                 return skgpu::MaskFormat::kARGB;
             case MaskType::kGrayscaleCoverage:
+#if !defined(SK_DISABLE_SDF_TEXT)
             case MaskType::kAliasedDistanceField:
             case MaskType::kGrayscaleDistanceField:
             case MaskType::kLCDDistanceField:
             case MaskType::kLCDBGRDistanceField:
+#endif
                 return skgpu::MaskFormat::kA8;
         }
         // SkUNREACHABLE;
         return skgpu::MaskFormat::kA8;
     }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
     bool usesDistanceFields() const {
         return MaskType::kAliasedDistanceField == this->maskType() ||
                MaskType::kGrayscaleDistanceField == this->maskType() ||
@@ -210,6 +218,11 @@ private:
                MaskType::kLCDDistanceField == this->maskType() ||
                MaskType::kLCDBGRDistanceField == this->maskType();
     }
+#else
+    bool isLCD() const {
+        return MaskType::kLCDCoverage == this->maskType();
+    }
+#endif
 
     inline void createDrawForGeneratedGlyphs(
             GrMeshDrawTarget* target, FlushInfo* flushInfo) const;
@@ -218,11 +231,13 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
 
+#if !defined(SK_DISABLE_SDF_TEXT)
     GrGeometryProcessor* setupDfProcessor(SkArenaAlloc*,
                                           const GrShaderCaps&,
                                           const SkMatrix& localMatrix,
                                           const GrSurfaceProxyView* views,
                                           unsigned int numActiveViews) const;
+#endif
 
     GrProcessorSet fProcessors;
     int fNumGlyphs; // Sum of glyphs in each geometry's subrun
@@ -235,7 +250,9 @@ private:
     uint32_t fHasPerspective               : 1;  // True if perspective affects draw
     uint32_t fUseGammaCorrectDistanceTable : 1;
     static_assert(kMaskTypeCount <= 8, "MaskType does not fit in 3 bits");
+#if !defined(SK_DISABLE_SDF_TEXT)
     static_assert(kInvalid_DistanceFieldEffectFlag <= (1 << 9), "DFGP Flags do not fit in 10 bits");
+#endif
 
     // Only used for distance fields; per-channel luminance for LCD, or gamma-corrected luminance
     // for single-channel distance fields.
@@ -247,6 +264,6 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh
 
-#endif // AtlasTextOp_DEFINED
+#endif // skgpu_ganesh_AtlasTextOp_DEFINED

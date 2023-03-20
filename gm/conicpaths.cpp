@@ -16,8 +16,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatBits.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkTArray.h"
+
+using namespace skia_private;
 
 class ConicPathsGM : public skiagm::GM {
 protected:
@@ -111,7 +113,7 @@ protected:
         canvas->translate(margin, margin);
 
         SkPaint paint;
-        for (int p = 0; p < fPaths.count(); ++p) {
+        for (int p = 0; p < fPaths.size(); ++p) {
             canvas->save();
             for (size_t a = 0; a < std::size(kAlphaValue); ++a) {
                 paint.setARGB(kAlphaValue[a], 0, 0, 0);
@@ -139,7 +141,7 @@ protected:
     }
 
 private:
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
     SkPath           fGiantCircle;
     using INHERITED = skiagm::GM;
 };

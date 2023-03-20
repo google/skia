@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
+#include "src/base/SkVx.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/graphite/geom/Rect.h"
 

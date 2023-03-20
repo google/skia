@@ -14,7 +14,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "tools/Registry.h"
 
 #include <memory>
@@ -108,11 +108,11 @@ namespace skiagm {
         inline static constexpr char kErrorMsg_DrawSkippedGpuOnly[] =
                 "This test is for GPU configs only.";
 
-        DrawResult gpuSetup(GrDirectContext* context, SkCanvas* canvas) {
+        DrawResult gpuSetup(SkCanvas* canvas) {
             SkString errorMsg;
-            return this->gpuSetup(context, canvas, &errorMsg);
+            return this->gpuSetup(canvas, &errorMsg);
         }
-        DrawResult gpuSetup(GrDirectContext*, SkCanvas*, SkString* errorMsg);
+        DrawResult gpuSetup(SkCanvas*, SkString* errorMsg);
         void gpuTeardown();
 
         void onceBeforeDraw() {
@@ -165,7 +165,7 @@ namespace skiagm {
 
     protected:
         // onGpuSetup is called once before any other processing with a direct context.
-        virtual DrawResult onGpuSetup(GrDirectContext*, SkString*) { return DrawResult::kOk; }
+        virtual DrawResult onGpuSetup(SkCanvas*, SkString*) { return DrawResult::kOk; }
         virtual void onGpuTeardown() {}
         virtual void onOnceBeforeDraw();
         virtual DrawResult onDraw(SkCanvas*, SkString* errorMsg);

@@ -14,6 +14,7 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -22,6 +23,7 @@
 namespace SkSL {
 
 class Context;
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * Base class representing a constructor with unknown arguments.
@@ -34,38 +36,10 @@ public:
     virtual SkSpan<std::unique_ptr<Expression>> argumentSpan() = 0;
     virtual SkSpan<const std::unique_ptr<Expression>> argumentSpan() const = 0;
 
-    bool hasProperty(Property property) const override {
-        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
-            if (arg->hasProperty(property)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    std::string description() const override {
-        std::string result = this->type().description() + "(";
-        const char* separator = "";
-        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
-            result += separator;
-            result += arg->description();
-            separator = ", ";
-        }
-        result += ")";
-        return result;
-    }
+    std::string description(OperatorPrecedence) const override;
 
     const Type& componentType() const {
         return this->type().componentType();
-    }
-
-    bool isCompileTimeConstant() const override {
-        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
-            if (!arg->isCompileTimeConstant()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     bool supportsConstantValues() const override { return true; }
@@ -162,7 +136,7 @@ namespace Constructor {
                                         Position pos,
                                         const Type& type,
                                         ExpressionArray args);
-};
+}
 
 }  // namespace SkSL
 

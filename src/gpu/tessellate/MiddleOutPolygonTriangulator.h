@@ -10,8 +10,8 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
-#include "include/private/SkTemplates.h"
-#include "src/core/SkMathPriv.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include <tuple>
 
@@ -184,7 +184,7 @@ public:
 
 private:
     constexpr static int kStackPreallocCount = 32;
-    SkAutoSTMalloc<kStackPreallocCount, StackVertex> fVertexStack;
+    skia_private::AutoSTMalloc<kStackPreallocCount, StackVertex> fVertexStack;
     SkDEBUGCODE(int fStackAllocCount;)
     StackVertex* fTop;
 };

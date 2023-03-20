@@ -9,7 +9,6 @@
 #define sktext_gpu_GlyphVector_DEFINED
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkGlyphBuffer.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/Glyph.h"
@@ -17,10 +16,10 @@
 #include "src/text/gpu/SubRunAllocator.h"
 
 class SkStrikeClient;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 class GrMeshDrawTarget;
 #endif
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
 namespace skgpu::graphite { class Recorder; }
 #endif
 
@@ -43,8 +42,9 @@ public:
 
     GlyphVector(SkStrikePromise&& strikePromise, SkSpan<Variant> glyphs);
 
-    static GlyphVector Make(
-            SkStrikePromise&& promise, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+    static GlyphVector Make(SkStrikePromise&& promise,
+                            SkSpan<const SkPackedGlyphID> glyphs,
+                            SubRunAllocator* alloc);
 
     SkSpan<const Glyph*> glyphs() const;
 
@@ -59,7 +59,7 @@ public:
 
     void packedGlyphIDToGlyph(StrikeCache* cache);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end,
             skgpu::MaskFormat maskFormat,
@@ -67,7 +67,7 @@ public:
             GrMeshDrawTarget*);
 #endif
 
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end,
             skgpu::MaskFormat maskFormat,
@@ -81,7 +81,6 @@ public:
 
 private:
     friend class GlyphVectorTestingPeer;
-    static Variant* MakeGlyphs(SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
 
     SkStrikePromise fStrikePromise;
     SkSpan<Variant> fGlyphs;

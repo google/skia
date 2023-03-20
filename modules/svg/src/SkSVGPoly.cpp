@@ -9,7 +9,7 @@
 #include "modules/svg/include/SkSVGPoly.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 
 SkSVGPoly::SkSVGPoly(SkSVGTag t) : INHERITED(t) {}
 
@@ -21,7 +21,7 @@ bool SkSVGPoly::parseAndSetAttribute(const char* n, const char* v) {
     if (this->setPoints(SkSVGAttributeParser::parse<SkSVGPointsType>("points", n, v))) {
         // TODO: we can likely just keep the points array and create the SkPath when needed.
         fPath = SkPath::Polygon(
-                fPoints.begin(), fPoints.count(),
+                fPoints.begin(), fPoints.size(),
                 this->tag() == SkSVGTag::kPolygon);  // only polygons are auto-closed
     }
 

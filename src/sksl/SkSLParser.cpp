@@ -11,28 +11,27 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLString.h"
-#include "include/private/SkTHash.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLCase.h"
 #include "include/sksl/DSLFunction.h"
-#include "include/sksl/DSLSymbols.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLVersion.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 #include <algorithm>
 #include <climits>
 #include <initializer_list>
 #include <memory>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -51,14 +50,15 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_INOUT:          return Modifiers::kIn_Flag | Modifiers::kOut_Flag;
         case Token::Kind::TK_FLAT:           return Modifiers::kFlat_Flag;
         case Token::Kind::TK_NOPERSPECTIVE:  return Modifiers::kNoPerspective_Flag;
-        case Token::Kind::TK_HASSIDEEFFECTS: return Modifiers::kHasSideEffects_Flag;
+        case Token::Kind::TK_PURE:           return Modifiers::kPure_Flag;
         case Token::Kind::TK_INLINE:         return Modifiers::kInline_Flag;
         case Token::Kind::TK_NOINLINE:       return Modifiers::kNoInline_Flag;
         case Token::Kind::TK_HIGHP:          return Modifiers::kHighp_Flag;
         case Token::Kind::TK_MEDIUMP:        return Modifiers::kMediump_Flag;
         case Token::Kind::TK_LOWP:           return Modifiers::kLowp_Flag;
+        case Token::Kind::TK_EXPORT:         return Modifiers::kExport_Flag;
         case Token::Kind::TK_ES3:            return Modifiers::kES3_Flag;
-        case Token::Kind::TK_THREADGROUP:    return Modifiers::kThreadgroup_Flag;
+        case Token::Kind::TK_WORKGROUP:      return Modifiers::kWorkgroup_Flag;
         case Token::Kind::TK_READONLY:       return Modifiers::kReadOnly_Flag;
         case Token::Kind::TK_WRITEONLY:      return Modifiers::kWriteOnly_Flag;
         case Token::Kind::TK_BUFFER:         return Modifiers::kBuffer_Flag;
@@ -66,7 +66,7 @@ static int parse_modifier_token(Token::Kind token) {
     }
 }
 
-class AutoDepth {
+class Parser::AutoDepth {
 public:
     AutoDepth(Parser* p)
     : fParser(p)
@@ -92,15 +92,18 @@ private:
     int fDepth;
 };
 
-class AutoSymbolTable {
+class Parser::AutoSymbolTable {
 public:
-    AutoSymbolTable() {
-        dsl::PushSymbolTable();
+    AutoSymbolTable(Parser* p) : fParser(p) {
+        SymbolTable::Push(&fParser->symbolTable());
     }
 
     ~AutoSymbolTable() {
-        dsl::PopSymbolTable();
+        SymbolTable::Pop(&fParser->symbolTable());
     }
+
+private:
+    Parser* fParser;
 };
 
 Parser::Parser(Compiler* compiler,
@@ -115,6 +118,16 @@ Parser::Parser(Compiler* compiler,
     fLexer.start(*fText);
 }
 
+std::shared_ptr<SymbolTable>& Parser::symbolTable() {
+    return fCompiler.symbolTable();
+}
+
+void Parser::addToSymbolTable(DSLVarBase& var, Position pos) {
+    if (SkSL::Variable* skslVar = DSLWriter::Var(var)) {
+        this->symbolTable()->addWithoutOwnership(skslVar);
+    }
+}
+
 Token Parser::nextRawToken() {
     Token token;
     if (fPushback.fKind != Token::Kind::TK_NONE) {
@@ -127,8 +140,15 @@ Token Parser::nextRawToken() {
 
         // Some tokens are always invalid, so we detect and report them here.
         switch (token.fKind) {
+            case Token::Kind::TK_PRIVATE_IDENTIFIER:
+                if (ProgramConfig::AllowsPrivateIdentifiers(fKind)) {
+                    token.fKind = Token::Kind::TK_IDENTIFIER;
+                    break;
+                }
+                [[fallthrough]];
+
             case Token::Kind::TK_RESERVED:
-                this->error(token, "'" + std::string(this->text(token)) + "' is a reserved word");
+                this->error(token, "name '" + std::string(this->text(token)) + "' is reserved");
                 token.fKind = Token::Kind::TK_IDENTIFIER;  // reduces additional follow-up errors
                 break;
 
@@ -228,7 +248,7 @@ bool Parser::expectIdentifier(Token* result) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", result)) {
         return false;
     }
-    if (CurrentSymbolTable()->isBuiltinType(this->text(*result))) {
+    if (this->symbolTable()->isBuiltinType(this->text(*result))) {
         this->error(*result, "expected an identifier, but found type '" +
                              std::string(this->text(*result)) + "'");
         this->fEncounteredFatalError = true;
@@ -241,7 +261,7 @@ bool Parser::checkIdentifier(Token* result) {
     if (!this->checkNext(Token::Kind::TK_IDENTIFIER, result)) {
         return false;
     }
-    if (CurrentSymbolTable()->isBuiltinType(this->text(*result))) {
+    if (this->symbolTable()->isBuiltinType(this->text(*result))) {
         this->pushback(std::move(*result));
         return false;
     }
@@ -294,15 +314,17 @@ std::unique_ptr<Program> Parser::program() {
     return result;
 }
 
-SkSL::LoadedModule Parser::moduleInheritingFrom(SkSL::ParsedModule baseModule) {
+std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parent) {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
-    StartModule(&fCompiler, fKind, fSettings, std::move(baseModule));
+    StartModule(&fCompiler, fKind, fSettings, parent);
     SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
-    CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
-    SkSL::LoadedModule result{ fKind, CurrentSymbolTable(),
-            std::move(ThreadContext::ProgramElements()) };
+    this->symbolTable()->takeOwnershipOfString(std::move(*fText));
+    auto result = std::make_unique<SkSL::Module>();
+    result->fParent = parent;
+    result->fSymbols = this->symbolTable();
+    result->fElements = std::move(ThreadContext::ProgramElements());
     errorReporter->setSource(std::string_view());
     End();
     return result;
@@ -412,7 +434,7 @@ bool Parser::declaration() {
     DSLModifiers modifiers = this->modifiers();
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_IDENTIFIER &&
-        !CurrentSymbolTable()->isType(this->text(lookahead))) {
+        !this->symbolTable()->isType(this->text(lookahead))) {
         // we have an identifier that's not a type, could be the start of an interface block
         return this->interfaceBlock(modifiers);
     }
@@ -443,7 +465,7 @@ bool Parser::declaration() {
 
 /* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
 bool Parser::functionDeclarationEnd(Position start,
-                                    const DSLModifiers& modifiers,
+                                    DSLModifiers& modifiers,
                                     DSLType type,
                                     const Token& name) {
     SkSTArray<8, DSLParameter> parameters;
@@ -474,12 +496,17 @@ bool Parser::functionDeclarationEnd(Position start,
     for (DSLParameter& param : parameters) {
         parameterPointers.push_back(&param);
     }
-    DSLFunction result(modifiers, type, this->text(name), parameterPointers,
+
+    DSLFunction result(this->text(name), modifiers, type, parameterPointers,
                        this->rangeFrom(start));
-    if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
-        AutoSymbolTable symbols;
+
+    const bool hasFunctionBody = !this->checkNext(Token::Kind::TK_SEMICOLON);
+    if (hasFunctionBody) {
+        AutoSymbolTable symbols(this);
         for (DSLParameter* var : parameterPointers) {
-            AddToSymbolTable(*var);
+            if (!var->name().empty()) {
+                this->addToSymbolTable(*var);
+            }
         }
         Token bodyStart = this->peek();
         std::optional<DSLBlock> body = this->block();
@@ -487,6 +514,8 @@ bool Parser::functionDeclarationEnd(Position start,
             return false;
         }
         result.define(std::move(*body), this->rangeFrom(bodyStart));
+    } else {
+        result.prototype();
     }
     return true;
 }
@@ -574,9 +603,9 @@ void Parser::globalVarDeclarationEnd(Position pos,
         return;
     }
     DSLGlobalVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
-            this->position(name));
+                       this->position(name));
     Declare(first);
-    AddToSymbolTable(first);
+    this->addToSymbolTable(first);
 
     while (this->checkNext(Token::Kind::TK_COMMA)) {
         type = baseType;
@@ -592,9 +621,9 @@ void Parser::globalVarDeclarationEnd(Position pos,
             return;
         }
         DSLGlobalVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
-                this->rangeFrom(identifierName));
+                          this->rangeFrom(identifierName));
         Declare(next);
-        AddToSymbolTable(next, this->position(identifierName));
+        this->addToSymbolTable(next, this->position(identifierName));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
 }
@@ -615,9 +644,9 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
         return {};
     }
     DSLVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
-            this->position(name));
+                 this->position(name));
     DSLStatement result = Declare(first);
-    AddToSymbolTable(first);
+    this->addToSymbolTable(first);
 
     while (this->checkNext(Token::Kind::TK_COMMA)) {
         type = baseType;
@@ -633,9 +662,9 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
             return result;
         }
         DSLVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
-                this->rangeFrom(identifierName), this->position(identifierName));
+                    this->rangeFrom(identifierName), this->position(identifierName));
         DSLWriter::AddVarDeclaration(result, next);
-        AddToSymbolTable(next, this->position(identifierName));
+        this->addToSymbolTable(next, this->position(identifierName));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
     result.setPosition(this->rangeFrom(pos));
@@ -654,7 +683,7 @@ DSLStatement Parser::varDeclarationsOrExpressionStatement() {
     if (nextToken.fKind == Token::Kind::TK_HIGHP ||
         nextToken.fKind == Token::Kind::TK_MEDIUMP ||
         nextToken.fKind == Token::Kind::TK_LOWP ||
-        CurrentSymbolTable()->isType(this->text(nextToken))) {
+        this->symbolTable()->isType(this->text(nextToken))) {
         // Statements that begin with a typename are most often variable declarations, but
         // occasionally the type is part of a constructor, and these are actually expression-
         // statements in disguise. First, attempt the common case: parse it as a vardecl.
@@ -796,8 +825,6 @@ std::optional<DSLParameter> Parser::parameter(size_t paramIndex) {
         paramText = this->text(name);
         paramPos = this->position(name);
     } else {
-        std::string anonymousName = String::printf("_skAnonymousParam%zu", paramIndex);
-        paramText = *CurrentSymbolTable()->takeOwnershipOfString(std::move(anonymousName));
         paramPos = this->rangeFrom(pos);
     }
     if (!this->parseArrayDimensions(pos, &type)) {
@@ -842,6 +869,8 @@ DSLLayout Parser::layout() {
         LOCATION,
         OFFSET,
         BINDING,
+        TEXTURE,
+        SAMPLER,
         INDEX,
         SET,
         BUILTIN,
@@ -850,6 +879,10 @@ DSLLayout Parser::layout() {
         BLEND_SUPPORT_ALL_EQUATIONS,
         PUSH_CONSTANT,
         COLOR,
+        SPIRV,
+        METAL,
+        GL,
+        WGSL
     };
 
     using LayoutMap = SkTHashMap<std::string_view, LayoutToken>;
@@ -857,6 +890,8 @@ DSLLayout Parser::layout() {
             {"location",                    LayoutToken::LOCATION},
             {"offset",                      LayoutToken::OFFSET},
             {"binding",                     LayoutToken::BINDING},
+            {"texture",                     LayoutToken::TEXTURE},
+            {"sampler",                     LayoutToken::SAMPLER},
             {"index",                       LayoutToken::INDEX},
             {"set",                         LayoutToken::SET},
             {"builtin",                     LayoutToken::BUILTIN},
@@ -865,6 +900,10 @@ DSLLayout Parser::layout() {
             {"blend_support_all_equations", LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS},
             {"push_constant",               LayoutToken::PUSH_CONSTANT},
             {"color",                       LayoutToken::COLOR},
+            {"spirv",                       LayoutToken::SPIRV},
+            {"metal",                       LayoutToken::METAL},
+            {"gl",                          LayoutToken::GL},
+            {"wgsl",                        LayoutToken::WGSL},
     };
 
     DSLLayout result;
@@ -878,6 +917,18 @@ DSLLayout Parser::layout() {
             LayoutToken* found = sLayoutTokens->find(text);
             if (found != nullptr) {
                 switch (*found) {
+                    case LayoutToken::SPIRV:
+                        result.spirv(this->position(t));
+                        break;
+                    case LayoutToken::METAL:
+                        result.metal(this->position(t));
+                        break;
+                    case LayoutToken::GL:
+                        result.gl(this->position(t));
+                        break;
+                    case LayoutToken::WGSL:
+                        result.wgsl(this->position(t));
+                        break;
                     case LayoutToken::ORIGIN_UPPER_LEFT:
                         result.originUpperLeft(this->position(t));
                         break;
@@ -905,14 +956,17 @@ DSLLayout Parser::layout() {
                     case LayoutToken::SET:
                         result.set(this->layoutInt(), this->position(t));
                         break;
+                    case LayoutToken::TEXTURE:
+                        result.texture(this->layoutInt(), this->position(t));
+                        break;
+                    case LayoutToken::SAMPLER:
+                        result.sampler(this->layoutInt(), this->position(t));
+                        break;
                     case LayoutToken::BUILTIN:
                         result.builtin(this->layoutInt(), this->position(t));
                         break;
                     case LayoutToken::INPUT_ATTACHMENT_INDEX:
                         result.inputAttachmentIndex(this->layoutInt(), this->position(t));
-                        break;
-                    default:
-                        this->error(t, "'" + text + "' is not a valid layout qualifier");
                         break;
                 }
             } else {
@@ -930,7 +984,7 @@ DSLLayout Parser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            VARYING | INLINE | THREADGROUP | READONLY | WRITEONLY | BUFFER)* */
+            VARYING | INLINE | WORKGROUP | READONLY | WRITEONLY | BUFFER)* */
 DSLModifiers Parser::modifiers() {
     int start = this->peek().fOffset;
     DSLLayout layout = this->layout();
@@ -946,11 +1000,6 @@ DSLModifiers Parser::modifiers() {
             break;
         }
         Token modifier = this->nextToken();
-        // We have to check for this (internal) modifier here. It's automatically added to user
-        // functions before the IR is built, so testing for it in Convert gives false positives.
-        if (tokenFlag == Modifiers::kHasSideEffects_Flag && !ThreadContext::IsModule()) {
-            this->error(modifier, "'sk_has_side_effects' is not permitted here");
-        }
         if (int duplicateFlags = (tokenFlag & flags)) {
             this->error(modifier, "'" + Modifiers::DescribeFlags(duplicateFlags) +
                                   "' appears more than once");
@@ -970,8 +1019,7 @@ DSLStatement Parser::statement() {
     }
     this->pushback(start);
     switch (start.fKind) {
-        case Token::Kind::TK_IF: // fall through
-        case Token::Kind::TK_STATIC_IF:
+        case Token::Kind::TK_IF:
             return this->ifStatement();
         case Token::Kind::TK_FOR:
             return this->forStatement();
@@ -979,8 +1027,7 @@ DSLStatement Parser::statement() {
             return this->doStatement();
         case Token::Kind::TK_WHILE:
             return this->whileStatement();
-        case Token::Kind::TK_SWITCH: // fall through
-        case Token::Kind::TK_STATIC_SWITCH:
+        case Token::Kind::TK_SWITCH:
             return this->switchStatement();
         case Token::Kind::TK_RETURN:
             return this->returnStatement();
@@ -1014,11 +1061,17 @@ DSLType Parser::type(DSLModifiers* modifiers) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
         return DSLType(nullptr);
     }
-    if (!CurrentSymbolTable()->isType(this->text(type))) {
+    if (!this->symbolTable()->isType(this->text(type))) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
-        return DSLType(nullptr);
+        return DSLType::Invalid();
     }
     DSLType result(this->text(type), modifiers, this->position(type));
+    if (result.isInterfaceBlock()) {
+        // SkSL puts interface blocks into the symbol table, but they aren't general-purpose types;
+        // you can't use them to declare a variable type or a function return type.
+        this->error(type, "expected a type, found '" + std::string(this->text(type)) + "'");
+        return DSLType::Invalid();
+    }
     Token bracket;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
@@ -1130,8 +1183,7 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
 DSLStatement Parser::ifStatement() {
     Token start;
-    bool isStatic = this->checkNext(Token::Kind::TK_STATIC_IF, &start);
-    if (!isStatic && !this->expect(Token::Kind::TK_IF, "'if'", &start)) {
+    if (!this->expect(Token::Kind::TK_IF, "'if'", &start)) {
         return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
@@ -1156,13 +1208,8 @@ DSLStatement Parser::ifStatement() {
         }
     }
     Position pos = this->rangeFrom(start);
-    if (isStatic) {
-        return StaticIf(std::move(test), std::move(ifTrue),
-                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
-    } else {
-        return If(std::move(test), std::move(ifTrue),
-                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
-    }
+    return If(std::move(test), std::move(ifTrue),
+              ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
 }
 
 /* DO statement WHILE LPAREN expression RPAREN SEMICOLON */
@@ -1246,8 +1293,7 @@ std::optional<DSLCase> Parser::switchCase() {
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
 DSLStatement Parser::switchStatement() {
     Token start;
-    bool isStatic = this->checkNext(Token::Kind::TK_STATIC_SWITCH, &start);
-    if (!isStatic && !this->expect(Token::Kind::TK_SWITCH, "'switch'", &start)) {
+    if (!this->expect(Token::Kind::TK_SWITCH, "'switch'", &start)) {
         return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
@@ -1293,11 +1339,7 @@ DSLStatement Parser::switchStatement() {
         return {};
     }
     Position pos = this->rangeFrom(start);
-    if (isStatic) {
-        return StaticSwitch(std::move(value), std::move(cases), pos);
-    } else {
-        return Switch(std::move(value), std::move(cases), pos);
-    }
+    return Switch(std::move(value), std::move(cases), pos);
 }
 
 static Position range_of_at_least_one_char(int start, int end) {
@@ -1315,7 +1357,7 @@ dsl::DSLStatement Parser::forStatement() {
     if (!this->expect(Token::Kind::TK_LPAREN, "'('", &lparen)) {
         return {};
     }
-    AutoSymbolTable symbols;
+    AutoSymbolTable symbols(this);
     dsl::DSLStatement initializer;
     Token nextToken = this->peek();
     int firstSemicolonOffset;
@@ -1437,14 +1479,13 @@ std::optional<DSLBlock> Parser::block() {
     if (!depth.increase()) {
         return std::nullopt;
     }
-    AutoSymbolTable symbols;
+    AutoSymbolTable symbols(this);
     StatementArray statements;
     for (;;) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_RBRACE:
                 this->nextToken();
-                return DSLBlock(std::move(statements), CurrentSymbolTable(),
-                        this->rangeFrom(start));
+                return DSLBlock(std::move(statements), this->symbolTable(), this->rangeFrom(start));
             case Token::Kind::TK_END_OF_FILE:
                 this->error(this->peek(), "expected '}', but found end of file");
                 return std::nullopt;
@@ -1474,7 +1515,7 @@ DSLStatement Parser::expressionStatement() {
     return {};
 }
 
-bool Parser::operatorRight(AutoDepth& depth,
+bool Parser::operatorRight(Parser::AutoDepth& depth,
                            Operator::Kind op,
                            BinaryParseFn rightFn,
                            DSLExpression& result) {
@@ -2101,7 +2142,8 @@ DSLExpression Parser::term() {
         case Token::Kind::TK_IDENTIFIER: {
             std::string_view text;
             if (this->identifier(&text)) {
-                return dsl::Symbol(text, this->position(t));
+                Position pos = this->position(t);
+                return DSLExpression(fCompiler.convertIdentifier(pos, text), pos);
             }
             break;
         }

@@ -9,6 +9,7 @@
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceAllocator.h"
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,

@@ -20,7 +20,6 @@ class SkTypeface_FCI : public SkTypeface_FreeType {
     sk_sp<SkFontConfigInterface> fFCI;
     SkFontConfigInterface::FontIdentity fIdentity;
     SkString fFamilyName;
-    std::unique_ptr<SkFontData> fFontData;
 
 public:
     static SkTypeface_FCI* Create(sk_sp<SkFontConfigInterface> fci,
@@ -29,12 +28,6 @@ public:
                                   const SkFontStyle& style)
     {
         return new SkTypeface_FCI(std::move(fci), fi, std::move(familyName), style);
-    }
-
-    static SkTypeface_FCI* Create(std::unique_ptr<SkFontData> data,
-                                  SkString familyName, SkFontStyle style, bool isFixedPitch)
-    {
-        return new SkTypeface_FCI(std::move(data), std::move(familyName), style, isFixedPitch);
     }
 
     const SkFontConfigInterface::FontIdentity& getIdentity() const {
@@ -46,10 +39,9 @@ public:
         if (!data) {
             return nullptr;
         }
-        return sk_sp<SkTypeface>(new SkTypeface_FCI(std::move(data),
-                                                    fFamilyName,
-                                                    this->fontStyle(),
-                                                    this->isFixedPitch()));
+        return sk_sp<SkTypeface>(
+            new SkTypeface_FreeTypeStream(std::move(data), fFamilyName,
+                                          this->fontStyle(), this->isFixedPitch()));
     }
 
 protected:
@@ -60,18 +52,7 @@ protected:
             : INHERITED(style, false)
             , fFCI(std::move(fci))
             , fIdentity(fi)
-            , fFamilyName(std::move(familyName))
-            , fFontData(nullptr) {}
-
-    SkTypeface_FCI(std::unique_ptr<SkFontData> data,
-                   SkString familyName, SkFontStyle style, bool isFixedPitch)
-            : INHERITED(style, isFixedPitch)
-            , fFamilyName(std::move(familyName))
-            , fFontData(std::move(data))
-    {
-        SkASSERT(fFontData);
-        fIdentity.fTTCIndex = fFontData->getIndex();
-    }
+            , fFamilyName(std::move(familyName)) {}
 
     void onGetFamilyName(SkString* familyName) const override { *familyName = fFamilyName; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;

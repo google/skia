@@ -1,0 +1,42 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          a = 0
+    4. zero_4_slots_unmasked          b = 0
+    5. copy_constant                  $0 = 0x40400000 (3.0)
+    6. swizzle_4                      $0..3 = ($0..3).xxxx
+    7. copy_4_slots_unmasked          a₁ = $0..3
+    8. copy_constant                  $0 = 0xC0A00000 (-5.0)
+    9. swizzle_4                      $0..3 = ($0..3).xxxx
+   10. copy_4_slots_unmasked          b₁ = $0..3
+   11. copy_4_slots_unmasked          $0..3 = a₁
+   12. copy_4_slots_unmasked          $4..7 = b₁
+   13. add_4_floats                   $0..3 += $4..7
+   14. label                          label 0x00000000
+   15. copy_4_slots_unmasked          a = $0..3
+   16. copy_constant                  $0 = 0x3F800000 (1.0)
+   17. swizzle_4                      $0..3 = ($0..3).xxxx
+   18. copy_4_slots_unmasked          color = $0..3
+   19. copy_4_slots_unmasked          $0..3 = color
+   20. copy_constant                  $4 = 0x38D1B717 (0.0001)
+   21. max_float                      $3 = max($3, $4)
+   22. swizzle_3                      $3..5 = ($3..5).xxx
+   23. div_3_floats                   $0..2 /= $3..5
+   24. copy_slot_unmasked             $3 = color(3)
+   25. label                          label 0x00000001
+   26. copy_4_slots_unmasked          b = $0..3
+   27. copy_4_slots_unmasked          $0..3 = a
+   28. zero_4_slots_unmasked          $4..7 = 0
+   29. cmpne_4_floats                 $0..3 = notEqual($0..3, $4..7)
+   30. bitwise_or_2_ints              $0..1 |= $2..3
+   31. bitwise_or_int                 $0 |= $1
+   32. copy_4_slots_unmasked          $1..4 = b
+   33. zero_4_slots_unmasked          $5..8 = 0
+   34. cmpne_4_floats                 $1..4 = notEqual($1..4, $5..8)
+   35. bitwise_or_2_ints              $1..2 |= $3..4
+   36. bitwise_or_int                 $1 |= $2
+   37. bitwise_and_int                $0 &= $1
+   38. swizzle_4                      $0..3 = ($0..3).xxxx
+   39. copy_4_constants               $4..7 = colorRed
+   40. copy_4_constants               $8..11 = colorGreen
+   41. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   42. load_src                       src.rgba = $0..3

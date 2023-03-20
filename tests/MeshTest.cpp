@@ -5,10 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
 #include "include/core/SkMesh.h"
-#include "src/core/SkZip.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "src/base/SkZip.h"
+#include "src/core/SkMeshPriv.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <limits>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 using Attribute = SkMeshSpecification::Attribute;
 using Varying   = SkMeshSpecification::Varying;
@@ -108,15 +123,17 @@ static bool check_for_success(skiatest::Reporter*         r,
 }
 
 // Simple valid strings to make specifications
-static const SkString kValidVS
-        {"float2 main(Attributes attrs, out Varyings v) { return float2(10); }"};
+static const SkString kValidVS {R"(
+Varyings main(const Attributes attrs) {
+    Varyings v;
+    return v;
+})"};
+
 // There are multiple valid VS signatures.
-static const SkString kValidFSes[] {
-        SkString{"void main(Varyings varyings) {}"},
-        SkString{"float2 main(Varyings varyings) { return float2(10); }"},
-        SkString{"void main(Varyings varyings, out half4 color) { color = half4(.2); }"},
+static const SkString kValidFSes[]{
+        SkString{"float2 main(const Varyings varyings) { return float2(10); }"},
         SkString{R"(
-            float2 main(Varyings varyings, out half4 color) {
+            float2 main(const Varyings varyings, out half4 color) {
                 color = half4(.2);
                 return float2(10);
             }
@@ -149,34 +166,33 @@ static void test_bad_sig(skiatest::Reporter* r) {
     static constexpr const char* kVSBody = "{ return float2(10); }";
 
     static constexpr const char* kInvalidVSSigs[] {
-            "float3 main(Attributes attrs, out Varyings v)",         // bad return
-            "float2 main(inout Attributes attrs, out Varyings v)",   // inout Attributes
-            "float2 main(Attributes attrs, inout Varyings v)",       // inout Varyings
-            "float2 main(Attributes attrs)",                         // no Varyings
-            "float2 main(out Varyings)",                             // no Attributes
-            "float2 main(out Varyings, in Attributes)",              // wrong param order
-            "float2 main(Attributes attrs, out Varyings v, float2)"  // extra arg
+            "float3   main(const Attributes attrs)",   // bad return
+            "Varyings main(Attributes attrs)",         // non-const Attributes
+            "Varyings main(out Attributes attrs)",     // out Varyings
+            "Varyings main()",                         // no Attributes
+            "Varyings main(const Varyings v, float2)"  // extra arg
     };
 
     static constexpr const char* kNoColorFSBody = "{ return float2(10); }";
 
     static constexpr const char* kInvalidNoColorFSSigs[] {
-            "half2 main(Varyings v)",               // bad return
-            "float2 main(in Attributes v)",         // wrong param type
-            "float2 main(out Varyings attrs)",      // out Varyings
-            "float2 main()",                        // no args
-            "float2 main(Attributes attrs, float)"  // extra arg
+            "half2  main(const Varyings v)",      // bad return
+            "float2 main(const Attributes v)",    // wrong param type
+            "float2 main(inout Varyings attrs)",  // inout Varyings
+            "float2 main(Varyings v)",            // non-const Varyings
+            "float2 main()",                      // no args
+            "float2 main(const Varyings, float)"  // extra arg
     };
 
     static constexpr const char* kColorFSBody = "{ color = half4(.2); return float2(10); }";
 
     static constexpr const char* kInvalidColorFSSigs[] {
-            "half2 main(Varyings v, out half4 color)",               // bad return
-            "float2 main(in Attributes v, out half4 color)",         // wrong first param type
-            "float2 main(in Varyings v, out half3 color)",           // wrong second param type
-            "float2 main(out Varyings attrs, out half4 color)",      // out Varyings
-            "float2 main(Varyings attrs, half4 color)",              // in color
-            "float2 main(Attributes attrs, out half4 color, float)"  // extra arg
+            "half2  main(const Varyings v, out half4 color)",        // bad return
+            "float2 main(const Attributes v, out half4 color)",      // wrong first param type
+            "float2 main(const Varyings v, out half3 color)",        // wrong second param type
+            "float2 main(out   Varyings v, out half4 color)",        // out Varyings
+            "float2 main(const Varyings v, half4 color)",            // in color
+            "float2 main(const Varyings v, out half4 color, float)"  // extra arg
     };
 
     for (const char* vsSig : kInvalidVSSigs) {
@@ -225,7 +241,7 @@ static void test_bad_sig(skiatest::Reporter* r) {
 static void test_float4_color(skiatest::Reporter* r) {
     static const SkString kFloat4FS {
         R"(
-            float2 main(Varyings varyings, out float4 color) {
+            float2 main(const Varyings varyings, out float4 color) {
                 color = float4(.2); return float2(10);
             }
         )"
@@ -759,6 +775,32 @@ static void test_sneaky_varying_name(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
+static void test_good_position_varying(skiatest::Reporter* r) {
+    // Position varying can be explicit if it is float2
+    static const Varying kVaryings[] {
+            {Varying::Type::kFloat2, SkString{"position"}},
+    };
+    check_for_success(r,
+                      kValidAttrs,
+                      kValidStride,
+                      kVaryings,
+                      kValidVS,
+                      kValidFSes[0]);
+}
+
+static void test_bad_position_varying(skiatest::Reporter* r) {
+    // Position varying can be explicit but it must be float2
+    static const Varying kVaryings[] {
+            {Varying::Type::kFloat4, SkString{"position"}},
+    };
+    check_for_failure(r,
+                      kValidAttrs,
+                      kValidStride,
+                      kVaryings,
+                      kValidVS,
+                      kValidFSes[0]);
+}
+
 static void test_empty_attribute_name(skiatest::Reporter* r) {
     static const Attribute kAttributes[] {
             {Attribute::Type::kFloat4, 0, SkString{}},
@@ -798,13 +840,286 @@ DEF_TEST(MeshSpec, reporter) {
     test_bad_offsets(reporter);
     test_too_many_attrs(reporter);
     test_too_many_varyings(reporter);
-    // skbug.com/12712
-    if ((false)) {
-        test_duplicate_attribute_names(reporter);
-        test_duplicate_varying_names(reporter);
-    }
+    test_duplicate_attribute_names(reporter);
+    test_duplicate_varying_names(reporter);
     test_sneaky_attribute_name(reporter);
     test_sneaky_varying_name(reporter);
+    test_good_position_varying(reporter);
+    test_bad_position_varying(reporter);
     test_empty_attribute_name(reporter);
     test_empty_varying_name(reporter);
+}
+
+
+DEF_TEST(MeshSpecVaryingPassthrough, reporter) {
+    static const Attribute kAttributes[]{
+            {Attribute::Type::kFloat2,        0, SkString{"position"}},
+            {Attribute::Type::kFloat2,        8, SkString{"uv"}      },
+            {Attribute::Type::kUByte4_unorm, 16, SkString{"color"}   },
+    };
+    static const Varying kVaryings[]{
+            {Varying::Type::kFloat2, SkString{"position"}},
+            {Varying::Type::kFloat2, SkString{"uv"}      },
+            {Varying::Type::kHalf4,  SkString{"color"}   },
+    };
+
+    static constexpr char kVS[] = R"(
+            Varyings main(const Attributes a) {
+                Varyings v;
+                v.uv       = a.uv;
+                v.position = a.position;
+                v.color    = a.color;
+                return v;
+            }
+    )";
+    auto check = [&] (const char* fs, const char* passthroughAttr) {
+        auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                       /*vertexStride=*/24,
+                                                       kVaryings,
+                                                       SkString(kVS),
+                                                       SkString(fs));
+        if (!spec) {
+            ERRORF(reporter, "%s\n%s", fs, error.c_str());
+            return;
+        }
+        int idx = SkMeshSpecificationPriv::PassthroughLocalCoordsVaryingIndex(*spec);
+        const SkString& actualAttr = idx >= 0 ? spec->attributes()[idx].name : SkString("<none>");
+        if (!passthroughAttr) {
+            if (idx >= 0) {
+                ERRORF(reporter, "Expected no passthrough coords attribute, found %s.\n%s",
+                       actualAttr.c_str(),
+                       fs);
+            }
+        } else if (!actualAttr.equals(passthroughAttr)) {
+            ERRORF(reporter, "Expected %s as passthrough coords attribute, found %s.\n%s",
+                   passthroughAttr,
+                   actualAttr.c_str(),
+                   fs);
+        }
+    };
+
+    // Simple
+    check(R"(float2 main(const Varyings v) {
+                  return v.uv;
+              })",
+          "uv");
+
+    // Simple, using position
+    check(R"(float2 main(const Varyings v) {
+                  return v.position;
+              })",
+          "position");
+
+    // Simple, with output color
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                  color = v.color;
+                  return v.uv;
+              })",
+          "uv");
+
+    // Three returns, all the same.
+    check(R"(uniform int selector;
+
+             float2 main(const Varyings v, out half4 color) {
+                  if (selector == 0) {
+                      color = half4(1, 0, 0, 1);
+                      return v.position;
+                  }
+                  if (selector == 1) {
+                      color = half4(1, 1, 0, 1);
+                      return v.position;
+                  }
+                  color = half4(1, 0, 1, 1);
+                  return v.position;
+             })",
+          "position");
+
+    // Three returns, one not like the others
+    check(R"(uniform int selector;
+
+             float2 main(const Varyings v, out half4 color) {
+                  if (selector == 0) {
+                      color = color.bgra;
+                      return v.position;
+                  }
+                  if (selector == 1) {
+                      color = half4(1);
+                      return v.uv;
+                  }
+                  color = color;
+                  return v.position;
+             })",
+          nullptr);
+
+    // Swizzles aren't handled (yet?).
+    check(R"(float2 main(const Varyings v) {
+                  return v.uv.yx;
+              })",
+          nullptr);
+
+    // Return from non-main fools us?
+    check(R"(noinline half4 get_color(const Varyings v) { return v.color; }
+
+             float2 main(const Varyings v, out half4 color) {
+                  color = get_color(v);
+                  return v.position;
+              })",
+          "position");
+}
+
+DEF_TEST(MeshSpecUnusedVaryings, reporter) {
+    static const Attribute kAttributes[]{
+            {Attribute::Type::kFloat2,        0, SkString{"position"}},
+            {Attribute::Type::kFloat2,        8, SkString{"uv"}      },
+            {Attribute::Type::kUByte4_unorm, 16, SkString{"color"}   },
+    };
+    static const Varying kVaryings[]{
+            {Varying::Type::kFloat2, SkString{"position"}},
+            {Varying::Type::kFloat2, SkString{"uv"}      },
+            {Varying::Type::kHalf4,  SkString{"color"}   },
+    };
+
+    static constexpr char kVS[] = R"(
+            Varyings main(const Attributes a) {
+                Varyings v;
+                v.uv       = a.uv;
+                v.position = a.position;
+                v.color    = a.color;
+                return v;
+            }
+    )";
+
+    auto check = [&](const char* fs, bool positionDead, bool uvDead, bool colorDead) {
+        static_assert(std::size(kVaryings) == 3);
+        auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                       /*vertexStride=*/24,
+                                                       kVaryings,
+                                                       SkString(kVS),
+                                                       SkString(fs));
+        if (!spec) {
+            ERRORF(reporter, "%s\n%s", fs, error.c_str());
+            return;
+        }
+        bool positionActuallyDead = SkMeshSpecificationPriv::VaryingIsDead(*spec, 0);
+        bool uvActuallyDead       = SkMeshSpecificationPriv::VaryingIsDead(*spec, 1);
+        bool colorActuallyDead    = SkMeshSpecificationPriv::VaryingIsDead(*spec, 2);
+        auto str = [](bool dead) { return dead ? "dead" : "not dead"; };
+        if (positionActuallyDead != positionDead) {
+            ERRORF(reporter,
+                   "Expected position to be detected %s but it is detected %s.\n%s",
+                   str(positionDead),
+                   str(positionActuallyDead),
+                   fs);
+        }
+        if (uvActuallyDead != uvDead) {
+            ERRORF(reporter,
+                   "Expected uv to be detected %s but it is detected %s.\n%s",
+                   str(uvDead),
+                   str(uvActuallyDead),
+                   fs);
+        }
+        if (colorActuallyDead != colorDead) {
+            ERRORF(reporter,
+                   "Expected color to be detected %s but it is detected %s.\n%s",
+                   str(colorDead),
+                   str(colorActuallyDead),
+                   fs);
+        }
+    };
+
+    // Simple
+    check(R"(float2 main(const Varyings v) {
+                 return v.uv;
+             })",
+          true,
+          true,
+          true);
+
+    // Simple, using position
+    check(R"(float2 main(const Varyings v) {
+                 return v.position;
+             })",
+          true,
+          true,
+          true);
+
+    // Two returns that are both passthrough of the same varying
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                 if (v.color.r > 0.5) {
+                     color = v.color;
+                     return v.uv;
+                 } else {
+                     color = 2*color;
+                     return v.uv;
+                 }
+             })",
+          true,
+          true,
+          false);
+
+    // Two returns that are both passthrough of the different varyings and unused other varying
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                 if (v.position.x > 10) {
+                     color = half4(0);
+                     return v.uv;
+                 } else {
+                     color = half4(1);
+                     return v.position;
+                 }
+             })",
+          false,
+          false,
+          true);
+
+    // Passthrough but we also use the varying elsewhere
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                 color = half4(v.uv.x, 0, 0, 1);
+                 return v.uv;
+             })",
+          true,
+          false,
+          true);
+
+    // Use two varyings is a return statement
+    check(R"(float2 main(const Varyings v) {
+                  return v.uv + v.position;
+              })",
+          false,
+          false,
+          true);
+
+    // Slightly more complicated varying use.
+    check(R"(noinline vec2 get_pos(const Varyings v) { return v.position; }
+
+             noinline half4 identity(half4 c) { return c; }
+
+             float2 main(const Varyings v, out half4 color) {
+                 color = identity(v.color);
+                 return v.uv + get_pos(v);
+             })",
+          false,
+          false,
+          false);
+
+    // Go through assignment to another Varyings.
+    check(R"(float2 main(const Varyings v) {
+                 Varyings otherVaryings;
+                 otherVaryings = v;
+                 return otherVaryings.uv;
+             })",
+          true,
+          false,
+          true);
+
+    // We're not very smart. We just look for any use of the field in any Varyings value and don't
+    // do any data flow analysis.
+    check(R"(float2 main(const Varyings v) {
+                 Varyings otherVaryings;
+                 otherVaryings.uv       = half2(5);
+                 otherVaryings.position = half2(10);
+                 return otherVaryings.position;
+             })",
+          false,
+          false,
+          true);
 }

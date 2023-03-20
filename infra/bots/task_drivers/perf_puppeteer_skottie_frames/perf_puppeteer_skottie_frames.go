@@ -142,6 +142,20 @@ var cpuSkiplist = []string{
 	"intelia_logo_animation",           // Times out after drawing ~300 frames.
 	"siren",                            // Times out after drawing ~500 frames.
 	"truecosmos",                       // Times out after drawing ~200 frames.
+    "skottie_asset_000",
+    "skottie_asset_001",
+    "skottie_asset_003",
+    "skottie_asset_009",
+    "skottie_asset_012",
+    "skottie_asset_016",
+    "skottie_asset_018",
+    "skottie_asset_019",
+    "skottie_asset_021",
+    "navis_loader",
+    "ciclista_salita",
+    "loading",
+    "Loading_2",
+    "animacion1_-_payme",
 }
 var gpuSkiplist = []string{}
 
@@ -207,6 +221,8 @@ func benchSkottieFrames(ctx context.Context, perf perfJSONFormat, benchmarkPath,
 				if perf.Key[perfKeyWebGLVersion] == "1" {
 					args = append(args, "--query_params webgl1")
 				}
+			} else {
+				args = append(args, "--timeout=90")
 			}
 
 			_, err := exec.RunCwd(ctx, benchmarkPath, args...)

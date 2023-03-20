@@ -6,7 +6,6 @@
 package exporter
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"path/filepath"
@@ -16,7 +15,6 @@ import (
 
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/util"
-	"go.skia.org/skia/bazel/exporter/build_proto/analysis_v2"
 	"go.skia.org/skia/bazel/exporter/build_proto/build"
 	"go.skia.org/skia/bazel/exporter/interfaces"
 	"google.golang.org/protobuf/proto"
@@ -24,10 +22,11 @@ import (
 
 // The contents (or partial contents) of a GNI file.
 type gniFileContents struct {
-	hasSrcs     bool   // Has at least one file in $_src/ dir?
-	hasIncludes bool   // Has at least one file in $_include/ dir?
-	hasModules  bool   // Has at least one file in $_module/ dir?
-	data        []byte // The file contents to be written.
+	hasSrcs     bool            // Has at least one file in $_src/ dir?
+	hasIncludes bool            // Has at least one file in $_include/ dir?
+	hasModules  bool            // Has at least one file in $_module/ dir?
+	bazelFiles  map[string]bool // Set of Bazel files generating GNI contents.
+	data        []byte          // The file contents to be written.
 }
 
 // GNIFileListExportDesc contains a description of the data that
@@ -75,16 +74,79 @@ var deprecatedFiles = []string{
 	"include/effects/SkLayerDrawLooper.h",
 }
 
-// The footer written to core.gni.
+// The footer written to gn/core.gni.
 const coreGNIFooter = `skia_core_sources += skia_pathops_sources
 skia_core_sources += skia_skpicture_sources
 
 skia_core_public += skia_pathops_public
-skia_core_public += skia_skpicture_public`
+skia_core_public += skia_skpicture_public
+# TODO(kjlubick) Move this into Chromium's BUILD.gn file.
+skia_core_public += skia_discardable_memory_chromium
+`
+
+// The footer written to gn/sksl_tests.gni.
+const skslTestsFooter = `sksl_glsl_tests_sources =
+    sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests +
+    sksl_folding_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests
+
+sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
+
+sksl_metal_tests_sources =
+    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests
+
+sksl_hlsl_tests_sources = sksl_blend_tests + sksl_shared_tests
+
+sksl_wgsl_tests_sources = sksl_wgsl_tests
+
+sksl_spirv_tests_sources =
+    sksl_blend_tests + sksl_shared_tests +
+    sksl_inverse_hyperbolic_intrinsics_tests + sksl_spirv_tests
+
+sksl_skrp_tests_sources = sksl_folding_tests + sksl_rte_tests + sksl_shared_tests
+
+sksl_skvm_tests_sources = sksl_rte_tests + sksl_rte_error_tests
+
+sksl_stage_tests_sources = sksl_rte_tests
+
+sksl_minify_tests_sources = sksl_rte_tests + sksl_folding_tests`
+
+// The footer written to modules/skshaper/skshaper.gni.
+const skshaperFooter = `
+declare_args() {
+  skia_enable_skshaper = true
+}
+declare_args() {
+  skia_enable_skshaper_tests = skia_enable_skshaper
+}`
+
+// The footer written to gn/gpu.gni.
+const gpuGNIFooter = `
+# TODO(kjlubick) Update clients to use the individual targets
+# instead of the monolithic ones.
+skia_gpu_sources = skia_gpu_public + skia_gpu_private
+skia_gl_gpu_sources = skia_gpu_gl_public + skia_gpu_gl_private + skia_gpu_chromium_public
+skia_vk_sources = skia_gpu_vk_public + skia_gpu_vk_private +
+                  skia_gpu_vk_chromium_public + skia_gpu_vk_chromium_private
+skia_metal_sources = skia_gpu_metal_public + skia_gpu_metal_private + skia_gpu_metal_cpp
+skia_dawn_sources = skia_gpu_dawn_public + skia_gpu_dawn_private
+`
+
+// The footer written to gn/utils.gni.
+const utilsGNIFooter = `
+# TODO(kjlubick) Update pdfium to use the individual target
+# instead of the monolithic ones.
+skia_utils_sources = skia_utils_private + skia_utils_chromium
+`
 
 // Map of GNI file names to footer text to be appended to the end of the file.
 var footerMap = map[string]string{
-	"gn/core.gni": coreGNIFooter,
+	"gn/core.gni":                   coreGNIFooter,
+	"gn/gpu.gni":                    gpuGNIFooter,
+	"gn/sksl_tests.gni":             skslTestsFooter,
+	"gn/utils.gni":                  utilsGNIFooter,
+	"modules/skshaper/skshaper.gni": skshaperFooter,
 }
 
 // Match variable definition of a list in a *.gni file. For example:
@@ -102,6 +164,51 @@ func NewGNIExporter(params GNIExporterParams, filesystem interfaces.FileSystem) 
 		exportGNIDescs: params.ExportDescs,
 	}
 	return e
+}
+
+func makeGniFileContents() gniFileContents {
+	return gniFileContents{
+		bazelFiles: make(map[string]bool),
+	}
+}
+
+// Given a Bazel rule name find that rule from within the
+// query results. Returns nil if the given rule is not present.
+func findQueryResultRule(qr *build.QueryResult, name string) *build.Rule {
+	for _, target := range qr.GetTarget() {
+		r := target.GetRule()
+		if r.GetName() == name {
+			return r
+		}
+	}
+	return nil
+}
+
+// Given a relative path to a file return the relative path to the
+// top directory (in our case the workspace). For example:
+//
+//	getPathToTopDir("path/to/file.h") -> "../.."
+//
+// The paths are to be delimited by forward slashes ('/') - even on
+// Windows.
+func getPathToTopDir(path string) string {
+	if filepath.IsAbs(path) {
+		return ""
+	}
+	d, _ := filepath.Split(path)
+	if d == "" {
+		return "."
+	}
+	d = strings.TrimSuffix(d, "/")
+	items := strings.Split(d, "/")
+	var sb = strings.Builder{}
+	for i := 0; i < len(items); i++ {
+		if i > 0 {
+			sb.WriteString("/")
+		}
+		sb.WriteString("..")
+	}
+	return sb.String()
 }
 
 // Retrieve all rule attributes which are internal file targets.
@@ -131,6 +238,11 @@ func makeRelativeFilePathForGNI(path string) (string, error) {
 	}
 	if strings.HasPrefix(path, "modules/") {
 		return "$_modules/" + strings.TrimPrefix(path, "modules/"), nil
+	}
+	// These sksl tests are purposely listed as a relative path underneath resources/sksl because
+	// that relative path is re-used by the GN logic to put stuff under //tests/sksl as well.
+	if strings.HasPrefix(path, "resources/sksl/") {
+		return strings.TrimPrefix(path, "resources/sksl/"), nil
 	}
 
 	return "", skerr.Fmt("can't find path for %q\n", path)
@@ -168,32 +280,57 @@ func fileListContainsOnlyCppHeaderFiles(files []string) bool {
 }
 
 // Write the *.gni file header.
-func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents) {
+func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents, pathToWorkspace string) {
 	fmt.Fprintln(writer, "# DO NOT EDIT: This is a generated file.")
+	fmt.Fprintln(writer, "# See //bazel/exporter_tool/README.md for more information.")
+
+	fmt.Fprintln(writer, "#")
+	if len(gniFile.bazelFiles) > 1 {
+		keys := make([]string, 0, len(gniFile.bazelFiles))
+		fmt.Fprintln(writer, "# The sources of truth are:")
+		for bazelPath, _ := range gniFile.bazelFiles {
+			keys = append(keys, bazelPath)
+		}
+		sort.Strings(keys)
+		for _, wsPath := range keys {
+			fmt.Fprintf(writer, "#   //%s\n", wsPath)
+		}
+	} else {
+		for bazelPath, _ := range gniFile.bazelFiles {
+			fmt.Fprintf(writer, "# The source of truth is //%s\n", bazelPath)
+		}
+	}
+
+	writer.WriteString("\n")
+	fmt.Fprintln(writer, "# To update this file, run make -C bazel generate_gni")
+
 	writer.WriteString("\n")
 	if gniFile.hasSrcs {
-		fmt.Fprintln(writer, `_src = get_path_info("../src", "abspath")`)
+		fmt.Fprintf(writer, "_src = get_path_info(\"%s/src\", \"abspath\")\n", pathToWorkspace)
 	}
 	if gniFile.hasIncludes {
-		fmt.Fprintln(writer, `_include = get_path_info("../include", "abspath")`)
+		fmt.Fprintf(writer, "_include = get_path_info(\"%s/include\", \"abspath\")\n", pathToWorkspace)
 	}
 	if gniFile.hasModules {
-		fmt.Fprintln(writer, `_modules = get_path_info("../modules", "abspath")`)
+		fmt.Fprintf(writer, "_modules = get_path_info(\"%s/modules\", \"abspath\")\n", pathToWorkspace)
 	}
 }
 
-// Find the first duplicated file in a sorted list of file paths.
-// The file paths are case insensitive.
-func findDuplicate(files []string) (path string, hasDuplicate bool) {
-	for i, e := range files {
-		if i == len(files)-1 {
-			continue
-		}
-		if strings.EqualFold(e, files[i+1]) {
-			return e, true
+// removeDuplicates returns the list of files after it has been sorted and
+// all duplicate values have been removed.
+func removeDuplicates(files []string) []string {
+	if len(files) <= 1 {
+		return files
+	}
+	sort.Strings(files)
+	rv := make([]string, 0, len(files))
+	rv = append(rv, files[0])
+	for _, f := range files {
+		if rv[len(rv)-1] != f {
+			rv = append(rv, f)
 		}
 	}
-	return "", false
+	return rv
 }
 
 // Retrieve all sources ("srcs" attribute) and headers ("hdrs" attribute)
@@ -291,6 +428,21 @@ func (e *GNIExporter) workspaceToAbsPath(wsPath string) string {
 	return filepath.Join(e.workspaceDir, wsPath)
 }
 
+// Given an absolute path return a workspace relative path.
+func (e *GNIExporter) absToWorkspacePath(absPath string) (string, error) {
+	if !filepath.IsAbs(absPath) {
+		return "", skerr.Fmt(`"%s" is not an absolute path`, absPath)
+	}
+	if absPath == e.workspaceDir {
+		return "", nil
+	}
+	wsDir := e.workspaceDir + "/"
+	if !strings.HasPrefix(absPath, wsDir) {
+		return "", skerr.Fmt(`"%s" is not in the workspace "%s"`, absPath, wsDir)
+	}
+	return strings.TrimPrefix(absPath, wsDir), nil
+}
+
 // Merge the another file contents object into this one.
 func (c *gniFileContents) merge(other gniFileContents) {
 	if other.hasIncludes {
@@ -302,17 +454,31 @@ func (c *gniFileContents) merge(other gniFileContents) {
 	if other.hasSrcs {
 		c.hasSrcs = true
 	}
+	for path, _ := range other.bazelFiles {
+		c.bazelFiles[path] = true
+	}
 	c.data = append(c.data, other.data...)
 }
 
 // Convert all rules that go into a GNI file list.
-func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *analysis_v2.CqueryResult) (gniFileContents, error) {
+func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *build.QueryResult) (gniFileContents, error) {
+	var rules []string
+	fileContents := makeGniFileContents()
 	var targets []string
 	for _, ruleName := range desc.Rules {
-		r := findRule(qr, ruleName)
+		r := findQueryResultRule(qr, ruleName)
 		if r == nil {
 			return gniFileContents{}, skerr.Fmt("Cannot find rule %s", ruleName)
 		}
+		absBazelPath, _, _, err := parseLocation(*r.Location)
+		if err != nil {
+			return gniFileContents{}, skerr.Wrap(err)
+		}
+		wsBazelpath, err := e.absToWorkspacePath(absBazelPath)
+		if err != nil {
+			return gniFileContents{}, skerr.Wrap(err)
+		}
+		fileContents.bazelFiles[wsBazelpath] = true
 		t, err := getSrcsAndHdrs(r)
 		if err != nil {
 			return gniFileContents{}, skerr.Wrap(err)
@@ -321,6 +487,7 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *analysi
 			return gniFileContents{}, skerr.Fmt("No files to export in rule %s", ruleName)
 		}
 		targets = append(targets, t...)
+		rules = append(rules, ruleName)
 	}
 
 	files, err := convertTargetsToFilePaths(targets)
@@ -335,20 +502,8 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *analysi
 		return gniFileContents{}, skerr.Wrap(err)
 	}
 
-	sort.Slice(files, func(i, j int) bool {
-		// Generally sort alphabetically, but make $_include/ after $_src.
-		isfx := extractTopLevelFolder(files[i])
-		jsfx := extractTopLevelFolder(files[j])
-		if isfx == jsfx {
-			return files[i] < files[j]
-		}
-		return isfx >= jsfx // Make $_include come after $_src.
-	})
-	if dup, hasDup := findDuplicate(files); hasDup {
-		return gniFileContents{}, skerr.Fmt("%q is included in two or more rules.", dup)
-	}
+	files = removeDuplicates(files)
 
-	fileContents := gniFileContents{}
 	for i := range files {
 		if strings.HasPrefix(files[i], "$_src/") {
 			fileContents.hasSrcs = true
@@ -360,15 +515,18 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *analysi
 	}
 
 	var contents bytes.Buffer
+
+	if len(rules) > 1 {
+		fmt.Fprintln(&contents, "# List generated by Bazel rules:")
+		for _, bazelFile := range rules {
+			fmt.Fprintf(&contents, "#  %s\n", bazelFile)
+		}
+	} else {
+		fmt.Fprintf(&contents, "# Generated by Bazel rule %s\n", rules[0])
+	}
 	fmt.Fprintf(&contents, "%s = [\n", desc.Var)
 
-	printedIncludeComment := false
-	onlyHeaders := fileListContainsOnlyCppHeaderFiles(files)
 	for _, target := range files {
-		if !onlyHeaders && !printedIncludeComment && strings.HasPrefix(target, "$_include") {
-			fmt.Fprintf(&contents, "\n  # Includes\n")
-			printedIncludeComment = true
-		}
 		fmt.Fprintf(&contents, "  %q,\n", target)
 	}
 	fmt.Fprintln(&contents, "]")
@@ -379,11 +537,11 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *analysi
 }
 
 // Export all Bazel rules to a single *.gni file.
-func (e *GNIExporter) exportGNIFile(gniExportDesc GNIExportDesc, qr *analysis_v2.CqueryResult) error {
+func (e *GNIExporter) exportGNIFile(gniExportDesc GNIExportDesc, qr *build.QueryResult) error {
 	// Keep the contents of each file list in memory before writing to disk.
 	// This is done so that we know what variables to define for each of the
 	// file lists. i.e. $_src, $_include, etc.
-	gniFileContents := gniFileContents{}
+	gniFileContents := makeGniFileContents()
 	for _, varDesc := range gniExportDesc.Vars {
 		fileListContents, err := e.convertGNIFileList(varDesc, qr)
 		if err != nil {
@@ -397,7 +555,8 @@ func (e *GNIExporter) exportGNIFile(gniExportDesc GNIExportDesc, qr *analysis_v2
 		return skerr.Wrap(err)
 	}
 
-	writeGNFileHeader(writer, &gniFileContents)
+	pathToWorkspace := getPathToTopDir(gniExportDesc.GNI)
+	writeGNFileHeader(writer, &gniFileContents, pathToWorkspace)
 	writer.WriteString("\n")
 
 	_, err = writer.Write(gniFileContents.data)
@@ -425,7 +584,7 @@ func (e *GNIExporter) Export(qcmd interfaces.QueryCommand) error {
 	if err != nil {
 		return skerr.Wrapf(err, "error reading bazel cquery data")
 	}
-	qr := &analysis_v2.CqueryResult{}
+	qr := &build.QueryResult{}
 	if err := proto.Unmarshal(in, qr); err != nil {
 		return skerr.Wrapf(err, "failed to unmarshal cquery result")
 	}
@@ -436,67 +595,6 @@ func (e *GNIExporter) Export(qcmd interfaces.QueryCommand) error {
 		}
 	}
 	return nil
-}
-
-// Retrieve all variable names from a GNI file identified by |filepath|.
-func (e *GNIExporter) getFileGNIVariables(filepath string) ([]string, error) {
-	fileBytes, err := e.fs.ReadFile(filepath)
-	if err != nil {
-		return nil, skerr.Wrap(err)
-	}
-	reader := bytes.NewReader(fileBytes)
-	scanner := bufio.NewScanner(reader)
-	var variables []string
-	for scanner.Scan() {
-		if v := getGNILineVariable(scanner.Text()); v != "" {
-			variables = append(variables, v)
-		}
-	}
-	return variables, nil
-}
-
-// Check that all required GNI variables are present in the GNI file described by |gniExportDesc|.
-func (e *GNIExporter) checkGNIFileVariables(gniExportDesc GNIExportDesc, writer interfaces.Writer) (ok bool, err error) {
-	var expectedVars []string
-	for _, varDesc := range gniExportDesc.Vars {
-		expectedVars = append(expectedVars, varDesc.Var)
-	}
-	absPath := e.workspaceToAbsPath(gniExportDesc.GNI)
-	actual, err := e.getFileGNIVariables(absPath)
-	if err != nil {
-		return false, skerr.Wrap(err)
-	}
-	ok = true
-	for _, e := range expectedVars {
-		if !util.In(e, actual) {
-			fmt.Fprintf(writer, "Error: Expected variable %s not found in %s\n", e, absPath)
-			ok = false
-		}
-	}
-	return ok, nil
-}
-
-// Ensure the proper variables are defined in all generated GNI files.
-// This ensures that the GNI files distributed with Skia contain the
-// file lists needed to build, and for backward compatibility.
-func (e *GNIExporter) checkAllVariables(writer interfaces.Writer) (numFileErrors int, err error) {
-	for _, gniDesc := range e.exportGNIDescs {
-		ok, err := e.checkGNIFileVariables(gniDesc, writer)
-		if err != nil {
-			return 0, skerr.Wrap(err)
-		}
-		if !ok {
-			numFileErrors += 1
-		}
-	}
-	return numFileErrors, nil
-}
-
-// CheckCurrent will determine if each on-disk GNI file is current. In other words,
-// do the file contents exactly match what would be produced if Export were
-// run?
-func (e *GNIExporter) CheckCurrent(qcmd interfaces.QueryCommand, errWriter interfaces.Writer) (numFileErrors int, err error) {
-	return e.checkAllVariables(errWriter)
 }
 
 // Make sure GNIExporter fulfills the Exporter interface.

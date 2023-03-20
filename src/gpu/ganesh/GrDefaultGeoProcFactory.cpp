@@ -8,10 +8,11 @@
 #include "src/gpu/ganesh/GrDefaultGeoProcFactory.h"
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
@@ -243,7 +244,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {

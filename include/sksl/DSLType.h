@@ -93,6 +93,8 @@ public:
             DSLModifiers* modifiers,
             Position pos = {});
 
+    static DSLType Invalid();
+
     /**
      * Returns true if the SkSL type is non-null.
      */
@@ -154,6 +156,11 @@ public:
     bool isStruct() const;
 
     /**
+     * Returns true if this is an interface block
+     */
+    bool isInterfaceBlock() const;
+
+    /**
      * Returns true if this is a Skia object type (shader, colorFilter, blender).
      */
     bool isEffectChild() const;
@@ -182,6 +189,10 @@ private:
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
     friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos);
+    friend DSLType StructType(std::string_view name,
+                              SkSpan<DSLField> fields,
+                              bool interfaceBlock,
+                              Position pos);
     friend DSLType UnsizedArray(const DSLType& base, Position pos);
     friend class DSLCore;
     friend class DSLFunction;
@@ -252,17 +263,32 @@ private:
     Position fPosition;
 
     friend class DSLCore;
-    friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos);
+    friend DSLType StructType(std::string_view name,
+                              SkSpan<DSLField> fields,
+                              bool interfaceBlock,
+                              Position pos);
 };
 
-DSLType Struct(std::string_view name, SkSpan<DSLField> fields,
-               Position pos = {});
+/**
+ * Creates a StructDefinition at the top level and returns the associated type.
+ */
+DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos = {});
 
 template<typename... Field>
 DSLType Struct(std::string_view name, Field... fields) {
     DSLField fieldTypes[] = {std::move(fields)...};
     return Struct(name, SkSpan(fieldTypes), Position());
 }
+
+/**
+ * Creates a struct type and adds it to the current symbol table. Does _not_ create a ProgramElement
+ * at the top level, so the type will exist, but won't be represented anywhere in the output.
+ * (Use Struct or InterfaceBlock to add a top-level program element.)
+ */
+DSLType StructType(std::string_view name,
+                   SkSpan<DSLField> fields,
+                   bool interfaceBlock,
+                   Position pos);
 
 } // namespace dsl
 

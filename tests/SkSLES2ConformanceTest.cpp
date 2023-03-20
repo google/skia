@@ -25,14 +25,17 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #include <functional>
+
+struct GrContextOptions;
 
 static void test_expect_fail(skiatest::Reporter* r, const char* testFile) {
     SkRuntimeEffect::Options options{};
@@ -112,13 +115,13 @@ DEF_TEST(SkSL_ES2Conformance_Pass_CPU, r) {
     });
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkSL_ES2Conformance_Pass_GPU,
-                                   r,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkSL_ES2Conformance_Pass_GPU,
+                                       r,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(),
-                                                         SkBudgeted::kNo, info));
+    sk_sp<SkSurface> surface(
+            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     iterate_dir("sksl/es2_conformance/pass/", [&](const char* path) {
         test_expect_pass(r, surface.get(), path);
     });

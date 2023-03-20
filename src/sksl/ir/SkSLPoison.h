@@ -12,24 +12,20 @@ namespace SkSL {
 
 class Poison : public Expression {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kPoison;
+    inline static constexpr Kind kIRNodeKind = Kind::kPoison;
 
     static std::unique_ptr<Expression> Make(Position pos, const Context& context) {
         return std::make_unique<Poison>(pos, context.fTypes.fPoison.get());
     }
 
     Poison(Position pos, const Type* type)
-        : INHERITED(pos, kExpressionKind, type) {}
-
-    bool hasProperty(Property property) const override {
-        return false;
-    }
+        : INHERITED(pos, kIRNodeKind, type) {}
 
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<Poison>(pos, &this->type());
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         return Compiler::POISON_TAG;
     }
 

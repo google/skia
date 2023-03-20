@@ -27,6 +27,22 @@ struct SkColorSpaceXformSteps;
 
 class SkRuntimeEffectPriv {
 public:
+    struct UniformsCallbackContext {
+        const SkColorSpace* fDstColorSpace;
+    };
+
+    // Private (experimental) API for creating runtime shaders with late-bound uniforms.
+    // The callback must produce a uniform data blob of the correct size for the effect.
+    // It is invoked at "draw" time (essentially, when a draw call is made against the canvas
+    // using the resulting shader). There are no strong guarantees about timing.
+    // Serializing the resulting shader will immediately invoke the callback (and record the
+    // resulting uniforms).
+    using UniformsCallback = std::function<sk_sp<const SkData>(const UniformsCallbackContext&)>;
+    static sk_sp<SkShader> MakeDeferredShader(const SkRuntimeEffect* effect,
+                                              UniformsCallback uniformsCallback,
+                                              SkSpan<SkRuntimeEffect::ChildPtr> children,
+                                              const SkMatrix* localMatrix = nullptr);
+
     // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
     // implement the constant output for constant input optimization flag.
     static bool SupportsConstantOutputForConstantInput(const SkRuntimeEffect* effect) {
@@ -47,8 +63,8 @@ public:
         return options;
     }
 
-    static void UsePrivateRTShaderModule(SkRuntimeEffect::Options* options) {
-        options->usePrivateRTShaderModule = true;
+    static void AllowPrivateAccess(SkRuntimeEffect::Options* options) {
+        options->allowPrivateAccess = true;
     }
 
     static SkRuntimeEffect::Uniform VarAsUniform(const SkSL::Variable&,
@@ -76,11 +92,13 @@ public:
 // Users of the public SkRuntimeEffect::Make*() can of course cache however they like themselves;
 // keeping these APIs private means users will not be forced into our cache or cache policy.
 
-sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString sksl),
-                                                 SkString sksl);
+sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(
+        SkRuntimeEffect::Result (*make)(SkString sksl, const SkRuntimeEffect::Options&),
+        SkString sksl);
 
-inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString),
-                                                        const char* sksl) {
+inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(
+        SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
+        const char* sksl) {
     return SkMakeCachedRuntimeEffect(make, SkString{sksl});
 }
 
@@ -91,9 +109,18 @@ inline SkRuntimeEffect* SkMakeRuntimeEffect(
         SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
         const char* sksl,
         SkRuntimeEffect::Options options = SkRuntimeEffect::Options{}) {
-    SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
+#if defined(SK_DEBUG)
+    // Our SKSL snippets we embed in Skia should not have comments or excess indentation.
+    // Removing them helps trim down code size and speeds up parsing
+    if (SkStrContains(sksl, "//") || SkStrContains(sksl, "    ")) {
+        SkDEBUGFAILF("Found SkSL snippet that can be minified: \n %s\n", sksl);
+    }
+#endif
+    SkRuntimeEffectPriv::AllowPrivateAccess(&options);
     auto result = make(SkString{sksl}, options);
-    SkASSERTF(result.effect, "%s", result.errorText.c_str());
+    if (!result.effect) {
+        SK_ABORT("%s", result.errorText.c_str());
+    }
     return result.effect.release();
 }
 

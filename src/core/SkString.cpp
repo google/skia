@@ -6,17 +6,21 @@
  */
 
 #include "include/core/SkString.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTo.h"
-#include "src/core/SkSafeMath.h"
-#include "src/core/SkUtils.h"
-#include "src/utils/SkUTF.h"
 
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkSafeMath.h"
+#include "src/base/SkUTF.h"
+#include "src/base/SkUtils.h"
+
+#include <algorithm>
 #include <cstdio>
+#include <cstring>
 #include <new>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 // number of bytes (on the stack) to receive the printf result
 static const size_t kBufferSize = 1024;
@@ -51,7 +55,7 @@ static StringBuffer apply_format_string(const char* format, va_list args, char (
     // format it. Format the string into our heap buffer. `set` automatically reserves an extra
     // byte at the end of the buffer for a null terminator, so we don't need to add one here.
     heapBuffer->set(nullptr, outLength);
-    char* heapBufferDest = heapBuffer->writable_str();
+    char* heapBufferDest = heapBuffer->data();
     SkDEBUGCODE(int checkLength =) std::vsnprintf(heapBufferDest, outLength + 1, format, argsCopy);
     SkASSERT(checkLength == outLength);
     va_end(argsCopy);
@@ -350,7 +354,7 @@ void SkString::reset() {
     fRec.reset(const_cast<Rec*>(&gEmptyRec));
 }
 
-char* SkString::writable_str() {
+char* SkString::data() {
     this->validate();
 
     if (fRec->fLength) {
@@ -367,12 +371,12 @@ void SkString::resize(size_t len) {
         this->reset();
     } else if (fRec->unique() && ((len >> 2) <= (fRec->fLength >> 2))) {
         // Use less of the buffer we have without allocating a smaller one.
-        char* p = this->writable_str();
+        char* p = this->data();
         p[len] = '\0';
         fRec->fLength = SkToU32(len);
     } else {
         SkString newString(len);
-        char* dest = newString.writable_str();
+        char* dest = newString.data();
         int copyLen = std::min<uint32_t>(len, this->size());
         memcpy(dest, this->c_str(), copyLen);
         dest[copyLen] = '\0';
@@ -390,7 +394,7 @@ void SkString::set(const char text[], size_t len) {
         this->reset();
     } else if (fRec->unique() && ((len >> 2) <= (fRec->fLength >> 2))) {
         // Use less of the buffer we have without allocating a smaller one.
-        char* p = this->writable_str();
+        char* p = this->data();
         if (text) {
             memcpy(p, text, len);
         }
@@ -430,7 +434,7 @@ void SkString::insert(size_t offset, const char text[], size_t len) {
             and we can then eliminate the +1+3 since that doesn't affec the answer
         */
         if (fRec->unique() && (length >> 2) == ((length + len) >> 2)) {
-            char* dst = this->writable_str();
+            char* dst = this->data();
 
             if (offset < length) {
                 memmove(dst + offset + len, dst + offset, length - offset);
@@ -444,7 +448,7 @@ void SkString::insert(size_t offset, const char text[], size_t len) {
                 (we have the original data), and might be faster than alloc/copy/free.
             */
             SkString    tmp(fRec->fLength + len);
-            char*       dst = tmp.writable_str();
+            char*       dst = tmp.data();
 
             if (offset > 0) {
                 memcpy(dst, fRec->data(), offset);
@@ -590,7 +594,7 @@ void SkString::remove(size_t offset, size_t length) {
         SkASSERT(offset <= size - length);
         if (length > 0) {
             SkString    tmp(size - length);
-            char*       dst = tmp.writable_str();
+            char*       dst = tmp.data();
             const char* src = this->c_str();
 
             if (offset) {
@@ -623,35 +627,4 @@ SkString SkStringPrintf(const char* format, ...) {
     formattedOutput.printVAList(format, args);
     va_end(args);
     return formattedOutput;
-}
-
-void SkStrSplit(const char* str, const char* delimiters, SkStrSplitMode splitMode,
-                SkTArray<SkString>* out) {
-    if (splitMode == kCoalesce_SkStrSplitMode) {
-        // Skip any delimiters.
-        str += strspn(str, delimiters);
-    }
-    if (!*str) {
-        return;
-    }
-
-    while (true) {
-        // Find a token.
-        const size_t len = strcspn(str, delimiters);
-        if (splitMode == kStrict_SkStrSplitMode || len > 0) {
-            out->push_back().set(str, len);
-            str += len;
-        }
-
-        if (!*str) {
-            return;
-        }
-        if (splitMode == kCoalesce_SkStrSplitMode) {
-            // Skip any delimiters.
-            str += strspn(str, delimiters);
-        } else {
-            // Skip one delimiter.
-            str += 1;
-        }
-    }
 }

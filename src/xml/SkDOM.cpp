@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "include/core/SkStream.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/xml/SkXMLParser.h"
 #include "src/xml/SkXMLWriter.h"
 
@@ -176,7 +176,7 @@ const char* SkDOM::AttrIter::next(const char** value) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/xml/SkXMLParser.h"
 
 static char* dupstr(SkArenaAlloc* chunk, const char src[], size_t srcLen) {
@@ -202,7 +202,7 @@ protected:
     void flushAttributes() {
         SkASSERT(fLevel > 0);
 
-        int attrCount = fAttrs.count();
+        int attrCount = fAttrs.size();
 
         SkDOMAttr* attrs = fAlloc->makeArrayDefault<SkDOMAttr>(attrCount);
         SkDOM::Node* node = fAlloc->make<SkDOM::Node>();
@@ -217,16 +217,15 @@ protected:
             node->fNextSibling = nullptr;
             fRoot = node;
         } else { // this adds siblings in reverse order. gets corrected in onEndElement()
-            SkDOM::Node* parent = fParentStack.top();
+            SkDOM::Node* parent = fParentStack.back();
             SkASSERT(fRoot && parent);
             node->fNextSibling = parent->fFirstChild;
             parent->fFirstChild = node;
         }
-        *fParentStack.push() = node;
+        *fParentStack.append() = node;
 
         sk_careful_memcpy(node->attrs(), fAttrs.begin(), attrCount * sizeof(SkDOM::Attr));
         fAttrs.reset();
-
     }
 
     bool onStartElement(const char elem[]) override {
@@ -247,9 +246,8 @@ protected:
         fNeedToFlush = false;
         --fLevel;
 
-        SkDOM::Node* parent;
-
-        fParentStack.pop(&parent);
+        SkDOM::Node* parent = fParentStack.back();
+        fParentStack.pop_back();
 
         SkDOM::Node* child = parent->fFirstChild;
         SkDOM::Node* prev = nullptr;

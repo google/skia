@@ -9,7 +9,7 @@
 #define skgpu_graphite_ClipStack_DEFINED
 
 #include "include/core/SkClipOp.h"
-#include "src/core/SkTBlockList.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"

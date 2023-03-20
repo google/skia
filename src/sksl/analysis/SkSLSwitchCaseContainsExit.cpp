@@ -7,15 +7,24 @@
 
 #include "src/sksl/SkSLAnalysis.h"
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 
 namespace SkSL {
+
+class Expression;
+
 namespace {
 
 class SwitchCaseContainsExit : public ProgramVisitor {
 public:
     SwitchCaseContainsExit(bool conditionalExits) : fConditionalExits(conditionalExits) {}
+
+    bool visitExpression(const Expression& expr) override {
+        // We can avoid processing expressions entirely.
+        return false;
+    }
 
     bool visitStatement(const Statement& stmt) override {
         switch (stmt.kind()) {

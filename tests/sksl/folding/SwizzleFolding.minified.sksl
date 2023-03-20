@@ -1,0 +1,1 @@
+uniform half4 colorRed;uniform half4 colorGreen;bool a(){bool d=true;d=d&&colorGreen!=colorRed;return d;}half4 main(float2 b){return a()?colorGreen:colorRed;}

@@ -17,13 +17,13 @@
 namespace skgpu::graphite {
 struct ContextOptions;
 
-class MtlCaps final : public skgpu::graphite::Caps {
+class MtlCaps final : public Caps {
 public:
     MtlCaps(const id<MTLDevice>, const ContextOptions&);
     ~MtlCaps() override {}
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                             uint32_t levelCount,
+                                             Mipmapped mipmapped,
                                              Protected,
                                              Renderable) const override;
 
@@ -45,7 +45,7 @@ public:
     bool isMac() const { return fGPUFamily == GPUFamily::kMac; }
     bool isApple()const  { return fGPUFamily == GPUFamily::kApple; }
 
-    size_t getMinBufferAlignment() const { return this->isMac() ? 4 : 1; }
+    uint32_t channelMask(const TextureInfo&) const override;
 
     bool isRenderable(const TextureInfo&) const override;
 
@@ -54,6 +54,8 @@ public:
                             ResourceType,
                             Shareable,
                             GraphiteResourceKey*) const override;
+
+    size_t bytesPerPixel(const TextureInfo&) const override;
 
 private:
     void initGPUFamily(const id<MTLDevice>);
@@ -82,7 +84,15 @@ private:
     bool isRenderable(MTLPixelFormat, uint32_t numSamples) const;
     uint32_t maxRenderTargetSampleCount(MTLPixelFormat) const;
 
-    size_t getTransferBufferAlignment(size_t bytesPerPixel) const override;
+    bool supportsWritePixels(const TextureInfo&) const override;
+    bool supportsReadPixels(const TextureInfo&) const override;
+
+    SkColorType supportedWritePixelsColorType(SkColorType dstColorType,
+                                              const TextureInfo& dstTextureInfo,
+                                              SkColorType srcColorType) const override;
+    SkColorType supportedReadPixelsColorType(SkColorType srcColorType,
+                                             const TextureInfo& srcTextureInfo,
+                                             SkColorType dstColorType) const override;
 
     MTLStorageMode getDefaultMSAAStorageMode(Discardable discardable) const;
 
@@ -110,7 +120,7 @@ private:
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    inline static constexpr size_t kNumMtlFormats = 10;
+    inline static constexpr size_t kNumMtlFormats = 12;
 
     static size_t GetFormatIndex(MTLPixelFormat);
     FormatInfo fFormatTable[kNumMtlFormats];

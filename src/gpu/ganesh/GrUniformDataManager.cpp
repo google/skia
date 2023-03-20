@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/GrUniformDataManager.h"
 
-#include "include/private/SkHalf.h"
+#include "src/base/SkHalf.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 
 // ensure that these types are the sizes the uniform data is expecting

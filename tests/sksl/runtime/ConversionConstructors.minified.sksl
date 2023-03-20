@@ -1,0 +1,1 @@
+half f;int i;bool b;half4 main(float2 a){half c=bool(f)?half(b):half(i);int d=bool(i)?int(b):int(f);return half4(c)*half(d);}

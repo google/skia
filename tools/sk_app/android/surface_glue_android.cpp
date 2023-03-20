@@ -21,8 +21,8 @@
 #include <android/native_window_jni.h>
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
-#include "src/utils/SkUTF.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
 #include "tools/ResourceFactory.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/android/Window_android.h"
@@ -124,7 +124,6 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
         case kDestroyApp: {
             delete skiaAndroidApp;
             pthread_exit(nullptr);
-            return 0;
         }
         case kContentInvalidated: {
             ((Window_android*)skiaAndroidApp->fWindow)->paintIfNeeded();
@@ -227,8 +226,6 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
             skiaAndroidApp->fApp->onIdle();
         }
     }
-
-    return nullptr;
 }
 
 extern "C"  // extern "C" is needed for JNI (although the method itself is in C++)

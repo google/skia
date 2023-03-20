@@ -29,7 +29,7 @@ sequence between JS and the Browser.
 - Minimize # calls needed for a block of text
 - Homogenous arrays rather than sequence of objects
 
-Given this, implementations are encourged to use **Uint32Array** typed array buffer for the result.
+Given this, implementations are encouraged to use **Uint32Array** typed array buffer for the result.
 
 ```WebIDL
 //  Bulk call to characterize the code-points in a string.
@@ -96,7 +96,7 @@ proposal acknowledges these, but suggests that any potential overlap in function
 given the design constraint spelled out in the [Ergonomics](#ergonomics) section.
 
 Similar to the contrast between canvas2d and webgl, this proposal seeks to provide very efficient,
-lower level access to unicode propoerties, specifically for sophisticated (possibly native ported to wasm)
+lower level access to unicode properties, specifically for sophisticated (possibly native ported to wasm)
 frameworks and apps. It is not intended to replace existing facilities (i.e. Segmenter), but rather
 to offer an alternative interface more suited to high-performance clients.
 

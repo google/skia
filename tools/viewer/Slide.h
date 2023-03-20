@@ -11,14 +11,27 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "tools/Registry.h"
 #include "tools/sk_app/Window.h"
 
 class SkCanvas;
 class SkMetaData;
+class Slide;
+
+using SlideFactory = Slide* (*)();
+using SlideRegistry = sk_tools::Registry<SlideFactory>;
+
+#define DEF_SLIDE(code) \
+    static Slide*          SK_MACRO_APPEND_LINE(F_)() { code } \
+    static SlideRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
 class Slide : public SkRefCnt {
 public:
-    virtual SkISize getDimensions() const = 0;
+    /**
+     * A slide may have a content dimensions that is independent of the current window size. An
+     * empty size indicates that the Slide's dimensions are equal to the window's dimensions.
+     */
+    virtual SkISize getDimensions() const { return SkISize::MakeEmpty(); }
 
     virtual void gpuTeardown() { }
     virtual void draw(SkCanvas* canvas) = 0;
@@ -39,6 +52,5 @@ public:
 protected:
     SkString    fName;
 };
-
 
 #endif

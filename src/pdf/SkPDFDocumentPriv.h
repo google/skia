@@ -10,8 +10,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTHash.h"
+#include "include/private/base/SkMutex.h"
+#include "src/core/SkTHash.h"
 #include "src/pdf/SkPDFMetadata.h"
 #include "src/pdf/SkPDFTag.h"
 

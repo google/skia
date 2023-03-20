@@ -9,7 +9,7 @@
 #define GrMtlGpu_DEFINED
 
 #include "include/gpu/mtl/GrMtlBackendContext.h"
-#include "include/private/SkDeque.h"
+#include "include/private/base/SkDeque.h"
 #include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
 
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
@@ -84,8 +84,9 @@ public:
                            GrMtlAttachment* dstAttachment, GrMtlAttachment* srcAttachment,
                            const SkIRect& srcRect, const SkIPoint& dstPoint);
 
-    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
+    bool onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                       GrSurface* src, const SkIRect& srcRect,
+                       GrSamplerState::Filter) override;
 
 #if GR_METAL_SDK_VERSION >= 230
     id<MTLBinaryArchive> binaryArchive() const SK_API_AVAILABLE(macos(11.0), ios(14.0)) {
@@ -160,17 +161,18 @@ private:
                                      const GrBackendFormat&,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
-                                     SkBudgeted,
+                                     skgpu::Budgeted,
                                      GrProtected,
                                      int mipLevelCount,
                                      uint32_t levelClearMask,
                                      std::string_view label) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
-                                               SkBudgeted,
+                                               skgpu::Budgeted,
                                                GrMipmapped,
                                                GrProtected,
-                                               const void* data, size_t dataSize) override;
+                                               const void* data,
+                                               size_t dataSize) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrWrapOwnership,
@@ -296,7 +298,7 @@ private:
 
 #if GR_TEST_UTILS
     void testingOnly_startCapture() override;
-    void testingOnly_endCapture() override;
+    void testingOnly_stopCapture() override;
 #endif
 
 #ifdef SK_ENABLE_DUMP_GPU

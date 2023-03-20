@@ -13,6 +13,8 @@ config_setting(
 WEBP_SRCS = [
     "sharpyuv/sharpyuv.c",
     "sharpyuv/sharpyuv.h",
+    "sharpyuv/sharpyuv_cpu.c",
+    "sharpyuv/sharpyuv_cpu.h",
     "sharpyuv/sharpyuv_csp.c",
     "sharpyuv/sharpyuv_csp.h",
     "sharpyuv/sharpyuv_dsp.c",
@@ -209,5 +211,6 @@ cc_library(
     copts = WEBP_COPTS,
     includes = ["src"],
     local_defines = WEBP_DEFINES,
+    textual_hdrs = ["src/dsp/cpu.c"],
     visibility = ["//visibility:public"],
 )

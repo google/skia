@@ -14,7 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 // This bench simulates the calls Skia sees from various HTML5 canvas
 // game bench marks

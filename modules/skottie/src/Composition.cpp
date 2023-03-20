@@ -8,7 +8,7 @@
 #include "modules/skottie/src/Composition.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/Camera.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
@@ -90,7 +90,7 @@ CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
     if (camera_builder_index >= 0) {
         // Explicit camera.
         fCameraTransform = fLayerBuilders[camera_builder_index].buildTransform(abuilder, this);
-    } else if (ParseDefault<int>(jcomp["ddd"], 0)) {
+    } else if (ParseDefault<int>(jcomp["ddd"], 0) && !fSize.isEmpty()) {
         // Default/implicit camera when 3D layers are present.
         fCameraTransform = CameraAdaper::DefaultCameraTransform(fSize);
     }

@@ -7,7 +7,7 @@ half4 desaturate(half4 color) {
 }
 
 void main() {
-    if (sk_ThreadPosition.x < width(src) && sk_ThreadPosition.y < height(src)) {
-        write(dest, sk_ThreadPosition.xy, desaturate(read(src, sk_ThreadPosition.xy)));
+    if (sk_GlobalInvocationID.x < width(src) && sk_GlobalInvocationID.y < height(src)) {
+        write(dest, sk_GlobalInvocationID.xy, desaturate(read(src, sk_GlobalInvocationID.xy)));
     }
 }

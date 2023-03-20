@@ -104,11 +104,10 @@
 
       CanvasKit.Surface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
         if (!this.reportBackendTypeIsGPU()) {
-          this._requestAnimationFrameInternal(callback, dirtyRect);
-          return;
+          return this._requestAnimationFrameInternal(callback, dirtyRect);
         }
 
-        requestAnimationFrame(function() {
+        return requestAnimationFrame(function() {
           // Replace the render target of the Surface with the current swapchain surface if this is
           // bound to a canvas context.
           if (this._canvasContext && !this.assignCurrentSwapChainTexture()) {

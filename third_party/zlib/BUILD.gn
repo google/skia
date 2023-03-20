@@ -3,11 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-declare_args() {
-  skia_use_system_zlib = is_official_build
-}
-
 import("../third_party.gni")
+import("zlib.gni")
 
 if (skia_use_system_zlib) {
   system("zlib") {

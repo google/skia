@@ -7,8 +7,8 @@
 
 #include "include/gpu/vk/VulkanExtensions.h"
 
-#include "src/core/SkTSearch.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSearch.h"
+#include "src/base/SkTSort.h"
 
 namespace skgpu {
 
@@ -20,7 +20,7 @@ static int find_info(const SkTArray<VulkanExtensions::Info>& infos, const char e
     SkString extensionStr(ext);
     VulkanExtensions::Info::Less less;
     int idx = SkTSearch<VulkanExtensions::Info, SkString, VulkanExtensions::Info::Less>(
-            &infos.front(), infos.count(), extensionStr, sizeof(VulkanExtensions::Info),
+            &infos.front(), infos.size(), extensionStr, sizeof(VulkanExtensions::Info),
             less);
     return idx;
 }

@@ -10,7 +10,7 @@
 #include "include/core/SkImageGenerator.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkMutex.h"
+#include "include/private/base/SkMutex.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrTexture.h"
 
@@ -44,7 +44,7 @@ protected:
         return true;
     }
 
-    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                          GrMipmapped mipmapped, GrImageTexGenPolicy) override;
 
 private:

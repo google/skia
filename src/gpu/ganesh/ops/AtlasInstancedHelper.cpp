@@ -54,18 +54,18 @@ void AtlasInstancedHelper::injectShaderCode(
     *atlasAdjustUniformHandle = args.fUniformHandler->addUniform(
             nullptr, kVertex_GrShaderFlag, SkSLType::kFloat2, "atlas_adjust", &atlasAdjustName);
 
-    args.fVertBuilder->codeAppendf(R"(
+    args.fVertBuilder->codeAppendf(
     // A negative x coordinate in the atlas indicates that the path is transposed.
     // We also added 1 since we can't negate zero.
-    float2 atlasTopLeft = float2(abs(locations.x) - 1, locations.y);
-    float2 devTopLeft = locations.zw;
-    bool transposed = locations.x < 0;
-    float2 atlasCoord = %s - devTopLeft;
-    if (transposed) {
-        atlasCoord = atlasCoord.yx;
-    }
-    atlasCoord += atlasTopLeft;
-    %s = atlasCoord * %s;)", devCoord.c_str(), atlasCoord.vsOut(), atlasAdjustName);
+    "float2 atlasTopLeft = float2(abs(locations.x) - 1, locations.y);"
+    "float2 devTopLeft = locations.zw;"
+    "bool transposed = locations.x < 0;"
+    "float2 atlasCoord = %s - devTopLeft;"
+    "if (transposed) {"
+        "atlasCoord = atlasCoord.yx;"
+    "}"
+    "atlasCoord += atlasTopLeft;"
+    "%s = atlasCoord * %s;", devCoord.c_str(), atlasCoord.vsOut(), atlasAdjustName);
 
     if (fShaderFlags & ShaderFlags::kCheckBounds) {
         GrGLSLVarying atlasBounds(SkSLType::kFloat4);
@@ -76,13 +76,13 @@ void AtlasInstancedHelper::injectShaderCode(
                                                              : sizeInAtlas.00xy);
         %s = atlasBounds * %s.xyxy;)", atlasBounds.vsOut(), atlasAdjustName);
 
-        args.fFragBuilder->codeAppendf(R"(
-        half atlasCoverage = 0;
-        float2 atlasCoord = %s;
-        float4 atlasBounds = %s;
-        if (all(greaterThan(atlasCoord, atlasBounds.xy)) &&
-            all(lessThan(atlasCoord, atlasBounds.zw))) {
-            atlasCoverage = )", atlasCoord.fsIn(), atlasBounds.fsIn());
+        args.fFragBuilder->codeAppendf(
+        "half atlasCoverage = 0;"
+        "float2 atlasCoord = %s;"
+        "float4 atlasBounds = %s;"
+        "if (all(greaterThan(atlasCoord, atlasBounds.xy)) &&"
+            "all(lessThan(atlasCoord, atlasBounds.zw))) {"
+            "atlasCoverage = ", atlasCoord.fsIn(), atlasBounds.fsIn());
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[0], "atlasCoord");
         args.fFragBuilder->codeAppendf(R"(.a;
         })");

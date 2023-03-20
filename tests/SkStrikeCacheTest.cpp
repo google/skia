@@ -5,6 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkStrike.h"  // IWYU pragma: keep
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "tests/Test.h"

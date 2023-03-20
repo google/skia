@@ -29,17 +29,19 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkFontMgr_mac_ct.h"
-#include "include/private/SkFixed.h"
-#include "include/private/SkOnce.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/ports/SkTypeface_mac_ct.h"
-#include "src/utils/SkUTF.h"
 
 #include <string.h>
 #include <memory>
+
+using namespace skia_private;
 
 #if (defined(SK_BUILD_FOR_IOS) && defined(__IPHONE_14_0) &&  \
       __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_14_0) ||  \
@@ -227,56 +229,6 @@ static const char* map_css_names(const char* name) {
 
 namespace {
 
-static sk_sp<SkData> skdata_from_skstreamasset(std::unique_ptr<SkStreamAsset> stream) {
-    size_t size = stream->getLength();
-    if (const void* base = stream->getMemoryBase()) {
-        return SkData::MakeWithProc(base, size,
-                                    [](const void*, void* ctx) -> void {
-                                        delete (SkStreamAsset*)ctx;
-                                    }, stream.release());
-    }
-    return SkData::MakeFromStream(stream.get(), size);
-}
-
-static SkUniqueCFRef<CFDataRef> cfdata_from_skdata(sk_sp<SkData> data) {
-    void const * const addr = data->data();
-    size_t const size = data->size();
-
-    CFAllocatorContext ctx = {
-        0, // CFIndex version
-        data.release(), // void* info
-        nullptr, // const void *(*retain)(const void *info);
-        nullptr, // void (*release)(const void *info);
-        nullptr, // CFStringRef (*copyDescription)(const void *info);
-        nullptr, // void * (*allocate)(CFIndex size, CFOptionFlags hint, void *info);
-        nullptr, // void*(*reallocate)(void* ptr,CFIndex newsize,CFOptionFlags hint,void* info);
-        [](void*,void* info) -> void { // void (*deallocate)(void *ptr, void *info);
-            SkASSERT(info);
-            ((SkData*)info)->unref();
-        },
-        nullptr, // CFIndex (*preferredSize)(CFIndex size, CFOptionFlags hint, void *info);
-    };
-    SkUniqueCFRef<CFAllocatorRef> alloc(CFAllocatorCreate(kCFAllocatorDefault, &ctx));
-    return SkUniqueCFRef<CFDataRef>(CFDataCreateWithBytesNoCopy(
-            kCFAllocatorDefault, (const UInt8 *)addr, size, alloc.get()));
-}
-
-static SkUniqueCFRef<CTFontRef> ctfont_from_skdata(sk_sp<SkData> data, int ttcIndex) {
-    // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
-    if (ttcIndex != 0) {
-        return nullptr;
-    }
-
-    SkUniqueCFRef<CFDataRef> cfData(cfdata_from_skdata(std::move(data)));
-
-    SkUniqueCFRef<CTFontDescriptorRef> desc(
-            CTFontManagerCreateFontDescriptorFromData(cfData.get()));
-    if (!desc) {
-        return nullptr;
-    }
-    return SkUniqueCFRef<CTFontRef>(CTFontCreateWithFontDescriptor(desc.get(), 0, nullptr));
-}
-
 static bool find_desc_str(CTFontDescriptorRef desc, CFStringRef name, SkString* value) {
     SkUniqueCFRef<CFStringRef> ref((CFStringRef)CTFontDescriptorCopyAttribute(desc, name));
     if (!ref) {
@@ -298,10 +250,17 @@ static int compute_metric(const SkFontStyle& a, const SkFontStyle& b) {
            sqr((a.slant() != b.slant()) * 900);
 }
 
+static SkUniqueCFRef<CFSetRef> name_required() {
+    CFStringRef set_values[] = {kCTFontFamilyNameAttribute};
+    return SkUniqueCFRef<CFSetRef>(CFSetCreate(kCFAllocatorDefault,
+        reinterpret_cast<const void**>(set_values), std::size(set_values),
+        &kCFTypeSetCallBacks));
+}
+
 class SkFontStyleSet_Mac : public SkFontStyleSet {
 public:
     SkFontStyleSet_Mac(CTFontDescriptorRef desc)
-        : fArray(CTFontDescriptorCreateMatchingFontDescriptors(desc, nullptr))
+        : fArray(CTFontDescriptorCreateMatchingFontDescriptors(desc, name_required().get()))
         , fCount(0)
     {
         if (!fArray) {
@@ -482,8 +441,16 @@ protected:
 
     SkTypeface* onMatchFamilyStyle(const char familyName[],
                                    const SkFontStyle& style) const override {
-        SkUniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
-        return create_from_desc(desc.get()).release();
+        SkUniqueCFRef<CTFontDescriptorRef> reqDesc = create_descriptor(familyName, style);
+        if (!familyName) {
+            return create_from_desc(reqDesc.get()).release();
+        }
+        SkUniqueCFRef<CTFontDescriptorRef> resolvedDesc(
+            CTFontDescriptorCreateMatchingFontDescriptor(reqDesc.get(), name_required().get()));
+        if (!resolvedDesc) {
+            return nullptr;
+        }
+        return create_from_desc(resolvedDesc.get()).release();
     }
 
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
@@ -521,84 +488,22 @@ protected:
     }
 
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
-        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(data, ttcIndex);
-        if (!ct) {
-            return nullptr;
-        }
-
-        return SkTypeface_Mac::Make(std::move(ct), OpszVariation(),
-                                    SkMemoryStream::Make(std::move(data)));
+        return this->makeFromStream(
+                std::unique_ptr<SkStreamAsset>(new SkMemoryStream(std::move(data))), ttcIndex);
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
-        sk_sp<SkData> data = skdata_from_skstreamasset(stream->duplicate());
-        if (!data) {
-            return nullptr;
-        }
-        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), ttcIndex);
-        if (!ct) {
-            return nullptr;
-        }
-
-        return SkTypeface_Mac::Make(std::move(ct), OpszVariation(), std::move(stream));
+        return this->makeFromStream(std::move(stream),
+                                    SkFontArguments().setCollectionIndex(ttcIndex));
     }
 
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
-                                           const SkFontArguments& args) const override
-    {
-        // TODO: Use CTFontManagerCreateFontDescriptorsFromData when available.
-        int ttcIndex = args.getCollectionIndex();
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
-        sk_sp<SkData> data = skdata_from_skstreamasset(stream->duplicate());
-        if (!data) {
-            return nullptr;
-        }
-        SkUniqueCFRef<CTFontRef> ct = ctfont_from_skdata(std::move(data), ttcIndex);
-        if (!ct) {
-            return nullptr;
-        }
-
-        SkUniqueCFRef<CFArrayRef> axes(CTFontCopyVariationAxes(ct.get()));
-        CTFontVariation ctVariation = SkCTVariationFromSkFontArguments(ct.get(), axes.get(), args);
-
-        SkUniqueCFRef<CTFontRef> ctVariant;
-        if (ctVariation.variation) {
-            SkUniqueCFRef<CFMutableDictionaryRef> attributes(
-                    CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
-                                              &kCFTypeDictionaryKeyCallBacks,
-                                              &kCFTypeDictionaryValueCallBacks));
-            CFDictionaryAddValue(attributes.get(),
-                                 kCTFontVariationAttribute, ctVariation.variation.get());
-            SkUniqueCFRef<CTFontDescriptorRef> varDesc(
-                    CTFontDescriptorCreateWithAttributes(attributes.get()));
-            ctVariant.reset(CTFontCreateCopyWithAttributes(ct.get(), 0, nullptr, varDesc.get()));
-        } else {
-            ctVariant.reset(ct.release());
-        }
-        if (!ctVariant) {
-            return nullptr;
-        }
-
-        return SkTypeface_Mac::Make(std::move(ctVariant), ctVariation.opsz, std::move(stream));
+                                           const SkFontArguments& args) const override {
+        return SkTypeface_Mac::MakeFromStream(std::move(stream), args);
     }
 
     sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
-
         sk_sp<SkData> data = SkData::MakeFromFileName(path);
         if (!data) {
             return nullptr;

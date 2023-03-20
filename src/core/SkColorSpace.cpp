@@ -7,10 +7,13 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/SkOpts_spi.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkOpts.h"
+
+#include <cstring>
 
 bool SkColorSpacePrimaries::toXYZD50(skcms_Matrix3x3* toXYZ_D50) const {
     return skcms_PrimariesToXYZD50(fRX, fRY, fGX, fGY, fBX, fBY, fWX, fWY, toXYZ_D50);
@@ -38,7 +41,7 @@ static bool xyz_almost_equal(const skcms_Matrix3x3& mA, const skcms_Matrix3x3& m
 
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const skcms_TransferFunction& transferFn,
                                           const skcms_Matrix3x3& toXYZ) {
-    if (classify_transfer_fn(transferFn) == Bad_TF) {
+    if (skcms_TransferFunction_getType(&transferFn) == skcms_TFType_Invalid) {
         return nullptr;
     }
 
@@ -115,7 +118,7 @@ bool SkColorSpace::isNumericalTransferFn(skcms_TransferFunction* coeffs) const {
     // already pass pointers to an skcms struct). Then remove this function, and update the two
     // remaining callers to do the right thing with transferFn and classify.
     this->transferFn(coeffs);
-    return classify_transfer_fn(*coeffs) == sRGBish_TF;
+    return skcms_TransferFunction_getType(coeffs) == skcms_TFType_sRGBish;
 }
 
 void SkColorSpace::transferFn(float gabcdef[7]) const {

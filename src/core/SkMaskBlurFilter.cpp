@@ -8,12 +8,12 @@
 #include "src/core/SkMaskBlurFilter.h"
 
 #include "include/core/SkColorPriv.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
-#include "include/private/SkVx.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkGaussFilter.h"
 
 #include <cmath>
@@ -327,7 +327,7 @@ static void store(uint8_t* to, const fp88& v, int width) {
             to[i] = buffer[i];
         }
     }
-};
+}
 
 static constexpr uint16_t _____ = 0u;
 static constexpr uint16_t kHalf = 0x80u;

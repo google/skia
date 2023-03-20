@@ -31,9 +31,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/private/base/SkMacros.h"
+#include "src/base/SkAutoMalloc.h"
+#include "src/base/SkLeanWindows.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkLeanWindows.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
@@ -62,7 +63,7 @@
 #include "client_utils/android/BitmapRegionDecoder.h"
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
@@ -95,6 +96,8 @@ SK_BLITTER_TRACE_INIT
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "tools/gpu/GrContextFactory.h"
+
+using namespace skia_private;
 
 using sk_gpu_test::ContextInfo;
 using sk_gpu_test::GrContextFactory;
@@ -276,7 +279,10 @@ struct GPUTarget : public Target {
         SkSurfaceProps props(this->config.surfaceFlags, kRGB_H_SkPixelGeometry);
         this->surface = SkSurface::MakeRenderTarget(
                 this->factory->get(this->config.ctxType, this->config.ctxOverrides),
-                SkBudgeted::kNo, info, this->config.samples, &props);
+                skgpu::Budgeted::kNo,
+                info,
+                this->config.samples,
+                &props);
         this->contextInfo =
                 this->factory->getContextInfo(this->config.ctxType, this->config.ctxOverrides);
         if (!this->surface) {
@@ -298,7 +304,7 @@ struct GPUTarget : public Target {
     }
 };
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 struct GraphiteTarget : public Target {
     explicit GraphiteTarget(const Config& c) : Target(c) {}
     using TestContext = skiatest::graphite::GraphiteTestContext;
@@ -348,7 +354,7 @@ struct GraphiteTarget : public Target {
         // context options when we make the factory here.
         this->factory = std::make_unique<ContextFactory>();
 
-        auto [testCtx, ctx] = this->factory->getContextInfo(this->config.graphiteCtxType);
+        auto [testCtx, ctx] = this->factory->getContextInfo(this->config.ctxType);
         if (!ctx) {
             return false;
         }
@@ -377,7 +383,7 @@ struct GraphiteTarget : public Target {
     void dumpStats() override {
     }
 };
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE
 
 static double time(int loops, Benchmark* bench, Target* target) {
     SkCanvas* canvas = target->getCanvas();
@@ -545,7 +551,6 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 }
 
 #define kBogusContextType GrContextFactory::kGL_ContextType
-#define kBogusGraphiteContextType skiatest::graphite::ContextFactory::ContextType::kMetal
 #define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
 
 static std::optional<Config> create_config(const SkCommandLineConfig* config) {
@@ -588,10 +593,9 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
                       sampleCount,
                       ctxType,
                       ctxOverrides,
-                      kBogusGraphiteContextType,
                       gpuConfig->getSurfaceFlags()};
     }
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     if (const auto* gpuConfig = config->asConfigGraphite()) {
         if (!FLAGS_gpu) {
             SkDebugf("Skipping config '%s' as requested.\n", config->getTag().c_str());
@@ -637,9 +641,8 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
                       kPremul_SkAlphaType,
                       config->refColorSpace(),
                       sampleCount,
-                      kBogusContextType,
-                      kBogusContextOverrides,
                       graphiteCtxType,
+                      kBogusContextOverrides,
                       0};
     }
 #endif
@@ -658,7 +661,6 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
                       0,                                                                \
                       kBogusContextType,                                                \
                       kBogusContextOverrides,                                           \
-                      kBogusGraphiteContextType,                                        \
                       0};                                                               \
     }
 
@@ -679,19 +681,19 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
 }
 
 // Append all configs that are enabled and supported.
-void create_configs(SkTArray<Config>* configs) {
+void create_configs(TArray<Config>* configs) {
     SkCommandLineConfigArray array;
     ParseConfigs(FLAGS_config, &array);
-    for (int i = 0; i < array.count(); ++i) {
+    for (int i = 0; i < array.size(); ++i) {
         if (std::optional<Config> config = create_config(array[i].get())) {
             configs->push_back(*config);
         }
     }
 
     // If no just default configs were requested, then we're okay.
-    if (array.count() == 0 || FLAGS_config.count() == 0 ||
+    if (array.size() == 0 || FLAGS_config.size() == 0 ||
         // Otherwise, make sure that all specified configs have been created.
-        array.count() == configs->count()) {
+        array.size() == configs->size()) {
         return;
     }
     exit(1);
@@ -718,7 +720,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     case Benchmark::kGPU_Backend:
         target = new GPUTarget(config);
         break;
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     case Benchmark::kGraphite_Backend:
         target = new GraphiteTarget(config);
         break;
@@ -768,8 +770,8 @@ static void cleanup_run(Target* target) {
 
 static void collect_files(const CommandLineFlags::StringArray& paths,
                           const char*                          ext,
-                          SkTArray<SkString>*                  list) {
-    for (int i = 0; i < paths.count(); ++i) {
+                          TArray<SkString>*                  list) {
+    for (int i = 0; i < paths.size(); ++i) {
         if (SkStrEndsWith(paths[i], ext)) {
             list->push_back(SkString(paths[i]));
         } else {
@@ -797,7 +799,7 @@ public:
             exit(1);
         }
 
-        for (int i = 0; i < FLAGS_scales.count(); i++) {
+        for (int i = 0; i < FLAGS_scales.size(); i++) {
             if (1 != sscanf(FLAGS_scales[i], "%f", &fScales.push_back())) {
                 SkDebugf("Can't parse %s from --scales as an SkScalar.\n", FLAGS_scales[i]);
                 exit(1);
@@ -919,7 +921,7 @@ public:
             }
         }
 
-        while (fCurrentTextBlobTrace < fTextBlobTraces.count()) {
+        while (fCurrentTextBlobTrace < fTextBlobTraces.size()) {
             SkString path = fTextBlobTraces[fCurrentTextBlobTrace++];
             SkString basename = SkOSPath::Basename(path.c_str());
             static constexpr char kEnding[] = ".trace";
@@ -934,7 +936,7 @@ public:
         }
 
         // First add all .skps as RecordingBenches.
-        while (fCurrentRecording < fSKPs.count()) {
+        while (fCurrentRecording < fSKPs.size()) {
             const SkString& path = fSKPs[fCurrentRecording++];
             sk_sp<SkPicture> pic = ReadPicture(path.c_str());
             if (!pic) {
@@ -949,7 +951,7 @@ public:
         }
 
         // Add all .skps as DeserializePictureBenchs.
-        while (fCurrentDeserialPicture < fSKPs.count()) {
+        while (fCurrentDeserialPicture < fSKPs.size()) {
             const SkString& path = fSKPs[fCurrentDeserialPicture++];
             sk_sp<SkData> data = SkData::MakeFromFileName(path.c_str());
             if (!data) {
@@ -964,8 +966,8 @@ public:
         }
 
         // Then once each for each scale as SKPBenches (playback).
-        while (fCurrentScale < fScales.count()) {
-            while (fCurrentSKP < fSKPs.count()) {
+        while (fCurrentScale < fScales.size()) {
+            while (fCurrentSKP < fSKPs.size()) {
                 const SkString& path = fSKPs[fCurrentSKP++];
                 sk_sp<SkPicture> pic = ReadPicture(path.c_str());
                 if (!pic) {
@@ -988,7 +990,7 @@ public:
                                     FLAGS_loopSKP);
             }
 
-            while (fCurrentSVG < fSVGs.count()) {
+            while (fCurrentSVG < fSVGs.size()) {
                 const char* path = fSVGs[fCurrentSVG++].c_str();
                 if (sk_sp<SkPicture> pic = ReadSVGPicture(path)) {
                     fSourceType = "svg";
@@ -1005,7 +1007,7 @@ public:
 
         // Now loop over each skp again if we have an animation
         if (fZoomMax != 1.0f && fZoomPeriodMs > 0) {
-            while (fCurrentAnimSKP < fSKPs.count()) {
+            while (fCurrentAnimSKP < fSKPs.size()) {
                 const SkString& path = fSKPs[fCurrentAnimSKP];
                 sk_sp<SkPicture> pic = ReadPicture(path.c_str());
                 if (!pic) {
@@ -1023,7 +1025,7 @@ public:
         }
 
         // Read all MSKPs as benches
-        while (fCurrentMSKP < fMSKPs.count()) {
+        while (fCurrentMSKP < fMSKPs.size()) {
             const SkString& path = fMSKPs[fCurrentMSKP++];
             std::unique_ptr<MSKPPlayer> player = ReadMSKP(path.c_str());
             if (!player) {
@@ -1035,7 +1037,7 @@ public:
             return new MSKPBench(std::move(name), std::move(player));
         }
 
-        for (; fCurrentCodec < fImages.count(); fCurrentCodec++) {
+        for (; fCurrentCodec < fImages.size(); fCurrentCodec++) {
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
@@ -1050,7 +1052,7 @@ public:
                 continue;
             }
 
-            while (fCurrentColorType < fColorTypes.count()) {
+            while (fCurrentColorType < fColorTypes.size()) {
                 const SkColorType colorType = fColorTypes[fCurrentColorType];
 
                 SkAlphaType alphaType = codec->getInfo().alphaType();
@@ -1113,7 +1115,7 @@ public:
 
         // Run AndroidCodecBenches
         const int sampleSizes[] = { 2, 4, 8 };
-        for (; fCurrentAndroidCodec < fImages.count(); fCurrentAndroidCodec++) {
+        for (; fCurrentAndroidCodec < fImages.size(); fCurrentAndroidCodec++) {
             fSourceType = "image";
             fBenchType = "skandroidcodec";
 
@@ -1159,7 +1161,7 @@ public:
         //         these tests are sufficient to provide good coverage of our scaling options.
         const uint32_t brdSampleSizes[] = { 1, 2, 4, 8, 16 };
         const uint32_t minOutputSize = 512;
-        for (; fCurrentBRDImage < fImages.count(); fCurrentBRDImage++) {
+        for (; fCurrentBRDImage < fImages.size(); fCurrentBRDImage++) {
             fSourceType = "image";
             fBenchType = "BRD";
 
@@ -1168,7 +1170,7 @@ public:
                 continue;
             }
 
-            while (fCurrentColorType < fColorTypes.count()) {
+            while (fCurrentColorType < fColorTypes.size()) {
                 while (fCurrentSampleSize < (int) std::size(brdSampleSizes)) {
                     while (fCurrentSubsetType <= kLastSingle_SubsetType) {
 
@@ -1239,7 +1241,7 @@ public:
             log.appendString("clip",
                     SkStringPrintf("%d %d %d %d", fClip.fLeft, fClip.fTop,
                                                   fClip.fRight, fClip.fBottom));
-            SkASSERT_RELEASE(fCurrentScale < fScales.count());  // debugging paranoia
+            SkASSERT_RELEASE(fCurrentScale < fScales.size());  // debugging paranoia
             log.appendString("scale", SkStringPrintf("%.2g", fScales[fCurrentScale]));
         }
     }
@@ -1269,13 +1271,13 @@ private:
     const BenchRegistry* fBenches;
     const skiagm::GMRegistry* fGMs;
     SkIRect            fClip;
-    SkTArray<SkScalar> fScales;
-    SkTArray<SkString> fSKPs;
-    SkTArray<SkString> fMSKPs;
-    SkTArray<SkString> fSVGs;
-    SkTArray<SkString> fTextBlobTraces;
-    SkTArray<SkString> fImages;
-    SkTArray<SkColorType, true> fColorTypes;
+    TArray<SkScalar> fScales;
+    TArray<SkString> fSKPs;
+    TArray<SkString> fMSKPs;
+    TArray<SkString> fSVGs;
+    TArray<SkString> fTextBlobTraces;
+    TArray<SkString> fImages;
+    TArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
     double             fZoomPeriodMs;
 
@@ -1317,6 +1319,7 @@ static void start_keepalive() {
         }
     });
     (void)intentionallyLeaked;
+    SK_INTENTIONALLY_LEAKED(intentionallyLeaked);
 }
 
 class NanobenchShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
@@ -1370,21 +1373,21 @@ int main(int argc, char** argv) {
     NanoJSONResultsWriter log(logStream.get(), SkJSONWriter::Mode::kPretty);
     log.beginObject(); // root
 
-    if (1 == FLAGS_properties.count() % 2) {
+    if (1 == FLAGS_properties.size() % 2) {
         SkDebugf("ERROR: --properties must be passed with an even number of arguments.\n");
         return 1;
     }
-    for (int i = 1; i < FLAGS_properties.count(); i += 2) {
+    for (int i = 1; i < FLAGS_properties.size(); i += 2) {
         log.appendCString(FLAGS_properties[i-1], FLAGS_properties[i]);
     }
 
-    if (1 == FLAGS_key.count() % 2) {
+    if (1 == FLAGS_key.size() % 2) {
         SkDebugf("ERROR: --key must be passed with an even number of arguments.\n");
         return 1;
     }
-    if (FLAGS_key.count()) {
+    if (FLAGS_key.size()) {
         log.beginObject("key");
-        for (int i = 1; i < FLAGS_key.count(); i += 2) {
+        for (int i = 1; i < FLAGS_key.size(); i += 2) {
             log.appendCString(FLAGS_key[i - 1], FLAGS_key[i]);
         }
         log.endObject(); // key
@@ -1395,7 +1398,7 @@ int main(int argc, char** argv) {
         SkDebugf("Timer overhead: %s\n", HUMANIZE(overhead));
     }
 
-    SkTArray<double> samples;
+    TArray<double> samples;
 
     if (kAutoTuneLoops != FLAGS_loops) {
         SkDebugf("Fixed number of loops; times would only be misleading so we won't print them.\n");
@@ -1413,7 +1416,7 @@ int main(int argc, char** argv) {
 
     GrRecordingContextPriv::DMSAAStats combinedDMSAAStats;
 
-    SkTArray<Config> configs;
+    TArray<Config> configs;
     create_configs(&configs);
 
     if (FLAGS_keepAlive) {
@@ -1433,7 +1436,7 @@ int main(int argc, char** argv) {
     // those allocations. If a paint has already occurred, some modules will have already been
     // loaded, so we won't be able to capture a delta for them.
     log.beginObject("results");
-    RunSkSLMemoryBenchmarks(&log);
+    RunSkSLModuleBenchmarks(&log);
 
     int runs = 0;
     BenchmarkStream benchStream;
@@ -1448,7 +1451,7 @@ int main(int argc, char** argv) {
             log.beginBench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
             bench->delayedSetup();
         }
-        for (int i = 0; i < configs.count(); ++i) {
+        for (int i = 0; i < configs.size(); ++i) {
             Target* target = is_enabled(b, configs[i]);
             if (!target) {
                 continue;
@@ -1502,7 +1505,7 @@ int main(int argc, char** argv) {
             }
 
             if (FLAGS_ms) {
-                samples.reset();
+                samples.clear();
                 auto stop = now_ms() + FLAGS_ms;
                 do {
                     samples.push_back(time(loops, bench.get(), target) / loops);
@@ -1521,8 +1524,8 @@ int main(int argc, char** argv) {
                 sample *= (1.0 / bench->getUnits());
             }
 
-            SkTArray<SkString> keys;
-            SkTArray<double> values;
+            TArray<SkString> keys;
+            TArray<double> values;
             if (configs[i].backend == Benchmark::kGPU_Backend) {
                 if (FLAGS_gpuStatsDump) {
                     // TODO cache stats
@@ -1569,8 +1572,8 @@ int main(int argc, char** argv) {
             benchStream.fillCurrentMetrics(log);
             if (!keys.empty()) {
                 // dump to json, only SKPBench currently returns valid keys / values
-                SkASSERT(keys.count() == values.count());
-                for (int j = 0; j < keys.count(); j++) {
+                SkASSERT(keys.size() == values.size());
+                for (int j = 0; j < keys.size(); j++) {
                     log.appendMetric(keys[j].c_str(), values[j]);
                 }
             }
@@ -1582,7 +1585,7 @@ int main(int argc, char** argv) {
             }
 
             if (kAutoTuneLoops != FLAGS_loops) {
-                if (configs.count() == 1) {
+                if (configs.size() == 1) {
                     config = ""; // Only print the config if we run the same bench on more than one.
                 }
                 SkDebugf("%4d/%-4dMB\t%s\t%s "
@@ -1625,7 +1628,7 @@ int main(int argc, char** argv) {
                         , HUMANIZE(stats.mean)
                         , HUMANIZE(stats.max)
                         , stddev_percent
-                        , FLAGS_ms ? to_string(samples.count()).c_str() : stats.plot.c_str()
+                        , FLAGS_ms ? to_string(samples.size()).c_str() : stats.plot.c_str()
                         , config
                         , bench->getUniqueName()
                         );
@@ -1637,7 +1640,7 @@ int main(int argc, char** argv) {
 
             if (FLAGS_verbose) {
                 SkDebugf("Samples:  ");
-                for (int j = 0; j < samples.count(); j++) {
+                for (int j = 0; j < samples.size(); j++) {
                     SkDebugf("%s  ", HUMANIZE(samples[j]));
                 }
                 SkDebugf("%s\n", bench->getUniqueName());

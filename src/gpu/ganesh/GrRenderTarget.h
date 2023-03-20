@@ -9,6 +9,7 @@
 #define GrRenderTarget_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
 class GrCaps;

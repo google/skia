@@ -1,0 +1,1 @@
+noinline half a(const half b){return b;}half2 b(const half2 c){return c;}half4 main(float2 c){return half4(a(0.),1.,b(half2(0.,a(1.))));}

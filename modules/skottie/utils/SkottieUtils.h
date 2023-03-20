@@ -126,6 +126,29 @@ private:
     const SkString                             fPrefix;
 };
 
+/**
+ * Helper class to wrap a Skottie focused implementation of ResourceProvider and PropertyObserver
+ * to help manage 'slots' (properties and assets intended by the author to be swapped).
+ */
+class SlotManager final : public SkRefCnt {
+
+public:
+    SlotManager();
+
+    void setColorSlot(std::string, SkColor);
+    void setTextStringSlot(std::string, SkString);
+    void setImageSlot(std::string, sk_sp<skresources::ImageAsset>);
+
+    sk_sp<skresources::ResourceProvider> getResourceProvider();
+    sk_sp<skottie::PropertyObserver>     getPropertyObserver();
+
+private:
+    class SlottableResourceProvider;
+    class SlottablePropertyObserver;
+
+    sk_sp<SlottableResourceProvider> fResourceProvider;
+    sk_sp<SlottablePropertyObserver> fPropertyObserver;
+};
 
 } // namespace skottie_utils
 

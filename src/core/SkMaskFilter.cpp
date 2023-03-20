@@ -4,28 +4,50 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkMaskFilter.h"
 
-#include "src/core/SkMaskFilterBase.h"
-
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkRRect.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+
+#if defined(SK_GANESH)
+#include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+
+class GrClip;
+class GrRecordingContext;
+class GrStyledShape;
+enum class GrColorType;
+struct GrFPArgs;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; } }
 #endif
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/text/gpu/SDFMaskFilter.h"
 #endif
+
+class SkRRect;
+enum SkAlphaType : int;
+struct SkDeserialProcs;
 
 SkMaskFilterBase::NinePatch::~NinePatch() {
     if (fCache) {
@@ -308,15 +330,11 @@ SkMaskFilterBase::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
     return kUnimplemented_FilterReturn;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 std::unique_ptr<GrFragmentProcessor>
-SkMaskFilterBase::asFragmentProcessor(const GrFPArgs& args) const {
-    auto fp = this->onAsFragmentProcessor(args);
-    if (fp) {
-        SkASSERT(this->hasFragmentProcessor());
-    } else {
-        SkASSERT(!this->hasFragmentProcessor());
-    }
+SkMaskFilterBase::asFragmentProcessor(const GrFPArgs& args, const SkMatrix& ctm) const {
+    auto fp = this->onAsFragmentProcessor(args, MatrixRec(ctm));
+    SkASSERT(SkToBool(fp) == this->hasFragmentProcessor());
     return fp;
 }
 bool SkMaskFilterBase::hasFragmentProcessor() const {
@@ -324,7 +342,7 @@ bool SkMaskFilterBase::hasFragmentProcessor() const {
 }
 
 std::unique_ptr<GrFragmentProcessor>
-SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&) const {
+SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&, const MatrixRec&) const {
     return nullptr;
 }
 bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }
@@ -379,7 +397,7 @@ SkRect SkMaskFilter::approximateFilteredBounds(const SkRect& src) const {
 
 void SkMaskFilter::RegisterFlattenables() {
     sk_register_blur_maskfilter_createproc();
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if (defined(SK_GANESH) || defined(SK_GRAPHITE)) && !defined(SK_DISABLE_SDF_TEXT)
     sktext::gpu::register_sdf_maskfilter_createproc();
 #endif
 }

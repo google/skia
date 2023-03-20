@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef TextureOp_DEFINED
-#define TextureOp_DEFINED
+#ifndef skgpu_ganesh_TextureOp_DEFINED
+#define skgpu_ganesh_TextureOp_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
@@ -24,6 +24,10 @@ struct SkRect;
 class SkMatrix;
 
 namespace skgpu::v1 {
+class SurfaceDrawContext;
+}
+
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -60,7 +64,6 @@ public:
                             DrawQuad*,
                             const SkRect* subset = nullptr);
 
-#if SK_GPU_V1
     // Automatically falls back to using one FillRectOp per entry if dynamic states are not
     // supported, or if the blend mode is not src-over. 'cnt' is the size of the entry array.
     // 'proxyCnt' <= 'cnt' and represents the number of proxy switches within the array.
@@ -78,7 +81,6 @@ public:
                                  SkCanvas::SrcRectConstraint,
                                  const SkMatrix& viewMatrix,
                                  sk_sp<GrColorSpaceXform> textureXform);
-#endif
 
 #if GR_TEST_UTILS
     static uint32_t ClassID();
@@ -88,6 +90,6 @@ private:
     class BatchSizeLimiter;
 };
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh
 
-#endif  // TextureOp_DEFINED
+#endif  // skgpu_ganesh_TextureOp_DEFINED

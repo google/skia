@@ -1,0 +1,8 @@
+uniform float4 array[5];
+uniform float2 vector;
+uniform float2x2 matrix;
+uniform int idx;
+
+half4 main() {
+    return half4(array[idx][idx], vector[idx+1], matrix[idx][idx+1], 1);
+}

@@ -1,0 +1,43 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          color = 0
+    4. copy_constant                  $0 = colorWhite(0)
+    5. copy_constant                  $1 = 0x3F800000 (1.0)
+    6. cmpeq_float                    $0 = equal($0, $1)
+    7. branch_if_no_active_lanes_eq   branch +3 (label 0 at #10) if no lanes of $0 == 0xFFFFFFFF
+    8. copy_constant                  $1 = 0x3F800000 (1.0)
+    9. copy_slot_unmasked             color(1) = $1
+   10. label                          label 0x00000000
+   11. copy_constant                  $0 = colorWhite(0)
+   12. copy_constant                  $1 = 0x40000000 (2.0)
+   13. cmpeq_float                    $0 = equal($0, $1)
+   14. branch_if_no_active_lanes_eq   branch +2 (label 2 at #16) if no lanes of $0 == 0xFFFFFFFF
+   15. jump                           jump +4 (label 3 at #19)
+   16. label                          label 0x00000002
+   17. copy_constant                  $1 = 0x3F800000 (1.0)
+   18. copy_slot_unmasked             color(3) = $1
+   19. label                          label 0x00000003
+   20. store_loop_mask                $0 = LoopMask
+   21. jump                           jump +2 (label 5 at #23)
+   22. label                          label 0x00000006
+   23. label                          label 0x00000005
+   24. copy_constant                  $1 = colorWhite(0)
+   25. copy_constant                  $2 = 0x40000000 (2.0)
+   26. cmpeq_float                    $1 = equal($1, $2)
+   27. merge_loop_mask                LoopMask &= $1
+   28. stack_rewind
+   29. branch_if_any_lanes_active     branch_if_any_lanes_active -7 (label 6 at #22)
+   30. label                          label 0x00000004
+   31. load_loop_mask                 LoopMask = $0
+   32. store_loop_mask                $0 = LoopMask
+   33. label                          label 0x00000008
+   34. copy_constant                  $1 = colorWhite(0)
+   35. copy_constant                  $2 = 0x40000000 (2.0)
+   36. cmpeq_float                    $1 = equal($1, $2)
+   37. merge_loop_mask                LoopMask &= $1
+   38. stack_rewind
+   39. branch_if_any_lanes_active     branch_if_any_lanes_active -6 (label 8 at #33)
+   40. label                          label 0x00000007
+   41. load_loop_mask                 LoopMask = $0
+   42. copy_4_slots_unmasked          $0..3 = color
+   43. load_src                       src.rgba = $0..3

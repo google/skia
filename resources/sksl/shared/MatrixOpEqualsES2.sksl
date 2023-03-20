@@ -1,0 +1,101 @@
+uniform half4 colorRed, colorGreen;
+
+bool test_matrix_op_matrix_float() {
+    bool ok = true;
+
+    // Addition, subtraction and division operate componentwise.
+    {
+        const float3x3 splat_4 = float3x3(4, 4, 4, 4, 4, 4, 4, 4, 4);
+        const float3x3 splat_2 = float3x3(2, 2, 2, 2, 2, 2, 2, 2, 2);
+        float3x3 m;
+
+        m = float3x3(2); m += splat_4; ok = ok && (m == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+        m = float3x3(2); m -= splat_4; ok = ok && (m == float3x3(-2,-4,-4,-4,-2,-4,-4,-4,-2));
+        m = float3x3(2); m /= splat_4; ok = ok && (m == float3x3(0.5));
+
+        m = splat_4; m += float3x3(2); ok = ok && (m == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+        m = splat_4; m -= float3x3(2); ok = ok && (m == float3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+        m = splat_4; m /= splat_2;     ok = ok && (m == float3x3(2, 2, 2, 2, 2, 2, 2, 2 ,2));
+    }
+    {
+        float4x4 m = float4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+        m += float4x4(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+        ok = ok && (m == float4x4(17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17));
+    }
+    {
+        float2x2 m = float2x2(10, 20, 30, 40);
+        m -= float2x2(1, 2, 3, 4);
+        ok = ok && (m == float2x2(9, 18, 27, 36));
+    }
+    {
+        float2x2 m = float2x2(2, 4, 6, 8);
+        m /= float2x2(2, 2, 2, 4);
+        ok = ok && (m == float2x2(1, 2, 3, 2));
+    }
+
+    // Multiplication performs a proper matrix multiply.
+    {
+        float2x2 m = float2x2(1, 2, 7, 4);
+        m *= float2x2(3, 5, 3, 2);
+        ok = ok && (m == float2x2(38, 26, 17, 14));
+    }
+    {
+        float3x3 m = float3x3(10, 4, 2, 20, 5, 3, 10, 6, 5);
+        m *= float3x3(3, 3, 4, 2, 3, 4, 4, 9, 2);
+        ok = ok && (m == float3x3(130, 51, 35, 120, 47, 33, 240, 73, 45));
+    }
+
+    return ok;
+}
+
+bool test_matrix_op_matrix_half() {
+    bool ok = true;
+
+    // Addition, subtraction and division operate componentwise.
+    {
+        const half3x3 splat_4 = half3x3(4, 4, 4, 4, 4, 4, 4, 4, 4);
+        const half3x3 splat_2 = half3x3(2, 2, 2, 2, 2, 2, 2, 2, 2);
+        half3x3 m;
+
+        m = half3x3(2); m += splat_4; ok = ok && (m == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+        m = half3x3(2); m -= splat_4; ok = ok && (m == half3x3(-2,-4,-4,-4,-2,-4,-4,-4,-2));
+        m = half3x3(2); m /= splat_4; ok = ok && (m == half3x3(0.5));
+
+        m = splat_4; m += half3x3(2); ok = ok && (m == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+        m = splat_4; m -= half3x3(2); ok = ok && (m == half3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+        m = splat_4; m /= splat_2;     ok = ok && (m == half3x3(2, 2, 2, 2, 2, 2, 2, 2 ,2));
+    }
+    {
+        half4x4 m = half4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+        m += half4x4(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+        ok = ok && (m == half4x4(17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17));
+    }
+    {
+        half2x2 m = half2x2(10, 20, 30, 40);
+        m -= half2x2(1, 2, 3, 4);
+        ok = ok && (m == half2x2(9, 18, 27, 36));
+    }
+    {
+        half2x2 m = half2x2(2, 4, 6, 8);
+        m /= half2x2(2, 2, 2, 4);
+        ok = ok && (m == half2x2(1, 2, 3, 2));
+    }
+
+    // Multiplication performs a proper matrix multiply.
+    {
+        half2x2 m = half2x2(1, 2, 7, 4);
+        m *= half2x2(3, 5, 3, 2);
+        ok = ok && (m == half2x2(38, 26, 17, 14));
+    }
+    {
+        half3x3 m = half3x3(10, 4, 2, 20, 5, 3, 10, 6, 5);
+        m *= half3x3(3, 3, 4, 2, 3, 4, 4, 9, 2);
+        ok = ok && (m == half3x3(130, 51, 35, 120, 47, 33, 240, 73, 45));
+    }
+
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return (test_matrix_op_matrix_float() && test_matrix_op_matrix_half()) ? colorGreen : colorRed;
+}

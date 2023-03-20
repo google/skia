@@ -11,9 +11,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLModifiersPool.h"
-#include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLPool.h"
-#include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <type_traits>
@@ -23,7 +21,7 @@ namespace SkSL {
 ThreadContext::ThreadContext(SkSL::Compiler* compiler,
                              SkSL::ProgramKind kind,
                              const SkSL::ProgramSettings& settings,
-                             SkSL::ParsedModule module,
+                             const SkSL::Module* module,
                              bool isModule)
         : fCompiler(compiler)
         , fOldConfig(fCompiler->fContext->fConfig)
@@ -45,8 +43,8 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler,
     fConfig->fIsBuiltinCode = isModule;
     fCompiler->fContext->fConfig = fConfig.get();
     fCompiler->fContext->fErrors = &fDefaultErrorReporter;
-    fCompiler->fContext->fBuiltins = module.fElements.get();
-    fCompiler->fSymbolTable = module.fSymbols;
+    fCompiler->fContext->fModule = module;
+    fCompiler->fSymbolTable = module->fSymbols;
     this->setupSymbolTable();
 }
 
@@ -72,13 +70,6 @@ void ThreadContext::setupSymbolTable() {
 
     SkSL::SymbolTable& symbolTable = *fCompiler->fSymbolTable;
     symbolTable.markModuleBoundary();
-
-    if (fSettings.fExternalFunctions) {
-        // Add any external values to the new symbol table, so they're only visible to this Program.
-        for (const std::unique_ptr<ExternalFunction>& ef : *fSettings.fExternalFunctions) {
-            symbolTable.addWithoutOwnership(ef.get());
-        }
-    }
 }
 
 SkSL::Context& ThreadContext::Context() {

@@ -49,11 +49,13 @@ var (
 		".clang-tidy",
 		".vpython",
 		"BUILD.bazel",
+		"DEPS", // Needed by bin/fetch-ninja
 		"WORKSPACE.bazel",
 		"bazel",
 		"bin/activate-emsdk",
 		"bin/fetch-clang-format",
 		"bin/fetch-gn",
+		"bin/fetch-ninja",
 		"buildtools",
 		"example",
 		"go_repositories.bzl",

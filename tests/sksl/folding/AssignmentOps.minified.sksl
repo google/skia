@@ -1,0 +1,1 @@
+uniform half4 colorRed;uniform half4 colorGreen;half4 main(float2 e){bool f=true;int g=1;g=g+g;g+=g;g=g+g;g+=g;g=g+g;f=f&&g==32;int h=10;h=h-2;h-=2;h=h-1;h-=3;f=f&&h==2;int i=2;i=i*i;i*=i;i=i*4;i*=2;f=f&&i==128;int j=256;j=j/2;j/=2;j=j/4;j/=4;f=f&&j==4;return f?colorGreen:colorRed;}

@@ -1,0 +1,59 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             check = 0
+    4. copy_slot_unmasked             $0 = check
+    5. copy_constant                  $12 = colorGreen(1)
+    6. copy_constant                  $13 = 0x3F800000 (1.0)
+    7. cmpeq_float                    $12 = equal($12, $13)
+    8. branch_if_no_active_lanes_eq   branch +3 (label 0 at #11) if no lanes of $12 == 0xFFFFFFFF
+    9. zero_slot_unmasked             $1 = 0
+   10. jump                           jump +3 (label 1 at #13)
+   11. label                          label 0x00000000
+   12. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   13. label                          label 0x00000001
+   14. add_int                        $0 += $1
+   15. copy_slot_unmasked             check = $0
+   16. copy_constant                  $12 = colorGreen(0)
+   17. copy_constant                  $13 = 0x3F800000 (1.0)
+   18. cmpeq_float                    $12 = equal($12, $13)
+   19. branch_if_no_active_lanes_eq   branch +3 (label 2 at #22) if no lanes of $12 == 0xFFFFFFFF
+   20. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   21. jump                           jump +3 (label 3 at #24)
+   22. label                          label 0x00000002
+   23. zero_slot_unmasked             $1 = 0
+   24. label                          label 0x00000003
+   25. add_int                        $0 += $1
+   26. copy_slot_unmasked             check = $0
+   27. copy_4_constants               $12..15 = colorGreen
+   28. swizzle_2                      $12..13 = ($12..13).yx
+   29. copy_2_constants               $14..15 = colorRed(0..1)
+   30. cmpeq_2_floats                 $12..13 = equal($12..13, $14..15)
+   31. bitwise_and_int                $12 &= $13
+   32. branch_if_no_active_lanes_eq   branch +3 (label 4 at #35) if no lanes of $12 == 0xFFFFFFFF
+   33. zero_slot_unmasked             $1 = 0
+   34. jump                           jump +3 (label 5 at #37)
+   35. label                          label 0x00000004
+   36. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   37. label                          label 0x00000005
+   38. add_int                        $0 += $1
+   39. copy_slot_unmasked             check = $0
+   40. copy_4_constants               $12..15 = colorGreen
+   41. swizzle_2                      $12..13 = ($12..13).yx
+   42. copy_2_constants               $14..15 = colorRed(0..1)
+   43. cmpne_2_floats                 $12..13 = notEqual($12..13, $14..15)
+   44. bitwise_or_int                 $12 |= $13
+   45. branch_if_no_active_lanes_eq   branch +3 (label 6 at #48) if no lanes of $12 == 0xFFFFFFFF
+   46. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   47. jump                           jump +3 (label 7 at #50)
+   48. label                          label 0x00000006
+   49. zero_slot_unmasked             $1 = 0
+   50. label                          label 0x00000007
+   51. add_int                        $0 += $1
+   52. copy_slot_unmasked             check = $0
+   53. zero_slot_unmasked             $1 = 0
+   54. cmpeq_int                      $0 = equal($0, $1)
+   55. swizzle_4                      $0..3 = ($0..3).xxxx
+   56. copy_4_constants               $4..7 = colorRed
+   57. copy_4_constants               $8..11 = colorGreen
+   58. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   59. load_src                       src.rgba = $0..3

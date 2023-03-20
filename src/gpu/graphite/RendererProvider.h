@@ -8,13 +8,16 @@
 #ifndef skgpu_graphite_RendererProvider_DEFINED
 #define skgpu_graphite_RendererProvider_DEFINED
 
-#include "include/core/SkCanvas.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkVertices.h"
 #include "src/gpu/graphite/Renderer.h"
 
 #include <vector>
 
 namespace skgpu::graphite {
+
+class Caps;
+class StaticBufferManager;
 
 /**
  * Graphite defines a limited set of renderers in order to increase the likelihood of batching
@@ -41,7 +44,7 @@ public:
     const Renderer* tessellatedStrokes() const { return &fTessellatedStrokes; }
 
     // Atlas'ed text rendering
-    const Renderer* bitmapText(bool isA8) const { return &fBitmapText[isA8]; }
+    const Renderer* bitmapText() const { return &fBitmapText; }
     const Renderer* sdfText(bool useLCDText) const { return &fSDFText[useLCDText]; }
 
     // Mesh rendering
@@ -51,8 +54,11 @@ public:
         return &fVertices[4*triStrip + 2*hasColors + hasTexCoords];
     }
 
-    // TODO: Add renderers for primitives (rec, rrect, etc.) and atlas draws. May need to add
-    // support for inverse filled strokes (need to check SVG spec if this is a real thing).
+    // Filled and stroked [r]rects and per-edge AA quadrilaterals
+    const Renderer* analyticRRect() const { return &fAnalyticRRect; }
+
+    // TODO: May need to add support for inverse filled strokes (need to check SVG spec if this is a
+    // real thing).
 
     // Iterate over all available Renderers to combine with specified paint combinations when
     // pre-compiling pipelines.
@@ -66,10 +72,10 @@ private:
     static constexpr int kPathTypeCount = 4;
     static constexpr int kVerticesCount = 8; // 2 modes * 2 color configs * 2 tex coord configs
 
-    friend class SharedContext; // for ctor
+    friend class Context; // for ctor
 
-    // TODO: Take in caps and provide some mechanism for one-time initialization of GPU resources.
-    RendererProvider();
+    // TODO: Take in caps that determines which Renderers to use for each category
+    RendererProvider(const Caps*, StaticBufferManager* bufferManager);
 
     // Cannot be moved or copied
     RendererProvider(const RendererProvider&) = delete;
@@ -85,8 +91,10 @@ private:
     Renderer fConvexTessellatedWedges;
     Renderer fTessellatedStrokes;
 
-    Renderer fBitmapText[2]; // bool isA8
-    Renderer fSDFText[2];    // bool isLCD
+    Renderer fBitmapText;
+    Renderer fSDFText[2]; // bool isLCD
+
+    Renderer fAnalyticRRect;
 
     Renderer fVertices[kVerticesCount];
 

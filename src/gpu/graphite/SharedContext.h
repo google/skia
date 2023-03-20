@@ -13,9 +13,8 @@
 #include "include/core/SkSize.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "src/core/SkShaderCodeDictionary.h"
 #include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu {
 class SingleOwner;
@@ -26,6 +25,7 @@ namespace skgpu::graphite {
 class BackendTexture;
 class Caps;
 class CommandBuffer;
+class RendererProvider;
 class ResourceProvider;
 class TextureInfo;
 
@@ -39,14 +39,15 @@ public:
     const Caps* caps() const { return fCaps.get(); }
 
     BackendApi backend() const { return fBackend; }
+    Protected isProtected() const { return fProtected; }
 
     GlobalCache* globalCache() { return &fGlobalCache; }
     const GlobalCache* globalCache() const { return &fGlobalCache; }
 
-    const RendererProvider* rendererProvider() const { return &fRendererProvider; }
+    const RendererProvider* rendererProvider() const { return fRendererProvider.get(); }
 
-    SkShaderCodeDictionary* shaderCodeDictionary() { return &fShaderDictionary; }
-    const SkShaderCodeDictionary* shaderCodeDictionary() const { return &fShaderDictionary; }
+    ShaderCodeDictionary* shaderCodeDictionary() { return &fShaderDictionary; }
+    const ShaderCodeDictionary* shaderCodeDictionary() const { return &fShaderDictionary; }
 
     virtual std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) = 0;
 
@@ -54,11 +55,18 @@ protected:
     SharedContext(std::unique_ptr<const Caps>, BackendApi);
 
 private:
-    std::unique_ptr<const Caps> fCaps;
+    friend class Context; // for setRendererProvider()
+
+    // Must be created out-of-band to allow RenderSteps to use a QueueManager.
+    void setRendererProvider(std::unique_ptr<RendererProvider> rendererProvider);
+
+    std::unique_ptr<const Caps> fCaps; // Provided by backend subclass
+
     BackendApi fBackend;
+    Protected fProtected;
     GlobalCache fGlobalCache;
-    RendererProvider fRendererProvider;
-    SkShaderCodeDictionary fShaderDictionary;
+    std::unique_ptr<RendererProvider> fRendererProvider;
+    ShaderCodeDictionary fShaderDictionary;
 };
 
 } // namespace skgpu::graphite

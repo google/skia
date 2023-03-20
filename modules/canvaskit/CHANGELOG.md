@@ -6,10 +6,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+ - Particles have been removed.
+
+### Added
+ - Skottie TransformValue accessors for dynamic layer transforms.
+
 ### Changed
- - Added API, tests and sample for SkParagraph Client provided ICU API:
+ - `Image.encodeToData` now makes use of the GPU context more consistently.
+
+## [0.38.0] - 2023-01-12
+
+### Changed
+ - `Paragraph.getRectsForRange` and `Paragraph.getRectsForPlaceholders` had been returning a list
+   of Float32Arrays upon which a property 'direction' had been monkey-patched (this was
+   undocumented). They now return an object `RectWithDirection`.
+- `CanvasKit.MakeOnScreenGLSurface` allows providing a cached sample count and stencil
+  value to avoid repeated lookups on Surface creation.
+
+## [0.37.2] - 2022-11-15
+
+### Fixed
+ - Images made from textures correctly invalidate internal state, reducing flicker (skbug.com/13903)
+
+## [0.37.1] - 2022-11-08
+
+### Fixed
+ - Font resolution algorithm for ellipsis in SkParagraph (skbug.com/11797)
+ - GrContexts will properly target the correct WebGL context
+ - CanvasKit built with no_embedded_font will properly link and be able to load fonts from passed-in
+   bytes.
+ - Text styled with fontSize or heightMultiplier 0 will be invisible.
+
+## [0.37.0] - 2022-09-07
+
+### Added
+ - Paragraph has new setting: `replaceTabCharacters`.
+ - New API, tests and sample for SkParagraph Client provided ICU API:
    - buildWithClientInfo
    - getText
+
+### Fixed
+ - readPixels calls could sometimes fail due to a stale internal reference to GrDirectContext.
 
 ## [0.36.1] - 2022-08-22
 
@@ -232,7 +270,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - `Font.getGlyphIntercepts()`
- 
+
 ### Fixed
  - Bug with images using certain exif metadata. (skbug.com/11968)
 
@@ -398,7 +436,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `CanvasKit.Shader`.
  - `MakeRasterDirectSurface` for giving the user direct access to drawn pixels.
  - `getLineMetrics` to Paragraph.
- - `Canvas.saveLayerPaint` as an experimental, undocumented "fast path" if one only needs to pass 
+ - `Canvas.saveLayerPaint` as an experimental, undocumented "fast path" if one only needs to pass
    the paint.
  - Support for .woff and .woff2 fonts. Disable .woff2 for reduced code size by supplying
    no_woff2 to compile.sh. (This removes the code to do brotli decompression).

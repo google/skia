@@ -10,6 +10,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstdint>
+
 // See CanvasStateTest. These functions are either linked in to 'dm' directly (when this flag is
 // not defined), or built in a shared library that is dlopened by the test. In that case, they
 // should not be visible in 'dm', but the shared library will not have this flag set and compiles

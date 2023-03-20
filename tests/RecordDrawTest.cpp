@@ -5,18 +5,29 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordDraw.h"
+#include "src/core/SkRecorder.h"
+#include "src/core/SkRecords.h"
 #include "tests/RecordTestUtils.h"
 #include "tests/Test.h"
 
-#include "include/core/SkSurface.h"
-#include "include/effects/SkImageFilters.h"
-#include "src/core/SkImagePriv.h"
-#include "src/core/SkRecord.h"
-#include "src/core/SkRecordDraw.h"
-#include "src/core/SkRecordOpts.h"
-#include "src/core/SkRecorder.h"
-#include "src/core/SkRecords.h"
-#include "tools/debugger/DebugCanvas.h"
+using namespace skia_private;
+
+class SkImage;
 
 static const int W = 1920, H = 1080;
 
@@ -141,7 +152,7 @@ DEF_TEST(RecordDraw_BasicBounds, r) {
         recorder.drawRect(SkRect::MakeWH(320, 240), SkPaint());
     recorder.restore();
 
-    SkAutoTMalloc<SkRect> bounds(record.count());
+    AutoTMalloc<SkRect> bounds(record.count());
     SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, bounds);
 
     for (int i = 0; i < record.count(); i++) {
@@ -204,8 +215,8 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // draw/clip (0,0,20,40) with the 20px offset drop shadow along the x-axis (20,0,40,40).
     // The saveLayer and restore match the output bounds of the drop shadow filter, instead of
     // expanding to fill the entire picture.
-    SkAutoTMalloc<SkRect> bounds(record.count());
-    SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
+    AutoTMalloc<SkRect> bounds(record.count());
+    AutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
     SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(0, 0, 40, 40)));
@@ -229,8 +240,8 @@ DEF_TEST(RecordDraw_Metadata, r) {
         recorder.restore();
     recorder.restore();
 
-    SkAutoTMalloc<SkRect> bounds(record.count());
-    SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
+    AutoTMalloc<SkRect> bounds(record.count());
+    AutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
     SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
 
     REPORTER_ASSERT(r, !meta[0].isDraw);  // saveLayer (not a draw, but its restore will be)
@@ -259,7 +270,7 @@ DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
     recorder.drawRect(SkRect::MakeLTRB(20, 20, 30, 30), SkPaint());
     recorder.restore();
 
-    SkAutoTMalloc<SkRect> bounds(record.count());
+    AutoTMalloc<SkRect> bounds(record.count());
     SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds);
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(10, 10, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(20, 20, 30, 30)));

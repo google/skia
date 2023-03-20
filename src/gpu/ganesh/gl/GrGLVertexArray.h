@@ -9,7 +9,7 @@
 #define GrGLVertexArray_DEFINED
 
 #include "include/gpu/gl/GrGLTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
@@ -53,7 +53,7 @@ public:
                             GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
     void invalidate() {
-        int count = fAttribArrayStates.count();
+        int count = fAttribArrayStates.size();
         for (int i = 0; i < count; ++i) {
             fAttribArrayStates[i].invalidate();
         }
@@ -63,7 +63,7 @@ public:
     /**
      * The number of attrib arrays that this object is configured to track.
      */
-    int count() const { return fAttribArrayStates.count(); }
+    int count() const { return fAttribArrayStates.size(); }
 
 private:
     inline static constexpr int kInvalidDivisor = -1;

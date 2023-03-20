@@ -1,0 +1,43 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+import("../third_party.gni")
+
+third_party("icu_bidi") {
+  public_include_dirs = [
+    "../externals/icu/source/common",
+    "../externals/icu/source/i18n",
+  ]
+  public_defines = [
+    "U_USING_ICU_NAMESPACE=0",
+    "U_DISABLE_RENAMING=0",
+    "U_HAVE_LIB_SUFFIX=1",
+    "U_LIB_SUFFIX_C_NAME=_skia",
+    "U_DISABLE_VERSION_SUFFIX=1",
+    "SK_USING_THIRD_PARTY_ICU",
+  ]
+  defines = [
+    "U_COMMON_IMPLEMENTATION",
+    "U_STATIC_IMPLEMENTATION",
+    "U_I18N_IMPLEMENTATION",
+  ]
+  _src = "../externals/icu/source"
+  sources = [
+    "$_src/common/cmemory.cpp",
+    "$_src/common/cstring.cpp",
+    "$_src/common/ubidi.cpp",
+    "$_src/common/ubidi_props.cpp",
+    "$_src/common/ubidiln.cpp",
+    "$_src/common/ubidiwrt.cpp",
+    "$_src/common/uchar.cpp",
+    "$_src/common/udataswp.cpp",
+    "$_src/common/uinvchar.cpp",
+    "$_src/common/ustring.cpp",
+    "$_src/common/ustrtrns.cpp",
+    "$_src/common/utf_impl.cpp",
+    "$_src/common/utrie2.cpp",
+  ]
+}

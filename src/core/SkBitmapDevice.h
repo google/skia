@@ -103,7 +103,7 @@ protected:
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
-    sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
+    sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool forceCopy = false) override;
     void setImmutable() override { fBitmap.setImmutable(); }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -138,6 +138,7 @@ protected:
 private:
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkDrawBase;
     friend class SkDrawTiler;
     friend class SkSurface_Raster;
 

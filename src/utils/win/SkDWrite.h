@@ -9,7 +9,7 @@
 #define SkDWrite_DEFINED
 
 #include "include/core/SkFontStyle.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <dwrite.h>
 #include <winsdkver.h>
@@ -25,7 +25,7 @@ IDWriteFactory* sk_get_dwrite_factory();
 // String conversion
 
 /** Prefer to use this type to prevent template proliferation. */
-typedef SkAutoSTMalloc<16, WCHAR> SkSMallocWCHAR;
+typedef skia_private::AutoSTMalloc<16, WCHAR> SkSMallocWCHAR;
 
 /** Converts a utf8 string to a WCHAR string. */
 HRESULT sk_cstring_to_wchar(const char* skname, SkSMallocWCHAR* name);

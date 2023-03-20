@@ -1,0 +1,16 @@
+cc_library(
+    name = "base",
+    hdrs = ["base.h"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "base_priv",
+    hdrs = ["base_priv.h"],
+    visibility = ["//experimental/bazel_test/core:__pkg__"],
+)
+
+exports_files(
+    ["base_priv.h"],
+    visibility = ["//experimental/bazel_test/core:__pkg__"],
+)

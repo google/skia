@@ -13,7 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkDraw.h"
+#include "src/core/SkDrawBase.h"
 #include "src/core/SkRasterClip.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
@@ -48,17 +48,17 @@ public:
     bool init(const SkIRect& resultBounds);
 
     // Draw a single rect into the accumulation bitmap using the specified op
-    void drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
+    void drawRect(const SkRect& rect, const SkMatrix& matrix, GrAA, uint8_t alpha);
 
     // Draw a single rrect into the accumulation bitmap using the specified op
-    void drawRRect(const SkRRect& rrect, const SkMatrix& matrix, SkRegion::Op op, GrAA,
+    void drawRRect(const SkRRect& rrect, const SkMatrix& matrix, GrAA,
                    uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void drawShape(const GrStyledShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA,
+    void drawShape(const GrStyledShape&, const SkMatrix& matrix, GrAA,
                    uint8_t alpha);
     // Like the GrStyledShape variant, but assumes a simple fill style
-    void drawShape(const GrShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
+    void drawShape(const GrShape&, const SkMatrix& matrix, GrAA, uint8_t alpha);
 
     GrSurfaceProxyView toTextureView(GrRecordingContext*, SkBackingFit fit);
 
@@ -71,7 +71,7 @@ private:
     SkVector             fTranslate;
     SkAutoPixmapStorage* fPixels;
     SkAutoPixmapStorage  fPixelsStorage;
-    SkDraw               fDraw;
+    SkDrawBase           fDraw;
     SkRasterClip         fRasterClip;
 
     using INHERITED = SkNoncopyable;

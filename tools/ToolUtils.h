@@ -25,13 +25,13 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkTInternalLList.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
+#include "src/base/SkTInternalLList.h"
 #include "tools/SkMetaData.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Recorder.h"
 #endif
 
@@ -118,10 +118,21 @@ inline void draw_checkerboard(SkCanvas* canvas) {
     ToolUtils::draw_checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
 }
 
+/** Create pixmaps to initialize a 32x32 image w/ or w/o mipmaps.
+ *  Returns the number of levels (either 1 or 6). The mipmap levels will be colored as
+ *  specified in 'colors'
+ */
+int make_pixmaps(SkColorType,
+                 SkAlphaType,
+                 bool withMips,
+                 const SkColor4f colors[6],
+                 SkPixmap pixmaps[6],
+                 std::unique_ptr<char[]>* mem);
+
 SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
 sk_sp<SkImage> create_string_image(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
 
-// If the canvas does't make a surface (e.g. recording), make a raster surface
+// If the canvas doesn't make a surface (e.g. recording), make a raster surface
 sk_sp<SkSurface> makeSurface(SkCanvas*, const SkImageInfo&, const SkSurfaceProps* = nullptr);
 
 // A helper for inserting a drawtext call into a SkTextBlobBuilder
@@ -179,7 +190,7 @@ public:
             return false;
         }
 
-        for (int i = 0; i < fDependencies.count(); ++i) {
+        for (int i = 0; i < fDependencies.size(); ++i) {
             if (!fDependencies[i]->fWasOutput) {
                 return false;
             }
@@ -203,16 +214,16 @@ public:
     }
     static bool          WasOutput(TopoTestNode* node) { return node->fWasOutput; }
     static uint32_t      GetIndex(TopoTestNode* node) { return node->outputPos(); }
-    static int           NumDependencies(TopoTestNode* node) { return node->fDependencies.count(); }
+    static int           NumDependencies(TopoTestNode* node) { return node->fDependencies.size(); }
     static TopoTestNode* Dependency(TopoTestNode* node, int index) {
         return node->fDependencies[index];
     }
-    static int           NumTargets(TopoTestNode* node) { return node->fTargets.count(); }
+    static int           NumTargets(TopoTestNode* node) { return node->fTargets.size(); }
     static uint32_t      GetTarget(TopoTestNode* node, int i) { return node->fTargets[i]; }
     static uint32_t      GetID(TopoTestNode* node) { return node->id(); }
 
     // Helper functions for TopoSortBench & TopoSortTest
-    static void AllocNodes(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
+    static void AllocNodes(skia_private::TArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
         graph->reserve_back(num);
 
         for (int i = 0; i < num; ++i) {
@@ -221,8 +232,8 @@ public:
     }
 
 #ifdef SK_DEBUG
-    static void Print(const SkTArray<TopoTestNode*>& graph) {
-        for (int i = 0; i < graph.count(); ++i) {
+    static void Print(const skia_private::TArray<TopoTestNode*>& graph) {
+        for (int i = 0; i < graph.size(); ++i) {
             SkDebugf("%d, ", graph[i]->id());
         }
         SkDebugf("\n");
@@ -231,7 +242,7 @@ public:
 
     // randomize the array
     static void Shuffle(SkSpan<sk_sp<TopoTestNode>> graph, SkRandom* rand) {
-        for (int i = graph.size() - 1; i > 0; --i) {
+        for (size_t i = graph.size() - 1; i > 0; --i) {
             int swap = rand->nextU() % (i + 1);
 
             graph[i].swap(graph[swap]);
@@ -306,7 +317,7 @@ using PathSniffCallback = void(const SkMatrix&, const SkPath&, const SkPaint&);
 // Supported file formats are .svg and .skp.
 void sniff_paths(const char filepath[], std::function<PathSniffCallback>);
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig);
 #endif
 
@@ -342,7 +353,7 @@ private:
     static constexpr size_t kAxisVarsSize = 3;
 };
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 skgpu::graphite::RecorderOptions CreateTestingRecorderOptions();
 #endif
 

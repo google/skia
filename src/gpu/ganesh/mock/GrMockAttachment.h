@@ -8,6 +8,7 @@
 #ifndef GrMockAttachment_DEFINED
 #define GrMockAttachment_DEFINED
 
+#include "include/core/SkTextureCompressionType.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/mock/GrMockGpu.h"
@@ -20,13 +21,13 @@ public:
                      int sampleCnt,
                      std::string_view label)
             : INHERITED(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
-                        GrProtected::kNo, label) {
+                        skgpu::Protected::kNo, label) {
         SkASSERT(supportedUsages == UsageFlags::kStencilAttachment);
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(skgpu::Budgeted::kYes);
     }
 
     GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMock(GrColorType::kUnknown, SkImage::CompressionType::kNone,
+        return GrBackendFormat::MakeMock(GrColorType::kUnknown, SkTextureCompressionType::kNone,
                                          /*isStencilFormat*/ true);
     }
 

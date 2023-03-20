@@ -5,34 +5,69 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkVx.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+#include <utility>
+
+#if defined(SK_GANESH)
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+struct GrShaderCaps;
+#endif
+
+#if GR_TEST_UTILS
+#include "src/base/SkRandom.h"
 #endif
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include <immintrin.h>
+    #include <emmintrin.h>
+#endif
+
+#if defined(SK_ARM_HAS_NEON)
+    #include <arm_neon.h>
 #endif
 
 namespace {
@@ -170,7 +205,7 @@ SkIRect SkMorphologyImageFilter::onFilterNodeBounds(
     return src.makeOutset(SkScalarCeilToInt(radius.width()), SkScalarCeilToInt(radius.height()));
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
@@ -345,7 +380,7 @@ bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
@@ -455,12 +490,14 @@ static sk_sp<SkSpecialImage> apply_morphology(
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), rect.size());
 
     if (radius.fWidth > 0) {
-        auto dstFillContext = rContext->priv().makeSFC(info,
-                                                       SkBackingFit::kApprox,
-                                                       1,
-                                                       GrMipmapped::kNo,
-                                                       proxy->isProtected(),
-                                                       kBottomLeft_GrSurfaceOrigin);
+        auto dstFillContext =
+                rContext->priv().makeSFC(info,
+                                         "SpecialImage_ApplyMorphology_Width",
+                                         SkBackingFit::kApprox,
+                                         1,
+                                         GrMipmapped::kNo,
+                                         proxy->isProtected(),
+                                         kBottomLeft_GrSurfaceOrigin);
         if (!dstFillContext) {
             return nullptr;
         }
@@ -478,12 +515,14 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        auto dstFillContext = rContext->priv().makeSFC(info,
-                                                       SkBackingFit::kApprox,
-                                                       1,
-                                                       GrMipmapped::kNo,
-                                                       srcView.proxy()->isProtected(),
-                                                       kBottomLeft_GrSurfaceOrigin);
+        auto dstFillContext =
+                rContext->priv().makeSFC(info,
+                                         "SpecialImage_ApplyMorphology_Height",
+                                         SkBackingFit::kApprox,
+                                         1,
+                                         GrMipmapped::kNo,
+                                         srcView.proxy()->isProtected(),
+                                         kBottomLeft_GrSurfaceOrigin);
         if (!dstFillContext) {
             return nullptr;
         }
@@ -654,7 +693,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(const Context& ctx,
         return input->makeSubset(srcBounds);
     }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 

@@ -8,7 +8,8 @@
 #include "src/gpu/ganesh/gl/builders/GrGLProgramBuilder.h"
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/private/SkSLProgramKind.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkWriteBuffer.h"
@@ -24,6 +25,7 @@
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLProgram.h"
 #include "src/gpu/ganesh/gl/builders/GrGLProgramBuilder.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
 
 #include <memory>
@@ -34,7 +36,7 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
 static void cleanup_shaders(GrGLGpu* gpu, const SkTDArray<GrGLuint>& shaderIDs) {
-    for (int i = 0; i < shaderIDs.count(); ++i) {
+    for (int i = 0; i < shaderIDs.size(); ++i) {
         GR_GL_CALL(gpu->glInterface(), DeleteShader(shaderIDs[i]));
     }
 }
@@ -187,7 +189,6 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         // source cache, plus metadata to allow for a complete precompile
         GrPersistentCacheUtils::ShaderMetadata meta;
         meta.fSettings = settings;
-        meta.fHasCustomColorOutput = fFS.hasCustomColorOutput();
         meta.fHasSecondaryColorOutput = fFS.hasSecondaryOutput();
         for (auto attr : this->geometryProcessor().vertexAttributes()) {
             meta.fAttributeNames.emplace_back(attr.name());
@@ -235,12 +236,10 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
 
-    bool checkLinked = !fGpu->glCaps().skipErrorChecks();
-
     bool cached = fCached.get() != nullptr;
     bool usedProgramBinaries = false;
     std::string glsl[kGrShaderTypeCount];
-    std::string* sksl[kGrShaderTypeCount] = {
+    const std::string* sksl[kGrShaderTypeCount] = {
         &fVS.fCompilerString,
         &fFS.fCompilerString,
     };
@@ -276,14 +275,12 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                     break;
                 }
                 GL_CALL(ProgramBinary(programID, binaryFormat, const_cast<void*>(binary), length));
-                if (checkLinked) {
-                    // Pass nullptr for the error handler. We don't want to treat this as a compile
-                    // failure (we can still recover by compiling the program from source, below).
-                    // Clients won't be directly notified, but they can infer this from the trace
-                    // events, and from the traffic to the persistent cache.
-                    cached = this->checkLinkStatus(
-                            programID, /*errorHandler=*/nullptr, nullptr, nullptr);
-                }
+                // Pass nullptr for the error handler. We don't want to treat this as a compile
+                // failure (we can still recover by compiling the program from source, below).
+                // Clients won't be directly notified, but they can infer this from the trace
+                // events, and from the traffic to the persistent cache.
+                cached = GrGLCheckLinkStatus(fGpu, programID,
+                                             /*errorHandler=*/nullptr, nullptr, nullptr);
                 if (cached) {
                     this->addInputVars(inputs);
                     this->computeCountsAndStrides(programID, geomProc, false);
@@ -377,11 +374,9 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         {
             TRACE_EVENT0_ALWAYS("skia.shaders", "driver_link_program");
             GL_CALL(LinkProgram(programID));
-            if (checkLinked) {
-                if (!this->checkLinkStatus(programID, errorHandler, sksl, glsl)) {
-                    cleanup_program(fGpu, programID, shadersToDelete);
-                    return nullptr;
-                }
+            if (!GrGLCheckLinkStatus(fGpu, programID, errorHandler, sksl, glsl)) {
+                cleanup_program(fGpu, programID, shadersToDelete);
+                return nullptr;
             }
         }
     }
@@ -409,49 +404,15 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
     fUniformHandler.bindUniformLocations(programID, fGpu->glCaps());
 
     const GrGLCaps& caps = this->gpu()->glCaps();
-    if (fFS.hasCustomColorOutput() && caps.bindFragDataLocationSupport()) {
+    if (caps.bindFragDataLocationSupport()) {
+        SkASSERT(caps.shaderCaps()->mustDeclareFragmentShaderOutput());
         GL_CALL(BindFragDataLocation(programID, 0,
                                      GrGLSLFragmentShaderBuilder::DeclaredColorOutputName()));
-    }
-    if (fFS.hasSecondaryOutput() && caps.shaderCaps()->mustDeclareFragmentShaderOutput()) {
-        GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
+        if (fFS.hasSecondaryOutput()) {
+            GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
                                   GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
+        }
     }
-}
-
-bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
-                                         GrContextOptions::ShaderErrorHandler* errorHandler,
-                                         std::string* sksl[], const std::string glsl[]) {
-    GrGLint linked = GR_GL_INIT_ZERO;
-    GL_CALL(GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
-    if (!linked && errorHandler) {
-        std::string allShaders;
-        if (sksl) {
-            SkSL::String::appendf(&allShaders, "// Vertex SKSL\n%s\n"
-                                               "// Fragment SKSL\n%s\n",
-                                               sksl[kVertex_GrShaderType]->c_str(),
-                                               sksl[kFragment_GrShaderType]->c_str());
-        }
-        if (glsl) {
-            SkSL::String::appendf(&allShaders, "// Vertex GLSL\n%s\n"
-                                               "// Fragment GLSL\n%s\n",
-                                               glsl[kVertex_GrShaderType].c_str(),
-                                               glsl[kFragment_GrShaderType].c_str());
-        }
-        GrGLint infoLen = GR_GL_INIT_ZERO;
-        GL_CALL(GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        SkAutoMalloc log(infoLen+1);
-        if (infoLen > 0) {
-            // retrieve length even though we don't need it to workaround
-            // bug in chrome cmd buffer param validation.
-            GrGLsizei length = GR_GL_INIT_ZERO;
-            GL_CALL(GetProgramInfoLog(programID, infoLen+1, &length, (char*)log.get()));
-        }
-        const char* errorMsg = (infoLen > 0) ? (const char*)log.get()
-                                             : "link failed but did not provide an info log";
-        errorHandler->compileError(allShaders.c_str(), errorMsg);
-    }
-    return SkToBool(linked);
 }
 
 void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, bool force) {
@@ -535,21 +496,23 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
         return false;
     }
 
-    for (int i = 0; i < meta.fAttributeNames.count(); ++i) {
+    for (int i = 0; i < meta.fAttributeNames.size(); ++i) {
         GR_GL_CALL(glGpu->glInterface(), BindAttribLocation(programID, i,
                                                           meta.fAttributeNames[i].c_str()));
     }
 
     const GrGLCaps& caps = glGpu->glCaps();
-    if (meta.fHasCustomColorOutput && caps.bindFragDataLocationSupport()) {
+    if (caps.bindFragDataLocationSupport()) {
+        SkASSERT(caps.shaderCaps()->mustDeclareFragmentShaderOutput());
         GR_GL_CALL(glGpu->glInterface(),
                    BindFragDataLocation(programID, 0,
                                         GrGLSLFragmentShaderBuilder::DeclaredColorOutputName()));
-    }
-    if (meta.fHasSecondaryColorOutput && caps.shaderCaps()->mustDeclareFragmentShaderOutput()) {
-        GR_GL_CALL(glGpu->glInterface(),
-                   BindFragDataLocationIndexed(programID, 0, 1,
-                               GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
+
+        if (meta.fHasSecondaryColorOutput) {
+            GR_GL_CALL(glGpu->glInterface(),
+                       BindFragDataLocationIndexed(programID, 0, 1,
+                                  GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
+        }
     }
 
     GR_GL_CALL(glGpu->glInterface(), LinkProgram(programID));

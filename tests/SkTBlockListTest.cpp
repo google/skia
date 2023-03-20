@@ -5,8 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkTBlockList.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkAlign.h"
+#include "src/base/SkBlockAllocator.h"
+#include "src/base/SkTBlockList.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace {
 struct C {

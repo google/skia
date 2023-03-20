@@ -12,14 +12,14 @@
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/base/SkUTF.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlob.h"
 #include "src/utils/SkTestCanvas.h"
-#include "src/utils/SkUTF.h"
 
 // From Project Guttenberg. This is UTF-8 text.
 static const char* gText =

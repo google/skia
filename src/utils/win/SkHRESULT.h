@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 #ifdef SK_BUILD_FOR_WIN
 
-#include "src/core/SkLeanWindows.h"
+#include "src/base/SkLeanWindows.h"
 
 void SkTraceHR(const char* file, unsigned long line,
                HRESULT hr, const char* msg);

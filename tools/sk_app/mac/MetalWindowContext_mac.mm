@@ -30,13 +30,11 @@ public:
 
 private:
     NSView*              fMainView;
-
-    using INHERITED = MetalWindowContext;
 };
 
 MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info,
                                                const DisplayParams& params)
-    : INHERITED(params)
+    : MetalWindowContext(params)
     , fMainView(info.fMainView) {
 
     // any config code here (particularly for msaa)?
@@ -73,10 +71,7 @@ bool MetalWindowContext_mac::onInitializeContext() {
     return true;
 }
 
-void MetalWindowContext_mac::onDestroyContext() {
-    fMainView.layer = nil;
-    fMainView.wantsLayer = NO;
-}
+void MetalWindowContext_mac::onDestroyContext() {}
 
 void MetalWindowContext_mac::resize(int w, int h) {
     CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(fMainView);

@@ -12,7 +12,8 @@
 #include "src/core/SkMask.h"
 #include "tests/Test.h"
 
-#include <string.h>
+#include <cstdint>
+#include <string>
 
 class TestBlitter : public SkBlitter {
 public:

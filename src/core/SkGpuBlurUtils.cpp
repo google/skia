@@ -9,9 +9,9 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -21,7 +21,6 @@
 #include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
-#if SK_GPU_V1
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
@@ -524,11 +523,9 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> two_pass_gaussian(
                              colorSpace,
                              fit);
 }
-#endif  // SK_GPU_V1
 
 namespace SkGpuBlurUtils {
 
-#if SK_GPU_V1
 std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(GrRecordingContext* rContext,
                                                             GrSurfaceProxyView srcView,
                                                             GrColorType srcColorType,
@@ -822,7 +819,6 @@ std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(GrRecordingContext* 
                     std::move(colorSpace),
                     fit);
 }
-#endif  // SK_GPU_V1
 
 bool ComputeBlurredRRectParams(const SkRRect& srcRRect,
                                const SkRRect& devRRect,
@@ -908,11 +904,20 @@ bool ComputeBlurredRRectParams(const SkRRect& srcRRect,
 // TODO: it seems like there should be some synergy with SkBlurMask::ComputeBlurProfile
 // TODO: maybe cache this on the cpu side?
 int CreateIntegralTable(float sixSigma, SkBitmap* table) {
+    // Check for NaN
+    if (sk_float_isnan(sixSigma)) {
+        return 0;
+    }
+    // Avoid overflow, covers both multiplying by 2 and finding next power of 2:
+    // 2*((2^31-1)/4 + 1) = 2*(2^29-1) + 2 = 2^30 and SkNextPow2(2^30) = 2^30
+    if (sixSigma > SK_MaxS32/4 + 1) {
+        return 0;
+    }
     // The texture we're producing represents the integral of a normal distribution over a
     // six-sigma range centered at zero. We want enough resolution so that the linear
     // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
     // conservatively choose to have 2 texels for each dst pixel.
-    int minWidth = 2 * sk_float_ceil2int(sixSigma);
+    int minWidth = 2*((int)sk_float_ceil(sixSigma));
     // Bin by powers of 2 with a minimum so we get good profile reuse.
     int width = std::max(SkNextPow2(minWidth), 32);
 
@@ -1031,4 +1036,4 @@ void Compute1DLinearGaussianKernel(float* kernel, float* offset, float sigma, in
 
 }  // namespace SkGpuBlurUtils
 
-#endif
+#endif  // defined(SK_GANESH)

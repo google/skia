@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkHalf.h"
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
+#include "src/base/SkHalf.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 
@@ -91,18 +91,21 @@ namespace SkOpts {
     DEFINE_DEFAULT(interpret_skvm);
 #undef DEFINE_DEFAULT
 
+    size_t raster_pipeline_lowp_stride  = SK_OPTS_NS::raster_pipeline_lowp_stride();
+    size_t raster_pipeline_highp_stride = SK_OPTS_NS::raster_pipeline_highp_stride();
+
 #define M(st) (StageFn)SK_OPTS_NS::st,
-    StageFn stages_highp[] = { SK_RASTER_PIPELINE_STAGES_ALL(M) };
+    StageFn ops_highp[] = { SK_RASTER_PIPELINE_OPS_ALL(M) };
     StageFn just_return_highp = (StageFn)SK_OPTS_NS::just_return;
-    void (*start_pipeline_highp)(size_t,size_t,size_t,size_t,void**)
-        = SK_OPTS_NS::start_pipeline;
+    void (*start_pipeline_highp)(size_t, size_t, size_t, size_t, SkRasterPipelineStage*) =
+            SK_OPTS_NS::start_pipeline;
 #undef M
 
 #define M(st) (StageFn)SK_OPTS_NS::lowp::st,
-    StageFn stages_lowp[] = { SK_RASTER_PIPELINE_STAGES_LOWP(M) };
+    StageFn ops_lowp[] = { SK_RASTER_PIPELINE_OPS_LOWP(M) };
     StageFn just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
-    void (*start_pipeline_lowp)(size_t,size_t,size_t,size_t,void**)
-        = SK_OPTS_NS::lowp::start_pipeline;
+    void (*start_pipeline_lowp)(size_t, size_t, size_t, size_t, SkRasterPipelineStage*) =
+            SK_OPTS_NS::lowp::start_pipeline;
 #undef M
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
@@ -115,7 +118,9 @@ namespace SkOpts {
     void Init_crc32();
 
     static void init() {
-    #if defined(SK_CPU_X86)
+    #if defined(SK_ENABLE_OPTIMIZE_SIZE)
+        // All Init_foo functions are omitted when optimizing for size
+    #elif defined(SK_CPU_X86)
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSSE3
             if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
         #endif

@@ -12,11 +12,24 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/mock/GrMockCaps.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 #include <regex>
+
+#include "src/sksl/generated/sksl_shared.minified.sksl"
+#include "src/sksl/generated/sksl_compute.minified.sksl"
+#include "src/sksl/generated/sksl_frag.minified.sksl"
+#include "src/sksl/generated/sksl_gpu.minified.sksl"
+#include "src/sksl/generated/sksl_public.minified.sksl"
+#include "src/sksl/generated/sksl_rt_shader.minified.sksl"
+#include "src/sksl/generated/sksl_vert.minified.sksl"
+#if defined(SK_GRAPHITE)
+#include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
+#include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
+#endif
 
 class SkSLCompilerStartupBench : public Benchmark {
 protected:
@@ -103,7 +116,6 @@ protected:
             fixup(R"(void main\(\))",                              "half4 main(float2 xy)");
             fixup(R"(sk_FragColor =)",                             "return");
             fixup(R"(sk_FragCoord)",                               "_FragCoord");
-            fixup(R"(out half4 sk_FragColor;)",                    "");
             fixup(R"(uniform sampler2D )",                         "uniform shader ");
             fixup(R"((flat |noperspective |)in )",                 "uniform ");
             fixup(R"(sample\(([A-Za-z0-9_]+), ([A-Za-z0-9_]+)\))", "$01.eval($02)");
@@ -187,7 +199,6 @@ uniform half urange_S1;
 uniform sampler2D uTextureSampler_0_S1;
 flat in half4 vcolor_S0;
 noperspective in float2 vTransformedCoords_8_S0;
-out half4 sk_FragColor;
 half4 TextureEffect_S1_c0_c0(half4 _input, float2 _coords)
 {
 	return sample(uTextureSampler_0_S1, _coords).000r;
@@ -366,7 +377,6 @@ uniform sampler2D uTextureSampler_0_S1;
 uniform sampler2D uTextureSampler_0_S2;
 flat in half4 vcolor_S0;
 noperspective in float2 vTransformedCoords_3_S0;
-out half4 sk_FragColor;
 half4 TextureEffect_S1_c0_c0(half4 _input)
 {
 	return sample(uTextureSampler_0_S1, vTransformedCoords_3_S0);
@@ -436,7 +446,6 @@ uniform sampler2D uTextureSampler_0_S0;
 noperspective in float2 vTextureCoords_S0;
 flat in float vTexIndex_S0;
 noperspective in half4 vinColor_S0;
-out half4 sk_FragColor;
 void main()
 {
 	// Stage 0, BitmapText
@@ -492,7 +501,7 @@ static void bench(NanoJSONResultsWriter* log, const char* name, int bytes) {
 
 // These benchmarks aren't timed, they produce memory usage statistics. They run standalone, and
 // directly add their results to the nanobench log.
-void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
+void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
     // Heap used by a default compiler (with no modules loaded)
     int64_t before = heap_bytes_used();
     GrShaderCaps caps;
@@ -511,14 +520,16 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
     compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeColorFilter);
     compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeShader);
     compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeBlender);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kPrivateRuntimeColorFilter);
     compiler.moduleForProgramKind(SkSL::ProgramKind::kPrivateRuntimeShader);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kPrivateRuntimeBlender);
     int64_t gpuBytes = heap_bytes_used();
     if (gpuBytes >= 0) {
         gpuBytes = (gpuBytes - before) + baselineBytes;
         bench(log, "sksl_compiler_gpu", gpuBytes);
     }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
     // Heap used by a compiler with the Graphite modules loaded.
     before = heap_bytes_used();
     compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteVertex);
@@ -529,4 +540,93 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         bench(log, "sksl_compiler_graphite", graphiteBytes);
     }
 #endif
+
+    // Heap used by a compiler with compute-shader support loaded.
+    before = heap_bytes_used();
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kCompute);
+    int64_t computeBytes = heap_bytes_used();
+    if (computeBytes >= 0) {
+        computeBytes = (computeBytes - before) + baselineBytes;
+        bench(log, "sksl_compiler_compute", computeBytes);
+    }
+
+    // Report the minified module sizes.
+    int compilerGPUBinarySize = std::size(SKSL_MINIFIED_sksl_shared) +
+                                std::size(SKSL_MINIFIED_sksl_gpu) +
+                                std::size(SKSL_MINIFIED_sksl_vert) +
+                                std::size(SKSL_MINIFIED_sksl_frag) +
+                                std::size(SKSL_MINIFIED_sksl_public) +
+                                std::size(SKSL_MINIFIED_sksl_rt_shader);
+    bench(log, "sksl_binary_size_gpu", compilerGPUBinarySize);
+
+#if defined(SK_GRAPHITE)
+    int compilerGraphiteBinarySize = std::size(SKSL_MINIFIED_sksl_graphite_frag) +
+                                     std::size(SKSL_MINIFIED_sksl_graphite_vert);
+    bench(log, "sksl_binary_size_graphite", compilerGraphiteBinarySize);
+#endif
+
+    int compilerComputeBinarySize = std::size(SKSL_MINIFIED_sksl_compute);
+    bench(log, "sksl_binary_size_compute", compilerComputeBinarySize);
 }
+
+class SkSLModuleLoaderBench : public Benchmark {
+public:
+    SkSLModuleLoaderBench(const char* name, std::vector<SkSL::ProgramKind> moduleList)
+            : fName(name), fModuleList(std::move(moduleList)) {}
+
+    const char* onGetName() override {
+        return fName;
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    int calculateLoops(int defaultLoops) const override {
+        return 1;
+    }
+
+    void onPreDraw(SkCanvas*) override {
+        SkSL::ModuleLoader::Get().unloadModules();
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkASSERT(loops == 1);
+        GrShaderCaps caps;
+        SkSL::Compiler compiler(&caps);
+        for (SkSL::ProgramKind kind : fModuleList) {
+            compiler.moduleForProgramKind(kind);
+        }
+    }
+
+    const char* fName;
+    std::vector<SkSL::ProgramKind> fModuleList;
+};
+
+DEF_BENCH(return new SkSLModuleLoaderBench("sksl_module_loader_ganesh",
+                                           {
+                                                   SkSL::ProgramKind::kVertex,
+                                                   SkSL::ProgramKind::kFragment,
+                                                   SkSL::ProgramKind::kRuntimeColorFilter,
+                                                   SkSL::ProgramKind::kRuntimeShader,
+                                                   SkSL::ProgramKind::kRuntimeBlender,
+                                                   SkSL::ProgramKind::kPrivateRuntimeColorFilter,
+                                                   SkSL::ProgramKind::kPrivateRuntimeShader,
+                                                   SkSL::ProgramKind::kPrivateRuntimeBlender,
+                                                   SkSL::ProgramKind::kCompute,
+                                           });)
+
+DEF_BENCH(return new SkSLModuleLoaderBench("sksl_module_loader_graphite",
+                                           {
+                                                   SkSL::ProgramKind::kVertex,
+                                                   SkSL::ProgramKind::kFragment,
+                                                   SkSL::ProgramKind::kRuntimeColorFilter,
+                                                   SkSL::ProgramKind::kRuntimeShader,
+                                                   SkSL::ProgramKind::kRuntimeBlender,
+                                                   SkSL::ProgramKind::kPrivateRuntimeColorFilter,
+                                                   SkSL::ProgramKind::kPrivateRuntimeShader,
+                                                   SkSL::ProgramKind::kPrivateRuntimeBlender,
+                                                   SkSL::ProgramKind::kCompute,
+                                                   SkSL::ProgramKind::kGraphiteVertex,
+                                                   SkSL::ProgramKind::kGraphiteFragment,
+                                           });)

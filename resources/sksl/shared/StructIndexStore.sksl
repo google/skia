@@ -1,0 +1,41 @@
+uniform half4 colorGreen, colorRed;
+
+struct InnerLUT {
+    float3 values;
+};
+struct OuterLUT {
+    InnerLUT inner[3];
+};
+struct Root {
+    int valueAtRoot;
+    OuterLUT outer[3];
+};
+
+half4 main(float2 coords) {
+    Root data;
+    data.valueAtRoot = 1234;
+    float3 values = float3(0);
+
+    for (int i=0; i<3; ++i) {
+        for (int j=0; j<3; ++j) {
+            values += float3(1, 10, 100);
+
+            for (int k=0; k<3; ++k) {
+                data.outer[i].inner[j].values[k] = values[k];
+            }
+        }
+    }
+
+    bool ok = data.valueAtRoot              == 1234
+           && data.outer[0].inner[0].values == float3(1, 10, 100)
+           && data.outer[0].inner[1].values == float3(2, 20, 200)
+           && data.outer[0].inner[2].values == float3(3, 30, 300)
+           && data.outer[1].inner[0].values == float3(4, 40, 400)
+           && data.outer[1].inner[1].values == float3(5, 50, 500)
+           && data.outer[1].inner[2].values == float3(6, 60, 600)
+           && data.outer[2].inner[0].values == float3(7, 70, 700)
+           && data.outer[2].inner[1].values == float3(8, 80, 800)
+           && data.outer[2].inner[2].values == float3(9, 90, 900);
+
+    return ok ? colorGreen : colorRed;
+}

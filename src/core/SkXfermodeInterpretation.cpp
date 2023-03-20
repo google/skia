@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPaint.h"
 #include "src/core/SkXfermodeInterpretation.h"
+
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkPaint.h"
 
 static bool just_solid_color(const SkPaint& p) {
     return SK_AlphaOPAQUE == p.getAlpha() && !p.getColorFilter() && !p.getShader();

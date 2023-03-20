@@ -70,57 +70,36 @@ private:
 };
 
 // -- StrikeForGPU ---------------------------------------------------------------------------------
-class StrikeForGPU {
+class StrikeForGPU : public SkRefCnt {
 public:
-    virtual ~StrikeForGPU() = default;
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
+
+    // Generate a digest for a given packed glyph ID as drawn using the give action type.
+    virtual SkGlyphDigest digestFor(skglyph::ActionType, SkPackedGlyphID) = 0;
+
+    // Prepare the glyph to draw an image, and return if the image exists.
+    virtual bool prepareForImage(SkGlyph*) = 0;
+
+    // Prepare the glyph to draw a path, and return if the path exists.
+    virtual bool prepareForPath(SkGlyph*) = 0;
+
+    // Prepare the glyph to draw a drawable, and return if the drawable exists.
+    virtual bool prepareForDrawable(SkGlyph*) = 0;
+
+
     virtual const SkDescriptor& getDescriptor() const = 0;
-
-    // Returns the bounding rectangle of the accepted glyphs. Remember for device masks this
-    // rectangle will be in device space, and for transformed masks this rectangle will be in
-    // source space.
-    virtual SkRect prepareForMaskDrawing(
-                SkScalar strikeToSourceScale,
-                SkDrawableGlyphBuffer* accepted,
-                SkSourceGlyphBuffer* rejected) = 0;
-
-    virtual SkRect prepareForSDFTDrawing(
-                SkScalar strikeToSourceScale,
-                SkDrawableGlyphBuffer* accepted,
-                SkSourceGlyphBuffer* rejected) = 0;
-
-    virtual void prepareForPathDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) = 0;
-
-    virtual void prepareForDrawableDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) = 0;
 
     virtual const SkGlyphPositionRoundingSpec& roundingSpec() const = 0;
 
-    // Used with SkScopedStrikeForGPU to take action at the end of a scope.
-    virtual void onAboutToExitScope() = 0;
-
-    // Return underlying SkStrike for building SubRuns while processing glyph runs.
-    virtual sk_sp<SkStrike> getUnderlyingStrike() const = 0;
-
     // Return a strike promise.
     virtual SkStrikePromise strikePromise() = 0;
-
-    // Return the maximum dimension of a span of glyphs.
-    virtual SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) = 0;
-
-    struct Deleter {
-        void operator()(StrikeForGPU* ptr) const {
-            ptr->onAboutToExitScope();
-        }
-    };
 };
-
-// -- ScopedStrikeForGPU ---------------------------------------------------------------------------
-using ScopedStrikeForGPU = std::unique_ptr<StrikeForGPU, StrikeForGPU::Deleter>;
 
 // prepareForPathDrawing uses this union to convert glyph ids to paths.
 union IDOrPath {
     IDOrPath() {}
+    IDOrPath(SkGlyphID glyphID) : fGlyphID{glyphID} {}
 
     // PathOpSubmitter takes care of destroying the paths.
     ~IDOrPath() {}
@@ -134,11 +113,21 @@ union IDOrDrawable {
     SkDrawable* fDrawable;
 };
 
+// -- StrikeMutationMonitor ------------------------------------------------------------------------
+class StrikeMutationMonitor {
+public:
+    StrikeMutationMonitor(StrikeForGPU* strike);
+    ~StrikeMutationMonitor();
+
+private:
+    StrikeForGPU* fStrike;
+};
+
 // -- StrikeForGPUCacheInterface -------------------------------------------------------------------
 class StrikeForGPUCacheInterface {
 public:
     virtual ~StrikeForGPUCacheInterface() = default;
-    virtual ScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) = 0;
+    virtual sk_sp<StrikeForGPU> findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) = 0;
 };
 }  // namespace sktext
 #endif  // sktext_StrikeForGPU_DEFINED

@@ -5,10 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkRefCnt.h"
-#include "include/private/SkTArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkRandom.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstdint>
+#include <initializer_list>
+#include <utility>
 
 // This class is used to test SkTArray's behavior with classes containing a vtable.
 
@@ -37,41 +41,41 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
 
     // Starts empty.
     REPORTER_ASSERT(reporter, a.empty());
-    REPORTER_ASSERT(reporter, a.count() == 0);
+    REPORTER_ASSERT(reporter, a.size() == 0);
 
     // { }, add a default constructed element
     a.push_back() = T{0};
     REPORTER_ASSERT(reporter, !a.empty());
-    REPORTER_ASSERT(reporter, a.count() == 1);
+    REPORTER_ASSERT(reporter, a.size() == 1);
 
     // { 0 }, removeShuffle the only element.
     a.removeShuffle(0);
     REPORTER_ASSERT(reporter, a.empty());
-    REPORTER_ASSERT(reporter, a.count() == 0);
+    REPORTER_ASSERT(reporter, a.size() == 0);
 
     // { }, add a default, add a 1, remove first
     a.push_back() = T{0};
     a.push_back() = T{1};
     a.removeShuffle(0);
     REPORTER_ASSERT(reporter, !a.empty());
-    REPORTER_ASSERT(reporter, a.count() == 1);
+    REPORTER_ASSERT(reporter, a.size() == 1);
     REPORTER_ASSERT(reporter, a[0] == T{1});
 
     // { 1 }, replace with new array
     T b[5] = {T{0}, T{1}, T{2}, T{3}, T{4}};
     a.reset(b, std::size(b));
-    REPORTER_ASSERT(reporter, a.count() == std::size(b));
+    REPORTER_ASSERT(reporter, a.size() == std::size(b));
     REPORTER_ASSERT(reporter, a[2] == T{2});
     REPORTER_ASSERT(reporter, a[4] == T{4});
 
     // { 0, 1, 2, 3, 4 }, removeShuffle the last
     a.removeShuffle(4);
-    REPORTER_ASSERT(reporter, a.count() == std::size(b) - 1);
+    REPORTER_ASSERT(reporter, a.size() == std::size(b) - 1);
     REPORTER_ASSERT(reporter, a[3] == T{3});
 
     // { 0, 1, 2, 3 }, remove a middle, note shuffle
     a.removeShuffle(1);
-    REPORTER_ASSERT(reporter, a.count() == std::size(b) - 2);
+    REPORTER_ASSERT(reporter, a.size() == std::size(b) - 2);
     REPORTER_ASSERT(reporter, a[0] == T{0});
     REPORTER_ASSERT(reporter, a[1] == T{3});
     REPORTER_ASSERT(reporter, a[2] == T{2});
@@ -89,7 +93,8 @@ template <typename T> static void test_construction(skiatest::Reporter* reporter
     // Single integer: Creates an empty array that will preallocate space for reserveCount elements.
     T arrayReserve(15);
     REPORTER_ASSERT(reporter, arrayReserve.empty());
-    REPORTER_ASSERT(reporter, arrayReserve.capacity() == 15);
+    // May get some extra elements for free because sk_allocate_* can round up.
+    REPORTER_ASSERT(reporter, arrayReserve.capacity() >= 15 && arrayReserve.capacity() < 50);
 
     // Another array, const&: Copies one array to another.
     T arrayInitial;
@@ -199,16 +204,16 @@ template <typename T> static void test_swap(skiatest::Reporter* reporter,
 
         for (auto sizeA : sizes) {
         for (auto sizeB : sizes) {
-            a->reset();
-            b->reset();
+            a->clear();
+            b->clear();
 
             int curr = 0;
             for (int i = 0; i < sizeA; i++) { a->push_back(curr++); }
             for (int i = 0; i < sizeB; i++) { b->push_back(curr++); }
 
             a->swap(*b);
-            REPORTER_ASSERT(reporter, b->count() == sizeA);
-            REPORTER_ASSERT(reporter, a->count() == sizeB);
+            REPORTER_ASSERT(reporter, b->size() == sizeA);
+            REPORTER_ASSERT(reporter, a->size() == sizeB);
 
             curr = 0;
             for (auto&& x : *b) { REPORTER_ASSERT(reporter, x == curr++); }
@@ -308,12 +313,12 @@ static void test_self_assignment(skiatest::Reporter* reporter) {
     SkTArray<int> a;
     a.push_back(1);
     REPORTER_ASSERT(reporter, !a.empty());
-    REPORTER_ASSERT(reporter, a.count() == 1);
+    REPORTER_ASSERT(reporter, a.size() == 1);
     REPORTER_ASSERT(reporter, a[0] == 1);
 
     a = static_cast<decltype(a)&>(a);
     REPORTER_ASSERT(reporter, !a.empty());
-    REPORTER_ASSERT(reporter, a.count() == 1);
+    REPORTER_ASSERT(reporter, a.size() == 1);
     REPORTER_ASSERT(reporter, a[0] == 1);
 }
 
@@ -325,11 +330,11 @@ template <typename Array> static void test_array_reserve(skiatest::Reporter* rep
     REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
     array->pop_back();
     REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
-    while (array->count() < reserveCount) {
+    while (array->size() < reserveCount) {
         // Two steps forward, one step back
         if (random.nextULessThan(3) < 2) {
             array->push_back();
-        } else if (array->count() > 0) {
+        } else if (array->size() > 0) {
             array->pop_back();
         }
         REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);

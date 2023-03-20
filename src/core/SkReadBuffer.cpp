@@ -5,28 +5,41 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBitmap.h"
+#include "src/core/SkReadBuffer.h"
+
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "src/core/SkAutoMalloc.h"
-#include "src/core/SkMathPriv.h"
+#include "include/private/base/SkMalloc.h"
+#include "src/base/SkAutoMalloc.h"
+#include "src/base/SkMathPriv.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapBuilder.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkSafeMath.h"
+#include "src/core/SkWriteBuffer.h"
+
+#include <memory>
+#include <optional>
+#include <utility>
 
 namespace {
     // This generator intentionally should always fail on all attempts to get its pixels,
     // simulating a bad or empty codec stream.
     class EmptyImageGenerator final : public SkImageGenerator {
     public:
-        EmptyImageGenerator(const SkImageInfo& info) : INHERITED(info) { }
+        EmptyImageGenerator(const SkImageInfo& info) : SkImageGenerator(info) { }
 
-    private:
-        using INHERITED = SkImageGenerator;
     };
 
     static sk_sp<SkImage> MakeEmptyImage(int width, int height) {
@@ -319,8 +332,6 @@ uint32_t SkReadBuffer::getArrayCount() {
     }
     return *((uint32_t*)fCurr);
 }
-
-#include "src/core/SkMipmap.h"
 
 // If we see a corrupt stream, we return null (fail). If we just fail trying to decode
 // the image, we don't fail, but return a 1x1 empty image.

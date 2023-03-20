@@ -7,7 +7,7 @@
 
 #include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/skui/ModifierKey.h"
@@ -401,6 +401,13 @@ bool Window_unix::attach(BackendType attachType) {
                     window_context_factory::MakeDawnVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
+#if defined(SK_DAWN) && defined(SK_GRAPHITE)
+        case kGraphiteDawn_BackendType:
+            fWindowContext =
+                    window_context_factory::MakeGraphiteDawnVulkanForXlib(winInfo,
+                                                                          fRequestedDisplayParams);
+            break;
+#endif
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
             fWindowContext =
@@ -452,7 +459,7 @@ void Window_unix::setRequestedDisplayParams(const DisplayParams& params, bool al
     }
 #endif
 
-    INHERITED::setRequestedDisplayParams(params, allowReattach);
+    Window::setRequestedDisplayParams(params, allowReattach);
 }
 
 const char* Window_unix::getClipboardText() {

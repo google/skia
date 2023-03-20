@@ -6,12 +6,14 @@
  */
 
 #include "include/core/SkString.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSafeMath.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/gpu/SDFMaskFilter.h"
+
+#if !defined(SK_DISABLE_SDF_TEXT)
 
 namespace sktext::gpu {
 
@@ -102,3 +104,5 @@ sk_sp<SkMaskFilter> SDFMaskFilter::Make() {
 }
 
 }  // namespace sktext::gpu
+
+#endif // !defined(SK_DISABLE_SDF_TEXT)

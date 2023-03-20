@@ -16,6 +16,8 @@
 
 #include <vector>
 
+class SkottieTextEditor;
+
 namespace sksg    { class Scene;     }
 
 class SkottieSlide : public Slide {
@@ -27,19 +29,21 @@ public:
     void unload() override;
     void resize(SkScalar, SkScalar) override;
 
-    SkISize getDimensions() const override;
-
     void draw(SkCanvas*) override;
     bool animate(double) override;
 
     bool onChar(SkUnichar) override;
     bool onMouse(SkScalar x, SkScalar y, skui::InputState, skui::ModifierKey modifiers) override;
 
+    // Initializes the Skottie animation independent of window size.
+    void init();
+
 private:
     SkRect UIArea() const;
     void renderUI();
 
     class TransformTracker;
+    class SlotManagerWrapper;
 
     const SkString                     fPath;
 
@@ -47,6 +51,8 @@ private:
     skottie::Animation::Builder::Stats fAnimationStats;
     sksg::InvalidationController       fInvalController;
     sk_sp<TransformTracker>            fTransformTracker;
+    std::unique_ptr<SlotManagerWrapper>fSlotManagerWrapper;
+    sk_sp<SkottieTextEditor>           fTextEditor;
     std::vector<float>                 fFrameTimes;
     SkSize                             fWinSize              = SkSize::MakeEmpty();
     double                             fTimeBase             = 0,
@@ -57,10 +63,9 @@ private:
                                        fShowAnimationStats   = false,
                                        fShowUI               = false,
                                        fShowTrackerUI        = false,
+                                       fShowSlotManager      = false,
                                        fDraggingProgress     = false,
                                        fPreferGlyphPaths     = false;
-
-    using INHERITED = Slide;
 };
 
 #endif // SK_ENABLE_SKOTTIE

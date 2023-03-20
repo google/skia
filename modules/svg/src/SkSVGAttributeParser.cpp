@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "include/utils/SkParse.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 
 namespace {
 
@@ -374,7 +374,7 @@ bool SkSVGAttributeParser::parse(SkSVGColorType* color) {
 }
 
 bool SkSVGAttributeParser::parseSVGColor(SkSVGColor* color, SkSVGColor::Vars&& vars) {
-    static const constexpr size_t kVarsLimit = 32;
+    static const constexpr int kVarsLimit = 32;
 
     if (SkSVGColorType c; this->parseSVGColorType(&c)) {
         *color = SkSVGColor(c, std::move(vars));

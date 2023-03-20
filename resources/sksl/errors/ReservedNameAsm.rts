@@ -1,5 +1,5 @@
 int asm;
 
 /*%%*
-'asm' is a reserved word
+name 'asm' is reserved
 *%%*/

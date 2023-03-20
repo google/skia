@@ -17,12 +17,14 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/utils/SkParsePath.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <math.h>
 #include <utility>
+
+using namespace skia_private;
 
 /*
  *  Inspired by http://code.google.com/p/chromium/issues/detail?id=112145
@@ -170,7 +172,7 @@ protected:
     }
 
 private:
-    SkTArray<SkPath> fPaths;
+    TArray<SkPath> fPaths;
     SkScalar         fOffset = 0;
 
     using INHERITED = skiagm::GM;

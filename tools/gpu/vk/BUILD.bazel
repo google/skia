@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -6,7 +6,6 @@ exports_files_legacy()
 
 skia_cc_library(
     name = "testutils",
-    testonly = True,
     srcs = [
         "GrVulkanDefines.h",
         "VkTestUtils.cpp",
@@ -20,4 +19,27 @@ skia_cc_library(
         "//:skia_internal",
         "//include/third_party/vulkan",
     ],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "GrVulkanDefines.h",
+        "VkTestContext.h",
+        "VkTestHelper.h",
+        "VkTestUtils.h",
+        "VkYcbcrSamplerHelper.h",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "VkTestContext.cpp",
+        "VkTestHelper.cpp",
+        "VkTestUtils.cpp",
+        "VkYcbcrSamplerHelper.cpp",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
 )

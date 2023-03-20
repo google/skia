@@ -68,7 +68,7 @@ OpDecorate %118 RelaxedPrecision
 %false = OpConstantFalse %bool
 %_ptr_Uniform_float = OpTypePointer Uniform %float
 %float_12 = OpConstant %float 12
-%float_10 = OpConstant %float 10
+%float_0_100000001 = OpConstant %float 0.100000001
 %float_6 = OpConstant %float 6
 %int_1 = OpConstant %int 1
 %int_6 = OpConstant %int 6
@@ -157,7 +157,7 @@ OpStore %f %81
 OpStore %x %83
 %84 = OpFSub %float %83 %float_12
 OpStore %x %84
-%86 = OpFDiv %float %42 %float_10
+%86 = OpFMul %float %42 %float_0_100000001
 OpStore %y %86
 %87 = OpFMul %float %84 %86
 OpStore %x %87

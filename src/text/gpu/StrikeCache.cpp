@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/StrikeCache.h"

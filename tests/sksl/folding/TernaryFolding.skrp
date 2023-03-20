@@ -1,0 +1,27 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             ok = 0
+    4. copy_constant                  $0 = 0xFFFFFFFF
+    5. copy_slot_unmasked             ok = $0
+    6. copy_4_constants               $0..3 = colorGreen
+    7. copy_4_slots_unmasked          green = $0..3
+    8. copy_4_constants               $0..3 = colorRed
+    9. copy_4_slots_unmasked          red = $0..3
+   10. zero_slot_unmasked             param = 0
+   11. copy_constant                  $0 = 0xFFFFFFFF
+   12. copy_slot_unmasked             x = $0
+   13. zero_slot_unmasked             $0 = 0
+   14. copy_slot_unmasked             $1 = x
+   15. copy_slot_unmasked             param = $1
+   16. label                          label 0x00000000
+   17. copy_constant                  call = 0xFFFFFFFF
+   18. copy_slot_unmasked             $0 = ok
+   19. copy_slot_unmasked             $1 = param
+   20. bitwise_and_int                $0 &= $1
+   21. copy_slot_unmasked             $1 = call
+   22. bitwise_and_int                $0 &= $1
+   23. swizzle_4                      $0..3 = ($0..3).xxxx
+   24. copy_4_slots_unmasked          $4..7 = red
+   25. copy_4_slots_unmasked          $8..11 = green
+   26. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   27. load_src                       src.rgba = $0..3

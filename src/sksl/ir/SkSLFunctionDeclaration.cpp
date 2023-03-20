@@ -13,10 +13,11 @@
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkStringView.h"
-#include "include/private/SkTHash.h"
+#include "include/private/SkSLString.h"
+#include "include/private/base/SkTo.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
+#include "src/base/SkStringView.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
@@ -29,33 +30,18 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <initializer_list>
 #include <utility>
 
 namespace SkSL {
 
-static IntrinsicKind identify_intrinsic(std::string_view functionName) {
-    #define SKSL_INTRINSIC(name) {#name, k_##name##_IntrinsicKind},
-    static const auto* kAllIntrinsics = new SkTHashMap<std::string_view, IntrinsicKind>{
-        SKSL_INTRINSIC_LIST
-    };
-    #undef SKSL_INTRINSIC
-
-    if (skstd::starts_with(functionName, '$')) {
-        functionName.remove_prefix(1);
-    }
-
-    IntrinsicKind* kind = kAllIntrinsics->find(functionName);
-    return kind ? *kind : kNotIntrinsic;
-}
-
 static bool check_modifiers(const Context& context,
                             Position pos,
                             const Modifiers& modifiers) {
-    const int permitted = Modifiers::kHasSideEffects_Flag |
-                          Modifiers::kInline_Flag |
+    const int permitted = Modifiers::kInline_Flag |
                           Modifiers::kNoInline_Flag |
-                          (context.fConfig->fIsBuiltinCode ? Modifiers::kES3_Flag : 0);
+                          (context.fConfig->fIsBuiltinCode ? (Modifiers::kES3_Flag |
+                                                              Modifiers::kPure_Flag |
+                                                              Modifiers::kExport_Flag) : 0);
     modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
@@ -191,19 +177,14 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
                p.modifiers().fLayout.fBuiltin == builtinID;
     };
 
-    auto paramIsInAttributes = [&](int idx) {
+    auto paramIsConstInAttributes = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return typeIsValidForAttributes(p.type()) && p.modifiers().fFlags == 0;
+        return typeIsValidForAttributes(p.type()) && p.modifiers().fFlags == Modifiers::kConst_Flag;
     };
 
-    auto paramIsOutVaryings = [&](int idx) {
+    auto paramIsConstInVaryings = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == Modifiers::kOut_Flag;
-    };
-
-    auto paramIsInVaryings = [&](int idx) {
-        const Variable& p = *parameters[idx];
-        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == 0;
+        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == Modifiers::kConst_Flag;
     };
 
     auto paramIsOutColor = [&](int idx) {
@@ -215,7 +196,8 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
     auto paramIsDestColor  = [&](int n) { return paramIsBuiltinColor(n, SK_DEST_COLOR_BUILTIN); };
 
     switch (kind) {
-        case ProgramKind::kRuntimeColorFilter: {
+        case ProgramKind::kRuntimeColorFilter:
+        case ProgramKind::kPrivateRuntimeColorFilter: {
             // (half4|float4) main(half4|float4)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
@@ -230,21 +212,19 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
         }
         case ProgramKind::kRuntimeShader:
         case ProgramKind::kPrivateRuntimeShader: {
-            // (half4|float4) main(float2)  -or-  (half4|float4) main(float2, half4|float4)
+            // (half4|float4) main(float2)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
                 return false;
             }
-            bool validParams =
-                    (parameters.size() == 1 && paramIsCoords(0)) ||
-                    (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
-            if (!validParams) {
-                errors.error(pos, "'main' parameters must be (float2, (vec4|float4|half4)?)");
+            if (!(parameters.size() == 1 && paramIsCoords(0))) {
+                errors.error(pos, "'main' parameter must be 'float2' or 'vec2'");
                 return false;
             }
             break;
         }
-        case ProgramKind::kRuntimeBlender: {
+        case ProgramKind::kRuntimeBlender:
+        case ProgramKind::kPrivateRuntimeBlender: {
             // (half4|float4) main(half4|float4, half4|float4)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
@@ -260,35 +240,31 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             break;
         }
         case ProgramKind::kMeshVertex: {
-            // float2 main(Attributes, out Varyings)
-            if (!returnType.matches(*context.fTypes.fFloat2)) {
-                errors.error(pos, "'main' must return: 'vec2' or 'float2'");
+            // Varyings main(const Attributes)
+            if (!typeIsValidForVaryings(returnType)) {
+                errors.error(pos, "'main' must return 'Varyings'.");
                 return false;
             }
-            if (!(parameters.size() == 2 && paramIsInAttributes(0) && paramIsOutVaryings(1))) {
-                errors.error(pos, "'main' parameters must be (Attributes, out Varyings");
+            if (!(parameters.size() == 1 && paramIsConstInAttributes(0))) {
+                errors.error(pos, "'main' parameter must be 'const Attributes'.");
                 return false;
             }
             break;
         }
         case ProgramKind::kMeshFragment: {
-            // float2 main(Varyings) -or- float2 main(Varyings, out half4|float4]) -or-
-            // void main(Varyings) -or- void main(Varyings, out half4|float4])
-            if (!returnType.matches(*context.fTypes.fFloat2) &&
-                !returnType.matches(*context.fTypes.fVoid)) {
-                errors.error(pos, "'main' must return: 'vec2', 'float2', 'or' 'void'");
+            // float2 main(const Varyings) -or- float2 main(const Varyings, out half4|float4)
+            if (!returnType.matches(*context.fTypes.fFloat2)) {
+                errors.error(pos, "'main' must return: 'vec2' or 'float2'");
                 return false;
             }
-            if (!((parameters.size() == 1 && paramIsInVaryings(0)) ||
-                  (parameters.size() == 2 && paramIsInVaryings(0) && paramIsOutColor(1)))) {
-                errors.error(pos, "'main' parameters must be (Varyings, (out (half4|float4))?)");
+            if (!((parameters.size() == 1 && paramIsConstInVaryings(0)) ||
+                  (parameters.size() == 2 && paramIsConstInVaryings(0) && paramIsOutColor(1)))) {
+                errors.error(pos,
+                             "'main' parameters must be (const Varyings, (out (half4|float4))?)");
                 return false;
             }
             break;
         }
-        case ProgramKind::kGeneric:
-            // No rules apply here
-            break;
         case ProgramKind::kFragment:
         case ProgramKind::kGraphiteFragment: {
             bool validParams = (parameters.size() == 0) ||
@@ -344,7 +320,7 @@ static bool type_generically_matches(const Type& concreteType, const Type& maybe
  * generic types.
  */
 static bool parameters_match(const std::vector<std::unique_ptr<Variable>>& params,
-                             const std::vector<const Variable*>& otherParams) {
+                             const std::vector<Variable*>& otherParams) {
     // If the param lists are different lengths, they're definitely not a match.
     if (params.size() != otherParams.size()) {
         return false;
@@ -398,55 +374,65 @@ static bool parameters_match(const std::vector<std::unique_ptr<Variable>>& param
 static bool find_existing_declaration(const Context& context,
                                       SymbolTable& symbols,
                                       Position pos,
+                                      const Modifiers* modifiers,
                                       std::string_view name,
                                       std::vector<std::unique_ptr<Variable>>& parameters,
                                       Position returnTypePos,
                                       const Type* returnType,
-                                      const FunctionDeclaration** outExistingDecl) {
+                                      FunctionDeclaration** outExistingDecl) {
+    auto invalidDeclDescription = [&]() -> std::string {
+        std::vector<Variable*> paramPtrs;
+        paramPtrs.reserve(parameters.size());
+        for (std::unique_ptr<Variable>& param : parameters) {
+            paramPtrs.push_back(param.get());
+        }
+        return FunctionDeclaration(pos,
+                                   modifiers,
+                                   name,
+                                   std::move(paramPtrs),
+                                   returnType,
+                                   context.fConfig->fIsBuiltinCode)
+                .description();
+    };
+
     ErrorReporter& errors = *context.fErrors;
-    const Symbol* entry = symbols[name];
+    Symbol* entry = symbols.findMutable(name);
     *outExistingDecl = nullptr;
     if (entry) {
         if (!entry->is<FunctionDeclaration>()) {
             errors.error(pos, "symbol '" + std::string(name) + "' was already defined");
             return false;
         }
-        for (const FunctionDeclaration* other = &entry->as<FunctionDeclaration>();
-             other; other = other->nextOverload()) {
+        for (FunctionDeclaration* other = &entry->as<FunctionDeclaration>(); other;
+             other = other->mutableNextOverload()) {
             SkASSERT(name == other->name());
             if (!parameters_match(parameters, other->parameters())) {
                 continue;
             }
             if (!type_generically_matches(*returnType, other->returnType())) {
-                std::vector<const Variable*> paramPtrs;
-                paramPtrs.reserve(parameters.size());
-                for (std::unique_ptr<Variable>& param : parameters) {
-                    paramPtrs.push_back(param.get());
-                }
-                FunctionDeclaration invalidDecl(pos,
-                                                &other->modifiers(),
-                                                name,
-                                                std::move(paramPtrs),
-                                                returnType,
-                                                context.fConfig->fIsBuiltinCode);
                 errors.error(returnTypePos,
-                             "functions '" + invalidDecl.description() + "' and '" +
+                             "functions '" + invalidDeclDescription() + "' and '" +
                              other->description() + "' differ only in return type");
                 return false;
             }
             for (size_t i = 0; i < parameters.size(); i++) {
                 if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
-                    errors.error(parameters[i]->fPosition, "modifiers on parameter " +
-                            std::to_string(i + 1) + " differ between declaration and definition");
+                    errors.error(parameters[i]->fPosition,
+                                 "modifiers on parameter " + std::to_string(i + 1) +
+                                 " differ between declaration and definition");
                     return false;
                 }
             }
-            if (other->definition() || other->isBuiltin()) {
-                errors.error(pos, "duplicate definition of " + other->description());
+            if (*modifiers != other->modifiers() || other->definition() || other->isIntrinsic()) {
+                errors.error(pos, "duplicate definition of '" + invalidDeclDescription() + "'");
                 return false;
             }
             *outExistingDecl = other;
             break;
+        }
+        if (!*outExistingDecl && entry->as<FunctionDeclaration>().isMain()) {
+            errors.error(pos, "duplicate definition of 'main'");
+            return false;
         }
     }
     return true;
@@ -455,43 +441,42 @@ static bool find_existing_declaration(const Context& context,
 FunctionDeclaration::FunctionDeclaration(Position pos,
                                          const Modifiers* modifiers,
                                          std::string_view name,
-                                         std::vector<const Variable*> parameters,
+                                         std::vector<Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
-        : INHERITED(pos, kSymbolKind, name, /*type=*/nullptr)
+        : INHERITED(pos, kIRNodeKind, name, /*type=*/nullptr)
         , fDefinition(nullptr)
         , fModifiers(modifiers)
         , fParameters(std::move(parameters))
         , fReturnType(returnType)
         , fBuiltin(builtin)
         , fIsMain(name == "main")
-        , fIntrinsicKind(builtin ? identify_intrinsic(name) : kNotIntrinsic) {
+        , fIntrinsicKind(builtin ? FindIntrinsicKind(name) : kNotIntrinsic) {
     // None of the parameters are allowed to be be null.
     SkASSERT(std::count(fParameters.begin(), fParameters.end(), nullptr) == 0);
 }
 
-const FunctionDeclaration* FunctionDeclaration::Convert(
-        const Context& context,
-        SymbolTable& symbols,
-        Position pos,
-        Position modifiersPosition,
-        const Modifiers* modifiers,
-        std::string_view name,
-        std::vector<std::unique_ptr<Variable>> parameters,
-        Position returnTypePos,
-        const Type* returnType) {
+FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
+                                                  SymbolTable& symbols,
+                                                  Position pos,
+                                                  Position modifiersPosition,
+                                                  const Modifiers* modifiers,
+                                                  std::string_view name,
+                                                  std::vector<std::unique_ptr<Variable>> parameters,
+                                                  Position returnTypePos,
+                                                  const Type* returnType) {
     bool isMain = (name == "main");
 
-    const FunctionDeclaration* decl = nullptr;
+    FunctionDeclaration* decl = nullptr;
     if (!check_modifiers(context, modifiersPosition, *modifiers) ||
         !check_return_type(context, returnTypePos, *returnType) ||
         !check_parameters(context, parameters, isMain) ||
         (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||
-        !find_existing_declaration(context, symbols, pos, name, parameters, returnTypePos,
-                                   returnType, &decl)) {
+        !find_existing_declaration(context, symbols, pos, modifiers, name, parameters,
+                                   returnTypePos, returnType, &decl)) {
         return nullptr;
     }
-    std::vector<const Variable*> finalParameters;
+    std::vector<Variable*> finalParameters;
     finalParameters.reserve(parameters.size());
     for (std::unique_ptr<Variable>& param : parameters) {
         finalParameters.push_back(symbols.takeOwnershipOfSymbol(std::move(param)));
@@ -521,10 +506,8 @@ std::string FunctionDeclaration::mangledName() const {
         name.remove_prefix(1);
         builtinMarker = "Q";  // a unique, otherwise-unused mangle character
     }
-    // GLSL forbids two underscores in a row; add an extra character if necessary to avoid this.
-    const char* splitter = skstd::ends_with(name, '_') ? "x_" : "_";
     // Rename function to `funcname_returntypeparamtypes`.
-    std::string result = std::string(name) + splitter + builtinMarker +
+    std::string result = std::string(name) + "_" + builtinMarker +
                          this->returnType().abbreviatedName();
     for (const Variable* p : this->parameters()) {
         result += p->type().abbreviatedName();
@@ -533,11 +516,18 @@ std::string FunctionDeclaration::mangledName() const {
 }
 
 std::string FunctionDeclaration::description() const {
-    std::string result = this->returnType().displayName() + " " + std::string(this->name()) + "(";
-    std::string separator;
+    int modifierFlags = this->modifiers().fFlags;
+    std::string result =
+            (modifierFlags ? Modifiers::DescribeFlags(modifierFlags) + " " : std::string()) +
+            this->returnType().displayName() + " " + std::string(this->name()) + "(";
+    auto separator = SkSL::String::Separator();
     for (const Variable* p : this->parameters()) {
-        result += separator;
-        separator = ", ";
+        result += separator();
+        // We can't just say `p->description()` here, because occasionally might have added layout
+        // flags onto parameters (like `layout(builtin=10009)`) and don't want to reproduce that.
+        if (p->modifiers().fFlags) {
+            result += Modifiers::DescribeFlags(p->modifiers().fFlags) + " ";
+        }
         result += p->type().displayName();
         result += " ";
         result += p->name();
@@ -550,8 +540,8 @@ bool FunctionDeclaration::matches(const FunctionDeclaration& f) const {
     if (this->name() != f.name()) {
         return false;
     }
-    const std::vector<const Variable*>& parameters = this->parameters();
-    const std::vector<const Variable*>& otherParameters = f.parameters();
+    const std::vector<Variable*>& parameters = this->parameters();
+    const std::vector<Variable*>& otherParameters = f.parameters();
     if (parameters.size() != otherParameters.size()) {
         return false;
     }
@@ -566,12 +556,12 @@ bool FunctionDeclaration::matches(const FunctionDeclaration& f) const {
 bool FunctionDeclaration::determineFinalTypes(const ExpressionArray& arguments,
                                               ParamTypes* outParameterTypes,
                                               const Type** outReturnType) const {
-    const std::vector<const Variable*>& parameters = this->parameters();
-    SkASSERT(arguments.size() == parameters.size());
+    const std::vector<Variable*>& parameters = this->parameters();
+    SkASSERT(SkToSizeT(arguments.size()) == parameters.size());
 
     outParameterTypes->reserve_back(arguments.size());
     int genericIndex = -1;
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         // Non-generic parameters are final as-is.
         const Type& parameterType = parameters[i]->type();
         if (!parameterType.isGeneric()) {

@@ -240,6 +240,21 @@ DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL1"_t, -0.25f}, {"C
 DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL1"_t, 0.5f}, {"COL3"_t, -0.5f}}))
 DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL3"_t, 0.5f}}))
 DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL3"_t, 1.f}}))
+// Radial gradient tests where radii become negative
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL1"_t, -1.5f}}))
+// Both radii negative and equal, nothing should render.
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRR0"_t, -200.f}, {"GRR1"_t, -300.f}}))
+// Small cones opening to the right.
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRX0"_t, -1000.f}, {"GRX1"_t, -1000.f}, {"GRR0"_t, -1000.f}, {"GRR1"_t, -900.f}}))
+// Small cones opening to the left.
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRX0"_t, 1000.f}, {"GRX1"_t, -1000.f}, {"GRR0"_t, -1000.f}, {"GRR1"_t, 200.f}}))
+// Pad cone should appear green.
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRR0"_t, -50.f}, {"COL3"_t, -2.f}, {"COL2"_t, -2.f}, {"COL1"_t, -0.9f}}))
+// Pad cone should appear red.
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRR0"_t, -50.f}, {"COL3"_t, -2.f}, {"COL2"_t, -2.f}, {"COL1"_t, -1.1f}}))
+// Hard boundary for pad mode, should appear on the right inside the glyph for linear and radial.
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL3"_t, 1.f}, {"COL2"_t, 1.5f}, {"COL1"_t, 2.f}}))
+// Extend mode with rotation or skew below.
 DEF_GM(return F(C(extend_mode),           -0.5f,  0.0f, {}))
 DEF_GM(return F(C(extend_mode),           -0.5f, 20.0f, {}))
 DEF_GM(return F(C(extend_mode),            0.0f, 20.0f, {}))
@@ -283,6 +298,15 @@ DEF_GM(return F(C(sweep_varsweep),
                  {"SWC2"_t, 0.083333333f},
                  {"SWC3"_t, 0.083333333f},
                  {"SWC4"_t, +0.25f}}))
+DEF_GM(return F(C(sweep_varsweep),
+                0.0f,
+                0.0f,
+                {{"SWPS"_t, 45.f},
+                 {"SWPE"_t, -45.f},
+                 {"SWC1"_t, -0.25f},
+                 {"SWC2"_t, -0.416687f},
+                 {"SWC3"_t, -0.583313f},
+                 {"SWC4"_t, -0.75f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH1"_t, -0.7f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH2"_t, -0.7f}, {"APH3"_t, -0.2f}}))

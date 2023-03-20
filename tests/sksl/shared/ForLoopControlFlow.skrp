@@ -1,0 +1,69 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_4_constants               $0..3 = colorWhite
+    4. copy_4_slots_unmasked          x = $0..3
+    5. copy_constant                  r = 0xC0A00000 (-5.0)
+    6. store_loop_mask                $0 = LoopMask
+    7. jump                           jump +20 (label 1 at #27)
+    8. label                          label 0x00000002
+    9. copy_slot_unmasked             $1 = r
+   10. zero_slot_unmasked             $2 = 0
+   11. max_float                      $1 = max($1, $2)
+   12. copy_constant                  $2 = 0x3F800000 (1.0)
+   13. min_float                      $1 = min($1, $2)
+   14. copy_slot_masked               x(0) = Mask($1)
+   15. store_condition_mask           $1 = CondMask
+   16. copy_slot_unmasked             $2 = x(0)
+   17. zero_slot_unmasked             $3 = 0
+   18. cmpeq_float                    $2 = equal($2, $3)
+   19. merge_condition_mask           CondMask = $1 & $2
+   20. branch_if_all_lanes_active     branch_if_all_lanes_active +14 (label 0 at #34)
+   21. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   22. load_condition_mask            CondMask = $1
+   23. copy_slot_unmasked             $1 = r
+   24. copy_constant                  $2 = 0x3F800000 (1.0)
+   25. add_float                      $1 += $2
+   26. copy_slot_masked               r = Mask($1)
+   27. label                          label 0x00000001
+   28. copy_slot_unmasked             $1 = r
+   29. copy_constant                  $2 = 0x40A00000 (5.0)
+   30. cmplt_float                    $1 = lessThan($1, $2)
+   31. merge_loop_mask                LoopMask &= $1
+   32. stack_rewind
+   33. branch_if_any_lanes_active     branch_if_any_lanes_active -25 (label 2 at #8)
+   34. label                          label 0x00000000
+   35. load_loop_mask                 LoopMask = $0
+   36. copy_constant                  b = 0x40A00000 (5.0)
+   37. store_loop_mask                $0 = LoopMask
+   38. jump                           jump +21 (label 4 at #59)
+   39. label                          label 0x00000005
+   40. zero_slot_unmasked             $4 = 0
+   41. copy_slot_unmasked             $1 = b
+   42. copy_slot_masked               x(2) = Mask($1)
+   43. store_condition_mask           $1 = CondMask
+   44. copy_slot_unmasked             $2 = x(3)
+   45. copy_constant                  $3 = 0x3F800000 (1.0)
+   46. cmpeq_float                    $2 = equal($2, $3)
+   47. merge_condition_mask           CondMask = $1 & $2
+   48. copy_constant                  $5 = 0xFFFFFFFF
+   49. copy_slot_masked               $4 = Mask($5)
+   50. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   51. load_condition_mask            CondMask = $1
+   52. zero_slot_unmasked             $1 = 0
+   53. copy_slot_masked               x(1) = Mask($1)
+   54. reenable_loop_mask             LoopMask |= $4
+   55. copy_slot_unmasked             $1 = b
+   56. copy_constant                  $2 = 0x3F800000 (1.0)
+   57. sub_float                      $1 -= $2
+   58. copy_slot_masked               b = Mask($1)
+   59. label                          label 0x00000004
+   60. zero_slot_unmasked             $1 = 0
+   61. copy_slot_unmasked             $2 = b
+   62. cmple_float                    $1 = lessThanEqual($1, $2)
+   63. merge_loop_mask                LoopMask &= $1
+   64. stack_rewind
+   65. branch_if_any_lanes_active     branch_if_any_lanes_active -26 (label 5 at #39)
+   66. label                          label 0x00000003
+   67. load_loop_mask                 LoopMask = $0
+   68. copy_4_slots_unmasked          $0..3 = x
+   69. load_src                       src.rgba = $0..3

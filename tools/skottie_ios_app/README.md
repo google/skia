@@ -31,7 +31,7 @@ How to compile for the CPU backend:
     cat > out/ios_arm64_cpu/args.gn <<EOM
     target_cpu="arm64"
     target_os="ios"
-    skia_enable_gpu=false
+    skia_enable_ganesh=false
     skia_enable_pdf=false
     skia_use_expat=false
     EOM
@@ -52,7 +52,7 @@ How to compile for the OpenGL backend:
     cat > out/ios_arm64_gl/args.gn <<EOM
     target_cpu="arm64"
     target_os="ios"
-    skia_enable_gpu=true
+    skia_enable_ganesh=true
     skia_use_metal=false
     skia_enable_pdf=false
     skia_use_expat=false

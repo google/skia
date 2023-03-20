@@ -8,7 +8,6 @@
 #ifndef SkJpegxlCodec_DEFINED
 #define SkJpegxlCodec_DEFINED
 
-#include "include/codec/SkCodec.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkRefCnt.h"
@@ -17,6 +16,7 @@
 #include <cstddef>
 #include <memory>
 
+class SkCodec;
 class SkFrameHolder;
 class SkJpegxlCodecPriv;
 class SkStream;

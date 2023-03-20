@@ -16,8 +16,10 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
-#include "include/private/SkOnce.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <string>
 #include <optional>
@@ -43,7 +45,11 @@ struct ProgramSettings;
 
 namespace skvm {
 class Program;
-}  // namespace skvm
+}
+
+namespace SkSL::RP {
+class Program;
+}
 
 /*
  * SkRuntimeEffect supports creating custom SkShader and SkColorFilter objects using Skia's SkSL
@@ -126,9 +132,9 @@ public:
         friend class SkRuntimeEffect;
         friend class SkRuntimeEffectPriv;
 
-        // Public SkSL does not allow access to sk_FragCoord. The semantics of that variable are
-        // confusing, and expose clients to implementation details of saveLayer and image filters.
-        bool usePrivateRTShaderModule = false;
+        // This flag allows Runtime Effects to access Skia implementation details like sk_FragCoord
+        // and functions with private identifiers (e.g. $rgb_to_hsl).
+        bool allowPrivateAccess = false;
 
         // TODO(skia:11209) - Replace this with a promised SkCapabilities?
         // This flag lifts the ES2 restrictions on Runtime Effects that are gated by the
@@ -162,10 +168,6 @@ public:
 
     // Shader SkSL requires an entry point that looks like:
     //     vec4 main(vec2 inCoords) { ... }
-    //   -or-
-    //     vec4 main(vec2 inCoords, vec4 inColor) { ... }
-    //
-    // Most shaders don't use the input color, so that parameter is optional.
     static Result MakeForShader(SkString sksl, const Options&);
     static Result MakeForShader(SkString sksl) {
         return MakeForShader(std::move(sksl), Options{});
@@ -196,8 +198,12 @@ public:
         SkBlender* blender() const;
         SkFlattenable* flattenable() const { return fChild.get(); }
 
+        using sk_is_trivially_relocatable = std::true_type;
+
     private:
         sk_sp<SkFlattenable> fChild;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fChild)>::value);
     };
 
     sk_sp<SkShader> makeShader(sk_sp<const SkData> uniforms,
@@ -303,13 +309,14 @@ private:
     bool alwaysOpaque()       const { return (fFlags & kAlwaysOpaque_Flag);       }
 
     const SkFilterColorProgram* getFilterColorProgram() const;
+    const SkSL::RP::Program* getRPProgram() const;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
     friend class GrGLSLSkSLFP;         //
 #endif
 
-    friend class SkRTShader;            // fBaseProgram, fMain
+    friend class SkRTShader;            // fBaseProgram, fMain, fSampleUsages, getRPProgram()
     friend class SkRuntimeBlender;      //
     friend class SkRuntimeColorFilter;  //
 
@@ -319,6 +326,8 @@ private:
     uint32_t fHash;
 
     std::unique_ptr<SkSL::Program> fBaseProgram;
+    std::unique_ptr<SkSL::RP::Program> fRPProgram;
+    mutable SkOnce fCompileRPProgramOnce;
     const SkSL::FunctionDefinition& fMain;
     std::vector<Uniform> fUniforms;
     std::vector<Child> fChildren;
@@ -415,6 +424,11 @@ public:
     BuilderUniform uniform(std::string_view name) { return { this, fEffect->findUniform(name) }; }
     BuilderChild child(std::string_view name) { return { this, fEffect->findChild(name) }; }
 
+    // Get access to the collated uniforms and children (in the order expected by APIs like
+    // makeShader on the effect):
+    sk_sp<const SkData> uniforms() { return fUniforms; }
+    SkSpan<SkRuntimeEffect::ChildPtr> children() { return fChildren; }
+
 protected:
     SkRuntimeEffectBuilder() = delete;
     explicit SkRuntimeEffectBuilder(sk_sp<SkRuntimeEffect> effect)
@@ -431,10 +445,6 @@ protected:
 
     SkRuntimeEffectBuilder& operator=(SkRuntimeEffectBuilder&&) = delete;
     SkRuntimeEffectBuilder& operator=(const SkRuntimeEffectBuilder&) = delete;
-
-    sk_sp<const SkData> uniforms() { return fUniforms; }
-    SkRuntimeEffect::ChildPtr* children() { return fChildren.data(); }
-    size_t numChildren() { return fChildren.size(); }
 
 private:
     void* writableUniformData() {
@@ -490,6 +500,23 @@ private:
             : INHERITED(std::move(effect), std::move(uniforms)) {}
 
     friend class SkRuntimeImageFilter;
+};
+
+/**
+ * SkRuntimeColorFilterBuilder makes it easy to setup and assign uniforms to runtime color filters.
+ */
+class SK_API SkRuntimeColorFilterBuilder : public SkRuntimeEffectBuilder {
+public:
+    explicit SkRuntimeColorFilterBuilder(sk_sp<SkRuntimeEffect>);
+    ~SkRuntimeColorFilterBuilder();
+
+    SkRuntimeColorFilterBuilder(const SkRuntimeColorFilterBuilder&) = delete;
+    SkRuntimeColorFilterBuilder& operator=(const SkRuntimeColorFilterBuilder&) = delete;
+
+    sk_sp<SkColorFilter> makeColorFilter();
+
+private:
+    using INHERITED = SkRuntimeEffectBuilder;
 };
 
 /**

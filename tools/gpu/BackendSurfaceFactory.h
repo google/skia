@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 
@@ -26,7 +27,7 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext*,
                                            const SkImageInfo&,
                                            GrSurfaceOrigin,
                                            int sampleCnt,
-                                           GrMipmapped = GrMipmapped::kNo,
+                                           skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                            GrProtected = GrProtected::kNo,
                                            const SkSurfaceProps* = nullptr);
 
@@ -36,7 +37,7 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext*,
                                            int sampleCnt,
                                            SkColorType,
                                            sk_sp<SkColorSpace> = nullptr,
-                                           GrMipmapped = GrMipmapped::kNo,
+                                           skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                            GrProtected = GrProtected::kNo,
                                            const SkSurfaceProps* = nullptr);
 

@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 
 #include "include/core/SkStream.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/ResourceFactory.h"
 

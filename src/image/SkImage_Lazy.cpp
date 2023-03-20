@@ -7,38 +7,60 @@
 
 #include "src/image/SkImage_Lazy.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkYUVAInfo.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkCachedData.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkNextID.h"
-
-#if SK_SUPPORT_GPU
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkYUVPlanesCache.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrGpuResourcePriv.h"
-#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/Log.h"
+#if defined(SK_GRAPHITE)
+#include "src/gpu/graphite/TextureUtils.h"
 #endif
+
+#include <utility>
+
+class SkMatrix;
+enum SkColorType : int;
+enum class SkTileMode;
 
 // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing one generator among N images
 class SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
@@ -124,7 +146,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage_Lazy::SkImage_Lazy(Validator* validator)
-    : INHERITED(validator->fInfo, validator->fUniqueID)
+    : SkImage_Base(validator->fInfo, validator->fUniqueID)
     , fSharedGenerator(std::move(validator->fSharedGenerator))
 {
     SkASSERT(fSharedGenerator);
@@ -180,7 +202,7 @@ bool SkImage_Lazy::getROPixels(GrDirectContext* ctx, SkBitmap* bitmap,
 }
 
 bool SkImage_Lazy::readPixelsProxy(GrDirectContext* ctx, const SkPixmap& pixmap) const {
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     if (!ctx) {
         return false;
     }
@@ -202,7 +224,7 @@ bool SkImage_Lazy::readPixelsProxy(GrDirectContext* ctx, const SkPixmap& pixmap)
     return sContext->readPixels(ctx, {this->imageInfo(), pixmap.writable_addr(), rowBytes}, {0, 0});
 #else
     return false;
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +263,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext
     // TODO: can we do this more efficiently, by telling the generator we want to
     //       "realize" a subset?
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     auto pixels = direct ? this->makeTextureImage(direct)
                          : this->makeRasterImage();
 #else
@@ -249,6 +271,22 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext
 #endif
     return pixels ? pixels->makeSubset(subset, direct) : nullptr;
 }
+
+#if defined(SK_GRAPHITE)
+
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset,
+                                          skgpu::graphite::Recorder* recorder,
+                                          RequiredImageProperties requiredProperties) const {
+    // TODO: can we do this more efficiently, by telling the generator we want to
+    //       "realize" a subset?
+
+    sk_sp<SkImage> nonLazyImg = recorder ? this->makeTextureImage(recorder, requiredProperties)
+                                         : this->makeRasterImage();
+
+    return nonLazyImg ? nonLazyImg->makeSubset(subset, recorder, requiredProperties) : nullptr;
+}
+
+#endif // SK_GRAPHITE
 
 sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                           sk_sp<SkColorSpace> targetCS,
@@ -292,7 +330,7 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
     return validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Lazy::onAsView(
         GrRecordingContext* context,
@@ -323,7 +361,7 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Lazy::onAsFragmentProcessor(
 }
 
 GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* ctx,
-                                                            SkBudgeted budgeted) const {
+                                                            skgpu::Budgeted budgeted) const {
     SkYUVAPixmapInfo::SupportedDataTypes supportedDataTypes(*ctx);
     SkYUVAPixmaps yuvaPixmaps;
     sk_sp<SkCachedData> dataStorage = this->getPlanes(supportedDataTypes, &yuvaPixmaps);
@@ -377,6 +415,7 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
                      this->dimensions());
 
     auto sfc = ctx->priv().makeSFC(info,
+                                   "ImageLazy_TextureProxyViewFromPlanes",
                                    SkBackingFit::kExact,
                                    1,
                                    GrMipmapped::kNo,
@@ -522,7 +561,6 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
         ScopedGenerator generator(fSharedGenerator);
         if (auto view = generator->generateTexture(rContext,
                                                    this->imageInfo(),
-                                                   {0,0},
                                                    mipmapped,
                                                    texGenPolicy)) {
             installKey(view);
@@ -535,9 +573,9 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
     if (mipmapped == GrMipmapped::kNo && !rContext->priv().options().fDisableGpuYUVConversion) {
         // TODO: Update to create the mipped surface in the textureProxyViewFromPlanes generator and
         //  draw the base layer directly into the mipped surface.
-        SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
-                                      ? SkBudgeted::kNo
-                                      : SkBudgeted::kYes;
+        skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                           ? skgpu::Budgeted::kNo
+                                           : skgpu::Budgeted::kYes;
         auto view = this->textureProxyViewFromPlanes(rContext, budgeted);
         if (view) {
             installKey(view);
@@ -552,8 +590,8 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
         // We always make an uncached bitmap here because we will cache it based on passed in policy
         // with *our* key, not a key derived from bitmap. We're just making the proxy here.
         auto budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
-                                ? SkBudgeted::kNo
-                                : SkBudgeted::kYes;
+                                ? skgpu::Budgeted::kNo
+                                : skgpu::Budgeted::kYes;
         auto view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext,
                                                               bitmap,
                                                               mipmapped,
@@ -580,13 +618,72 @@ GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const 
 void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const {
     fUniqueIDListeners.add(std::move(listener));
 }
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH)
 
-#ifdef SK_GRAPHITE_ENABLED
-std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Lazy::onAsView(
-        skgpu::graphite::Recorder*,
-        skgpu::graphite::Mipmapped) const {
-    SKGPU_LOG_E("Conversion of Lazy images to Graphite-backed not yet implemented");
-    return {};
+#if defined(SK_GRAPHITE)
+
+/*
+ *  We only have 2 ways to create a Graphite-backed image.
+ *
+ *  1. Ask the generator to natively create one
+ *  2. Ask the generator to return RGB(A) data, which the GPU can convert
+ */
+sk_sp<SkImage> SkImage_Lazy::onMakeTextureImage(skgpu::graphite::Recorder* recorder,
+                                                RequiredImageProperties requiredProps) const {
+    using namespace skgpu::graphite;
+
+    // 1. Ask the generator to natively create one.
+    {
+        // Disable mipmaps here bc Graphite doesn't currently support mipmap regeneration
+        // In this case, we would allocate the mipmaps and fill in the base layer but the mipmap
+        // levels would never be filled out - yielding incorrect draws. Please see: b/238754357.
+        requiredProps.fMipmapped = skgpu::Mipmapped::kNo;
+
+        ScopedGenerator generator(fSharedGenerator);
+        sk_sp<SkImage> newImage = generator->makeTextureImage(recorder,
+                                                              this->imageInfo(),
+                                                              requiredProps.fMipmapped);
+        if (newImage) {
+            SkASSERT(as_IB(newImage)->isGraphiteBacked());
+            return newImage;
+        }
+    }
+
+    // 2. Ask the generator to return a bitmap, which the GPU can convert.
+    if (SkBitmap bitmap; this->getROPixels(nullptr, &bitmap, CachingHint::kDisallow_CachingHint)) {
+        return skgpu::graphite::MakeFromBitmap(recorder,
+                                               this->imageInfo().colorInfo(),
+                                               bitmap,
+                                               nullptr,
+                                               skgpu::Budgeted::kNo,
+                                               requiredProps);
+    }
+
+    return nullptr;
 }
+
+sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(
+        SkColorType targetCT,
+        sk_sp<SkColorSpace> targetCS,
+        skgpu::graphite::Recorder* recorder,
+        RequiredImageProperties requiredProps) const {
+    SkAutoMutexExclusive autoAquire(fOnMakeColorTypeAndSpaceMutex);
+    if (fOnMakeColorTypeAndSpaceResult &&
+        targetCT == fOnMakeColorTypeAndSpaceResult->colorType() &&
+        SkColorSpace::Equals(targetCS.get(), fOnMakeColorTypeAndSpaceResult->colorSpace())) {
+        return fOnMakeColorTypeAndSpaceResult;
+    }
+    Validator validator(fSharedGenerator, &targetCT, targetCS);
+    sk_sp<SkImage> result = validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
+    if (result) {
+        fOnMakeColorTypeAndSpaceResult = result;
+    }
+
+    if (recorder) {
+        return result->makeTextureImage(recorder, requiredProps);
+    } else {
+        return result;
+    }
+}
+
 #endif

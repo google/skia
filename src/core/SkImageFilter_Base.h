@@ -11,8 +11,8 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
 
 #include "src/core/SkImageFilterTypes.h"
 
@@ -178,7 +178,7 @@ protected:
         const SkRect* cropRect() const {
             return fCropRect.flags() != 0x0 ? &fCropRect.rect() : nullptr;
         }
-        int inputCount() const { return fInputs.count(); }
+        int inputCount() const { return fInputs.size(); }
         sk_sp<SkImageFilter>* inputs() { return fInputs.begin(); }
 
         sk_sp<SkImageFilter> getInput(int index) { return fInputs[index]; }
@@ -303,7 +303,7 @@ protected:
     // other filters to need to call it.
     Context mapContext(const Context& ctx) const;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
                                             std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,
@@ -428,7 +428,7 @@ private:
     virtual skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const;
 
-    SkAutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
+    skia_private::AutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
     bool fUsesSrcInput;
     CropRect fCropRect;
@@ -482,7 +482,6 @@ void SkRegisterMatrixConvolutionImageFilterFlattenable();
 void SkRegisterMatrixTransformImageFilterFlattenable();
 void SkRegisterMergeImageFilterFlattenable();
 void SkRegisterMorphologyImageFilterFlattenables();
-void SkRegisterOffsetImageFilterFlattenable();
 void SkRegisterPictureImageFilterFlattenable();
 #ifdef SK_ENABLE_SKSL
 void SkRegisterRuntimeImageFilterFlattenable();

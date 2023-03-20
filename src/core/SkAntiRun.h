@@ -8,7 +8,7 @@
 #ifndef SkAntiRun_DEFINED
 #define SkAntiRun_DEFINED
 
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkBlitter.h"
 
 /** Sparse array of run-length-encoded alpha (supersampling coverage) values.

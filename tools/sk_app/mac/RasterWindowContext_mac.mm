@@ -46,15 +46,13 @@ private:
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
     sk_sp<SkSurface>     fBackbufferSurface;
-
-    using INHERITED = GLWindowContext;
 };
 
 RasterWindowContext_mac::RasterWindowContext_mac(const MacWindowInfo& info,
                                                  const DisplayParams& params)
-    : INHERITED(params)
-    , fMainView(info.fMainView)
-    , fGLContext(nil) {
+        : GLWindowContext(params)
+        , fMainView(info.fMainView)
+        , fGLContext(nil) {
 
     // any config code here (particularly for msaa)?
 
@@ -157,7 +155,7 @@ void RasterWindowContext_mac::onSwapBuffers() {
         // We made/have an off-screen surface. Get the contents as an SkImage:
         sk_sp<SkImage> snapshot = fBackbufferSurface->makeImageSnapshot();
 
-        sk_sp<SkSurface> gpuSurface = INHERITED::getBackbufferSurface();
+        sk_sp<SkSurface> gpuSurface = GLWindowContext::getBackbufferSurface();
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
         gpuCanvas->drawImage(snapshot, 0, 0);
         gpuCanvas->flush();
@@ -170,7 +168,7 @@ void RasterWindowContext_mac::resize(int w, int h) {
     [fGLContext update];
 
     // The super class always recreates the context.
-    INHERITED::resize(0, 0);
+    GLWindowContext::resize(0, 0);
 }
 
 }  // anonymous namespace

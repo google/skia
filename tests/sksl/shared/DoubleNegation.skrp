@@ -1,0 +1,7 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $0 = colorGreen(0)
+    4. cast_to_int_from_float         $0 = FloatToInt($0)
+    5. cast_to_float_from_int         $0 = IntToFloat($0)
+    6. copy_3_constants               $1..3 = colorGreen(1..3)
+    7. load_src                       src.rgba = $0..3

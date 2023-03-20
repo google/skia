@@ -12,17 +12,19 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/private/SkTPin.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkTPin.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
@@ -30,7 +32,17 @@
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#endif
+#endif // SK_GANESH
+
+#if defined(SK_GRAPHITE)
+#include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/TextureProxyView.h"
+#include "src/image/SkImage_Base.h"
+#endif // SK_GRAPHITE
 
 static const int kBlockSize = 256;
 static const int kBlockMask = kBlockSize - 1;
@@ -87,7 +99,7 @@ public:
                 this->stitch();
             }
 
-    #if SK_SUPPORT_GPU
+    #if defined(SK_GANESH) || defined(SK_GRAPHITE)
             SkImageInfo info = SkImageInfo::MakeA8(kBlockSize, 1);
             fPermutationsBitmap.installPixels(info, fLatticeSelector, info.minRowBytes());
             fPermutationsBitmap.setImmutable();
@@ -98,7 +110,7 @@ public:
     #endif
         }
 
-    #if SK_SUPPORT_GPU
+    #if defined(SK_GANESH) || defined(SK_GRAPHITE)
         PaintingData(const PaintingData& that)
                 : fSeed(that.fSeed)
                 , fTileSize(that.fTileSize)
@@ -122,7 +134,7 @@ public:
 
     private:
 
-    #if SK_SUPPORT_GPU
+    #if defined(SK_GANESH) || defined(SK_GRAPHITE)
         SkBitmap fPermutationsBitmap;
         SkBitmap fNoiseBitmap;
     #endif
@@ -143,8 +155,7 @@ public:
         }
 
         // Only called once. Could be part of the constructor.
-        void init(SkScalar seed)
-        {
+        void init(SkScalar seed) {
             // According to the SVG spec, we must truncate (not round) the seed value.
             fSeed = SkScalarTruncToInt(seed);
             // The seed value clamp to the range [1, kRandMaximum - 1].
@@ -194,7 +205,7 @@ public:
             // Half of the largest possible value for 16 bit unsigned int
             static constexpr SkScalar kHalfMax16bits = 32767.5f;
 
-            // Compute gradients from permutated noise data
+            // Compute gradients from permuted noise data
             static constexpr SkScalar kInvBlockSizef = 1.0 / SkIntToScalar(kBlockSize);
             for (int channel = 0; channel < 4; ++channel) {
                 for (int i = 0; i < kBlockSize; ++i) {
@@ -243,14 +254,13 @@ public:
                     fBaseFrequency.fY = highFrequency;
                 }
             }
-            // Set up TurbulenceInitial stitch values.
             fStitchDataInit = StitchData(tileWidth * fBaseFrequency.fX,
                                          tileHeight * fBaseFrequency.fY);
         }
 
     public:
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
         const SkBitmap& getPermutationsBitmap() const { return fPermutationsBitmap; }
 
         const SkBitmap& getNoiseBitmap() const { return fNoiseBitmap; }
@@ -264,7 +274,7 @@ public:
      *  doing :
      *  kFractalNoise_Type : noise * 0.5 + 0.5
      *  kTurbulence_Type   : abs(noise)
-     *  Very little differences between the 2 types, although you can tell the difference visually.
+     *  Very little differs between the 2 types, although you can tell the difference visually.
      */
     enum Type {
         kFractalNoise_Type,
@@ -275,8 +285,8 @@ public:
     static const int kMaxOctaves = 255; // numOctaves must be <= 0 and <= kMaxOctaves
 
     SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type type, SkScalar baseFrequencyX,
-                      SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
-                      const SkISize* tileSize);
+                            SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
+                            const SkISize* tileSize);
 
     class PerlinNoiseShaderContext : public Context {
     public:
@@ -286,11 +296,12 @@ public:
 
     private:
         SkPMColor shade(const SkPoint& point, StitchData& stitchData) const;
-        SkScalar calculateTurbulenceValueForPoint(
-                                                  int channel,
-                                                  StitchData& stitchData, const SkPoint& point) const;
+        SkScalar calculateTurbulenceValueForPoint(int channel,
+                                                  StitchData& stitchData,
+                                                  const SkPoint& point) const;
         SkScalar noise2D(int channel,
-                         const StitchData& stitchData, const SkPoint& noiseVector) const;
+                         const StitchData& stitchData,
+                         const SkPoint& noiseVector) const;
 
         SkMatrix     fMatrix;
         PaintingData fPaintingData;
@@ -298,14 +309,24 @@ public:
         using INHERITED = Context;
     };
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#if defined(SK_GANESH)
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
+#endif
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
-    skvm::Color onProgram(skvm::Builder*,
-                          skvm::Coord, skvm::Coord, skvm::Color,
-                          const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                          skvm::Uniforms*, SkArenaAlloc*) const override {
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord,
+                        skvm::Coord,
+                        skvm::Color,
+                        const MatrixRec&,
+                        const SkColorInfo&,
+                        skvm::Uniforms*,
+                        SkArenaAlloc*) const override {
         // TODO?
         return {};
     }
@@ -359,14 +380,13 @@ SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type t
                                                  int numOctaves,
                                                  SkScalar seed,
                                                  const SkISize* tileSize)
-  : fType(type)
-  , fBaseFrequencyX(baseFrequencyX)
-  , fBaseFrequencyY(baseFrequencyY)
-  , fNumOctaves(numOctaves > kMaxOctaves ? kMaxOctaves : numOctaves/*[0,255] octaves allowed*/)
-  , fSeed(seed)
-  , fTileSize(nullptr == tileSize ? SkISize::Make(0, 0) : *tileSize)
-  , fStitchTiles(!fTileSize.isEmpty())
-{
+        : fType(type)
+        , fBaseFrequencyX(baseFrequencyX)
+        , fBaseFrequencyY(baseFrequencyY)
+        , fNumOctaves(numOctaves > kMaxOctaves ? kMaxOctaves : numOctaves) //[0,255] octaves allowed
+        , fSeed(seed)
+        , fTileSize(nullptr == tileSize ? SkISize::Make(0, 0) : *tileSize)
+        , fStitchTiles(!fTileSize.isEmpty()) {
     SkASSERT(numOctaves >= 0 && numOctaves <= kMaxOctaves);
     SkASSERT(fBaseFrequencyX >= 0);
     SkASSERT(fBaseFrequencyY >= 0);
@@ -471,7 +491,6 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::calculateTurbulenceV
         int channel, StitchData& stitchData, const SkPoint& point) const {
     const SkPerlinNoiseShaderImpl& perlinNoiseShader = static_cast<const SkPerlinNoiseShaderImpl&>(fShader);
     if (perlinNoiseShader.fStitchTiles) {
-        // Set up TurbulenceInitial stitch values.
         stitchData = fPaintingData.fStitchDataInit;
     }
     SkScalar turbulenceFunctionResult = 0;
@@ -487,15 +506,13 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::calculateTurbulenceV
         noiseVector.fY *= 2;
         ratio *= 2;
         if (perlinNoiseShader.fStitchTiles) {
-            // Update stitch values
             stitchData = StitchData(SkIntToScalar(stitchData.fWidth) * 2,
                                     SkIntToScalar(stitchData.fHeight) * 2);
         }
     }
 
-    // The value of turbulenceFunctionResult comes from ((turbulenceFunctionResult) + 1) / 2
-    // by fractalNoise and (turbulenceFunctionResult) by turbulence.
     if (perlinNoiseShader.fType == kFractalNoise_Type) {
+        // For kFractalNoise the result is: noise[-1,1] * 0.5 + 0.5
         turbulenceFunctionResult = SkScalarHalf(turbulenceFunctionResult + 1);
     }
 
@@ -535,12 +552,10 @@ SkShaderBase::Context* SkPerlinNoiseShaderImpl::onMakeContext(const ContextRec& 
 
 static inline SkMatrix total_matrix(const SkShaderBase::ContextRec& rec,
                                     const SkShaderBase& shader) {
-    SkMatrix matrix = SkMatrix::Concat(*rec.fMatrix, shader.getLocalMatrix());
     if (rec.fLocalMatrix) {
-        matrix.preConcat(*rec.fLocalMatrix);
+        return SkMatrix::Concat(*rec.fMatrix, *rec.fLocalMatrix);
     }
-
-    return matrix;
+    return *rec.fMatrix;
 }
 
 SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::PerlinNoiseShaderContext(
@@ -568,7 +583,7 @@ void SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shadeSpan(
 
 /////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:
@@ -579,7 +594,6 @@ public:
             std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
             GrSurfaceProxyView permutationsView,
             GrSurfaceProxyView noiseView,
-            const SkMatrix& matrix,
             const GrCaps& caps) {
         static constexpr GrSamplerState kRepeatXSampler = {GrSamplerState::WrapMode::kRepeat,
                                                            GrSamplerState::WrapMode::kClamp,
@@ -590,9 +604,13 @@ public:
         auto noiseFP = GrTextureEffect::Make(std::move(noiseView), kPremul_SkAlphaType,
                                              SkMatrix::I(), kRepeatXSampler, caps);
 
-        return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
-                new GrPerlinNoise2Effect(type, numOctaves, stitchTiles, std::move(paintingData),
-                                         std::move(permutationsFP), std::move(noiseFP))));
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrPerlinNoise2Effect(type,
+                                         numOctaves,
+                                         stitchTiles,
+                                         std::move(paintingData),
+                                         std::move(permutationsFP),
+                                         std::move(noiseFP)));
     }
 
     const char* name() const override { return "PerlinNoise"; }
@@ -611,6 +629,7 @@ public:
 private:
     class Impl : public ProgramImpl {
     public:
+        SkString emitHelper(EmitArgs& args);
         void emitCode(EmitArgs&) override;
 
     private:
@@ -670,7 +689,7 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData* d) {
@@ -685,31 +704,19 @@ std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcesso
 
     sk_sp<SkShader> shader(d->fRandom->nextBool() ?
         SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed,
-                                               stitchTiles ? &tileSize : nullptr) :
+                                              stitchTiles ? &tileSize : nullptr) :
         SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed,
-                                             stitchTiles ? &tileSize : nullptr));
+                                            stitchTiles ? &tileSize : nullptr));
 
     GrTest::TestAsFPArgs asFPArgs(d);
-    return as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    return as_SB(shader)->asRootFragmentProcessor(asFPArgs.args(), GrTest::TestMatrix(d->fRandom));
 }
 #endif
 
-void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
+SkString GrPerlinNoise2Effect::Impl::emitHelper(EmitArgs& args) {
     const GrPerlinNoise2Effect& pne = args.fFp.cast<GrPerlinNoise2Effect>();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-
-    fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
-                                                   "baseFrequency");
-    const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
-
-    const char* stitchDataUni = nullptr;
-    if (pne.stitchTiles()) {
-        fStitchDataUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
-                                                    "stitchData");
-        stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
-    }
 
     // Add noise function
     const GrShaderVar gPerlinNoiseArgs[] = {{"chanCoord", SkSLType::kHalf },
@@ -722,20 +729,23 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     SkString noiseCode;
 
     noiseCode.append(
-            R"(half4 floorVal;
-               floorVal.xy = floor(noiseVec);
-               floorVal.zw = floorVal.xy + half2(1);
-               half2 fractVal = fract(noiseVec);
-               // smooth curve : t^2*(3 - 2*t)
-               half2 noiseSmooth = fractVal*fractVal*(half2(3) - 2*fractVal);)");
+        "half4 floorVal;"
+        "floorVal.xy = floor(noiseVec);"
+        "floorVal.zw = floorVal.xy + half2(1);"
+        "half2 fractVal = fract(noiseVec);"
+
+        // smooth curve : t^2*(3 - 2*t)
+        "half2 noiseSmooth = fractVal*fractVal*(half2(3) - 2*fractVal);"
+    );
 
     // Adjust frequencies if we're stitching tiles
     if (pne.stitchTiles()) {
         noiseCode.append(
-             R"(if (floorVal.x >= stitchData.x) { floorVal.x -= stitchData.x; };
-                if (floorVal.y >= stitchData.y) { floorVal.y -= stitchData.y; };
-                if (floorVal.z >= stitchData.x) { floorVal.z -= stitchData.x; };
-                if (floorVal.w >= stitchData.y) { floorVal.w -= stitchData.y; };)");
+            "if (floorVal.x >= stitchData.x) { floorVal.x -= stitchData.x; };"
+            "if (floorVal.y >= stitchData.y) { floorVal.y -= stitchData.y; };"
+            "if (floorVal.z >= stitchData.x) { floorVal.z -= stitchData.x; };"
+            "if (floorVal.w >= stitchData.y) { floorVal.w -= stitchData.y; };"
+        );
     }
 
     // NOTE: We need to explicitly pass half4(1) as input color here, because the helper function
@@ -755,7 +765,7 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
             "latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(0.003921569);");
 #endif
 
-    // Get (x,y) coordinates with the permutated x
+    // Get (x,y) coordinates with the permuted x
     noiseCode.append("half4 bcoords = 256*latticeIdx.xyxy + floorVal.yyww;");
 
     noiseCode.append("half2 uv;");
@@ -811,6 +821,29 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
                                   noiseCode.c_str());
     }
 
+    return noiseFuncName;
+}
+
+void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
+
+    SkString noiseFuncName = this->emitHelper(args);
+
+    const GrPerlinNoise2Effect& pne = args.fFp.cast<GrPerlinNoise2Effect>();
+
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+
+    fBaseFrequencyUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
+                                                   "baseFrequency");
+    const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
+
+    const char* stitchDataUni = nullptr;
+    if (pne.stitchTiles()) {
+        fStitchDataUni = uniformHandler->addUniform(&pne, kFragment_GrShaderFlag, SkSLType::kHalf2,
+                                                    "stitchData");
+        stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
+    }
+
     // There are rounding errors if the floor operation is not performed here
     fragBuilder->codeAppendf("half2 noiseVec = half2(floor(%s.xy) * %s);",
                              args.fSampleCoord, baseFrequencyUni);
@@ -819,7 +852,6 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("half4 color = half4(0);");
 
     if (pne.stitchTiles()) {
-        // Set up TurbulenceInitial stitch values.
         fragBuilder->codeAppendf("half2 stitchData = %s;", stitchDataUni);
     }
 
@@ -827,7 +859,7 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
 
     // Loop over all octaves
     fragBuilder->codeAppendf("for (int octave = 0; octave < %d; ++octave) {", pne.numOctaves());
-    fragBuilder->codeAppendf("    color += ");
+    fragBuilder->codeAppendf(    "color += ");
     if (pne.type() != SkPerlinNoiseShaderImpl::kFractalNoise_Type) {
         fragBuilder->codeAppend("abs(");
     }
@@ -838,17 +870,17 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     static constexpr const char* chanCoordB = "2.5";
     static constexpr const char* chanCoordA = "3.5";
     if (pne.stitchTiles()) {
-        fragBuilder->codeAppendf(R"(
-           half4(%s(%s, noiseVec, stitchData), %s(%s, noiseVec, stitchData),
-                 %s(%s, noiseVec, stitchData), %s(%s, noiseVec, stitchData)))",
+        fragBuilder->codeAppendf(
+           "half4(%s(%s, noiseVec, stitchData), %s(%s, noiseVec, stitchData),"
+                 "%s(%s, noiseVec, stitchData), %s(%s, noiseVec, stitchData))",
             noiseFuncName.c_str(), chanCoordR,
             noiseFuncName.c_str(), chanCoordG,
             noiseFuncName.c_str(), chanCoordB,
             noiseFuncName.c_str(), chanCoordA);
     } else {
-        fragBuilder->codeAppendf(R"(
-            half4(%s(%s, noiseVec), %s(%s, noiseVec),
-                  %s(%s, noiseVec), %s(%s, noiseVec)))",
+        fragBuilder->codeAppendf(
+            "half4(%s(%s, noiseVec), %s(%s, noiseVec),"
+                  "%s(%s, noiseVec), %s(%s, noiseVec))",
             noiseFuncName.c_str(), chanCoordR,
             noiseFuncName.c_str(), chanCoordG,
             noiseFuncName.c_str(), chanCoordB,
@@ -859,8 +891,8 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     }
     fragBuilder->codeAppend(" * ratio;");
 
-    fragBuilder->codeAppend(R"(noiseVec *= half2(2.0);
-                               ratio *= 0.5;)");
+    fragBuilder->codeAppend("noiseVec *= half2(2.0);"
+                            "ratio *= 0.5;");
 
     if (pne.stitchTiles()) {
         fragBuilder->codeAppend("stitchData *= half2(2.0);");
@@ -918,39 +950,25 @@ void GrPerlinNoise2Effect::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilde
 /////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(
-        const GrFPArgs& args) const {
+        const GrFPArgs& args, const MatrixRec& mRec) const {
     SkASSERT(args.fContext);
+    SkASSERT(fNumOctaves);
 
-    const auto localMatrix = this->totalLocalMatrix(args.fPreLocalMatrix);
-    const auto paintMatrix = SkMatrix::Concat(args.fMatrixProvider.localToDevice(), *localMatrix);
+    const SkMatrix& totalMatrix = mRec.totalMatrix();
 
-    // Either we don't stitch tiles, either we have a valid tile size
+    // Either we don't stitch tiles, or we have a valid tile size
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
 
-    std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData =
-        std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
-                                                                  fSeed,
-                                                                  fBaseFrequencyX,
-                                                                  fBaseFrequencyY,
-                                                                  paintMatrix);
+    auto paintingData = std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
+                                                                                fSeed,
+                                                                                fBaseFrequencyX,
+                                                                                fBaseFrequencyY,
+                                                                                totalMatrix);
 
-    SkMatrix m = args.fMatrixProvider.localToDevice();
-    m.setTranslateX(-localMatrix->getTranslateX() + SK_Scalar1);
-    m.setTranslateY(-localMatrix->getTranslateY() + SK_Scalar1);
+    // Like shadeSpan, we start from device space. We will account for that below with a device
+    // space effect.
 
     auto context = args.fContext;
-
-    if (0 == fNumOctaves) {
-        if (kFractalNoise_Type == fType) {
-            // Incoming alpha is assumed to be 1. So emit rgba = (1/4, 1/4, 1/4, 1/2)
-            // TODO: Either treat the output of this shader as sRGB or allow client to specify a
-            // color space of the noise. Either way, this case (and the GLSL) need to convert to
-            // the destination.
-            return GrFragmentProcessor::MakeColor(SkPMColor4f::FromBytes_RGBA(0x80404040));
-        }
-        // Emit zero.
-        return GrFragmentProcessor::MakeColor(SK_PMColor4fTRANSPARENT);
-    }
 
     const SkBitmap& permutationsBitmap = paintingData->getPermutationsBitmap();
     const SkBitmap& noiseBitmap        = paintingData->getNoiseBitmap();
@@ -963,19 +981,110 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             context, noiseBitmap, /*label=*/"PerlinNoiseShader_FragmentProcessor_NoiseView"));
 
     if (permutationsView && noiseView) {
-        return GrPerlinNoise2Effect::Make(fType,
-                                          fNumOctaves,
-                                          fStitchTiles,
-                                          std::move(paintingData),
-                                          std::move(permutationsView),
-                                          std::move(noiseView),
-                                          m,
-                                          *context->priv().caps());
+        return GrFragmentProcessor::DeviceSpace(
+                GrMatrixEffect::Make(SkMatrix::Translate(1 - totalMatrix.getTranslateX(),
+                                                         1 - totalMatrix.getTranslateY()),
+                                     GrPerlinNoise2Effect::Make(fType,
+                                                                fNumOctaves,
+                                                                fStitchTiles,
+                                                                std::move(paintingData),
+                                                                std::move(permutationsView),
+                                                                std::move(noiseView),
+                                                                *context->priv().caps())));
     }
     return nullptr;
 }
 
 #endif
+
+#if defined(SK_GRAPHITE)
+
+// If either of these change then the corresponding change must also be made in the SkSL
+// perlin_noise_shader function.
+static_assert((int)SkPerlinNoiseShaderImpl::kFractalNoise_Type ==
+              (int)skgpu::graphite::PerlinNoiseShaderBlock::Type::kFractalNoise);
+static_assert((int)SkPerlinNoiseShaderImpl::kTurbulence_Type ==
+              (int)skgpu::graphite::PerlinNoiseShaderBlock::Type::kTurbulence);
+
+// If kBlockSize changes here then it must also be changed in the SkSL noise_function
+// implementation.
+static_assert(kBlockSize == 256);
+
+void SkPerlinNoiseShaderImpl::addToKey(const skgpu::graphite::KeyContext& keyContext,
+                                       skgpu::graphite::PaintParamsKeyBuilder* builder,
+                                       skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
+    SkASSERT(fNumOctaves);
+
+    SkMatrix totalMatrix = keyContext.local2Dev().asM33();
+    if (keyContext.localMatrix()) {
+        totalMatrix.preConcat(*keyContext.localMatrix());
+    }
+
+    SkMatrix invTotal;
+    bool result = totalMatrix.invert(&invTotal);
+    if (!result) {
+        SKGPU_LOG_W("Couldn't invert totalMatrix for PerlinNoiseShader");
+
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
+        builder->endBlock();
+        return;
+    }
+
+    auto paintingData = std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
+                                                                                fSeed,
+                                                                                fBaseFrequencyX,
+                                                                                fBaseFrequencyY,
+                                                                                totalMatrix);
+
+    sk_sp<SkImage> permImg = RecorderPriv::CreateCachedImage(keyContext.recorder(),
+                                                             paintingData->getPermutationsBitmap());
+
+    sk_sp<SkImage> noiseImg = RecorderPriv::CreateCachedImage(keyContext.recorder(),
+                                                              paintingData->getNoiseBitmap());
+
+    if (!permImg || !noiseImg) {
+        SKGPU_LOG_W("Couldn't create tables for PerlinNoiseShader");
+
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
+        builder->endBlock();
+        return;
+    }
+
+    PerlinNoiseShaderBlock::PerlinNoiseData data(static_cast<PerlinNoiseShaderBlock::Type>(fType),
+                                                 paintingData->fBaseFrequency,
+                                                 fNumOctaves,
+                                                 { paintingData->fStitchDataInit.fWidth,
+                                                   paintingData->fStitchDataInit.fHeight });
+
+    TextureProxyView view;
+
+    std::tie(view, std::ignore) = as_IB(permImg)->asView(keyContext.recorder(),
+                                                         skgpu::Mipmapped::kNo);
+    data.fPermutationsProxy = view.refProxy();
+
+    std::tie(view, std::ignore) = as_IB(noiseImg)->asView(keyContext.recorder(),
+                                                          skgpu::Mipmapped::kNo);
+    data.fNoiseProxy = view.refProxy();
+
+    // This (1,1) translation is due to WebKit's 1 based coordinates for the noise
+    // (as opposed to 0 based, usually). Remember: this matrix (shader2World) is going to be
+    // inverted before being applied.
+    SkMatrix shader2Local = SkMatrix::Translate(-1 + totalMatrix.getTranslateX(),
+                                                -1 + totalMatrix.getTranslateY());
+    shader2Local.postConcat(invTotal);
+
+    LocalMatrixShaderBlock::LMShaderData lmShaderData(shader2Local);
+
+    KeyContextWithLocalMatrix newContext(keyContext, shader2Local);
+
+    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
+        PerlinNoiseShaderBlock::BeginBlock(newContext, builder, gatherer, &data);
+        builder->endBlock();
+    builder->endBlock();
+}
+#endif // SK_GRAPHITE
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1003,9 +1112,18 @@ sk_sp<SkShader> SkPerlinNoiseShader::MakeFractalNoise(SkScalar baseFrequencyX,
     if (!valid_input(baseFrequencyX, baseFrequencyY, numOctaves, tileSize, seed)) {
         return nullptr;
     }
+
+    if (0 == numOctaves) {
+        // For kFractalNoise, w/o any octaves, the entire shader collapses to:
+        //    [0,0,0,0] * 0.5 + 0.5
+        constexpr SkColor4f kTransparentGray = {0.5f, 0.5f, 0.5f, 0.5f};
+
+        return SkShaders::Color(kTransparentGray, /* colorSpace= */ nullptr);
+    }
+
     return sk_sp<SkShader>(new SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::kFractalNoise_Type,
-                                                 baseFrequencyX, baseFrequencyY, numOctaves, seed,
-                                                 tileSize));
+                                                       baseFrequencyX, baseFrequencyY, numOctaves,
+                                                       seed, tileSize));
 }
 
 sk_sp<SkShader> SkPerlinNoiseShader::MakeTurbulence(SkScalar baseFrequencyX,
@@ -1015,9 +1133,15 @@ sk_sp<SkShader> SkPerlinNoiseShader::MakeTurbulence(SkScalar baseFrequencyX,
     if (!valid_input(baseFrequencyX, baseFrequencyY, numOctaves, tileSize, seed)) {
         return nullptr;
     }
+
+    if (0 == numOctaves) {
+        // For kTurbulence, w/o any octaves, the entire shader collapses to: [0,0,0,0]
+        return SkShaders::Color(SkColors::kTransparent, /* colorSpace= */ nullptr);
+    }
+
     return sk_sp<SkShader>(new SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::kTurbulence_Type,
-                                                 baseFrequencyX, baseFrequencyY, numOctaves, seed,
-                                                 tileSize));
+                                                       baseFrequencyX, baseFrequencyY, numOctaves,
+                                                       seed, tileSize));
 }
 
 void SkPerlinNoiseShader::RegisterFlattenables() {

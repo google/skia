@@ -12,7 +12,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 class SkTypefaceCache {
 public:
@@ -68,7 +68,7 @@ private:
 
     void purge(int count);
 
-    SkTArray<sk_sp<SkTypeface>> fTypefaces;
+    skia_private::TArray<sk_sp<SkTypeface>> fTypefaces;
 };
 
 #endif

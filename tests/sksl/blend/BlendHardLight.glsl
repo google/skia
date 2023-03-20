@@ -4,7 +4,6 @@ uniform vec4 src;
 uniform vec4 dst;
 float blend_overlay_component_Qhh2h2(vec2 s, vec2 d);
 vec4 blend_overlay_h4h4h4(vec4 src, vec4 dst);
-vec4 blend_hard_light_h4h4h4(vec4 src, vec4 dst);
 float blend_overlay_component_Qhh2h2(vec2 s, vec2 d) {
     return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
 }
@@ -13,9 +12,6 @@ vec4 blend_overlay_h4h4h4(vec4 src, vec4 dst) {
     result.xyz += dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
     return result;
 }
-vec4 blend_hard_light_h4h4h4(vec4 src, vec4 dst) {
-    return blend_overlay_h4h4h4(dst, src);
-}
 void main() {
-    sk_FragColor = blend_hard_light_h4h4h4(src, dst);
+    sk_FragColor = blend_overlay_h4h4h4(dst, src);
 }

@@ -8,37 +8,27 @@
 #include "src/sksl/ir/SkSLChildCall.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/SkSLString.h"
+#include "include/private/base/SkTArray.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
-#include <cstddef>
-
 namespace SkSL {
-
-bool ChildCall::hasProperty(Property property) const {
-    for (const auto& arg : this->arguments()) {
-        if (arg->hasProperty(property)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 std::unique_ptr<Expression> ChildCall::clone(Position pos) const {
     return std::make_unique<ChildCall>(pos, &this->type(), &this->child(),
                                        this->arguments().clone());
 }
 
-std::string ChildCall::description() const {
+std::string ChildCall::description(OperatorPrecedence) const {
     std::string result = std::string(this->child().name()) + ".eval(";
-    std::string separator;
+    auto separator = SkSL::String::Separator();
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
-        result += separator;
-        result += arg->description();
-        separator = ", ";
+        result += separator();
+        result += arg->description(OperatorPrecedence::kSequence);
     }
     result += ")";
     return result;
@@ -63,7 +53,7 @@ std::string ChildCall::description() const {
     if (params.size() != arguments.size()) {
         return false;
     }
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         if (!arguments[i]->type().matches(*params[i])) {
             return false;
         }

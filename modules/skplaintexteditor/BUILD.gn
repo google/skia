@@ -3,8 +3,9 @@
 # found in the LICENSE file.
 
 import("../../gn/skia.gni")
+import("../../modules/skshaper/skshaper.gni")
 
-if (skia_use_icu && skia_use_harfbuzz) {
+if (skia_use_icu && skia_enable_skshaper) {
   skia_source_set("editor_lib") {
     include_dirs = [ "../.." ]
     public = [
@@ -44,5 +45,8 @@ if (skia_use_icu && skia_use_harfbuzz) {
     sources = [ "app/editor_application.cpp" ]
     public_deps = [ "../..:sk_app" ]
     deps = [ ":editor_lib" ]
+  }
+} else {
+  group("editor_app") {
   }
 }

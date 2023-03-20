@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() { bar(); }
+^^^^^^^^^^^
+1 error

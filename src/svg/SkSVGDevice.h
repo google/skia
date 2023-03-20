@@ -11,13 +11,15 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTypeTraits.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkClipStackDevice.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <type_traits>
 
 namespace sktext {
 class GlyphRunList;
@@ -91,10 +93,14 @@ private:
     struct ClipRec {
         std::unique_ptr<AutoElement> fClipPathElem;
         uint32_t                     fGenID;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fClipPathElem)>::value);
+
+        using sk_is_trivially_relocatable = std::true_type;
     };
 
-    std::unique_ptr<AutoElement>    fRootElement;
-    SkTArray<ClipRec>               fClipStack;
+    std::unique_ptr<AutoElement> fRootElement;
+    SkTArray<ClipRec>            fClipStack;
 
     using INHERITED = SkClipStackDevice;
 };

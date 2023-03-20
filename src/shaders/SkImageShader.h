@@ -13,7 +13,14 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 
-class SkKeyContext;
+namespace skgpu {
+class Swizzle;
+}
+
+namespace skgpu::graphite {
+class KeyContext;
+enum class ReadSwizzle;
+}
 
 class SkImageShader : public SkShaderBase {
 public:
@@ -40,29 +47,28 @@ public:
                                       const SkMatrix* localMatrix,
                                       bool clampAsIfUnpremul = false);
 
+    SkImageShader(sk_sp<SkImage>,
+                  const SkRect& subset,
+                  SkTileMode tmx, SkTileMode tmy,
+                  const SkSamplingOptions&,
+                  bool raw,
+                  bool clampAsIfUnpremul);
+
     bool isOpaque() const override;
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#if defined(SK_GANESH)
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
-#ifdef SK_ENABLE_SKSL
-    void addToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
     static SkM44 CubicResamplerMatrix(float B, float C);
 
 private:
     SK_FLATTENABLE_HOOKS(SkImageShader)
-
-    SkImageShader(sk_sp<SkImage>,
-                  const SkRect& subset,
-                  SkTileMode tmx,
-                  SkTileMode tmy,
-                  const SkSamplingOptions&,
-                  const SkMatrix* localMatrix,
-                  bool raw,
-                  bool clampAsIfUnpremul);
 
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -70,22 +76,16 @@ private:
 #endif
     SkImage* onIsAImage(SkMatrix*, SkTileMode*) const override;
 
-    bool onAppendStages(const SkStageRec&) const override;
-    SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const override;
+    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-    SkUpdatableShader* onUpdatableShader(SkArenaAlloc* alloc) const override;
-
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
-
-    class TransformShader;
-    skvm::Color makeProgram(
-            skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-            const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-            skvm::Uniforms* uniforms, const TransformShader* coordShader, SkArenaAlloc*) const;
-
-    bool doStages(const SkStageRec&, TransformShader* = nullptr) const;
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec&,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc*) const override;
 
     sk_sp<SkImage>          fImage;
     const SkSamplingOptions fSampling;

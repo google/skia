@@ -16,6 +16,7 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
@@ -219,7 +220,7 @@ void DDLPromiseImageHelper::createCallbackContexts(GrDirectContext* direct) {
     const GrCaps* caps = direct->priv().caps();
     const int maxDimension = caps->maxTextureSize();
 
-    for (int i = 0; i < fImageInfo.count(); ++i) {
+    for (int i = 0; i < fImageInfo.size(); ++i) {
         PromiseImageInfo& info = fImageInfo[i];
 
         if (info.isYUV()) {
@@ -261,13 +262,13 @@ void DDLPromiseImageHelper::createCallbackContexts(GrDirectContext* direct) {
 
 void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrDirectContext* direct) {
     if (taskGroup) {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
+        for (int i = 0; i < fImageInfo.size(); ++i) {
             PromiseImageInfo* info = &fImageInfo[i];
 
             taskGroup->add([direct, info]() { CreateBETexturesForPromiseImage(direct, info); });
         }
     } else {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
+        for (int i = 0; i < fImageInfo.size(); ++i) {
             CreateBETexturesForPromiseImage(direct, &fImageInfo[i]);
         }
     }
@@ -275,13 +276,13 @@ void DDLPromiseImageHelper::uploadAllToGPU(SkTaskGroup* taskGroup, GrDirectConte
 
 void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrDirectContext* direct) {
     if (taskGroup) {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
+        for (int i = 0; i < fImageInfo.size(); ++i) {
             PromiseImageInfo* info = &fImageInfo[i];
 
             taskGroup->add([info]() { DeleteBETexturesForPromiseImage(info); });
         }
     } else {
-        for (int i = 0; i < fImageInfo.count(); ++i) {
+        for (int i = 0; i < fImageInfo.size(); ++i) {
             DeleteBETexturesForPromiseImage(&fImageInfo[i]);
         }
     }
@@ -375,7 +376,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
 }
 
 int DDLPromiseImageHelper::findImage(SkImage* image) const {
-    for (int i = 0; i < fImageInfo.count(); ++i) {
+    for (int i = 0; i < fImageInfo.size(); ++i) {
         if (fImageInfo[i].originalUniqueID() == image->uniqueID()) { // trying to dedup here
             SkASSERT(fImageInfo[i].index() == i);
             SkASSERT(this->isValidID(i) && this->isValidID(fImageInfo[i].index()));
@@ -395,7 +396,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                                               image->alphaType(),
                                               image->refColorSpace());
 
-    PromiseImageInfo& newImageInfo = fImageInfo.emplace_back(fImageInfo.count(),
+    PromiseImageInfo& newImageInfo = fImageInfo.emplace_back(fImageInfo.size(),
                                                              image->uniqueID(),
                                                              overallII);
 
@@ -433,7 +434,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
     }
     // In either case newImageInfo's PromiseImageCallbackContext is filled in by uploadAllToGPU
 
-    return fImageInfo.count()-1;
+    return fImageInfo.size()-1;
 }
 
 int DDLPromiseImageHelper::findOrDefineImage(SkImage* image) {

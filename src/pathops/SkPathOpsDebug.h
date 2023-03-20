@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 
 #include <cstddef>
 
@@ -27,8 +27,6 @@ struct SkDCubic;
 struct SkDLine;
 struct SkDPoint;
 struct SkDQuad;
-
-enum class SkOpPhase : char;
 
 // define this when running fuzz
 // #define SK_BUILD_FOR_FUZZER
@@ -49,15 +47,10 @@ enum class SkOpPhase : char;
 #else
     #define SK_RAND(seed) rand_r(&seed)
 #endif
-#ifdef SK_BUILD_FOR_WIN
-    #define SK_SNPRINTF _snprintf
-#else
-    #define SK_SNPRINTF snprintf
-#endif
 
 #define WIND_AS_STRING(x) char x##Str[12]; \
         if (!SkPathOpsDebug::ValidWind(x)) strcpy(x##Str, "?"); \
-        else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
+        else snprintf(x##Str, sizeof(x##Str), "%d", x)
 
 #if FORCE_RELEASE
 
@@ -156,6 +149,8 @@ enum class SkOpPhase : char;
 #endif
 
 #if DEBUG_COIN
+enum class SkOpPhase : char;
+
     #define DEBUG_COIN_DECLARE_ONLY_PARAMS() \
             int lineNo, SkOpPhase phase, int iteration
     #define DEBUG_COIN_DECLARE_PARAMS() \

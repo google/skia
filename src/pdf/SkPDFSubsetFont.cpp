@@ -5,19 +5,17 @@
 
 #if defined(SK_PDF_USE_HARFBUZZ_SUBSET)
 
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/utils/SkCallableTraits.h"
 
 #include "hb.h"
 #include "hb-subset.h"
 
-template <class T, void(*P)(T*)> using resource =
-    std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>>;
-using HBBlob = resource<hb_blob_t, &hb_blob_destroy>;
-using HBFace = resource<hb_face_t, &hb_face_destroy>;
-using HBSubsetInput = resource<hb_subset_input_t, &hb_subset_input_destroy>;
-using HBSet = resource<hb_set_t, &hb_set_destroy>;
+using HBBlob = std::unique_ptr<hb_blob_t, SkFunctionObject<hb_blob_destroy>>;
+using HBFace = std::unique_ptr<hb_face_t, SkFunctionObject<hb_face_destroy>>;
+using HBSubsetInput = std::unique_ptr<hb_subset_input_t, SkFunctionObject<hb_subset_input_destroy>>;
+using HBSet = std::unique_ptr<hb_set_t, SkFunctionObject<hb_set_destroy>>;
 
 static HBBlob to_blob(sk_sp<SkData> data) {
     using blob_size_t = SkCallableTraits<decltype(hb_blob_create)>::argument<1>::type;
@@ -51,10 +49,14 @@ struct SkPDFHarfBuzzSubset {
     // This is the HarfBuzz 3.0 interface.
     // hb_subset_flags_t does not exist in 2.0. It isn't dependent on T, so inline the value of
     // HB_SUBSET_FLAGS_RETAIN_GIDS until 2.0 is no longer supported.
-    static HBFace Make(T input, hb_face_t* face) {
+    static HBFace Make(T input, hb_face_t* face, bool retainZeroGlyph) {
         // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
         // If it isn't known if a font is 'tricky', retain the hints.
-        hb_subset_input_set_flags(input, 2/*HB_SUBSET_FLAGS_RETAIN_GIDS*/);
+        unsigned int flags = 0x2u/*HB_SUBSET_FLAGS_RETAIN_GIDS*/;
+        if (retainZeroGlyph) {
+            flags |= 0x40u/*HB_SUBSET_FLAGS_NOTDEF_OUTLINE*/;
+        }
+        hb_subset_input_set_flags(input, flags);
         return HBFace(hb_subset_or_fail(face, input));
     }
 };
@@ -67,7 +69,7 @@ struct SkPDFHarfBuzzSubset<T, void_t<
 {
     // This is the HarfBuzz 2.0 (non-public) interface, used if it exists.
     // This code should be removed as soon as all users are migrated to the newer API.
-    static HBFace Make(T input, hb_face_t* face) {
+    static HBFace Make(T input, hb_face_t* face, bool) {
         hb_subset_input_set_retain_gids(input, true);
         // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
         // If it isn't known if a font is 'tricky', retain the hints.
@@ -93,7 +95,8 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
     hb_set_t* glyphs = hb_subset_input_glyph_set(input.get());
     glyphUsage.getSetValues([&glyphs](unsigned gid) { hb_set_add(glyphs, gid);});
 
-    HBFace subset = SkPDFHarfBuzzSubset<hb_subset_input_t*>::Make(input.get(), face.get());
+    HBFace subset = SkPDFHarfBuzzSubset<hb_subset_input_t*>::Make(input.get(), face.get(),
+                                                                  glyphUsage.has(0));
     if (!subset) {
         return nullptr;
     }
@@ -109,6 +112,10 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
 
 #include "sample/chromium/font_subsetter.h"
 #include <vector>
+
+#if defined(SK_USING_THIRD_PARTY_ICU)
+#include "third_party/icu/SkLoadICU.h"
+#endif
 
 static sk_sp<SkData> subset_sfntly(sk_sp<SkData> fontData,
                                    const SkPDFGlyphUse& glyphUsage,

@@ -6,8 +6,15 @@
  */
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFlattenable.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "tests/Test.h"
 

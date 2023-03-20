@@ -9,6 +9,8 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMath.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
 class SkOpAngle;

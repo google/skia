@@ -9,21 +9,26 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkTDPQueue.h"
+#include "src/base/SkTInternalLList.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
-#include "src/core/SkTDPQueue.h"
-#include "src/core/SkTInternalLList.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <new>
+
+using namespace skia_private;
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 //////////////////////////////////////////////////////////////////////////////////
 // Helper data structures and functions
@@ -350,7 +355,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     // insetting close to zero just returns the original poly
     if (inset <= SK_ScalarNearlyZero) {
         for (int i = 0; i < inputPolygonSize; ++i) {
-            *insetPolygon->push() = inputPolygonVerts[i];
+            *insetPolygon->append() = inputPolygonVerts[i];
         }
         return true;
     }
@@ -362,7 +367,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     }
 
     // set up
-    SkAutoSTMalloc<64, OffsetEdge> edgeData(inputPolygonSize);
+    AutoSTMalloc<64, OffsetEdge> edgeData(inputPolygonSize);
     int prev = inputPolygonSize - 1;
     for (int curr = 0; curr < inputPolygonSize; prev = curr, ++curr) {
         int next = (curr + 1) % inputPolygonSize;
@@ -455,16 +460,16 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     static constexpr SkScalar kCleanupTolerance = 0.01f;
     if (insetVertexCount >= 0) {
-        insetPolygon->setReserve(insetVertexCount);
+        insetPolygon->reserve(insetVertexCount);
     }
     int currIndex = 0;
-    *insetPolygon->push() = head->fIntersection;
+    *insetPolygon->append() = head->fIntersection;
     currEdge = head->fNext;
     while (currEdge != head) {
         if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
                                                 (*insetPolygon)[currIndex],
                                                 kCleanupTolerance)) {
-            *insetPolygon->push() = currEdge->fIntersection;
+            *insetPolygon->append() = currEdge->fIntersection;
             currIndex++;
         }
         currEdge = currEdge->fNext;
@@ -473,10 +478,10 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     if (currIndex >= 1 &&
         SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
                                             kCleanupTolerance)) {
-        insetPolygon->pop();
+        insetPolygon->pop_back();
     }
 
-    return SkIsConvexPolygon(insetPolygon->begin(), insetPolygon->count());
+    return SkIsConvexPolygon(insetPolygon->begin(), insetPolygon->size());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1212,9 +1217,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     // offsetting close to zero just returns the original poly
     if (SkScalarNearlyZero(offset)) {
         for (int i = 0; i < inputPolygonSize; ++i) {
-            *offsetPolygon->push() = inputPolygonVerts[i];
+            *offsetPolygon->append() = inputPolygonVerts[i];
             if (polygonIndices) {
-                *polygonIndices->push() = i;
+                *polygonIndices->append() = i;
             }
         }
         return true;
@@ -1227,7 +1232,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // build normals
-    SkAutoSTMalloc<64, SkVector> normals(inputPolygonSize);
+    AutoSTMalloc<64, SkVector> normals(inputPolygonSize);
     unsigned int numEdges = 0;
     for (int currIndex = 0, prevIndex = inputPolygonSize - 1;
          currIndex < inputPolygonSize;
@@ -1335,7 +1340,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     edgeData[0].fPrev = prevEdge;
 
     // now clip edges
-    SkASSERT(edgeData.count() == (int)numEdges);
+    SkASSERT(edgeData.size() == (int)numEdges);
     auto head = &edgeData[0];
     auto currEdge = head;
     unsigned int offsetVertexCount = numEdges;
@@ -1426,20 +1431,20 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     static constexpr SkScalar kCleanupTolerance = 0.01f;
-    offsetPolygon->setReserve(offsetVertexCount);
+    offsetPolygon->reserve(offsetVertexCount);
     int currIndex = 0;
-    *offsetPolygon->push() = head->fIntersection;
+    *offsetPolygon->append() = head->fIntersection;
     if (polygonIndices) {
-        *polygonIndices->push() = head->fIndex;
+        *polygonIndices->append() = head->fIndex;
     }
     currEdge = head->fNext;
     while (currEdge != head) {
         if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
                                                 (*offsetPolygon)[currIndex],
                                                 kCleanupTolerance)) {
-            *offsetPolygon->push() = currEdge->fIntersection;
+            *offsetPolygon->append() = currEdge->fIntersection;
             if (polygonIndices) {
-                *polygonIndices->push() = currEdge->fIndex;
+                *polygonIndices->append() = currEdge->fIndex;
             }
             currIndex++;
         }
@@ -1449,17 +1454,17 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     if (currIndex >= 1 &&
         SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
                                             kCleanupTolerance)) {
-        offsetPolygon->pop();
+        offsetPolygon->pop_back();
         if (polygonIndices) {
-            polygonIndices->pop();
+            polygonIndices->pop_back();
         }
     }
 
     // check winding of offset polygon (it should be same as the original polygon)
-    SkScalar offsetWinding = SkGetPolygonWinding(offsetPolygon->begin(), offsetPolygon->count());
+    SkScalar offsetWinding = SkGetPolygonWinding(offsetPolygon->begin(), offsetPolygon->size());
 
     return (winding*offsetWinding > 0 &&
-            SkIsSimplePolygon(offsetPolygon->begin(), offsetPolygon->count()));
+            SkIsSimplePolygon(offsetPolygon->begin(), offsetPolygon->size()));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1539,8 +1544,8 @@ public:
             return false;
         }
 
-        fGrid.setCount(fHCount*fVCount);
-        for (int i = 0; i < fGrid.count(); ++i) {
+        fGrid.resize(fHCount*fVCount);
+        for (int i = 0; i < fGrid.size(); ++i) {
             fGrid[i].reset();
         }
 
@@ -1648,7 +1653,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     }
 
     // Set up vertices
-    SkAutoSTArray<64, TriangulationVertex> triangulationVertices(polygonSize);
+    AutoSTArray<64, TriangulationVertex> triangulationVertices(polygonSize);
     int prevIndex = polygonSize - 1;
     SkVector v0 = polygonVerts[0] - polygonVerts[prevIndex];
     for (int currIndex = 0; currIndex < polygonSize; ++currIndex) {
@@ -1705,7 +1710,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     // In the worst case this is an n^2 algorithm. We can cut down the search space somewhat by
     // noting that only convex vertices can be potential ears, and we only need to check whether
     // any reflex vertices lie inside the ear.
-    triangleIndices->setReserve(triangleIndices->count() + 3 * (polygonSize - 2));
+    triangleIndices->reserve(triangleIndices->size() + 3 * (polygonSize - 2));
     int vertexCount = polygonSize;
     while (vertexCount > 3) {
         bool success = false;
@@ -1759,8 +1764,11 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     for (SkTInternalLList<TriangulationVertex>::Iter vertexIter = convexList.begin();
          vertexIter != convexList.end(); ++vertexIter) {
         TriangulationVertex* vertex = *vertexIter;
-        *triangleIndices->push() = indexMap[vertex->fIndex];
+        *triangleIndices->append() = indexMap[vertex->fIndex];
     }
 
     return true;
 }
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
+

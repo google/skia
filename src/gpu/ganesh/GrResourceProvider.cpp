@@ -7,26 +7,41 @@
 
 #include "src/gpu/ganesh/GrResourceProvider.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
-#include "include/gpu/GrBackendSemaphore.h"
-#include "include/private/SingleOwner.h"
-#include "src/core/SkConvertPixels.h"
-#include "src/core/SkMathPriv.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SingleOwner.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/SkGr.h"
+
+#include <algorithm>
+#include <utility>
+
+struct SkImageInfo;
+
+using namespace skia_private;
 
 const int GrResourceProvider::kMinScratchTextureSize = 16;
 
@@ -50,7 +65,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrColorType colorType,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
-                                                   SkBudgeted budgeted,
+                                                   skgpu::Budgeted budgeted,
                                                    GrMipmapped mipmapped,
                                                    GrProtected isProtected,
                                                    const GrMipLevel texels[],
@@ -91,8 +106,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
         }
         return this->writePixels(std::move(scratch), colorType, dimensions, texels, numMipLevels);
     }
-    SkAutoSTArray<14, GrMipLevel> tmpTexels;
-    SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
+    AutoSTArray<14, GrMipLevel> tmpTexels;
+    AutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
     GrColorType tempColorType = GrColorType::kUnknown;
     if (hasPixels) {
         tempColorType = this->prepareLevels(format, colorType, dimensions, texels, numMipLevels,
@@ -120,7 +135,7 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
                                                      GrTextureType textureType,
                                                      GrRenderable renderable,
                                                      int renderTargetSampleCnt,
-                                                     SkBudgeted budgeted,
+                                                     skgpu::Budgeted budgeted,
                                                      GrMipmapped mipmapped,
                                                      GrProtected isProtected,
                                                      std::string_view label) {
@@ -132,7 +147,7 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
                                                         mipmapped,
                                                         isProtected,
                                                         label));
-    if (tex && SkBudgeted::kNo == budgeted) {
+    if (tex && skgpu::Budgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
 
@@ -145,7 +160,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrColorType colorType,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
-                                                   SkBudgeted budgeted,
+                                                   skgpu::Budgeted budgeted,
                                                    SkBackingFit fit,
                                                    GrProtected isProtected,
                                                    const GrMipLevel& mipLevel,
@@ -193,7 +208,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
 
 sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(SkISize dimensions,
                                                              const GrBackendFormat& format,
-                                                             SkBudgeted budgeted,
+                                                             skgpu::Budgeted budgeted,
                                                              GrMipmapped mipmapped,
                                                              GrProtected isProtected,
                                                              SkData* data,
@@ -217,7 +232,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
                                                    GrMipmapped mipmapped,
-                                                   SkBudgeted budgeted,
+                                                   skgpu::Budgeted budgeted,
                                                    GrProtected isProtected,
                                                    std::string_view label) {
     ASSERT_SINGLE_OWNER
@@ -325,7 +340,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
                                renderable,
                                renderTargetSampleCnt,
                                GrMipmapped::kNo,
-                               SkBudgeted::kYes,
+                               skgpu::Budgeted::kYes,
                                isProtected,
                                label);
 }
@@ -481,7 +496,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
 
     // Map the buffer. Use a staging buffer on the heap if mapping isn't supported.
     skgpu::VertexWriter vertexWriter = {buffer->map(), size};
-    SkAutoTMalloc<char> stagingBuffer;
+    AutoTMalloc<char> stagingBuffer;
     if (!vertexWriter) {
         SkASSERT(!buffer->isMapped());
         vertexWriter = {stagingBuffer.reset(size), size};
@@ -514,7 +529,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(
         return nullptr;
     }
     uint16_t* data = (uint16_t*) buffer->map();
-    SkAutoTArray<uint16_t> temp;
+    AutoTArray<uint16_t> temp;
     if (!data) {
         temp.reset(reps * patternSize);
         data = temp.get();
@@ -904,8 +919,8 @@ sk_sp<GrTexture> GrResourceProvider::writePixels(sk_sp<GrTexture> texture,
     SkASSERT(colorType != GrColorType::kUnknown);
     SkASSERT(mipLevelCount && texels && texels[0].fPixels);
 
-    SkAutoSTArray<14, GrMipLevel> tmpTexels;
-    SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
+    AutoSTArray<14, GrMipLevel> tmpTexels;
+    AutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
     auto tempColorType = this->prepareLevels(texture->backendFormat(), colorType, baseSize, texels,
                                              mipLevelCount, &tmpTexels, &tmpDatas);
     if (tempColorType == GrColorType::kUnknown) {

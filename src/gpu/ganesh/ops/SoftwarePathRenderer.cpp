@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/ops/SoftwarePathRenderer.h"
 
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkSemaphore.h"
+#include "include/private/base/SkSemaphore.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
@@ -92,10 +92,15 @@ GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
 
-    auto proxy =
-            proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipmapped::kNo,
-                                       fit, SkBudgeted::kYes, GrProtected::kNo,
-                                       /*label=*/"MakeDeferredMaskTextureView");
+    auto proxy = proxyProvider->createProxy(format,
+                                            dimensions,
+                                            GrRenderable::kNo,
+                                            1,
+                                            GrMipmapped::kNo,
+                                            fit,
+                                            skgpu::Budgeted::kYes,
+                                            GrProtected::kNo,
+                                            /*label=*/"MakeDeferredMaskTextureView");
     return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
 }
 
@@ -354,7 +359,7 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 if (helper.init(uploaderRaw->data().getMaskBounds())) {
                     helper.drawShape(uploaderRaw->data().getShape(),
                                      *uploaderRaw->data().getViewMatrix(),
-                                     SkRegion::kReplace_Op, uploaderRaw->data().getAA(), 0xFF);
+                                     uploaderRaw->data().getAA(), 0xFF);
                 } else {
                     SkDEBUGFAIL("Unable to allocate SW mask.");
                 }
@@ -367,7 +372,7 @@ bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             if (!helper.init(*boundsForMask)) {
                 return false;
             }
-            helper.drawShape(*args.fShape, *args.fViewMatrix, SkRegion::kReplace_Op, aa, 0xFF);
+            helper.drawShape(*args.fShape, *args.fViewMatrix, aa, 0xFF);
             view = helper.toTextureView(args.fContext, fit);
         }
 

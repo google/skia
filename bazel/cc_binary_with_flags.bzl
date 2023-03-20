@@ -13,7 +13,10 @@ load("//bazel:copts.bzl", "DEFAULT_COPTS")
 _bool_flags = [
     "//bazel/common_config_settings:use_harfbuzz",
     "//bazel/common_config_settings:use_icu",
+    "//src/gpu/ganesh/vk:enable_secondary_draw_context",
     "//src/gpu:enable_gpu_test_utils",
+    "//src/lazy:enable_discardable_memory",
+    "//src/lazy:use_default_global_memory_pool",
     "//src/pdf:enable_pdf_backend",
     "//src/sksl:enable_sksl",
     "//src/sksl:enable_sksl_tracing",
@@ -29,15 +32,20 @@ _string_flags = [
 _string_list_flags = [
     "//src/gpu:gpu_backend",
     "//src/codec:include_decoder",
-    "//src/images:include_encoder",
+    "//src/encode:include_encoder",
     "//bazel/common_config_settings:include_fontmgr",
 ]
 
 # These are the flags that we support setting via set_flags
 _flags = _bool_flags + _string_flags + _string_list_flags
+_short_flags = [long_flag.split(":")[1] for long_flag in _flags]
 
 def _flag_transition_impl(settings, attr):
     rv = {}
+    for flag in attr.set_flags:
+        if flag not in _short_flags:
+            fail("unknown flag " + flag)
+
     for key in settings:
         # Get the short form of the name. This the short form used as the keys in the
         # set_flags dictionary.
@@ -58,7 +66,7 @@ def _flag_transition_impl(settings, attr):
                 rv[key] = flag_setting  # we know flag_setting is a string (e.g. the default).
         elif key in _bool_flags:
             if type(flag_setting) == "list":
-                rv[key] = flag_setting[0] == "True"
+                rv[key] = flag_setting[0].lower() == "true"
             else:
                 rv[key] = flag_setting  # flag_setting will be a boolean, the default
     return rv

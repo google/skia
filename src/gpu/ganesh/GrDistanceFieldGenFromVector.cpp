@@ -9,13 +9,14 @@
 #include "src/gpu/ganesh/GrDistanceFieldGenFromVector.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/gpu/GrConfig.h"
-#include "include/private/SkTPin.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/private/base/SkTPin.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 namespace {
 // TODO: should we make this real (i.e. src/core) and distinguish it from
@@ -255,15 +256,7 @@ void PathSegment::init() {
         SkASSERT(fType == PathSegment::kQuad);
 
         // Calculate bounding box
-        const SkPoint _P1mP0 = fPts[1] - fPts[0];
-        SkPoint t = _P1mP0 - fPts[2] + fPts[1];
-        t.fX = _P1mP0.fX / t.fX;
-        t.fY = _P1mP0.fY / t.fY;
-        t.fX = SkTPin(t.fX, 0.0f, 1.0f);
-        t.fY = SkTPin(t.fY, 0.0f, 1.0f);
-        t.fX = _P1mP0.fX * t.fX;
-        t.fY = _P1mP0.fY * t.fY;
-        const SkPoint m = fPts[0] + t;
+        const SkPoint m = fPts[0]*0.25f + fPts[1]*0.5f + fPts[2]*0.25f; // midpoint of curve
         SkRectPriv::GrowToInclude(&fBoundingBox, m);
 
         const double p1x = fPts[1].fX;
@@ -383,7 +376,7 @@ static inline void add_cubic(const SkPoint pts[4],
                              PathSegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, &quads);
-    int count = quads.count();
+    int count = quads.size();
     for (int q = 0; q < count; q += 3) {
         add_quad(&quads[q], segments);
     }
@@ -629,7 +622,7 @@ static float distance_to_segment(const SkPoint& point,
 static void calculate_distance_field_data(PathSegmentArray* segments,
                                           DFData* dataPtr,
                                           int width, int height) {
-    int count = segments->count();
+    int count = segments->size();
     // for each segment
     for (int a = 0; a < count; ++a) {
         PathSegment& segment = (*segments)[a];
@@ -862,3 +855,5 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     }
     return true;
 }
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

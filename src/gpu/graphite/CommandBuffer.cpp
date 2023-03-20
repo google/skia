@@ -27,7 +27,14 @@ CommandBuffer::~CommandBuffer() {
 void CommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fTrackedResources.reset();
+    fTrackedResources.clear();
+}
+
+void CommandBuffer::resetCommandBuffer() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    this->releaseResources();
+    this->onResetCommandBuffer();
 }
 
 void CommandBuffer::trackResource(sk_sp<Resource> resource) {
@@ -40,22 +47,25 @@ void CommandBuffer::addFinishedProc(sk_sp<RefCntedCallback> finishedProc) {
 
 void CommandBuffer::callFinishedProcs(bool success) {
     if (!success) {
-        for (int i = 0; i < fFinishedProcs.count(); ++i) {
+        for (int i = 0; i < fFinishedProcs.size(); ++i) {
             fFinishedProcs[i]->setFailureResult();
         }
     }
-    fFinishedProcs.reset();
+    fFinishedProcs.clear();
 }
 
 bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   sk_sp<Texture> colorTexture,
                                   sk_sp<Texture> resolveTexture,
                                   sk_sp<Texture> depthStencilTexture,
-                                  const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+                                  SkRect viewport,
+                                  const DrawPassList& drawPasses) {
+    fRenderPassSize = colorTexture->dimensions();
     if (!this->onAddRenderPass(renderPassDesc,
                                colorTexture.get(),
                                resolveTexture.get(),
                                depthStencilTexture.get(),
+                               viewport,
                                drawPasses)) {
         return false;
     }
@@ -77,18 +87,30 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
     return true;
 }
 
-bool CommandBuffer::addComputePass(const ComputePassDesc& computePassDesc,
-                                   sk_sp<ComputePipeline> pipeline,
-                                   const std::vector<ResourceBinding>& bindings) {
-    if (!this->onAddComputePass(computePassDesc, pipeline.get(), bindings)) {
+bool CommandBuffer::addComputePass(const DispatchGroupList& dispatchGroups) {
+    if (!this->onAddComputePass(dispatchGroups)) {
         return false;
     }
 
-    this->trackResource(std::move(pipeline));
+    SkDEBUGCODE(fHasWork = true;)
 
-    for (const auto& binding : bindings) {
-        this->trackResource(binding.fResource.fBuffer);
+    return true;
+}
+
+bool CommandBuffer::copyBufferToBuffer(sk_sp<Buffer> srcBuffer,
+                                       size_t srcOffset,
+                                       sk_sp<Buffer> dstBuffer,
+                                       size_t dstOffset,
+                                       size_t size) {
+    SkASSERT(srcBuffer);
+    SkASSERT(dstBuffer);
+
+    if (!this->onCopyBufferToBuffer(srcBuffer.get(), srcOffset, dstBuffer.get(), dstOffset, size)) {
+        return false;
     }
+
+    this->trackResource(std::move(srcBuffer));
+    this->trackResource(std::move(dstBuffer));
 
     SkDEBUGCODE(fHasWork = true;)
 
@@ -135,6 +157,25 @@ bool CommandBuffer::copyBufferToTexture(const Buffer* buffer,
     return true;
 }
 
+bool CommandBuffer::copyTextureToTexture(sk_sp<Texture> src,
+                                         SkIRect srcRect,
+                                         sk_sp<Texture> dst,
+                                         SkIPoint dstPoint) {
+    SkASSERT(src);
+    SkASSERT(dst);
+
+    if (!this->onCopyTextureToTexture(src.get(), srcRect, dst.get(), dstPoint)) {
+        return false;
+    }
+
+    this->trackResource(std::move(src));
+    this->trackResource(std::move(dst));
+
+    SkDEBUGCODE(fHasWork = true;)
+
+    return true;
+}
+
 bool CommandBuffer::synchronizeBufferToCpu(sk_sp<Buffer> buffer) {
     SkASSERT(buffer);
 
@@ -147,6 +188,18 @@ bool CommandBuffer::synchronizeBufferToCpu(sk_sp<Buffer> buffer) {
         this->trackResource(std::move(buffer));
         SkDEBUGCODE(fHasWork = true;)
     }
+
+    return true;
+}
+
+bool CommandBuffer::clearBuffer(const Buffer* buffer, size_t offset, size_t size) {
+    SkASSERT(buffer);
+
+    if (!this->onClearBuffer(buffer, offset, size)) {
+        return false;
+    }
+
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }

@@ -1,18 +1,20 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "skia_cc_deps", "split_srcs_and_hdrs", "string_flag_with_values")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:flags.bzl", "bool_flag", "selects", "string_flag_with_values")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-CORE_FILES = [
+# In own group for exporting to //gn/gpu.gni:skia_shared_gpu_sources.
+SHARED_FILES = [
+    "AsyncReadTypes.h",
     "AtlasTypes.cpp",
     "AtlasTypes.h",
     "Blend.cpp",
     "Blend.h",
     "BufferWriter.h",
-    "GrAHardwareBufferUtils.h",
-    "GrRectanizer.h",
     "KeyBuilder.h",
+    "MutableTextureStateRef.h",
     "Rectanizer.h",
     "RectanizerPow2.cpp",
     "RectanizerPow2.h",
@@ -21,9 +23,21 @@ CORE_FILES = [
     "RefCntedCallback.h",
     "ResourceKey.cpp",
     "ResourceKey.h",
-    "ShaderErrorHandler.cpp",
+    "SkBackingFit.h",
     "Swizzle.cpp",
     "Swizzle.h",
+]
+
+split_srcs_and_hdrs(
+    name = "shared",
+    files = SHARED_FILES,
+)
+
+CORE_FILES = [
+    "GrAHardwareBufferUtils.h",
+    "GrRectanizer.h",
+    "ShaderErrorHandler.cpp",
+    "SkRenderEngineAbortf.h",
 ]
 
 split_srcs_and_hdrs(
@@ -80,29 +94,35 @@ bool_flag(
     default = False,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
+        ":shared_srcs",
         "//src/gpu/ganesh:srcs",
         "//src/gpu/tessellate:srcs",
-    ] + select({
-        "//src/gpu:vulkan_backend": ["//src/gpu/vk:srcs"],
-        "//conditions:default": [],
-    }),
+    ] + select_multi(
+        {
+            "//src/gpu:dawn_backend": ["//src/gpu/dawn:srcs"],
+            "//src/gpu:vulkan_backend": ["//src/gpu/vk:srcs"],
+        },
+    ),
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",
+        ":shared_hdrs",
         "//src/gpu/ganesh:private_hdrs",
         "//src/gpu/tessellate:private_hdrs",
-    ] + select({
-        "//src/gpu:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
-        "//conditions:default": [],
-    }),
+    ] + select_multi(
+        {
+            "//src/gpu:dawn_backend": ["//src/gpu/dawn:private_hdrs"],
+            "//src/gpu:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
+        },
+    ),
     visibility = ["//src:__pkg__"],
 )
 
@@ -111,5 +131,9 @@ skia_cc_deps(
     visibility = ["//src:__pkg__"],
     deps = [
         "//src/gpu/ganesh:deps",
-    ],
+    ] + select_multi(
+        {
+            "//src/gpu:vulkan_backend": ["//src/gpu/vk:deps"],
+        },
+    ),
 )

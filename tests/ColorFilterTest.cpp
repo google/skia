@@ -5,24 +5,40 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkColorMatrix.h" // IWYU pragma: keep
 #include "include/effects/SkGradientShader.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrDirectContext.h"
+#include "src/base/SkAutoMalloc.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
+#include <cstddef>
+#include <utility>
+
+class SkArenaAlloc;
 class SkFlattenable;
+struct GrContextOptions;
+struct SkStageRec;
 
 static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
     SkBinaryWriteBuffer wb;
@@ -141,19 +157,19 @@ struct FailureColorFilter final : public SkColorFilterBase {
         return {};
     }
 
-    bool onAppendStages(const SkStageRec&, bool) const override { return false; }
+    bool appendStages(const SkStageRec&, bool) const override { return false; }
 
     // Only created here, should never be flattened / unflattened.
     Factory getFactory() const override { return nullptr; }
     const char* getTypeName() const override { return "FailureColorFilter"; }
 };
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
-                             r,
-                             ctxInfo,
-                             CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
+                                 r,
+                                 ctxInfo,
+                                 CtsEnforcement::kApiLevel_T) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8, 8);
-    auto surface = SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info);
+    auto surface = SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
     SkPaint paint;
 
     // Install a non-trivial shader, so the color filter isn't just applied to the paint color:

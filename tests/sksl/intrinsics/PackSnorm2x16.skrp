@@ -1,0 +1,39 @@
+### Compilation failed:
+
+error: 7: unknown identifier 'packSnorm2x16'
+    const uint constXY = packSnorm2x16(constVal.xy);
+                         ^^^^^^^^^^^^^
+error: 8: unknown identifier 'packSnorm2x16'
+    const uint constZW = packSnorm2x16(constVal.zw);
+                         ^^^^^^^^^^^^^
+error: 9: unknown identifier 'packSnorm2x16'
+    uint xy = packSnorm2x16(testInputs.xy);
+              ^^^^^^^^^^^^^
+error: 10: unknown identifier 'packSnorm2x16'
+    uint zw = packSnorm2x16(testInputs.zw);
+              ^^^^^^^^^^^^^
+error: 13: unknown identifier 'unpackSnorm2x16'
+    return (all(lessThan(abs(unpackSnorm2x16(xy)      - float2(expected.xy)), tolerance)) &&
+                             ^^^^^^^^^^^^^^^
+error: 13: unknown identifier 'xy'
+    return (all(lessThan(abs(unpackSnorm2x16(xy)      - float2(expected.xy)), tolerance)) &&
+                                             ^^
+error: 14: unknown identifier 'unpackSnorm2x16'
+            all(lessThan(abs(unpackSnorm2x16(zw)      - float2(expected.zw)), tolerance)) &&
+                             ^^^^^^^^^^^^^^^
+error: 14: unknown identifier 'zw'
+            all(lessThan(abs(unpackSnorm2x16(zw)      - float2(expected.zw)), tolerance)) &&
+                                             ^^
+error: 15: unknown identifier 'unpackSnorm2x16'
+            all(lessThan(abs(unpackSnorm2x16(constXY) - float2(expected.xy)), tolerance)) &&
+                             ^^^^^^^^^^^^^^^
+error: 15: unknown identifier 'constXY'
+            all(lessThan(abs(unpackSnorm2x16(constXY) - float2(expected.xy)), tolerance)) &&
+                                             ^^^^^^^
+error: 16: unknown identifier 'unpackSnorm2x16'
+            all(lessThan(abs(unpackSnorm2x16(constZW) - float2(expected.zw)), tolerance)))
+                             ^^^^^^^^^^^^^^^
+error: 16: unknown identifier 'constZW'
+            all(lessThan(abs(unpackSnorm2x16(constZW) - float2(expected.zw)), tolerance)))
+                                             ^^^^^^^
+12 errors

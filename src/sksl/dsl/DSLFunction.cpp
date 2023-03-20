@@ -14,6 +14,9 @@
 #include "include/private/SkSLString.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIntrinsicList.h"
+#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -34,15 +37,16 @@ namespace SkSL {
 
 namespace dsl {
 
-void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
-                       SkTArray<DSLParameter*> params, Position pos) {
-    fPosition = pos;
-    // Conservatively assume all user-defined functions have side effects.
-    if (!ThreadContext::IsModule()) {
-        modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
-    }
+static bool is_intrinsic_in_module(const Context& context, std::string_view name) {
+    return context.fConfig->fIsBuiltinCode && SkSL::FindIntrinsicKind(name) != kNotIntrinsic;
+}
 
-    if (ThreadContext::Settings().fForceNoInline) {
+void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
+                       SkSpan<DSLParameter*> params, Position pos) {
+    fPosition = pos;
+
+    const Context& context = ThreadContext::Context();
+    if (context.fConfig->fSettings.fForceNoInline) {
         // Apply the `noinline` modifier to every function. This allows us to test Runtime
         // Effects without any inlining, even when the code is later added to a paint.
         modifiers.fModifiers.fFlags &= ~Modifiers::kInline_Flag;
@@ -61,50 +65,55 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
         paramVars.push_back(std::move(paramVar));
     }
     SkASSERT(paramVars.size() == params.size());
-    fDecl = SkSL::FunctionDeclaration::Convert(ThreadContext::Context(),
+    fDecl = SkSL::FunctionDeclaration::Convert(context,
                                                *ThreadContext::SymbolTable(),
                                                pos,
                                                modifiers.fPosition,
-                                               ThreadContext::Modifiers(modifiers.fModifiers),
+                                               context.fModifiersPool->add(modifiers.fModifiers),
                                                name,
-                                               std::move(paramVars), pos,
+                                               std::move(paramVars),
+                                               pos,
                                                &returnType.skslType());
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {
             params[i]->fVar = fDecl->parameters()[i];
             params[i]->fInitialized = true;
         }
-        // We don't know when this function is going to be defined; go ahead and add a prototype in
-        // case the definition is delayed. If we end up defining the function immediately, we'll
-        // remove the prototype in define().
-        ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
-                pos, fDecl, ThreadContext::IsModule()));
     }
+}
+
+void DSLFunction::prototype() {
+    if (!fDecl) {
+        // We failed to create the declaration; error should already have been reported.
+        return;
+    }
+    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
+            fDecl->fPosition, fDecl, ThreadContext::IsModule()));
 }
 
 void DSLFunction::define(DSLBlock block, Position pos) {
     std::unique_ptr<SkSL::Block> body = block.release();
     body->fPosition = pos;
     if (!fDecl) {
-        // Evidently we failed to create the declaration; error should already have been reported.
-        // Release the block so we don't fail its destructor assert.
+        // We failed to create the declaration; error should already have been reported.
         return;
     }
-    if (!ThreadContext::ProgramElements().empty()) {
-        // If the last ProgramElement was the prototype for this function, it was unnecessary and we
-        // can remove it.
-        const SkSL::ProgramElement& last = *ThreadContext::ProgramElements().back();
-        if (last.is<SkSL::FunctionPrototype>()) {
-            const SkSL::FunctionPrototype& prototype = last.as<SkSL::FunctionPrototype>();
-            if (&prototype.declaration() == fDecl) {
-                ThreadContext::ProgramElements().pop_back();
-            }
-        }
+    // We don't allow modules to define actual functions with intrinsic names. (Those should be
+    // reserved for actual intrinsics.)
+    const Context& context = ThreadContext::Context();
+    if (is_intrinsic_in_module(context, fDecl->name())) {
+        ThreadContext::ReportError(
+                SkSL::String::printf("Intrinsic function '%.*s' should not have a definition",
+                                     (int)fDecl->name().size(),
+                                     fDecl->name().data()),
+                fDecl->fPosition);
+        return;
     }
+
     if (fDecl->definition()) {
         ThreadContext::ReportError(SkSL::String::printf("function '%s' was already defined",
-                fDecl->description().c_str()), pos);
-        block.release();
+                                                        fDecl->description().c_str()),
+                                   fDecl->fPosition);
         return;
     }
     std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(
@@ -117,7 +126,7 @@ void DSLFunction::define(DSLBlock block, Position pos) {
     ThreadContext::ProgramElements().push_back(std::move(function));
 }
 
-DSLExpression DSLFunction::call(SkTArray<DSLExpression> args, Position pos) {
+DSLExpression DSLFunction::call(SkSpan<DSLExpression> args, Position pos) {
     ExpressionArray released;
     released.reserve_back(args.size());
     for (DSLExpression& arg : args) {
@@ -127,8 +136,8 @@ DSLExpression DSLFunction::call(SkTArray<DSLExpression> args, Position pos) {
 }
 
 DSLExpression DSLFunction::call(ExpressionArray args, Position pos) {
-    std::unique_ptr<SkSL::Expression> result = SkSL::FunctionCall::Convert(ThreadContext::Context(),
-            pos, *fDecl, std::move(args));
+    std::unique_ptr<SkSL::Expression> result =
+            SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, *fDecl, std::move(args));
     return DSLExpression(std::move(result), pos);
 }
 

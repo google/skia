@@ -1,0 +1,31 @@
+uniform half4 colorRed;
+uniform half2x2 testMatrix2x2;
+uniform half testArray[5];
+
+const int zero = 0;
+
+const half[5] globalArray = half[5](1, 1, 1, 1, 1);
+const half2 globalVector = half2(1, 1);
+const half2x2 globalMatrix = half2x2(1, 1, 1, 1);
+
+half4 main(float2) {
+    const half[5] localArray = half[5](0, 1, 2, 3, 4);
+    const half2 localVector = half2(1, 1);
+    const half2x2 localMatrix = half2x2(0, 1, 2, 3);
+
+    // The comparisons against uniforms prevent the constant folding from eliminating the constant
+    // composite variables entirely. We expect all of the variables to propagate to the codegen
+    // backends, though the backend itself is allowed to eliminate variables.
+    if (globalArray == testArray ||
+        globalVector == colorRed.xy ||
+        globalMatrix == testMatrix2x2 ||
+        localArray == testArray ||
+        localVector == colorRed.xy ||
+        localMatrix == testMatrix2x2) {
+        return colorRed;
+    }
+
+    return half4(globalArray[zero] * localArray[zero],
+                 globalVector[zero] * localVector[zero],
+                 globalMatrix[zero] * localMatrix[zero]);
+}

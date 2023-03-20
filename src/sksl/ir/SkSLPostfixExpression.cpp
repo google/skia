@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -36,6 +37,14 @@ std::unique_ptr<Expression> PostfixExpression::Make(const Context& context, Posi
     SkASSERT(base->type().isNumber());
     SkASSERT(Analysis::IsAssignable(*base));
     return std::make_unique<PostfixExpression>(pos, std::move(base), op);
+}
+
+std::string PostfixExpression::description(OperatorPrecedence parentPrecedence) const {
+    bool needsParens = (OperatorPrecedence::kPostfix >= parentPrecedence);
+    return std::string(needsParens ? "(" : "") +
+           this->operand()->description(OperatorPrecedence::kPostfix) +
+           std::string(this->getOperator().tightOperatorName()) +
+           std::string(needsParens ? ")" : "");
 }
 
 }  // namespace SkSL

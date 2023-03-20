@@ -1,0 +1,7 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             i = 0
+    4. copy_slot_unmasked             $0 = i
+    5. cast_to_float_from_int         $0 = IntToFloat($0)
+    6. swizzle_4                      $0..3 = ($0..3).xxxx
+    7. load_src                       src.rgba = $0..3

@@ -13,8 +13,10 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkRandom.h"
+
+using namespace skia_private;
 
 enum class ClampingMode {
     // Submit image set entries with the fast constraint
@@ -128,7 +130,7 @@ protected:
 
         for (int loop = 0; loop < loops; ++loop) {
             for (int l = 0; l < fLayerCnt; ++l) {
-                SkAutoTArray<SkCanvas::ImageSetEntry> set(
+                AutoTArray<SkCanvas::ImageSetEntry> set(
                         fTileGridSize.fWidth * fTileGridSize.fHeight);
 
                 if (fClampMode == ClampingMode::kAlwaysFast ||
@@ -169,7 +171,7 @@ protected:
                     }
                     // For last row, accumulate it as a single strict batch
                     int rowStart = i;
-                    SkAutoTArray<SkPoint> dstQuads(4 * (fTileGridSize.fWidth - 1));
+                    AutoTArray<SkPoint> dstQuads(4 * (fTileGridSize.fWidth - 1));
                     for (int x = 0; x < fTileGridSize.fWidth - 1; ++x) {
                         set[i++] = this->getAdjustedEntry(x, fTileGridSize.fHeight - 1, l,
                                                           dstQuads.get() + x * 4);
@@ -195,7 +197,7 @@ protected:
 
                     // Right edge
                     int strictStart = i;
-                    SkAutoTArray<SkPoint> dstQuads(
+                    AutoTArray<SkPoint> dstQuads(
                             4 * (fTileGridSize.fWidth + fTileGridSize.fHeight - 2));
                     for (int y = 0; y < fTileGridSize.fHeight - 1; ++y) {
                         set[i++] = this->getAdjustedEntry(fTileGridSize.fWidth - 1, y, l,

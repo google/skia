@@ -5,7 +5,7 @@
 REG_FIDDLE(Image_MakeBackendTextureFromSkImage, 256, 64, false, 0) {
 static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
     SkPaint paint;

@@ -11,11 +11,13 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "include/utils/SkAnimCodecPlayer.h"
 #include "include/utils/SkBase64.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
+
+#include <cmath>
 
 #if defined(HAVE_VIDEO_DECODER)
     #include "experimental/ffmpeg/SkVideoDecoder.h"
@@ -100,6 +102,7 @@ ImageAsset::FrameData ImageAsset::getFrameData(float t) {
         this->getFrame(t),
         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest),
         SkMatrix::I(),
+        SkMatrix::kCenter_ScaleToFit,
     };
 }
 

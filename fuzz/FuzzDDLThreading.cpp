@@ -16,11 +16,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkDeque.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkThreadID.h"
+#include "include/private/base/SkDeque.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkThreadID.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -29,6 +28,7 @@
 #include <memory>
 #include <queue>
 
+using namespace skia_private;
 using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
 // be careful: `foo(make_fuzz_t<T>(f), make_fuzz_t<U>(f))` is undefined.
@@ -45,13 +45,15 @@ class DDLFuzzer;
 
 // This class stores the state of a given promise image owned by the fuzzer. It acts as the
 // context for the callback procs of the promise image.
-class PromiseImageInfo : public SkNVRefCnt<PromiseImageInfo>, SkNoncopyable {
+class PromiseImageInfo : public SkNVRefCnt<PromiseImageInfo> {
 public:
     enum class State : int {
         kInitial,
         kTriedToFulfill,
         kDone
     };
+
+    PromiseImageInfo() = default;
     ~PromiseImageInfo() {
         // If we hit this, then the image or the texture will outlive this object which is bad.
         SkASSERT_RELEASE(!fImage || fImage->unique());
@@ -59,13 +61,20 @@ public:
         fImage.reset();
         fTexture.reset();
         State s = fState;
-        SkASSERT_RELEASE(s == State::kDone);
+        SkASSERT_RELEASE(!fDrawn || s == State::kDone);
     }
+
+    // Make noncopyable
+    PromiseImageInfo(PromiseImageInfo&) = delete;
+    PromiseImageInfo& operator=(PromiseImageInfo&) = delete;
+
     DDLFuzzer* fFuzzer = nullptr;
     sk_sp<SkImage> fImage;
     // At the moment, the atomicity of this isn't used because all our promise image callbacks
     // happen on the same thread. See the TODO below about them unreffing them off the GPU thread.
     std::atomic<State> fState{State::kInitial};
+    std::atomic<bool> fDrawn{false};
+
     sk_sp<SkPromiseImageTexture> fTexture;
 };
 
@@ -79,9 +88,14 @@ static constexpr int kIterationCount = 10000;
 // and concurrently records DDLs that reference them, playing each DDL back on the GPU thread.
 // The backing textures for promise images may be recycled into a pool, or not, for each case
 // as determined by the fuzzing data.
-class DDLFuzzer : SkNoncopyable {
+class DDLFuzzer {
 public:
     DDLFuzzer(Fuzz*, ContextType);
+    DDLFuzzer() = delete;
+    // Make noncopyable
+    DDLFuzzer(DDLFuzzer&) = delete;
+    DDLFuzzer& operator=(DDLFuzzer&) = delete;
+
     void run();
 
     sk_sp<SkPromiseImageTexture> fulfillPromiseImage(PromiseImageInfo&);
@@ -94,7 +108,7 @@ private:
 
     Fuzz* fFuzz = nullptr;
     GrDirectContext* fContext = nullptr;
-    SkAutoTArray<PromiseImageInfo> fPromiseImages{kPromiseImageCount};
+    AutoTArray<PromiseImageInfo> fPromiseImages{kPromiseImageCount};
     sk_sp<SkSurface> fSurface;
     SkSurfaceCharacterization fSurfaceCharacterization;
     std::unique_ptr<SkExecutor> fGpuExecutor = SkExecutor::MakeFIFOThreadPool(1, false);
@@ -118,7 +132,7 @@ DDLFuzzer::DDLFuzzer(Fuzz* fuzz, ContextType contextType) : fFuzz(fuzz) {
     SkISize canvasSize = kPromiseImageSize;
     canvasSize.fWidth *= kPromiseImagesPerDDL;
     SkImageInfo ii = SkImageInfo::Make(canvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    fSurface = SkSurface::MakeRenderTarget(fContext, SkBudgeted::kNo, ii);
+    fSurface = SkSurface::MakeRenderTarget(fContext, skgpu::Budgeted::kNo, ii);
     if (!fSurface || !fSurface->characterize(&fSurfaceCharacterization)) {
         return;
     }
@@ -187,8 +201,9 @@ void DDLFuzzer::releasePromiseImage(PromiseImageInfo& promiseImage) {
     if (!this->isOnGPUThread()) {
         fFuzz->signalBug();
     }
-    State old = promiseImage.fState.exchange(State::kInitial, std::memory_order_relaxed);
-    if (old != State::kTriedToFulfill) {
+
+    State old = promiseImage.fState.exchange(State::kDone, std::memory_order_relaxed);
+    if (promiseImage.fDrawn && old != State::kTriedToFulfill) {
         fFuzz->signalBug();
     }
 
@@ -244,6 +259,7 @@ void DDLFuzzer::recordAndPlayDDL() {
         int j;
         // Pick random promise images to draw.
         fFuzz->nextRange(&j, 0, kPromiseImageCount - 1);
+        fPromiseImages[j].fDrawn = true;
         canvas->drawImage(fPromiseImages[j].fImage, xOffset, 0);
     }
     sk_sp<SkDeferredDisplayList> ddl = recorder.detach();
@@ -263,6 +279,13 @@ void DDLFuzzer::run() {
         this->recordAndPlayDDL();
     });
     fRecordingTaskGroup.wait();
+
+    fGpuTaskGroup.add([=]{
+        fSurface->flushAndSubmit(/* syncCpu= */ true);
+    });
+
+    fGpuTaskGroup.wait();
+
     fGpuTaskGroup.add([=] {
         while (!fReusableTextures.empty()) {
             sk_sp<SkPromiseImageTexture> gpuTexture = std::move(fReusableTextures.front());

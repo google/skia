@@ -2,7 +2,7 @@
 
 #include "modules/skparagraph/src/Iterators.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include <algorithm>
 #include <unordered_set>
 
@@ -211,7 +211,7 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
                     height,
                     block.fStyle.getHalfLeading(),
                     block.fStyle.getBaselineShift(),
-                    this->fParagraph->fRuns.count(),
+                    this->fParagraph->fRuns.size(),
                     advanceX
                 );
         auto piece = &this->fParagraph->fRuns.back();
@@ -375,6 +375,12 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
             };
             features.emplace_back(feature);
         }
+        // Disable ligatures if letter spacing is enabled.
+        if (block.fStyle.getLetterSpacing() > 0) {
+            features.emplace_back(SkShaper::Feature{
+                SkSetFourByteTag('l', 'i', 'g', 'a'), 0, block.fRange.start, block.fRange.end
+            });
+        }
     };
 
     for (auto& block : styleSpan) {
@@ -396,7 +402,7 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
 
         combinedBlock.fRange = blockRange;
         combinedBlock.fStyle = block.fStyle;
-        features.reset();
+        features.clear();
         addFeatures(block);
     }
 
@@ -460,7 +466,8 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                             unicode, textStyle.getFontStyle(), textStyle.getLocale());
 
                     if (typeface == nullptr) {
-                        return;
+                        // There is no fallback font for this character, so move on to the next character.
+                        continue;
                     }
                     fFallbackFonts.set(fontKey, typeface);
                 }
@@ -518,11 +525,13 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                 // Set up the iterators (the style iterator points to a bigger region that it could
                 TextRange textRange(start, end);
                 auto blockRange = fParagraph->findAllBlocks(textRange);
-                SkSpan<Block> styleSpan(fParagraph->blocks(blockRange));
+                if (!blockRange.empty()) {
+                    SkSpan<Block> styleSpan(fParagraph->blocks(blockRange));
 
-                // Shape the text between placeholders
-                if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.level)) {
-                    return false;
+                    // Shape the text between placeholders
+                    if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.level)) {
+                        return false;
+                    }
                 }
 
                 if (end == bidiRegion.end) {
@@ -546,9 +555,12 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         SkFont font(typeface, placeholder.fTextStyle.getFontSize());
 
         // "Shape" the placeholder
+        uint8_t bidiLevel = (bidiIndex < fParagraph->fBidiRegions.size())
+            ? fParagraph->fBidiRegions[bidiIndex].level
+            : 2;
         const SkShaper::RunHandler::RunInfo runInfo = {
             font,
-            (uint8_t)2,
+            bidiLevel,
             SkPoint::Make(placeholder.fStyle.fWidth, placeholder.fStyle.fHeight),
             1,
             SkShaper::RunHandler::Range(0, placeholder.fRange.width())
@@ -559,7 +571,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                                        0.0f,
                                        0.0f,
                                        false,
-                                       fParagraph->fRuns.count(),
+                                       fParagraph->fRuns.size(),
                                        advanceX);
 
         run.fPositions[0] = { advanceX, 0 };
@@ -582,7 +594,7 @@ bool OneLineShaper::shape() {
             (TextRange textRange, SkSpan<Block> styleSpan, SkScalar& advanceX, TextIndex textStart, uint8_t defaultBidiLevel) {
 
         // Set up the shaper and shape the next
-        auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
+        auto shaper = SkShaper::MakeShapeDontWrapOrReorder(fParagraph->fUnicode->copy());
         if (shaper == nullptr) {
             // For instance, loadICU does not work. We have to stop the process
             return false;

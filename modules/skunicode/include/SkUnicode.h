@@ -10,14 +10,13 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkBitmaskEnum.h" // IWYU pragma: keep
-#include "include/private/SkTArray.h"
-#include "src/utils/SkUTF.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkUTF.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 #if !defined(SKUNICODE_IMPLEMENTATION)
@@ -85,6 +84,7 @@ class SKUNICODE_API SkUnicode {
             kPartOfIntraWordBreak = 0x10,
             kControl = 0x20,
             kTabulation = 0x40,
+            kGlyphClusterStart = 0x80,
         };
         enum class TextDirection {
             kLTR,
@@ -136,11 +136,16 @@ class SKUNICODE_API SkUnicode {
         static bool isGraphemeStart(SkUnicode::CodeUnitFlags flags);
         static bool isControl(SkUnicode::CodeUnitFlags flags);
         static bool isPartOfWhiteSpaceBreak(SkUnicode::CodeUnitFlags flags);
+        static bool extractBidi(const char utf8[],
+                                int utf8Units,
+                                TextDirection dir,
+                                std::vector<BidiRegion>* bidiRegions);
         virtual bool getBidiRegions(const char utf8[],
                                     int utf8Units,
                                     TextDirection dir,
                                     std::vector<BidiRegion>* results) = 0;
-        virtual bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
+        virtual bool getWords(const char utf8[], int utf8Units, const char* locale,
+                              std::vector<Position>* results) = 0;
         virtual bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
                                       SkTArray<SkUnicode::CodeUnitFlags, true>* results) = 0;
         virtual bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,
@@ -153,7 +158,7 @@ class SKUNICODE_API SkUnicode {
         static bool isEmoji(SkUnichar utf8);
 
         template <typename Appender8, typename Appender16>
-        bool extractUtfConversionMapping(SkSpan<const char> utf8, Appender8&& appender8, Appender16&& appender16) {
+        static bool extractUtfConversionMapping(SkSpan<const char> utf8, Appender8&& appender8, Appender16&& appender16) {
             size_t size8 = 0;
             size_t size16 = 0;
             auto ptr = utf8.begin();
@@ -262,13 +267,17 @@ class SKUNICODE_API SkUnicode {
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
 
+        virtual std::unique_ptr<SkUnicode> copy() = 0;
+
         static std::unique_ptr<SkUnicode> Make();
 
-        static std::unique_ptr<SkUnicode> Make(SkSpan<char> text,
-                                               std::vector<SkUnicode::BidiRegion> bidiRegions,
-                                               std::vector<SkUnicode::Position> words,
-                                               std::vector<SkUnicode::Position> graphemeBreaks,
-                                               std::vector<SkUnicode::LineBreakBefore> lineBreaks);
+        static std::unique_ptr<SkUnicode> MakeIcuBasedUnicode();
+
+        static std::unique_ptr<SkUnicode> MakeClientBasedUnicode(
+                SkSpan<char> text,
+                std::vector<SkUnicode::Position> words,
+                std::vector<SkUnicode::Position> graphemeBreaks,
+                std::vector<SkUnicode::LineBreakBefore> lineBreaks);
 };
 
 namespace sknonstd {

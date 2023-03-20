@@ -6,7 +6,8 @@
  */
 #include "src/pathops/SkOpSegment.h"
 
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkPointPriv.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpCoincidence.h"
@@ -14,9 +15,8 @@
 #include "src/pathops/SkPathOpsLine.h"
 #include "src/pathops/SkPathWriter.h"
 
-#include <cfloat>
 #include <algorithm>
-#include <utility>
+#include <cfloat>
 
 /*
 After computing raw intersections, post process all segments to:

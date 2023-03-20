@@ -1,0 +1,31 @@
+/*#pragma settings NoInline*/
+
+half4 getColor(half c) {
+    return half4(c);
+}
+
+// Depends on pipeline stage inputs
+half4 getFragCoordAugmentedColor(half c) {
+    return half4(sk_FragCoord.xyxy * getColor(c));
+}
+
+// Depends on pipeline stage outputs
+void writeColorToOutput(half c) {
+    sk_FragColor = getColor(c);
+}
+
+// Transitively depends on pipeline stage outputs
+void writeToOutput() {
+    writeColorToOutput(1.0);
+}
+
+// Depends on pipeline stage outputs
+// Transitively depends on pipeline stage inputs
+void modifyOutputColor() {
+    sk_FragColor += getFragCoordAugmentedColor(2.0);
+}
+
+void main() {
+    writeToOutput();
+    modifyOutputColor();
+}

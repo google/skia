@@ -24,29 +24,7 @@ public:
                   const GrGeometryProcessor* geomProc,
                   GrPrimitiveType primitiveType,
                   GrXferBarrierFlags renderPassXferBarriers,
-                  GrLoadOp colorLoadOp)
-            : fNeedsStencil(targetView.asRenderTargetProxy()->needsStencil())
-            , fBackendFormat(targetView.proxy()->backendFormat())
-            , fOrigin(targetView.origin())
-            , fTargetHasVkResolveAttachmentWithInput(
-                    targetView.asRenderTargetProxy()->supportsVkInputAttachment() &&
-                    ((targetView.asRenderTargetProxy()->numSamples() > 1 &&
-                     targetView.asTextureProxy()) ||
-                    targetView.asRenderTargetProxy()->numSamples() == 1))
-            , fTargetsNumSamples(targetView.asRenderTargetProxy()->numSamples())
-            , fPipeline(pipeline)
-            , fUserStencilSettings(userStencilSettings)
-            , fGeomProc(geomProc)
-            , fPrimitiveType(primitiveType)
-            , fRenderPassXferBarriers(renderPassXferBarriers)
-            , fColorLoadOp(colorLoadOp) {
-        SkASSERT(fTargetsNumSamples > 0);
-        fNumSamples = fTargetsNumSamples;
-        if (fNumSamples == 1 && usesMSAASurface) {
-            fNumSamples = caps.internalMultisampleCount(this->backendFormat());
-        }
-        SkDEBUGCODE(this->validate(false);)
-    }
+                  GrLoadOp colorLoadOp);
 
     int numSamples() const { return fNumSamples; }
     int needsStencil() const { return fNeedsStencil; }

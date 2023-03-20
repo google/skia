@@ -7,7 +7,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkCachedData.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 #include "tests/Test.h"

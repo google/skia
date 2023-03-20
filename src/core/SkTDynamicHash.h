@@ -10,7 +10,7 @@
 
 // This is now a simple API wrapper around SkTHashTable<T*>;
 // please just use SkTHash{Map,Set,Table} directly for new code.
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 // Traits requires:
 //   static const Key& GetKey(const T&) { ... }

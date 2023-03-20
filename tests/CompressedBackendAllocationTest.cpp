@@ -5,20 +5,50 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextureCompressionType.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
-#include "src/core/SkPaintPriv.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/image/SkImage_Base.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
-#include "tools/ToolUtils.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+class GrRecordingContext;
+class SkPixmap;
+struct GrContextOptions;
 
 // Just verify that 'actual' is entirely 'expected'
 static void check_solid_pixmap(skiatest::Reporter* reporter,
@@ -39,10 +69,10 @@ static void check_solid_pixmap(skiatest::Reporter* reporter,
 
 // Create an SkImage to wrap 'backendTex'
 sk_sp<SkImage> create_image(GrDirectContext* dContext, const GrBackendTexture& backendTex) {
-    SkImage::CompressionType compression =
+    SkTextureCompressionType compression =
             GrBackendFormatToCompressionType(backendTex.getBackendFormat());
 
-    SkAlphaType at = SkCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
+    SkAlphaType at = SkTextureCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
 
     return SkImage::MakeFromCompressedTexture(dContext,
@@ -55,7 +85,7 @@ sk_sp<SkImage> create_image(GrDirectContext* dContext, const GrBackendTexture& b
 // Draw the compressed backend texture (wrapped in an SkImage) into an RGBA surface, attempting
 // to access all the mipMap levels.
 static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage> img,
-                                     SkImage::CompressionType compressionType,
+                                     SkTextureCompressionType compressionType,
                                      const SkColor4f expectedColors[6],
                                      GrMipmapped mipmapped,
                                      skiatest::Reporter* reporter, const char* label) {
@@ -64,8 +94,9 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage
                                                       kPremul_SkAlphaType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(rContext,
-                                                        SkBudgeted::kNo,
-                                                        readbackSurfaceII, 1,
+                                                        skgpu::Budgeted::kNo,
+                                                        readbackSurfaceII,
+                                                        1,
                                                         kTopLeft_GrSurfaceOrigin,
                                                         nullptr);
     if (!surf) {
@@ -114,7 +145,7 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage
 
 // Verify that we can readback from a compressed texture
 static void check_readback(GrDirectContext* dContext, sk_sp<SkImage> img,
-                           SkImage::CompressionType compressionType,
+                           SkTextureCompressionType compressionType,
                            const SkColor4f& expectedColor,
                            skiatest::Reporter* reporter, const char* label) {
 #ifdef SK_BUILD_FOR_IOS
@@ -147,7 +178,7 @@ static void test_compressed_color_init(GrDirectContext* dContext,
                                                                        const SkColor4f&,
                                                                        GrMipmapped)> create,
                                        const SkColor4f& color,
-                                       SkImage::CompressionType compression,
+                                       SkTextureCompressionType compression,
                                        GrMipmapped mipmapped) {
     GrBackendTexture backendTex = create(dContext, color, mipmapped);
     if (!backendTex.isValid()) {
@@ -185,7 +216,7 @@ static void test_compressed_color_init(GrDirectContext* dContext,
 }
 
 // Create compressed data pulling the color for each mipmap level from 'levelColors'.
-static std::unique_ptr<const char[]> make_compressed_data(SkImage::CompressionType compression,
+static std::unique_ptr<const char[]> make_compressed_data(SkTextureCompressionType compression,
                                                           SkColor4f levelColors[6],
                                                           GrMipmapped mipmapped) {
     SkISize dimensions { 32, 32 };
@@ -221,7 +252,7 @@ static void test_compressed_data_init(GrDirectContext* dContext,
                                                                       const char* data,
                                                                       size_t dataSize,
                                                                       GrMipmapped)> create,
-                                      SkImage::CompressionType compression,
+                                      SkTextureCompressionType compression,
                                       GrMipmapped mipmapped) {
 
     SkColor4f expectedColors[6] = {
@@ -279,20 +310,20 @@ static void test_compressed_data_init(GrDirectContext* dContext,
     dContext->deleteBackendTexture(backendTex);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     const GrCaps* caps = dContext->priv().caps();
 
     struct {
-        SkImage::CompressionType fCompression;
+        SkTextureCompressionType fCompression;
         SkColor4f                fColor;
     } combinations[] = {
-        { SkImage::CompressionType::kETC2_RGB8_UNORM, SkColors::kRed },
-        { SkImage::CompressionType::kBC1_RGB8_UNORM,  SkColors::kBlue },
-        { SkImage::CompressionType::kBC1_RGBA8_UNORM, SkColors::kTransparent },
+        { SkTextureCompressionType::kETC2_RGB8_UNORM, SkColors::kRed },
+        { SkTextureCompressionType::kBC1_RGB8_UNORM,  SkColors::kBlue },
+        { SkTextureCompressionType::kBC1_RGBA8_UNORM, SkColors::kTransparent },
     };
 
     for (auto combo : combinations) {

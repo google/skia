@@ -12,7 +12,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_double(strokeWidth, -1.0, "If set, use this stroke width in RectBench.");

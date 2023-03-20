@@ -13,7 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 static void test_hittest(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;
@@ -35,7 +35,7 @@ static void test_hittest(SkCanvas* canvas, const SkPath& path) {
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(hittestpath, canvas, errorMsg, 700, 460) {
-    if (canvas->recordingContext()) {
+    if (canvas->recordingContext() || canvas->recorder()) {
         // GPU rasterization results vary greatly from platform to platform. We can't use them as
         // an expected result for our internal SkPath::contains().
         *errorMsg = "This test is for CPU configs only.";

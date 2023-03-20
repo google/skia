@@ -8,9 +8,9 @@
 #ifndef SkRecord_DEFINED
 #define SkRecord_DEFINED
 
-#include "include/private/SkTLogic.h"
-#include "include/private/SkTemplates.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkTLogic.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRecords.h"
 
 // SkRecord represents a sequence of SkCanvas calls, saved for future use.
@@ -170,7 +170,7 @@ private:
     // support efficient random access and forward iteration.  (It doesn't need to be contiguous.)
     int fCount{0},
         fReserved{0};
-    SkAutoTMalloc<Record> fRecords;
+    skia_private::AutoTMalloc<Record> fRecords;
 
     // fAlloc needs to be a data structure which can append variable length data in contiguous
     // chunks, returning a stable handle to that data for later retrieval.

@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkTArray.h"
 
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/DrawList.h"
@@ -35,6 +36,7 @@ class Geometry;
 class Recorder;
 class Transform;
 
+class AtlasManager;
 class Caps;
 class DrawPass;
 class Task;
@@ -48,12 +50,14 @@ class TextureProxyView;
 class DrawContext final : public SkRefCnt {
 public:
     static sk_sp<DrawContext> Make(sk_sp<TextureProxy> target,
+                                   SkISize deviceSize,
                                    const SkColorInfo&,
                                    const SkSurfaceProps&);
 
     ~DrawContext() override;
 
-    const SkImageInfo&  imageInfo() const { return fImageInfo;    }
+    const SkImageInfo& imageInfo() const { return fImageInfo;    }
+    const SkColorInfo& colorInfo() const { return fImageInfo.colorInfo(); }
     TextureProxy* target()                { return fTarget.get(); }
     const TextureProxy* target()    const { return fTarget.get(); }
 
@@ -73,11 +77,14 @@ public:
                     const PaintParams* paint,
                     const StrokeStyle* stroke);
 
+    bool recordTextUploads(AtlasManager*);
     bool recordUpload(Recorder* recorder,
                       sk_sp<TextureProxy> targetProxy,
-                      SkColorType colorType,
+                      const SkColorInfo& srcColorInfo,
+                      const SkColorInfo& dstColorInfo,
                       const std::vector<MipLevel>& levels,
-                      const SkIRect& dstRect);
+                      const SkIRect& dstRect,
+                      std::unique_ptr<ConditionalUploadContext>);
 
 #ifdef SK_ENABLE_PIET_GPU
     bool recordPietSceneRender(Recorder* recorder,
@@ -142,7 +149,7 @@ private:
     // TODO: It will be easier to debug/understand the DrawPass structure of a context if
     // consecutive DrawPasses to the same target are stored in a DrawPassChain. A DrawContext with
     // multiple DrawPassChains is then clearly accumulating subpasses across multiple targets.
-    std::vector<std::unique_ptr<DrawPass>> fDrawPasses;
+    SkTArray<std::unique_ptr<DrawPass>> fDrawPasses;
 
     // Stores the most immediately recorded uploads into Textures. This list is mutable and
     // can be appended to, or have its commands rewritten if they are inlined into a parent DC.

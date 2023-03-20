@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google Inc.
+ * Copyright 2018 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -7,14 +7,58 @@
 
 #include "src/core/SkGlyph.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkScalar.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkWriteBuffer.h"
 #include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsQuad.h"
+#include "src/text/StrikeForGPU.h"
+
+#include <cstring>
+#include <optional>
+#include <tuple>
+#include <utility>
+
+using namespace skia_private;
+using namespace skglyph;
+using namespace sktext;
 
 //-- SkGlyph ---------------------------------------------------------------------------------------
+std::optional<SkGlyph> SkGlyph::MakeFromBuffer(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isValid());
+    const SkPackedGlyphID packedID{buffer.readUInt()};
+    const SkVector advance = buffer.readPoint();
+    const uint32_t dimensions = buffer.readUInt();
+    const uint32_t leftTop = buffer.readUInt();
+    const SkMask::Format format = SkTo<SkMask::Format>(buffer.readUInt());
+
+    if (!buffer.validate(SkMask::IsValidFormat(format))) {
+        return std::nullopt;
+    }
+
+    SkGlyph glyph{packedID};
+    glyph.fAdvanceX = advance.x();
+    glyph.fAdvanceY = advance.y();
+    glyph.fWidth = dimensions >> 16;
+    glyph.fHeight = dimensions & 0xffff;
+    glyph.fLeft = leftTop >> 16;
+    glyph.fTop = leftTop & 0xffff;
+    glyph.fMaskFormat = format;
+    SkDEBUGCODE(glyph.fAdvancesBoundsFormatAndInitialPathDone = true;)
+    return std::move(glyph);
+}
+
 SkGlyph::SkGlyph(const SkGlyph&) = default;
 SkGlyph& SkGlyph::operator=(const SkGlyph&) = default;
 SkGlyph::SkGlyph(SkGlyph&&) = default;
@@ -236,6 +280,138 @@ SkDrawable* SkGlyph::drawable() const {
     return nullptr;
 }
 
+void SkGlyph::flattenMetrics(SkWriteBuffer& buffer) const {
+    buffer.writeUInt(fID.value());
+    buffer.writePoint({fAdvanceX, fAdvanceY});
+    buffer.writeUInt(fWidth << 16 | fHeight);
+    // Note: << has undefined behavior for negative values.
+    const uint32_t left = fLeft;
+    const uint32_t top = fTop;
+    buffer.writeUInt(left << 16 | top);
+    buffer.writeUInt(SkTo<uint32_t>(fMaskFormat));
+}
+
+void SkGlyph::flattenImage(SkWriteBuffer& buffer) const {
+    SkASSERT(this->setImageHasBeenCalled());
+
+    // If the glyph is empty or too big, then no image data is sent.
+    if (!this->isEmpty() && SkGlyphDigest::FitsInAtlas(*this)) {
+        buffer.writeByteArray(this->image(), this->imageSize());
+    }
+}
+
+size_t SkGlyph::addImageFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
+    SkASSERT(buffer.isValid());
+
+    // If the glyph is empty or too big, then no image data is received.
+    if (this->isEmpty() || !SkGlyphDigest::FitsInAtlas(*this)) {
+        return 0;
+    }
+
+    size_t memoryIncrease = 0;
+
+    void* imageData = alloc->makeBytesAlignedTo(this->imageSize(), this->formatAlignment());
+    buffer.readByteArray(imageData, this->imageSize());
+    if (buffer.isValid()) {
+        this->installImage(imageData);
+        memoryIncrease += this->imageSize();
+    }
+
+    return memoryIncrease;
+}
+
+void SkGlyph::flattenPath(SkWriteBuffer& buffer) const {
+    SkASSERT(this->setPathHasBeenCalled());
+
+    const bool hasPath = this->path() != nullptr;
+    buffer.writeBool(hasPath);
+    if (hasPath) {
+        buffer.writeBool(this->pathIsHairline());
+        buffer.writePath(*this->path());
+    }
+}
+
+size_t SkGlyph::addPathFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
+    SkASSERT(buffer.isValid());
+
+    size_t memoryIncrease = 0;
+    const bool hasPath = buffer.readBool();
+    if (hasPath) {
+        const bool pathIsHairline = buffer.readBool();
+        SkPath path;
+        buffer.readPath(&path);
+        if (buffer.isValid()) {
+            if (this->setPath(alloc, &path, pathIsHairline)) {
+                memoryIncrease += path.approximateBytesUsed();
+            }
+        }
+    } else {
+        this->setPath(alloc, nullptr, false);
+    }
+
+    return memoryIncrease;
+}
+
+void SkGlyph::flattenDrawable(SkWriteBuffer& buffer) const {
+    SkASSERT(this->setDrawableHasBeenCalled());
+
+    if (this->isEmpty() || this->drawable() == nullptr) {
+        buffer.writeByteArray(nullptr, 0);
+        return;
+    }
+
+    sk_sp<SkPicture> picture{this->drawable()->newPictureSnapshot()};
+    sk_sp<SkData> data = picture->serialize();
+
+    // If the picture is too big, or there is no picture, then drop by sending an empty byte array.
+    if (!SkTFitsIn<uint32_t>(data->size()) || data->size() == 0) {
+        buffer.writeByteArray(nullptr, 0);
+        return;
+    }
+
+    buffer.writeByteArray(data->data(), data->size());
+}
+
+size_t SkGlyph::addDrawableFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
+    SkASSERT(buffer.isValid());
+
+    // Class to turn the drawable into a picture to serialize.
+    class PictureBackedGlyphDrawable final : public SkDrawable {
+    public:
+        PictureBackedGlyphDrawable(sk_sp<SkPicture> self) : fSelf(std::move(self)) {}
+    private:
+        sk_sp<SkPicture> fSelf;
+        SkRect onGetBounds() override { return fSelf->cullRect();  }
+        size_t onApproximateBytesUsed() override {
+            return sizeof(PictureBackedGlyphDrawable) + fSelf->approximateBytesUsed();
+        }
+        void onDraw(SkCanvas* canvas) override { canvas->drawPicture(fSelf); }
+    };
+
+    size_t memoryIncrease = 0;
+
+    sk_sp<SkData> pictureData = buffer.readByteArrayAsData();
+    if (!buffer.isValid()) {
+        return 0;
+    }
+
+    // If the picture is too big, or there is no picture is indicated by an empty byte array.
+    if (pictureData->size() > 0) {
+        sk_sp<SkPicture> picture = SkPicture::MakeFromData(pictureData.get());
+        if (buffer.validate(picture == nullptr)) {
+            return 0;
+        }
+        sk_sp<SkDrawable> drawable = sk_make_sp<PictureBackedGlyphDrawable>(std::move(picture));
+        if (this->setDrawable(alloc, std::move(drawable))) {
+            memoryIncrease += this->drawable()->approximateBytesUsed();
+        }
+    } else {
+        this->setDrawable(alloc, sk_sp<SkDrawable>(nullptr));
+    }
+
+    return memoryIncrease;
+}
+
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(
         SkScalar topOffset, SkScalar bottomOffset, const SkPath& path) {
 
@@ -397,29 +573,80 @@ void SkGlyph::ensureIntercepts(const SkScalar* bounds, SkScalar scale, SkScalar 
     offsetResults(intercept, array, count);
 }
 
+namespace {
+uint32_t init_actions(const SkGlyph& glyph) {
+    constexpr uint32_t kAllUnset = 0;
+    constexpr uint32_t kDrop = SkTo<uint32_t>(GlyphAction::kDrop);
+    constexpr uint32_t kAllDrop =
+            kDrop << kDirectMask |
+            kDrop << kDirectMaskCPU |
+            kDrop << kMask |
+            kDrop << kSDFT |
+            kDrop << kPath |
+            kDrop << kDrawable;
+    return glyph.isEmpty() ? kAllDrop : kAllUnset;
+}
+}  // namespace
+
 // -- SkGlyphDigest --------------------------------------------------------------------------------
 SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
-        : fIndex{SkTo<uint32_t>(index)}
+        : fPackedID{SkTo<uint64_t>(glyph.getPackedID().value())}
+        , fIndex{SkTo<uint64_t>(index)}
         , fIsEmpty(glyph.isEmpty())
-        , fCanDrawAsMask{CanDrawAsMask(glyph)}
-        , fCanDrawAsSDFT{CanDrawAsSDFT(glyph)}
         , fFormat(glyph.maskFormat())
+        , fActions{init_actions(glyph)}
         , fLeft{SkTo<int16_t>(glyph.left())}
         , fTop{SkTo<int16_t>(glyph.top())}
         , fWidth{SkTo<uint16_t>(glyph.width())}
         , fHeight{SkTo<uint16_t>(glyph.height())} {}
 
-bool SkGlyphDigest::CanDrawAsMask(const SkGlyph& glyph) {
-    return FitsInAtlas(glyph);
-}
-
-bool SkGlyphDigest::CanDrawAsSDFT(const SkGlyph& glyph) {
-    return FitsInAtlas(glyph) && glyph.maskFormat() == SkMask::kSDF_Format;
-}
-
-bool SkGlyphDigest::CanDrawAsPath(const SkGlyph& glyph) {
-    SkASSERT(glyph.setPathHasBeenCalled());
-    return glyph.path() != nullptr;
+void SkGlyphDigest::setActionFor(skglyph::ActionType actionType,
+                                 SkGlyph* glyph,
+                                 StrikeForGPU* strike) {
+    // We don't have to do any more if the glyph is marked as kDrop because it was isEmpty().
+    if (this->actionFor(actionType) == GlyphAction::kUnset) {
+        GlyphAction action = GlyphAction::kReject;
+        switch (actionType) {
+            case kDirectMask: {
+                if (this->fitsInAtlasDirect()) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kDirectMaskCPU: {
+                if (strike->prepareForImage(glyph)) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kMask: {
+                if (this->fitsInAtlasInterpolated()) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kSDFT: {
+                if (this->fitsInAtlasDirect() &&
+                    this->maskFormat() == SkMask::Format::kSDF_Format) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kPath: {
+                if (strike->prepareForPath(glyph)) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+            case kDrawable: {
+                if (strike->prepareForDrawable(glyph)) {
+                    action = GlyphAction::kAccept;
+                }
+                break;
+            }
+        }
+        this->setAction(actionType, action);
+    }
 }
 
 bool SkGlyphDigest::FitsInAtlas(const SkGlyph& glyph) {

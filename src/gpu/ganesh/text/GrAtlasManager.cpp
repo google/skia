@@ -8,8 +8,9 @@
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/codec/SkMasks.h"
-#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
@@ -118,7 +119,9 @@ static void get_packed_glyph_image(
         };
         constexpr int a565Bpp = MaskFormatBytesPerPixel(MaskFormat::kA565);
         constexpr int argbBpp = MaskFormatBytesPerPixel(MaskFormat::kARGB);
+        char* dstRow = (char*)dst;
         for (int y = 0; y < height; y++) {
+            dst = dstRow;
             for (int x = 0; x < width; x++) {
                 uint16_t color565 = 0;
                 memcpy(&color565, src, a565Bpp);
@@ -130,6 +133,7 @@ static void get_packed_glyph_image(
                 src = (char*)src + a565Bpp;
                 dst = (char*)dst + argbBpp;
             }
+            dstRow += dstRB;
         }
     } else {
         SkUNREACHABLE;
@@ -142,7 +146,11 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                          int srcPadding,
                                                          GrResourceProvider* resourceProvider,
                                                          GrDeferredUploadTarget* uploadTarget) {
+#if !defined(SK_DISABLE_SDF_TEXT)
     SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
+#else
+    SkASSERT(0 <= srcPadding);
+#endif
 
     if (skGlyph.image() == nullptr) {
         return GrDrawOpAtlas::ErrorCode::kError;
@@ -168,6 +176,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
             // The transformed mask/image case.
             padding = 1;
             break;
+#if !defined(SK_DISABLE_SDF_TEXT)
         case SK_DistanceFieldInset:
             // The SDFT case.
             // If the srcPadding == SK_DistanceFieldInset (SDFT case) then the padding is built
@@ -175,6 +184,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
             // TODO: can the SDFT glyph image in the cache be reduced by the padding?
             padding = 0;
             break;
+#endif
         default:
             // The padding is not one of the know forms.
             return GrDrawOpAtlas::ErrorCode::kError;
@@ -223,7 +233,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resource
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater* updater,
                                                   MaskFormat format, Glyph* glyph,
-                                                  skgpu::DrawToken token) {
+                                                  skgpu::AtlasToken token) {
     SkASSERT(glyph);
     if (updater->add(glyph->fAtlasLocator)) {
         this->getAtlas(format)->setLastUseToken(glyph->fAtlasLocator, token);

@@ -1,0 +1,94 @@
+workgroup atomicUint wgAtomic;          // valid
+workgroup atomicUint wgAtomicArray[2];  // valid
+
+atomicUint globalAtomic;          // invalid
+atomicUint globalAtomicArray[2];  // invalid
+
+struct S {
+    atomicUint structMemberAtomic;          // valid
+    atomicUint structMemberAtomicArray[2];  // valid
+};
+
+struct NestedS {
+    S nestedStructWithAtomicMember;  // valid
+};
+
+workgroup S wgStructWithAtomicMember;              // valid
+workgroup S wgStructWithAtomicMemberArray[2];      // valid
+workgroup NestedS wgStructWithNestedAtomicMember;  // valid
+
+S globalStructWithAtomicMember;              // invalid
+S globalStructWithAtomicMemberArray[2];      // invalid
+NestedS globalStructWithNestedAtomicMember;  // invalid
+
+layout(metal, binding = 0) buffer ssbo {
+    atomicUint ssboAtomic;          // valid
+    atomicUint ssboAtomicArray[2];  // valid
+    S ssboStructWithAtomicMember;         // valid
+    S ssboStructWithAtomicMemberArray[2]; // valid
+};
+
+layout(metal, binding = 1) uniform ubo1 {
+    atomicUint uboAtomic;                    // invalid
+};
+layout(metal, binding = 2) uniform ubo2 {
+    atomicUint uboAtomicArray[2];            // invalid
+};
+layout(metal, binding = 3) uniform ubo3 {
+    S uboStructWithAtomicMember;              // invalid
+};
+layout(metal, binding = 4) uniform ubo4 {
+    S uboStructWithAtomicMemberArray[2];      // invalid
+};
+layout(metal, binding = 5) uniform ubo5 {
+    NestedS uboStructWithNestedAtomicMember;  // invalid
+};
+
+layout(metal, binding = 6) readonly buffer roSsbo1 {
+    atomicUint readonlySsboAtomic;                    // invalid
+};
+layout(metal, binding = 7) readonly buffer roSsbo2 {
+    atomicUint readonlySsboAtomicArray[2];            // invalid
+};
+layout(metal, binding = 8) readonly buffer roSsbo3 {
+    S readonlySsboStructWithAtomicMember;              // invalid
+};
+layout(metal, binding = 9) readonly buffer roSsbo4 {
+    S readonlySsboStructWithAtomicMemberArray[2];      // invalid
+};
+layout(metal, binding = 10) readonly buffer roSsbo5 {
+    NestedS readonlySsboStructWithNestedAtomicMember;  // invalid
+};
+
+void main() {
+    atomicUint localAtomic;                // invalid
+    atomicUint localAtomicArray[2];        // invalid
+    S localStructWithAtomicMember;          // invalid
+    S localStructWithAtomicMemberArray[2];  // invalid
+}
+
+/*%%*
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+variables of type 'atomicUint' may not be uniform
+atomics are only permitted in workgroup variables and writable storage blocks
+variables of type 'atomicUint[2]' may not be uniform
+atomics are only permitted in workgroup variables and writable storage blocks
+variables of type 'atomicUint' may not be uniform
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+variables of type 'atomicUint' may not be uniform
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+*%%*/

@@ -8,7 +8,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 
 #include <utility>
 

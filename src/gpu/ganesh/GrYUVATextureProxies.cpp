@@ -7,6 +7,8 @@
 
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 
+#include "src/gpu/ganesh/GrTextureProxy.h"
+
 #ifdef SK_DEBUG
 static int num_channels(uint32_t channelFlags) {
     switch (channelFlags) {

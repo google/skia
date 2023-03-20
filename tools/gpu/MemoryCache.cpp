@@ -22,7 +22,7 @@ static SkString data_to_str(const SkData& data) {
     size_t encodeLength = SkBase64::Encode(data.data(), data.size(), nullptr);
     SkString str;
     str.resize(encodeLength);
-    SkBase64::Encode(data.data(), data.size(), str.writable_str());
+    SkBase64::Encode(data.data(), data.size(), str.data());
     static constexpr size_t kMaxLength = 60;
     static constexpr char kTail[] = "...";
     static const size_t kTailLen = strlen(kTail);

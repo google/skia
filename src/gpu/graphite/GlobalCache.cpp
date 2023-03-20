@@ -10,11 +10,12 @@
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/Resource.h"
 
 namespace skgpu::graphite {
 
 GlobalCache::GlobalCache()
-        : fGraphicsPipelineCache(16) // TODO: find a good value for these limits
+        : fGraphicsPipelineCache(256) // TODO: find a good value for these limits
         , fComputePipelineCache(16) {}
 
 GlobalCache::~GlobalCache() = default;
@@ -40,6 +41,20 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
     return *entry;
 }
 
+#if GRAPHITE_TEST_UTILS
+int GlobalCache::numGraphicsPipelines() const {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return fGraphicsPipelineCache.count();
+}
+
+void GlobalCache::resetGraphicsPipelines() {
+    SkAutoSpinlock lock{fSpinLock};
+
+    fGraphicsPipelineCache.reset();
+}
+#endif // GRAPHITE_TEST_UTILS
+
 sk_sp<ComputePipeline> GlobalCache::findComputePipeline(const UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
     sk_sp<ComputePipeline>* entry = fComputePipelineCache.find(key);
@@ -54,6 +69,11 @@ sk_sp<ComputePipeline> GlobalCache::addComputePipeline(const UniqueKey& key,
         entry = fComputePipelineCache.insert(key, std::move(pipeline));
     }
     return *entry;
+}
+
+void GlobalCache::addStaticResource(sk_sp<Resource> resource) {
+    SkAutoSpinlock lock{fSpinLock};
+    fStaticResource.push_back(std::move(resource));
 }
 
 } // namespace skgpu::graphite

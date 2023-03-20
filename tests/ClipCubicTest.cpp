@@ -16,7 +16,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatBits.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatBits.h"
 #include "src/core/SkCubicClipper.h"
 #include "tests/Test.h"
 

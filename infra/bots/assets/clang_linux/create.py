@@ -12,53 +12,24 @@
 import argparse
 import os
 import subprocess
-import tempfile
-
-
-BRANCH = "release/10.x"
 
 
 def create_asset(target_dir):
-  # CMake will sometimes barf if we pass it a relative path.
-  target_dir = os.path.abspath(target_dir)
+  # Create a local docker image tagged "clang_linux_asset" with a compiled clang for amd64 Linux.
+  # This will take a while. Output is in the image under /tmp/clang_output
+  args = ['docker', 'build', '-t', 'clang_linux_asset', './infra/bots/assets/clang_linux']
+  subprocess.run(args, check=True, encoding='utf8')
 
-  # Build Clang, lld, compiler-rt (sanitizer support) and libc++.
-  os.chdir(tempfile.mkdtemp())
-  subprocess.check_call(["git", "clone", "--depth", "1", "-b", BRANCH,
-                         "https://llvm.googlesource.com/llvm-project"])
-  os.chdir("llvm-project")
-  os.mkdir("out")
-  os.chdir("out")
-  subprocess.check_call(["cmake", "../llvm", "-G", "Ninja",
-                         "-DCMAKE_BUILD_TYPE=MinSizeRel",
-                         "-DCMAKE_INSTALL_PREFIX=" + target_dir,
-                         "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra;" +
-                             "compiler-rt;libcxx;libcxxabi;lld",
-                         "-DLLVM_INSTALL_TOOLCHAIN_ONLY=ON",
-                         "-DLLVM_ENABLE_TERMINFO=OFF"])
-  subprocess.check_call(["ninja", "install"])
-
-  # Copy a couple extra files we need.
-  subprocess.check_call(["cp", "bin/llvm-symbolizer", target_dir + "/bin"])
-  subprocess.check_call(["cp", "bin/llvm-profdata", target_dir + "/bin"])
-  subprocess.check_call(["cp", "bin/llvm-cov", target_dir + "/bin"])
-  libstdcpp = subprocess.check_output([
-      "c++", "-print-file-name=libstdc++.so.6"]).decode('utf-8')
-  subprocess.check_call(["cp", libstdcpp.strip(), target_dir + "/lib"])
-
-  # Finally, build libc++ for TSAN and MSAN bots using the Clang we just built.
-  for (short,full) in [('tsan','Thread'), ('msan','MemoryWithOrigins')]:
-    os.mkdir("../{}_out".format(short))
-    os.chdir("../{}_out".format(short))
-    subprocess.check_call(
-        ["cmake", "../llvm", "-G", "Ninja",
-         "-DCMAKE_BUILD_TYPE=MinSizeRel",
-         "-DCMAKE_C_COMPILER="   + target_dir + "/bin/clang",
-         "-DCMAKE_CXX_COMPILER=" + target_dir + "/bin/clang++",
-         "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi",
-         "-DLLVM_USE_SANITIZER={}".format(full)])
-    subprocess.check_call(["ninja", "cxx"])
-    subprocess.check_call(["cp", "-r", "lib",  target_dir + "/" + short])
+  # Copy the assets out of the container by mounting target_dir
+  print('Copying clang from Docker container into CIPD folder')
+  os.makedirs(target_dir, exist_ok=True)
+  args = ['docker', 'run', '--mount', 'type=bind,source=%s,target=/OUT' % target_dir,
+          'clang_linux_asset', '/bin/sh', '-c',
+          # After copying, we need to make the files write-able by all users.
+          # Docker makes them owned by root by default, and without everyone being
+          # able to write (e.g. delete) them, this can cause issues.
+          'cp -R /tmp/clang_output/* /OUT && chmod -R a+w /OUT']
+  subprocess.run(args, check=True, encoding='utf8')
 
 
 def main():

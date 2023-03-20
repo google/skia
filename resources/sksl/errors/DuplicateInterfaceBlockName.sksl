@@ -1,0 +1,10 @@
+uniform main {
+    float a;
+};
+
+void main() {
+}
+
+/*%%*
+symbol 'main' was already defined
+*%%*/

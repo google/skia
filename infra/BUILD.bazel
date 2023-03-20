@@ -1,0 +1,16 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "gazelle")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+gazelle(
+    name = "gazelle",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "mockery",
+    actual = "@com_github_vektra_mockery_v2//:v2",
+    visibility = ["//visibility:public"],
+)

@@ -5,7 +5,7 @@
 package main
 
 // This server runs along side the karma tests and listens for POST requests
-// when any test case reports it has output for Gold. See testReporter.js
+// when any test case reports it has output for Gold. See legacy_test_reporter.js
 // for the browser side part.
 
 import (

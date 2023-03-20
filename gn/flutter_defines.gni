@@ -9,17 +9,17 @@ flutter_defines = [
   # Remove software rasterizers to save some code size.
   "SK_DISABLE_AAA",
 
-  # Things we do for Flutter but don't want in general text layout
-  "SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION",
-
   # Staging
-  "SK_LEGACY_INNER_JOINS",
   "SK_LEGACY_IGNORE_DRAW_VERTICES_BLEND_WITH_NO_SHADER",
 
   # Fast low-precision software rendering isn't a priority for Flutter.
   "SK_DISABLE_LEGACY_SHADERCONTEXT",
   "SK_DISABLE_LOWP_RASTER_PIPELINE",
   "SK_FORCE_RASTER_PIPELINE_BLITTER",
+
+  # When running Metal, ensure that command buffers are scheduled before
+  # returning from submit.
+  "SK_METAL_WAIT_UNTIL_SCHEDULED",
 ]
 
 if (!is_fuchsia) {

@@ -212,7 +212,7 @@ private:
         }
 
         size_t vertexStride =  fProgramInfo->geomProc().vertexStride();
-        int instanceCount = fPaths.count();
+        int instanceCount = fPaths.size();
 
         int64_t vertexCount = 0;
         int64_t indexCount = 0;
@@ -279,13 +279,13 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || fMeshes.isEmpty()) {
+        if (!fProgramInfo || fMeshes.empty()) {
             return;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        for (int i = 0; i < fMeshes.count(); ++i) {
+        for (int i = 0; i < fMeshes.size(); ++i) {
             flushState->drawMesh(*fMeshes[i]);
         }
     }
@@ -296,7 +296,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        fPaths.push_back_n(that->fPaths.size(), that->fPaths.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
@@ -369,7 +369,7 @@ AALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
         if (strokeWidth < 1.0f && stroke.getStyle() == SkStrokeRec::kStroke_Style) {
             return CanDrawPath::kNo;
         }
-        if (strokeWidth > kMaxStrokeWidth ||
+        if ((strokeWidth > kMaxStrokeWidth && !args.fShape->isRect()) ||
             !args.fShape->knownToBeClosed() ||
             stroke.getJoin() == SkPaint::Join::kRound_Join) {
             return CanDrawPath::kNo;

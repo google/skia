@@ -9,8 +9,8 @@
 #define GrRenderTask_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTArray.h"
-#include "src/core/SkTInternalLList.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrTextureResolveManager.h"
@@ -93,7 +93,7 @@ public:
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
-    int numTargets() const { return fTargets.count(); }
+    int numTargets() const { return fTargets.size(); }
     GrSurfaceProxy* target(int i) const { return fTargets[i].get(); }
 
     /*
@@ -145,6 +145,9 @@ public:
     // Used by GrRenderTaskCluster.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrRenderTask);
 
+#if GR_TEST_UTILS
+    const GrTextureResolveRenderTask* resolveTask() const { return fTextureResolveTask; }
+#endif
 protected:
     SkDEBUGCODE(bool deferredProxiesAreInstantiated() const;)
 
@@ -247,7 +250,7 @@ private:
             return renderTask->isSetFlag(kTempMark_Flag);
         }
         static int NumDependencies(const GrRenderTask* renderTask) {
-            return renderTask->fDependencies.count();
+            return renderTask->fDependencies.size();
         }
         static GrRenderTask* Dependency(GrRenderTask* renderTask, int index) {
             return renderTask->fDependencies[index];

@@ -1,16 +1,37 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
-    name = "srcs",
+# In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_harfbuzz_sources.
+skia_filegroup(
+    name = "harfbuzz_srcs",
+    srcs = ["SkShaper_harfbuzz.cpp"],
+)
+
+# In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_coretext_sources.
+skia_filegroup(
+    name = "coretext_srcs",
+    srcs = ["SkShaper_coretext.cpp"],
+)
+
+skia_filegroup(
+    name = "base_srcs",
     srcs = [
         "SkShaper.cpp",
         "SkShaper_primitive.cpp",
-    ] + select({
-        "//modules/skshaper:use_harfbuzz_shaper": ["SkShaper_harfbuzz.cpp"],
+    ],
+    visibility = [
+        "//:__pkg__",  # Used in G3 buffet build
+        "//modules/skshaper:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [":base_srcs"] + select({
+        "//modules/skshaper:use_harfbuzz_shaper": [":harfbuzz_srcs"],
         # TODO(kjlubick, bungeman) Add support for SkShaper_coretext
         "//conditions:default": [],
     }),

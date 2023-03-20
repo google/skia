@@ -3,11 +3,14 @@
 
 #include "src/pdf/SkPDFType1Font.h"
 
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
 
 #include <ctype.h>
+
+using namespace skia_private;
 
 /*
   "A standard Type 1 font program, as described in the Adobe Type 1
@@ -141,7 +144,7 @@ static sk_sp<SkData> convert_type1_font_stream(std::unique_ptr<SkStreamAsset> sr
     }
     // Flatten and Nul-terminate the source stream so that we can use
     // strstr() to search it.
-    SkAutoTMalloc<uint8_t> sourceBuffer(SkToInt(srcLen + 1));
+    AutoTMalloc<uint8_t> sourceBuffer(SkToInt(srcLen + 1));
     (void)srcStream->read(sourceBuffer.get(), srcLen);
     sourceBuffer[SkToInt(srcLen)] = 0;
     const uint8_t* src = sourceBuffer.get();
@@ -245,8 +248,9 @@ static SkPDFIndirectReference make_type1_font_descriptor(SkPDFDocument* doc,
                 dict->insertInt("Length2", data);
                 dict->insertInt("Length3", trailer);
                 auto fontStream = SkMemoryStream::Make(std::move(fontData));
-                descriptor.insertRef("FontFile", SkPDFStreamOut(std::move(dict),
-                                                                std::move(fontStream), doc, true));
+                descriptor.insertRef("FontFile",
+                                     SkPDFStreamOut(std::move(dict), std::move(fontStream),
+                                                    doc, SkPDFSteamCompressionEnabled::Yes));
             }
         }
     }
@@ -303,7 +307,7 @@ void SkPDFEmitType1Font(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         auto widths = SkPDFMakeArray();
 
         int glyphRangeSize = lastGlyphID - firstGlyphID + 2;
-        SkAutoTArray<SkGlyphID> glyphIDs{glyphRangeSize};
+        AutoTArray<SkGlyphID> glyphIDs{glyphRangeSize};
         glyphIDs[0] = 0;
         for (unsigned gId = firstGlyphID; gId <= lastGlyphID; gId++) {
             glyphIDs[gId - firstGlyphID + 1] = gId;

@@ -5,16 +5,51 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRandom.h"
+#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrTextureResolveManager.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/OpsTask.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <iterator>
+#include <utility>
+#include <vector>
+
+class GrAppliedClip;
+class GrDrawingManager;
+class GrDstProxyView;
+class GrRecordingContext;
+class SkArenaAlloc;
+enum class GrXferBarrierFlags;
+struct GrContextOptions;
 
 // We create Ops that write a value into a range of a buffer. We create ranges from
 // kNumOpPositions starting positions x kRanges canonical ranges. We repeat each range kNumRepeats
@@ -72,7 +107,7 @@ static void init_combinable(int numGroups, Combinable* combinable, SkRandom* ran
     SkTDArray<int> groups[kNumOps];
     for (int i = 0; i < kNumOps; ++i) {
         auto& group = groups[random->nextULessThan(numGroups)];
-        for (int g = 0; g < group.count(); ++g) {
+        for (int g = 0; g < group.size(); ++g) {
             int j = group[g];
             if (random->nextUScalar1() < mergeProbability) {
                 (*combinable)[combinable_index(i, j)] = GrOp::CombineResult::kMerged;
@@ -171,7 +206,7 @@ private:
  * adding the ops in all possible orders and verifies that the chained executions don't violate
  * painter's order.
  */
-DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(OpChainTest, reporter, /*ctxInfo*/, CtsEnforcement::kApiLevel_T) {
     sk_sp<GrDirectContext> dContext = GrDirectContext::MakeMock(nullptr);
     SkASSERT(dContext);
     const GrCaps* caps = dContext->priv().caps();
@@ -181,10 +216,16 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/, CtsEnforcement::kApiLevel_T) {
                                                                  GrRenderable::kYes);
 
     static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
-    auto proxy = dContext->priv().proxyProvider()->createProxy(
-            format, kDims, GrRenderable::kYes, 1, GrMipmapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrProtected::kNo, /*label=*/"OpChainTest",
-            GrInternalSurfaceFlags::kNone);
+    auto proxy = dContext->priv().proxyProvider()->createProxy(format,
+                                                               kDims,
+                                                               GrRenderable::kYes,
+                                                               1,
+                                                               GrMipmapped::kNo,
+                                                               SkBackingFit::kExact,
+                                                               skgpu::Budgeted::kNo,
+                                                               GrProtected::kNo,
+                                                               /*label=*/"OpChainTest",
+                                                               GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(dContext->priv().resourceProvider());
 

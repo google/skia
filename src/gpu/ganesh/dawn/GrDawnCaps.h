@@ -13,6 +13,8 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/dawn/GrDawnUtil.h"
 
+enum class SkTextureCompressionType;
+
 class GrDawnCaps : public GrCaps {
 public:
     GrDawnCaps(const GrContextOptions& contextOptions);
@@ -42,7 +44,7 @@ public:
 
     int maxRenderTargetSampleCount(const GrBackendFormat& format) const override;
 
-    GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
+    GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
@@ -53,14 +55,15 @@ public:
                            ProgramDescOverrideFlags) const override;
 
 #if GR_TEST_UTILS
-    std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
+    std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
 
 private:
     bool onSurfaceSupportsWritePixels(const GrSurface* surface) const override;
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-        const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
-        return true;
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                          const GrSurfaceProxy* src, const SkIRect& srcRect) const override {
+        // Dawn does not support scaling copies
+        return srcRect.size() == dstRect.size();
     }
     GrBackendFormat onGetDefaultBackendFormat(GrColorType) const override;
 

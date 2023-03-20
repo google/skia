@@ -22,12 +22,14 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "tools/Resources.h"
 
 #include <string.h>
 #include <utility>
+
+using namespace skia_private;
 
 #define FILTER_WIDTH    SkIntToScalar(30)
 #define FILTER_HEIGHT   SkIntToScalar(30)
@@ -56,7 +58,7 @@ static sk_sp<SkColorFilter> cf_make_colorize(SkColor color) {
     return SkColorFilters::Blend(color, SkBlendMode::kSrc);
 }
 
-static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
+static void sk_gm_get_colorfilters(TArray<sk_sp<SkColorFilter>>* array) {
     array->push_back(cf_make_brightness(0.5f));
     array->push_back(cf_make_grayscale());
     array->push_back(cf_make_colorize(SK_ColorBLUE));
@@ -84,15 +86,15 @@ static sk_sp<SkShader> sh_make_image() {
     return image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions());
 }
 
-static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
+static void sk_gm_get_shaders(TArray<sk_sp<SkShader>>* array) {
     if (auto shader = sh_make_lineargradient0()) {
-        *array->append() = shader.release();
+        array->push_back(std::move(shader));
     }
     if (auto shader = sh_make_lineargradient1()) {
-        *array->append() = shader.release();
+        array->push_back(std::move(shader));
     }
     if (auto shader = sh_make_image()) {
-        *array->append() = shader.release();
+        array->push_back(std::move(shader));
     }
 }
 
@@ -195,33 +197,26 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename T> class SkTRefArray : public SkTDArray<T> {
-public:
-    ~SkTRefArray() { this->unrefAll(); }
-};
-
 DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
-    SkTArray<sk_sp<SkColorFilter>> filters;
+    TArray<sk_sp<SkColorFilter>> filters;
     sk_gm_get_colorfilters(&filters);
 
-    SkTRefArray<SkShader*> shaders;
+    TArray<sk_sp<SkShader>> shaders;
     sk_gm_get_shaders(&shaders);
 
     const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
-    *shaders.append() = SkGradientShader::MakeTwoPointConical({0, 0}, 50, {0, 0}, 150,
-                                                              colors, nullptr, 2,
-                                                              SkTileMode::kClamp).release();
+    shaders.push_back(SkGradientShader::MakeTwoPointConical(
+                              {0, 0}, 50, {0, 0}, 150, colors, nullptr, 2, SkTileMode::kClamp));
 
     SkPaint paint;
     SkRect r = SkRect::MakeWH(120, 120);
 
     canvas->translate(20, 20);
-    for (int y = 0; y < shaders.count(); ++y) {
-        SkShader* shader = shaders[y];
+    for (int y = 0; y < SkToInt(shaders.size()); ++y) {
+        SkShader* shader = shaders[y].get();
 
         canvas->save();
-        for (int x = -1; x < filters.count(); ++x) {
+        for (int x = -1; x < filters.size(); ++x) {
             sk_sp<SkColorFilter> filter = x >= 0 ? filters[x] : nullptr;
 
             paint.setShader(shader->makeWithColorFilter(filter));

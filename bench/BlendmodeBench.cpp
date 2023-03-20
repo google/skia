@@ -11,7 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkBlendModePriv.h"
 #include "tools/Resources.h"
 

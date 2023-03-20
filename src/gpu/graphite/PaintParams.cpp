@@ -7,14 +7,16 @@
 
 #include "src/gpu/graphite/PaintParams.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkShader.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
-#include "src/core/SkKeyContext.h"
-#include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPaintParamsKey.h"
-#include "src/core/SkPipelineData.h"
-#include "src/core/SkUniform.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/Uniform.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
@@ -59,20 +61,38 @@ sk_sp<SkColorFilter> PaintParams::refColorFilter() const { return fColorFilter; 
 
 sk_sp<SkBlender> PaintParams::refPrimitiveBlender() const { return fPrimitiveBlender; }
 
-void PaintParams::toKey(const SkKeyContext& keyContext,
-                        SkPaintParamsKeyBuilder* builder,
-                        SkPipelineDataGatherer* gatherer) const {
+SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& dstColorInfo) {
+    // xform from sRGB to the destination colorspace
+    SkColorSpaceXformSteps steps(sk_srgb_singleton(),       kUnpremul_SkAlphaType,
+                                 dstColorInfo.colorSpace(), kUnpremul_SkAlphaType);
 
-    if (fPrimitiveBlender) {
-        as_BB(fPrimitiveBlender)->addToKey(keyContext, builder, gatherer,
-                                           /*primitiveColorBlender=*/true);
-    }
+    SkColor4f result = srcColor;
+    steps.apply(result.vec());
+    return result;
+}
+
+void PaintParams::toKey(const KeyContext& keyContext,
+                        PaintParamsKeyBuilder* builder,
+                        PipelineDataGatherer* gatherer) const {
+
+    // TODO: figure out how we can omit this block when the Paint's color isn't used.
+    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, keyContext.paintColor());
+    builder->endBlock();
 
     if (fShader) {
         as_SB(fShader)->addToKey(keyContext, builder, gatherer);
-    } else {
-        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.premul());
-        builder->endBlock();
+    }
+
+    if (fPrimitiveBlender) {
+        as_BB(fPrimitiveBlender)->addToKey(keyContext, builder, gatherer, DstColorType::kPrimitive);
+    }
+
+    // Apply the paint's alpha value.
+    auto alphaColorFilter = SkColorFilters::Blend({0, 0, 0, fColor.fA},
+                                                  /* colorSpace= */ nullptr,
+                                                  SkBlendMode::kDstIn);
+    if (alphaColorFilter) {
+        as_CFB(alphaColorFilter)->addToKey(keyContext, builder, gatherer);
     }
 
     if (fColorFilter) {
@@ -80,23 +100,10 @@ void PaintParams::toKey(const SkKeyContext& keyContext,
     }
 
     if (fFinalBlender) {
-        as_BB(fFinalBlender)->addToKey(keyContext, builder, gatherer,
-                                       /*primitiveColorBlender=*/false);
+        as_BB(fFinalBlender)->addToKey(keyContext, builder, gatherer, DstColorType::kSurface);
     } else {
         BlendModeBlock::BeginBlock(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
         builder->endBlock();
-    }
-
-    if (gatherer) {
-        if (gatherer->needsLocalCoords()) {
-#ifdef SK_DEBUG
-            static constexpr SkUniform kDev2LocalUniform[] = {{ "dev2Local", SkSLType::kFloat4x4 }};
-            UniformExpectationsValidator uev(gatherer,
-                                             SkSpan<const SkUniform>(kDev2LocalUniform, 1));
-#endif
-
-            gatherer->write(keyContext.dev2Local());
-        }
     }
 
     SkASSERT(builder->sizeInBytes() > 0);

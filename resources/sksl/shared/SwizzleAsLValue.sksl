@@ -1,0 +1,13 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2) {
+    float4 color;
+    color        = float4(colorGreen) * 0.5;       // 0,    0.5, 0,    0.5
+    color.a      = 2.0;                            // 0,    0.5, 0,    2
+    color.g     /= 0.25;                           // 0,    2,   0,    2
+    color.gba   *= float3(0.5);                    // 0,    1,   0,    1
+    color.bgar  += float4(0.25, 0.0, 0.0, 0.75);   // 0.75, 1,   0.25, 1
+    color.r     += color.a <= 1.0 ? color.b : 0.0; // 1,    1,   0.25, 1
+
+    return (color == float4(1, 1, 0.25, 1)) ? colorGreen : colorRed;
+}

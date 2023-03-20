@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
@@ -23,6 +24,7 @@
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/GrUtil.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
@@ -30,6 +32,7 @@
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanInterface.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
@@ -203,8 +206,8 @@ bool GrVkCaps::canCopyAsResolve(VkFormat dstFormat, int dstSampleCnt, bool dstHa
     return true;
 }
 
-bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                                const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                                const GrSurfaceProxy* src, const SkIRect& srcRect) const {
     if (src->isProtected() == GrProtected::kYes && dst->isProtected() != GrProtected::kYes) {
         return false;
     }
@@ -267,12 +270,18 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     SkAssertResult(dst->backendFormat().asVkFormat(&dstFormat));
     SkAssertResult(src->backendFormat().asVkFormat(&srcFormat));
 
-    return this->canCopyImage(dstFormat, dstSampleCnt, dstHasYcbcr,
-                              srcFormat, srcSampleCnt, srcHasYcbcr) ||
-           this->canCopyAsBlit(dstFormat, dstSampleCnt, dstIsLinear, dstHasYcbcr,
-                               srcFormat, srcSampleCnt, srcIsLinear, srcHasYcbcr) ||
-           this->canCopyAsResolve(dstFormat, dstSampleCnt, dstHasYcbcr,
-                                  srcFormat, srcSampleCnt, srcHasYcbcr);
+    // Only blits support scaling, but since we've already clamped the src and dst rects,
+    // the dimensions of the scaled blit aren't important to know if it's allowed.
+    const bool copyScales = srcRect.size() != dstRect.size();
+    if (!copyScales && (this->canCopyImage(dstFormat, dstSampleCnt, dstHasYcbcr,
+                                           srcFormat, srcSampleCnt, srcHasYcbcr) ||
+                        this->canCopyAsResolve(dstFormat, dstSampleCnt, dstHasYcbcr,
+                                               srcFormat, srcSampleCnt, srcHasYcbcr))) {
+        return true;
+    }
+    return this->canCopyAsBlit(dstFormat, dstSampleCnt, dstIsLinear, dstHasYcbcr,
+                               srcFormat, srcSampleCnt, srcIsLinear, srcHasYcbcr);
+
 }
 
 template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatures2& features,
@@ -469,7 +478,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     }
 #endif
 
-    this->initFormatTable(vkInterface, physDev, properties);
+    this->initFormatTable(contextOptions, vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
     if (contextOptions.fMaxCachedVulkanSecondaryCommandBuffers >= 0) {
@@ -594,8 +603,16 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 #ifdef SK_BUILD_FOR_WIN
     // Gen 12 Intel devices running on windows has issues using barriers for dst reads. This is seen
     // when running the unit tests SkRuntimeEffect_Blender_GPU and DMSAA_aa_dst_read_after_dmsaa.
+    //
+    // Additionally, as of 2023-01-19 the latest driver compatible with Intel Iris Graphics 540
+    // (9th gen Skylake microarchitecture) produce SkRuntimeEffect_Blender and DMSAA deltas that
+    // are unacceptable and break our tests. The drivers in question are version 31.0.101.2115 and
+    // can be downloaded from
+    // https://www.intel.com/content/www/us/en/download/762755/intel-6th-10th-gen-processor-graphics-windows.html.
+    // This is likely due to bugs in the driver. As a temporary workaround, we disable texture
+    // barrier support in Skylake and newer generations (i.e. 9th gen or newer).
     if (kIntel_VkVendor == properties.vendorID &&
-        GetIntelGen(GetIntelGPUType(properties.deviceID)) == 12) {
+        GetIntelGen(GetIntelGPUType(properties.deviceID)) >= 9) {
         fTextureBarrierSupport = false;
     }
 #endif
@@ -715,6 +732,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     shaderCaps->fSampleMaskSupport = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
+    shaderCaps->fExplicitTextureLodSupport = true;
 
     shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
 
@@ -843,7 +861,8 @@ GrVkCaps::FormatInfo& GrVkCaps::getFormatInfo(VkFormat format) {
     return kInvalidFormat;
 }
 
-void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
+void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
+                               const skgpu::VulkanInterface* interface,
                                VkPhysicalDevice physDev,
                                const VkPhysicalDeviceProperties& properties) {
     static_assert(std::size(kVkFormats) == GrVkCaps::kNumVkFormats,
@@ -856,7 +875,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -885,7 +904,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 3;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -923,7 +942,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_B8G8R8A8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -942,7 +961,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R5G6B5_UNORM_PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -961,7 +980,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16B16A16_SFLOAT;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -988,7 +1007,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R16_SFLOAT;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1009,7 +1028,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1029,7 +1048,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1048,7 +1067,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_A2B10G10R10_UNORM_PACK32;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1067,7 +1086,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_A2R10G10B10_UNORM_PACK32;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1086,7 +1105,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1108,7 +1127,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R4G4B4A4_UNORM_PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1127,7 +1146,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1146,7 +1165,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R16_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1167,7 +1186,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1186,7 +1205,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16B16A16_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1205,7 +1224,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16_SFLOAT;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1225,7 +1244,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
         constexpr VkFormat format = VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM;
         auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
-            info.init(interface, physDev, properties, format);
+            info.init(contextOptions, interface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -1246,7 +1265,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
         constexpr VkFormat format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM;
         auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
-            info.init(interface, physDev, properties, format);
+            info.init(contextOptions, interface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -1266,7 +1285,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         // Setting this to texel block size
         // No supported GrColorTypes.
     }
@@ -1275,7 +1294,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         // Setting this to texel block size
         // No supported GrColorTypes.
     }
@@ -1284,7 +1303,7 @@ void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     {
         constexpr VkFormat format = VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
+        info.init(contextOptions, interface, physDev, properties, format);
         // Setting this to texel block size
         // No supported GrColorTypes.
     }
@@ -1339,7 +1358,8 @@ void GrVkCaps::FormatInfo::InitFormatFlags(VkFormatFeatureFlags vkFlags, uint16_
     }
 }
 
-void GrVkCaps::FormatInfo::initSampleCounts(const skgpu::VulkanInterface* interface,
+void GrVkCaps::FormatInfo::initSampleCounts(const GrContextOptions& contextOptions,
+                                            const skgpu::VulkanInterface* interface,
                                             VkPhysicalDevice physDev,
                                             const VkPhysicalDeviceProperties& physProps,
                                             VkFormat format) {
@@ -1364,8 +1384,11 @@ void GrVkCaps::FormatInfo::initSampleCounts(const skgpu::VulkanInterface* interf
         return;
     }
     if (kIntel_VkVendor == physProps.vendorID) {
-        // MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
-        return;
+        if (GetIntelGen(GetIntelGPUType(physProps.deviceID)) < 12 ||
+            !contextOptions.fAllowMSAAOnNewIntel) {
+            // MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
+            return;
+        }
     }
     if (flags & VK_SAMPLE_COUNT_2_BIT) {
         fColorSampleCounts.push_back(2);
@@ -1383,7 +1406,8 @@ void GrVkCaps::FormatInfo::initSampleCounts(const skgpu::VulkanInterface* interf
     // than 16. Omit 32 and 64.
 }
 
-void GrVkCaps::FormatInfo::init(const skgpu::VulkanInterface* interface,
+void GrVkCaps::FormatInfo::init(const GrContextOptions& contextOptions,
+                                const skgpu::VulkanInterface* interface,
                                 VkPhysicalDevice physDev,
                                 const VkPhysicalDeviceProperties& properties,
                                 VkFormat format) {
@@ -1393,7 +1417,7 @@ void GrVkCaps::FormatInfo::init(const skgpu::VulkanInterface* interface,
     InitFormatFlags(props.linearTilingFeatures, &fLinearFlags);
     InitFormatFlags(props.optimalTilingFeatures, &fOptimalFlags);
     if (fOptimalFlags & kRenderable_Flag) {
-        this->initSampleCounts(interface, physDev, properties, format);
+        this->initSampleCounts(contextOptions, interface, physDev, properties, format);
     }
 }
 
@@ -1489,14 +1513,14 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
 
     const FormatInfo& info = this->getFormatInfo(format);
 
-    int count = info.fColorSampleCounts.count();
+    int count = info.fColorSampleCounts.size();
 
     if (!count) {
         return 0;
     }
 
     if (1 == requestedCount) {
-        SkASSERT(info.fColorSampleCounts.count() && info.fColorSampleCounts[0] == 1);
+        SkASSERT(info.fColorSampleCounts.size() && info.fColorSampleCounts[0] == 1);
         return 1;
     }
 
@@ -1520,10 +1544,10 @@ int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
 
     const auto& table = info.fColorSampleCounts;
-    if (!table.count()) {
+    if (!table.size()) {
         return 0;
     }
-    return table[table.count() - 1];
+    return table[table.size() - 1];
 }
 
 static inline size_t align_to_4(size_t v) {
@@ -1547,12 +1571,12 @@ GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrColorType surfa
 
     // We don't support the ability to upload to external formats or formats that require a ycbcr
     // sampler. In general these types of formats are only used for sampling in a shader.
-    if (backend_format_is_external(surfaceFormat) || GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (backend_format_is_external(surfaceFormat) || skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
-    size_t offsetAlignment = align_to_4(GrVkFormatBytesPerBlock(vkFormat));
+    size_t offsetAlignment = align_to_4(skgpu::VkFormatBytesPerBlock(vkFormat));
 
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
@@ -1579,7 +1603,7 @@ GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
         // We can't directly read from a compressed format
-        if (GrVkFormatIsCompressed(texImage->imageFormat())) {
+        if (skgpu::VkFormatIsCompressed(texImage->imageFormat())) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
         return SurfaceReadPixelsSupport::kSupported;
@@ -1629,7 +1653,7 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     SkASSERT(ycbcrInfo);
 
-    if (ycbcrInfo->isValid() && !GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (ycbcrInfo->isValid() && !skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         // Format may be undefined for external images, which are required to have YCbCr conversion.
         if (VK_FORMAT_UNDEFINED == vkFormat && ycbcrInfo->fExternalFormat != 0) {
             return true;
@@ -1678,21 +1702,21 @@ bool GrVkCaps::programInfoWillUseDiscardableMSAA(const GrProgramInfo& programInf
 }
 
 GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
-        SkImage::CompressionType compressionType) const {
+        SkTextureCompressionType compressionType) const {
     switch (compressionType) {
-        case SkImage::CompressionType::kNone:
+        case SkTextureCompressionType::kNone:
             return {};
-        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+        case SkTextureCompressionType::kETC2_RGB8_UNORM:
             if (this->isVkFormatTexturable(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK)) {
                 return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
             }
             return {};
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:
             if (this->isVkFormatTexturable(VK_FORMAT_BC1_RGB_UNORM_BLOCK)) {
                 return GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGB_UNORM_BLOCK);
             }
             return {};
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM:
             if (this->isVkFormatTexturable(VK_FORMAT_BC1_RGBA_UNORM_BLOCK)) {
                 return GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGBA_UNORM_BLOCK);
             }
@@ -1776,18 +1800,18 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         return {GrColorType::kUnknown, 0};
     }
 
-    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
-    SkImage::CompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
-    if (compression != SkImage::CompressionType::kNone) {
-        return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+    SkTextureCompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
+    if (compression != SkTextureCompressionType::kNone) {
+        return { SkTextureCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888, 0 };
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
-    size_t offsetAlignment = align_to_4(GrVkFormatBytesPerBlock(vkFormat));
+    size_t offsetAlignment = align_to_4(skgpu::VkFormatBytesPerBlock(vkFormat));
 
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
@@ -1941,11 +1965,17 @@ static bool intel_deviceID_present(const std::array<uint32_t, N>& array, uint32_
     return std::find(array.begin(), array.end(), deviceID) != array.end();
 }
 
+
 GrVkCaps::IntelGPUType GrVkCaps::GetIntelGPUType(uint32_t deviceID) {
-    // Some common Intel GPU models, currently we cover ICL/RKL/TGL/ADL
+    // Some common Intel GPU models, currently we cover SKL/ICL/RKL/TGL/ADL
     // Referenced from the following Mesa source files:
     // https://github.com/mesa3d/mesa/blob/master/include/pci_ids/i965_pci_ids.h
     // https://github.com/mesa3d/mesa/blob/master/include/pci_ids/iris_pci_ids.h
+    static constexpr std::array<uint32_t, 25> kSkyLakeIDs = {
+        {0x1902, 0x1906, 0x190A, 0x190B, 0x190E, 0x1912, 0x1913,
+         0x1915, 0x1916, 0x1917, 0x191A, 0x191B, 0x191D, 0x191E,
+         0x1921, 0x1923, 0x1926, 0x1927, 0x192A, 0x192B, 0x192D,
+         0x1932, 0x193A, 0x193B, 0x193D}};
     static constexpr std::array<uint32_t, 14> kIceLakeIDs = {
         {0x8A50, 0x8A51, 0x8A52, 0x8A53, 0x8A54, 0x8A56, 0x8A57,
          0x8A58, 0x8A59, 0x8A5A, 0x8A5B, 0x8A5C, 0x8A5D, 0x8A71}};
@@ -1958,6 +1988,9 @@ GrVkCaps::IntelGPUType GrVkCaps::GetIntelGPUType(uint32_t deviceID) {
         {0x4680, 0x4681, 0x4682, 0x4683, 0x4690,
          0x4691, 0x4692, 0x4693, 0x4698, 0x4699}};
 
+    if (intel_deviceID_present(kSkyLakeIDs, deviceID)) {
+        return IntelGPUType::kSkyLake;
+    }
     if (intel_deviceID_present(kIceLakeIDs, deviceID)) {
         return IntelGPUType::kIceLake;
     }
@@ -1974,8 +2007,8 @@ GrVkCaps::IntelGPUType GrVkCaps::GetIntelGPUType(uint32_t deviceID) {
 }
 
 #if GR_TEST_UTILS
-std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinations() const {
-    std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
+std::vector<GrTest::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinations() const {
+    std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,          GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM)             },
         { GrColorType::kBGR_565,          GrBackendFormat::MakeVk(VK_FORMAT_R5G6B5_UNORM_PACK16)  },
         { GrColorType::kABGR_4444,        GrBackendFormat::MakeVk(VK_FORMAT_R4G4B4A4_UNORM_PACK16)},

@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/ops/FillRRectOp.h"
 
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"
@@ -393,9 +393,9 @@ private:
         }
         fColorAttrib = &fInstanceAttribs.push_back(
                 MakeColorAttribute("color", (fFlags & ProcessorFlags::kWideColor)));
-        SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribs);
+        SkASSERT(fInstanceAttribs.size() <= kMaxInstanceAttribs);
         this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.begin(),
-                                                       fInstanceAttribs.count());
+                                                       fInstanceAttribs.size());
     }
 
     inline static constexpr Attribute kVertexAttribs[] = {

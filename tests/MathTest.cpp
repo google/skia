@@ -6,19 +6,25 @@
  */
 
 #include "include/core/SkPoint.h"
-#include "include/private/SkColorData.h"
-#include "include/private/SkFixed.h"
-#include "include/private/SkHalf.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTo.h"
-#include "include/utils/SkRandom.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTPin.h"
+#include "src/base/SkHalf.h"
+#include "src/base/SkMathPriv.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkEndian.h"
-#include "src/core/SkFDot6.h"
-#include "src/core/SkMathPriv.h"
 #include "tests/Test.h"
 
-#include <algorithm>
+#include <array>
 #include <cinttypes>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
 
 static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));

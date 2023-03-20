@@ -9,22 +9,31 @@
 
 #ifdef SK_GL
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
-#include "src/image/SkImage_Base.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/gpu/ProxyUtils.h"
+struct GrContextOptions;
 
 static bool sampler_params_invalid(const GrGLTextureParameters& parameters) {
     return SkScalarIsNaN(parameters.samplerOverriddenState().fMaxLOD);
@@ -52,10 +61,10 @@ static bool params_valid(const GrGLTextureParameters& parameters, const GrGLCaps
     return caps->useSamplerObjects() == sampler_params_invalid(parameters);
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
-                                reporter,
-                                ctxInfo,
-                                CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
+                                    reporter,
+                                    ctxInfo,
+                                    CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto caps = static_cast<const GrGLCaps*>(dContext->priv().caps());
 
@@ -91,8 +100,11 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
     invalidNSState.invalidate();
 
     auto surf = SkSurface::MakeRenderTarget(
-            dContext, SkBudgeted::kYes,
-            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1, nullptr);
+            dContext,
+            skgpu::Budgeted::kYes,
+            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+            1,
+            nullptr);
     REPORTER_ASSERT(reporter, surf);
 
     // Test invalidating from the GL backend texture.

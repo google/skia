@@ -12,7 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #if defined(SK_BUILD_FOR_WIN)
     #define PATH_DIV_STR "\\"
@@ -154,7 +154,7 @@ struct DiffRecord {
     Result fResult;
 };
 
-typedef SkTArray<DiffRecord> RecordArray;
+typedef skia_private::TArray<DiffRecord> RecordArray;
 
 /// A wrapper for any sortProc (comparison routine) which applies a first-order
 /// sort beforehand, and a tiebreaker if the sortProc returns 0.

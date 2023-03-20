@@ -5,18 +5,44 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkDeferredDisplayListRecorder.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPromiseImageTexture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/image/SkImage_Gpu.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+#include "tools/gpu/FenceSync.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+
+#include <cstddef>
+#include <functional>
+#include <utility>
+
+struct GrContextOptions;
 
 using namespace sk_gpu_test;
 
@@ -115,7 +141,10 @@ static void check_all_done(skiatest::Reporter* reporter,
                                    ReleaseBalanceExpectation::kBalanced);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     const int kWidth = 10;
     const int kHeight = 10;
 
@@ -148,7 +177,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo, CtsEnfor
                                                           &promiseChecker));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->drawImage(refImg, 0, 0);
@@ -189,7 +218,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo, CtsEnfor
     ctx->deleteBackendTexture(backendTex);
 }
 
-DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::kNever) {
     const int kWidth = 10;
     const int kHeight = 10;
 
@@ -238,7 +267,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::kNev
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
-            sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+            sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
             SkCanvas* canvas = surface->getCanvas();
 
             PromiseTextureChecker promiseChecker(mbet->texture(), reporter, false);
@@ -269,10 +298,10 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::kNev
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     const int kWidth = 10;
     const int kHeight = 10;
 
@@ -289,7 +318,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
 
     SkImageInfo info =
             SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
@@ -321,7 +350,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
                 GrRenderable::kNo,
                 1,
                 GrMipmapped::kNo,
-                SkBudgeted::kYes,
+                skgpu::Budgeted::kYes,
                 GrProtected::kNo,
                 /*label=*/"PromiseImageTextureFullCacheTest"));
         REPORTER_ASSERT(reporter, textures[i]);
@@ -354,10 +383,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
 }
 
 // Test case where promise image fulfill returns nullptr.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     const int kWidth = 10;
     const int kHeight = 10;
 
@@ -395,7 +424,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
                                                           &counts));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
     // Draw the image a few different ways.
     canvas->drawImage(refImg, 0, 0);

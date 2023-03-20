@@ -10,6 +10,8 @@
 
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
+class GrSurfaceProxyView;
+
 // Multiplies 'inputFP' by the coverage value in an atlas, optionally inverting or clamping to 0.
 class GrModulateAtlasCoverageEffect : public GrFragmentProcessor {
 public:

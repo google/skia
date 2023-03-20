@@ -63,6 +63,7 @@ if (skia_use_system_libwebp) {
     configs = [ ":libwebp_defines" ]
     sources = [
       "../externals/libwebp/sharpyuv/sharpyuv.c",
+      "../externals/libwebp/sharpyuv/sharpyuv_cpu.c",
       "../externals/libwebp/sharpyuv/sharpyuv_csp.c",
       "../externals/libwebp/sharpyuv/sharpyuv_dsp.c",
       "../externals/libwebp/sharpyuv/sharpyuv_gamma.c",

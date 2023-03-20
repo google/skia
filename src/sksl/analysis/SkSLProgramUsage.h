@@ -9,7 +9,7 @@
 #define SKSL_PROGRAMUSAGE
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 namespace SkSL {
 
@@ -25,7 +25,7 @@ class Variable;
 class ProgramUsage {
 public:
     struct VariableCounts {
-        int fDeclared = 0;
+        int fVarExists = 0;  // if this is zero, the Variable might have already been deleted
         int fRead = 0;
         int fWrite = 0;
     };
@@ -40,6 +40,9 @@ public:
     void remove(const Expression* expr);
     void remove(const Statement* stmt);
     void remove(const ProgramElement& element);
+
+    bool operator==(const ProgramUsage& that) const;
+    bool operator!=(const ProgramUsage& that) const { return !(*this == that); }
 
     SkTHashMap<const Variable*, VariableCounts> fVariableCounts;
     SkTHashMap<const FunctionDeclaration*, int> fCallCounts;

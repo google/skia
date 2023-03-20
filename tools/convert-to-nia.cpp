@@ -35,7 +35,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 
 static inline void set_u32le(uint8_t* ptr, uint32_t val) {
     ptr[0] = val >> 0;

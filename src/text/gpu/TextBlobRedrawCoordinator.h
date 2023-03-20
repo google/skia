@@ -10,9 +10,9 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkSpinlock.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkMessageBus.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/text/gpu/TextBlob.h"
 
@@ -32,7 +32,7 @@ namespace sktext::gpu {
 class TextBlobRedrawCoordinator {
 public:
     TextBlobRedrawCoordinator(uint32_t messageBusID);
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     void drawGlyphRunList(SkCanvas* canvas,
                           const GrClip* clip,
                           const SkMatrixProvider& viewMatrix,
@@ -41,7 +41,7 @@ public:
                           SkStrikeDeviceInfo strikeDeviceInfo,
                           skgpu::v1::SurfaceDrawContext* sdc);
 #endif
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
     void drawGlyphRunList(SkCanvas* canvas,
                           const SkMatrix& viewMatrix,
                           const GlyphRunList& glyphRunList,

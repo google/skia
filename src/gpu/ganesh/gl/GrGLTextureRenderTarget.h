@@ -25,7 +25,7 @@ public:
     // We're virtually derived from GrSurface (via both GrGLTexture and GrGLRenderTarget) so its
     // constructor must be explicitly called.
     GrGLTextureRenderTarget(GrGLGpu* gpu,
-                            SkBudgeted budgeted,
+                            skgpu::Budgeted budgeted,
                             int sampleCount,
                             const GrGLTexture::Desc& texDesc,
                             const GrGLRenderTarget::IDs&,

@@ -4,10 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkGeometry.h"
 #include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
+
+#include <array>
 
 /*
 manually compute the intersection of a pair of circles and see if the conic intersection matches
@@ -60,6 +69,9 @@ static void chopCompare(const SkConic chopped[2], const SkDConic dChopped[2]) {
 #endif
 }
 
+#define DEBUG_VISUALIZE_CONICS 0
+
+#if DEBUG_VISUALIZE_CONICS
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImageEncoder.h"
@@ -67,9 +79,6 @@ static void chopCompare(const SkConic chopped[2], const SkDConic dChopped[2]) {
 #include "include/core/SkString.h"
 #include "src/pathops/SkPathOpsRect.h"
 
-#define DEBUG_VISUALIZE_CONICS 0
-
-#if DEBUG_VISUALIZE_CONICS
 static void writePng(const SkConic& c, const SkConic ch[2], const char* name) {
     const int scale = 10;
     SkConic conic, chopped[2];

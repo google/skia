@@ -6,10 +6,14 @@
  */
 
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "tests/Test.h"
 
+#include <cstdint>
+
 DEF_TEST(F16Stages, r) {
-    // Make sure SkRasterPipeline::load_f16 and store_f16 can handle a range of
+    // Make sure SkRasterPipelineOp::load_f16 and store_f16 can handle a range of
     // ordinary (0<=x<=1) and interesting (x<0, x>1) values.
     float floats[16] = {
         0.0f, 0.25f, 0.5f, 1.0f,
@@ -23,8 +27,8 @@ DEF_TEST(F16Stages, r) {
 
     {
         SkRasterPipeline_<256> p;
-        p.append(SkRasterPipeline:: load_f32, &f32);
-        p.append(SkRasterPipeline::store_f16, &f16);
+        p.append(SkRasterPipelineOp:: load_f32, &f32);
+        p.append(SkRasterPipelineOp::store_f16, &f16);
         p.run(0,0,16/4,1);
     }
     REPORTER_ASSERT(r, ((halfs[0] >>  0) & 0xffff) == 0x0000);
@@ -38,8 +42,8 @@ DEF_TEST(F16Stages, r) {
 
     {
         SkRasterPipeline_<256> p;
-        p.append(SkRasterPipeline:: load_f16, &f16);
-        p.append(SkRasterPipeline::store_f32, &f32);
+        p.append(SkRasterPipelineOp:: load_f16, &f16);
+        p.append(SkRasterPipelineOp::store_f32, &f32);
         p.run(0,0,16/4,1);
     }
     REPORTER_ASSERT(r, floats[0] ==  0.00f);

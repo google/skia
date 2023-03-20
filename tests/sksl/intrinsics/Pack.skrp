@@ -1,0 +1,33 @@
+### Compilation failed:
+
+error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 4: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = half(packHalf2x16(a));
+    ^^^^^^^^^^^^
+error: 4: unknown identifier 'packHalf2x16'
+    sk_FragColor.x = half(packHalf2x16(a));
+                          ^^^^^^^^^^^^
+error: 5: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = half(packUnorm2x16(a));
+    ^^^^^^^^^^^^
+error: 6: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = half(packSnorm2x16(a));
+    ^^^^^^^^^^^^
+error: 6: unknown identifier 'packSnorm2x16'
+    sk_FragColor.x = half(packSnorm2x16(a));
+                          ^^^^^^^^^^^^^
+error: 7: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = half(packUnorm4x8(b));
+    ^^^^^^^^^^^^
+error: 7: unknown identifier 'packUnorm4x8'
+    sk_FragColor.x = half(packUnorm4x8(b));
+                          ^^^^^^^^^^^^
+error: 8: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = half(packSnorm4x8(b));
+    ^^^^^^^^^^^^
+error: 8: unknown identifier 'packSnorm4x8'
+    sk_FragColor.x = half(packSnorm4x8(b));
+                          ^^^^^^^^^^^^
+10 errors

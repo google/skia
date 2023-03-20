@@ -1,0 +1,1 @@
+uniform half4 colorGreen;noinline void a(const vec2 b){}noinline void b(inout vec2 c){}noinline void c(out vec2 d){d=vec2(0.);}vec4 main(vec2 d){a(d);b(d);c(d);return vec4(colorGreen);}

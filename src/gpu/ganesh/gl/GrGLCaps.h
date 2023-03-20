@@ -11,9 +11,9 @@
 
 #include <functional>
 #include "include/private/SkChecksum.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/gl/GrGLAttachment.h"
@@ -21,6 +21,7 @@
 
 class GrGLContextInfo;
 class GrGLRenderTarget;
+enum class SkTextureCompressionType;
 
 /**
  * Stores some capabilities of a GL context. Most are determined by the GL
@@ -447,8 +448,8 @@ public:
                        GrGLFormat srcFormat, int srcSampleCnt,
                        const GrTextureType* srcTypeIfTexture,
                        const SkRect& srcBounds, bool srcBoundsExact,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) const;
-    bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable) const;
+                       const SkIRect& srcRect, const SkIRect& dstRect) const;
+    bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable, bool scalingCopy) const;
 
     DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
                                                GrColorType) const override;
@@ -475,14 +476,17 @@ public:
     /* Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers? */
     bool srgbWriteControl() const { return fSRGBWriteControl; }
 
-    /** Skip checks for GL errors, shader compilation success, program link success. */
+    /**
+     * Skip checks for GL errors and framebuffer completeness. Note that this does not skip
+     *  checking shader compilation and program linking status.
+     */
     bool skipErrorChecks() const { return fSkipErrorChecks; }
 
     bool supportsProtected() const { return fSupportsProtected; }
 
     bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
 
-    GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
+    GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
 
@@ -495,7 +499,7 @@ public:
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
 
-    std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
+    std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
 
 private:
@@ -515,7 +519,7 @@ private:
         bool fDisableRGBA16FTexStorageForCrBug1008003 = false;
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
         bool fDisableLuminance16F = false;
-        bool fDontDisableTexStorageOnAndroid = false;
+        bool fDisableTexStorage = false;
         bool fDisallowDirectRG8ReadPixels = false;
         bool fDisallowBGRA8ReadPixels = false;
         bool fDisallowR8ForPowerVRSGX54x = false;
@@ -540,8 +544,8 @@ private:
     void initFormatTable(const GrGLContextInfo&, const GrGLInterface*, const FormatWorkarounds&);
     void setupSampleCounts(const GrGLContextInfo&, const GrGLInterface*);
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                          const GrSurfaceProxy* src, const SkIRect& srcRect) const override;
     GrBackendFormat onGetDefaultBackendFormat(GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
@@ -613,6 +617,7 @@ private:
     bool fBindTexture0WhenChangingTextureFBOMultisampleCount : 1;
     bool fRebindColorAttachmentAfterCheckFramebufferStatus : 1;
     bool fFlushBeforeWritePixels : 1;
+    bool fDisableScalingCopyAsDraws : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;

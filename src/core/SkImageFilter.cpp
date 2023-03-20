@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkSafe32.h"
+#include "include/private/base/SkSafe32.h"
 #include "src/core/SkFuzzLogging.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -19,8 +19,9 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -223,10 +224,13 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
     // (originally passed separately) has an origin of (0, 0). SkComposeImageFilter makes an effort
     // to ensure that remains the case. Once everyone uses the new type systems for bounds, non
     // (0, 0) source origins will be easy to support.
-    SkASSERT(context.source().layerOrigin().x() == 0 && context.source().layerOrigin().y() == 0);
+    SkASSERT(context.source().layerBounds().left() == 0 &&
+             context.source().layerBounds().top() == 0 &&
+             context.source().layerBounds().right() == context.source().image()->width() &&
+             context.source().layerBounds().bottom() == context.source().image()->height());
 
     skif::FilterResult result;
-    if (!context.isValid()) {
+    if (context.desiredOutput().isEmpty() || !context.isValid()) {
         return result;
     }
 
@@ -316,7 +320,7 @@ skif::DeviceSpace<SkIRect> SkImageFilter_Base::getOutputBounds(
 // TODO (michaelludwig) - Default to using the old onFilterImage, as filters are updated one by one.
 // Once the old function is gone, this onFilterImage() will be made a pure virtual.
 skif::FilterResult SkImageFilter_Base::onFilterImage(const skif::Context& context) const {
-    SkIPoint origin;
+    SkIPoint origin = {0, 0};
     auto image = this->onFilterImage(context, &origin);
     return skif::FilterResult(std::move(image), skif::LayerSpace<SkIPoint>(origin));
 }
@@ -581,7 +585,7 @@ SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) c
     return ctx.withNewDesiredOutput(childOutput);
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* rContext,
                                                      std::unique_ptr<GrFragmentProcessor> fp,
                                                      const SkIRect& bounds,
@@ -596,6 +600,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* rContex
                      bounds.size());
 
     auto sfc = rContext->priv().makeSFC(info,
+                                        "ImageFilterBase_DrawWithFP",
                                         SkBackingFit::kApprox,
                                         1,
                                         GrMipmapped::kNo,

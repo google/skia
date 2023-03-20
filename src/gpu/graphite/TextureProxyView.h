@@ -47,11 +47,11 @@ public:
     int height() const { return this->proxy()->dimensions().height(); }
     SkISize dimensions() const { return this->proxy()->dimensions(); }
 
-    Mipmapped mipmapped() const {
+    skgpu::Mipmapped mipmapped() const {
         if (const TextureProxy* proxy = this->proxy()) {
             return proxy->mipmapped();
         }
-        return Mipmapped::kNo;
+        return skgpu::Mipmapped::kNo;
     }
 
     TextureProxy* proxy() const { return fProxy.get(); }
@@ -75,33 +75,17 @@ public:
         *this = {};
     }
 
-    // Helper that copies a rect of a src view's proxy and then creates a view for the copy with
-    // the same swizzle as the src view.
-    static TextureProxyView Copy(Recorder* recorder,
-                                 TextureProxyView src,
-                                 Mipmapped mipmapped,
-                                 SkIRect srcRect,
-                                 SkBackingFit fit,
-                                 SkBudgeted budgeted) {
-        // TODO
-        return {};
-    }
-
-    static TextureProxyView Copy(Recorder* recorder,
-                                 TextureProxyView src,
-                                 Mipmapped mipmapped,
-                                 SkBackingFit fit,
-                                 SkBudgeted budgeted) {
-        return TextureProxyView::Copy(recorder, src, mipmapped,
-                                      SkIRect::MakeSize(src.proxy()->dimensions()),
-                                      fit, budgeted);
-    }
-
     // This does not reset the swizzle, so the View can still be used to access those
     // properties associated with the detached proxy.
     sk_sp<TextureProxy> detachProxy() {
         return std::move(fProxy);
     }
+
+    static TextureProxyView Copy(Recorder*,
+                                 const SkColorInfo& srcColorInfo,
+                                 const TextureProxyView& srcView,
+                                 SkIRect srcRect,
+                                 Mipmapped);
 
 private:
     sk_sp<TextureProxy> fProxy;
@@ -111,4 +95,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureProxyView_DEFINED
-

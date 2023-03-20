@@ -7,9 +7,10 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
-#include "include/private/SkMacros.h"
-#include "include/private/SkSafe32.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkSafe32.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkTSort.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
@@ -18,7 +19,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScanPriv.h"
-#include "src/core/SkTSort.h"
 
 #include <utility>
 
@@ -676,7 +676,7 @@ void SkScan::FillPath(const SkPath& path, const SkIRect& ir,
     FillPath(path, rgn, blitter);
 }
 
-bool SkScan::DowngradeClipAA(const SkIRect& bounds) {
+bool SkScan::PathRequiresTiling(const SkIRect& bounds) {
     SkRegion out;  // ignored
     return clip_to_limit(SkRegion(bounds), &out);
 }

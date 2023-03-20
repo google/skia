@@ -20,8 +20,8 @@ class SkGlyph;
 
 namespace skgpu::graphite {
 
-class DrawContext;
 class Recorder;
+class UploadList;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The AtlasManager manages the lifetime of and access to DrawAtlases.
@@ -59,15 +59,23 @@ public:
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
     void addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater*, MaskFormat,
-                                      sktext::gpu::Glyph*, DrawToken);
+                                      sktext::gpu::Glyph*, AtlasToken);
 
     void setUseTokenBulk(const BulkUsePlotUpdater& updater,
-                         DrawToken token,
+                         AtlasToken token,
                          MaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
-    bool recordUploads(DrawContext* dc);
+    bool recordUploads(UploadList*, bool useCachedUploads);
+
+    void evictAtlases() {
+        for (int i = 0; i < kMaskFormatCount; ++i) {
+            if (fAtlases[i]) {
+                fAtlases[i]->evictAllPlots();
+            }
+        }
+    }
 
     // Some clients may wish to verify the integrity of the texture backing store of the
     // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which

@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkYUVAInfo.h"
-#include "src/core/SkSafeMath.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkYUVAInfoLocation.h"
 
 #include <algorithm>

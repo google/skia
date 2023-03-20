@@ -13,6 +13,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 
+#include <memory>
+
 class SkData;
 class SkFontData;
 class SkStreamAsset;
@@ -116,6 +118,9 @@ public:
 
     /** Return the default fontmgr. */
     static sk_sp<SkFontMgr> RefDefault();
+
+    /* Returns an empty font manager without any typeface dependencies */
+    static sk_sp<SkFontMgr> RefEmpty();
 
 protected:
     virtual int onCountFamilies() const = 0;

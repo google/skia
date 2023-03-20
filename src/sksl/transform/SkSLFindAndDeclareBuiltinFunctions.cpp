@@ -6,10 +6,9 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkTHash.h"
-#include "src/sksl/SkSLBuiltinMap.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -25,6 +24,8 @@
 #include <vector>
 
 namespace SkSL {
+
+class ProgramElement;
 
 void Transform::FindAndDeclareBuiltinFunctions(Program& program) {
     ProgramUsage* usage = program.fUsage.get();
@@ -43,10 +44,9 @@ void Transform::FindAndDeclareBuiltinFunctions(Program& program) {
                 // Programs that invoke the `dFdy` intrinsic will need the RTFlip input.
                 program.fInputs.fUseFlipRTUniform = !context.fConfig->fSettings.fForceNoRTFlip;
             }
-            if (const ProgramElement* elem = context.fBuiltins->find(fn->description())) {
+            if (const FunctionDefinition* builtinDef = fn->definition()) {
                 // Make sure we only add a built-in function once. We rarely add more than a handful
                 // of builtin functions, so linear search here is good enough.
-                const FunctionDefinition* builtinDef = &elem->as<FunctionDefinition>();
                 if (std::find(addedBuiltins.begin(), addedBuiltins.end(), builtinDef) ==
                     addedBuiltins.end()) {
                     addedBuiltins.push_back(builtinDef);

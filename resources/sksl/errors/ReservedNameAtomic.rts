@@ -1,0 +1,5 @@
+int atomic;
+
+/*&&*
+name 'atomic' is reserved
+*&&/

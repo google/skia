@@ -4,10 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/utils/SkRandom.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
+#include "tests/Test.h"
+
+#include <array>
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
 
 #define TEST(name) { name, #name }
 

@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("../zlib/zlib.gni")
+
 declare_args() {
   # TODO: build from source all the time for testing?
   skia_use_system_freetype2 =
@@ -10,8 +12,11 @@ declare_args() {
       !is_fuchsia && !is_wasm
   skia_system_freetype2_include_path = "/usr/include/freetype2"
   skia_system_freetype2_lib = "freetype"
+
   skia_use_freetype_woff2 = is_wasm
   skia_use_freetype_svg = true
+  skia_use_freetype_zlib = true
+  skia_use_freetype_zlib_bundled = !skia_use_system_zlib
 }
 
 import("../third_party.gni")
@@ -24,24 +29,32 @@ if (skia_use_system_freetype2) {
 } else {
   third_party("freetype2") {
     public_defines = [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION=(((FREETYPE_MAJOR) << 24) | ((FREETYPE_MINOR) << 16) | ((FREETYPE_PATCH) << 8))" ]
-    public_include_dirs = [
-      ".",
-      "../externals/freetype/include",
-    ]
+    public_include_dirs = [ "include" ]
 
     deps = [ "//third_party/libpng" ]
 
     defines = [ "FT2_BUILD_LIBRARY" ]
     if (target_cpu == "wasm") {
       public_defines += [
-        "FT_CONFIG_MODULES_H=<include/freetype-no-type1/ftmodule.h>",
-        "FT_CONFIG_OPTIONS_H=<include/freetype-no-type1/ftoption.h>",
+        "FT_CONFIG_MODULES_H=<freetype-no-type1/freetype/config/ftmodule.h>",
+        "FT_CONFIG_OPTIONS_H=<freetype-no-type1/freetype/config/ftoption.h>",
       ]
+      public_include_dirs += [ "include/freetype-no-type1" ]
     } else {
       public_defines += [
-        "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
-        "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
+        "FT_CONFIG_MODULES_H=<freetype-android/freetype/config/ftmodule.h>",
+        "FT_CONFIG_OPTIONS_H=<freetype-android/freetype/config/ftoption.h>",
       ]
+      public_include_dirs += [ "include/freetype-android" ]
+    }
+    public_include_dirs += [ "../externals/freetype/include" ]
+
+    if (skia_use_freetype_zlib) {
+      public_defines += [ "FT_CONFIG_OPTION_USE_ZLIB" ]
+      if (!skia_use_freetype_zlib_bundled) {
+        deps += [ "//third_party/zlib" ]
+        public_defines += [ "FT_CONFIG_OPTION_SYSTEM_ZLIB" ]
+      }
     }
 
     if (skia_use_freetype_woff2) {

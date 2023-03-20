@@ -5,13 +5,28 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+#include <cstdint>
+
+class GrRecordingContext;
+struct GrContextOptions;
 
 static SkBitmap read_pixels(sk_sp<SkSurface> surface, SkColor initColor) {
     SkBitmap bmp;
@@ -25,8 +40,8 @@ static SkBitmap read_pixels(sk_sp<SkSurface> surface, SkColor initColor) {
 
 static sk_sp<SkSurface> make_surface(GrRecordingContext* rContext) {
     SkImageInfo info = SkImageInfo::Make(50, 50, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info, 4,
-                                       kBottomLeft_GrSurfaceOrigin, nullptr);
+    return SkSurface::MakeRenderTarget(
+            rContext, skgpu::Budgeted::kNo, info, 4, kBottomLeft_GrSurfaceOrigin, nullptr);
 }
 
 static void test_bug_6653(GrDirectContext* dContext,
@@ -96,7 +111,7 @@ static void test_bug_6653(GrDirectContext* dContext,
 
 // Tests that readPixels returns up-to-date results. This has failed on several GPUs,
 // from multiple vendors, in MSAA mode.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto ctx = ctxInfo.directContext();
     test_bug_6653(ctx, reporter, "Default");
 }

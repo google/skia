@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -21,6 +22,8 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "src/core/SkPathEffectBase.h"
 #include "tests/Test.h"
+
+#include <array>
 
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
 // the effect is nonsense.  Here we test that it fails when passed nonsense parameters.
@@ -108,7 +111,7 @@ DEF_TEST(DashPath_bug4871, r) {
     paint.setPathEffect(dash);
 
     SkPath fill;
-    paint.getFillPath(path, &fill);
+    skpathutils::FillPathWithPaint(path, paint, &fill);
 }
 
 // Verify that long lines with many dashes don't cause overflows/OOMs.
@@ -139,5 +142,5 @@ DEF_TEST(DashCrazy_crbug_875494, r) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(SkDashPathEffect::Make(vals, N, 222));
-    paint.getFillPath(path, &path2, &cull);
+    skpathutils::FillPathWithPaint(path, paint, &path2, &cull);
 }

@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 # The following Skia types can be natively visualized in LLDB:
-# - SkAutoTArray, SkAutoSTArray
+# - AutoTArray, AutoSTArray
 # - SkString
 # - SkTArray, SkSTArray
 # - sk_sp
@@ -45,10 +45,10 @@ class SkTArray_SynthProvider:
 
     def num_children(self):
         try:
-            count = self.fCount.GetValueAsSigned(0)
-            count = max(count, 0)
-            count = min(count, 10000)
-            return count
+            size = self.fSize.GetValueAsSigned(0)
+            size = max(size, 0)
+            size = min(size, 10000)
+            return size
         except:
             return 0
 
@@ -66,16 +66,15 @@ class SkTArray_SynthProvider:
 
         try:
             offset = index * self.dataSize
-            return self.fItemArray.CreateChildAtOffset('[' + str(index) + ']',
-                                                       offset, self.dataType)
+            return self.fData.CreateChildAtOffset('[' + str(index) + ']', offset, self.dataType)
         except:
             return None
 
     def update(self):
         try:
-            self.fItemArray = self.valobj.GetChildMemberWithName('fItemArray')
-            self.fCount = self.valobj.GetChildMemberWithName('fCount')
-            self.dataType = self.fItemArray.GetType().GetPointeeType()
+            self.fData = self.valobj.GetChildMemberWithName('fData')
+            self.fSize = self.valobj.GetChildMemberWithName('fSize')
+            self.dataType = self.fData.GetType().GetPointeeType()
             self.dataSize = self.dataType.GetByteSize()
         except:
             pass
@@ -84,7 +83,7 @@ class SkTArray_SynthProvider:
         return True
 
 
-class SkAutoTArray_SynthProvider:
+class AutoTArray_SynthProvider:
 
     def __init__(self, valobj, dict):
         self.valobj = valobj
@@ -218,7 +217,7 @@ def __lldb_init_module(debugger, dict):
     debugger.HandleCommand(
         'type summary add --summary-string "size=${svar%#}" -e -x "^SkS?TArray<.+>$" -w skia')
     debugger.HandleCommand(
-        'type synthetic add -l skia.SkAutoTArray_SynthProvider -x "^SkAutoS?TArray<.+>$" -w skia')
+        'type synthetic add -l skia.AutoTArray_SynthProvider -x "^AutoS?TArray<.+>$" -w skia')
     debugger.HandleCommand(
-        'type summary add --summary-string "size=${svar%#}" -e -x "^SkAutoS?TArray<.+>$" -w skia')
+        'type summary add --summary-string "size=${svar%#}" -e -x "^AutoS?TArray<.+>$" -w skia')
     debugger.HandleCommand("type category enable skia")

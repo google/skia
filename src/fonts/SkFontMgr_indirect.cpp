@@ -14,10 +14,10 @@
 #include "include/core/SkTypes.h"
 #include "include/ports/SkFontMgr_indirect.h"
 #include "include/ports/SkRemotableFontMgr.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkOnce.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
 
 class SkData;
 
@@ -84,7 +84,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
 
     sk_sp<SkTypeface> dataTypeface;
     int dataTypefaceIndex = 0;
-    for (int i = 0; i < fDataCache.count(); ++i) {
+    for (int i = 0; i < fDataCache.size(); ++i) {
         const DataEntry& entry = fDataCache[i];
         if (entry.fDataId == id.fDataId) {
             if (entry.fTtcIndex == id.fTtcIndex &&

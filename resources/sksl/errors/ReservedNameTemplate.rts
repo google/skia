@@ -1,5 +1,5 @@
 int template;
 
 /*%%*
-'template' is a reserved word
+name 'template' is reserved
 *%%*/

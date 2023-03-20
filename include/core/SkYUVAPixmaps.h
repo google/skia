@@ -12,7 +12,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkYUVAInfo.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 
 #include <array>
 #include <bitset>

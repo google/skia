@@ -1,5 +1,5 @@
 int precision;
 
 /*%%*
-'precision' is a reserved word
+name 'precision' is reserved
 *%%*/

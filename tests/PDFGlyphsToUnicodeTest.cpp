@@ -5,15 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_SUPPORT_PDF
 
-#include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTDArray.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/pdf/SkPDFGlyphUse.h"
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
+#include "tests/Test.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+
+using namespace skia_private;
 
 static constexpr SkGlyphID kMaximumGlyphIndex = UINT16_MAX;
 
@@ -29,7 +37,7 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
         return false;
     }
 
-    SkAutoTMalloc<char> data(streamSize);
+    AutoTMalloc<char> data(streamSize);
     stream.copyTo(data.get());
     return memcmp(data.get() + offset, buffer, len) == 0;
 }
@@ -75,7 +83,7 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
     glyphsInSubset.push_back(0x101);
     glyphToUnicode.push_back(0x1013);
 
-    SkGlyphID lastGlyphID = SkToU16(glyphToUnicode.count() - 1);
+    SkGlyphID lastGlyphID = SkToU16(glyphToUnicode.size() - 1);
 
     SkDynamicMemoryWStream buffer;
     for (uint16_t v : glyphsInSubset) {
@@ -164,7 +172,7 @@ endbfrange\n";
     for (SkUnichar i = 0; i < 100; ++i) {
       glyphToUnicode.push_back(i + 29);
     }
-    lastGlyphID = SkToU16(glyphToUnicode.count() - 1);
+    lastGlyphID = SkToU16(glyphToUnicode.size() - 1);
 
     glyphsInSubset.push_back(0x2C);
     glyphsInSubset.push_back(0x44);

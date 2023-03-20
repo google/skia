@@ -8,6 +8,7 @@
 #ifndef SKSL_CONSTRUCTOR_MATRIX_RESIZE
 #define SKSL_CONSTRUCTOR_MATRIX_RESIZE
 
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -29,10 +30,10 @@ class Type;
  */
 class ConstructorMatrixResize final : public SingleArgumentConstructor {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kConstructorMatrixResize;
+    inline static constexpr Kind kIRNodeKind = Kind::kConstructorMatrixResize;
 
     ConstructorMatrixResize(Position pos, const Type& type, std::unique_ptr<Expression> arg)
-            : INHERITED(pos, kExpressionKind, &type, std::move(arg)) {}
+            : INHERITED(pos, kIRNodeKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,

@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -7,8 +7,8 @@ exports_files_legacy(
     visibility = ["//tools/skui:__pkg__"],
 )
 
-# In own filegroup for mapping to the //gn/sksl.gni file.
-filegroup(
+# In own skia_filegroup for mapping to the //gn/sksl.gni file.
+skia_filegroup(
     name = "sksl_private_hdrs",
     srcs = [
         "SkSLDefines.h",
@@ -24,49 +24,24 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        "SingleOwner.h",
         "SkBitmaskEnum.h",
         "SkChecksum.h",
         "SkColorData.h",
-        "SkDeque.h",
         "SkEncodedInfo.h",
-        "SkFixed.h",
-        "SkFloatBits.h",
-        "SkFloatingPoint.h",
-        "SkHalf.h",
+        "SkGainmapInfo.h",
+        "SkGainmapShader.h",
         "SkIDChangeListener.h",
-        "SkImageInfoPriv.h",
-        "SkMacros.h",
-        "SkMalloc.h",
-        "SkMutex.h",
-        "SkNoncopyable.h",
-        "SkOnce.h",
         "SkOpts_spi.h",
         "SkPathRef.h",
-        "SkSafe32.h",
-        "SkSafe_math.h",
-        "SkSemaphore.h",
         "SkShadowFlags.h",
         "SkSpinlock.h",
-        "SkStringView.h",
-        "SkTArray.h",
-        "SkTDArray.h",
-        "SkTFitsIn.h",
-        "SkTHash.h",
-        "SkTLogic.h",
-        "SkTPin.h",
-        "SkTemplates.h",
-        "SkThreadAnnotations.h",
-        "SkThreadID.h",
-        "SkTo.h",
-        "SkUniquePaintParamsID.h",
-        "SkVx.h",
         "SkWeakRefCnt.h",
         ":sksl_private_hdrs",
         "//include/private/chromium:private_hdrs",
+        "//include/private/base:private_hdrs",
     ] + select({
         "//src/gpu:has_gpu_backend": [
             "//include/private/gpu:private_hdrs",
@@ -74,4 +49,24 @@ filegroup(
         "//conditions:default": [],
     }),
     visibility = ["//include:__pkg__"],
+)
+
+skia_filegroup(
+    name = "buffet_hdrs",
+    srcs = [
+        # Files listed here will be available to Skia internals via the core_priv target.
+        "SkColorData.h",
+        "SkIDChangeListener.h",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "buffet_srcs",
+    srcs = [
+        # We really don't want this header to be used outside of SkPath and SkPathBuilder
+        # so we add it to core under srcs instead to enforce that.
+        "SkPathRef.h",
+    ],
+    visibility = ["//src:__pkg__"],
 )

@@ -12,7 +12,7 @@
 
 GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
         GrD3DGpu* gpu,
-        SkBudgeted budgeted,
+        skgpu::Budgeted budgeted,
         SkISize dimensions,
         const GrD3DTextureResourceInfo& info,
         sk_sp<GrD3DResourceState> state,
@@ -41,7 +41,7 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
 
 GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
         GrD3DGpu* gpu,
-        SkBudgeted budgeted,
+        skgpu::Budgeted budgeted,
         SkISize dimensions,
         const GrD3DTextureResourceInfo& info,
         sk_sp<GrD3DResourceState> state,
@@ -104,14 +104,13 @@ GrD3DTextureRenderTarget::GrD3DTextureRenderTarget(
 
 sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTarget(
         GrD3DGpu* gpu,
-        SkBudgeted budgeted,
+        skgpu::Budgeted budgeted,
         SkISize dimensions,
         int sampleCnt,
         const D3D12_RESOURCE_DESC& resourceDesc,
         GrProtected isProtected,
         GrMipmapStatus mipmapStatus,
         std::string_view label) {
-
     GrD3DTextureResourceInfo info;
     D3D12_RESOURCE_STATES initialState = sampleCnt > 1 ? D3D12_RESOURCE_STATE_RESOLVE_DEST
                                                        : D3D12_RESOURCE_STATE_RENDER_TARGET;

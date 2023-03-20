@@ -8,6 +8,8 @@
 #ifndef SmallPathRenderer_DEFINED
 #define SmallPathRenderer_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "src/gpu/ganesh/PathRenderer.h"
 
 class GrStyledShape;
@@ -31,5 +33,7 @@ private:
 };
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 #endif // SmallPathRenderer_DEFINED

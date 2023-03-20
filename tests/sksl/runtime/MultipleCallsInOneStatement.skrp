@@ -1,0 +1,21 @@
+    1. store_src_rg                   pos = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  x = 0x00000005 (7.006492e-45)
+    4. copy_slot_unmasked             $0 = x
+    5. label                          label 0x00000000
+    6. copy_constant                  x = 0x00000003 (4.203895e-45)
+    7. copy_slot_unmasked             $1 = x
+    8. label                          label 0x00000001
+    9. add_int                        $0 += $1
+   10. copy_constant                  x = 0x00000002 (2.802597e-45)
+   11. copy_slot_unmasked             $1 = x
+   12. label                          label 0x00000002
+   13. add_int                        $0 += $1
+   14. copy_slot_unmasked             ten = $0
+   15. copy_constant                  $1 = 0x0000000A (1.401298e-44)
+   16. cmpeq_int                      $0 = equal($0, $1)
+   17. swizzle_4                      $0..3 = ($0..3).xxxx
+   18. copy_4_constants               $4..7 = colorRed
+   19. copy_4_constants               $8..11 = colorGreen
+   20. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   21. load_src                       src.rgba = $0..3

@@ -199,11 +199,10 @@ private:
     const char* name;
 };
 
-//#define SK_CLIENT_ICU
-#ifdef SK_CLIENT_ICU
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
 class SkUnicode_test : public SkUnicode {
 public:
-    SkUnicode_test() = delete;
+    SkUnicode_test() { }
 
     SkUnicode_test(SkSpan<char> text, const ParagraphStyle& style) {
 
@@ -218,7 +217,7 @@ public:
                              &bidiRegions);
 
         std::vector<SkUnicode::Position> words;
-        fIcu->getWords(text.data(), text.size(), &words);
+        fIcu->getWords(text.data(), text.size(), nullptr, &words);
 
         SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
         fIcu->computeCodeUnitFlags(
@@ -240,12 +239,12 @@ public:
             ++pos;
         }
 
-        fClient = SkUnicode::Make(text, bidiRegions, words, graphemeBreaks, lineBreaks);
+        fClient = SkUnicode::MakeClientBasedUnicode(text, bidiRegions, words, graphemeBreaks, lineBreaks);
         SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags1;
         fClient->computeCodeUnitFlags(
                 text.data(), text.size(), style.getReplaceTabCharacters(), &codeUnitFlags1);
         SkASSERT(codeUnitFlags.size() == codeUnitFlags1.size());
-        for (auto i = 0ul; i < codeUnitFlags.size(); ++i) {
+        for (auto i = 0; i < codeUnitFlags.size(); ++i) {
             // Deal with tabulation separately (to avoid all this trouble to copy the initial text)
             if ((codeUnitFlags1[i] & CodeUnitFlags::kTabulation) == CodeUnitFlags::kTabulation) {
                 SkASSERT((codeUnitFlags[i] | CodeUnitFlags::kTabulation) ==
@@ -254,6 +253,13 @@ public:
                 SkASSERT(codeUnitFlags[i] == codeUnitFlags1[i]);
             }
         }
+    }
+
+    std::unique_ptr<SkUnicode> copy() override {
+        auto unicode = std::make_unique<SkUnicode_test>();
+        unicode->fIcu = fIcu->copy();
+        unicode->fClient = fClient->copy();
+        return unicode;
     }
 
     ~SkUnicode_test() override = default;
@@ -273,7 +279,17 @@ public:
                         int utf8Units,
                         TextDirection dir,
                         std::vector<BidiRegion>* results) override {
-        return fClient->getBidiRegions(utf8, utf8Units, dir, results);
+        std::vector<SkUnicode::BidiRegion> bidiRegions;
+        auto result0 = fIcu->getBidiRegions(utf8, utf8Units, dir, &bidiRegions);
+        auto result1 = fClient->getBidiRegions(utf8, utf8Units, dir, results);
+        SkASSERT(result0 == result1);
+        SkASSERT(results->size() == bidiRegions.size());
+        for (size_t i = 0; i < results->size(); ++i) {
+            SkASSERT(bidiRegions[i].level == (*results)[i].level);
+            SkASSERT(bidiRegions[i].start == (*results)[i].start);
+            SkASSERT(bidiRegions[i].end == (*results)[i].end);
+        }
+        return result1;
     }
 
     bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
@@ -286,8 +302,8 @@ public:
         return fClient->computeCodeUnitFlags(utf16, utf16Units, replaceTabs, results);
     }
 
-    bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) override {
-        return fClient->getWords(utf8, utf8Units, results);
+    bool getWords(const char utf8[], int utf8Units, const char* locale, std::vector<Position>* results) override {
+        return fClient->getWords(utf8, utf8Units, locale, results);
     }
 
     SkString toUpper(const SkString& str) override {
@@ -297,7 +313,13 @@ public:
     void reorderVisual(const BidiLevel runLevels[],
                        int levelsCount,
                        int32_t logicalFromVisual[]) override {
-        return fClient->reorderVisual(runLevels, levelsCount, logicalFromVisual);
+        std::vector<int32_t> logicalFromVisual0;
+        logicalFromVisual0.resize(levelsCount);
+        fIcu->reorderVisual(runLevels, levelsCount, logicalFromVisual0.data());
+        fClient->reorderVisual(runLevels, levelsCount, logicalFromVisual);
+        for (int i = 0; i < levelsCount; ++i) {
+            SkASSERT(logicalFromVisual0[i] == logicalFromVisual[i]);
+        }
     }
 private:
     friend class SkBidiIterator_test;
@@ -2684,7 +2706,7 @@ UNIX_ONLY_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, boxes.size() == 2ull);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 83.92f, EPSILON100));  // DIFF: 89.40625
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 110.16f, EPSILON100)); // DIFF: 121.87891
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 105.16f, EPSILON100)); // DIFF: 121.87891
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
@@ -2732,7 +2754,7 @@ UNIX_ONLY_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, boxes.size() == 2ull); // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.5f, EPSILON100));         // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 587.74f, EPSILON100));       // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 582.74f, EPSILON100));       // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
@@ -5795,8 +5817,9 @@ UNIX_ONLY_TEST(SkParagraph_FormattingInfinity, reporter) {
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextStyle(textStyle);
 
-    auto draw = [&](const char* prefix, TextAlign textAlign) {
+    auto draw = [&](const char* prefix, TextAlign textAlign, TextDirection textDirection) {
         paragraphStyle.setTextAlign(textAlign);
+        paragraphStyle.setTextDirection(textDirection);
         TestParagraphBuilderImpl builder(paragraphStyle, fontCollection);
         builder.addText(text);
         auto paragraph = builder.Build();
@@ -5805,10 +5828,11 @@ UNIX_ONLY_TEST(SkParagraph_FormattingInfinity, reporter) {
         canvas.get()->translate(0, 100);
     };
 
-    draw("left", TextAlign::kLeft);
-    draw("right", TextAlign::kRight);
-    draw("center", TextAlign::kCenter);
-    draw("justify", TextAlign::kJustify);
+    draw("left", TextAlign::kLeft, TextDirection::kLtr);
+    draw("right", TextAlign::kRight, TextDirection::kLtr);
+    draw("center", TextAlign::kCenter, TextDirection::kLtr);
+    draw("justify LTR", TextAlign::kJustify, TextDirection::kLtr);
+    draw("justify RTL", TextAlign::kJustify, TextDirection::kRtl);
 };
 
 UNIX_ONLY_TEST(SkParagraph_Infinity, reporter) {
@@ -6415,27 +6439,24 @@ UNIX_ONLY_TEST(SkParagraph_RTLGlyphPositions, reporter) {
     paragraph->layout(500);
     paragraph->paint(canvas.get(), 0, 0);
 
-    auto res1 = paragraph->getGlyphPositionAtCoordinate(0, 0);
-    REPORTER_ASSERT(reporter, res1.position == 3 && res1.affinity == Affinity::kDownstream);
-/*
-    auto width = paragraph->getMinIntrinsicWidth();
-    auto letter = width / 4;
-    for (size_t i = 0; i < 4; i++) {
-        auto left = 500 - letter * (4 - i) + letter * 0.25;
-        auto right = left + letter * 0.5;
-        auto res1 = paragraph->getGlyphPositionAtCoordinate(left, 1);
-        auto res2 = paragraph->getGlyphPositionAtCoordinate(right, 1);
+    std::vector<std::pair<SkScalar, PositionWithAffinity>> checks  = {
+        std::make_pair(550, PositionWithAffinity(0, Affinity::kDownstream)),
+        std::make_pair(500, PositionWithAffinity(0, Affinity::kDownstream)),
+        std::make_pair(494, PositionWithAffinity(1, Affinity::kUpstream)),
+        std::make_pair(488, PositionWithAffinity(1, Affinity::kDownstream)),
+        std::make_pair(485, PositionWithAffinity(2, Affinity::kUpstream)),
+        std::make_pair(480, PositionWithAffinity(2, Affinity::kDownstream)),
+        std::make_pair(475, PositionWithAffinity(3, Affinity::kUpstream)),
+        std::make_pair(471, PositionWithAffinity(3, Affinity::kDownstream)),
+        std::make_pair(467, PositionWithAffinity(4, Affinity::kUpstream)),
+        std::make_pair(  0, PositionWithAffinity(4, Affinity::kUpstream)),
+    };
 
-        SkDebugf("%d: %f %d%s %f %d%s\n", i,
-           left, res1.position, res1.affinity == Affinity::kUpstream ? "U" : "D",
-           right, res2.position, res2.affinity == Affinity::kUpstream ? "U" : "D");
+    for (auto check : checks) {
+        auto pos = paragraph->getGlyphPositionAtCoordinate(check.first, 0);
+        REPORTER_ASSERT(reporter, pos.affinity == check.second.affinity);
+        REPORTER_ASSERT(reporter, pos.position == check.second.position);
     }
-*/
-    auto res2 = paragraph->getGlyphPositionAtCoordinate(500, 1);
-    REPORTER_ASSERT(reporter, res2.position == 0 && res2.affinity == Affinity::kDownstream);
-//    SkDebugf("edges: %f %d%s %f %d%s\n",
-//           0.0f, res1.position, res1.affinity == Affinity::kUpstream ? "U" : "D",
-//           500.0f, res2.position, res2.affinity == Affinity::kUpstream ? "U" : "D");
 }
 
 UNIX_ONLY_TEST(SkParagraph_RTLGlyphPositionsInEmptyLines, reporter) {
@@ -6462,11 +6483,11 @@ UNIX_ONLY_TEST(SkParagraph_RTLGlyphPositionsInEmptyLines, reporter) {
 
     auto height = paragraph->getHeight();
     auto res1 = paragraph->getGlyphPositionAtCoordinate(0, 0);
-    REPORTER_ASSERT(reporter, res1.position == 3 && res1.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, res1.position == 4 && res1.affinity == Affinity::kUpstream);
     auto res2 = paragraph->getGlyphPositionAtCoordinate(0, height / 2);
     REPORTER_ASSERT(reporter, res2.position == 5 && res2.affinity == Affinity::kDownstream);
     auto res3 = paragraph->getGlyphPositionAtCoordinate(0, height);
-    REPORTER_ASSERT(reporter, res3.position == 9 && res3.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, res3.position == 10 && res3.affinity == Affinity::kUpstream);
 }
 
 UNIX_ONLY_TEST(SkParagraph_LTRGlyphPositionsForTrailingSpaces, reporter) {
@@ -6812,17 +6833,27 @@ UNIX_ONLY_TEST(SkParagraph_RTLFollowedByLTR, reporter) {
     REPORTER_ASSERT(reporter,
                     SkScalarNearlyEqual(boxes[1].rect.fRight, paragraph->getMaxIntrinsicWidth()));
 
-    std::vector<SkScalar> widths = {-10, 0, 10, 20, 30, 40, 50, 60};
-    std::vector<int> positions = {-2, -2, 2, 1, -3, -4, -5, 6};
+    std::vector<std::pair<SkScalar, PositionWithAffinity>> checks  = {
+        std::make_pair(-10, PositionWithAffinity(3, Affinity::kUpstream)),
+        std::make_pair(  0, PositionWithAffinity(3, Affinity::kUpstream)),
+        std::make_pair(  5, PositionWithAffinity(2, Affinity::kDownstream)),
+        std::make_pair( 10, PositionWithAffinity(2, Affinity::kUpstream)),
+        std::make_pair( 15, PositionWithAffinity(1, Affinity::kDownstream)),
+        std::make_pair( 20, PositionWithAffinity(1, Affinity::kUpstream)),
+        std::make_pair( 25, PositionWithAffinity(0, Affinity::kDownstream)),
+        std::make_pair( 30, PositionWithAffinity(3, Affinity::kDownstream)),
+        std::make_pair( 35, PositionWithAffinity(4, Affinity::kUpstream)),
+        std::make_pair( 40, PositionWithAffinity(4, Affinity::kDownstream)),
+        std::make_pair( 45, PositionWithAffinity(5, Affinity::kUpstream)),
+        std::make_pair( 50, PositionWithAffinity(5, Affinity::kDownstream)),
+        std::make_pair( 55, PositionWithAffinity(6, Affinity::kUpstream)),
+        std::make_pair( 60, PositionWithAffinity(6, Affinity::kUpstream)),
+    };
 
-    size_t index = 0;
-    for (auto w : widths) {
-        auto pos = paragraph->getGlyphPositionAtCoordinate(w, 0);
-        auto res = positions[index];
-        REPORTER_ASSERT(reporter,
-                        pos.affinity == (res < 0 ? Affinity::kDownstream : Affinity::kUpstream));
-        REPORTER_ASSERT(reporter, pos.position == std::abs(res));
-        ++index;
+    for (auto check : checks) {
+        auto pos = paragraph->getGlyphPositionAtCoordinate(check.first, 0);
+        REPORTER_ASSERT(reporter, pos.affinity == check.second.affinity);
+        REPORTER_ASSERT(reporter, pos.position == check.second.position);
     }
 }
 
@@ -7042,10 +7073,10 @@ UNIX_ONLY_TEST(SkParagraph_StrutAndTextBehavior, reporter) {
     auto height1 = draw(TextHeightBehavior::kDisableAll);
     auto height2 = draw(TextHeightBehavior::kAll);
 
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(height1, 16.0f));
+    // Regardless of TextHeightBehavior strut sets the line height
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(height1, 24.0f));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(height2, 24.0f));
 }
-
 
 UNIX_ONLY_TEST(SkParagraph_NonMonotonicGlyphsLTR, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -7245,4 +7276,541 @@ DEF_TEST(SkParagraph_lineMetricsWithEllipsis, reporter) {
     std::vector<LineMetrics> lm;
     paragraph->getLineMetrics(lm);
     REPORTER_ASSERT(reporter, lm.size() == 1);
+}
+
+DEF_TEST(SkParagraph_lineMetricsAfterUpdate, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    fontCollection->enableFontFallback();
+
+    auto text = std::u16string(u"hello world");
+
+    ParagraphStyle paragraph_style;
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(200.);
+
+    std::vector<LineMetrics> lm;
+    paragraph->getLineMetrics(lm);
+    REPORTER_ASSERT(reporter, lm.size() == 1);
+
+    paragraph->updateFontSize(0, text.size(), 42);
+    paragraph->layout(200.);
+    paragraph->getLineMetrics(lm);
+    REPORTER_ASSERT(reporter, lm.size() == 2);
+}
+
+// Google logo is shown in one style (the first one)
+UNIX_ONLY_TEST(SkParagraph_MultiStyle_Logo, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_MultiStyle_Logo.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+    SkScalar width = TestCanvasWidth;
+    SkScalar height = TestCanvasHeight/2;
+
+    SkAutoCanvasRestore acr(canvas.get(), true);
+    canvas.get()->clipRect(SkRect::MakeWH(width, height));
+
+    TextStyle style;
+    style.setFontFamilies({SkString("Google Sans")});
+    style.setFontSize(30);
+
+    TextStyle style0(style);
+    style0.setDecoration(TextDecoration::kUnderline);
+    style0.setDecorationColor(SK_ColorBLACK);
+
+    TextStyle style1(style);
+    style1.setDecoration(TextDecoration::kOverline);
+    style1.setDecorationColor(SK_ColorBLACK);
+
+    ParagraphStyle paraStyle;
+    paraStyle.setTextStyle(style);
+    paraStyle.setMaxLines(std::numeric_limits<size_t>::max());
+
+    const char* logo1 = "google_";
+    const char* logo2 = "logo";
+    const char* logo3 = "go";
+    const char* logo4 = "ogle_logo";
+    const char* logo5 = "google_lo";
+    const char* logo6 = "go";
+
+    ParagraphBuilderImpl builder(paraStyle, fontCollection);
+    style0.setDecorationStyle(TextDecorationStyle::kDouble);
+    style0.setForegroundColor(SkPaint(SkColors::kBlack));
+    style0.setBackgroundColor(SkPaint(SkColors::kLtGray));
+    builder.pushStyle(style0);
+    builder.addText(logo1, strlen(logo1));
+    style1.setDecorationStyle(TextDecorationStyle::kWavy);
+    style1.setForegroundColor(SkPaint(SkColors::kBlue));
+    style1.setBackgroundColor(SkPaint(SkColors::kYellow));
+    builder.pushStyle(style1);
+    builder.addText(logo2, strlen(logo2));
+    builder.addText(" ", 1);
+
+    style0.setDecorationStyle(TextDecorationStyle::kSolid);
+    style0.setForegroundColor(SkPaint(SkColors::kBlue));
+    style0.setBackgroundColor(SkPaint(SkColors::kWhite));
+    builder.pushStyle(style0);
+    builder.addText(logo3, strlen(logo3));
+    style1.setDecorationStyle(TextDecorationStyle::kDotted);
+    style1.setForegroundColor(SkPaint(SkColors::kBlack));
+    style1.setBackgroundColor(SkPaint(SkColors::kMagenta));
+    builder.pushStyle(style1);
+    builder.addText(logo4, strlen(logo4));
+    builder.addText(" ", 1);
+
+    style0.setDecorationStyle(TextDecorationStyle::kDashed);
+    style0.setForegroundColor(SkPaint(SkColors::kGreen));
+    style0.setBackgroundColor(SkPaint(SkColors::kGray));
+    builder.pushStyle(style0);
+    builder.addText(logo5, strlen(logo5));
+    style1.setDecorationStyle(TextDecorationStyle::kDouble);
+    style1.setForegroundColor(SkPaint(SkColors::kBlue));
+    style1.setBackgroundColor(SkPaint(SkColors::kCyan));
+    builder.pushStyle(style1);
+    builder.addText(logo6, strlen(logo6));
+
+    auto paragraph = builder.Build();
+    paragraph->layout(width - 40);
+    paragraph->paint(canvas.get(), 20, 20);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->lines().size() == 1);
+
+    size_t index = 0;
+    SkScalar left = 0.0f;
+    impl->lines().data()->scanStyles(StyleType::kDecorations,
+        [&index, &left, reporter]
+        (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+            switch (index) {
+                case 0: REPORTER_ASSERT(reporter, context.pos == 0 && context.size == 1);
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fLeft, left));
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fRight, 62.6944885f));
+                        break;
+                case 1: REPORTER_ASSERT(reporter, context.pos == 0 && context.size == 2);
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fLeft, left));
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fRight, 105.479904f));
+                        break;
+                case 2: REPORTER_ASSERT(reporter, context.pos == 2 && context.size == 1);
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fLeft, left));
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fRight, 123.3926165f));
+                        break;
+                case 3: REPORTER_ASSERT(reporter, context.pos == 2 && context.size == 2);
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fLeft, left));
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fRight, 210.959808f));
+                        break;
+                case 4: REPORTER_ASSERT(reporter, context.pos == 4 && context.size == 1);
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fLeft, left));
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fRight, 291.567017f));
+                        break;
+                case 5: REPORTER_ASSERT(reporter, context.pos == 4 && context.size == 1); // No space at the end
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fLeft, left));
+                        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(context.clip.fRight, 309.479736f));
+                        break;
+                default: REPORTER_ASSERT(reporter, false); break;
+            }
+            left = context.clip.fRight;
+            ++index;
+        });
+}
+
+// Ligature FFI should allow painting and querying by codepoints
+UNIX_ONLY_TEST(SkParagraph_MultiStyle_FFI, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_MultiStyle_FFI.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(60);
+    text_style.setBackgroundColor(SkPaint(SkColors::kGray));
+    builder.pushStyle(text_style);
+    builder.addText("f");
+    text_style.setBackgroundColor(SkPaint(SkColors::kYellow));
+    builder.pushStyle(text_style);
+    builder.addText("f");
+    text_style.setBackgroundColor(SkPaint(SkColors::kLtGray));
+    builder.pushStyle(text_style);
+    builder.addText("i");
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto width = paragraph->getLongestLine();
+    auto height = paragraph->getHeight();
+
+    auto f1Pos = paragraph->getGlyphPositionAtCoordinate(width/6 - 5, height/2);
+    auto f2Pos = paragraph->getGlyphPositionAtCoordinate(width/2 - 5, height/2);
+    auto iPos = paragraph->getGlyphPositionAtCoordinate(width*5/6 - 5, height/2);
+
+    // Positions are aligned with graphemes (no pointing inside ffi grapheme)
+    REPORTER_ASSERT(reporter, f1Pos.position == 0 && f1Pos.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, f2Pos.position == 1 && f2Pos.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, iPos.position == 2 && iPos.affinity == Affinity::kDownstream);
+
+    // Bounding boxes show the extact position (inside ffi grapheme)
+    auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight,
+                                          RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f1.size() == 1);
+    REPORTER_ASSERT(reporter, f1[0].direction == TextDirection::kLtr);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f1[0].rect.fLeft, 0.000000f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f1[0].rect.fRight, 17.070000f));
+
+    auto f2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight,
+                                          RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f2.size() == 1);
+    REPORTER_ASSERT(reporter, f2[0].direction == TextDirection::kLtr);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f2[0].rect.fLeft, 17.070000f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(f2[0].rect.fRight, 34.139999f));
+
+    auto fi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight,
+                                          RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, fi.size() == 1);
+    REPORTER_ASSERT(reporter, fi[0].direction == TextDirection::kLtr);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(fi[0].rect.fLeft, 34.139999f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(fi[0].rect.fRight, 51.209999f));
+};
+
+// Multiple code points/single glyph emoji family should be treated as a single glyph
+UNIX_ONLY_TEST(SkParagraph_MultiStyle_EmojiFamily, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_MultiStyle_EmojiFamily.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Noto Color Emoji")});
+    text_style.setFontSize(40);
+    builder.pushStyle(text_style);
+    builder.addText(u"\U0001F468\u200D\U0001F469\u200D\U0001F467\u200D\U0001F466");
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(1);
+    paint.setColor(SK_ColorLTGRAY);
+    canvas.get()->drawRect(SkRect::MakeXYWH(0, 0, paragraph->getLongestLine(), paragraph->getHeight()), paint);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto width = paragraph->getLongestLine();
+    auto height = paragraph->getHeight();
+
+    auto pos00 = paragraph->getGlyphPositionAtCoordinate(width/4, height/4);
+    auto pos10 = paragraph->getGlyphPositionAtCoordinate(width*3/4, height/2);
+    auto pos01 = paragraph->getGlyphPositionAtCoordinate(width/4, height/2);
+    auto pos11 = paragraph->getGlyphPositionAtCoordinate(width*3/4, height*3/4);
+
+    // Positioning is aligned with the closest grapheme edge (left or right)
+    REPORTER_ASSERT(reporter, pos00.position == 0 && pos00.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, pos01.position == 0 && pos01.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, pos10.position == 11 && pos10.affinity == Affinity::kUpstream);
+    REPORTER_ASSERT(reporter, pos11.position == 11 && pos11.affinity == Affinity::kUpstream);
+
+    // Bounding boxes around a part of a grapheme are empty
+    auto f1 = paragraph->getRectsForRange(0, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f1.size() == 0);
+
+    auto f2 = paragraph->getRectsForRange(4, 6, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f2.size() == 0);
+
+    auto f3 = paragraph->getRectsForRange(8, 10, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f3.size() == 0);
+
+    auto f4 = paragraph->getRectsForRange(8, 10, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f4.size() == 0);
+};
+
+// Arabic Ligature case should be painted into multi styles but queried as a single glyph
+UNIX_ONLY_TEST(SkParagraph_MultiStyle_Arabic, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_MultiStyle_Arabic.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+    text_style.setFontSize(50);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    text_style.setColor(SK_ColorBLUE);
+    builder.pushStyle(text_style);
+    builder.addText("ك");
+    text_style.setColor(SK_ColorRED);
+    builder.pushStyle(text_style);
+    builder.addText("ِّ");
+    text_style.setColor(SK_ColorBLUE);
+    builder.pushStyle(text_style);
+    builder.addText("ـ");
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto width = paragraph->getLongestLine();
+    auto height = paragraph->getHeight();
+
+    // Positioning is align with the grapheme
+    auto f1Pos = paragraph->getGlyphPositionAtCoordinate(TestCanvasWidth - width*5/6, height/2);
+    auto f2Pos = paragraph->getGlyphPositionAtCoordinate(TestCanvasWidth - width/3, height/2);
+    auto iPos = paragraph->getGlyphPositionAtCoordinate(TestCanvasWidth - width/6, height/2);
+    REPORTER_ASSERT(reporter, f1Pos.position == 4 && f1Pos.affinity == Affinity::kUpstream);
+    REPORTER_ASSERT(reporter, f2Pos.position == 1 && f2Pos.affinity == Affinity::kUpstream);
+    REPORTER_ASSERT(reporter, iPos.position == 0 && iPos.affinity == Affinity::kDownstream);
+
+    // Bounding boxes around a part of a grapheme are empty
+    auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f1.size() == 0);
+
+    auto f2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, f2.size() == 0);
+
+    auto fi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, fi.size() == 0);
+};
+
+// Zalgo text should be painted into multi styles but queried as a single glyph
+UNIX_ONLY_TEST(SkParagraph_MultiStyle_Zalgo, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    fontCollection->enableFontFallback();
+
+    TestCanvas canvas("SkParagraph_MultiStyle_Zalgo.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    SkString text(">S͛ͭ̋͆̈̔̇͗̍͑̎ͪͮͧͣ̽ͫͣ́ͬ̀͌͑͂͗͒̍̔̄ͧ̏̉̌̊̊̿̀̌̃̄͐̓̓̚̚҉̵̡͜͟͝͠͏̸̵̡̧͜҉̷̡͇̜̘̻̺̘̟̝͙̬̘̩͇̭̼̥̖̤̦͎k͉̩̘͚̜̹̗̗͍̤̥̱͉̳͕͖̤̲̣͚̮̞̬̲͍͔̯̻̮̞̭͈̗̫͓̂ͨ̉ͪ̒͋͛̀̍͊ͧ̿̅͆̓̔̔ͬ̇̑̿ͩ͗ͮ̎͌̿̄ͅP̴̵̡̡̛̪͙̼̣̟̩̭̫̱͙̬͔͉͍̘̠͉̦̝̘̥̟̗͖̫̤͕̙̬̦͍̱̖̮̱͑͐̎̃̒͐͋̚͘͞a̶̶̵̵̵̶̶̡̧̢̢̺͔̣͖̭̺͍̤͚̱̜̰̥͕̬̥̲̞̥̘͇͚̺̰͚̪̺͔̤͍̓̿͆̎͋̓ͦ̈́ͦ̌́̄͗̌̓͌̕͜͜͟͢͝͡ŕ͎̝͕͉̻͎̤̭͚̗̳̖̙̘͚̫͖͓͚͉͔͈̟̰̟̬̗͓̟͚̱̕͡ͅͅͅa̸̶̢̛̛̽ͮͩ̅͒ͫ͗͂̎ͦ̈́̓̚͘͜͢͡҉̷̵̶̢̡̜̮̦̜̥̜̯̙͓͔̼̗̻͜͜ͅḡ̢̛͕̗͖̖̤̦̘͔ͨͨ̊͒ͩͭͤ̍̅̃ͪ̋̏̓̍̋͗̋ͨ̏̽̈́̔̀̋̉ͫ̅̂ͭͫ̏͒͋ͥ̚͜r̶̢̧̧̥̤̼̀̂̒ͪ͌̿͌̅͛ͨͪ͒̍ͥ̉ͤ̌̿̆́ͭ͆̃̒ͤ͛̊ͧ̽͘͝͠a̧̢̧̢͑͑̓͑ͮ̃͂̄͛́̈́͋̂͌̽̄͒̔́̇ͨͧͭ͐ͦ̋ͨ̍ͦ̍̋͆̔ͧ͑͋͌̈̓͛͛̚͢͜͜͏̴̢̧̛̳͍̹͚̰̹̻͔p̨̡͆ͦͣ͊̽̔͂̉ͣ̔ͣ̌̌̉̃̋̂͒ͫ̄̎̐͗̉̌̃̽̽́̀̚͘͜͟҉̱͉h̭̮̘̗͔̜̯͔͈̯̺͔̗̣̭͚̱̰̙̼̹͚̣̻̥̲̮͍̤͜͝<");
+    auto K = text.find("k");
+    auto P = text.find("P");
+    auto h = text.find("h");
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorRED);
+    builder.pushStyle(text_style);
+    builder.addText(text.data(), K + 3);
+    text_style.setColor(SK_ColorBLUE);
+    text_style.setBackgroundColor(SkPaint(SkColors::kYellow));
+    builder.pushStyle(text_style);
+    builder.addText(text.data() + K + 3, P - K - 3 + 6);
+    text_style.setColor(SK_ColorGREEN);
+    builder.pushStyle(text_style);
+    builder.addText(text.data() + P + 6, h - P - 6);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setBackgroundColor(SkPaint(SkColors::kLtGray));
+    builder.pushStyle(text_style);
+    builder.addText(text.data() + h, text.size() - h);
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, paragraph->getHeight() / 2);
+    //auto width = paragraph->getLongestLine();
+    auto height = paragraph->getHeight();
+
+    auto resSK = paragraph->getRectsForRange(0, K, RectHeightStyle::kTight,
+                                          RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, resSK.size() != 0);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(resSK[0].rect.width(), 10.450000f));
+
+    auto resKP = paragraph->getRectsForRange(K, P, RectHeightStyle::kTight,
+                                          RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, resKP.size() != 0);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(resKP[0].rect.width(), 9.580002f));
+
+    auto resPh = paragraph->getRectsForRange(P, h, RectHeightStyle::kTight,
+                                          RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, resPh.size() != 0);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(resPh[0].rect.width(), 56.459999f));
+
+    auto posK = paragraph->getGlyphPositionAtCoordinate(resSK.back().rect.fRight, height/2);
+    auto posP = paragraph->getGlyphPositionAtCoordinate(resKP.back().rect.fRight, height/2);
+    auto posH = paragraph->getGlyphPositionAtCoordinate(resPh.back().rect.fRight, height/2);
+    REPORTER_ASSERT(reporter, posK.position == 148 && posP.position == 264 && posH.position == 572);
+};
+
+// RTL Ellipsis
+UNIX_ONLY_TEST(SkParagraph_RtlEllipsis1, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RtlEllipsis1.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic"), SkString("Roboto")});
+    text_style.setFontSize(100);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setTextAlign(TextAlign::kStart);
+    paragraph_style.setMaxLines(1);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText(u"1  2  3  4  5  6  7  8  9");
+    auto paragraph = builder.Build();
+    paragraph->layout(474);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 1);
+    auto& line = impl->lines()[0];
+    bool first = true;
+    line.iterateThroughVisualRuns(true,
+        [&]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            REPORTER_ASSERT(reporter, first == (run->isEllipsis()));
+            first = false;
+            return true;
+        });
+};
+
+UNIX_ONLY_TEST(SkParagraph_RtlEllipsis2, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RtlEllipsis2.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic"), SkString("Roboto")});
+    text_style.setFontSize(100);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setTextAlign(TextAlign::kStart);
+    paragraph_style.setMaxLines(2);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText(u"تظاهرات و تجمعات اعتراضی در سراسر کشور ۲۳ مهر");
+    auto paragraph = builder.Build();
+    paragraph->layout(474);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 2);
+    auto& line = impl->lines()[1];
+    bool first = true;
+    line.iterateThroughVisualRuns(true,
+        [&]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            REPORTER_ASSERT(reporter, first == (run->isEllipsis()));
+            first = false;
+            return true;
+        });
+};
+
+UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_TextEditingFunctionality.png");
+    const char* text =
+            "This is a very long sentence to test if the text will properly wrap "
+            "around and go to the next line. Sometimes, short sentence. Longer "
+            "sentences are okay too because they are nessecary. Very short. "
+            "This is a very long sentence to test if the text will properly wrap "
+            "around and go to the next line. Sometimes, short sentence. Longer "
+            "sentences are okay too because they are nessecary. Very short. ";
+
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setMaxLines(3);
+    TestParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto lineNumber = paragraph->getLineNumberAt(0);
+    REPORTER_ASSERT(reporter, lineNumber == 0);
+    lineNumber = paragraph->getLineNumberAt(len / 2);
+    REPORTER_ASSERT(reporter, lineNumber == 1);
+    lineNumber = paragraph->getLineNumberAt(len - 1);
+    REPORTER_ASSERT(reporter, lineNumber == -1);
+    lineNumber = paragraph->getLineNumberAt(len + 10);
+    REPORTER_ASSERT(reporter, lineNumber == -1);
+
+    LineMetrics lineMetrics;
+    auto foundMetrics = paragraph->getLineMetricsAt(0, &lineMetrics);
+    REPORTER_ASSERT(reporter, foundMetrics && lineMetrics.fLineNumber == 0);
+    foundMetrics = paragraph->getLineMetricsAt(1, &lineMetrics);
+    REPORTER_ASSERT(reporter, foundMetrics && lineMetrics.fLineNumber == 1);
+    foundMetrics = paragraph->getLineMetricsAt(3, &lineMetrics);
+    REPORTER_ASSERT(reporter, !foundMetrics);
+    foundMetrics = paragraph->getLineMetricsAt(10, &lineMetrics);
+    REPORTER_ASSERT(reporter, !foundMetrics);
+
+    std::vector<LineMetrics> metrics;
+    paragraph->getLineMetrics(metrics);
+    auto actualText = paragraph->getActualTextRange(0, false);
+    REPORTER_ASSERT(reporter, actualText.end == metrics[0].fEndExcludingWhitespaces);
+    actualText = paragraph->getActualTextRange(1, false);
+    REPORTER_ASSERT(reporter, actualText.end == metrics[1].fEndExcludingWhitespaces);
+    actualText = paragraph->getActualTextRange(2, false);
+    REPORTER_ASSERT(reporter, actualText.end == metrics[2].fEndExcludingWhitespaces);
+
+    Paragraph::GlyphClusterInfo glyphInfo;
+    auto foundCluster = paragraph->getGlyphClusterAt(0, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundCluster && glyphInfo.fClusterTextRange.start == 0);
+    foundCluster = paragraph->getGlyphClusterAt(len / 2, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundCluster && glyphInfo.fClusterTextRange.start == len / 2);
+    foundCluster = paragraph->getGlyphClusterAt(len, &glyphInfo);
+    REPORTER_ASSERT(reporter, !foundCluster);
+
+    auto foundClosest = paragraph->getClosestGlyphClusterAt(0, 10, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 0 &&
+                                              glyphInfo.fClusterTextRange.end == 1);
+    foundClosest = paragraph->getClosestGlyphClusterAt(TestCanvasWidth / 2, 20, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 61 &&
+                                              glyphInfo.fClusterTextRange.end == 62);
+    foundClosest = paragraph->getClosestGlyphClusterAt(TestCanvasWidth + 10, 30, &glyphInfo);
+    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 230 &&
+                                              glyphInfo.fClusterTextRange.end == 231);
+
+    auto font = paragraph->getFontAt(10);
+    REPORTER_ASSERT(reporter, font.getTypeface() != nullptr);
+    SkString fontFamily;
+    font.getTypeface()->getFamilyName(&fontFamily);
+    REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
+
+    auto fonts = paragraph->getFonts();
+    REPORTER_ASSERT(reporter, fonts.size() == 1);
+    REPORTER_ASSERT(reporter, fonts[0].fTextRange.start == 0 && fonts[0].fTextRange.end == len);
+    REPORTER_ASSERT(reporter, fonts[0].fFont.getTypeface() != nullptr);
+    font.getTypeface()->getFamilyName(&fontFamily);
+    REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
 }

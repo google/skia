@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
 #include <X11/Xlib.h>

@@ -9,15 +9,16 @@
 #define skgpu_graphite_ContextPriv_DEFINED
 
 #include "include/gpu/graphite/Context.h"
+#include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/SharedContext.h"
-
-class SkShaderCodeDictionary;
 
 namespace skgpu::graphite {
 
 class Caps;
 class GlobalCache;
+class RendererProvider;
 class ResourceProvider;
+class ShaderCodeDictionary;
 
 /** Class that adds methods to Context that are only intended for use internal to Skia.
     This class is purely a privileged window into Context. It should never have additional
@@ -27,12 +28,41 @@ public:
 #if GRAPHITE_TEST_UTILS
     const Caps* caps() const { return fContext->fSharedContext->caps(); }
 
-    const SkShaderCodeDictionary* shaderCodeDictionary() const {
+    const ShaderCodeDictionary* shaderCodeDictionary() const {
         return fContext->fSharedContext->shaderCodeDictionary();
     }
-    SkShaderCodeDictionary* shaderCodeDictionary() {
+    ShaderCodeDictionary* shaderCodeDictionary() {
         return fContext->fSharedContext->shaderCodeDictionary();
     }
+    const GlobalCache* globalCache() const {
+        return fContext->fSharedContext->globalCache();
+    }
+    GlobalCache* globalCache() {
+        return fContext->fSharedContext->globalCache();
+    }
+    const RendererProvider* rendererProvider() const {
+        return fContext->fSharedContext->rendererProvider();
+    }
+    ResourceProvider* resourceProvider() const {
+        return fContext->fResourceProvider.get();
+    }
+    PlotUploadTracker* plotUploadTracker() const {
+        return fContext->fPlotUploadTracker.get();
+    }
+
+    void startCapture() {
+        fContext->fQueueManager->startCapture();
+    }
+    void stopCapture() {
+        fContext->fQueueManager->stopCapture();
+    }
+
+    void deregisterRecorder(const Recorder*);
+
+    bool readPixels(const SkPixmap&,
+                    const TextureProxy*,
+                    const SkImageInfo& srcImageInfo,
+                    int srcX, int srcY);
 #endif
 
 private:
@@ -55,6 +85,17 @@ inline ContextPriv Context::priv() { return ContextPriv(this); }
 inline const ContextPriv Context::priv() const {
     return ContextPriv(const_cast<Context *>(this));
 }
+
+// This class is friended by the Context and allows the backend ContextFactory functions to
+// trampoline through this to call the private Context ctor. We can't directly friend the factory
+// functions in Context because they are in a different namespace and we don't want to declare the
+// functions in Context.h
+class ContextCtorAccessor {
+public:
+    static std::unique_ptr<Context> MakeContext(sk_sp<SharedContext>,
+                                                std::unique_ptr<QueueManager>,
+                                                const ContextOptions&);
+};
 
 } // namespace skgpu::graphite
 

@@ -239,16 +239,20 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
 
 
 def multithread(function, list_of_arg_lists):
-  # for args in list_of_arg_lists:
-  #   function(*args)
-  # return
+  anything_failed = False
   threads = []
+  def hook(args):
+    nonlocal anything_failed
+    anything_failed = True
+  threading.excepthook = hook
   for args in list_of_arg_lists:
     thread = threading.Thread(None, function, None, args)
     thread.start()
     threads.append(thread)
   for thread in threads:
     thread.join()
+  if anything_failed:
+    raise Exception("Thread failure detected")
 
 
 def main(argv):

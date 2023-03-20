@@ -11,7 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPathEffect.h"
+#include "include/core/SkPathEffect.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -24,6 +24,7 @@
 #include "tests/Test.h"
 
 #include <cmath>
+#include <string>
 
 static const SkColor bgColor = SK_ColorWHITE;
 

@@ -1,0 +1,18 @@
+### Compilation failed:
+
+error: 5: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 6: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = cross_length_2d(ah, bh);
+    ^^^^^^^^^^^^
+error: 6: unknown identifier 'cross_length_2d'
+    sk_FragColor.x = cross_length_2d(ah, bh);
+                     ^^^^^^^^^^^^^^^
+error: 7: unknown identifier 'sk_FragColor'
+    sk_FragColor.y = half(cross_length_2d(af, bf));
+    ^^^^^^^^^^^^
+error: 7: unknown identifier 'cross_length_2d'
+    sk_FragColor.y = half(cross_length_2d(af, bf));
+                          ^^^^^^^^^^^^^^^
+5 errors

@@ -11,6 +11,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/private/SkSLProgramKind.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrAutoLocaleSetter.h"
@@ -24,9 +25,12 @@
 #include "src/gpu/ganesh/d3d/GrD3DRootSignature.h"
 #include "src/gpu/ganesh/d3d/GrD3DUtil.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
 
 #include <d3dcompiler.h>
+
+using namespace skia_private;
 
 std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
         GrD3DGpu* gpu,
@@ -63,10 +67,6 @@ const GrCaps* GrD3DPipelineStateBuilder::caps() const {
 
 SkSL::Compiler* GrD3DPipelineStateBuilder::shaderCompiler() const {
     return fGpu->shaderCompiler();
-}
-
-void GrD3DPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputColor) {
-    outputColor.addLayoutQualifier("location = 0, index = 0");
 }
 
 void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {
@@ -512,7 +512,7 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
 
     unsigned int totalAttributeCnt = programInfo.geomProc().numVertexAttributes() +
                                      programInfo.geomProc().numInstanceAttributes();
-    SkAutoSTArray<4, D3D12_INPUT_ELEMENT_DESC> inputElements(totalAttributeCnt);
+    AutoSTArray<4, D3D12_INPUT_ELEMENT_DESC> inputElements(totalAttributeCnt);
     setup_vertex_input_layout(programInfo.geomProc(), inputElements.get());
 
     psoDesc.InputLayout = { inputElements.get(), totalAttributeCnt };

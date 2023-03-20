@@ -13,10 +13,9 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTextBlob.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
-#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"
@@ -52,12 +51,15 @@ public:
               fOverdrawCanvas{overdrawCanvas},
               fPainter{props, kN32_SkColorType, nullptr} {}
 
-    void paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) const override {
-        for (auto t : accepted->accepted()) {
-            SkGlyphVariant glyph; SkPoint pos;
-            std::tie(glyph, pos) = t;
-            SkMask mask = glyph.glyph()->mask(pos);
+    void paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& paint) const override {
+        for (auto [glyph, pos] : accepted) {
+            SkMask mask = glyph->mask(pos);
+            // We need to ignore any matrix on the overdraw canvas (it's already been baked into
+            // our glyph positions). Otherwise, the CTM is double-applied. (skbug.com/13732)
+            fOverdrawCanvas->save();
+            fOverdrawCanvas->resetMatrix();
             fOverdrawCanvas->drawRect(SkRect::Make(mask.fBounds), SkPaint());
+            fOverdrawCanvas->restore();
         }
     }
 

@@ -334,7 +334,7 @@ _Proof._ From Lemma 3., we have
 \end{align}
 
 The transformation above (multiplying $-x + \sqrt{(r_1^2 - 1) y^2 + r_1^2 x^2}$
-to enumerator and denomenator) is always valid because $r_1 > 1$ and it's the
+to enumerator and denominator) is always valid because $r_1 > 1$ and it's the
 unique solution due to Corollary 1. $\square$
 
 **Lemma 4.** If $r_1 < 1$, then

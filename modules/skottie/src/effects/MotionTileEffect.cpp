@@ -11,7 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
@@ -93,8 +93,7 @@ protected:
             const auto phase_vec = fHorizontalPhase
                     ? SkVector::Make(tile.width(), 0)
                     : SkVector::Make(0, tile.height());
-            const auto phase_shift = SkVector::Make(phase_vec.fX / layerShaderMatrix.getScaleX(),
-                                                    phase_vec.fY / layerShaderMatrix.getScaleY())
+            const auto phase_shift = SkVector::Make(phase_vec.fX, phase_vec.fY)
                                      * std::fmod(fPhase * (1/360.0f), 1);
             const auto phase_shader_matrix = SkMatrix::Translate(phase_shift.x(), phase_shift.y());
 

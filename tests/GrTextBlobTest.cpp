@@ -5,18 +5,47 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkSurfacePriv.h"
-#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/core/SkScalerContext.h"
 #include "src/text/GlyphRun.h"
+#include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/TextBlob.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <memory>
+#include <tuple>
+#include <utility>
+
+class GrRecordingContext;
+struct GrContextOptions;
 
 using BagOfBytes = sktext::gpu::BagOfBytes;
 using SubRunAllocator = sktext::gpu::SubRunAllocator;
@@ -27,7 +56,7 @@ SkBitmap rasterize_blob(SkTextBlob* blob,
                         const SkMatrix& matrix) {
     const SkImageInfo info =
             SkImageInfo::Make(500, 500, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info);
+    auto surface = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info);
     auto canvas = surface->getCanvas();
     canvas->drawColor(SK_ColorWHITE);
     canvas->concat(matrix);
@@ -49,10 +78,10 @@ bool check_for_black(const SkBitmap& bm) {
     return false;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobScaleAnimation,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextBlobScaleAnimation,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto tf = ToolUtils::create_portable_typeface("Mono", SkFontStyle());
     SkFont font{tf};
     font.setHinting(SkFontHinting::kNormal);
@@ -80,10 +109,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobScaleAnimation,
 }
 
 // Test extreme positions for all combinations of positions, origins, and translation matrices.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto tf = ToolUtils::create_portable_typeface("Mono", SkFontStyle());
     SkFont font{tf};
     font.setHinting(SkFontHinting::kNormal);
@@ -107,7 +136,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround,
         SkPaint paint;
         const SkImageInfo info =
                 SkImageInfo::Make(350, 80, kN32_SkColorType, kPremul_SkAlphaType);
-        auto surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
+        auto surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
         auto canvas = surface->getCanvas();
         canvas->drawColor(SK_ColorWHITE);
         canvas->concat(matrix);
@@ -334,7 +363,11 @@ DEF_TEST(KeyEqualityOnPerspective, r) {
 
     // Build the strike device.
     SkSurfaceProps props;
+#if !defined(SK_DISABLE_SDF_TEXT)
     sktext::gpu::SDFTControl control(false, false, false, 1, 100);
+#else
+    sktext::gpu::SDFTControl control{};
+#endif
     SkStrikeDeviceInfo strikeDevice{props, SkScalerContextFlags::kBoostContrast, &control};
     SkMatrix matrix1;
     matrix1.setAll(1, 0, 0, 0, 1, 0, 1, 1, 1);

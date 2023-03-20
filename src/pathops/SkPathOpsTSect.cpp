@@ -7,9 +7,9 @@
 
 #include "src/pathops/SkPathOpsTSect.h"
 
-#include "include/private/SkMacros.h"
-#include "include/private/SkTArray.h"
-#include "src/core/SkTSort.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkTSort.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsConic.h"
 #include "src/pathops/SkPathOpsCubic.h"
@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <utility>
 
 #define COINCIDENT_SPAN_COUNT 9
 
@@ -199,10 +198,9 @@ int SkTSpan::hullCheck(const SkTSpan* opp,
         fIsLinear = true;
         fIsLine = fPart->controlsInside();
         return ptsInCommon ? 1 : -1;
-    } else {  // hull is not linear; check set true if intersected at the end points
-        return ((int) ptsInCommon) << 1;  // 0 or 2
     }
-    return 0;
+    // hull is not linear; check set true if intersected at the end points
+    return ((int) ptsInCommon) << 1;  // 0 or 2
 }
 
 // OPTIMIZE ? If at_most_end_pts_in_common detects that one quad is near linear,

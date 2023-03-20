@@ -35,8 +35,6 @@ struct GrShaderCaps : SkSL::ShaderCaps {
     bool fDualSourceBlendingSupport = false;
     bool fPreferFlatInterpolation = false;
     bool fVertexIDSupport = false;
-    // isinf() is defined, and floating point infinities are handled according to IEEE standards.
-    bool fInfinitySupport = false;
     // Returns true if `expr` in `myArray[expr]` can be any integer expression. If false, `expr`
     // must be a constant-index-expression as defined in the OpenGL ES2 specification, Appendix A.5.
     bool fNonconstantArrayIndexSupport = false;

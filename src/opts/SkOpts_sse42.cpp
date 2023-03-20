@@ -7,6 +7,8 @@
 
 #include "src/core/SkOpts.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #define SK_OPTS_NS sse42
 #include "src/opts/SkChecksum_opts.h"
 
@@ -16,3 +18,4 @@ namespace SkOpts {
     }
 }  // namespace SkOpts
 
+#endif // SK_ENABLE_OPTIMIZE_SIZE

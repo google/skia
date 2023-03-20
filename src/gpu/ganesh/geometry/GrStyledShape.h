@@ -10,9 +10,9 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include <new>
@@ -308,6 +308,6 @@ private:
     bool    fSimplified = false;
 
     SkTLazy<SkPath>            fInheritedPathForListeners;
-    SkAutoSTArray<8, uint32_t> fInheritedKey;
+    skia_private::AutoSTArray<8, uint32_t> fInheritedKey;
 };
 #endif

@@ -19,19 +19,14 @@ public:
 
     ~VerticesRenderStep() override;
 
-    const char* vertexSkSL() const override;
+    std::string vertexSkSL() const override;
     void writeVertices(DrawWriter* writer, const DrawParams& params, int ssboIndex) const override;
-    void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const override;
+    void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
     const char* fragmentColorSkSL() const override;
 
 private:
     const bool fHasColor;
     const bool fHasTexCoords;
-
-    void writeVerticesColorAndTexture(DrawWriter* writer, const DrawParams& params,
-                                      int ssboIndex) const;
-    void writeVerticesColor(DrawWriter* writer, const DrawParams& params, int ssboIndex) const;
-    void writeVerticesTexture(DrawWriter* writer, const DrawParams& params, int ssboIndex) const;
 };
 
 }  // namespace skgpu::graphite

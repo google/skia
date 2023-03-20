@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLProgramKind.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -28,7 +30,7 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
 
     class Callbacks : public SkSL::PipelineStage::Callbacks {
         std::string declareUniform(const SkSL::VarDeclaration* decl) override {
-            return std::string(decl->var().name());
+            return std::string(decl->var()->name());
         }
 
         void defineFunction(const char* /*decl*/, const char* /*body*/, bool /*isMain*/) override {}

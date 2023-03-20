@@ -796,7 +796,6 @@ INPUT = ../../include/core \
   ../../include/gpu \
   ../../include/pathops \
   ../../third_party/skcms \
-  ../../modules/particles/include \
   ../../modules/skottie/include \
   ../../modules/sksg/include \
   ../../modules/skshaper/include \

@@ -11,7 +11,8 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
-#include "src/core/SkTBlockList.h"
+#include "include/private/base/SkTypeTraits.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
@@ -38,6 +39,13 @@ public:
         SkMatrix fLocalToDevice;
         SkClipOp fOp;
         GrAA     fAA;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fShape)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fLocalToDevice)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fOp)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fAA)>::value);
+
+        using sk_is_trivially_relocatable = std::true_type;
     };
 
     // The SkMatrixProvider must outlive the ClipStack.

@@ -7,21 +7,40 @@
 
 // This is a GPU-backend specific test. It relies on static initializers to work
 
-#include "include/core/SkTypes.h"
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColor.h"
+#include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
-#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
-#include "tools/gpu/GrContextFactory.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+
+struct GrContextOptions;
 
 using sk_gpu_test::GrContextFactory;
 
@@ -133,7 +152,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
                                                            renderable,
                                                            1,
                                                            GrMipmapped::kNo,
-                                                           SkBudgeted::kNo,
+                                                           skgpu::Budgeted::kNo,
                                                            GrProtected::kNo,
                                                            /*label=*/{});
     if (!tex) {
@@ -328,7 +347,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                                                            colorType,
                                                            renderable,
                                                            1,
-                                                           SkBudgeted::kNo,
+                                                           skgpu::Budgeted::kNo,
                                                            GrMipmapped::kNo,
                                                            GrProtected::kNo,
                                                            &data,
@@ -474,10 +493,10 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 #endif
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     if (!ctxInfo.directContext()->priv().caps()->transferFromBufferToTextureSupport()) {
         return;
     }
@@ -509,10 +528,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest,
 }
 
 // TODO(bsalomon): Metal
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     if (!ctxInfo.directContext()->priv().caps()->transferFromSurfaceToBufferSupport()) {
         return;
     }

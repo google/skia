@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
@@ -70,7 +71,7 @@ typedef SkTArray<Segment, true> SegmentArray;
 bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
     SkScalar area = 0;
     SkPoint center = {0, 0};
-    int count = segments.count();
+    int count = segments.size();
     if (count <= 0) {
         return false;
     }
@@ -128,7 +129,7 @@ bool compute_vectors(SegmentArray* segments,
     if (!center_of_mass(*segments, fanPt)) {
         return false;
     }
-    int count = segments->count();
+    int count = segments->size();
 
     // Make the normals point towards the outside
     SkPointPriv::Side normSide;
@@ -272,7 +273,7 @@ inline void add_cubic_segments(const SkPoint pts[4],
                                SegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuadsConstrainToTangents(pts, SK_Scalar1, dir, &quads);
-    int count = quads.count();
+    int count = quads.size();
     for (int q = 0; q < count; q += 3) {
         add_quad_segment(&quads[q], segments);
     }
@@ -378,7 +379,7 @@ void create_vertices(const SegmentArray& segments,
     int* v = &draw->fVertexCnt;
     int* i = &draw->fIndexCnt;
 
-    int count = segments.count();
+    int count = segments.size();
     for (int a = 0; a < count; ++a) {
         const Segment& sega = segments[a];
         int b = (a + 1) % count;
@@ -670,7 +671,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> QuadEdgeEffect::makeProgramImp
     return std::make_unique<Impl>();
 }
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
@@ -756,7 +757,7 @@ private:
     }
 
     void onPrepareDraws(GrMeshDrawTarget* target) override {
-        int instanceCount = fPaths.count();
+        int instanceCount = fPaths.size();
 
         if (!fProgramInfo) {
             this->createProgramInfo(target);
@@ -829,8 +830,8 @@ private:
             VertexColor color(args.fColor, fWideColor);
             create_vertices(segments, fanPt, color, &draws, verts, idxs, kVertexStride);
 
-            GrSimpleMesh* meshes = target->allocMeshes(draws.count());
-            for (int j = 0; j < draws.count(); ++j) {
+            GrSimpleMesh* meshes = target->allocMeshes(draws.size());
+            for (int j = 0; j < draws.size(); ++j) {
                 const Draw& draw = draws[j];
                 meshes[j].setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0,
                                      draw.fVertexCnt - 1, GrPrimitiveRestart::kNo, vertexBuffer,
@@ -839,18 +840,18 @@ private:
                 firstVertex += draw.fVertexCnt;
             }
 
-            fDraws.push_back({ meshes, draws.count() });
+            fDraws.push_back({ meshes, draws.size() });
         }
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || fDraws.isEmpty()) {
+        if (!fProgramInfo || fDraws.empty()) {
             return;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        for (int i = 0; i < fDraws.count(); ++i) {
+        for (int i = 0; i < fDraws.size(); ++i) {
             for (int j = 0; j < fDraws[i].fMeshCount; ++j) {
                 flushState->drawMesh(fDraws[i].fMeshes[j]);
             }
@@ -867,14 +868,14 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        fPaths.push_back_n(that->fPaths.size(), that->fPaths.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
 
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
-        return SkStringPrintf("Count: %d\n%s", fPaths.count(), fHelper.dumpInfo().c_str());
+        return SkStringPrintf("Count: %d\n%s", fPaths.size(), fHelper.dumpInfo().c_str());
     }
 #endif
 

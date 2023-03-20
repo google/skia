@@ -1,5 +1,5 @@
 int sampler2DRectShadow;
 
 /*%%*
-'sampler2DRectShadow' is a reserved word
+name 'sampler2DRectShadow' is reserved
 *%%*/

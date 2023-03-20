@@ -9,12 +9,13 @@
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPixelRef.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkPixmapUtils.h"
 #include "src/core/SkImagePriv.h"
-#include "src/core/SkPixmapPriv.h"
 
 #include <limits.h>
 #include <utility>
@@ -80,7 +81,7 @@ SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec,
         if (SkEncodedOriginSwapsWidthHeight(origin)) {
             // The client asked for sizes post-rotation. Swap back to the pre-rotation sizes to pass
             // to fCodec and for the scale matrix computation.
-            fDecodeInfo = SkPixmapPriv::SwapWidthHeight(fDecodeInfo);
+            fDecodeInfo = SkPixmapUtils::SwapWidthHeight(fDecodeInfo);
             scaledSize = { scaledSize.height(), scaledSize.width() };
         }
     }

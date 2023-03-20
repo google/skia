@@ -11,8 +11,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
+#include "src/core/SkTHash.h"
 
 #include <memory>
 #include <new>
@@ -195,18 +195,24 @@ static inline std::unique_ptr<SkPDFDict> SkPDFMakeDict(const char* type = nullpt
     return std::make_unique<SkPDFDict>(type);
 }
 
+enum class SkPDFSteamCompressionEnabled : bool {
+    No = false,
+    Yes = true,
+    Default =
 #ifdef SK_PDF_LESS_COMPRESSION
-    static constexpr bool kSkPDFDefaultDoDeflate = false;
+        No,
 #else
-    static constexpr bool kSkPDFDefaultDoDeflate = true;
+        Yes,
 #endif
+};
 
 // Exposed for unit testing.
 void SkPDFWriteTextString(SkWStream* wStream, const char* cin, size_t len);
 void SkPDFWriteByteString(SkWStream* wStream, const char* cin, size_t len);
 
-SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
-                                      std::unique_ptr<SkStreamAsset> stream,
-                                      SkPDFDocument* doc,
-                                      bool deflate = kSkPDFDefaultDoDeflate);
+SkPDFIndirectReference SkPDFStreamOut(
+    std::unique_ptr<SkPDFDict> dict,
+    std::unique_ptr<SkStreamAsset> stream,
+    SkPDFDocument* doc,
+    SkPDFSteamCompressionEnabled compress = SkPDFSteamCompressionEnabled::Default);
 #endif

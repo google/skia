@@ -16,7 +16,7 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/image/SkSurface_Gpu.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/mtl/GrMtlTextureRenderTarget.h"
@@ -78,7 +78,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
             metalLayer.framebufferOnly ? nullptr : &texInfo,
             GrMipmapStatus::kNotAllocated,
             SkBackingFit::kExact,
-            SkBudgeted::kYes,
+            skgpu::Budgeted::kYes,
             GrProtected::kNo,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
@@ -146,7 +146,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
             mtkView.framebufferOnly ? nullptr : &texInfo,
             GrMipmapStatus::kNotAllocated,
             SkBackingFit::kExact,
-            SkBudgeted::kYes,
+            skgpu::Budgeted::kYes,
             GrProtected::kNo,
             false,
             GrSurfaceProxy::UseAllocator::kYes);

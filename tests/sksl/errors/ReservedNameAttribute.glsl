@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'attribute' is a reserved word
+error: 1: name 'attribute' is reserved
 int attribute;
     ^^^^^^^^^
 1 error

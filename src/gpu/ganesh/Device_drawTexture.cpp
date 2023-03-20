@@ -8,9 +8,10 @@
 #include "src/gpu/ganesh/Device_v1.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
@@ -19,6 +20,7 @@
 #include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -31,6 +33,8 @@
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
+
+using namespace skia_private;
 
 namespace {
 
@@ -512,8 +516,9 @@ void draw_image(GrRecordingContext* rContext,
                                        sdc->colorInfo());
     if (image.isAlphaOnly()) {
         if (const auto* shader = as_SB(paint.getShader())) {
-            auto shaderFP = shader->asFragmentProcessor(
-                    GrFPArgs(rContext, matrixProvider, &sdc->colorInfo(), sdc->surfaceProps()));
+            auto shaderFP = shader->asRootFragmentProcessor(
+                    GrFPArgs(rContext, &sdc->colorInfo(), sdc->surfaceProps()),
+                    matrixProvider.localToDevice());
             if (!shaderFP) {
                 return;
             }
@@ -526,8 +531,13 @@ void draw_image(GrRecordingContext* rContext,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintReplaceShader(rContext, sdc->colorInfo(), paint, matrixProvider,
-                                       std::move(fp), sdc->surfaceProps(), &grPaint)) {
+    if (!SkPaintToGrPaintReplaceShader(rContext,
+                                       sdc->colorInfo(),
+                                       paint,
+                                       ctm,
+                                       std::move(fp),
+                                       sdc->surfaceProps(),
+                                       &grPaint)) {
         return;
     }
 
@@ -724,7 +734,7 @@ void Device::drawSpecial(SkSpecialImage* special,
                       special->colorInfo());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
-    SkOverrideDeviceMatrixProvider matrixProvider(localToDevice);
+    SkMatrixProvider matrixProvider(localToDevice);
     draw_image(fContext.get(),
                fSurfaceDrawContext.get(),
                this->clip(),
@@ -872,7 +882,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                             : GrSamplerState::Filter::kLinear;
     SkBlendMode mode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
 
-    SkAutoTArray<GrTextureSetEntry> textures(count);
+    AutoTArray<GrTextureSetEntry> textures(count);
     // We accumulate compatible proxies until we find an an incompatible one or reach the end and
     // issue the accumulated 'n' draws starting at 'base'. 'p' represents the number of proxy
     // switches that occur within the 'n' entries.

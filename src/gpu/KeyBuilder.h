@@ -9,7 +9,7 @@
 #define skgpu_KeyBuilder_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 namespace skgpu {
 

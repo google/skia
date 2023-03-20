@@ -14,28 +14,54 @@
 
 
 <script type="text/javascript" charset="utf-8">
-  function log(s) {
-    document.getElementById("log").innerText = s;
+  function log(line) {
+    console.log(line);
+    line += '\n';
+    document.getElementById("log").innerText += line;
   }
-  RunGMs();
-  async function RunGMs() {
-    const GM = await InitWasmGMTests({locateFile: (file) => '/build/'+file});
-    GM.Init();
-    const names = GM.ListGMs();
-    names.sort();
+  Run();
+  async function Run() {
+    const TestRunner = await InitWasmGMTests({locateFile: (file) => '/build/'+file});
+    TestRunner.Init();
+    const gmNames = TestRunner.ListGMs();
+    const testNames = TestRunner.ListTests();
 
+    if (gmNames.length) {
+      await RunGM(TestRunner, gmNames[0]);
+    }
+    if (testNames.length) {
+      RunTest(TestRunner, testNames[0]);
+    }
+  }
+
+  async function RunGM(TestRunner, name) {
     const canvas = document.getElementById('gm_canvas');
-    const ctx = GM.GetWebGLContext(canvas, 2);
-    const grcontext = GM.MakeGrContext(ctx);
+    const ctx = TestRunner.GetWebGLContext(canvas, 2);
+    const grcontext = TestRunner.MakeGrContext(ctx);
 
-    log("Running gm "+ names[0]);
-    const pngAndMetadata = GM.RunGM(grcontext, names[0]);
+    log("Running gm " + name);
+    const pngAndMetadata = TestRunner.RunGM(grcontext, name);
 
-    const b = new Blob([pngAndMetadata.png.buffer], {type:"image/png"});
+    const b = new Blob([pngAndMetadata.png.buffer], {type: "image/png"});
     const bmp = await createImageBitmap(b);
     const canvasCtx = document.getElementById("png_canvas").getContext("2d");
     canvasCtx.drawImage(bmp, 0, 0);
+  }
 
-    GM.ListTests();
+  function RunTest(TestRunner, name) {
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = TestRunner.GetWebGLContext(canvas, 2);
+    // This sets up the GL context for all tests.  We do not need to pass the grcontext in to the
+    // tests. The unit tests have a GrContextFactory which will do so as necessary.
+    // It *is* important to make sure we have at least initialized the WebGL context for this
+    // so the factory can work.
+    const grcontext = TestRunner.MakeGrContext(ctx);
+    if (!grcontext) {
+      window._error = 'Could not make GrContext for tests';
+      return;
+    }
+    log("Running test " + name);
+    const result = TestRunner.RunTest(name);
+    log('    ' + result.result, result.msg || '');
   }
 </script>

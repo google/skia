@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
 vec4 main() {
-    vec4 x = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 x = vec4(1.0);
     while (x.w == 1.0) {
         x.x -= 0.25;
         if (x.x <= 0.0) break;

@@ -8,6 +8,8 @@
 #ifndef GrOvalOpFactory_DEFINED
 #define GrOvalOpFactory_DEFINED
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
@@ -65,5 +67,7 @@ public:
                                  const GrStyle&,
                                  const GrShaderCaps*);
 };
+
+#endif  // SK_ENABLE_OPTIMIZE_SIZE
 
 #endif  // GrOvalOpFactory_DEFINED

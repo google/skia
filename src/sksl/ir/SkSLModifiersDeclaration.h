@@ -20,10 +20,10 @@ namespace SkSL {
  */
 class ModifiersDeclaration final : public ProgramElement {
 public:
-    inline static constexpr Kind kProgramElementKind = Kind::kModifiers;
+    inline static constexpr Kind kIRNodeKind = Kind::kModifiers;
 
     ModifiersDeclaration(const Modifiers* modifiers)
-        : INHERITED(Position(), kProgramElementKind)
+        : INHERITED(Position(), kIRNodeKind)
         , fModifiers(modifiers) {}
 
     const Modifiers& modifiers() const {

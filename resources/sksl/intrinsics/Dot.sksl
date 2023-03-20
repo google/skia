@@ -1,10 +1,12 @@
-uniform half4 inputA, inputB;
+uniform float4x4 testMatrix4x4;  // = {1, 2, 3, 4, 5, 6, 7, 8, ...}
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    const half4 constValA = half4(1, 2, 3, 4);
-    const half4 constValB = half4(5, 6, 7, 8);
-    half4 expected = half4(5, 17, 38, 70);
+    const float4 constValA = half4(1, 2, 3, 4);
+    const float4 constValB = half4(5, 6, 7, 8);
+    float4 inputA = float4(testMatrix4x4[0]);
+    float4 inputB = float4(testMatrix4x4[1]);
+    float4 expected = float4(5, 17, 38, 70);
 
     return (dot(inputA.x,       inputB.x)       == expected.x &&
             dot(inputA.xy,      inputB.xy)      == expected.y &&

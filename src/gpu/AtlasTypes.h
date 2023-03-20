@@ -14,10 +14,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkIPoint16.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/gpu/RectanizerSkyline.h"
 
 class GrOpFlushState;
@@ -140,67 +140,72 @@ private:
 };
 
 /**
- * DrawToken is used to sequence uploads relative to each other and to batches of draws.
+ * AtlasToken is used to sequence uploads relative to each other and to batches of draws.
  */
-class DrawToken {
+class AtlasToken {
 public:
-    static DrawToken AlreadyFlushedToken() { return DrawToken(0); }
+    static AtlasToken InvalidToken() { return AtlasToken(0); }
 
-    DrawToken(const DrawToken&) = default;
-    DrawToken& operator=(const DrawToken&) = default;
+    AtlasToken(const AtlasToken&) = default;
+    AtlasToken& operator=(const AtlasToken&) = default;
 
-    bool operator==(const DrawToken& that) const {
+    bool operator==(const AtlasToken& that) const {
         return fSequenceNumber == that.fSequenceNumber;
     }
-    bool operator!=(const DrawToken& that) const { return !(*this == that); }
-    bool operator<(const DrawToken that) const {
+    bool operator!=(const AtlasToken& that) const { return !(*this == that); }
+    bool operator<(const AtlasToken that) const {
         return fSequenceNumber < that.fSequenceNumber;
     }
-    bool operator<=(const DrawToken that) const {
+    bool operator<=(const AtlasToken that) const {
         return fSequenceNumber <= that.fSequenceNumber;
     }
-    bool operator>(const DrawToken that) const {
+    bool operator>(const AtlasToken that) const {
         return fSequenceNumber > that.fSequenceNumber;
     }
-    bool operator>=(const DrawToken that) const {
+    bool operator>=(const AtlasToken that) const {
         return fSequenceNumber >= that.fSequenceNumber;
     }
 
-    DrawToken& operator++() {
+    AtlasToken& operator++() {
         ++fSequenceNumber;
         return *this;
     }
-    DrawToken operator++(int) {
+    AtlasToken operator++(int) {
         auto old = fSequenceNumber;
         ++fSequenceNumber;
-        return DrawToken(old);
+        return AtlasToken(old);
     }
 
-    DrawToken next() const { return DrawToken(fSequenceNumber + 1); }
+    AtlasToken next() const { return AtlasToken(fSequenceNumber + 1); }
 
     /** Is this token in the [start, end] inclusive interval? */
-    bool inInterval(const DrawToken& start, const DrawToken& end) {
+    bool inInterval(const AtlasToken& start, const AtlasToken& end) {
         return *this >= start && *this <= end;
     }
 
 private:
-    DrawToken() = delete;
-    explicit DrawToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
+    AtlasToken() = delete;
+    explicit AtlasToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
     uint64_t fSequenceNumber;
 };
 
-/*
- * The TokenTracker encapsulates the incrementing and distribution of tokens.
+/**
+ * The TokenTracker encapsulates the incrementing and distribution of AtlasTokens.
  */
 class TokenTracker {
 public:
-    /** Gets the token one beyond the last token that has been flushed,
-        either in GrDrawingManager::flush() or Device::flushPendingWorkToRecorder() */
-    DrawToken nextTokenToFlush() const { return fLastFlushedToken.next(); }
+    /**
+     * Gets the token one beyond the last token that has been flushed,
+     * either in GrDrawingManager::flush() or Device::flushPendingWorkToRecorder()
+     */
+    AtlasToken nextFlushToken() const { return fCurrentFlushToken.next(); }
 
-    /** Gets the next draw token. This can be used to record that the next draw
-        issued will use a resource (e.g. texture) while preparing that draw. */
-    DrawToken nextDrawToken() const { return fLastIssuedToken.next(); }
+    /**
+     * Gets the next draw token. This can be used to record that the next draw
+     * issued will use a resource (e.g. texture) while preparing that draw.
+     * Not used by Graphite.
+     */
+    AtlasToken nextDrawToken() const { return fCurrentDrawToken.next(); }
 
 private:
     // Only these classes get to increment the token counters
@@ -208,14 +213,14 @@ private:
     friend class ::TestingUploadTarget;
     friend class skgpu::graphite::AtlasManager;
 
-    /** Issues the next token for a draw. */
-    DrawToken issueDrawToken() { return ++fLastIssuedToken; }
+    // Issues the next token for a draw.
+    AtlasToken issueDrawToken() { return ++fCurrentDrawToken; }
 
-    /** Advances the last flushed token by one. */
-    DrawToken issueFlushToken() { return ++fLastFlushedToken; }
+    // Advances the next token for a flush.
+    AtlasToken issueFlushToken() { return ++fCurrentFlushToken; }
 
-    DrawToken fLastIssuedToken = DrawToken::AlreadyFlushedToken();
-    DrawToken fLastFlushedToken = DrawToken::AlreadyFlushedToken();
+    AtlasToken fCurrentDrawToken = AtlasToken::InvalidToken();
+    AtlasToken fCurrentFlushToken = AtlasToken::InvalidToken();
 };
 
 /**
@@ -251,11 +256,12 @@ public:
             , fPageIndex(0) {}
 
     bool isValid() const {
-        return fGenID != 0 || fPlotIndex != 0 || fPageIndex != 0;
+        return fGenID != AtlasGenerationCounter::kInvalidGeneration ||
+               fPlotIndex != 0 || fPageIndex != 0;
     }
 
     void makeInvalid() {
-        fGenID = 0;
+        fGenID = AtlasGenerationCounter::kInvalidGeneration;
         fPlotIndex = 0;
         fPageIndex = 0;
     }
@@ -385,7 +391,7 @@ public:
     }
 
     void reset() {
-        fPlotsToUpdate.reset();
+        fPlotsToUpdate.clear();
         memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
     }
 
@@ -395,7 +401,7 @@ public:
         uint32_t fPlotIndex;
     };
 
-    int count() const { return fPlotsToUpdate.count(); }
+    int count() const { return fPlotsToUpdate.size(); }
 
     const PlotData& plotData(int index) const { return fPlotsToUpdate[index]; }
 
@@ -434,8 +440,8 @@ public:
     /** plotIndex() is a unique id for the plot relative to the owning GrAtlas and page. */
     uint32_t plotIndex() const { return fPlotIndex; }
     /**
-     * genID() is incremented when the plot is evicted due to a atlas spill. It is used to know
-     * if a particular subimage is still present in the atlas.
+     * genID() is incremented when the plot is evicted due to a atlas spill. It is used to
+     * know if a particular subimage is still present in the atlas.
      */
     uint64_t genID() const { return fGenID; }
     PlotLocator plotLocator() const {
@@ -453,17 +459,17 @@ public:
      * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
      * has already flushed through the gpu then we can reuse the plot.
      */
-    skgpu::DrawToken lastUploadToken() const { return fLastUpload; }
-    skgpu::DrawToken lastUseToken() const { return fLastUse; }
-    void setLastUploadToken(skgpu::DrawToken token) { fLastUpload = token; }
-    void setLastUseToken(skgpu::DrawToken token) { fLastUse = token; }
+    skgpu::AtlasToken lastUploadToken() const { return fLastUpload; }
+    skgpu::AtlasToken lastUseToken() const { return fLastUse; }
+    void setLastUploadToken(skgpu::AtlasToken token) { fLastUpload = token; }
+    void setLastUseToken(skgpu::AtlasToken token) { fLastUse = token; }
 
     int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
     void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
     void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
     bool needsUpload() { return !fDirtyRect.isEmpty(); }
-    std::pair<const void*, SkIRect> prepareForUpload();
+    std::pair<const void*, SkIRect> prepareForUpload(bool useCachedUploads);
     void resetRects();
 
     /**
@@ -486,9 +492,9 @@ public:
 private:
     ~Plot() override;
 
-    skgpu::DrawToken fLastUpload;
-    skgpu::DrawToken fLastUse;
-    int              fFlushesSinceLastUse;
+    skgpu::AtlasToken fLastUpload;
+    skgpu::AtlasToken fLastUse;
+    int               fFlushesSinceLastUse;
 
     struct {
         const uint32_t fPageIndex : 16;
@@ -506,7 +512,8 @@ private:
     const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
     const SkColorType fColorType;
     const size_t fBytesPerPixel;
-    SkIRect fDirtyRect;
+    SkIRect fDirtyRect;  // area in the Plot that needs to be uploaded
+    SkIRect fCachedRect; // area in the Plot that has already been uploaded
     SkDEBUGCODE(bool fDirty);
 };
 

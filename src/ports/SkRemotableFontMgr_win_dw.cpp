@@ -13,10 +13,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/ports/SkRemotableFontMgr.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkUTF.h"
 #include "src/ports/SkTypeface_win_dw.h"
-#include "src/utils/SkUTF.h"
 #include "src/utils/win/SkDWrite.h"
 #include "src/utils/win/SkDWriteFontFileStream.h"
 #include "src/utils/win/SkHRESULT.h"
@@ -60,7 +60,7 @@ private:
                    SkFontIdentity::kInvalidDataId);
 
         SkAutoMutexExclusive ama(fDataIdCacheMutex);
-        int count = fDataIdCache.count();
+        int count = fDataIdCache.size();
         int i;
         for (i = 0; i < count; ++i) {
             const DataId& current = fDataIdCache[i];
@@ -419,7 +419,7 @@ public:
 
     SkStreamAsset* getData(int dataId) const override {
         SkAutoMutexExclusive ama(fDataIdCacheMutex);
-        if (dataId >= fDataIdCache.count()) {
+        if (dataId >= fDataIdCache.size()) {
             return nullptr;
         }
         const DataId& id = fDataIdCache[dataId];

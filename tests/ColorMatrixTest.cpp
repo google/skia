@@ -14,7 +14,6 @@
 #include "tests/Test.h"
 
 #include <cmath>
-#include <cstdlib>
 
 static inline void assert_color(skiatest::Reporter* reporter,
                                 SkColor expected, SkColor actual, int tolerance) {

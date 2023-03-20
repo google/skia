@@ -36,6 +36,9 @@ declare_args() {
 }
 declare_args() {
   is_debug = !is_official_build
+
+  # This affects Skia's ABI; must be set consistently for Skia and dependents.
+  is_trivial_abi = !is_official_build
 }
 
 assert(!(is_debug && is_official_build))
@@ -184,6 +187,9 @@ if (!is_debug) {
     "//gn/skia:optimize",
     "//gn/skia:NDEBUG",
   ]
+}
+if (is_trivial_abi) {
+  default_configs += [ "//gn/skia:trivial_abi" ]
 }
 if (!is_official_build) {
   default_configs += [ "//gn/skia:debug_symbols" ]

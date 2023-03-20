@@ -23,8 +23,8 @@
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 #include "src/utils/SkPatchUtils.h"
@@ -224,9 +224,9 @@ static void draw_batching(SkCanvas* canvas) {
     fill_mesh(pts, texs, colors, 1);
 
     SkTDArray<SkMatrix> matrices;
-    matrices.push()->reset();
-    matrices.push()->setTranslate(0, 40);
-    matrices.push()
+    matrices.append()->reset();
+    matrices.append()->setTranslate(0, 40);
+    matrices.append()
             ->setRotate(45, kMeshSize / 2, kMeshSize / 2)
             .postScale(1.2f, .8f, kMeshSize / 2, kMeshSize / 2)
             .postTranslate(0, 80);

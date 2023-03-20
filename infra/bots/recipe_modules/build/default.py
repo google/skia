@@ -124,12 +124,6 @@ def compile_fn(api, checkout_root, out_dir):
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
-  if 'CheckGeneratedFiles' in extra_tokens:
-    compiler = 'Clang'
-    args['skia_compile_modules'] = 'true'
-    args['skia_compile_sksl_tests'] = 'true'
-    args['skia_generate_workarounds'] = 'true'
-
   # ccache + clang-tidy.sh chokes on the argument list.
   if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
@@ -190,12 +184,13 @@ def compile_fn(api, checkout_root, out_dir):
   if compiler != 'MSVC' and configuration == 'Debug':
     extra_cflags.append('-O1')
   if compiler != 'MSVC' and configuration == 'OptimizeForSize':
-    extra_cflags.append('-Oz')
     # build IDs are required for Bloaty if we want to use strip to ignore debug symbols.
     # https://github.com/google/bloaty/blob/master/doc/using.md#debugging-stripped-binaries
     extra_ldflags.append('-Wl,--build-id=sha1')
     args.update({
       'skia_use_runtime_icu': 'true',
+      'skia_enable_optimize_size': 'true',
+      'skia_use_jpeg_gainmaps': 'false',
     })
 
   if 'Exceptions' in extra_tokens:
@@ -220,12 +215,7 @@ def compile_fn(api, checkout_root, out_dir):
   if configuration != 'Debug':
     args['is_debug'] = 'false'
   if 'Dawn' in extra_tokens:
-    args['skia_use_dawn'] = 'true'
-    args['skia_use_gl'] = 'false'
-    # Dawn imports jinja2, which imports markupsafe. Along with DEPS, make it
-    # importable.
-    env['PYTHONPATH'] = api.path.pathsep.join([
-        str(skia_dir.join('third_party', 'externals')), '%%(PYTHONPATH)s'])
+    util.set_dawn_args_and_env(args, env, api, skia_dir)
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
   if 'SwiftShader' in extra_tokens:
@@ -244,14 +234,13 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_precompile'] = 'false'
   if 'Graphite' in extra_tokens:
     args['skia_enable_graphite'] = 'true'
-    args['skia_use_metal'] = 'true'
   if 'NoGpu' in extra_tokens:
-    args['skia_enable_gpu'] = 'false'
+    args['skia_enable_ganesh'] = 'false'
   if 'NoDEPS' in extra_tokens:
     args.update({
       'is_official_build':             'true',
       'skia_enable_fontmgr_empty':     'true',
-      'skia_enable_gpu':               'true',
+      'skia_enable_ganesh':            'true',
 
       'skia_enable_pdf':               'false',
       'skia_use_expat':                'false',
@@ -265,6 +254,7 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_libwebp_decode':       'false',
       'skia_use_libwebp_encode':       'false',
       'skia_use_vulkan':               'false',
+      'skia_use_wuffs':                'false',
       'skia_use_zlib':                 'false',
     })
   if 'Shared' in extra_tokens:
@@ -337,12 +327,6 @@ def compile_fn(api, checkout_root, out_dir):
             'fetch-gn',
             script=skia_dir.join('bin', 'fetch-gn'),
             infra_step=True)
-    if 'CheckGeneratedFiles' in extra_tokens:
-      env['PATH'] = '%s:%%(PATH)s' % skia_dir.join('bin')
-      api.run(api.python,
-              'fetch-clang-format',
-              script=skia_dir.join('bin', 'fetch-clang-format'),
-              infra_step=True)
 
     with api.env(env):
       if ccache:

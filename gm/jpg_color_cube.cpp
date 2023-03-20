@@ -17,7 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 
 #include <utility>
 

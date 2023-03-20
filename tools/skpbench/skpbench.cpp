@@ -499,13 +499,13 @@ int main(int argc, char** argv) {
     const SkCommandLineConfigGpu* config = nullptr; // Initialize for spurious warning.
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
-    if (configs.count() != 1 || !(config = configs[0]->asConfigGpu())) {
+    if (configs.size() != 1 || !(config = configs[0]->asConfigGpu())) {
         exitf(ExitErr::kUsage, "invalid config '%s': must specify one (and only one) GPU config",
                                join(FLAGS_config).c_str());
     }
 
     // Parse the skp.
-    if (FLAGS_src.count() != 1) {
+    if (FLAGS_src.size() != 1) {
         exitf(ExitErr::kUsage,
               "invalid input '%s': must specify a single .skp or .svg file, or 'warmup'",
               join(FLAGS_src).c_str());
@@ -599,8 +599,8 @@ int main(int argc, char** argv) {
     SkImageInfo info = SkImageInfo::Make(
             width, height, config->getColorType(), config->getAlphaType(), config->refColorSpace());
     SkSurfaceProps props(config->getSurfaceFlags(), kRGB_H_SkPixelGeometry);
-    sk_sp<SkSurface> surface =
-        SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, config->getSamples(), &props);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
+            ctx, skgpu::Budgeted::kNo, info, config->getSamples(), &props);
     if (!surface) {
         exitf(ExitErr::kUnavailable, "failed to create %ix%i render target for config %s",
                                      width, height, config->getTag().c_str());
@@ -728,7 +728,7 @@ bool mkdir_p(const SkString& dirname) {
 
 static SkString join(const CommandLineFlags::StringArray& stringArray) {
     SkString joined;
-    for (int i = 0; i < stringArray.count(); ++i) {
+    for (int i = 0; i < stringArray.size(); ++i) {
         joined.appendf(i ? " %s" : "%s", stringArray[i]);
     }
     return joined;

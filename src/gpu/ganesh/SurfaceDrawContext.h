@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkDevice.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
@@ -79,10 +80,10 @@ public:
                                                     const SkSurfaceProps&,
                                                     std::string_view label,
                                                     int sampleCnt = 1,
-                                                    GrMipmapped = GrMipmapped::kNo,
-                                                    GrProtected = GrProtected::kNo,
+                                                    skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+                                                    skgpu::Protected = skgpu::Protected::kNo,
                                                     GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-                                                    SkBudgeted = SkBudgeted::kYes);
+                                                    skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     /**
      * Takes custom swizzles rather than determining swizzles from color type and format.
@@ -94,12 +95,12 @@ public:
                                                     SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     int sampleCnt,
-                                                    GrMipmapped,
-                                                    GrProtected,
+                                                    skgpu::Mipmapped,
+                                                    skgpu::Protected,
                                                     skgpu::Swizzle readSwizzle,
                                                     skgpu::Swizzle writeSwizzle,
                                                     GrSurfaceOrigin,
-                                                    SkBudgeted,
+                                                    skgpu::Budgeted,
                                                     const SkSurfaceProps&,
                                                     std::string_view label);
 
@@ -115,10 +116,10 @@ public:
             SkISize dimensions,
             const SkSurfaceProps&,
             int sampleCnt = 1,
-            GrMipmapped = GrMipmapped::kNo,
-            GrProtected = GrProtected::kNo,
+            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+            skgpu::Protected = skgpu::Protected::kNo,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes);
+            skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     // Creates a SurfaceDrawContext that wraps the passed in GrBackendTexture.
     static std::unique_ptr<SurfaceDrawContext> MakeFromBackendTexture(
@@ -553,7 +554,7 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
-    SkBudgeted isBudgeted() const;
+    skgpu::Budgeted isBudgeted() const;
 
     int maxWindowRectangles() const;
 

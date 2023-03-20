@@ -23,6 +23,7 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
 #include "include/effects/SkOpPathEffect.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/pathops/SkPathOps.h"
 
 #include <initializer_list>
@@ -366,7 +367,8 @@ protected:
     SkISize onISize() override { return SkISize::Make(800, 600); }
 
     // TODO: ctm-aware path effects are currently CPU only
-    DrawResult onGpuSetup(GrDirectContext* dctx, SkString*) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString*) override {
+        auto dctx = GrAsDirectContext(canvas->recordingContext());
         return dctx == nullptr ? DrawResult::kOk : DrawResult::kSkip;
     }
 

@@ -58,10 +58,16 @@ public:
 
     void setDstSampleFlags(GrDstSampleFlags dstSampleFlags) { fDstSampleFlags = dstSampleFlags; }
 
+    using sk_is_trivially_relocatable = std::true_type;
+
 private:
     GrSurfaceProxyView       fProxyView;
     SkIPoint                 fOffset = {0, 0};
     GrDstSampleFlags         fDstSampleFlags = GrDstSampleFlags::kNone;
+
+    static_assert(::sk_is_trivially_relocatable<decltype(fProxyView)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fOffset)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fDstSampleFlags)>::value);
 };
 
 #endif

@@ -52,12 +52,10 @@ private:
     EGLDisplay fDisplay = EGL_NO_DISPLAY;
     EGLContext fEGLContext = EGL_NO_CONTEXT;
     EGLSurface fEGLSurface = EGL_NO_SURFACE;
-
-    using INHERITED = GLWindowContext;
 };
 
 ANGLEGLWindowContext_win::ANGLEGLWindowContext_win(HWND wnd, const DisplayParams& params)
-        : INHERITED(params), fHWND(wnd) {
+        : GLWindowContext(params), fHWND(wnd) {
     this->initializeContext();
 }
 

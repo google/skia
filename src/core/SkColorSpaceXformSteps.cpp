@@ -9,7 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
@@ -134,15 +134,15 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
 }
 
 void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
-    if (flags.unpremul)        { p->append(SkRasterPipeline::unpremul); }
+    if (flags.unpremul)        { p->append(SkRasterPipelineOp::unpremul); }
     if (flags.linearize)       { p->append_transfer_function(srcTF); }
-    if (flags.gamut_transform) { p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix); }
+    if (flags.gamut_transform) { p->append(SkRasterPipelineOp::matrix_3x3, &src_to_dst_matrix); }
     if (flags.encode)          { p->append_transfer_function(dstTFInv); }
-    if (flags.premul)          { p->append(SkRasterPipeline::premul); }
+    if (flags.premul)          { p->append(SkRasterPipelineOp::premul); }
 }
 
 skvm::F32 sk_program_transfer_fn(
-    skvm::F32 v, TFKind tf_kind,
+    skvm::F32 v, skcms_TFType tf_type,
     skvm::F32 G, skvm::F32 A, skvm::F32 B, skvm::F32 C, skvm::F32 D, skvm::F32 E, skvm::F32 F)
 {
     // Strip off the sign bit and save it for later.
@@ -150,27 +150,27 @@ skvm::F32 sk_program_transfer_fn(
               sign = bits & 0x80000000;
     v = pun_to_F32(bits ^ sign);
 
-    switch (tf_kind) {
-        case Bad_TF: SkASSERT(false); break;
+    switch (tf_type) {
+        case skcms_TFType_Invalid: SkASSERT(false); break;
 
-        case sRGBish_TF: {
+        case skcms_TFType_sRGBish: {
             v = select(v <= D, C*v + F
                              , approx_powf(A*v + B, G) + E);
         } break;
 
-        case PQish_TF: {
+        case skcms_TFType_PQish: {
             skvm::F32 vC = approx_powf(v, C);
             v = approx_powf(max(B * vC + A, 0.0f) / (E * vC + D), F);
         } break;
 
-        case HLGish_TF: {
+        case skcms_TFType_HLGish: {
             skvm::F32 vA = v*A,
                        K = F + 1.0f;
             v = K*select(vA <= 1.0f, approx_powf(vA, B)
                                    , approx_exp((v-E) * C + D));
         } break;
 
-        case HLGinvish_TF: {
+        case skcms_TFType_HLGinvish: {
             skvm::F32 K = F + 1.0f;
             v /= K;
             v = select(v <= 1.0f, A * approx_powf(v, B)
@@ -191,11 +191,11 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
               D = p->uniformF(uniforms->pushF(tf.d)),
               E = p->uniformF(uniforms->pushF(tf.e)),
               F = p->uniformF(uniforms->pushF(tf.f));
-    TFKind tf_kind = classify_transfer_fn(tf);
+    skcms_TFType tf_type = skcms_TransferFunction_getType(&tf);
     return {
-        sk_program_transfer_fn(c.r, tf_kind, G,A,B,C,D,E,F),
-        sk_program_transfer_fn(c.g, tf_kind, G,A,B,C,D,E,F),
-        sk_program_transfer_fn(c.b, tf_kind, G,A,B,C,D,E,F),
+        sk_program_transfer_fn(c.r, tf_type, G,A,B,C,D,E,F),
+        sk_program_transfer_fn(c.g, tf_type, G,A,B,C,D,E,F),
+        sk_program_transfer_fn(c.b, tf_type, G,A,B,C,D,E,F),
         c.a,
     };
 }

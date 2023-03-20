@@ -9,10 +9,10 @@
 #define skgpu_graphite_ResourceCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
-#include "src/core/SkTDPQueue.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkTDPQueue.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
@@ -39,13 +39,13 @@ public:
 
     // Returns the number of resources.
     int getResourceCount() const {
-        return fPurgeableQueue.count() + fNonpurgeableResources.count();
+        return fPurgeableQueue.count() + fNonpurgeableResources.size();
     }
 
     void insertResource(Resource*);
 
     // Find a resource that matches a key.
-    Resource* findAndRefResource(const GraphiteResourceKey& key, SkBudgeted);
+    Resource* findAndRefResource(const GraphiteResourceKey& key, skgpu::Budgeted);
 
     // This is a thread safe call. If it fails the ResourceCache is no longer valid and the
     // Resource should clean itself up if it is the last ref.

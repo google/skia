@@ -9,10 +9,12 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
-#include "src/core/SkLeanWindows.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkLeanWindows.h"
 
 #include <chrono>
+#include <ratio>
 
 void SkTime::DateTime::toISO8601(SkString* dst) const {
     if (dst) {

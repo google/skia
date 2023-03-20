@@ -9,7 +9,7 @@ void initialize_vS(out S z[2]) {
 }
 vec4 main() {
     vec2 x[2];
-    x[0] = vec2(0.0, 0.0);
+    x[0] = vec2(0.0);
     x[1] = vec2(1.0, 0.0);
     vec2 y[2];
     y[0] = vec2(0.0, 1.0);

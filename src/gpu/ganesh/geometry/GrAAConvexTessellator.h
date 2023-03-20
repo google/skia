@@ -12,7 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkPointPriv.h"
 
 class SkCanvas;
@@ -48,10 +48,10 @@ public:
     bool tessellate(const SkMatrix& m, const SkPath& path);
 
     // The next five should only be called after tessellate to extract the result
-    int numPts() const { return fPts.count(); }
-    int numIndices() const { return fIndices.count(); }
+    int numPts() const { return fPts.size(); }
+    int numIndices() const { return fIndices.size(); }
 
-    const SkPoint& lastPoint() const { return fPts.top(); }
+    const SkPoint& lastPoint() const { return fPts.back(); }
     const SkPoint& point(int index) const { return fPts[index]; }
     int index(int index) const { return fIndices[index]; }
     SkScalar coverage(int index) const { return fCoverages[index]; }
@@ -60,7 +60,7 @@ public:
     void draw(SkCanvas* canvas) const;
 #endif
 
-    // The tessellator can be reused for multiple paths by rewinding in between
+    // The tessellator can be reused for multiple paths by clearing in between
     void rewind();
 
 private:
@@ -68,12 +68,12 @@ private:
     // being generated. Its main function is to de-dup the points.
     class CandidateVerts {
     public:
-        void setReserve(int numPts) { fPts.setReserve(numPts); }
-        void rewind() { fPts.rewind(); }
+        void setReserve(int numPts) { fPts.reserve(numPts); }
+        void rewind() { fPts.clear(); }
 
-        int numPts() const { return fPts.count(); }
+        int numPts() const { return fPts.size(); }
 
-        const SkPoint& lastPoint() const { return fPts.top().fPt; }
+        const SkPoint& lastPoint() const { return fPts.back().fPt; }
         const SkPoint& firstPoint() const { return fPts[0].fPt; }
         const SkPoint& point(int index) const { return fPts[index].fPt; }
 
@@ -82,19 +82,19 @@ private:
         bool needsToBeNew(int index) const { return fPts[index].fNeedsToBeNew; }
 
         int addNewPt(const SkPoint& newPt, int originatingIdx, int origEdge, bool needsToBeNew) {
-            struct PointData* pt = fPts.push();
+            struct PointData* pt = fPts.append();
             pt->fPt = newPt;
             pt->fOrigEdgeId = origEdge;
             pt->fOriginatingIdx = originatingIdx;
             pt->fNeedsToBeNew = needsToBeNew;
-            return fPts.count() - 1;
+            return fPts.size() - 1;
         }
 
         int fuseWithPrior(int origEdgeId) {
-            fPts.top().fOrigEdgeId = origEdgeId;
-            fPts.top().fOriginatingIdx = -1;
-            fPts.top().fNeedsToBeNew = true;
-            return fPts.count() - 1;
+            fPts.back().fOrigEdgeId = origEdgeId;
+            fPts.back().fOriginatingIdx = -1;
+            fPts.back().fNeedsToBeNew = true;
+            return fPts.size() - 1;
         }
 
         int fuseWithNext() {
@@ -104,8 +104,8 @@ private:
         }
 
         int fuseWithBoth() {
-            if (fPts.count() > 1) {
-                fPts.pop();
+            if (fPts.size() > 1) {
+                fPts.pop_back();
             }
 
             fPts[0].fOriginatingIdx = -1;
@@ -128,20 +128,20 @@ private:
     // a single polygon inset.
     class Ring {
     public:
-        void setReserve(int numPts) { fPts.setReserve(numPts); }
-        void rewind() { fPts.rewind(); }
+        void setReserve(int numPts) { fPts.reserve(numPts); }
+        void rewind() { fPts.clear(); }
 
-        int numPts() const { return fPts.count(); }
+        int numPts() const { return fPts.size(); }
 
         void addIdx(int index, int origEdgeId) {
-            struct PointData* pt = fPts.push();
+            struct PointData* pt = fPts.append();
             pt->fIndex = index;
             pt->fOrigEdgeId = origEdgeId;
         }
 
         // Upgrade this ring so that it can behave like an originating ring
         void makeOriginalRing() {
-            for (int i = 0; i < fPts.count(); ++i) {
+            for (int i = 0; i < fPts.size(); ++i) {
                 fPts[i].fOrigEdgeId = fPts[i].fIndex;
             }
         }
@@ -202,9 +202,9 @@ private:
     void addTri(int i0, int i1, int i2);
 
     void reservePts(int count) {
-        fPts.setReserve(count);
-        fCoverages.setReserve(count);
-        fMovable.setReserve(count);
+        fPts.reserve(count);
+        fCoverages.reserve(count);
+        fMovable.reserve(count);
     }
 
     SkScalar computeDepthFromEdge(int edgeIdx, const SkPoint& p) const;

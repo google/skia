@@ -18,7 +18,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrTextureResolveRenderTask.h"
 
-bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
+bool GrOnFlushResourceProvider::instantiateProxy(GrSurfaceProxy* proxy) {
     SkASSERT(proxy->canSkipResourceAllocator());
 
     // TODO: this class should probably just get a GrDirectContext

@@ -340,10 +340,6 @@ inline bool approximately_zero(float x) {
     return fabs(x) < FLT_EPSILON;
 }
 
-inline bool approximately_zero_cubed(double x) {
-    return fabs(x) < FLT_EPSILON_CUBED;
-}
-
 inline bool approximately_zero_half(double x) {
     return fabs(x) < FLT_EPSILON_HALF;
 }
@@ -585,8 +581,6 @@ inline int SkPathOpsVerbToPoints(SkPath::Verb verb) {
 inline double SkDInterp(double A, double B, double t) {
     return A + (B - A) * t;
 }
-
-double SkDCubeRoot(double x);
 
 /* Returns -1 if negative, 0 if zero, 1 if positive
 */

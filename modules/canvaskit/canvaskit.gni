@@ -10,7 +10,6 @@ declare_args() {
   skia_canvaskit_enable_embedded_font = true
   skia_canvaskit_enable_font = true
   skia_canvaskit_enable_matrix_helper = true
-  skia_canvaskit_enable_particles = true
   skia_canvaskit_enable_pathops = true
   skia_canvaskit_enable_rt_shader = true
   skia_canvaskit_enable_skottie = true

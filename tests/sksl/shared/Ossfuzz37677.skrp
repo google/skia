@@ -1,0 +1,4 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_4_constants               $0..3 = colorGreen
+    4. load_src                       src.rgba = $0..3

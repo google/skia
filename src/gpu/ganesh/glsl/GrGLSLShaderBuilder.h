@@ -11,8 +11,8 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
-#include "include/private/SkTDArray.h"
-#include "src/core/SkTBlockList.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 

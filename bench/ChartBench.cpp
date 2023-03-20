@@ -9,8 +9,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/private/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
 
 /**
  * This is a conversion of samplecode/SampleChart.cpp into a bench. It sure would be nice to be able
@@ -20,7 +20,7 @@
 // Generates y values for the chart plots.
 static void gen_data(SkScalar yAvg, SkScalar ySpread, int count,
                      SkRandom* random, SkTDArray<SkScalar>* dataPts) {
-    dataPts->setCount(count);
+    dataPts->resize(count);
     for (int i = 0; i < count; ++i) {
         (*dataPts)[i] = random->nextRangeScalar(yAvg - SkScalarHalf(ySpread),
                                                 yAvg + SkScalarHalf(ySpread));
@@ -39,18 +39,18 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
                       SkPath* plot, SkPath* fill) {
     plot->rewind();
     fill->rewind();
-    plot->incReserve(topData.count());
+    plot->incReserve(topData.size());
     if (nullptr == bottomData) {
-        fill->incReserve(topData.count() + 2);
+        fill->incReserve(topData.size() + 2);
     } else {
-        fill->incReserve(2 * topData.count());
+        fill->incReserve(2 * topData.size());
     }
 
-    leftShift %= topData.count();
+    leftShift %= topData.size();
     SkScalar x = xLeft;
 
     // Account for the leftShift using two loops
-    int shiftToEndCount = topData.count() - leftShift;
+    int shiftToEndCount = topData.size() - leftShift;
     plot->moveTo(x, topData[leftShift]);
     fill->moveTo(x, topData[leftShift]);
 
@@ -67,7 +67,7 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
     }
 
     if (bottomData) {
-        SkASSERT(bottomData->count() == topData.count());
+        SkASSERT(bottomData->size() == topData.size());
         // iterate backwards over the previous graph's data to generate the bottom of the filled
         // area (and account for leftShift).
         for (int i = 0; i < leftShift; ++i) {
@@ -76,7 +76,7 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
         }
         for (int i = 0; i < shiftToEndCount; ++i) {
             x -= xDelta;
-            fill->lineTo(x, (*bottomData)[bottomData->count() - 1 - i]);
+            fill->lineTo(x, (*bottomData)[bottomData->size() - 1 - i]);
         }
     } else {
         fill->lineTo(x - xDelta, yBase);

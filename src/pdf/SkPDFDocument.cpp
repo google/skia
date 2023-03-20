@@ -10,7 +10,8 @@
 
 #include "include/core/SkStream.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
 #include "src/pdf/SkPDFDevice.h"
 #include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFGradientShader.h"
@@ -18,7 +19,6 @@
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTag.h"
 #include "src/pdf/SkPDFUtils.h"
-#include "src/utils/SkUTF.h"
 
 #include <utility>
 
@@ -237,11 +237,11 @@ SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndir
 SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) SK_REQUIRES(fMutex) {
     begin_indirect_object(&fOffsetMap, ref, this->getStream());
     return this->getStream();
-};
+}
 
 void SkPDFDocument::endObject() SK_REQUIRES(fMutex) {
     end_indirect_object(this->getStream());
-};
+}
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
 static SkSize operator*(SkSize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
@@ -501,7 +501,8 @@ static SkPDFIndirectReference make_srgb_color_profile(SkPDFDocument* doc) {
     std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
     dict->insertInt("N", 3);
     dict->insertObject("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
-    return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(SkSrgbIcm()), doc, true);
+    return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(SkSrgbIcm()),
+                          doc, SkPDFSteamCompressionEnabled::Yes);
 }
 
 static std::unique_ptr<SkPDFArray> make_srgb_output_intents(SkPDFDocument* doc) {
@@ -555,7 +556,7 @@ SkString SkPDFDocument::nextFontSubsetTag() {
     fNextFontSubsetTag = (fNextFontSubsetTag + 1u) % 308915776u;
 
     SkString subsetTag(7);
-    char* subsetTagData = subsetTag.writable_str();
+    char* subsetTagData = subsetTag.data();
     for (size_t i = 0; i < 6; ++i) {
         subsetTagData[i] = 'A' + (thisFontSubsetTag % 26);
         thisFontSubsetTag /= 26;

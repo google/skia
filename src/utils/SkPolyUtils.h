@@ -13,6 +13,7 @@
 
 #include <cstdint>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 struct SkRect;
 template <typename T> class SkTDArray;
 
@@ -109,5 +110,7 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize);
   */
  bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap, int polygonSize,
                                  SkTDArray<uint16_t>* triangleIndices);
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #endif

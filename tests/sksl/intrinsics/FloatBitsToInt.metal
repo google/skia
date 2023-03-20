@@ -2,7 +2,6 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float testInput;
     float2x2 testMatrix2x2;
     half4 colorGreen;
     half4 colorRed;

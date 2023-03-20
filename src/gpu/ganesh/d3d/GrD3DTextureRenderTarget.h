@@ -25,7 +25,8 @@ struct GrD3DTextureResourceInfo;
 
 class GrD3DTextureRenderTarget: public GrD3DTexture, public GrD3DRenderTarget {
 public:
-    static sk_sp<GrD3DTextureRenderTarget> MakeNewTextureRenderTarget(GrD3DGpu*, SkBudgeted,
+    static sk_sp<GrD3DTextureRenderTarget> MakeNewTextureRenderTarget(GrD3DGpu*,
+                                                                      skgpu::Budgeted,
                                                                       SkISize dimensions,
                                                                       int sampleCnt,
                                                                       const D3D12_RESOURCE_DESC&,
@@ -55,7 +56,7 @@ protected:
 private:
     // MSAA, not-wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
-                             SkBudgeted budgeted,
+                             skgpu::Budgeted budgeted,
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
@@ -69,7 +70,7 @@ private:
 
     // non-MSAA, not-wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
-                             SkBudgeted budgeted,
+                             skgpu::Budgeted budgeted,
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
@@ -110,7 +111,7 @@ private:
 
     // In Direct3D we call the release proc after we are finished with the underlying
     // GrD3DImage::Resource object (which occurs after the GPU has finished all work on it).
-    void onSetRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) override {
+    void onSetRelease(sk_sp<RefCntedReleaseProc> releaseHelper) override {
         // Forward the release proc on to GrD3DImage
         this->setResourceRelease(std::move(releaseHelper));
     }

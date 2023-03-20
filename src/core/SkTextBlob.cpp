@@ -9,10 +9,10 @@
 
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTypeface.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSafeMath.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -23,9 +23,11 @@
 #include <limits>
 #include <new>
 
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 #endif
+
+using namespace skia_private;
 
 namespace {
 struct RunFontStorageEquivalent {
@@ -148,7 +150,7 @@ SkTextBlob::SkTextBlob(const SkRect& bounds)
     , fCacheID(SK_InvalidUniqueID) {}
 
 SkTextBlob::~SkTextBlob() {
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
     if (SK_InvalidUniqueID != fCacheID.load()) {
         sktext::gpu::TextBlobRedrawCoordinator::PostPurgeBlobMessage(fUniqueID, fCacheID);
     }
@@ -275,7 +277,7 @@ SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
         return bounds.makeOffset(run.offset().x(), run.offset().y());
     }
 
-    SkAutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
+    AutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
     font.getBounds(run.glyphBuffer(), run.glyphCount(), glyphBounds.get(), nullptr);
 
     if (SkTextBlob::kRSXform_Positioning == run.positioning()) {

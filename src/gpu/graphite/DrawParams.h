@@ -63,6 +63,7 @@ private:
 
 class Clip {
 public:
+    Clip() = default;
     Clip(const Rect& drawBounds, const SkIRect& scissor)
             : fDrawBounds(drawBounds)
             , fScissor(scissor) {}

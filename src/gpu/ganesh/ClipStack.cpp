@@ -9,6 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -17,6 +18,7 @@
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDeferredProxyUploader.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -141,15 +143,15 @@ bool shape_contains_rect(const GrShape& a, const SkMatrix& aToDevice, const SkMa
     // Test each corner for contains; since a is convex, if all 4 corners of b's bounds are
     // contained, then the entirety of b is within a.
     GrQuad deviceQuad = GrQuad::MakeFromRect(b, bToDevice);
-    if (any(deviceQuad.w4f() < SkPathPriv::kW0PlaneDistance)) {
-        // Something in B actually projects behind the W = 0 plane and would be clipped to infinity,
-        // so it's extremely unlikely that A can contain B.
-        return false;
-    }
     if (mixedAAMode) {
         // Outset it so its edges are 1/2px out, giving us a buffer to avoid cases where a non-AA
         // clip or draw would snap outside an aa element.
         GrQuadUtils::Outset({0.5f, 0.5f, 0.5f, 0.5f}, &deviceQuad);
+    }
+    if (any(deviceQuad.w4f() < SkPathPriv::kW0PlaneDistance)) {
+        // Something in B actually projects behind the W = 0 plane and would be clipped to infinity,
+        // so it's extremely unlikely that A can contain B.
+        return false;
     }
 
     for (int i = 0; i < 4; ++i) {
@@ -299,9 +301,9 @@ void draw_to_sw_mask(GrSWMaskHelper* helper,
         // the inverse fill type.
         GrShape inverted(e.fShape);
         inverted.setInverted(true);
-        helper->drawShape(inverted, e.fLocalToDevice, SkRegion::kReplace_Op, e.fAA, alpha);
+        helper->drawShape(inverted, e.fLocalToDevice, e.fAA, alpha);
     } else {
-        helper->drawShape(e.fShape, e.fLocalToDevice, SkRegion::kReplace_Op, e.fAA, alpha);
+        helper->drawShape(e.fShape, e.fLocalToDevice, e.fAA, alpha);
     }
 }
 
@@ -326,9 +328,14 @@ GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
 
         skgpu::Swizzle swizzle = context->priv().caps()->getReadSwizzle(format,
                                                                         GrColorType::kAlpha_8);
-        auto proxy = proxyProvider->createProxy(format, bounds.size(), GrRenderable::kNo, 1,
-                                                GrMipmapped::kNo, SkBackingFit::kApprox,
-                                                SkBudgeted::kYes, GrProtected::kNo,
+        auto proxy = proxyProvider->createProxy(format,
+                                                bounds.size(),
+                                                GrRenderable::kNo,
+                                                1,
+                                                GrMipmapped::kNo,
+                                                SkBackingFit::kApprox,
+                                                skgpu::Budgeted::kYes,
+                                                GrProtected::kNo,
                                                 /*label=*/"ClipStack_RenderSwMask");
 
         // Since this will be rendered on another thread, make a copy of the elements in case
@@ -344,7 +351,7 @@ GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
             TRACE_EVENT0("skia.gpu", "Threaded SW Clip Mask Render");
             GrSWMaskHelper helper(uploaderRaw->getPixels());
             if (helper.init(bounds)) {
-                for (int i = 0; i < uploaderRaw->data().count(); ++i) {
+                for (int i = 0; i < uploaderRaw->data().size(); ++i) {
                     draw_to_sw_mask(&helper, uploaderRaw->data()[i], i == 0);
                 }
             } else {
@@ -1291,8 +1298,9 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
     if (cs.shader()) {
         static const GrColorInfo kCoverageColorInfo{GrColorType::kUnknown, kPremul_SkAlphaType,
                                                     nullptr};
-        GrFPArgs args(rContext, *fMatrixProvider, &kCoverageColorInfo, sdc->surfaceProps());
-        clipFP = as_SB(cs.shader())->asFragmentProcessor(args);
+        GrFPArgs args(rContext, &kCoverageColorInfo, sdc->surfaceProps());
+        clipFP = as_SB(cs.shader())->asRootFragmentProcessor(args,
+                                                             fMatrixProvider->localToDevice());
         if (clipFP) {
             // The initial input is the coverage from the geometry processor, so this ensures it
             // is multiplied properly with the alpha of the clip shader.
@@ -1480,7 +1488,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
             // cannot be used, or cannot handle smooth clips.
             std::tie(hasSWMask, clipFP) = GetSWMaskFP(
                      rContext, &fMasks, cs, scissorBounds, elementsForMask.begin(),
-                     elementsForMask.count(), std::move(clipFP));
+                     elementsForMask.size(), std::move(clipFP));
         }
 
         if (!hasSWMask) {
@@ -1491,7 +1499,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
             } else {
                 // Rasterize the remaining elements to the stencil buffer
                 render_stencil_mask(rContext, sdc, cs.genID(), scissorBounds,
-                                    elementsForMask.begin(), elementsForMask.count(), out);
+                                    elementsForMask.begin(), elementsForMask.size(), out);
             }
         }
     }

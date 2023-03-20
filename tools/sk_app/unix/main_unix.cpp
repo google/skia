@@ -7,7 +7,7 @@
 */
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/timer/Timer.h"

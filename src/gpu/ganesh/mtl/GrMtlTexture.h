@@ -17,7 +17,7 @@ class GrMtlGpu;
 class GrMtlTexture : public GrTexture {
 public:
     static sk_sp<GrMtlTexture> MakeNewTexture(GrMtlGpu*,
-                                              SkBudgeted budgeted,
+                                              skgpu::Budgeted budgeted,
                                               SkISize dimensions,
                                               MTLPixelFormat format,
                                               uint32_t mipLevels,
@@ -71,7 +71,7 @@ private:
     enum Wrapped { kWrapped };
 
     GrMtlTexture(GrMtlGpu*,
-                 SkBudgeted,
+                 skgpu::Budgeted,
                  SkISize,
                  sk_sp<GrMtlAttachment>,
                  GrMipmapStatus,

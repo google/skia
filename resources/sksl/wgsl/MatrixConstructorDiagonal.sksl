@@ -1,0 +1,11 @@
+uniform half4 colorGreen, colorRed;
+
+uniform half h;
+uniform float f;
+
+half4 main() {
+    bool ok = true;
+    ok = ok && float2x2(2) * float2(f) == float2(2 * f);
+    ok = ok && half4x4(2) * half4(h) == half4(2 * h);
+    return ok ? colorGreen : colorRed;
+}

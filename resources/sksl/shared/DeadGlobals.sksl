@@ -1,0 +1,12 @@
+uniform half4 colorGreen, colorRed;
+
+const float Pi = 3.14;
+const float Alias1 = Pi;
+const float Alias2 = Alias1;
+const float Alias3 = Alias2;
+const float Alias4 = Alias1;
+const float Alias5 = Pi;
+
+half4 main(float2) {
+    return (Pi == Alias3) ? colorGreen : colorRed;
+}

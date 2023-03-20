@@ -4,13 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/pathops/SkIntersections.h"
-#include "src/pathops/SkPathOpsRect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMath.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
 #include "src/pathops/SkReduceOrder.h"
 #include "tests/PathOpsCubicIntersectionTestData.h"
 #include "tests/PathOpsQuadIntersectionTestData.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
+
+#include <cstddef>
 
 using namespace PathOpsCubicIntersectionTestData;
 

@@ -57,7 +57,21 @@ public:
         return SkSamplingOptions(SkFilterMode::kLinear, mm);
     }
 
-    static SkSamplingOptions FromFQ(SkLegacyFQ, SkMediumAs = kNearest_SkMediumAs);
+    static SkSamplingOptions FromFQ(SkLegacyFQ fq, SkMediumAs behavior = kNearest_SkMediumAs) {
+        switch (fq) {
+            case kHigh_SkLegacyFQ:
+                return SkSamplingOptions(SkCubicResampler{1/3.0f, 1/3.0f});
+            case kMedium_SkLegacyFQ:
+                return SkSamplingOptions(SkFilterMode::kLinear,
+                                          behavior == kNearest_SkMediumAs ? SkMipmapMode::kNearest
+                                                                          : SkMipmapMode::kLinear);
+            case kLow_SkLegacyFQ:
+                return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+            case kNone_SkLegacyFQ:
+                break;
+        }
+        return SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
+    }
 };
 
 #endif

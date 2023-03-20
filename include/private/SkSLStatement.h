@@ -18,24 +18,7 @@ namespace SkSL {
  */
 class Statement : public IRNode {
 public:
-    enum Kind {
-        kBlock = (int) Symbol::Kind::kLast + 1,
-        kBreak,
-        kContinue,
-        kDiscard,
-        kDo,
-        kExpression,
-        kFor,
-        kIf,
-        kNop,
-        kReturn,
-        kSwitch,
-        kSwitchCase,
-        kVarDeclaration,
-
-        kFirst = kBlock,
-        kLast = kVarDeclaration,
-    };
+    using Kind = StatementKind;
 
     Statement(Position pos, Kind kind)
     : INHERITED(pos, (int) kind) {
@@ -44,31 +27,6 @@ public:
 
     Kind kind() const {
         return (Kind) fKind;
-    }
-
-    /**
-     *  Use is<T> to check the type of a statement.
-     *  e.g. replace `s.kind() == Statement::Kind::kReturn` with `s.is<ReturnStatement>()`.
-     */
-    template <typename T>
-    bool is() const {
-        return this->fKind == T::kStatementKind;
-    }
-
-    /**
-     *  Use as<T> to downcast statements.
-     *  e.g. replace `(ReturnStatement&) s` with `s.as<ReturnStatement>()`.
-     */
-    template <typename T>
-    const T& as() const {
-        SkASSERT(this->is<T>());
-        return static_cast<const T&>(*this);
-    }
-
-    template <typename T>
-    T& as() {
-        SkASSERT(this->is<T>());
-        return static_cast<T&>(*this);
     }
 
     virtual bool isEmpty() const {

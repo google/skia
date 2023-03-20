@@ -1,0 +1,63 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $4 = inputVal(0)
+    4. exp_float                      $4 = exp($4)
+    5. copy_constant                  $5 = expected(0)
+    6. cmpeq_float                    $4 = equal($4, $5)
+    7. copy_2_constants               $5..6 = inputVal(0..1)
+    8. exp_float                      $5 = exp($5)
+    9. exp_float                      $6 = exp($6)
+   10. copy_2_constants               $7..8 = expected(0..1)
+   11. cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+   12. bitwise_and_int                $5 &= $6
+   13. bitwise_and_int                $4 &= $5
+   14. copy_3_constants               $5..7 = inputVal(0..2)
+   15. exp_float                      $5 = exp($5)
+   16. exp_float                      $6 = exp($6)
+   17. exp_float                      $7 = exp($7)
+   18. copy_3_constants               $8..10 = expected(0..2)
+   19. cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+   20. bitwise_and_int                $6 &= $7
+   21. bitwise_and_int                $5 &= $6
+   22. bitwise_and_int                $4 &= $5
+   23. copy_4_constants               $5..8 = inputVal
+   24. exp_float                      $5 = exp($5)
+   25. exp_float                      $6 = exp($6)
+   26. exp_float                      $7 = exp($7)
+   27. exp_float                      $8 = exp($8)
+   28. copy_4_constants               $9..12 = expected
+   29. cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+   30. bitwise_and_2_ints             $5..6 &= $7..8
+   31. bitwise_and_int                $5 &= $6
+   32. bitwise_and_int                $4 &= $5
+   33. copy_constant                  $5 = 0x3F800000 (1.0)
+   34. copy_constant                  $6 = expected(0)
+   35. cmpeq_float                    $5 = equal($5, $6)
+   36. bitwise_and_int                $4 &= $5
+   37. copy_constant                  $5 = 0x3F800000 (1.0)
+   38. copy_slot_unmasked             $6 = $5
+   39. copy_2_constants               $7..8 = expected(0..1)
+   40. cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+   41. bitwise_and_int                $5 &= $6
+   42. bitwise_and_int                $4 &= $5
+   43. copy_constant                  $5 = 0x3F800000 (1.0)
+   44. swizzle_3                      $5..7 = ($5..7).xxx
+   45. copy_3_constants               $8..10 = expected(0..2)
+   46. cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+   47. bitwise_and_int                $6 &= $7
+   48. bitwise_and_int                $5 &= $6
+   49. bitwise_and_int                $4 &= $5
+   50. copy_constant                  $5 = 0x3F800000 (1.0)
+   51. swizzle_4                      $5..8 = ($5..8).xxxx
+   52. copy_4_constants               $9..12 = expected
+   53. cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+   54. bitwise_and_2_ints             $5..6 &= $7..8
+   55. bitwise_and_int                $5 &= $6
+   56. bitwise_and_int                $4 &= $5
+   57. branch_if_no_active_lanes_eq   branch +3 (label 0 at #60) if no lanes of $4 == 0xFFFFFFFF
+   58. copy_4_constants               $0..3 = colorGreen
+   59. jump                           jump +3 (label 1 at #62)
+   60. label                          label 0x00000000
+   61. copy_4_constants               $0..3 = colorRed
+   62. label                          label 0x00000001
+   63. load_src                       src.rgba = $0..3

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef DashLinePathRenderer_DEFINED
-#define DashLinePathRenderer_DEFINED
+#ifndef skgpu_ganesh_DashLinePathRenderer_DEFINED
+#define skgpu_ganesh_DashLinePathRenderer_DEFINED
 
 #include "src/gpu/ganesh/PathRenderer.h"
 
 class GrGpu;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
-class DashLinePathRenderer final : public PathRenderer {
+class DashLinePathRenderer final : public skgpu::v1::PathRenderer {
 public:
     DashLinePathRenderer() = default;
 
@@ -32,6 +32,6 @@ private:
     sk_sp<GrGpu> fGpu;
 };
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh
 
-#endif // DashLinePathRenderer_DEFINED
+#endif // skgpu_ganesh_DashLinePathRenderer_DEFINED

@@ -5,14 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkString.h"
-#include "include/private/SkMutex.h"
-#include "src/pathops/SkIntersectionHelper.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkMath.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
+#include "src/pathops/SkPathOpsTSect.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsDebug.h"
-#include "tests/PathOpsTSectDebug.h"
+
+#include <algorithm>
+#include <cfloat>
+#include <cmath>
+#include <cstdint>
 
 bool PathOpsDebug::gJson;
 bool PathOpsDebug::gMarkJsonFlaky;
@@ -1522,4 +1543,28 @@ void Dump(const SkDPoint& point) {
 
 void Dump(const SkOpAngle& angle) {
     angle.dump();
+}
+
+void SkOpSegment::debugAddAngle(double startT, double endT) {
+    SkOpPtT* startPtT = startT == 0 ? fHead.ptT() : startT == 1 ? fTail.ptT()
+            : this->addT(startT);
+    SkOpPtT* endPtT = endT == 0 ? fHead.ptT() : endT == 1 ? fTail.ptT()
+            : this->addT(endT);
+    SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
+    SkOpSpanBase* startSpan = &fHead;
+    while (startSpan->ptT() != startPtT) {
+        startSpan = startSpan->upCast()->next();
+    }
+    SkOpSpanBase* endSpan = &fHead;
+    while (endSpan->ptT() != endPtT) {
+        endSpan = endSpan->upCast()->next();
+    }
+    angle->set(startSpan, endSpan);
+    if (startT < endT) {
+        startSpan->upCast()->setToAngle(angle);
+        endSpan->setFromAngle(angle);
+    } else {
+        endSpan->upCast()->setToAngle(angle);
+        startSpan->setFromAngle(angle);
+    }
 }

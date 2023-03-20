@@ -1,0 +1,21 @@
+### Compilation failed:
+
+error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 4: unknown identifier 'sk_FragColor'
+    if (unknownInput > 5) { sk_FragColor = half4(0.75); } else { discard; }
+                            ^^^^^^^^^^^^
+error: 4: discard statement is only permitted in fragment shaders
+    if (unknownInput > 5) { sk_FragColor = half4(0.75); } else { discard; }
+                                                                 ^^^^^^^
+error: 6: unknown identifier 'sk_FragColor'
+    while (i < 10) { sk_FragColor *= 0.5; i++; }
+                     ^^^^^^^^^^^^
+error: 7: unknown identifier 'sk_FragColor'
+    do { sk_FragColor += 0.25; } while (sk_FragColor.x < 0.75);
+         ^^^^^^^^^^^^
+error: 7: unknown identifier 'sk_FragColor'
+    do { sk_FragColor += 0.25; } while (sk_FragColor.x < 0.75);
+                                        ^^^^^^^^^^^^
+6 errors

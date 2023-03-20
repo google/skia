@@ -11,10 +11,10 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 
-template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right);
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right);
+template <typename T1, typename T2>
+bool operator==(const array_ref<T1> left, const array_ref<T2> right);
+template <typename T1, typename T2>
+bool operator!=(const array_ref<T1> left, const array_ref<T2> right);
 
 template <size_t N>
 array<int, N> array_of_int_from_short(thread const array<short, N>& x) {
@@ -52,9 +52,12 @@ array<half, N> array_of_half_from_float(thread const array<float, N>& x) {
     return result;
 }
 
-template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
-    for (size_t index = 0; index < N; ++index) {
+template <typename T1, typename T2>
+bool operator==(const array_ref<T1> left, const array_ref<T2> right) {
+    if (left.size() != right.size()) {
+        return false;
+    }
+    for (size_t index = 0; index < left.size(); ++index) {
         if (!all(left[index] == right[index])) {
             return false;
         }
@@ -62,8 +65,8 @@ bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& righ
     return true;
 }
 
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right) {
+template <typename T1, typename T2>
+bool operator!=(const array_ref<T1> left, const array_ref<T2> right) {
     return !(left == right);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
@@ -78,6 +81,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     f2 = array_of_float_from_half(h2);
     h2 = array_of_half_from_float(f2);
     const array<float, 2> cf2 = array<float, 2>{1.0, 2.0};
-    _out.sk_FragColor = ((i2 == array_of_int_from_short(s2) && f2 == array_of_float_from_half(h2)) && i2 == array<int, 2>{1, 2}) && array_of_float_from_half(h2) == cf2 ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((make_array_ref(i2) == make_array_ref(array_of_int_from_short(s2)) && make_array_ref(f2) == make_array_ref(array_of_float_from_half(h2))) && make_array_ref(i2) == make_array_ref(array<int, 2>{1, 2})) && make_array_ref(array_of_float_from_half(h2)) == make_array_ref(cf2) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

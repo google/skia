@@ -8,6 +8,7 @@
 #ifndef SKSL_FORSTATEMENT
 #define SKSL_FORSTATEMENT
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -37,7 +38,7 @@ struct LoopUnrollInfo {
  */
 class ForStatement final : public Statement {
 public:
-    inline static constexpr Kind kStatementKind = Kind::kFor;
+    inline static constexpr Kind kIRNodeKind = Kind::kFor;
 
     ForStatement(Position pos,
                  ForLoopPositions forLoopPositions,
@@ -47,7 +48,7 @@ public:
                  std::unique_ptr<Statement> statement,
                  std::unique_ptr<LoopUnrollInfo> unrollInfo,
                  std::shared_ptr<SymbolTable> symbols)
-            : INHERITED(pos, kStatementKind)
+            : INHERITED(pos, kIRNodeKind)
             , fForLoopPositions(forLoopPositions)
             , fSymbolTable(std::move(symbols))
             , fInitializer(std::move(initializer))

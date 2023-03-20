@@ -13,12 +13,12 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTHash.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/Font.h"
 #include "modules/sksg/include/SkSGScene.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
+#include "src/core/SkTHash.h"
 
 #include <vector>
 

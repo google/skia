@@ -32,7 +32,7 @@ public:
     /**
      * Returns the SkSL variable corresponding to a DSL var.
      */
-    static const SkSL::Variable* Var(DSLVarBase& var);
+    static SkSL::Variable* Var(DSLVarBase& var);
 
     /**
      * Creates an SkSL variable corresponding to a DSLParameter.
@@ -55,9 +55,6 @@ public:
      * Clears any elements or symbols which have been output.
      */
     static void Reset();
-
-    friend class DSLCore;
-    friend class DSLVar;
 };
 
 } // namespace dsl

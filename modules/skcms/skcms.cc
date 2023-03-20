@@ -130,28 +130,39 @@ static float minus_1_ulp(float x) {
 // Most transfer functions we work with are sRGBish.
 // For exotic HDR transfer functions, we encode them using a tf.g that makes no sense,
 // and repurpose the other fields to hold the parameters of the HDR functions.
-enum TFKind { Bad, sRGBish, PQish, HLGish, HLGinvish };
 struct TF_PQish  { float A,B,C,D,E,F; };
 struct TF_HLGish { float R,G,a,b,c,K_minus_1; };
 // We didn't originally support a scale factor K for HLG, and instead just stored 0 in
 // the unused `f` field of skcms_TransferFunction for HLGish and HLGInvish transfer functions.
 // By storing f=K-1, those old unusued f=0 values now mean K=1, a noop scale factor.
 
-static float TFKind_marker(TFKind kind) {
+static float TFKind_marker(skcms_TFType kind) {
     // We'd use different NaNs, but those aren't guaranteed to be preserved by WASM.
     return -(float)kind;
 }
 
-static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullptr
-                                                       , TF_HLGish* hlg = nullptr) {
+static skcms_TFType classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullptr
+                                                             , TF_HLGish* hlg = nullptr) {
     if (tf.g < 0 && static_cast<float>(static_cast<int>(tf.g)) == tf.g) {
         // TODO: soundness checks for PQ/HLG like we do for sRGBish?
         switch ((int)tf.g) {
-            case -PQish:     if (pq ) { memcpy(pq , &tf.a, sizeof(*pq )); } return PQish;
-            case -HLGish:    if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGish;
-            case -HLGinvish: if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGinvish;
+            case -skcms_TFType_PQish:
+                if (pq) {
+                    memcpy(pq , &tf.a, sizeof(*pq ));
+                }
+                return skcms_TFType_PQish;
+            case -skcms_TFType_HLGish:
+                if (hlg) {
+                    memcpy(hlg, &tf.a, sizeof(*hlg));
+                }
+                return skcms_TFType_HLGish;
+            case -skcms_TFType_HLGinvish:
+                if (hlg) {
+                    memcpy(hlg, &tf.a, sizeof(*hlg));
+                }
+                return skcms_TFType_HLGinvish;
         }
-        return Bad;
+        return skcms_TFType_Invalid;
     }
 
     // Basic soundness checks for sRGBish transfer functions.
@@ -163,26 +174,29 @@ static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullpt
             && tf.g >= 0
             // Raising a negative value to a fractional tf->g produces complex numbers.
             && tf.a * tf.d + tf.b >= 0) {
-        return sRGBish;
+        return skcms_TFType_sRGBish;
     }
 
-    return Bad;
+    return skcms_TFType_Invalid;
 }
 
+skcms_TFType skcms_TransferFunction_getType(const skcms_TransferFunction* tf) {
+    return classify(*tf);
+}
 bool skcms_TransferFunction_isSRGBish(const skcms_TransferFunction* tf) {
-    return classify(*tf) == sRGBish;
+    return classify(*tf) == skcms_TFType_sRGBish;
 }
 bool skcms_TransferFunction_isPQish(const skcms_TransferFunction* tf) {
-    return classify(*tf) == PQish;
+    return classify(*tf) == skcms_TFType_PQish;
 }
 bool skcms_TransferFunction_isHLGish(const skcms_TransferFunction* tf) {
-    return classify(*tf) == HLGish;
+    return classify(*tf) == skcms_TFType_HLGish;
 }
 
 bool skcms_TransferFunction_makePQish(skcms_TransferFunction* tf,
                                       float A, float B, float C,
                                       float D, float E, float F) {
-    *tf = { TFKind_marker(PQish), A,B,C,D,E,F };
+    *tf = { TFKind_marker(skcms_TFType_PQish), A,B,C,D,E,F };
     assert(skcms_TransferFunction_isPQish(tf));
     return true;
 }
@@ -190,7 +204,7 @@ bool skcms_TransferFunction_makePQish(skcms_TransferFunction* tf,
 bool skcms_TransferFunction_makeScaledHLGish(skcms_TransferFunction* tf,
                                              float K, float R, float G,
                                              float a, float b, float c) {
-    *tf = { TFKind_marker(HLGish), R,G, a,b,c, K-1.0f };
+    *tf = { TFKind_marker(skcms_TFType_HLGish), R,G, a,b,c, K-1.0f };
     assert(skcms_TransferFunction_isHLGish(tf));
     return true;
 }
@@ -202,29 +216,29 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
     TF_PQish  pq;
     TF_HLGish hlg;
     switch (classify(*tf, &pq, &hlg)) {
-        case Bad:       break;
+        case skcms_TFType_Invalid: break;
 
-        case HLGish: {
+        case skcms_TFType_HLGish: {
             const float K = hlg.K_minus_1 + 1.0f;
             return K * sign * (x*hlg.R <= 1 ? powf_(x*hlg.R, hlg.G)
                                             : expf_((x-hlg.c)*hlg.a) + hlg.b);
         }
 
         // skcms_TransferFunction_invert() inverts R, G, and a for HLGinvish so this math is fast.
-        case HLGinvish: {
+        case skcms_TFType_HLGinvish: {
             const float K = hlg.K_minus_1 + 1.0f;
             x /= K;
             return sign * (x <= 1 ? hlg.R * powf_(x, hlg.G)
                                   : hlg.a * logf_(x - hlg.b) + hlg.c);
         }
 
+        case skcms_TFType_sRGBish:
+            return sign * (x < tf->d ?       tf->c * x + tf->f
+                                     : powf_(tf->a * x + tf->b, tf->g) + tf->e);
 
-        case sRGBish: return sign * (x < tf->d ?       tf->c * x + tf->f
-                                               : powf_(tf->a * x + tf->b, tf->g) + tf->e);
-
-        case PQish: return sign * powf_(fmaxf_(pq.A + pq.B * powf_(x, pq.C), 0)
-                                            / (pq.D + pq.E * powf_(x, pq.C)),
-                                        pq.F);
+        case skcms_TFType_PQish: return sign * powf_(fmaxf_(pq.A + pq.B * powf_(x, pq.C), 0)
+                                                         / (pq.D + pq.E * powf_(x, pq.C)),
+                                                     pq.F);
     }
     return 0;
 }
@@ -292,6 +306,8 @@ enum {
 
     skcms_Signature_CHAD = 0x63686164,
     skcms_Signature_WTPT = 0x77747074,
+
+    skcms_Signature_CICP = 0x63696370,
 
     // Type signatures
     skcms_Signature_curv = 0x63757276,
@@ -1169,6 +1185,29 @@ static bool read_b2a(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xyz) {
     return true;
 }
 
+typedef struct {
+    uint8_t type                     [4];
+    uint8_t reserved                 [4];
+    uint8_t color_primaries          [1];
+    uint8_t transfer_characteristics [1];
+    uint8_t matrix_coefficients      [1];
+    uint8_t video_full_range_flag    [1];
+} CICP_Layout;
+
+static bool read_cicp(const skcms_ICCTag* tag, skcms_CICP* cicp) {
+    if (tag->type != skcms_Signature_CICP || tag->size < SAFE_SIZEOF(CICP_Layout)) {
+        return false;
+    }
+
+    const CICP_Layout* cicpTag = (const CICP_Layout*)tag->buf;
+
+    cicp->color_primaries          = cicpTag->color_primaries[0];
+    cicp->transfer_characteristics = cicpTag->transfer_characteristics[0];
+    cicp->matrix_coefficients      = cicpTag->matrix_coefficients[0];
+    cicp->video_full_range_flag    = cicpTag->video_full_range_flag[0];
+    return true;
+}
+
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
     if (idx > profile->tag_count) { return; }
@@ -1338,6 +1377,15 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         }
     }
 
+    skcms_ICCTag cicp_tag;
+    if (skcms_GetTagBySignature(profile, skcms_Signature_CICP, &cicp_tag)) {
+        if (!read_cicp(&cicp_tag, &profile->CICP)) {
+            // Malformed CICP tag
+            return false;
+        }
+        profile->has_CICP = true;
+    }
+
     return usable_as_src(profile);
 }
 
@@ -1432,6 +1480,9 @@ const skcms_ICCProfile* skcms_sRGB_profile() {
                 {{0, {0,0, 0,0,0,0,0}}},
             },
         },
+
+        false, // has_CICP, followed by cicp itself which we don't care about.
+        { 0, 0, 0, 0 },
     };
     return &sRGB_profile;
 }
@@ -1525,6 +1576,9 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
                 {{0, {0,0, 0,0,0,0,0}}},
             },
         },
+
+        false, // has_CICP, followed by cicp itself which we don't care about.
+        { 0, 0, 0, 0 },
     };
 
     return &XYZD50_profile;
@@ -1810,28 +1864,28 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     TF_PQish  pq;
     TF_HLGish hlg;
     switch (classify(*src, &pq, &hlg)) {
-        case Bad: return false;
-        case sRGBish: break;  // handled below
+        case skcms_TFType_Invalid: return false;
+        case skcms_TFType_sRGBish: break;  // handled below
 
-        case PQish:
-            *dst = { TFKind_marker(PQish), -pq.A,  pq.D, 1.0f/pq.F
-                                         ,  pq.B, -pq.E, 1.0f/pq.C};
+        case skcms_TFType_PQish:
+            *dst = { TFKind_marker(skcms_TFType_PQish), -pq.A,  pq.D, 1.0f/pq.F
+                                                      ,  pq.B, -pq.E, 1.0f/pq.C};
             return true;
 
-        case HLGish:
-            *dst = { TFKind_marker(HLGinvish), 1.0f/hlg.R, 1.0f/hlg.G
-                                             , 1.0f/hlg.a, hlg.b, hlg.c
-                                             , hlg.K_minus_1 };
+        case skcms_TFType_HLGish:
+            *dst = { TFKind_marker(skcms_TFType_HLGinvish), 1.0f/hlg.R, 1.0f/hlg.G
+                                                          , 1.0f/hlg.a, hlg.b, hlg.c
+                                                          , hlg.K_minus_1 };
             return true;
 
-        case HLGinvish:
-            *dst = { TFKind_marker(HLGish), 1.0f/hlg.R, 1.0f/hlg.G
-                                          , 1.0f/hlg.a, hlg.b, hlg.c
-                                          , hlg.K_minus_1 };
+        case skcms_TFType_HLGinvish:
+            *dst = { TFKind_marker(skcms_TFType_HLGish), 1.0f/hlg.R, 1.0f/hlg.G
+                                                       , 1.0f/hlg.a, hlg.b, hlg.c
+                                                       , hlg.K_minus_1 };
             return true;
     }
 
-    assert (classify(*src) == sRGBish);
+    assert (classify(*src) == skcms_TFType_sRGBish);
 
     // We're inverting this function, solving for x in terms of y.
     //   y = (cx + f)         x < d
@@ -1892,7 +1946,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 
     // That should usually make classify(inv) == sRGBish true, but there are a couple situations
     // where we might still fail here, like non-finite parameter values.
-    if (classify(inv) != sRGBish) {
+    if (classify(inv) != skcms_TFType_sRGBish) {
         return false;
     }
 
@@ -1916,7 +1970,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     }
 
     *dst = inv;
-    return classify(*dst) == sRGBish;
+    return classify(*dst) == skcms_TFType_sRGBish;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -2070,7 +2124,7 @@ static bool gauss_newton_step(const skcms_Curve* curve,
 static float max_roundtrip_error_checked(const skcms_Curve* curve,
                                          const skcms_TransferFunction* tf_inv) {
     skcms_TransferFunction tf;
-    if (!skcms_TransferFunction_invert(tf_inv, &tf) || sRGBish != classify(tf)) {
+    if (!skcms_TransferFunction_invert(tf_inv, &tf) || skcms_TFType_sRGBish != classify(tf)) {
         return INFINITY_;
     }
 
@@ -2217,7 +2271,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         // Other non-Bad TFs would be fine, but we know we've only ever tried to fit sRGBish;
         // anything else is just some accident of math and the way we pun tf.g as a type flag.
         // fit_nonlinear() should guarantee this, but the special cases may fail this test.
-        if (sRGBish != classify(tf)) {
+        if (skcms_TFType_sRGBish != classify(tf)) {
             continue;
         }
 
@@ -2254,6 +2308,7 @@ typedef enum {
     Op_load_888,
     Op_load_8888,
     Op_load_1010102,
+    Op_load_101010x_XR,
     Op_load_161616LE,
     Op_load_16161616LE,
     Op_load_161616BE,
@@ -2314,6 +2369,7 @@ typedef enum {
     Op_store_16161616LE,
     Op_store_161616BE,
     Op_store_16161616BE,
+    Op_store_101010x_XR,
     Op_store_hhh,
     Op_store_hhhh,
     Op_store_fff,
@@ -2510,11 +2566,11 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
         }
 
         switch (classify(tf)) {
-            case Bad:        return noop;
-            case sRGBish:    return OpAndArg{op.sRGBish,   &tf};
-            case PQish:      return OpAndArg{op.PQish,     &tf};
-            case HLGish:     return OpAndArg{op.HLGish,    &tf};
-            case HLGinvish:  return OpAndArg{op.HLGinvish, &tf};
+            case skcms_TFType_Invalid:    return noop;
+            case skcms_TFType_sRGBish:    return OpAndArg{op.sRGBish,   &tf};
+            case skcms_TFType_PQish:      return OpAndArg{op.PQish,     &tf};
+            case skcms_TFType_HLGish:     return OpAndArg{op.HLGish,    &tf};
+            case skcms_TFType_HLGinvish:  return OpAndArg{op.HLGinvish, &tf};
         }
     }
     return OpAndArg{op.table, curve};
@@ -2531,6 +2587,7 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
         case skcms_PixelFormat_RGBA_8888          >> 1: return  4;
         case skcms_PixelFormat_RGBA_8888_sRGB     >> 1: return  4;
         case skcms_PixelFormat_RGBA_1010102       >> 1: return  4;
+        case skcms_PixelFormat_RGB_101010x_XR     >> 1: return  4;
         case skcms_PixelFormat_RGB_161616LE       >> 1: return  6;
         case skcms_PixelFormat_RGBA_16161616LE    >> 1: return  8;
         case skcms_PixelFormat_RGB_161616BE       >> 1: return  6;
@@ -2638,6 +2695,7 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGB_888         >> 1: *ops++ = Op_load_888;        break;
         case skcms_PixelFormat_RGBA_8888       >> 1: *ops++ = Op_load_8888;       break;
         case skcms_PixelFormat_RGBA_1010102    >> 1: *ops++ = Op_load_1010102;    break;
+        case skcms_PixelFormat_RGB_101010x_XR  >> 1: *ops++ = Op_load_101010x_XR; break;
         case skcms_PixelFormat_RGB_161616LE    >> 1: *ops++ = Op_load_161616LE;   break;
         case skcms_PixelFormat_RGBA_16161616LE >> 1: *ops++ = Op_load_16161616LE; break;
         case skcms_PixelFormat_RGB_161616BE    >> 1: *ops++ = Op_load_161616BE;   break;
@@ -2892,6 +2950,7 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGBA_16161616BE >> 1: *ops++ = Op_store_16161616BE; break;
         case skcms_PixelFormat_RGB_hhh_Norm    >> 1: *ops++ = Op_store_hhh;        break;
         case skcms_PixelFormat_RGBA_hhhh_Norm  >> 1: *ops++ = Op_store_hhhh;       break;
+        case skcms_PixelFormat_RGB_101010x_XR  >> 1: *ops++ = Op_store_101010x_XR; break;
         case skcms_PixelFormat_RGB_hhh         >> 1: *ops++ = Op_store_hhh;        break;
         case skcms_PixelFormat_RGBA_hhhh       >> 1: *ops++ = Op_store_hhhh;       break;
         case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_store_fff;        break;

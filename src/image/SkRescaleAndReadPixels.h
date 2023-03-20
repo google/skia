@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBitmap.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkSamplingOptions.h"
 
-struct SkImageInfo;
+class SkBitmap;
 struct SkIRect;
+struct SkImageInfo;
 
 /** Generic/synchronous implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixels. */
 void SkRescaleAndReadPixels(SkBitmap src,

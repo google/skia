@@ -2,8 +2,8 @@
 #ifndef Decorations_DEFINED
 #define Decorations_DEFINED
 
-#include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "modules/skparagraph/include/ParagraphPainter.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/TextLine.h"
 
@@ -12,7 +12,7 @@ namespace textlayout {
 
 class Decorations {
     public:
-    void paint(SkCanvas* canvas, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline);
+    void paint(ParagraphPainter* painter, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline);
 
     private:
 
@@ -26,7 +26,7 @@ class Decorations {
     SkScalar fPosition;
 
     SkFontMetrics fFontMetrics;
-    SkPaint fPaint;
+    ParagraphPainter::DecorationStyle fDecorStyle;
     SkPath fPath;
 };
 }  // namespace textlayout

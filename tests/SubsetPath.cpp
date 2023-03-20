@@ -5,7 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkMathPriv.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/SubsetPath.h"
 
@@ -19,7 +23,7 @@ int SubsetPath::range(int* end) const {
     int parts = 1 << (31 - leadingZero);
     int partIndex = fSubset - parts;
     SkASSERT(partIndex >= 0);
-    int count = fSelected.count();
+    int count = fSelected.size();
     int start = count * partIndex / parts;
     *end = count * (partIndex + 1) / parts;
     return start;
@@ -39,7 +43,7 @@ bool SubsetPath::subset(bool testFailed, SkPath* sub) {
             start = range(&end);
  //           SkDebugf("%d s=%d e=%d t=%d\n", fSubset, start, end, fTries);
             if (end - start > 1) {
-                fTries = fSelected.count();
+                fTries = fSelected.size();
             } else if (end - start == 1) {
                 if (--fTries <= 0) {
                     return false;
@@ -52,7 +56,7 @@ bool SubsetPath::subset(bool testFailed, SkPath* sub) {
     }
 #if 1
     SkDebugf("selected: ");
-    for (int index = 0; index < fSelected.count(); ++index) {
+    for (int index = 0; index < fSelected.size(); ++index) {
         SkDebugf("%c", fSelected[index] ? 'x' : '-');
     }
 #endif
@@ -93,7 +97,7 @@ SubsetContours::SubsetContours(const SkPath& path)
 SkPath SubsetContours::getSubsetPath() const {
     SkPath result;
     result.setFillType(fPath.getFillType());
-    if (!fSelected.count()) {
+    if (!fSelected.size()) {
         return result;
     }
     int contourCount = 0;
@@ -131,7 +135,7 @@ SkPath SubsetContours::getSubsetPath() const {
                 if (enabled) {
                     result.close();
                 }
-                if (++contourCount >= fSelected.count()) {
+                if (++contourCount >= fSelected.size()) {
                     break;
                 }
                 enabled = fSelected[contourCount];
@@ -174,7 +178,7 @@ SubsetVerbs::SubsetVerbs(const SkPath& path)
 SkPath SubsetVerbs::getSubsetPath() const {
     SkPath result;
     result.setFillType(fPath.getFillType());
-    if (!fSelected.count()) {
+    if (!fSelected.size()) {
         return result;
     }
     int verbIndex = 0;

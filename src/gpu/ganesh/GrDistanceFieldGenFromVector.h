@@ -8,6 +8,8 @@
 #ifndef GrDistanceFieldGenFromVector_DEFINED
 #define GrDistanceFieldGenFromVector_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "include/core/SkPath.h"
 
 class SkMatrix;
@@ -32,4 +34,6 @@ inline bool IsDistanceFieldSupportedFillType(SkPathFillType fFillType)
             SkPathFillType::kInverseEvenOdd == fFillType);
 }
 
-#endif
+#endif // SK_ENABLE_OPTIMIZE_SIZE
+
+#endif // GrDistanceFieldGenFromVector_DEFINED

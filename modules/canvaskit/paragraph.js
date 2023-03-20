@@ -4,7 +4,6 @@
 
     CanvasKit.Paragraph.prototype.getRectsForRange = function(start, end, hStyle, wStyle) {
     /**
-     * This is bytes, but we'll want to think about them as float32s
      * @type {Float32Array}
      */
       var floatArray = this._getRectsForRange(start, end, hStyle, wStyle);
@@ -13,7 +12,6 @@
 
     CanvasKit.Paragraph.prototype.getRectsForPlaceholders = function() {
         /**
-        * This is bytes, but we'll want to think about them as float32s
         * @type {Float32Array}
         */
         var floatArray = this._getRectsForPlaceholders();
@@ -26,13 +24,12 @@
         }
         var ret = [];
         for (var i = 0; i < floatArray.length; i+=5) {
-            var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
+            var rect = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
+            var dir = CanvasKit.TextDirection.LTR;
             if (floatArray[i+4] === 0) {
-                r['direction'] = CanvasKit.TextDirection.RTL;
-            } else {
-                r['direction'] = CanvasKit.TextDirection.LTR;
+                dir = CanvasKit.TextDirection.RTL;
             }
-            ret.push(r);
+            ret.push({'rect': rect, 'dir': dir});
         }
         CanvasKit._free(floatArray.byteOffset);
         return ret;
@@ -67,7 +64,9 @@
         s['_ellipsisLen'] = 0;
       }
 
-      s['heightMultiplier'] = s['heightMultiplier'] || 0;
+      if (s['heightMultiplier'] == null) {
+        s['heightMultiplier'] = -1
+      }
       s['maxLines'] = s['maxLines'] || 0;
       s['replaceTabCharacters'] = s['replaceTabCharacters'] || false;
       s['strutStyle'] = strutStyle(s['strutStyle']);
@@ -101,8 +100,12 @@
             s['_fontFamiliesLen'] = 0;
         }
         s['fontStyle'] = fontStyle(s['fontStyle']);
-        s['fontSize'] = s['fontSize'] || 0;
-        s['heightMultiplier'] = s['heightMultiplier'] || 0;
+        if (s['fontSize'] == null) {
+          s['fontSize'] = -1
+        }
+        if (s['heightMultiplier'] == null) {
+          s['heightMultiplier'] = -1
+        }
         s['halfLeading'] = s['halfLeading'] || false;
         s['leading'] = s['leading'] || 0;
         s['forceStrutHeight'] = s['forceStrutHeight'] || false;
@@ -119,10 +122,14 @@
       s['decorationThickness'] = s['decorationThickness'] || 0;
       s['decorationStyle'] = s['decorationStyle'] || CanvasKit.DecorationStyle.Solid;
       s['textBaseline'] = s['textBaseline'] || CanvasKit.TextBaseline.Alphabetic;
-      s['fontSize'] = s['fontSize'] || 0;
+      if (s['fontSize'] == null) {
+        s['fontSize'] = -1
+      }
       s['letterSpacing'] = s['letterSpacing'] || 0;
       s['wordSpacing'] = s['wordSpacing'] || 0;
-      s['heightMultiplier'] = s['heightMultiplier'] || 0;
+      if (s['heightMultiplier'] == null) {
+        s['heightMultiplier'] = -1
+      }
       s['halfLeading'] = s['halfLeading'] || false;
       s['fontStyle'] = fontStyle(s['fontStyle']);
 
@@ -271,6 +278,8 @@
       CanvasKit._free(textStyle['_shadowBlurRadiiPtr']);
       CanvasKit._free(textStyle['_fontFeatureNamesPtr']);
       CanvasKit._free(textStyle['_fontFeatureValuesPtr']);
+      CanvasKit._free(textStyle['_fontVariationAxesPtr']);
+      CanvasKit._free(textStyle['_fontVariationValuesPtr']);
     }
 
     CanvasKit.ParagraphBuilder.Make = function(paragraphStyle, fontManager) {
@@ -322,26 +331,37 @@
       this._addPlaceholder(width, height, alignment, baseline, offset);
     };
 
-    CanvasKit.ParagraphBuilder.prototype.buildWithClientInfo =
-          function(bidiRegions, words, graphemeBreaks, softLineBreaks, hardLineBreaks) {
+    CanvasKit.ParagraphBuilder.prototype.setWordsUtf8 = function(words) {
+      var bPtr = copy1dArray(words, 'HEAPU32');
+      this._setWordsUtf8(bPtr, words && words.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr,     words);
+    };
+    CanvasKit.ParagraphBuilder.prototype.setWordsUtf16 = function(words) {
+      var bPtr = copy1dArray(words, 'HEAPU32');
+      this._setWordsUtf16(bPtr, words && words.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr, words);
+    };
 
-      var bPtr = copy1dArray(bidiRegions, 'HEAPU32');
-      var wPtr = copy1dArray(words, 'HEAPU32');
-      var gPtr = copy1dArray(graphemeBreaks, 'HEAPU32');
-      var sPtr = copy1dArray(softLineBreaks, 'HEAPU32');
-      var hPtr = copy1dArray(hardLineBreaks, 'HEAPU32');
-      var para = this._buildWithClientInfo(
-                          bPtr, bidiRegions && bidiRegions.length || 0,
-                          wPtr, words && words.length || 0,
-                          gPtr, graphemeBreaks && graphemeBreaks.length || 0,
-                          sPtr, softLineBreaks && softLineBreaks.length || 0,
-                          hPtr, hardLineBreaks && hardLineBreaks.length || 0);
-      freeArraysThatAreNotMallocedByUsers(bPtr,     bidiRegions);
-      freeArraysThatAreNotMallocedByUsers(wPtr,     words);
-      freeArraysThatAreNotMallocedByUsers(gPtr,     graphemeBreaks);
-      freeArraysThatAreNotMallocedByUsers(sPtr,     softLineBreaks);
-      freeArraysThatAreNotMallocedByUsers(hPtr,     hardLineBreaks);
-      return para;
+    CanvasKit.ParagraphBuilder.prototype.setGraphemeBreaksUtf8 = function(graphemeBreaks) {
+      var bPtr = copy1dArray(graphemeBreaks, 'HEAPU32');
+      this._setGraphemeBreaksUtf8(bPtr, graphemeBreaks && graphemeBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr,     graphemeBreaks);
+    };
+    CanvasKit.ParagraphBuilder.prototype.setGraphemeBreaksUtf16 = function(graphemeBreaks) {
+      var bPtr = copy1dArray(graphemeBreaks, 'HEAPU32');
+      this._setGraphemeBreaksUtf16(bPtr, graphemeBreaks && graphemeBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr, graphemeBreaks);
+    };
+
+    CanvasKit.ParagraphBuilder.prototype.setLineBreaksUtf8 = function(lineBreaks) {
+      var bPtr = copy1dArray(lineBreaks, 'HEAPU32');
+      this._setLineBreaksUtf8(bPtr, lineBreaks && lineBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr,     lineBreaks);
+    };
+    CanvasKit.ParagraphBuilder.prototype.setLineBreaksUtf16 = function(lineBreaks) {
+      var bPtr = copy1dArray(lineBreaks, 'HEAPU32');
+      this._setLineBreaksUtf16(bPtr, lineBreaks && lineBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr, lineBreaks);
     };
 });
 }(Module)); // When this file is loaded in, the high level object is "Module";

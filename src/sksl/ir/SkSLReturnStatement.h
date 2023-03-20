@@ -18,10 +18,10 @@ namespace SkSL {
  */
 class ReturnStatement final : public Statement {
 public:
-    inline static constexpr Kind kStatementKind = Kind::kReturn;
+    inline static constexpr Kind kIRNodeKind = Kind::kReturn;
 
     ReturnStatement(Position pos, std::unique_ptr<Expression> expression)
-        : INHERITED(pos, kStatementKind)
+        : INHERITED(pos, kIRNodeKind)
         , fExpression(std::move(expression)) {}
 
     static std::unique_ptr<Statement> Make(Position pos,

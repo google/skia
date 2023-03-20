@@ -7,8 +7,8 @@
 
 #include "src/core/SkStrokerPriv.h"
 
-#include "include/private/SkMacros.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
@@ -1470,7 +1470,6 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
             case SkPath::kConic_Verb: {
                 stroker.conicTo(pts[1], pts[2], iter.conicWeight());
                 lastSegment = SkPath::kConic_Verb;
-                break;
             } break;
             case SkPath::kCubic_Verb:
                 stroker.cubicTo(pts[1], pts[2], pts[3]);

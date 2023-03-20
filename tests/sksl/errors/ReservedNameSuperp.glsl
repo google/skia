@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'superp' is a reserved word
+error: 1: name 'superp' is reserved
 int superp;
     ^^^^^^
 1 error

@@ -18,6 +18,8 @@
 #include "src/core/SkRecordedDrawable.h"
 #include "src/core/SkRecorder.h"
 
+using namespace skia_private;
+
 SkPictureRecorder::SkPictureRecorder() {
     fActivelyRecording = false;
     fRecorder = std::make_unique<SkRecorder>(nullptr, SkRect::MakeEmpty());
@@ -74,8 +76,8 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture() {
     };
 
     if (fBBH) {
-        SkAutoTMalloc<SkRect> bounds(fRecord->count());
-        SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
+        AutoTMalloc<SkRect> bounds(fRecord->count());
+        AutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
         SkRecordFillBounds(fCullRect, *fRecord, bounds, meta);
 
         fBBH->insert(bounds, meta, fRecord->count());
@@ -129,8 +131,8 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable() {
     SkRecordOptimize(fRecord.get());
 
     if (fBBH) {
-        SkAutoTMalloc<SkRect> bounds(fRecord->count());
-        SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
+        AutoTMalloc<SkRect> bounds(fRecord->count());
+        AutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
         SkRecordFillBounds(fCullRect, *fRecord, bounds, meta);
         fBBH->insert(bounds, meta, fRecord->count());
     }

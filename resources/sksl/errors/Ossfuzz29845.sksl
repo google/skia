@@ -4,5 +4,5 @@ struct Test {
 
 /*%%*
 no type named 'l'
-expected a type, but found '('
+expected an identifier, but found '('
 *%%*/

@@ -9,17 +9,19 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/ProcStats.h"
 
+using namespace skia_private;
+
 namespace DM {
 
-SkTArray<JsonWriter::BitmapResult> gBitmapResults;
+TArray<JsonWriter::BitmapResult> gBitmapResults;
 static SkMutex& bitmap_result_mutex() {
     static SkMutex& mutex = *(new SkMutex);
     return mutex;
@@ -45,12 +47,12 @@ void JsonWriter::DumpJson(const char* dir,
 
     writer.beginObject(); // root
 
-    for (int i = 1; i < properties.count(); i += 2) {
+    for (int i = 1; i < properties.size(); i += 2) {
         writer.appendCString(properties[i-1], properties[i]);
     }
 
     writer.beginObject("key");
-    for (int i = 1; i < key.count(); i += 2) {
+    for (int i = 1; i < key.size(); i += 2) {
         writer.appendCString(key[i-1], key[i]);
     }
     writer.endObject();
@@ -63,7 +65,7 @@ void JsonWriter::DumpJson(const char* dir,
     {
         SkAutoMutexExclusive lock(bitmap_result_mutex());
         writer.beginArray("results");
-        for (int i = 0; i < gBitmapResults.count(); i++) {
+        for (int i = 0; i < gBitmapResults.size(); i++) {
             writer.beginObject();
 
             writer.beginObject("key");

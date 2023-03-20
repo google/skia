@@ -7,14 +7,16 @@
 
 #include "src/gpu/ganesh/GrMemoryPool.h"
 
-#include "include/private/SkTPin.h"
-#include "src/core/SkASAN.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTPin.h"
+
+#include <cstring>
+#include <new>
 
 #ifdef SK_DEBUG
     #include <atomic>
 #endif
-
-#include <tuple>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

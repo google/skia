@@ -169,11 +169,11 @@ int SkPDFTagTree::createMarkIdForNodeId(int nodeId, unsigned pageIndex) {
     }
     SkPDFTagNode* tag = *tagPtr;
     SkASSERT(tag);
-    while (fMarksPerPage.size() < pageIndex + 1) {
+    while (SkToUInt(fMarksPerPage.size()) < pageIndex + 1) {
         fMarksPerPage.push_back();
     }
     SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[pageIndex];
-    int markId = pageMarks.count();
+    int markId = pageMarks.size();
     tag->fMarkedContent.push_back({pageIndex, markId});
     pageMarks.push_back(tag);
     return markId;
@@ -308,8 +308,8 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
     auto parentTreeNums = SkPDFMakeArray();
 
     // First, one entry per page.
-    SkASSERT(fMarksPerPage.size() <= pageCount);
-    for (size_t j = 0; j < fMarksPerPage.size(); ++j) {
+    SkASSERT(SkToUInt(fMarksPerPage.size()) <= pageCount);
+    for (int j = 0; j < fMarksPerPage.size(); ++j) {
         const SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[j];
         SkPDFArray markToTagArray;
         for (SkPDFTagNode* mark : pageMarks) {

@@ -4,7 +4,7 @@ uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 unpremul_h4h4(vec4 color);
 vec4 unpremul_h4h4(vec4 color) {
-    return vec4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
+    return vec4(color.xyz / max(color.w, 0.0001), color.w);
 }
 vec4 live_fn_h4h4h4(vec4 a, vec4 b) {
     return a + b;

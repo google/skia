@@ -7,14 +7,19 @@
 
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 
-#include "src/core/SkMathPriv.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTo.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
-#include "src/gpu/ganesh/GrTextureRenderTargetProxy.h"
+
+#include <utility>
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"
@@ -29,7 +34,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
                                          SkISize dimensions,
                                          int sampleCount,
                                          SkBackingFit fit,
-                                         SkBudgeted budgeted,
+                                         skgpu::Budgeted budgeted,
                                          GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags,
                                          UseAllocator useAllocator,
@@ -45,14 +50,21 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          SkISize dimensions,
                                          int sampleCount,
                                          SkBackingFit fit,
-                                         SkBudgeted budgeted,
+                                         skgpu::Budgeted budgeted,
                                          GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags,
                                          UseAllocator useAllocator,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB,
                                          std::string_view label)
-        : INHERITED(std::move(callback), format, dimensions, fit, budgeted, isProtected,
-                    surfaceFlags, useAllocator, label)
+        : INHERITED(std::move(callback),
+                    format,
+                    dimensions,
+                    fit,
+                    budgeted,
+                    isProtected,
+                    surfaceFlags,
+                    useAllocator,
+                    label)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {}
 
@@ -82,8 +94,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes, GrMipmapped::kNo,
-                               nullptr)) {
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, GrRenderable::kYes,
+                               skgpu::Mipmapped::kNo, nullptr)) {
         return false;
     }
 
@@ -121,7 +133,7 @@ bool GrRenderTargetProxy::canUseStencil(const GrCaps& caps) const {
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
-                                                       GrRenderable::kYes, GrMipmapped::kNo);
+                                                       GrRenderable::kYes, skgpu::Mipmapped::kNo);
     if (!surface) {
         return nullptr;
     }
@@ -139,7 +151,8 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                  colorSamplesPerPixel, GrMipmapped::kNo, !this->priv().isExact());
+                                  colorSamplesPerPixel, skgpu::Mipmapped::kNo,
+                                  !this->priv().isExact());
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {
@@ -159,7 +172,7 @@ GrSurfaceProxy::LazySurfaceDesc GrRenderTargetProxy::callbackDesc() const {
             this->dimensions(),
             SkBackingFit::kExact,
             GrRenderable::kYes,
-            GrMipmapped::kNo,
+            skgpu::Mipmapped::kNo,
             this->numSamples(),
             this->backendFormat(),
             GrTextureType::kNone,

@@ -1,5 +1,5 @@
 uniform foo { out int x; };
 
 /*%%*
-'out' is not permitted here
+modifier 'out' is not permitted on a struct field
 *%%*/

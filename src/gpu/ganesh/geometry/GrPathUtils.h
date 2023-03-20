@@ -9,7 +9,7 @@
 #define GrPathUtils_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/BufferWriter.h"

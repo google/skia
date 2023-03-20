@@ -10,7 +10,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <dlfcn.h>
 #include <memory>
@@ -18,7 +18,7 @@
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     static const char kPath[] =
         "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib";
-    std::unique_ptr<void, SkFunctionWrapper<int(void*), dlclose>> lib(dlopen(kPath, RTLD_LAZY));
+    std::unique_ptr<void, SkFunctionObject<dlclose>> lib(dlopen(kPath, RTLD_LAZY));
     return GrGLMakeAssembledGLESInterface(lib.get(), [](void* ctx, const char* name) {
             return (GrGLFuncPtr)dlsym(ctx ? ctx : RTLD_DEFAULT, name); });
 }

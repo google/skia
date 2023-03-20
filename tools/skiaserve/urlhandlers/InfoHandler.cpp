@@ -8,9 +8,11 @@
 #include "tools/skiaserve/urlhandlers/UrlHandler.h"
 
 #include "microhttpd.h"
+#include "src/core/SkStringUtils.h"
 #include "tools/skiaserve/Request.h"
 #include "tools/skiaserve/Response.h"
 
+using namespace skia_private;
 using namespace Response;
 
 bool InfoHandler::canHandle(const char* method, const char* url) {
@@ -22,16 +24,16 @@ bool InfoHandler::canHandle(const char* method, const char* url) {
 int InfoHandler::handle(Request* request, MHD_Connection* connection,
                         const char* url, const char* method,
                         const char* upload_data, size_t* upload_data_size) {
-    SkTArray<SkString> commands;
+    TArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (!request->hasPicture() || commands.count() > 2) {
+    if (!request->hasPicture() || commands.size() > 2) {
         return MHD_NO;
     }
 
     int n;
     // /info or /info/N
-    if (commands.count() == 1) {
+    if (commands.size() == 1) {
         n = request->getLastOp();
     } else {
         sscanf(commands[1].c_str(), "%d", &n);

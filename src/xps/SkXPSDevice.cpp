@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "src/core/SkLeanWindows.h"
+#include "src/base/SkLeanWindows.h"
 
 #ifndef UNICODE
 #define UNICODE
@@ -24,18 +24,22 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkVertices.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkTDArray.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkTLazy.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkGeometry.h"
@@ -43,8 +47,6 @@
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkTLazy.h"
-#include "src/core/SkUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/sfnt/SkTTCFHeader.h"
@@ -55,6 +57,8 @@
 #include "src/utils/win/SkIStream.h"
 #include "src/utils/win/SkTScopedComPtr.h"
 #include "src/xps/SkXPSDevice.h"
+
+using namespace skia_private;
 
 //Windows defines a FLOAT type,
 //make it clear when converting a scalar that this is what is wanted.
@@ -354,7 +358,7 @@ static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
         sk_realloc_throw,
         sk_free,
         nullptr);
-    SkAutoTMalloc<unsigned char> fontPackageBuffer(fontPackageBufferRaw);
+    AutoTMalloc<unsigned char> fontPackageBuffer(fontPackageBufferRaw);
     if (result != NO_ERROR) {
         SkDEBUGF("CreateFontPackage Error %lu", result);
         return E_UNEXPECTED;
@@ -824,7 +828,7 @@ HRESULT SkXPSDevice::createXpsGradientStop(const SkColor skColor,
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
+HRESULT SkXPSDevice::createXpsLinearGradient(SkShaderBase::GradientInfo info,
                                              const SkAlpha alpha,
                                              const SkMatrix& localMatrix,
                                              IXpsOMMatrixTransform* xpsMatrix,
@@ -886,7 +890,7 @@ HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsRadialGradient(SkShader::GradientInfo info,
+HRESULT SkXPSDevice::createXpsRadialGradient(SkShaderBase::GradientInfo info,
                                              const SkAlpha alpha,
                                              const SkMatrix& localMatrix,
                                              IXpsOMMatrixTransform* xpsMatrix,
@@ -973,20 +977,17 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     }
 
     //Gradient shaders.
-    SkShader::GradientInfo info;
-    info.fColorCount = 0;
-    info.fColors = nullptr;
-    info.fColorOffsets = nullptr;
-    SkShader::GradientType gradientType = shader->asAGradient(&info);
+    SkShaderBase::GradientInfo info;
+    SkShaderBase::GradientType gradientType = as_SB(shader)->asGradient(&info);
 
-    if (SkShader::kNone_GradientType == gradientType) {
+    if (gradientType == SkShaderBase::GradientType::kNone) {
         //Nothing to see, move along.
 
-    } else if (SkShader::kColor_GradientType == gradientType) {
+    } else if (gradientType == SkShaderBase::GradientType::kColor) {
         SkASSERT(1 == info.fColorCount);
         SkColor color;
         info.fColors = &color;
-        shader->asAGradient(&info);
+        as_SB(shader)->asGradient(&info);
         SkAlpha alpha = skPaint.getAlpha();
         HR(this->createXpsSolidColorBrush(color, alpha, brush));
         return S_OK;
@@ -998,11 +999,12 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        SkAutoTArray<SkColor> colors(info.fColorCount);
-        SkAutoTArray<SkScalar> colorOffsets(info.fColorCount);
+        SkMatrix localMatrix;
+        AutoTArray<SkColor> colors(info.fColorCount);
+        AutoTArray<SkScalar> colorOffsets(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
-        shader->asAGradient(&info);
+        as_SB(shader)->asGradient(&info, &localMatrix);
 
         if (1 == info.fColorCount) {
             SkColor color = info.fColors[0];
@@ -1011,14 +1013,13 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
         if (parentTransform) {
             localMatrix.preConcat(*parentTransform);
         }
         SkTScopedComPtr<IXpsOMMatrixTransform> xpsMatrixToUse;
         HR(this->createXpsTransform(localMatrix, &xpsMatrixToUse));
 
-        if (SkShader::kLinear_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kLinear) {
             HR(this->createXpsLinearGradient(info,
                                              skPaint.getAlpha(),
                                              localMatrix,
@@ -1027,7 +1028,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kRadial_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kRadial) {
             HR(this->createXpsRadialGradient(info,
                                              skPaint.getAlpha(),
                                              localMatrix,
@@ -1036,11 +1037,11 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kConical_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kConical) {
             //simple if affine and one is 0, otherwise will have to fake
         }
 
-        if (SkShader::kSweep_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kSweep) {
             //have to fake
         }
     }
@@ -1049,19 +1050,13 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkMatrix outMatrix;
     SkTileMode xy[2];
     SkImage* image = shader->isAImage(&outMatrix, xy);
-    if (image && image->asLegacyBitmap(&outTexture)) {
-        //TODO: outMatrix??
-        SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
+    if (image->asLegacyBitmap(&outTexture)) {
         if (parentTransform) {
-            localMatrix.postConcat(*parentTransform);
+            outMatrix.postConcat(*parentTransform);
         }
 
         SkTScopedComPtr<IXpsOMTileBrush> tileBrush;
-        HR(this->createXpsImageBrush(outTexture,
-                                     localMatrix,
-                                     xy,
-                                     skPaint.getAlpha(),
-                                     &tileBrush));
+        HR(this->createXpsImageBrush(outTexture, outMatrix, xy, skPaint.getAlpha(), &tileBrush));
 
         HRM(tileBrush->QueryInterface<IXpsOMBrush>(brush), "QI failed.");
     } else {
@@ -1277,7 +1272,7 @@ static HRESULT close_figure(const SkTDArray<XPS_SEGMENT_TYPE>& segmentTypes,
     // even if the counts are all 0.
     if (!segmentTypes.empty() && !segmentData.empty() && !segmentStrokes.empty()) {
         // Add the segment data to the figure.
-        HRM(figure->SetSegments(segmentTypes.count(), segmentData.count(),
+        HRM(figure->SetSegments(segmentTypes.size(), segmentData.size(),
                                 segmentTypes.begin(), segmentData.begin(), segmentStrokes.begin()),
             "Could not set path segments.");
     }
@@ -1309,9 +1304,9 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
                     HR(close_figure(segmentTypes, segmentData, segmentStrokes,
                                     stroke, fill,
                                     xpsFigure.get() , xpsFigures));
-                    segmentTypes.rewind();
-                    segmentData.rewind();
-                    segmentStrokes.rewind();
+                    segmentTypes.clear();
+                    segmentData.clear();
+                    segmentStrokes.clear();
                     xpsFigure.reset();
                 }
                 // Define the start point.
@@ -1522,7 +1517,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
             fillablePath = &modifiedPath;
             pathIsMutable = true;
         }
-        bool fill = paint->getFillPath(*skeletalPath, fillablePath);
+        bool fill = skpathutils::FillPathWithPaint(*skeletalPath, *paint, fillablePath);
 
         SkPaint* writablePaint = paint.writable();
         writablePaint->setPathEffect(nullptr);
@@ -1928,7 +1923,7 @@ void SkXPSDevice::onDrawGlyphRunList(SkCanvas*,
         // Advance width and offsets for glyphs measured in hundredths of the font em size
         // (XPS Spec 5.1.3).
         FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(font.getSize());
-        SkAutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
+        AutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
         size_t numGlyphs = typeface->glyphsUsed.size();
         size_t actualGlyphCount = 0;
 

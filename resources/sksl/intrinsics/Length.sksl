@@ -1,16 +1,18 @@
-uniform half4 inputVal;
+uniform float4 testMatrix2x2; // = {1, 2, 3, 4}
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    const half4 constVal = half4(3, 0, 4, 12);
-    half4 expected = half4(3, 3, 5, 13);
+    float4       inputVal = float4(testMatrix2x2) + float4(2, -2, 1, 8); // = {3, 0, 4, 12}
+    const float4 constVal = half4(3, 0, 4, 12);
+    float4       expected = half4(3, 3, 5, 13);
+    const float  allowedDelta = 0.05;
 
-    return (length(inputVal.x)    == expected.x &&
-            length(inputVal.xy)   == expected.y &&
-            length(inputVal.xyz)  == expected.z &&
-            length(inputVal.xyzw) == expected.w &&
-            length(constVal.x)    == expected.x &&
-            length(constVal.xy)   == expected.y &&
-            length(constVal.xyz)  == expected.z &&
-            length(constVal.xyzw) == expected.w) ? colorGreen : colorRed;
+    return abs(length(inputVal.x)    - expected.x) < allowedDelta &&
+           abs(length(inputVal.xy)   - expected.y) < allowedDelta &&
+           abs(length(inputVal.xyz)  - expected.z) < allowedDelta &&
+           abs(length(inputVal.xyzw) - expected.w) < allowedDelta &&
+           abs(length(constVal.x)    - expected.x) < allowedDelta &&
+           abs(length(constVal.xy)   - expected.y) < allowedDelta &&
+           abs(length(constVal.xyz)  - expected.z) < allowedDelta &&
+           abs(length(constVal.xyzw) - expected.w) < allowedDelta ? colorGreen : colorRed;
 }

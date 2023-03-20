@@ -7,9 +7,9 @@
 
 #include "src/core/SkEdge.h"
 
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkFDot6.h"
-#include "src/core/SkMathPriv.h"
 
 #include <utility>
 

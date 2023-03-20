@@ -15,6 +15,8 @@ if (skia_use_system_expat) {
   }
 } else {
   third_party("expat") {
+    _src = "../externals/expat"
+
     public_defines = [ "XML_STATIC" ]
 
     public_include_dirs = [
@@ -22,16 +24,31 @@ if (skia_use_system_expat) {
       "include/expat_config",
     ]
 
-    defines = [
-      "HAVE_MEMMOVE",
-      "XML_DEV_URANDOM",
+    public = [ "$_src/expat/lib/expat.h" ]
+    sources = [
+      "$_src/expat/lib/ascii.h",
+      "$_src/expat/lib/asciitab.h",
+      "$_src/expat/lib/expat_external.h",
+      "$_src/expat/lib/iasciitab.h",
+      "$_src/expat/lib/internal.h",
+      "$_src/expat/lib/latin1tab.h",
+      "$_src/expat/lib/nametab.h",
+      "$_src/expat/lib/siphash.h",
+      "$_src/expat/lib/utf8tab.h",
+      "$_src/expat/lib/winconfig.h",
+      "$_src/expat/lib/xmlparse.c",
+      "$_src/expat/lib/xmlrole.c",
+      "$_src/expat/lib/xmlrole.h",
+      "$_src/expat/lib/xmltok.c",
+      "$_src/expat/lib/xmltok.h",
+      "$_src/expat/lib/xmltok_impl.h",
     ]
 
-    sources = [
-      "../externals/expat/expat/lib/expat.h",
-      "../externals/expat/expat/lib/xmlparse.c",
-      "../externals/expat/expat/lib/xmlrole.c",
-      "../externals/expat/expat/lib/xmltok.c",
+    unused_sources = [
+      # Not independently compiled, but conditionally included in xmltok.c
+      "$_src/expat/lib/xmltok_impl.c",
+      "$_src/expat/lib/xmltok_ns.c",
     ]
+    assert(unused_sources != [])
   }
 }

@@ -23,8 +23,6 @@ namespace SkSL {
 
 class Expression;
 class ExpressionArray;
-class IRGenerator;
-class SPIRVCodeGenerator;
 class Variable;
 enum class VariableStorage : int8_t;
 
@@ -130,7 +128,7 @@ protected:
     // If you need to determine the variable's type, look at DSLWriter::Var(...)->type() instead.
     DSLType fType;
     std::unique_ptr<SkSL::Statement> fDeclaration;
-    const SkSL::Variable* fVar = nullptr;
+    SkSL::Variable* fVar = nullptr;
     Position fNamePosition;
     std::string_view fName;
     DSLExpression fInitialValue;
@@ -139,11 +137,8 @@ protected:
     bool fInitialized = false;
 
     friend class DSLCore;
-    friend class DSLExpression;
     friend class DSLFunction;
     friend class DSLWriter;
-    friend class ::SkSL::IRGenerator;
-    friend class ::SkSL::SPIRVCodeGenerator;
 };
 
 /**

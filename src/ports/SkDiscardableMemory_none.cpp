@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "src/core/SkDiscardableMemory.h"
+#include "include/private/chromium/SkDiscardableMemory.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 
 SkDiscardableMemory* SkDiscardableMemory::Create(size_t bytes) {

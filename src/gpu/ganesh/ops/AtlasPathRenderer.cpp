@@ -7,10 +7,12 @@
 
 #include "src/gpu/ganesh/ops/AtlasPathRenderer.h"
 
-#include "include/private/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
@@ -61,7 +63,7 @@ bool is_visible(const SkRect& pathDevBounds, const SkIRect& clipBounds) {
 // before we render the next one in line. This means there will only ever be one atlas active at a
 // time and that they can all share the same texture.
 void validate_atlas_dependencies(const SkTArray<sk_sp<skgpu::v1::AtlasRenderTask>>& atlasTasks) {
-    for (int i = atlasTasks.count() - 1; i >= 1; --i) {
+    for (int i = atlasTasks.size() - 1; i >= 1; --i) {
         auto atlasTask = atlasTasks[i].get();
         auto previousAtlasTask = atlasTasks[i - 1].get();
         // Double check that atlasTask depends on every dependent of its previous atlas. If this
@@ -418,13 +420,13 @@ bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP) {
         // Instantiate the remaining atlases.
         GrTexture* firstAtlas = fAtlasRenderTasks[0]->atlasProxy()->peekTexture();
         SkASSERT(firstAtlas);
-        for (int i = 1; successful && i < fAtlasRenderTasks.count(); ++i) {
+        for (int i = 1; successful && i < fAtlasRenderTasks.size(); ++i) {
             auto atlasTask = fAtlasRenderTasks[i].get();
             if (atlasTask->atlasProxy()->backingStoreDimensions() == firstAtlas->dimensions()) {
                 successful &= atlasTask->instantiate(onFlushRP, sk_ref_sp(firstAtlas));
             } else {
                 // The atlases are expected to all be full size except possibly the final one.
-                SkASSERT(i == fAtlasRenderTasks.count() - 1);
+                SkASSERT(i == fAtlasRenderTasks.size() - 1);
                 SkASSERT(atlasTask->atlasProxy()->backingStoreDimensions().area() <
                          firstAtlas->dimensions().area());
                 // TODO: Recycle the larger atlas texture anyway?
@@ -434,7 +436,7 @@ bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP) {
     }
 
     // Reset all atlas data.
-    fAtlasRenderTasks.reset();
+    fAtlasRenderTasks.clear();
     fAtlasPathCache.reset();
     return successful;
 }

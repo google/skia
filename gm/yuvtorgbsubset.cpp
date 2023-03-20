@@ -19,6 +19,7 @@
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
@@ -82,7 +83,8 @@ protected:
         bitmaps[2].writePixels(innerVPM, 1, 1);
     }
 
-    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
+        auto context = GrAsDirectContext(canvas->recordingContext());
         if (!context) {
             return DrawResult::kSkip;
         }

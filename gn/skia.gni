@@ -14,13 +14,12 @@ declare_args() {
   skia_compile_sksl_tests = false
   skia_enable_api_available_macro = true
   skia_enable_android_utils = is_skia_dev_build
-  skia_enable_skgpu_v1 = true
   skia_enable_discrete_gpu = true
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
   skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
-  skia_enable_gpu = true
+  skia_enable_optimize_size = false
   skia_enable_pdf = !is_wasm
   skia_enable_skottie = !(is_win && is_component_build) ||
                         (is_wasm && skia_canvaskit_enable_skottie)
@@ -36,10 +35,12 @@ declare_args() {
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
-  skia_libgifcodec_path = "third_party/externals/libgifcodec"
+  skia_print_sksl_shaders = false
+  skia_print_native_shaders = false
   skia_tools_require_resources = false
   skia_update_fuchsia_sdk = false
   skia_use_angle = false
+  skia_use_client_icu = false
   skia_use_dawn = false
   skia_use_direct3d = false
   skia_use_egl = false
@@ -54,6 +55,7 @@ declare_args() {
   skia_use_icu = !is_fuchsia
   skia_use_libavif = false
   skia_use_libheif = is_skia_dev_build
+  skia_use_jpeg_gainmaps = is_skia_dev_build
   skia_use_libjpeg_turbo_decode = true
   skia_use_libjpeg_turbo_encode = true
   skia_use_libjxl_decode = false
@@ -65,14 +67,20 @@ declare_args() {
   skia_use_metal = false
   skia_use_ndk_images = is_android && defined(ndk_api) && ndk_api >= 30
   skia_use_perfetto = is_linux || is_mac || is_android
+
+  # Currently only supported in Android framework
+  skia_android_framework_use_perfetto = false
   skia_use_piet = false
   skia_use_piex = !is_win && !is_wasm
   skia_use_sfml = false
   skia_use_webgl = is_wasm
   skia_use_webgpu = is_wasm
-  skia_use_wuffs = is_wasm
+  skia_use_wuffs = true
   skia_use_x11 = is_linux
   skia_use_xps = true
+
+  # deprecated, we will eventually use just skia_enable_ganesh
+  skia_enable_gpu = true
   skia_enable_graphite = false
   skia_use_zlib = true
 
@@ -88,11 +96,15 @@ declare_args() {
 }
 
 declare_args() {
+  skia_enable_ganesh = skia_enable_gpu
+}
+
+declare_args() {
   if (is_mac) {
     skia_gl_standard = "gl"
   } else if (is_ios) {
     skia_gl_standard = "gles"
-  } else if (is_wasm && skia_enable_gpu) {
+  } else if (is_wasm && skia_enable_ganesh) {
     skia_gl_standard = "webgl"
   } else {
     skia_gl_standard = ""
@@ -108,6 +120,10 @@ declare_args() {
 
   skia_build_fuzzers = is_clang && is_linux && target_cpu == "x64"
   skia_use_libfuzzer_defaults = true
+}
+
+declare_args() {
+  skia_enable_skunicode = skia_use_icu || skia_use_client_icu
 }
 
 if (skia_use_angle && skia_gl_standard != "gles") {
@@ -131,7 +147,6 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk =
       !is_fuchsia && !is_wasm && skia_use_libjpeg_turbo_decode && skia_use_zlib
-  skia_use_libgifcodec = !skia_use_wuffs
   skia_use_sfntly = skia_use_icu
   skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
   skia_enable_direct3d_debug_layer = skia_enable_gpu_debug_layers
@@ -140,6 +155,9 @@ declare_args() {
   skia_vulkan_memory_allocator_dir =
       "//third_party/externals/vulkanmemoryallocator"
   skia_build_for_debugger = false
+
+  # icu_bidi sources
+  skia_icu_bidi_third_party_dir = "//third_party/icu_bidi"
 }
 
 declare_args() {
@@ -167,11 +185,22 @@ declare_args() {
   }
 }
 
-# Our tools require static linking (they use non-exported symbols), and the GPU backend.
-skia_enable_tools = skia_enable_tools && !is_component_build && skia_enable_gpu
+# Our tools require static linking (they use non-exported symbols), and the Ganesh backend.
+skia_enable_tools =
+    skia_enable_tools && !is_component_build && skia_enable_ganesh
 
 # The GPU build requires SkSL
-skia_enable_sksl = skia_enable_sksl || skia_enable_gpu
+skia_enable_sksl =
+    skia_enable_sksl || skia_enable_ganesh || skia_enable_graphite
+
+if (skia_enable_optimize_size) {
+  assert(
+      !is_debug,
+      "Must set is_debug to false for skia_enable_optimize_size to do anything. If you want to build with debug mode and the correct define, add extra_cflags=['-DSK_ENABLE_OPTIMIZE_SIZE'] to your GN args.")
+}
+
+# Current Perfetto integrations are mutually exclusive
+assert(!skia_use_perfetto || !skia_android_framework_use_perfetto)
 
 # Skia's targets may be built inside other gn build systems.
 # Skia builds other project's build targets inside its build.

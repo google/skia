@@ -1,6 +1,9 @@
 // Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <random>
+
 REG_FIDDLE(Octopus_Generator, 256, 256, false, 0) {
 void paintOctopus(int x, int y, int size_base, SkColor color, SkCanvas* canvas) {
     SkPaint paint;
@@ -20,11 +23,17 @@ void paintOctopus(int x, int y, int size_base, SkColor color, SkCanvas* canvas) 
 }
 
 void draw(SkCanvas* canvas) {
-    SkRandom rand;
+    std::default_random_engine rng;
+    const auto randScalar = [&rng](SkScalar min, SkScalar max) -> SkScalar {
+        return std::uniform_real_distribution<SkScalar>(min, max)(rng);
+    };
+    const auto randOpaqueColor = [&rng]() -> SkColor {
+        return std::uniform_int_distribution<uint32_t>(0, 0xFFFFFF)(rng) | 0xFF000000;
+    };
 
     for (int i = 0; i < 400; ++i) {
-        paintOctopus(rand.nextRangeScalar(0, 256), rand.nextRangeScalar(0, 256),
-                     rand.nextRangeScalar(6, 12), rand.nextU() | 0xFF0000000, canvas);
+        paintOctopus(randScalar(0, 256), randScalar(0, 256),
+                     randScalar(6, 12), randOpaqueColor(), canvas);
     }
 }
 }  // END FIDDLE

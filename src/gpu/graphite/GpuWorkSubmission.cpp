@@ -8,15 +8,19 @@
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/QueueManager.h"
 
 namespace skgpu::graphite {
 
-GpuWorkSubmission::GpuWorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
-        : fCommandBuffer(std::move(cmdBuffer)) {}
+GpuWorkSubmission::GpuWorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer,
+                                     QueueManager* queueManager)
+        : fCommandBuffer(std::move(cmdBuffer))
+        , fQueueManager(queueManager) {}
 
 GpuWorkSubmission::~GpuWorkSubmission() {
     fCommandBuffer->callFinishedProcs(/*success=*/true);
-    fCommandBuffer->releaseResources();
+    fCommandBuffer->resetCommandBuffer();
+    fQueueManager->returnCommandBuffer(std::move(fCommandBuffer));
 }
 
 } // namespace skgpu::graphite

@@ -11,13 +11,14 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 
-enum class SkBackend : uint8_t;
-class SkPaintParamsKeyBuilder;
-class SkPipelineDataGatherer;
+class SkColorInfo;
 class SkShader;
-class SkKeyContext;
 
 namespace skgpu::graphite {
+
+class KeyContext;
+class PaintParamsKeyBuilder;
+class PipelineDataGatherer;
 
 // TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
 // back to Device when the command is recorded (similar to SkPaint -> GrPaint), and then
@@ -34,8 +35,8 @@ public:
                 sk_sp<SkBlender> primitiveBlender,
                 bool skipColorXform);
     explicit PaintParams(const SkPaint&,
-                         sk_sp<SkBlender> primitiveBlender = nullptr,
-                         bool skipColorXform = false);
+                         sk_sp<SkBlender> primitiveBlender,
+                         bool skipColorXform);
 
     PaintParams(const PaintParams&);
     ~PaintParams();
@@ -59,9 +60,12 @@ public:
 
     bool skipColorXform() const { return fSkipColorXform; }
 
-    void toKey(const SkKeyContext&,
-               SkPaintParamsKeyBuilder*,
-               SkPipelineDataGatherer*) const;
+    /** Converts an SkColor4f to the destination color space. */
+    static SkColor4f Color4fPrepForDst(SkColor4f srgb, const SkColorInfo& dstColorInfo);
+
+    void toKey(const KeyContext&,
+               PaintParamsKeyBuilder*,
+               PipelineDataGatherer*) const;
 
 private:
     SkColor4f            fColor;
@@ -78,6 +82,6 @@ private:
     // active clipShader().
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
 #endif // skgpu_PaintParams_DEFINED

@@ -7,9 +7,9 @@
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/ports/SkImageGeneratorCG.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/utils/mac/SkCGUtils.h"
-#include "src/core/SkPixmapPriv.h"
+#include "src/codec/SkPixmapUtils.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #ifdef SK_BUILD_FOR_MAC
@@ -93,7 +93,7 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<Sk
     }
 
     if (SkEncodedOriginSwapsWidthHeight(origin)) {
-        info = SkPixmapPriv::SwapWidthHeight(info);
+        info = SkPixmapUtils::SwapWidthHeight(info);
     }
 
     // FIXME: We have the opportunity to extract color space information here,
@@ -153,5 +153,5 @@ bool ImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t
         // of SkSwizzler with CG's built in swizzler.
         return SkCopyPixelsFromCGImage(pm, image.get());
     };
-    return SkPixmapPriv::Orient(dst, fOrigin, decode);
+    return SkPixmapUtils::Orient(dst, fOrigin, decode);
 }

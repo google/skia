@@ -25,6 +25,7 @@
 #include "modules/canvaskit/WasmCommon.h"
 
 using namespace emscripten;
+using namespace skia_private;
 
 namespace para = skia::textlayout;
 
@@ -102,10 +103,10 @@ para::StrutStyle toStrutStyle(const SimpleStrutStyle& s) {
     SkFontStyle fs(s.fontStyle.weight, s.fontStyle.width, s.fontStyle.slant);
     ss.setFontStyle(fs);
 
-    if (s.fontSize != 0) {
+    if (s.fontSize != -1) {
         ss.setFontSize(s.fontSize);
     }
-    if (s.heightMultiplier != 0) {
+    if (s.heightMultiplier != -1) {
         ss.setHeight(s.heightMultiplier);
         ss.setHeightOverride(true);
     }
@@ -141,7 +142,7 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
         ts.setBackgroundColor(p2);
     }
 
-    if (s.fontSize != 0) {
+    if (s.fontSize != -1) {
         ts.setFontSize(s.fontSize);
     }
     if (s.letterSpacing != 0) {
@@ -151,7 +152,7 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
         ts.setWordSpacing(s.wordSpacing);
     }
 
-    if (s.heightMultiplier != 0) {
+    if (s.heightMultiplier != -1) {
         ts.setHeight(s.heightMultiplier);
         ts.setHeightOverride(true);
     }
@@ -264,7 +265,7 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     ps.setTextStyle(ts);
     auto ss = toStrutStyle(s.strutStyle);
     ps.setStrutStyle(ss);
-    if (s.heightMultiplier != 0) {
+    if (s.heightMultiplier != -1) {
         ps.setHeight(s.heightMultiplier);
     }
     if (s.maxLines != 0) {
@@ -413,7 +414,7 @@ JSArray GetShapedLines(para::Paragraph& self) {
         jrun.set("offsets",  MakeTypedArray(N1, info->utf8Starts));
 
         // we need to modify the positions, so make a temp copy
-        SkAutoSTMalloc<32, SkPoint> positions(N1);
+        AutoSTMalloc<32, SkPoint> positions(N1);
         for (int i = 0; i < N; ++i) {
             positions.get()[i] = info->positions[i] + info->origin;
         }
@@ -552,6 +553,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                 return GetShapedLines(*pa);
             }),
             allow_raw_pointers())
+            .class_function("RequiresClientICU", &para::ParagraphBuilderImpl::RequiresClientICU)
             .function("addText",
                       optional_override([](para::ParagraphBuilderImpl& self, std::string text) {
                           return self.addText(text.c_str(), text.length());
@@ -591,47 +593,57 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                           auto text = self.getText();
                           return emscripten::val(std::string(text.data(), text.size()).c_str());
                       }))
-            .function("_buildWithClientInfo",
+            .function("_setWordsUtf8",
                       optional_override([](para::ParagraphBuilderImpl& self,
-                                           WASMPointerU32 bidis, size_t bidisNum,
-                                           WASMPointerU32 words, size_t wordsNum,
-                                           WASMPointerU32 graphemes, size_t graphemesNum,
-                                           WASMPointerU32 softBreaks, size_t softBreaksNum,
-                                           WASMPointerU32 hardBreaks, size_t hardBreaksNum) {
-                      SkUnicode::Position* data = reinterpret_cast<SkUnicode::Position*>(bidis);
-                      std::vector<SkUnicode::BidiRegion> bidiRegions;
-                      for (size_t i = 0; i < bidisNum; i += 3) {
-                          auto start = data[i];
-                          auto end = data[i+1];
-                          auto level = SkToU8(data[i+2]);
-                          bidiRegions.emplace_back(start, end, level);
-                      }
-                      auto soft =
-                          convertArrayU32(softBreaks, softBreaksNum);
-                      auto hard =
-                          convertArrayU32(hardBreaks, hardBreaksNum);
+                                           WASMPointerU32 clientWords, size_t wordsNum) {
+                      self.setWordsUtf8(convertArrayU32(clientWords, wordsNum));
+                  }))
+            .function("_setWordsUtf16",
+                      optional_override([](para::ParagraphBuilderImpl& self,
+                                           WASMPointerU32 clientWords, size_t wordsNum) {
+                      self.setWordsUtf16(convertArrayU32(clientWords, wordsNum));
+                  }))
+            .function("_setGraphemeBreaksUtf8",
+                      optional_override([](para::ParagraphBuilderImpl& self,
+                                           WASMPointerU32 clientGraphemes, size_t graphemesNum) {
+                      self.setGraphemeBreaksUtf8(convertArrayU32(clientGraphemes, graphemesNum));
+                  }))
+            .function("_setGraphemeBreaksUtf16",
+                      optional_override([](para::ParagraphBuilderImpl& self,
+                                           WASMPointerU32 clientGraphemes, size_t graphemesNum) {
+                      self.setGraphemeBreaksUtf16(convertArrayU32(clientGraphemes, graphemesNum));
+                  }))
+            .function("_setLineBreaksUtf8",
+                      optional_override([](para::ParagraphBuilderImpl& self,
+                                           WASMPointerU32 clientLineBreaks, size_t lineBreaksNum) {
+                      SkUnicode::Position* lineBreakData = reinterpret_cast<SkUnicode::Position*>(clientLineBreaks);
                       std::vector<SkUnicode::LineBreakBefore> lineBreaks;
-                      for (size_t s = 0, h = 0; s < softBreaksNum || h < hardBreaksNum; ) {
-                          auto sPos = soft[s];
-                          auto hPos = hard[h];
-                          if (hPos <= sPos) {
-                              lineBreaks.emplace_back(hPos,
-                                                      SkUnicode::LineBreakType::kHardLineBreak);
-                              if (hPos == sPos) {
-                                  ++s;
-                              }
-                              ++h;
-                          } else if (hPos > sPos) {
-                              lineBreaks.emplace_back(sPos,
-                                                      SkUnicode::LineBreakType::kSoftLineBreak);
-                              s++;
+                      for (size_t i = 0; i < lineBreaksNum; i += 2) {
+                          auto pos = lineBreakData[i];
+                          auto breakType = lineBreakData[i+1];
+                          if (breakType == 0) {
+                              lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kSoftLineBreak);
+                          } else {
+                              lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kHardLineBreak);
                           }
                       }
-                      return self.BuildWithClientInfo(
-                                        std::move(bidiRegions),
-                                        convertArrayU32(words, wordsNum),
-                                        convertArrayU32(graphemes, graphemesNum),
-                                        std::move(lineBreaks));
+                      self.setLineBreaksUtf8(std::move(lineBreaks));
+                  }))
+            .function("_setLineBreaksUtf16",
+                      optional_override([](para::ParagraphBuilderImpl& self,
+                                           WASMPointerU32 clientLineBreaks, size_t lineBreaksNum) {
+                      SkUnicode::Position* lineBreakData = reinterpret_cast<SkUnicode::Position*>(clientLineBreaks);
+                      std::vector<SkUnicode::LineBreakBefore> lineBreaks;
+                      for (size_t i = 0; i < lineBreaksNum; i += 2) {
+                          auto pos = lineBreakData[i];
+                          auto breakType = lineBreakData[i+1];
+                          if (breakType == 0) {
+                              lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kSoftLineBreak);
+                          } else {
+                              lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kHardLineBreak);
+                          }
+                      }
+                      self.setLineBreaksUtf16(std::move(lineBreaks));
                   }));
 
     class_<para::TypefaceFontProvider, base<SkFontMgr>>("TypefaceFontProvider")

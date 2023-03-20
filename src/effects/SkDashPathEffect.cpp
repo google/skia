@@ -7,14 +7,28 @@
 
 #include "include/effects/SkDashPathEffect.h"
 
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkDashImpl.h"
 #include "src/utils/SkDashPathPriv.h"
 
-#include <utility>
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+
+using namespace skia_private;
 
 SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase)
         : fPhase(0)
@@ -42,7 +56,8 @@ SkDashImpl::~SkDashImpl() {
 bool SkDashImpl::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                               const SkRect* cullRect, const SkMatrix&) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals, fCount,
-                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength,
+                                      fPhase);
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
@@ -381,7 +396,7 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    SkAutoSTArray<32, SkScalar> intervals(count);
+    AutoSTArray<32, SkScalar> intervals(count);
     if (buffer.readScalarArray(intervals.get(), count)) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
     }

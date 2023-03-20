@@ -15,8 +15,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrContextOptions.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+
+using namespace skia_private;
 
 /** This tests the GPU backend's caching of path coverage masks */
 class PathMaskCache : public skiagm::GM {
@@ -74,7 +76,7 @@ protected:
         };
 
 
-        SkTArray<SkPath> paths;
+        TArray<SkPath> paths;
         paths.push_back();
         paths.back().moveTo(0.f, 0.f);
         paths.back().lineTo(98.f, 100.f);

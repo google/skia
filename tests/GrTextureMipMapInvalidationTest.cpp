@@ -5,21 +5,43 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
-#include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuBase.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/ProxyUtils.h"
 
+#include <cstdint>
+#include <functional>
+#include <initializer_list>
+#include <utility>
+
+struct GrContextOptions;
+
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     if (!context->priv().caps()->mipmapSupport()) {
         return;
@@ -43,10 +65,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);
     for (auto allocateMips : {false, true}) {
-        auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 0,
-                                                 kBottomLeft_GrSurfaceOrigin, nullptr,
+        auto surf1 = SkSurface::MakeRenderTarget(context,
+                                                 skgpu::Budgeted::kYes,
+                                                 info,
+                                                 0,
+                                                 kBottomLeft_GrSurfaceOrigin,
+                                                 nullptr,
                                                  allocateMips);
-        auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
+        auto surf2 = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization
         surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
         surf1->flushAndSubmit();
@@ -73,19 +99,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     if (!dContext->priv().caps()->mipmapSupport()) {
         return;
     }
     static constexpr auto kCreateWithMipMaps = true;
     auto surf = SkSurface::MakeRenderTarget(
-            dContext, SkBudgeted::kYes,
-            SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1,
-            kTopLeft_GrSurfaceOrigin, nullptr, kCreateWithMipMaps);
+            dContext,
+            skgpu::Budgeted::kYes,
+            SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+            1,
+            kTopLeft_GrSurfaceOrigin,
+            nullptr,
+            kCreateWithMipMaps);
     if (!surf) {
         return;
     }
@@ -109,8 +139,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
                                    kPremul_SkAlphaType, nullptr);
     const auto singlePixelInfo =
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    surf = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes, singlePixelInfo, 1,
-                                       kTopLeft_GrSurfaceOrigin, nullptr);
+    surf = SkSurface::MakeRenderTarget(
+            dContext, skgpu::Budgeted::kYes, singlePixelInfo, 1, kTopLeft_GrSurfaceOrigin, nullptr);
 
     surf->getCanvas()->drawImageRect(img, SkRect::MakeWH(1, 1),
                                      SkSamplingOptions(SkFilterMode::kLinear,

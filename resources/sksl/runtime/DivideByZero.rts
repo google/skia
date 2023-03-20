@@ -1,0 +1,10 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 xy) {
+    int one  = int(colorGreen.g);
+    int zero = int(colorGreen.r);
+    int undefined = (one / zero) + (zero / zero);
+
+    // We have to use the result somehow, in order to prevent dead-code elimination.
+    return (undefined != 9876543) ? colorGreen : colorRed;
+}

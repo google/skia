@@ -23,7 +23,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _out;
     (void)_out;
     array<float2, 2> x;
-    x[0] = float2(0.0, 0.0);
+    x[0] = float2(0.0);
     x[1] = float2(1.0, 0.0);
     array<float2, 2> y;
     y[0] = float2(0.0, 1.0);

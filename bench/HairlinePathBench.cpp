@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 enum Flags {
     kBig_Flag = 1 << 0,

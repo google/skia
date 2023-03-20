@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_SynchronizeToCpuTask_DEFINED
 #define skgpu_graphite_SynchronizeToCpuTask_DEFINED
 
+#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Task.h"
 
 namespace skgpu::graphite {
@@ -25,11 +26,11 @@ public:
     static sk_sp<SynchronizeToCpuTask> Make(sk_sp<Buffer>);
     ~SynchronizeToCpuTask() override;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override {
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override {
         return true;
     }
 
-    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     explicit SynchronizeToCpuTask(sk_sp<Buffer> buffer) : fBuffer(std::move(buffer)) {}

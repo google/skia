@@ -1,0 +1,9 @@
+### Compilation failed:
+
+error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() { n(); sk_FragColor = half4(0); }
+^^^^^^^^^^^
+error: 2: unknown identifier 'sk_FragColor'
+void main() { n(); sk_FragColor = half4(0); }
+                   ^^^^^^^^^^^^
+2 errors

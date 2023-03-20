@@ -15,6 +15,7 @@
 #include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/GrWindowRectsState.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
@@ -214,7 +215,8 @@ private:
     friend bool operator&(Flags, InputFlags);
 
     // A pipeline can contain up to three processors: color, paint coverage, and clip coverage.
-    using FragmentProcessorArray = SkAutoSTArray<3, std::unique_ptr<const GrFragmentProcessor>>;
+    using FragmentProcessorArray =
+            skia_private::AutoSTArray<3, std::unique_ptr<const GrFragmentProcessor>>;
 
     GrDstProxyView fDstProxy;
     GrWindowRectsState fWindowRectsState;

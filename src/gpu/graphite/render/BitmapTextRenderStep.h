@@ -14,19 +14,19 @@ namespace skgpu::graphite {
 
 class BitmapTextRenderStep final : public RenderStep {
 public:
-    BitmapTextRenderStep(bool isA8);
+    BitmapTextRenderStep();
 
     ~BitmapTextRenderStep() override;
 
-    const char* vertexSkSL() const override;
-    std::string texturesAndSamplersSkSL(int startBinding) const override;
+    std::string vertexSkSL() const override;
+    std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
+                                        int* nextBindingIndex) const override;
     const char* fragmentCoverageSkSL() const override;
 
     void writeVertices(DrawWriter*, const DrawParams&, int ssboIndex) const override;
-    void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const override;
+    void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:
-    bool fIsA8;
 };
 
 }  // namespace skgpu::graphite

@@ -18,8 +18,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "tools/Resources.h"
+
+using namespace skia_private;
 
 namespace skiagm {
 
@@ -101,7 +103,7 @@ protected:
     }
 
 private:
-    SkAutoTMalloc<uint8_t> fStorage;
+    AutoTMalloc<uint8_t> fStorage;
 
     using INHERITED = GM;
 };

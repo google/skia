@@ -8,9 +8,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkWeakRefCnt.h"
+#include "include/private/base/SkDebug.h"
 #include "tests/Test.h"
 
 #include <thread>
+#include <utility>
 
 static void bounce_ref(void* data) {
     SkRefCnt* ref = static_cast<SkRefCnt*>(data);

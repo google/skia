@@ -242,7 +242,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
     GrTextureType type = backendFormat.textureType();
 
     SkString layoutQualifier;
-    layoutQualifier.appendf("binding=%d", binding);
+    layoutQualifier.appendf("metal, binding=%d", binding);
 
     MtlUniformInfo tempInfo;
     tempInfo.fVariable = GrShaderVar{std::move(mangleName),
@@ -260,7 +260,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
     fSamplers.push_back(tempInfo);
 
     fSamplerSwizzles.push_back(swizzle);
-    SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
+    SkASSERT(fSamplerSwizzles.size() == fSamplers.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
@@ -296,7 +296,7 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
     }
 
     if (!uniformsString.isEmpty()) {
-        out->appendf("layout (binding=%d) uniform uniformBuffer\n{\n", kUniformBinding);
+        out->appendf("layout (metal, binding=%d) uniform uniformBuffer\n{\n", kUniformBinding);
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }

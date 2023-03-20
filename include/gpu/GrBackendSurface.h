@@ -8,9 +8,14 @@
 #ifndef GrBackendSurface_DEFINED
 #define GrBackendSurface_DEFINED
 
+// This include of GrBackendSurfaceMutableState is not needed here, but some clients were depending
+// on the include here instead of including it themselves. Adding this back here until we can fix
+// up clients so it can be removed.
 #include "include/gpu/GrBackendSurfaceMutableState.h"
+
 #include "include/gpu/GrSurfaceInfo.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/MutableTextureState.h"
 #ifdef SK_GL
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
@@ -27,10 +32,14 @@
 
 #include <string>
 
-class GrBackendSurfaceMutableStateImpl;
 class GrVkImageLayout;
 class GrGLTextureParameters;
 class GrColorFormatDesc;
+enum class SkTextureCompressionType;
+
+namespace skgpu {
+class MutableTextureStateRef;
+}
 
 #ifdef SK_DAWN
 #include "webgpu/webgpu_cpp.h"
@@ -49,7 +58,7 @@ class GrD3DResourceState;
 class SkString;
 #endif
 
-#if !SK_SUPPORT_GPU
+#if !defined(SK_GANESH)
 
 // SkSurfaceCharacterization always needs a minimal version of this
 class SK_API GrBackendFormat {
@@ -116,7 +125,7 @@ public:
     }
 #endif
 
-    static GrBackendFormat MakeMock(GrColorType colorType, SkImage::CompressionType compression,
+    static GrBackendFormat MakeMock(GrColorType colorType, SkTextureCompressionType compression,
                                     bool isStencilFormat = false);
 
     bool operator==(const GrBackendFormat& that) const;
@@ -183,7 +192,7 @@ public:
      * kUnknown, the compression type is not kNone, or this is a mock stencil format.
      */
     GrColorType asMockColorType() const;
-    SkImage::CompressionType asMockCompressionType() const;
+    SkTextureCompressionType asMockCompressionType() const;
     bool isMockStencilFormat() const;
 
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
@@ -220,7 +229,7 @@ private:
     GrBackendFormat(DXGI_FORMAT dxgiFormat);
 #endif
 
-    GrBackendFormat(GrColorType, SkImage::CompressionType, bool isStencilFormat);
+    GrBackendFormat(GrColorType, SkTextureCompressionType, bool isStencilFormat);
 
 #ifdef SK_DEBUG
     bool validateMock() const;
@@ -251,9 +260,9 @@ private:
         DXGI_FORMAT fDxgiFormat;
 #endif
         struct {
-            GrColorType              fColorType;
-            SkImage::CompressionType fCompressionType;
-            bool                     fIsStencilFormat;
+            GrColorType       fColorType;
+            SkTextureCompressionType fCompressionType;
+            bool              fIsStencilFormat;
         } fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;
@@ -381,7 +390,7 @@ public:
     // that can be set from this function are:
     //
     // Vulkan: VkImageLayout and QueueFamilyIndex
-    void setMutableState(const GrBackendSurfaceMutableState&);
+    void setMutableState(const skgpu::MutableTextureState&);
 
     // Returns true if we are working with protected content.
     bool isProtected() const;
@@ -398,7 +407,7 @@ public:
 
 private:
     friend class GrVkGpu;  // for getMutableState
-    sk_sp<GrBackendSurfaceMutableStateImpl> getMutableState() const;
+    sk_sp<skgpu::MutableTextureStateRef> getMutableState() const;
 
 #ifdef SK_GL
     friend class GrGLTexture;
@@ -417,7 +426,7 @@ private:
     GrBackendTexture(int width,
                      int height,
                      const GrVkImageInfo& vkInfo,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                     sk_sp<skgpu::MutableTextureStateRef> mutableState,
                      std::string_view label = {});
 #endif
 
@@ -462,7 +471,7 @@ private:
     GrDawnTextureInfo fDawnInfo;
 #endif
 
-    sk_sp<GrBackendSurfaceMutableStateImpl> fMutableState;
+    sk_sp<skgpu::MutableTextureStateRef> fMutableState;
 };
 
 class SK_API GrBackendRenderTarget {
@@ -583,7 +592,7 @@ public:
     // that can be set from this function are:
     //
     // Vulkan: VkImageLayout and QueueFamilyIndex
-    void setMutableState(const GrBackendSurfaceMutableState&);
+    void setMutableState(const skgpu::MutableTextureState&);
 
     // Returns true if we are working with protected content.
     bool isProtected() const;
@@ -598,14 +607,14 @@ public:
 
 private:
     friend class GrVkGpu; // for getMutableState
-    sk_sp<GrBackendSurfaceMutableStateImpl> getMutableState() const;
+    sk_sp<skgpu::MutableTextureStateRef> getMutableState() const;
 
 #ifdef SK_VULKAN
     friend class GrVkRenderTarget;
     GrBackendRenderTarget(int width,
                           int height,
                           const GrVkImageInfo& vkInfo,
-                          sk_sp<GrBackendSurfaceMutableStateImpl> mutableState);
+                          sk_sp<skgpu::MutableTextureStateRef> mutableState);
 #endif
 
 #ifdef SK_DIRECT3D
@@ -649,7 +658,7 @@ private:
 #ifdef SK_DAWN
     GrDawnRenderTargetInfo  fDawnInfo;
 #endif
-    sk_sp<GrBackendSurfaceMutableStateImpl> fMutableState;
+    sk_sp<skgpu::MutableTextureStateRef> fMutableState;
 };
 
 #endif

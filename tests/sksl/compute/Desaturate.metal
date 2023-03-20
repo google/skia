@@ -2,22 +2,20 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Inputs {
-    uint3 sk_ThreadPosition;
+    uint3 sk_GlobalInvocationID;
 };
 struct Globals {
     texture2d<half, access::read> src;
     texture2d<half, access::write> dest;
 };
-half4 desaturate_h4h4(half4 color) {
-    color.xyz = half3(dot(color.xyz, half3(0.2199999988079071h, 0.67000001668930054h, 0.10999999940395355h)));
-    return color;
-}
-kernel void computeMain(texture2d<half, access::read> src [[texture(0)]], texture2d<half, access::write> dest [[texture(1)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+kernel void computeMain(uint3 sk_GlobalInvocationID [[thread_position_in_grid]], texture2d<half, access::read> src [[texture(0)]], texture2d<half, access::write> dest [[texture(1)]]) {
     Globals _globals{src, dest};
     (void)_globals;
-    Inputs _in = { sk_ThreadPosition };
-    if (_in.sk_ThreadPosition.x < _globals.src.get_width() && _in.sk_ThreadPosition.y < _globals.src.get_height()) {
-        _globals.dest.write(desaturate_h4h4(_globals.src.read(_in.sk_ThreadPosition.xy)), _in.sk_ThreadPosition.xy);
+    Inputs _in = { sk_GlobalInvocationID };
+    if (_in.sk_GlobalInvocationID.x < _globals.src.get_width() && _in.sk_GlobalInvocationID.y < _globals.src.get_height()) {
+        half4 _0_color = _globals.src.read(_in.sk_GlobalInvocationID.xy);
+        _0_color.xyz = half3(dot(_0_color.xyz, half3(0.22h, 0.67h, 0.11h)));
+        _globals.dest.write(_0_color, _in.sk_GlobalInvocationID.xy);
     }
     return;
 }

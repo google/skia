@@ -20,9 +20,4 @@ type Exporter interface {
 	// Export will write the converted Bazel cquery response data to
 	// a new project format.
 	Export(qcmd QueryCommand) error
-
-	// CheckCurrent will verify the existing on-disk files are current and
-	// match the output that would be produced had Export() been run.
-	// An error is returned only if the check failed to complete.
-	CheckCurrent(qcmd QueryCommand, errWriter Writer) (numOutOfDate int, err error)
 }

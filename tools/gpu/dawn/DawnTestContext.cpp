@@ -25,6 +25,12 @@
 #include "tools/AutoreleasePool.h"
 #if USE_OPENGL_BACKEND
 #include "dawn/native/OpenGLBackend.h"
+#elif defined(SK_BUILD_FOR_MAC)
+#include "dawn/native/MetalBackend.h"
+#elif defined(SK_BUILD_FOR_WIN)
+#include "dawn/native/D3D12Backend.h"
+#elif defined(SK_BUILD_FOR_UNIX) || (defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26)
+#include "dawn/native/VulkanBackend.h"
 #endif
 
 #if defined(SK_BUILD_FOR_MAC) && USE_OPENGL_BACKEND
@@ -81,6 +87,12 @@ static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
     SkDebugf("Device error: %s\n", message);
 }
 
+static void PrintDeviceLostMessage(WGPUDeviceLostReason reason, const char* message, void*) {
+    if (reason != WGPUDeviceLostReason_Destroyed) {
+        SkDebugf("Device lost: %s\n", message);
+    }
+}
+
 class DawnTestContextImpl : public sk_gpu_test::DawnTestContext {
 public:
     static wgpu::Device createDevice(const dawn::native::Instance& instance,
@@ -107,7 +119,9 @@ public:
         } else {
             wgpu::BackendType type;
 #if USE_OPENGL_BACKEND
-            dawn::native::opengl::AdapterDiscoveryOptions adapterOptions;
+            type = wgpu::BackendType::OpenGL;
+            dawn::native::opengl::AdapterDiscoveryOptions adapterOptions(
+                    static_cast<WGPUBackendType>(type));
             adapterOptions.getProc = reinterpret_cast<void*(*)(const char*)>(
 #if defined(SK_BUILD_FOR_UNIX)
                 glXGetProcAddress
@@ -117,20 +131,24 @@ public:
                 ProcGetter::getProcAddress
 #endif
             );
-            instance->DiscoverAdapters(&adapterOptions);
-            type = wgpu::BackendType::OpenGL;
-#else
-            instance->DiscoverDefaultAdapters();
+#else  // !USE_OPENGL_BACKEND
 #if defined(SK_BUILD_FOR_MAC)
             type = wgpu::BackendType::Metal;
+            dawn::native::metal::AdapterDiscoveryOptions adapterOptions;
 #elif defined(SK_BUILD_FOR_WIN)
             type = wgpu::BackendType::D3D12;
-#elif defined(SK_BUILD_FOR_UNIX)
+            dawn::native::d3d12::AdapterDiscoveryOptions adapterOptions;
+#elif defined(SK_BUILD_FOR_UNIX) || (defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26)
             type = wgpu::BackendType::Vulkan;
+            dawn::native::vulkan::AdapterDiscoveryOptions adapterOptions;
 #endif
-#endif
+#endif  // USE_OPENGL_BACKEND
+            instance->DiscoverAdapters(&adapterOptions);
             device = createDevice(*instance, type);
-            device.SetUncapturedErrorCallback(PrintDeviceError, 0);
+            if (device) {
+                device.SetUncapturedErrorCallback(PrintDeviceError, 0);
+                device.SetDeviceLostCallback(PrintDeviceLostMessage, 0);
+            }
         }
         if (!device) {
             return nullptr;

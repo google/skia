@@ -19,8 +19,10 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkThreadAnnotations.h"
+#include "include/private/base/SkThreadAnnotations.h"
 #include "src/core/SkTypefaceCache.h"
+
+using namespace skia_private;
 
 // SkFuchsiaFontDataCache keep track of SkData created from `fuchsia::mem::Buffer` where each buffer
 // is identified with a unique identifier. It allows to share the same SkData instances between all
@@ -226,12 +228,11 @@ struct TypefaceId {
 
 constexpr kNullTypefaceId = {0xFFFFFFFF, 0xFFFFFFFF};
 
-class SkTypeface_Fuchsia : public SkTypeface_Stream {
+class SkTypeface_Fuchsia : public SkTypeface_FreeTypeStream {
 public:
     SkTypeface_Fuchsia(std::unique_ptr<SkFontData> fontData, const SkFontStyle& style,
                        bool isFixedPitch, const SkString familyName, TypefaceId id)
-            : SkTypeface_Stream(std::move(fontData), style, isFixedPitch,
-                                /*sys_font=*/true, familyName)
+            : SkTypeface_FreeTypeStream(std::move(fontData), familyName, style, isFixedPitch)
             , fId(id) {}
 
     TypefaceId id() { return fId; }
@@ -254,12 +255,12 @@ sk_sp<SkTypeface> CreateTypefaceFromSkStream(std::unique_ptr<SkStreamAsset> stre
     }
 
     const SkFontArguments::VariationPosition position = args.getVariationDesignPosition();
-    SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
+    AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
     Scanner::computeAxisValues(axisDefinitions, position, axisValues, name);
 
     auto fontData = std::make_unique<SkFontData>(
         std::move(stream), args.getCollectionIndex(), args.getPalette().index,
-        axisValues.get(), axisDefinitions.count(),
+        axisValues.get(), axisDefinitions.size(),
         args.getPalette().overrides, args.getPalette().overrideCount);
     return sk_make_sp<SkTypeface_Fuchsia>(std::move(fontData), style, isFixedPitch, name, id);
 }

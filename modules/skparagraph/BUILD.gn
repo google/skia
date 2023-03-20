@@ -2,6 +2,8 @@
 
 import("../../gn/skia.gni")
 import("../skshaper/skshaper.gni")
+import("../skunicode/skunicode.gni")
+import("skparagraph.gni")
 
 declare_args() {
   skia_enable_skparagraph = true
@@ -10,7 +12,7 @@ declare_args() {
   paragraph_bench_enabled = false
 }
 
-if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
+if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
     skia_use_harfbuzz) {
   config("public_config") {
     defines = [ "SK_ENABLE_PARAGRAPH" ]
@@ -49,7 +51,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
     }
 
     skia_source_set("gm") {
-      if (paragraph_gms_enabled) {
+      if (paragraph_gms_enabled && skia_use_icu) {
         testonly = true
         sources = [ "gm/simple_gm.cpp" ]
         deps = [
@@ -64,7 +66,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
     }
 
     skia_source_set("tests") {
-      if (paragraph_tests_enabled) {
+      if (paragraph_tests_enabled && skia_use_icu) {
         testonly = true
         sources = skparagraph_tests
         deps = [
@@ -72,6 +74,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
           "../..:skia",
           "../..:test",
           "../skshaper",
+          "../skunicode",
         ]
       } else {
         sources = []
@@ -79,7 +82,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
     }
 
     skia_source_set("bench") {
-      if (paragraph_bench_enabled) {
+      if (paragraph_bench_enabled && skia_use_icu) {
         testonly = true
         sources = [ "bench/ParagraphBench.cpp" ]
         deps = [
@@ -92,15 +95,17 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
       }
     }
 
-    skia_source_set("samples") {
-      testonly = true
-      sources = [ "samples/SampleParagraph.cpp" ]
-      deps = [
-        ":skparagraph",
-        ":utils",
-        "../..:skia",
-        "../skshaper",
-      ]
+    skia_source_set("slides") {
+      if (skia_use_icu) {
+        testonly = true
+        sources = [ "slides/ParagraphSlide.cpp" ]
+        deps = [
+          ":skparagraph",
+          ":utils",
+          "../..:skia",
+          "../skshaper",
+        ]
+      }
     }
   }
 } else {
@@ -114,6 +119,6 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
   }
   group("bench") {
   }
-  group("samples") {
+  group("slides") {
   }
 }

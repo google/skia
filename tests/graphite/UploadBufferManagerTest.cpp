@@ -16,7 +16,7 @@
 
 namespace skgpu::graphite {
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(UploadBufferManagerTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     UploadBufferManager* bufferManager = recorder->priv().uploadBufferManager();
 
@@ -28,19 +28,23 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UploadBufferManagerTest, reporter, context) {
 
     // Test multiple small writes to a reused buffer.
     auto [smWriter0, smBufferInfo0] = bufferManager->getUploadWriter(10, 1);
-    smWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/3, /*rowCount=*/2);
-    smWriter0.write(/*offset=*/6, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/2);
+    smWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/3, /*trimRowBytes=*/3,
+                    /*rowCount=*/2);
+    smWriter0.write(/*offset=*/6, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/2);
 
     auto [smWriter1, smBufferInfo1] = bufferManager->getUploadWriter(4, 1);
-    smWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/2);
+    smWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/2);
 
     REPORTER_ASSERT(reporter, smBufferInfo0.fBuffer == smBufferInfo1.fBuffer);
     REPORTER_ASSERT(reporter, smBufferInfo0.fOffset == 0);
-    REPORTER_ASSERT(reporter, smBufferInfo1.fOffset == 10);
+    REPORTER_ASSERT(reporter, smBufferInfo1.fOffset >= 10);
 
     // Test a large write, which should get its own dedicated buffer.
     auto [lgWriter, lgBufferInfo] = bufferManager->getUploadWriter((64 << 10) + 1, 1);
-    lgWriter.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/2);
+    lgWriter.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                   /*rowCount=*/2);
 
     REPORTER_ASSERT(reporter, lgBufferInfo.fBuffer != smBufferInfo0.fBuffer);
     REPORTER_ASSERT(reporter, lgBufferInfo.fOffset == 0);
@@ -55,30 +59,30 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UploadBufferManagerTest, reporter, context) {
 
     // Test another small write after the large write.
     auto [smWriter2, smBufferInfo2] = bufferManager->getUploadWriter(2, 1);
-    smWriter2.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/1);
+    smWriter2.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/1);
 
     REPORTER_ASSERT(reporter, smBufferInfo2.fBuffer == smBufferInfo0.fBuffer);
-    REPORTER_ASSERT(reporter, smBufferInfo2.fOffset == 14);
+    REPORTER_ASSERT(reporter, smBufferInfo2.fOffset >= 4 + smBufferInfo1.fOffset);
 
     REPORTER_ASSERT(reporter, smBufferInfo0.fBuffer->isMapped());
-    const void* smBufferMap = const_cast<Buffer*>(smBufferInfo0.fBuffer)->map();
-    const char expectedSmBufferMap[16] = {
-            // From smWriter0.
-            1, 2, 3,
-            5, 6, 7,
-
-            1, 2,
-            5, 6,
-
-            // From smWriter1.
-            1, 2,
-            5, 6,
-
-            // From smWriter2.
-            1, 2,
-    };
-    REPORTER_ASSERT(reporter,
-                    memcmp(smBufferMap, expectedSmBufferMap, sizeof(expectedSmBufferMap)) == 0);
+    const char* smBufferMap =
+                reinterpret_cast<const char*>(const_cast<Buffer*>(smBufferInfo0.fBuffer)->map());
+    // Each section of written data could be offset and aligned by GPU-required rules, so we can't
+    // easily validate the contents of the buffer in one go, and instead test at each of the three
+    // reported offsets.
+    const char expectedSmBuffer0[10] = { 1, 2, 3, 5, 6, 7, 1, 2, 5, 6 };
+    const char expectedSmBuffer1[4] = { 1, 2, 5, 6 };
+    const char expectedSmBuffer2[2] = { 1, 2};
+    REPORTER_ASSERT(reporter, memcmp(smBufferMap + smBufferInfo0.fOffset,
+                                     expectedSmBuffer0,
+                                     sizeof(expectedSmBuffer0)) == 0);
+    REPORTER_ASSERT(reporter, memcmp(smBufferMap + smBufferInfo1.fOffset,
+                                     expectedSmBuffer1,
+                                     sizeof(expectedSmBuffer1)) == 0);
+    REPORTER_ASSERT(reporter, memcmp(smBufferMap + smBufferInfo2.fOffset,
+                                     expectedSmBuffer1,
+                                     sizeof(expectedSmBuffer2)) == 0);
 
     // Snap a Recording from the Recorder. This will transfer resources from the UploadBufferManager
     // to the Recording.
@@ -86,10 +90,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UploadBufferManagerTest, reporter, context) {
 
     // Test writes with a required alignment.
     auto [alWriter0, alBufferInfo0] = bufferManager->getUploadWriter(6, 4);
-    alWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/3, /*rowCount=*/2);
+    alWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/3, /*trimRowBytes=*/3,
+                    /*rowCount=*/2);
 
     auto [alWriter1, alBufferInfo1] = bufferManager->getUploadWriter(2, 4);
-    alWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/1);
+    alWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/1);
 
     // Should not share a buffer with earlier small writes, since we've transferred previously-
     // allocated resources to the command buffer.

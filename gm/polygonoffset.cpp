@@ -16,13 +16,14 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/utils/SkPolyUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <functional>
 #include <memory>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPathDirection dir) {
     float angleStep = 360.0f / n, angle = 0.0f;
     if ((n % 2) == 1) {
@@ -581,7 +582,7 @@ protected:
             if (result) {
                 SkPath path;
                 path.moveTo(offsetPoly[0]);
-                for (int j = 1; j < offsetPoly.count(); ++j) {
+                for (int j = 1; j < offsetPoly.size(); ++j) {
                     path.lineTo(offsetPoly[j]);
                 }
                 path.close();
@@ -624,3 +625,5 @@ private:
 DEF_GM(return new PolygonOffsetGM(true);)
 DEF_GM(return new PolygonOffsetGM(false);)
 }  // namespace skiagm
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)

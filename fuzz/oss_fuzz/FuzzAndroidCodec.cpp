@@ -9,7 +9,9 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/private/SkGainmapInfo.h"
 
 #include "fuzz/Fuzz.h"
 
@@ -38,6 +40,19 @@ bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize) {
             break;
         default:
             return false;
+    }
+
+    SkGainmapInfo gainmapInfo;
+    auto gainmapImageStream = std::unique_ptr<SkStream>();
+
+    if (codec->getAndroidGainmap(&gainmapInfo, &gainmapImageStream)) {
+        // Do something with the outputs so the compiler does not optimize the call away.
+        if (!std::isfinite(gainmapInfo.fDisplayRatioSdr)) {
+            return false;
+        }
+        if (gainmapImageStream->getLength() > 100000000) {
+            return false;
+        }
     }
 
     auto surface = SkSurface::MakeRasterN32Premul(size.width(), size.height());

@@ -19,6 +19,7 @@
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -32,13 +33,13 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-using AAMode = skgpu::v1::DashOp::AAMode;
+using AAMode = skgpu::ganesh::DashOp::AAMode;
 
 #if GR_TEST_UTILS
-static const int kAAModeCnt = static_cast<int>(skgpu::v1::DashOp::AAMode::kCoverageWithMSAA) + 1;
+constexpr int kAAModeCnt = static_cast<int>(skgpu::ganesh::DashOp::AAMode::kCoverageWithMSAA) + 1;
 #endif
 
-namespace skgpu::v1::DashOp {
+namespace skgpu::ganesh::DashOp {
 
 namespace {
 
@@ -329,7 +330,7 @@ private:
     }
 
     void onPrepareDraws(GrMeshDrawTarget* target) override {
-        int instanceCount = fLines.count();
+        int instanceCount = fLines.size();
         SkPaint::Cap cap = this->cap();
         DashCap capType = (SkPaint::kRound_Cap == cap) ? kRound_DashCap : kNonRound_DashCap;
 
@@ -654,7 +655,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fLines.push_back_n(that->fLines.count(), that->fLines.begin());
+        fLines.push_back_n(that->fLines.size(), that->fLines.begin());
         return CombineResult::kMerged;
     }
 
@@ -871,7 +872,7 @@ DashingCircleEffect::DashingCircleEffect(const SkPMColor4f& color,
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 }
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
@@ -1085,7 +1086,7 @@ DashingLineEffect::DashingLineEffect(const SkPMColor4f& color,
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 }
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {
@@ -1224,7 +1225,7 @@ bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix&
     return true;
 }
 
-} // namespace skgpu::v1::DashOp
+} // namespace skgpu::ganesh::DashOp
 
 #if GR_TEST_UTILS
 
@@ -1300,8 +1301,8 @@ GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
 
     GrStyle style(p);
 
-    return skgpu::v1::DashOp::MakeDashLineOp(context, std::move(paint), viewMatrix, pts, aaMode,
-                                             style, GrGetRandomStencil(random, context));
+    return skgpu::ganesh::DashOp::MakeDashLineOp(context, std::move(paint), viewMatrix, pts, aaMode,
+                                                 style, GrGetRandomStencil(random, context));
 }
 
 #endif // GR_TEST_UTILS

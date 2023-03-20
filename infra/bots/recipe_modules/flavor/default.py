@@ -116,6 +116,10 @@ class DefaultFlavor(object):
     return self.m.run(self.m.step, title, cmd=cmd,
                infra_step=infra_step, **kwargs)
 
+  def _py(self, title, script, infra_step=True, args=()):
+    return self.m.run(self.m.python, title, script=script, args=args,
+                      infra_step=infra_step)
+
   def step(self, name, cmd, **unused_kwargs):
     app = self.device_dirs.bin_dir.join(cmd[0])
     cmd = [app] + cmd[1:]
@@ -124,7 +128,7 @@ class DefaultFlavor(object):
     ld_library_path = []
 
     workdir = self.m.vars.workdir
-    clang_linux = str(workdir.join('clang_linux'))
+    clang_linux = workdir.join('clang_linux')
     extra_tokens = self.m.vars.extra_tokens
 
     if self.m.vars.is_linux:
@@ -156,20 +160,18 @@ class DefaultFlavor(object):
 
     # Find the MSAN/TSAN-built libc++.
     if 'MSAN' in extra_tokens:
-      ld_library_path.append(clang_linux + '/msan')
+      ld_library_path.append(clang_linux.join('msan'))
     elif 'TSAN' in extra_tokens:
-      ld_library_path.append(clang_linux + '/tsan')
+      ld_library_path.append(clang_linux.join('tsan'))
 
     if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
-      path.append(clang_linux + '/bin')
+      path.append(clang_linux.join('bin'))
       # We find that testing sanitizer builds with libc++ uncovers more issues
       # than with the system-provided C++ standard library, which is usually
       # libstdc++. libc++ proactively hooks into sanitizers to help their
       # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
-      ld_library_path.append(clang_linux + '/lib')
-    elif self.m.vars.is_linux:
-      cmd = ['catchsegv'] + cmd
+      ld_library_path.append(clang_linux.join('lib', 'x86_64-unknown-linux-gnu'))
 
     if 'ASAN' in extra_tokens:
       os = self.m.vars.builder_cfg.get('os', '')
@@ -178,6 +180,7 @@ class DefaultFlavor(object):
         env['ASAN_OPTIONS'] = 'symbolize=1'
       else:
         env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
+        env['ASAN_SYMBOLIZER_PATH'] = clang_linux.join('bin', 'llvm-symbolizer')
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
@@ -207,7 +210,17 @@ class DefaultFlavor(object):
       env['LD_LIBRARY_PATH'] = self.m.path.pathsep.join(
           '%s' % p for p in ld_library_path)
 
-    if 'Win' in self.m.vars.builder_cfg.get('os', ''):
+    to_symbolize = ['dm', 'nanobench']
+    if name in to_symbolize and self.m.vars.is_linux:
+      # Convert path objects or placeholders into strings such that they can
+      # be passed to symbolize_stack_trace.py
+      args = [workdir] + [str(x) for x in cmd]
+      with self.m.context(cwd=self.m.path['start_dir'].join('skia'), env=env):
+        self._py('symbolized %s' % name,
+                 self.module.resource('symbolize_stack_trace.py'),
+                 args=args,
+                 infra_step=False)
+    elif 'Win' in self.m.vars.builder_cfg.get('os', ''):
       with self.m.context(env=env):
         wrapped_cmd = ['powershell', '-ExecutionPolicy', 'Unrestricted',
                        '-File',

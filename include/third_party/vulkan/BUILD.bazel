@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 
 licenses(["notice"])
 
@@ -6,14 +6,15 @@ exports_files_legacy()
 
 skia_cc_library(
     name = "vulkan",
-    srcs = [
-        "vulkan/vk_platform.h",
-        "vulkan/vulkan_xcb.h",
-    ],  #TODO(kjlubick) The other files are necessary on different platforms
     hdrs = [
         "vulkan/vulkan.h",
         "vulkan/vulkan_core.h",
     ],
     includes = ["."],
+    textual_hdrs = [
+        "vulkan/vk_platform.h",
+        "vulkan/vulkan_android.h",
+        "vulkan/vulkan_xcb.h",
+    ],  #TODO(kjlubick) The other files are necessary on different platforms
     visibility = ["//:__subpackages__"],
 )

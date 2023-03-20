@@ -1,0 +1,25 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "srcs",
+    # TODO: break up into seperate targets
+    srcs = [
+        "SkGLWindowContext_android.cpp",
+        "SkVulkanWindowContext_android.cpp",
+        "SkWindowContextFactory_android.h",
+    ],
+    visibility = ["//tools/window:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//tools/window:__pkg__"],
+    deps = select({
+        "//src/gpu:vulkan_backend": ["//tools/gpu/vk:testutils"],
+        "//conditions:default": [],
+    }),
+)

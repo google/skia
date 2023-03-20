@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;half4 main(float2 a){int b=int(colorGreen.y);int c=int(colorGreen.x);int d=b/c+c/c;return d!=9876543?colorGreen:colorRed;}

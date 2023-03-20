@@ -9,10 +9,14 @@
 
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
@@ -41,11 +45,11 @@ public:
             fAttribs.emplace_back("affineMatrix", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
             fAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, SkSLType::kFloat2);
         }
-        SkASSERT(fAttribs.count() == this->colorAttribIdx());
+        SkASSERT(fAttribs.size() == this->colorAttribIdx());
         fAttribs.emplace_back("color", kFloat4_GrVertexAttribType, SkSLType::kHalf4);
         fAtlasHelper->appendInstanceAttribs(&fAttribs);
-        SkASSERT(fAttribs.count() <= kMaxInstanceAttribs);
-        this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
+        SkASSERT(fAttribs.size() <= kMaxInstanceAttribs);
+        this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.size());
         this->setTextureSamplerCnt(1);
     }
 

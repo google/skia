@@ -44,12 +44,10 @@ private:
     GLXFBConfig* fFBConfig;
     XVisualInfo* fVisualInfo;
     GLXContext   fGLContext;
-
-    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const DisplayParams& params)
-        : INHERITED(params)
+        : GLWindowContext(params)
         , fDisplay(winInfo.fDisplay)
         , fWindow(winInfo.fWindow)
         , fFBConfig(winInfo.fFBConfig)

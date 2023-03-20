@@ -25,8 +25,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkTDArray.h"
-#include "src/core/SkTLazy.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkTLazy.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -183,15 +183,19 @@ protected:
             draw_color_bm(&fColorBitmap, squareLength);
             sk_sp<SkImage> img = SkImage::MakeFromBitmap(fColorBitmap);
             img = ToolUtils::MakeTextureImage(canvas, std::move(img));
-            fColorBitmapShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                                 SkSamplingOptions(), SkMatrix::I());
-
+            if (img) {
+                fColorBitmapShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                     SkSamplingOptions(), SkMatrix::I());
+            }
             draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
             img = SkImage::MakeFromBitmap(fAlpha8Bitmap);
             img = ToolUtils::MakeTextureImage(canvas, std::move(img));
-            fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                                           SkSamplingOptions(), SkMatrix::I());
-
+            if (img) {
+                fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat,
+                                                               SkTileMode::kRepeat,
+                                                               SkSamplingOptions(),
+                                                               SkMatrix::I());
+            }
             fLinearGradientShader = make_linear_gradient_shader(squareLength);
             fInitialized = true;
         }
@@ -208,7 +212,7 @@ protected:
         };
         if (fUseLocalMatrix) {
             for (unsigned i = 0; i < std::size(shaders); ++i) {
-                shaders[i] = shaders[i]->makeWithLocalMatrix(lm);
+                shaders[i] = shaders[i] ? shaders[i]->makeWithLocalMatrix(lm) : nullptr;
             }
         }
 
@@ -257,9 +261,9 @@ DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     int width = 255;
     int height = 255;
     SkTDArray<uint8_t> dst8Storage;
-    dst8Storage.setCount(width * height);
+    dst8Storage.resize(width * height);
     SkTDArray<uint32_t> dst32Storage;
-    dst32Storage.setCount(width * height * sizeof(int32_t));
+    dst32Storage.resize(width * height * sizeof(int32_t));
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             dst8Storage[y * width + x] = (y + x) / 2;

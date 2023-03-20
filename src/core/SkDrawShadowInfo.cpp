@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkDrawShadowInfo.h"
+
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkShadowFlags.h"
-#include "src/core/SkDrawShadowInfo.h"
-#include "src/utils/SkPolyUtils.h"
+#include "include/private/base/SkTo.h"
 
 namespace SkDrawShadowMetrics {
 
@@ -50,10 +51,7 @@ bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
         // get rotated quad in 3D
         SkPoint pts[4];
         ctm.mapRectToQuad(pts, pathBounds);
-        // No shadows for bowties or other degenerate cases
-        if (!SkIsConvexPolygon(pts, 4)) {
-            return false;
-        }
+
         SkPoint3 pts3D[4];
         SkScalar z = heightFunc(pathBounds.fLeft, pathBounds.fTop);
         pts3D[0].set(pts[0].fX, pts[0].fY, z);

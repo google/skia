@@ -14,21 +14,30 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkOpts.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
 
-#include <math.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <initializer_list>
+
+using namespace skia_private;
+
+struct GrContextOptions;
 
 /** convert 0..1 linear value to 0..1 srgb */
 static float linear_to_srgb(float linear) {
@@ -93,14 +102,14 @@ bool check_gamma(uint32_t src, uint32_t dst, bool toSRGB, float error,
     return result;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
     static constexpr SkISize kBaseSize{256, 256};
     static const size_t kRowBytes = sizeof(uint32_t) * kBaseSize.fWidth;
 
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kBaseSize);
 
-    SkAutoTMalloc<uint32_t> srcPixels(kBaseSize.area());
+    AutoTMalloc<uint32_t> srcPixels(kBaseSize.area());
     for (int y = 0; y < kBaseSize.fHeight; ++y) {
         for (int x = 0; x < kBaseSize.fWidth; ++x) {
             srcPixels.get()[y*kBaseSize.fWidth+x] = SkPreMultiplyARGB(x, y, x, 0xFF);
@@ -111,13 +120,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforcement
     bm.installPixels(ii, srcPixels.get(), kRowBytes);
     auto img = bm.asImage();
 
-    SkAutoTMalloc<uint32_t> read(kBaseSize.area());
+    AutoTMalloc<uint32_t> read(kBaseSize.area());
 
     // We allow more error on GPUs with lower precision shader variables.
     float error = context->priv().caps()->shaderCaps()->fHalfIs32Bits ? 0.5f : 1.2f;
 
     for (auto toSRGB : { false, true }) {
-        sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
+        sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, ii));
 
         if (!dst) {
             ERRORF(reporter, "Could not create surfaces for copy surface test.");
@@ -137,7 +146,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforcement
         dstCanvas->drawImage(img, 0, 0, SkSamplingOptions(), &gammaPaint);
         dst->flushAndSubmit();
 
-        sk_memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);
+        SkOpts::memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);
         if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
             ERRORF(reporter, "Error calling readPixels");
             continue;

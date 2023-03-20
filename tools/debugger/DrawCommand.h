@@ -8,9 +8,7 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
@@ -33,10 +31,13 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/private/SkTDArray.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkDrawShadowInfo.h"
-#include "src/core/SkTLazy.h"
+
+#include <cstddef>
+#include <cstdint>
 
 class DebugLayerManager;
 class SkBitmap;
@@ -44,6 +45,8 @@ class SkFlattenable;
 class SkJSONWriter;
 class SkWStream;
 class UrlDataManager;
+enum class SkBlendMode;
+enum class SkClipOp;
 struct SkPoint3;
 struct SkRSXform;
 
@@ -741,13 +744,13 @@ public:
     void execute(SkCanvas* canvas) const override;
 
 private:
-    SkAutoTArray<SkCanvas::ImageSetEntry> fSet;
-    int                                   fCount;
-    SkAutoTArray<SkPoint>                 fDstClips;
-    SkAutoTArray<SkMatrix>                fPreViewMatrices;
-    SkSamplingOptions                     fSampling;
-    SkTLazy<SkPaint>                      fPaint;
-    SkCanvas::SrcRectConstraint           fConstraint;
+    skia_private::AutoTArray<SkCanvas::ImageSetEntry> fSet;
+    int                                               fCount;
+    skia_private::AutoTArray<SkPoint>                 fDstClips;
+    skia_private::AutoTArray<SkMatrix>                fPreViewMatrices;
+    SkSamplingOptions                                 fSampling;
+    SkTLazy<SkPaint>                                  fPaint;
+    SkCanvas::SrcRectConstraint                       fConstraint;
 
     using INHERITED = DrawCommand;
 };

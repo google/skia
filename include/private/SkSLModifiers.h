@@ -49,13 +49,14 @@ struct Modifiers {
         kReadOnly_Flag       = 1 <<  9,
         kWriteOnly_Flag      = 1 << 10,
         kBuffer_Flag         = 1 << 11,
-        // We use the Metal name for this one (corresponds to the GLSL 'shared' modifier)
-        kThreadgroup_Flag    = 1 << 12,
+        // Corresponds to the GLSL 'shared' modifier. Only allowed in a compute program.
+        kWorkgroup_Flag      = 1 << 12,
         // SkSL extensions, not present in GLSL
-        kES3_Flag            = 1 << 13,
-        kHasSideEffects_Flag = 1 << 14,
-        kInline_Flag         = 1 << 15,
-        kNoInline_Flag       = 1 << 16,
+        kExport_Flag         = 1 << 13,
+        kES3_Flag            = 1 << 14,
+        kPure_Flag           = 1 << 15,
+        kInline_Flag         = 1 << 16,
+        kNoInline_Flag       = 1 << 17,
     };
 
     Modifiers()
@@ -73,11 +74,17 @@ struct Modifiers {
     static std::string DescribeFlags(int flags) {
         // SkSL extensions
         std::string result;
+        if (flags & kExport_Flag) {
+            result += "$export ";
+        }
         if (flags & kES3_Flag) {
             result += "$es3 ";
         }
-        if (flags & kHasSideEffects_Flag) {
-            result += "sk_has_side_effects ";
+        if (flags & kPure_Flag) {
+            result += "$pure ";
+        }
+        if (flags & kInline_Flag) {
+            result += "inline ";
         }
         if (flags & kNoInline_Flag) {
             result += "noinline ";
@@ -123,8 +130,8 @@ struct Modifiers {
         }
 
         // We're using a non-GLSL name for this one; the GLSL equivalent is "shared"
-        if (flags & kThreadgroup_Flag) {
-            result += "threadgroup ";
+        if (flags & kWorkgroup_Flag) {
+            result += "workgroup ";
         }
 
         if (!result.empty()) {

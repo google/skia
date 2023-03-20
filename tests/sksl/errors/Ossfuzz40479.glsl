@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: integer is out of range for type 'int': 4016112253
+error: 1: value is out of range for type 'int': 4016112253
 void[4016112253 .r1r
      ^^^^^^^^^^
 error: 1: array size must be an integer

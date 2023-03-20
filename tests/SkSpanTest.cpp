@@ -7,7 +7,10 @@
 
 #include "include/core/SkSpan.h"
 #include "tests/Test.h"
+
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <vector>
 
 DEF_TEST(SkSpanBasicTemplateGuide, reporter) {
@@ -94,5 +97,34 @@ DEF_TEST(SkSpanDeduceParam, reporter) {
         int v[]{1, 2, 3};
         auto s = SkSpan(v);
         REPORTER_ASSERT(reporter, test_span_parameter(s));
+    }
+}
+
+DEF_TEST(SkSpanDeduceSize, reporter) {
+    int d[] = {1, 2, 3, 4, 5};
+    {
+        int s = std::size(d);
+        SkSpan span = SkSpan{d, s};
+        REPORTER_ASSERT(reporter, span.size() == std::size(d));
+    }
+    {
+        uint32_t s = std::size(d);
+        SkSpan span = SkSpan{d, s};
+        REPORTER_ASSERT(reporter, span.size() == std::size(d));
+    }
+    {
+        size_t s = std::size(d);
+        SkSpan span = SkSpan{d, s};
+        REPORTER_ASSERT(reporter, span.size() == std::size(d));
+    }
+    {
+        struct C {
+            int* data() { return nullptr; }
+            int size() const { return 0; }
+        };
+
+        C c;
+        SkSpan span = SkSpan(c);
+        REPORTER_ASSERT(reporter, span.size() == 0);
     }
 }

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'unsigned' is a reserved word
+error: 1: name 'unsigned' is reserved
 int unsigned;
     ^^^^^^^^
 1 error

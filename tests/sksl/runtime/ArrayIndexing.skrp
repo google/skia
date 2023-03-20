@@ -1,0 +1,79 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $0 = u1[0]
+    4. label                          label 0x00000000
+    5. zero_slot_unmasked             sum = 0
+    6. copy_constant                  i = 0x00000003 (4.203895e-45)
+    7. label                          label 0x00000003
+    8. copy_slot_unmasked             $1 = sum
+    9. copy_slot_unmasked             $7 = i
+   10. copy_from_indirect_uniform_unm $2 = Indirect(u2[0] + $7)
+   11. add_float                      $1 += $2
+   12. copy_slot_unmasked             sum = $1
+   13. copy_slot_unmasked             $1 = i
+   14. copy_constant                  $2 = 0x00000001 (1.401298e-45)
+   15. sub_int                        $1 -= $2
+   16. copy_slot_unmasked             i = $1
+   17. zero_slot_unmasked             $1 = 0
+   18. copy_slot_unmasked             $2 = i
+   19. cmple_int                      $1 = lessThanEqual($1, $2)
+   20. stack_rewind
+   21. branch_if_no_active_lanes_eq   branch -14 (label 3 at #7) if no lanes of $1 == 0x00000000 (0.0)
+   22. label                          label 0x00000002
+   23. copy_slot_unmasked             $1 = sum
+   24. label                          label 0x00000001
+   25. copy_constant                  prod = 0x3F800000 (1.0)
+   26. zero_slot_unmasked             i₁ = 0
+   27. label                          label 0x00000006
+   28. copy_slot_unmasked             $2 = prod
+   29. copy_slot_unmasked             $7 = i₁
+   30. copy_constant                  $8 = 0x00000002 (2.802597e-45)
+   31. cmplt_int                      $7 = lessThan($7, $8)
+   32. copy_slot_unmasked             $8 = i₁
+   33. zero_slot_unmasked             $9 = 0
+   34. mix_int                        $7 = mix($8, $9, $7)
+   35. copy_from_indirect_uniform_unm $3 = Indirect(u3[0] + $7)
+   36. mul_float                      $2 *= $3
+   37. copy_slot_unmasked             prod = $2
+   38. copy_slot_unmasked             $2 = i₁
+   39. copy_constant                  $3 = 0x00000001 (1.401298e-45)
+   40. add_int                        $2 += $3
+   41. copy_slot_unmasked             i₁ = $2
+   42. copy_constant                  $3 = 0x00000004 (5.605194e-45)
+   43. cmplt_int                      $2 = lessThan($2, $3)
+   44. stack_rewind
+   45. branch_if_no_active_lanes_eq   branch -18 (label 6 at #27) if no lanes of $2 == 0x00000000 (0.0)
+   46. label                          label 0x00000005
+   47. copy_slot_unmasked             $2 = prod
+   48. label                          label 0x00000004
+   49. zero_slot_unmasked             sum₁ = 0
+   50. copy_constant                  f = 0xC0133333 (-2.3)
+   51. label                          label 0x0000000A
+   52. store_condition_mask           $3 = CondMask
+   53. zero_slot_unmasked             $4 = 0
+   54. copy_slot_unmasked             $5 = f
+   55. cmplt_float                    $4 = lessThan($4, $5)
+   56. copy_slot_unmasked             $5 = f
+   57. copy_constant                  $6 = 0x41800000 (16.0)
+   58. cmplt_float                    $5 = lessThan($5, $6)
+   59. bitwise_and_int                $4 &= $5
+   60. merge_condition_mask           CondMask = $3 & $4
+   61. copy_slot_unmasked             $5 = sum₁
+   62. copy_slot_unmasked             $7 = f
+   63. cast_to_int_from_float         $7 = FloatToInt($7)
+   64. copy_from_indirect_uniform_unm $6 = Indirect(u4[0] + $7)
+   65. sub_float                      $5 -= $6
+   66. copy_slot_masked               sum₁ = Mask($5)
+   67. load_condition_mask            CondMask = $3
+   68. copy_slot_unmasked             $3 = f
+   69. copy_constant                  $4 = 0x406CCCCD (3.7)
+   70. add_float                      $3 += $4
+   71. copy_slot_unmasked             f = $3
+   72. copy_constant                  $4 = 0x41880000 (17.0)
+   73. cmplt_float                    $3 = lessThan($3, $4)
+   74. stack_rewind
+   75. branch_if_no_active_lanes_eq   branch -24 (label 10 at #51) if no lanes of $3 == 0x00000000 (0.0)
+   76. label                          label 0x00000009
+   77. copy_slot_unmasked             $3 = sum₁
+   78. label                          label 0x00000008
+   79. load_src                       src.rgba = $0..3

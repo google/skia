@@ -163,7 +163,7 @@ SkSurface* Request::createGPUSurface() {
                     : SkColorSpace::MakeSRGB();
     SkImageInfo info = SkImageInfo::Make(bounds.size(), cap.fColorType, kPremul_SkAlphaType,
                                          cap.fSRGB ? colorSpace : nullptr);
-    SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info).release();
+    SkSurface* surface = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, info).release();
     return surface;
 }
 

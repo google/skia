@@ -8,7 +8,8 @@
 #ifndef GrSPIRVUniformHandler_DEFINED
 #define GrSPIRVUniformHandler_DEFINED
 
-#include "src/core/SkTBlockList.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
 /*

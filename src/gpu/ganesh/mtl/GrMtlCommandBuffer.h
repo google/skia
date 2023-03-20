@@ -78,7 +78,7 @@ public:
         return fCmdBuffer.status == MTLCommandBufferStatusCompleted ||
                fCmdBuffer.status == MTLCommandBufferStatusError;
     }
-    void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
+    void callFinishedCallbacks() { fFinishedCallbacks.clear(); }
 
     void pushDebugGroup(NSString* string) {
         if (@available(macOS 10.13, iOS 11.0, *)) {

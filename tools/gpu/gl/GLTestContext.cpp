@@ -247,7 +247,7 @@ void GLTestContext::overrideVersion(const char* version, const char* shadingLang
     newInterface->fFunctions.fGetString = getString;
     fGLInterface = std::move(newInterface);
 #endif
-};
+}
 
 sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& options) {
 #ifdef SK_GL

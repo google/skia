@@ -41,13 +41,11 @@ private:
     sk_app::Window_ios*  fWindow;
     UIViewController*    fViewController;
     MetalView*           fMetalView;
-
-    using INHERITED = MetalWindowContext;
 };
 
 MetalWindowContext_ios::MetalWindowContext_ios(const IOSWindowInfo& info,
                                                const DisplayParams& params)
-    : INHERITED(params)
+    : MetalWindowContext(params)
     , fWindow(info.fWindow)
     , fViewController(info.fViewController) {
 

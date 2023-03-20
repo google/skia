@@ -1,0 +1,1 @@
+uniform half4 colorGreen;half4 main(float2 a){half4 b=half4(1.);half4 c=half4(0.);float4 d=float4(colorGreen);return half4(d*float4(b)+float4(c));}

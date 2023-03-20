@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+
+# Copyright 2022 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import hashlib
+import json
+import os
+import platform
+import re
+import stat
+import sys
+import tempfile
+import zipfile
+
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+else:
+  from urllib.request import urlopen
+
+def sha256sum(path):
+  try:
+    with open(path, 'rb') as f:
+      return hashlib.sha256(f.read()).hexdigest()
+  except OSError:
+    return ''
+
+
+os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
+
+OS  = {'darwin': 'mac', 'linux': 'linux', 'linux2': 'linux', 'win32': 'windows'}[sys.platform]
+cpu = {'aarch64': 'arm64', 'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
+platform = '%s-%s' % (OS, cpu)
+ninja = 'ninja'
+if 'windows' in platform:
+  ninja = 'ninja.exe'
+
+# Find the version of 'ninja' requested by DEPS.
+with open('DEPS', 'rb') as f:
+  deps = f.read().decode()
+found = re.findall(r"'ninja_version':\s*'(\S+)'", deps)
+if len(found) != 1:
+  print('Unable to find ninja_version in DEPS', file=sys.stderr)
+  exit(1)
+desired_version = found[0]
+
+# Determine which version (if any) we currently have.
+# depot_tools scripts expect ninja to be in third_party
+os.makedirs(os.path.join('third_party', 'ninja'), exist_ok=True)
+ninja_path = os.path.join('third_party', 'ninja', ninja)
+current_sha256 = sha256sum(ninja_path)
+ninja_version_path = os.path.join('bin', 'ninja.version')
+
+# When we download 'ninja', we write the version information to a file so we can
+# keep track of which version we have. Read the file to determine whether the
+# current version matches what we want.
+current_version = {
+  'version': '',
+  'sha256': '',
+}
+try:
+  with open(ninja_version_path, 'r', encoding='utf8') as f:
+    current_version = json.load(f)
+except OSError:
+  pass
+
+if desired_version != current_version['version']:
+  print('Version "%s" requested by DEPS differs from current version "%s"' % (
+      desired_version, current_version['version']))
+elif current_sha256 != current_version['sha256']:
+  print('sha256 sum "%s" does not match last-downloaded version "%s"' % (
+      current_sha256, current_version['sha256']))
+else:
+  print('Already up to date.')
+  exit(0)
+
+print('Fetching %s at %s for platform %s' % (ninja, desired_version, platform))
+
+# Download ninja.
+ninjazip = os.path.join(tempfile.mkdtemp(), 'ninja.zip')
+with open(ninjazip, 'wb') as f:
+  url = 'https://chrome-infra-packages.appspot.com/dl/infra/3pp/tools/ninja/%s/+/%s' % (
+      platform, desired_version)
+  f.write(urlopen(url).read())
+
+with zipfile.ZipFile(ninjazip, 'r') as f:
+  f.extract(ninja, os.path.join('third_party', 'ninja'))
+
+if not 'windows' in platform:
+  uid = os.getuid()
+  gid = os.getgid()
+  os.chown(ninja_path, uid, gid)
+  os.chmod(ninja_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                    stat.S_IRGRP                | stat.S_IXGRP |
+                    stat.S_IROTH                | stat.S_IXOTH )
+
+# Write the downloaded version info to a file.
+current_version['version'] = desired_version
+current_version['sha256'] = sha256sum(ninja_path)
+with open(ninja_version_path, 'w', encoding='utf8') as f:
+  json.dump(current_version, f, sort_keys=True, indent=2)

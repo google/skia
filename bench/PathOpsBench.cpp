@@ -10,8 +10,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkTArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkRandom.h"
 
 class PathOpsBench : public Benchmark {
     SkString    fName;

@@ -7,9 +7,9 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
-#include "include/private/SkHalf.h"
-#include "include/private/SkTFitsIn.h"
-#include "include/private/SkThreadID.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkThreadID.h"
+#include "src/base/SkHalf.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCpu.h"
@@ -31,7 +31,7 @@ bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
     #if defined(SK_BUILD_FOR_WIN)
-        #include "src/core/SkLeanWindows.h"
+        #include "src/base/SkLeanWindows.h"
         #include <memoryapi.h>
 
         static void* alloc_jit_buffer(size_t* len) {
@@ -91,7 +91,7 @@ bool gSkVMJITViaDylib{false};
     // hand. So we terminate the chain here with stub functions. Note that skslc's usage of SkVM
     // never cares about color management.
     skvm::F32 sk_program_transfer_fn(
-        skvm::F32 v, TFKind tf_kind,
+        skvm::F32 v, skcms_TFType tf_type,
         skvm::F32 G, skvm::F32 A, skvm::F32 B, skvm::F32 C, skvm::F32 D, skvm::F32 E, skvm::F32 F) {
             return v;
     }
@@ -909,16 +909,16 @@ namespace skvm {
         return x;
     }
 
-     // http://mathforum.org/library/drmath/view/54137.html
-     // referencing Handbook of Mathematical Functions,
-     //             by Milton Abramowitz and Irene Stegun
-     F32 Builder::approx_asin(F32 x) {
+    // http://mathforum.org/library/drmath/view/54137.html
+    // referencing Handbook of Mathematical Functions,
+    //             by Milton Abramowitz and Irene Stegun
+    F32 Builder::approx_asin(F32 x) {
          I32 neg = (x < 0.0f);
          x = select(neg, -x, x);
          x = SK_ScalarPI/2 - sqrt(1-x) * poly(x, -0.0187293f, 0.0742610f, -0.2121144f, 1.5707288f);
          x = select(neg, -x, x);
          return x;
-     }
+    }
 
     /*  Use 4th order polynomial approximation from https://arachnoid.com/polysolve/
      *      with 129 values of x,atan(x) for x:[0...1]
@@ -968,7 +968,7 @@ namespace skvm {
         // handle quadrant distinctions
         r = select((y0 >= 0) & (x0  < 0), r + SK_ScalarPI, r);
         r = select((y0  < 0) & (x0 <= 0), r - SK_ScalarPI, r);
-        // Note: we don't try to handle 0,0 or infinities (yet)
+        // Note: we don't try to handle 0,0 or infinities
         return r;
     }
 
@@ -981,20 +981,20 @@ namespace skvm {
         return {this, this->push(Op::max_f32, x.id, y.id)};
     }
 
-    SK_ATTRIBUTE(no_sanitize("signed-integer-overflow"))
+    SK_NO_SANITIZE("signed-integer-overflow")
     I32 Builder::add(I32 x, I32 y) {
         if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X+Y); }
         this->canonicalizeIdOrder(x, y);
         if (this->isImm(y.id, 0)) { return x; }  // x+0 == x
         return {this, this->push(Op::add_i32, x.id, y.id)};
     }
-    SK_ATTRIBUTE(no_sanitize("signed-integer-overflow"))
+    SK_NO_SANITIZE("signed-integer-overflow")
     I32 Builder::sub(I32 x, I32 y) {
         if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X-Y); }
         if (this->isImm(y.id, 0)) { return x; }
         return {this, this->push(Op::sub_i32, x.id, y.id)};
     }
-    SK_ATTRIBUTE(no_sanitize("signed-integer-overflow"))
+    SK_NO_SANITIZE("signed-integer-overflow")
     I32 Builder::mul(I32 x, I32 y) {
         if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X*Y); }
         this->canonicalizeIdOrder(x, y);
@@ -1003,7 +1003,7 @@ namespace skvm {
         return {this, this->push(Op::mul_i32, x.id, y.id)};
     }
 
-    SK_ATTRIBUTE(no_sanitize("shift"))
+    SK_NO_SANITIZE("shift")
     I32 Builder::shl(I32 x, int bits) {
         if (bits == 0) { return x; }
         if (int X; this->allImm(x.id,&X)) { return splat(X << bits); }
@@ -1181,7 +1181,8 @@ namespace skvm {
     PixelFormat SkColorType_to_PixelFormat(SkColorType ct) {
         auto UNORM = PixelFormat::UNORM,
              SRGB  = PixelFormat::SRGB,
-             FLOAT = PixelFormat::FLOAT;
+             FLOAT = PixelFormat::FLOAT,
+             XRNG  = PixelFormat::XRNG;
         switch (ct) {
             case kUnknown_SkColorType: break;
 
@@ -1206,10 +1207,11 @@ namespace skvm {
             case kBGRA_8888_SkColorType:  return {UNORM, 8,8,8,8, 16,8, 0,24};
             case kSRGBA_8888_SkColorType: return { SRGB, 8,8,8,8,  0,8,16,24};
 
-            case kRGBA_1010102_SkColorType: return {UNORM, 10,10,10,2,  0,10,20,30};
-            case kBGRA_1010102_SkColorType: return {UNORM, 10,10,10,2, 20,10, 0,30};
-            case kRGB_101010x_SkColorType:  return {UNORM, 10,10,10,0,  0,10,20, 0};
-            case kBGR_101010x_SkColorType:  return {UNORM, 10,10,10,0, 20,10, 0, 0};
+            case kRGBA_1010102_SkColorType:   return {UNORM, 10,10,10,2,  0,10,20,30};
+            case kBGRA_1010102_SkColorType:   return {UNORM, 10,10,10,2, 20,10, 0,30};
+            case kRGB_101010x_SkColorType:    return {UNORM, 10,10,10,0,  0,10,20, 0};
+            case kBGR_101010x_SkColorType:    return {UNORM, 10,10,10,0, 20,10, 0, 0};
+            case kBGR_101010x_XR_SkColorType: return { XRNG, 10,10,10,0, 20,10, 0, 0};
 
             case kR8G8_unorm_SkColorType:   return {UNORM,  8, 8,0, 0, 0, 8,0,0};
             case kR16G16_unorm_SkColorType: return {UNORM, 16,16,0, 0, 0,16,0,0};
@@ -1235,7 +1237,7 @@ namespace skvm {
         auto from_srgb = [](int bits, I32 channel) -> F32 {
             const skcms_TransferFunction* tf = skcms_sRGB_TransferFunction();
             F32 v = from_unorm(bits, channel);
-            return sk_program_transfer_fn(v, sRGBish_TF,
+            return sk_program_transfer_fn(v, skcms_TFType_sRGBish,
                                           v->splat(tf->g),
                                           v->splat(tf->a),
                                           v->splat(tf->b),
@@ -1244,6 +1246,13 @@ namespace skvm {
                                           v->splat(tf->e),
                                           v->splat(tf->f));
         };
+        auto from_xr = [](int bits, I32 channel) -> F32 {
+            static constexpr float min = -0.752941f;
+            static constexpr float max = 1.25098f;
+            static constexpr float range = max - min;
+            F32 v = from_unorm(bits, channel);
+            return v * range + min;
+        };
 
         auto unpack_rgb = [=](int bits, int shift) -> F32 {
             I32 channel = extract(x, shift, (1<<bits)-1);
@@ -1251,6 +1260,7 @@ namespace skvm {
                 case PixelFormat::UNORM: return from_unorm(bits, channel);
                 case PixelFormat:: SRGB: return from_srgb (bits, channel);
                 case PixelFormat::FLOAT: return from_fp16 (      channel);
+                case PixelFormat:: XRNG: return from_xr   (bits, channel);
             }
             SkUNREACHABLE;
         };
@@ -1260,6 +1270,7 @@ namespace skvm {
                 case PixelFormat::UNORM:
                 case PixelFormat:: SRGB: return from_unorm(bits, channel);
                 case PixelFormat::FLOAT: return from_fp16 (      channel);
+                case PixelFormat:: XRNG: return from_xr   (bits, channel);
             }
             SkUNREACHABLE;
         };
@@ -1339,7 +1350,6 @@ namespace skvm {
             }
             default: SkUNREACHABLE;
         }
-        return {};
     }
 
     Color Builder::gather(PixelFormat f, UPtr ptr, int offset, I32 index) {
@@ -1370,7 +1380,6 @@ namespace skvm {
             }
             default: SkUNREACHABLE;
         }
-        return {};
     }
 
     static I32 pack32(PixelFormat f, Color c) {
@@ -1378,7 +1387,7 @@ namespace skvm {
 
         auto to_srgb = [](int bits, F32 v) {
             const skcms_TransferFunction* tf = skcms_sRGB_Inverse_TransferFunction();
-            return to_unorm(bits, sk_program_transfer_fn(v, sRGBish_TF,
+            return to_unorm(bits, sk_program_transfer_fn(v, skcms_TFType_sRGBish,
                                                          v->splat(tf->g),
                                                          v->splat(tf->a),
                                                          v->splat(tf->b),
@@ -1386,6 +1395,12 @@ namespace skvm {
                                                          v->splat(tf->d),
                                                          v->splat(tf->e),
                                                          v->splat(tf->f)));
+        };
+        auto to_xr = [](int bits, F32 v) {
+            static constexpr float min = -0.752941f;
+            static constexpr float max = 1.25098f;
+            static constexpr float range = max - min;
+            return to_unorm(bits, (v - min) * (1.0f / range));
         };
 
         I32 packed = c->splat(0);
@@ -1395,6 +1410,7 @@ namespace skvm {
                 case PixelFormat::UNORM: encoded = to_unorm(bits, channel); break;
                 case PixelFormat:: SRGB: encoded = to_srgb (bits, channel); break;
                 case PixelFormat::FLOAT: encoded = to_fp16 (      channel); break;
+                case PixelFormat:: XRNG: encoded = to_xr   (bits, channel); break;
             }
             packed = pack(packed, encoded, shift);
         };
@@ -1404,6 +1420,7 @@ namespace skvm {
                 case PixelFormat::UNORM:
                 case PixelFormat:: SRGB: encoded = to_unorm(bits, channel); break;
                 case PixelFormat::FLOAT: encoded = to_fp16 (      channel); break;
+                case PixelFormat:: XRNG: encoded = to_xr   (bits, channel); break;
             }
             packed = pack(packed, encoded, shift);
         };
@@ -4015,7 +4032,7 @@ namespace skvm {
         if (gSkVMJITViaDylib) {
             // Dump the raw program binary.
             SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
-            int fd = mkstemp(path.writable_str());
+            int fd = mkstemp(path.data());
             ::write(fd, jit_entry, a.size());
             close(fd);
 

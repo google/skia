@@ -88,7 +88,7 @@ GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     , fResourceState(resourceState)
     , fD3DResource(std::move(bufferResource))
     , fAlloc(std::move(alloc)) {
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(skgpu::Budgeted::kYes);
 
     // TODO: persistently map UPLOAD resources?
 
@@ -270,8 +270,8 @@ void GrD3DBuffer::internalUnmap(MapType type, size_t offset, size_t size) {
 void GrD3DBuffer::onSetLabel() {
     SkASSERT(fD3DResource);
     if (!this->getLabel().empty()) {
-        const std::string label = "_Skia_" + this->getLabel();
-        fD3DResource->SetName((LPCWSTR)label.c_str());
+        const std::wstring label = L"_Skia_" + GrD3DMultiByteToWide(this->getLabel());
+        this->d3dResource()->SetName(label.c_str());
     }
 }
 

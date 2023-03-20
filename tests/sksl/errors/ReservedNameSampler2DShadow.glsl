@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'sampler2DShadow' is a reserved word
+error: 1: name 'sampler2DShadow' is reserved
 int sampler2DShadow;
     ^^^^^^^^^^^^^^^
 1 error

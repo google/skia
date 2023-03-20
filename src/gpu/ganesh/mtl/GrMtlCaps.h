@@ -8,13 +8,14 @@
 #ifndef GrMtlCaps_DEFINED
 #define GrMtlCaps_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/mtl/GrMtlAttachment.h"
 
 #import <Metal/Metal.h>
 
 class GrMtlRenderTarget;
+enum class SkTextureCompressionType;
 
 /**
  * Stores some capabilities of a Mtl backend.
@@ -69,7 +70,7 @@ public:
                           const SkIPoint& dstPoint,
                           bool areDstSrcSameObj) const;
 
-    GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
+    GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     MTLPixelFormat getFormatFromColorType(GrColorType colorType) const {
         int idx = static_cast<int>(colorType);
@@ -96,7 +97,7 @@ public:
     bool renderTargetSupportsDiscardableMSAA(const GrMtlRenderTarget*) const;
 
 #if GR_TEST_UTILS
-    std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
+    std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
     void onDumpJSON(SkJSONWriter*) const override;
 
@@ -113,8 +114,8 @@ private:
     void initFormatTable();
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                          const GrSurfaceProxy* src, const SkIRect& srcRect) const override;
     GrBackendFormat onGetDefaultBackendFormat(GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
@@ -163,9 +164,9 @@ private:
         int fColorTypeInfoCount = 0;
     };
 #ifdef SK_BUILD_FOR_IOS
-    inline static constexpr size_t kNumMtlFormats = 17;
+    inline static constexpr size_t kNumMtlFormats = 18;
 #else
-    inline static constexpr size_t kNumMtlFormats = 16;
+    inline static constexpr size_t kNumMtlFormats = 19;
 #endif
     static size_t GetFormatIndex(MTLPixelFormat);
     FormatInfo fFormatTable[kNumMtlFormats];

@@ -9,8 +9,13 @@
 #define GrMatrixConvolutionEffect_DEFINED
 
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+
 #include <array>
 #include <new>
+
+class GrSurfaceProxyView;
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:

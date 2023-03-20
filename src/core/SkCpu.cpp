@@ -7,7 +7,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
 #include "src/core/SkCpu.h"
 
 #if defined(SK_CPU_X86)

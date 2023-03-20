@@ -7,10 +7,12 @@
 
 #include "src/gpu/graphite/render/TessellateCurvesRenderStep.h"
 
-#include "src/core/SkPipelineData.h"
+#include "include/private/SkSLString.h"
 
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 
@@ -24,20 +26,43 @@ namespace {
 using namespace skgpu::tess;
 
 // No fan point or stroke params, since this is for filled curves (not strokes or wedges)
-// No explicit curve type, since we assume infinity is supported on GPUs using graphite
+// No explicit curve type on platforms that support infinity.
 // No color or wide color attribs, since it might always be part of the PaintParams
 // or we'll add a color-only fast path to RenderStep later.
 static constexpr PatchAttribs kAttribs = PatchAttribs::kPaintDepth |
                                          PatchAttribs::kSsboIndex;
+static constexpr PatchAttribs kAttribsWithCurveType = kAttribs | PatchAttribs::kExplicitCurveType;
 using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountCurves>,
                            Required<PatchAttribs::kPaintDepth>,
                            Required<PatchAttribs::kSsboIndex>,
+                           Optional<PatchAttribs::kExplicitCurveType>,
                            AddTrianglesWhenChopping,
                            DiscardFlatCurves>;
 
+// The order of the attribute declarations must match the order used by
+// PatchWriter::emitPatchAttribs, i.e.:
+//     join << fanPoint << stroke << color << depth << curveType << ssboIndex
+static constexpr Attribute kBaseAttributes[] = {
+        {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+
+static constexpr Attribute kAttributesWithCurveType[] = {
+        {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"curveType", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+
+static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveType,
+                                                           kBaseAttributes};
+
 }  // namespace
 
-TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd)
+TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd,
+                                                       bool infinitySupport,
+                                                       StaticBufferManager* bufferManager)
         : RenderStep("TessellateCurvesRenderStep",
                      evenOdd ? "even-odd" : "winding",
                      Flags::kRequiresMSAA,
@@ -46,25 +71,39 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd)
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                      /*vertexAttrs=*/  {{"resolveLevel_and_idx",
                                          VertexAttribType::kFloat2, SkSLType::kFloat2}},
-                     /*instanceAttrs=*/{{"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                                        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                                        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                                        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}}) {
-    SkASSERT(this->instanceStride() == PatchStride(kAttribs));
+                     /*instanceAttrs=*/kAttributes[infinitySupport])
+        , fInfinitySupport(infinitySupport) {
+    SkASSERT(this->instanceStride() ==
+             PatchStride(infinitySupport ? kAttribs : kAttribsWithCurveType));
+
+    // Initialize the static buffers we'll use when recording draw calls.
+    // NOTE: Each instance of this RenderStep gets its own copy of the data. If this ends up causing
+    // problems, we can modify StaticBufferManager to de-duplicate requests.
+    const size_t vertexSize = FixedCountCurves::VertexBufferSize();
+    auto vertexData = bufferManager->getVertexWriter(vertexSize, &fVertexBuffer);
+    FixedCountCurves::WriteVertexBuffer(std::move(vertexData), vertexSize);
+
+    const size_t indexSize = FixedCountCurves::IndexBufferSize();
+    auto indexData = bufferManager->getIndexWriter(indexSize, &fIndexBuffer);
+    FixedCountCurves::WriteIndexBuffer(std::move(indexData), indexSize);
 }
 
 TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
 
-const char* TessellateCurvesRenderStep::vertexSkSL() const {
-    return R"(
-        // TODO: Approximate perspective scaling to match how PatchWriter is configured
-        // (or provide explicit tessellation level in instance data instead of replicating work).
-        float2x2 vectorXform = float2x2(localToDevice[0].xy, localToDevice[1].xy);
-        float2 localCoord = tessellate_filled_curve(
-                vectorXform, resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23);
-        float4 devPosition = localToDevice * float4(localCoord, 0.0, 1.0);
-        devPosition.z = depth;
-    )";
+std::string TessellateCurvesRenderStep::vertexSkSL() const {
+    return SkSL::String::printf(
+            R"(
+                // TODO: Approximate perspective scaling to match how PatchWriter is configured (or
+                // provide explicit tessellation level in instance data instead of replicating
+                // work).
+                float2x2 vectorXform = float2x2(localToDevice[0].xy, localToDevice[1].xy);
+                float2 localCoord = tessellate_filled_curve(
+                        vectorXform, resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23, %s);
+                float4 devPosition = localToDevice * float4(localCoord, 0.0, 1.0);
+                devPosition.z = depth;
+                stepLocalCoords = localCoord;
+            )",
+            fInfinitySupport ? "curve_type_using_inf_support(p23)" : "curveType");
 }
 
 void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
@@ -72,17 +111,12 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
                                                int ssboIndex) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
-    BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
-            BufferType::kVertex,
-            FixedCountCurves::WriteVertexBuffer,
-            FixedCountCurves::VertexBufferSize);
-    BindBufferInfo fixedIndexBuffer = dw->bufferManager()->getStaticBuffer(
-            BufferType::kIndex,
-            FixedCountCurves::WriteIndexBuffer,
-            FixedCountCurves::IndexBufferSize);
-
     int patchReserveCount = FixedCountCurves::PreallocCount(path.countVerbs());
-    Writer writer{kAttribs, *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+    Writer writer{fInfinitySupport ? kAttribs : kAttribsWithCurveType,
+                  *dw,
+                  fVertexBuffer,
+                  fIndexBuffer,
+                  patchReserveCount};
     writer.updatePaintDepthAttrib(params.order().depthAsFloat());
     writer.updateSsboIndexAttrib(ssboIndex);
 
@@ -112,7 +146,7 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
 }
 
 void TessellateCurvesRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                          SkPipelineDataGatherer* gatherer) const {
+                                                          PipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     gatherer->write(params.transform().matrix());

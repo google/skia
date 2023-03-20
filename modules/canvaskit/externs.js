@@ -52,7 +52,6 @@ var CanvasKit = {
   MakePicture: function() {},
   MakeSWCanvasSurface: function() {},
   MakeManagedAnimation: function() {},
-  MakeParticles: function() {},
   MakeVertices: function() {},
   MakeSurface: function() {},
   MakeGPUDeviceContext: function() {},
@@ -87,7 +86,6 @@ var CanvasKit = {
   _MakeImage: function() {},
   _MakeManagedAnimation: function() {},
   _MakeOnScreenGLSurface: function() {},
-  _MakeParticles: function() {},
   _MakePicture: function() {},
   _MakeRenderTargetII: function() {},
   _MakeRenderTargetWH: function() {},
@@ -112,12 +110,20 @@ var CanvasKit = {
     _size: function() {},
   },
 
-  GrContext: {
-    // public API (from C++ bindings)
-    getResourceCacheLimitBytes: function() {},
-    getResourceCacheUsageBytes: function() {},
-    releaseResourcesAndAbandonContext: function() {},
-    setResourceCacheLimitBytes: function() {},
+  GrDirectContext: {
+    // public API (from webgl.js)
+    prototype: {
+      getResourceCacheLimitBytes: function () {},
+      getResourceCacheUsageBytes: function () {},
+      releaseResourcesAndAbandonContext: function () {},
+      setResourceCacheLimitBytes: function () {},
+    },
+
+    // private API (from C++ bindings)
+    _getResourceCacheLimitBytes: function() {},
+    _getResourceCacheUsageBytes: function() {},
+    _releaseResourcesAndAbandonContext: function() {},
+    _setResourceCacheLimitBytes: function() {},
   },
 
   ManagedAnimation: {
@@ -126,6 +132,7 @@ var CanvasKit = {
       seek: function() {},
       seekFrame: function() {},
       setColor: function() {},
+      setTransform: function() {},
       size: function() {},
     },
     _render: function() {},
@@ -160,9 +167,18 @@ var CanvasKit = {
     Make: function() {},
     MakeFromFontProvider: function() {},
     ShapeText: function() {},
+    RequiresClientICU() {},
+
     addText: function() {},
     build: function() {},
-    buildWithClientInfo: function() {},
+
+    setWordsUtf8: function() {},
+    setWordsUtf16: function() {},
+    setGraphemeBreaksUtf8: function() {},
+    setGraphemeBreaksUtf16: function() {},
+    setLineBreaksUtf8: function() {},
+    setLineBreaksUtf16: function() {},
+
     getText: function() {},
     pop: function() {},
     reset: function() {},
@@ -180,7 +196,13 @@ var CanvasKit = {
     _pushStyle: function() {},
     _pushPaintStyle: function() {},
     _addPlaceholder: function() {},
-    _buildWithClientInfo: function() {},
+
+    _setWordsUtf8: function() {},
+    _setWordsUtf16: function() {},
+    _setGraphemeBreaksUtf8: function() {},
+    _setGraphemeBreaksUtf16: function() {},
+    _setLineBreaksUtf8: function() {},
+    _setLineBreaksUtf16: function() {},
   },
 
   RuntimeEffect: {
@@ -424,9 +446,10 @@ var CanvasKit = {
       makeShaderOptions: function() {},
     },
     // private API
+    _encodeToBytes: function() {},
+    _makeFromGenerator: function() {},
     _makeShaderCubic: function() {},
     _makeShaderOptions: function() {},
-    _makeFromGenerator: function() {},
   },
 
   ImageFilter: {
@@ -536,27 +559,6 @@ var CanvasKit = {
     _MakeDash: function() {},
     _MakeLine2D: function() {},
     _MakePath2D: function() {},
-  },
-
-  ParticleEffect: {
-    // public API (from C++ bindings)
-    draw: function() {},
-    getUniform: function() {},
-    getUniformCount: function() {},
-    getUniformFloatCount: function() {},
-    getUniformName: function() {},
-    setRate: function() {},
-    start: function() {},
-    update: function() {},
-
-    prototype: {
-      setPosition: function() {},
-      uniforms: function() {},
-    },
-
-    // private API (from C++ bindings)
-    _uniformPtr: function() {},
-    _setPosition: function() {},
   },
 
   Path: {

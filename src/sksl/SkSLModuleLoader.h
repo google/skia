@@ -15,8 +15,7 @@ namespace SkSL {
 
 class Compiler;
 class ModifiersPool;
-struct ParsedModule;
-class SymbolTable;
+struct Module;
 class Type;
 
 using BuiltinTypePtr = const std::unique_ptr<Type> BuiltinTypes::*;
@@ -37,27 +36,30 @@ public:
     // The built-in types and root module are universal, immutable, and shared by every Compiler.
     // They are created when the ModuleLoader is instantiated and never change.
     const BuiltinTypes& builtinTypes();
-    const ParsedModule& rootModule();
-
-    // This is used for testing purposes; it contains root types and public aliases (mat2 for
-    // float2x2), and hides private types like sk_Caps.
-    std::shared_ptr<SymbolTable>& rootSymbolTableWithPublicTypes();
+    const Module* rootModule();
 
     // This ModifiersPool is shared by every built-in module.
     ModifiersPool& coreModifiers();
 
     // These modules are loaded on demand; once loaded, they are kept for the lifetime of the
     // process.
-    const ParsedModule& loadSharedModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadGPUModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadVertexModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadFragmentModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadComputeModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadGraphiteVertexModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadGraphiteFragmentModule(SkSL::Compiler* compiler);
+    const Module* loadSharedModule(SkSL::Compiler* compiler);
+    const Module* loadGPUModule(SkSL::Compiler* compiler);
+    const Module* loadVertexModule(SkSL::Compiler* compiler);
+    const Module* loadFragmentModule(SkSL::Compiler* compiler);
+    const Module* loadComputeModule(SkSL::Compiler* compiler);
+    const Module* loadGraphiteVertexModule(SkSL::Compiler* compiler);
+    const Module* loadGraphiteFragmentModule(SkSL::Compiler* compiler);
 
-    const ParsedModule& loadPublicModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadPrivateRTShaderModule(SkSL::Compiler* compiler);
+    const Module* loadPublicModule(SkSL::Compiler* compiler);
+    const Module* loadPrivateRTShaderModule(SkSL::Compiler* compiler);
+
+    // This updates an existing Module's symbol table to match Runtime Effect rules. GLSL types like
+    // `vec4` are added; SkSL private types like `sampler2D` are replaced with an invalid type.
+    void addPublicTypeAliases(const SkSL::Module* module);
+
+    // This unloads every module. It's useful primarily for benchmarking purposes.
+    void unloadModules();
 };
 
 }  // namespace SkSL

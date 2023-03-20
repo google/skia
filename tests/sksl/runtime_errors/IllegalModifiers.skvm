@@ -12,25 +12,25 @@ in                  float _in;
 error: 4: 'out' is not permitted here
 out                 float _out;
 ^^^
-error: 5: 'threadgroup' is not permitted here
-threadgroup         float _threadgroup;
-^^^^^^^^^^^
+error: 5: 'workgroup' is not permitted here
+workgroup           float _workgroup;
+^^^^^^^^^
 error: 6: '$es3' is not permitted here
 $es3                float _es3;
 ^^^^
-error: 7: 'sk_has_side_effects' is not permitted here
-sk_has_side_effects float _sk_has_side_effects;
-^^^^^^^^^^^^^^^^^^^
+error: 7: '$pure' is not permitted here
+$pure               float _pure;
+^^^^^
 error: 8: 'inline' is not permitted here
 inline              float _inline;
 ^^^^^^
 error: 9: 'noinline' is not permitted here
 noinline            float _noinline;
 ^^^^^^^^
-error: 10: 'readonly' is not permitted here
+error: 10: type 'float' does not support qualifier 'readonly'
 readonly            float _readonly;
 ^^^^^^^^
-error: 11: 'writeonly' is not permitted here
+error: 11: type 'float' does not support qualifier 'writeonly'
 writeonly           float _writeonly;
 ^^^^^^^^^
 error: 13: 'flat' is not permitted here
@@ -45,19 +45,19 @@ in                  void in_fn() {}
 error: 16: 'out' is not permitted here
 out                 void out_fn() {}
 ^^^
-error: 17: 'threadgroup' is not permitted here
-threadgroup         void threadgroup_fn() {}
-^^^^^^^^^^^
+error: 17: 'workgroup' is not permitted here
+workgroup           void workgroup_fn() {}
+^^^^^^^^^
 error: 18: '$es3' is not permitted here
 $es3                void es3_fn() {}
 ^^^^
-error: 19: 'sk_has_side_effects' is not permitted here
-sk_has_side_effects void sk_has_side_effect_fn() {}
-^^^^^^^^^^^^^^^^^^^
-error: 20: 'readonly' is not permitted here
+error: 19: '$pure' is not permitted here
+$pure               void sk_pure_fn() {}
+^^^^^
+error: 20: type 'void' does not support qualifier 'readonly'
 readonly            void readonly_fn() {}
 ^^^^^^^^
-error: 21: 'writeonly' is not permitted here
+error: 21: type 'void' does not support qualifier 'writeonly'
 writeonly           void writeonly_fn() {}
 ^^^^^^^^^
 error: 22: 'buffer' is not permitted here

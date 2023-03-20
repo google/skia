@@ -1,0 +1,13 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_2_slots_unmasked          r, g = 0
+    4. copy_constant                  $0 = 0x3F800000 (1.0)
+    5. copy_constant                  $1 = unknownInput
+    6. sub_float                      $0 -= $1
+    7. copy_slot_unmasked             r = $0
+    8. copy_constant                  $0 = unknownInput
+    9. copy_slot_unmasked             g = $0
+   10. copy_2_slots_unmasked          $0..1 = r, g
+   11. zero_slot_unmasked             $2 = 0
+   12. copy_constant                  $3 = 0x3F800000 (1.0)
+   13. load_src                       src.rgba = $0..3

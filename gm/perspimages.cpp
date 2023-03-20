@@ -14,12 +14,14 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 #include <initializer_list>
+
+using namespace skia_private;
 
 static sk_sp<SkImage> make_image1() { return GetResourceAsImage("images/mandrill_128.png"); }
 
@@ -45,10 +47,10 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkTDArray<SkMatrix> matrices;
-        matrices.push()->setAll(1.f, 0.f,    0.f,
+        matrices.append()->setAll(1.f, 0.f,    0.f,
                                 0.f, 1.f,    0.f,
                                 0.f, 0.005f, 1.f);
-        matrices.push()->setAll(1.f,     0.f,    0.f,
+        matrices.append()->setAll(1.f,     0.f,    0.f,
                                 0.f,     1.f,    0.f,
                                 0.007f, -0.005f, 1.f);
         matrices[1].preSkew(0.2f, -0.1f);
@@ -126,7 +128,7 @@ protected:
 
 private:
     inline static constexpr int kNumImages = 4;
-    SkTArray<sk_sp<SkImage>> fImages;
+    TArray<sk_sp<SkImage>> fImages;
 
     using INHERITED = GM;
 };

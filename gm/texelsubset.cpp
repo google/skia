@@ -16,8 +16,9 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -29,6 +30,8 @@
 
 #include <memory>
 #include <utility>
+
+using namespace skia_private;
 
 using MipmapMode = GrSamplerState::MipmapMode;
 using Filter     = GrSamplerState::Filter;
@@ -114,7 +117,7 @@ protected:
                                             3*fBitmap.width()/5 + 2, 4*fBitmap.height()/5 + 2);
         }
 
-        SkTArray<SkMatrix> textureMatrices;
+        TArray<SkMatrix> textureMatrices;
 
         SkRect a = SkRect::Make(texelSubset);
         SkRect b = fUpscale ? a.makeInset (.31f * a.width(), .31f * a.height())
@@ -139,7 +142,7 @@ protected:
 
         SkScalar y = kDrawPad + kTestPad;
         SkRect drawRect;
-        for (int tm = 0; tm < textureMatrices.count(); ++tm) {
+        for (int tm = 0; tm < textureMatrices.size(); ++tm) {
             for (int my = 0; my < GrSamplerState::kWrapModeCount; ++my) {
                 SkScalar x = kDrawPad + kTestPad;
                 auto wmy = static_cast<Wrap>(my);
@@ -205,7 +208,7 @@ protected:
                 }
                 y += localRect.height() + kTestPad;
             }
-            if (tm < textureMatrices.count() - 1) {
+            if (tm < textureMatrices.size() - 1) {
                 SkPaint paint;
                 paint.setColor(SK_ColorRED);
                 SkScalar midY = SkScalarFloorToScalar(drawRect.bottom() + kTestPad/2.f) + 0.5f;

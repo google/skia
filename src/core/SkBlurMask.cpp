@@ -8,13 +8,15 @@
 #include "src/core/SkBlurMask.h"
 
 #include "include/core/SkColorPriv.h"
-#include "include/core/SkMath.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkMaskBlurFilter.h"
-#include "src/core/SkMathPriv.h"
+
+using namespace skia_private;
 
 // This constant approximates the scaling done in the software path's
 // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
@@ -372,7 +374,7 @@ void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile,
                                         unsigned int width, SkScalar sigma) {
 
     unsigned int profile_size = SkScalarCeilToInt(6*sigma);
-    SkAutoTMalloc<uint8_t> horizontalScanline(width);
+    skia_private::AutoTMalloc<uint8_t> horizontalScanline(width);
 
     unsigned int sw = width - profile_size;
     // nearest odd number less than the profile size represents the center
@@ -425,7 +427,7 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
         return true;
     }
 
-    SkAutoTMalloc<uint8_t> profile(profileSize);
+    AutoTMalloc<uint8_t> profile(profileSize);
 
     ComputeBlurProfile(profile, profileSize, sigma);
 
@@ -443,8 +445,8 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
 
     uint8_t *outptr = dp;
 
-    SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
-    SkAutoTMalloc<uint8_t> verticalScanline(dstHeight);
+    AutoTMalloc<uint8_t> horizontalScanline(dstWidth);
+    AutoTMalloc<uint8_t> verticalScanline(dstHeight);
 
     ComputeBlurredScanline(horizontalScanline, profile, dstWidth, sigma);
     ComputeBlurredScanline(verticalScanline, profile, dstHeight, sigma);
@@ -516,7 +518,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
     // round window size up to nearest odd number
     windowSize |= 1;
 
-    SkAutoTMalloc<float> gaussWindow(windowSize);
+    AutoTMalloc<float> gaussWindow(windowSize);
 
     int halfWindow = windowSize >> 1;
 
@@ -566,7 +568,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
         int padHeight = srcHeight;
         int padSize = padWidth * padHeight;
 
-        SkAutoTMalloc<uint8_t> padPixels(padSize);
+        AutoTMalloc<uint8_t> padPixels(padSize);
         memset(padPixels, 0, padSize);
 
         for (int y = 0 ; y < srcHeight; ++y) {
@@ -583,7 +585,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
         int tmpHeight = padWidth - 2*pad;
         int tmpSize = tmpWidth * tmpHeight;
 
-        SkAutoTMalloc<float> tmpImage(tmpSize);
+        AutoTMalloc<float> tmpImage(tmpSize);
         memset(tmpImage, 0, tmpSize*sizeof(tmpImage[0]));
 
         for (int y = 0 ; y < padHeight ; ++y) {

@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -8,8 +8,12 @@ ANALYSIS_FILES = [
     "SkSLCanExitWithoutReturningValue.cpp",
     "SkSLCheckProgramStructure.cpp",
     "SkSLFinalizationChecks.cpp",
+    "SkSLGetLoopControlFlowInfo.cpp",
     "SkSLGetLoopUnrollInfo.cpp",
+    "SkSLGetReturnComplexity.cpp",
+    "SkSLHasSideEffects.cpp",
     "SkSLIsConstantExpression.cpp",
+    "SkSLIsDynamicallyUniformExpression.cpp",
     "SkSLIsSameExpressionTree.cpp",
     "SkSLIsTrivialExpression.cpp",
     "SkSLNoOpErrorReporter.h",
@@ -17,6 +21,7 @@ ANALYSIS_FILES = [
     "SkSLProgramUsage.h",
     "SkSLProgramVisitor.h",
     "SkSLSwitchCaseContainsExit.cpp",
+    "SkSLSymbolTableStackBuilder.cpp",
 ]
 
 split_srcs_and_hdrs(
@@ -24,13 +29,13 @@ split_srcs_and_hdrs(
     files = ANALYSIS_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":analysis_srcs"],
     visibility = ["//src/sksl:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":analysis_hdrs"],
     visibility = ["//src/sksl:__pkg__"],

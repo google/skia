@@ -15,8 +15,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTHash.h"
+#include "include/private/base/SkMutex.h"
+#include "src/core/SkTHash.h"
 
 #include <memory>
 
@@ -52,11 +52,13 @@ public:
 
     struct FrameData {
         // SkImage payload.
-        sk_sp<SkImage>    image;
+        sk_sp<SkImage>       image;
         // Resampling parameters.
-        SkSamplingOptions sampling;
+        SkSamplingOptions    sampling;
         // Additional image transform to be applied before AE scaling rules.
-        SkMatrix          matrix = SkMatrix::I();
+        SkMatrix             matrix = SkMatrix::I();
+        // Scaling strategy for aspect ratio adjustments.
+        SkMatrix::ScaleToFit scaling = SkMatrix::kCenter_ScaleToFit;
     };
 
     /**

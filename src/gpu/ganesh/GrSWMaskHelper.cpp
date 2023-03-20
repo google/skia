@@ -8,7 +8,9 @@
 #include "src/gpu/ganesh/GrSWMaskHelper.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkBlitter_A8.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -18,26 +20,9 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 
-/*
- * Convert a boolean operation into a transfer mode code
- */
-static SkBlendMode op_to_mode(SkRegion::Op op) {
-
-    static const SkBlendMode modeMap[] = {
-        SkBlendMode::kDstOut,   // kDifference_Op
-        SkBlendMode::kModulate, // kIntersect_Op
-        SkBlendMode::kSrcOver,  // kUnion_Op
-        SkBlendMode::kXor,      // kXOR_Op
-        SkBlendMode::kClear,    // kReverseDifference_Op
-        SkBlendMode::kSrc,      // kReplace_Op
-    };
-
-    return modeMap[op];
-}
-
-static SkPaint get_paint(SkRegion::Op op, GrAA aa, uint8_t alpha) {
+static SkPaint get_paint(GrAA aa, uint8_t alpha) {
     SkPaint paint;
-    paint.setBlendMode(op_to_mode(op));
+    paint.setBlendMode(SkBlendMode::kSrc);  // "Replace" mode
     paint.setAntiAlias(GrAA::kYes == aa);
     // SkPaint's color is unpremul so this will produce alpha in every channel.
     paint.setColor(SkColorSetARGB(alpha, 255, 255, 255));
@@ -47,32 +32,31 @@ static SkPaint get_paint(SkRegion::Op op, GrAA aa, uint8_t alpha) {
 /**
  * Draw a single rect element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegion::Op op, GrAA aa,
-                              uint8_t alpha) {
+void GrSWMaskHelper::drawRect(const SkRect& rect, const SkMatrix& matrix, GrAA aa, uint8_t alpha) {
     SkMatrix translatedMatrix = matrix;
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
     SkMatrixProvider matrixProvider(translatedMatrix);
     fDraw.fMatrixProvider = &matrixProvider;
 
-    fDraw.drawRect(rect, get_paint(op, aa, alpha));
+    fDraw.drawRect(rect, get_paint(aa, alpha));
 }
 
-void GrSWMaskHelper::drawRRect(const SkRRect& rrect, const SkMatrix& matrix, SkRegion::Op op,
+void GrSWMaskHelper::drawRRect(const SkRRect& rrect, const SkMatrix& matrix,
                                GrAA aa, uint8_t alpha) {
     SkMatrix translatedMatrix = matrix;
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
     SkMatrixProvider matrixProvider(translatedMatrix);
     fDraw.fMatrixProvider = &matrixProvider;
 
-    fDraw.drawRRect(rrect, get_paint(op, aa, alpha));
+    fDraw.drawRRect(rrect, get_paint(aa, alpha));
 }
 
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matrix, SkRegion::Op op,
+void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matrix,
                                GrAA aa, uint8_t alpha) {
-    SkPaint paint = get_paint(op, aa, alpha);
+    SkPaint paint = get_paint(aa, alpha);
     paint.setPathEffect(shape.style().refPathEffect());
     shape.style().strokeRec().applyToPaint(&paint);
 
@@ -83,7 +67,7 @@ void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matri
 
     SkPath path;
     shape.asPath(&path);
-    if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
+    if (0xFF == alpha) {
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
     } else {
@@ -91,9 +75,9 @@ void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matri
     }
 }
 
-void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkRegion::Op op,
+void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix,
                                GrAA aa, uint8_t alpha) {
-    SkPaint paint = get_paint(op, aa, alpha);
+    SkPaint paint = get_paint(aa, alpha);
 
     SkMatrix translatedMatrix = matrix;
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
@@ -121,7 +105,7 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkR
     // A complex, or inverse-filled shape, so go through drawPath.
     SkPath path;
     shape.asPath(&path);
-    if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
+    if (0xFF == alpha) {
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
     } else {
@@ -140,6 +124,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
     }
     fPixels->erase(0);
 
+    fDraw.fBlitterChooser = SkA8Blitter_Choose;
     fDraw.fDst      = *fPixels;
     fRasterClip.setRect(bounds);
     fDraw.fRC       = &fRasterClip;

@@ -26,10 +26,10 @@ namespace SkSL {
  */
 class StructDefinition final : public ProgramElement {
 public:
-    inline static constexpr Kind kProgramElementKind = Kind::kStructDefinition;
+    inline static constexpr Kind kIRNodeKind = Kind::kStructDefinition;
 
     StructDefinition(Position pos, const Type& type)
-    : INHERITED(pos, kProgramElementKind)
+    : INHERITED(pos, kIRNodeKind)
     , fType(&type) {}
 
     const Type& type() const {

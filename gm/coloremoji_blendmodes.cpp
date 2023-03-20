@@ -27,7 +27,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkTextUtils.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>

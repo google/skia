@@ -9,7 +9,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 
 #ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
 

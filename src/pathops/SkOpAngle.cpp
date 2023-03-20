@@ -8,8 +8,9 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkFloatingPoint.h"
-#include "src/core/SkTSort.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkTSort.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"
@@ -784,7 +785,7 @@ bool SkOpAngle::insert(SkOpAngle* angle) {
             last->fNext = angle;
             angle->fNext = next;
             debugValidateNext();
-            return true;
+            break;
         }
         last = next;
         if (last == this) {

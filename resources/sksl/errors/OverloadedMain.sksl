@@ -1,0 +1,7 @@
+half4 c;
+void  main()          {}
+half4 main(float2 xy) { return c; }
+
+/*%%*
+duplicate definition of 'main'
+*%%*/

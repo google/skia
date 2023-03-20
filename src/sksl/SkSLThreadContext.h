@@ -9,12 +9,13 @@
 #define SKSL_THREADCONTEXT
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
+#include <cstdint>
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -24,17 +25,16 @@ namespace SkSL {
 class Compiler;
 class ModifiersPool;
 class Pool;
-class Position;
 class ProgramElement;
 class SymbolTable;
 class Variable;
+enum class ProgramKind : int8_t;
 struct Modifiers;
-struct ParsedModule;
+struct Module;
 
 namespace dsl {
 
 class DSLCore;
-class DSLWriter;
 
 } // namespace dsl
 
@@ -43,9 +43,11 @@ class DSLWriter;
  */
 class ThreadContext {
 public:
-    ThreadContext(SkSL::Compiler* compiler,  SkSL::ProgramKind kind,
-              const SkSL::ProgramSettings& settings, SkSL::ParsedModule module, bool isModule);
-
+    ThreadContext(SkSL::Compiler* compiler,
+                  SkSL::ProgramKind kind,
+                  const SkSL::ProgramSettings& settings,
+                  const SkSL::Module* module,
+                  bool isModule);
     ~ThreadContext();
 
     /**
@@ -140,7 +142,7 @@ public:
      * Notifies the current ErrorReporter that an error has occurred. The default error handler
      * prints the message to stderr and aborts.
      */
-    static void ReportError(std::string_view msg, Position pos = {});
+    static void ReportError(std::string_view msg, Position pos = Position{});
 
     static ThreadContext& Instance();
 
@@ -168,7 +170,6 @@ private:
     Program::Inputs fInputs;
 
     friend class dsl::DSLCore;
-    friend class dsl::DSLWriter;
 };
 
 } // namespace SkSL

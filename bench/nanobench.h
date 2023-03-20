@@ -28,7 +28,6 @@ struct Config {
     int samples;
     sk_gpu_test::GrContextFactory::ContextType ctxType;
     sk_gpu_test::GrContextFactory::ContextOverrides ctxOverrides;
-    skiatest::graphite::ContextFactory::ContextType graphiteCtxType;
     uint32_t surfaceFlags;
 };
 

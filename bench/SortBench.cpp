@@ -7,12 +7,14 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkTSort.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkRandom.h"
+#include "src/base/SkTSort.h"
 
 #include <algorithm>
 #include <stdlib.h>
+
+using namespace skia_private;
 
 static const int N = 1000;
 
@@ -108,7 +110,7 @@ class SortBench : public Benchmark {
     SkString           fName;
     const Type         fType;
     const SortProc     fSortProc;
-    SkAutoTMalloc<int> fUnsorted;
+    AutoTMalloc<int> fUnsorted;
 
 public:
     SortBench(Type t, SortType s) : fType(t), fSortProc(gSorts[s].fProc) {
@@ -131,7 +133,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        SkAutoTMalloc<int> sorted(N);
+        AutoTMalloc<int> sorted(N);
         for (int i = 0; i < loops; i++) {
             memcpy(sorted.get(), fUnsorted.get(), N*sizeof(int));
             fSortProc(sorted.get());

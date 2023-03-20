@@ -2,8 +2,6 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    half4 inputH4;
-    half4 expectedH4;
     half4 colorGreen;
     half4 colorRed;
 };
@@ -15,8 +13,8 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    bool4 inputVal = bool4(_uniforms.inputH4);
-    bool4 expected = bool4(_uniforms.expectedH4);
+    bool4 inputVal = bool4(_uniforms.colorRed.xxzw);
+    bool4 expected = bool4(_uniforms.colorRed.xyzz);
     _out.sk_FragColor = ((((all(inputVal.xy) == expected.x && all(inputVal.xyz) == expected.y) && all(inputVal) == expected.z) && expected.x) && false == expected.y) && false == expected.z ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

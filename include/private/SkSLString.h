@@ -26,6 +26,24 @@ std::string printf(const char* fmt, ...) SK_PRINTF_LIKE(1, 2);
 void appendf(std::string* str, const char* fmt, ...) SK_PRINTF_LIKE(2, 3);
 void vappendf(std::string* str, const char* fmt, va_list va) SK_PRINTF_LIKE(2, 0);
 
+inline auto Separator() {
+    // This returns a lambda which emits "" the first time it is called, and ", " every subsequent
+    // time it is called.
+    struct Output {
+        const std::string fSpace, fComma;
+    };
+    static const Output* kOutput = new Output{{}, {", "}};
+
+    return [firstSeparator = true]() mutable -> const std::string& {
+        if (firstSeparator) {
+            firstSeparator = false;
+            return kOutput->fSpace;
+        } else {
+            return kOutput->fComma;
+        }
+    };
+}
+
 }  // namespace String
 }  // namespace SkSL
 

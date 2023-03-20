@@ -14,6 +14,11 @@
 #include "src/core/SkTraceEventCommon.h"
 #include <atomic>
 
+#if defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
+    #include <string>
+    #include <utility>
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation specific tracing API definitions.
 
@@ -24,11 +29,48 @@
     #define TRACE_FUNC __PRETTY_FUNCTION__
 #endif
 
-// By default, const char* argument values are assumed to have long-lived scope
-// and will not be copied. Use this macro to force a const char* to be copied.
-#define TRACE_STR_COPY(str) \
-    skia::tracing_internals::TraceStringWithCopy(str)
 
+#if defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
+    // By default, const char* argument values are assumed to have long-lived scope
+    // and will not be copied. Use this macro to force a const char* to be copied.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_COPY(something.c_str()));
+    #define TRACE_STR_COPY(str) (::perfetto::DynamicString{str})
+
+    // Allows callers to pass static strings that aren't known at compile time to trace functions.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_STATIC(this->name()));
+    // No-op when Perfetto is disabled, or outside of Android framework.
+    #define TRACE_STR_STATIC(str) (::perfetto::StaticString{str})
+#else // !SK_ANDROID_FRAMEWORK_USE_PERFETTO
+    // By default, const char* argument values are assumed to have long-lived scope
+    // and will not be copied. Use this macro to force a const char* to be copied.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_COPY(something.c_str()));
+    #define TRACE_STR_COPY(str) (::skia_private::TraceStringWithCopy(str))
+
+    // Allows callers to pass static strings that aren't known at compile time to trace functions.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_STATIC(this->name()));
+    // No-op when Perfetto is disabled, or outside of Android framework.
+    #define TRACE_STR_STATIC(str) (str)
+#endif // SK_ANDROID_FRAMEWORK_USE_PERFETTO
 
 #define INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE() \
     *INTERNAL_TRACE_EVENT_UID(category_group_enabled) & \
@@ -70,11 +112,15 @@
 #define TRACE_EVENT_API_UPDATE_TRACE_EVENT_DURATION \
     SkEventTracer::GetInstance()->updateTraceEventDuration
 
-// Start writing to a new trace output section (file, etc.).
-// Accepts a label for the new section.
-// void TRACE_EVENT_API_NEW_TRACE_SECTION(const char* name)
-#define TRACE_EVENT_API_NEW_TRACE_SECTION \
-    SkEventTracer::GetInstance()->newTracingSection
+#ifdef SK_ANDROID_FRAMEWORK_USE_PERFETTO
+    #define TRACE_EVENT_API_NEW_TRACE_SECTION(...) do {} while (0)
+#else
+    // Start writing to a new trace output section (file, etc.).
+    // Accepts a label for the new section.
+    // void TRACE_EVENT_API_NEW_TRACE_SECTION(const char* name)
+    #define TRACE_EVENT_API_NEW_TRACE_SECTION \
+        SkEventTracer::GetInstance()->newTracingSection
+#endif
 
 // Defines visibility for classes in trace_event.h
 #define TRACE_EVENT_API_CLASS_EXPORT SK_API
@@ -123,9 +169,9 @@
     do { \
       INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
       if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
-        skia::tracing_internals::AddTraceEvent( \
+        skia_private::AddTraceEvent( \
             phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, \
-            skia::tracing_internals::kNoEventId, flags, ##__VA_ARGS__); \
+            skia_private::kNoEventId, flags, ##__VA_ARGS__); \
       } \
     } while (0)
 
@@ -137,9 +183,9 @@
       INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
       if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
         unsigned char trace_event_flags = flags | TRACE_EVENT_FLAG_HAS_ID; \
-        skia::tracing_internals::TraceID trace_event_trace_id( \
+        skia_private::TraceID trace_event_trace_id( \
             id, &trace_event_flags); \
-        skia::tracing_internals::AddTraceEvent( \
+        skia_private::AddTraceEvent( \
             phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
             name, trace_event_trace_id.data(), trace_event_flags, \
             ##__VA_ARGS__); \
@@ -151,21 +197,20 @@
 // ends.
 #define INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, ...) \
     INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
-    skia::tracing_internals::ScopedTracer INTERNAL_TRACE_EVENT_UID(tracer); \
+    skia_private::ScopedTracer INTERNAL_TRACE_EVENT_UID(tracer); \
     do { \
         if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
-          SkEventTracer::Handle h = skia::tracing_internals::AddTraceEvent( \
+          SkEventTracer::Handle h = skia_private::AddTraceEvent( \
               TRACE_EVENT_PHASE_COMPLETE, \
               INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
-              name, skia::tracing_internals::kNoEventId, \
+              name, skia_private::kNoEventId, \
               TRACE_EVENT_FLAG_NONE, ##__VA_ARGS__); \
           INTERNAL_TRACE_EVENT_UID(tracer).Initialize( \
               INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, h); \
         } \
     } while (0)
 
-namespace skia {
-namespace tracing_internals {
+namespace skia_private {
 
 // Specify these values when the corresponding argument of AddTraceEvent is not
 // used.
@@ -369,7 +414,6 @@ class TRACE_EVENT_API_CLASS_EXPORT ScopedTracer {
   Data data_;
 };
 
-}  // namespace tracing_internals
-}  // namespace skia
+}  // namespace skia_private
 
 #endif

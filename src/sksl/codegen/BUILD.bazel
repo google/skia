@@ -1,12 +1,14 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "core_srcs",
     srcs = [
+        "SkSLRasterPipelineBuilder.cpp",
+        "SkSLRasterPipelineCodeGenerator.cpp",
         "SkSLVMCodeGenerator.cpp",
     ],
 )
@@ -34,7 +36,7 @@ split_srcs_and_hdrs(
     files = GPU_SRCS,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
@@ -45,9 +47,11 @@ filegroup(
     visibility = ["//src/sksl:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "SkSLRasterPipelineBuilder.h",
+        "SkSLRasterPipelineCodeGenerator.h",
         "SkSLVMCodeGenerator.h",
     ] + select({
         "//src/sksl:use_sksl_gpu_srcs": [":gpu_hdrs"],

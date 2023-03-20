@@ -10,27 +10,56 @@
 
 #include "src/image/SkSurface_Base.h"
 
+#include "src/gpu/graphite/TextureProxyView.h"
+
 namespace skgpu::graphite {
 
 class Context;
 class Device;
 class Recorder;
+class TextureProxy;
 
 class Surface final : public SkSurface_Base {
 public:
+    static sk_sp<SkSurface> MakeGraphite(Recorder* recorder,
+                                         const SkImageInfo& info,
+                                         skgpu::Budgeted budgeted,
+                                         Mipmapped = Mipmapped::kNo,
+                                         const SkSurfaceProps* props = nullptr);
+
     Surface(sk_sp<Device>);
     ~Surface() override;
+
+    SkImageInfo imageInfo() const override;
 
     Recorder* onGetRecorder() override;
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
+    sk_sp<SkImage> onAsImage() override;
+    sk_sp<SkImage> onMakeImageCopy(const SkIRect* subset, Mipmapped) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
+    void onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                     SkIRect srcRect,
+                                     RescaleGamma rescaleGamma,
+                                     RescaleMode rescaleMode,
+                                     ReadPixelsCallback callback,
+                                     ReadPixelsContext context) override;
+    void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                           sk_sp<SkColorSpace> dstColorSpace,
+                                           SkIRect srcRect,
+                                           SkISize dstSize,
+                                           RescaleGamma rescaleGamma,
+                                           RescaleMode,
+                                           ReadPixelsCallback callback,
+                                           ReadPixelsContext context) override;
     bool onCopyOnWrite(ContentChangeMode) override;
-    bool onReadPixels(Context*, Recorder*, const SkPixmap& dst, int srcX, int srcY);
     sk_sp<const SkCapabilities> onCapabilities() override;
+    bool isGraphiteBacked() const override { return true; }
 
-#if GRAPHITE_TEST_UTILS && SK_SUPPORT_GPU
+    TextureProxyView readSurfaceView() const;
+
+#if GRAPHITE_TEST_UTILS && defined(SK_GANESH)
     // TODO: The long-term for the public API around surfaces and flushing/submitting will likely
     // be replaced with explicit control over Recorders and submitting Recordings to the Context
     // directly. For now, internal tools often rely on surface/canvas flushing to control what's
@@ -41,8 +70,10 @@ public:
     // work when looping in a benchmark, as the controlling code expects.
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access,
                                   const GrFlushInfo&,
-                                  const GrBackendSurfaceMutableState*) override;
+                                  const skgpu::MutableTextureState*) override;
 #endif
+
+    TextureProxy* backingTextureProxy();
 
 private:
     sk_sp<Device> fDevice;

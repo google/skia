@@ -7,12 +7,13 @@
 
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 
-#include "src/core/SkPipelineData.h"
-
+#include "include/core/SkM44.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkSLString.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
@@ -29,9 +30,9 @@ constexpr int kNumTextAtlasTextures = 4;
 
 }  // namespace
 
-BitmapTextRenderStep::BitmapTextRenderStep(bool isA8)
+BitmapTextRenderStep::BitmapTextRenderStep()
         : RenderStep("BitmapTextRenderStep",
-                     isA8 ? "A8" : "ARGB",
+                     "",
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"deviceMatrix", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2}},
@@ -48,73 +49,63 @@ BitmapTextRenderStep::BitmapTextRenderStep(bool isA8)
                       {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}},
                      /*varyings=*/
                      {{"textureCoords", SkSLType::kFloat2},
-                      {"texIndex", SkSLType::kFloat}})
-        , fIsA8(isA8) {}
+                      {"texIndex", SkSLType::kHalf},
+                      {"maskFormat", SkSLType::kHalf}}) {}
 
 BitmapTextRenderStep::~BitmapTextRenderStep() {}
 
-const char* BitmapTextRenderStep::vertexSkSL() const {
-    return R"(
-        float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));
-        baseCoords.xy *= float2(size);
+std::string BitmapTextRenderStep::vertexSkSL() const {
+    return
+        "float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));"
+        "baseCoords.xy *= float2(size);"
 
-        stepLocalCoords = strikeToSourceScale*baseCoords + float2(xyPos);
-        float4 position = deviceMatrix*float4(stepLocalCoords, 0, 1);
+        "stepLocalCoords = strikeToSourceScale*baseCoords + float2(xyPos);"
+        "float4 position = deviceMatrix*float4(stepLocalCoords, 0, 1);"
 
-        float2 unormTexCoords = baseCoords + float2(uvPos);
-        textureCoords = unormTexCoords * atlasSizeInv;
-        texIndex = float(indexAndFlags.x);
+        "float2 unormTexCoords = baseCoords + float2(uvPos);"
+        "textureCoords = unormTexCoords * atlasSizeInv;"
+        "texIndex = half(indexAndFlags.x);"
+        "maskFormat = half(indexAndFlags.y);"
 
-        float4 devPosition = float4(position.xy, depth, position.w);
-    )";
+        "float4 devPosition = float4(position.xy, depth, position.w);";
 }
 
-std::string BitmapTextRenderStep::texturesAndSamplersSkSL(int binding) const {
+std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
+        const ResourceBindingRequirements& bindingReqs, int* nextBindingIndex) const {
     std::string result;
 
     for (unsigned int i = 0; i < kNumTextAtlasTextures; ++i) {
-        SkSL::String::appendf(&result,
-                              "layout(binding=%d) uniform sampler2D text_atlas_%d;\n", binding, i);
-        binding++;
+        result += EmitSamplerLayout(bindingReqs, nextBindingIndex);
+        SkSL::String::appendf(&result, " uniform sampler2D text_atlas_%d;\n", i);
     }
 
     return result;
 }
 
 const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
-    if (fIsA8) {
-        return R"(
-            half4 texColor;
-            if (texIndex == 0) {
-               texColor = sample(text_atlas_0, textureCoords).rrrr;
-            } else if (texIndex == 1) {
-               texColor = sample(text_atlas_1, textureCoords).rrrr;
-            } else if (texIndex == 2) {
-               texColor = sample(text_atlas_2, textureCoords).rrrr;
-            } else if (texIndex == 3) {
-               texColor = sample(text_atlas_3, textureCoords).rrrr;
-            } else {
-               texColor = sample(text_atlas_0, textureCoords).rrrr;
-            }
-            outputCoverage = texColor;
-        )";
-    } else {
-        return R"(
-            half4 texColor;
-            if (texIndex == 0) {
-               texColor = sample(text_atlas_0, textureCoords);
-            } else if (texIndex == 1) {
-               texColor = sample(text_atlas_1, textureCoords);
-            } else if (texIndex == 2) {
-               texColor = sample(text_atlas_2, textureCoords);
-            } else if (texIndex == 3) {
-               texColor = sample(text_atlas_3, textureCoords);
-            } else {
-               texColor = sample(text_atlas_0, textureCoords);
-            }
-            outputCoverage = texColor;
-        )";
-    }
+    return
+        "half4 texColor;"
+        "if (texIndex == 0) {"
+           "texColor = sample(text_atlas_0, textureCoords);"
+        "} else if (texIndex == 1) {"
+           "texColor = sample(text_atlas_1, textureCoords);"
+        "} else if (texIndex == 2) {"
+           "texColor = sample(text_atlas_2, textureCoords);"
+        "} else if (texIndex == 3) {"
+           "texColor = sample(text_atlas_3, textureCoords);"
+        "} else {"
+           "texColor = sample(text_atlas_0, textureCoords);"
+        "}"
+        // A8
+        "if (maskFormat == 0) {"
+            "outputCoverage = texColor.rrrr;"
+        // LCD
+        "} else if (maskFormat == 1) {"
+            "outputCoverage = half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));"
+        // RGBA
+        "} else {"
+            "outputCoverage = texColor;"
+        "}";
 }
 
 void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
@@ -127,7 +118,7 @@ void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
 }
 
 void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                    SkPipelineDataGatherer* gatherer) const {
+                                                    PipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     const SubRunData& subRunData = params.geometry().subRunData();
@@ -140,8 +131,8 @@ void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
 
     // write uniforms
     gatherer->write(params.transform());
-    skvx::float2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
-                                           1.f/proxies[0]->dimensions().height()};
+    SkV2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
+                                   1.f/proxies[0]->dimensions().height()};
     gatherer->write(atlasDimensionsInverse);
 
     // write textures and samplers

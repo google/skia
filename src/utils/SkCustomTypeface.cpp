@@ -27,24 +27,25 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFixed.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h" // IWYU pragma: keep
+#include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkStreamPriv.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
 class SkArenaAlloc;
 class SkDescriptor;
-class SkFontDescriptor;
 
 namespace {
 static inline const constexpr bool kSkShowTextBlitCoverage = false;
@@ -213,12 +214,13 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkUserTypeface::onGetAdvancedMetrics(
 }
 
 void SkUserTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
+    desc->setFactoryId(SkCustomTypefaceBuilder::FactoryId);
     *isLocal = true;
 }
 
-void SkUserTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
+void SkUserTypeface::onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const {
     for (int i = 0; i < count; ++i) {
-        glyphs[i] = uni[i] < this->glyphCount() ? SkTo<SkGlyphID>(uni[i]) : 0;
+        glyphs[i] = chars[i] < this->glyphCount() ? SkTo<SkGlyphID>(chars[i]) : 0;
     }
 }
 
@@ -458,7 +460,8 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
 
     for (int i = 0; i < glyphCount; ++i) {
         uint32_t gtype;
-        if (!stream->readU32(&gtype)) {
+        if (!stream->readU32(&gtype) ||
+            (gtype != GlyphType::kDrawable && gtype != GlyphType::kPath)) {
             return nullptr;
         }
 
@@ -468,7 +471,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
         }
 
         SkRect bounds;
-        if (stream->read(&bounds, sizeof(bounds)) != sizeof(bounds)) {
+        if (stream->read(&bounds, sizeof(bounds)) != sizeof(bounds) || !bounds.isFinite()) {
             return nullptr;
         }
 
@@ -477,6 +480,13 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
         if (stream->read(&sz, sizeof(sz)) != sizeof(sz)) {
             return nullptr;
         }
+
+        // The amount of bytes in the stream must be at least as big as sz, otherwise
+        // sz is invalid.
+        if (StreamRemainingLengthIsBelow(stream, sz)) {
+            return nullptr;
+        }
+
         auto data = SkData::MakeUninitialized(sz);
         if (stream->read(data->writable_data(), sz) != sz) {
             return nullptr;
@@ -505,4 +515,9 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
 
     arp.markDone();
     return builder.detach();
+}
+
+sk_sp<SkTypeface> SkCustomTypefaceBuilder::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                                          const SkFontArguments&) {
+    return Deserialize(stream.get());
 }

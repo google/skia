@@ -22,14 +22,14 @@ enum CustomBlenders {
 
 static sk_sp<SkBlender> hardMix() {
     static SkRuntimeEffect* hardMixEffect = []{
-        const char hardMix[] = R"(
-            half4 main(half4 src, half4 dst) {
-                src.rgb = unpremul(src).rgb + unpremul(dst).rgb;
-                src.rgb = min(floor(src.rgb), 1) * src.a;
+        const char hardMix[] =
+            "half4 main(half4 src, half4 dst) {"
+                "src.rgb = unpremul(src).rgb + unpremul(dst).rgb;"
+                "src.rgb = min(floor(src.rgb), 1) * src.a;"
 
-                return src + (1 - src.a)*dst;
-            }
-        )";
+                "return src + (1 - src.a)*dst;"
+            "}"
+        ;
         auto result = SkRuntimeEffect::MakeForBlender(SkString(hardMix));
         return result.effect.release();
     }();

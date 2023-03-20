@@ -11,6 +11,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 
+#include <cstddef>
+
 /**
  *  Helper class to package and trim the parameters passed to writePixels()
  */

@@ -1,10 +1,26 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+# In separate groups for exporting to sksl.gni:skslc_deps.
+SKSLC_FILES = [
+    "GrMemoryPool.cpp",
+    "GrMemoryPool.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core_skslc",
+    files = SKSLC_FILES,
+)
+
 CORE_FILES = [
+    "ClipStack.cpp",
+    "ClipStack.h",
+    "Device.cpp",
+    "Device_drawTexture.cpp",
+    "Device_v1.h",
     "GrAHardwareBufferImageGenerator.cpp",
     "GrAHardwareBufferImageGenerator.h",
     "GrAHardwareBufferUtils.cpp",
@@ -17,8 +33,6 @@ CORE_FILES = [
     "GrAutoLocaleSetter.h",
     "GrBackendSemaphore.cpp",
     "GrBackendSurface.cpp",
-    "GrBackendSurfaceMutableState.cpp",
-    "GrBackendSurfaceMutableStateImpl.h",
     "GrBackendTextureImageGenerator.cpp",
     "GrBackendTextureImageGenerator.h",
     "GrBackendUtils.cpp",
@@ -100,8 +114,6 @@ CORE_FILES = [
     "GrImageInfo.h",
     "GrManagedResource.cpp",
     "GrManagedResource.h",
-    "GrMemoryPool.cpp",
-    "GrMemoryPool.h",
     "GrMeshDrawTarget.cpp",
     "GrMeshDrawTarget.h",
     "GrNativeRect.h",
@@ -117,6 +129,7 @@ CORE_FILES = [
     "GrPaint.h",
     "GrPersistentCacheUtils.cpp",
     "GrPersistentCacheUtils.h",
+    "GrPinnableImage.cpp",
     "GrPipeline.cpp",
     "GrPipeline.h",
     "GrPixmap.h",
@@ -182,6 +195,7 @@ CORE_FILES = [
     "GrSurfaceProxy.cpp",
     "GrSurfaceProxy.h",
     "GrSurfaceProxyPriv.h",
+    "GrSurfaceProxyView.cpp",
     "GrSurfaceProxyView.h",
     "GrTTopoSort.h",
     "GrTestUtils.cpp",
@@ -222,17 +236,12 @@ CORE_FILES = [
     "GrYUVABackendTextures.cpp",
     "GrYUVATextureProxies.cpp",
     "GrYUVATextureProxies.h",
-    "SkGr.cpp",
-    "SkGr.h",
-    "ClipStack.cpp",
-    "ClipStack.h",
-    "Device.cpp",
-    "Device_drawTexture.cpp",
-    "Device_v1.h",
     "PathRenderer.cpp",
     "PathRenderer.h",
     "PathRendererChain.cpp",
     "PathRendererChain.h",
+    "SkGr.cpp",
+    "SkGr.h",
     "StencilClip.h",
     "StencilMaskHelper.cpp",
     "StencilMaskHelper.h",
@@ -242,6 +251,7 @@ CORE_FILES = [
     "SurfaceDrawContext.h",
     "SurfaceFillContext.cpp",
     "SurfaceFillContext.h",
+    "TestFormatColorTypeCombination.h",
 ]
 
 split_srcs_and_hdrs(
@@ -249,10 +259,11 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
+        ":core_skslc_srcs",
         "//src/gpu/ganesh/effects:srcs",
         "//src/gpu/ganesh/glsl:srcs",
         "//src/gpu/ganesh/gradients:srcs",
@@ -272,10 +283,11 @@ filegroup(
     visibility = ["//src/gpu:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",
+        ":core_skslc_hdrs",
         "//src/gpu/ganesh/effects:private_hdrs",
         "//src/gpu/ganesh/glsl:private_hdrs",
         "//src/gpu/ganesh/gradients:private_hdrs",
@@ -302,7 +314,6 @@ skia_cc_deps(
         {
             "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:deps"],
             "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:deps"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:deps"],
             # TODO(kjlubick) mtl and d3d backend
         },
     ),

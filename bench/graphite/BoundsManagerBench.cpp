@@ -7,11 +7,13 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
+
+using namespace skia_private;
 
 static DEFINE_string(boundsManagerFile, "",
                      "svg or skp for the BoundsManager bench to sniff paths from.");
@@ -25,7 +27,7 @@ public:
     BoundsManagerBench(std::unique_ptr<BoundsManager> manager) : fManager(std::move(manager)) {}
 
 protected:
-    virtual void gatherRects(SkTArray<SkRect>* rects) = 0;
+    virtual void gatherRects(TArray<SkRect>* rects) = 0;
 
     bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
@@ -34,10 +36,10 @@ protected:
     const char* onGetName() final { return fName.c_str(); }
 
     void onDelayedSetup() final {
-        SkTArray<SkRect> rects;
+        TArray<SkRect> rects;
         this->gatherRects(&rects);
 
-        fRectCount = rects.count();
+        fRectCount = rects.size();
         fRects = fAlignedAllocator.makeArray<Rect>(fRectCount);
         for (int i = 0; i < fRectCount; ++i) {
             fRects[i] = rects[i];
@@ -92,7 +94,7 @@ public:
     }
 
 private:
-    void gatherRects(SkTArray<SkRect>* rects) override {
+    void gatherRects(TArray<SkRect>* rects) override {
         SkRandom rand;
         for (int i = 0; i < fNumRandomRects; ++i) {
             rects->push_back(SkRect::MakeXYWH(rand.nextRangeF(0, 2000),
@@ -129,7 +131,7 @@ private:
         return BoundsManagerBench::isSuitableFor(backend);
     }
 
-    void gatherRects(SkTArray<SkRect>* rects) override {
+    void gatherRects(TArray<SkRect>* rects) override {
         if (FLAGS_boundsManagerFile.isEmpty()) {
             return;
         }

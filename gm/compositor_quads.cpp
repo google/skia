@@ -35,7 +35,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkLineClipper.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -45,8 +45,10 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 class ClipTileRenderer;
-using ClipTileRendererArray = SkTArray<sk_sp<ClipTileRenderer>>;
+using ClipTileRendererArray = TArray<sk_sp<ClipTileRenderer>>;
 
 // This GM mimics the draw calls used by complex compositors that focus on drawing rectangles
 // and quadrilaterals with per-edge AA, with complex images, effects, and seamless tiling.
@@ -384,7 +386,7 @@ protected:
         SkPoint sub[4];
         bool subAA[4];
         int draws = 0;
-        for (int i = 0; i < subtiles.count(); ++i) {
+        for (int i = 0; i < subtiles.size(); ++i) {
             // Fill in the quad points and update edge AA rules for new interior edges
             for (int j = 0; j < 4; ++j) {
                 int p = subtiles[i][j];
@@ -434,7 +436,7 @@ protected:
         static constexpr SkScalar kCellWidth = 1.3f * kColCount * kTileWidth;
         static constexpr SkScalar kCellHeight = 1.3f * kRowCount * kTileHeight;
         return SkISize::Make(SkScalarRoundToInt(kCellWidth * kMatrixCount + 175.f),
-                             SkScalarRoundToInt(kCellHeight * fRenderers.count() + 75.f));
+                             SkScalarRoundToInt(kCellHeight * fRenderers.size() + 75.f));
     }
 
     SkString onShortName() override {
@@ -453,17 +455,17 @@ protected:
         static constexpr SkScalar kBannerWidth = 120.f;
         static constexpr SkScalar kOffset = 15.f;
 
-        SkTArray<int> drawCounts(fRenderers.count());
-        drawCounts.push_back_n(fRenderers.count(), 0);
+        TArray<int> drawCounts(fRenderers.size());
+        drawCounts.push_back_n(fRenderers.size(), 0);
 
         canvas->save();
         canvas->translate(kOffset + kBannerWidth, kOffset);
-        for (int i = 0; i < fMatrices.count(); ++i) {
+        for (int i = 0; i < fMatrices.size(); ++i) {
             canvas->save();
             draw_text(canvas, fMatrixNames[i].c_str());
 
             canvas->translate(0.f, kGap);
-            for (int j = 0; j < fRenderers.count(); ++j) {
+            for (int j = 0; j < fRenderers.size(); ++j) {
                 canvas->save();
                 draw_tile_boundaries(canvas, fMatrices[i]);
                 draw_clipping_boundaries(canvas, fMatrices[i]);
@@ -485,7 +487,7 @@ protected:
         // Print a row header, with total draw counts
         canvas->save();
         canvas->translate(kOffset, kGap + 0.5f * kRowCount * kTileHeight);
-        for (int j = 0; j < fRenderers.count(); ++j) {
+        for (int j = 0; j < fRenderers.size(); ++j) {
             fRenderers[j]->drawBanner(canvas);
             canvas->translate(0.f, 15.f);
             draw_text(canvas, SkStringPrintf("Draws = %d", drawCounts[j]).c_str());
@@ -497,14 +499,14 @@ protected:
 private:
     std::function<ClipTileRendererArray()> fMakeRendererFn;
     ClipTileRendererArray fRenderers;
-    SkTArray<SkMatrix> fMatrices;
-    SkTArray<SkString> fMatrixNames;
+    TArray<SkMatrix> fMatrices;
+    TArray<SkString> fMatrixNames;
 
     SkString fName;
 
     void configureMatrices() {
-        fMatrices.reset();
-        fMatrixNames.reset();
+        fMatrices.clear();
+        fMatrixNames.clear();
         fMatrices.push_back_n(kMatrixCount);
 
         // Identity
@@ -537,7 +539,7 @@ private:
         fMatrices[4].preTranslate(0.f, 10.f);
         fMatrixNames.push_back(SkString("Perspective"));
 
-        SkASSERT(fMatrices.count() == fMatrixNames.count());
+        SkASSERT(fMatrices.size() == fMatrixNames.size());
     }
 
     using INHERITED = skiagm::GM;
@@ -716,7 +718,7 @@ public:
         if (!fResetEachQuad && fTransformBatchCount > 0) {
             // Handle transform batching. This works by capturing the CTM of the first tile draw,
             // and then calculate the difference between that and future CTMs for later tiles.
-            if (fPreViewMatrices.count() == 0) {
+            if (fPreViewMatrices.size() == 0) {
                 fBaseCTM = canvas->getTotalMatrix();
                 fPreViewMatrices.push_back(SkMatrix::I());
                 matrixIdx = 0;
@@ -727,11 +729,11 @@ public:
                     SkDebugf("Cannot invert CTM, transform batching will not be correct.\n");
                 } else {
                     SkMatrix preView = SkMatrix::Concat(invBase, canvas->getTotalMatrix());
-                    if (preView != fPreViewMatrices[fPreViewMatrices.count() - 1]) {
+                    if (preView != fPreViewMatrices[fPreViewMatrices.size() - 1]) {
                         // Add the new matrix
                         fPreViewMatrices.push_back(preView);
                     } // else re-use the last matrix
-                    matrixIdx = fPreViewMatrices.count() - 1;
+                    matrixIdx = fPreViewMatrices.size() - 1;
                 }
             }
         }
@@ -782,9 +784,9 @@ private:
     bool fResetEachQuad;
     int fTransformBatchCount;
 
-    SkTArray<SkPoint> fDstClips;
-    SkTArray<SkMatrix> fPreViewMatrices;
-    SkTArray<SkCanvas::ImageSetEntry> fSetEntries;
+    TArray<SkPoint> fDstClips;
+    TArray<SkMatrix> fPreViewMatrices;
+    TArray<SkCanvas::ImageSetEntry> fSetEntries;
 
     SkMatrix fBaseCTM;
     int fBatchCount;
@@ -839,8 +841,8 @@ private:
 
     int drawAndReset(SkCanvas* canvas) {
         // Early out if there's nothing to draw
-        if (fSetEntries.count() == 0) {
-            SkASSERT(fDstClips.count() == 0 && fPreViewMatrices.count() == 0);
+        if (fSetEntries.size() == 0) {
+            SkASSERT(fDstClips.size() == 0 && fPreViewMatrices.size() == 0);
             return 0;
         }
 
@@ -859,27 +861,27 @@ private:
 
 #ifdef SK_DEBUG
         int expectedDstClipCount = 0;
-        for (int i = 0; i < fSetEntries.count(); ++i) {
+        for (int i = 0; i < fSetEntries.size(); ++i) {
             expectedDstClipCount += 4 * fSetEntries[i].fHasClip;
             SkASSERT(fSetEntries[i].fMatrixIndex < 0 ||
-                     fSetEntries[i].fMatrixIndex < fPreViewMatrices.count());
+                     fSetEntries[i].fMatrixIndex < fPreViewMatrices.size());
         }
-        SkASSERT(expectedDstClipCount == fDstClips.count());
+        SkASSERT(expectedDstClipCount == fDstClips.size());
 #endif
 
         SkPaint paint;
-        SkRect lastTileRect = fSetEntries[fSetEntries.count() - 1].fDstRect;
+        SkRect lastTileRect = fSetEntries[fSetEntries.size() - 1].fDstRect;
         this->configureTilePaint(lastTileRect, &paint);
 
         canvas->experimental_DrawEdgeAAImageSet(
-                fSetEntries.begin(), fSetEntries.count(), fDstClips.begin(),
+                fSetEntries.begin(), fSetEntries.size(), fDstClips.begin(),
                 fPreViewMatrices.begin(), SkSamplingOptions(SkFilterMode::kLinear),
                 &paint, SkCanvas::kFast_SrcRectConstraint);
 
         // Reset for next tile
-        fDstClips.reset();
-        fPreViewMatrices.reset();
-        fSetEntries.reset();
+        fDstClips.clear();
+        fPreViewMatrices.clear();
+        fSetEntries.clear();
         fBatchCount = 0;
 
         return 1;
@@ -947,8 +949,8 @@ private:
     // The last accessed SkImage from fYUVData, held here for easy access by drawTile
     sk_sp<SkImage> fImage;
 
-    SkTArray<SkPoint> fDstClips;
-    SkTArray<SkCanvas::ImageSetEntry> fSetEntries;
+    TArray<SkPoint> fDstClips;
+    TArray<SkCanvas::ImageSetEntry> fSetEntries;
 
     YUVTextureSetRenderer(sk_sp<SkData> jpegData)
             : fYUVData(sk_gpu_test::LazyYUVImage::Make(std::move(jpegData)))
@@ -956,17 +958,17 @@ private:
 
     int drawAndReset(SkCanvas* canvas) {
         // Early out if there's nothing to draw
-        if (fSetEntries.count() == 0) {
-            SkASSERT(fDstClips.count() == 0);
+        if (fSetEntries.size() == 0) {
+            SkASSERT(fDstClips.size() == 0);
             return 0;
         }
 
 #ifdef SK_DEBUG
         int expectedDstClipCount = 0;
-        for (int i = 0; i < fSetEntries.count(); ++i) {
+        for (int i = 0; i < fSetEntries.size(); ++i) {
             expectedDstClipCount += 4 * fSetEntries[i].fHasClip;
         }
-        SkASSERT(expectedDstClipCount == fDstClips.count());
+        SkASSERT(expectedDstClipCount == fDstClips.size());
 #endif
 
         SkPaint paint;
@@ -974,13 +976,13 @@ private:
         paint.setBlendMode(SkBlendMode::kSrcOver);
 
         canvas->experimental_DrawEdgeAAImageSet(
-                fSetEntries.begin(), fSetEntries.count(), fDstClips.begin(), nullptr,
+                fSetEntries.begin(), fSetEntries.size(), fDstClips.begin(), nullptr,
                 SkSamplingOptions(SkFilterMode::kLinear), &paint,
                 SkCanvas::kFast_SrcRectConstraint);
 
         // Reset for next tile
-        fDstClips.reset();
-        fSetEntries.reset();
+        fDstClips.clear();
+        fSetEntries.clear();
 
         return 1;
     }

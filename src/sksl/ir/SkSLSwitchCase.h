@@ -9,9 +9,10 @@
 #define SKSL_SWITCHCASE
 
 #include "include/private/SkSLStatement.h"
+#include "include/private/SkSLString.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 namespace SkSL {
 
@@ -20,7 +21,7 @@ namespace SkSL {
  */
 class SwitchCase final : public Statement {
 public:
-    inline static constexpr Kind kStatementKind = Kind::kSwitchCase;
+    inline static constexpr Kind kIRNodeKind = Kind::kSwitchCase;
 
     static std::unique_ptr<SwitchCase> Make(Position pos, SKSL_INT value,
             std::unique_ptr<Statement> statement) {
@@ -68,7 +69,7 @@ public:
 
 private:
     SwitchCase(Position pos, bool isDefault, SKSL_INT value, std::unique_ptr<Statement> statement)
-        : INHERITED(pos, kStatementKind)
+        : INHERITED(pos, kIRNodeKind)
         , fDefault(isDefault)
         , fValue(std::move(value))
         , fStatement(std::move(statement)) {}

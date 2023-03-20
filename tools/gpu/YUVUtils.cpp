@@ -7,6 +7,7 @@
 
 #include "tools/gpu/YUVUtils.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
@@ -19,6 +20,7 @@
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/image/SkImage_Base.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 namespace {
@@ -158,7 +160,7 @@ MakeYUVAPlanesAsA8(SkImage* src,
         SkImageInfo info = SkImageInfo::MakeA8(dims[i]);
         sk_sp<SkSurface> surf;
         if (rContext) {
-            surf = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, info, 1, nullptr);
+            surf = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, info, 1, nullptr);
         } else {
             surf = SkSurface::MakeRaster(info);
         }
@@ -217,6 +219,18 @@ sk_sp<SkImage> LazyYUVImage::refImage(GrRecordingContext* rContext, Type type) {
         return nullptr;
     }
 }
+
+#if defined(SK_GRAPHITE)
+sk_sp<SkImage> LazyYUVImage::refImage(skgpu::graphite::Recorder* recorder, Type type) {
+    if (this->ensureYUVImage(recorder, type)) {
+        size_t idx = static_cast<size_t>(type);
+        SkASSERT(idx < std::size(fYUVImage));
+        return fYUVImage[idx];
+    } else {
+        return nullptr;
+    }
+}
+#endif
 
 bool LazyYUVImage::reset(sk_sp<SkData> data, GrMipmapped mipmapped, sk_sp<SkColorSpace> cs) {
     fMipmapped = mipmapped;
@@ -301,8 +315,8 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
                             direct,
                             fPixmaps.plane(i),
                             kTopLeft_GrSurfaceOrigin,
-                            GrRenderable::kNo,
-                            GrProtected::kNo);
+                            skgpu::Renderable::kNo,
+                            skgpu::Protected::kNo);
                     if (mbets[i]) {
                         textures[i] = mbets[i]->texture();
                     } else {
@@ -327,4 +341,38 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
     }
     return fYUVImage[idx] != nullptr;
 }
+
+#if defined(SK_GRAPHITE)
+bool LazyYUVImage::ensureYUVImage(skgpu::graphite::Recorder* recorder, Type type) {
+    size_t idx = static_cast<size_t>(type);
+    SkASSERT(idx < std::size(fYUVImage));
+    if (fYUVImage[idx] && as_IB(fYUVImage[idx])->isGraphiteBacked()) {
+        return true;  // Have already made a YUV image suitable for Graphite.
+    }
+    // Try to make a new Graphite YUV image
+    switch (type) {
+        case Type::kFromPixmaps:
+            if (!recorder) {
+                return false;
+            }
+            fYUVImage[idx] = SkImage::MakeGraphiteFromYUVAPixmaps(recorder,
+                                                                  fPixmaps,
+                                                                  { fMipmapped },
+                                                                  /*limitToMaxTextureSize=*/false,
+                                                                  fColorSpace);
+            break;
+        case Type::kFromGenerator: {
+            // Make sure the generator has ownership of its backing planes.
+            auto generator = std::make_unique<Generator>(fPixmaps, fColorSpace);
+            fYUVImage[idx] = SkImage::MakeFromGenerator(std::move(generator));
+            break;
+        }
+        case Type::kFromTextures:
+            // TODO: implement this
+            return false;
+    }
+    return fYUVImage[idx] != nullptr;
+}
+#endif
+
 } // namespace sk_gpu_test

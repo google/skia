@@ -1,0 +1,20 @@
+struct SomeData {
+    float4 a;
+    float2 b;
+};
+
+layout(set=0, binding=0) readonly buffer storageBuffer
+{
+    uint offset;
+    SomeData[] inputData;
+};
+
+layout(set=0, binding=1) buffer outputBuffer
+{
+    SomeData[] outputData;
+};
+
+half4 main(float2 coords) {
+    outputData[offset] = inputData[offset];
+    return half4(inputData[offset].a * inputData[offset].b.x);
+}

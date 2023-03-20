@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_CODEC_DECODES_AVIF
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
-
-#ifdef SK_CODEC_DECODES_AVIF
 
 struct AvifTestCase {
     const char* path;

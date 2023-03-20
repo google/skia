@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/vk/GrVkDescriptorPool.h"
 
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 
 

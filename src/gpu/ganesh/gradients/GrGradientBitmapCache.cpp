@@ -8,12 +8,16 @@
 
 #include "src/gpu/ganesh/gradients/GrGradientBitmapCache.h"
 
-#include "include/private/SkFloatBits.h"
-#include "include/private/SkHalf.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkHalf.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/shaders/gradients/SkGradientShaderBase.h"
 
 #include <functional>
+
+using namespace skia_private;
 
 struct GrGradientBitmapCache::Entry {
     Entry*      fPrev;
@@ -123,70 +127,43 @@ void GrGradientBitmapCache::add(const void* buffer, size_t len, const SkBitmap& 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-
 void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScalar* positions,
-                                         int count, SkColorType colorType, SkBitmap* bitmap) {
-    SkHalf* pixelsF16 = reinterpret_cast<SkHalf*>(bitmap->getPixels());
-    uint32_t* pixels32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
+                                         int count, SkBitmap* bitmap) {
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/0);
+    SkRasterPipeline p(&alloc);
+    SkRasterPipeline_MemoryCtx ctx = { bitmap->getPixels(), 0 };
 
-    typedef std::function<void(const skvx::float4&, int)> pixelWriteFn_t;
-
-    pixelWriteFn_t writeF16Pixel = [&](const skvx::float4& x, int index) {
-        skvx::half4 c = SkFloatToHalf_finite_ftz(x);
-        c.store(pixelsF16 + (4 * index));
-    };
-    pixelWriteFn_t write8888Pixel = [&](const skvx::float4& c, int index) {
-        pixels32[index] = Sk4f_toL32(c);
-    };
-
-    pixelWriteFn_t writePixel =
-            (colorType == kRGBA_F16_SkColorType) ? writeF16Pixel : write8888Pixel;
-
-    int prevIndex = 0;
-    for (int i = 1; i < count; i++) {
-        // Historically, stops have been mapped to [0, 256], with 256 then nudged to the next
-        // smaller value, then truncate for the texture index. This seems to produce the best
-        // results for some common distributions, so we preserve the behavior.
-        int nextIndex = std::min(positions[i] * fResolution,
-                               SkIntToScalar(fResolution - 1));
-
-        if (nextIndex > prevIndex) {
-            auto c0 = skvx::float4::Load(colors[i - 1].vec()),
-                 c1 = skvx::float4::Load(colors[i    ].vec());
-
-            auto step = skvx::float4(1.0f / static_cast<float>(nextIndex - prevIndex));
-            auto delta = (c1 - c0) * step;
-
-            for (int curIndex = prevIndex; curIndex <= nextIndex; ++curIndex) {
-                writePixel(c0, curIndex);
-                c0 += delta;
-            }
-        }
-        prevIndex = nextIndex;
-    }
-    SkASSERT(prevIndex == fResolution - 1);
+    p.append(SkRasterPipelineOp::seed_shader);
+    p.append_matrix(&alloc, SkMatrix::Scale(1.0f / bitmap->width(), 1.0f));
+    SkGradientShaderBase::AppendGradientFillStages(&p, &alloc, colors, positions, count);
+    p.append_store(bitmap->colorType(), &ctx);
+    p.run(0, 0, bitmap->width(), 1);
 }
 
-void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors, const SkScalar* positions,
-        int count, SkColorType colorType, SkAlphaType alphaType, SkBitmap* bitmap) {
+void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors,
+                                        const SkScalar* positions,
+                                        int count,
+                                        SkColorType colorType,
+                                        SkAlphaType alphaType,
+                                        SkBitmap* bitmap) {
     // build our key: [numColors + colors[] + positions[] + alphaType + colorType ]
     static_assert(sizeof(SkPMColor4f) % sizeof(int32_t) == 0, "");
     const int colorsAsIntCount = count * sizeof(SkPMColor4f) / sizeof(int32_t);
-    int keyCount = 1 + colorsAsIntCount + 1 + 1;
-    if (count > 2) {
-        keyCount += count - 1;
-    }
+    SkASSERT(count > 2);  // Otherwise, we should have used the single-interval colorizer
+    const int keyCount = 1 +                 // count
+                         colorsAsIntCount +  // colors
+                         (count - 2) +       // positions
+                         1 +                 // alphaType
+                         1;                  // colorType
 
-    SkAutoSTMalloc<64, int32_t> storage(keyCount);
+    AutoSTMalloc<64, int32_t> storage(keyCount);
     int32_t* buffer = storage.get();
 
     *buffer++ = count;
     memcpy(buffer, colors, count * sizeof(SkPMColor4f));
     buffer += colorsAsIntCount;
-    if (count > 2) {
-        for (int i = 1; i < count; i++) {
-            *buffer++ = SkFloat2Bits(positions[i]);
-        }
+    for (int i = 1; i < count - 1; i++) {
+        *buffer++ = SkFloat2Bits(positions[i]);
     }
     *buffer++ = static_cast<int32_t>(alphaType);
     *buffer++ = static_cast<int32_t>(colorType);
@@ -200,7 +177,7 @@ void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors, const SkScala
     if (!this->find(storage.get(), size, bitmap)) {
         SkImageInfo info = SkImageInfo::Make(fResolution, 1, colorType, alphaType);
         bitmap->allocPixels(info);
-        GrGradientBitmapCache::fillGradient(colors, positions, count, colorType, bitmap);
+        this->fillGradient(colors, positions, count, bitmap);
         bitmap->setImmutable();
         this->add(storage.get(), size, *bitmap);
     }

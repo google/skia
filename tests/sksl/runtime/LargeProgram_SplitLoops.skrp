@@ -1,0 +1,69 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             i = 0
+    4. copy_slot_unmasked             i₁ = i
+    5. zero_slot_unmasked             x = 0
+    6. label                          label 0x00000002
+    7. copy_slot_unmasked             i₂ = i₁
+    8. zero_slot_unmasked             x₁ = 0
+    9. label                          label 0x00000005
+   10. copy_slot_unmasked             i₃ = i₂
+   11. zero_slot_unmasked             x₂ = 0
+   12. label                          label 0x00000008
+   13. copy_slot_unmasked             i₄ = i₃
+   14. zero_slot_unmasked             x₃ = 0
+   15. label                          label 0x0000000B
+   16. copy_slot_unmasked             $0 = i₄
+   17. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   18. add_int                        $0 += $1
+   19. copy_slot_unmasked             i₄ = $0
+   20. copy_slot_unmasked             $0 = x₃
+   21. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   22. add_int                        $0 += $1
+   23. copy_slot_unmasked             x₃ = $0
+   24. copy_constant                  $1 = 0x0000000A (1.401298e-44)
+   25. cmplt_int                      $0 = lessThan($0, $1)
+   26. stack_rewind
+   27. branch_if_no_active_lanes_eq   branch -12 (label 11 at #15) if no lanes of $0 == 0x00000000 (0.0)
+   28. label                          label 0x0000000A
+   29. copy_slot_unmasked             $0 = i₄
+   30. copy_slot_unmasked             i₃ = $0
+   31. label                          label 0x00000009
+   32. copy_slot_unmasked             $0 = x₂
+   33. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   34. add_int                        $0 += $1
+   35. copy_slot_unmasked             x₂ = $0
+   36. copy_constant                  $1 = 0x0000000A (1.401298e-44)
+   37. cmplt_int                      $0 = lessThan($0, $1)
+   38. stack_rewind
+   39. branch_if_no_active_lanes_eq   branch -27 (label 8 at #12) if no lanes of $0 == 0x00000000 (0.0)
+   40. label                          label 0x00000007
+   41. copy_slot_unmasked             $0 = i₃
+   42. copy_slot_unmasked             i₂ = $0
+   43. label                          label 0x00000006
+   44. copy_slot_unmasked             $0 = x₁
+   45. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   46. add_int                        $0 += $1
+   47. copy_slot_unmasked             x₁ = $0
+   48. copy_constant                  $1 = 0x0000000A (1.401298e-44)
+   49. cmplt_int                      $0 = lessThan($0, $1)
+   50. stack_rewind
+   51. branch_if_no_active_lanes_eq   branch -42 (label 5 at #9) if no lanes of $0 == 0x00000000 (0.0)
+   52. label                          label 0x00000004
+   53. copy_slot_unmasked             $0 = i₂
+   54. copy_slot_unmasked             i₁ = $0
+   55. label                          label 0x00000003
+   56. copy_slot_unmasked             $0 = x
+   57. copy_constant                  $1 = 0x00000001 (1.401298e-45)
+   58. add_int                        $0 += $1
+   59. copy_slot_unmasked             x = $0
+   60. copy_constant                  $1 = 0x0000000A (1.401298e-44)
+   61. cmplt_int                      $0 = lessThan($0, $1)
+   62. stack_rewind
+   63. branch_if_no_active_lanes_eq   branch -57 (label 2 at #6) if no lanes of $0 == 0x00000000 (0.0)
+   64. label                          label 0x00000001
+   65. copy_slot_unmasked             $0 = i₁
+   66. copy_slot_unmasked             i = $0
+   67. label                          label 0x00000000
+   68. zero_4_slots_unmasked          $0..3 = 0
+   69. load_src                       src.rgba = $0..3

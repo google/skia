@@ -9,9 +9,10 @@
 
 #ifdef SK_HAS_HEIF_LIBRARY
 #include "include/codec/SkCodec.h"
+#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkHeifCodec.h"
 #include "src/core/SkEndian.h"

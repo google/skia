@@ -7,6 +7,7 @@
 
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -40,7 +41,7 @@ GrBackendFormat GrContext_Base::defaultBackendFormat(SkColorType skColorType,
     return fThreadSafeProxy->defaultBackendFormat(skColorType, renderable);
 }
 
-GrBackendFormat GrContext_Base::compressedBackendFormat(SkImage::CompressionType c) const {
+GrBackendFormat GrContext_Base::compressedBackendFormat(SkTextureCompressionType c) const {
     return fThreadSafeProxy->compressedBackendFormat(c);
 }
 

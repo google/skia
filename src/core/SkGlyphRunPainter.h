@@ -10,7 +10,7 @@
 
 #include "include/core/SkColorType.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/core/SkGlyphBuffer.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkScalerContext.h"
 
 class SkColorSpace;
@@ -26,7 +26,8 @@ public:
         BitmapDevicePainter(const BitmapDevicePainter&) = default;
         virtual ~BitmapDevicePainter() = default;
 
-        virtual void paintMasks(SkDrawableGlyphBuffer* accepted, const SkPaint& paint) const = 0;
+        virtual void paintMasks(SkZip<const SkGlyph*, SkPoint> accepted,
+                                const SkPaint& paint) const = 0;
         virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                                 const SkSamplingOptions&, const SkPaint&) const = 0;
     };

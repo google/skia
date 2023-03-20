@@ -4,7 +4,7 @@
 #ifndef SkVM_opts_DEFINED
 #define SkVM_opts_DEFINED
 
-#include "include/private/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkVM.h"
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #include <immintrin.h>

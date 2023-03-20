@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -32,10 +32,10 @@ class Type;
  */
 class SymbolTable {
 public:
-    SymbolTable(bool builtin)
+    explicit SymbolTable(bool builtin)
             : fBuiltin(builtin) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent, bool builtin)
+    explicit SymbolTable(std::shared_ptr<SymbolTable> parent, bool builtin)
             : fParent(parent)
             , fBuiltin(builtin) {}
 
@@ -71,9 +71,30 @@ public:
     }
 
     /**
-     * Looks up the requested symbol and returns it.
+     * Looks up the requested symbol and returns a const pointer.
      */
-    const Symbol* operator[](std::string_view name) const;
+    const Symbol* find(std::string_view name) const {
+        return this->lookup(MakeSymbolKey(name));
+    }
+
+    /**
+     * Looks up the requested symbol, only searching the built-in symbol tables. Always const.
+     */
+    const Symbol* findBuiltinSymbol(std::string_view name) const;
+
+    /**
+     * Looks up the requested symbol and returns a mutable pointer. Use caution--mutating a symbol
+     * will have program-wide impact, and built-in symbol tables must never be mutated.
+     */
+    Symbol* findMutable(std::string_view name) const {
+        return this->lookup(MakeSymbolKey(name));
+    }
+
+    /**
+     * Assigns a new name to the passed-in symbol. The old name will continue to exist in the symbol
+     * table and point to the symbol.
+     */
+    void renameSymbol(Symbol* symbol, std::string_view newName);
 
     /**
      * Returns true if the name refers to a type (user or built-in) in the current symbol table.
@@ -91,21 +112,30 @@ public:
      */
     void addWithoutOwnership(Symbol* symbol);
 
-    void addWithoutOwnership(const Symbol* symbol) {
-        // If the symbol is a FunctionDeclaration, we need to use the non-const
-        // `addWithoutOwnership` call to ensure that overload chains are kept up-to-date.
-        SkASSERT(symbol->kind() != Symbol::Kind::kFunctionDeclaration);
-        return this->addWithoutOwnership(symbol, MakeSymbolKey(symbol->name()));
-    }
-
     /**
      * Adds a symbol to this symbol table, conferring ownership.
      */
     template <typename T>
-    const T* add(std::unique_ptr<T> symbol) {
+    T* add(std::unique_ptr<T> symbol) {
         T* ptr = symbol.get();
-        this->addWithoutOwnership(ptr);
-        this->takeOwnershipOfSymbol(std::move(symbol));
+        this->addWithoutOwnership(this->takeOwnershipOfSymbol(std::move(symbol)));
+        return ptr;
+    }
+
+    /**
+     * Forces a symbol into this symbol table, without conferring ownership. Replaces any existing
+     * symbol with the same name, if one exists.
+     */
+    void injectWithoutOwnership(Symbol* symbol);
+
+    /**
+     * Forces a symbol into this symbol table, conferring ownership. Replaces any existing symbol
+     * with the same name, if one exists.
+     */
+    template <typename T>
+    T* inject(std::unique_ptr<T> symbol) {
+        T* ptr = symbol.get();
+        this->injectWithoutOwnership(this->takeOwnershipOfSymbol(std::move(symbol)));
         return ptr;
     }
 
@@ -171,16 +201,12 @@ private:
         return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
     }
 
-    const Symbol* lookup(const SymbolKey& key) const;
-
-    void addWithoutOwnership(const Symbol* symbol, const SymbolKey& key);
+    Symbol* lookup(const SymbolKey& key) const;
 
     bool fBuiltin = false;
     bool fAtModuleBoundary = false;
     std::forward_list<std::string> fOwnedStrings;
-    SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
-
-    friend class Dehydrator;
+    SkTHashMap<SymbolKey, Symbol*, SymbolKey::Hash> fSymbols;
 };
 
 }  // namespace SkSL

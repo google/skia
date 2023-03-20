@@ -5,12 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkYUVPlanesCache.h"
 #include "tests/Test.h"
+
+#include <cstdint>
+#include <cstring>
 
 enum LockedState {
     kUnlocked,

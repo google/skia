@@ -7,8 +7,9 @@
 
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 
-#include "include/private/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -828,7 +829,7 @@ public:
     }
 
 private:
-    using Saturate = skgpu::v1::TextureOp::Saturate;
+    using Saturate = skgpu::ganesh::TextureOp::Saturate;
 
     QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)

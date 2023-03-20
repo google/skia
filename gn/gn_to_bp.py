@@ -77,14 +77,10 @@ cc_defaults {
     name: "skia_arch_defaults",
     arch: {
         arm: {
-            srcs: [
-                $arm_srcs
-            ],
+            srcs: [],
 
             neon: {
-                srcs: [
-                    $arm_neon_srcs
-                ],
+                srcs: [],
             },
         },
 
@@ -92,6 +88,18 @@ cc_defaults {
             srcs: [
                 $arm64_srcs
             ],
+            // TODO(b/267542007): Re-enable stack tagging when miscompile is
+            // fixed
+            sanitize: {
+                memtag_stack: false,
+            },
+        },
+
+        riscv64: {
+            // TODO(b/254713216): Re-enable thinlto for targets failing the build
+            lto: {
+                thin: false,
+            },
         },
 
         x86: {
@@ -251,6 +259,9 @@ cc_defaults {
             "libvulkan",
             "libnativewindow",
         ],
+        static_libs: [
+            "libperfetto_client_experimental",
+        ],
         export_shared_lib_headers: [
             "libvulkan",
         ],
@@ -267,14 +278,6 @@ cc_defaults {
         "libpiex",
         "libexpat",
         "libft2",
-        // Required by Skottie
-        "libicu",
-        "libharfbuzz_ng",
-    ],
-    // Required by Skottie
-    cflags: [
-        "-DSK_SHAPER_HARFBUZZ_AVAILABLE",
-        "-DSK_UNICODE_AVAILABLE",
     ],
     static_libs: [
         "libwebp-decode",
@@ -509,18 +512,24 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     'skia_include_multiframe_procs':        'false',
     # Required for some SKSL tests
     'skia_enable_sksl_tracing':             'true',
-    'skia_use_perfetto':                    'false'
+    # The two Perfetto integrations are currently mutually exclusive due to
+    # complexity.
+    'skia_use_perfetto':                    'false',
   }
   d['target_os'] = target_os
   if target_os == '"android"':
     d['skia_enable_tools'] = 'true'
     d['skia_include_multiframe_procs'] = 'true'
+    # Only enable for actual Android framework builds targeting Android devices.
+    # (E.g. disabled for host builds and SkQP)
+    d['skia_android_framework_use_perfetto'] = 'true'
 
   if enable_gpu:
-    d['skia_use_vulkan']   = 'true'
+    d['skia_use_vulkan']    = 'true'
+    d['skia_enable_ganesh'] = 'true'
   else:
-    d['skia_use_vulkan']   = 'false'
-    d['skia_enable_gpu']   = 'false'
+    d['skia_use_vulkan']    = 'false'
+    d['skia_enable_ganesh'] = 'false'
 
   if target_os == '"win"':
     # The Android Windows build system does not provide FontSub.h
@@ -535,6 +544,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
 
   if target_os == '"android"' and not renderengine:
     d['skia_use_libheif']  = 'true'
+    d['skia_use_jpeg_gainmaps'] = 'true'
   else:
     d['skia_use_libheif']  = 'false'
 
@@ -544,7 +554,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_use_libjpeg_turbo_encode'] = 'false'
     d['skia_use_libwebp_decode'] = 'false'
     d['skia_use_libwebp_encode'] = 'false'
-    d['skia_use_libgifcodec'] = 'false'
+    d['skia_use_wuffs'] = 'false'
     d['skia_enable_pdf'] = 'false'
     d['skia_use_freetype'] = 'false'
     d['skia_use_fixed_gamma_text'] = 'false'
@@ -556,7 +566,6 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_use_fixed_gamma_text'] = 'true'
     d['skia_enable_fontmgr_custom_empty'] = 'true'
     d['skia_use_wuffs'] = 'true'
-    d['skia_enable_skottie'] = 'true'
 
   return d
 
@@ -576,17 +585,6 @@ cflags          = strip_slashes(js['targets']['//:skia']['cflags'])
 cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
 local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
-
-if (gn_args['skia_enable_skottie']):
-  # Skottie sits on top of skia, so we need to specify these sources to be built
-  # Python sets handle duplicate flags, source files, and includes for us
-  android_srcs.update(strip_slashes(js['targets']['//modules/skottie:skottie']['sources']))
-  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'sources',
-                                     android_srcs, '//:skia')
-
-  local_includes.update(strip_slashes(js['targets']['//modules/skottie:skottie']['include_dirs']))
-  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'include_dirs',
-                                     local_includes, '//:skia')
 
 gm_srcs         = strip_slashes(js['targets']['//:gm']['sources'])
 gm_includes     = strip_slashes(js['targets']['//:gm']['include_dirs'])
@@ -610,8 +608,8 @@ gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
                                    nanobench_srcs, ['//:skia', '//:gm'])
 
 # skcms is a little special, kind of a second-party library.
-local_includes.add("include/third_party/skcms")
-gm_includes   .add("include/third_party/skcms")
+local_includes.add("modules/skcms")
+gm_includes   .add("modules/skcms")
 
 # Android's build will choke if we list headers.
 def strip_headers(sources):
@@ -640,6 +638,7 @@ win_srcs        = strip_headers(win_srcs)
 
 srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
 srcs = srcs.intersection(win_srcs)
+
 android_srcs    = android_srcs.difference(srcs)
 linux_srcs      =   linux_srcs.difference(srcs)
 mac_srcs        =     mac_srcs.difference(srcs)
@@ -694,6 +693,7 @@ gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'defines',
 skqp_defines.add("SK_ENABLE_DUMP_GPU")
 skqp_defines.add("SK_BUILD_FOR_SKQP")
 skqp_defines.add("SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1")
+skqp_defines.remove("SK_USE_PERFETTO")
 
 skqp_srcs = strip_headers(skqp_srcs)
 skqp_cflags = gn_to_bp_utils.CleanupCFlags(skqp_cflags)
@@ -794,13 +794,8 @@ with open('Android.bp', 'w') as Android_bp:
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
-    'arm_srcs':      bpfmt(16, strip_headers(defs['armv7'])),
-    'arm_neon_srcs': bpfmt(20, strip_headers(defs['neon'])),
-    'arm64_srcs':    bpfmt(16, strip_headers(defs['arm64'] +
-                                             defs['crc32'])),
-    'x86_srcs':      bpfmt(16, strip_headers(defs['sse2'] +
-                                             defs['ssse3'] +
-                                             defs['sse41'] +
+    'arm64_srcs':    bpfmt(16, strip_headers(defs['crc32'])),
+    'x86_srcs':      bpfmt(16, strip_headers(defs['ssse3'] +
                                              defs['sse42'] +
                                              defs['avx'  ] +
                                              defs['hsw'  ] +

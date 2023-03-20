@@ -10,16 +10,20 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
 
-class SkColorSpace;
+struct GrContextOptions;
 
 class DeviceTestingAccess {
 public:
@@ -75,10 +79,10 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 }
 #endif
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     static const int kWidth = 100;
@@ -86,9 +90,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(2*kWidth, 2*kHeight);
 
-    auto device = dContext->priv().createDevice(SkBudgeted::kNo, ii, SkBackingFit::kExact,
-                                                1, GrMipmapped::kNo, GrProtected::kNo,
-                                                kBottomLeft_GrSurfaceOrigin, SkSurfaceProps(),
+    auto device = dContext->priv().createDevice(skgpu::Budgeted::kNo,
+                                                ii,
+                                                SkBackingFit::kExact,
+                                                1,
+                                                GrMipmapped::kNo,
+                                                GrProtected::kNo,
+                                                kBottomLeft_GrSurfaceOrigin,
+                                                SkSurfaceProps(),
                                                 skgpu::v1::Device::InitContents::kClear);
 
     SkBitmap bm;

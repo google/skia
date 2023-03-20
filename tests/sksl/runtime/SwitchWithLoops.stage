@@ -1,22 +1,7 @@
 uniform half4 colorGreen;
 uniform half4 colorRed;
-bool switch_with_break_in_loop_0(int x);
 bool switch_with_continue_in_loop_0(int x);
 bool loop_with_break_in_switch_0(int x);
-bool switch_with_break_in_loop_0(int x)
-{
-	int val = 0;
-	switch (x) 
-	{
-		case 1:for (int i = 0;i < 10; ++i) 
-		{
-			++val;
-			break;
-		}
-		default:++val;
-	}
-	return val == 2;
-}
 bool switch_with_continue_in_loop_0(int x)
 {
 	int val = 0;
@@ -49,5 +34,15 @@ bool loop_with_break_in_switch_0(int x)
 half4 main(float2 coords)
 {
 	int x = int(colorGreen.y);
-	return half4((switch_with_break_in_loop_0(x) && switch_with_continue_in_loop_0(x)) && loop_with_break_in_switch_0(x) ? colorGreen : colorRed);
+	int _0_val = 0;
+	switch (x) 
+	{
+		case 1:for (int _1_i = 0;_1_i < 10; ++_1_i) 
+		{
+			++_0_val;
+			break;
+		}
+		default:++_0_val;
+	}
+	return half4((_0_val == 2 && switch_with_continue_in_loop_0(x)) && loop_with_break_in_switch_0(x) ? colorGreen : colorRed);
 }

@@ -5,22 +5,11 @@
  * found in the LICENSE file.
  */
 
-// -- GPU Text -------------------------------------------------------------------------------------
-// Naming conventions
-//  * drawMatrix - the CTM from the canvas.
-//  * drawOrigin - the x, y location of the drawTextBlob call.
-//  * positionMatrix - this is the combination of the drawMatrix and the drawOrigin:
-//        positionMatrix = drawMatrix * TranslationMatrix(drawOrigin.x, drawOrigin.y);
-//
-// Note:
-//   In order to transform Slugs, you need to set the fSupportBilerpFromGlyphAtlas on
-//   GrContextOptions.
-
 #include "src/text/gpu/TextBlob.h"
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkFontPriv.h"
@@ -35,9 +24,10 @@
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
-#if SK_SUPPORT_GPU  // Ganesh Support
+#if defined(SK_GANESH)  // Ganesh Support
 #include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrClip.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
@@ -112,7 +102,7 @@ public:
                                       const SkStrikeClient* client);
     void doFlatten(SkWriteBuffer& buffer) const override;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     void surfaceDraw(SkCanvas*,
                      const GrClip* clip,
                      const SkMatrixProvider& viewMatrix,
@@ -140,7 +130,6 @@ private:
     SubRunContainerOwner fSubRuns;
     const SkRect fSourceBounds;
     const SkPaint fInitialPaint;
-    const SkMatrix fInitialPositionMatrix;
     const SkPoint fOrigin;
 };
 
@@ -155,7 +144,7 @@ SlugImpl::SlugImpl(SubRunAllocator&& alloc,
         , fInitialPaint{paint}
         , fOrigin{origin} {}
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 void SlugImpl::surfaceDraw(SkCanvas* canvas, const GrClip* clip, const SkMatrixProvider& viewMatrix,
                            const SkPaint& drawingPaint, skgpu::v1::SurfaceDrawContext* sdc) const {
     fSubRuns->draw(canvas, clip, viewMatrix, fOrigin, drawingPaint, this, sdc);
@@ -316,19 +305,14 @@ bool TextBlob::Key::operator==(const TextBlob::Key& that) const {
             return false;
         }
     }
+
     if (fScalerContextFlags != that.fScalerContextFlags) { return false; }
 
-    if (fPositionMatrix.hasPerspective()) {
-        if (fPositionMatrix[SkMatrix::kMPersp0] != that.fPositionMatrix[SkMatrix::kMPersp0] ||
-            fPositionMatrix[SkMatrix::kMPersp1] != that.fPositionMatrix[SkMatrix::kMPersp1] ||
-            fPositionMatrix[SkMatrix::kMPersp2] != that.fPositionMatrix[SkMatrix::kMPersp2]) {
-                return false;
-        }
-    }
+    // DirectSubRuns do not support perspective when used with a TextBlob. SDFT, Transformed,
+    // Path, and Drawable do support perspective.
+    if (fPositionMatrix.hasPerspective() && fHasSomeDirectSubRuns) { return false; }
 
-    if (fHasSomeDirectSubRuns != that.fHasSomeDirectSubRuns) {
-        return false;
-    }
+    if (fHasSomeDirectSubRuns != that.fHasSomeDirectSubRuns) { return false; }
 
     if (fHasSomeDirectSubRuns) {
         auto [compatible, _] = can_use_direct(fPositionMatrix, that.fPositionMatrix);
@@ -370,10 +354,6 @@ void TextBlob::addKey(const Key& key) {
     fKey = key;
 }
 
-bool TextBlob::hasPerspective() const {
-    return fSubRuns->initialPosition().hasPerspective();
-}
-
 bool TextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const {
     // A singular matrix will create a TextBlob with no SubRuns, but unknown glyphs can also
     // cause empty runs. If there are no subRuns, then regenerate when the matrices don't match.
@@ -394,7 +374,7 @@ bool TextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) co
 
 const TextBlob::Key& TextBlob::key() const { return fKey; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 void TextBlob::draw(SkCanvas* canvas,
                     const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
@@ -405,7 +385,7 @@ void TextBlob::draw(SkCanvas* canvas,
 }
 #endif
 
-#if defined(SK_GRAPHITE_ENABLED)
+#if defined(SK_GRAPHITE)
 void TextBlob::draw(SkCanvas* canvas,
                     SkPoint drawOrigin,
                     const SkPaint& paint,
@@ -447,7 +427,7 @@ sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* cli
 }
 }  // namespace sktext::gpu
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 namespace skgpu::v1 {
 sk_sp<Slug>
 Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,

@@ -1,30 +1,53 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:flags.bzl", "bool_flag", "selects")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "txts",
     srcs = [
-        "generated/sksl_compute.dehydrated.sksl",
-        "generated/sksl_frag.dehydrated.sksl",
-        "generated/sksl_gpu.dehydrated.sksl",
-        "generated/sksl_graphite_frag.dehydrated.sksl",
-        "generated/sksl_graphite_vert.dehydrated.sksl",
-        "generated/sksl_public.dehydrated.sksl",
-        "generated/sksl_rt_shader.dehydrated.sksl",
-        "generated/sksl_shared.dehydrated.sksl",
-        "generated/sksl_vert.dehydrated.sksl",
+        "generated/sksl_compute.minified.sksl",
+        "generated/sksl_compute.unoptimized.sksl",
+        "generated/sksl_frag.minified.sksl",
+        "generated/sksl_frag.unoptimized.sksl",
+        "generated/sksl_gpu.minified.sksl",
+        "generated/sksl_gpu.unoptimized.sksl",
+        "generated/sksl_graphite_frag.minified.sksl",
+        "generated/sksl_graphite_frag.unoptimized.sksl",
+        "generated/sksl_graphite_vert.minified.sksl",
+        "generated/sksl_graphite_vert.unoptimized.sksl",
+        "generated/sksl_public.minified.sksl",
+        "generated/sksl_public.unoptimized.sksl",
+        "generated/sksl_rt_shader.minified.sksl",
+        "generated/sksl_rt_shader.unoptimized.sksl",
+        "generated/sksl_shared.minified.sksl",
+        "generated/sksl_shared.unoptimized.sksl",
+        "generated/sksl_vert.minified.sksl",
+        "generated/sksl_vert.unoptimized.sksl",
     ],
-    visibility = ["//:__subpackages__"],
+)
+
+skia_filegroup(
+    name = "sksl_srcs",
+    srcs = [
+        "sksl_compute.sksl",
+        "sksl_frag.sksl",
+        "sksl_gpu.sksl",
+        "sksl_graphite_frag.sksl",
+        "sksl_graphite_vert.sksl",
+        "sksl_public.sksl",
+        "sksl_rt_shader.sksl",
+        "sksl_shared.sksl",
+        "sksl_vert.sksl",
+    ],
+    visibility = ["//tools/sksl-minify:__pkg__"],
 )
 
 CORE_SRCS = [
     "SkSLAnalysis.cpp",
     "SkSLAnalysis.h",
-    "SkSLBuiltinMap.cpp",
-    "SkSLBuiltinMap.h",
     "SkSLBuiltinTypes.cpp",
     "SkSLBuiltinTypes.h",
     "SkSLCompiler.cpp",
@@ -33,11 +56,12 @@ CORE_SRCS = [
     "SkSLConstantFolder.h",
     "SkSLContext.cpp",
     "SkSLContext.h",
-    "SkSLDehydrator.cpp",
-    "SkSLDehydrator.h",
     "SkSLErrorReporter.cpp",
     "SkSLFileOutputStream.h",
     "SkSLGLSL.h",
+    "SkSLInliner.cpp",
+    "SkSLInliner.h",
+    "SkSLIntrinsicList.cpp",
     "SkSLIntrinsicList.h",
     "SkSLLexer.cpp",
     "SkSLLexer.h",
@@ -51,15 +75,12 @@ CORE_SRCS = [
     "SkSLOperator.cpp",
     "SkSLOutputStream.cpp",
     "SkSLOutputStream.h",
-    "SkSLParsedModule.h",
     "SkSLParser.cpp",
     "SkSLParser.h",
     "SkSLPool.cpp",
     "SkSLPool.h",
     "SkSLPosition.cpp",
     "SkSLProgramSettings.h",
-    "SkSLRehydrator.cpp",
-    "SkSLRehydrator.h",
     "SkSLSampleUsage.cpp",
     "SkSLString.cpp",
     "SkSLStringStream.h",
@@ -73,6 +94,13 @@ CORE_SRCS = [
 split_srcs_and_hdrs(
     name = "core",
     files = CORE_SRCS,
+)
+
+skia_filegroup(
+    name = "gpu_hdrs",
+    srcs = [
+        "GLSL.std.450.h",
+    ],
 )
 
 selects.config_setting_group(
@@ -108,7 +136,7 @@ bool_flag(
     default = False,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
@@ -122,7 +150,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",
@@ -133,9 +161,7 @@ filegroup(
         "//src/sksl/tracing:private_hdrs",
         "//src/sksl/transform:private_hdrs",
     ] + select({
-        ":use_sksl_gpu_srcs": [
-            "GLSL.std.450.h",
-        ],
+        ":use_sksl_gpu_srcs": [":gpu_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -153,6 +179,7 @@ skia_cc_deps(
         "//src/sksl:enable_skslc_true": [
             "@spirv_tools",
             "@dawn//:tint",
+            "//tools:get_executable_path",
         ],
         "//conditions:default": [],
     }),

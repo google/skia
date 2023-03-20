@@ -1,0 +1,64 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  expected(0) = 0xBCB2B8C2 (-0.021816615)
+    4. zero_slot_unmasked             expected(1) = 0
+    5. copy_constant                  expected(2) = 0x3C567750 (0.01308997)
+    6. copy_constant                  expected(3) = 0x3D20D97C (0.03926991)
+    7. copy_constant                  $0 = 0x3A03126F (0.0005)
+    8. swizzle_4                      $0..3 = ($0..3).xxxx
+    9. copy_4_slots_unmasked          allowedDelta = $0..3
+   10. copy_constant                  $4 = testInputs(0)
+   11. copy_constant                  $5 = 0x3C8EFA35 (0.0174532924)
+   12. mul_float                      $4 *= $5
+   13. copy_constant                  $5 = 0xBCB2B8C2 (-0.021816615)
+   14. sub_float                      $4 -= $5
+   15. abs_float                      $4 = abs($4)
+   16. copy_constant                  $5 = 0x3A03126F (0.0005)
+   17. cmplt_float                    $4 = lessThan($4, $5)
+   18. copy_2_constants               $5..6 = testInputs(0..1)
+   19. copy_constant                  $7 = 0x3C8EFA35 (0.0174532924)
+   20. copy_slot_unmasked             $8 = $7
+   21. mul_2_floats                   $5..6 *= $7..8
+   22. copy_constant                  $7 = 0xBCB2B8C2 (-0.021816615)
+   23. zero_slot_unmasked             $8 = 0
+   24. sub_2_floats                   $5..6 -= $7..8
+   25. abs_2_floats                   $5..6 = abs($5..6)
+   26. copy_constant                  $7 = 0x3A03126F (0.0005)
+   27. copy_slot_unmasked             $8 = $7
+   28. cmplt_2_floats                 $5..6 = lessThan($5..6, $7..8)
+   29. bitwise_and_int                $5 &= $6
+   30. bitwise_and_int                $4 &= $5
+   31. copy_3_constants               $5..7 = testInputs(0..2)
+   32. copy_constant                  $8 = 0x3C8EFA35 (0.0174532924)
+   33. swizzle_3                      $8..10 = ($8..10).xxx
+   34. mul_3_floats                   $5..7 *= $8..10
+   35. copy_constant                  $8 = 0xBCB2B8C2 (-0.021816615)
+   36. zero_slot_unmasked             $9 = 0
+   37. copy_constant                  $10 = 0x3C567750 (0.01308997)
+   38. sub_3_floats                   $5..7 -= $8..10
+   39. abs_3_floats                   $5..7 = abs($5..7)
+   40. copy_constant                  $8 = 0x3A03126F (0.0005)
+   41. swizzle_3                      $8..10 = ($8..10).xxx
+   42. cmplt_3_floats                 $5..7 = lessThan($5..7, $8..10)
+   43. bitwise_and_int                $6 &= $7
+   44. bitwise_and_int                $5 &= $6
+   45. bitwise_and_int                $4 &= $5
+   46. copy_4_constants               $5..8 = testInputs
+   47. copy_constant                  $9 = 0x3C8EFA35 (0.0174532924)
+   48. swizzle_4                      $9..12 = ($9..12).xxxx
+   49. mul_4_floats                   $5..8 *= $9..12
+   50. copy_4_slots_unmasked          $9..12 = expected
+   51. sub_4_floats                   $5..8 -= $9..12
+   52. abs_4_floats                   $5..8 = abs($5..8)
+   53. copy_4_slots_unmasked          $9..12 = allowedDelta
+   54. cmplt_4_floats                 $5..8 = lessThan($5..8, $9..12)
+   55. bitwise_and_2_ints             $5..6 &= $7..8
+   56. bitwise_and_int                $5 &= $6
+   57. bitwise_and_int                $4 &= $5
+   58. branch_if_no_active_lanes_eq   branch +3 (label 0 at #61) if no lanes of $4 == 0xFFFFFFFF
+   59. copy_4_constants               $0..3 = colorGreen
+   60. jump                           jump +3 (label 1 at #63)
+   61. label                          label 0x00000000
+   62. copy_4_constants               $0..3 = colorRed
+   63. label                          label 0x00000001
+   64. load_src                       src.rgba = $0..3

@@ -7,7 +7,8 @@
 #include "src/pathops/SkPathWriter.h"
 
 #include "include/core/SkTypes.h"
-#include "src/core/SkTSort.h"
+#include "include/private/base/SkMath.h"
+#include "src/base/SkTSort.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsDebug.h"
@@ -173,7 +174,7 @@ SkPoint SkPathWriter::update(const SkOpPtT* pt) {
 
 bool SkPathWriter::someAssemblyRequired() {
     this->finishContour();
-    return fEndPtTs.count() > 0;
+    return !fEndPtTs.empty();
 }
 
 bool SkPathWriter::changedSlopes(const SkOpPtT* ptT) const {
@@ -209,9 +210,9 @@ void SkPathWriter::assemble() {
     SkDebugf("%s\n", __FUNCTION__);
 #endif
     SkOpPtT const* const* runs = fEndPtTs.begin();  // starts, ends of partial contours
-    int endCount = fEndPtTs.count(); // all starts and ends
+    int endCount = fEndPtTs.size(); // all starts and ends
     SkASSERT(endCount > 0);
-    SkASSERT(endCount == fPartials.count() * 2);
+    SkASSERT(endCount == fPartials.size() * 2);
 #if DEBUG_ASSEMBLE
     for (int index = 0; index < endCount; index += 2) {
         const SkOpPtT* eStart = runs[index];
@@ -250,7 +251,7 @@ void SkPathWriter::assemble() {
         } while (true);
         partWriter.finishContour();
         const SkTArray<SkPath>& partPartials = partWriter.partials();
-        if (!partPartials.count()) {
+        if (partPartials.empty()) {
             continue;
         }
         // if pIndex is even, reverse and prepend to fPartials; otherwise, append

@@ -13,11 +13,13 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "tests/CodecPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
+#include <algorithm>
 #include <cstring>
 #include <initializer_list>
 #include <memory>

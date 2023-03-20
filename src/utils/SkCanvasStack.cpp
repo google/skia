@@ -10,7 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include <utility>
 
 class SkPath;
@@ -40,7 +40,7 @@ void SkCanvasStack::pushCanvas(std::unique_ptr<SkCanvas> canvas, const SkIPoint&
         // subtract this region from the canvas objects already on the stack.
         // This ensures they do not draw into the space occupied by the layers
         // above them.
-        for (int i = fList.count() - 1; i > 0; --i) {
+        for (int i = fList.size() - 1; i > 0; --i) {
             SkIRect localBounds = canvasBounds;
             localBounds.offset(origin - fCanvasData[i-1].origin);
 
@@ -48,12 +48,12 @@ void SkCanvasStack::pushCanvas(std::unique_ptr<SkCanvas> canvas, const SkIPoint&
             fList[i-1]->clipRegion(fCanvasData[i-1].requiredClip);
         }
     }
-    SkASSERT(fList.count() == fCanvasData.count());
+    SkASSERT(fList.size() == fCanvasData.size());
 }
 
 void SkCanvasStack::removeAll() {
     this->INHERITED::removeAll();   // call the baseclass *before* we actually delete the canvases
-    fCanvasData.reset();
+    fCanvasData.clear();
 }
 
 /**
@@ -62,8 +62,8 @@ void SkCanvasStack::removeAll() {
  * also clipped out.
  */
 void SkCanvasStack::clipToZOrderedBounds() {
-    SkASSERT(fList.count() == fCanvasData.count());
-    for (int i = 0; i < fList.count(); ++i) {
+    SkASSERT(fList.size() == fCanvasData.size());
+    for (int i = 0; i < fList.size(); ++i) {
         fList[i]->clipRegion(fCanvasData[i].requiredClip);
     }
 }
@@ -76,8 +76,8 @@ void SkCanvasStack::clipToZOrderedBounds() {
  * just pre-concatenate with the existing matrix.
  */
 void SkCanvasStack::didSetM44(const SkM44& mx) {
-    SkASSERT(fList.count() == fCanvasData.count());
-    for (int i = 0; i < fList.count(); ++i) {
+    SkASSERT(fList.size() == fCanvasData.size());
+    for (int i = 0; i < fList.size(); ++i) {
         fList[i]->setMatrix(SkM44::Translate(SkIntToScalar(-fCanvasData[i].origin.x()),
                                              SkIntToScalar(-fCanvasData[i].origin.y())) * mx);
     }
@@ -105,8 +105,8 @@ void SkCanvasStack::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
 }
 
 void SkCanvasStack::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
-    SkASSERT(fList.count() == fCanvasData.count());
-    for (int i = 0; i < fList.count(); ++i) {
+    SkASSERT(fList.size() == fCanvasData.size());
+    for (int i = 0; i < fList.size(); ++i) {
         SkRegion tempRegion;
         deviceRgn.translate(-fCanvasData[i].origin.x(),
                             -fCanvasData[i].origin.y(), &tempRegion);

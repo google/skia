@@ -17,29 +17,36 @@ class SkArenaAlloc;
 
 class SkLocalMatrixShader final : public SkShaderBase {
 public:
-    SkLocalMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
-        : INHERITED(&localMatrix)
-        , fProxyShader(std::move(proxy)) {
+    template <typename T, typename... Args>
+    static std::enable_if_t<std::is_base_of_v<SkShader, T>, sk_sp<SkShader>>
+    MakeWrapped(const SkMatrix* localMatrix, Args&&... args) {
+        auto t = sk_make_sp<T>(std::forward<Args>(args)...);
+        if (!localMatrix || localMatrix->isIdentity()) {
+            return std::move(t);
+        }
+        return sk_make_sp<SkLocalMatrixShader>(sk_sp<SkShader>(std::move(t)), *localMatrix);
     }
 
-    GradientType asAGradient(GradientInfo* info) const override {
-        return fProxyShader->asAGradient(info);
-    }
+    SkLocalMatrixShader(sk_sp<SkShader> wrapped, const SkMatrix& localMatrix)
+            : fLocalMatrix(localMatrix), fWrappedShader(std::move(wrapped)) {}
 
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+    GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
+
+#if defined(SK_GANESH)
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
-#ifdef SK_ENABLE_SKSL
-    void addToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
     sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {
         if (localMatrix) {
-            *localMatrix = this->getLocalMatrix();
+            *localMatrix = fLocalMatrix;
         }
-        return fProxyShader;
+        return fWrappedShader;
     }
 
 protected:
@@ -51,16 +58,22 @@ protected:
 
     SkImage* onIsAImage(SkMatrix* matrix, SkTileMode* mode) const override;
 
-    bool onAppendStages(const SkStageRec&) const override;
+    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec&,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc*) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixShader)
 
-    sk_sp<SkShader> fProxyShader;
+    SkMatrix fLocalMatrix;
+    sk_sp<SkShader> fWrappedShader;
 
     using INHERITED = SkShaderBase;
 };

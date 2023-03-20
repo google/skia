@@ -16,9 +16,9 @@
 class SkOSPath {
 public:
 #ifdef _WIN32
-    const static char SEPARATOR = '\\';
+    static constexpr char SEPARATOR = '\\';
 #else
-    const static char SEPARATOR = '/';
+    static constexpr char SEPARATOR = '/';
 #endif
 
     /**

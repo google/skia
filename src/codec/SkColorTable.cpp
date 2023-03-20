@@ -6,7 +6,7 @@
  */
 #include "src/codec/SkColorTable.h"
 
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 
 #include <cstring>
 

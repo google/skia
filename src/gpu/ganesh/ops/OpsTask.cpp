@@ -8,14 +8,15 @@
 #include "src/gpu/ganesh/ops/OpsTask.h"
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/base/SkScopeExit.h"
 #include "src/core/SkRectPriv.h"
-#include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -404,7 +405,7 @@ void OpsTask::deleteOps() {
     for (auto& chain : fOpChains) {
         chain.deleteOps();
     }
-    fOpChains.reset();
+    fOpChains.clear();
 }
 
 OpsTask::~OpsTask() {
@@ -458,8 +459,8 @@ void OpsTask::endFlush(GrDrawingManager* drawingMgr) {
     fLastClipStackGenID = SK_InvalidUniqueID;
     this->deleteOps();
 
-    fDeferredProxies.reset();
-    fSampledProxies.reset();
+    fDeferredProxies.clear();
+    fSampledProxies.clear();
     fAuditTrail = nullptr;
 
     GrRenderTask::endFlush(drawingMgr);
@@ -664,8 +665,8 @@ void OpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
 }
 
 void OpsTask::reset() {
-    fDeferredProxies.reset();
-    fSampledProxies.reset();
+    fDeferredProxies.clear();
+    fSampledProxies.clear();
     fClippedContentBounds = SkIRect::MakeEmpty();
     fTotalBounds = SkRect::MakeEmpty();
     this->deleteOps();
@@ -704,9 +705,9 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     int addlProxyCount = 0;
     int addlOpChainCount = 0;
     for (const auto& toMerge : mergingNodes) {
-        addlDeferredProxyCount += toMerge->fDeferredProxies.count();
-        addlProxyCount += toMerge->fSampledProxies.count();
-        addlOpChainCount += toMerge->fOpChains.count();
+        addlDeferredProxyCount += toMerge->fDeferredProxies.size();
+        addlProxyCount += toMerge->fSampledProxies.size();
+        addlOpChainCount += toMerge->fOpChains.size();
         fClippedContentBounds.join(toMerge->fClippedContentBounds);
         fTotalBounds.join(toMerge->fTotalBounds);
         fRenderPassXferBarriers |= toMerge->fRenderPassXferBarriers;
@@ -737,15 +738,15 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         for (GrRenderTask* renderTask : toMerge->dependencies()) {
             renderTask->replaceDependent(toMerge.get(), this);
         }
-        fDeferredProxies.move_back_n(toMerge->fDeferredProxies.count(),
+        fDeferredProxies.move_back_n(toMerge->fDeferredProxies.size(),
                                      toMerge->fDeferredProxies.data());
-        fSampledProxies.move_back_n(toMerge->fSampledProxies.count(),
+        fSampledProxies.move_back_n(toMerge->fSampledProxies.size(),
                                     toMerge->fSampledProxies.data());
-        fOpChains.move_back_n(toMerge->fOpChains.count(),
+        fOpChains.move_back_n(toMerge->fOpChains.size(),
                               toMerge->fOpChains.data());
-        toMerge->fDeferredProxies.reset();
-        toMerge->fSampledProxies.reset();
-        toMerge->fOpChains.reset();
+        toMerge->fDeferredProxies.clear();
+        toMerge->fSampledProxies.clear();
+        toMerge->fOpChains.clear();
     }
     fMustPreserveStencil = mergingNodes.back()->fMustPreserveStencil;
     return mergedCount;
@@ -754,8 +755,8 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
 bool OpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
     if (CanDiscardPreviousOps::kYes == canDiscardPreviousOps || this->isEmpty()) {
         this->deleteOps();
-        fDeferredProxies.reset();
-        fSampledProxies.reset();
+        fDeferredProxies.clear();
+        fSampledProxies.clear();
 
         // If the opsTask is using a render target which wraps a vulkan command buffer, we can't do
         // a clear load since we cannot change the render pass that we are using. Thus we fall back
@@ -816,8 +817,8 @@ void OpsTask::dump(const SkString& label,
             break;
     }
 
-    SkDebugf("%s%d ops:\n", indent.c_str(), fOpChains.count());
-    for (int i = 0; i < fOpChains.count(); ++i) {
+    SkDebugf("%s%d ops:\n", indent.c_str(), fOpChains.size());
+    for (int i = 0; i < fOpChains.size(); ++i) {
         SkDebugf("%s*******************************\n", indent.c_str());
         if (!fOpChains[i].head()) {
             SkDebugf("%s%d: <combined forward or failed instantiation>\n", indent.c_str(), i);
@@ -862,7 +863,7 @@ void OpsTask::visitProxies_debugOnly(const GrVisitProxyFunc& func) const {
 
 void OpsTask::onMakeSkippable() {
     this->deleteOps();
-    fDeferredProxies.reset();
+    fDeferredProxies.clear();
     fColorLoadOp = GrLoadOp::kLoad;
     SkASSERT(this->isColorNoOp());
 }
@@ -895,7 +896,7 @@ void OpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         return;
     }
 
-    for (int i = 0; i < fDeferredProxies.count(); ++i) {
+    for (int i = 0; i < fDeferredProxies.size(); ++i) {
         SkASSERT(!fDeferredProxies[i]->isInstantiated());
         // We give all the deferred proxies a write usage at the very start of flushing. This
         // locks them out of being reused for the entire flush until they are read - and then
@@ -908,10 +909,10 @@ void OpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     GrSurfaceProxy* targetProxy = this->target(0);
 
     // Add the interval for all the writes to this OpsTasks's target
-    if (fOpChains.count()) {
+    if (fOpChains.size()) {
         unsigned int cur = alloc->curOp();
 
-        alloc->addInterval(targetProxy, cur, cur + fOpChains.count() - 1,
+        alloc->addInterval(targetProxy, cur, cur + fOpChains.size() - 1,
                            GrResourceAllocator::ActualUse::kYes);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
@@ -979,7 +980,7 @@ void OpsTask::recordOp(
                op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tOutcome:\n");
-    int maxCandidates = std::min(kMaxOpChainDistance, fOpChains.count());
+    int maxCandidates = std::min(kMaxOpChainDistance, fOpChains.size());
     if (maxCandidates) {
         int i = 0;
         while (true) {
@@ -1012,11 +1013,11 @@ void OpsTask::recordOp(
 
 void OpsTask::forwardCombine(const GrCaps& caps) {
     SkASSERT(!this->isClosed());
-    GrOP_INFO("opsTask: %d ForwardCombine %d ops:\n", this->uniqueID(), fOpChains.count());
+    GrOP_INFO("opsTask: %d ForwardCombine %d ops:\n", this->uniqueID(), fOpChains.size());
 
-    for (int i = 0; i < fOpChains.count() - 1; ++i) {
+    for (int i = 0; i < fOpChains.size() - 1; ++i) {
         OpChain& chain = fOpChains[i];
-        int maxCandidateIdx = std::min(i + kMaxOpChainDistance, fOpChains.count() - 1);
+        int maxCandidateIdx = std::min(i + kMaxOpChainDistance, fOpChains.size() - 1);
         int j = i + 1;
         while (true) {
             OpChain& candidate = fOpChains[j];

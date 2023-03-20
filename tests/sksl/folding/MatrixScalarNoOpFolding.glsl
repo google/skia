@@ -1,12 +1,11 @@
 
-out vec4 sk_FragColor;
 uniform mat2 testMatrix2x2;
 uniform mat3 testMatrix3x3;
 uniform vec4 testInputs;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
 uniform float unknownInput;
-bool test_no_op_scalar_X_mat2_b() {
+bool test_Xno_Xop_Xscalar_XX_Xmat2_Xb() {
     mat2 m;
     mat2 mm;
     const mat2 z = mat2(0.0);
@@ -21,7 +20,7 @@ bool test_no_op_scalar_X_mat2_b() {
     mm = mat2(0.0);
     return mm == z;
 }
-bool test_no_op_scalar_X_mat3_b() {
+bool test_Xno_Xop_Xscalar_XX_Xmat3_Xb() {
     mat3 m;
     mat3 mm;
     const mat3 z = mat3(0.0);
@@ -36,7 +35,7 @@ bool test_no_op_scalar_X_mat3_b() {
     mm = mat3(0.0);
     return mm == z;
 }
-bool test_no_op_scalar_X_mat4_b() {
+bool test_Xno_Xop_Xscalar_XX_Xmat4_Xb() {
     mat4 testMatrix4x4 = mat4(testInputs, testInputs, testInputs, testInputs);
     mat4 m;
     mat4 mm;
@@ -52,7 +51,7 @@ bool test_no_op_scalar_X_mat4_b() {
     mm = mat4(0.0);
     return mm == z;
 }
-bool test_no_op_mat2_X_scalar_b() {
+bool test_Xno_Xop_Xmat2_XX_Xscalar_Xb() {
     mat2 m;
     mat2 mm;
     const mat2 z = mat2(0.0);
@@ -73,7 +72,7 @@ bool test_no_op_mat2_X_scalar_b() {
     mm = mat2(0.0);
     return mm == z;
 }
-bool test_no_op_mat3_X_scalar_b() {
+bool test_Xno_Xop_Xmat3_XX_Xscalar_Xb() {
     mat3 m;
     mat3 mm;
     const mat3 z = mat3(0.0);
@@ -95,7 +94,7 @@ bool test_no_op_mat3_X_scalar_b() {
     mm = mat3(0.0);
     return mm == z;
 }
-bool test_no_op_mat4_X_scalar_b() {
+bool test_Xno_Xop_Xmat4_XX_Xscalar_Xb() {
     mat4 m;
     mat4 mm;
     const mat4 z = mat4(0.0);
@@ -118,5 +117,5 @@ bool test_no_op_mat4_X_scalar_b() {
     return mm == z;
 }
 vec4 main() {
-    return ((((test_no_op_scalar_X_mat2_b() && test_no_op_scalar_X_mat3_b()) && test_no_op_scalar_X_mat4_b()) && test_no_op_mat2_X_scalar_b()) && test_no_op_mat3_X_scalar_b()) && test_no_op_mat4_X_scalar_b() ? colorGreen : colorRed;
+    return ((((test_Xno_Xop_Xscalar_XX_Xmat2_Xb() && test_Xno_Xop_Xscalar_XX_Xmat3_Xb()) && test_Xno_Xop_Xscalar_XX_Xmat4_Xb()) && test_Xno_Xop_Xmat2_XX_Xscalar_Xb()) && test_Xno_Xop_Xmat3_XX_Xscalar_Xb()) && test_Xno_Xop_Xmat4_XX_Xscalar_Xb() ? colorGreen : colorRed;
 }

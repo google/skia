@@ -6,14 +6,20 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkResourceCache.h"
-#include "src/shaders/SkPictureShader.h"
 #include "tests/Test.h"
+
+#include <cstdint>
+#include <initializer_list>
 
 // Test that the SkPictureShader cache is purged on shader deletion.
 DEF_TEST(PictureShader_caching, reporter) {

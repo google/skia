@@ -29,7 +29,7 @@ SkColorMatrix SkSVGFeColorMatrix::makeMatrixForType() const {
 
     switch (fType) {
         case SkSVGFeColorMatrixType::kMatrix: {
-            if (fValues.count() < 20) {
+            if (fValues.size() < 20) {
                 return SkColorMatrix();
             }
             SkColorMatrix m;
@@ -37,9 +37,9 @@ SkColorMatrix SkSVGFeColorMatrix::makeMatrixForType() const {
             return m;
         }
         case SkSVGFeColorMatrixType::kSaturate:
-            return MakeSaturate(fValues.count() > 0 ? fValues[0] : 1);
+            return MakeSaturate(!fValues.empty() ? fValues[0] : 1);
         case SkSVGFeColorMatrixType::kHueRotate:
-            return MakeHueRotate(fValues.count() > 0 ? fValues[0] : 0);
+            return MakeHueRotate(!fValues.empty() ? fValues[0] : 0);
         case SkSVGFeColorMatrixType::kLuminanceToAlpha:
             return MakeLuminanceToAlpha();
     }
@@ -105,7 +105,7 @@ template <> bool SkSVGAttributeParser::parse(SkSVGFeColorMatrixValues* values) {
 
     values->push_back(value);
     while (true) {
-        if (!this->parse(&value) || values->count() >= 20) {
+        if (!this->parse(&value) || values->size() >= 20) {
             break;
         }
         values->push_back(value);

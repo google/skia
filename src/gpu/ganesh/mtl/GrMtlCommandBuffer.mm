@@ -13,6 +13,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlPipelineState.h"
 #include "src/gpu/ganesh/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/ganesh/mtl/GrMtlSemaphore.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -22,7 +23,7 @@ GR_NORETAIN_BEGIN
 
 sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
 #ifdef SK_BUILD_FOR_IOS
-    if (GrMtlIsAppInBackground()) {
+    if (skgpu::MtlIsAppInBackground()) {
         NSLog(@"GrMtlCommandBuffer: WARNING: Creating MTLCommandBuffer while in background.");
     }
 #endif
@@ -60,9 +61,9 @@ GrMtlCommandBuffer::~GrMtlCommandBuffer() {
 void GrMtlCommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fTrackedResources.reset();
-    fTrackedGrBuffers.reset();
-    fTrackedGrSurfaces.reset();
+    fTrackedResources.clear();
+    fTrackedGrBuffers.clear();
+    fTrackedGrSurfaces.clear();
 }
 
 id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
@@ -76,7 +77,7 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
         return nullptr;
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (GrMtlIsAppInBackground()) {
+    if (skgpu::MtlIsAppInBackground()) {
         fActiveBlitCommandEncoder = nil;
         NSLog(@"GrMtlCommandBuffer: tried to create MTLBlitCommandEncoder while in background.");
         return nil;
@@ -179,7 +180,7 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
         return nullptr;
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (GrMtlIsAppInBackground()) {
+    if (skgpu::MtlIsAppInBackground()) {
         fActiveRenderCommandEncoder = nullptr;
         NSLog(@"GrMtlCommandBuffer: tried to create MTLRenderCommandEncoder while in background.");
         return nullptr;
@@ -203,7 +204,7 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
         return false;
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (GrMtlIsAppInBackground()) {
+    if (skgpu::MtlIsAppInBackground()) {
         NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in background.\n");
         return false;
     }
@@ -211,6 +212,12 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     [fCmdBuffer commit];
     if (waitUntilCompleted) {
         this->waitUntilCompleted();
+#if defined(SK_BUILD_FOR_IOS) && defined(SK_METAL_WAIT_UNTIL_SCHEDULED)
+    // If iOS goes into the background we need to make sure all command buffers are scheduled first.
+    // We don't have a way of detecting background transition so this guarantees it.
+    } else {
+        [fCmdBuffer waitUntilScheduled];
+#endif
     }
 
     if ([fCmdBuffer status] == MTLCommandBufferStatusError) {

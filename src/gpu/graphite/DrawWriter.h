@@ -9,7 +9,7 @@
 #define skgpu_graphite_DrawWriter_DEFINED
 
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/graphite/DrawBufferManager.h"
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
 
 namespace skgpu::graphite {

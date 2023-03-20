@@ -28,7 +28,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext*,
                                                 GrSurfaceOrigin,
                                                 GrCPixmap pixmap);
 
-#if SK_GPU_V1
+#if defined(SK_GANESH)
 GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                  SkArenaAlloc*,
                                  const GrSurfaceProxyView& writeView,

@@ -19,7 +19,7 @@
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGText.h"
-#include "src/core/SkTSearch.h"
+#include "src/base/SkTSearch.h"
 
 #include <string.h>
 

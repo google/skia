@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -117,7 +118,7 @@ func main() {
 	}
 
 	// Make an HTTP client with the required permissions to hit GCS, Gerrit and Gitiles.
-	httpClient, err := auth_steps.InitHttpClient(ctx, *local, auth.ScopeReadWrite, gerrit.AuthScope, auth.ScopeUserinfoEmail)
+	httpClient, _, err := auth_steps.InitHttpClient(ctx, *local, auth.ScopeReadWrite, gerrit.AuthScope, auth.ScopeUserinfoEmail)
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
@@ -252,14 +253,12 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	}
 
 	var bloatyDiffOutput string
-	if args.repoState.IsTryJob() {
-		// Diff the binary built at the current changelist/patchset vs. at tip-of-tree.
-		bloatyDiffOutput, metadata.BloatyDiffArgs, err = runBloatyDiff(ctx, args.stripPath, args.bloatyPath, args.binaryName)
-		if err != nil {
-			return skerr.Wrap(err)
-		}
-		metadata.CompileTaskNameNoPatch = args.compileTaskNameNoPatch
+	// Diff the binary built at the current changelist/patchset vs. at tip-of-tree.
+	bloatyDiffOutput, metadata.BloatyDiffArgs, err = runBloatyDiff(ctx, args.stripPath, args.bloatyPath, args.binaryName)
+	if err != nil {
+		return skerr.Wrap(err)
 	}
+	metadata.CompileTaskNameNoPatch = args.compileTaskNameNoPatch
 
 	gcsDir := computeTargetGCSDirectory(ctx, args.repoState, args.taskID, args.compileTaskName)
 
@@ -272,12 +271,9 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 		return skerr.Wrap(err)
 	}
 
-	// Upload the .diff.txt file with binary size diff statistics, if applicable.
-	if args.repoState.IsTryJob() {
-		// Upload Bloaty diff output plain-text file to GCS.
-		if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.diff.txt", gcsDir, args.binaryName), []byte(bloatyDiffOutput)); err != nil {
-			return skerr.Wrap(err)
-		}
+	// Upload Bloaty diff output plain-text file to GCS.
+	if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.diff.txt", gcsDir, args.binaryName), []byte(bloatyDiffOutput)); err != nil {
+		return skerr.Wrap(err)
 	}
 
 	// Upload Bloaty output .tsv file to GCS.
@@ -289,8 +285,33 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.tsv", gcsDir, args.binaryName), []byte(bloatyOutput)); err != nil {
 		return skerr.Wrap(err)
 	}
+	if args.repoState.IsTryJob() {
+		// Add VM and file diff results to the step data. This is consumed by the codesize plugin
+		// to display results on the Gerrit CL for tryjob runs.
+		vmDiff, fileDiff := parseBloatyDiffOutput(bloatyDiffOutput)
+		if vmDiff != "" && fileDiff != "" {
+			td.StepText(ctx, "VM Diff", vmDiff)
+			td.StepText(ctx, "File Diff", fileDiff)
+		}
 
-	if !args.repoState.IsTryJob() {
+		// TODO(rmistry): Remove the below "Diff Bytes" section after the above
+		// works and is integrated with the codesize plugin.
+		s, err := os_steps.Stat(ctx, filepath.Join("build", args.binaryName+"_stripped"))
+		if err != nil {
+			return err
+		}
+		totalBytes := s.Size()
+
+		s, err = os_steps.Stat(ctx, filepath.Join("build_nopatch", args.binaryName+"_stripped"))
+		if err != nil {
+			return err
+		}
+		beforeBytes := s.Size()
+
+		diffBytes := totalBytes - beforeBytes
+		td.StepText(ctx, "Diff Bytes", strconv.FormatInt(diffBytes, 10))
+	} else {
+		// Upload perf data for non-tryjob runs on status.skia.org.
 		perfData := format.Format{
 			Version: 1,
 			GitHash: args.repoState.Revision,
@@ -308,6 +329,26 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	}
 
 	return nil
+}
+
+// parseBloatyDiffOutput parses bloaty output and returns the VM diff
+// and the file diff strings.
+// Example: for "...\n...\n+0.0% +832 TOTAL +848Ki +0.0%\n\n" we return
+// (+832, +848Ki).
+// If the output is not in expected format then we return empty strings.
+func parseBloatyDiffOutput(bloatyDiffOutput string) (string, string) {
+	tokens := strings.Split(strings.Trim(bloatyDiffOutput, "\n"), "\n")
+	if len(tokens) > 0 {
+		// Final line in bloaty output is the line with the results.
+		outputLine := tokens[len(tokens)-1]
+		words := strings.Fields(outputLine)
+		// Format is expected to look like this:
+		// +0.0% +832 TOTAL +848 +0.0%
+		if len(words) == 5 {
+			return words[1], words[3]
+		}
+	}
+	return "", ""
 }
 
 // runBloaty runs Bloaty against the given binary and returns the Bloaty output in TSV format and
@@ -437,7 +478,7 @@ func runBloatyDiff(ctx context.Context, stripPath, bloatyPath, binaryName string
 		Args: []string{
 			binaryWithPatchWithNoSymbols,
 			"--debug-file=" + binaryWithPatchWithSymbols,
-			"-d", "compileunits,symbols", "-n", "0", "-s", "file",
+			"-d", "symbols", "-n", "0", "-s", "file",
 			"--",
 			binaryWithNoPatchWithNoSymbols,
 			"--debug-file=" + binaryWithNoPatchWithSymbols,
@@ -482,11 +523,20 @@ func uploadPerfData(ctx context.Context, perfGCS gcs.GCSClient, gcsPathPrefix, b
 		if err != nil {
 			return err
 		}
-
 		totalBytes := s.Size()
+
+		s, err = os_steps.Stat(ctx, filepath.Join("build_nopatch", binaryName+"_stripped"))
+		if err != nil {
+			return err
+		}
+		beforeBytes := s.Size()
+
 		perfData.Results = []format.Result{{
 			Key:         map[string]string{"measurement": "stripped_binary_bytes"},
 			Measurement: float32(totalBytes),
+		}, {
+			Key:         map[string]string{"measurement": "stripped_diff_bytes"},
+			Measurement: float32(totalBytes - beforeBytes),
 		}}
 
 		perfJSON, err := json.MarshalIndent(perfData, "", "  ")

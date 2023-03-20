@@ -7,11 +7,13 @@
 
 #include "src/gpu/graphite/mtl/MtlTexture.h"
 
-#include "include/gpu/graphite/mtl/MtlTypes.h"
-#include "include/private/gpu/graphite/MtlTypesPriv.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/private/gpu/graphite/MtlGraphiteTypesPriv.h"
+#include "src/core/SkMipmap.h"
+#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
-#include "src/gpu/graphite/mtl/MtlUtils.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 namespace skgpu::graphite {
 
@@ -36,13 +38,18 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* shared
         return nullptr;
     }
 
+    int numMipLevels = 1;
+    if (info.mipmapped() == Mipmapped::kYes) {
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
     sk_cfp<MTLTextureDescriptor*> desc([[MTLTextureDescriptor alloc] init]);
     (*desc).textureType = (info.numSamples() > 1) ? MTLTextureType2DMultisample : MTLTextureType2D;
     (*desc).pixelFormat = (MTLPixelFormat)mtlSpec.fFormat;
     (*desc).width = dimensions.width();
     (*desc).height = dimensions.height();
     (*desc).depth = 1;
-    (*desc).mipmapLevelCount = info.numMipLevels();
+    (*desc).mipmapLevelCount = numMipLevels;
     (*desc).sampleCount = info.numSamples();
     (*desc).arrayLength = 1;
     (*desc).usage = mtlSpec.fUsage;
@@ -82,14 +89,14 @@ MtlTexture::MtlTexture(const MtlSharedContext* sharedContext,
                        const TextureInfo& info,
                        sk_cfp<id<MTLTexture>> texture,
                        Ownership ownership,
-                       SkBudgeted budgeted)
-        : Texture(sharedContext, dimensions, info, ownership, budgeted)
+                       skgpu::Budgeted budgeted)
+        : Texture(sharedContext, dimensions, info, /*mutableState=*/nullptr, ownership, budgeted)
         , fTexture(std::move(texture)) {}
 
 sk_sp<Texture> MtlTexture::Make(const MtlSharedContext* sharedContext,
                                 SkISize dimensions,
                                 const TextureInfo& info,
-                                SkBudgeted budgeted) {
+                                skgpu::Budgeted budgeted) {
     sk_cfp<id<MTLTexture>> texture = MakeMtlTexture(sharedContext, dimensions, info);
     if (!texture) {
         return nullptr;
@@ -111,7 +118,7 @@ sk_sp<Texture> MtlTexture::MakeWrapped(const MtlSharedContext* sharedContext,
                                          info,
                                          std::move(texture),
                                          Ownership::kWrapped,
-                                         SkBudgeted::kNo));
+                                         skgpu::Budgeted::kNo));
 }
 
 void MtlTexture::freeGpuData() {

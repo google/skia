@@ -9,8 +9,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkScalerCache.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "tools/ToolUtils.h"
@@ -48,14 +48,12 @@ private:
     void onDelayedSetup() override {
         SkFont defaultFont;
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
-        auto strike = strikeSpec.findOrCreateStrike();
-        SkArenaAlloc alloc(1 << 12); // This is a mock SkStrikeCache.
+        SkBulkGlyphMetricsAndPaths pathMaker{strikeSpec};
         for (int i = 0; i < kNumGlyphs; ++i) {
-            SkPackedGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));
-            SkGlyph glyph = strike->getScalerContext()->makeGlyph(id, &alloc);
-            strike->getScalerContext()->getPath(glyph, &alloc);
-            if (glyph.path()) {
-                fGlyphs[i] = *glyph.path();
+            SkGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));
+            const SkGlyph* glyph = pathMaker.glyph(id);
+            if (glyph->path()) {
+                fGlyphs[i] = *glyph->path();
             }
             fGlyphs[i].setIsVolatile(fUncached);
         }

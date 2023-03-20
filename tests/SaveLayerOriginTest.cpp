@@ -5,12 +5,28 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
+
+#include <cstdint>
+
+struct GrContextOptions;
 
 static void check_pixels(skiatest::Reporter* reporter, const SkBitmap& bitmap,
                          GrSurfaceOrigin origin) {
@@ -95,10 +111,10 @@ static void run_test(skiatest::Reporter* reporter,
     context->deleteBackendTexture(beTexture);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SaveLayerOrigin,
-                                   reporter,
-                                   context_info,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SaveLayerOrigin,
+                                       reporter,
+                                       context_info,
+                                       CtsEnforcement::kApiLevel_T) {
     GrDirectContext* context = context_info.directContext();
     run_test(reporter, context, kBottomLeft_GrSurfaceOrigin);
     run_test(reporter, context, kTopLeft_GrSurfaceOrigin);

@@ -9,7 +9,9 @@
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsRect.h"
 #include "src/pathops/SkPathOpsTCurve.h"

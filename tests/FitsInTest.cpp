@@ -6,9 +6,10 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTFitsIn.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "tests/Test.h"
 
+#include <cstdint>
 #include <limits>
 
 #define TEST(S, s, D, expected) REPORTER_ASSERT(reporter, (SkTFitsIn<D>((S)(s)) == (expected)))
@@ -74,6 +75,14 @@ DEF_TEST(FitsIn, reporter) {
     TEST(uint64_t, 1, uint32_t, true);
     TEST(uint64_t, 1, int64_t, true);
     TEST(uint64_t, 1, uint64_t, true);
+
+    enum class E : int { n1 = -1, p1 = 1 };
+    TEST(E, E::p1, int, true);
+    TEST(E, E::n1, int, true);
+    TEST(int, -1, E, true);
+    TEST(int, 1, E, true);
+    TEST(E, E::p1, unsigned, true);
+    TEST(E, E::n1, unsigned, false);
 
     // Uncommenting the following should cause compile failures.
     //TEST(float, 1, uint64_t, true);

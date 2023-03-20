@@ -14,7 +14,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkNextID.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
@@ -33,6 +33,11 @@ class SkShader;
 class SkSpecialSurface;
 class SkSurface;
 enum class SkTileMode;
+
+namespace skgpu::graphite {
+class Recorder;
+class TextureProxyView;
+}
 
 enum {
     kNeedNewImageUniqueID_SpecialImage = 0
@@ -58,6 +63,7 @@ public:
 
     int width() const { return fSubset.width(); }
     int height() const { return fSubset.height(); }
+    SkISize dimensions() const { return { this->width(), this->height() }; }
     const SkIRect& subset() const { return fSubset; }
 
     uint32_t uniqueID() const { return fUniqueID; }
@@ -92,13 +98,22 @@ public:
     static sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
                                                 const SkSurfaceProps&);
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
                                                      GrSurfaceProxyView,
                                                      const GrColorInfo&,
                                                      const SkSurfaceProps&);
+#endif
+
+#if defined(SK_GRAPHITE)
+    static sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder*,
+                                              const SkIRect& subset,
+                                              uint32_t uniqueID,
+                                              skgpu::graphite::TextureProxyView,
+                                              const SkColorInfo&,
+                                              const SkSurfaceProps&);
 #endif
 
     /**
@@ -163,7 +178,7 @@ public:
      */
     GrRecordingContext* getContext() const { return this->onGetContext(); }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     /**
      * Regardless of how the underlying backing data is stored, returns the contents as a
      * GrSurfaceProxyView. The returned view's proxy represents the entire backing image, so texture
@@ -171,6 +186,12 @@ public:
      * space (offset by subset().topLeft()).
      */
     GrSurfaceProxyView view(GrRecordingContext* context) const { return this->onView(context); }
+#endif
+
+#if defined(SK_GRAPHITE)
+    bool isGraphiteBacked() const;
+
+    skgpu::graphite::TextureProxyView textureProxyView() const;
 #endif
 
     /**
@@ -197,8 +218,12 @@ protected:
 
     virtual GrRecordingContext* onGetContext() const { return nullptr; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     virtual GrSurfaceProxyView onView(GrRecordingContext*) const = 0;
+#endif
+
+#if defined(SK_GRAPHITE)
+    virtual skgpu::graphite::TextureProxyView onTextureProxyView() const;
 #endif
 
     // This subset is relative to the backing store's coordinate frame, it has already been mapped

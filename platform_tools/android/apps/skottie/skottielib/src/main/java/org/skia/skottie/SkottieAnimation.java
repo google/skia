@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLSurface;
@@ -117,7 +118,11 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
 
     private void notifyAnimationEnd() {
         if (this.getListeners() != null) {
-            for (AnimatorListener l : this.getListeners()) {
+            // Listeners may remove themselves during onAnimationEnd().  To safeguard agaist
+            // mutation, use a list copy.
+            ArrayList<Animator.AnimatorListener> listeners =
+                    new ArrayList<Animator.AnimatorListener>(this.getListeners());
+            for (AnimatorListener l : listeners) {
                 l.onAnimationEnd(this);
             }
         }

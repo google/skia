@@ -9,7 +9,7 @@
 #define SkConvertPixels_DEFINED
 
 #include "include/core/SkImageInfo.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 class SkColorTable;
 

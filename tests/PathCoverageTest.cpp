@@ -5,10 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "src/core/SkMathPriv.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkSafe32.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <array>
+#include <cstdint>
 
 /*
    Duplicates lots of code from gpu/src/GrPathUtils.cpp

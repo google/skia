@@ -18,10 +18,10 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
-#ifdef SK_ENABLE_SKSL
-#include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPaintParamsKey.h"
-#endif // SK_ENABLE_SKSL
+#if defined(SK_GRAPHITE)
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
+#endif // SK_GRAPHITE
 
 static bool is_alpha_unchanged(const float matrix[20]) {
     const float* srcA = matrix + 15;
@@ -39,18 +39,20 @@ public:
 
     explicit SkColorFilter_Matrix(const float array[20], Domain);
 
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+
     bool onIsAlphaUnchanged() const override { return fAlphaIsUnchanged; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*,
                                    const GrColorInfo&,
                                    const SkSurfaceProps&) const override;
 #endif
-#ifdef SK_ENABLE_SKSL
-    void addToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 private:
@@ -60,7 +62,6 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMatrix(float matrix[20]) const override;
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Color,
                           const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
@@ -102,18 +103,17 @@ bool SkColorFilter_Matrix::onAsAColorMatrix(float matrix[20]) const {
     return true;
 }
 
-bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkColorFilter_Matrix::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     const bool willStayOpaque = shaderIsOpaque && fAlphaIsUnchanged,
                          hsla = fDomain == Domain::kHSLA;
 
     SkRasterPipeline* p = rec.fPipeline;
-    if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
-    if (           hsla) { p->append(SkRasterPipeline::rgb_to_hsl); }
-    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fMatrix); }
-    if (           hsla) { p->append(SkRasterPipeline::hsl_to_rgb); }
-    if (           true) { p->append(SkRasterPipeline::clamp_0); }
-    if (           true) { p->append(SkRasterPipeline::clamp_1); }
-    if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    if (!shaderIsOpaque) { p->append(SkRasterPipelineOp::unpremul); }
+    if (           hsla) { p->append(SkRasterPipelineOp::rgb_to_hsl); }
+    if (           true) { p->append(SkRasterPipelineOp::matrix_4x5, fMatrix); }
+    if (           hsla) { p->append(SkRasterPipelineOp::hsl_to_rgb); }
+    if (           true) { p->append(SkRasterPipelineOp::clamp_01); }
+    if (!willStayOpaque) { p->append(SkRasterPipelineOp::premul); }
     return true;
 }
 
@@ -159,16 +159,15 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
     return premul(clamp01(c));
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 
 static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmentProcessor> child) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-    R"(
-        half4 main(half4 color) {
-            return $rgb_to_hsl(color.rgb, color.a);
-        }
-    )");
+        "half4 main(half4 color) {"
+            "return $rgb_to_hsl(color.rgb, color.a);"
+        "}"
+    );
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(effect, "RgbToHsl", std::move(child),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput);
@@ -176,11 +175,10 @@ static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmen
 
 static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmentProcessor> child) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-    R"(
-        half4 main(half4 color) {
-            return $hsl_to_rgb(color.rgb, color.a);
-        }
-    )");
+        "half4 main(half4 color) {"
+            "return $hsl_to_rgb(color.rgb, color.a);"
+        "}"
+    );
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(effect, "HslToRgb", std::move(child),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput);
@@ -211,19 +209,21 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
     return GrFPSuccess(std::move(fp));
 }
 
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_GANESH)
 
-#ifdef SK_ENABLE_SKSL
-void SkColorFilter_Matrix::addToKey(const SkKeyContext& keyContext,
-                                    SkPaintParamsKeyBuilder* builder,
-                                    SkPipelineDataGatherer* gatherer) const {
+#if defined(SK_GRAPHITE)
+void SkColorFilter_Matrix::addToKey(const skgpu::graphite::KeyContext& keyContext,
+                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
+                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(fMatrix,
                                                                fDomain == Domain::kHSLA);
 
-    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, matrixCFData);
+    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, &matrixCFData);
     builder->endBlock();
 }
-#endif // SK_ENABLE_SKSL
+#endif // SK_GRAPHITE
 
 ///////////////////////////////////////////////////////////////////////////////
 

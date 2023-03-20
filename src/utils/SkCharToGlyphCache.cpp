@@ -93,7 +93,7 @@ static int find_with_slope(const SkUnichar base[], int count, SkUnichar value, d
 }
 
 int SkCharToGlyphCache::findGlyphIndex(SkUnichar unichar) const {
-    const int count = fK32.count();
+    const int count = fK32.size();
     int index;
     if (count <= kSmallCountLimit) {
         index = find_simple(fK32.begin(), count, unichar);
@@ -108,21 +108,21 @@ int SkCharToGlyphCache::findGlyphIndex(SkUnichar unichar) const {
 
 void SkCharToGlyphCache::insertCharAndGlyph(int index, SkUnichar unichar, SkGlyphID glyph) {
     SkASSERT(fK32.size() == fV16.size());
-    SkASSERT((unsigned)index < fK32.size());
+    SkASSERT(index < fK32.size());
     SkASSERT(unichar < fK32[index]);
 
     *fK32.insert(index) = unichar;
     *fV16.insert(index) = glyph;
 
     // if we've changed the first [1] or last [count-2] entry, recompute our slope
-    const int count = fK32.count();
+    const int count = fK32.size();
     if (count >= kMinCountForSlope && (index == 1 || index == count - 2)) {
         SkASSERT(index >= 1 && index <= count - 2);
         fDenom = 1.0 / ((double)fK32[count - 2] - fK32[1]);
     }
 
 #ifdef SK_DEBUG
-    for (int i = 1; i < fK32.count(); ++i) {
+    for (int i = 1; i < fK32.size(); ++i) {
         SkASSERT(fK32[i-1] < fK32[i]);
     }
 #endif

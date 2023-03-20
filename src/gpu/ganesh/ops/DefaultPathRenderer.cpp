@@ -9,9 +9,9 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -447,7 +447,7 @@ public:
 private:
     GrPrimitiveType primType() const {
         if (this->isHairline()) {
-            int instanceCount = fPaths.count();
+            int instanceCount = fPaths.size();
 
             // We avoid indices when we have a single hairline contour.
             bool isIndexed = instanceCount > 1 ||
@@ -497,7 +497,7 @@ private:
         PathGeoBuilder pathGeoBuilder(this->primType(), target, &fMeshes);
 
         // fill buffers
-        for (int i = 0; i < fPaths.count(); i++) {
+        for (int i = 0; i < fPaths.size(); i++) {
             const PathData& args = fPaths[i];
             pathGeoBuilder.addPath(args.fPath, args.fTolerance);
         }
@@ -508,13 +508,13 @@ private:
             this->createProgramInfo(flushState);
         }
 
-        if (!fProgramInfo || !fMeshes.count()) {
+        if (!fProgramInfo || fMeshes.empty()) {
             return;
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        for (int i = 0; i < fMeshes.count(); ++i) {
+        for (int i = 0; i < fMeshes.size(); ++i) {
             flushState->drawMesh(*fMeshes[i]);
         }
     }
@@ -541,14 +541,14 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        fPaths.push_back_n(that->fPaths.size(), that->fPaths.begin());
         return CombineResult::kMerged;
     }
 
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string = SkStringPrintf("Color: 0x%08x Count: %d\n",
-                                         fColor.toBytes_RGBA(), fPaths.count());
+                                         fColor.toBytes_RGBA(), fPaths.size());
         for (const auto& path : fPaths) {
             string.appendf("Tolerance: %.2f\n", path.fTolerance);
         }

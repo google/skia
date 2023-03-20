@@ -1,0 +1,46 @@
+uniform float f1, f2, f3;
+uniform half h1, h2, h3;
+uniform float2 v1, v2, v3;
+uniform half2 hv1, hv2, hv3;
+uniform float2x2 m1, m2, m3;
+uniform half2x2 hm1, hm2, hm3;
+
+uniform half4 colorGreen, colorRed;
+
+// TODO(skia:13092): Test array equality.
+
+half4 main() {
+    bool ok = true;
+
+    // scalars
+    ok = ok && f1 == f2;
+    ok = ok && h1 == h2;
+    ok = ok && f1 == h2;
+    ok = ok && h1 == f2;
+    ok = ok && f1 != f3;
+    ok = ok && h1 != h3;
+    ok = ok && f1 != h3;
+    ok = ok && h1 != f3;
+
+    // vectors
+    ok = ok && v1  == v2;
+    ok = ok && hv1 == hv2;
+    ok = ok && v1  == hv2;
+    ok = ok && hv1 == v2;
+    ok = ok && v1  != v3;
+    ok = ok && hv1 != hv3;
+    ok = ok && v1  != hv3;
+    ok = ok && hv1 != v3;
+
+    // matrices
+    ok = ok &&  m1 == m2;
+    ok = ok && hm1 == hm2;
+    ok = ok &&  m1 == hm2;
+    ok = ok && hm1 == m2;
+    ok = ok &&  m1 != m3;
+    ok = ok && hm1 != hm3;
+    ok = ok &&  m1 != hm3;
+    ok = ok && hm1 != m3;
+
+    return ok ? colorGreen : colorRed;
+}

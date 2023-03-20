@@ -68,7 +68,7 @@ private:
             , fRenderbufferID(renderbufferID) {
         SkASSERT(supportedUsages == UsageFlags::kStencilAttachment ||
                  supportedUsages == UsageFlags::kColorAttachment);
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(skgpu::Budgeted::kYes);
     }
 
     void onSetLabel() override;

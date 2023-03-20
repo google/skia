@@ -1,0 +1,10 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "tests_srcs",
+    srcs = ["ShaperTest.cpp"],
+)

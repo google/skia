@@ -41,7 +41,6 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     paintTests(CK);
     paragraphTests(CK);
     paragraphBuilderTests(CK);
-    particlesTests(CK);
     pathEffectTests(CK);
     pathTests(CK);
     pictureTests(CK);
@@ -548,9 +547,11 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     const g = p.getMaxIntrinsicWidth(); // $ExpectType number
     const h = p.getMaxWidth(); // $ExpectType number
     const i = p.getMinIntrinsicWidth(); // $ExpectType number
-    const j = p.getRectsForPlaceholders(); // $ExpectType Float32Array[]
-    const k = p.getRectsForRange(2, 10, CK.RectHeightStyle.Max,  // $ExpectType Float32Array[]
+    const j = p.getRectsForPlaceholders(); // $ExpectType RectWithDirection[]
+    const k = p.getRectsForRange(2, 10, CK.RectHeightStyle.Max,  // $ExpectType RectWithDirection[]
         CK.RectWidthStyle.Tight);
+    j[0].rect.length === 4;
+    j[0].dir === CK.TextDirection.RTL;
     const l = p.getWordBoundary(10); // $ExpectType URange
     p.layout(300);
     const m = p.getLineMetrics(); // $ExpectType LineMetrics[]
@@ -612,40 +613,10 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
     builder2.reset();
 
     const text = builder.getText(); // $ExpectType string
-    const mallocedBidis = CK.Malloc(Uint32Array, 3);
-    const mallocedWords = new Uint32Array(10);
-    const mallocedGraphemes =  new Uint32Array(10);
-    const mallocedSoftBreaks =  new Uint32Array(10);
-    const mallocedHardBreaks =  new Uint32Array(10);
-    const paragraph3 = builder.buildWithClientInfo(
-        mallocedBidis,
-        mallocedWords,
-        mallocedGraphemes,
-        mallocedSoftBreaks,
-        mallocedHardBreaks
-    ); // $ExpectType Paragraph
-}
-
-function particlesTests(CK: CanvasKit, canvas?: Canvas) {
-    if (!canvas) return;
-
-    const par = CK.MakeParticles('some json'); // $ExpectType Particles
-    par.draw(canvas);
-    par.uniforms()[0] = 1.2;
-    const a = par.getUniform(1); // $ExpectType SkSLUniform
-    const b = par.getUniformCount(); // $ExpectType number
-    const c = par.getUniformFloatCount(); // $ExpectType number
-    const d = par.getUniformName(3); // $ExpectType string
-    par.uniforms()[2] = 4.5;
-    par.setPosition([3, 5]);
-    par.setRate(3);
-    par.start(0, true);
-    par.update(2);
-
-    const buff = new ArrayBuffer(10);
-    const par2 = CK.MakeParticles('other json', { // $ExpectType Particles
-        'flightAnim.gif': buff,
-    });
+    builder.setWordsUtf16(new Uint32Array(10));
+    builder.setGraphemeBreaksUtf16(new Uint32Array(10));
+    builder.setLineBreaksUtf16(new Uint32Array(10));
+    const paragraph3 = builder.build(); // $ExpectType Paragraph
 }
 
 function pathEffectTests(CK: CanvasKit, path?: Path) {
@@ -780,7 +751,7 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     const i = mAnim.setColor('foo', CK.RED);  // $ExpectType boolean
     const j = mAnim.setOpacity('foo', 0.5);  // $ExpectType boolean
     const k = mAnim.setText('foo', 'bar', 12);  // $ExpectType boolean
-}
+    const l = mAnim.setTransform('foo', [1, 2], [3, 4], [5, 6], 90, 1, 0);  // $ExpectType boolean
 
 function shaderTests(CK: CanvasKit) {
     const s1 = CK.Shader.MakeColor([0.8, 0.2, 0.5, 0.9], // $ExpectType Shader
@@ -951,6 +922,11 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
     const grCtx = CK.MakeGrContext(ctx);
     const surfaceNine = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
         CK.ColorSpace.ADOBE_RGB)!;
+
+    var sample = gl.getParameter(gl.SAMPLES);
+    var stencil = gl.getParameter(gl.STENCIL_BITS);
+    const surfaceTen = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
+        CK.ColorSpace.ADOBE_RGB, sample, stencil)!;
 
     const rt = CK.MakeRenderTarget(grCtx!, 100, 200); // $ExpectType Surface | null
     const rt2 = CK.MakeRenderTarget(grCtx!, { // $ExpectType Surface | null

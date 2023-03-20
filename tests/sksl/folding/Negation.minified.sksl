@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;bool a(){float c=2.;bool f=true;f=f&&-half4(half(c))==half4(half(-c));f=f&&half2(1.,-2.)==-half2(half(1.-c),half(c));return f;}bool b(){int c=1;bool g=true;g=g&&-int2(-c,c+c)==-int2(c-2,2);return g;}bool c(){bool f=true;return f;}half4 main(float2 d){return(a()&&b())&&c()?colorGreen:colorRed;}

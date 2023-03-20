@@ -1,0 +1,36 @@
+### Compilation failed:
+
+error: 1: variables of type 'uint' may not be uniform
+uniform uint a;
+^^^^^^^^^^^^^^
+error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 3: unknown identifier 'sk_FragColor'
+    sk_FragColor.xy = half2(unpackHalf2x16(a));
+    ^^^^^^^^^^^^
+error: 3: unknown identifier 'unpackHalf2x16'
+    sk_FragColor.xy = half2(unpackHalf2x16(a));
+                            ^^^^^^^^^^^^^^
+error: 4: unknown identifier 'sk_FragColor'
+    sk_FragColor.xy = half2(unpackUnorm2x16(a));
+    ^^^^^^^^^^^^
+error: 5: unknown identifier 'sk_FragColor'
+    sk_FragColor.xy = half2(unpackSnorm2x16(a));
+    ^^^^^^^^^^^^
+error: 5: unknown identifier 'unpackSnorm2x16'
+    sk_FragColor.xy = half2(unpackSnorm2x16(a));
+                            ^^^^^^^^^^^^^^^
+error: 6: unknown identifier 'sk_FragColor'
+    sk_FragColor = half4(unpackUnorm4x8(a));
+    ^^^^^^^^^^^^
+error: 6: unknown identifier 'unpackUnorm4x8'
+    sk_FragColor = half4(unpackUnorm4x8(a));
+                         ^^^^^^^^^^^^^^
+error: 7: unknown identifier 'sk_FragColor'
+    sk_FragColor = half4(unpackSnorm4x8(a));
+    ^^^^^^^^^^^^
+error: 7: unknown identifier 'unpackSnorm4x8'
+    sk_FragColor = half4(unpackSnorm4x8(a));
+                         ^^^^^^^^^^^^^^
+11 errors

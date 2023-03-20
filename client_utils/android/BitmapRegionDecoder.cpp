@@ -8,6 +8,7 @@
 #include "client_utils/android/BitmapRegionDecoder.h"
 #include "client_utils/android/BitmapRegionDecoderPriv.h"
 #include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkEncodedImageFormat.h"
 #include "src/codec/SkCodecPriv.h"
 
 namespace android {

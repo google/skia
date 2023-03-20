@@ -9,21 +9,40 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_VULKAN)
-
+#if defined(SK_GANESH) && defined(SK_VULKAN)
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
-#include "src/gpu/ganesh/vk/GrVkMemory.h"
-#include "src/gpu/ganesh/vk/GrVkSecondaryCBDrawContext_impl.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanInterface.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+
+#include <vulkan/vulkan_core.h>
+#include <cstdint>
+#include <memory>
+
+struct GrContextOptions;
+
+namespace skgpu { struct VulkanInterface; }
 
 using sk_gpu_test::GrContextFactory;
 
@@ -151,8 +170,8 @@ public:
 
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
         // buffers and the imported secondary command buffer.
-        sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(td->fDContext, SkBudgeted::kYes,
-                                                            bufferInfo);
+        sk_sp<SkSurface> surf =
+                SkSurface::MakeRenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
         surf->getCanvas()->clear(SK_ColorRED);
 
         SkRect dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
@@ -225,8 +244,8 @@ void draw_drawable_test(skiatest::Reporter* reporter,
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo,
-                                                         ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+            dContext, skgpu::Budgeted::kNo, ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);
 
@@ -267,11 +286,11 @@ void draw_drawable_test(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     draw_drawable_test(reporter, ctxInfo.directContext(), nullptr);
 }
 
-DEF_GPUTEST(VkDrawableImportTest, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VkDrawableImportTest, reporter, options, CtsEnforcement::kApiLevel_T) {
     for (int typeInt = 0; typeInt < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++typeInt) {
         sk_gpu_test::GrContextFactory::ContextType contextType =
                 (sk_gpu_test::GrContextFactory::ContextType) typeInt;

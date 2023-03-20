@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/gpu/ganesh/GrResourceHandle.h"
 
 class SkMatrix;

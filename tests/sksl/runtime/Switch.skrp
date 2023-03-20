@@ -1,0 +1,33 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          color = 0
+    4. store_loop_mask                $0 = LoopMask
+    5. copy_constant                  $1 = colorGreen(1)
+    6. cast_to_int_from_float         $1 = FloatToInt($1)
+    7. store_loop_mask                $2 = LoopMask
+    8. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+    9. case_op                        if ($1 == 0x00000000) { LoopMask = true; $2 = false; }
+   10. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 1 at #15)
+   11. copy_4_constants               $3..6 = colorRed
+   12. copy_4_slots_masked            color = Mask($3..6)
+   13. branch_if_all_lanes_active     branch_if_all_lanes_active +17 (label 0 at #30)
+   14. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   15. label                          label 0x00000001
+   16. case_op                        if ($1 == 0x00000001) { LoopMask = true; $2 = false; }
+   17. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 2 at #22)
+   18. copy_4_constants               $3..6 = colorGreen
+   19. copy_4_slots_masked            color = Mask($3..6)
+   20. branch_if_all_lanes_active     branch_if_all_lanes_active +10 (label 0 at #30)
+   21. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   22. label                          label 0x00000002
+   23. reenable_loop_mask             LoopMask |= $2
+   24. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #29)
+   25. copy_4_constants               $2..5 = colorRed
+   26. copy_4_slots_masked            color = Mask($2..5)
+   27. branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 0 at #30)
+   28. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+   29. label                          label 0x00000003
+   30. label                          label 0x00000000
+   31. load_loop_mask                 LoopMask = $0
+   32. copy_4_slots_unmasked          $0..3 = color
+   33. load_src                       src.rgba = $0..3

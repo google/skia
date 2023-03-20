@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -17,6 +20,9 @@
 #include "src/core/SkOpts.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <array>
+#include <cstddef>
 
 static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
@@ -125,9 +131,6 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
     }
 }
 
-#include "include/core/SkColorPriv.h"
-#include "src/core/SkUtils.h"
-
 /**
  *  Construct 4x4 pixels where we can look at a color and determine where it should be in the grid.
  *  alpha = 0xFF, blue = 0x80, red = x, green = y
@@ -152,7 +155,7 @@ static bool check_4x4_pixel(SkPMColor color, unsigned x, unsigned y) {
  *  Fill with all zeros, which will never match any value from fill_4x4_pixels
  */
 static void clear_4x4_pixels(SkPMColor colors[16]) {
-    sk_memset32(colors, 0, 16);
+    SkOpts::memset32(colors, 0, 16);
 }
 
 // Much of readPixels is exercised by copyTo testing, since readPixels is the backend for that

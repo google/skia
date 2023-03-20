@@ -13,11 +13,12 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkMask.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/shaders/SkShaderBase.h"
 #endif
 
 class GrClip;
@@ -64,7 +65,7 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const = 0;
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     /**
      *  Returns a processor if the filter can be expressed a single-pass GrProcessor without
      *  requiring an explicit input mask. Per-pixel, the effect receives the incoming mask's
@@ -72,7 +73,8 @@ public:
      *  pixel's filtered coverage must only depend on the unfiltered mask value for that pixel and
      *  not on surrounding values.
      */
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args,
+                                                             const SkMatrix& ctm) const;
 
     /**
      *  Returns true iff asFragmentProcessor() will return a processor
@@ -170,8 +172,10 @@ public:
 protected:
     SkMaskFilterBase() {}
 
-#if SK_SUPPORT_GPU
-    virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&) const;
+#if defined(SK_GANESH)
+    using MatrixRec = SkShaderBase::MatrixRec;
+    virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&,
+                                                                       const MatrixRec&) const;
     virtual bool onHasFragmentProcessor() const;
 #endif
 
@@ -220,6 +224,7 @@ protected:
 
 private:
     friend class SkDraw;
+    friend class SkDrawBase;
 
     /** Helper method that, given a path in device space, will rasterize it into a kA8_Format mask
      and then call filterMask(). If this returns true, the specified blitter will be called

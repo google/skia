@@ -1,0 +1,60 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $4 = inputVal(0)
+    4. asin_float                     $4 = asin($4)
+    5. copy_constant                  $5 = expected(0)
+    6. cmpeq_float                    $4 = equal($4, $5)
+    7. copy_2_constants               $5..6 = inputVal(0..1)
+    8. asin_float                     $5 = asin($5)
+    9. asin_float                     $6 = asin($6)
+   10. copy_2_constants               $7..8 = expected(0..1)
+   11. cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+   12. bitwise_and_int                $5 &= $6
+   13. bitwise_and_int                $4 &= $5
+   14. copy_3_constants               $5..7 = inputVal(0..2)
+   15. asin_float                     $5 = asin($5)
+   16. asin_float                     $6 = asin($6)
+   17. asin_float                     $7 = asin($7)
+   18. copy_3_constants               $8..10 = expected(0..2)
+   19. cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+   20. bitwise_and_int                $6 &= $7
+   21. bitwise_and_int                $5 &= $6
+   22. bitwise_and_int                $4 &= $5
+   23. copy_4_constants               $5..8 = inputVal
+   24. asin_float                     $5 = asin($5)
+   25. asin_float                     $6 = asin($6)
+   26. asin_float                     $7 = asin($7)
+   27. asin_float                     $8 = asin($8)
+   28. copy_4_constants               $9..12 = expected
+   29. cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+   30. bitwise_and_2_ints             $5..6 &= $7..8
+   31. bitwise_and_int                $5 &= $6
+   32. bitwise_and_int                $4 &= $5
+   33. zero_slot_unmasked             $5 = 0
+   34. copy_constant                  $6 = expected(0)
+   35. cmpeq_float                    $5 = equal($5, $6)
+   36. bitwise_and_int                $4 &= $5
+   37. zero_2_slots_unmasked          $5..6 = 0
+   38. copy_2_constants               $7..8 = expected(0..1)
+   39. cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+   40. bitwise_and_int                $5 &= $6
+   41. bitwise_and_int                $4 &= $5
+   42. zero_3_slots_unmasked          $5..7 = 0
+   43. copy_3_constants               $8..10 = expected(0..2)
+   44. cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+   45. bitwise_and_int                $6 &= $7
+   46. bitwise_and_int                $5 &= $6
+   47. bitwise_and_int                $4 &= $5
+   48. zero_4_slots_unmasked          $5..8 = 0
+   49. copy_4_constants               $9..12 = expected
+   50. cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+   51. bitwise_and_2_ints             $5..6 &= $7..8
+   52. bitwise_and_int                $5 &= $6
+   53. bitwise_and_int                $4 &= $5
+   54. branch_if_no_active_lanes_eq   branch +3 (label 0 at #57) if no lanes of $4 == 0xFFFFFFFF
+   55. copy_4_constants               $0..3 = colorGreen
+   56. jump                           jump +3 (label 1 at #59)
+   57. label                          label 0x00000000
+   58. copy_4_constants               $0..3 = colorRed
+   59. label                          label 0x00000001
+   60. load_src                       src.rgba = $0..3

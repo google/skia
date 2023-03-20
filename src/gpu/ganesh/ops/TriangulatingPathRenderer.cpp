@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
 
 #include "include/private/SkIDChangeListener.h"
@@ -31,6 +32,8 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 #include <cstdio>
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #ifndef GR_AA_TESSELLATOR_MAX_VERB_COUNT
 #define GR_AA_TESSELLATOR_MAX_VERB_COUNT 10
@@ -629,3 +632,5 @@ bool TriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

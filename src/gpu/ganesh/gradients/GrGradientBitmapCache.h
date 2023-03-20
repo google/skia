@@ -11,8 +11,8 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkNoncopyable.h"
 
 class GrGradientBitmapCache : SkNoncopyable {
 public:
@@ -42,7 +42,7 @@ private:
     void add(const void* buffer, size_t len, const SkBitmap&);
 
     void fillGradient(const SkPMColor4f* colors, const SkScalar* positions, int count,
-                      SkColorType colorType, SkBitmap* bitmap);
+                      SkBitmap* bitmap);
 
 #ifdef SK_DEBUG
     void validate() const;

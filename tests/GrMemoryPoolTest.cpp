@@ -5,12 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 
 // A is the top of an inheritance tree of classes that overload op new and
 // and delete to use a GrMemoryPool. The objects have values of different types
@@ -200,13 +204,13 @@ DEF_TEST(GrMemoryPool, reporter) {
             for (int i = 0; i < kNumIters; ++i) {
                 float createOrDestroy = r.nextUScalar1();
                 if (createOrDestroy < gCreateFraction[c] ||
-                    0 == instanceRecs.count()) {
+                    0 == instanceRecs.size()) {
                     Rec* rec = instanceRecs.append();
                     rec->fInstance = A::Create(&r);
                     rec->fValue = static_cast<int>(r.nextU());
                     rec->fInstance->setValues(rec->fValue);
                 } else {
-                    int d = r.nextRangeU(0, instanceRecs.count() - 1);
+                    int d = r.nextRangeU(0, instanceRecs.size() - 1);
                     Rec& rec = instanceRecs[d];
                     REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
                     delete rec.fInstance;

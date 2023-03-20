@@ -8,10 +8,11 @@
 #include "src/sksl/ir/SkSLSetting.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 
@@ -21,8 +22,7 @@ namespace SkSL {
 
 namespace {
 
-using CapsPtr = bool ShaderCaps::*;
-using CapsLookupTable = SkTHashMap<std::string_view, CapsPtr>;
+using CapsLookupTable = SkTHashMap<std::string_view, Setting::CapsPtr>;
 
 static const CapsLookupTable& caps_lookup_table() {
     // Create a lookup table that converts strings into the equivalent ShaderCaps member-pointers.
@@ -47,9 +47,24 @@ static const CapsLookupTable& caps_lookup_table() {
 
 }  // namespace
 
-std::unique_ptr<Expression> Setting::Convert(const Context& context, Position pos,
+std::string_view Setting::name() const {
+    for (const auto& [name, capsPtr] : caps_lookup_table()) {
+        if (capsPtr == fCapsPtr) {
+            return name;
+        }
+    }
+    SkUNREACHABLE;
+}
+
+std::unique_ptr<Expression> Setting::Convert(const Context& context,
+                                             Position pos,
                                              const std::string_view& name) {
     SkASSERT(context.fConfig);
+
+    if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
+        context.fErrors->error(pos, "name 'sk_Caps' is reserved");
+        return nullptr;
+    }
 
     const CapsPtr* capsPtr = caps_lookup_table().find(name);
     if (!capsPtr) {
@@ -57,20 +72,23 @@ std::unique_ptr<Expression> Setting::Convert(const Context& context, Position po
         return nullptr;
     }
 
+    return Setting::Make(context, pos, *capsPtr);
+}
+
+std::unique_ptr<Expression> Setting::Make(const Context& context, Position pos, CapsPtr capsPtr) {
     if (context.fCaps) {
-        // Insert the settings value directly into the IR.
-        return Literal::MakeBool(context, pos, context.fCaps->*(*capsPtr));
+        // We know the caps values--return a boolean literal.
+        return Literal::MakeBool(context, pos, context.fCaps->*capsPtr);
     }
 
-    // Generate a Setting IRNode.
-    return std::make_unique<Setting>(pos, name, context.fTypes.fBool.get());
+    // We don't know the caps values yet--generate a Setting IRNode.
+    return std::make_unique<Setting>(pos, capsPtr, context.fTypes.fBool.get());
 }
 
 std::unique_ptr<Expression> Setting::toLiteral(const Context& context) const {
-    const CapsPtr* capsPtr = caps_lookup_table().find(fName);
-    SkASSERT(capsPtr);
-
-    return Literal::MakeBool(fPosition, context.fCaps->*(*capsPtr), &this->type());
+    SkASSERT(context.fCaps);
+    return Literal::MakeBool(fPosition, context.fCaps->*fCapsPtr, &this->type());
 }
+
 
 }  // namespace SkSL

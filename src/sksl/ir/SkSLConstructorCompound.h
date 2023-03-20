@@ -9,6 +9,7 @@
 #define SKSL_CONSTRUCTOR_COMPOUND
 
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -31,10 +32,10 @@ class Type;
  */
 class ConstructorCompound final : public MultiArgumentConstructor {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kConstructorCompound;
+    inline static constexpr Kind kIRNodeKind = Kind::kConstructorCompound;
 
     ConstructorCompound(Position pos, const Type& type, ExpressionArray args)
-            : INHERITED(pos, kExpressionKind, &type, std::move(args)) {}
+            : INHERITED(pos, kIRNodeKind, &type, std::move(args)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,

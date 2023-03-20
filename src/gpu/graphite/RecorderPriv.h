@@ -8,13 +8,17 @@
 #ifndef skgpu_graphite_RecorderPriv_DEFINED
 #define skgpu_graphite_RecorderPriv_DEFINED
 
+#include <functional>
+
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/SharedContext.h"
 
-class SkShaderCodeDictionary;
+class SkBitmap;
+class SkImage;
 
 namespace skgpu::graphite {
 
+class ShaderCodeDictionary;
 class TextureProxy;
 
 class RecorderPriv {
@@ -26,16 +30,16 @@ public:
 
     ResourceProvider* resourceProvider() { return fRecorder->fResourceProvider.get(); }
 
-    const SkRuntimeEffectDictionary* runtimeEffectDictionary() const {
+    const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRecorder->fRuntimeEffectDict.get();
     }
-    SkRuntimeEffectDictionary* runtimeEffectDictionary() {
+    RuntimeEffectDictionary* runtimeEffectDictionary() {
         return fRecorder->fRuntimeEffectDict.get();
     }
-    const SkShaderCodeDictionary* shaderCodeDictionary() const {
+    const ShaderCodeDictionary* shaderCodeDictionary() const {
         return fRecorder->fSharedContext->shaderCodeDictionary();
     }
-    SkShaderCodeDictionary* shaderCodeDictionary() {
+    ShaderCodeDictionary* shaderCodeDictionary() {
         return fRecorder->fSharedContext->shaderCodeDictionary();
     }
 
@@ -54,6 +58,16 @@ public:
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {
         return fRecorder->fTextBlobCache.get();
     }
+
+    static sk_sp<SkImage> CreateCachedImage(Recorder*,
+                                            const SkBitmap&,
+                                            Mipmapped = skgpu::Mipmapped::kNo);
+
+#if GRAPHITE_TEST_UTILS
+    // used by the Context that created this Recorder to set a back pointer
+    void setContext(Context*);
+    Context* context() { return fRecorder->fContext; }
+#endif
 
 private:
     explicit RecorderPriv(Recorder* recorder) : fRecorder(recorder) {}

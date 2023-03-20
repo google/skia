@@ -36,7 +36,8 @@ struct VulkanAlloc {
     VkDeviceSize        fOffset = 0;
     VkDeviceSize        fSize = 0;  // this can be indeterminate iff Tex uses borrow semantics
     uint32_t            fFlags = 0;
-    VulkanBackendMemory fBackendMemory = 0; // handle to memory allocated via GrVkMemoryAllocator.
+    // handle to memory allocated via skgpu::VulkanMemoryAllocator.
+    VulkanBackendMemory fBackendMemory = 0;
 
     enum Flag {
         kNoncoherent_Flag     = 0x1,   // memory must be flushed to device after mapping

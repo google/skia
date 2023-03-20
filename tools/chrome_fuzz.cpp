@@ -24,7 +24,7 @@ static bool read_test_case(const char* filename, SkString* testdata) {
     return false;
   }
   testdata->resize(len);
-  (void) fread(testdata->writable_str(), len, file);
+  (void) fread(testdata->data(), len, file);
   return true;
 }
 

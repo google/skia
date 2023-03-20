@@ -63,6 +63,7 @@
         SK_REGISTER_FLATTENABLE(SkColorFilterShader);
         SkRegisterColorShaderFlattenable();
         SkRegisterComposeShaderFlattenable();
+        SkRegisterCoordClampShaderFlattenable();
         SkRegisterEmptyShaderFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixShader);
         SK_REGISTER_FLATTENABLE(SkPictureShader);
@@ -77,7 +78,7 @@
         SkRegisterMatrixColorFilterFlattenable();
         SkRegisterComposeColorFilterFlattenable();
         SkRegisterModeColorFilterFlattenable();
-        SkRegisterSRGBGammaColorFilterFlattenable();
+        SkRegisterColorSpaceXformColorFilterFlattenable();
         SkRegisterWorkingFormatColorFilterFlattenable();
         SkRegisterTableColorFilterFlattenable();
 
@@ -139,7 +140,6 @@
         SkRegisterMatrixTransformImageFilterFlattenable();
         SkRegisterMergeImageFilterFlattenable();
         SkRegisterMorphologyImageFilterFlattenables();
-        SkRegisterOffsetImageFilterFlattenable();
         SkRegisterPictureImageFilterFlattenable();
 #ifdef SK_ENABLE_SKSL
         SkRegisterRuntimeImageFilterFlattenable();

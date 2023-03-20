@@ -12,19 +12,31 @@
  * have been selected to require 32 bits of precision and full IEEE conformance
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkHalf.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkHalf.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/gpu/ProxyUtils.h"
 
-#include <float.h>
+#include <cstring>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+struct GrContextOptions;
 
 static const int DEV_W = 100, DEV_H = 100;
 
@@ -39,8 +51,8 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
     }
 
     SkTDArray<T> controlPixelData, readBuffer;
-    controlPixelData.setCount(arraySize);
-    readBuffer.setCount(arraySize);
+    controlPixelData.resize(arraySize);
+    readBuffer.resize(arraySize);
 
     for (int i = 0; i < arraySize; i += 4) {
         controlPixelData[i + 0] = min;
@@ -68,17 +80,17 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
         bool result = sc->readPixels(dContext, readPixmap, {0, 0});
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
-                        !memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
+            !memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.size_bytes()));
     }
 }
 
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
 static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 ^ 11
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
 
     runFPTest<SkHalf>(reporter, direct, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
@@ -88,10 +100,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest,
 
 static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
 
     runFPTest<SkHalf>(reporter, direct, SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,

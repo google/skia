@@ -26,10 +26,10 @@ GrGpuResource::GrGpuResource(GrGpu* gpu, std::string_view label)
     SkDEBUGCODE(fCacheArrayIndex = -1);
 }
 
-void GrGpuResource::registerWithCache(SkBudgeted budgeted) {
+void GrGpuResource::registerWithCache(skgpu::Budgeted budgeted) {
     SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedUncacheable);
-    fBudgetedType = budgeted == SkBudgeted::kYes ? GrBudgetedType::kBudgeted
-                                                 : GrBudgetedType::kUnbudgetedUncacheable;
+    fBudgetedType = budgeted == skgpu::Budgeted::kYes ? GrBudgetedType::kBudgeted
+                                                      : GrBudgetedType::kUnbudgetedUncacheable;
     this->computeScratchKey(&fScratchKey);
     get_resource_cache(fGpu)->resourceAccess().insertResource(this);
 }

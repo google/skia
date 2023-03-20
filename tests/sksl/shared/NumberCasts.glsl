@@ -6,7 +6,7 @@ vec4 main() {
     B.y = true;
     B.z = true;
     vec3 F;
-    F.x = 1.2300000190734863;
+    F.x = 1.23;
     F.y = 0.0;
     F.z = 1.0;
     ivec3 I;

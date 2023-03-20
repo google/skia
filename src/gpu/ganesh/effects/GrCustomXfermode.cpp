@@ -12,6 +12,7 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLBlend.h"
@@ -355,7 +356,7 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
            AnalysisProperties::kReadsDstInShader;
 }
 
-GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);
+GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory)
 #if GR_TEST_UTILS
 const GrXPFactory* CustomXPFactory::TestGet(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU((int)SkBlendMode::kLastCoeffMode + 1,

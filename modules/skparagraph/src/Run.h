@@ -9,7 +9,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -120,7 +120,7 @@ public:
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fAdvance.fX, fAdvance.fY);
     }
 
-    SkScalar addSpacesAtTheEnd(SkScalar space, Cluster* cluster);
+    void addSpacesAtTheEnd(SkScalar space, Cluster* cluster);
     SkScalar addSpacesEvenly(SkScalar space, Cluster* cluster);
     SkScalar addSpacesEvenly(SkScalar space);
     void shift(const Cluster* cluster, SkScalar offset);
@@ -143,6 +143,7 @@ public:
     void iterateThroughClusters(const ClusterVisitor& visitor);
 
     std::tuple<bool, ClusterIndex, ClusterIndex> findLimitingClusters(TextRange text) const;
+    std::tuple<bool, TextIndex, TextIndex> findLimitingGlyphClusters(TextRange text) const;
     std::tuple<bool, TextIndex, TextIndex> findLimitingGraphemes(TextRange text) const;
     SkSpan<const SkGlyphID> glyphs() const {
         return SkSpan<const SkGlyphID>(fGlyphs.begin(), fGlyphs.size());
@@ -160,8 +161,10 @@ public:
     void commit() { }
 
     void resetJustificationShifts() {
-        fJustificationShifts.reset();
+        fJustificationShifts.clear();
     }
+
+    bool isResolved() const;
 private:
     friend class ParagraphImpl;
     friend class TextLine;
@@ -293,7 +296,7 @@ public:
 
     size_t roundPos(SkScalar s) const;
 
-    void space(SkScalar shift, SkScalar space) {
+    void space(SkScalar shift) {
         fWidth += shift;
     }
 

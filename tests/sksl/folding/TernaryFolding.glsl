@@ -1,5 +1,4 @@
 
-out vec4 sk_FragColor;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
 bool do_side_effect_bb(out bool x) {

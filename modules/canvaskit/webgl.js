@@ -78,18 +78,51 @@
         }
         // This context is an index into the emscripten-provided GL wrapper.
         grCtx._context = ctx;
+        var oldDelete = grCtx.delete.bind(grCtx);
+        // We need to make sure we are focusing on the correct webgl context
+        // when Skia cleans up the context.
+        grCtx['delete'] = function() {
+          CanvasKit.setCurrentContext(this._context);
+          oldDelete();
+        }.bind(grCtx);
         // Save this so it is easy to access (e.g. Image.readPixels)
         GL.currentContext.grDirectContext = grCtx;
         return grCtx;
-      }
+      };
 
       CanvasKit.MakeGrContext = CanvasKit.MakeWebGLContext;
 
-      CanvasKit.MakeOnScreenGLSurface = function(grCtx, w, h, colorspace) {
+      CanvasKit.GrDirectContext.prototype.getResourceCacheLimitBytes = function() {
+          CanvasKit.setCurrentContext(this._context);
+          this._getResourceCacheLimitBytes();
+      };
+
+      CanvasKit.GrDirectContext.prototype.getResourceCacheUsageBytes = function() {
+          CanvasKit.setCurrentContext(this._context);
+          this._getResourceCacheUsageBytes();
+      };
+
+      CanvasKit.GrDirectContext.prototype.releaseResourcesAndAbandonContext = function() {
+          CanvasKit.setCurrentContext(this._context);
+          this._releaseResourcesAndAbandonContext();
+      };
+
+      CanvasKit.GrDirectContext.prototype.setResourceCacheLimitBytes = function(maxResourceBytes) {
+          CanvasKit.setCurrentContext(this._context);
+          this._setResourceCacheLimitBytes(maxResourceBytes);
+      };
+
+      CanvasKit.MakeOnScreenGLSurface = function(grCtx, w, h, colorspace, sc, st) {
         if (!this.setCurrentContext(grCtx._context)) {
           return null;
         }
-        var surface = this._MakeOnScreenGLSurface(grCtx, w, h, colorspace);
+        var surface;
+        // zero is a valid value for sample count or stencil bits.
+        if (sc === undefined || st === undefined) {
+          surface = this._MakeOnScreenGLSurface(grCtx, w, h, colorspace);
+        } else {
+          surface = this._MakeOnScreenGLSurface(grCtx, w, h, colorspace, sc, st);
+        }
         if (!surface) {
           return null;
         }
@@ -246,6 +279,7 @@
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         }
         resetTexture(glCtx, info);
+        this._resetContext();
         return this.makeImageFromTexture(newTex, info);
       };
 
@@ -353,10 +387,12 @@
       };
 
       CanvasKit.getCurrentGrDirectContext = function() {
-        if (GL.currentContext) {
+        if (GL.currentContext && GL.currentContext.grDirectContext &&
+            !GL.currentContext.grDirectContext['isDeleted']()) {
           return GL.currentContext.grDirectContext;
         }
         return null;
       };
+
     });
 }(Module)); // When this file is loaded in, the high level object is "Module";

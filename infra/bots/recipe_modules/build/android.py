@@ -18,6 +18,7 @@ def compile_fn(api, checkout_root, out_dir):
   assert compiler == 'Clang'  # At this rate we might not ever support GCC.
 
   extra_cflags = []
+  extra_ldflags = []
   if configuration == 'Debug':
     extra_cflags.append('-O1')
 
@@ -36,21 +37,36 @@ def compile_fn(api, checkout_root, out_dir):
       'target_cpu': quote(target_arch),
       'werror': 'true',
   }
+  env = {}
   extra_cflags.append('-DREBUILD_IF_CHANGED_ndk_version=%s' %
                       api.run.asset_version(ndk_asset, skia_dir))
 
   if configuration != 'Debug':
     args['is_debug'] = 'false'
+  if 'Dawn' in extra_tokens:
+    util.set_dawn_args_and_env(args, env, api, skia_dir)
+    args['ndk_api'] = 26 #skia_use_gl=false, so use vulkan
   if 'Vulkan' in extra_tokens:
     args['ndk_api'] = 26
     args['skia_enable_vulkan_debug_layers'] = 'false'
     args['skia_use_gl'] = 'false'
   if 'ASAN' in extra_tokens:
     args['sanitize'] = '"ASAN"'
+  if 'Graphite' in extra_tokens:
+    args['skia_enable_graphite'] = 'true'
   if 'HWASAN' in extra_tokens:
     args['sanitize'] = '"HWASAN"'
   if 'Wuffs' in extra_tokens:
     args['skia_use_wuffs'] = 'true'
+  if configuration == 'OptimizeForSize':
+    # build IDs are required for Bloaty if we want to use strip to ignore debug symbols.
+    # https://github.com/google/bloaty/blob/master/doc/using.md#debugging-stripped-binaries
+    extra_ldflags.append('-Wl,--build-id=sha1')
+    args.update({
+      'skia_use_runtime_icu': 'true',
+      'skia_enable_optimize_size': 'true',
+      'skia_use_jpeg_gainmaps': 'false',
+    })
 
   # The 'FrameworkWorkarounds' bot is used to test special behavior that's
   # normally enabled with SK_BUILD_FOR_ANDROID_FRAMEWORK.
@@ -66,6 +82,8 @@ def compile_fn(api, checkout_root, out_dir):
 
   if extra_cflags:
     args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
+  if extra_ldflags:
+    args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
   gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.items()))
   gn      = skia_dir.join('bin', 'gn')
@@ -75,15 +93,19 @@ def compile_fn(api, checkout_root, out_dir):
             script=skia_dir.join('bin', 'fetch-gn'),
             infra_step=True)
 
-    api.run(api.step, 'gn gen',
-            cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-    api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+    with api.env(env):
+      api.run(api.step, 'gn gen',
+              cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
 ANDROID_BUILD_PRODUCTS_LIST = [
   'dm',
   'nanobench',
   'skpbench',
+  # The following only exists when building for OptimizeForSize
+  # This is the only target we currently measure: skbug.com/13657
+  'skottie_tool_gpu',
 ]
 
 

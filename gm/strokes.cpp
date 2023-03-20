@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -18,9 +19,9 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/private/SkFloatBits.h"
+#include "include/private/base/SkFloatBits.h"
 #include "include/utils/SkParsePath.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -144,7 +145,7 @@ protected:
             const SkScalar intervals[] = { 0, 10 };
             dashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
             SkPath fillPath;
-            dashPaint.getFillPath(fDashedfPath, &fillPath);
+            skpathutils::FillPathWithPaint(fDashedfPath, dashPaint, &fillPath);
             canvas->translate(0, 20);
             canvas->drawPath(fDashedfPath, dashPaint);
             canvas->translate(0, 20);
@@ -426,7 +427,7 @@ protected:
                 canvas->drawPath(orig, strokePaint);
                 canvas->drawPath(orig, origPaint);
                 SkPath fill;
-                strokePaint.getFillPath(orig, &fill);
+                skpathutils::FillPathWithPaint(orig, strokePaint, &fill);
                 canvas->drawPath(fill, fillPaint);
                 canvas->translate(dx + strokePaint.getStrokeWidth(), 0);
             }
@@ -609,7 +610,7 @@ DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
         canvas->drawPath(path, pathPaint);
 
         SkPath fillPath;
-        pathPaint.getFillPath(path, &fillPath);
+        skpathutils::FillPathWithPaint(path, pathPaint, &fillPath);
         canvas->drawPath(fillPath, skeletonPaint);
 
         canvas->translate(200, 0);

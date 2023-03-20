@@ -58,7 +58,8 @@ public:
 
         auto collection = sk_make_sp<skia::textlayout::FontCollection>();
         collection->setDefaultFontManager(SkFontMgr::RefDefault());
-        auto builder = skia::textlayout::ParagraphBuilderImpl::make(paraStyle, collection);
+        auto builder = skia::textlayout::ParagraphBuilderImpl::make(
+                paraStyle, collection, SkUnicode::Make());
         if (nullptr == builder) {
             fPara = nullptr;
             return;

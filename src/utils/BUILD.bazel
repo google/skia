@@ -1,8 +1,23 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "selects", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:flags.bzl", "selects")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# In own group for exporting to sksl.gni:skslc_deps.
+CORE_SKSLC_FILES = [
+    "SkParse.cpp",
+    "SkOSPath.h",
+    "SkOSPath.cpp",
+    "SkVMVisualizer.cpp",
+    "SkVMVisualizer.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core_skslc",
+    files = CORE_SKSLC_FILES,
+)
 
 CORE_FILES = [
     "SkAnimCodecPlayer.cpp",
@@ -31,15 +46,11 @@ CORE_FILES = [
     "SkMatrix22.cpp",
     "SkMatrix22.h",
     "SkMultiPictureDocument.cpp",
-    "SkMultiPictureDocument.h",
     "SkMultiPictureDocumentPriv.h",
     "SkNWayCanvas.cpp",
     "SkNullCanvas.cpp",
-    "SkOSPath.cpp",
-    "SkOSPath.h",
     "SkOrderedFontMgr.cpp",
     "SkPaintFilterCanvas.cpp",
-    "SkParse.cpp",
     "SkParseColor.cpp",
     "SkParsePath.cpp",
     "SkPatchUtils.cpp",
@@ -51,10 +62,6 @@ CORE_FILES = [
     "SkShadowUtils.cpp",
     "SkTestCanvas.h",
     "SkTextUtils.cpp",
-    "SkUTF.cpp",
-    "SkUTF.h",
-    "SkVMVisualizer.cpp",
-    "SkVMVisualizer.h",
 ]
 
 split_srcs_and_hdrs(
@@ -62,7 +69,7 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "json_hdrs",
     srcs = [
         "SkJSON.h",
@@ -70,10 +77,11 @@ filegroup(
     ],
     visibility = [
         "//modules/skottie:__pkg__",
+        "//tools/debugger:__pkg__",
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "json_srcs",
     srcs = [
         "SkJSON.cpp",
@@ -81,6 +89,7 @@ filegroup(
     ],
     visibility = [
         "//modules/skottie:__pkg__",
+        "//tools/debugger:__pkg__",
     ],
 )
 
@@ -91,12 +100,34 @@ selects.config_setting_group(
     ],
 )
 
-filegroup(
+# In separate group to avoid exporting to a *.gni file.
+SKSL_FILES = [
+    "SkShaderUtils.cpp",
+    "SkShaderUtils.h",
+]
+
+split_srcs_and_hdrs(
+    name = "sksl",
+    files = SKSL_FILES,
+)
+
+skia_filegroup(
+    name = "chromium_hdrs",
+    # We allow chromium to use this as a diagnostic tool, but it is not
+    # part of Skia's public API. It is in its own filegroup to create
+    # a gni entry containing it.
+    srcs = [
+        "SkMultiPictureDocument.h",
+    ],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
+        ":core_skslc_srcs",
     ] + select({
-        "//src/sksl:needs_sksl": ["SkShaderUtils.cpp"],
+        "//src/sksl:needs_sksl": [":sksl_srcs"],
         "//conditions:default": [],
     }) + select({
         ":needs_json": [":json_srcs"],
@@ -105,12 +136,14 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        ":chromium_hdrs",
         ":core_hdrs",
+        ":core_skslc_hdrs",
     ] + select({
-        "//src/sksl:needs_sksl": ["SkShaderUtils.h"],
+        "//src/sksl:needs_sksl": [":sksl_hdrs"],
         "//conditions:default": [],
     }) + select({
         ":needs_json": [":json_hdrs"],

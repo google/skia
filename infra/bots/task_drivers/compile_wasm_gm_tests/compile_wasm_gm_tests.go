@@ -20,7 +20,7 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
-const dockerImage = "gcr.io/skia-public/canvaskit-emsdk:3.1.3_v1"
+const dockerImage = "gcr.io/skia-public/canvaskit-emsdk:3.1.26_v2"
 const innerBuildScript = "/SRC/infra/canvaskit/build_gmtests.sh"
 
 func main() {

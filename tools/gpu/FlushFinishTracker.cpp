@@ -10,7 +10,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #endif
 
@@ -26,7 +26,7 @@ void FlushFinishTracker::waitTillFinished() {
         if (fContext) {
             fContext->checkAsyncWorkCompletion();
         } else {
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
             SkASSERT(fGraphiteContext);
             fGraphiteContext->checkAsyncWorkCompletion();
 #else

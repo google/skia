@@ -6,12 +6,18 @@
  */
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkData.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "tests/Test.h"
 

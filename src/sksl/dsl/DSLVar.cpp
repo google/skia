@@ -111,7 +111,8 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
     : INHERITED(SkSL::VariableStorage::kGlobal, kVoid_Type, name, DSLExpression(),
                 Position(), Position()) {
     fName = name;
-    const SkSL::Symbol* result = (*ThreadContext::SymbolTable())[fName];
+    SkSL::SymbolTable* symbolTable = ThreadContext::SymbolTable().get();
+    SkSL::Symbol* result = symbolTable->findMutable(fName);
     SkASSERTF(result, "could not find '%.*s' in symbol table", (int)fName.length(), fName.data());
     fVar = &result->as<SkSL::Variable>();
     fInitialized = true;

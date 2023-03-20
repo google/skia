@@ -9,20 +9,56 @@
 #define SkRecorder_DEFINED
 
 #include "include/core/SkCanvasVirtualEnforcer.h"
-#include "include/private/SkTDArray.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkBigPicture.h"
-#include "src/core/SkRecord.h"
-#include "src/core/SkRecords.h"
 
-class SkBBHFactory;
+#include <cstddef>
+#include <memory>
+#include <utility>
+
+class SkBlender;
+class SkData;
+class SkDrawable;
+class SkImage;
+class SkMatrix;
+class SkMesh;
+class SkPaint;
+class SkPath;
+class SkPicture;
+class SkRRect;
+class SkRecord;
+class SkRegion;
+class SkShader;
+class SkSurface;
+class SkSurfaceProps;
+class SkTextBlob;
+class SkVertices;
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkDrawShadowRec;
+struct SkImageInfo;
+struct SkPoint;
+struct SkRSXform;
+struct SkRect;
+
+namespace sktext {
+    class GlyphRunList;
+    namespace gpu { class Slug; }
+}
 
 class SkDrawableList : SkNoncopyable {
 public:
     SkDrawableList() {}
     ~SkDrawableList();
 
-    int count() const { return fArray.count(); }
+    int count() const { return fArray.size(); }
     SkDrawable* const* begin() const { return fArray.begin(); }
     SkDrawable* const* end() const { return fArray.end(); }
 
@@ -72,7 +108,7 @@ public:
                         SkScalar x,
                         SkScalar y,
                         const SkPaint& paint) override;
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     void onDrawSlug(const sktext::gpu::Slug* slug) override;
 #endif
     void onDrawGlyphRunList(
@@ -101,6 +137,9 @@ public:
                      SkBlendMode, const SkSamplingOptions&, const SkRect*, const SkPaint*) override;
 
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
+#ifdef SK_ENABLE_SKSL
+    void onDrawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
+#endif
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
     void onClipRect(const SkRect& rect, SkClipOp, ClipEdgeStyle) override;

@@ -23,56 +23,16 @@ def RunSteps(api):
     bot_update = False
 
   checkout_root = api.checkout.default_checkout_root
-  checkout_flutter = False
-  flutter_android = False
-  if 'Flutter' in api.vars.builder_name:
-    checkout_root = checkout_root.join('flutter')
-    checkout_flutter = True
-    if 'Android' in api.vars.builder_name:
-      flutter_android = True
 
   if bot_update:
     api.checkout.bot_update(
-        checkout_root=checkout_root,
-        checkout_flutter=checkout_flutter,
-        flutter_android=flutter_android)
+        checkout_root=checkout_root)
   else:
     api.checkout.git(checkout_root=api.path['start_dir'])
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
 
-TEST_BUILDERS = [
-  'Build-Debian9-Clang-arm-Release-Flutter_Android_Docker',
-]
-
-
 def GenTests(api):
-  for buildername in TEST_BUILDERS:
-    test = (
-        api.test(buildername) +
-        api.properties(buildername=buildername,
-                       repository='https://skia.googlesource.com/skia.git',
-                       revision='abc123',
-                       path_config='kitchen',
-                       swarm_out_dir='[SWARM_OUT_DIR]')
-    )
-    yield test
-
-  buildername = 'Build-Debian10-Clang-arm-Release-Flutter_Android'
-  yield (
-      api.test('flutter_trybot') +
-      api.properties(
-          repository='https://skia.googlesource.com/skia.git',
-          buildername=buildername,
-          path_config='kitchen',
-          swarm_out_dir='[SWARM_OUT_DIR]',
-          revision='abc123',
-          patch_issue=456789,
-          patch_set=12,
-          patch_ref='refs/changes/89/456789/12',
-          patch_repo='https://skia.googlesource.com/skia.git',
-          patch_storage='gerrit')
-  )
 
   builder = 'Build-Debian10-Clang-x86_64-Release-NoDEPS'
   yield (

@@ -95,16 +95,6 @@ public:
     }
 
     /**
-     * A convenience version of fillWithFP that applies a coordinate transformation via
-     * GrMatrixEffect and fills the entire render target.
-     */
-    void fillWithFP(const SkMatrix& localMatrix, std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectWithFP(SkIRect::MakeSize(fWriteView.proxy()->dimensions()),
-                             localMatrix,
-                             std::move(fp));
-    }
-
-    /**
      * Draws the src texture with no matrix. The dstRect is the dstPoint with the width and height
      * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
      * respectively.

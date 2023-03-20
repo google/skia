@@ -10,8 +10,15 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/SkVx.h"
-#include "src/core/SkPointPriv.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "src/base/SkVx.h"
+
+#include <cstdint>
+#include <cstring>
+struct SkPoint3;
 
 class SkMatrixPriv {
 public:
@@ -180,6 +187,15 @@ public:
     //
     // Returns positive infinity if the transformed homogeneous point has w <= 0.
     static SkScalar DifferentialAreaScale(const SkMatrix& m, const SkPoint& p);
+
+    // Determines if the transformation m applied to the bounds can be approximated by
+    // an affine transformation, i.e., the perspective part of the transformation has little
+    // visible effect.
+    static bool NearlyAffine(const SkMatrix& m,
+                             const SkRect& bounds,
+                             SkScalar tolerance = SK_ScalarNearlyZero);
+
+    static SkScalar ComputeResScaleForStroking(const SkMatrix& matrix);
 };
 
 #endif

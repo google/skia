@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkSurface.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "tools/sk_app/RasterWindowContext.h"
 #include "tools/sk_app/win/WindowContextFactory_win.h"
 
@@ -31,13 +31,10 @@ protected:
     SkAutoMalloc fSurfaceMemory;
     sk_sp<SkSurface> fBackbufferSurface;
     HWND fWnd;
-
-private:
-    using INHERITED = RasterWindowContext;
 };
 
 RasterWindowContext_win::RasterWindowContext_win(HWND wnd, const DisplayParams& params)
-    : INHERITED(params)
+    : RasterWindowContext(params)
     , fWnd(wnd) {
     RECT rect;
     GetClientRect(wnd, &rect);

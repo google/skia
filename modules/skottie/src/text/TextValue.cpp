@@ -107,34 +107,44 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                                    : Shaper::VAlign::kTop;
 
     static constexpr Shaper::VAlign gVAlignMap[] = {
-        Shaper::VAlign::kVisualTop,    // 'vj': 0
-        Shaper::VAlign::kVisualCenter, // 'vj': 1
-        Shaper::VAlign::kVisualBottom, // 'vj': 2
+        Shaper::VAlign::kHybridTop,    // 'vj': 0
+        Shaper::VAlign::kHybridCenter, // 'vj': 1
+        Shaper::VAlign::kHybridBottom, // 'vj': 2
+        Shaper::VAlign::kVisualTop,    // 'vj': 3
+        Shaper::VAlign::kVisualCenter, // 'vj': 4
+        Shaper::VAlign::kVisualBottom, // 'vj': 5
     };
     size_t vj;
-    if (skottie::Parse((*jtxt)[   "vj"], &vj) ||
-        skottie::Parse((*jtxt)["sk_vj"], &vj)) { // TODO: remove after migrating clients.
+    if (skottie::Parse((*jtxt)["vj"], &vj)) {
         if (vj < std::size(gVAlignMap)) {
             v->fVAlign = gVAlignMap[vj];
         } else {
-            // Legacy sk_vj values.
-            // TODO: remove after clients update.
-            switch (vj) {
-            case 3:
-                // 'sk_vj': 3 -> kVisualCenter/kScaleToFit
-                v->fVAlign = Shaper::VAlign::kVisualCenter;
-                v->fResize = Shaper::ResizePolicy::kScaleToFit;
-                break;
-            case 4:
-                // 'sk_vj': 4 -> kVisualCenter/kDownscaleToFit
-                v->fVAlign = Shaper::VAlign::kVisualCenter;
-                v->fResize = Shaper::ResizePolicy::kDownscaleToFit;
-                break;
-            default:
-                abuilder.log(Logger::Level::kWarning, nullptr,
-                             "Ignoring unknown 'vj' value: %zu", vj);
-                break;
-            }
+            abuilder.log(Logger::Level::kWarning, nullptr, "Ignoring unknown 'vj' value: %zu", vj);
+        }
+    } else if (skottie::Parse((*jtxt)["sk_vj"], &vj)) {
+        // Legacy sk_vj values.
+        // TODO: remove after clients update.
+        switch (vj) {
+        case 0:
+        case 1:
+        case 2:
+            static_assert(std::size(gVAlignMap) > 2);
+            v->fVAlign = gVAlignMap[vj];
+            break;
+        case 3:
+            // 'sk_vj': 3 -> kHybridCenter/kScaleToFit
+            v->fVAlign = Shaper::VAlign::kHybridCenter;
+            v->fResize = Shaper::ResizePolicy::kScaleToFit;
+            break;
+        case 4:
+            // 'sk_vj': 4 -> kHybridCenter/kDownscaleToFit
+            v->fVAlign = Shaper::VAlign::kHybridCenter;
+            v->fResize = Shaper::ResizePolicy::kDownscaleToFit;
+            break;
+        default:
+            abuilder.log(Logger::Level::kWarning, nullptr,
+                         "Ignoring unknown 'sk_vj' value: %zu", vj);
+            break;
         }
     }
 

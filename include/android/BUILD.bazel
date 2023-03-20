@@ -1,14 +1,15 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "SkAndroidFrameworkUtils.h",
         "SkAnimatedImage.h",
+        "SkImageAndroid.h",
     ],
     visibility = ["//include:__pkg__"],
 )

@@ -1,12 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:flags.bzl", "bool_flag")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 VK_FILES = [
-    "GrVkAMDMemoryAllocator.cpp",
-    "GrVkAMDMemoryAllocator.h",
     "GrVkBuffer.cpp",
     "GrVkBuffer.h",
     "GrVkCaps.cpp",
@@ -33,8 +32,6 @@ VK_FILES = [
     "GrVkMSAALoadManager.cpp",
     "GrVkMSAALoadManager.h",
     "GrVkManagedResource.h",
-    "GrVkMemory.cpp",
-    "GrVkMemory.h",
     "GrVkOpsRenderPass.cpp",
     "GrVkOpsRenderPass.h",
     "GrVkPipeline.cpp",
@@ -56,8 +53,6 @@ VK_FILES = [
     "GrVkSampler.h",
     "GrVkSamplerYcbcrConversion.cpp",
     "GrVkSamplerYcbcrConversion.h",
-    "GrVkSecondaryCBDrawContext.cpp",
-    "GrVkSecondaryCBDrawContext_impl.h",
     "GrVkSemaphore.cpp",
     "GrVkSemaphore.h",
     "GrVkTexture.cpp",
@@ -78,23 +73,29 @@ split_srcs_and_hdrs(
     files = VK_FILES,
 )
 
-filegroup(
+bool_flag(
+    name = "enable_secondary_draw_context",
+    default = False,
+)
+
+skia_filegroup(
+    name = "vk_chromium_srcs",
+    srcs = ["GrVkSecondaryCBDrawContext.cpp"],
+)
+
+skia_filegroup(
     name = "srcs",
-    srcs = [":vk_srcs"],
+    srcs = [
+        ":vk_srcs",
+    ] + select({
+        ":enable_secondary_draw_context_true": [":vk_chromium_srcs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":vk_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-    deps = select({
-        "//src/gpu:vulkan_with_vma": ["//third_party/vulkanmemoryallocator"],
-        "//conditions:default": [],
-    }),
 )

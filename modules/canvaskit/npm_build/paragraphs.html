@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<title>CanvasKit Paragraph (with & without ICU)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript" src="/build/canvaskit.js"></script>
+
+<style>
+  canvas {
+    border: 1px dashed #AAA;
+  }
+  #withICU {
+    border-color: red;
+  }
+  #withoutICU {
+    border-color: green;
+  }
+  #sampleText {
+    width: 400px;
+    height: 200px;
+  }
+</style>
+
+<table>
+  <thead>
+    <th><h2 style="color: red;">With ICU</h2></th>
+    <th></th>
+    <th><h2 style="color: green;">Without ICU</h2></th>
+  </thead>
+  <tr>
+    <td><canvas id="withICU" width=600 height=600></canvas></td>
+    <td style="width: 20px;"></td>
+    <td><canvas id="withoutICU" width=600 height=600 tabindex='-1'></canvas></td>
+  </tr>
+</table>
+
+<textarea id="sampleText">The لاquick 😠(brown) fox
+واحد (اثنان) ثلاثة
+ate a hamburger.
+</textarea>
+
+<script type="text/javascript" charset="utf-8">
+
+  var CanvasKit = null;
+  var fonts = null;
+  var sampleText = null;
+
+  var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
+
+  const loadFonts = [
+    fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer()),
+    fetch('https://fonts.gstatic.com/s/notoemoji/v26/bMrnmSyK7YY-MEu6aWjPDs-ar6uWaGWuob-r0jwvS-FGJCMY.ttf').then((response) => response.arrayBuffer()),
+    fetch('https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyvu3CBFQLaig.ttf').then((response) => response.arrayBuffer()),
+  ];
+
+  let paragraphWithICU;
+  let paragraphWithoutICU;
+
+  Promise.all([ckLoaded, ...loadFonts]).then(([_CanvasKit, ..._fonts]) => {
+    CanvasKit = _CanvasKit;
+    fonts = _fonts;
+
+    const textarea = document.getElementById('sampleText');
+    sampleText = textarea.value;
+    textarea.addEventListener('input', (e) => {
+      sampleText = e.target.value;
+      paragraphWithICU = ParagraphWithICU();
+      paragraphWithoutICU = ParagraphWithoutICU();
+    });
+
+    paragraphWithICU = ParagraphWithICU();
+    paragraphWithoutICU = ParagraphWithoutICU();
+
+    continuousRendering('withICU', () => paragraphWithICU);
+    continuousRendering('withoutICU', () => paragraphWithoutICU);
+  });
+
+  const fontFamilies = [
+    'Roboto',
+    'Noto Emoji',
+    'Noto Sans Arabic',
+  ];
+
+  function continuousRendering(elementId, getParagraph) {
+    const surface = CanvasKit.MakeCanvasSurface(elementId);
+    if (!surface) {
+      throw new Error('Could not make surface');
+    }
+
+    function drawFrame(canvas) {
+      drawParagraph(canvas, getParagraph());
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function ParagraphWithICU() {
+    if (!CanvasKit || !fonts) {
+      throw new Error('CanvasKit or fonts not loaded');
+    }
+
+    const fontMgr = CanvasKit.FontMgr.FromData(fonts);
+
+    const paraStyle = new CanvasKit.ParagraphStyle({
+        textStyle: {
+            color: CanvasKit.BLACK,
+            fontFamilies: fontFamilies,
+            fontSize: 50,
+        },
+        textAlign: CanvasKit.TextAlign.Left,
+        maxLines: 4,
+    });
+
+    const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+    builder.addText(sampleText);
+    const paragraph = builder.build();
+
+    fontMgr.delete();
+
+    return paragraph;
+  }
+
+  function ParagraphWithoutICU() {
+    if (!CanvasKit || !fonts) {
+      throw new Error('CanvasKit or fonts not loaded');
+    }
+
+    const fontMgr = CanvasKit.FontMgr.FromData(fonts);
+
+    const paraStyle = new CanvasKit.ParagraphStyle({
+        textStyle: {
+          color: CanvasKit.BLACK,
+          fontFamilies: fontFamilies,
+          fontSize: 50,
+        },
+        maxLines: 4,
+        textAlign: CanvasKit.TextAlign.Left,
+    });
+
+    const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+    builder.addText(sampleText);
+
+    const text = sampleText;
+
+    // Pass the entire text as one word. It's only used for the method
+    // getWords.
+    const mallocedWords = CanvasKit.Malloc(Uint32Array, 2);
+    mallocedWords.toTypedArray().set([0, text.length]);
+
+    const graphemeBoundaries = getGraphemeBoundaries(text);
+    const mallocedGraphemes = CanvasKit.Malloc(Uint32Array, graphemeBoundaries.length);
+    mallocedGraphemes.toTypedArray().set(graphemeBoundaries);
+
+    const lineBreaks = getLineBreaks(text);
+    const mallocedLineBreaks = CanvasKit.Malloc(Uint32Array, lineBreaks.length);
+    mallocedLineBreaks.toTypedArray().set(lineBreaks);
+
+    console.log('RequiresClientICU:', CanvasKit.ParagraphBuilder.RequiresClientICU());
+
+    builder.setWordsUtf16(mallocedWords);
+    builder.setGraphemeBreaksUtf16(mallocedGraphemes);
+    builder.setLineBreaksUtf16(mallocedLineBreaks);
+    const paragraph = builder.build();
+
+    fontMgr.delete();
+
+    return paragraph;
+  }
+
+  function drawParagraph(canvas, paragraph) {
+    const fontPaint = new CanvasKit.Paint();
+    fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+    fontPaint.setAntiAlias(true);
+
+    canvas.clear(CanvasKit.WHITE);
+    const wrapTo = 350 + 150 * Math.sin(Date.now() / 4000);
+    paragraph.layout(wrapTo);
+
+    const rects = [
+      ...paragraph.getRectsForRange(2, 8, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight),
+      ...paragraph.getRectsForRange(12, 16, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight),
+    ];
+    const rectPaint = new CanvasKit.Paint();
+    const colors = [CanvasKit.CYAN, CanvasKit.MAGENTA, CanvasKit.BLUE, CanvasKit.YELLOW];
+    for (const rect of rects) {
+      rectPaint.setColor(colors.shift() || CanvasKit.RED);
+      canvas.drawRect(rect, rectPaint);
+    }
+
+    canvas.drawParagraph(paragraph, 0, 0);
+
+    canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
+  }
+
+  const SOFT = 0;
+  const HARD = 1;
+
+  function getLineBreaks(text) {
+    const breaks = [0, SOFT];
+
+    const iterator = new Intl.v8BreakIterator(['en'], {type: 'line'});
+    iterator.adoptText(text);
+    iterator.first();
+
+    while (iterator.next() != -1) {
+      breaks.push(iterator.current(), getBreakType(iterator.breakType()));
+    }
+
+    return breaks;
+  }
+
+  function getBreakType(v8BreakType) {
+    return v8BreakType == 'none' ? SOFT : HARD;
+  }
+
+  function getGraphemeBoundaries(text) {
+    const segmenter = new Intl.Segmenter(['en'], {type: 'grapheme'});
+    const segments = segmenter.segment(text);
+
+    const graphemeBoundaries = [];
+    for (const segment of segments) {
+      graphemeBoundaries.push(segment.index);
+    }
+    graphemeBoundaries.push(text.length);
+    return graphemeBoundaries;
+  }
+</script>

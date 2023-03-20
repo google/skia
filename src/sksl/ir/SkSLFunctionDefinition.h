@@ -8,6 +8,7 @@
 #ifndef SKSL_FUNCTIONDEFINITION
 #define SKSL_FUNCTIONDEFINITION
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
@@ -26,11 +27,11 @@ class Context;
  */
 class FunctionDefinition final : public ProgramElement {
 public:
-    inline static constexpr Kind kProgramElementKind = Kind::kFunction;
+    inline static constexpr Kind kIRNodeKind = Kind::kFunction;
 
     FunctionDefinition(Position pos, const FunctionDeclaration* declaration, bool builtin,
                        std::unique_ptr<Statement> body)
-        : INHERITED(pos, kProgramElementKind)
+        : INHERITED(pos, kIRNodeKind)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
         , fBody(std::move(body)) {}

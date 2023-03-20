@@ -12,6 +12,10 @@
 #include "src/gpu/ganesh/ops/AtlasInstancedHelper.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 
+class GrBuffer;
+class GrGpuBuffer;
+class GrProgramInfo;
+
 namespace skgpu::v1 {
 
 // Fills a rectangle of pixels with a clip against coverage values from an atlas.

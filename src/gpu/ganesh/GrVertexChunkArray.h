@@ -9,8 +9,9 @@
 #define GrVertexChunkArray_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTypeTraits.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 
@@ -23,6 +24,10 @@ struct GrVertexChunk {
     sk_sp<const GrBuffer> fBuffer;
     int fCount = 0;
     int fBase;  // baseVertex or baseInstance, depending on the use case.
+
+    static_assert(::sk_is_trivially_relocatable<decltype(fBuffer)>::value);
+
+    using sk_is_trivially_relocatable = std::true_type;
 };
 
 // Represents an array of GrVertexChunks.

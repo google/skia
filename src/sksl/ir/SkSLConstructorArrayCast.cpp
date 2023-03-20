@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
@@ -63,7 +64,7 @@ std::unique_ptr<Expression> ConstructorArrayCast::Make(const Context& context,
     arg = ConstantFolder::MakeConstantValueForVariable(pos, std::move(arg));
 
     // We can cast a vector of compile-time constants at compile-time.
-    if (arg->isCompileTimeConstant()) {
+    if (Analysis::IsCompileTimeConstant(*arg)) {
         return cast_constant_array(context, pos, type, std::move(arg));
     }
     return std::make_unique<ConstructorArrayCast>(pos, type, std::move(arg));

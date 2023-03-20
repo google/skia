@@ -13,7 +13,7 @@
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordedDrawable.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 #include "include/private/chromium/Slug.h"
 #endif
 

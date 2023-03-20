@@ -18,6 +18,7 @@
 #include "tools/viewer/Viewer.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include "imgui.h"
 
@@ -28,10 +29,10 @@ using namespace sk_app;
 static int InputTextCallback(ImGuiInputTextCallbackData* data) {
     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
         SkString* s = (SkString*)data->UserData;
-        SkASSERT(data->Buf == s->writable_str());
+        SkASSERT(data->Buf == s->data());
         SkString tmp(data->Buf, data->BufTextLen);
         s->swap(tmp);
-        data->Buf = s->writable_str();
+        data->Buf = s->data();
     }
     return 0;
 }
@@ -78,8 +79,8 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
 void SkSLSlide::unload() {
     fEffect.reset();
     fInputs.reset();
-    fChildren.reset();
-    fShaders.reset();
+    fChildren.clear();
+    fShaders.clear();
 }
 
 bool SkSLSlide::rebuild() {
@@ -132,7 +133,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     // Edit box for shader code
     ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
     ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * 30);
-    if (ImGui::InputTextMultiline("Code", fSkSL.writable_str(), fSkSL.size() + 1, boxSize, flags,
+    if (ImGui::InputTextMultiline("Code", fSkSL.data(), fSkSL.size() + 1, boxSize, flags,
                                   InputTextCallback, &fSkSL)) {
         fCodeIsDirty = true;
     }
@@ -168,8 +169,8 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         fMousePos.z = mousePos.x;
         fMousePos.w = mousePos.y;
     }
-    fMousePos.z = abs(fMousePos.z) * (ImGui::IsMouseDown(0)    ? 1 : -1);
-    fMousePos.w = abs(fMousePos.w) * (ImGui::IsMouseClicked(0) ? 1 : -1);
+    fMousePos.z = std::abs(fMousePos.z) * (ImGui::IsMouseDown(0)    ? 1 : -1);
+    fMousePos.w = std::abs(fMousePos.w) * (ImGui::IsMouseClicked(0) ? 1 : -1);
 
     for (const SkRuntimeEffect::Uniform& v : fEffect->uniforms()) {
         char* data = fInputs.get() + v.offset;
@@ -272,7 +273,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     canvas->save();
 
     sk_sp<SkSL::DebugTrace> debugTrace;
-    auto shader = fEffect->makeShader(std::move(inputs), fChildren.data(), fChildren.count());
+    auto shader = fEffect->makeShader(std::move(inputs), fChildren.data(), fChildren.size());
     if (writeTrace || writeDump) {
         SkIPoint traceCoord = {fTraceCoord[0], fTraceCoord[1]};
         SkRuntimeEffect::TracedShader traced = SkRuntimeEffect::MakeTraced(std::move(shader),

@@ -8,7 +8,6 @@
 #define SkCodecImageGenerator_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkRefCnt.h"
@@ -19,6 +18,7 @@
 #include <memory>
 #include <optional>
 
+enum SkAlphaType : int;
 struct SkImageInfo;
 
 class SkCodecImageGenerator : public SkImageGenerator {

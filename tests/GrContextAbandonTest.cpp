@@ -6,14 +6,16 @@
  */
 
 #include "include/core/SkTypes.h"
-
 #include "include/gpu/GrDirectContext.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/FenceSync.h"
+
+struct GrContextOptions;
 
 using namespace sk_gpu_test;
 
-DEF_GPUTEST(GrContext_abandonContext, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(GrContext_abandonContext, reporter, options, CtsEnforcement::kApiLevel_T) {
     for (int testType = 0; testType < 6; ++testType) {
         for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
             GrContextFactory testFactory(options);

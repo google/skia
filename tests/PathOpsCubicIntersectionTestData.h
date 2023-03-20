@@ -6,6 +6,8 @@
  */
 #include "tests/PathOpsTestCommon.h"
 
+#include <cstddef>
+
 namespace PathOpsCubicIntersectionTestData {
 
 extern const CubicPts pointDegenerates[];

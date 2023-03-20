@@ -6,11 +6,11 @@
  */
 
 #include "include/core/SkColorSpace.h"
-#include "include/private/SkImageInfoPriv.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkSpriteBlitter.h"
@@ -125,7 +125,7 @@ public:
         if (SkColorTypeIsAlphaOnly(fSource.colorType())) {
             // The color for A8 images comes from the (sRGB) paint color.
             p.append_set_rgb(fAlloc, fPaintColor);
-            p.append(SkRasterPipeline::premul);
+            p.append(SkRasterPipelineOp::premul);
         }
         if (auto dstCS = fDst.colorSpace()) {
             auto srcCS = fSource.colorSpace();
@@ -141,7 +141,7 @@ public:
                 ->apply(&p);
         }
         if (fPaintColor.fA != 1.0f) {
-            p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
+            p.append(SkRasterPipelineOp::scale_1_float, &fPaintColor.fA);
         }
 
         bool is_opaque = fSource.isOpaque() && fPaintColor.fA == 1.0f;
@@ -210,12 +210,6 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
             switch (dst.colorType()) {
                 case kN32_SkColorType:
                     blitter = SkSpriteBlitter::ChooseL32(source, paint, alloc);
-                    break;
-                case kRGB_565_SkColorType:
-                    blitter = SkSpriteBlitter::ChooseL565(source, paint, alloc);
-                    break;
-                case kAlpha_8_SkColorType:
-                    blitter = SkSpriteBlitter::ChooseLA8(source, paint, alloc);
                     break;
                 default:
                     break;

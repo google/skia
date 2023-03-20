@@ -12,9 +12,9 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkSpan.h"
-#include "include/private/SkMacros.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTArray.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
 
@@ -567,7 +567,7 @@ namespace skvm {
     };
 
     struct PixelFormat {
-        enum { UNORM, SRGB, FLOAT} encoding;
+        enum { UNORM, SRGB, FLOAT, XRNG } encoding;
         int r_bits,  g_bits,  b_bits,  a_bits,
             r_shift, g_shift, b_shift, a_shift;
     };

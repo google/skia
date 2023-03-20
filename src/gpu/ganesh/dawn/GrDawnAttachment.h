@@ -8,6 +8,7 @@
 #ifndef GrDawnAttachment_DEFINED
 #define GrDawnAttachment_DEFINED
 
+#include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 
 #include "webgpu/webgpu_cpp.h"

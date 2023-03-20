@@ -1815,7 +1815,7 @@
           ]
         }
       },
-      "nm": "Foo Bar Baz 3",
+      "nm": "Foo Bar Baz",
       "op": 300,
       "sr": 1,
       "st": 0,
@@ -2133,7 +2133,7 @@
           ]
         }
       },
-      "nm": "Foo Bar Baz 2",
+      "nm": "Foo Bar Baz",
       "op": 300,
       "sr": 1,
       "st": 0,

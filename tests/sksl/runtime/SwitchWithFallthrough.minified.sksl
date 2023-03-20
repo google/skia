@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;bool a(int b){bool c=false;switch(b){case 2:break;case 1:;case 0:c=true;break;default:break;}return c;}bool b(int c){bool d=false;switch(c){case 0:break;case 1:;case 2:;case 3:d=true;break;default:break;}return d;}half4 main(float2 c){int d=int(colorGreen.y);return a(d)&&b(d)?colorGreen:colorRed;}

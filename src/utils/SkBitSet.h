@@ -8,9 +8,9 @@
 #ifndef SkBitSet_DEFINED
 #define SkBitSet_DEFINED
 
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTemplates.h"
-#include "src/core/SkMathPriv.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkMathPriv.h"
 
 #include <climits>
 #include <cstring>
@@ -22,9 +22,7 @@ class SkBitSet {
 public:
     explicit SkBitSet(size_t size)
         : fSize(size)
-        // May http://wg21.link/p0593 be accepted.
-        , fChunks((Chunk*)sk_calloc_throw(NumChunksFor(fSize) * sizeof(Chunk)))
-    {}
+        , fChunks((Chunk*)sk_calloc_throw(NumChunksFor(fSize) * sizeof(Chunk))) {}
 
     SkBitSet(const SkBitSet&) = delete;
     SkBitSet& operator=(const SkBitSet&) = delete;
@@ -131,7 +129,7 @@ private:
     static_assert(std::numeric_limits<Chunk>::radix == 2);
     inline static constexpr size_t kChunkBits = std::numeric_limits<Chunk>::digits;
     static_assert(kChunkBits == sizeof(Chunk)*CHAR_BIT, "SkBitSet must use every bit in a Chunk");
-    std::unique_ptr<Chunk, SkFunctionWrapper<void(void*), sk_free>> fChunks;
+    std::unique_ptr<Chunk, SkOverloadedFunctionObject<void(void*), sk_free>> fChunks;
 
     Chunk* chunkFor(size_t index) const {
         return fChunks.get() + (index / kChunkBits);

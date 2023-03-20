@@ -1,8 +1,34 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# A separate group duplicating :skcms.hdrs for
+# export to //modules/skcms/skcms.gni:skcms_public_headers.
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = ["skcms.h"],
+)
+
+# A separate group duplicating :skcms.srcs for
+# export to //modules/skcms/skcms.gni:skcms_sources.
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "skcms.cc",
+        "skcms_internal.h",
+    ],
+)
+
+# A separate group duplicating :skcms.textual_hdrs for
+# export to //modules/skcms/skcms.gni:skcms_sources.
+skia_filegroup(
+    name = "textual_hdrs",
+    srcs = [
+        "src/Transform_inl.h",
+    ],
+)
 
 skia_cc_library(
     name = "skcms",

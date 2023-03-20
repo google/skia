@@ -8,22 +8,28 @@
 #define SK_OPTS_NS skslc_standalone
 #include "include/core/SkGraphics.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkStringView.h"
+#include "src/base/SkStringView.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/opts/SkChecksum_opts.h"
 #include "src/opts/SkVM_opts.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkShaderUtils.h"
 #include "src/utils/SkVMVisualizer.h"
+#include "tools/skslc/ProcessWorklist.h"
 
 #include "spirv-tools/libspirv.hpp"
 
@@ -41,17 +47,10 @@ void SkDebugf(const char format[], ...) {
 }
 
 namespace SkOpts {
-    decltype(hash_fn) hash_fn = skslc_standalone::hash_fn;
-    decltype(interpret_skvm) interpret_skvm = skslc_standalone::interpret_skvm;
+    decltype(hash_fn) hash_fn = SK_OPTS_NS::hash_fn;
+    decltype(interpret_skvm) interpret_skvm = SK_OPTS_NS::interpret_skvm;
+    size_t raster_pipeline_highp_stride = 1;
 }
-
-enum class ResultCode {
-    kSuccess = 0,
-    kCompileError = 1,
-    kInputError = 2,
-    kOutputError = 3,
-    kConfigurationError = 4,
-};
 
 static std::unique_ptr<SkWStream> as_SkWStream(SkSL::OutputStream& s) {
     struct Adapter : public SkWStream {
@@ -441,6 +440,9 @@ static bool detect_shader_settings(const std::string& text,
                     settings->fOptimize = false;
                     *debugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
                 }
+                if (consume_suffix(&settingsText, " SPIRVDawnCompatMode")) {
+                    settings->fSPIRVDawnCompatMode = true;
+                }
 
                 if (settingsText.empty()) {
                     break;
@@ -480,7 +482,7 @@ static bool set_flag(std::optional<bool>* flag, const char* name, bool value) {
 /**
  * Handle a single input.
  */
-ResultCode processCommand(const std::vector<std::string>& args) {
+static ResultCode process_command(SkSpan<std::string> args) {
     std::optional<bool> honorSettings;
     std::vector<std::string> paths;
     for (size_t i = 1; i < args.size(); ++i) {
@@ -540,9 +542,9 @@ ResultCode processCommand(const std::vector<std::string>& args) {
 
     SkSL::ProgramSettings settings;
     const SkSL::ShaderCaps* caps = SkSL::ShaderCapsFactory::Standalone();
-    std::unique_ptr<SkSL::SkVMDebugTrace> debugTrace;
+    std::unique_ptr<SkSL::SkVMDebugTrace> skvmDebugTrace;
     if (*honorSettings) {
-        if (!detect_shader_settings(text, &settings, &caps, &debugTrace)) {
+        if (!detect_shader_settings(text, &settings, &caps, &skvmDebugTrace)) {
             return ResultCode::kInputError;
         }
     }
@@ -554,9 +556,8 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     settings.fRTFlipSet     = 0;
     settings.fRTFlipBinding = 0;
 
-    auto emitCompileError = [&](SkSL::FileOutputStream& out, const char* errorText) {
+    auto emitCompileError = [&](const char* errorText) {
         // Overwrite the compiler output, if any, with an error message.
-        out.close();
         SkSL::FileOutputStream errorStream(outputPath.c_str());
         errorStream.writeText("### Compilation failed:\n\n");
         errorStream.writeText(errorText);
@@ -574,7 +575,8 @@ ResultCode processCommand(const std::vector<std::string>& args) {
         }
         std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
         if (!program || !writeFn(compiler, *program, out)) {
-            emitCompileError(out, compiler.errorText().c_str());
+            out.close();
+            emitCompileError(compiler.errorText().c_str());
             return ResultCode::kCompileError;
         }
         if (!out.close()) {
@@ -584,14 +586,14 @@ ResultCode processCommand(const std::vector<std::string>& args) {
         return ResultCode::kSuccess;
     };
 
-    auto compileProgramForSkVM = [&](const auto& writeFn) -> ResultCode {
+    auto compileProgramAsRuntimeShader = [&](const auto& writeFn) -> ResultCode {
         if (kind == SkSL::ProgramKind::kVertex) {
-            printf("%s: SkVM does not support vertex programs\n", outputPath.c_str());
-            return ResultCode::kOutputError;
+            emitCompileError("Runtime shaders do not support vertex programs\n");
+            return ResultCode::kCompileError;
         }
         if (kind == SkSL::ProgramKind::kFragment) {
             // Handle .sksl and .frag programs as runtime shaders.
-            kind = SkSL::ProgramKind::kRuntimeShader;
+            kind = SkSL::ProgramKind::kPrivateRuntimeShader;
         }
         return compileProgram(writeFn);
     };
@@ -643,19 +645,38 @@ ResultCode processCommand(const std::vector<std::string>& args) {
                     return compiler.toWGSL(program, out);
                 });
     } else if (skstd::ends_with(outputPath, ".skvm")) {
-        return compileProgramForSkVM(
+        return compileProgramAsRuntimeShader(
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
-                                                               debugTrace.get())) {
+                                                               skvmDebugTrace.get())) {
                         return false;
                     }
 
                     std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
-                    if (debugTrace) {
-                        debugTrace->dump(redirect.get());
+                    if (skvmDebugTrace) {
+                        skvmDebugTrace->dump(redirect.get());
                     }
                     builder.done().dump(redirect.get());
+                    return true;
+                });
+    } else if (skstd::ends_with(outputPath, ".skrp")) {
+        settings.fMaxVersionAllowed = SkSL::Version::k300;
+        return compileProgramAsRuntimeShader(
+                [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    SkSL::SkRPDebugTrace skrpDebugTrace;
+                    const SkSL::FunctionDeclaration* main = program.getFunction("main");
+                    if (!main) {
+                        compiler.errorReporter().error({}, "code has no entrypoint");
+                        return false;
+                    }
+                    std::unique_ptr<SkSL::RP::Program> rasterProg = SkSL::MakeRasterPipelineProgram(
+                            program, *main->definition(), &skrpDebugTrace);
+                    if (!rasterProg) {
+                        compiler.errorReporter().error({}, "code is not supported");
+                        return false;
+                    }
+                    rasterProg->dump(as_SkWStream(out).get());
                     return true;
                 });
     } else if (skstd::ends_with(outputPath, ".stage")) {
@@ -669,7 +690,7 @@ ResultCode processCommand(const std::vector<std::string>& args) {
 
                         std::string declareUniform(const SkSL::VarDeclaration* decl) override {
                             fOutput += decl->description();
-                            return std::string(decl->var().name());
+                            return std::string(decl->var()->name());
                         }
 
                         void defineFunction(const char* decl,
@@ -735,87 +756,38 @@ ResultCode processCommand(const std::vector<std::string>& args) {
         settings.fAllowTraceVarInSkVMDebugTrace = false;
 
         SkCpu::CacheRuntimeFeatures();
-        return compileProgramForSkVM(
+        return compileProgramAsRuntimeShader(
             [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
-                if (!debugTrace) {
-                    debugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
-                    debugTrace->setSource(text.c_str());
+                if (!skvmDebugTrace) {
+                    skvmDebugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
+                    skvmDebugTrace->setSource(text.c_str());
                 }
-                auto visualizer = std::make_unique<skvm::viz::Visualizer>(debugTrace.get());
+                auto visualizer = std::make_unique<skvm::viz::Visualizer>(skvmDebugTrace.get());
                 skvm::Builder builder(skvm::Features{}, /*createDuplicates=*/true);
-                if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder, debugTrace.get())) {
+                if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
+                                                           skvmDebugTrace.get())) {
                     return false;
                 }
 
-                std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
-                skvm::Program p = builder.done(
-                        /*debug_name=*/nullptr, /*allow_jit=*/false, std::move(visualizer));
-                p.visualize(redirect.get());
+                skvm::Program p = builder.done(/*debug_name=*/nullptr, /*allow_jit=*/false,
+                                               std::move(visualizer));
+                p.visualize(as_SkWStream(out).get());
                 return true;
             });
     } else {
         printf("expected output path to end with one of: .glsl, .html, .metal, .hlsl, .wgsl, "
-               ".spirv, .asm.vert, .asm.frag, .skvm, .stage (got '%s')\n",
+               ".spirv, .asm.vert, .asm.frag, .skrp, .skvm, .stage (got '%s')\n",
                outputPath.c_str());
         return ResultCode::kConfigurationError;
     }
     return ResultCode::kSuccess;
 }
 
-/**
- * Processes multiple inputs in a single invocation of skslc.
- */
-ResultCode processWorklist(const char* worklistPath) {
-    std::string inputPath(worklistPath);
-    if (!skstd::ends_with(inputPath, ".worklist")) {
-        printf("expected .worklist file, found: %s\n\n", worklistPath);
-        show_usage();
-        return ResultCode::kConfigurationError;
-    }
-
-    // The worklist contains one line per argument to pass to skslc. When a blank line is reached,
-    // those arguments will be passed to `processCommand`.
-    auto resultCode = ResultCode::kSuccess;
-    std::vector<std::string> args = {"skslc"};
-    std::ifstream in(worklistPath);
-    for (std::string line; std::getline(in, line); ) {
-        if (in.rdstate()) {
-            printf("error reading '%s'\n", worklistPath);
-            return ResultCode::kInputError;
-        }
-
-        if (!line.empty()) {
-            // We found an argument. Remember it.
-            args.push_back(std::move(line));
-        } else {
-            // We found a blank line. If we have any arguments stored up, process them as a command.
-            if (!args.empty()) {
-                ResultCode outcome = processCommand(args);
-                resultCode = std::max(resultCode, outcome);
-
-                // Clear every argument except the first ("skslc").
-                args.resize(1);
-            }
-        }
-    }
-
-    // If the worklist ended with a list of arguments but no blank line, process those now.
-    if (args.size() > 1) {
-        ResultCode outcome = processCommand(args);
-        resultCode = std::max(resultCode, outcome);
-    }
-
-    // Return the "worst" status we encountered. For our purposes, compilation errors are the least
-    // serious, because they are expected to occur in unit tests. Other types of errors are not
-    // expected at all during a build.
-    return resultCode;
-}
-
 int main(int argc, const char** argv) {
     if (argc == 2) {
         // Worklists are the only two-argument case for skslc, and we don't intend to support
         // nested worklists, so we can process them here.
-        return (int)processWorklist(argv[1]);
+        return (int)ProcessWorklist(argv[1], process_command);
     } else {
         // Process non-worklist inputs.
         std::vector<std::string> args;
@@ -823,6 +795,6 @@ int main(int argc, const char** argv) {
             args.push_back(argv[index]);
         }
 
-        return (int)processCommand(args);
+        return (int)process_command(args);
     }
 }

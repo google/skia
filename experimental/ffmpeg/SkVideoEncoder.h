@@ -18,6 +18,9 @@ extern "C" {
 #include "libavutil/pixdesc.h"
 }
 
+class SkCanvas;
+class SkSurface;
+
 // private to the impl
 class SkRandomAccessWStream;
 struct SwsContext;

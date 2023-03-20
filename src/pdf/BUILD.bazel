@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:flags.bzl", "bool_flag", "selects")
 
 licenses(["notice"])
 
@@ -60,7 +61,7 @@ split_srcs_and_hdrs(
     files = PDF_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":pdf_srcs",
@@ -68,7 +69,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":pdf_hdrs",
@@ -89,7 +90,7 @@ bool_flag(
 selects.config_setting_group(
     name = "uses_jpeg",
     match_any = [
-        "//src/images:jpeg_encode_codec",
+        "//src/encode:jpeg_encode_codec",
         "//src/codec:jpeg_decode_codec",
     ],
 )

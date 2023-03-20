@@ -185,11 +185,9 @@ OpFunctionEnd
 %85 = OpLoad %float %84
 %86 = OpConvertFToS %int %85
 OpSelectionMerge %87 None
-OpSwitch %86 %90 1 %88 2 %89
+OpSwitch %86 %90 1 %88 2 %90
 %88 = OpLabel
 OpReturnValue %true
-%89 = OpLabel
-OpBranch %90
 %90 = OpLabel
 OpReturnValue %false
 %87 = OpLabel
@@ -201,11 +199,7 @@ OpFunctionEnd
 %93 = OpLoad %float %92
 %94 = OpConvertFToS %int %93
 OpSelectionMerge %95 None
-OpSwitch %94 %98 1 %96 2 %97
-%96 = OpLabel
-OpBranch %97
-%97 = OpLabel
-OpBranch %98
+OpSwitch %94 %98 1 %98 2 %98
 %98 = OpLabel
 OpReturnValue %true
 %95 = OpLabel

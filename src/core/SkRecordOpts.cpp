@@ -7,7 +7,7 @@
 
 #include "src/core/SkRecordOpts.h"
 
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkRecordPattern.h"
 #include "src/core/SkRecords.h"

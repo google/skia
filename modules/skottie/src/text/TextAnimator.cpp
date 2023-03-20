@@ -10,10 +10,11 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkVx.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/RangeSelector.h"
+#include "src/base/SkVx.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "src/utils/SkJSON.h"
 
 #include <cmath>

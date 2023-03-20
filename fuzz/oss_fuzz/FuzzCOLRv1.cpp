@@ -11,10 +11,13 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
+#include "src/core/SkFontMgrPriv.h"
 
 #include <algorithm>
 
 void FuzzCOLRv1(sk_sp<SkData> bytes) {
+    // We do not want the portable fontmgr here, as it does not allow creation of fonts from bytes.
+    gSkFontMgr_DefaultFactory = nullptr;
     std::unique_ptr<SkStreamAsset> stream = SkMemoryStream::Make(bytes);
     sk_sp<SkTypeface> typeface = SkTypeface::MakeFromStream(std::move(stream));
 
@@ -28,7 +31,8 @@ void FuzzCOLRv1(sk_sp<SkData> bytes) {
     }
 
     // Place at a baseline in the lower part of the canvas square, but canvas size and baseline
-    // placement are chosen arbitraly and we just need to cover colrv1 rendering in this fuzz test.
+    // placement are chosen arbitrarily and we just need to cover colrv1 rendering in this
+    // fuzz test.
     SkFont colrv1Font = SkFont(typeface, 120);
     SkCanvas* canvas = s->getCanvas();
     SkPaint paint;

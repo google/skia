@@ -5,38 +5,62 @@
  * found in the LICENSE file.
  */
 
-#include "tools/ToolUtils.h"
-
-#include <string>
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
-#include "include/core/SkGraphics.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/text/GlyphRun.h"
+#include "src/gpu/ganesh/text/GrAtlasManager.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/fonts/RandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "include/ports/SkTypeface_win.h"
 #endif
 
-#include "tests/Test.h"
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <string>
 
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/text/GrAtlasManager.h"
-#include "src/text/gpu/TextBlobRedrawCoordinator.h"
+using namespace skia_private;
+
+struct GrContextOptions;
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;
     for (int r = 0; r < redraw; r++) {
-        for (int i = 0; i < blobs.count(); i++) {
+        for (int i = 0; i < blobs.size(); i++) {
             const auto& blob = blobs[i];
             const SkRect& bounds = blob->bounds();
             yOffset += SkScalarCeilToInt(bounds.height());
@@ -78,7 +102,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
                                          kPremul_SkAlphaType);
-    auto surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info, 0, &props));
+    auto surface(SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info, 0, &props));
     REPORTER_ASSERT(reporter, surface);
     if (!surface) {
         return;
@@ -91,7 +115,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
     int count = std::min(fm->countFamilies(), maxFamilies);
 
     // make a ton of text
-    SkAutoTArray<uint16_t> text(maxTotalText);
+    AutoTArray<uint16_t> text(maxTotalText);
     for (int i = 0; i < maxTotalText; i++) {
         text[i] = i % maxGlyphID;
     }
@@ -171,19 +195,19 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
     draw(canvas, 1, blobs);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobCache, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobCache, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 1024, 256, 30, true, false);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 256, 256, 10, true, true);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 256, 256, 10, false, false);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 256, 256, 10, false, true);
 }
 
@@ -275,12 +299,12 @@ static sk_sp<SkTextBlob> make_large_blob() {
     return builder.make();
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInfo,
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInfo,
                                    CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
+    auto surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
 
     auto blob = make_large_blob();
     int y = 40;
@@ -299,14 +323,14 @@ void write_png(const std::string& filename, const SkBitmap& bitmap) {
     w.fsync();
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(direct, SkBudgeted::kNo, info);
+    auto surface = SkSurface::MakeRenderTarget(direct, skgpu::Budgeted::kNo, info);
 
     auto blob = make_blob();
 
@@ -358,14 +382,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
 #endif
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(direct, SkBudgeted::kNo, info);
+    auto surface = SkSurface::MakeRenderTarget(direct, skgpu::Budgeted::kNo, info);
 
     auto movingBlob = make_blob();
 

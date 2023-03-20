@@ -1,0 +1,15 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             r = 0
+    4. copy_constant                  g = 0x3F800000 (1.0)
+    5. copy_slot_unmasked             x = r
+    6. copy_slot_unmasked             $0 = x
+    7. label                          label 0x00000000
+    8. copy_constant                  $1 = 0x3F800000 (1.0)
+    9. zero_slot_unmasked             $2 = 0
+   10. copy_slot_unmasked             x = g
+   11. copy_slot_unmasked             $3 = x
+   12. label                          label 0x00000002
+   13. copy_2_slots_unmasked          rg = $2..3
+   14. label                          label 0x00000001
+   15. load_src                       src.rgba = $0..3

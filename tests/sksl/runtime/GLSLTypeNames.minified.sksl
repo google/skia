@@ -1,0 +1,1 @@
+float f;vec4 main(vec2 a){vec4 c=vec4(f);return c;}

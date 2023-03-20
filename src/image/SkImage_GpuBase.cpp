@@ -7,28 +7,53 @@
 
 #include "src/image/SkImage_GpuBase.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkPromiseImageTexture.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/GrYUVABackendTextures.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBitmapCache.h"
+#include "src/core/SkImageInfoPriv.h"
+#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrSurface.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/GrYUVATextureProxies.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
-#include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"
-#include "src/image/SkReadPixelsRec.h"
+
+#include <functional>
+#include <memory>
+#include <utility>
+
+class GrContextThreadSafeProxy;
+class SkImage;
+enum SkColorType : int;
+struct SkIRect;
+
+#if defined(SK_GRAPHITE)
+#include "src/gpu/graphite/Log.h"
+#endif
 
 SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkImageInfo info, uint32_t uniqueID)
-        : INHERITED(std::move(info), uniqueID)
+        : SkImage_Base(std::move(info), uniqueID)
         , fContext(std::move(context)) {}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +132,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
         }
     }
 
-    auto [view, ct] = this->asView(dContext, GrMipmapped::kNo);
+    auto [view, ct] = this->asView(dContext, skgpu::Mipmapped::kNo);
     if (!view) {
         return false;
     }
@@ -135,14 +160,14 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
         return nullptr;
     }
 
-    auto [view, ct] = this->asView(direct, GrMipmapped::kNo);
+    auto [view, ct] = this->asView(direct, skgpu::Mipmapped::kNo);
     SkASSERT(view);
     SkASSERT(ct == SkColorTypeToGrColorType(this->colorType()));
 
-    SkBudgeted isBudgeted = view.proxy()->isBudgeted();
+    skgpu::Budgeted isBudgeted = view.proxy()->isBudgeted();
     auto copyView = GrSurfaceProxyView::Copy(direct,
                                              std::move(view),
-                                             GrMipmapped::kNo,
+                                             skgpu::Mipmapped::kNo,
                                              subset,
                                              SkBackingFit::kExact,
                                              isBudgeted,
@@ -158,6 +183,29 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
                                    this->imageInfo().colorInfo());
 }
 
+#if defined(SK_GRAPHITE)
+sk_sp<SkImage> SkImage_GpuBase::onMakeTextureImage(skgpu::graphite::Recorder*,
+                                                   SkImage::RequiredImageProperties) const {
+    SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect&,
+                                             skgpu::graphite::Recorder*,
+                                             RequiredImageProperties) const {
+    SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage_GpuBase::onMakeColorTypeAndColorSpace(SkColorType,
+                                                             sk_sp<SkColorSpace>,
+                                                             skgpu::graphite::Recorder*,
+                                                             RequiredImageProperties) const {
+    SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
+    return nullptr;
+}
+#endif
+
 bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
                                    const SkImageInfo& dstInfo,
                                    void* dstPixels,
@@ -170,7 +218,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
         return false;
     }
 
-    auto [view, ct] = this->asView(dContext, GrMipmapped::kNo);
+    auto [view, ct] = this->asView(dContext, skgpu::Mipmapped::kNo);
     SkASSERT(view);
 
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
@@ -199,7 +247,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         GrContextThreadSafeProxy* tsp,
         SkISize dimensions,
         GrBackendFormat backendFormat,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         PromiseImageTextureFulfillProc fulfillProc,
         sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     SkASSERT(tsp);
@@ -210,7 +258,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         return nullptr;
     }
 
-    if (mipmapped == GrMipmapped::kYes &&
+    if (mipmapped == skgpu::Mipmapped::kYes &&
         GrTextureTypeHasRestrictedSampling(backendFormat.textureType())) {
         // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
         // well.
@@ -219,7 +267,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     /**
      * This class is the lazy instantiation callback for promise images. It manages calling the
-     * client's Fulfill, Release, and Done procs. It attempts to reuse a GrTexture instance in
+     * client's Fulfill and Release procs. It attempts to reuse a GrTexture instance in
      * cases where the client provides the same SkPromiseImageTexture as Fulfill results for
      * multiple SkImages. The created GrTexture is given a key based on a unique ID associated with
      * the SkPromiseImageTexture.

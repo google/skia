@@ -2,8 +2,8 @@ void fragcoord() { float x = gl_FragCoord.x; }
 void fragcolor() { float r = gl_FragColor.r; }
 
 /*%%*
-'gl_FragCoord' is a reserved word
+name 'gl_FragCoord' is reserved
 unknown identifier 'gl_FragCoord'
-'gl_FragColor' is a reserved word
+name 'gl_FragColor' is reserved
 unknown identifier 'gl_FragColor'
 *%%*/

@@ -9,12 +9,12 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/private/SkTDArray.h"
-#include "include/utils/SkRandom.h"
-
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
 
 /*
  *  Cases to consider:
@@ -71,7 +71,7 @@ protected:
         SkPath path;
         this->makePath(&path);
 
-        paint.setPathEffect(SkDashPathEffect::Make(fIntervals.begin(), fIntervals.count(), 0));
+        paint.setPathEffect(SkDashPathEffect::Make(fIntervals.begin(), fIntervals.size(), 0));
 
         if (fDoClip) {
             SkRect r = path.getBounds();

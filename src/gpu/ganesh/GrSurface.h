@@ -10,11 +10,12 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 
+class GrBackendFormat;
+class GrDirectContext;
 class GrRenderTarget;
 class GrTexture;
 
@@ -42,10 +43,7 @@ public:
 
     virtual GrBackendFormat backendFormat() const = 0;
 
-    void setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
-        this->onSetRelease(releaseHelper);
-        fReleaseHelper = std::move(releaseHelper);
-    }
+    void setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
     // These match the definitions in SkImage, from whence they came.
     // TODO: Remove Chrome's need to call this on a GrTexture
@@ -83,12 +81,24 @@ public:
     }
 
     // Returns true if we are working with protected content.
-    bool isProtected() const { return fIsProtected == GrProtected::kYes; }
+    bool isProtected() const { return fIsProtected == skgpu::Protected::kYes; }
 
     void setFramebufferOnly() {
         SkASSERT(this->asRenderTarget());
         fSurfaceFlags |= GrInternalSurfaceFlags::kFramebufferOnly;
     }
+
+    class RefCntedReleaseProc : public SkNVRefCnt<RefCntedReleaseProc> {
+    public:
+        RefCntedReleaseProc(sk_sp<skgpu::RefCntedCallback> callback,
+                            sk_sp<GrDirectContext> directContext);
+
+        ~RefCntedReleaseProc();
+
+    private:
+        sk_sp<skgpu::RefCntedCallback> fCallback;
+        sk_sp<GrDirectContext> fDirectContext;
+    };
 
 protected:
     void setGLRTFBOIDIs0() {
@@ -122,7 +132,7 @@ protected:
 
     GrSurface(GrGpu* gpu,
               const SkISize& dimensions,
-              GrProtected isProtected,
+              skgpu::Protected isProtected,
               std::string_view label)
             : INHERITED(gpu, label)
             , fDimensions(dimensions)
@@ -142,7 +152,7 @@ private:
 
     // Unmanaged backends (e.g. Vulkan) may want to specially handle the release proc in order to
     // ensure it isn't called until GPU work related to the resource is completed.
-    virtual void onSetRelease(sk_sp<skgpu::RefCntedCallback>) {}
+    virtual void onSetRelease(sk_sp<RefCntedReleaseProc>) {}
 
     void invokeReleaseProc() {
         // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
@@ -152,8 +162,8 @@ private:
 
     SkISize                    fDimensions;
     GrInternalSurfaceFlags     fSurfaceFlags;
-    GrProtected                fIsProtected;
-    sk_sp<skgpu::RefCntedCallback>  fReleaseHelper;
+    skgpu::Protected           fIsProtected;
+    sk_sp<RefCntedReleaseProc> fReleaseHelper;
 
     using INHERITED = GrGpuResource;
 };

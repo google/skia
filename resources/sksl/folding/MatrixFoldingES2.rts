@@ -1,0 +1,242 @@
+uniform float2x2 testMatrix2x2;
+uniform half4 colorRed, colorGreen;
+uniform half unknownInput;
+
+bool test_eq() {
+    // A non-folding version of these tests can be found in shared/MatrixEquality.
+    bool ok = true;
+    ok = ok &&  (float2x2(float2(1.0, 0.0), float2(0.0, 1.0)) ==
+                 float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+    ok = ok && !(float2x2(float2(1.0, 0.0), float2(1.0, 1.0)) ==
+                 float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+
+    ok = ok &&  ( float2x2(1)  == float2x2(1));
+    ok = ok && !( float2x2(1)  == float2x2(0));
+    ok = ok &&  ( float2x2(-1) == -float2x2(1));
+    ok = ok &&  ( float2x2(0)  == -float2x2(0));
+    ok = ok &&  (-float2x2(-1) ==  float2x2(1));
+    ok = ok &&  (-float2x2(0)  == -float2x2(-0));
+
+    ok = ok &&  (float2x2(1) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+    ok = ok && !(float2x2(2) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+
+    ok = ok && !(float2x2(1) != float2x2(1));
+    ok = ok &&  (float2x2(1) != float2x2(0));
+    ok = ok &&  (float3x3(float3(1.0, 0.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, 1.0)) ==
+                 float3x3(float2x2(1.0)));
+    ok = ok &&  (float3x3(float3(9.0, 0.0, 0.0), float3(0.0, 9.0, 0.0), float3(0.0, 0.0, 1.0)) ==
+                 float3x3(float2x2(9.0)));
+    ok = ok &&  (float3x3(unknownInput) == float3x3(float2x2(1.0)));
+    ok = ok &&  (float3x3(float3(9).x00, float3(9).0x0, float3(unknownInput).00x) ==
+                 float3x3(float2x2(9.0)));
+    ok = ok &&  (float2x2(float3x3(1.0)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float3x3(1.0)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float4(1.0, 0.0, 0.0, 1.0)) == float2x2(1.0));
+    ok = ok &&  (float2x2(1.0, 0.0, float2(0.0, 1.0)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float2(1.0, 0.0), 0.0, 1.0) == float2x2(1.0));
+
+    ok = ok &&  (float4(testMatrix2x2) * float4(1)) == float4(1, 2, 3, 4);
+    ok = ok &&  (float4(testMatrix2x2) * float4(1)) == float4(testMatrix2x2);
+    ok = ok &&  (float4(testMatrix2x2) * float4(0)) == float4(0);
+
+    ok = ok &&  (float2x2(5.0)[0] == float2(5.0, 0.0));
+    ok = ok &&  (float2x2(5.0)[1] == float2(0.0, 5.0));
+
+    ok = ok &&  (float2x2(5.0)[0][0] == 5.0);
+    ok = ok &&  (float2x2(5.0)[0][1] == 0.0);
+    ok = ok &&  (float2x2(5.0)[1][0] == 0.0);
+    ok = ok &&  (float2x2(5.0)[1][1] == 5.0);
+
+    const float3x3 m = float3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ok = ok &&  (m[0] == float3(1, 2, 3));
+    ok = ok &&  (m[1] == float3(4, 5, 6));
+    ok = ok &&  (m[2] == float3(7, 8, 9));
+
+    ok = ok &&  (m[0][0] == 1);
+    ok = ok &&  (m[0][1] == 2);
+    ok = ok &&  (m[0][2] == 3);
+    ok = ok &&  (m[1][0] == 4);
+    ok = ok &&  (m[1][1] == 5);
+    ok = ok &&  (m[1][2] == 6);
+    ok = ok &&  (m[2][0] == 7);
+    ok = ok &&  (m[2][1] == 8);
+    ok = ok &&  (m[2][2] == 9);
+
+    {
+        // This `five` is constant and should always fold.
+        const float five = 5.0;
+        ok = ok &&  (float2x2(five)[0] == float2(five, 0.0));
+        ok = ok &&  (float2x2(five)[1] == float2(0.0, five));
+
+        ok = ok &&  (float2x2(five)[0][0] == five);
+        ok = ok &&  (float2x2(five)[0][1] == 0.0);
+        ok = ok &&  (float2x2(five)[1][0] == 0.0);
+        ok = ok &&  (float2x2(five)[1][1] == five);
+
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[0] == float3(1, 2, 3));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[1] == float3(4, five, 6));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[2] == float3(7, 8, 9));
+    }
+    {
+        // This `five` cannot be folded, but the first and third columns should still be foldable.
+        float five = 5.0;
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[0] == float3(1, 2, 3));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[1] == float3(4, five, 6));
+        ok = ok &&  (float3x3(1, 2, 3, 4, five, 6, 7, 8, 9)[2] == float3(7, 8, 9));
+    }
+    {
+        // The upper-left 2x2 of the matrix is unknown, but the bottom two rows are still foldable.
+        ok = ok && float4x4(half3x3(testMatrix2x2))[0] == float4(1, 2, 0, 0);
+        ok = ok && float4x4(half3x3(testMatrix2x2))[1] == float4(3, 4, 0, 0);
+        ok = ok && float4x4(half3x3(testMatrix2x2))[2] == float4(0, 0, 1, 0);
+        ok = ok && float4x4(half3x3(testMatrix2x2))[3] == float4(0, 0, 0, 1);
+    }
+
+    return ok;
+}
+
+bool test_matrix_op_scalar_float() {
+    bool ok = true;
+
+    ok = ok && ((float3x3(2) + 4) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && ((float3x3(2) - 4) == float3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
+    ok = ok && ((float3x3(2) * 4) == float3x3(8));
+    ok = ok && ((float3x3(2) / 4) == float3x3(0.5));
+
+    ok = ok && (4 + (float3x3(2)) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && (4 - (float3x3(2)) == float3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+    ok = ok && (4 * (float3x3(2)) == float3x3(8));
+    ok = ok && (4 / (float2x2(2, 2, 2, 2)) == float2x2(2, 2, 2, 2));
+
+    return ok;
+}
+
+bool test_matrix_op_scalar_half() {
+    bool ok = true;
+
+    ok = ok && ((half3x3(2) + 4) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && ((half3x3(2) - 4) == half3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
+    ok = ok && ((half3x3(2) * 4) == half3x3(8));
+    ok = ok && ((half3x3(2) / 4) == half3x3(0.5));
+
+    ok = ok && (4 + (half3x3(2)) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && (4 - (half3x3(2)) == half3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+    ok = ok && (4 * (half3x3(2)) == half3x3(8));
+    ok = ok && (4 / (half2x2(2, 2, 2, 2)) == half2x2(2, 2, 2, 2));
+
+    return ok;
+}
+
+bool test_matrix_op_matrix_float() {
+    bool ok = true;
+
+    // Addition, subtraction and division operate componentwise.
+    const float3x3 splat_4 = float3x3(4, 4, 4, 4, 4, 4, 4, 4, 4);
+
+    ok = ok && ((float3x3(2) + splat_4) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && ((float3x3(2) - splat_4) == float3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
+    ok = ok && ((float3x3(2) / splat_4) == float3x3(0.5));
+
+    ok = ok && (splat_4 + (float3x3(2)) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && (splat_4 - (float3x3(2)) == float3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+    ok = ok && (float2x2(4, 4, 4, 4) / (float2x2(2, 2, 2, 2)) == float2x2(2, 2, 2, 2));
+
+    ok = ok && (float4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) +
+                float4x4(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1) ==
+                float4x4(17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17));
+
+    ok = ok && (float2x2(10, 20, 30, 40) - float2x2(1, 2, 3, 4) == float2x2(9, 18, 27, 36));
+
+    ok = ok && (float2x2(10, 20, 30, 40) / float2x2(5, 4, 30, 1) == float2x2(2, 5, 1, 40));
+
+    // Multiplication performs a proper matrix multiply.
+    ok = ok && (float2x2(1, 2, 7, 4) * float2x2(3, 5, 3, 2) == float2x2(38, 26, 17, 14));
+    ok = ok && (float3x3(10, 4, 2, 20, 5, 3, 10, 6, 5) *
+                float3x3(3, 3, 4, 2, 3, 4, 4, 9, 2) ==
+                float3x3(130, 51, 35, 120, 47, 33, 240, 73, 45));
+
+    return ok;
+}
+
+bool test_matrix_op_matrix_half() {
+    bool ok = true;
+
+    // Addition, subtraction and division operate componentwise.
+    const half3x3 splat_4 = half3x3(4, 4, 4, 4, 4, 4, 4, 4, 4);
+
+    ok = ok && ((half3x3(2) + splat_4) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && ((half3x3(2) - splat_4) == half3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
+    ok = ok && ((half3x3(2) / splat_4) == half3x3(0.5));
+
+    ok = ok && (splat_4 + (half3x3(2)) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
+    ok = ok && (splat_4 - (half3x3(2)) == half3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
+    ok = ok && (half2x2(4, 4, 4, 4) / (half2x2(2, 2, 2, 2)) == half2x2(2, 2, 2, 2));
+
+    ok = ok && (half4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) +
+                half4x4(16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1) ==
+                half4x4(17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17));
+
+    ok = ok && (half2x2(10, 20, 30, 40) - half2x2(1, 2, 3, 4) == half2x2(9, 18, 27, 36));
+
+    ok = ok && (half2x2(10, 20, 30, 40) / half2x2(5, 4, 30, 1) == half2x2(2, 5, 1, 40));
+
+    // Multiplication performs a proper matrix multiply.
+    ok = ok && (half2x2(1, 2, 7, 4) * half2x2(3, 5, 3, 2) == half2x2(38, 26, 17, 14));
+    ok = ok && (half3x3(10, 4, 2, 20, 5, 3, 10, 6, 5) *
+                half3x3(3, 3, 4, 2, 3, 4, 4, 9, 2) ==
+                half3x3(130, 51, 35, 120, 47, 33, 240, 73, 45));
+
+    return ok;
+}
+
+bool test_vector_op_matrix_float() {
+    bool ok = true;
+
+    ok = ok && (float2(1, 2) * float2x2(3, 4, 5, 6) == float2(11, 17));
+    ok = ok && (float3(1, 2, 3) * float3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) == float3(2, 2, 5));
+    ok = ok && (float4(1, 2, 3, 4) * float4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) ==
+                    float4(10, 4, 11, 8));
+    return ok;
+}
+
+bool test_vector_op_matrix_half() {
+    bool ok = true;
+
+    ok = ok && (half2(1, 2) * half2x2(3, 4, 5, 6) == half2(11, 17));
+    ok = ok && (half3(1, 2, 3) * half3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) == half3(2, 2, 5));
+    ok = ok && (half4(1, 2, 3, 4) * half4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) ==
+                    half4(10, 4, 11, 8));
+    return ok;
+}
+
+bool test_matrix_op_vector_float() {
+    bool ok = true;
+
+    ok = ok && (float2x2(3, 4, 5, 6) * float2(1, 2) == float2(13, 16));
+    ok = ok && (float3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) * float3(1, 2, 3) == float3(5, 2, 4));
+    ok = ok && (float4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) * float4(1, 2, 3, 4) ==
+                    float4(4, 12, 9, 7));
+    return ok;
+}
+
+bool test_matrix_op_vector_half() {
+    bool ok = true;
+
+    ok = ok && (half2x2(3, 4, 5, 6) * half2(1, 2) == half2(13, 16));
+    ok = ok && (half3x3(-1, 0, 1, 0, 1, 0, 2, 0, 1) * half3(1, 2, 3) == half3(5, 2, 4));
+    ok = ok && (half4x4(1, 0, 3, 0, 0, 2, 0, 0, 1, 0, 2, 1, 0, 2, 0, 1) * half4(1, 2, 3, 4) ==
+                    half4(4, 12, 9, 7));
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return (test_eq() &&
+            test_matrix_op_scalar_float() &&
+            test_matrix_op_scalar_half() &&
+            test_matrix_op_matrix_float() &&
+            test_matrix_op_matrix_half() &&
+            test_vector_op_matrix_float() &&
+            test_vector_op_matrix_half() &&
+            test_matrix_op_vector_float() &&
+            test_matrix_op_vector_half())? colorGreen : colorRed;
+}

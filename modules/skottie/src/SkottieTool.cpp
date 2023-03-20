@@ -11,7 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
@@ -67,7 +67,7 @@ enum class OutputFormat {
 auto ms_since(std::chrono::steady_clock::time_point start) {
     const auto elapsed = std::chrono::steady_clock::now() - start;
     return std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
-};
+}
 
 std::unique_ptr<SkFILEWStream> make_file_stream(size_t frame_index, const char* extension) {
     const auto file = SkStringPrintf("0%06zu.%s", frame_index, extension);
@@ -325,12 +325,12 @@ private:
         fCtx = fFactory.getContextInfo(sk_gpu_test::GrContextFactory::kGL_ContextType)
                            .directContext();
         fSurface =
-            SkSurface::MakeRenderTarget(fCtx,
-                                        SkBudgeted::kNo,
-                                        SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height),
-                                        0,
-                                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                        nullptr);
+                SkSurface::MakeRenderTarget(fCtx,
+                                            skgpu::Budgeted::kNo,
+                                            SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height),
+                                            0,
+                                            GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                            nullptr);
         if (fSurface) {
             fSurface->getCanvas()->concat(matrix);
         } else {

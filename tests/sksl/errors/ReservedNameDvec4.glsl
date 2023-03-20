@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'dvec4' is a reserved word
+error: 1: name 'dvec4' is reserved
 int dvec4;
     ^^^^^
 1 error

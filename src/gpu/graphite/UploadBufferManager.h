@@ -17,12 +17,13 @@
 namespace skgpu::graphite {
 
 class Buffer;
+class Caps;
 class Recording;
 class ResourceProvider;
 
 class UploadBufferManager {
 public:
-    UploadBufferManager(ResourceProvider*);
+    UploadBufferManager(ResourceProvider*, const Caps*);
     ~UploadBufferManager();
 
     std::tuple<UploadWriter, BindBufferInfo> getUploadWriter(size_t requiredBytes,
@@ -35,6 +36,7 @@ private:
     ResourceProvider* fResourceProvider;
 
     sk_sp<Buffer> fReusedBuffer;
+    size_t fMinAlignment;
     size_t fReusedBufferOffset = 0;
 
     std::vector<sk_sp<Buffer>> fUsedBuffers;

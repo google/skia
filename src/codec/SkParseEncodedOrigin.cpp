@@ -8,7 +8,7 @@
 #include "include/codec/SkEncodedOrigin.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/codec/SkCodecPriv.h"
 
 #include <algorithm>

@@ -149,7 +149,7 @@ func main() {
 	defer td.EndRun(ctx)
 
 	// Setup.
-	client, err := auth_steps.InitHttpClient(ctx, *local, gerrit.AuthScope)
+	client, _, err := auth_steps.InitHttpClient(ctx, *local, gerrit.AuthScope)
 	if err != nil {
 		td.Fatal(ctx, err)
 	}
@@ -262,7 +262,10 @@ func main() {
 	}
 	if *dryRun {
 		cmd = append(cmd, "--dry_run")
+	} else {
+		cmd = append(cmd, "--upload_to_partner_bucket")
 	}
+
 	if *local {
 		cmd = append(cmd, "--local")
 	}

@@ -43,6 +43,12 @@ public:
     }
 #endif
 
+    void fillBuffer(id<MTLBuffer> buffer, size_t bufferOffset, size_t bytes, uint8_t value) {
+        [(*fCommandEncoder) fillBuffer:buffer
+                                 range:NSMakeRange(bufferOffset, bytes)
+                                 value:value];
+    }
+
     void copyFromTexture(id<MTLTexture> texture,
                          SkIRect srcRect,
                          id<MTLBuffer> buffer,
@@ -76,6 +82,33 @@ public:
                          destinationOrigin: MTLOriginMake(dstRect.left(), dstRect.top(), 0)];
     }
 
+    void copyTextureToTexture(id<MTLTexture> srcTexture,
+                              SkIRect srcRect,
+                              id<MTLTexture> dstTexture,
+                              SkIPoint dstPoint) {
+        [(*fCommandEncoder) copyFromTexture: srcTexture
+                                sourceSlice: 0
+                                sourceLevel: 0
+                               sourceOrigin: MTLOriginMake(srcRect.x(), srcRect.y(), 0)
+                                 sourceSize: MTLSizeMake(srcRect.width(), srcRect.height(), 1)
+                                  toTexture: dstTexture
+                           destinationSlice: 0
+                           destinationLevel: 0
+                          destinationOrigin: MTLOriginMake(dstPoint.fX, dstPoint.fY, 0)];
+    }
+
+    void copyBufferToBuffer(id<MTLBuffer> srcBuffer,
+                            size_t srcOffset,
+                            id<MTLBuffer> dstBuffer,
+                            size_t dstOffset,
+                            size_t size) {
+        [(*fCommandEncoder) copyFromBuffer: srcBuffer
+                              sourceOffset: srcOffset
+                                  toBuffer: dstBuffer
+                         destinationOffset: dstOffset
+                                      size: size];
+    }
+
     void endEncoding() {
         [(*fCommandEncoder) endEncoding];
     }
@@ -83,8 +116,8 @@ public:
 private:
     MtlBlitCommandEncoder(const SharedContext* sharedContext,
                           sk_cfp<id<MTLBlitCommandEncoder>> encoder)
-        : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes)
-        , fCommandEncoder(std::move(encoder)) {}
+            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0)
+            , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {
         fCommandEncoder.reset();

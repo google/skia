@@ -6,7 +6,7 @@
  */
 
 #include "include/ports/SkRemotableFontMgr.h"
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
 
 SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity** data)
       : fCount(count), fData(count)

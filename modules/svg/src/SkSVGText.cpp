@@ -21,8 +21,10 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 #include "modules/svg/src/SkSVGTextPriv.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/utils/SkUTF.h"
+
+using namespace skia_private;
 
 namespace {
 
@@ -572,7 +574,7 @@ SkRect SkSVGText::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
                 return;
             }
 
-            SkAutoSTArray<64, SkRect> glyphBounds;
+            AutoSTArray<64, SkRect> glyphBounds;
 
             for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
                 glyphBounds.reset(SkToInt(it.glyphCount()));

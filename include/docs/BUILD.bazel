@@ -1,10 +1,17 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+# Not yet referenced by Bazel build.
+# In separate group for exporting to xps.gni:skia_xps_public.
+skia_filegroup(
+    name = "xps_hdrs",
+    srcs = ["SkXPSDocument.h"],
+)
+
+skia_filegroup(
     name = "public_hdrs",
     srcs = select({
         "//src/pdf:enable_pdf_backend_true": ["SkPDFDocument.h"],

@@ -8,7 +8,7 @@
 #ifndef SKSL_DSL_EXPRESSION
 #define SKSL_DSL_EXPRESSION
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 
@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 #if defined(__has_cpp_attribute) && __has_cpp_attribute(clang::reinitializes)
 #define SK_CLANG_REINITIALIZES [[clang::reinitializes]]
@@ -128,7 +129,7 @@ public:
      */
     DSLExpression operator[](DSLExpression index);
 
-    DSLExpression operator()(SkTArray<DSLExpression> args, Position pos = {});
+    DSLExpression operator()(SkTArray<DSLExpression, true> args, Position pos = {});
 
     DSLExpression operator()(ExpressionArray args, Position pos = {});
 
@@ -185,8 +186,6 @@ private:
     friend DSLExpression SampleChild(int index, DSLExpression coords);
 
     friend class DSLCore;
-    friend class DSLFunction;
-    friend class DSLType;
     friend class DSLVarBase;
     friend class DSLWriter;
 };
@@ -233,5 +232,10 @@ DSLExpression operator--(DSLExpression expr, int);
 } // namespace dsl
 
 } // namespace SkSL
+
+template <typename T> struct sk_is_trivially_relocatable;
+
+template <>
+struct sk_is_trivially_relocatable<SkSL::dsl::DSLExpression> : std::true_type {};
 
 #endif

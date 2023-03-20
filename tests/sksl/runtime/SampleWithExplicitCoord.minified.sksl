@@ -1,0 +1,1 @@
+uniform shader child;half4 main(float2 a){return child.eval(a.yx);}

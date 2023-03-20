@@ -8,6 +8,7 @@
 #include "modules/svg/include/SkSVGMask.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/effects/SkLumaColorFilter.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 

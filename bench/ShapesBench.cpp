@@ -10,12 +10,14 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkString.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <functional>
+
+using namespace skia_private;
 
 #define ENABLE_COMMAND_LINE_SHAPES_BENCH 0
 
@@ -243,7 +245,7 @@ private:
     SkRRect               fInnerRect;
     SkRRect               fInnerOval;
     SkRRect               fInnerRRect;
-    SkTArray<ShapeInfo>   fShapes;
+    TArray<ShapeInfo>   fShapes;
 
 
     using INHERITED = Benchmark;

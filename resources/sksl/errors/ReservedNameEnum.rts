@@ -1,5 +1,5 @@
 int enum;
 
 /*%%*
-'enum' is a reserved word
+name 'enum' is reserved
 *%%*/

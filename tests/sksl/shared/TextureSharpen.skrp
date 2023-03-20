@@ -1,0 +1,24 @@
+### Compilation failed:
+
+error: 3: invalid type
+layout(binding=0) uniform sampler2D s;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 5: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 6: unknown identifier 'sample'
+    float4 a = sample(s, float2(0));
+               ^^^^^^
+error: 7: unknown identifier 'sample'
+    float4 b = sample(s, float3(0));
+               ^^^^^^
+error: 8: unknown identifier 'sk_FragColor'
+    sk_FragColor = half4(half2(a.xy), half2(b.xy));
+    ^^^^^^^^^^^^
+error: 8: unknown identifier 'a'
+    sk_FragColor = half4(half2(a.xy), half2(b.xy));
+                               ^
+error: 8: unknown identifier 'b'
+    sk_FragColor = half4(half2(a.xy), half2(b.xy));
+                                            ^
+7 errors

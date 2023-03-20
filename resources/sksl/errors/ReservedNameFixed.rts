@@ -1,5 +1,5 @@
 int fixed;
 
 /*%%*
-'fixed' is a reserved word
+name 'fixed' is reserved
 *%%*/

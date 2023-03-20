@@ -47,7 +47,6 @@ static bool renderbuffer_storage_msaa(GrGLGpu* gpu,
             break;
         case GrGLCaps::kNone_MSFBOType:
             SkUNREACHABLE;
-            break;
     }
     return error == GR_GL_NO_ERROR;
 }

@@ -24,9 +24,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     if (![self skiaContext]) {
-        #if (SK_SUPPORT_GPU && defined(SK_METAL) && !defined(SK_BUILD_FOR_GOOGLE3))
+        #if (defined(SK_GANESH) && defined(SK_METAL) && !defined(SK_BUILD_FOR_GOOGLE3))
         [self setSkiaContext:MakeSkiaMetalContext()];
-        #elif (SK_SUPPORT_GPU && defined(SK_GL) && !defined(SK_BUILD_FOR_GOOGLE3))
+        #elif (defined(SK_GANESH) && defined(SK_GL) && !defined(SK_BUILD_FOR_GOOGLE3))
         [self setSkiaContext:MakeSkiaGLContext()];
         #else
         [self setSkiaContext:MakeSkiaUIContext()];

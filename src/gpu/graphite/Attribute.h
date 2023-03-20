@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Attribute_DEFINED
 #define skgpu_graphite_Attribute_DEFINED
 
+#include "include/private/base/SkAlign.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/DrawTypes.h"
 

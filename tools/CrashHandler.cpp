@@ -7,7 +7,8 @@
 
 #include "tools/CrashHandler.h"
 
-#include "src/core/SkLeanWindows.h"
+#include "include/private/base/SkDebug.h"
+#include "src/base/SkLeanWindows.h"
 
 #include <array>  // for std::size
 #include <stdlib.h>
@@ -153,7 +154,8 @@
     #elif defined(SK_BUILD_FOR_WIN)
 
         #include <DbgHelp.h>
-        #include "include/private/SkMalloc.h"
+        #include <stdint.h>
+        #include "include/private/base/SkMalloc.h"
 
         static const struct {
             const char* name;

@@ -2,6 +2,10 @@ struct S  {
     float f;
 };
 
+struct T {
+    S s;
+};
+
 uniform int u;
 
 void assign_to_literal()                      { 1 = 2; }
@@ -18,9 +22,10 @@ void assign_to_unfoldable_ternary()           { float l, r; (u > 0 ? l : r) = 0;
 void assign_to_unary_minus()                  { float x; -x = 0; }
 void assign_to_unary_plus()                   { float x; +x = 0; }  // TODO(skbug.com/10766)
 
-void assign_to_const_param(const int x)          { x = 0; }
-void assign_to_const_array_param(const int x[1]) { x[0] = 0; }
-void assign_to_const_struct_param(const S s)     { s.f = 0; }
+void assign_to_const_param(const int x)             { x = 0; }
+void assign_to_const_array_param(const int x[1])    { x[0] = 0; }
+void assign_to_const_struct_param(const S s)        { s.f = 0; }
+void assign_to_const_nested_struct_param(const T t) { t.s.f = 0; }
 
 /*%%*
 cannot assign to this expression
@@ -35,5 +40,6 @@ cannot assign to this expression
 cannot assign to this expression
 cannot modify immutable variable 'x'
 cannot modify immutable variable 'x'
-cannot modify immutable variable 's'
+cannot modify immutable variable 's.f'
+cannot modify immutable variable 't.s'
 *%%*/

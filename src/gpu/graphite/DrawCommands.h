@@ -9,8 +9,8 @@
 #define skgpu_graphite_DrawPassCommands_DEFINED
 
 #include "include/core/SkRect.h"
-#include "src/core/SkArenaAlloc.h"
-#include "src/core/SkTBlockList.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/graphite/DrawTypes.h"
 
 namespace skgpu::graphite {
@@ -26,18 +26,19 @@ namespace DrawPassCommands {
 //
 // We leave this SKGPU_DRAW_COMMAND_TYPES macro defined for use by code that wants to operate on
 // DrawPassCommands types polymorphically.
-#define SKGPU_DRAW_PASS_COMMAND_TYPES(M)                            \
-    M(BindGraphicsPipeline)                                         \
-    M(SetBlendConstants)                                            \
-    M(BindUniformBuffer)                                            \
-    M(BindDrawBuffers)                                              \
-    M(BindTexturesAndSamplers)                                      \
-    M(SetViewport)                                                  \
-    M(SetScissor)                                                   \
-    M(Draw)                                                         \
-    M(DrawIndexed)                                                  \
-    M(DrawInstanced)                                                \
-    M(DrawIndexedInstanced)
+#define SKGPU_DRAW_PASS_COMMAND_TYPES(M) \
+    M(BindGraphicsPipeline)              \
+    M(SetBlendConstants)                 \
+    M(BindUniformBuffer)                 \
+    M(BindDrawBuffers)                   \
+    M(BindTexturesAndSamplers)           \
+    M(SetScissor)                        \
+    M(Draw)                              \
+    M(DrawIndexed)                       \
+    M(DrawInstanced)                     \
+    M(DrawIndexedInstanced)              \
+    M(DrawIndirect)                      \
+    M(DrawIndexedIndirect)
 
 // Defines DrawPassCommands::Type, an enum of all draw command types.
 #define ENUM(T) k##T,
@@ -80,15 +81,12 @@ COMMAND(BindUniformBuffer,
 COMMAND(BindDrawBuffers,
             BindBufferInfo fVertices;
             BindBufferInfo fInstances;
-            BindBufferInfo fIndices);
+            BindBufferInfo fIndices;
+            BindBufferInfo fIndirect);
 COMMAND(BindTexturesAndSamplers,
             int fNumTexSamplers;
             PODArray<int> fTextureIndices;
             PODArray<int> fSamplerIndices);
-COMMAND(SetViewport,
-            SkRect fViewport;
-            float fMinDepth;
-            float fMaxDepth);
 COMMAND(SetScissor,
             SkIRect fScissor);
 COMMAND(Draw,
@@ -113,6 +111,10 @@ COMMAND(DrawIndexedInstanced,
             uint32_t fBaseVertex;
             uint32_t fBaseInstance;
             uint32_t fInstanceCount);
+COMMAND(DrawIndirect,
+            PrimitiveType fType);
+COMMAND(DrawIndexedIndirect,
+            PrimitiveType fType);
 
 #undef COMMAND
 
@@ -140,18 +142,13 @@ public:
         this->add<BindUniformBuffer>(info, slot);
     }
 
-    void bindTexturesAndSamplers(int numTexSamplers,
-                                 int* textureIndices,
-                                 int* samplerIndices) {
-        this->add<BindTexturesAndSamplers>(numTexSamplers,
-                                           this->copy(textureIndices, numTexSamplers),
-                                           this->copy(samplerIndices, numTexSamplers));
-    }
-
-    void setViewport(const SkRect& viewport,
-                     float minDepth = 0,
-                     float maxDepth = 1) {
-        this->add<SetViewport>(viewport, minDepth, maxDepth);
+    // Caller must write 'numTexSamplers' texture and sampler indices into the two returned arrays.
+    std::pair<int*, int*>
+    bindDeferredTexturesAndSamplers(int numTexSamplers) {
+        int* textureIndices = fAlloc.makeArrayDefault<int>(numTexSamplers);
+        int* samplerIndices = fAlloc.makeArrayDefault<int>(numTexSamplers);
+        this->add<BindTexturesAndSamplers>(numTexSamplers, textureIndices, samplerIndices);
+        return {textureIndices, samplerIndices};
     }
 
     void setScissor(SkIRect scissor) {
@@ -160,8 +157,9 @@ public:
 
     void bindDrawBuffers(BindBufferInfo vertexAttribs,
                          BindBufferInfo instanceAttribs,
-                         BindBufferInfo indices) {
-        this->add<BindDrawBuffers>(vertexAttribs, instanceAttribs, indices);
+                         BindBufferInfo indices,
+                         BindBufferInfo indirect) {
+        this->add<BindDrawBuffers>(vertexAttribs, instanceAttribs, indices, indirect);
     }
 
     void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
@@ -189,6 +187,14 @@ public:
                                         baseVertex,
                                         baseInstance,
                                         instanceCount);
+    }
+
+    void drawIndirect(PrimitiveType type) {
+        this->add<DrawIndirect>(type);
+    }
+
+    void drawIndexedIndirect(PrimitiveType type) {
+        this->add<DrawIndexedIndirect>(type);
     }
 
     using Command = std::pair<Type, void*>;
@@ -224,4 +230,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DrawPassCommands_DEFINED
-

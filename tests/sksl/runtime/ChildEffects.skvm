@@ -1,45 +1,48 @@
-15 registers, 43 instructions:
+16 registers, 46 instructions:
 0	r0 = uniform32 ptr0 0
-1	r1 = uniform32 ptr0 C
-2	r2 = uniform32 ptr0 18
-3	r0 = trunc r0
-4	r1 = mul_i32 r1 r0
-5	r3 = splat 1 (1.4012985e-45)
-6	r4 = splat 2 (2.8025969e-45)
-7	r5 = splat 3 (4.2038954e-45)
-8	r0 = mul_i32 r2 r0
-9	r2 = splat 3F800000 (1)
+1	r1 = splat 3F000000 (0.5)
+2	r0 = add_f32 r0 r1
+3	r2 = uniform32 ptr0 C
+4	r3 = uniform32 ptr0 18
+5	r0 = trunc r0
+6	r2 = mul_i32 r2 r0
+7	r4 = splat 1 (1.4012985e-45)
+8	r5 = splat 2 (2.8025969e-45)
+9	r6 = splat 3 (4.2038954e-45)
+10	r0 = mul_i32 r3 r0
+11	r3 = splat 3F800000 (1)
 loop:
-10	    r6 = index
-11	    r6 = trunc r6
-12	    r7 = add_i32 r6 r1
-13	    r7 = shl_i32 r7 2
-14	    r8 = gather32 ptr0 4 r7
-15	    r9 = add_i32 r7 r3
-16	    r9 = gather32 ptr0 4 r9
-17	    r10 = add_i32 r7 r4
-18	    r10 = gather32 ptr0 4 r10
-19	    r7 = add_i32 r7 r5
-20	    r7 = gather32 ptr0 4 r7
-21	    r6 = add_i32 r6 r0
-22	    r6 = shl_i32 r6 2
-23	    r11 = gather32 ptr0 10 r6
-24	    r12 = add_i32 r6 r3
-25	    r12 = gather32 ptr0 10 r12
-26	    r13 = add_i32 r6 r4
-27	    r13 = gather32 ptr0 10 r13
-28	    r6 = add_i32 r6 r5
-29	    r6 = gather32 ptr0 10 r6
-30	    r14 = sub_f32 r2 r7
-31	    r11 = mul_f32 r11 r14
-32	    r11 = add_f32 r8 r11
-33	    r12 = mul_f32 r12 r14
-34	    r12 = add_f32 r9 r12
-35	    r13 = mul_f32 r13 r14
-36	    r13 = add_f32 r10 r13
-37	    r14 = mul_f32 r6 r14
-38	    r14 = add_f32 r7 r14
-39	    store32 ptr1 r11
-40	    store32 ptr2 r12
-41	    store32 ptr3 r13
-42	    store32 ptr4 r14
+12	    r7 = index
+13	    r7 = add_f32 r7 r1
+14	    r7 = trunc r7
+15	    r8 = add_i32 r7 r2
+16	    r8 = shl_i32 r8 2
+17	    r9 = gather32 ptr0 4 r8
+18	    r10 = add_i32 r8 r4
+19	    r10 = gather32 ptr0 4 r10
+20	    r11 = add_i32 r8 r5
+21	    r11 = gather32 ptr0 4 r11
+22	    r8 = add_i32 r8 r6
+23	    r8 = gather32 ptr0 4 r8
+24	    r7 = add_i32 r7 r0
+25	    r7 = shl_i32 r7 2
+26	    r12 = gather32 ptr0 10 r7
+27	    r13 = add_i32 r7 r4
+28	    r13 = gather32 ptr0 10 r13
+29	    r14 = add_i32 r7 r5
+30	    r14 = gather32 ptr0 10 r14
+31	    r7 = add_i32 r7 r6
+32	    r7 = gather32 ptr0 10 r7
+33	    r15 = sub_f32 r3 r8
+34	    r12 = mul_f32 r12 r15
+35	    r12 = add_f32 r9 r12
+36	    r13 = mul_f32 r13 r15
+37	    r13 = add_f32 r10 r13
+38	    r14 = mul_f32 r14 r15
+39	    r14 = add_f32 r11 r14
+40	    r15 = mul_f32 r7 r15
+41	    r15 = add_f32 r8 r15
+42	    store32 ptr1 r12
+43	    store32 ptr2 r13
+44	    store32 ptr3 r14
+45	    store32 ptr4 r15

@@ -9,12 +9,12 @@
 #define GrThreadSafePipelineBuilder_Base_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrConfig.h"
+#include "include/core/SkTypes.h"
 #include <atomic>
 
 #if GR_TEST_UTILS
-#include "include/private/SkTArray.h"
-class SkString;
+#include "include/core/SkString.h"
+#include "include/private/base/SkTArray.h"
 #endif
 
 class GrThreadSafePipelineBuilder : public SkRefCnt {

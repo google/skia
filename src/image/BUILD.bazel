@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -6,16 +6,20 @@ exports_files_legacy()
 
 CORE_FILES = [
     "SkImage.cpp",
+    "SkImage_Base.cpp",
     "SkImage_Base.h",
     "SkImage_Lazy.cpp",
     "SkImage_Lazy.h",
     "SkImage_Raster.cpp",
-    "SkReadPixelsRec.h",
+    "SkImage_Raster.h",
     "SkRescaleAndReadPixels.cpp",
     "SkRescaleAndReadPixels.h",
     "SkSurface.cpp",
     "SkSurface_Base.h",
+    "SkSurface_Base.cpp",
+    "SkSurface_Null.cpp",
     "SkSurface_Raster.cpp",
+    "SkSurface_Raster.h",
 ]
 
 split_srcs_and_hdrs(
@@ -39,7 +43,19 @@ split_srcs_and_hdrs(
     files = GPU_FILES,
 )
 
-filegroup(
+skia_filegroup(
+    name = "android_srcs",
+    srcs = ["SkImage_AndroidFactories.cpp"],
+)
+
+# Not referenced by Bazel target.
+# File group use to export to //gn/gpu.gni:skia_metal_sources.
+skia_filegroup(
+    name = "mtl_srcs",
+    srcs = ["SkSurface_GpuMtl.mm"],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [":core_srcs"] + select({
         "//src/gpu:has_gpu_backend": [":gpu_srcs"],
@@ -48,7 +64,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":core_hdrs"] + select({
         "//src/gpu:has_gpu_backend": [":gpu_hdrs"],

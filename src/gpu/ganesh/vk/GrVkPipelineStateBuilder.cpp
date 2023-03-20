@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/vk/GrVkPipeline.h"
 #include "src/gpu/ganesh/vk/GrVkRenderPass.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
@@ -61,10 +62,6 @@ const GrCaps* GrVkPipelineStateBuilder::caps() const {
 
 SkSL::Compiler* GrVkPipelineStateBuilder::shaderCompiler() const {
     return fGpu->shaderCompiler();
-}
-
-void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputColor) {
-    outputColor.addLayoutQualifier("location = 0, index = 0");
 }
 
 void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {

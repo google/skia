@@ -23,8 +23,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
+#include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> makebm(int w, int h) {

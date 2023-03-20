@@ -10,60 +10,26 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
 
 namespace SkSL {
 
 class AnyConstructor;
 class Context;
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * Abstract supertype of all expressions.
  */
 class Expression : public IRNode {
 public:
-    enum class Kind {
-        kBinary = (int) Statement::Kind::kLast + 1,
-        kChildCall,
-        kConstructorArray,
-        kConstructorArrayCast,
-        kConstructorCompound,
-        kConstructorCompoundCast,
-        kConstructorDiagonalMatrix,
-        kConstructorMatrixResize,
-        kConstructorScalarCast,
-        kConstructorSplat,
-        kConstructorStruct,
-        kExternalFunctionCall,
-        kExternalFunctionReference,
-        kFieldAccess,
-        kFunctionReference,
-        kFunctionCall,
-        kIndex,
-        kLiteral,
-        kMethodReference,
-        kPoison,
-        kPostfix,
-        kPrefix,
-        kSetting,
-        kSwizzle,
-        kTernary,
-        kTypeReference,
-        kVariableReference,
-
-        kFirst = kBinary,
-        kLast = kVariableReference
-    };
-
-    enum class Property {
-        kSideEffects,
-        kContainsRTAdjust
-    };
+    using Kind = ExpressionKind;
 
     Expression(Position pos, Kind kind, const Type* type)
         : INHERITED(pos, (int) kind)
@@ -79,18 +45,9 @@ public:
         return *fType;
     }
 
-    /**
-     *  Use is<T> to check the type of an expression.
-     *  e.g. replace `e.kind() == Expression::Kind::kLiteral` with `e.is<Literal>()`.
-     */
-    template <typename T>
-    bool is() const {
-        return this->kind() == T::kExpressionKind;
-    }
-
     bool isAnyConstructor() const {
         static_assert((int)Kind::kConstructorArray - 1 == (int)Kind::kChildCall);
-        static_assert((int)Kind::kConstructorStruct + 1 == (int)Kind::kExternalFunctionCall);
+        static_assert((int)Kind::kConstructorStruct + 1 == (int)Kind::kFieldAccess);
         return this->kind() >= Kind::kConstructorArray && this->kind() <= Kind::kConstructorStruct;
     }
 
@@ -106,31 +63,8 @@ public:
         return this->kind() == Kind::kLiteral && this->type().isBoolean();
     }
 
-    /**
-     *  Use as<T> to downcast expressions: e.g. replace `(Literal&) i` with `i.as<Literal>()`.
-     */
-    template <typename T>
-    const T& as() const {
-        SkASSERT(this->is<T>());
-        return static_cast<const T&>(*this);
-    }
-
-    template <typename T>
-    T& as() {
-        SkASSERT(this->is<T>());
-        return static_cast<T&>(*this);
-    }
-
     AnyConstructor& asAnyConstructor();
     const AnyConstructor& asAnyConstructor() const;
-
-    /**
-     * Returns true if this expression is constant. compareConstant must be implemented for all
-     * constants!
-     */
-    virtual bool isCompileTimeConstant() const {
-        return false;
-    }
 
     /**
      * Returns true if this expression is incomplete. Specifically, dangling function/method-call
@@ -153,17 +87,7 @@ public:
         return ComparisonResult::kUnknown;
     }
 
-    virtual bool hasProperty(Property property) const = 0;
-
-    bool hasSideEffects() const {
-        return this->hasProperty(Property::kSideEffects);
-    }
-
-    bool containsRTAdjust() const {
-        return this->hasProperty(Property::kContainsRTAdjust);
-    }
-
-    virtual CoercionCost coercionCost(const Type& target) const {
+    CoercionCost coercionCost(const Type& target) const {
         return this->type().coercionCost(target);
     }
 
@@ -200,6 +124,13 @@ public:
      * Returns a clone at the same position.
      */
     std::unique_ptr<Expression> clone() const { return this->clone(fPosition); }
+
+    /**
+     * Returns a description of the expression.
+     */
+    std::string description() const final;
+    virtual std::string description(OperatorPrecedence parentPrecedence) const = 0;
+
 
 private:
     const Type* fType;

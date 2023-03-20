@@ -8,6 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
 
 class GrDirectContext;
@@ -33,7 +34,7 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
                                        const SkImageInfo& info,
                                        SkColor4f,
-                                       GrMipmapped = GrMipmapped::kNo,
+                                       skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                        GrRenderable = GrRenderable::kNo,
                                        GrSurfaceOrigin = GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin);
 

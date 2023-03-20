@@ -14,9 +14,9 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/Composition.h"
@@ -37,6 +37,7 @@
 #include <chrono>
 #include <cmath>
 #include <memory>
+#include <ratio>
 
 #include <stdlib.h>
 

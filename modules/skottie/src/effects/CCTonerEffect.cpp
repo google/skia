@@ -8,11 +8,12 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/private/SkColorData.h"
-#include "include/private/SkVx.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 #include "modules/sksg/include/SkSGPaint.h"
+#include "src/base/SkVx.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "src/utils/SkJSON.h"
 
 namespace skottie::internal {

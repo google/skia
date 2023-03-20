@@ -7,8 +7,11 @@
 
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 using MaskFormat = skgpu::MaskFormat;
 
@@ -118,7 +121,7 @@ GrDrawOpAtlas::ErrorCode SmallPathAtlasMgr::addToAtlas(GrResourceProvider* resou
 }
 
 void SmallPathAtlasMgr::setUseToken(SmallPathShapeData* shapeData,
-                                    skgpu::DrawToken token) {
+                                    skgpu::AtlasToken token) {
     fAtlas->setLastUseToken(shapeData->fAtlasLocator, token);
 }
 
@@ -142,3 +145,5 @@ void SmallPathAtlasMgr::evict(skgpu::PlotLocator plotLocator) {
 }
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

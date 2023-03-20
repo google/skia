@@ -1,0 +1,8 @@
+    1. store_src_rg                   v0..1 = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. store_device_xy01              sk_FragCoord = DeviceCoords.xy01
+    4. copy_4_slots_unmasked          $0..3 = sk_FragCoord
+    5. swizzle_2                      $0..1 = ($0..1).yx
+    6. copy_constant                  $2 = 0x3F800000 (1.0)
+    7. copy_constant                  $3 = 0x3F800000 (1.0)
+    8. load_src                       src.rgba = $0..3

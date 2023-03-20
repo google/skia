@@ -5,9 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
-
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/private/base/SkCPUTypes.h"
 
 static SkScalar byte_to_unit_float(U8CPU byte) {
     if (0xFF == byte) {

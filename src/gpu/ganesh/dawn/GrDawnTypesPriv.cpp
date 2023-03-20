@@ -10,7 +10,7 @@
 GrDawnSurfaceInfo GrDawnTextureSpecToSurfaceInfo(const GrDawnTextureSpec& dawnSpec,
                                                  uint32_t sampleCount,
                                                  uint32_t levelCount,
-                                                 GrProtected isProtected) {
+                                                 skgpu::Protected isProtected) {
     GrDawnSurfaceInfo info;
     // Shared info
     info.fSampleCount = sampleCount;

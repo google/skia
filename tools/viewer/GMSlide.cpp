@@ -31,8 +31,7 @@ void GMSlide::gpuTeardown() {
 void GMSlide::draw(SkCanvas* canvas) {
     SkString msg;
 
-    auto direct = GrAsDirectContext(canvas->recordingContext());
-    auto result = fGM->gpuSetup(direct, canvas, &msg);
+    auto result = fGM->gpuSetup(canvas, &msg);
     if (result != skiagm::GM::DrawResult::kOk) {
         return;
     }

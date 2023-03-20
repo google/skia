@@ -1,0 +1,31 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. store_dst                      $0..3 = dst.rgba
+    4. store_dst                      $4..7 = dst.rgba
+    5. store_dst                      $8..11 = dst.rgba
+    6. copy_2_slots_unmasked          $12..13 = xy
+    7. load_src_rg                    src.rg = $12..13
+    8. invoke_shader                  invoke_shader 0x00000000
+    9. load_dst                       dst.rgba = $8..11
+   10. store_src                      $8..11 = src.rgba
+   11. load_src                       src.rgba = $8..11
+   12. invoke_color_filter            invoke_color_filter 0x00000002
+   13. load_dst                       dst.rgba = $4..7
+   14. store_src                      $4..7 = src.rgba
+   15. store_dst                      $8..11 = dst.rgba
+   16. store_dst                      $12..15 = dst.rgba
+   17. copy_2_slots_unmasked          $16..17 = xy
+   18. load_src_rg                    src.rg = $16..17
+   19. invoke_shader                  invoke_shader 0x00000001
+   20. load_dst                       dst.rgba = $12..15
+   21. store_src                      $12..15 = src.rgba
+   22. load_src                       src.rgba = $12..15
+   23. invoke_color_filter            invoke_color_filter 0x00000003
+   24. load_dst                       dst.rgba = $8..11
+   25. store_src                      $8..11 = src.rgba
+   26. load_dst                       dst.rgba = $8..11
+   27. load_src                       src.rgba = $4..7
+   28. invoke_blender                 invoke_blender 0x00000004
+   29. load_dst                       dst.rgba = $0..3
+   30. store_src                      $0..3 = src.rgba
+   31. load_src                       src.rgba = $0..3

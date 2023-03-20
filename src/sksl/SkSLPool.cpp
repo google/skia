@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 // With GPU support, SkSL::MemoryPool is really GrMemoryPool
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #endif

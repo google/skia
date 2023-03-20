@@ -16,7 +16,7 @@ public:
 
     std::optional<SkBlendMode> asBlendMode() const final { return fMode; }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             std::unique_ptr<GrFragmentProcessor> srcFP,
             std::unique_ptr<GrFragmentProcessor> dstFP,
@@ -29,6 +29,8 @@ private:
     using INHERITED = SkBlenderBase;
 
     void flatten(SkWriteBuffer& buffer) const override;
+
+    bool appendStages(const SkStageRec& rec) const override;
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,

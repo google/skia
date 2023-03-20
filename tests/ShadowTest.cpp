@@ -6,14 +6,24 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/utils/SkShadowUtils.h"
+#include "include/private/SkShadowFlags.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkShadowTessellator.h"
 #include "tests/Test.h"
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 enum ExpectVerts {
     kDont_ExpectVerts,
@@ -208,3 +218,5 @@ DEF_TEST(ShadowBounds, reporter) {
     path.cubicTo(100, 50, 20, 100, 0, 0);
     check_bounds(reporter, path);
 }
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)

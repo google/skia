@@ -1,26 +1,25 @@
 // Copyright 2020 Google LLC.
 #include "include/core/SkPathBuilder.h"
-#include "include/effects/SkDashPathEffect.h"
-#include "include/effects/SkDiscretePathEffect.h"
 #include "modules/skparagraph/src/Decorations.h"
-
-static void draw_line_as_rect(SkCanvas* canvas, SkScalar x, SkScalar y, SkScalar width,
-                              const SkPaint& paint) {
-    SkASSERT(paint.getPathEffect() == nullptr);
-    SkASSERT(paint.getStrokeCap() == SkPaint::kButt_Cap);
-    SkASSERT(paint.getStrokeWidth() > 0);   // this trick won't work for hairlines
-
-    SkPaint p(paint);
-    p.setStroke(false);
-    float radius = paint.getStrokeWidth() * 0.5f;
-    canvas->drawRect({x, y - radius, x + width, y + radius}, p);
-}
 
 namespace skia {
 namespace textlayout {
 
-static const float kDoubleDecorationSpacing = 3.0f;
-void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline) {
+namespace {
+void draw_line_as_rect(ParagraphPainter* painter, SkScalar x, SkScalar y, SkScalar width,
+                       const ParagraphPainter::DecorationStyle& decorStyle) {
+    SkASSERT(decorStyle.skPaint().getPathEffect() == nullptr);
+    SkASSERT(decorStyle.skPaint().getStrokeCap() == SkPaint::kButt_Cap);
+    SkASSERT(decorStyle.skPaint().getStrokeWidth() > 0);   // this trick won't work for hairlines
+
+    float radius = decorStyle.getStrokeWidth() * 0.5f;
+    painter->drawFilledRect({x, y - radius, x + width, y + radius}, decorStyle);
+}
+
+const float kDoubleDecorationSpacing = 3.0f;
+}  // namespace
+
+void Decorations::paint(ParagraphPainter* painter, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline) {
     if (textStyle.getDecorationType() == TextDecoration::kNoDecoration) {
         return;
     }
@@ -33,7 +32,10 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
             continue;
         }
 
-        calculatePosition(decoration, context.run->correctAscent());
+        calculatePosition(decoration,
+                          decoration == TextDecoration::kOverline
+                          ? context.run->correctAscent() - context.run->ascent()
+                          : context.run->correctAscent());
 
         calculatePaint(textStyle);
 
@@ -48,21 +50,21 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
           case TextDecorationStyle::kWavy: {
               calculateWaves(textStyle, context.clip);
               fPath.offset(x, y);
-              canvas->drawPath(fPath, fPaint);
+              painter->drawPath(fPath, fDecorStyle);
               break;
           }
           case TextDecorationStyle::kDouble: {
               SkScalar bottom = y + kDoubleDecorationSpacing;
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
-                  canvas->translate(context.fTextShift, 0);
+                  painter->translate(context.fTextShift, 0);
                   calculateGaps(context, SkRect::MakeXYWH(left, y, width, fThickness), baseline, fThickness);
-                  canvas->drawPath(fPath, fPaint);
+                  painter->drawPath(fPath, fDecorStyle);
                   calculateGaps(context, SkRect::MakeXYWH(left, bottom, width, fThickness), baseline, fThickness);
-                  canvas->drawPath(fPath, fPaint);
+                  painter->drawPath(fPath, fDecorStyle);
               } else {
-                  draw_line_as_rect(canvas, x,      y, width, fPaint);
-                  draw_line_as_rect(canvas, x, bottom, width, fPaint);
+                  draw_line_as_rect(painter, x,      y, width, fDecorStyle);
+                  draw_line_as_rect(painter, x, bottom, width, fDecorStyle);
               }
               break;
           }
@@ -70,21 +72,21 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
           case TextDecorationStyle::kDotted:
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
-                  canvas->translate(context.fTextShift, 0);
+                  painter->translate(context.fTextShift, 0);
                   calculateGaps(context, SkRect::MakeXYWH(left, y, width, fThickness), baseline, 0);
-                  canvas->drawPath(fPath, fPaint);
+                  painter->drawPath(fPath, fDecorStyle);
               } else {
-                  canvas->drawLine(x, y, x + width, y, fPaint);
+                  painter->drawLine(x, y, x + width, y, fDecorStyle);
               }
               break;
           case TextDecorationStyle::kSolid:
               if (drawGaps) {
                   SkScalar left = x - context.fTextShift;
-                  canvas->translate(context.fTextShift, 0);
+                  painter->translate(context.fTextShift, 0);
                   calculateGaps(context, SkRect::MakeXYWH(left, y, width, fThickness), baseline, fThickness);
-                  canvas->drawPath(fPath, fPaint);
+                  painter->drawPath(fPath, fDecorStyle);
               } else {
-                  draw_line_as_rect(canvas, x, y, width, fPaint);
+                  draw_line_as_rect(painter, x, y, width, fDecorStyle);
               }
               break;
           default:break;
@@ -109,15 +111,16 @@ void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRe
     // we have to shift up the bounds to compensate
     // This baseline thing ends with getIntercepts
     const SkScalar bounds[2] = {rect.fTop - baseline, rect.fBottom - baseline};
-    auto count = blob->getIntercepts(bounds, nullptr, &fPaint);
+    const SkPaint& decorPaint = fDecorStyle.skPaint();
+    auto count = blob->getIntercepts(bounds, nullptr, &decorPaint);
     SkTArray<SkScalar> intersections(count);
     intersections.resize(count);
-    blob->getIntercepts(bounds, intersections.data(), &fPaint);
+    blob->getIntercepts(bounds, intersections.data(), &decorPaint);
 
     SkPathBuilder path;
     auto start = rect.fLeft;
     path.moveTo(rect.fLeft, rect.fTop);
-    for (int i = 0; i < intersections.count(); i += 2) {
+    for (int i = 0; i < intersections.size(); i += 2) {
         auto end = intersections[i] - halo;
         if (end - start >= halo) {
             start = intersections[i + 1] + halo;
@@ -165,7 +168,7 @@ void Decorations::calculatePosition(TextDecoration decoration, SkScalar ascent) 
           fPosition -= ascent;
           break;
       case TextDecoration::kOverline:
-          fPosition = 0;
+          fPosition = - ascent;
         break;
       case TextDecoration::kLineThrough: {
           fPosition = (fFontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kStrikeoutPositionIsValid_Flag)
@@ -180,46 +183,31 @@ void Decorations::calculatePosition(TextDecoration decoration, SkScalar ascent) 
 }
 
 void Decorations::calculatePaint(const TextStyle& textStyle) {
-
-    fPaint.reset();
-
-    fPaint.setStyle(SkPaint::kStroke_Style);
-    if (textStyle.getDecorationColor() == SK_ColorTRANSPARENT) {
-      fPaint.setColor(textStyle.getColor());
-    } else {
-      fPaint.setColor(textStyle.getDecorationColor());
-    }
-    fPaint.setAntiAlias(true);
-    fPaint.setStrokeWidth(fThickness);
-
+    std::optional<ParagraphPainter::DashPathEffect> dashPathEffect;
     SkScalar scaleFactor = textStyle.getFontSize() / 14.f;
     switch (textStyle.getDecorationStyle()) {
             // Note: the intervals are scaled by the thickness of the line, so it is
             // possible to change spacing by changing the decoration_thickness
             // property of TextStyle.
         case TextDecorationStyle::kDotted: {
-            const SkScalar intervals[] = {1.0f * scaleFactor, 1.5f * scaleFactor,
-                                          1.0f * scaleFactor, 1.5f * scaleFactor};
-            size_t count = sizeof(intervals) / sizeof(intervals[0]);
-            fPaint.setPathEffect(SkPathEffect::MakeCompose(
-                    SkDashPathEffect::Make(intervals, (int32_t)count, 0.0f),
-                    SkDiscretePathEffect::Make(0, 0)));
+            dashPathEffect.emplace(1.0f * scaleFactor, 1.5f * scaleFactor);
             break;
         }
             // Note: the intervals are scaled by the thickness of the line, so it is
             // possible to change spacing by changing the decoration_thickness
             // property of TextStyle.
         case TextDecorationStyle::kDashed: {
-            const SkScalar intervals[] = {4.0f * scaleFactor, 2.0f * scaleFactor,
-                                          4.0f * scaleFactor, 2.0f * scaleFactor};
-            size_t count = sizeof(intervals) / sizeof(intervals[0]);
-            fPaint.setPathEffect(SkPathEffect::MakeCompose(
-                    SkDashPathEffect::Make(intervals, (int32_t)count, 0.0f),
-                    SkDiscretePathEffect::Make(0, 0)));
+            dashPathEffect.emplace(4.0f * scaleFactor, 2.0f * scaleFactor);
             break;
         }
         default: break;
     }
+
+    SkColor color = (textStyle.getDecorationColor() == SK_ColorTRANSPARENT)
+        ? textStyle.getColor()
+        : textStyle.getDecorationColor();
+
+    fDecorStyle = ParagraphPainter::DecorationStyle(color, fThickness, dashPathEffect);
 }
 
 void Decorations::calculateWaves(const TextStyle& textStyle, SkRect clip) {

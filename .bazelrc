@@ -10,9 +10,17 @@ build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 # We would like developers to not upload to the remote build cache, only the RBE workers themselves.
 build --remote_upload_local_results=false
 
+# Enforce stricter environment rules, which eliminates some non-hermetic behavior and therefore
+# improves both the remote cache hit rate and the correctness and repeatability of the build.
+build --incompatible_strict_action_env=true
+
 # This tells Bazel that the host platform can use the hermetic toolchain. This is a small lie until
 # Windows support is added.
 build --host_platform=//bazel/platform:host_with_hermetic_toolchain
+# Linux users (the only platform where we support remote builds currently) can add the following
+# line (uncommented) to //bazel/user/buildrc to allow interchangeable operation between local
+# operations and remote operations.
+# build --host_platform=//bazel/platform:linux_x64_hermetic
 
 # Register our toolchains. We do this here, and not in WORKSPACE.bazel because
 # --extra_toolchains has priority over register_toolchains and we conditionally add some toolchains
@@ -21,6 +29,11 @@ build --extra_toolchains=//toolchain:clang_linux_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_arm64_toolchain
 
+# Hide DEBUG messages from Bazel.
+# Many of these are things related to the git checkouts that are not relevent to devs.
+# https://bazel.build/reference/command-line-reference#flag--ui_event_filters
+build --ui_event_filters=-debug
+
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from
 # the command line easier.
@@ -28,17 +41,19 @@ build --extra_toolchains=//toolchain:clang_mac_arm64_toolchain
 # NOTE: Add new enable flags which build new source files, and need to be
 #       included when exporting to other projects (CMake, GNI), to
 #       //bazel/exporter/bazel_query_command.go.
+# Public string flags
 build --flag_alias=fontmgr_factory=//bazel/common_config_settings:fontmgr_factory
 build --flag_alias=gpu_backend=//src/gpu:gpu_backend
 build --flag_alias=include_decoder=//src/codec:include_decoder
-build --flag_alias=include_encoder=//src/images:include_encoder
+build --flag_alias=include_encoder=//src/encode:include_encoder
 build --flag_alias=include_fontmgr=//bazel/common_config_settings:include_fontmgr
 build --flag_alias=with_gl_standard=//src/gpu:with_gl_standard
 
+# Public boolean flags
+build --flag_alias=disable_discardable_memory=no//src/lazy:enable_discardable_memory
+build --flag_alias=enable_discardable_memory=//src/lazy:enable_discardable_memory
 build --flag_alias=disable_effect_serialization=no//bazel/common_config_settings:enable_effect_serialization
 build --flag_alias=enable_effect_serialization=//bazel/common_config_settings:enable_effect_serialization
-build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
-build --flag_alias=enable_gpu_test_utils=//src/gpu:enable_gpu_test_utils
 build --flag_alias=disable_legacy_shader_context=no//src/shaders:legacy_shader_context
 build --flag_alias=enable_legacy_shader_context=//src/shaders:legacy_shader_context
 build --flag_alias=disable_native_interface=no//src/gpu/ganesh/gl:enable_native_interface
@@ -57,12 +72,20 @@ build --flag_alias=disable_tracing=no//bazel/common_config_settings:enable_traci
 build --flag_alias=enable_tracing=//bazel/common_config_settings:enable_tracing
 build --flag_alias=disable_vma=no//src/gpu:use_vulkan_memory_allocator
 build --flag_alias=enable_vma=//src/gpu:use_vulkan_memory_allocator
+build --flag_alias=with_default_global_memory_pool=//src/lazy:use_default_global_memory_pool
+build --flag_alias=with_no_global_memory_pool=no//src/lazy:use_default_global_memory_pool
 build --flag_alias=with_harfbuzz=//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_no_harfbuzz=no//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_icu=//bazel/common_config_settings:use_icu
 build --flag_alias=with_no_icu=no//bazel/common_config_settings:use_icu
 
-# CanvasKit flags
+# Flags used by Skia tools, not to be used by clients
+build --flag_alias=force_cpu_tests=//tests:force_cpu_tests
+build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
+build --flag_alias=enable_gpu_test_utils=//src/gpu:enable_gpu_test_utils
+build --flag_alias=compile_generated_cpp_files_for_headers=//bazel/common_config_settings:compile_generated_cpp_files_for_headers
+
+# Public CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts
 build --flag_alias=ck_disable_fonts=no//modules/canvaskit:enable_fonts
 build --flag_alias=ck_enable_canvas_polyfill=//modules/canvaskit:enable_canvas_polyfill
@@ -75,8 +98,6 @@ build --flag_alias=ck_enable_skottie=//modules/canvaskit:enable_skottie
 build --flag_alias=ck_disable_skottie=no//modules/canvaskit:enable_skottie
 build --flag_alias=ck_enable_skp_serialization=//modules/canvaskit:enable_skp_serialization
 build --flag_alias=ck_disable_skp_serialization=no//modules/canvaskit:enable_skp_serialization
-build --flag_alias=ck_enable_particles=//modules/canvaskit:enable_particles
-build --flag_alias=ck_disable_particles=no//modules/canvaskit:enable_particles
 build --flag_alias=ck_enable_runtime_effect=//modules/canvaskit:enable_runtime_effect
 build --flag_alias=ck_disable_runtime_effect=no//modules/canvaskit:enable_runtime_effect
 
@@ -105,11 +126,6 @@ build:remote --spawn_strategy=remote,sandboxed
 # Enable remote execution so actions are performed on the remote systems.
 build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
 
-# Enforce stricter environment rules, which eliminates some non-hermetic
-# behavior and therefore improves both the remote cache hit rate and the
-# correctness and repeatability of the build.
-build:remote --incompatible_strict_action_env=true
-
 # No compile task should take more than 180 seconds. Really long running tasks
 # are probably a result of spinning up new workers.
 build:remote --remote_timeout=180
@@ -136,8 +152,9 @@ build:linux_rbe --config=remote
 # if at all.
 build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/java:all
 build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/config:cc-toolchain
-# Make the RBE platform available for selection as an Execution platform.
-build:linux_rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
+# Make the Linux platform available for selection as an Execution platform (if it is not already,
+# e.g. on a Linux host)
+build:linux_rbe --extra_execution_platforms=//bazel/platform:linux_x64_hermetic
 
 # Import our specified build configurations
 # https://docs.bazel.build/versions/main/best-practices.html#using-the-bazelrc-file

@@ -5,18 +5,14 @@
  * found in the LICENSE file.
  */
 
-// Make sure SkUserConfig.h is included so #defines are available on
-// Android.
-#include "include/core/SkTypes.h"
-#ifdef SK_ENABLE_ANDROID_UTILS
-#include "client_utils/android/FrontBufferedStream.h"
-#endif
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
@@ -31,16 +27,17 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkUnPreMultiply.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
+#include "src/base/SkAutoMalloc.h"
+#include "src/base/SkRandom.h"
 #include "src/codec/SkCodecImageGenerator.h"
-#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkStreamPriv.h"
@@ -49,14 +46,23 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include <png.h>
+#ifdef SK_ENABLE_ANDROID_UTILS
+#include "client_utils/android/FrontBufferedStream.h"
+#endif
 
+#include <png.h>
+#include <pngconf.h>
 #include <setjmp.h>
+
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <initializer_list>
 #include <memory>
 #include <utility>
 #include <vector>
+
+using namespace skia_private;
 
 #if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR < 5
     // FIXME (scroggo): Google3 needs to be updated to use a newer version of libpng. In
@@ -647,7 +653,7 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         // Set up for the decode
         size_t rowBytes = scaledDims.width() * sizeof(SkPMColor);
         size_t totalBytes = scaledInfo.computeByteSize(rowBytes);
-        SkAutoTMalloc<SkPMColor> pixels(totalBytes);
+        AutoTMalloc<SkPMColor> pixels(totalBytes);
 
         SkAndroidCodec::AndroidOptions options;
         options.fSampleSize = sampleSize;
@@ -1480,11 +1486,24 @@ static void test_invalid_images(skiatest::Reporter* r, const char* path,
 }
 
 DEF_TEST(Codec_InvalidImages, r) {
-    // ASAN will complain if there is an issue.
-    test_invalid_images(r, "invalid_images/skbug5887.gif", SkCodec::kErrorInInput);
-    test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", SkCodec::kInvalidInput);
     test_invalid_images(r, "invalid_images/b33251605.bmp", SkCodec::kIncompleteInput);
     test_invalid_images(r, "invalid_images/bad_palette.png", SkCodec::kInvalidInput);
+    test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", SkCodec::kInvalidInput);
+
+    // An earlier revision of this test case passed kErrorInInput (instead of
+    // kSuccess) as the third argument (expectedResult). However, after
+    // https://skia-review.googlesource.com/c/skia/+/414417 `SkWuffsCodec:
+    // ignore too much pixel data` combined with
+    // https://github.com/google/wuffs/commit/e44920d3 `Let gif "ignore too
+    // much" quirk skip lzw errors`, the codec silently accepts skbug5887.gif
+    // (without the ASAN buffer-overflow violation that lead to that test case
+    // in the first place), even though it's technically an invalid GIF.
+    //
+    // Note that, in practice, real world GIF decoders already diverge (in
+    // different ways) from the GIF specification. For compatibility, (ad hoc)
+    // implementation often trumps specification.
+    // https://github.com/google/wuffs/blob/e44920d3/test/data/artificial-gif/frame-out-of-bounds.gif.make-artificial.txt#L30-L31
+    test_invalid_images(r, "invalid_images/skbug5887.gif", SkCodec::kSuccess);
 }
 
 static void test_invalid_header(skiatest::Reporter* r, const char* path) {
@@ -1920,4 +1939,21 @@ DEF_TEST(Codec_noConversion, r) {
         }
         REPORTER_ASSERT(r, bm.getColor(0, 0) == rec.color);
     }
+}
+
+DEF_TEST(Codec_kBGR_101010x_XR_SkColorType_supported, r) {
+    SkBitmap srcBm;
+    SkImageInfo srcInfo = SkImageInfo()
+            .makeWH(100, 100)
+            .makeColorSpace(SkColorSpace::MakeSRGB())
+            .makeColorType(kBGRA_8888_SkColorType)
+            .makeAlphaType(kOpaque_SkAlphaType);
+    SkImageInfo dstInfo = srcInfo.makeColorType(kBGR_101010x_XR_SkColorType);
+    srcBm.allocPixels(srcInfo);
+    auto data = SkEncodeBitmap(srcBm, SkEncodedImageFormat::kPNG, 100);
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
+    SkBitmap dstBm;
+    dstBm.allocPixels(dstInfo);
+    bool success = codec->getPixels(dstInfo, dstBm.getPixels(), dstBm.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == success);
 }

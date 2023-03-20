@@ -40,4 +40,11 @@ private:
     size_t fBytesWritten = 0;
 };
 
+// If the stream supports identifying the current position and total length, this returns
+// true if there are not enough bytes in the stream to fulfill a read of the given length.
+// Otherwise, it returns false.
+// False does *not* mean a read will succeed of the given length, but true means we are
+// certain it will fail.
+bool StreamRemainingLengthIsBelow(SkStream* stream, size_t len);
+
 #endif  // SkStreamPriv_DEFINED

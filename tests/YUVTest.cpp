@@ -6,12 +6,27 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTemplates.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/private/base/SkTo.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+
+#include <cmath>
+#include <cstdint>
+#include <memory>
+#include <utility>
 
 static void codec_yuv(skiatest::Reporter* reporter,
                       const char path[],
@@ -126,8 +141,71 @@ DEF_TEST(Jpeg_YUV_Codec, r) {
     codec_yuv(r, "images/arrow.png", nullptr);
 }
 
-#include "include/effects/SkColorMatrix.h"
-#include "src/core/SkYUVMath.h"
+SkYUVAPixmaps decode_yuva(skiatest::Reporter* r, std::unique_ptr<SkStream> stream) {
+    static constexpr auto kAllTypes = SkYUVAPixmapInfo::SupportedDataTypes::All();
+    SkYUVAPixmaps result;
+
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
+    REPORTER_ASSERT(r, codec);
+
+    SkYUVAPixmapInfo yuvaPixmapInfo;
+    REPORTER_ASSERT(r, codec->queryYUVAInfo(kAllTypes, &yuvaPixmapInfo));
+    result = SkYUVAPixmaps::Allocate(yuvaPixmapInfo);
+    REPORTER_ASSERT(r, result.isValid());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getYUVAPlanes(result));
+    return result;
+}
+
+static void verify_same(skiatest::Reporter* r, const SkYUVAPixmaps a, const SkYUVAPixmaps& b) {
+    REPORTER_ASSERT(r, a.yuvaInfo() == b.yuvaInfo());
+    REPORTER_ASSERT(r, a.numPlanes() == b.numPlanes());
+    for (int plane = 0; plane < a.numPlanes(); ++plane) {
+        const SkPixmap& aPlane = a.plane(plane);
+        const SkPixmap& bPlane = b.plane(plane);
+        REPORTER_ASSERT(r, aPlane.computeByteSize() == bPlane.computeByteSize());
+        const uint8_t* aData = reinterpret_cast<const uint8_t*>(aPlane.addr());
+        const uint8_t* bData = reinterpret_cast<const uint8_t*>(bPlane.addr());
+        for (int row = 0; row < aPlane.height(); ++row) {
+            for (int col = 0; col < aPlane.width() * aPlane.info().bytesPerPixel(); ++col) {
+                int32_t aByte = aData[col];
+                int32_t bByte = bData[col];
+                // Allow at most one bit of difference.
+                REPORTER_ASSERT(r, std::abs(aByte - bByte) <= 1);
+            }
+            aData += aPlane.rowBytes();
+            bData += bPlane.rowBytes();
+        }
+    }
+}
+
+DEF_TEST(Jpeg_YUV_Encode, r) {
+    const char* paths[] = {
+            "images/color_wheel.jpg",
+            "images/mandrill_512_q075.jpg",
+            "images/mandrill_h1v1.jpg",
+            "images/mandrill_h2v1.jpg",
+            "images/cropped_mandrill.jpg",
+            "images/randPixels.jpg",
+    };
+    for (const auto* path : paths) {
+        SkYUVAPixmaps decoded;
+        {
+            std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+            decoded = decode_yuva(r, std::move(stream));
+        }
+
+        SkYUVAPixmaps roundtrip;
+        {
+            SkJpegEncoder::Options options;
+            SkDynamicMemoryWStream encodeStream;
+            REPORTER_ASSERT(r, SkJpegEncoder::Encode(&encodeStream, decoded, nullptr, options));
+            auto encodedData = encodeStream.detachAsData();
+            roundtrip = decode_yuva(r, SkMemoryStream::Make(encodedData));
+        }
+
+        verify_same(r, decoded, roundtrip);
+    }
+}
 
 // Be sure that the two matrices are inverses of each other
 // (i.e. rgb2yuv and yuv2rgb

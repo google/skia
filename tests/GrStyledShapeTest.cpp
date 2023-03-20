@@ -6,19 +6,45 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkPathEffectBase.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRectPriv.h"
+#include "src/gpu/ganesh/GrStyle.h"
+#include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "tests/Test.h"
 
-#include <initializer_list>
+#include <cstdint>
+#include <cstring>
 #include <functional>
+#include <initializer_list>
 #include <memory>
+#include <string>
 #include <utility>
+
+using namespace skia_private;
 
 uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
     if (const auto* lp = this->originalPathForListeners()) {
@@ -297,7 +323,7 @@ void test_inversions(skiatest::Reporter* r, const GrStyledShape& shape, const Ke
     Key noninvertedKey;
     make_key(&noninvertedKey, noninverted);
 
-    if (invertedKey.count() || noninvertedKey.count()) {
+    if (invertedKey.size() || noninvertedKey.size()) {
         REPORTER_ASSERT(r, invertedKey != noninvertedKey);
     }
     if (shape.style().isSimpleFill()) {
@@ -316,8 +342,8 @@ void test_inversions(skiatest::Reporter* r, const GrStyledShape& shape, const Ke
     make_key(&doubleFlipKey, doubleFlip);
     // It can be the case that the double flip has no key but preserve does. This happens when the
     // original shape has an inherited style key. That gets dropped on the first inversion flip.
-    if (preserveKey.count() && !doubleFlipKey.count()) {
-        preserveKey.reset();
+    if (preserveKey.size() && !doubleFlipKey.size()) {
+        preserveKey.clear();
     }
     check_equivalence(r, preserve, doubleFlip, preserveKey, doubleFlipKey);
 }
@@ -703,15 +729,15 @@ private:
 
 void TestCase::testExpectations(skiatest::Reporter* reporter, SelfExpectations expectations) const {
     // The base's key should always be valid (unless the path is volatile)
-    REPORTER_ASSERT(reporter, fBaseKey.count());
+    REPORTER_ASSERT(reporter, fBaseKey.size());
     if (expectations.fPEHasEffect) {
         REPORTER_ASSERT(reporter, fBaseKey != fAppliedPEKey);
-        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedPEKey.count()));
+        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedPEKey.size()));
         REPORTER_ASSERT(reporter, fBaseKey != fAppliedFullKey);
-        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedFullKey.count()));
+        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedFullKey.size()));
         if (expectations.fStrokeApplies && expectations.fPEHasValidKey) {
             REPORTER_ASSERT(reporter, fAppliedPEKey != fAppliedFullKey);
-            REPORTER_ASSERT(reporter, SkToBool(fAppliedFullKey.count()));
+            REPORTER_ASSERT(reporter, SkToBool(fAppliedFullKey.size()));
         }
     } else {
         REPORTER_ASSERT(reporter, fBaseKey == fAppliedPEKey);
@@ -1021,7 +1047,7 @@ template <typename T>
 static void test_stroke_param(skiatest::Reporter* reporter, const Geo& geo,
                               std::function<void(SkPaint*, T)> setter, T a, T b) {
     test_stroke_param_impl(reporter, geo, setter, a, b, true, true);
-};
+}
 
 static void test_stroke_cap(skiatest::Reporter* reporter, const Geo& geo) {
     SkPaint hairline;
@@ -1039,7 +1065,7 @@ static void test_stroke_cap(skiatest::Reporter* reporter, const Geo& geo) {
         SkPaint::kButt_Cap, SkPaint::kRound_Cap,
         affectsStroke,
         affectsDashAndStroke);
-};
+}
 
 static bool shape_known_not_to_have_joins(const GrStyledShape& shape) {
     return shape.asLine(nullptr, nullptr) || shape.isEmpty();
@@ -1061,7 +1087,7 @@ static void test_stroke_join(skiatest::Reporter* reporter, const Geo& geo) {
             [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
             SkPaint::kRound_Join, SkPaint::kBevel_Join,
             affectsStroke, true);
-};
+}
 
 static void test_miter_limit(skiatest::Reporter* reporter, const Geo& geo) {
     auto setMiterJoinAndLimit = [](SkPaint* p, SkScalar miter) {
@@ -1359,16 +1385,16 @@ void test_volatile_path(skiatest::Reporter* reporter, const Geo& geo) {
     // We expect a shape made from a volatile path to have a key iff the shape is recognized
     // as a specialized geometry.
     if (geo.isNonPath(dashAndStroke)) {
-        REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().count()));
+        REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().size()));
         // In this case all the keys should be identical to the non-volatile case.
         TestCase nonVolatileCase(reporter, geo.path(), dashAndStroke);
         volatileCase.compare(reporter, nonVolatileCase, TestCase::kAllSame_ComparisonExpecation);
     } else {
         // None of the keys should be valid.
-        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.baseKey().count()));
-        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedPathEffectKey().count()));
-        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedFullStyleKey().count()));
-        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedPathEffectThenStrokeKey().count()));
+        REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().empty()));
+        REPORTER_ASSERT(reporter, SkToBool(volatileCase.appliedPathEffectKey().empty()));
+        REPORTER_ASSERT(reporter, SkToBool(volatileCase.appliedFullStyleKey().empty()));
+        REPORTER_ASSERT(reporter, SkToBool(volatileCase.appliedPathEffectThenStrokeKey().empty()));
     }
 }
 
@@ -1546,9 +1572,9 @@ DEF_TEST(GrStyledShape_empty_shape, reporter) {
     REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedFullStyleShape().inverseFilled());
 
     const Key& emptyKey = fillEmptyCase.baseKey();
-    REPORTER_ASSERT(reporter, emptyKey.count());
+    REPORTER_ASSERT(reporter, emptyKey.size());
     const Key& inverseEmptyKey = fillInvertedEmptyCase.baseKey();
-    REPORTER_ASSERT(reporter, inverseEmptyKey.count());
+    REPORTER_ASSERT(reporter, inverseEmptyKey.size());
     TestCase::SelfExpectations expectations;
     expectations.fStrokeApplies = false;
     expectations.fPEHasEffect = false;
@@ -1664,7 +1690,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     strokeRecs[kStrokeAndFill].setStrokeParams(SkPaint::kButt_Cap, SkPaint::kBevel_Join, 1.f);
     sk_sp<SkPathEffect> dashEffect = make_dash();
 
-    static constexpr Style kStyleCnt = static_cast<Style>(std::size(strokeRecs));
+    static constexpr size_t kStyleCnt = std::size(strokeRecs);
 
     auto index = [](bool inverted,
                     SkPathDirection dir,
@@ -1679,7 +1705,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     };
     static const SkPathDirection kSecondDirection = static_cast<SkPathDirection>(1);
     const int cnt = index(true, kSecondDirection, 7, static_cast<Style>(kStyleCnt - 1), true) + 1;
-    SkAutoTArray<GrStyledShape> shapes(cnt);
+    AutoTArray<GrStyledShape> shapes(cnt);
     for (bool inverted : {false, true}) {
         for (SkPathDirection dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
             for (unsigned start = 0; start < 8; ++start) {
@@ -2224,7 +2250,7 @@ DEF_TEST(GrStyledShape, reporter) {
         geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kYes));
     }
 
-    for (int i = 0; i < geos.count(); ++i) {
+    for (int i = 0; i < geos.size(); ++i) {
         test_basic(reporter, *geos[i]);
         test_scale(reporter, *geos[i]);
         test_dash_fill(reporter, *geos[i]);
@@ -2245,7 +2271,7 @@ DEF_TEST(GrStyledShape, reporter) {
         test_volatile_path(reporter, *geos[i]);
     }
 
-    for (int i = 0; i < rrectPathGeos.count(); ++i) {
+    for (int i = 0; i < rrectPathGeos.size(); ++i) {
         const RRectPathGeo& rrgeo = *rrectPathGeos[i];
         SkPaint fillPaint;
         TestCase fillPathCase(reporter, rrgeo.path(), fillPaint);

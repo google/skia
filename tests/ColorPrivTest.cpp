@@ -11,6 +11,8 @@
 #include "include/private/SkColorData.h"
 #include "tests/Test.h"
 
+#include <cstdint>
+
 #define ASSERT(expr) REPORTER_ASSERT(r, expr)
 
 DEF_TEST(Splay, r) {

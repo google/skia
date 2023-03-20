@@ -7,8 +7,8 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/private/SkChecksum.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOpts.h"
 

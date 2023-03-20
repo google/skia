@@ -7,12 +7,15 @@
 
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
 
+#include "include/core/SkM44.h"
+#include "include/private/SkSLString.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
-#include "src/core/SkPipelineData.h"
 
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 
@@ -30,24 +33,49 @@ using namespace skgpu::tess;
 // Always use dynamic stroke params and join control points, track the join control point in
 // PatchWriter and replicate line end points (match Ganesh's shader behavior).
 //
-// No explicit curve type, since we assume infinity is supported on GPUs using graphite
+// No explicit curve type on platforms that support infinity.
 // No color or wide color attribs, since it might always be part of the PaintParams
 // or we'll add a color-only fast path to RenderStep later.
 static constexpr PatchAttribs kAttribs = PatchAttribs::kJoinControlPoint |
                                          PatchAttribs::kStrokeParams |
                                          PatchAttribs::kPaintDepth |
                                          PatchAttribs::kSsboIndex;
+static constexpr PatchAttribs kAttribsWithCurveType = kAttribs | PatchAttribs::kExplicitCurveType;
 using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountStrokes>,
                            Required<PatchAttribs::kJoinControlPoint>,
                            Required<PatchAttribs::kStrokeParams>,
                            Required<PatchAttribs::kPaintDepth>,
                            Required<PatchAttribs::kSsboIndex>,
+                           Optional<PatchAttribs::kExplicitCurveType>,
                            ReplicateLineEndPoints,
                            TrackJoinControlPoints>;
 
+// The order of the attribute declarations must match the order used by
+// PatchWriter::emitPatchAttribs, i.e.:
+//     join << fanPoint << stroke << color << depth << curveType << ssboIndex
+static constexpr Attribute kBaseAttributes[] = {
+        {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"prevPoint", VertexAttribType::kFloat2, SkSLType::kFloat2},
+        {"stroke", VertexAttribType::kFloat2, SkSLType::kFloat2},
+        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+
+static constexpr Attribute kAttributesWithCurveType[] = {
+        {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"prevPoint", VertexAttribType::kFloat2, SkSLType::kFloat2},
+        {"stroke", VertexAttribType::kFloat2, SkSLType::kFloat2},
+        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"curveType", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+
+static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveType,
+                                                           kBaseAttributes};
+
 }  // namespace
 
-TessellateStrokesRenderStep::TessellateStrokesRenderStep()
+TessellateStrokesRenderStep::TessellateStrokesRenderStep(bool infinitySupport)
         : RenderStep("TessellateStrokeRenderStep",
                      "",
                      Flags::kRequiresMSAA | Flags::kPerformsShading,
@@ -57,28 +85,28 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep()
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
                      /*vertexAttrs=*/  {},
-                     /*instanceAttrs=*/{{"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                                        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                                        {"prevPoint", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                                        {"stroke", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                                        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                                        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}}) {}
+                     /*instanceAttrs=*/kAttributes[infinitySupport])
+        , fInfinitySupport(infinitySupport) {}
 
 TessellateStrokesRenderStep::~TessellateStrokesRenderStep() {}
 
-const char* TessellateStrokesRenderStep::vertexSkSL() const {
+std::string TessellateStrokesRenderStep::vertexSkSL() const {
     // TODO: Assumes vertex ID support for now, max edges must equal
     // skgpu::tess::FixedCountStrokes::kMaxEdges -> (2^14 - 1) -> 16383
-    return R"(
-        float edgeID = float(sk_VertexID >> 1);
-        if ((sk_VertexID & 1) != 0) {
-            edgeID = -edgeID;
-        }
-        float2x2 affine = float2x2(affineMatrix.xy, affineMatrix.zw);
-        float4 devPosition = float4(
-                tessellate_stroked_curve(edgeID, 16383, affine, translate,
-                                         maxScale, p01, p23, prevPoint, stroke),
-                depth, 1.0);)";
+    return SkSL::String::printf(
+            R"(
+                float edgeID = float(sk_VertexID >> 1);
+                if ((sk_VertexID & 1) != 0) {
+                    edgeID = -edgeID;
+                }
+                float2x2 affine = float2x2(affineMatrix.xy, affineMatrix.zw);
+                float4 devAndLocalCoords = tessellate_stroked_curve(
+                        edgeID, 16383, affine, translate, maxScale, p01, p23, prevPoint,
+                        stroke, %s);
+                float4 devPosition = float4(devAndLocalCoords.xy, depth, 1.0);
+                stepLocalCoords = devAndLocalCoords.zw;
+            )",
+            fInfinitySupport ? "curve_type_using_inf_support(p23)" : "curveType");
 }
 
 void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
@@ -92,7 +120,11 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
     // TODO: All HW that Graphite will run on should support instancing ith sk_VertexID, but when
     // we support Vulkan+Swiftshader, we will need the vertex buffer ID fallback unless Swiftshader
     // has figured out how to support vertex IDs before then.
-    Writer writer{kAttribs, *dw, kNullBinding, kNullBinding, patchReserveCount};
+    Writer writer{fInfinitySupport ? kAttribs : kAttribsWithCurveType,
+                  *dw,
+                  kNullBinding,
+                  kNullBinding,
+                  patchReserveCount};
     writer.updatePaintDepthAttrib(params.order().depthAsFloat());
     writer.updateSsboIndexAttrib(ssboIndex);
 
@@ -207,15 +239,15 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
 }
 
 void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                           SkPipelineDataGatherer* gatherer) const {
+                                                           PipelineDataGatherer* gatherer) const {
     SkASSERT(params.transform().type() < Transform::Type::kProjection); // TODO: Implement perspective
 
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     // affineMatrix = float4 (2x2 of transform), translate = float2, maxScale = float
     // Column-major 2x2 of the transform.
-    skvx::float4 upper = {params.transform().matrix().rc(0, 0), params.transform().matrix().rc(1, 0),
-                          params.transform().matrix().rc(0, 1), params.transform().matrix().rc(1, 1)};
+    SkV4 upper = {params.transform().matrix().rc(0, 0), params.transform().matrix().rc(1, 0),
+                  params.transform().matrix().rc(0, 1), params.transform().matrix().rc(1, 1)};
     gatherer->write(upper);
 
     gatherer->write(SkPoint{params.transform().matrix().rc(0, 3),

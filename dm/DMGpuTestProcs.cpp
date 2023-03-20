@@ -3,13 +3,16 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
+ *
+ * This file implements many functions defined in Test.h that are required to be implemented by
+ * test runners (such as DM) to support GPU backends.
  */
 
 #include "tests/Test.h"
 
 #include "include/gpu/GrDirectContext.h"
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "tools/graphite/ContextFactory.h"
 #endif
@@ -45,8 +48,8 @@ bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return type == GrContextFactory::kMock_ContextType;
 }
 
-void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
-                            Reporter* reporter, const GrContextOptions& options) {
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+                               Reporter* reporter, const GrContextOptions& options) {
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
     static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
 #else
@@ -69,13 +72,13 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         // native windowing API is used directly outside of the command buffer code.
         GrContextFactory factory(options);
         ContextInfo ctxInfo = factory.getContextInfo(contextType);
-        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
+        if (filter && !(*filter)(contextType)) {
             continue;
         }
 
         ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
         if (ctxInfo.directContext()) {
-            (*test)(reporter, ctxInfo);
+            (*testFn)(reporter, ctxInfo);
             // In case the test changed the current context make sure we move it back before
             // calling flush.
             ctxInfo.testContext()->makeCurrent();
@@ -85,23 +88,31 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
     }
 }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 namespace graphite {
 
-void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) {
+void RunWithGraphiteTestContexts(GraphiteTestFn* test, GrContextTypeFilterFn* filter,
+                                 Reporter* reporter) {
     ContextFactory factory;
+    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
+        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+        if (filter && !(*filter)(contextType)) {
+            continue;
+        }
 
-    auto [_, context] = factory.getContextInfo(ContextFactory::ContextType::kMetal);
-    if (!context) {
-        return;
+        auto [_, context] = factory.getContextInfo(contextType);
+        if (!context) {
+            continue;
+        }
+
+        ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
+        (*test)(reporter, context);
     }
-
-    (*test)(reporter, context);
 }
 
 } // namespace graphite
 
-#endif // SK_GRAPHITE_ENABLED
+#endif // SK_GRAPHITE
 
 } // namespace skiatest

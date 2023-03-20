@@ -6,15 +6,8 @@
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
 
-none = []
-armv7 = []
-neon = []
-arm64 = []
-sse2 = []
-
 crc32 = [ "$_src/opts/SkOpts_crc32.cpp" ]
 ssse3 = [ "$_src/opts/SkOpts_ssse3.cpp" ]
-sse41 = [ "$_src/opts/SkOpts_sse41.cpp" ]
 sse42 = [ "$_src/opts/SkOpts_sse42.cpp" ]
 avx = [ "$_src/opts/SkOpts_avx.cpp" ]
 hsw = [ "$_src/opts/SkOpts_hsw.cpp" ]

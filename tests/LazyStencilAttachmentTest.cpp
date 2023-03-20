@@ -5,21 +5,33 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
-                                   reporter,
-                                   context_info,
-                                   CtsEnforcement::kApiLevel_T) {
+#include <initializer_list>
+
+struct GrContextOptions;
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
+                                       reporter,
+                                       context_info,
+                                       CtsEnforcement::kApiLevel_T) {
     GrDirectContext* dc = context_info.directContext();
 
     // Make sure we don't get recycled render targets that already have stencil attachments.
@@ -29,10 +41,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
                                        kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType,
                                        nullptr);
-    sk_sp<SkSurface> surfs[2] {
-        SkSurface::MakeRenderTarget(dc, SkBudgeted::kYes, ii, 1, nullptr),
-        SkSurface::MakeRenderTarget(dc, SkBudgeted::kYes, ii, 1, nullptr)
-    };
+    sk_sp<SkSurface> surfs[2]{
+            SkSurface::MakeRenderTarget(dc, skgpu::Budgeted::kYes, ii, 1, nullptr),
+            SkSurface::MakeRenderTarget(dc, skgpu::Budgeted::kYes, ii, 1, nullptr)};
 
     // Make sure the surfaces' proxies are instantiated without stencil. Creating textures lazily
     // can invalidate the current tracked FBO since FBO state must be modified to during

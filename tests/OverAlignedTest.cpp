@@ -5,8 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkRandom.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkMalloc.h"
+#include "src/base/SkRandom.h"
 #include "tests/Test.h"
+#include <stdint.h>
 
 // Clang seems to think only 32-bit alignment is guaranteed on 32-bit x86 Android.
 // See https://reviews.llvm.org/D8357

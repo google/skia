@@ -30,15 +30,15 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkFixed.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkAutoMalloc.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
-#include "src/core/SkMathPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/ports/SkScalerContext_mac_ct.h"
 #include "src/ports/SkTypeface_mac_ct.h"
@@ -65,7 +65,7 @@ static void sk_memset_rect32(uint32_t* ptr, uint32_t value,
 
     if (width >= 32) {
         while (height) {
-            sk_memset32(ptr, value, width);
+            SkOpts::memset32(ptr, value, width);
             ptr = (uint32_t*)((char*)ptr + rowBytes);
             height -= 1;
         }
@@ -714,41 +714,60 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fCapHeight    = SkScalarFromCGFloat( CTFontGetCapHeight(fCTFont.get()));
     metrics->fUnderlineThickness = SkScalarFromCGFloat( CTFontGetUnderlineThickness(fCTFont.get()));
     metrics->fUnderlinePosition = -SkScalarFromCGFloat( CTFontGetUnderlinePosition(fCTFont.get()));
+    metrics->fStrikeoutThickness = 0;
+    metrics->fStrikeoutPosition = 0;
 
     metrics->fFlags = 0;
     metrics->fFlags |= SkFontMetrics::kUnderlineThicknessIsValid_Flag;
     metrics->fFlags |= SkFontMetrics::kUnderlinePositionIsValid_Flag;
 
     CFArrayRef ctAxes = ((SkTypeface_Mac*)this->getTypeface())->getVariationAxes();
-    if (ctAxes && CFArrayGetCount(ctAxes) > 0) {
-        // The bounds are only valid for the default variation.
+    if ((ctAxes && CFArrayGetCount(ctAxes) > 0) ||
+        ((SkTypeface_Mac*)this->getTypeface())->fHasColorGlyphs)
+    {
+        // The bounds are only valid for the default outline variation.
+        // In particular `sbix` and `SVG ` data may draw outside these bounds.
         metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
     }
 
-    // See https://bugs.chromium.org/p/skia/issues/detail?id=6203
-    // At least on 10.12.3 with memory based fonts the x-height is always 0.6666 of the ascent and
-    // the cap-height is always 0.8888 of the ascent. It appears that the values from the 'OS/2'
-    // table are read, but then overwritten if the font is not a system font. As a result, if there
-    // is a valid 'OS/2' table available use the values from the table if they aren't too strange.
-    struct OS2HeightMetrics {
-        SK_OT_SHORT sxHeight;
-        SK_OT_SHORT sCapHeight;
-    } heights;
-    size_t bytesRead = this->getTypeface()->getTableData(
-            SkTEndian_SwapBE32(SkOTTableOS2::TAG), offsetof(SkOTTableOS2, version.v2.sxHeight),
-            sizeof(heights), &heights);
-    if (bytesRead == sizeof(heights)) {
+    sk_sp<SkData> os2 = this->getTypeface()->copyTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG));
+    if (os2) {
         // 'fontSize' is correct because the entire resolved size is set by the constructor.
-        CGFloat fontSize = CTFontGetSize(this->fCTFont.get());
-        unsigned upem = CTFontGetUnitsPerEm(this->fCTFont.get());
-        unsigned maxSaneHeight = upem * 2;
-        uint16_t xHeight = SkEndian_SwapBE16(heights.sxHeight);
-        if (xHeight && xHeight < maxSaneHeight) {
-            metrics->fXHeight = SkScalarFromCGFloat(xHeight * fontSize / upem);
+        const CGFloat fontSize = CTFontGetSize(fCTFont.get());
+        const unsigned int upem = CTFontGetUnitsPerEm(fCTFont.get());
+        const unsigned int maxSaneHeight = upem * 2;
+
+        // See https://bugs.chromium.org/p/skia/issues/detail?id=6203
+        // At least on 10.12.3 with memory based fonts the x-height is always 0.6666 of the ascent
+        // and the cap-height is always 0.8888 of the ascent. It appears that the values from the
+        // 'OS/2' table are read, but then overwritten if the font is not a system font. As a
+        // result, if there is a valid 'OS/2' table available use the values from the table if they
+        // aren't too strange.
+        if (sizeof(SkOTTableOS2_V2) <= os2->size()) {
+            const SkOTTableOS2_V2* os2v2 = static_cast<const SkOTTableOS2_V2*>(os2->data());
+            uint16_t xHeight = SkEndian_SwapBE16(os2v2->sxHeight);
+            if (xHeight && xHeight < maxSaneHeight) {
+                metrics->fXHeight = SkScalarFromCGFloat(xHeight * fontSize / upem);
+            }
+            uint16_t capHeight = SkEndian_SwapBE16(os2v2->sCapHeight);
+            if (capHeight && capHeight < maxSaneHeight) {
+                metrics->fCapHeight = SkScalarFromCGFloat(capHeight * fontSize / upem);
+            }
         }
-        uint16_t capHeight = SkEndian_SwapBE16(heights.sCapHeight);
-        if (capHeight && capHeight < maxSaneHeight) {
-            metrics->fCapHeight = SkScalarFromCGFloat(capHeight * fontSize / upem);
+
+        // CoreText does not provide the strikeout metrics, which are available in OS/2 version 0.
+        if (sizeof(SkOTTableOS2_V0) <= os2->size()) {
+            const SkOTTableOS2_V0* os2v0 = static_cast<const SkOTTableOS2_V0*>(os2->data());
+            uint16_t strikeoutSize = SkEndian_SwapBE16(os2v0->yStrikeoutSize);
+            if (strikeoutSize && strikeoutSize < maxSaneHeight) {
+                metrics->fStrikeoutThickness = SkScalarFromCGFloat(strikeoutSize * fontSize / upem);
+                metrics->fFlags |= SkFontMetrics::kStrikeoutThicknessIsValid_Flag;
+            }
+            uint16_t strikeoutPos = SkEndian_SwapBE16(os2v0->yStrikeoutPosition);
+            if (strikeoutPos && strikeoutPos < maxSaneHeight) {
+                metrics->fStrikeoutPosition = -SkScalarFromCGFloat(strikeoutPos * fontSize / upem);
+                metrics->fFlags |= SkFontMetrics::kStrikeoutPositionIsValid_Flag;
+            }
         }
     }
 }

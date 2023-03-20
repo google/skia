@@ -90,10 +90,10 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
 GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
         GrRecordingContext* rContext,
         const SkImageInfo& info,
-        const SkIPoint& origin,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy texGenPolicy) {
     SkASSERT(rContext);
+    SkASSERT_RELEASE(info.dimensions() == fBackendTexture.dimensions());
 
     // We currently limit GrBackendTextureImageGenerators to direct contexts since
     // only Flutter uses them and doesn't use recording/DDL contexts. Ideally, the
@@ -205,30 +205,34 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                 // proxy.
                 return {std::move(tex), true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
-            backendFormat, fBackendTexture.dimensions(), textureIsMipMapped, mipmapStatus,
-            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
-            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+            backendFormat,
+            fBackendTexture.dimensions(),
+            textureIsMipMapped,
+            mipmapStatus,
+            GrInternalSurfaceFlags::kReadOnly,
+            SkBackingFit::kExact,
+            skgpu::Budgeted::kNo,
+            GrProtected::kNo,
+            GrSurfaceProxy::UseAllocator::kYes,
+            "BackendTextureImageGenerator");
     if (!proxy) {
         return {};
     }
 
-    if (texGenPolicy == GrImageTexGenPolicy::kDraw && origin.isZero() &&
-        info.dimensions() == fBackendTexture.dimensions() &&
+    if (texGenPolicy == GrImageTexGenPolicy::kDraw &&
         (mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes)) {
-        // If the caller wants the entire texture and we have the correct mip support, we're done
+        // If we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);
     } else {
-        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
-
-        SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
-                                      ? SkBudgeted::kNo
-                                      : SkBudgeted::kYes;
+        skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                           ? skgpu::Budgeted::kNo
+                                           : skgpu::Budgeted::kYes;
 
         auto copy = GrSurfaceProxy::Copy(dContext,
                                          std::move(proxy),
                                          fSurfaceOrigin,
                                          mipmapped,
-                                         subset,
+                                         SkIRect::MakeWH(info.width(), info.height()),
                                          SkBackingFit::kExact,
                                          budgeted,
                                          /*label=*/"BackendTextureImageGenerator_GenerateTexture");

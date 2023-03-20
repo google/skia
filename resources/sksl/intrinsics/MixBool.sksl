@@ -1,5 +1,8 @@
 uniform half4 colorGreen, colorRed, colorBlack, colorWhite, testInputs;
 
+// This test covers forms of mix that aren't supported in either ES2 or ES3.
+// See MixFloatES2 and MixFloatES3 for additional forms of mix.
+
 half4 main(float2 coords) {
     int4 intGreen  = int4(colorGreen * 100);
     int4 intRed    = int4(colorRed   * 100);

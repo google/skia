@@ -1,6 +1,5 @@
 
 out vec4 sk_FragColor;
-uniform float testInput;
 uniform mat2 testMatrix2x2;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;

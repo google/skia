@@ -7,6 +7,9 @@
 
 #include "tests/PathOpsQuadIntersectionTestData.h"
 
+#include <array>
+#include <cfloat>
+
 const QuadPts quadraticPoints[] = {
     {{{0, 0}, {1, 0}, {0, 0}}},
     {{{0, 0}, {0, 1}, {0, 0}}},

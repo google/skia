@@ -46,6 +46,9 @@ static DEFINE_int(gpuResourceCacheLimit, -1,
                   "Maximum number of bytes to use for budgeted GPU resources. "
                   "Default is -1, which means GrResourceCache::kDefaultMaxSize.");
 
+static DEFINE_bool(allowMSAAOnNewIntel, false,
+                   "Allows MSAA to be enabled on newer intel GPUs.");
+
 static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     if (!strcmp(name, "none")) {
         return GpuPathRenderers::kNone;
@@ -80,7 +83,7 @@ static GpuPathRenderers collect_gpu_path_renderers_from_flags() {
             ? GpuPathRenderers::kDefault
             : GpuPathRenderers::kNone;
 
-    for (int i = 0; i < FLAGS_pr.count(); ++i) {
+    for (int i = 0; i < FLAGS_pr.size(); ++i) {
         const char* name = FLAGS_pr[i];
         if (name[0] == '~') {
             gpuPathRenderers &= ~get_named_pathrenderers_flags(&name[1]);
@@ -118,6 +121,7 @@ void SetCtxOptions(GrContextOptions* ctxOptions) {
     } else {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kYes;
     }
+    ctxOptions->fAllowMSAAOnNewIntel = FLAGS_allowMSAAOnNewIntel;
 }
 
 }  // namespace CommonFlags

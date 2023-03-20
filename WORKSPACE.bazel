@@ -45,8 +45,8 @@ http_archive(
     sha256 = "e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f",
     strip_prefix = "bazel-toolchains-5.1.1",
     urls = [
-        "https://github.com/bazelbuild/bazel-toolchains/archive/refs/tags/v5.1.1.tar.gz",
         "https://storage.googleapis.com/skia-world-readable/bazel/e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/refs/tags/v5.1.1.tar.gz",
     ],
 )
 
@@ -64,8 +64,8 @@ http_archive(
     sha256 = "5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29",
     strip_prefix = "rules_python-0.9.0",
     urls = [
-        "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
         "https://storage.googleapis.com/skia-world-readable/bazel/5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29.tar.gz",
+        "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
     ],
 )
 
@@ -88,27 +88,65 @@ pip_install(
 )
 
 #######################################################################################
+# Maven
+#######################################################################################
+
+# https://github.com/bazelbuild/rules_jvm_external
+http_archive(
+    name = "rules_jvm_external",
+    strip_prefix = "rules_jvm_external-4.2",
+    sha256 = "cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca",
+    urls = [
+        "https://storage.googleapis.com/skia-world-readable/bazel/cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca.zip",
+        "https://github.com/bazelbuild/rules_jvm_external/archive/4.2.zip",
+    ],
+)
+
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    artifacts = [
+        # The version released after this one (1.6.0-rc1) did not resolve unknown symbol errors when
+        # building.
+        # https://b.corp.google.com/issues/269331711
+        "androidx.annotation:annotation:1.5.0",
+    ],
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+#######################################################################################
 # Gazelle
 #######################################################################################
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "2b1641428dff9018f9e85c0384f03ec6c10660d935b750e3fa1492a281a53b0f",
+    sha256 = "099a9fb96a376ccbbb7d291ed4ecbdfd42f6bc822ab77ae6f1b5cb9e914e94fa",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.29.0/rules_go-v0.29.0.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.29.0/rules_go-v0.29.0.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
     ],
 )
 
 http_archive(
     name = "bazel_gazelle",
-    sha256 = "de69a09dc70417580aabf20a28619bb3ef60d038470c7cf8442fafcf627c21cb",
+    sha256 = "ecba0f04f96b4960a5b250c8e8eeec42281035970aa8852dda73098274d14a1d",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.24.0/bazel-gazelle-v0.24.0.tar.gz",
-        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.24.0/bazel-gazelle-v0.24.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
     ],
 )
 
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@io_bazel_rules_go//go:deps.bzl", "go_download_sdk", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 load("//:go_repositories.bzl", "go_repositories")
 
@@ -117,20 +155,39 @@ go_repositories()
 
 go_rules_dependencies()
 
-go_register_toolchains(version = "1.18")
+# For our Linux RBE pool
+go_download_sdk(
+    name = "go_sdk_linux_amd64",
+    goarch = "amd64",
+    goos = "linux",
+    version = "1.18",
+)
 
-gazelle_dependencies(go_repository_default_config = "//:WORKSPACE.bazel")
+# For the host machine
+go_download_sdk(
+    name = "go_sdk",
+    version = "1.18",
+)
+
+# Do not specify a version here or it will be an error (because we
+# specified the version above when downloading SDKs)
+go_register_toolchains()
+
+gazelle_dependencies(
+    go_repository_default_config = "//:WORKSPACE.bazel",
+    go_sdk = "go_sdk",
+)
 
 # Because the skia infra repo has a dependency on google.golang.org/grpc (aka
 # @org_golang_google_grpc), we need to have this library available to build protos.
 # https://github.com/bazelbuild/rules_go#protobuf-and-grpc
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "d0f5f605d0d656007ce6c8b5a82df3037e1d8fe8b121ed42e536f569dec16113",
-    strip_prefix = "protobuf-3.14.0",
+    sha256 = "b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576",
+    strip_prefix = "protobuf-3.18.1",
     urls = [
-        "https://mirror.bazel.build/github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz",
-        "https://github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz",
+        "https://storage.googleapis.com/skia-world-readable/bazel/b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/releases/download/v3.18.1/protobuf-all-3.18.1.tar.gz",
     ],
 )
 
@@ -173,88 +230,62 @@ browser_repositories(
     firefox = True,
 )
 
-###################################################
-# External C++ deps with Bazel support            #
-###################################################
-# https://bazel.build/reference/be/workspace#local_repository
-local_repository(
-    name = "abseil_cpp",
-    path = "third_party/externals/abseil-cpp",
-)
+# Bazel will look for env variables ANDROID_HOME and ANDROID_NDK_HOME.
+# This is NOT hermetic as it requires the user to handle downloading the SDK  and accepting the
+# license independently.
+android_sdk_repository(name = "androidsdk")
+# TODO: skbug.com/14128
+# Uncomment the following after setting ANDROID_NDK_HOME to build for Android:
+# android_ndk_repository(name = "androidndk")
 
-local_repository(
-    name = "brotli",
-    path = "third_party/externals/brotli",
-)
+load("//bazel:deps.bzl", "git_repos_from_deps")
 
-local_repository(
-    name = "highway",
-    path = "third_party/externals/highway",
-)
-
-local_repository(
-    name = "spirv_tools",
-    path = "third_party/externals/spirv-tools",
-)
-
-local_repository(
-    # This name is important because spirv_tools expects @spirv_headers to exist by that name.
-    name = "spirv_headers",
-    path = "third_party/externals/spirv-headers",
-)
-
-###############################################################################
-# External C++ deps with NO Bazel support                                     #
-# In this case, we need to supply a BUILD file which exposes targets/files    #
-# we need. If these deps depend on other deps (e.g. @dawn -> @spirv_tools),   #
-# then we need to specify those here as well. The workspace_file_content is   #
-# generally ignored; external repos (i.e. the ones starting with @) will be   #
-# resolved with Skia's version of those repos, which is how Bazel avoids      #
-# multiple versions of the same project being compiled together.              #
-###############################################################################
-# https://bazel.build/reference/be/workspace#new_local_repository
-new_local_repository(
-    name = "dawn",
-    build_file = "bazel/external/dawn/BUILD.bazel",
-    path = "third_party/externals/dawn",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "dng_sdk",
-    build_file = "bazel/external/dng_sdk/BUILD.bazel",
-    path = "third_party/externals/dng_sdk",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "expat",
-    build_file = "bazel/external/expat/BUILD.bazel",
-    path = "third_party/externals/expat",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "freetype",
-    build_file = "bazel/external/freetype/BUILD.bazel",
-    path = "third_party/externals/freetype",
-    workspace_file_content = "",
-)
+# This are two lists of Bazel repository names, which is brought in by the following macro.
+# It is here for easier grepping, i.e. someone trying to find where a label like @brotli//:brotlidec
+# was defined. If a dep has its own BUILD rules, then one will need to go to its git repository
+# to find the BUILD or BUILD.bazel file with the rule. If a dep does not have Bazel support, then
+# that means someone on the Skia team wrote a BUILD.bazel file and put it in
+# //bazel/external/<dep_name> and one can go find it there.
+#
+#### START GENERATED LIST OF THIRD_PARTY DEPS
+# @abseil_cpp - https://skia.googlesource.com/external/github.com/abseil/abseil-cpp.git
+# @brotli - https://skia.googlesource.com/external/github.com/google/brotli.git
+# @highway - https://chromium.googlesource.com/external/github.com/google/highway.git
+# @spirv_headers - https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git
+# @spirv_tools - https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git
+#
+# @dawn - //bazel/external/dawn:BUILD.bazel
+# @dng_sdk - //bazel/external/dng_sdk:BUILD.bazel
+# @expat - //bazel/external/expat:BUILD.bazel
+# @freetype - //bazel/external/freetype:BUILD.bazel
+# @harfbuzz - //bazel/external/harfbuzz:BUILD.bazel
+# @icu - //bazel/external/icu:BUILD.bazel
+# @libavif - //bazel/external/libavif:BUILD.bazel
+# @libgav1 - //bazel/external/libgav1:BUILD.bazel
+# @libjpeg_turbo - //bazel/external/libjpeg_turbo:BUILD.bazel
+# @libjxl - //bazel/external/libjxl:BUILD.bazel
+# @libpng - //bazel/external/libpng:BUILD.bazel
+# @libwebp - //bazel/external/libwebp:BUILD.bazel
+# @libyuv - //bazel/external/libyuv:BUILD.bazel
+# @perfetto - //bazel/external/perfetto:BUILD.bazel
+# @piex - //bazel/external/piex:BUILD.bazel
+# @spirv_cross - //bazel/external/spirv_cross:BUILD.bazel
+# @vulkan_headers - //bazel/external/vulkan_headers:BUILD.bazel
+# @vulkan_tools - //bazel/external/vulkan_tools:BUILD.bazel
+# @vulkanmemoryallocator - //bazel/external/vulkanmemoryallocator:BUILD.bazel
+# @wuffs - //bazel/external/wuffs:BUILD.bazel
+# @zlib_skia - //bazel/external/zlib_skia:BUILD.bazel
+#### END GENERATED LIST OF THIRD_PARTY DEPS
+git_repos_from_deps()
 
 # In order to copy the Freetype configurations into the checked out Freetype folder,
 # it is easiest to treat them as a third-party dependency from the perspective of Freetype.
 # To do that, we put them in their own Bazel workspace and then have our injected BUILD.bazel
 # for Freetype reference this workspace.
+# https://bazel.build/reference/be/workspace#new_local_repository
 local_repository(
     name = "freetype_config",
     path = "bazel/external/freetype/config",
-)
-
-new_local_repository(
-    name = "harfbuzz",
-    build_file = "bazel/external/harfbuzz/BUILD.bazel",
-    path = "third_party/externals/harfbuzz",
-    workspace_file_content = "",
 )
 
 local_repository(
@@ -262,120 +293,56 @@ local_repository(
     path = "bazel/external/harfbuzz/config",
 )
 
-new_local_repository(
-    name = "icu",
-    build_file = "bazel/external/icu/BUILD.bazel",
-    path = "third_party/externals/icu",
-    workspace_file_content = "",
-)
-
 local_repository(
     name = "icu_utils",
     path = "bazel/external/icu/utils",
 )
 
-new_local_repository(
-    name = "libavif",
-    build_file = "bazel/external/libavif/BUILD.bazel",
-    path = "third_party/externals/libavif",
-    workspace_file_content = "",
+local_repository(
+    name = "expat_config",
+    path = "bazel/external/expat/config",
 )
 
-new_local_repository(
-    name = "libgav1",
-    build_file = "bazel/external/libgav1/BUILD.bazel",
-    path = "third_party/externals/libgav1",
-    workspace_file_content = "",
+load("//bazel:cipd_install.bzl", "cipd_install")
+
+cipd_install(
+    name = "gn_linux_amd64",
+    build_file_content = """
+exports_files(
+    ["gn"],
+    visibility = ["//visibility:public"]
+)
+""",
+    cipd_package = "gn/gn/linux-amd64",
+    # From https://chrome-infra-packages.appspot.com/p/gn/gn/linux-amd64/+/git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41
+    sha256 = "7195291488d08f3a10e85b85d8c4816e077015f1c5f196f770003a97aa42caf8",
+    tag = "git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
 )
 
-new_local_repository(
-    name = "libjpeg_turbo",
-    build_file = "bazel/external/libjpeg_turbo/BUILD.bazel",
-    path = "third_party/externals/libjpeg-turbo",
-    workspace_file_content = "",
+cipd_install(
+    name = "gn_mac_arm64",
+    build_file_content = """
+exports_files(
+    ["gn"],
+    visibility = ["//visibility:public"]
+)
+""",
+    cipd_package = "gn/gn/mac-arm64",
+    # From https://chrome-infra-packages.appspot.com/p/gn/gn/mac-arm64/+/git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41
+    sha256 = "1123907ac3317530e9dd537d50cd83fd83e852aacc07d286f45753c8fc5287ed",
+    tag = "git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
 )
 
-new_local_repository(
-    name = "libjxl",
-    build_file = "bazel/external/libjxl/BUILD.bazel",
-    path = "third_party/externals/libjxl",
-    workspace_file_content = "",
+cipd_install(
+    name = "gn_mac_amd64",
+    build_file_content = """
+exports_files(
+    ["gn"],
+    visibility = ["//visibility:public"]
 )
-
-new_local_repository(
-    name = "libpng",
-    build_file = "bazel/external/libpng/BUILD.bazel",
-    path = "third_party/externals/libpng",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libwebp",
-    build_file = "bazel/external/libwebp/BUILD.bazel",
-    path = "third_party/externals/libwebp",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libyuv",
-    build_file = "bazel/external/libyuv/BUILD.bazel",
-    path = "third_party/externals/libyuv",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "spirv_cross",
-    build_file = "bazel/external/spirv_cross/BUILD.bazel",
-    path = "third_party/externals/spirv-cross",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "perfetto",
-    build_file = "bazel/external/perfetto/BUILD.bazel",
-    path = "third_party/externals/perfetto",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "piex",
-    build_file = "bazel/external/piex/BUILD.bazel",
-    path = "third_party/externals/piex",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "vulkan_headers",
-    build_file = "bazel/external/vulkan_headers/BUILD.bazel",
-    path = "third_party/externals/vulkan-headers",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "vulkan_tools",
-    build_file = "bazel/external/vulkan_tools/BUILD.bazel",
-    path = "third_party/externals/vulkan-tools",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "vulkanmemoryallocator",
-    build_file = "bazel/external/vulkanmemoryallocator/BUILD.bazel",
-    path = "third_party/externals/vulkanmemoryallocator",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "wuffs",
-    build_file = "bazel/external/wuffs/BUILD.bazel",
-    path = "third_party/externals/wuffs",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    # Some other dependency downloads zlib but with their own rules
-    name = "zlib_skia",
-    build_file = "bazel/external/zlib/BUILD.bazel",
-    path = "third_party/externals/zlib",
-    workspace_file_content = "",
+""",
+    cipd_package = "gn/gn/mac-amd64",
+    # From https://chrome-infra-packages.appspot.com/p/gn/gn/mac-amd64/+/git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41
+    sha256 = "ed96f7d2f49b83b016e4bdbed432e4734a5a133accb025d7c07685e01489ba93",
+    tag = "git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
 )

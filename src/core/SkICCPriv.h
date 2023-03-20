@@ -8,8 +8,10 @@
 #ifndef SkICCPriv_DEFINED
 #define SkICCPriv_DEFINED
 
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkTypes.h"
+#include "include/core/SkTypes.h" // SkSetFourByteTag
+
+#include <cstddef>
+#include <cstdint>
 
 // This is equal to the header size according to the ICC specification (128)
 // plus the size of the tag count (4).  We include the tag count since we
@@ -38,10 +40,17 @@ static constexpr uint32_t kTAG_gTRC = SkSetFourByteTag('g', 'T', 'R', 'C');
 static constexpr uint32_t kTAG_bTRC = SkSetFourByteTag('b', 'T', 'R', 'C');
 static constexpr uint32_t kTAG_kTRC = SkSetFourByteTag('k', 'T', 'R', 'C');
 static constexpr uint32_t kTAG_A2B0 = SkSetFourByteTag('A', '2', 'B', '0');
+static constexpr uint32_t kTAG_B2A0 = SkSetFourByteTag('B', '2', 'A', '0');
+static constexpr uint32_t kTAG_desc = SkSetFourByteTag('d', 'e', 's', 'c');
+static constexpr uint32_t kTAG_cicp = SkSetFourByteTag('c', 'i', 'c', 'p');
+static constexpr uint32_t kTAG_wtpt = SkSetFourByteTag('w', 't', 'p', 't');
+static constexpr uint32_t kTAG_cprt = SkSetFourByteTag('c', 'p', 'r', 't');
 
 static constexpr uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
 static constexpr uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
 static constexpr uint32_t kTAG_TextType      = SkSetFourByteTag('m', 'l', 'u', 'c');
+static constexpr uint32_t kTAG_mABType = SkSetFourByteTag('m', 'A', 'B', ' ');
+static constexpr uint32_t kTAG_mBAType = SkSetFourByteTag('m', 'B', 'A', ' ');
 
 enum ParaCurveType {
     kExponential_ParaCurveType = 0,

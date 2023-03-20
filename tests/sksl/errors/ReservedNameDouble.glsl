@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'double' is a reserved word
+error: 1: name 'double' is reserved
 int double;
     ^^^^^^
 1 error

@@ -13,7 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 
 class SkData;
@@ -57,25 +57,6 @@ private:
     using INHERITED = SkTypeface_Custom;
 };
 
-/** The stream SkTypeface implementation for the custom font manager. */
-class SkTypeface_Stream : public SkTypeface_Custom {
-public:
-    SkTypeface_Stream(std::unique_ptr<SkFontData> fontData,
-                      const SkFontStyle& style, bool isFixedPitch, bool sysFont,
-                      const SkString familyName);
-
-protected:
-    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
-    std::unique_ptr<SkFontData> onMakeFontData() const override;
-    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
-    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;
-
-private:
-    const std::unique_ptr<const SkFontData> fData;
-
-    using INHERITED = SkTypeface_Custom;
-};
-
 /** The file SkTypeface implementation for the custom font manager. */
 class SkTypeface_File : public SkTypeface_Custom {
 public:
@@ -105,7 +86,7 @@ public:
     explicit SkFontStyleSet_Custom(const SkString familyName);
 
     /** Should only be called during the initial build phase. */
-    void appendTypeface(sk_sp<SkTypeface_Custom> typeface);
+    void appendTypeface(sk_sp<SkTypeface> typeface);
     int count() override;
     void getStyle(int index, SkFontStyle* style, SkString* name) override;
     SkTypeface* createTypeface(int index) override;
@@ -113,7 +94,7 @@ public:
     SkString getFamilyName();
 
 private:
-    SkTArray<sk_sp<SkTypeface_Custom>> fStyles;
+    SkTArray<sk_sp<SkTypeface>> fStyles;
     SkString fFamilyName;
 
     friend class SkFontMgr_Custom;

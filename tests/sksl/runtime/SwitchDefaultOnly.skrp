@@ -1,0 +1,16 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. store_loop_mask                $0 = LoopMask
+    4. copy_constant                  $1 = colorGreen(1)
+    5. cast_to_int_from_float         $1 = FloatToInt($1)
+    6. store_loop_mask                $2 = LoopMask
+    7. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+    8. reenable_loop_mask             LoopMask |= $2
+    9. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 1 at #13)
+   10. copy_4_constants               $2..5 = colorGreen
+   11. copy_4_slots_masked            [main].result = Mask($2..5)
+   12. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   13. label                          label 0x00000001
+   14. label                          label 0x00000000
+   15. load_loop_mask                 LoopMask = $0
+   16. load_src                       src.rgba = [main].result

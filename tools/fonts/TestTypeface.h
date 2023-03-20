@@ -17,7 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFixed.h"
+#include "include/private/base/SkFixed.h"
 
 #include <memory>
 
@@ -64,11 +64,25 @@ private:
 
 class TestTypeface : public SkTypeface {
 public:
-    TestTypeface(sk_sp<SkTestFont>, const SkFontStyle& style);
+    struct List {
+        struct Family {
+            struct Face {
+                sk_sp<SkTypeface> typeface;
+                const char* name;
+                bool isDefault;
+            };
+            std::vector<Face> faces;
+            const char* name;
+        };
+        std::vector<Family> families;
+    };
+    static const List& Typefaces();
+
     void getAdvance(SkGlyph* glyph);
     void getFontMetrics(SkFontMetrics* metrics);
     SkPath getPath(SkGlyphID glyph);
 
+    struct Register { Register(); };
 protected:
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
                                                            const SkDescriptor* desc) const override;
@@ -76,13 +90,13 @@ protected:
     void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
 
-    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         return sk_ref_sp(this);
     }
 
-    void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override;
 
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
 
@@ -118,6 +132,9 @@ protected:
     }
 
 private:
+    static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('t','e','s','t');
+    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&);
+    TestTypeface(sk_sp<SkTestFont>, const SkFontStyle& style);
     sk_sp<SkTestFont> fTestFont;
     friend class SkTestScalerContext;
 };

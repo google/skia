@@ -245,6 +245,41 @@ func (b *taskBuilder) usesGo() {
 // usesDocker adds attributes to tasks which use docker.
 func (b *taskBuilder) usesDocker() {
 	b.dimension("docker_installed:true")
+
+	// The "docker" binary reads its config from $HOME/.docker/config.json which, after running
+	// "gcloud auth configure-docker", typically looks like this:
+	//
+	//     {
+	//       "credHelpers": {
+	//         "gcr.io": "gcloud",
+	//         "us.gcr.io": "gcloud",
+	//         "eu.gcr.io": "gcloud",
+	//         "asia.gcr.io": "gcloud",
+	//         "staging-k8s.gcr.io": "gcloud",
+	//         "marketplace.gcr.io": "gcloud"
+	//       }
+	//     }
+	//
+	// This instructs "docker" to get its GCR credentials from a credential helper [1] program
+	// named "docker-credential-gcloud" [2], which is part of the Google Cloud SDK. This program is
+	// a shell script that invokes the "gcloud" command, which is itself a shell script that probes
+	// the environment to find a viable Python interpreter, and then invokes
+	// /usr/lib/google-cloud-sdk/lib/gcloud.py. For some unknown reason, sometimes "gcloud" decides
+	// to use "/b/s/w/ir/cache/vpython/875f1a/bin/python" as the Python interpreter (exact path may
+	// vary), which causes gcloud.py to fail with the following error:
+	//
+	//     ModuleNotFoundError: No module named 'contextlib'
+	//
+	// Fortunately, "gcloud" supports specifying a Python interpreter via the GCLOUDSDK_PYTHON
+	// environment variable.
+	//
+	// [1] https://docs.docker.com/engine/reference/commandline/login/#credential-helpers
+	// [2] See /usr/bin/docker-credential-gcloud on your gLinux system, which is provided by the
+	//     google-cloud-sdk package.
+	b.envPrefixes("CLOUDSDK_PYTHON", "cipd_bin_packages/cpython3/bin/python3")
+
+	// As mentioned, Docker uses gcloud for authentication against GCR, and gcloud requires Python.
+	b.usesPython()
 }
 
 // usesGSUtil adds the gsutil dependency from CIPD and puts it on PATH.
@@ -350,4 +385,24 @@ func (b *taskBuilder) usesNode() {
 	// taskdriver or mysterious things can happen when subprocesses try to resolve node/npm.
 	b.asset("node")
 	b.addToPATH("node/node/bin")
+}
+
+func (b *taskBuilder) needsLottiesWithAssets() {
+	// This CIPD package was made by hand with the following invocation:
+	//   cipd create -name skia/internal/lotties_with_assets -in ./lotties/ -tag version:2
+	//   cipd acl-edit skia/internal/lotties_with_assets -reader group:project-skia-external-task-accounts
+	//   cipd acl-edit skia/internal/lotties_with_assets -reader user:pool-skia@chromium-swarm.iam.gserviceaccount.com
+	// Where lotties is a hand-selected set of lottie animations and (optionally) assets used in
+	// them (e.g. fonts, images).
+	// Each test case is in its own folder, with a data.json file and an optional images/ subfolder
+	// with any images/fonts/etc loaded by the animation.
+	// Note: If you are downloading the existing package to update them, remove the CIPD-generated
+	// .cipdpkg subfolder before trying to re-upload it.
+	// Note: It is important that the folder names do not special characters like . (), &, as
+	// the Android filesystem does not support folders with those names well.
+	b.cipd(&specs.CipdPackage{
+		Name:    "skia/internal/lotties_with_assets",
+		Path:    "lotties_with_assets",
+		Version: "version:4",
+	})
 }

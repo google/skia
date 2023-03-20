@@ -23,7 +23,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkClipStackDevice.h"
 #include "src/utils/SkBitSet.h"
@@ -173,14 +173,14 @@ private:
         IXpsOMTileBrush** xpsBrush);
 
     HRESULT createXpsLinearGradient(
-        SkShader::GradientInfo info,
+        SkShaderBase::GradientInfo info,
         const SkAlpha alpha,
         const SkMatrix& localMatrix,
         IXpsOMMatrixTransform* xpsMatrixToUse,
         IXpsOMBrush** xpsBrush);
 
     HRESULT createXpsRadialGradient(
-        SkShader::GradientInfo info,
+        SkShaderBase::GradientInfo info,
         const SkAlpha alpha,
         const SkMatrix& localMatrix,
         IXpsOMMatrixTransform* xpsMatrixToUse,

@@ -10,7 +10,7 @@
 
 #include "tools/viewer/Slide.h"
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #include <memory>
 #include <vector>
@@ -26,7 +26,7 @@ class Scene;
 
 class SlideDir final : public Slide {
 public:
-    SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&&,
+    SlideDir(const SkString& name, skia_private::TArray<sk_sp<Slide>>&&,
              int columns = kDefaultColumnCount);
 
     class Animator;
@@ -51,11 +51,11 @@ private:
 
     const Rec* findCell(float x, float y) const;
 
-    const SkTArray<sk_sp<Slide>>       fSlides;
+    const skia_private::TArray<sk_sp<Slide>>       fSlides;
     std::unique_ptr<FocusController>   fFocusController;
     const int                          fColumns;
 
-    SkTArray<Rec, true>                fRecs;
+    std::vector<Rec>                fRecs;
     std::unique_ptr<sksg::Scene>       fScene;
     std::vector<sk_sp<Animator>>       fSceneAnimators;
     sk_sp<sksg::Group>                 fRoot;
@@ -66,8 +66,6 @@ private:
 
     const Rec*                         fTrackingCell = nullptr;
     SkPoint                            fTrackingPos  = SkPoint::Make(0, 0);
-
-    using INHERITED = Slide;
 };
 
 #endif // SlideDir_DEFINED

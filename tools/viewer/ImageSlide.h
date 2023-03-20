@@ -15,6 +15,7 @@
 class ImageSlide : public Slide {
 public:
     ImageSlide(const SkString& name, const SkString& path);
+    ImageSlide(const SkString& name, sk_sp<SkImage> image);
 
     SkISize getDimensions() const override;
 
@@ -25,6 +26,7 @@ public:
 private:
     SkString         fPath;
     sk_sp<SkImage>   fImage;
+    bool             fRetainImage = false;
 };
 
 #endif

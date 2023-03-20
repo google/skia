@@ -57,6 +57,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "region_deserialize\n"
                                          "region_set_path\n"
                                          "skdescriptor_deserialize\n"
+                                         "skmeshspecialization\n"
                                          "skp\n"
                                          "skruntimeeffect\n"
                                          "sksl2glsl\n"
@@ -89,6 +90,7 @@ static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_region_set_path(sk_sp<SkData>);
 static void fuzz_skdescriptor_deserialize(sk_sp<SkData>);
+static void fuzz_skmeshspecification(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 static void fuzz_skruntimeeffect(sk_sp<SkData>);
 static void fuzz_sksl2glsl(sk_sp<SkData>);
@@ -234,6 +236,10 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
 #endif
+    if (type.equals("skmeshspecification")) {
+        fuzz_skmeshspecification(bytes);
+        return 0;
+    }
     if (type.equals("skp")) {
         fuzz_skp(bytes);
         return 0;
@@ -287,6 +293,7 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_raster_n32_canvas", "RasterN32Canvas"},
     {"api_skparagraph", "SkParagraph"},
     {"api_svg_canvas", "SVGCanvas"},
+    {"cubic_quad_roots", "CubicQuadRoots"},
     {"jpeg_encoder", "JPEGEncoder"},
     {"png_encoder", "PNGEncoder"},
     {"skia_pathop_fuzzer", "LegacyChromiumPathop"},
@@ -297,6 +304,7 @@ static std::map<std::string, std::string> cf_api_map = {
 static std::map<std::string, std::string> cf_map = {
     {"android_codec", "android_codec"},
     {"animated_image_decode", "animated_image_decode"},
+    {"colrv1", "colrv1"},
     {"image_decode", "image_decode"},
     {"image_decode_incremental", "image_decode_incremental"},
     {"image_filter_deserialize", "filter_fuzz"},
@@ -306,6 +314,7 @@ static std::map<std::string, std::string> cf_map = {
     {"region_set_path", "region_set_path"},
     {"skdescriptor_deserialize", "skdescriptor_deserialize"},
     {"skjson", "json"},
+    {"skmeshspecification", "skmeshspecification"},
     {"skp", "skp"},
     {"skruntimeeffect", "skruntimeeffect"},
     {"sksl2glsl", "sksl2glsl"},
@@ -763,6 +772,13 @@ void FuzzImageFilterDeserialize(sk_sp<SkData> bytes);
 static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
     FuzzImageFilterDeserialize(bytes);
     SkDebugf("[terminated] filter_fuzz didn't crash!\n");
+}
+
+bool FuzzSkMeshSpecification(sk_sp<SkData> bytes);
+
+static void fuzz_skmeshspecification(sk_sp<SkData> bytes) {
+    FuzzSkMeshSpecification(bytes);
+    SkDebugf("[terminated] SkMeshSpecification::Make didn't crash!\n");
 }
 
 bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes);

@@ -12,7 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
-#include "include/utils/SkRandom.h"
+#include "src/base/SkRandom.h"
 
 /**
  * Draws a small set of small images multiple times each with no overlaps so that each image could

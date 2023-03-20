@@ -9,25 +9,27 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkSLModifiers.h"
-#include "include/private/SkTArray.h"
+#include "include/private/SkSLString.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
+#include "src/base/SkHalf.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
-#include "src/sksl/ir/SkSLExternalFunction.h"
-#include "src/sksl/ir/SkSLExternalFunctionCall.h"
-#include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLLiteral.h"
@@ -39,10 +41,9 @@
 
 #include <algorithm>
 #include <array>
-#include <cfloat>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <optional>
 #include <string_view>
 #include <vector>
@@ -54,7 +55,7 @@ using IntrinsicArguments = std::array<const Expression*, 3>;
 static bool has_compile_time_constant_arguments(const ExpressionArray& arguments) {
     for (const std::unique_ptr<Expression>& arg : arguments) {
         const Expression* expr = ConstantFolder::GetConstantValueForVariable(*arg);
-        if (!expr->isCompileTimeConstant()) {
+        if (!Analysis::IsCompileTimeConstant(*expr)) {
             return false;
         }
     }
@@ -114,6 +115,8 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     // every component.
 
     Position pos = arg0->fPosition;
+    double minimumValue = returnType.componentType().minimumValue();
+    double maximumValue = returnType.componentType().maximumValue();
 
     const Type& vecType =          arg0->type().isVector()  ? arg0->type() :
                           (arg1 && arg1->type().isVector()) ? arg1->type() :
@@ -138,8 +141,8 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
 
         value = coalesce(value, *arg0Value, *arg1Value);
 
-        if (value >= -FLT_MAX && value <= FLT_MAX) {
-            // This result will fit inside a float Literal.
+        if (value >= minimumValue && value <= maximumValue) {
+            // This result will fit inside the return type.
         } else {
             // The value is outside the float range or is NaN (all if-checks fail); do not optimize.
             return nullptr;
@@ -232,6 +235,8 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
     // of scalars and compounds, scalars are interpreted as a compound containing the same value for
     // every component.
 
+    double minimumValue = returnType.componentType().minimumValue();
+    double maximumValue = returnType.componentType().maximumValue();
     int slots = returnType.slotCount();
     double array[16];
 
@@ -259,8 +264,8 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
 
         array[index] = eval(*arg0Value, *arg1Value, *arg2Value);
 
-        if (array[index] >= -FLT_MAX && array[index] <= FLT_MAX) {
-            // This result will fit inside a float Literal.
+        if (array[index] >= minimumValue && array[index] <= maximumValue) {
+            // This result will fit inside the return type.
         } else {
             // The value is outside the float range or is NaN (all if-checks fail); do not optimize.
             return nullptr;
@@ -463,8 +468,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                                                            const Type& returnType) {
     // Replace constant variables with their literal values.
     IntrinsicArguments arguments = {};
-    SkASSERT(argArray.size() <= arguments.size());
-    for (int index = 0; index < argArray.count(); ++index) {
+    SkASSERT(SkToSizeT(argArray.size()) <= arguments.size());
+    for (int index = 0; index < argArray.size(); ++index) {
         arguments[index] = ConstantFolder::GetConstantValueForVariable(*argArray[index]);
     }
 
@@ -636,10 +641,41 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
                         ((Pack(1) << 16) & 0xFFFF0000)).release();
         }
+        case k_packSnorm2x16_IntrinsicKind: {
+            auto Pack = [&](int n) -> unsigned int {
+                float x = Get(0, n);
+                return (int)std::round(Intrinsics::evaluate_clamp(x, -1.0, 1.0) * 32767.0);
+            };
+            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
+                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+        }
+        case k_packHalf2x16_IntrinsicKind: {
+            auto Pack = [&](int n) -> unsigned int {
+                return SkFloatToHalf(Get(0, n));
+            };
+            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
+                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+        }
         case k_unpackUnorm2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
-            return Float2(double((x >> 0)  & 0x0000FFFF) / 65535.0,
-                          double((x >> 16) & 0x0000FFFF) / 65535.0).release();
+            uint16_t a = ((x >> 0)  & 0x0000FFFF);
+            uint16_t b = ((x >> 16) & 0x0000FFFF);
+            return Float2(double(a) / 65535.0,
+                          double(b) / 65535.0).release();
+        }
+        case k_unpackSnorm2x16_IntrinsicKind: {
+            SKSL_INT x = *arguments[0]->getConstantValue(0);
+            int16_t a = ((x >> 0)  & 0x0000FFFF);
+            int16_t b = ((x >> 16) & 0x0000FFFF);
+            return Float2(Intrinsics::evaluate_clamp(double(a) / 32767.0, -1.0, 1.0),
+                          Intrinsics::evaluate_clamp(double(b) / 32767.0, -1.0, 1.0)).release();
+        }
+        case k_unpackHalf2x16_IntrinsicKind: {
+            SKSL_INT x = *arguments[0]->getConstantValue(0);
+            uint16_t a = ((x >> 0)  & 0x0000FFFF);
+            uint16_t b = ((x >> 16) & 0x0000FFFF);
+            return Float2(SkHalfToFloat(a),
+                          SkHalfToFloat(b)).release();
         }
         // 8.5 : Geometric Functions
         case k_length_IntrinsicKind:
@@ -807,31 +843,17 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
     }
 }
 
-bool FunctionCall::hasProperty(Property property) const {
-    if (property == Property::kSideEffects &&
-        (this->function().modifiers().fFlags & Modifiers::kHasSideEffects_Flag)) {
-        return true;
-    }
-    for (const auto& arg : this->arguments()) {
-        if (arg->hasProperty(property)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 std::unique_ptr<Expression> FunctionCall::clone(Position pos) const {
     return std::make_unique<FunctionCall>(pos, &this->type(), &this->function(),
                                           this->arguments().clone());
 }
 
-std::string FunctionCall::description() const {
+std::string FunctionCall::description(OperatorPrecedence) const {
     std::string result = std::string(this->function().name()) + "(";
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
-        result += separator;
-        result += arg->description();
-        separator = ", ";
+        result += separator();
+        result += arg->description(OperatorPrecedence::kSequence);
     }
     result += ")";
     return result;
@@ -849,7 +871,7 @@ static CoercionCost call_cost(const Context& context,
         (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
         return CoercionCost::Impossible();
     }
-    if (function.parameters().size() != arguments.size()) {
+    if (function.parameters().size() != SkToSizeT(arguments.size())) {
         return CoercionCost::Impossible();
     }
     FunctionDeclaration::ParamTypes types;
@@ -858,7 +880,7 @@ static CoercionCost call_cost(const Context& context,
         return CoercionCost::Impossible();
     }
     CoercionCost total = CoercionCost::Free();
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         total = total + arguments[i]->coercionCost(*types[i]);
     }
     return total;
@@ -885,10 +907,9 @@ const FunctionDeclaration* FunctionCall::FindBestFunctionForCall(
 
 static std::string build_argument_type_list(SkSpan<const std::unique_ptr<Expression>> arguments) {
     std::string result = "(";
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const std::unique_ptr<Expression>& arg : arguments) {
-        result += separator;
-        separator = ", ";
+        result += separator();
         result += arg->type().displayName();
     }
     return result + ")";
@@ -904,27 +925,6 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                                         pos,
                                         functionValue->as<TypeReference>().value(),
                                         std::move(arguments));
-        case Expression::Kind::kExternalFunctionReference: {
-            const ExternalFunction& f = functionValue->as<ExternalFunctionReference>().function();
-            int count = f.callParameterCount();
-            if (count != (int) arguments.size()) {
-                context.fErrors->error(pos,
-                        "external function expected " + std::to_string(count) +
-                        " arguments, but found " + std::to_string(arguments.size()));
-                return nullptr;
-            }
-            static constexpr int PARAMETER_MAX = 16;
-            SkASSERT(count < PARAMETER_MAX);
-            const Type* types[PARAMETER_MAX];
-            f.getCallParameterTypes(types);
-            for (int i = 0; i < count; ++i) {
-                arguments[i] = types[i]->coerceExpression(std::move(arguments[i]), context);
-                if (!arguments[i]) {
-                    return nullptr;
-                }
-            }
-            return std::make_unique<ExternalFunctionCall>(pos, &f, std::move(arguments));
-        }
         case Expression::Kind::kFunctionReference: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
             const FunctionDeclaration* best = FindBestFunctionForCall(context, ref.overloadChain(),
@@ -973,13 +973,13 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
     }
 
     // Reject function calls with the wrong number of arguments.
-    if (function.parameters().size() != arguments.size()) {
+    if (function.parameters().size() != SkToSizeT(arguments.size())) {
         std::string msg = "call to '" + std::string(function.name()) + "' expected " +
                           std::to_string(function.parameters().size()) + " argument";
         if (function.parameters().size() != 1) {
             msg += "s";
         }
-        msg += ", but found " + std::to_string(arguments.count());
+        msg += ", but found " + std::to_string(arguments.size());
         context.fErrors->error(pos, msg);
         return nullptr;
     }
@@ -994,7 +994,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         return nullptr;
     }
 
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         // Coerce each argument to the proper type.
         arguments[i] = types[i]->coerceExpression(std::move(arguments[i]), context);
         if (!arguments[i]) {
@@ -1035,7 +1035,7 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                const Type* returnType,
                                                const FunctionDeclaration& function,
                                                ExpressionArray arguments) {
-    SkASSERT(function.parameters().size() == arguments.size());
+    SkASSERT(function.parameters().size() == SkToSizeT(arguments.size()));
 
     // We might be able to optimize built-in intrinsics.
     if (function.isIntrinsic() && has_compile_time_constant_arguments(arguments)) {

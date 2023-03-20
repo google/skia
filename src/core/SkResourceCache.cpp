@@ -8,9 +8,9 @@
 #include "src/core/SkResourceCache.h"
 
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkTo.h"
-#include "src/core/SkDiscardableMemory.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/chromium/SkDiscardableMemory.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkMipmap.h"
@@ -18,6 +18,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+
+using namespace skia_private;
 
 DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage, uint32_t, true)
 
@@ -61,7 +63,7 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
                          (fCount32 - kUnhashedLocal32s) << 2);
 }
 
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 namespace {
     struct HashTraits {
@@ -443,9 +445,9 @@ size_t SkResourceCache::getEffectiveSingleAllocationByteLimit() const {
 }
 
 void SkResourceCache::checkMessages() {
-    SkTArray<PurgeSharedIDMessage> msgs;
+    TArray<PurgeSharedIDMessage> msgs;
     fPurgeSharedIDInbox.poll(&msgs);
-    for (int i = 0; i < msgs.count(); ++i) {
+    for (int i = 0; i < msgs.size(); ++i) {
         this->purgeSharedID(msgs[i].fSharedID);
     }
 }

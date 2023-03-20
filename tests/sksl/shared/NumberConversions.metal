@@ -55,6 +55,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float f2f = f;
     float b2f = float(b);
     _out.sk_FragColor.x = (((((((((((((((((((((half(s) + half(i)) + half(us)) + half(ui)) + h) + half(f)) + half(s2s)) + half(i2s)) + half(us2s)) + half(ui2s)) + half(h2s)) + half(f2s)) + half(b2s)) + half(s2i)) + half(i2i)) + half(us2i)) + half(ui2i)) + half(h2i)) + half(f2i)) + half(b2i)) + half(s2us)) + half(i2us)) + half(us2us);
-    _out.sk_FragColor.x = _out.sk_FragColor.x + ((((((((((((((((half(ui2us) + half(h2us)) + half(f2us)) + half(b2us)) + half(s2ui)) + half(i2ui)) + half(us2ui)) + half(ui2ui)) + half(h2ui)) + half(f2ui)) + half(b2ui)) + half(s2f)) + half(i2f)) + half(us2f)) + half(ui2f)) + half(h2f)) + half(f2f)) + half(b2f);
+    _out.sk_FragColor.x = _out.sk_FragColor.x + (((((((((((((((((half(ui2us) + half(h2us)) + half(f2us)) + half(b2us)) + half(s2ui)) + half(i2ui)) + half(us2ui)) + half(ui2ui)) + half(h2ui)) + half(f2ui)) + half(b2ui)) + half(s2f)) + half(i2f)) + half(us2f)) + half(ui2f)) + half(h2f)) + half(f2f)) + half(b2f));
     return _out;
 }

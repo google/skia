@@ -12,7 +12,6 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
@@ -24,8 +23,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
@@ -346,7 +345,7 @@ void SkWuffsFrameHolder::init(SkWuffsCodec* codec, int width, int height) {
 
 const SkFrame* SkWuffsFrameHolder::onGetFrame(int i) const {
     return fCodec->frame(i);
-};
+}
 
 // -------------------------------- SkWuffsCodec implementation
 
@@ -942,7 +941,7 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     // not provide a seekable stream. Copy the stream to one that can seek.
     if (!stream->hasPosition() || !stream->hasLength()) {
         auto data = SkCopyStreamToData(stream.get());
-        stream.reset(new SkMemoryStream(std::move(data)));
+        stream = std::make_unique<SkMemoryStream>(std::move(data));
     }
 
     uint8_t               buffer[SK_WUFFS_CODEC_BUFFER_SIZE];

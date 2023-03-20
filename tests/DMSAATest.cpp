@@ -5,16 +5,46 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMatrixProvider.h"
-#include "src/core/SkSurfacePriv.h"
-#include "src/gpu/ganesh/GrStyle.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+
+#include <cstdint>
+#include <cstring>
+#include <memory>
+#include <utility>
 
 namespace {
 
@@ -84,12 +114,12 @@ static void check_sdc_color(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(DMSAA_preserve_contents,
-                         &sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter,
-                         ctxInfo,
-                         nullptr,
-                         CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_preserve_contents,
+                             &sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             nullptr,
+                             CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
                                                    SkBackingFit::kApprox, {kWidth, kHeight},
@@ -119,12 +149,12 @@ static void require_dst_reads(GrContextOptions* options) {
     options->fSuppressFramebufferFetch = true;
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read,
-                         &sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter,
-                         ctxInfo,
-                         require_dst_reads,
-                         CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_dst_read,
+                             &sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             require_dst_reads,
+                             CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
                                                    SkBackingFit::kApprox, {kWidth, kHeight},
@@ -146,12 +176,12 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read,
     check_sdc_color(reporter, sdc.get(), dContext, dstColor);
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(DMSAA_aa_dst_read_after_dmsaa,
-                         &sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter,
-                         ctxInfo,
-                         require_dst_reads,
-                         CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_aa_dst_read_after_dmsaa,
+                             &sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             require_dst_reads,
+                             CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
                                                    SkBackingFit::kApprox, {kWidth, kHeight},
@@ -174,12 +204,12 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_aa_dst_read_after_dmsaa,
     check_sdc_color(reporter, sdc.get(), dContext, dstColor);
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read_with_existing_barrier,
-                         &sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter,
-                         ctxInfo,
-                         require_dst_reads,
-                         CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_dst_read_with_existing_barrier,
+                             &sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             require_dst_reads,
+                             CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
                                                    SkBackingFit::kApprox, {kWidth, kHeight},
@@ -208,10 +238,10 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read_with_existing_barrier,
 // This test is used to test for crbug.com/1241134. The bug appears on Adreno5xx devices with OS
 // PQ3A. It does not repro on the earlier PPR1 version since the extend blend func extension was not
 // present on the older driver.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     SkISize surfaceDims = {100, 100};
     SkISize texDims = {50, 50};
     auto context = ctxInfo.directContext();

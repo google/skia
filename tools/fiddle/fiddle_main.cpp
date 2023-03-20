@@ -27,8 +27,11 @@ static DEFINE_double(frame, 1.0,
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrTexture.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/gl/GLTestContext.h"
+
+using namespace skia_private;
 
 // Globals externed in fiddle_main.h
 GrBackendTexture backEndTexture;
@@ -170,15 +173,15 @@ static bool setup_backend_objects(GrDirectContext* dContext,
         auto resourceProvider = dContext->priv().resourceProvider();
 
         SkISize offscreenDims = {options.fOffScreenWidth, options.fOffScreenHeight};
-        SkAutoTMalloc<uint32_t> data(offscreenDims.area());
-        sk_memset32(data.get(), 0, offscreenDims.area());
+        AutoTMalloc<uint32_t> data(offscreenDims.area());
+        SkOpts::memset32(data.get(), 0, offscreenDims.area());
 
         // This backend object should be renderable but not textureable. Given the limitations
         // of how we're creating it though it will wind up being secretly textureable.
         // We use this fact to initialize it with data but don't allow mipmaps
         GrMipLevel level0 = {data.get(), offscreenDims.width()*sizeof(uint32_t), nullptr};
 
-        constexpr int kSampleCnt = 0;
+        constexpr int kSampleCnt = 1;
         sk_sp<GrTexture> tmp =
                 resourceProvider->createTexture(offscreenDims,
                                                 renderableFormat,
@@ -186,7 +189,7 @@ static bool setup_backend_objects(GrDirectContext* dContext,
                                                 GrColorType::kRGBA_8888,
                                                 GrRenderable::kYes,
                                                 kSampleCnt,
-                                                SkBudgeted::kNo,
+                                                skgpu::Budgeted::kNo,
                                                 GrMipmapped::kNo,
                                                 GrProtected::kNo,
                                                 &level0,
@@ -283,7 +286,7 @@ int main(int argc, char** argv) {
                 exit(1);
             }
 
-            auto surface = SkSurface::MakeRenderTarget(direct.get(), SkBudgeted::kNo, info);
+            auto surface = SkSurface::MakeRenderTarget(direct.get(), skgpu::Budgeted::kNo, info);
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);
                 exit(1);

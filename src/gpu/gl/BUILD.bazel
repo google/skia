@@ -1,0 +1,11 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# This file group is exported to //gn/gpu.gni:skia_gpu_gl_private.
+skia_filegroup(
+    name = "gl_hdrs",
+    srcs = ["GrGLDefines.h"],
+)

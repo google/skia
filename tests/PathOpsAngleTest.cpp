@@ -4,12 +4,28 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/utils/SkRandom.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkRandom.h"
 #include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cfloat>
+#include <cmath>
 
 static bool gDisableAngleTests = true;
 
@@ -472,30 +488,6 @@ DEF_TEST(PathOpsAngleAfter, reporter) {
             SkDEBUGCODE(int result =) PathOpsAngleTester::After(angle2, angle1);
             SkASSERT(result == 0 || result == 1);
         }
-    }
-}
-
-void SkOpSegment::debugAddAngle(double startT, double endT) {
-    SkOpPtT* startPtT = startT == 0 ? fHead.ptT() : startT == 1 ? fTail.ptT()
-            : this->addT(startT);
-    SkOpPtT* endPtT = endT == 0 ? fHead.ptT() : endT == 1 ? fTail.ptT()
-            : this->addT(endT);
-    SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
-    SkOpSpanBase* startSpan = &fHead;
-    while (startSpan->ptT() != startPtT) {
-        startSpan = startSpan->upCast()->next();
-    }
-    SkOpSpanBase* endSpan = &fHead;
-    while (endSpan->ptT() != endPtT) {
-        endSpan = endSpan->upCast()->next();
-    }
-    angle->set(startSpan, endSpan);
-    if (startT < endT) {
-        startSpan->upCast()->setToAngle(angle);
-        endSpan->setFromAngle(angle);
-    } else {
-        endSpan->upCast()->setToAngle(angle);
-        startSpan->setFromAngle(angle);
     }
 }
 

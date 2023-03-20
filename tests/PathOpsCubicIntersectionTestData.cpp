@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsCubicIntersectionTestData.h"
 
-#include <limits>
+#include <array>
+#include <cfloat>
 
 namespace PathOpsCubicIntersectionTestData {
 

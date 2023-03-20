@@ -9,8 +9,9 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
@@ -179,8 +180,8 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
 
     SkImageInfo imageInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                               kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
-                                                           imageInfo);
+    sk_sp<SkSurface> surface =
+            SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, imageInfo);
     REPORTER_ASSERT(reporter, surface);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -208,10 +209,10 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
 
 // Basic test to make sure we can import an AHardwareBuffer into an SkImage and draw it into a
 // surface.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_BasicDrawTest,
-                                   reporter,
-                                   context_info,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_BasicDrawTest,
+                                       reporter,
+                                       context_info,
+                                       CtsEnforcement::kApiLevel_T) {
     basic_draw_test_helper(reporter, context_info, kTopLeft_GrSurfaceOrigin);
     basic_draw_test_helper(reporter, context_info, kBottomLeft_GrSurfaceOrigin);
 }
@@ -278,10 +279,10 @@ static void surface_draw_test_helper(skiatest::Reporter* reporter,
 }
 
 // Test to make sure we can import an AHardwareBuffer into an SkSurface and draw into it.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_ImportAsSurface,
-                                   reporter,
-                                   context_info,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_ImportAsSurface,
+                                       reporter,
+                                       context_info,
+                                       CtsEnforcement::kApiLevel_T) {
     surface_draw_test_helper(reporter, context_info, kTopLeft_GrSurfaceOrigin);
     surface_draw_test_helper(reporter, context_info, kBottomLeft_GrSurfaceOrigin);
 }

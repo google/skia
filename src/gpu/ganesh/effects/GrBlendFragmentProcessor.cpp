@@ -7,9 +7,11 @@
 
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
+#include "src/core/SkBlendModePriv.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/glsl/GrGLSLBlend.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -189,7 +191,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::TestCreate(GrProcessorTestData* d) {

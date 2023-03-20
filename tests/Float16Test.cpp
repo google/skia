@@ -5,16 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColor.h"
-#include "include/core/SkPixmap.h"
-#include "include/private/SkHalf.h"
-#include "include/private/SkTo.h"
-#include "include/utils/SkRandom.h"
-#include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkOpts.h"
+#include "src/base/SkHalf.h"
+#include "src/base/SkRandom.h"
+#include "src/base/SkVx.h"
 #include "tests/Test.h"
 
 #include <cmath>
+#include <cstdint>
+#include <cstring>
 
 static bool is_denorm(uint16_t h) {
     return (h & 0x7fff) < 0x0400;

@@ -112,6 +112,14 @@ public:
     const std::unique_ptr<Type> fTextureExternalOES;
     const std::unique_ptr<Type> fTexture2DRect;
 
+    const std::unique_ptr<Type> fReadWriteTexture2D;
+    const std::unique_ptr<Type> fReadOnlyTexture2D;
+    const std::unique_ptr<Type> fWriteOnlyTexture2D;
+
+    const std::unique_ptr<Type> fGenTexture2D;
+    const std::unique_ptr<Type> fReadableTexture2D;
+    const std::unique_ptr<Type> fWritableTexture2D;
+
     const std::unique_ptr<Type> fSampler2D;
     const std::unique_ptr<Type> fSamplerExternalOES;
     const std::unique_ptr<Type> fSampler2DRect;
@@ -150,6 +158,8 @@ public:
     const std::unique_ptr<Type> fColorFilter;
     const std::unique_ptr<Type> fShader;
     const std::unique_ptr<Type> fBlender;
+
+    const std::unique_ptr<Type> fAtomicUInt;
 };
 
 }  // namespace SkSL

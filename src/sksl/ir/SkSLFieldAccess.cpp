@@ -7,11 +7,14 @@
 
 #include "src/sksl/ir/SkSLFieldAccess.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -34,7 +37,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
     if (baseType.isEffectChild()) {
         // Turn the field name into a free function name, prefixed with '$':
         std::string methodName = "$" + std::string(field);
-        const Symbol* result = symbolTable[methodName];
+        const Symbol* result = symbolTable.find(methodName);
         if (result && result->is<FunctionDeclaration>()) {
             return std::make_unique<MethodReference>(context, pos, std::move(base),
                                                      &result->as<FunctionDeclaration>());
@@ -65,12 +68,12 @@ static std::unique_ptr<Expression> extract_field(Position pos,
                                                  int fieldIndex) {
     // Confirm that the fields that are being removed are side-effect free.
     const ExpressionArray& args = ctor.arguments();
-    int numFields = args.count();
+    int numFields = args.size();
     for (int index = 0; index < numFields; ++index) {
         if (fieldIndex == index) {
             continue;
         }
-        if (args[index]->hasSideEffects()) {
+        if (Analysis::HasSideEffects(*args[index])) {
             return nullptr;
         }
     }
@@ -86,7 +89,7 @@ std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
                                               OwnerKind ownerKind) {
     SkASSERT(base->type().isStruct());
     SkASSERT(fieldIndex >= 0);
-    SkASSERT(fieldIndex < (int) base->type().fields().size());
+    SkASSERT(fieldIndex < (int)base->type().fields().size());
 
     // Replace `knownStruct.field` with the field's value if there are no side-effects involved.
     const Expression* expr = ConstantFolder::GetConstantValueForVariable(*base);
@@ -98,6 +101,25 @@ std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
     }
 
     return std::make_unique<FieldAccess>(pos, std::move(base), fieldIndex, ownerKind);
+}
+
+size_t FieldAccess::initialSlot() const {
+    SkSpan<const Type::Field> fields = this->base()->type().fields();
+    const int fieldIndex = this->fieldIndex();
+
+    size_t slot = 0;
+    for (int index = 0; index < fieldIndex; ++index) {
+        slot += fields[index].fType->slotCount();
+    }
+    return slot;
+}
+
+std::string FieldAccess::description(OperatorPrecedence) const {
+    std::string f = this->base()->description(OperatorPrecedence::kPostfix);
+    if (!f.empty()) {
+        f.push_back('.');
+    }
+    return f + std::string(this->base()->type().fields()[this->fieldIndex()].fName);
 }
 
 }  // namespace SkSL

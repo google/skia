@@ -11,9 +11,8 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
-#include "include/private/SkTo.h"
-#include "src/core/SkAutoMalloc.h"
-#include "src/core/SkImagePriv.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkArenaAlloc;
@@ -144,7 +143,7 @@ public:
         Return the correct blitter to use given the specified context.
      */
     static SkBlitter* Choose(const SkPixmap& dst,
-                             const SkMatrixProvider& matrixProvider,
+                             const SkMatrix& ctm,
                              const SkPaint& paint,
                              SkArenaAlloc*,
                              bool drawCoverage,
@@ -294,5 +293,8 @@ private:
     SkRectClipBlitter   fRectBlitter;
     SkRgnClipBlitter    fRgnBlitter;
 };
+
+// A good size for creating shader contexts on the stack.
+enum {kSkBlitterContextSize = 3332};
 
 #endif

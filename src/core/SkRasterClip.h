@@ -11,7 +11,7 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "src/core/SkAAClip.h"
 
 class SkRRect;

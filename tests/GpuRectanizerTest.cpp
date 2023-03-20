@@ -6,11 +6,17 @@
 */
 
 #include "include/core/SkSize.h"
-#include "include/private/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkIPoint16.h"
+#include "src/gpu/Rectanizer.h"
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+struct GrContextOptions;
 
 using namespace skgpu;
 
@@ -34,7 +40,7 @@ static void test_rectanizer_inserts(skiatest::Reporter*,
                                     Rectanizer* rectanizer,
                                     const SkTDArray<SkISize>& rects) {
     int i;
-    for (i = 0; i < rects.count(); ++i) {
+    for (i = 0; i < rects.size(); ++i) {
         SkIPoint16 loc;
         if (!rectanizer->addRect(rects[i].fWidth, rects[i].fHeight, &loc)) {
             break;
@@ -58,7 +64,7 @@ static void test_pow2(skiatest::Reporter* reporter, const SkTDArray<SkISize>& re
     test_rectanizer_inserts(reporter, &pow2Rectanizer, rects);
 }
 
-DEF_GPUTEST(GpuRectanizer, reporter, factory, CtsEnforcement::kNever) {
+DEF_GANESH_TEST(GpuRectanizer, reporter, factory, CtsEnforcement::kNever) {
     SkTDArray<SkISize> rects;
     SkRandom rand;
 

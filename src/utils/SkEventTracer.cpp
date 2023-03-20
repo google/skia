@@ -7,7 +7,7 @@
 
 #include "include/utils/SkEventTracer.h"
 
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
 
 #include <stdlib.h>
 #include <atomic>

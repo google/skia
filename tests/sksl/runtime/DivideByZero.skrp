@@ -1,0 +1,22 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $0 = colorGreen(1)
+    4. cast_to_int_from_float         $0 = FloatToInt($0)
+    5. copy_slot_unmasked             one = $0
+    6. copy_constant                  $0 = colorGreen(0)
+    7. cast_to_int_from_float         $0 = FloatToInt($0)
+    8. copy_slot_unmasked             zero = $0
+    9. copy_2_slots_unmasked          $0..1 = one, zero
+   10. div_int                        $0 /= $1
+   11. copy_slot_unmasked             $1 = zero
+   12. copy_slot_unmasked             $2 = zero
+   13. div_int                        $1 /= $2
+   14. add_int                        $0 += $1
+   15. copy_slot_unmasked             undefined = $0
+   16. copy_constant                  $1 = 0x0096B43F (1.38399845e-38)
+   17. cmpne_int                      $0 = notEqual($0, $1)
+   18. swizzle_4                      $0..3 = ($0..3).xxxx
+   19. copy_4_constants               $4..7 = colorRed
+   20. copy_4_constants               $8..11 = colorGreen
+   21. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   22. load_src                       src.rgba = $0..3

@@ -64,7 +64,6 @@ public:
     /** Appease the compiler; the derived class initializes GrGLSLShaderBuilder. */
     GrGLSLXPFragmentBuilder() : GrGLSLShaderBuilder(nullptr) {}
 
-    virtual bool hasCustomColorOutput() const = 0;
     virtual bool hasSecondaryOutput() const = 0;
 
     /** Returns the variable name that holds the color of the destination pixel. This may be nullptr
@@ -91,13 +90,11 @@ public:
     void forceHighPrecision() override { fForceHighPrecision = true; }
 
     // GrGLSLXPFragmentBuilder interface.
-    bool hasCustomColorOutput() const override { return SkToBool(fCustomColorOutput); }
     bool hasSecondaryOutput() const override { return fHasSecondaryOutput; }
     void enableAdvancedBlendEquationIfNeeded(skgpu::BlendEquation) override;
 
 private:
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader
-    void enableCustomOutput();
     void enableSecondaryOutput();
     const char* getPrimaryColorOutputName() const;
     const char* getSecondaryColorOutputName() const;
@@ -122,8 +119,7 @@ private:
 
     inline static constexpr const char kDstColorName[] = "_dstColor";
 
-    GrShaderVar* fCustomColorOutput = nullptr;
-
+    bool fPrimaryColorIsInOut = false;
     bool fSetupFragPosition = false;
     bool fHasSecondaryOutput = false;
     bool fHasModifiedSampleMask = false;

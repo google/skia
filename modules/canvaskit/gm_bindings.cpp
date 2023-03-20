@@ -124,11 +124,8 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     auto colorType = SkColorType::kN32_SkColorType;
     SkISize size = gm->getISize();
     SkImageInfo info = SkImageInfo::Make(size, colorType, alphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx.get(),
-                             SkBudgeted::kYes,
-                             info, 0,
-                             kBottomLeft_GrSurfaceOrigin,
-                             nullptr, true));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+            ctx.get(), skgpu::Budgeted::kYes, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr, true));
     if (!surface) {
         SkDebugf("Could not make surface\n");
         return result;
@@ -138,7 +135,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     gm->onceBeforeDraw();
     SkString msg;
     // Based on GMSrc::draw from DM.
-    auto gpuSetupResult = gm->gpuSetup(ctx.get(), canvas, &msg);
+    auto gpuSetupResult = gm->gpuSetup(canvas, &msg);
     if (gpuSetupResult == skiagm::DrawResult::kFail) {
         SkDebugf("Error with gpu setup for gm %s: %s\n", name.c_str(), msg.c_str());
         return result;
@@ -219,8 +216,7 @@ static skiatest::Test getTestWithName(std::string name, bool* ok) {
         }
     }
     *ok = false;
-    return skiatest::Test(nullptr, /*gpu*/ false, /*graphite*/ false,
-                          CtsEnforcement::kNever, nullptr);
+    return skiatest::Test::MakeCPU(nullptr, nullptr);
 }
 
 // Based on DM.cpp:run_test
@@ -251,17 +247,20 @@ static JSObject RunTest(std::string name) {
         return result;
     }
     GrContextOptions grOpts;
-    if (test.fNeedsGpu) {
+    if (test.fTestType == skiatest::TestType::kGanesh) {
         result.set("result", "passed"); // default to passing - the reporter will mark failed.
         WasmReporter reporter(name, result);
         test.modifyGrContextOptions(&grOpts);
-        test.run(&reporter, grOpts);
+        test.ganesh(&reporter, grOpts);
+        return result;
+    } else if (test.fTestType == skiatest::TestType::kGraphite) {
+        SkDebugf("Graphite test %s not yet supported\n", name.c_str());
         return result;
     }
 
     result.set("result", "passed"); // default to passing - the reporter will mark failed.
     WasmReporter reporter(name, result);
-    test.run(&reporter, grOpts);
+    test.cpu(&reporter);
     return result;
 }
 
@@ -269,7 +268,7 @@ namespace skiatest {
 
 using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
-// These are the supported GrContextTypeFilterFn
+// These are the supported GrContextTypeFilterFn. They are defined in Test.h and implemented here.
 bool IsGLContextType(ContextType ct) {
     return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(ct);
 }
@@ -285,10 +284,10 @@ bool IsMetalContextType(ContextType) {return false;}
 bool IsDirect3DContextType(ContextType) {return false;}
 bool IsDawnContextType(ContextType) {return false;}
 
-void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
-                            Reporter* reporter, const GrContextOptions& options) {
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+                               Reporter* reporter, const GrContextOptions& options) {
     for (auto contextType : {ContextType::kGLES_ContextType, ContextType::kMock_ContextType}) {
-        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
+        if (filter && !(*filter)(contextType)) {
             continue;
         }
 
@@ -301,7 +300,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         }
         ctxInfo.testContext()->makeCurrent();
         // From DMGpuTestProcs.cpp
-        (*test)(reporter, ctxInfo);
+        (*testFn)(reporter, ctxInfo);
         // Sync so any release/finished procs get called.
         ctxInfo.directContext()->flushAndSubmit(/*sync*/true);
     }

@@ -1,0 +1,5 @@
+static constexpr char SKSL_MINIFIED_sksl_frag[] =
+"layout(builtin=15)in float4 sk_FragCoord;layout(builtin=17)in bool sk_Clockwise"
+";layout(location=0,index=0,builtin=10001)out half4 sk_FragColor;layout(builtin"
+"=10008)half4 sk_LastFragColor;layout(builtin=10012)out half4 sk_SecondaryFragColor"
+";";

@@ -120,12 +120,9 @@ Skia's [Lottie animation](https://skia.org/docs/user/modules/skottie) support.
   // Tries to load the WASM version if supported, shows error otherwise
   let s = document.createElement('script');
   let locate_file = '';
-  // Hey, if you are looking at this code for an example of how to do it yourself, please use
-  // an actual CDN, such as https://unpkg.com/canvaskit-wasm - it will have better reliability
-  // and niceties like brotli compression.
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://particles.skia.org/dist/';
+    locate_file = 'https://unpkg.com/canvaskit-wasm@0.38.0/bin/full/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";

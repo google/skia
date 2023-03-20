@@ -5,39 +5,56 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLString.h"
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkStringView.h"
 
 #include <cerrno>
 #include <cmath>
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <locale>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
+
+template <typename RoundtripType, int kFullPrecision>
+static std::string to_string_impl(RoundtripType value) {
+    std::stringstream buffer;
+    buffer.imbue(std::locale::classic());
+    buffer.precision(7);
+    buffer << value;
+    std::string text = buffer.str();
+
+    double roundtripped;
+    buffer >> roundtripped;
+    if (value != (RoundtripType)roundtripped && std::isfinite(value)) {
+        buffer.str({});
+        buffer.clear();
+        buffer.precision(kFullPrecision);
+        buffer << value;
+        text = buffer.str();
+        SkASSERTF((buffer >> roundtripped, value == (RoundtripType)roundtripped),
+                  "%.17g -> %s -> %.17g", value, text.c_str(), roundtripped);
+    }
+
+    // We need to emit a decimal point to distinguish floats from ints.
+    if (!skstd::contains(text, '.') && !skstd::contains(text, 'e')) {
+        text += ".0";
+    }
+
+    return text;
+}
 
 std::string skstd::to_string(float value) {
-    return skstd::to_string((double)value);
+    return to_string_impl<float, 9>(value);
 }
 
 std::string skstd::to_string(double value) {
-    std::stringstream buffer;
-    buffer.imbue(std::locale::classic());
-    buffer.precision(17);
-    buffer << value;
-    bool needsDotZero = true;
-    const std::string str = buffer.str();
-    for (int i = str.size() - 1; i >= 0; --i) {
-        char c = str[i];
-        if (c == '.' || c == 'e') {
-            needsDotZero = false;
-            break;
-        }
-    }
-    if (needsDotZero) {
-        buffer << ".0";
-    }
-    return buffer.str();
+    return to_string_impl<double, 17>(value);
 }
 
 bool SkSL::stod(std::string_view s, SKSL_FLOAT* value) {

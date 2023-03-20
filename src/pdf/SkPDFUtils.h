@@ -11,11 +11,11 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
-#include "src/core/SkUtils.h"
+#include "src/base/SkUTF.h"
+#include "src/base/SkUtils.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/utils/SkFloatToDecimal.h"
-#include "src/utils/SkUTF.h"
 
 class SkMatrix;
 class SkPDFArray;
@@ -115,9 +115,9 @@ inline void WriteUTF16beHex(SkWStream* wStream, SkUnichar utf32) {
 inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
     SkMatrix localMatrix;
     if (sk_sp<SkShader> s = as_SB(shader)->makeAsALocalMatrixShader(&localMatrix)) {
-        return SkMatrix::Concat(as_SB(s)->getLocalMatrix(), localMatrix);
+        return localMatrix;
     }
-    return as_SB(shader)->getLocalMatrix();
+    return SkMatrix::I();
 }
 bool InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox);
 void PopulateTilingPatternDict(SkPDFDict* pattern,

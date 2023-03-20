@@ -8,8 +8,9 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkString.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkRasterPipeline.h"
@@ -17,65 +18,44 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkShaderBase.h"
 
-#ifdef SK_ENABLE_SKSL
-#include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPaintParamsKey.h"
+#if defined(SK_GRAPHITE)
+#include "src/gpu/Blend.h"
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #endif
-
-namespace {
-
-struct LocalMatrixStageRec final : public SkStageRec {
-    LocalMatrixStageRec(const SkStageRec& rec, const SkMatrix& lm)
-        : INHERITED(rec) {
-        if (!lm.isIdentity()) {
-            if (fLocalM) {
-                fStorage.setConcat(lm, *fLocalM);
-                fLocalM = fStorage.isIdentity() ? nullptr : &fStorage;
-            } else {
-                fLocalM = &lm;
-            }
-        }
-    }
-
-private:
-    SkMatrix fStorage;
-
-    using INHERITED = SkStageRec;
-};
-
-} // namespace
-
-///////////////////////////////////////////////////////////////////////////////
 
 class SkShader_Blend final : public SkShaderBase {
 public:
     SkShader_Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src)
             : fDst(std::move(dst))
             , fSrc(std::move(src))
-            , fBlender(nullptr)
-            , fMode(mode)
-    {}
+            , fMode(mode) {}
 
-    SkShader_Blend(sk_sp<SkBlender> blender, sk_sp<SkShader> dst, sk_sp<SkShader> src);
-
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
+#if defined(SK_GANESH)
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
+                                                             const MatrixRec&) const override;
 #endif
 
-#ifdef SK_ENABLE_SKSL
-    void addToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+#if defined(SK_GRAPHITE)
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 protected:
     SkShader_Blend(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    bool onAppendStages(const SkStageRec&) const override;
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms*, SkArenaAlloc*) const override;
+    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec& mRec,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms*,
+                        SkArenaAlloc*) const override;
 
 private:
     friend void ::SkRegisterComposeShaderFlattenable();
@@ -83,22 +63,10 @@ private:
 
     sk_sp<SkShader>     fDst;
     sk_sp<SkShader>     fSrc;
-    sk_sp<SkBlender>    fBlender;   // if null, use fMode
-    SkBlendMode         fMode;      // only use if fBlender is null
+    SkBlendMode         fMode;
 
     using INHERITED = SkShaderBase;
 };
-
-SkShader_Blend::SkShader_Blend(sk_sp<SkBlender> blender, sk_sp<SkShader> dst, sk_sp<SkShader> src)
-        : fDst(std::move(dst))
-        , fSrc(std::move(src))
-        , fBlender(std::move(blender))
-        , fMode((SkBlendMode)kCustom_SkBlendMode) {
-    if (std::optional<SkBlendMode> bm = as_BB(fBlender)->asBlendMode(); bm.has_value()) {
-        fMode = *bm;
-        fBlender.reset();
-    }
-}
 
 sk_sp<SkFlattenable> SkShader_Blend::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> dst(buffer.readShader());
@@ -107,11 +75,10 @@ sk_sp<SkFlattenable> SkShader_Blend::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    sk_sp<SkBlender> blender(nullptr);
-    unsigned        mode = buffer.read32();
+    unsigned mode = buffer.read32();
 
     if (mode == kCustom_SkBlendMode) {
-        blender = buffer.readBlender();
+        sk_sp<SkBlender> blender = buffer.readBlender();
         if (buffer.validate(blender != nullptr)) {
             return SkShaders::Blend(std::move(blender), std::move(dst), std::move(src));
         }
@@ -126,101 +93,102 @@ sk_sp<SkFlattenable> SkShader_Blend::CreateProc(SkReadBuffer& buffer) {
 void SkShader_Blend::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fDst.get());
     buffer.writeFlattenable(fSrc.get());
-    if (fBlender) {
-        buffer.write32(kCustom_SkBlendMode);
-        buffer.writeFlattenable(fBlender.get());
-    } else {
-        buffer.write32((int)fMode);
-    }
+    buffer.write32((int)fMode);
 }
 
 // Returns the output of e0, and leaves the output of e1 in r,g,b,a
-static float* append_two_shaders(const SkStageRec& rec, SkShader* s0, SkShader* s1) {
+static float* append_two_shaders(const SkStageRec& rec,
+                                 const SkShaderBase::MatrixRec& mRec,
+                                 SkShader* s0,
+                                 SkShader* s1) {
     struct Storage {
-        float   fRes0[4 * SkRasterPipeline_kMaxStride];
+        float   fCoords[2 * SkRasterPipeline_kMaxStride];
+        float   fRes0  [4 * SkRasterPipeline_kMaxStride];
     };
     auto storage = rec.fAlloc->make<Storage>();
 
-    if (!as_SB(s0)->appendStages(rec)) {
+    // Note we cannot simply apply mRec here and then unconditionally store the coordinates. When
+    // building for Android Framework it would interrupt the backwards local matrix concatenation if
+    // mRec had a pending local matrix and either of the children also had a local matrix.
+    // b/256873449
+    if (mRec.rasterPipelineCoordsAreSeeded()) {
+        rec.fPipeline->append(SkRasterPipelineOp::store_src_rg, storage->fCoords);
+    }
+    if (!as_SB(s0)->appendStages(rec, mRec)) {
         return nullptr;
     }
-    rec.fPipeline->append(SkRasterPipeline::store_src, storage->fRes0);
+    rec.fPipeline->append(SkRasterPipelineOp::store_src, storage->fRes0);
 
-    if (!as_SB(s1)->appendStages(rec)) {
+    if (mRec.rasterPipelineCoordsAreSeeded()) {
+        rec.fPipeline->append(SkRasterPipelineOp::load_src_rg, storage->fCoords);
+    }
+    if (!as_SB(s1)->appendStages(rec, mRec)) {
         return nullptr;
     }
     return storage->fRes0;
 }
 
-bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
-    if (fBlender) {
-        return false;
-    }
-
-    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
-
-    float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
+bool SkShader_Blend::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
+    float* res0 = append_two_shaders(rec, mRec, fDst.get(), fSrc.get());
     if (!res0) {
         return false;
     }
 
-    rec.fPipeline->append(SkRasterPipeline::load_dst, res0);
+    rec.fPipeline->append(SkRasterPipelineOp::load_dst, res0);
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }
 
-skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
-                                      skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                      const SkMatrixProvider& mats, const SkMatrix* localM,
-                                      const SkColorInfo& cinfo,
-                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+skvm::Color SkShader_Blend::program(skvm::Builder* p,
+                                    skvm::Coord device,
+                                    skvm::Coord local,
+                                    skvm::Color paint,
+                                    const MatrixRec& mRec,
+                                    const SkColorInfo& cinfo,
+                                    skvm::Uniforms* uniforms,
+                                    SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = as_SB(fDst)->program(p, device,local, paint, mats,localM, cinfo, uniforms,alloc)) &&
-        (s = as_SB(fSrc)->program(p, device,local, paint, mats,localM, cinfo, uniforms,alloc)))
-    {
-        if (fBlender) {
-            return as_BB(fBlender)->program(p, s,d, cinfo, uniforms,alloc);
-        } else {
-            return p->blend(fMode, s,d);
-        }
+    if ((d = as_SB(fDst)->program(p, device, local, paint, mRec, cinfo, uniforms, alloc)) &&
+        (s = as_SB(fSrc)->program(p, device, local, paint, mRec, cinfo, uniforms, alloc))) {
+        return p->blend(fMode, s,d);
     }
     return {};
 }
 
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
-std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
-        const GrFPArgs& orig_args) const {
-    GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
-    auto fpA = as_SB(fDst)->asFragmentProcessor(args);
-    auto fpB = as_SB(fSrc)->asFragmentProcessor(args);
+std::unique_ptr<GrFragmentProcessor>
+SkShader_Blend::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
+    auto fpA = as_SB(fDst)->asFragmentProcessor(args, mRec);
+    auto fpB = as_SB(fSrc)->asFragmentProcessor(args, mRec);
     if (!fpA || !fpB) {
         // This is unexpected. Both src and dst shaders should be valid. Just fail.
         return nullptr;
     }
-    if (fBlender) {
-        return as_BB(fBlender)->asFragmentProcessor(std::move(fpB), std::move(fpA), orig_args);
-    } else {
-        return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
-    }
+    return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
 }
 #endif
 
-#ifdef SK_ENABLE_SKSL
-void SkShader_Blend::addToKey(const SkKeyContext& keyContext,
-                              SkPaintParamsKeyBuilder* builder,
-                              SkPipelineDataGatherer* gatherer) const {
-    // TODO: add blender support
-    SkASSERT(!fBlender);
+#if defined(SK_GRAPHITE)
+void SkShader_Blend::addToKey(const skgpu::graphite::KeyContext& keyContext,
+                              skgpu::graphite::PaintParamsKeyBuilder* builder,
+                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
 
-    BlendShaderBlock::BeginBlock(keyContext, builder, gatherer, { fMode });
+    SkSpan<const float> porterDuffConstants = skgpu::GetPorterDuffBlendConstants(fMode);
+    if (!porterDuffConstants.empty()) {
+        PorterDuffBlendShaderBlock::BeginBlock(keyContext, builder, gatherer,
+                                               {porterDuffConstants});
+    } else {
+        BlendShaderBlock::BeginBlock(keyContext, builder, gatherer, {fMode});
+    }
 
     as_SB(fDst)->addToKey(keyContext, builder, gatherer);
-
     as_SB(fSrc)->addToKey(keyContext, builder, gatherer);
 
     builder->endBlock();
@@ -249,7 +217,25 @@ sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
     if (!blender) {
         return SkShaders::Blend(SkBlendMode::kSrcOver, std::move(dst), std::move(src));
     }
-    return sk_sp<SkShader>(new SkShader_Blend(std::move(blender), std::move(dst), std::move(src)));
+    if (std::optional<SkBlendMode> mode = as_BB(blender)->asBlendMode()) {
+        return sk_make_sp<SkShader_Blend>(mode.value(), std::move(dst), std::move(src));
+    }
+
+#ifdef SK_ENABLE_SKSL
+    // This isn't a built-in blend mode; we might as well use a runtime effect to evaluate it.
+    static SkRuntimeEffect* sBlendEffect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform blender b;"
+        "uniform shader d, s;"
+        "half4 main(float2 xy) {"
+            "return b.eval(s.eval(xy), d.eval(xy));"
+        "}"
+    );
+    SkRuntimeEffect::ChildPtr children[] = {std::move(blender), std::move(dst), std::move(src)};
+    return sBlendEffect->makeShader(/*uniforms=*/{}, children);
+#else
+    // We need SkSL to render this blend.
+    return nullptr;
+#endif
 }
 
 void SkRegisterComposeShaderFlattenable() {

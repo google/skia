@@ -100,19 +100,49 @@ BuiltinTypes::BuiltinTypes()
                                            /*isDepth=*/false,
                                            /*isArrayedTexture=*/false,
                                            /*isMultisampled=*/false,
-                                           /*isSampled=*/true))
+                                           Type::TextureAccess::kSample))
         , fTextureExternalOES(Type::MakeTextureType("textureExternalOES",
                                                     SpvDim2D,
                                                     /*isDepth=*/false,
                                                     /*isArrayedTexture=*/false,
                                                     /*isMultisampled=*/false,
-                                                    /*isSampled=*/true))
+                                                    Type::TextureAccess::kSample))
         , fTexture2DRect(Type::MakeTextureType("texture2DRect",
                                                SpvDimRect,
                                                /*isDepth=*/false,
                                                /*isArrayedTexture=*/false,
                                                /*isMultisampled=*/false,
-                                               /*isSampled=*/true))
+                                               Type::TextureAccess::kSample))
+        , fReadWriteTexture2D(Type::MakeTextureType("readWriteTexture2D",
+                                                    SpvDim2D,
+                                                    /*isDepth=*/false,
+                                                    /*isArrayedTexture=*/false,
+                                                    /*isMultisampled=*/false,
+                                                    Type::TextureAccess::kReadWrite))
+        , fReadOnlyTexture2D(Type::MakeTextureType("readonlyTexture2D",
+                                                   SpvDim2D,
+                                                   /*isDepth=*/false,
+                                                   /*isArrayedTexture=*/false,
+                                                   /*isMultisampled=*/false,
+                                                   Type::TextureAccess::kRead))
+        , fWriteOnlyTexture2D(Type::MakeTextureType("writeonlyTexture2D",
+                                                    SpvDim2D,
+                                                    /*isDepth=*/false,
+                                                    /*isArrayedTexture=*/false,
+                                                    /*isMultisampled=*/false,
+                                                    Type::TextureAccess::kWrite))
+        , fGenTexture2D(Type::MakeGenericType("$genTexture2D",
+                                              {fReadOnlyTexture2D.get(),
+                                               fWriteOnlyTexture2D.get(),
+                                               fReadWriteTexture2D.get()}))
+        , fReadableTexture2D(Type::MakeGenericType("$readableTexture2D",
+                                                   {fReadOnlyTexture2D.get(),
+                                                    fInvalid.get(),
+                                                    fReadWriteTexture2D.get()}))
+        , fWritableTexture2D(Type::MakeGenericType("$writableTexture2D",
+                                                   {fInvalid.get(),
+                                                    fWriteOnlyTexture2D.get(),
+                                                    fReadWriteTexture2D.get()}))
         , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
         , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
         , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
@@ -124,14 +154,13 @@ BuiltinTypes::BuiltinTypes()
                                               /*isDepth=*/false,
                                               /*isArrayedTexture=*/false,
                                               /*isMultisampled=*/false,
-                                              /*isSampled=*/false))
+                                              Type::TextureAccess::kRead))
         , fSubpassInputMS(Type::MakeTextureType("subpassInputMS",
                                                 SpvDimSubpassData,
                                                 /*isDepth=*/false,
                                                 /*isArrayedTexture=*/false,
                                                 /*isMultisampled=*/true,
-                                                /*isSampled=*/false))
-
+                                                Type::TextureAccess::kRead))
         , fGenType(Type::MakeGenericType("$genType", {fFloat.get(), fFloat2.get(), fFloat3.get(),
                                                       fFloat4.get()}))
         , fGenHType(Type::MakeGenericType("$genHType", {fHalf.get(), fHalf2.get(), fHalf3.get(),
@@ -170,6 +199,7 @@ BuiltinTypes::BuiltinTypes()
         , fSkCaps(Type::MakeSpecialType("$sk_Caps", "O", Type::TypeKind::kOther))
         , fColorFilter(Type::MakeSpecialType("colorFilter", "CF", Type::TypeKind::kColorFilter))
         , fShader(Type::MakeSpecialType("shader", "SH", Type::TypeKind::kShader))
-        , fBlender(Type::MakeSpecialType("blender", "B", Type::TypeKind::kBlender)) {}
+        , fBlender(Type::MakeSpecialType("blender", "B", Type::TypeKind::kBlender))
+        , fAtomicUInt(Type::MakeAtomicType("atomicUint", "au")) {}
 
 }  // namespace SkSL

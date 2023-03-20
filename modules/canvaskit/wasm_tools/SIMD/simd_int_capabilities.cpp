@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "include/private/SkVx.h"
+#include "src/base/SkVx.h"
 #include <emscripten.h>
 #include <stdio.h>
 
@@ -13,7 +13,7 @@
 // - Lines with "//N/A" are operations that are not compatible with this type of data.
 // - Lines with "GOOD (FIXED)" are compatible with WASM SIMD but are NOT automatically
 //   compiled into WASM SIMD operations by emscripten. Special WASM SIMD intrinsics have been
-//   specified in skia/include/private/SkVx.h to tell emscripten how to compile them to WASM SIMD
+//   specified in skia/src/base/SkVx.h to tell emscripten how to compile them to WASM SIMD
 //   operations.
 // - Lines with "//not available in wasm" do not have compatible WASM SIMD operations. Emscripten
 //   compiles these operations into non-SIMD WASM.

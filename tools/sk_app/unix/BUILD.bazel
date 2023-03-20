@@ -1,10 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_deps")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup")
+load("//bazel:flags.bzl", "selects")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     testonly = True,
     srcs = [

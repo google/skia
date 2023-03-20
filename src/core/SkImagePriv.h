@@ -20,9 +20,6 @@ enum SkCopyPixelsMode {
     kNever_SkCopyPixelsMode,      //!< never copy src pixels (even if they are marked mutable)
 };
 
-// A good size for creating shader contexts on the stack.
-enum {kSkBlitterContextSize = 3332};
-
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode, SkTileMode,
@@ -61,31 +58,5 @@ extern SK_SPI sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopy
 // may be called to see if the surface and the image share the same pixelref,
 // in which case the surface may need to perform a copy-on-write.
 extern const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* rasterImage);
-
-/**
- *  Will attempt to upload and lock the contents of the image as a texture, so that subsequent
- *  draws to a gpu-target will come from that texture (and not by looking at the original image
- *  src). In particular this is intended to use the texture even if the image's original content
- *  changes subsequent to this call (i.e. the src is mutable!).
- *
- *  All successful calls must be balanced by an equal number of calls to SkImage_unpinAsTexture().
- *
- *  Once in this "pinned" state, the image has all of the same thread restrictions that exist
- *  for a natively created gpu image (e.g. SkImage::MakeFromTexture)
- *  - all drawing, pinning, unpinning must happen in the same thread as the GrContext.
- *
- *  @return true if the image was successfully uploaded and locked into a texture
- */
-bool SkImage_pinAsTexture(const SkImage*, GrRecordingContext*);
-
-/**
- *  The balancing call to a successful invokation of SkImage_pinAsTexture.  When a balanced number of
- *  calls have been made, then the "pinned" texture is free to be purged, etc. This also means that a
- *  subsequent "pin" call will look at the original content again, and if its uniqueID/generationID
- *  has changed, then a newer texture will be uploaded/pinned.
- *
- *  The context passed to unpin must match the one passed to pin.
- */
-void SkImage_unpinAsTexture(const SkImage*, GrRecordingContext*);
 
 #endif

@@ -23,7 +23,7 @@ class BenchResource : public GrGpuResource {
 public:
     BenchResource(GrGpu* gpu, std::string_view label)
         : INHERITED(gpu, label) {
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(skgpu::Budgeted::kYes);
     }
 
     static void ComputeKey(int i, int keyData32Count, skgpu::UniqueKey* key) {

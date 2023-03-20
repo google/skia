@@ -9,8 +9,8 @@
 #define SkBlitRow_opts_DEFINED
 
 #include "include/private/SkColorData.h"
-#include "include/private/SkVx.h"
-#include "src/core/SkMSAN.h"
+#include "src/base/SkMSAN.h"
+#include "src/base/SkVx.h"
 
 // Helpers for blit_row_s32a_opaque(),
 // then blit_row_s32a_opaque() itself,
@@ -46,7 +46,7 @@
         ga = _mm512_mullo_epi16(ga, scale_x2);
         ga = _mm512_andnot_si512(_mm512_set1_epi32(0x00ff00ff), ga);
 
-        return _mm512_add_epi32(src, _mm512_or_si512(rb, ga));
+        return _mm512_adds_epu8(src, _mm512_or_si512(rb, ga));
     }
 #endif
 
@@ -95,7 +95,7 @@
         ga = _mm256_mullo_epi16(ga, scale_x2);
         ga = _mm256_andnot_si256(_mm256_set1_epi32(0x00ff00ff), ga);
 
-        return _mm256_add_epi32(src, _mm256_or_si256(rb, ga));
+        return _mm256_adds_epu8(src, _mm256_or_si256(rb, ga));
     }
 #endif
 
@@ -115,7 +115,7 @@
         ga = _mm_mullo_epi16(ga, scale_x2);
         ga = _mm_andnot_si128(_mm_set1_epi32(0x00ff00ff), ga);
 
-        return _mm_add_epi32(src, _mm_or_si128(rb, ga));
+        return _mm_adds_epu8(src, _mm_or_si128(rb, ga));
     }
 #endif
 
@@ -131,10 +131,10 @@
     static inline uint8x8x4_t SkPMSrcOver_neon8(uint8x8x4_t dst, uint8x8x4_t src) {
         uint8x8_t nalphas = vmvn_u8(src.val[3]);  // 256 - alpha
         return {
-            vadd_u8(src.val[0], SkMulDiv255Round_neon8(nalphas,  dst.val[0])),
-            vadd_u8(src.val[1], SkMulDiv255Round_neon8(nalphas,  dst.val[1])),
-            vadd_u8(src.val[2], SkMulDiv255Round_neon8(nalphas,  dst.val[2])),
-            vadd_u8(src.val[3], SkMulDiv255Round_neon8(nalphas,  dst.val[3])),
+            vqadd_u8(src.val[0], SkMulDiv255Round_neon8(nalphas,  dst.val[0])),
+            vqadd_u8(src.val[1], SkMulDiv255Round_neon8(nalphas,  dst.val[1])),
+            vqadd_u8(src.val[2], SkMulDiv255Round_neon8(nalphas,  dst.val[2])),
+            vqadd_u8(src.val[3], SkMulDiv255Round_neon8(nalphas,  dst.val[3])),
         };
     }
 
@@ -142,7 +142,7 @@
     static inline uint8x8_t SkPMSrcOver_neon2(uint8x8_t dst, uint8x8_t src) {
         const uint8x8_t alpha_indices = vcreate_u8(0x0707070703030303);
         uint8x8_t nalphas = vmvn_u8(vtbl1_u8(src, alpha_indices));
-        return vadd_u8(src, SkMulDiv255Round_neon8(nalphas, dst));
+        return vqadd_u8(src, SkMulDiv255Round_neon8(nalphas, dst));
     }
 
 #endif

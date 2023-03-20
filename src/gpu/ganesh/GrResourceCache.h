@@ -9,12 +9,13 @@
 #define GrResourceCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkTDPQueue.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkTDPQueue.h"
-#include "src/core/SkTInternalLList.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
@@ -92,7 +93,7 @@ public:
      * Returns the number of resources.
      */
     int getResourceCount() const {
-        return fPurgeableQueue.count() + fNonpurgeableResources.count();
+        return fPurgeableQueue.count() + fNonpurgeableResources.size();
     }
 
     /**

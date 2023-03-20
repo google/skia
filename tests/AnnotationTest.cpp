@@ -20,8 +20,8 @@
 #include "include/docs/SkPDFDocument.h"
 #include "tests/Test.h"
 
-#include <string.h>
-#include <memory>
+#include <string>
+#include <cstddef>
 
 /** Returns true if data (may contain null characters) contains needle (null
  *  terminated). */

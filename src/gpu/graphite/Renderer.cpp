@@ -19,20 +19,20 @@ static uint32_t next_id() {
 RenderStep::RenderStep(std::string_view className,
                std::string_view variantName,
                SkEnumBitMask<Flags> flags,
-               std::initializer_list<SkUniform> uniforms,
+               std::initializer_list<Uniform> uniforms,
                PrimitiveType primitiveType,
                DepthStencilSettings depthStencilSettings,
-               std::initializer_list<Attribute> vertexAttrs,
-               std::initializer_list<Attribute> instanceAttrs,
-               std::initializer_list<Varying> varyings)
+               SkSpan<const Attribute> vertexAttrs,
+               SkSpan<const Attribute> instanceAttrs,
+               SkSpan<const Varying> varyings)
         : fUniqueID(next_id())
         , fFlags(flags)
         , fPrimitiveType(primitiveType)
         , fDepthStencilSettings(depthStencilSettings)
         , fUniforms(uniforms)
-        , fVertexAttrs(vertexAttrs)
-        , fInstanceAttrs(instanceAttrs)
-        , fVaryings(varyings)
+        , fVertexAttrs(vertexAttrs.begin(), vertexAttrs.end())
+        , fInstanceAttrs(instanceAttrs.begin(), instanceAttrs.end())
+        , fVaryings(varyings.begin(), varyings.end())
         , fVertexStride(0)
         , fInstanceStride(0)
         , fName(className) {

@@ -34,7 +34,7 @@ void GrD3DResourceProvider::destroyResources() {
 }
 
 std::unique_ptr<GrD3DDirectCommandList> GrD3DResourceProvider::findOrCreateDirectCommandList() {
-    if (fAvailableDirectCommandLists.count()) {
+    if (fAvailableDirectCommandLists.size()) {
         std::unique_ptr<GrD3DDirectCommandList> list =
                 std::move(fAvailableDirectCommandLists.back());
         fAvailableDirectCommandLists.pop_back();
@@ -51,7 +51,7 @@ void GrD3DResourceProvider::recycleDirectCommandList(
 
 sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int numTextureSamplers,
                                                                            int numUAVs) {
-    for (int i = 0; i < fRootSignatures.count(); ++i) {
+    for (int i = 0; i < fRootSignatures.size(); ++i) {
         if (fRootSignatures[i]->isCompatible(numTextureSamplers, numUAVs)) {
             return fRootSignatures[i];
         }
@@ -67,7 +67,7 @@ sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int n
 
 sk_sp<GrD3DCommandSignature> GrD3DResourceProvider::findOrCreateCommandSignature(
         GrD3DCommandSignature::ForIndexed indexed, unsigned int slot) {
-    for (int i = 0; i < fCommandSignatures.count(); ++i) {
+    for (int i = 0; i < fCommandSignatures.size(); ++i) {
         if (fCommandSignatures[i]->isCompatible(indexed, slot)) {
             return fCommandSignatures[i];
         }

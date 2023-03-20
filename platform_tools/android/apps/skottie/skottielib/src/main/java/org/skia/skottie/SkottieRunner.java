@@ -272,7 +272,13 @@ class SkottieRunner {
         }
     }
 
+    public void setMaxCacheSize(int maxCacheSize) {
+        nSetMaxCacheSize(maxCacheSize, getNativeProxy());
+    }
+
+
     private static native long nCreateProxy();
     private static native void nDeleteProxy(long nativeProxy);
+    private static native void nSetMaxCacheSize(int maxCacheSize, long mNativeProxy);
 }
 

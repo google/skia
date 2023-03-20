@@ -11,6 +11,6 @@
 
 class NanoJSONResultsWriter;
 
-void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter*);
+void RunSkSLModuleBenchmarks(NanoJSONResultsWriter*);
 
 #endif

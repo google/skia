@@ -1,0 +1,12 @@
+### Compilation failed:
+
+error: 1: 'main' must return: 'vec4', 'float4', or 'half4'
+uniform float a; int b; void main() { sk_FragColor.x = half(ldexp(a, b)); }
+                        ^^^^^^^^^^^
+error: 1: unknown identifier 'sk_FragColor'
+uniform float a; int b; void main() { sk_FragColor.x = half(ldexp(a, b)); }
+                                      ^^^^^^^^^^^^
+error: 1: unknown identifier 'ldexp'
+uniform float a; int b; void main() { sk_FragColor.x = half(ldexp(a, b)); }
+                                                            ^^^^^
+3 errors

@@ -25,7 +25,7 @@ struct SkColorSpaceXformSteps {
         bool encode           = false;
         bool premul           = false;
 
-        uint32_t mask() const {
+        constexpr uint32_t mask() const {
             return (unpremul        ?  1 : 0)
                  | (linearize       ?  2 : 0)
                  | (gamut_transform ?  4 : 0)
@@ -34,6 +34,7 @@ struct SkColorSpaceXformSteps {
         }
     };
 
+    SkColorSpaceXformSteps() {}
     SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaType srcAT,
                            const SkColorSpace* dst, SkAlphaType dstAT);
 

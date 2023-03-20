@@ -9,9 +9,8 @@
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
-#include "include/gpu/graphite/mtl/MtlTypes.h"
-
-#ifdef SK_METAL
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
 
 #import <Metal/Metal.h>
 
@@ -49,9 +48,10 @@ std::unique_ptr<GraphiteTestContext> MtlTestContext::Make() {
 }
 
 std::unique_ptr<skgpu::graphite::Context> MtlTestContext::makeContext() {
-    return skgpu::graphite::Context::MakeMetal(fMtl, skgpu::graphite::ContextOptions{});
+    skgpu::graphite::ContextOptions contextOptions;
+    contextOptions.fStoreContextRefInRecorder = true;
+    return skgpu::graphite::ContextFactory::MakeMetal(fMtl, contextOptions);
 }
 
-}  // namespace skiatest::graphite::mtl
+}  // namespace skiatest::graphite
 
-#endif // SK_METAL

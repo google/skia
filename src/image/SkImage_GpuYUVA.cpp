@@ -7,30 +7,55 @@
 
 #include "src/image/SkImage_GpuYUVA.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h" // IWYU pragma: keep
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/GrYUVABackendTextures.h"
-#include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkMipmap.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkScopeExit.h"
-#include "src/gpu/ganesh/GrClip.h"
+#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/image/SkImage_Base.h"
 
-#ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/Log.h"
-#endif
+#include <algorithm>
+#include <utility>
+
+enum class SkTileMode;
+struct SkRect;
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
@@ -54,18 +79,21 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
     SkASSERT(fYUVAProxies.isValid());
 }
 
-// For onMakeColorSpace()
+// For onMakeColorTypeAndColorSpace() / onReinterpretColorSpace()
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  const SkImage_GpuYUVA* image,
-                                 sk_sp<SkColorSpace> targetCS)
+                                 sk_sp<SkColorSpace> targetCS,
+                                 ColorSpaceMode csMode)
         : INHERITED(std::move(context),
                     image->imageInfo().makeColorSpace(std::move(targetCS)),
                     kNeedNewImageUniqueID)
         , fYUVAProxies(image->fYUVAProxies)
-        // Since null fFromColorSpace means no GrColorSpaceXform, we turn a null
-        // image->refColorSpace() into an explicit SRGB.
-        , fFromColorSpace(image->colorSpace() ? image->refColorSpace() : SkColorSpace::MakeSRGB()) {
-}
+        // If we're *reinterpreting* in a new color space, leave fFromColorSpace null.
+        // If we're *converting* to a new color space, it must be non-null, so turn null into sRGB.
+        , fFromColorSpace(csMode == ColorSpaceMode::kReinterpret
+                                  ? nullptr
+                                  : (image->colorSpace() ? image->refColorSpace()
+                                                         : SkColorSpace::MakeSRGB())) {}
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     if (!context || !fContext->priv().matches(context)) {
@@ -141,7 +169,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(SkColorType,
         SkColorSpace::Equals(targetCS.get(), fOnMakeColorSpaceTarget.get())) {
         return fOnMakeColorSpaceResult;
     }
-    sk_sp<SkImage> result = sk_sp<SkImage>(new SkImage_GpuYUVA(sk_ref_sp(direct), this, targetCS));
+    sk_sp<SkImage> result = sk_sp<SkImage>(
+            new SkImage_GpuYUVA(sk_ref_sp(direct), this, targetCS, ColorSpaceMode::kConvert));
     if (result) {
         fOnMakeColorSpaceTarget = targetCS;
         fOnMakeColorSpaceResult = result;
@@ -150,7 +179,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(SkColorType,
 }
 
 sk_sp<SkImage> SkImage_GpuYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
-    return sk_sp<SkImage>(new SkImage_GpuYUVA(fContext, this, std::move(newCS)));
+    return sk_sp<SkImage>(
+            new SkImage_GpuYUVA(fContext, this, std::move(newCS), ColorSpaceMode::kReinterpret));
 }
 
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
@@ -161,12 +191,13 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
         return {};
     }
     auto sfc = rContext->priv().makeSFC(this->imageInfo(),
+                                        "Image_GpuYUVA_ReinterpretColorSpace",
                                         SkBackingFit::kExact,
                                         /*sample count*/ 1,
                                         mipmapped,
                                         GrProtected::kNo,
                                         kTopLeft_GrSurfaceOrigin,
-                                        SkBudgeted::kYes);
+                                        skgpu::Budgeted::kYes);
     if (!sfc) {
         return {};
     }
@@ -230,17 +261,11 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
     return fp;
 }
 
-
-#ifdef SK_GRAPHITE_ENABLED
-std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_GpuYUVA::onAsView(
-        skgpu::graphite::Recorder*,
-        skgpu::graphite::Mipmapped) const {
-    SKGPU_LOG_W("Cannot convert Ganesh-backed YUVA image to Graphite");
-    return {};
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
+                                             const GrYUVABackendTextures& yuvaTextures) {
+    return SkImage::MakeFromYUVATextures(context, yuvaTextures, nullptr, nullptr, nullptr);
+}
 
 sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                              const GrYUVABackendTextures& yuvaTextures,
@@ -274,6 +299,14 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                        kNeedNewImageUniqueID,
                                        yuvaProxies,
                                        imageColorSpace);
+}
+
+sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                            const SkYUVAPixmaps& pixmaps,
+                                            GrMipmapped buildMips,
+                                            bool limitToMaxTextureSize) {
+    return SkImage::MakeFromYUVAPixmaps(context, pixmaps, buildMips, limitToMaxTextureSize,
+                                        nullptr);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,

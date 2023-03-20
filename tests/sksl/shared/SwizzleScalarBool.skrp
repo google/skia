@@ -1,0 +1,27 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $0 = unknownInput
+    4. zero_slot_unmasked             $1 = 0
+    5. cmpne_float                    $0 = notEqual($0, $1)
+    6. copy_slot_unmasked             b = $0
+    7. swizzle_4                      $0..3 = ($0..3).xxxx
+    8. copy_4_slots_unmasked          b4 = $0..3
+    9. copy_slot_unmasked             $0 = b
+   10. copy_slot_unmasked             $1 = $0
+   11. zero_slot_unmasked             $2 = 0
+   12. copy_constant                  $3 = 0xFFFFFFFF
+   13. copy_4_slots_unmasked          b4 = $0..3
+   14. zero_slot_unmasked             $0 = 0
+   15. copy_slot_unmasked             $1 = b
+   16. copy_constant                  $2 = 0xFFFFFFFF
+   17. zero_slot_unmasked             $3 = 0
+   18. copy_4_slots_unmasked          b4 = $0..3
+   19. zero_slot_unmasked             $0 = 0
+   20. copy_slot_unmasked             $1 = b
+   21. zero_slot_unmasked             $2 = 0
+   22. copy_slot_unmasked             $3 = b
+   23. copy_4_slots_unmasked          b4 = $0..3
+   24. copy_constant                  $4 = 0x3F800000 (1.0)
+   25. swizzle_4                      $4..7 = ($4..7).xxxx
+   26. bitwise_and_4_ints             $0..3 &= $4..7
+   27. load_src                       src.rgba = $0..3

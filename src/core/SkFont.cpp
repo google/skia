@@ -8,19 +8,21 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkTLazy.h"
+#include "src/base/SkUTF.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintDefaults.h"
-#include "src/core/SkScalerCache.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/core/SkTLazy.h"
-#include "src/core/SkUtils.h"
-#include "src/utils/SkUTF.h"
+
+using namespace skia_private;
 
 #define kDefault_Size       SkPaintDefaults_TextSize
 #define kDefault_Flags      SkFont::kBaselineSnap_PrivFlag
@@ -382,7 +384,7 @@ void SkFontPriv::GlyphsToUnichars(const SkFont& font, const SkGlyphID glyphs[], 
 
     auto typeface = font.getTypefaceOrDefault();
     const unsigned numGlyphsInTypeface = typeface->countGlyphs();
-    SkAutoTArray<SkUnichar> unichars(numGlyphsInTypeface);
+    AutoTArray<SkUnichar> unichars(numGlyphsInTypeface);
     typeface->getGlyphToUnicodeMap(unichars.get());
 
     for (int i = 0; i < count; ++i) {

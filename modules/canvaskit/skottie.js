@@ -123,6 +123,12 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soun
       return this._setColor(key, cPtr);
     };
 
+    CanvasKit.ManagedAnimation.prototype.setTransform = function(key, anchor, position, scale, rotation, skew, skew_axis) {
+      let transformData = [anchor[0], anchor[1], position[0], position[1], scale[0], scale[1], rotation, skew, skew_axis];
+      const tPtr = copy1dArray(transformData, 'HEAPF32', _scratch3x3MatrixPtr);
+      return this._setTransform(key, tPtr);
+    };
+
     CanvasKit.ManagedAnimation.prototype.size = function(optSize) {
       // This will copy 2 floats into a space for 4 floats
       this._size(_scratchFourFloatsAPtr);

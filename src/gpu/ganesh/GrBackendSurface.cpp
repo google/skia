@@ -7,8 +7,9 @@
 
 #include "include/gpu/GrBackendSurface.h"
 
+#include "include/core/SkTextureCompressionType.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrBackendSurfaceMutableStateImpl.h"
+#include "src/gpu/MutableTextureStateRef.h"
 
 #if defined(SK_GL)
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
@@ -16,6 +17,7 @@
 
 #ifdef SK_DAWN
 #include "include/gpu/dawn/GrDawnTypes.h"
+#include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/ganesh/dawn/GrDawnUtil.h"
 #endif
 
@@ -23,6 +25,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/vk/GrVkImageLayout.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 #endif
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
@@ -211,7 +214,7 @@ bool GrBackendFormat::asDxgiFormat(DXGI_FORMAT* dxgiFormat) const {
 }
 #endif
 
-GrBackendFormat::GrBackendFormat(GrColorType colorType, SkImage::CompressionType compression,
+GrBackendFormat::GrBackendFormat(GrColorType colorType, SkTextureCompressionType compression,
                                  bool isStencilFormat)
         : fBackend(GrBackendApi::kMock)
         , fValid(true)
@@ -233,7 +236,7 @@ uint32_t GrBackendFormat::channelMask() const {
 #endif
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            return GrVkFormatChannels(fVk.fFormat);
+            return skgpu::VkFormatChannels(fVk.fFormat);
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
@@ -241,7 +244,7 @@ uint32_t GrBackendFormat::channelMask() const {
 #endif
 #ifdef SK_DAWN
         case GrBackendApi::kDawn:
-            return GrDawnFormatChannels(fDawnFormat);
+            return skgpu::DawnFormatChannels(fDawnFormat);
 #endif
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D:
@@ -291,7 +294,7 @@ GrColorFormatDesc GrBackendFormat::desc() const {
 #ifdef SK_DEBUG
 bool GrBackendFormat::validateMock() const {
     int trueStates = 0;
-    if (fMock.fCompressionType != SkImage::CompressionType::kNone) {
+    if (fMock.fCompressionType != SkTextureCompressionType::kNone) {
         trueStates++;
     }
     if (fMock.fColorType != GrColorType::kUnknown) {
@@ -313,13 +316,13 @@ GrColorType GrBackendFormat::asMockColorType() const {
     return GrColorType::kUnknown;
 }
 
-SkImage::CompressionType GrBackendFormat::asMockCompressionType() const {
+SkTextureCompressionType GrBackendFormat::asMockCompressionType() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
         SkASSERT(this->validateMock());
         return fMock.fCompressionType;
     }
 
-    return SkImage::CompressionType::kNone;
+    return SkTextureCompressionType::kNone;
 }
 
 bool GrBackendFormat::isMockStencilFormat() const {
@@ -349,7 +352,7 @@ GrBackendFormat GrBackendFormat::makeTexture2D() const {
 }
 
 GrBackendFormat GrBackendFormat::MakeMock(GrColorType colorType,
-                                          SkImage::CompressionType compression,
+                                          SkTextureCompressionType compression,
                                           bool isStencilFormat) {
     return GrBackendFormat(colorType, compression, isStencilFormat);
 }
@@ -368,23 +371,19 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 #ifdef SK_GL
         case GrBackendApi::kOpenGL:
             return fGLFormat == that.fGLFormat;
-            break;
 #endif
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             return fVk.fFormat == that.fVk.fFormat &&
                    fVk.fYcbcrConversionInfo == that.fVk.fYcbcrConversionInfo;
-            break;
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
             return fMtlFormat == that.fMtlFormat;
-            break;
 #endif
 #ifdef SK_DAWN
         case GrBackendApi::kDawn:
             return fDawnFormat == that.fDawnFormat;
-            break;
 #endif
         case GrBackendApi::kMock:
             return fMock.fColorType == that.fMock.fColorType &&
@@ -407,6 +406,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 #endif
 #ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 #endif
 
 SkString GrBackendFormat::toStr() const {
@@ -427,7 +427,7 @@ SkString GrBackendFormat::toStr() const {
             break;
         case GrBackendApi::kVulkan:
 #ifdef SK_VULKAN
-            str.append(GrVkFormatToStr(fVk.fFormat));
+            str.append(skgpu::VkFormatToStr(fVk.fFormat));
 #endif
             break;
         case GrBackendApi::kMetal:
@@ -483,7 +483,7 @@ GrBackendTexture::GrBackendTexture(int width,
                   width,
                   height,
                   vkInfo,
-                  sk_sp<GrBackendSurfaceMutableStateImpl>(new GrBackendSurfaceMutableStateImpl(
+                  sk_sp<skgpu::MutableTextureStateRef>(new skgpu::MutableTextureStateRef(
                           vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily)),
                   label) {}
 
@@ -516,7 +516,7 @@ static GrTextureType vk_image_info_to_texture_type(const GrVkImageInfo& info) {
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo,
-                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                                   sk_sp<skgpu::MutableTextureStateRef> mutableState,
                                    std::string_view label)
         : fIsValid(true)
         , fWidth(width)
@@ -701,7 +701,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     return *this;
 }
 
-sk_sp<GrBackendSurfaceMutableStateImpl> GrBackendTexture::getMutableState() const {
+sk_sp<skgpu::MutableTextureStateRef> GrBackendTexture::getMutableState() const {
     return fMutableState;
 }
 
@@ -797,7 +797,7 @@ bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     return false;
 }
 
-void GrBackendTexture::setMutableState(const GrBackendSurfaceMutableState& state) {
+void GrBackendTexture::setMutableState(const skgpu::MutableTextureState& state) {
     fMutableState->set(state);
 }
 
@@ -984,8 +984,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              const GrVkImageInfo& vkInfo)
         : GrBackendRenderTarget(width, height, vkInfo,
-                                sk_sp<GrBackendSurfaceMutableStateImpl>(
-                                        new GrBackendSurfaceMutableStateImpl(
+                                sk_sp<skgpu::MutableTextureStateRef>(
+                                        new skgpu::MutableTextureStateRef(
                                                 vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily))) {}
 
 static const VkImageUsageFlags kDefaultRTUsageFlags =
@@ -994,7 +994,7 @@ static const VkImageUsageFlags kDefaultRTUsageFlags =
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              const GrVkImageInfo& vkInfo,
-                                             sk_sp<GrBackendSurfaceMutableStateImpl> mutableState)
+                                             sk_sp<skgpu::MutableTextureStateRef> mutableState)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
@@ -1070,6 +1070,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(std::max(1, sampleCnt))
         , fStencilBits(stencilBits)
+        , fBackend(GrBackendApi::kMock)
         , fMockInfo(mockInfo) {}
 
 GrBackendRenderTarget::~GrBackendRenderTarget() {
@@ -1145,7 +1146,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     return *this;
 }
 
-sk_sp<GrBackendSurfaceMutableStateImpl> GrBackendRenderTarget::getMutableState() const {
+sk_sp<skgpu::MutableTextureStateRef> GrBackendRenderTarget::getMutableState() const {
     return fMutableState;
 }
 
@@ -1272,7 +1273,7 @@ bool GrBackendRenderTarget::getMockRenderTargetInfo(GrMockRenderTargetInfo* outI
     return false;
 }
 
-void GrBackendRenderTarget::setMutableState(const GrBackendSurfaceMutableState& state) {
+void GrBackendRenderTarget::setMutableState(const skgpu::MutableTextureState& state) {
     fMutableState->set(state);
 }
 

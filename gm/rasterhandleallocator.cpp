@@ -11,6 +11,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkSurface.h"
+#include "include/private/base/SkMalloc.h"
 
 class GraphicsPort {
 protected:
@@ -154,7 +155,7 @@ using MyAllocator = CGAllocator;
 
 #elif defined(SK_BUILD_FOR_WIN)
 
-#include "src/core/SkLeanWindows.h"
+#include "src/base/SkLeanWindows.h"
 
 static RECT toRECT(const SkIRect& r) {
     return { r.left(), r.top(), r.right(), r.bottom() };

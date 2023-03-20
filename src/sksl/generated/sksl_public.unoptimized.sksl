@@ -1,0 +1,4 @@
+static constexpr char SKSL_MINIFIED_sksl_public[] =
+"$pure half3 toLinearSrgb(half3 color);$pure half3 fromLinearSrgb(half3 color"
+");half4 $eval(float2 coords,shader s);half4 $eval(half4 color,colorFilter f"
+");half4 $eval(half4 src,half4 dst,blender b);";

@@ -1,15 +1,18 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-
 VK_FILES = [
-    "GrVkSecondaryCBDrawContext.h",
+    "VulkanAMDMemoryAllocator.cpp",
+    "VulkanAMDMemoryAllocator.h",
     "VulkanExtensions.cpp",
     "VulkanInterface.cpp",
     "VulkanInterface.h",
+    "VulkanMemory.cpp",
+    "VulkanMemory.h",
+    "VulkanUtilsPriv.h",
 ]
 
 split_srcs_and_hdrs(
@@ -17,14 +20,23 @@ split_srcs_and_hdrs(
     files = VK_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":vk_srcs"],
     visibility = ["//src/gpu:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":vk_hdrs"],
     visibility = ["//src/gpu:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//src/gpu:__pkg__"],
+    deps = select({
+        "//src/gpu:vulkan_with_vma": ["//third_party/vulkanmemoryallocator"],
+        "//conditions:default": [],
+    }),
 )

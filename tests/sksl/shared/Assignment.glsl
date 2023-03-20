@@ -9,6 +9,12 @@ struct S {
 };
 vec4 globalVar;
 S globalStruct;
+void keepAlive_vh(inout float h) {
+}
+void keepAlive_vf(inout float f) {
+}
+void keepAlive_vi(inout int i) {
+}
 vec4 main() {
     int i;
     i = 0;
@@ -23,8 +29,8 @@ vec4 main() {
     ai[0] = 0;
     ivec4 ai4[1];
     ai4[0] = ivec4(1, 2, 3, 4);
-    mat3 ah2x4[1];
-    ah2x4[0] = mat3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    mat3 ah3x3[1];
+    ah3x3[0] = mat3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
     vec4 af4[1];
     af4[0].x = 0.0;
     af4[0].ywxz = vec4(1.0);
@@ -42,9 +48,15 @@ vec4 main() {
     s.af[0] = 2.0;
     s.h4 = vec4(1.0);
     s.ah4[0] = vec4(2.0);
-    af4[0] *= ah2x4[0][0].x;
-    i4.y *= i;
-    x.y *= l;
-    s.f *= l;
+    keepAlive_vf(af4[0].x);
+    keepAlive_vh(ah3x3[0][0].x);
+    keepAlive_vi(i);
+    keepAlive_vi(i4.y);
+    keepAlive_vi(ai[0]);
+    keepAlive_vi(ai4[0].x);
+    keepAlive_vh(x.y);
+    keepAlive_vf(s.f);
+    keepAlive_vh(l);
+    keepAlive_vf(f3x3[0].x);
     return colorGreen;
 }

@@ -5,9 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "tests/Test.h"
 
 static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {

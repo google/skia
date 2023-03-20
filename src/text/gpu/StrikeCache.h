@@ -8,9 +8,9 @@
 #ifndef sktext_gpu_StrikeCache_DEFINED
 #define sktext_gpu_StrikeCache_DEFINED
 
-#include "include/private/SkTHash.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTHash.h"
 
 namespace sktext::gpu {
 

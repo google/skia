@@ -6,7 +6,7 @@ REG_FIDDLE(ImageInfo_computeByteSize, 256, 130, false, 0) {
 void draw(SkCanvas* canvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
     const size_t size = info.computeByteSize(100000);
-    SkAutoTMalloc<SkPMColor> storage(size);
+    AutoTMalloc<SkPMColor> storage(size);
     SkPMColor* pixels = storage.get();
     SkBitmap bitmap;
     bitmap.setInfo(info);

@@ -8,11 +8,11 @@
 #ifndef SKSL_GLSLCODEGENERATOR
 #define SKSL_GLSLCODEGENERATOR
 
-#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
@@ -33,6 +33,7 @@ class FunctionDeclaration;
 class FunctionDefinition;
 class FunctionPrototype;
 class IfStatement;
+class IndexExpression;
 class InterfaceBlock;
 class Literal;
 class OutputStream;
@@ -43,17 +44,17 @@ class ReturnStatement;
 class Statement;
 class StructDefinition;
 class SwitchStatement;
+class Swizzle;
 class TernaryExpression;
 class Type;
 class VarDeclaration;
 class Variable;
 class VariableReference;
-struct IndexExpression;
+enum class OperatorPrecedence : uint8_t;
 struct Layout;
 struct Modifiers;
 struct Program;
 struct ShaderCaps;
-struct Swizzle;
 
 /**
  * Converts a Program into GLSL code.
@@ -66,7 +67,7 @@ public:
     bool generateCode() override;
 
 protected:
-    using Precedence = Operator::Precedence;
+    using Precedence = OperatorPrecedence;
 
     void write(std::string_view s);
 
@@ -77,6 +78,8 @@ protected:
     virtual void writeHeader();
 
     bool usesPrecisionModifiers() const;
+
+    void writeIdentifier(std::string_view identifier);
 
     virtual std::string getTypeName(const Type& type);
 

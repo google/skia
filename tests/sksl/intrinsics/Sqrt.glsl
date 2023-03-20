@@ -1,10 +1,13 @@
 
 out vec4 sk_FragColor;
-uniform vec4 inputVal;
-uniform vec4 expected;
+uniform mat2 testMatrix2x2;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
     const vec4 negativeVal = vec4(-1.0, -4.0, -16.0, -64.0);
-    return ((((((((((sqrt(inputVal.x) == expected.x && sqrt(inputVal.xy) == expected.xy) && sqrt(inputVal.xyz) == expected.xyz) && sqrt(inputVal) == expected) && 1.0 == expected.x) && vec2(1.0, 2.0) == expected.xy) && vec3(1.0, 2.0, 4.0) == expected.xyz) && vec4(1.0, 2.0, 4.0, 8.0) == expected) && sqrt(-1.0) == expected.x) && sqrt(vec2(-1.0, -4.0)) == expected.xy) && sqrt(vec3(-1.0, -4.0, -16.0)) == expected.xyz) && sqrt(negativeVal) == expected ? colorGreen : colorRed;
+    coords = sqrt(negativeVal).xy;
+    vec4 inputVal = vec4(testMatrix2x2) + vec4(0.0, 2.0, 6.0, 12.0);
+    const vec4 expected = vec4(1.0, 2.0, 3.0, 4.0);
+    const vec4 allowedDelta = vec4(0.05);
+    return ((abs(sqrt(inputVal.x) - 1.0) < 0.05 && all(lessThan(abs(sqrt(inputVal.xy) - vec2(1.0, 2.0)), vec2(0.05)))) && all(lessThan(abs(sqrt(inputVal.xyz) - vec3(1.0, 2.0, 3.0)), vec3(0.05)))) && all(lessThan(abs(sqrt(inputVal) - expected), allowedDelta)) ? colorGreen : colorRed;
 }

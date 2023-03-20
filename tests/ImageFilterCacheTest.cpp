@@ -5,17 +5,46 @@
   * found in the LICENSE file.
   */
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+
+#include <cstddef>
+#include <tuple>
+#include <utility>
+
+class GrRecordingContext;
+struct GrContextOptions;
 
 static const int kSmallerSize = 10;
 static const int kPad = 3;
@@ -54,7 +83,9 @@ static void test_find_existing(skiatest::Reporter* reporter,
 
     skif::FilterResult foundImage;
     REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
-    REPORTER_ASSERT(reporter, offset == SkIPoint(foundImage.layerOrigin()));
+    REPORTER_ASSERT(reporter,
+            SkIRect::MakeXYWH(offset.fX, offset.fY, image->width(), image->height()) ==
+            SkIRect(foundImage.layerBounds()));
 
     REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
 }
@@ -197,24 +228,15 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
     test_image_backed(reporter, nullptr, srcImage);
 }
 
-#include "include/gpu/GrDirectContext.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
-#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/SkGr.h"
-
 static GrSurfaceProxyView create_proxy_view(GrRecordingContext* rContext) {
     SkBitmap srcBM = create_bm();
     return std::get<0>(GrMakeUncachedBitmapProxyView(rContext, srcBM));
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
 
     GrSurfaceProxyView srcView = create_proxy_view(dContext);
@@ -255,10 +277,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU,
     test_image_backed(reporter, dContext, srcImage);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
 
     GrSurfaceProxyView srcView = create_proxy_view(dContext);

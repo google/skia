@@ -11,7 +11,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkEndian.h"
 #include "src/sfnt/SkOTTableTypes.h"

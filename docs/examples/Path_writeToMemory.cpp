@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     path.lineTo(6.f / 7, 2.f / 3);
     size_t size = path.writeToMemory(nullptr);
     SkTDArray<char> storage;
-    storage.setCount(size);
+    storage.resize(size);
     path.writeToMemory(storage.begin());
     copy.readFromMemory(storage.begin(), size);
     SkDebugf("path is " "%s" "equal to copy\n", path == copy ? "" : "not ");

@@ -15,7 +15,8 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
@@ -223,6 +224,17 @@ public:
                           const SkPaint& initialPaint,
                           const SkPaint& drawingPaint);
 
+    // Snap the 'subset' contents from this device, possibly as a read-only view. If 'forceCopy'
+    // is true then the returned image's pixels must not be affected by subsequent draws into the
+    // device. When 'forceCopy' is false, the image can be a view into the device's pixels
+    // (avoiding a copy for performance, at the expense of safety). Default returns null.
+    virtual sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false);
+    // Can return null if unable to perform scaling as part of the copy, even if snapSpecial() w/o
+    // scaling would succeed.
+    virtual sk_sp<SkSpecialImage> snapSpecialScaled(const SkIRect& subset, const SkISize& dstDims);
+    // Get a view of the entire device's current contents as an image.
+    sk_sp<SkSpecialImage> snapSpecial();
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -339,7 +351,7 @@ protected:
                                     const SkPaint& drawingPaint) = 0;
 
     // Slug handling routines.
-#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED))
+#if (defined(SK_GANESH) || defined(SK_GRAPHITE))
     virtual sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(
             const sktext::GlyphRunList& glyphRunList,
             const SkPaint& initialPaint,
@@ -372,20 +384,14 @@ protected:
      * local-to-device matrix (i.e. just like drawSpecial and drawDevice).
      *
      * The final paint must not have an image filter or mask filter set on it; a shader is ignored.
+     * The provided color type will be used for any intermediate surfaces that need to be created as
+     * part of filter evaluation. It does not have to be src's color type or this Device's type.
      */
-    virtual void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                                   const SkImageFilter*, const SkSamplingOptions&, const SkPaint&);
+    void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src, SkColorType ct,
+                           const SkImageFilter*, const SkSamplingOptions&, const SkPaint&);
 
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
-
-    // Get a view of the entire device's current contents as an image.
-    sk_sp<SkSpecialImage> snapSpecial();
-    // Snap the 'subset' contents from this device, possibly as a read-only view. If 'forceCopy'
-    // is true then the returned image's pixels must not be affected by subsequent draws into the
-    // device. When 'forceCopy' is false, the image can be a view into the device's pixels
-    // (avoiding a copy for performance, at the expense of safety). Default returns null.
-    virtual sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false);
 
     virtual void setImmutable() {}
 
@@ -423,9 +429,9 @@ protected:
             , fAllocator(allocator)
         {}
 
-        const SkImageInfo       fInfo;
-        const TileUsage         fTileUsage;
-        const SkPixelGeometry   fPixelGeometry;
+        const SkImageInfo        fInfo;
+        const TileUsage          fTileUsage;
+        const SkPixelGeometry    fPixelGeometry;
         SkRasterHandleAllocator* fAllocator = nullptr;
     };
 
@@ -459,6 +465,7 @@ private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkDrawBase;
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 
@@ -571,9 +578,7 @@ protected:
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
 #endif
 
-    void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,
-                           const SkSamplingOptions&, const SkPaint&) override {}
-#if SK_SUPPORT_GPU
+#if defined(SK_GANESH)
     void drawSlug(SkCanvas*, const sktext::gpu::Slug*, const SkPaint&) override {}
 #endif
 
@@ -603,7 +608,7 @@ private:
     ClipState& writableClip();
 
     void resetClipStack() {
-        fClipStack.reset();
+        fClipStack.clear();
         fClipStack.emplace_back(this->bounds(), /*isAA=*/false, /*isRect=*/true);
     }
 

@@ -1,0 +1,30 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "window",
+    srcs = [
+        # TODO: split up gpu backends into buffett style BUILD
+        "SkDisplayParams.h",
+        "SkWindowContext.cpp",
+        "SkWindowContext.h",
+        "SkGLWindowContext.cpp",
+        "SkGLWindowContext.h",
+        "SkVulkanWindowContext.cpp",
+        "SkVulkanWindowContext.h",
+    ] + select({
+        "@platforms//os:android": ["//tools/window/android:srcs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:skia_internal",
+        "//tools/gpu/vk:testutils",
+    ] + select({
+        "@platforms//os:android": ["//tools/window/android:deps"],
+        "//conditions:default": [],
+    }),
+)

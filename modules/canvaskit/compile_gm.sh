@@ -46,9 +46,9 @@ mkdir -p $BUILD_DIR
 # we get a fresh build.
 rm -f $BUILD_DIR/*.a
 
-GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
+GN_GPU="skia_enable_ganesh=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
-WASM_GPU="-lGL -DSK_SUPPORT_GPU=1 -DSK_GL -DCK_ENABLE_WEBGL \
+WASM_GPU="-lGL -DSK_GANESH -DSK_GL -DCK_ENABLE_WEBGL \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/webgl.js\
           -sUSE_WEBGL2=1"
 
@@ -67,15 +67,8 @@ GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_em
 
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 
-# Turn off exiting while we check for ninja (which may not be on PATH)
-set +e
-NINJA=`which ninja`
-if [[ -z $NINJA ]]; then
-  git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
-  NINJA=$BUILD_DIR/depot_tools/ninja
-fi
-# Re-enable error checking
-set -e
+./bin/fetch-ninja
+NINJA=third_party/ninja/ninja
 
 ./bin/fetch-gn
 
@@ -93,6 +86,7 @@ echo "Compiling bitcode"
   ] \
   is_debug=${DEBUG} \
   is_official_build=${IS_OFFICIAL_BUILD} \
+  is_trivial_abi=true \
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
@@ -155,7 +149,8 @@ SKIA_DEFINES="
 -DSK_CODEC_DECODES_JPEG \
 -DSK_SHAPER_HARFBUZZ_AVAILABLE \
 -DSK_UNICODE_AVAILABLE \
--DSK_ENABLE_SVG"
+-DSK_ENABLE_SVG \
+-DSK_TRIVIAL_ABI=[[clang::trivial_abi]]"
 
 GMS_TO_BUILD="gm/*.cpp"
 TESTS_TO_BUILD="tests/*.cpp"
@@ -170,7 +165,6 @@ fi
 # These gms do not compile or link with the WASM code. Thus, we omit them.
 GLOBIGNORE="gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
-"gm/particles.cpp:"\
 "gm/video_decoder.cpp:"
 
 # These tests do not compile with the WASM code (require other deps).
@@ -180,6 +174,8 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/EncodeTest.cpp:"\
 "tests/FontMgrAndroidParserTest.cpp:"\
 "tests/FontMgrFontConfigTest.cpp:"\
+"tests/FCITest.cpp:"\
+"tests/JpegGainmapTest.cpp:"\
 "tests/TypefaceMacTest.cpp:"\
 "tests/SkVMTest.cpp:"
 
@@ -194,6 +190,10 @@ GLOBIGNORE+="tests/BackendAllocationTest.cpp:"\
 
 # All the tests in these files crash.
 GLOBIGNORE+="tests/GrThreadSafeCacheTest.cpp"
+
+# These are not tests
+GLOBIGNORE+="tests/BazelNoopRunner.cpp:"\
+"tests/BazelTestRunner.cpp"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,

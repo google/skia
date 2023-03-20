@@ -1,0 +1,15 @@
+// Valid declarations:
+layout(spirv, set=0, binding=0) uniform ubo { float a; };    // valid
+layout(spirv, set=0, binding=0) buffer ssbo { float b; };    // valid
+layout(spirv, set=0, binding=0) uniform texture2D texture1;  // valid
+layout(spirv, set=0, binding=0) uniform sampler2D sampler1;  // valid
+
+// Invalid declarations:
+layout(spirv, texture=0) uniform texture2D texture2;             // invalid
+layout(spirv, texture=0, sampler=0) uniform sampler2D sampler2;  // invalid
+
+/*%%*
+layout qualifier 'texture' is not permitted here
+layout qualifier 'texture' is not permitted here
+layout qualifier 'sampler' is not permitted here
+*%%*/

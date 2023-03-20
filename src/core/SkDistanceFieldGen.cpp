@@ -6,14 +6,18 @@
  */
 
 #include "include/private/SkColorData.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTemplates.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkPointPriv.h"
 
 #include <utility>
+
+using namespace skia_private;
+
+#if !defined(SK_DISABLE_SDF_TEXT)
 
 struct DFData {
     float   fAlpha;      // alpha value of source texel
@@ -357,7 +361,7 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
     int dataHeight = height + 2*pad;
 
     // create zeroed temp DFData+edge storage
-    SkAutoFree storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
+    UniqueVoidPtr storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
     DFData*        dataPtr = (DFData*)storage.get();
     unsigned char* edgePtr = (unsigned char*)storage.get() + dataWidth*dataHeight*sizeof(DFData);
 
@@ -559,3 +563,5 @@ bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
 
     return generate_distance_field_from_image(distanceField, copyPtr, width, height);
 }
+
+#endif // !defined(SK_DISABLE_SDF_TEXT)

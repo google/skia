@@ -15,7 +15,7 @@
 #include "tools/gpu/vk/VkTestContext.h"
 #include <mutex>
 #endif
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "tools/graphite/ContextFactory.h"
 #endif
@@ -94,10 +94,10 @@ static bool skip_context(GrContextFactory::ContextType contextType) {
     return false;
 }
 
-void RunWithGPUTestContexts(GrContextTestFn* test,
-                            GrContextTypeFilterFn* contextTypeFilter,
-                            Reporter* reporter,
-                            const GrContextOptions& options) {
+void RunWithGaneshTestContexts(GrContextTestFn* testFn,
+                               GrContextTypeFilterFn* filter,
+                               Reporter* reporter,
+                               const GrContextOptions& options) {
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType)typeInt;
         if (skip_context(contextType)) {
@@ -105,7 +105,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test,
         }
 
         // The logic below is intended to mirror the behavior in DMGpuTestProcs.cpp
-        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
+        if (filter && !(*filter)(contextType)) {
             continue;
         }
 
@@ -115,22 +115,24 @@ void RunWithGPUTestContexts(GrContextTestFn* test,
         ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
         if (ctxInfo.directContext()) {
             ctxInfo.testContext()->makeCurrent();
-            (*test)(reporter, ctxInfo);
+            (*testFn)(reporter, ctxInfo);
             // Sync so any release/finished procs get called.
             ctxInfo.directContext()->flushAndSubmit(/*sync*/ true);
         }
     }
 }
 
-#ifdef SK_GRAPHITE_ENABLED
+#if defined(SK_GRAPHITE)
 
 namespace graphite {
 
-void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) { SK_ABORT(); }
+void RunWithGraphiteTestContexts(GraphiteTestFn* test,
+                                 GrContextTypeFilterFn* filter,
+                                 Reporter* reporter) { SK_ABORT(); }
 
 }  // namespace graphite
 
-#endif  // SK_GRAPHITE_ENABLED
+#endif  // SK_GRAPHITE
 
 }  // namespace skiatest
 

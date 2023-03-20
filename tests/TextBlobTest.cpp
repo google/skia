@@ -5,15 +5,36 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTo.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkTextBlobPriv.h"
-
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <string>
+
+using namespace skia_private;
 
 class TextBlobTester {
 public:
@@ -175,7 +196,7 @@ public:
         // Kitchen sink font.
         font.setSize(42);
         font.setScaleX(4.2f);
-        font.setTypeface(ToolUtils::create_portable_typeface());
+        font.setTypeface(ToolUtils::create_portable_typeface(nullptr, SkFontStyle::Bold()));
         font.setSkewX(0.42f);
         font.setHinting(SkFontHinting::kFull);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
@@ -314,7 +335,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     const char text2[] = "Bar";
 
     int glyphCount = font.countText(text1, strlen(text1), SkTextEncoding::kUTF8);
-    SkAutoTMalloc<uint16_t> glyphs(glyphCount);
+    AutoTMalloc<uint16_t> glyphs(glyphCount);
     (void)font.textToGlyphs(text1, strlen(text1), SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
 
     auto run = textBlobBuilder.allocRunText(font, glyphCount, 0, 0, SkToInt(strlen(text2)));
@@ -343,10 +364,6 @@ DEF_TEST(TextBlob_extended, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "include/core/SkCanvas.h"
-#include "include/core/SkSurface.h"
-#include "include/private/SkTArray.h"
-
 static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
                     sk_sp<SkTypeface> tf) {
     SkFont font;
@@ -388,7 +405,7 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
         return nullptr;
     }
     size_t idx = *reinterpret_cast<const size_t*>(data);
-    if (idx >= array->size()) {
+    if (idx >= SkToSizeT(array->size())) {
         SkASSERT(false);
         return nullptr;
     }
@@ -416,7 +433,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
     serializeProcs.fTypefaceProc = &SerializeTypeface;
     serializeProcs.fTypefaceCtx = (void*) &array;
     sk_sp<SkData> data = blob0->serialize(serializeProcs);
-    REPORTER_ASSERT(reporter, array.count() == 1);
+    REPORTER_ASSERT(reporter, array.size() == 1);
     SkDeserialProcs deserializeProcs;
     deserializeProcs.fTypefaceProc = &DeserializeTypeface;
     deserializeProcs.fTypefaceCtx = (void*) &array;

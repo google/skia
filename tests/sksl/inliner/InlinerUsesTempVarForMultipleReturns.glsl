@@ -3,13 +3,12 @@ out vec4 sk_FragColor;
 uniform vec4 colorWhite;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-vec4 MakeTempVar_h4h4(vec4 c) {
-    if (c.xy == c.zw) {
-        return colorGreen;
-    } else {
-        return colorRed;
-    }
-}
 vec4 main() {
-    return MakeTempVar_h4h4(colorWhite);
+    vec4 _0_MakeTempVar;
+    if (colorWhite.xy == colorWhite.zw) {
+        _0_MakeTempVar = colorGreen;
+    } else {
+        _0_MakeTempVar = colorRed;
+    }
+    return _0_MakeTempVar;
 }

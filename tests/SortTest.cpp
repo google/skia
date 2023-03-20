@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkRandom.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkRandom.h"
+#include "src/base/SkTSort.h"
 #include "tests/Test.h"
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
+#include <string>
 
 extern "C" {
     static int compare_int(const void* a, const void* b) {

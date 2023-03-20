@@ -18,7 +18,7 @@ public:
                  GrAccessPattern accessPattern,
                  std::string_view label)
             : INHERITED(gpu, sizeInBytes, type, accessPattern, label) {
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(skgpu::Budgeted::kYes);
     }
 
 private:

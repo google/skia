@@ -17,7 +17,7 @@
 class GrD3DTexture : public GrTexture, public virtual GrD3DTextureResource {
 public:
     static sk_sp<GrD3DTexture> MakeNewTexture(GrD3DGpu*,
-                                              SkBudgeted,
+                                              skgpu::Budgeted,
                                               SkISize dimensions,
                                               const D3D12_RESOURCE_DESC&,
                                               GrProtected,
@@ -66,7 +66,10 @@ protected:
     void onSetLabel() override;
 
 private:
-    GrD3DTexture(GrD3DGpu*, SkBudgeted, SkISize dimensions, const GrD3DTextureResourceInfo&,
+    GrD3DTexture(GrD3DGpu*,
+                 skgpu::Budgeted,
+                 SkISize dimensions,
+                 const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
                  const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
                  GrMipmapStatus,
@@ -81,7 +84,7 @@ private:
 
     // In D3D we call the release proc after we are finished with the underlying
     // GrSurfaceResource::Resource object (which occurs after the GPU has finished all work on it).
-    void onSetRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) override {
+    void onSetRelease(sk_sp<RefCntedReleaseProc> releaseHelper) override {
         // Forward the release proc on to GrSurfaceResource
         this->setResourceRelease(std::move(releaseHelper));
     }

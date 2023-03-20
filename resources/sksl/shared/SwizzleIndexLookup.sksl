@@ -1,0 +1,35 @@
+uniform half4 colorGreen, colorRed;
+uniform float3x3 testMatrix3x3;
+uniform float4x4 testMatrix4x4;
+
+bool test3x3() {
+    float3 expected = float3(3, 2, 1);
+    for (int c=0; c<3; ++c) {
+        float3 vec = testMatrix3x3[c];
+        for (int r=0; r<3; ++r) {
+            if (vec.zyx[r] != expected[r]) {
+                return false;
+            }
+        }
+        expected += 3;
+    }
+    return true;
+}
+
+bool test4x4() {
+    float4 expected = float4(4, 3, 2, 1);
+    for (int c=0; c<4; ++c) {
+        float4 vec = testMatrix4x4[c];
+        for (int r=0; r<4; ++r) {
+            if (vec.wzyx[r] != expected[r]) {
+                return false;
+            }
+        }
+        expected += 4;
+    }
+    return true;
+}
+
+half4 main(float2 coords) {
+    return test3x3() && test4x4() ? colorGreen : colorRed;
+}

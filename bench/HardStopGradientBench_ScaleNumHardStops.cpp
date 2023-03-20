@@ -13,7 +13,9 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
+
+using namespace skia_private;
 
 class HardStopGradientBench_ScaleNumHardStops : public Benchmark {
 public:
@@ -51,14 +53,14 @@ public:
         };
 
         // Alternate between different choices
-        SkAutoTArray<SkColor> colors(fColorCount);
+        AutoTArray<SkColor> colors(fColorCount);
         for (int i = 0; i < fColorCount; i++) {
             colors[i] = color_choices[i % kNumColorChoices];
         }
 
         // Create requisite number of hard stops, and evenly
         // space positions after that
-        SkAutoTArray<SkScalar> positions(fColorCount);
+        AutoTArray<SkScalar> positions(fColorCount);
         int k = 0;
         for (int i = 0; i < fHardStopCount; i++) {
             float val = k/2.0f;

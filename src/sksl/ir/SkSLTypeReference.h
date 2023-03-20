@@ -8,16 +8,20 @@
 #ifndef SKSL_TYPEREFERENCE
 #define SKSL_TYPEREFERENCE
 
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
 namespace SkSL {
+
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * Represents an identifier referring to a type. This is an intermediate value: TypeReferences are
@@ -25,7 +29,7 @@ namespace SkSL {
  */
 class TypeReference final : public Expression {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kTypeReference;
+    inline static constexpr Kind kIRNodeKind = Kind::kTypeReference;
 
     TypeReference(const Context& context, Position pos, const Type* value)
         : TypeReference(pos, value, context.fTypes.fInvalid.get()) {}
@@ -43,11 +47,7 @@ public:
         return fValue;
     }
 
-    bool hasProperty(Property property) const override {
-        return false;
-    }
-
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         return std::string(this->value().name());
     }
 
@@ -57,7 +57,7 @@ public:
 
 private:
     TypeReference(Position pos, const Type* value, const Type* type)
-        : INHERITED(pos, kExpressionKind, type)
+        : INHERITED(pos, kIRNodeKind, type)
         , fValue(*value) {}
 
     const Type& fValue;

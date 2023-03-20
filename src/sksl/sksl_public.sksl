@@ -1,10 +1,10 @@
 // SkSL intrinsics that are not part of GLSL
 
 // Color space transformation, between the working (destination) space and fixed (known) spaces:
-half3 toLinearSrgb(half3 color);
-half3 fromLinearSrgb(half3 color);
+$pure half3 toLinearSrgb(half3 color);
+$pure half3 fromLinearSrgb(half3 color);
 
 // SkSL intrinsics that reflect Skia's C++ object model:
-half4 $eval(float2 coords, shader s);
-half4 $eval(half4 color, colorFilter f);
-half4 $eval(half4 src, half4 dst, blender b);
+      half4 $eval(float2 coords, shader s);
+      half4 $eval(half4 color, colorFilter f);
+      half4 $eval(half4 src, half4 dst, blender b);

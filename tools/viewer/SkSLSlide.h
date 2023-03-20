@@ -10,14 +10,12 @@
 
 #include "include/core/SkM44.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkTArray.h"
 #include "tools/viewer/Slide.h"
 
 class SkSLSlide : public Slide {
 public:
     SkSLSlide();
-
-    // TODO: We need a way for primarily interactive slides to always be as large as the window
-    SkISize getDimensions() const override { return SkISize::MakeEmpty(); }
 
     void draw(SkCanvas* canvas) override;
     bool animate(double nanos) override;
@@ -37,8 +35,8 @@ private:
     SkString fSkSL;
     bool fCodeIsDirty;
     sk_sp<SkRuntimeEffect> fEffect;
-    SkAutoTMalloc<char> fInputs;
-    SkTArray<sk_sp<SkShader>> fChildren;
+    skia_private::AutoTMalloc<char> fInputs;
+    skia_private::TArray<sk_sp<SkShader>> fChildren;
     float fSeconds = 0.0f;
 
     enum Geometry {
@@ -55,7 +53,7 @@ private:
     bool fShadertoyUniforms = true;
 
     // Named shaders that can be selected as inputs
-    SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
+    skia_private::TArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
 };
 
 #endif

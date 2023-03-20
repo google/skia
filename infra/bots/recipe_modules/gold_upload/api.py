@@ -28,8 +28,12 @@ class GoldUploadApi(recipe_api.RecipeApi):
       # For some reason, glob returns results_dir when it should return nothing.
       files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
       if len(files_to_upload) > 0:
+        extra_gsutil_args = None
+        if self.m.platform.is_mac:
+          extra_gsutil_args = ['-o', 'GSUtil:parallel_process_count=1']
         self.m.gsutil.cp('%s images' % ext, results_dir.join('*%s' % ext),
-                        image_dest_path, multithread=True)
+                        image_dest_path, extra_gsutil_args=extra_gsutil_args,
+                        multithread=True)
 
     summary_dest_path = 'gs://%s' % self.m.properties['gs_bucket']
     ref = revision

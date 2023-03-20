@@ -10,10 +10,10 @@
 
 #include "src/utils/win/SkWGL.h"
 
-#include "include/private/SkOnce.h"
-#include "include/private/SkTDArray.h"
-#include "src/core/SkTSearch.h"
-#include "src/core/SkTSort.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkTSearch.h"
+#include "src/base/SkTSort.h"
 
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
     if (nullptr == this->fGetExtensionsString) {
@@ -35,8 +35,6 @@ bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
         }
         extensionString += n+1;
     }
-
-    return false;
 }
 
 const char* SkWGLExtensions::getExtensionsString(HDC hdc) const {
@@ -136,7 +134,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
         0,
     };
     SkTDArray<PixelFormat> rankedFormats;
-    rankedFormats.setCount(formatCount);
+    rankedFormats.resize(formatCount);
     for (int i = 0; i < formatCount; ++i) {
         static const int kQueryAttr = SK_WGL_SAMPLES;
         int numSamples;
@@ -152,7 +150,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
     }
     SkTQSort(rankedFormats.begin(), rankedFormats.end(), pf_less);
     int idx = SkTSearch<PixelFormat, pf_less>(rankedFormats.begin(),
-                                              rankedFormats.count(),
+                                              rankedFormats.size(),
                                               desiredFormat,
                                               sizeof(PixelFormat));
     if (idx < 0) {

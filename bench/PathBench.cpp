@@ -11,14 +11,17 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkRandom.h"
 
 #include "src/core/SkDraw.h"
-#include "src/core/SkPaintPriv.h"
+#include "src/core/SkMatrixPriv.h"
+
+using namespace skia_private;
 
 enum Flags {
     kStroke_Flag = 1 << 0,
@@ -390,9 +393,9 @@ private:
         kNumVerbs    = 1 << 5,
         kNumPoints   = 1 << 5,
     };
-    SkAutoTArray<int>           fVerbCnts;
-    SkAutoTArray<SkPath::Verb>  fVerbs;
-    SkAutoTArray<SkPoint>       fPoints;
+    AutoTArray<int>           fVerbCnts;
+    AutoTArray<SkPath::Verb>  fVerbs;
+    AutoTArray<SkPoint>       fPoints;
     int                         fCurrPath;
     int                         fCurrVerb;
     int                         fCurrPoint;
@@ -460,8 +463,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths;
-    SkAutoTArray<SkPath> fCopies;
+    AutoTArray<SkPath> fPaths;
+    AutoTArray<SkPath> fCopies;
 
     using INHERITED = RandomPathBench;
 };
@@ -506,8 +509,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths;
-    SkAutoTArray<SkPath> fTransformed;
+    AutoTArray<SkPath> fPaths;
+    AutoTArray<SkPath> fTransformed;
 
     SkMatrix fMatrix;
     bool fInPlace;
@@ -548,8 +551,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths;
-    SkAutoTArray<SkPath> fCopies;
+    AutoTArray<SkPath> fPaths;
+    AutoTArray<SkPath> fCopies;
     using INHERITED = RandomPathBench;
 };
 
@@ -645,8 +648,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths0;
-    SkAutoTArray<SkPath> fPaths1;
+    AutoTArray<SkPath> fPaths0;
+    AutoTArray<SkPath> fPaths1;
     SkMatrix         fMatrix;
     using INHERITED = RandomPathBench;
 };
@@ -855,7 +858,7 @@ private:
     }
 
     void onDelayedSetup() override {
-        fQueryRects.setCount(kQueryRectCnt);
+        fQueryRects.resize(kQueryRectCnt);
 
         SkRandom rand;
         for (int i = 0; i < kQueryRectCnt; ++i) {
@@ -996,7 +999,8 @@ protected:
                                                6222222.5f, 28333.334f, 0.0f, 0.0f, 1.0f);
         for (int i = 0; i < loops; ++i) {
             SkPath dst;
-            paint.getFillPath(path, &dst, nullptr, SkPaintPriv::ComputeResScaleForStroking(mtx));
+            skpathutils::FillPathWithPaint(path, paint, &dst, nullptr,
+                                           SkMatrixPriv::ComputeResScaleForStroking(mtx));
         }
     }
 

@@ -1,5 +1,7 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+namespace skia_private {}
+using namespace skia_private;
 #include "docs/examples/50_percent_gray.cpp"
 #include "docs/examples/50_percent_srgb.cpp"
 #include "docs/examples/Alpha_Constants_a.cpp"
@@ -262,6 +264,8 @@
 #include "docs/examples/Dst_Over.cpp"
 #include "docs/examples/Exclusion.cpp"
 #include "docs/examples/Fake_Bold.cpp"
+#include "docs/examples/FillPathWithPaint.cpp"
+#include "docs/examples/FillPathWithPaint_2.cpp"
 #include "docs/examples/Font_breakText.cpp"
 #include "docs/examples/GradientShader_MakeLinear.cpp"
 #include "docs/examples/HSVToColor.cpp"
@@ -525,8 +529,6 @@
 #include "docs/examples/Paint_getColor.cpp"
 #include "docs/examples/Paint_getColor4f.cpp"
 #include "docs/examples/Paint_getColorFilter.cpp"
-#include "docs/examples/Paint_getFillPath.cpp"
-#include "docs/examples/Paint_getFillPath_2.cpp"
 #include "docs/examples/Paint_getFlags.cpp"
 #include "docs/examples/Paint_getFontMetrics.cpp"
 #include "docs/examples/Paint_getFontSpacing.cpp"

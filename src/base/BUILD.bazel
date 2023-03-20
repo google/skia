@@ -1,0 +1,88 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "exports_files_legacy",
+    "generate_cpp_files_for_header_list",
+    "skia_filegroup",
+)
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# Headers with no corresponding .cpp files
+IWYU_HDRS = [
+    "SkASAN.h",
+    "SkArenaAllocList.h",
+    "SkLeanWindows.h",
+    "SkScopeExit.h",
+    "SkRandom.h",
+    "SkMSAN.h",
+    "SkStringView.h",
+    "SkTBlockList.h",
+    "SkTDPQueue.h",
+    "SkTInternalLList.h",
+    "SkTLazy.h",
+    "SkTSort.h",
+    "SkZip.h",
+]
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = IWYU_HDRS + [
+        "SkArenaAlloc.h",
+        "SkAutoMalloc.h",
+        "SkBezierCurves.h",
+        "SkBlockAllocator.h",
+        "SkBuffer.h",
+        "SkCubics.h",
+        "SkHalf.h",
+        "SkMathPriv.h",
+        "SkQuads.h",
+        "SkSafeMath.h",
+        "SkTSearch.h",
+        "SkUTF.h",
+        "SkUtils.h",
+        "SkVx.h",  # Causes IWYU to crash when compiling.
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+generate_cpp_files_for_header_list(
+    name = "generated_base_header_cpps",
+    headers = IWYU_HDRS,
+    visibility = ["//src:__pkg__"],
+)
+
+# In a separate file group because these files are exported to sksl.gni:skslc_deps.
+skia_filegroup(
+    name = "skslc_srcs",
+    srcs = [
+        "SkArenaAlloc.cpp",
+        "SkBlockAllocator.cpp",
+        "SkContainers.cpp",
+        "SkHalf.cpp",
+        "SkMalloc.cpp",
+        "SkMathPriv.cpp",
+        "SkSafeMath.cpp",
+        "SkSemaphore.cpp",
+        "SkThreadID.cpp",
+        "SkUTF.cpp",
+        "SkUtils.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkBezierCurves.cpp",
+        "SkBuffer.cpp",
+        "SkCubics.cpp",
+        "SkDeque.cpp",
+        "SkFloatingPoint.cpp",
+        "SkQuads.cpp",
+        "SkTDArray.cpp",
+        "SkTSearch.cpp",
+        ":skslc_srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)

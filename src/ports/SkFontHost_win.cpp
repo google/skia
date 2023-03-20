@@ -15,16 +15,18 @@
 #include "include/core/SkString.h"
 #include "include/ports/SkTypeface_win.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkMacros.h"
-#include "include/private/SkOnce.h"
-#include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "include/utils/SkBase64.h"
+#include "src/base/SkLeanWindows.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkLeanWindows.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTypefaceCache.h"
@@ -34,12 +36,13 @@
 #include "src/sfnt/SkOTUtils.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/utils/SkMatrix22.h"
-#include "src/utils/SkUTF.h"
 #include "src/utils/win/SkHRESULT.h"
 
 #include <tchar.h>
 #include <usp10.h>
 #include <objbase.h>
+
+using namespace skia_private;
 
 namespace {
 static inline const constexpr bool kSkShowTextBlitCoverage = false;
@@ -100,7 +103,7 @@ static void tchar_to_skstring(const TCHAR t[], SkString* s) {
 #ifdef UNICODE
     size_t sSize = WideCharToMultiByte(CP_UTF8, 0, t, -1, nullptr, 0, nullptr, nullptr);
     s->resize(sSize);
-    WideCharToMultiByte(CP_UTF8, 0, t, -1, s->writable_str(), sSize, nullptr, nullptr);
+    WideCharToMultiByte(CP_UTF8, 0, t, -1, s->data(), sSize, nullptr, nullptr);
 #else
     s->set(t);
 #endif
@@ -115,7 +118,7 @@ static void dcfontname_to_skstring(HDC deviceContext, const LOGFONT& lf, SkStrin
         }
     }
 
-    SkAutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
+    AutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
     if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
         call_ensure_accessible(lf);
         if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
@@ -411,9 +414,9 @@ static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
         // we can't just use the first and last entry of the range to compute
         // result. We need to enumerate them one by one.
         int count = glyphSet->ranges[i].cGlyphs;
-        SkAutoTArray<WCHAR> chars(count + 1);
+        AutoTArray<WCHAR> chars(count + 1);
         chars[count] = 0;  // termintate string
-        SkAutoTArray<WORD> glyph(count);
+        AutoTArray<WORD> glyph(count);
         for (USHORT j = 0; j < count; ++j) {
             chars[j] = glyphSet->ranges[i].wcLow + j;
         }
@@ -577,7 +580,7 @@ protected:
 
 private:
     DWORD getGDIGlyphPath(SkGlyphID glyph, UINT flags,
-                          SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
+                          AutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
     template<bool APPLY_PREBLEND>
     static void RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
                         const SkGlyph& glyph, const uint8_t* table8);
@@ -1073,7 +1076,7 @@ void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
             if constexpr (kSkShowTextBlitCoverage) {
-                dst[i] = std::max(dst[i], 10u);
+                dst[i] = std::max<uint8_t>(dst[i], 10u);
             }
         }
         src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
@@ -1502,7 +1505,7 @@ bool SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size,
 } // namespace
 
 DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
-                                           SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
+                                           AutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
 {
     GLYPHMETRICS gm;
 
@@ -1560,7 +1563,7 @@ bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
     if (fRec.getHinting() == SkFontHinting::kNone || fRec.getHinting() == SkFontHinting::kSlight){
         format |= GGO_UNHINTED;
     }
-    SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
+    AutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
     DWORD total_size = getGDIGlyphPath(glyphID, format, &glyphbuf);
     if (0 == total_size) {
         return false;
@@ -1570,7 +1573,7 @@ bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
         SkGDIGeometrySink sink(path);
         sink.process(glyphbuf, total_size);
     } else {
-        SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
+        AutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
         //GDI only uses hinted outlines when axis aligned.
         DWORD hinted_total_size = getGDIGlyphPath(glyphID, GGO_NATIVE | GGO_GLYPH_INDEX,
                                                   &hintedGlyphbuf);
@@ -1639,7 +1642,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
 
     // The design HFONT must be destroyed after the HDC
     using HFONT_T = typename std::remove_pointer<HFONT>::type;
-    std::unique_ptr<HFONT_T, SkFunctionWrapper<decltype(DeleteObject), DeleteObject>> designFont;
+    std::unique_ptr<HFONT_T, SkFunctionObject<DeleteObject>> designFont;
     SkAutoHDC hdc(lf);
 
     const char stem_chars[] = {'i', 'I', '!', '1'};
@@ -2031,7 +2034,7 @@ int LogFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
 
     if (tags) {
         size_t size = numTables * sizeof(SkSFNTHeader::TableDirectoryEntry);
-        SkAutoSTMalloc<0x20, SkSFNTHeader::TableDirectoryEntry> dir(numTables);
+        AutoSTMalloc<0x20, SkSFNTHeader::TableDirectoryEntry> dir(numTables);
         if (size != this->onGetTableData(0, sizeof(header), size, dir.get())) {
             return 0;
         }
@@ -2200,7 +2203,7 @@ public:
     }
 
     int count() override {
-        return fArray.count();
+        return fArray.size();
     }
 
     void getStyle(int index, SkFontStyle* fs, SkString* styleName) override {
@@ -2246,16 +2249,16 @@ public:
 
 protected:
     int onCountFamilies() const override {
-        return fLogFontArray.count();
+        return fLogFontArray.size();
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
+        SkASSERT(index < fLogFontArray.size());
         tchar_to_skstring(fLogFontArray[index].elfLogFont.lfFaceName, familyName);
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
+        SkASSERT(index < fLogFontArray.size());
         return new SkFontStyleSetGDI(fLogFontArray[index].elfLogFont.lfFaceName);
     }
 

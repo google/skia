@@ -7,11 +7,15 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkPath.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
 #include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 #include <vector>
+
+using namespace skia_private;
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 struct TigerPath {
     const char* fVerbs;
@@ -85,8 +89,8 @@ protected:
     virtual void doLoop() = 0;
 
     SkString fName;
-    SkTArray<SkPath> fPaths;
-    SkAutoTMalloc<char> fVertexData;
+    TArray<SkPath> fPaths;
+    AutoTMalloc<char> fVertexData;
     size_t fVertexAllocSize = 0;
     SkArenaAllocWithReset fArena{GrTriangulator::kArenaDefaultChunkSize};
 };
@@ -581,3 +585,5 @@ TigerPath kTigerPaths[] = {
 };
 
 int kNumTigerPaths = (int)std::size(kTigerPaths);
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

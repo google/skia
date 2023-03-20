@@ -10,9 +10,10 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkFloatingPoint.h"
-#include "include/private/SkTo.h"
-#include "src/core/SkMathPriv.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkMathPriv.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
@@ -43,6 +44,12 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
+
+#if GR_TEST_UTILS
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#endif
+
+using namespace skgpu::ganesh;
 
 namespace {
 
@@ -224,7 +231,7 @@ bool safe_to_ignore_subset_rect(GrAAType aaType, GrSamplerState::Filter filter,
  */
 class TextureOpImpl final : public GrMeshDrawOp {
 public:
-    using Saturate = skgpu::v1::TextureOp::Saturate;
+    using Saturate = TextureOp::Saturate;
 
     static GrOp::Owner Make(GrRecordingContext* context,
                             GrSurfaceProxyView proxyView,
@@ -1119,7 +1126,7 @@ private:
 
 }  // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 #if GR_TEST_UTILS
 uint32_t TextureOp::ClassID() {
@@ -1186,14 +1193,14 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
             fp = GrFragmentProcessor::ClampOutput(std::move(fp));
         }
         paint.setColorFragmentProcessor(std::move(fp));
-        return FillRectOp::Make(context, std::move(paint), aaType, quad);
+        return v1::FillRectOp::Make(context, std::move(paint), aaType, quad);
     }
 }
 
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
 class TextureOp::BatchSizeLimiter {
 public:
-    BatchSizeLimiter(SurfaceDrawContext* sdc,
+    BatchSizeLimiter(v1::SurfaceDrawContext* sdc,
                      const GrClip* clip,
                      GrRecordingContext* rContext,
                      int numEntries,
@@ -1238,7 +1245,7 @@ public:
     int baseIndex() const { return fNumClumped; }
 
 private:
-    SurfaceDrawContext*         fSDC;
+    v1::SurfaceDrawContext*     fSDC;
     const GrClip*               fClip;
     GrRecordingContext*         fContext;
     GrSamplerState::Filter      fFilter;
@@ -1253,7 +1260,7 @@ private:
 };
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
-void TextureOp::AddTextureSetOps(SurfaceDrawContext* sdc,
+void TextureOp::AddTextureSetOps(v1::SurfaceDrawContext* sdc,
                                  const GrClip* clip,
                                  GrRecordingContext* context,
                                  GrTextureSetEntry set[],
@@ -1381,13 +1388,9 @@ void TextureOp::AddTextureSetOps(SurfaceDrawContext* sdc,
     }
 }
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh
 
 #if GR_TEST_UTILS
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-
 GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     SkISize dims;
     dims.fHeight = random->nextULessThan(90) + 10;
@@ -1408,7 +1411,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
                                                              1,
                                                              mipmapped,
                                                              fit,
-                                                             SkBudgeted::kNo,
+                                                             skgpu::Budgeted::kNo,
                                                              GrProtected::kNo,
                                                              /*label=*/"TextureOp",
                                                              GrInternalSurfaceFlags::kNone);
@@ -1440,8 +1443,8 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kRight : GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
     bool useSubset = random->nextBool();
-    auto saturate = random->nextBool() ? skgpu::v1::TextureOp::Saturate::kYes
-                                       : skgpu::v1::TextureOp::Saturate::kNo;
+    auto saturate = random->nextBool() ? TextureOp::Saturate::kYes
+                                       : TextureOp::Saturate::kNo;
     GrSurfaceProxyView proxyView(
             std::move(proxy), origin,
             context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888));
@@ -1449,10 +1452,10 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
             random->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
 
     DrawQuad quad = {GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(srcRect), aaFlags};
-    return skgpu::v1::TextureOp::Make(context, std::move(proxyView), alphaType,
-                                      std::move(texXform), filter, mm, color, saturate,
-                                      SkBlendMode::kSrcOver, aaType, &quad,
-                                      useSubset ? &srcRect : nullptr);
+    return TextureOp::Make(context, std::move(proxyView), alphaType,
+                           std::move(texXform), filter, mm, color, saturate,
+                           SkBlendMode::kSrcOver, aaType, &quad,
+                           useSubset ? &srcRect : nullptr);
 }
 
 #endif // GR_TEST_UTILS

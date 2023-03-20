@@ -55,7 +55,7 @@ genrule(
     outs = ["generated_icu_android_dat.S"],
     cmd = "$(location :make_data_assembly) " +
           # We need to specify the absolute path from the root
-          "$(location common/icudtl.dat) " +
+          "$(location android/icudtl.dat) " +
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@",
     exec_tools = [":make_data_assembly"],
@@ -67,7 +67,7 @@ genrule(
     outs = ["generated_icu_ios_dat.S"],
     cmd = "$(location :make_data_assembly) " +
           # We need to specify the absolute path from the root
-          "$(location common/icudtl.dat) " +
+          "$(location ios/icudtl.dat) " +
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@ --mac",
     exec_tools = [":make_data_assembly"],

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'sampler1D' is a reserved word
+error: 1: name 'sampler1D' is reserved
 int sampler1D;
     ^^^^^^^^^
 1 error

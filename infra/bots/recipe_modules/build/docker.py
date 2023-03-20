@@ -36,7 +36,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['is_debug'] = False
 
   if 'NoGPU' in extra_tokens:
-    args['skia_enable_gpu'] = False
+    args['skia_enable_ganesh'] = False
     extra_tokens.remove('NoGPU')
   if 'Shared' in extra_tokens:
     args['is_component_build'] = True

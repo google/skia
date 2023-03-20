@@ -8,7 +8,7 @@
 #include "src/core/SkSharedMutex.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSemaphore.h"
+#include "include/private/base/SkSemaphore.h"
 
 #include <cinttypes>
 
@@ -73,8 +73,8 @@
 
 #ifdef SK_DEBUG
 
-    #include "include/private/SkTDArray.h"
-    #include "include/private/SkThreadID.h"
+    #include "include/private/base/SkTDArray.h"
+    #include "include/private/base/SkThreadID.h"
 
     class SkSharedMutex::ThreadIDSet {
     public:
@@ -96,7 +96,7 @@
         }
         // Returns true if already exists in Set.
         bool tryRemove(SkThreadID threadID) {
-            for (int i = 0; i < fThreadIDs.count(); ++i) {
+            for (int i = 0; i < fThreadIDs.size(); ++i) {
                 if (fThreadIDs[i] == threadID) {
                     fThreadIDs.remove(i);
                     return true;
@@ -110,7 +110,7 @@
         }
 
         int count() const {
-            return fThreadIDs.count();
+            return fThreadIDs.size();
         }
 
     private:

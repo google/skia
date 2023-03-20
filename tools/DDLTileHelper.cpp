@@ -13,8 +13,10 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
@@ -204,8 +206,8 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, Tile
     tile->fCallbackContext->setBackendTexture(beTex);
 }
 
-void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* tile) {
-    if (!tile->initialized()) {
+void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext* dContext, TileData* tile) {
+    if (!tile->initialized() || dContext->abandoned()) {
         return;
     }
 

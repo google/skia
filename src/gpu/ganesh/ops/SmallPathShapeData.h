@@ -8,6 +8,8 @@
 #ifndef SmallPathShapeData_DEFINED
 #define SmallPathShapeData_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "src/core/SkOpts.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 
@@ -43,7 +45,7 @@ private:
     // The key is composed of the GrStyledShape's key, and either the dimensions of the DF
     // generated for the path (32x32 max, 64x64 max, 128x128 max) if an SDF image or
     // the matrix for the path with only fractional translation.
-    SkAutoSTArray<24, uint32_t> fKey;
+    skia_private::AutoSTArray<24, uint32_t> fKey;
 };
 
 class SmallPathShapeData {
@@ -66,5 +68,7 @@ public:
 };
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 #endif // SmallPathShapeData_DEFINED

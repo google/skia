@@ -17,8 +17,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/private/SkTPin.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/base/SkTPin.h"
+#include "src/base/SkRandom.h"
 #include "tools/timer/TimeUtils.h"
 
 static const SkScalar kBlurMax = 7.0f;

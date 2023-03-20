@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkStream.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkFontStream.h"
 

@@ -38,7 +38,7 @@ ResourceProvider::~ResourceProvider() {
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
-        const SkRuntimeEffectDictionary* runtimeDict,
+        const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
     auto globalCache = fSharedContext->globalCache();
@@ -79,7 +79,7 @@ sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
 
 sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
                                                             const TextureInfo& info,
-                                                            SkBudgeted budgeted) {
+                                                            skgpu::Budgeted budgeted) {
     SkASSERT(info.isValid());
 
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
@@ -103,7 +103,7 @@ sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dime
     // stomping on each other's data.
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
+    return this->findOrCreateTextureWithKey(dimensions, info, key, skgpu::Budgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize dimensions,
@@ -119,16 +119,16 @@ sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize d
     // to populate the discardable MSAA texture with data at the start of the render pass.
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
+    return this->findOrCreateTextureWithKey(dimensions, info, key, skgpu::Budgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
                                                             const TextureInfo& info,
                                                             const GraphiteResourceKey& key,
-                                                            SkBudgeted budgeted) {
+                                                            skgpu::Budgeted budgeted) {
     // If the resource is shareable it should be budgeted since it shouldn't be backing any client
     // owned object.
-    SkASSERT(key.shareable() == Shareable::kNo || budgeted == SkBudgeted::kYes);
+    SkASSERT(key.shareable() == Shareable::kNo || budgeted == skgpu::Budgeted::kYes);
 
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Texture>(static_cast<Texture*>(resource));
@@ -176,7 +176,7 @@ sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SkSamplingO
         builder[0] = myKey;
     }
 
-    SkBudgeted budgeted = SkBudgeted::kYes;
+    skgpu::Budgeted budgeted = skgpu::Budgeted::kYes;
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Sampler>(static_cast<Sampler*>(resource));
     }
@@ -195,6 +195,23 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
                                                    PrioritizeGpuReads prioritizeGpuReads) {
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
+#ifdef SK_DEBUG
+    // The size should already be aligned.
+    size_t minAlignment = 1;
+    if (type == BufferType::kStorage || type == BufferType::kIndirect ||
+        type == BufferType::kVertexStorage || type == BufferType::kIndexStorage) {
+        minAlignment = std::max(fSharedContext->caps()->requiredStorageBufferAlignment(),
+                                minAlignment);
+    } else if (type == BufferType::kUniform) {
+        minAlignment = std::max(fSharedContext->caps()->requiredUniformBufferAlignment(),
+                                minAlignment);
+    } else if (type == BufferType::kXferCpuToGpu || type == BufferType::kXferGpuToCpu) {
+        minAlignment = std::max(fSharedContext->caps()->requiredTransferBufferAlignment(),
+                                minAlignment);
+    }
+    SkASSERT(size % minAlignment == 0);
+#endif
+
     GraphiteResourceKey key;
     {
         // For the key we need ((sizeof(size_t) + (sizeof(uint32_t) - 1)) / (sizeof(uint32_t))
@@ -203,20 +220,25 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         static const int kSizeKeyNum32DataCnt = (sizeof(size_t) + 3) / 4;
         static const int kKeyNum32DataCnt =  kSizeKeyNum32DataCnt + 1;
 
-        SkASSERT(static_cast<uint32_t>(type)               < (1u << 3));
+        SkASSERT(static_cast<uint32_t>(type) < (1u << 4));
         SkASSERT(static_cast<uint32_t>(prioritizeGpuReads) < (1u << 1));
 
         GraphiteResourceKey::Builder builder(&key, kType, kKeyNum32DataCnt, Shareable::kNo);
-        builder[0] = (static_cast<uint32_t>(type)               << 0) |
-                     (static_cast<uint32_t>(prioritizeGpuReads) << 3);
+        builder[0] = (static_cast<uint32_t>(type) << 0) |
+                     (static_cast<uint32_t>(prioritizeGpuReads) << 4);
         size_t szKey = size;
         for (int i = 0; i < kSizeKeyNum32DataCnt; ++i) {
             builder[i + 1] = (uint32_t) szKey;
-            szKey = szKey >> 32;
+
+            // If size_t is 4 bytes, we cannot do a shift of 32 or else we get a warning/error that
+            // shift amount is >= width of the type.
+            if constexpr(kSizeKeyNum32DataCnt > 1) {
+                szKey = szKey >> 32;
+            }
         }
     }
 
-    SkBudgeted budgeted = SkBudgeted::kYes;
+    skgpu::Budgeted budgeted = skgpu::Budgeted::kYes;
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }
