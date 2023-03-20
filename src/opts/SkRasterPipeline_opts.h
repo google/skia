@@ -3815,6 +3815,10 @@ SI void pow_fn(F* dst, F* src) {
     *dst = approx_powf(*dst, *src);
 }
 
+SI void mod_fn(F* dst, F* src) {
+    *dst = *dst - *src * floor_(*dst / *src);
+}
+
 #define DECLARE_N_WAY_BINARY_FLOAT(name)                                  \
     STAGE_TAIL(name##_n_floats, SkRasterPipeline_BinaryOpCtx* ctx) {      \
         apply_adjacent_binary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src); \
@@ -3860,6 +3864,7 @@ DECLARE_BINARY_FLOAT(div)    DECLARE_BINARY_INT(div)    DECLARE_BINARY_UINT(div)
                              DECLARE_BINARY_INT(bitwise_and)
                              DECLARE_BINARY_INT(bitwise_or)
                              DECLARE_BINARY_INT(bitwise_xor)
+DECLARE_BINARY_FLOAT(mod)
 DECLARE_BINARY_FLOAT(min)    DECLARE_BINARY_INT(min)    DECLARE_BINARY_UINT(min)
 DECLARE_BINARY_FLOAT(max)    DECLARE_BINARY_INT(max)    DECLARE_BINARY_UINT(max)
 DECLARE_BINARY_FLOAT(cmplt)  DECLARE_BINARY_INT(cmplt)  DECLARE_BINARY_UINT(cmplt)

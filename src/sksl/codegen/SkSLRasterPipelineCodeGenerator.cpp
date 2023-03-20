@@ -404,6 +404,10 @@ private:
                                                   BuilderOp::cmpne_n_ints,
                                                   BuilderOp::cmpne_n_ints,
                                                   BuilderOp::cmpne_n_ints};
+    static constexpr auto kModOps = TypedOps{BuilderOp::mod_n_floats,
+                                             BuilderOp::unsupported,
+                                             BuilderOp::unsupported,
+                                             BuilderOp::unsupported};
     static constexpr auto kMinOps = TypedOps{BuilderOp::min_n_floats,
                                              BuilderOp::min_n_ints,
                                              BuilderOp::min_n_uints,
@@ -2823,6 +2827,10 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
         case IntrinsicKind::k_max_IntrinsicKind:
             SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
             return this->pushIntrinsic(kMaxOps, arg0, arg1);
+
+        case IntrinsicKind::k_mod_IntrinsicKind:
+            SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
+            return this->pushIntrinsic(kModOps, arg0, arg1);
 
         case IntrinsicKind::k_pow_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));

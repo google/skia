@@ -157,6 +157,7 @@
     M(min_n_floats)   M(min_float)   M(min_2_floats)   M(min_3_floats)   M(min_4_floats)      \
     M(min_n_ints)     M(min_int)     M(min_2_ints)     M(min_3_ints)     M(min_4_ints)        \
     M(min_n_uints)    M(min_uint)    M(min_2_uints)    M(min_3_uints)    M(min_4_uints)       \
+    M(mod_n_floats)   M(mod_float)   M(mod_2_floats)   M(mod_3_floats)   M(mod_4_floats)      \
     M(mix_n_floats)   M(mix_float)   M(mix_2_floats)   M(mix_3_floats)   M(mix_4_floats)      \
     M(mix_n_ints)     M(mix_int)     M(mix_2_ints)     M(mix_3_ints)     M(mix_4_ints)        \
     M(smoothstep_n_floats)           M(dot_2_floats)   M(dot_3_floats)   M(dot_4_floats)      \
