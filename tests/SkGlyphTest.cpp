@@ -238,6 +238,7 @@ DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
     REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
 
     dstGlyph->addDrawableFromBuffer(readBuffer, &alloc);
+    REPORTER_ASSERT(reporter, readBuffer.isValid());
     REPORTER_ASSERT(reporter, dstGlyph->setDrawableHasBeenCalled());
     SkDrawable* dstDrawable = dstGlyph->drawable();
     REPORTER_ASSERT(reporter, dstDrawable->getBounds() == srcDrawable->getBounds());
@@ -261,5 +262,4 @@ DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
     REPORTER_ASSERT(reporter, !badReadBuffer.isValid());
     REPORTER_ASSERT(reporter, !dstGlyph->setDrawableHasBeenCalled());
 }
-
 

@@ -398,7 +398,7 @@ size_t SkGlyph::addDrawableFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc)
     // If the picture is too big, or there is no picture is indicated by an empty byte array.
     if (pictureData->size() > 0) {
         sk_sp<SkPicture> picture = SkPicture::MakeFromData(pictureData.get());
-        if (buffer.validate(picture == nullptr)) {
+        if (!buffer.validate(picture != nullptr)) {
             return 0;
         }
         sk_sp<SkDrawable> drawable = sk_make_sp<PictureBackedGlyphDrawable>(std::move(picture));
