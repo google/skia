@@ -307,6 +307,9 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
     }
     sk_sp<Task> uploadTask = UploadTask::Make(std::move(upload));
 
+    // Need to flush any pending work in case it depends on this texture
+    this->priv().flushTrackedDevices();
+
     this->priv().add(std::move(uploadTask));
 
     return true;
