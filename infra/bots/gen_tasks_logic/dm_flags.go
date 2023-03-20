@@ -269,8 +269,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("gltestthreading", "gm", ALL, "lcdoverlap")
 			skip("gltestthreading", "gm", ALL, "textbloblooper")
 			// All of these GMs are flaky, too:
-			skip("gltestthreading", "gm", ALL, "savelayer_with_backdrop")
-			skip("gltestthreading", "gm", ALL, "persp_shaders_bw")
 			skip("gltestthreading", "gm", ALL, "dftext_blob_persp")
 			skip("gltestthreading", "gm", ALL, "dftext")
 			skip("gltestthreading", "gm", ALL, "gpu_blur_utils")
@@ -284,16 +282,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("gltestthreading", "gm", ALL, "draw_image_set")
 
 			// Fail on Iris Xe.
-			skip("gltestthreading", "gm", ALL, "anisotropic_image_scale_mip")
-			skip("gltestthreading", "gm", ALL, "bleed_downscale")
 			skip("gltestthreading", "gm", ALL, "degeneratesegments")
-			skip("gltestthreading", "gm", ALL, "mipmap_srgb")
-			skip("gltestthreading", "gm", ALL, "mipmap")
 			skip("gltestthreading", "gm", ALL, "ovals")
 			skip("gltestthreading", "gm", ALL, "persp_images")
-			skip("gltestthreading", "gm", ALL, "persp_shaders_aa")
 			skip("gltestthreading", "gm", ALL, "rtif_distort")
-			skip("gltestthreading", "gm", ALL, "skbug_8664")
 			skip("gltestthreading", "gm", ALL, "teenystrokes")
 			skip("gltestthreading", "gm", ALL, "texel_subset_linear_mipmap_nearest_down")
 			skip("gltestthreading", "gm", ALL, "yuv420_odd_dim_repeat")

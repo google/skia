@@ -3675,7 +3675,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     fHWBoundRenderTargetUniqueID.makeInvalid();
 
     // Bind the texture, to get things configured for filtering.
-    // We'll be changing our base level further below:
+    // We'll be changing our base level and max level further below:
     this->setTextureUnit(0);
     // The mipmap program does not do any swizzling.
     this->bindTexture(0, GrSamplerState::Filter::kLinear, skgpu::Swizzle::RGBA(), glTex);
@@ -3724,7 +3724,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
         if (!fMipmapPrograms[progIdx].fProgram) {
             if (!this->createMipmapProgram(progIdx)) {
                 SkDebugf("Failed to create mipmap program.\n");
-                // Invalidate all params to cover base level change in a previous iteration.
+                // Invalidate all params to cover base and max level change in a previous iteration.
                 glTex->textureParamsModified();
                 return false;
             }
@@ -3738,9 +3738,14 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
                           invWidth, (width - 1) * invWidth, invHeight, (height - 1) * invHeight));
         GL_CALL(Uniform1i(fMipmapPrograms[progIdx].fTextureUniform, 0));
 
-        // Only sample from previous mip
+        // Set the base level and max level so that we only sample from the
+        // previous mip. Setting the max level is technically unnecessary, but
+        // we do it as a performance optimization. By making it clear that a
+        // rendering feedback loop is not occurring, we avoid hitting a slow
+        // path on some drivers.
         SkASSERT(this->glCaps().mipmapLevelControlSupport());
         GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, level - 1));
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAX_LEVEL, level - 1));
 
         GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0, GR_GL_TEXTURE_2D,
                                      glTex->textureID(), level));
@@ -3756,10 +3761,11 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
                                  GR_GL_TEXTURE_2D, 0, 0));
 
-    // We modified the base level param.
+    // We modified the base level and max level params.
     GrGLTextureParameters::NonsamplerState nonsamplerState = glTex->parameters()->nonsamplerState();
     // We drew the 2nd to last level into the last level.
     nonsamplerState.fBaseMipMapLevel = levelCount - 2;
+    nonsamplerState.fMaxMipmapLevel = levelCount - 2;
     glTex->parameters()->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
 
     return true;
