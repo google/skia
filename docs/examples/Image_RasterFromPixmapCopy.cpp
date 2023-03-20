@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 // HASH=513afec5795a9504ebf6af5373d16b6b
-REG_FIDDLE(Image_MakeRasterCopy, 256, 50, false, 0) {
+REG_FIDDLE(Image_RasterFromPixmapCopy, 256, 50, false, 0) {
 void draw(SkCanvas* canvas) {
     uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },
                             { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },
@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);
     SkBitmap bitmap;
     bitmap.installPixels(pixmap);
-    sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);
+    sk_sp<SkImage> image = SkImages::RasterFromPixmapCopy(pixmap);
     *pixmap.writable_addr8(2, 2) = 0x00;
     canvas->scale(10, 10);
     canvas->drawImage(bitmap.asImage(), 0, 0);

@@ -29,6 +29,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -108,7 +109,7 @@ private:
         if (!dContext->updateBackendTexture(bet, content.pixmap(), origin, nullptr, nullptr)) {
             dContext->deleteBackendTexture(bet);
         }
-        return SkImage::MakeFromAdoptedTexture(dContext, bet, origin, kRGBA_8888_SkColorType);
+        return SkImages::AdoptTextureFrom(dContext, bet, origin, kRGBA_8888_SkColorType);
     }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {

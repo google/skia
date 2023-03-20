@@ -19,6 +19,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/MutableTextureState.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
@@ -76,10 +77,12 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
     // Setting back to the init state since we didn't actually change it
     backendTex.setMutableState(initState);
 
-    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(dContext, backendTex,
-                                                           kTopLeft_GrSurfaceOrigin,
-                                                           kRGBA_8888_SkColorType,
-                                                           kPremul_SkAlphaType, nullptr);
+    sk_sp<SkImage> wrappedImage = SkImages::BorrowTextureFrom(dContext,
+                                                              backendTex,
+                                                              kTopLeft_GrSurfaceOrigin,
+                                                              kRGBA_8888_SkColorType,
+                                                              kPremul_SkAlphaType,
+                                                              nullptr);
 
     GrSurfaceProxy* proxy = sk_gpu_test::GetTextureImageProxy(wrappedImage.get(), dContext);
 

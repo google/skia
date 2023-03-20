@@ -68,12 +68,10 @@ DEF_SIMPLE_GM(colorwheel_alphatypes, canvas, 256, 128) {
 
     sk_sp<SkData> imgData = GetResourceAsData("images/color_wheel.png");
 
-    auto pmImg = ToolUtils::MakeTextureImage(canvas,
-                                             SkImage::MakeFromEncoded(imgData,
-                                                                      kPremul_SkAlphaType));
-    auto upmImg = ToolUtils::MakeTextureImage(canvas,
-                                              SkImage::MakeFromEncoded(imgData,
-                                                                       kUnpremul_SkAlphaType));
+    auto pmImg = ToolUtils::MakeTextureImage(
+            canvas, SkImages::DeferredFromEncodedData(imgData, kPremul_SkAlphaType));
+    auto upmImg = ToolUtils::MakeTextureImage(
+            canvas, SkImages::DeferredFromEncodedData(imgData, kUnpremul_SkAlphaType));
 
     SkSamplingOptions linear{SkFilterMode::kLinear};
 

@@ -16,6 +16,8 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/text/StrikeForGPU.h"
 
+#include <functional>
+
 class SkStrike;
 class SkStrikePinner;
 class SkTraceMemoryDump;

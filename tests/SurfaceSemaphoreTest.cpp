@@ -24,6 +24,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -105,14 +106,14 @@ void draw_child(skiatest::Reporter* reporter,
     sk_sp<SkSurface> childSurface(SkSurface::MakeRenderTarget(
             childDContext, skgpu::Budgeted::kNo, childII, 0, kTopLeft_GrSurfaceOrigin, nullptr));
 
-    sk_sp<SkImage> childImage = SkImage::MakeFromTexture(childDContext,
-                                                         backendTexture,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         kRGBA_8888_SkColorType,
-                                                         kPremul_SkAlphaType,
-                                                         nullptr,
-                                                         nullptr,
-                                                         nullptr);
+    sk_sp<SkImage> childImage = SkImages::BorrowTextureFrom(childDContext,
+                                                            backendTexture,
+                                                            kTopLeft_GrSurfaceOrigin,
+                                                            kRGBA_8888_SkColorType,
+                                                            kPremul_SkAlphaType,
+                                                            nullptr,
+                                                            nullptr,
+                                                            nullptr);
 
     SkCanvas* childCanvas = childSurface->getCanvas();
     childCanvas->clear(SK_ColorRED);

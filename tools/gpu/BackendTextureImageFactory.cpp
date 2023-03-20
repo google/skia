@@ -12,6 +12,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
@@ -28,14 +29,14 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
     if (!mbet) {
         return nullptr;
     }
-    return SkImage::MakeFromTexture(dContext,
-                                    mbet->texture(),
-                                    origin,
-                                    pixmap.colorType(),
-                                    pixmap.alphaType(),
-                                    pixmap.refColorSpace(),
-                                    ManagedBackendTexture::ReleaseProc,
-                                    mbet->releaseContext());
+    return SkImages::BorrowTextureFrom(dContext,
+                                       mbet->texture(),
+                                       origin,
+                                       pixmap.colorType(),
+                                       pixmap.alphaType(),
+                                       pixmap.refColorSpace(),
+                                       ManagedBackendTexture::ReleaseProc,
+                                       mbet->releaseContext());
 }
 
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
@@ -61,14 +62,14 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
     if (!mbet) {
         return nullptr;
     }
-    return SkImage::MakeFromTexture(dContext,
-                                    mbet->texture(),
-                                    origin,
-                                    info.colorType(),
-                                    info.alphaType(),
-                                    info.refColorSpace(),
-                                    ManagedBackendTexture::ReleaseProc,
-                                    mbet->releaseContext());
+    return SkImages::BorrowTextureFrom(dContext,
+                                       mbet->texture(),
+                                       origin,
+                                       info.colorType(),
+                                       info.alphaType(),
+                                       info.refColorSpace(),
+                                       ManagedBackendTexture::ReleaseProc,
+                                       mbet->releaseContext());
 }
 
 }  // namespace sk_gpu_test

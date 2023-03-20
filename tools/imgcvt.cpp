@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    sk_sp<SkImage> image = SkImage::MakeFromEncoded(blob);
+    sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(blob);
     if (!image) {
         SkDebugf("Couldn't decode %s as an SkImage or an ICC profile.\n", source_path);
         return 1;
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
         }
         pixmap.setColorSpace(dst_cs);
 
-        write_png("transformed-skcms.png", SkImage::MakeRasterCopy(pixmap));
+        write_png("transformed-skcms.png", SkImages::RasterFromPixmapCopy(pixmap));
     }
 
     { // transform with writePixels()

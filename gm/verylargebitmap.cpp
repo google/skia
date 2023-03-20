@@ -45,10 +45,12 @@ static sk_sp<SkImage> make_raster_image(int width, int height, SkColor colors[2]
 static sk_sp<SkImage> make_picture_image(int width, int height, SkColor colors[2]) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(width, height)), width, height, colors);
-    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                    {width, height}, nullptr, nullptr,
-                                    SkImage::BitDepth::kU8,
-                                    SkColorSpace::MakeSRGB());
+    return SkImages::DeferredFromPicture(recorder.finishRecordingAsPicture(),
+                                         {width, height},
+                                         nullptr,
+                                         nullptr,
+                                         SkImages::BitDepth::kU8,
+                                         SkColorSpace::MakeSRGB());
 }
 
 typedef sk_sp<SkImage> (*ImageMakerProc)(int width, int height, SkColor colors[2]);

@@ -99,7 +99,7 @@ void SkRescaleAndReadPixels(SkBitmap bmp,
         constraint = SkCanvas::kFast_SrcRectConstraint;
     } else {
         // MakeFromBitmap would trigger a copy if bmp is mutable.
-        srcImage = SkImage::MakeFromRaster(bmp.pixmap(), nullptr, nullptr);
+        srcImage = SkImages::RasterFromPixmap(bmp.pixmap(), nullptr, nullptr);
     }
     while (stepsX || stepsY) {
         int nextW = resultInfo.width();

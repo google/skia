@@ -34,6 +34,7 @@ skia_filegroup(
         # TODO(egdaniel, kjlubick) GrGLTypes.h is used unconditionally by GrBackendSemaphore.h
         "//include/gpu/gl:public_hdrs",
         ":shared_public_hdrs",
+        "//include/gpu/ganesh:public_hdrs",
     ] + select_multi(
         {
             "//src/gpu:dawn_backend": ["//include/gpu/dawn:public_hdrs"],

@@ -13,14 +13,35 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAPI.h"
 
-#if defined(SK_GANESH)
+#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES) && defined(SK_GANESH)
+
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
+
+class GrBackendFormat;
+class SkYUVAPixmaps;
+class GrYUVABackendTextureInfo;
+class GrYUVABackendTextures;
+class GrContextThreadSafeProxy;
+class SkPromiseImageTexture;
+
+#else
+
+namespace skgpu {
+enum class Mipmapped : bool;
+enum class Budgeted : bool;
+}  // namespace skgpu
+enum GrSurfaceOrigin : int;
+struct GrFlushInfo;
+enum class GrSemaphoresSubmitted : bool;
+
 #endif
+
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/GraphiteTypes.h"
+class SkYUVAPixmaps;
 #endif
 
 #include <cstddef>
@@ -29,24 +50,13 @@
 #include <memory>
 #include <optional>
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-#include "include/gpu/GrTypes.h"
-#include <android/hardware_buffer.h>
-#endif
-
-// TODO(kjlubick) remove when Chrome has been migrated
-#include "include/core/SkTextureCompressionType.h"
-
-class GrBackendFormat;
 class GrBackendTexture;
-class GrContextThreadSafeProxy;
 class GrDirectContext;
 class GrRecordingContext;
-class GrYUVABackendTextureInfo;
-class GrYUVABackendTextures;
 class SkBitmap;
 class SkColorSpace;
 class SkData;
+class SkImage;
 class SkImageFilter;
 class SkImageGenerator;
 class SkMatrix;
@@ -54,15 +64,21 @@ class SkMipmap;
 class SkPaint;
 class SkPicture;
 class SkPixmap;
-class SkPromiseImageTexture;
 class SkShader;
 class SkSurfaceProps;
-class SkYUVAPixmaps;
 enum SkColorType : int;
 enum class SkEncodedImageFormat;
+enum class SkTextureCompressionType;
 enum class SkTileMode;
+
 struct SkIPoint;
 struct SkSamplingOptions;
+
+#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES) && defined(SK_BUILD_FOR_ANDROID) && \
+        __ANDROID_API__ >= 26
+#include "include/gpu/GrTypes.h"
+struct AHardwareBuffer;
+#endif
 
 #if defined(SK_GRAPHITE)
 namespace skgpu::graphite {
@@ -73,6 +89,180 @@ enum class Volatile : bool;
 class YUVABackendTextures;
 }
 #endif
+
+namespace SkImages {
+
+/** Caller data passed to RasterReleaseProc; may be nullptr. */
+using ReleaseContext = void*;
+/** Function called when SkImage no longer shares pixels. ReleaseContext is
+    provided by caller when SkImage is created, and may be nullptr.
+*/
+using RasterReleaseProc = void(const void* pixels, ReleaseContext);
+
+/** Creates a CPU-backed SkImage from bitmap, sharing or copying bitmap pixels. If the bitmap
+    is marked immutable, and its pixel memory is shareable, it may be shared
+    instead of copied.
+
+    SkImage is returned if bitmap is valid. Valid SkBitmap parameters include:
+    dimensions are greater than zero;
+    each dimension fits in 29 bits;
+    SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
+    row bytes are large enough to hold one row of pixels;
+    pixel address is not nullptr.
+
+    @param bitmap  SkImageInfo, row bytes, and pixels
+    @return        created SkImage, or nullptr
+*/
+SK_API sk_sp<SkImage> RasterFromBitmap(const SkBitmap& bitmap);
+
+/** Creates a CPU-backed SkImage from compressed data.
+
+    This method will decompress the compressed data and create an image wrapping
+    it. Any mipmap levels present in the compressed data are discarded.
+
+    @param data     compressed data to store in SkImage
+    @param width    width of full SkImage
+    @param height   height of full SkImage
+    @param type     type of compression used
+    @return         created SkImage, or nullptr
+*/
+SK_API sk_sp<SkImage> RasterFromCompressedTextureData(sk_sp<SkData> data,
+                                                      int width,
+                                                      int height,
+                                                      SkTextureCompressionType type);
+
+/**
+ *  Return a SkImage using the encoded data, but attempts to defer decoding until the
+ *  image is actually used/drawn. This deferral allows the system to cache the result, either on the
+ *  CPU or on the GPU, depending on where the image is drawn. If memory is low, the cache may
+ *  be purged, causing the next draw of the image to have to re-decode.
+ *
+ *  If alphaType is nullopt, the image's alpha type will be chosen automatically based on the
+ *  image format. Transparent images will default to kPremul_SkAlphaType. If alphaType contains
+ *  kPremul_SkAlphaType or kUnpremul_SkAlphaType, that alpha type will be used. Forcing opaque
+ *  (passing kOpaque_SkAlphaType) is not allowed, and will return nullptr.
+ *
+ *  If the encoded format is not supported, nullptr is returned.
+ *
+ *  @param encoded  the encoded data
+ *  @return         created SkImage, or nullptr
+
+    example: https://fiddle.skia.org/c/@Image_DeferredFromEncodedData
+*/
+SK_API sk_sp<SkImage> DeferredFromEncodedData(sk_sp<SkData> encoded,
+                                              std::optional<SkAlphaType> alphaType = std::nullopt);
+
+/** Creates SkImage from data returned by imageGenerator. The image data will not be created
+    (on either the CPU or GPU) until the image is actually drawn.
+    Generated data is owned by SkImage and may not be shared or accessed.
+
+    SkImage is returned if generator data is valid. Valid data parameters vary by type of data
+    and platform.
+
+    imageGenerator may wrap SkPicture data, codec data, or custom data.
+
+    @param imageGenerator  stock or custom routines to retrieve SkImage
+    @return                created SkImage, or nullptr
+*/
+SK_API sk_sp<SkImage> DeferredFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator);
+
+enum class BitDepth {
+    kU8,   //!< uses 8-bit unsigned int per color component
+    kF16,  //!< uses 16-bit float per color component
+};
+
+/** Creates SkImage from picture. Returned SkImage width and height are set by dimensions.
+    SkImage draws picture with matrix and paint, set to bitDepth and colorSpace.
+
+    The Picture data is not turned into an image (CPU or GPU) until it is drawn.
+
+    If matrix is nullptr, draws with identity SkMatrix. If paint is nullptr, draws
+    with default SkPaint. colorSpace may be nullptr.
+
+    @param picture     stream of drawing commands
+    @param dimensions  width and height
+    @param matrix      SkMatrix to rotate, scale, translate, and so on; may be nullptr
+    @param paint       SkPaint to apply transparency, filtering, and so on; may be nullptr
+    @param bitDepth    8-bit integer or 16-bit float: per component
+    @param colorSpace  range of colors; may be nullptr
+    @param props       props to use when rasterizing the picture
+    @return            created SkImage, or nullptr
+*/
+SK_API sk_sp<SkImage> DeferredFromPicture(sk_sp<SkPicture> picture,
+                                          const SkISize& dimensions,
+                                          const SkMatrix* matrix,
+                                          const SkPaint* paint,
+                                          BitDepth bitDepth,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          SkSurfaceProps props);
+SK_API sk_sp<SkImage> DeferredFromPicture(sk_sp<SkPicture> picture,
+                                          const SkISize& dimensions,
+                                          const SkMatrix* matrix,
+                                          const SkPaint* paint,
+                                          BitDepth bitDepth,
+                                          sk_sp<SkColorSpace> colorSpace);
+
+/** Creates a CPU-backed SkImage from pixmap, copying the pixel data.
+    As a result, pixmap pixels may be modified or deleted without affecting SkImage.
+
+    SkImage is returned if SkPixmap is valid. Valid SkPixmap parameters include:
+    dimensions are greater than zero;
+    each dimension fits in 29 bits;
+    SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
+    row bytes are large enough to hold one row of pixels;
+    pixel address is not nullptr.
+
+    @param pixmap  SkImageInfo, pixel address, and row bytes
+    @return        copy of SkPixmap pixels, or nullptr
+
+    example: https://fiddle.skia.org/c/@Image_RasterFromPixmapCopy
+*/
+SK_API sk_sp<SkImage> RasterFromPixmapCopy(const SkPixmap& pixmap);
+
+/** Creates CPU-backed SkImage from pixmap, sharing SkPixmap pixels. Pixels must remain valid and
+    unchanged until rasterReleaseProc is called. rasterReleaseProc is passed
+    releaseContext when SkImage is deleted or no longer refers to pixmap pixels.
+
+    Pass nullptr for rasterReleaseProc to share SkPixmap without requiring a callback
+    when SkImage is released. Pass nullptr for releaseContext if rasterReleaseProc
+    does not require state.
+
+    SkImage is returned if pixmap is valid. Valid SkPixmap parameters include:
+    dimensions are greater than zero;
+    each dimension fits in 29 bits;
+    SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
+    row bytes are large enough to hold one row of pixels;
+    pixel address is not nullptr.
+
+    @param pixmap             SkImageInfo, pixel address, and row bytes
+    @param rasterReleaseProc  function called when pixels can be released; or nullptr
+    @param releaseContext     state passed to rasterReleaseProc; or nullptr
+    @return                   SkImage sharing pixmap
+*/
+SK_API sk_sp<SkImage> RasterFromPixmap(const SkPixmap& pixmap,
+                                       RasterReleaseProc rasterReleaseProc,
+                                       ReleaseContext releaseContext);
+
+/** Creates CPU-backed SkImage from pixel data described by info.
+    The pixels data will *not* be copied.
+
+    SkImage is returned if SkImageInfo is valid. Valid SkImageInfo parameters include:
+    dimensions are greater than zero;
+    each dimension fits in 29 bits;
+    SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
+    rowBytes are large enough to hold one row of pixels;
+    pixels is not nullptr, and contains enough data for SkImage.
+
+    @param info      contains width, height, SkAlphaType, SkColorType, SkColorSpace
+    @param pixels    address or pixel storage
+    @param rowBytes  size of pixel row or larger
+    @return          SkImage sharing pixels, or nullptr
+*/
+SK_API sk_sp<SkImage> RasterFromData(const SkImageInfo& info,
+                                     sk_sp<SkData> pixels,
+                                     size_t rowBytes);
+
+}  // namespace SkImages
 
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
@@ -89,475 +279,14 @@ class YUVABackendTextures;
     GPU texture, YUV_ColorSpace data, or hardware buffer. Encoded streams supported
     include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encoding details
     vary with platform.
+
+    See SkImages namespace for the static factory methods to make SkImages.
+
+    Clients should *not* subclass SkImage as there is a lot of internal machinery that is
+    not publicly accessible.
 */
 class SK_API SkImage : public SkRefCnt {
 public:
-
-    /** Caller data passed to RasterReleaseProc; may be nullptr.
-    */
-    typedef void* ReleaseContext;
-
-    /** Creates SkImage from SkPixmap and copy of pixels. Since pixels are copied, SkPixmap
-        pixels may be modified or deleted without affecting SkImage.
-
-        SkImage is returned if SkPixmap is valid. Valid SkPixmap parameters include:
-        dimensions are greater than zero;
-        each dimension fits in 29 bits;
-        SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
-        row bytes are large enough to hold one row of pixels;
-        pixel address is not nullptr.
-
-        @param pixmap  SkImageInfo, pixel address, and row bytes
-        @return        copy of SkPixmap pixels, or nullptr
-
-        example: https://fiddle.skia.org/c/@Image_MakeRasterCopy
-    */
-    static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap);
-
-    /** Creates SkImage from SkImageInfo, sharing pixels.
-
-        SkImage is returned if SkImageInfo is valid. Valid SkImageInfo parameters include:
-        dimensions are greater than zero;
-        each dimension fits in 29 bits;
-        SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
-        rowBytes are large enough to hold one row of pixels;
-        pixels is not nullptr, and contains enough data for SkImage.
-
-        @param info      contains width, height, SkAlphaType, SkColorType, SkColorSpace
-        @param pixels    address or pixel storage
-        @param rowBytes  size of pixel row or larger
-        @return          SkImage sharing pixels, or nullptr
-    */
-    static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels,
-                                         size_t rowBytes);
-
-    /** Function called when SkImage no longer shares pixels. ReleaseContext is
-        provided by caller when SkImage is created, and may be nullptr.
-    */
-    typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);
-
-    /** Creates SkImage from pixmap, sharing SkPixmap pixels. Pixels must remain valid and
-        unchanged until rasterReleaseProc is called. rasterReleaseProc is passed
-        releaseContext when SkImage is deleted or no longer refers to pixmap pixels.
-
-        Pass nullptr for rasterReleaseProc to share SkPixmap without requiring a callback
-        when SkImage is released. Pass nullptr for releaseContext if rasterReleaseProc
-        does not require state.
-
-        SkImage is returned if pixmap is valid. Valid SkPixmap parameters include:
-        dimensions are greater than zero;
-        each dimension fits in 29 bits;
-        SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
-        row bytes are large enough to hold one row of pixels;
-        pixel address is not nullptr.
-
-        @param pixmap             SkImageInfo, pixel address, and row bytes
-        @param rasterReleaseProc  function called when pixels can be released; or nullptr
-        @param releaseContext     state passed to rasterReleaseProc; or nullptr
-        @return                   SkImage sharing pixmap
-    */
-    static sk_sp<SkImage> MakeFromRaster(const SkPixmap& pixmap,
-                                         RasterReleaseProc rasterReleaseProc,
-                                         ReleaseContext releaseContext);
-
-    /** Creates SkImage from bitmap, sharing or copying bitmap pixels. If the bitmap
-        is marked immutable, and its pixel memory is shareable, it may be shared
-        instead of copied.
-
-        SkImage is returned if bitmap is valid. Valid SkBitmap parameters include:
-        dimensions are greater than zero;
-        each dimension fits in 29 bits;
-        SkColorType and SkAlphaType are valid, and SkColorType is not kUnknown_SkColorType;
-        row bytes are large enough to hold one row of pixels;
-        pixel address is not nullptr.
-
-        @param bitmap  SkImageInfo, row bytes, and pixels
-        @return        created SkImage, or nullptr
-
-        example: https://fiddle.skia.org/c/@Image_MakeFromBitmap
-    */
-    static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap);
-
-    /** Creates SkImage from data returned by imageGenerator. Generated data is owned by SkImage and
-        may not be shared or accessed.
-
-        SkImage is returned if generator data is valid. Valid data parameters vary by type of data
-        and platform.
-
-        imageGenerator may wrap SkPicture data, codec data, or custom data.
-
-        @param imageGenerator  stock or custom routines to retrieve SkImage
-        @return                created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator);
-
-    /**
-     *  Return an image backed by the encoded data, but attempt to defer decoding until the image
-     *  is actually used/drawn. This deferral allows the system to cache the result, either on the
-     *  CPU or on the GPU, depending on where the image is drawn. If memory is low, the cache may
-     *  be purged, causing the next draw of the image to have to re-decode.
-     *
-     *  If alphaType is nullopt, the image's alpha type will be chosen automatically based on the
-     *  image format. Transparent images will default to kPremul_SkAlphaType. If alphaType contains
-     *  kPremul_SkAlphaType or kUnpremul_SkAlphaType, that alpha type will be used. Forcing opaque
-     *  (passing kOpaque_SkAlphaType) is not allowed, and will return nullptr.
-     *
-     *  This is similar to DecodeTo[Raster,Texture], but this method will attempt to defer the
-     *  actual decode, while the DecodeTo... method explicitly decode and allocate the backend
-     *  when the call is made.
-     *
-     *  If the encoded format is not supported, nullptr is returned.
-     *
-     *  @param encoded  the encoded data
-     *  @return         created SkImage, or nullptr
-
-        example: https://fiddle.skia.org/c/@Image_MakeFromEncoded
-    */
-    static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded,
-                                          std::optional<SkAlphaType> alphaType = std::nullopt);
-
-    // TODO(kjlubick) remove this once Chrome has been migrated to new type
-    static const SkTextureCompressionType kETC1_CompressionType =
-            SkTextureCompressionType::kETC1_RGB8;
-
-    /** Creates a CPU-backed SkImage from compressed data.
-
-        This method will decompress the compressed data and create an image wrapping
-        it. Any mipmap levels present in the compressed data are discarded.
-
-        @param data     compressed data to store in SkImage
-        @param width    width of full SkImage
-        @param height   height of full SkImage
-        @param type     type of compression used
-        @return         created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeRasterFromCompressed(sk_sp<SkData> data,
-                                                   int width, int height,
-                                                   SkTextureCompressionType type);
-
-    enum class BitDepth {
-        kU8,  //!< uses 8-bit unsigned int per color component
-        kF16, //!< uses 16-bit float per color component
-    };
-
-    /** Creates SkImage from picture. Returned SkImage width and height are set by dimensions.
-        SkImage draws picture with matrix and paint, set to bitDepth and colorSpace.
-
-        If matrix is nullptr, draws with identity SkMatrix. If paint is nullptr, draws
-        with default SkPaint. colorSpace may be nullptr.
-
-        @param picture     stream of drawing commands
-        @param dimensions  width and height
-        @param matrix      SkMatrix to rotate, scale, translate, and so on; may be nullptr
-        @param paint       SkPaint to apply transparency, filtering, and so on; may be nullptr
-        @param bitDepth    8-bit integer or 16-bit float: per component
-        @param colorSpace  range of colors; may be nullptr
-        @param props       props to use when rasterizing the picture
-        @return            created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
-                                          const SkMatrix* matrix, const SkPaint* paint,
-                                          BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace,
-                                          SkSurfaceProps props);
-    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
-                                          const SkMatrix* matrix, const SkPaint* paint,
-                                          BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace);
-
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-    /** User function called when supplied texture may be deleted.
-     */
-    typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
-#endif
-
-#if defined(SK_GANESH)
-        /** Creates a GPU-backed SkImage from compressed data.
-
-        This method will return an SkImage representing the compressed data.
-        If the GPU doesn't support the specified compression method, the data
-        will be decompressed and then wrapped in a GPU-backed image.
-
-        Note: one can query the supported compression formats via
-        GrRecordingContext::compressedBackendFormat.
-
-        @param context     GPU context
-        @param data        compressed data to store in SkImage
-        @param width       width of full SkImage
-        @param height      height of full SkImage
-        @param type        type of compression used
-        @param mipmapped   does 'data' contain data for all the mipmap levels?
-        @param isProtected do the contents of 'data' require DRM protection (on Vulkan)?
-        @return            created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeTextureFromCompressed(GrDirectContext* direct,
-                                                    sk_sp<SkData> data,
-                                                    int width, int height,
-                                                    SkTextureCompressionType type,
-                                                    GrMipmapped mipmapped = GrMipmapped::kNo,
-                                                    GrProtected isProtected = GrProtected::kNo);
-
-    /** Creates SkImage from GPU texture associated with context. GPU texture must stay
-        valid and unchanged until textureReleaseProc is called. textureReleaseProc is
-        passed releaseContext when SkImage is deleted or no longer refers to texture.
-
-        SkImage is returned if format of backendTexture is recognized and supported.
-        Recognized formats vary by GPU back-end.
-
-        @note When using a DDL recording context, textureReleaseProc will be called on the
-        GPU thread after the DDL is played back on the direct context.
-
-        @param context             GPU context
-        @param backendTexture      Gexture residing on GPU
-        @param origin              Origin of backendTexture
-        @param colorType           Color type of the resulting image
-        @param alphaType           Alpha type of the resulting image
-        @param colorSpace          This describes the color space of this image's contents, as
-                                   seen after sampling. In general, if the format of the backend
-                                   texture is SRGB, some linear colorSpace should be supplied
-                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
-                                   backend texture is linear, then the colorSpace should include
-                                   a description of the transfer function as
-                                   well (e.g., SkColorSpace::MakeSRGB()).
-        @param textureReleaseProc  Function called when texture can be released
-        @param releaseContext      State passed to textureReleaseProc
-        @return                    Created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromTexture(GrRecordingContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
-                                          SkColorType colorType,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace,
-                                          TextureReleaseProc textureReleaseProc = nullptr,
-                                          ReleaseContext releaseContext = nullptr);
-
-    /** Creates an SkImage from a GPU backend texture. The backend texture must stay
-        valid and unchanged until textureReleaseProc is called. The textureReleaseProc is
-        called when the SkImage is deleted or no longer refers to the texture and will be
-        passed the releaseContext.
-
-        An SkImage is returned if the format of backendTexture is recognized and supported.
-        Recognized formats vary by GPU back-end.
-
-        @note When using a DDL recording context, textureReleaseProc will be called on the
-        GPU thread after the DDL is played back on the direct context.
-
-        @param context             The GPU context
-        @param backendTexture      A texture already allocated by the GPU
-        @param origin              Origin of backendTexture
-        @param alphaType           This characterizes the nature of the alpha values in the
-                                   backend texture. For opaque compressed formats (e.g., ETC1)
-                                   this should usually be set to kOpaque_SkAlphaType.
-        @param colorSpace          This describes the color space of this image's contents, as
-                                   seen after sampling. In general, if the format of the backend
-                                   texture is SRGB, some linear colorSpace should be supplied
-                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
-                                   backend texture is linear, then the colorSpace should include
-                                   a description of the transfer function as
-                                   well (e.g., SkColorSpace::MakeSRGB()).
-        @param textureReleaseProc  Function called when the backend texture can be released
-        @param releaseContext      State passed to textureReleaseProc
-        @return                    Created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromCompressedTexture(GrRecordingContext* context,
-                                                    const GrBackendTexture& backendTexture,
-                                                    GrSurfaceOrigin origin,
-                                                    SkAlphaType alphaType,
-                                                    sk_sp<SkColorSpace> colorSpace,
-                                                    TextureReleaseProc textureReleaseProc = nullptr,
-                                                    ReleaseContext releaseContext = nullptr);
-
-    /** Creates SkImage from pixmap. SkImage is uploaded to GPU back-end using context.
-
-        Created SkImage is available to other GPU contexts, and is available across thread
-        boundaries. All contexts must be in the same GPU share group, or otherwise
-        share resources.
-
-        When SkImage is no longer referenced, context releases texture memory
-        asynchronously.
-
-        SkColorSpace of SkImage is determined by pixmap.colorSpace().
-
-        SkImage is returned referring to GPU back-end if context is not nullptr,
-        format of data is recognized and supported, and if context supports moving
-        resources between contexts. Otherwise, pixmap pixel data is copied and SkImage
-        as returned in raster format if possible; nullptr may be returned.
-        Recognized GPU formats vary by platform and GPU back-end.
-
-        @param context                GPU context
-        @param pixmap                 SkImageInfo, pixel address, and row bytes
-        @param buildMips              create SkImage as mip map if true
-        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
-        @return                       created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeCrossContextFromPixmap(GrDirectContext* context,
-                                                     const SkPixmap& pixmap,
-                                                     bool buildMips,
-                                                     bool limitToMaxTextureSize = false);
-
-    /** Creates SkImage from backendTexture associated with context. backendTexture and
-        returned SkImage are managed internally, and are released when no longer needed.
-
-        SkImage is returned if format of backendTexture is recognized and supported.
-        Recognized formats vary by GPU back-end.
-
-        @param context         GPU context
-        @param backendTexture  texture residing on GPU
-        @param textureOrigin   origin of backendTexture
-        @param colorType       color type of the resulting image
-        @param alphaType       alpha type of the resulting image
-        @param colorSpace      range of colors; may be nullptr
-        @return                created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromAdoptedTexture(GrRecordingContext* context,
-                                                 const GrBackendTexture& backendTexture,
-                                                 GrSurfaceOrigin textureOrigin,
-                                                 SkColorType colorType);
-    static sk_sp<SkImage> MakeFromAdoptedTexture(GrRecordingContext* context,
-                                                 const GrBackendTexture& backendTexture,
-                                                 GrSurfaceOrigin textureOrigin,
-                                                 SkColorType colorType,
-                                                 SkAlphaType alphaType);
-    static sk_sp<SkImage> MakeFromAdoptedTexture(GrRecordingContext* context,
-                                                 const GrBackendTexture& backendTexture,
-                                                 GrSurfaceOrigin textureOrigin,
-                                                 SkColorType colorType,
-                                                 SkAlphaType alphaType,
-                                                 sk_sp<SkColorSpace> colorSpace);
-
-    /** Creates an SkImage from YUV[A] planar textures. This requires that the textures stay valid
-        for the lifetime of the image. The ReleaseContext can be used to know when it is safe to
-        either delete or overwrite the textures. If ReleaseProc is provided it is also called before
-        return on failure.
-
-        @param context            GPU context
-        @param yuvaTextures       A set of textures containing YUVA data and a description of the
-                                  data and transformation to RGBA.
-        @param imageColorSpace    range of colors of the resulting image after conversion to RGB;
-                                  may be nullptr
-        @param textureReleaseProc called when the backend textures can be released
-        @param releaseContext     state passed to textureReleaseProc
-        @return                   created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
-                                               const GrYUVABackendTextures& yuvaTextures,
-                                               sk_sp<SkColorSpace> imageColorSpace,
-                                               TextureReleaseProc textureReleaseProc = nullptr,
-                                               ReleaseContext releaseContext = nullptr);
-    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
-                                               const GrYUVABackendTextures& yuvaTextures);
-
-    /** Creates SkImage from SkYUVAPixmaps.
-
-        The image will remain planar with each plane converted to a texture using the passed
-        GrRecordingContext.
-
-        SkYUVAPixmaps has a SkYUVAInfo which specifies the transformation from YUV to RGB.
-        The SkColorSpace of the resulting RGB values is specified by imageColorSpace. This will
-        be the SkColorSpace reported by the image and when drawn the RGB values will be converted
-        from this space into the destination space (if the destination is tagged).
-
-        Currently, this is only supported using the GPU backend and will fail if context is nullptr.
-
-        SkYUVAPixmaps does not need to remain valid after this returns.
-
-        @param context                GPU context
-        @param pixmaps                The planes as pixmaps with supported SkYUVAInfo that
-                                      specifies conversion to RGB.
-        @param buildMips              create internal YUVA textures as mip map if kYes. This is
-                                      silently ignored if the context does not support mip maps.
-        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
-        @param imageColorSpace        range of colors of the resulting image; may be nullptr
-        @return                       created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVAPixmaps(GrRecordingContext* context,
-                                              const SkYUVAPixmaps& pixmaps,
-                                              GrMipmapped buildMips,
-                                              bool limitToMaxTextureSize,
-                                              sk_sp<SkColorSpace> imageColorSpace);
-    static sk_sp<SkImage> MakeFromYUVAPixmaps(GrRecordingContext* context,
-                                              const SkYUVAPixmaps& pixmaps,
-                                              GrMipmapped buildMips = GrMipmapped::kNo,
-                                              bool limitToMaxTextureSize = false);
-
-    using PromiseImageTextureContext = void*;
-    using PromiseImageTextureFulfillProc =
-            sk_sp<SkPromiseImageTexture> (*)(PromiseImageTextureContext);
-    using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
-
-    /** Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The
-        difference is that the caller need not have created the texture nor populated it with the
-        image pixel data. Moreover, the SkImage may be created on a thread as the creation of the
-        image does not require access to the backend API or GrDirectContext. Instead of passing a
-        GrBackendTexture the client supplies a description of the texture consisting of
-        GrBackendFormat, width, height, and GrMipmapped state. The resulting SkImage can be drawn
-        to a SkDeferredDisplayListRecorder or directly to a GPU-backed SkSurface.
-
-        When the actual texture is required to perform a backend API draw, textureFulfillProc will
-        be called to receive a GrBackendTexture. The properties of the GrBackendTexture must match
-        those set during the SkImage creation, and it must refer to a valid existing texture in the
-        backend API context/device, and be populated with the image pixel data. The texture cannot
-        be deleted until textureReleaseProc is called.
-
-        There is at most one call to each of textureFulfillProc and textureReleaseProc.
-        textureReleaseProc is always called even if image creation fails or if the
-        image is never fulfilled (e.g. it is never drawn or all draws are clipped out)
-
-        @param gpuContextProxy     the thread-safe proxy of the gpu context. required.
-        @param backendFormat       format of promised gpu texture
-        @param dimensions          width & height of promised gpu texture
-        @param mipmapped           mip mapped state of promised gpu texture
-        @param origin              surface origin of promised gpu texture
-        @param colorType           color type of promised gpu texture
-        @param alphaType           alpha type of promised gpu texture
-        @param colorSpace          range of colors; may be nullptr
-        @param textureFulfillProc  function called to get actual gpu texture
-        @param textureReleaseProc  function called when texture can be deleted
-        @param textureContext      state passed to textureFulfillProc and textureReleaseProc
-        @return                    created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> gpuContextProxy,
-                                             const GrBackendFormat& backendFormat,
-                                             SkISize dimensions,
-                                             GrMipmapped mipmapped,
-                                             GrSurfaceOrigin origin,
-                                             SkColorType colorType,
-                                             SkAlphaType alphaType,
-                                             sk_sp<SkColorSpace> colorSpace,
-                                             PromiseImageTextureFulfillProc textureFulfillProc,
-                                             PromiseImageTextureReleaseProc textureReleaseProc,
-                                             PromiseImageTextureContext textureContext);
-
-    /** This entry point operates like 'MakePromiseTexture' but it is used to construct a SkImage
-        from YUV[A] data. The source data may be planar (i.e. spread across multiple textures). In
-        the extreme Y, U, V, and A are all in different planes and thus the image is specified by
-        four textures. 'backendTextureInfo' describes the planar arrangement, texture formats,
-        conversion to RGB, and origin of the textures. Separate 'textureFulfillProc' and
-        'textureReleaseProc' calls are made for each texture. Each texture has its own
-        PromiseImageTextureContext. If 'backendTextureInfo' is not valid then no release proc
-        calls are made. Otherwise, the calls will be made even on failure. 'textureContexts' has one
-        entry for each of the up to four textures, as indicated by 'backendTextureInfo'.
-
-        Currently the mip mapped property of 'backendTextureInfo' is ignored. However, in the
-        near future it will be required that if it is kYes then textureFulfillProc must return
-        a mip mapped texture for each plane in order to successfully draw the image.
-
-        @param gpuContextProxy     the thread-safe proxy of the gpu context. required.
-        @param backendTextureInfo  info about the promised yuva gpu texture
-        @param imageColorSpace     range of colors; may be nullptr
-        @param textureFulfillProc  function called to get actual gpu texture
-        @param textureReleaseProc  function called when texture can be deleted
-        @param textureContexts     state passed to textureFulfillProc and textureReleaseProc
-        @return                    created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy> gpuContextProxy,
-                                                 const GrYUVABackendTextureInfo& backendTextureInfo,
-                                                 sk_sp<SkColorSpace> imageColorSpace,
-                                                 PromiseImageTextureFulfillProc textureFulfillProc,
-                                                 PromiseImageTextureReleaseProc textureReleaseProc,
-                                                 PromiseImageTextureContext textureContexts[]);
-
-#endif // defined(SK_GANESH)
-
     /** Returns a SkImageInfo describing the width, height, color type, alpha type, and color space
         of the SkImage.
 
@@ -734,42 +463,6 @@ public:
         example: https://fiddle.skia.org/c/@Image_isValid
     */
     bool isValid(GrRecordingContext* context) const;
-
-#if defined(SK_GANESH)
-    /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
-        texture-backed (including promise texture images) or if the GrDirectContext does not
-        have the same context ID as the context backing the image then this is a no-op.
-
-        If the image was not used in any non-culled draws in the current queue of work for the
-        passed GrDirectContext then this is a no-op unless the GrFlushInfo contains semaphores or
-        a finish proc. Those are respected even when the image has not been used.
-
-        @param context  the context on which to flush pending usages of the image.
-        @param info     flush options
-     */
-    GrSemaphoresSubmitted flush(GrDirectContext* context, const GrFlushInfo& flushInfo) const;
-
-    void flush(GrDirectContext* context) const { this->flush(context, {}); }
-
-    /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
-        GPU.
-    */
-    void flushAndSubmit(GrDirectContext*) const;
-
-    /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
-        object is returned. Call GrBackendTexture::isValid to determine if the result
-        is valid.
-
-        If flushPendingGrContextIO is true, completes deferred I/O operations.
-
-        If origin in not nullptr, copies location of content drawn into SkImage.
-
-        @param flushPendingGrContextIO  flag to flush outstanding requests
-        @return                         back-end API texture handle; invalid on failure
-    */
-    GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
-                                       GrSurfaceOrigin* origin = nullptr) const;
-#endif // defined(SK_GANESH)
 
     /** \enum SkImage::CachingHint
         CachingHint selects whether Skia may internally cache SkBitmap generated by
@@ -1094,62 +787,12 @@ public:
      */
     sk_sp<SkImage> withDefaultMipmaps() const;
 
-#if defined(SK_GANESH)
-    /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
-        compatible with SkSurface created with dstColorSpace. The returned SkImage respects
-        mipmapped setting; if mipmapped equals GrMipmapped::kYes, the backing texture
-        allocates mip map levels.
-
-        The mipmapped parameter is effectively treated as kNo if MIP maps are not supported by the
-        GPU.
-
-        Returns original SkImage if the image is already texture-backed, the context matches, and
-        mipmapped is compatible with the backing GPU texture. skgpu::Budgeted is ignored in this
-       case.
-
-        Returns nullptr if context is nullptr, or if SkImage was created with another
-        GrDirectContext.
-
-        @param GrDirectContext the GrDirectContext in play, if it exists
-        @param GrMipmapped     whether created SkImage texture must allocate mip map levels
-        @param skgpu::Budgeted      whether to count a newly created texture for the returned image
-                               counts against the context's budget.
-        @return                created SkImage, or nullptr
-    */
-    sk_sp<SkImage> makeTextureImage(GrDirectContext*,
-                                    GrMipmapped = GrMipmapped::kNo,
-                                    skgpu::Budgeted = skgpu::Budgeted::kYes) const;
-#endif // defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+    using ReleaseContext = SkImages::ReleaseContext;
+    using TextureReleaseProc = void (*)(ReleaseContext);
+#endif
 
 #if defined(SK_GRAPHITE)
-    /** Creates an SkImage from a GPU texture associated with the recorder.
-
-        SkImage is returned if the format of backendTexture is recognized and supported.
-        Recognized formats vary by GPU back-end.
-
-        @param recorder            The recorder
-        @param backendTexture      Texture residing on GPU
-        @param colorType           Color type of the resulting image
-        @param alphaType           Alpha type of the resulting image
-        @param colorSpace          This describes the color space of this image's contents, as
-                                   seen after sampling. In general, if the format of the backend
-                                   texture is SRGB, some linear colorSpace should be supplied
-                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
-                                   backend texture is linear, then the colorSpace should include
-                                   a description of the transfer function as
-                                   well (e.g., SkColorSpace::MakeSRGB()).
-        @param TextureReleaseProc  Function called when the backend texture can be released
-        @param ReleaseContext      State passed to textureReleaseProc
-        @return                    Created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeGraphiteFromBackendTexture(skgpu::graphite::Recorder*,
-                                                         const skgpu::graphite::BackendTexture&,
-                                                         SkColorType colorType,
-                                                         SkAlphaType alphaType,
-                                                         sk_sp<SkColorSpace> colorSpace,
-                                                         TextureReleaseProc = nullptr,
-                                                         ReleaseContext = nullptr);
-
     // Passed to both fulfill and imageRelease
     using GraphitePromiseImageContext = void*;
     // Returned from fulfill and passed into textureRelease
@@ -1217,8 +860,31 @@ public:
                                                      GraphitePromiseTextureReleaseProc,
                                                      GraphitePromiseImageContext);
 
-    /** Creates an SkImage from YUV[A] planar textures associated with the recorder.
+    /** Creates an SkImage from a GPU texture associated with the recorder.
 
+        SkImage is returned if the format of backendTexture is recognized and supported.
+        Recognized formats vary by GPU back-end.
+
+        @param recorder            The recorder
+        @param backendTexture      texture residing on GPU
+        @param colorSpace          This describes the color space of this image's contents, as
+                                   seen after sampling. In general, if the format of the backend
+                                   texture is SRGB, some linear colorSpace should be supplied
+                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
+                                   backend texture is linear, then the colorSpace should include
+                                   a description of the transfer function as
+                                   well (e.g., SkColorSpace::MakeSRGB()).
+        @return                    created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeGraphiteFromBackendTexture(skgpu::graphite::Recorder*,
+                                                         const skgpu::graphite::BackendTexture&,
+                                                         SkColorType colorType,
+                                                         SkAlphaType alphaType,
+                                                         sk_sp<SkColorSpace> colorSpace,
+                                                         TextureReleaseProc = nullptr,
+                                                         ReleaseContext = nullptr);
+
+    /** Creates an SkImage from YUV[A] planar textures associated with the recorder.
          @param recorder            The recorder.
          @param yuvaBackendTextures A set of textures containing YUVA data and a description of the
                                     data and transformation to RGBA.
@@ -1410,38 +1076,6 @@ public:
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
 
-    /** Defines a callback function, taking one parameter of type GrBackendTexture with
-        no return value. Function is called when back-end texture is to be released.
-    */
-    typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc;
-
-#if defined(SK_GANESH)
-    /** Creates a GrBackendTexture from the provided SkImage. Returns true and
-        stores result in backendTexture and backendTextureReleaseProc if
-        texture is created; otherwise, returns false and leaves
-        backendTexture and backendTextureReleaseProc unmodified.
-
-        Call backendTextureReleaseProc after deleting backendTexture.
-        backendTextureReleaseProc cleans up auxiliary data related to returned
-        backendTexture. The caller must delete returned backendTexture after use.
-
-        If SkImage is both texture backed and singly referenced, image is returned in
-        backendTexture without conversion or making a copy. SkImage is singly referenced
-        if its was transferred solely using std::move().
-
-        If SkImage is not texture backed, returns texture with SkImage contents.
-
-        @param context                    GPU context
-        @param image                      SkImage used for texture
-        @param backendTexture             storage for back-end texture
-        @param backendTextureReleaseProc  storage for clean up function
-        @return                           true if back-end texture was created
-    */
-    static bool MakeBackendTextureFromSkImage(GrDirectContext* context,
-                                              sk_sp<SkImage> image,
-                                              GrBackendTexture* backendTexture,
-                                              BackendTextureReleaseProc* backendTextureReleaseProc);
-#endif
     /** Deprecated.
      */
     enum LegacyBitmapMode {
@@ -1514,6 +1148,60 @@ public:
     */
     sk_sp<SkImage> reinterpretColorSpace(sk_sp<SkColorSpace> newColorSpace) const;
 
+    // ===============================================================================
+    // Methods below here are no-op for non-gpu backed images
+
+    /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
+        compatible with SkSurface created with dstColorSpace. The returned SkImage respects
+        mipmapped setting; if mipmapped equals skgpu::Mipmapped::kYes, the backing texture
+        allocates mip map levels.
+        The mipmapped parameter is effectively treated as kNo if MIP maps are not supported by the
+        GPU.
+        Returns original SkImage if the image is already texture-backed, the context matches, and
+        mipmapped is compatible with the backing GPU texture. skgpu::Budgeted is ignored in this
+       case.
+        Returns nullptr if context is nullptr, or if SkImage was created with another
+        GrDirectContext.
+        @param GrDirectContext the GrDirectContext in play, if it exists
+        @param skgpu::Mipmapped Whether created SkImage texture must allocate mip map levels.
+                                Defaults to no.
+        @param skgpu::Budgeted Whether to count a newly created texture for the returned image
+                               counts against the context's budget. Defaults to yes.
+        @return                created SkImage, or nullptr
+    */
+    sk_sp<SkImage> makeTextureImage(GrDirectContext*, skgpu::Mipmapped, skgpu::Budgeted) const;
+    sk_sp<SkImage> makeTextureImage(GrDirectContext*, skgpu::Mipmapped) const;
+    sk_sp<SkImage> makeTextureImage(GrDirectContext*) const;
+
+    /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
+       texture-backed (including promise texture images) or if the GrDirectContext does not
+       have the same context ID as the context backing the image then this is a no-op.
+       If the image was not used in any non-culled draws in the current queue of work for the
+       passed GrDirectContext then this is a no-op unless the GrFlushInfo contains semaphores or
+       a finish proc. Those are respected even when the image has not been used.
+       @param context  the context on which to flush pending usages of the image.
+       @param info     flush options
+    */
+    GrSemaphoresSubmitted flush(GrDirectContext* context, const GrFlushInfo& flushInfo) const;
+
+    void flush(GrDirectContext* context) const;
+
+    /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
+        GPU.
+    */
+    void flushAndSubmit(GrDirectContext*) const;
+
+    /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
+        object is returned. Call GrBackendTexture::isValid to determine if the result
+        is valid.
+        If flushPendingGrContextIO is true, completes deferred I/O operations.
+        If origin in not nullptr, copies location of content drawn into SkImage.
+        @param flushPendingGrContextIO  flag to flush outstanding requests
+        @return                         back-end API texture handle; invalid on failure
+    */
+    GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
+                                       GrSurfaceOrigin* origin = nullptr) const;
+
 private:
     SkImage(const SkImageInfo& info, uint32_t uniqueID);
 
@@ -1529,9 +1217,148 @@ private:
 
     using INHERITED = SkRefCnt;
 
-public:
 #if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES)
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+public:
+    static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& b) {
+        return SkImages::RasterFromBitmap(b);
+    }
+    static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> e,
+                                          std::optional<SkAlphaType> at = std::nullopt);
+    static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> ig);
+
+    static sk_sp<SkImage> MakeRasterFromCompressed(sk_sp<SkData> d,
+                                                   int w,
+                                                   int h,
+                                                   SkTextureCompressionType t);
+    static sk_sp<SkImage> MakeRasterData(const SkImageInfo& i, sk_sp<SkData> d, size_t rb);
+
+    static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& p) {
+        return SkImages::RasterFromPixmapCopy(p);
+    }
+
+    static sk_sp<SkImage> MakeFromRaster(const SkPixmap& p,
+                                         SkImages::RasterReleaseProc rp,
+                                         SkImages::ReleaseContext rc) {
+        return SkImages::RasterFromPixmap(p, rp, rc);
+    }
+
+    using BitDepth = SkImages::BitDepth;
+    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> p,
+                                          const SkISize& dimensions,
+                                          const SkMatrix* matrix,
+                                          const SkPaint* paint,
+                                          BitDepth bitDepth,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          SkSurfaceProps props);
+    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> p,
+                                          const SkISize& dimensions,
+                                          const SkMatrix* matrix,
+                                          const SkPaint* paint,
+                                          BitDepth bitDepth,
+                                          sk_sp<SkColorSpace> colorSpace);
+#endif  // !SK_DISABLE_LEGACY_IMAGE_FACTORIES
+
+#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES) && defined(SK_GANESH)
+
+    using BackendTextureReleaseProc = std::function<void(GrBackendTexture)>;
+
+    static bool MakeBackendTextureFromSkImage(GrDirectContext* context,
+                                              sk_sp<SkImage> image,
+                                              GrBackendTexture* backendTexture,
+                                              BackendTextureReleaseProc* backendTextureReleaseProc);
+
+    static sk_sp<SkImage> MakeFromAdoptedTexture(GrRecordingContext* context,
+                                                 const GrBackendTexture& backendTexture,
+                                                 GrSurfaceOrigin textureOrigin,
+                                                 SkColorType colorType);
+    static sk_sp<SkImage> MakeFromAdoptedTexture(GrRecordingContext* context,
+                                                 const GrBackendTexture& backendTexture,
+                                                 GrSurfaceOrigin textureOrigin,
+                                                 SkColorType colorType,
+                                                 SkAlphaType alphaType);
+    static sk_sp<SkImage> MakeFromAdoptedTexture(GrRecordingContext* context,
+                                                 const GrBackendTexture& backendTexture,
+                                                 GrSurfaceOrigin textureOrigin,
+                                                 SkColorType colorType,
+                                                 SkAlphaType alphaType,
+                                                 sk_sp<SkColorSpace> colorSpace);
+
+    static sk_sp<SkImage> MakeFromCompressedTexture(GrRecordingContext* context,
+                                                    const GrBackendTexture& backendTexture,
+                                                    GrSurfaceOrigin origin,
+                                                    SkAlphaType alphaType,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    TextureReleaseProc textureReleaseProc = nullptr,
+                                                    ReleaseContext releaseContext = nullptr);
+
+    static sk_sp<SkImage> MakeCrossContextFromPixmap(GrDirectContext* context,
+                                                     const SkPixmap& pixmap,
+                                                     bool buildMips,
+                                                     bool limitToMaxTextureSize = false);
+
+    static sk_sp<SkImage> MakeFromTexture(GrRecordingContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          TextureReleaseProc textureReleaseProc = nullptr,
+                                          ReleaseContext releaseContext = nullptr);
+
+    using PromiseImageTextureContext = void*;
+    using PromiseImageTextureFulfillProc =
+            sk_sp<SkPromiseImageTexture> (*)(PromiseImageTextureContext);
+    using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
+
+    static sk_sp<SkImage> MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> gpuContextProxy,
+                                             const GrBackendFormat& backendFormat,
+                                             SkISize dimensions,
+                                             GrMipmapped mipmapped,
+                                             GrSurfaceOrigin origin,
+                                             SkColorType colorType,
+                                             SkAlphaType alphaType,
+                                             sk_sp<SkColorSpace> colorSpace,
+                                             PromiseImageTextureFulfillProc textureFulfillProc,
+                                             PromiseImageTextureReleaseProc textureReleaseProc,
+                                             PromiseImageTextureContext textureContext);
+
+    static sk_sp<SkImage> MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy> gpuContextProxy,
+                                                 const GrYUVABackendTextureInfo& backendTextureInfo,
+                                                 sk_sp<SkColorSpace> imageColorSpace,
+                                                 PromiseImageTextureFulfillProc textureFulfillProc,
+                                                 PromiseImageTextureReleaseProc textureReleaseProc,
+                                                 PromiseImageTextureContext textureContexts[]);
+
+    static sk_sp<SkImage> MakeTextureFromCompressed(GrDirectContext* direct,
+                                                    sk_sp<SkData> data,
+                                                    int width,
+                                                    int height,
+                                                    SkTextureCompressionType type,
+                                                    GrMipmapped mipmapped = GrMipmapped::kNo,
+                                                    GrProtected isProtected = GrProtected::kNo);
+
+    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
+                                               const GrYUVABackendTextures& yuvaTextures,
+                                               sk_sp<SkColorSpace> imageColorSpace,
+                                               TextureReleaseProc textureReleaseProc = nullptr,
+                                               ReleaseContext releaseContext = nullptr);
+    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
+                                               const GrYUVABackendTextures& yuvaTextures);
+
+    static sk_sp<SkImage> MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                              const SkYUVAPixmaps& pixmaps,
+                                              GrMipmapped buildMips,
+                                              bool limitToMaxTextureSize,
+                                              sk_sp<SkColorSpace> imageColorSpace);
+    static sk_sp<SkImage> MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                              const SkYUVAPixmaps& pixmaps,
+                                              GrMipmapped buildMips = GrMipmapped::kNo,
+                                              bool limitToMaxTextureSize = false);
+
+#endif  // !SK_DISABLE_LEGACY_IMAGE_FACTORIES && SK_GANESH
+
+#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES) && defined(SK_BUILD_FOR_ANDROID) && \
+        __ANDROID_API__ >= 26 && !defined(SK_BUILD_FOR_GOOGLE3)
     /** (See Skia bug 7447)
         Creates SkImage from Android hardware buffer.
         Returned SkImage takes a reference on the buffer.
@@ -1567,9 +1394,7 @@ public:
             const SkPixmap& pixmap,
             AHardwareBuffer* hardwareBuffer,
             GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
-#endif // SK_BUILD_FOR_ANDROID && __ANDROID_API__ >= 26
-
-#endif // !SK_DISABLE_LEGACY_IMAGE_FACTORIES
+#endif
 };
 
 #endif

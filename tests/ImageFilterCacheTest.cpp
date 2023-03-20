@@ -25,6 +25,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkImageFilterCache.h"
@@ -252,12 +253,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU,
     GrBackendTexture backendTex = tex->getBackendTexture();
 
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(dContext,
-                                                     backendTex,
-                                                     texOrigin,
-                                                     kRGBA_8888_SkColorType,
-                                                     kPremul_SkAlphaType, nullptr,
-                                                     nullptr, nullptr));
+    sk_sp<SkImage> srcImage(SkImages::BorrowTextureFrom(dContext,
+                                                        backendTex,
+                                                        texOrigin,
+                                                        kRGBA_8888_SkColorType,
+                                                        kPremul_SkAlphaType,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr));
     if (!srcImage) {
         return;
     }

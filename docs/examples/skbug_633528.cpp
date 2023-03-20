@@ -17,7 +17,7 @@ void draw(SkCanvas* canvas) {
             "\10E)Fq\26\241(\305(\316\"\24\245\30\305Y\204\242\24\2438\213P\224"
             "b\24g\21\212R\214\342,BQ\212Q\334\333\203\344\3v\211\352J5\271\206"
             "*\0\0\0\0IEND\256B`\202";
-    auto i = SkImage::MakeFromEncoded(SkData::MakeWithoutCopy(imageData, 343));
+    auto i = SkImages::DeferredFromEncodedData(SkData::MakeWithoutCopy(imageData, 343));
     canvas->scale(0.99f, 1.01f);
     canvas->clipRect(SkRect::MakeXYWH(64, 64, 128, 128));
     canvas->drawImage(i, 63, 63);

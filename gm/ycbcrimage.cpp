@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
 
 static void release_ycbcrhelper(void* releaseContext) {
@@ -57,10 +58,14 @@ protected:
         }
 
         SkASSERT(!fYCbCrImage);
-        fYCbCrImage = SkImage::MakeFromTexture(dContext, ycbcrHelper->backendTexture(),
-                                               kTopLeft_GrSurfaceOrigin, kRGB_888x_SkColorType,
-                                               kPremul_SkAlphaType, nullptr,
-                                               release_ycbcrhelper, ycbcrHelper.get());
+        fYCbCrImage = SkImages::BorrowTextureFrom(dContext,
+                                                  ycbcrHelper->backendTexture(),
+                                                  kTopLeft_GrSurfaceOrigin,
+                                                  kRGB_888x_SkColorType,
+                                                  kPremul_SkAlphaType,
+                                                  nullptr,
+                                                  release_ycbcrhelper,
+                                                  ycbcrHelper.get());
         ycbcrHelper.release();
         if (!fYCbCrImage) {
             *errorMsg = "Failed to create I420 image.";

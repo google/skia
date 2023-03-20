@@ -23,6 +23,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
@@ -129,7 +130,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* rContext
 
 #if defined(SK_GANESH)
     if (rContext) {
-        auto [view, ct] = as_IB(image)->asView(rContext, GrMipmapped::kNo);
+        auto [view, ct] = skgpu::ganesh::AsView(rContext, image, GrMipmapped::kNo);
         return MakeDeferredFromGpu(rContext,
                                    subset,
                                    image->uniqueID(),

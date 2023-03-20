@@ -30,12 +30,12 @@ void draw(SkCanvas* canvas) {
     SkDebugf("This is text output: %d", 2);
 
     if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
-        sk_sp<SkImage> tmp = SkImage::MakeFromTexture(dContext,
-                                                      backEndTexture,
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      kRGBA_8888_SkColorType,
-                                                      kOpaque_SkAlphaType,
-                                                      nullptr);
+        sk_sp<SkImage> tmp = SkImages::BorrowTextureFrom(dContext,
+                                                         backEndTexture,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
+                                                         kOpaque_SkAlphaType,
+                                                         nullptr);
 
         constexpr int kSampleCnt = 0;
         sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(

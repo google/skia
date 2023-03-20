@@ -22,6 +22,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "tools/ToolUtils.h"
 

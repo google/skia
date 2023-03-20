@@ -12,7 +12,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
@@ -21,6 +20,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/vk/VkTestHelper.h"
@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <vector>
 
+class SkImage;
 struct GrContextOptions;
 const size_t kImageWidth = 8;
 const size_t kImageHeight = 8;
@@ -64,12 +65,12 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
 
-    sk_sp<SkImage> srcImage = SkImage::MakeFromTexture(testHelper.directContext(),
-                                                       ycbcrHelper.backendTexture(),
-                                                       kTopLeft_GrSurfaceOrigin,
-                                                       kRGB_888x_SkColorType,
-                                                       kPremul_SkAlphaType,
-                                                       nullptr);
+    sk_sp<SkImage> srcImage = SkImages::BorrowTextureFrom(testHelper.directContext(),
+                                                          ycbcrHelper.backendTexture(),
+                                                          kTopLeft_GrSurfaceOrigin,
+                                                          kRGB_888x_SkColorType,
+                                                          kPremul_SkAlphaType,
+                                                          nullptr);
     if (!srcImage) {
         ERRORF(reporter, "Failed to create I420 image");
         return;

@@ -21,10 +21,12 @@ void draw(SkCanvas* canvas) {
         canvas->drawString(label, 20, nonTexture->height() / 4, font, paint);
     };
     sk_sp<SkImage> bitmapImage(source.asImage());
-    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(dContext, backEndTexture,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         kRGBA_8888_SkColorType,
-                                                         kOpaque_SkAlphaType, nullptr));
+    sk_sp<SkImage> textureImage(SkImages::BorrowTextureFrom(dContext,
+                                                            backEndTexture,
+                                                            kTopLeft_GrSurfaceOrigin,
+                                                            kRGBA_8888_SkColorType,
+                                                            kOpaque_SkAlphaType,
+                                                            nullptr));
     drawImage(image, "image");
     canvas->translate(image->width(), 0);
     drawImage(bitmapImage, "source");

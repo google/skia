@@ -341,7 +341,7 @@ sk_sp<SkImage> RecorderPriv::CreateCachedImage(Recorder* recorder,
                                                Mipmapped mipmapped) {
     // TODO(b/239604347): remove this hack. This is just here until we determine what Graphite's
     // Recorder-level caching story is going to be.
-    sk_sp<SkImage> temp = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkImage> temp = SkImages::RasterFromBitmap(bitmap);
     return temp->makeTextureImage(recorder, { mipmapped });
 }
 

@@ -354,12 +354,13 @@ private:
             SkPixmap pm(SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height),
                         result->data(0), result->rowBytes(0));
 
-            auto release_proc = [](const void*, SkImage::ReleaseContext ctx) {
+            auto release_proc = [](const void*, SkImages::ReleaseContext ctx) {
                 std::unique_ptr<const SkSurface::AsyncReadResult>
                         adopted(reinterpret_cast<const SkSurface::AsyncReadResult*>(ctx));
             };
 
-            auto frame_image = SkImage::MakeFromRaster(pm, release_proc, (void*)result.release());
+            auto frame_image =
+                    SkImages::RasterFromPixmap(pm, release_proc, (void*)result.release());
 
             rec->sink->writeFrame(std::move(frame_image), rec->index);
         }

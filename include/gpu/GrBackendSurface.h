@@ -125,7 +125,8 @@ public:
     }
 #endif
 
-    static GrBackendFormat MakeMock(GrColorType colorType, SkTextureCompressionType compression,
+    static GrBackendFormat MakeMock(GrColorType colorType,
+                                    SkTextureCompressionType compression,
                                     bool isStencilFormat = false);
 
     bool operator==(const GrBackendFormat& that) const;
@@ -260,9 +261,9 @@ private:
         DXGI_FORMAT fDxgiFormat;
 #endif
         struct {
-            GrColorType       fColorType;
+            GrColorType fColorType;
             SkTextureCompressionType fCompressionType;
-            bool              fIsStencilFormat;
+            bool fIsStencilFormat;
         } fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;

@@ -40,8 +40,8 @@ protected:
         auto pngData = SkEncodeBitmap(orig, SkEncodedImageFormat::kPNG, 100);
         auto jpgData = SkEncodeBitmap(orig, SkEncodedImageFormat::kJPEG, 100);
 
-        sk_sp<SkImage> pngImage = SkImage::MakeFromEncoded(pngData);
-        sk_sp<SkImage> jpgImage = SkImage::MakeFromEncoded(jpgData);
+        sk_sp<SkImage> pngImage = SkImages::DeferredFromEncodedData(pngData);
+        sk_sp<SkImage> jpgImage = SkImages::DeferredFromEncodedData(jpgData);
         canvas->drawImage(pngImage.get(), 0.0f, 0.0f);
         canvas->drawImage(jpgImage.get(), 512.0f, 0.0f);
 
@@ -68,7 +68,7 @@ DEF_SIMPLE_GM(jpeg_orientation, canvas, 1000, 1000) {
             path.printf("/skia/orientation/Landscape_%d.jpg", i + 1);
             auto stream = SkStream::MakeFromFile(path.c_str());
             auto data = SkData::MakeFromStream(stream.get(), stream->getLength());
-            imgs[i] = SkImage::MakeFromEncoded(data, nullptr);
+            imgs[i] = SkImages::DeferredFromEncodedData(data, nullptr);
         }
     }
     canvas->scale(0.25, 0.25);
