@@ -153,6 +153,10 @@ void Builder::dot_floats(int32_t slots) {
     }
 }
 
+void Builder::refract_floats() {
+    fInstructions.push_back({BuilderOp::refract_4_floats, {}});
+}
+
 void Builder::discard_stack(int32_t count) {
     // If we pushed something onto the stack and then immediately discarded part of it, we can
     // shrink or eliminate the push.
@@ -939,6 +943,9 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::dot_4_floats:
             return -7;  // consumes two 4-slot vectors and emits one scalar
 
+        case BuilderOp::refract_4_floats:
+            return -5;  // consumes nine slots (N + I + eta) and emits a 4-slot vector (R)
+
         case BuilderOp::shuffle: {
             int consumed = inst.fImmA >> 16;
             int generated = inst.fImmA & 0xFFFF;
@@ -1435,6 +1442,11 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                                              SlotA(), inst.fImmA);
                 break;
 
+            case BuilderOp::refract_4_floats: {
+                float* dst = tempStackPtr - (9 * N);
+                pipeline->push_back({ProgramOp::refract_4_floats, dst});
+                break;
+            }
             case BuilderOp::dot_2_floats:
             case BuilderOp::dot_3_floats:
             case BuilderOp::dot_4_floats: {
@@ -2106,6 +2118,11 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = SwizzleCopyCtx(stage.op, stage.ctx);
                 break;
 
+            case POp::refract_4_floats:
+                std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 4);
+                opArg3 = PtrCtx((const float*)(stage.ctx) + (8 * N), 1);
+                break;
+
             case POp::dot_2_floats:
                 opArg1 = PtrCtx(stage.ctx, 1);
                 std::tie(opArg2, opArg3) = AdjacentPtrCtx(stage.ctx, 2);
@@ -2594,6 +2611,10 @@ void Program::dump(SkWStream* out) const {
 
             case POp::cos_float:
                 opText = opArg1 + " = cos(" + opArg1 + ")";
+                break;
+
+            case POp::refract_4_floats:
+                opText = opArg1 + " = refract(" + opArg1 + ", " + opArg2 + ", " + opArg3 + ")";
                 break;
 
             case POp::dot_2_floats:

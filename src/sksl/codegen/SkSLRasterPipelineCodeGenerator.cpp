@@ -2966,6 +2966,29 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             }
             return unsupported();
 
+        case IntrinsicKind::k_refract_IntrinsicKind: {
+            // We always calculate refraction using vec4s, so we pad out unused N/I slots with zero.
+            int padding = 4 - arg0.type().slotCount();
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.push_zeros(padding);
+
+            if (!this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            fBuilder.push_zeros(padding);
+
+            // eta is always a scalar and doesn't need padding.
+            if (!this->pushExpression(arg2)) {
+                return unsupported();
+            }
+            fBuilder.refract_floats();
+
+            // The result vector was returned as a vec4, so discard the extra columns.
+            fBuilder.discard_stack(padding);
+            return true;
+        }
         case IntrinsicKind::k_smoothstep_IntrinsicKind:
             SkASSERT(arg0.type().componentType().isFloat());
             SkASSERT(arg1.type().matches(arg0.type()));

@@ -3904,6 +3904,29 @@ STAGE_TAIL(dot_4_floats, F* dst) {
                  dst[3] * dst[7])));
 }
 
+// Refract always operates on 4-wide incident and normal vectors; for narrower inputs, the code
+// generator fills in the input columns with zero, and discards the extra output columns.
+STAGE_TAIL(refract_4_floats, F* dst) {
+    // Algorithm adapted from https://registry.khronos.org/OpenGL-Refpages/gl4/html/refract.xhtml
+    F *incident = dst + 0;
+    F *normal = dst + 4;
+    F eta = dst[8];
+
+    F dotNI = mad(normal[0],  incident[0],
+              mad(normal[1],  incident[1],
+              mad(normal[2],  incident[2],
+                  normal[3] * incident[3])));
+
+    F k = 1.0 - eta * eta * (1.0 - dotNI * dotNI);
+    F sqrt_k = sqrt_(k);
+
+    for (int idx = 0; idx < 4; ++idx) {
+        dst[idx] = if_then_else(k >= 0,
+                                eta * incident[idx] - (eta * dotNI + sqrt_k) * normal[idx],
+                                0.0);
+    }
+}
+
 // Ternary operations work like binary ops (see immediately above) but take two source inputs.
 template <typename T, void (*ApplyFn)(T*, T*, T*)>
 SI void apply_adjacent_ternary(T* dst, T* src0, T* src1) {

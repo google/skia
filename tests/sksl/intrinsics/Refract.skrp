@@ -1,21 +1,27 @@
-### Compilation failed:
-
-error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
-void main() {
-^^^^^^^^^^^
-error: 4: unknown identifier 'sk_FragColor'
-    sk_FragColor.x = refract(a, b, c);
-    ^^^^^^^^^^^^
-error: 5: unknown identifier 'sk_FragColor'
-    sk_FragColor = refract(d, e, c);
-    ^^^^^^^^^^^^
-error: 7: unknown identifier 'sk_FragColor'
-    sk_FragColor.xy   = refract(half2(1,0),     half2(0,1),     0.5);
-    ^^^^^^^^^^^^
-error: 8: unknown identifier 'sk_FragColor'
-    sk_FragColor.xyz  = refract(half3(1,0,0),   half3(0,0,1),   0.5);
-    ^^^^^^^^^^^^
-error: 9: unknown identifier 'sk_FragColor'
-    sk_FragColor.xyzw = refract(half4(1,0,0,0), half4(0,0,0,1), 0.5);
-    ^^^^^^^^^^^^
-6 errors
+    1. store_src_rg                   v0..1 = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          result = 0
+    4. copy_constant                  $0 = a
+    5. zero_3_slots_unmasked          $1..3 = 0
+    6. copy_constant                  $4 = b
+    7. zero_3_slots_unmasked          $5..7 = 0
+    8. copy_constant                  $8 = c
+    9. refract_4_floats               $0..3 = refract($0..3, $4..7, $8)
+   10. copy_slot_unmasked             result(0) = $0
+   11. copy_4_constants               $0..3 = d
+   12. copy_4_constants               $4..7 = e
+   13. copy_constant                  $8 = c
+   14. refract_4_floats               $0..3 = refract($0..3, $4..7, $8)
+   15. copy_4_slots_unmasked          result = $0..3
+   16. copy_constant                  $0 = 0x3F000000 (0.5)
+   17. copy_constant                  $1 = 0xBF5DB3D7 (-0.8660254)
+   18. copy_2_slots_unmasked          result(0..1) = $0..1
+   19. copy_constant                  $0 = 0x3F000000 (0.5)
+   20. zero_slot_unmasked             $1 = 0
+   21. copy_constant                  $2 = 0xBF5DB3D7 (-0.8660254)
+   22. copy_3_slots_unmasked          result(0..2) = $0..2
+   23. copy_constant                  $0 = 0x3F000000 (0.5)
+   24. zero_2_slots_unmasked          $1..2 = 0
+   25. copy_constant                  $3 = 0xBF5DB3D7 (-0.8660254)
+   26. copy_4_slots_unmasked          result = $0..3
+   27. load_src                       src.rgba = $0..3
