@@ -32,6 +32,7 @@ supported_files_or_dirs=(
   "tests/"
   "src/core/SkBitmap.cpp"
   "src/core/SkCanvas.cpp"
+  "src/core/SkCanvas_Raster.cpp"
   "src/core/SkColor.cpp"
   "src/core/SkColorSpace.cpp"
   "src/core/SkCompressedDataUtils.cpp"

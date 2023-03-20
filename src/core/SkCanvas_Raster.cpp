@@ -6,8 +6,25 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkRasterHandleAllocator.h"
+#include "include/core/SkRefCnt.h"
 #include "src/core/SkBitmapDevice.h"
-#include "src/text/GlyphRun.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/text/GlyphRun.h" // IWYU pragma: keep
+
+#include <memory>
+#include <utility>
+
+class SkBitmap;
+class SkSurfaceProps;
+
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+
+#endif
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)), fProps(props) {
@@ -26,7 +43,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap,
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap, nullptr, nullptr, nullptr) {}
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 SkCanvas::SkCanvas(const SkBitmap& bitmap, ColorBehavior)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     SkBitmap tmp(bitmap);
