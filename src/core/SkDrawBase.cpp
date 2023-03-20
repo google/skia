@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/core/SkDrawBase.h"
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPixmap.h"
@@ -26,15 +26,17 @@
 #include "src/core/SkAutoBlitterChoose.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitter_A8.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkDrawBase.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
-
 #include <algorithm>
 #include <cstddef>
 #include <optional>
@@ -599,3 +601,176 @@ bool SkDrawBase::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
 
     return true;
 }
+
+void SkDrawBase::drawDevicePoints(SkCanvas::PointMode mode, size_t count,
+                                  const SkPoint pts[], const SkPaint& paint,
+                                  SkBaseDevice* device) const {
+    // if we're in lines mode, force count to be even
+    if (SkCanvas::kLines_PointMode == mode) {
+        count &= ~(size_t)1;
+    }
+
+    SkASSERT(pts != nullptr);
+    SkDEBUGCODE(this->validate();)
+
+     // nothing to draw
+    if (!count || fRC->isEmpty()) {
+        return;
+    }
+
+    // needed?
+    if (!SkScalarsAreFinite(&pts[0].fX, count * 2)) {
+        return;
+    }
+
+    SkMatrix ctm = fMatrixProvider->localToDevice();
+    switch (mode) {
+        case SkCanvas::kPoints_PointMode: {
+            // temporarily mark the paint as filling.
+            SkPaint newPaint(paint);
+            newPaint.setStyle(SkPaint::kFill_Style);
+
+            SkScalar width = newPaint.getStrokeWidth();
+            SkScalar radius = SkScalarHalf(width);
+
+            if (newPaint.getStrokeCap() == SkPaint::kRound_Cap) {
+                if (device) {
+                    for (size_t i = 0; i < count; ++i) {
+                        SkRect r = SkRect::MakeLTRB(pts[i].fX - radius, pts[i].fY - radius,
+                                                    pts[i].fX + radius, pts[i].fY + radius);
+                        device->drawOval(r, newPaint);
+                    }
+                } else {
+                    SkPath     path;
+                    SkMatrix   preMatrix;
+
+                    path.addCircle(0, 0, radius);
+                    for (size_t i = 0; i < count; i++) {
+                        preMatrix.setTranslate(pts[i].fX, pts[i].fY);
+                        // pass true for the last point, since we can modify
+                        // then path then
+                        path.setIsVolatile((count-1) == i);
+                        this->drawPath(path, newPaint, &preMatrix, (count-1) == i);
+                    }
+                }
+            } else {
+                SkRect  r;
+
+                for (size_t i = 0; i < count; i++) {
+                    r.fLeft = pts[i].fX - radius;
+                    r.fTop = pts[i].fY - radius;
+                    r.fRight = r.fLeft + width;
+                    r.fBottom = r.fTop + width;
+                    if (device) {
+                        device->drawRect(r, newPaint);
+                    } else {
+                        this->drawRect(r, newPaint);
+                    }
+                }
+            }
+            break;
+        }
+        case SkCanvas::kLines_PointMode:
+            if (2 == count && paint.getPathEffect()) {
+                // most likely a dashed line - see if it is one of the ones
+                // we can accelerate
+                SkStrokeRec stroke(paint);
+                SkPathEffectBase::PointData pointData;
+
+                SkPath path = SkPath::Line(pts[0], pts[1]);
+
+                SkRect cullRect = SkRect::Make(fRC->getBounds());
+
+                if (as_PEB(paint.getPathEffect())->asPoints(&pointData, path, stroke, ctm,
+                                                            &cullRect)) {
+                    // 'asPoints' managed to find some fast path
+
+                    SkPaint newP(paint);
+                    newP.setPathEffect(nullptr);
+                    newP.setStyle(SkPaint::kFill_Style);
+
+                    if (!pointData.fFirst.isEmpty()) {
+                        if (device) {
+                            device->drawPath(pointData.fFirst, newP);
+                        } else {
+                            this->drawPath(pointData.fFirst, newP);
+                        }
+                    }
+
+                    if (!pointData.fLast.isEmpty()) {
+                        if (device) {
+                            device->drawPath(pointData.fLast, newP);
+                        } else {
+                            this->drawPath(pointData.fLast, newP);
+                        }
+                    }
+
+                    if (pointData.fSize.fX == pointData.fSize.fY) {
+                        // The rest of the dashed line can just be drawn as points
+                        SkASSERT(pointData.fSize.fX == SkScalarHalf(newP.getStrokeWidth()));
+
+                        if (SkPathEffectBase::PointData::kCircles_PointFlag & pointData.fFlags) {
+                            newP.setStrokeCap(SkPaint::kRound_Cap);
+                        } else {
+                            newP.setStrokeCap(SkPaint::kButt_Cap);
+                        }
+
+                        if (device) {
+                            device->drawPoints(SkCanvas::kPoints_PointMode,
+                                               pointData.fNumPoints,
+                                               pointData.fPoints,
+                                               newP);
+                        } else {
+                            this->drawDevicePoints(SkCanvas::kPoints_PointMode,
+                                                   pointData.fNumPoints,
+                                                   pointData.fPoints,
+                                                   newP,
+                                                   device);
+                        }
+                        break;
+                    } else {
+                        // The rest of the dashed line must be drawn as rects
+                        SkASSERT(!(SkPathEffectBase::PointData::kCircles_PointFlag &
+                                  pointData.fFlags));
+
+                        SkRect r;
+
+                        for (int i = 0; i < pointData.fNumPoints; ++i) {
+                            r.setLTRB(pointData.fPoints[i].fX - pointData.fSize.fX,
+                                      pointData.fPoints[i].fY - pointData.fSize.fY,
+                                      pointData.fPoints[i].fX + pointData.fSize.fX,
+                                      pointData.fPoints[i].fY + pointData.fSize.fY);
+                            if (device) {
+                                device->drawRect(r, newP);
+                            } else {
+                                this->drawRect(r, newP);
+                            }
+                        }
+                    }
+
+                    break;
+                }
+            }
+            [[fallthrough]]; // couldn't take fast path
+        case SkCanvas::kPolygon_PointMode: {
+            count -= 1;
+            SkPath path;
+            SkPaint p(paint);
+            p.setStyle(SkPaint::kStroke_Style);
+            size_t inc = (SkCanvas::kLines_PointMode == mode) ? 2 : 1;
+            path.setIsVolatile(true);
+            for (size_t i = 0; i < count; i += inc) {
+                path.moveTo(pts[i]);
+                path.lineTo(pts[i+1]);
+                if (device) {
+                    device->drawPath(path, p, true);
+                } else {
+                    this->drawPath(path, p, nullptr, true);
+                }
+                path.rewind();
+            }
+            break;
+        }
+    }
+}
+

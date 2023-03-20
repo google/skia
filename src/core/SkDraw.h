@@ -16,7 +16,6 @@
 #include "include/core/SkSamplingOptions.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkDrawBase.h"
-
 #include <cstddef>
 
 class SkArenaAlloc;

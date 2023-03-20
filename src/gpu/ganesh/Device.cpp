@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/Device_v1.h"
-
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
@@ -52,7 +50,7 @@
 #include "src/base/SkTLazy.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkDraw.h"
+#include "src/core/SkDrawBase.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkLatticeIter.h"
@@ -66,6 +64,7 @@
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/ClipStack.h"
+#include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -94,7 +93,6 @@
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/text/GlyphRun.h"
-
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
@@ -498,11 +496,12 @@ void Device::drawPoints(SkCanvas::PointMode mode,
         paint.getMaskFilter() ||
         fSurfaceDrawContext->chooseAAType(aa) == GrAAType::kCoverage) {
         SkRasterClip rc(this->devClipBounds());
-        SkDraw draw;
+        SkDrawBase draw;
+        // don't need to set fBlitterChoose, as it should never get used
         draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(this->width(), this->height()), nullptr, 0);
         draw.fMatrixProvider = this;
         draw.fRC = &rc;
-        draw.drawPoints(mode, count, pts, paint, this);
+        draw.drawDevicePoints(mode, count, pts, paint, this);
         return;
     }
 

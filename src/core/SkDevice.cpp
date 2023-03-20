@@ -17,7 +17,6 @@
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
