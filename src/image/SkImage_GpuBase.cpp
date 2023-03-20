@@ -10,7 +10,6 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPromiseImageTexture.h"
@@ -29,7 +28,6 @@
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
@@ -46,6 +44,7 @@
 #include <utility>
 
 class GrContextThreadSafeProxy;
+class SkImage;
 enum SkColorType : int;
 struct SkIRect;
 
@@ -133,7 +132,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
         }
     }
 
-    auto [view, ct] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped::kNo);
+    auto [view, ct] = this->asView(dContext, skgpu::Mipmapped::kNo);
     if (!view) {
         return false;
     }
@@ -161,7 +160,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
         return nullptr;
     }
 
-    auto [view, ct] = skgpu::ganesh::AsView(direct, this, skgpu::Mipmapped::kNo);
+    auto [view, ct] = this->asView(direct, skgpu::Mipmapped::kNo);
     SkASSERT(view);
     SkASSERT(ct == SkColorTypeToGrColorType(this->colorType()));
 
@@ -219,7 +218,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
         return false;
     }
 
-    auto [view, ct] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped::kNo);
+    auto [view, ct] = this->asView(dContext, skgpu::Mipmapped::kNo);
     SkASSERT(view);
 
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
@@ -249,7 +248,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         SkISize dimensions,
         GrBackendFormat backendFormat,
         skgpu::Mipmapped mipmapped,
-        SkImages::PromiseImageTextureFulfillProc fulfillProc,
+        PromiseImageTextureFulfillProc fulfillProc,
         sk_sp<skgpu::RefCntedCallback> releaseHelper) {
     SkASSERT(tsp);
     SkASSERT(!dimensions.isEmpty());
@@ -278,7 +277,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
      */
     class PromiseLazyInstantiateCallback {
     public:
-        PromiseLazyInstantiateCallback(SkImages::PromiseImageTextureFulfillProc fulfillProc,
+        PromiseLazyInstantiateCallback(PromiseImageTextureFulfillProc fulfillProc,
                                        sk_sp<skgpu::RefCntedCallback> releaseHelper)
                 : fFulfillProc(fulfillProc), fReleaseHelper(std::move(releaseHelper)) {}
         PromiseLazyInstantiateCallback(PromiseLazyInstantiateCallback&&) = default;
@@ -322,7 +321,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return {};
             }
 
-            SkImages::PromiseImageTextureContext textureContext = fReleaseHelper->context();
+            PromiseImageTextureContext textureContext = fReleaseHelper->context();
             sk_sp<SkPromiseImageTexture> promiseTexture = fFulfillProc(textureContext);
 
             if (!promiseTexture) {
@@ -349,7 +348,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         }
 
     private:
-        SkImages::PromiseImageTextureFulfillProc fFulfillProc;
+        PromiseImageTextureFulfillProc fFulfillProc;
         sk_sp<skgpu::RefCntedCallback> fReleaseHelper;
         sk_sp<GrTexture> fTexture;
         GrDirectContext::DirectContextID fTextureContextID;

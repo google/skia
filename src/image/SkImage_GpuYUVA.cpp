@@ -24,7 +24,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/GrYUVABackendTextures.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -263,17 +262,16 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-namespace SkImages {
-sk_sp<SkImage> TextureFromYUVATextures(GrRecordingContext* context,
-                                       const GrYUVABackendTextures& yuvaTextures) {
-    return TextureFromYUVATextures(context, yuvaTextures, nullptr, nullptr, nullptr);
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
+                                             const GrYUVABackendTextures& yuvaTextures) {
+    return SkImage::MakeFromYUVATextures(context, yuvaTextures, nullptr, nullptr, nullptr);
 }
 
-sk_sp<SkImage> TextureFromYUVATextures(GrRecordingContext* context,
-                                       const GrYUVABackendTextures& yuvaTextures,
-                                       sk_sp<SkColorSpace> imageColorSpace,
-                                       TextureReleaseProc textureReleaseProc,
-                                       ReleaseContext releaseContext) {
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
+                                             const GrYUVABackendTextures& yuvaTextures,
+                                             sk_sp<SkColorSpace> imageColorSpace,
+                                             TextureReleaseProc textureReleaseProc,
+                                             ReleaseContext releaseContext) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(textureReleaseProc, releaseContext);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -303,18 +301,19 @@ sk_sp<SkImage> TextureFromYUVATextures(GrRecordingContext* context,
                                        imageColorSpace);
 }
 
-sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
-                                      const SkYUVAPixmaps& pixmaps,
-                                      GrMipmapped buildMips,
-                                      bool limitToMaxTextureSize) {
-    return TextureFromYUVAPixmaps(context, pixmaps, buildMips, limitToMaxTextureSize, nullptr);
+sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                            const SkYUVAPixmaps& pixmaps,
+                                            GrMipmapped buildMips,
+                                            bool limitToMaxTextureSize) {
+    return SkImage::MakeFromYUVAPixmaps(context, pixmaps, buildMips, limitToMaxTextureSize,
+                                        nullptr);
 }
 
-sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
-                                      const SkYUVAPixmaps& pixmaps,
-                                      GrMipmapped buildMips,
-                                      bool limitToMaxTextureSize,
-                                      sk_sp<SkColorSpace> imageColorSpace) {
+sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                            const SkYUVAPixmaps& pixmaps,
+                                            GrMipmapped buildMips,
+                                            bool limitToMaxTextureSize,
+                                            sk_sp<SkColorSpace> imageColorSpace) {
     if (!context) {
         return nullptr;  // until we impl this for raster backend
     }
@@ -381,12 +380,14 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
                                        std::move(imageColorSpace));
 }
 
-sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
-                                      const GrYUVABackendTextureInfo& backendTextureInfo,
-                                      sk_sp<SkColorSpace> imageColorSpace,
-                                      PromiseImageTextureFulfillProc textureFulfillProc,
-                                      PromiseImageTextureReleaseProc textureReleaseProc,
-                                      PromiseImageTextureContext textureContexts[]) {
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkImage::MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                                               const GrYUVABackendTextureInfo& backendTextureInfo,
+                                               sk_sp<SkColorSpace> imageColorSpace,
+                                               PromiseImageTextureFulfillProc textureFulfillProc,
+                                               PromiseImageTextureReleaseProc textureReleaseProc,
+                                               PromiseImageTextureContext textureContexts[]) {
     if (!backendTextureInfo.isValid()) {
         return nullptr;
     }
@@ -437,4 +438,3 @@ sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> threadSafe
                                        std::move(yuvaTextureProxies),
                                        std::move(imageColorSpace));
 }
-}  // namespace SkImages

@@ -51,13 +51,12 @@ public:
     sk_sp<SkDeferredDisplayList> detach();
 
 #if defined(SK_GANESH)
-    using PromiseImageTextureContext = void*;
-    using PromiseImageTextureFulfillProc =
-            sk_sp<SkPromiseImageTexture> (*)(PromiseImageTextureContext);
-    using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
+    using PromiseImageTextureContext     = SkImage::PromiseImageTextureContext;
+    using PromiseImageTextureFulfillProc = SkImage::PromiseImageTextureFulfillProc;
+    using PromiseImageTextureReleaseProc = SkImage::PromiseImageTextureReleaseProc;
 
 #ifndef SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API
-    /** Deprecated: Use SkImages::PromiseTextureFrom instead. */
+    /** Deprecated: Use SkImage::MakePromiseTexture instead. */
     sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
                                       int width,
                                       int height,
@@ -70,7 +69,7 @@ public:
                                       PromiseImageTextureReleaseProc textureReleaseProc,
                                       PromiseImageTextureContext textureContext);
 
-    /** Deprecated: Use SkImages::PromiseTextureFromYUVA instead. */
+    /** Deprecated: Use SkImage::MakePromiseYUVATexture instead. */
     sk_sp<SkImage> makeYUVAPromiseTexture(const GrYUVABackendTextureInfo& yuvaBackendTextureInfo,
                                           sk_sp<SkColorSpace> imageColorSpace,
                                           PromiseImageTextureFulfillProc textureFulfillProc,

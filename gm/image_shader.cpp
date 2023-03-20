@@ -26,7 +26,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GpuTypes.h"
 
 #include <utility>
 
@@ -71,12 +70,9 @@ static sk_sp<SkImage> make_texture(GrRecordingContext* ctx,
 static sk_sp<SkImage> make_pict_gen(GrRecordingContext*,
                                     SkPicture* pic,
                                     const SkImageInfo& info) {
-    return SkImages::DeferredFromPicture(sk_ref_sp(pic),
-                                         info.dimensions(),
-                                         nullptr,
-                                         nullptr,
-                                         SkImages::BitDepth::kU8,
-                                         SkColorSpace::MakeSRGB());
+    return SkImage::MakeFromPicture(sk_ref_sp(pic), info.dimensions(), nullptr, nullptr,
+                                    SkImage::BitDepth::kU8,
+                                    SkColorSpace::MakeSRGB());
 }
 
 static sk_sp<SkImage> make_encode_gen(GrRecordingContext* ctx,
@@ -90,7 +86,7 @@ static sk_sp<SkImage> make_encode_gen(GrRecordingContext* ctx,
     if (!encoded) {
         return nullptr;
     }
-    return SkImages::DeferredFromEncodedData(std::move(encoded));
+    return SkImage::MakeFromEncoded(std::move(encoded));
 }
 
 const ImageMakerProc gProcs[] = {

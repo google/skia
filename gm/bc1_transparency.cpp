@@ -105,11 +105,16 @@ static sk_sp<SkData> make_compressed_data() {
 static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
                                   SkTextureCompressionType compression) {
     if (direct) {
-        return SkImages::TextureFromCompressedTextureData(
-                direct, std::move(data), kImgWidth, kImgHeight, compression, GrMipmapped::kNo);
+        return SkImage::MakeTextureFromCompressed(direct, std::move(data),
+                                                  kImgWidth,
+                                                  kImgHeight,
+                                                  compression,
+                                                  GrMipmapped::kNo);
     } else {
-        return SkImages::RasterFromCompressedTextureData(
-                std::move(data), kImgWidth, kImgHeight, compression);
+        return SkImage::MakeRasterFromCompressed(std::move(data),
+                                                 kImgWidth,
+                                                 kImgHeight,
+                                                 compression);
     }
 }
 

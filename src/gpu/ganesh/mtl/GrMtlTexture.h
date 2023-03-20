@@ -8,10 +8,9 @@
 #ifndef GrMtlTexture_DEFINED
 #define GrMtlTexture_DEFINED
 
-#import <Metal/Metal.h>
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/mtl/GrMtlAttachment.h"
+#import <Metal/Metal.h>
 
 class GrMtlGpu;
 
@@ -62,9 +61,9 @@ protected:
         INHERITED::onRelease();
     }
 
-    bool onStealBackendTexture(GrBackendTexture*, SkImages::BackendTextureReleaseProc*) override {
-        return false;
-    }
+     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
+         return false;
+     }
 
     void onSetLabel() override;
 

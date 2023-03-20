@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/core/SkMipmap.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkTypes.h"
@@ -14,8 +13,8 @@
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapBuilder.h"
-
 #include <new>
 
 //

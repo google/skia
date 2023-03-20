@@ -8,7 +8,6 @@
 #ifndef GrVkTexture_DEFINED
 #define GrVkTexture_DEFINED
 
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -71,7 +70,7 @@ protected:
     void onAbandon() override;
     void onRelease() override;
 
-    bool onStealBackendTexture(GrBackendTexture*, SkImages::BackendTextureReleaseProc*) override {
+    bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
         return false;
     }
 

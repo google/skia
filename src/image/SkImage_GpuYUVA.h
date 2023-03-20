@@ -64,7 +64,6 @@ public:
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
-public:
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
 
 private:

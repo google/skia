@@ -19,7 +19,6 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -135,7 +134,7 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
         SkAutoPixmapStorage srcPM;
         srcPM.alloc(nativeII);
         srcPM.erase(SkColors::kWhite);
-        auto i = SkImages::RasterFromPixmap(srcPM, nullptr, nullptr);
+        auto i = SkImage::MakeFromRaster(srcPM, nullptr, nullptr);
         REPORTER_ASSERT(reporter, SkToBool(i));
 
         SkAutoPixmapStorage readbackPM;
@@ -154,7 +153,7 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
         SkAutoPixmapStorage srcPM;
         srcPM.alloc(nativeII);
         srcPM.erase(SkColors::kWhite);
-        auto i = SkImages::RasterFromPixmap(srcPM, nullptr, nullptr);
+        auto i = SkImage::MakeFromRaster(srcPM, nullptr, nullptr);
         REPORTER_ASSERT(reporter, SkToBool(i));
 
         auto s = SkSurface::MakeRaster(f32Unpremul);
@@ -243,12 +242,8 @@ static void gpu_tests(GrDirectContext* dContext,
             dContext->checkAsyncWorkCompletion();
         }
 
-        auto img = SkImages::BorrowTextureFrom(dContext,
-                                               backendTex,
-                                               kTopLeft_GrSurfaceOrigin,
-                                               test.fColorType,
-                                               test.fAlphaType,
-                                               nullptr);
+        auto img = SkImage::MakeFromTexture(dContext, backendTex, kTopLeft_GrSurfaceOrigin,
+                                            test.fColorType, test.fAlphaType, nullptr);
         REPORTER_ASSERT(reporter, SkToBool(img));
 
         {

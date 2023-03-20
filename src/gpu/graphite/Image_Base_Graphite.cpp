@@ -10,6 +10,10 @@
 #include "include/core/SkColorSpace.h"
 #include "src/gpu/graphite/Log.h"
 
+#if defined(SK_GANESH)
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#endif
+
 namespace skgpu::graphite {
 
 sk_sp<SkImage> Image_Base::onMakeSubset(const SkIRect&, GrDirectContext*) const {
@@ -45,6 +49,18 @@ void Image_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace
     // TODO
     callback(context, nullptr);
 }
+
+#if defined(SK_GANESH)
+std::unique_ptr<GrFragmentProcessor> Image_Base::onAsFragmentProcessor(
+        GrRecordingContext*,
+        SkSamplingOptions,
+        const SkTileMode[2],
+        const SkMatrix&,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    return nullptr;
+}
+#endif
 
 } // namespace skgpu::graphite
 

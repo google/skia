@@ -7,7 +7,6 @@
 #ifndef GrMockTexture_DEFINED
 #define GrMockTexture_DEFINED
 
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
@@ -72,7 +71,7 @@ protected:
         INHERITED::onAbandon();
     }
 
-    bool onStealBackendTexture(GrBackendTexture*, SkImages::BackendTextureReleaseProc*) override {
+    bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
         return false;
     }
 

@@ -980,7 +980,7 @@ Result ImageGenSrc::draw(SkCanvas* canvas) const {
 
     // Test deferred decoding path on GPU
     if (fIsGpu) {
-        sk_sp<SkImage> image(SkImages::DeferredFromGenerator(std::move(gen)));
+        sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen)));
         if (!image) {
             return Result::Fatal("Could not create image from codec image generator.");
         }
@@ -1113,7 +1113,7 @@ Result SKPSrc::draw(SkCanvas* canvas) const {
     SkDeserialProcs procs;
     procs.fImageProc = [](const void* data, size_t size, void* ctx) -> sk_sp<SkImage> {
         sk_sp<SkData> tmpData = SkData::MakeWithoutCopy(data, size);
-        sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(tmpData));
+        sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(tmpData));
         image = image->makeRasterImage(); // force decoding
 
         if (image) {

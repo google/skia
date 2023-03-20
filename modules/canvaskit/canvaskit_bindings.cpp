@@ -72,7 +72,6 @@
 
 #ifdef ENABLE_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #endif // ENABLE_GPU
 
@@ -837,7 +836,7 @@ struct TextureReleaseContext {
     uint32_t texHandle;
 };
 
-void deleteJSTexture(SkImages::ReleaseContext rc) {
+void deleteJSTexture(SkImage::ReleaseContext rc) {
     auto ctx = reinterpret_cast<TextureReleaseContext*>(rc);
     textureCleanup.call<void>("deleteTexture", ctx->webglHandle, ctx->texHandle);
     delete ctx;
@@ -913,7 +912,7 @@ private:
 // surface/WebGLContext that the image is used on (we cannot share WebGLTextures across contexts).
 sk_sp<SkImage> MakeImageFromGenerator(SimpleImageInfo ii, JSObject callbackObj) {
     auto gen = std::make_unique<WebGLTextureImageGenerator>(toSkImageInfo(ii), callbackObj);
-    return SkImages::DeferredFromGenerator(std::move(gen));
+    return SkImage::MakeFromGenerator(std::move(gen));
 }
 #endif // CK_ENABLE_WEBGL
 
@@ -956,7 +955,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                   size_t length)->sk_sp<SkImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
         sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgData, length);
-        return SkImages::DeferredFromEncodedData(std::move(bytes));
+        return SkImage::MakeFromEncoded(std::move(bytes));
     }), allow_raw_pointers());
 
     // These won't be called directly, there are corresponding JS helpers to deal with arrays.
@@ -967,7 +966,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         SkImageInfo info = toSkImageInfo(ii);
         sk_sp<SkData> pixelData = SkData::MakeFromMalloc(pixels, plen);
 
-        return SkImages::RasterFromData(info, pixelData, rowBytes);
+        return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
 
     function("_getShadowLocalBounds", optional_override([](
@@ -2152,14 +2151,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             GrBackendTexture gbt(ii.width, ii.height, GrMipmapped::kNo, gti);
             auto dContext = GrAsDirectContext(self.getCanvas()->recordingContext());
 
-            return SkImages::BorrowTextureFrom(dContext,
-                                               gbt,
-                                               GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                               ii.colorType,
-                                               ii.alphaType,
-                                               ii.colorSpace,
-                                               deleteJSTexture,
-                                               releaseCtx);
+            return SkImage::MakeFromTexture(
+                             dContext,
+                             gbt,
+                             GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                             ii.colorType,
+                             ii.alphaType,
+                             ii.colorSpace,
+                             deleteJSTexture,
+                             releaseCtx);
          }))
 #endif  // CK_ENABLE_WEBGL
 #ifdef CK_ENABLE_WEBGPU

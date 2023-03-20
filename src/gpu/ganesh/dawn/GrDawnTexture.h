@@ -8,7 +8,6 @@
 #ifndef GrDawnTexture_DEFINED
 #define GrDawnTexture_DEFINED
 
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "webgpu/webgpu_cpp.h"
 
@@ -51,7 +50,7 @@ protected:
     void onAbandon() override;
     void onRelease() override;
 
-    bool onStealBackendTexture(GrBackendTexture*, SkImages::BackendTextureReleaseProc*) override {
+    bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
         return false;
     }
 

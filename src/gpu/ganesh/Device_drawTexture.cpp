@@ -21,7 +21,6 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -423,7 +422,7 @@ void draw_image(GrRecordingContext* rContext,
                 const GrClip* clip,
                 const SkMatrixProvider& matrixProvider,
                 const SkPaint& paint,
-                const SkImage* image,
+                const SkImage_Base& image,
                 const SkRect& src,
                 const SkRect& dst,
                 const SkPoint dstClip[4],
@@ -433,15 +432,14 @@ void draw_image(GrRecordingContext* rContext,
                 SkSamplingOptions sampling,
                 SkTileMode tm = SkTileMode::kClamp) {
     const SkMatrix& ctm(matrixProvider.localToDevice());
-    auto ib = as_IB(image);
-    if (tm == SkTileMode::kClamp && !ib->isYUVA() && can_use_draw_texture(paint, sampling)) {
+    if (tm == SkTileMode::kClamp && !image.isYUVA() && can_use_draw_texture(paint, sampling)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto [view, ct] = skgpu::ganesh::AsView(rContext, image, GrMipmapped::kNo);
+        auto [view, ct] = image.asView(rContext, GrMipmapped::kNo);
         if (!view) {
             return;
         }
-        GrColorInfo info(image->imageInfo().colorInfo());
+        GrColorInfo info(image.imageInfo().colorInfo());
         info = info.makeColorType(ct);
         draw_texture(sdc,
                      clip,
@@ -463,7 +461,7 @@ void draw_image(GrRecordingContext* rContext,
     // The shader expects proper local coords, so we can't replace local coords with texture coords
     // if the shader will be used. If we have a mask filter we will change the underlying geometry
     // that is rendered.
-    bool canUseTextureCoordsAsLocalCoords = !use_shader(image->isAlphaOnly(), paint) && !mf;
+    bool canUseTextureCoordsAsLocalCoords = !use_shader(image.isAlphaOnly(), paint) && !mf;
 
     // Specifying the texture coords as local coordinates is an attempt to enable more GrDrawOp
     // combining by not baking anything about the srcRect, dstRect, or ctm, into the texture
@@ -482,9 +480,13 @@ void draw_image(GrRecordingContext* rContext,
 
     // Check for optimization to drop the src rect constraint when using linear filtering.
     // TODO: Just rely on image to handle this.
-    if (sampling.isAniso() && !sampling.useCubic && sampling.filter == SkFilterMode::kLinear &&
-        restrictToSubset && sampling.mipmap == SkMipmapMode::kNone && coordsAllInsideSrcRect &&
-        !ib->isYUVA()) {
+    if (sampling.isAniso()                       &&
+        !sampling.useCubic                       &&
+        sampling.filter == SkFilterMode::kLinear &&
+        restrictToSubset                         &&
+        sampling.mipmap == SkMipmapMode::kNone   &&
+        coordsAllInsideSrcRect                   &&
+        !image.isYUVA()) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
         if (can_ignore_linear_filtering_subset(src, combinedMatrix, sdc->numSamples())) {
@@ -503,11 +505,16 @@ void draw_image(GrRecordingContext* rContext,
     const SkRect* subset = restrictToSubset       ? &src : nullptr;
     const SkRect* domain = coordsAllInsideSrcRect ? &src : nullptr;
     SkTileMode tileModes[] = {tm, tm};
-    std::unique_ptr<GrFragmentProcessor> fp = skgpu::ganesh::AsFragmentProcessor(
-            rContext, image, sampling, tileModes, textureMatrix, subset, domain);
-    fp = GrColorSpaceXformEffect::Make(
-            std::move(fp), image->imageInfo().colorInfo(), sdc->colorInfo());
-    if (image->isAlphaOnly()) {
+    std::unique_ptr<GrFragmentProcessor> fp = image.asFragmentProcessor(rContext,
+                                                                        sampling,
+                                                                        tileModes,
+                                                                        textureMatrix,
+                                                                        subset,
+                                                                        domain);
+    fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                       image.imageInfo().colorInfo(),
+                                       sdc->colorInfo());
+    if (image.isAlphaOnly()) {
         if (const auto* shader = as_SB(paint.getShader())) {
             auto shaderFP = shader->asRootFragmentProcessor(
                     GrFPArgs(rContext, &sdc->colorInfo(), sdc->surfaceProps()),
@@ -661,7 +668,7 @@ void draw_tiled_bitmap(GrRecordingContext* rContext,
                            clip,
                            matrixProvider,
                            paint,
-                           image.get(),
+                           *as_IB(image.get()),
                            tileR,
                            rectToDraw,
                            nullptr,
@@ -733,7 +740,7 @@ void Device::drawSpecial(SkSpecialImage* special,
                this->clip(),
                matrixProvider,
                paint,
-               &image,
+               image,
                src,
                dst,
                nullptr,
@@ -778,7 +785,7 @@ void Device::drawImageQuad(const SkImage* image,
     }
     auto clip = this->clip();
 
-    if (!image->isTextureBacked()) {
+    if (!image->isTextureBacked() && !as_IB(image)->isPinnedOnContext(fContext.get())) {
         int tileFilterPad;
         if (sampling.useCubic) {
             tileFilterPad = GrBicubicEffect::kFilterTexelPad;
@@ -830,7 +837,7 @@ void Device::drawImageQuad(const SkImage* image,
                clip,
                matrixProvider,
                paint,
-               image,
+               *as_IB(image),
                src,
                dst,
                dstClip,
@@ -921,8 +928,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // Extract view from image, but skip YUV images so they get processed through
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
-            std::tie(view, std::ignore) =
-                    skgpu::ganesh::AsView(this->recordingContext(), image, GrMipmapped::kNo);
+            std::tie(view, std::ignore) = image->asView(this->recordingContext(), GrMipmapped::kNo);
             if (image->isAlphaOnly()) {
                 skgpu::Swizzle swizzle = skgpu::Swizzle::Concat(view.swizzle(),
                                                                 skgpu::Swizzle("aaaa"));

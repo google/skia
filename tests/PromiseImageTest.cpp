@@ -26,13 +26,13 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrTexture.h"
+#include "src/image/SkImage_Gpu.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/FenceSync.h"
@@ -164,17 +164,17 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTest,
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(SkImages::PromiseTextureFrom(ctx->threadSafeProxy(),
-                                                       backendFormat,
-                                                       {kWidth, kHeight},
-                                                       GrMipmapped::kNo,
-                                                       texOrigin,
-                                                       kRGBA_8888_SkColorType,
-                                                       kPremul_SkAlphaType,
-                                                       nullptr,
-                                                       PromiseTextureChecker::Fulfill,
-                                                       PromiseTextureChecker::Release,
-                                                       &promiseChecker));
+    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(ctx->threadSafeProxy(),
+                                                          backendFormat,
+                                                          {kWidth, kHeight},
+                                                          GrMipmapped::kNo,
+                                                          texOrigin,
+                                                          kRGBA_8888_SkColorType,
+                                                          kPremul_SkAlphaType,
+                                                          nullptr,
+                                                          PromiseTextureChecker::Fulfill,
+                                                          PromiseTextureChecker::Release,
+                                                          &promiseChecker));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
@@ -271,17 +271,17 @@ DEF_GANESH_TEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::
             SkCanvas* canvas = surface->getCanvas();
 
             PromiseTextureChecker promiseChecker(mbet->texture(), reporter, false);
-            sk_sp<SkImage> image(SkImages::PromiseTextureFrom(ctx->threadSafeProxy(),
-                                                              mbet->texture().getBackendFormat(),
-                                                              {kWidth, kHeight},
-                                                              GrMipmapped::kNo,
-                                                              kTopLeft_GrSurfaceOrigin,
-                                                              kAlpha_8_SkColorType,
-                                                              kPremul_SkAlphaType,
-                                                              /*color space*/ nullptr,
-                                                              PromiseTextureChecker::Fulfill,
-                                                              PromiseTextureChecker::Release,
-                                                              &promiseChecker));
+            sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(ctx->threadSafeProxy(),
+                                                                 mbet->texture().getBackendFormat(),
+                                                                 {kWidth, kHeight},
+                                                                 GrMipmapped::kNo,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kAlpha_8_SkColorType,
+                                                                 kPremul_SkAlphaType,
+                                                                 /*color space*/ nullptr,
+                                                                 PromiseTextureChecker::Fulfill,
+                                                                 PromiseTextureChecker::Release,
+                                                                 &promiseChecker));
             REPORTER_ASSERT(reporter, image);
 
             canvas->drawImage(image, 0, 0);
@@ -322,17 +322,17 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
     SkCanvas* canvas = surface->getCanvas();
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
-    sk_sp<SkImage> image(SkImages::PromiseTextureFrom(dContext->threadSafeProxy(),
-                                                      backendTex.getBackendFormat(),
-                                                      {kWidth, kHeight},
-                                                      GrMipmapped::kNo,
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      kAlpha_8_SkColorType,
-                                                      kPremul_SkAlphaType,
-                                                      nullptr,
-                                                      PromiseTextureChecker::Fulfill,
-                                                      PromiseTextureChecker::Release,
-                                                      &promiseChecker));
+    sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(dContext->threadSafeProxy(),
+                                                         backendTex.getBackendFormat(),
+                                                         {kWidth, kHeight},
+                                                         GrMipmapped::kNo,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kAlpha_8_SkColorType,
+                                                         kPremul_SkAlphaType,
+                                                         nullptr,
+                                                         PromiseTextureChecker::Fulfill,
+                                                         PromiseTextureChecker::Release,
+                                                         &promiseChecker));
     REPORTER_ASSERT(reporter, image);
 
     // Make the cache full. This tests that we don't preemptively purge cached textures for
@@ -411,17 +411,17 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
         ++static_cast<Counts*>(ctx)->fReleaseCount;
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(SkImages::PromiseTextureFrom(dContext->threadSafeProxy(),
-                                                       backendFormat,
-                                                       {kWidth, kHeight},
-                                                       GrMipmapped::kNo,
-                                                       texOrigin,
-                                                       kRGBA_8888_SkColorType,
-                                                       kPremul_SkAlphaType,
-                                                       nullptr,
-                                                       fulfill,
-                                                       release,
-                                                       &counts));
+    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(dContext->threadSafeProxy(),
+                                                          backendFormat,
+                                                          {kWidth, kHeight},
+                                                          GrMipmapped::kNo,
+                                                          texOrigin,
+                                                          kRGBA_8888_SkColorType,
+                                                          kPremul_SkAlphaType,
+                                                          nullptr,
+                                                          fulfill,
+                                                          release,
+                                                          &counts));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);

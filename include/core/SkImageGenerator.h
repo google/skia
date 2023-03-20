@@ -9,6 +9,7 @@
 #define SkImageGenerator_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
@@ -17,11 +18,6 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrTypes.h"
-#endif
-
-#if defined(SK_GRAPHITE)
-#include "include/core/SkImage.h"
-#include "include/gpu/graphite/Recorder.h"
 #endif
 
 #include <cstddef>
@@ -39,9 +35,6 @@ class SkSurfaceProps;
 enum SkAlphaType : int;
 enum class GrImageTexGenPolicy : int;
 namespace skgpu { enum class Mipmapped : bool; }
-namespace SkImages {
-enum class BitDepth;
-}
 struct SkISize;
 
 class SK_API SkImageGenerator {
@@ -178,20 +171,15 @@ public:
      *  The optional matrix and paint arguments are passed to drawPicture() at rasterization
      *  time.
      */
-    static std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&,
-                                                             sk_sp<SkPicture>,
-                                                             const SkMatrix*,
-                                                             const SkPaint*,
-                                                             SkImages::BitDepth,
+    static std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&, sk_sp<SkPicture>,
+                                                             const SkMatrix*, const SkPaint*,
+                                                             SkImage::BitDepth,
                                                              sk_sp<SkColorSpace>,
                                                              SkSurfaceProps props);
-    static std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&,
-                                                             sk_sp<SkPicture>,
-                                                             const SkMatrix*,
-                                                             const SkPaint*,
-                                                             SkImages::BitDepth,
+    static std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&, sk_sp<SkPicture>,
+                                                             const SkMatrix*, const SkPaint*,
+                                                             SkImage::BitDepth,
                                                              sk_sp<SkColorSpace>);
-
 protected:
     static constexpr int kNeedNewImageUniqueID = 0;
 

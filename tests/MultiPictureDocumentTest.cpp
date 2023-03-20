@@ -185,7 +185,6 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -309,14 +308,12 @@ static sk_sp<SkImage> makeAHardwareBufferTestImage(
         false   // isRenderable
     );
     SkColorType colorType = GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(hwbDesc.format);
-    sk_sp<SkImage> image = SkImages::BorrowTextureFrom(context,
-                                                       texture,
-                                                       kTopLeft_GrSurfaceOrigin,
-                                                       colorType,
-                                                       kPremul_SkAlphaType,
-                                                       SkColorSpace::MakeSRGB(),
-                                                       deleteProc,
-                                                       imageCtx);
+    sk_sp<SkImage> image = SkImage::MakeFromTexture(
+        context, texture, kTopLeft_GrSurfaceOrigin, colorType, kPremul_SkAlphaType,
+        SkColorSpace::MakeSRGB(),
+        deleteProc,
+        imageCtx
+    );
 
     REPORTER_ASSERT(reporter, image);
     REPORTER_ASSERT(reporter, image->isTextureBacked());

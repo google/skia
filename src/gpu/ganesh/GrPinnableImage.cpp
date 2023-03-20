@@ -12,7 +12,6 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/SkBackingFit.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -39,6 +38,8 @@ public:
 
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kRasterPinnable; }
 
+    SkBitmap bitmap() const { return fBitmap; }
+
     std::unique_ptr<PinnedData> fPinnedData;
 };
 
@@ -53,22 +54,41 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_RasterPinnable::onAsView(
         // if mipmapping is desired (skbug.com/10411)
         mipmapped = GrMipmapped::kNo;
         if (policy != GrImageTexGenPolicy::kDraw) {
-            return {skgpu::ganesh::CopyView(
-                            rContext,
-                            fPinnedData->fPinnedView,
-                            mipmapped,
-                            policy,
-                            /*label=*/"TextureForPinnableRasterImageWithPolicyNotEqualKDraw"),
+            return {CopyView(rContext,
+                             fPinnedData->fPinnedView,
+                             mipmapped,
+                             policy,
+                             /*label=*/"TextureForPinnableRasterImageWithPolicyNotEqualKDraw"),
                     fPinnedData->fPinnedColorType};
         }
         return {fPinnedData->fPinnedView, fPinnedData->fPinnedColorType};
     }
-    return skgpu::ganesh::RasterAsView(rContext, this, mipmapped, policy);
+    if (policy == GrImageTexGenPolicy::kDraw) {
+        // If the draw doesn't require mipmaps but this SkImage has them go ahead and make a
+        // mipmapped texture. There are three reasons for this:
+        // 1) Avoiding another texture creation if a later draw requires mipmaps.
+        // 2) Ensuring we upload the bitmap's levels instead of generating on the GPU from the base.
+        if (this->hasMipmaps()) {
+            mipmapped = GrMipmapped::kYes;
+        }
+        return GrMakeCachedBitmapProxyView(rContext,
+                                           fBitmap,
+                                           "TextureForPinnableRasterImageWithPolicyEqualKDraw",
+                                           mipmapped);
+    }
+    auto budgeted = (policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted)
+                            ? skgpu::Budgeted::kNo
+                            : skgpu::Budgeted::kYes;
+    return GrMakeUncachedBitmapProxyView(rContext,
+                                         fBitmap,
+                                         mipmapped,
+                                         SkBackingFit::kExact,
+                                         budgeted);
 }
 
-namespace SkImages {
+namespace sk_image_factory {
 
-sk_sp<SkImage> PinnableRasterFromBitmap(const SkBitmap& bm) {
+sk_sp<SkImage> MakePinnableFromRasterBitmap(const SkBitmap& bm) {
     if (!SkImageInfoIsValid(bm.info()) || bm.rowBytes() < bm.info().minRowBytes()) {
         return nullptr;
     }
@@ -76,7 +96,7 @@ sk_sp<SkImage> PinnableRasterFromBitmap(const SkBitmap& bm) {
     return sk_make_sp<SkImage_RasterPinnable>(bm);
 }
 
-}  // namespace SkImages
+} // namespace sk_image_factory
 
 namespace skgpu::ganesh {
 

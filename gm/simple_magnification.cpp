@@ -22,7 +22,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
 
 #include <utility>

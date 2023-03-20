@@ -21,10 +21,6 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/Image_Graphite.h"
-#endif
-
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
     , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)
@@ -77,9 +73,11 @@ GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
                                                        GrImageTexGenPolicy) {
     return {};
 }
-#endif  // SK_GANESH
+#endif // defined(SK_GANESH)
 
 #if defined(SK_GRAPHITE)
+#include "src/gpu/graphite/Image_Graphite.h"
+
 sk_sp<SkImage> SkImageGenerator::makeTextureImage(skgpu::graphite::Recorder* recorder,
                                                   const SkImageInfo& info,
                                                   skgpu::Mipmapped mipmapped) {

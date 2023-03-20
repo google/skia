@@ -27,8 +27,8 @@ using namespace skia_private;
 
 //-------------------------------------------------------------------------------------------------
 struct ImageInfo {
-    SkISize fDim;
-    GrMipmapped fMipmapped;
+    SkISize           fDim;
+    GrMipmapped       fMipmapped;
     SkTextureCompressionType fCompressionType;
 };
 
@@ -310,15 +310,16 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
 static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
                                   const ImageInfo& info) {
     if (direct) {
-        return SkImages::TextureFromCompressedTextureData(direct,
-                                                          std::move(data),
-                                                          info.fDim.fWidth,
-                                                          info.fDim.fHeight,
-                                                          info.fCompressionType,
-                                                          info.fMipmapped);
+        return SkImage::MakeTextureFromCompressed(direct, std::move(data),
+                                                  info.fDim.fWidth,
+                                                  info.fDim.fHeight,
+                                                  info.fCompressionType,
+                                                  info.fMipmapped);
     } else {
-        return SkImages::RasterFromCompressedTextureData(
-                std::move(data), info.fDim.fWidth, info.fDim.fHeight, info.fCompressionType);
+        return SkImage::MakeRasterFromCompressed(std::move(data),
+                                                 info.fDim.fWidth,
+                                                 info.fDim.fHeight,
+                                                 info.fCompressionType);
     }
 }
 

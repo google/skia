@@ -137,7 +137,6 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/d3d/GrD3DBackendContext.h",
     "include/gpu/d3d/GrD3DTypes.h",
     "include/gpu/dawn/GrDawnTypes.h",
-    "include/gpu/ganesh/SkImageGanesh.h",
     "include/gpu/gl/egl/GrGLMakeEGLInterface.h",
     "include/gpu/gl/glx/GrGLMakeGLXInterface.h",
     "include/gpu/gl/GrGLAssembleHelpers.h",
@@ -881,9 +880,6 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/GrFragmentProcessor.h",
     "src/gpu/ganesh/GrGeometryProcessor.cpp",
     "src/gpu/ganesh/GrGeometryProcessor.h",
-    "src/gpu/ganesh/GrImagePin.h",
-    "src/gpu/ganesh/GrImageUtils.cpp",
-    "src/gpu/ganesh/GrImageUtils.h",
     "src/gpu/ganesh/GrGpu.cpp",
     "src/gpu/ganesh/GrGpu.h",
     "src/gpu/ganesh/GrGpuBuffer.cpp",
@@ -1241,7 +1237,6 @@ BASE_SRCS_ALL = [
     "src/image/SkImage.cpp",
     "src/image/SkImage_Base.cpp",
     "src/image/SkImage_Base.h",
-    "src/image/SkImage_GaneshFactories.cpp",
     "src/image/SkImage_Gpu.cpp",
     "src/image/SkImage_Gpu.h",
     "src/image/SkImage_GpuBase.cpp",
@@ -1250,10 +1245,8 @@ BASE_SRCS_ALL = [
     "src/image/SkImage_GpuYUVA.h",
     "src/image/SkImage_Lazy.cpp",
     "src/image/SkImage_Lazy.h",
-    "src/image/SkImage_LazyFactories.cpp",
     "src/image/SkImage_Raster.cpp",
     "src/image/SkImage_Raster.h",
-    "src/image/SkImage_RasterFactories.cpp",
     "src/image/SkRescaleAndReadPixels.cpp",
     "src/image/SkRescaleAndReadPixels.h",
     "src/image/SkSurface.cpp",
@@ -2089,7 +2082,6 @@ BASE_DEFINES = [
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
     # Experiment to diagnose image diffs in Google3
     "SK_DISABLE_LOWP_RASTER_PIPELINE",
-
     # JPEG is in codec_limited and is included in all
     # builds except the no_codec android build
 ]

@@ -13,7 +13,6 @@
 #include "include/core/SkTypes.h"
 
 class SkDeferredDisplayListPriv;
-class SkPromiseImageTexture;
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"

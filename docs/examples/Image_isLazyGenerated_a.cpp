@@ -1,3 +1,4 @@
+#if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
@@ -22,13 +23,13 @@ protected:
 
 void draw(SkCanvas* canvas) {
     auto gen = std::unique_ptr<TestImageGenerator>(new TestImageGenerator());
-    sk_sp<SkImage> image(SkImages::DeferredFromGenerator(std::move(gen)));
+    sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen)));
     SkString lazy(image->isLazyGenerated() ? "is lazy" : "not lazy");
     canvas->scale(8, 8);
-    canvas->drawImage(image, 0, 0);
-    SkFont font;
-    font.setSize(4);
+    canvas->drawImage(image, 0, 0, nullptr);
     SkPaint paint;
-    canvas->drawString(lazy, 2, 5, font, paint);
+    paint.setTextSize(4);
+    canvas->drawString(lazy, 2, 5, paint);
 }
 }  // END FIDDLE
+#endif  // Disabled until updated to use current API.

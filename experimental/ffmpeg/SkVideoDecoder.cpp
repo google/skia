@@ -179,7 +179,7 @@ static sk_sp<SkImage> make_yuv_420(GrRecordingContext* rContext,
     pixmaps[2].reset(SkImageInfo::MakeA8(w, h), data[2], strides[2]);
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
 
-    return SkImages::TextureFromYUVAPixmaps(
+    return SkImage::MakeFromYUVAPixmaps(
             rContext, yuvaPixmaps, GrMipmapped::kNo, false, std::move(cs));
 }
 
@@ -253,7 +253,7 @@ sk_sp<SkImage> SkVideoDecoder::convertFrame(const AVFrame* frame) {
 
     bm.setImmutable();
 
-    return SkImages::RasterFromBitmap(bm);
+    return SkImage::MakeFromBitmap(bm);
 }
 
 sk_sp<SkImage> SkVideoDecoder::nextImage(double* timeStamp) {
