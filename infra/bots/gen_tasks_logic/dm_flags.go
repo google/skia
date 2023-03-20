@@ -1135,6 +1135,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.matchGpu("Mali400") {
 		skip(ALL, "tests", ALL, "SkSLCross")
+		skip(ALL, "tests", ALL, "SkSLMatrixSwizzleStore_GPU")
 	}
 
 	if (b.matchOs("Mac") || b.matchOs("iOS")) && !b.extraConfig("Metal") {
