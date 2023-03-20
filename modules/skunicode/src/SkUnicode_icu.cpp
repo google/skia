@@ -568,14 +568,6 @@ bool SkUnicode::isEmoji(SkUnichar utf8) {
     return sk_u_hasBinaryProperty(utf8, UCHAR_EMOJI);
 }
 
-bool SkUnicode::isEmojiModifier(SkUnichar utf8) {
-    return sk_u_hasBinaryProperty(utf8, UCHAR_EMOJI_MODIFIER);
-}
-
-bool SkUnicode::isEmojiBase(SkUnichar utf8) {
-    return sk_u_hasBinaryProperty(utf8, UCHAR_EMOJI_MODIFIER_BASE);
-}
-
 std::unique_ptr<SkUnicode> SkUnicode::Make() {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {

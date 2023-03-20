@@ -508,11 +508,9 @@ protected:
         if (!string) {
             return nullptr;
         }
-#ifdef SK_BUILD_FOR_IOS
+#if defined(SK_BUILD_FOR_IOS)
         if (familyName == NULL && SkUnicode::isEmoji(character)) {
-            CFStringRef fontName = CFSTR("Apple Color Emoji");
-            CGFloat fontSize =16;
-            SkUniqueCFRef<CTFontRef> ret(CTFontCreateWithName(fontName, fontSize, NULL));
+            SkUniqueCFRef<CTFontRef> ret(CTFontCreateWithName(CFSTR("AppleColorEmoji"), 16, NULL));
             return SkTypeface_Mac::Make(std::move(ret), OpszVariation(), nullptr).release();
         }
 #endif
