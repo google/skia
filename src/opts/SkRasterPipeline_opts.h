@@ -1523,11 +1523,13 @@ SI F tan_(F x) {
     x = if_then_else(use_quotient, x - (Pi/4), x);
 
     // 9th order poly = 4th order(x^2) * x
+    const float c4 = 62 / 2835.0f;
+    const float c3 = 17 / 315.0f;
+    const float c2 = 2 / 15.0f;
+    const float c1 = 1 / 3.0f;
+    const float c0 = 1.0f;
     F x2 = x * x;
-    x *= 1 + x2 * (1/3.0f    +
-             x2 * (2/15.0f   +
-             x2 * (17/315.0f +
-             x2 * (62/2835.0f))));
+    x *= mad(x2, mad(x2, mad(x2, mad(x2, c4, c3), c2), c1), c0);
     x = if_then_else(use_quotient, (1+x)/(1-x), x);
     x = if_then_else(neg, -x, x);
     return x;
@@ -1543,10 +1545,12 @@ SI F approx_atan_unit(F x) {
     //     - 0.016172900528248768 x²
     //     + 1.00376969762003850 x
     //     - 0.00014758242182738969
-    return x * (x * (x * (x * 0.14130025741326729f - 0.34312835980675116f)
-                                                   - 0.016172900528248768f)
-                                                   + 1.0037696976200385f)
-                                                   - 0.00014758242182738969f;
+    const float c4 =  0.14130025741326729f;
+    const float c3 = -0.34312835980675116f;
+    const float c2 = -0.016172900528248768f;
+    const float c1 =  1.0037696976200385f;
+    const float c0 = -0.00014758242182738969f;
+    return mad(x, mad(x, mad(x, mad(x, c4, c3), c2), c1), c0);
 }
 
 // Use identity atan(x) = pi/2 - atan(1/x) for x > 1
@@ -1567,7 +1571,11 @@ SI F atan_(F x) {
 SI F asin_(F x) {
     I32 neg = (x < 0.0f);
     x = if_then_else(neg, -x, x);
-    F poly = x * (x * (x * -0.0187293f + 0.0742610f) - 0.2121144f) + 1.5707288f;
+    const float c3 = -0.0187293f;
+    const float c2 = 0.0742610f;
+    const float c1 = -0.2121144f;
+    const float c0 = 1.5707288f;
+    F poly = mad(x, mad(x, mad(x, c3, c2), c1), c0);
     x = SK_ScalarPI/2 - sqrt_(1 - x) * poly;
     x = if_then_else(neg, -x, x);
     return x;
@@ -1868,7 +1876,7 @@ BLEND_MODE(softlight) {
 // Anything extra we add beyond that is to make the math work with premul inputs.
 
 SI F sat(F r, F g, F b) { return max(r, max(g,b)) - min(r, min(g,b)); }
-SI F lum(F r, F g, F b) { return r*0.30f + g*0.59f + b*0.11f; }
+SI F lum(F r, F g, F b) { return mad(r, 0.30f, mad(g, 0.59f, b*0.11f)); }
 
 SI void set_sat(F* r, F* g, F* b, F s) {
     F mn  = min(*r, min(*g,*b)),
