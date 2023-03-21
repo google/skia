@@ -697,9 +697,11 @@ def WriteProject(project):
   out.write('file(READ "')
   gn_deps_file = posixpath.join(project.build_path, 'build.ninja.d')
   out.write(CMakeStringEscape(gn_deps_file))
-  out.write('" "gn_deps_string" OFFSET ')
-  out.write(str(len('build.ninja: ')))
-  out.write(')\n')
+  out.write('" "gn_deps_file_content")\n')
+
+  out.write('string(REGEX REPLACE "^[^:]*: " "" ')
+  out.write('gn_deps_string ${gn_deps_file_content})\n')
+
   # One would think this would need to worry about escaped spaces
   # but gn doesn't escape spaces here (it generates invalid .d files).
   out.write('string(REPLACE " " ";" "gn_deps" ${gn_deps_string})\n')
