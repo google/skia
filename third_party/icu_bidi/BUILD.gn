@@ -39,5 +39,6 @@ third_party("icu_bidi") {
     "$_src/common/ustrtrns.cpp",
     "$_src/common/utf_impl.cpp",
     "$_src/common/utrie2.cpp",
+    "$_src/common/utypes.cpp",
   ]
 }

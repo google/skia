@@ -8,17 +8,17 @@ import("skunicode.gni")
 
 declare_args() {
   skia_use_runtime_icu = false
+  skunicode_tests_enabled = true
 }
 
 if (skia_use_icu || skia_use_client_icu) {
   config("public_config") {
     include_dirs = [ "include" ]
     defines = [ "SK_UNICODE_AVAILABLE" ]
-    if (skia_use_client_icu) {
-      defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
-    }
     if (skia_use_icu) {
       defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
+    } else if (skia_use_client_icu) {
+      defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
     }
     if (is_component_build) {
       defines += [ "SKUNICODE_DLL" ]
@@ -37,13 +37,7 @@ if (skia_use_icu || skia_use_client_icu) {
 
     if (skia_use_icu) {
       sources += skia_unicode_icu_sources
-      if (skia_use_icu) {
-        defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
-      }
-      if (skia_use_client_icu) {
-        sources += skia_unicode_client_icu_sources
-        defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
-      }
+      defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
 
       # only available for Android at the moment
       if (skia_use_runtime_icu && (is_android || is_linux)) {
@@ -60,7 +54,26 @@ if (skia_use_icu || skia_use_client_icu) {
       deps += [ skia_icu_bidi_third_party_dir ]
     }
   }
+
+  if (defined(is_skia_standalone) && skia_enable_tools) {
+    skia_source_set("tests") {
+      if (skunicode_tests_enabled && skia_use_icu) {
+        testonly = true
+        deps = [
+          ":skunicode",
+          "../..:skia",
+          "../..:test",
+        ]
+        sources = skia_unicode_tests
+        deps += [ skia_icu_bidi_third_party_dir ]
+      } else {
+        sources = []
+      }
+    }
+  }
 } else {
   group("skunicode") {
+  }
+  group("tests") {
   }
 }
