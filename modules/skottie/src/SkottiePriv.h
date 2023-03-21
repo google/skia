@@ -178,6 +178,10 @@ public:
 
     sk_sp<ExpressionManager> expression_manager() const;
 
+    const skjson::ObjectValue* getSlotsRoot() const {
+        return fSlotsRoot;
+    }
+
 private:
     friend class CompositionBuilder;
     friend class CustomFont;
@@ -289,6 +293,8 @@ private:
     SkTHashMap<SkString, FontInfo>                 fFonts;
     sk_sp<CustomFont::GlyphCompMapper>             fCustomGlyphMapper;
     mutable SkTHashMap<SkString, FootageAssetInfo> fImageAssetCache;
+
+    const skjson::ObjectValue* fSlotsRoot;
 
     using INHERITED = SkNoncopyable;
 };
