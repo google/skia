@@ -5,39 +5,49 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/core/SkWriteBuffer.h"
 #include "src/text/StrikeForGPU.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <initializer_list>
 #include <memory>
 #include <tuple>
+#include <vector>
 
-struct SkRect;
 
 using namespace sktext;
 using namespace skglyph;
@@ -158,4 +168,125 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
 
         SkTaskGroup(*executor).batch(kThreadCount, perThread);
     }
+}
+
+class SkGlyphTestPeer {
+public:
+    static void SetGlyph(SkGlyph* glyph) {
+        // Tweak the bounds to make them unique based on glyph id.
+        const SkGlyphID uniquify = glyph->getGlyphID();
+        glyph->fAdvanceX = 10;
+        glyph->fAdvanceY = 11;
+        glyph->fLeft = -1 - uniquify;
+        glyph->fTop = -2;
+        glyph->fWidth = 8;
+        glyph->fHeight = 9;
+        glyph->fMaskFormat = SkMask::Format::kA8_Format;
+    }
+};
+
+class SkStrikeTestingPeer {
+public:
+    static SkGlyph* GetGlyph(SkStrike* strike, SkPackedGlyphID packedID) {
+        SkAutoMutexExclusive m{strike->fStrikeLock};
+        return strike->glyph(packedID);
+    }
+};
+
+DEF_TEST(SkStrike_FlattenByType, reporter) {
+    std::vector<SkGlyph> imagesToSend;
+    std::vector<SkGlyph> pathsToSend;
+    std::vector<SkGlyph> drawablesToSend;
+    SkArenaAlloc alloc{256};
+
+    // Make a mask glyph and put it in the glyphs to send.
+    const SkPackedGlyphID maskPackedGlyphID((SkGlyphID)10);
+    SkGlyph maskGlyph{maskPackedGlyphID};
+    SkGlyphTestPeer::SetGlyph(&maskGlyph);
+
+    static constexpr uint8_t X = 0xff;
+    static constexpr uint8_t O = 0x00;
+    uint8_t imageData[][8] = {
+            {X,X,X,X,X,X,X,X},
+            {X,O,O,O,O,O,O,X},
+            {X,O,O,O,O,O,O,X},
+            {X,O,O,O,O,O,O,X},
+            {X,O,O,X,X,O,O,X},
+            {X,O,O,O,O,O,O,X},
+            {X,O,O,O,O,O,O,X},
+            {X,O,O,O,O,O,O,X},
+            {X,X,X,X,X,X,X,X},
+    };
+    maskGlyph.setImage(&alloc, imageData);
+    imagesToSend.emplace_back(maskGlyph);
+
+    // Make a path glyph and put it in the glyphs to send.
+    const SkPackedGlyphID pathPackedGlyphID((SkGlyphID)11);
+    SkGlyph pathGlyph{pathPackedGlyphID};
+    SkGlyphTestPeer::SetGlyph(&pathGlyph);
+    SkPath path;
+    path.addRect(pathGlyph.rect());
+    pathGlyph.setPath(&alloc, &path, false);
+    pathsToSend.emplace_back(pathGlyph);
+
+    // Make a drawable glyph and put it in the glyphs to send.
+    const SkPackedGlyphID drawablePackedGlyphID((SkGlyphID)12);
+    SkGlyph drawableGlyph{drawablePackedGlyphID};
+    SkGlyphTestPeer::SetGlyph(&drawableGlyph);
+    class TestDrawable final : public SkDrawable {
+    public:
+        TestDrawable(SkRect rect) : fRect(rect) {}
+
+    private:
+        const SkRect fRect;
+        SkRect onGetBounds() override { return fRect;  }
+        size_t onApproximateBytesUsed() override {
+            return 0;
+        }
+        void onDraw(SkCanvas* canvas) override {
+            SkPaint paint;
+            canvas->drawRect(fRect, paint);
+        }
+    };
+
+    sk_sp<SkDrawable> drawable = sk_make_sp<TestDrawable>(drawableGlyph.rect());
+    REPORTER_ASSERT(reporter, !drawableGlyph.setDrawableHasBeenCalled());
+    drawableGlyph.setDrawable(&alloc, drawable);
+    REPORTER_ASSERT(reporter, drawableGlyph.setDrawableHasBeenCalled());
+    REPORTER_ASSERT(reporter, drawableGlyph.drawable() != nullptr);
+    drawablesToSend.emplace_back(drawableGlyph);
+
+    // Test the FlattenGlyphsByType method.
+    SkBinaryWriteBuffer writeBuffer;
+    SkStrike::FlattenGlyphsByType(writeBuffer, imagesToSend, pathsToSend, drawablesToSend);
+    auto data = writeBuffer.snapshotAsData();
+
+    // Make a strike to merge into.
+    SkStrikeCache strikeCache;
+    auto dstTypeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    SkFont font{dstTypeface};
+    SkStrikeSpec spec = SkStrikeSpec::MakeWithNoDevice(font);
+    sk_sp<SkStrike> strike = spec.findOrCreateStrike(&strikeCache);
+
+    // Test the mergeFromBuffer method.
+    SkReadBuffer readBuffer{data->data(), data->size()};
+    strike->mergeFromBuffer(readBuffer);
+
+    // Check mask glyph.
+    SkGlyph* dstMaskGlyph = SkStrikeTestingPeer::GetGlyph(strike.get(), maskPackedGlyphID);
+    REPORTER_ASSERT(reporter, maskGlyph.rect() == dstMaskGlyph->rect());
+    REPORTER_ASSERT(reporter, dstMaskGlyph->setImageHasBeenCalled());
+    REPORTER_ASSERT(reporter, dstMaskGlyph->image() != nullptr);
+
+    // Check path glyph.
+    SkGlyph* dstPathGlyph = SkStrikeTestingPeer::GetGlyph(strike.get(), pathPackedGlyphID);
+    REPORTER_ASSERT(reporter, pathGlyph.rect() == dstPathGlyph->rect());
+    REPORTER_ASSERT(reporter, dstPathGlyph->setPathHasBeenCalled());
+    REPORTER_ASSERT(reporter, dstPathGlyph->path() != nullptr);
+
+    // Check drawable glyph.
+    SkGlyph* dstDrawableGlyph = SkStrikeTestingPeer::GetGlyph(strike.get(),drawablePackedGlyphID);
+    REPORTER_ASSERT(reporter, drawableGlyph.rect() == dstDrawableGlyph->rect());
+    REPORTER_ASSERT(reporter, dstDrawableGlyph->setDrawableHasBeenCalled());
+    REPORTER_ASSERT(reporter, dstDrawableGlyph->drawable() != nullptr);
 }

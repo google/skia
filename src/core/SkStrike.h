@@ -53,18 +53,24 @@ public:
     bool prepareForPath(SkGlyph*) override SK_REQUIRES(fStrikeLock);
     bool prepareForDrawable(SkGlyph*) override SK_REQUIRES(fStrikeLock);
 
+    bool mergeFromBuffer(SkReadBuffer& buffer) SK_EXCLUDES(fStrikeLock);
+    static void FlattenGlyphsByType(SkWriteBuffer& buffer,
+                                    SkSpan<SkGlyph> images,
+                                    SkSpan<SkGlyph> paths,
+                                    SkSpan<SkGlyph> drawables);
+
     // Lookup (or create if needed) the returned glyph using toID. If that glyph is not initialized
     // with an image, then use the information in fromGlyph to initialize the width, height top,
     // left, format and image of the glyph. This is mainly used preserving the glyph if it was
-    // created by a search of desperation.
+    // created by a search of desperation. This is deprecated.
     SkGlyph* mergeGlyphAndImage(
             SkPackedGlyphID toID, const SkGlyph& fromGlyph) SK_EXCLUDES(fStrikeLock);
 
-    // If the path has never been set, then add a path to glyph.
+    // If the path has never been set, then add a path to glyph. This is deprecated.
     const SkPath* mergePath(
             SkGlyph* glyph, const SkPath* path, bool hairline) SK_EXCLUDES(fStrikeLock);
 
-    // If the drawable has never been set, then add a drawable to glyph.
+    // If the drawable has never been set, then add a drawable to glyph. This is deprecated.
     const SkDrawable* mergeDrawable(
             SkGlyph* glyph, sk_sp<SkDrawable> drawable) SK_EXCLUDES(fStrikeLock);
 
@@ -126,6 +132,7 @@ public:
 
 private:
     friend class SkStrikeCache;
+    friend class SkStrikeTestingPeer;
     class Monitor;
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
@@ -134,6 +141,11 @@ private:
 
     // Generate the glyph digest information and update structures to add the glyph.
     SkGlyphDigest* addGlyphAndDigest(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
+
+    SkGlyph* mergeGlyphFromBuffer(SkReadBuffer& buffer) SK_REQUIRES(fStrikeLock);
+    bool mergeGlyphAndImageFromBuffer(SkReadBuffer& buffer) SK_REQUIRES(fStrikeLock);
+    bool mergeGlyphAndPathFromBuffer(SkReadBuffer& buffer) SK_REQUIRES(fStrikeLock);
+    bool mergeGlyphAndDrawableFromBuffer(SkReadBuffer& buffer) SK_REQUIRES(fStrikeLock);
 
     // Maintain memory use statistics.
     void updateMemoryUsage(size_t increase) SK_EXCLUDES(fStrikeLock);
