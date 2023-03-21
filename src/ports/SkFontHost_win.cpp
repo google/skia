@@ -355,7 +355,7 @@ static bool FindByLogFont(SkTypeface* face, void* ctx) {
  *  This is public. It first searches the cache, and if a match is not found,
  *  it creates a new face.
  */
-SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
+sk_sp<SkTypeface> SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
     LOGFONT lf = origLF;
     make_canonical(&lf);
     sk_sp<SkTypeface> face = SkTypefaceCache::FindByProcAndRef(FindByLogFont, &lf);
@@ -363,7 +363,7 @@ SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
         face = LogFontTypeface::Make(lf);
         SkTypefaceCache::Add(face);
     }
-    return face.release();
+    return face;
 }
 
 /**
@@ -2223,11 +2223,11 @@ public:
         }
     }
 
-    SkTypeface* createTypeface(int index) override {
+    sk_sp<SkTypeface> createTypeface(int index) override {
         return SkCreateTypefaceFromLOGFONT(fArray[index].elfLogFont);
     }
 
-    SkTypeface* matchStyle(const SkFontStyle& pattern) override {
+    sk_sp<SkTypeface> matchStyle(const SkFontStyle& pattern) override {
         return this->matchStyleCSS3(pattern);
     }
 
@@ -2257,30 +2257,31 @@ protected:
         tchar_to_skstring(fLogFontArray[index].elfLogFont.lfFaceName, familyName);
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const override {
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override {
         SkASSERT(index < fLogFontArray.size());
-        return new SkFontStyleSetGDI(fLogFontArray[index].elfLogFont.lfFaceName);
+        return sk_sp<SkFontStyleSet>(
+            new SkFontStyleSetGDI(fLogFontArray[index].elfLogFont.lfFaceName));
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override {
         if (nullptr == familyName) {
             familyName = "";    // do we need this check???
         }
         LOGFONT lf;
         logfont_for_name(familyName, &lf);
-        return new SkFontStyleSetGDI(lf.lfFaceName);
+        return sk_sp<SkFontStyleSet>(new SkFontStyleSetGDI(lf.lfFaceName));
     }
 
-    virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& fontstyle) const override {
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                         const SkFontStyle& fontstyle) const override {
         // could be in base impl
         sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontstyle);
     }
 
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                    const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const override {
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                  const char* bcp47[], int bcp47Count,
+                                                  SkUnichar character) const override {
         return nullptr;
     }
 

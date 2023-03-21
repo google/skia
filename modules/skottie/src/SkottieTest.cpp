@@ -212,15 +212,17 @@ DEF_TEST(Skottie_Properties, reporter) {
 
         int onCountFamilies() const override { return 1; }
         void onGetFamilyName(int index, SkString* familyName) const override {}
-        SkFontStyleSet* onCreateStyleSet(int index) const override { return nullptr; }
-        SkFontStyleSet* onMatchFamily(const char familyName[]) const override { return nullptr; }
-        SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                      const SkFontStyle& fontStyle) const override {
+        sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override { return nullptr; }
+        sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override {
             return nullptr;
         }
-        SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                const char* bcp47[], int bcp47Count,
-                                                SkUnichar character) const override {
+        sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                             const SkFontStyle& fontStyle) const override {
+            return nullptr;
+        }
+        sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                      const char* bcp47[], int bcp47Count,
+                                                      SkUnichar character) const override {
             return nullptr;
         }
         sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override {

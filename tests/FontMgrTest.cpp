@@ -243,13 +243,13 @@ DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
                 *style = fStyles[index];
             }
         }
-        SkTypeface* createTypeface(int index) override {
+        sk_sp<SkTypeface> createTypeface(int index) override {
             if (index < 0 || this->count() <= index) {
-                return new TestTypeface(invalidFontStyle);
+                return sk_sp<SkTypeface>(new TestTypeface(invalidFontStyle));
             }
-            return new TestTypeface(fStyles[index]);
+            return sk_sp<SkTypeface>(new TestTypeface(fStyles[index]));
         }
-        SkTypeface* matchStyle(const SkFontStyle& pattern) override {
+        sk_sp<SkTypeface> matchStyle(const SkFontStyle& pattern) override {
             return this->matchStyleCSS3(pattern);
         }
     private:
@@ -796,10 +796,10 @@ DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
 DEF_TEST(FontMgr_MatchCharacter, reporter) {
     sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     // 0xD800 <= codepoint <= 0xDFFF || 0x10FFFF < codepoint are invalid
-    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x0));
-    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0xD800));
-    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0xDFFF));
-    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x110000));
-    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x1FFFFF));
-    SkSafeUnref(fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, -1));
+    fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x0);
+    fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0xD800);
+    fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0xDFFF);
+    fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x110000);
+    fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x1FFFFF);
+    fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, -1);
 }

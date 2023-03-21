@@ -181,7 +181,7 @@ class FontMgrMatchGM : public skiagm::GM {
 
         sk_sp<SkFontStyleSet> fset;
         for (size_t i = 0; i < std::size(gNames); ++i) {
-            fset.reset(fFM->matchFamily(gNames[i]));
+            fset = fFM->matchFamily(gNames[i]);
             if (fset->count() > 0) {
                 break;
             }

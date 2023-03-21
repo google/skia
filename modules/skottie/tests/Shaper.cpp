@@ -253,22 +253,22 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
         void onGetFamilyName(int index, SkString* familyName) const override {
             SkDEBUGFAIL("onGetFamilyName called with bad index");
         }
-        SkFontStyleSet* onCreateStyleSet(int index) const override {
+        sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override {
             SkDEBUGFAIL("onCreateStyleSet called with bad index");
             return nullptr;
         }
-        SkFontStyleSet* onMatchFamily(const char[]) const override {
+        sk_sp<SkFontStyleSet> onMatchFamily(const char[]) const override {
             return SkFontStyleSet::CreateEmpty();
         }
 
-        SkTypeface* onMatchFamilyStyle(const char[], const SkFontStyle&) const override {
+        sk_sp<SkTypeface> onMatchFamilyStyle(const char[], const SkFontStyle&) const override {
             return nullptr;
         }
-        SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
-                                                const SkFontStyle& style,
-                                                const char* bcp47[],
-                                                int bcp47Count,
-                                                SkUnichar character) const override {
+        sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[],
+                                                      const SkFontStyle& style,
+                                                      const char* bcp47[],
+                                                      int bcp47Count,
+                                                      SkUnichar character) const override {
             fFallbackCount++;
             return nullptr;
         }

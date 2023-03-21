@@ -115,12 +115,12 @@ void SkFontStyleSet_Custom::getStyle(int index, SkFontStyle* style, SkString* na
     }
 }
 
-SkTypeface* SkFontStyleSet_Custom::createTypeface(int index) {
+sk_sp<SkTypeface> SkFontStyleSet_Custom::createTypeface(int index) {
     SkASSERT(index < fStyles.size());
-    return SkRef(fStyles[index].get());
+    return fStyles[index];
 }
 
-SkTypeface* SkFontStyleSet_Custom::matchStyle(const SkFontStyle& pattern) {
+sk_sp<SkTypeface> SkFontStyleSet_Custom::matchStyle(const SkFontStyle& pattern) {
     return this->matchStyleCSS3(pattern);
 }
 
@@ -135,7 +135,7 @@ SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader) : fDefaultFam
         "Arial", "Verdana", "Times New Roman", "Droid Sans", "DejaVu Serif", nullptr
     };
     for (size_t i = 0; i < std::size(defaultNames); ++i) {
-        sk_sp<SkFontStyleSet_Custom> set(this->onMatchFamily(defaultNames[i]));
+        sk_sp<SkFontStyleSet> set(this->onMatchFamily(defaultNames[i]));
         if (nullptr == set) {
             continue;
         }
@@ -147,11 +147,11 @@ SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader) : fDefaultFam
             continue;
         }
 
-        fDefaultFamily = set.get();
+        fDefaultFamily = set;
         break;
     }
     if (nullptr == fDefaultFamily) {
-        fDefaultFamily = fFamilies[0].get();
+        fDefaultFamily = fFamilies[0];
     }
 }
 
@@ -164,31 +164,31 @@ void SkFontMgr_Custom::onGetFamilyName(int index, SkString* familyName) const {
     familyName->set(fFamilies[index]->getFamilyName());
 }
 
-SkFontStyleSet_Custom* SkFontMgr_Custom::onCreateStyleSet(int index) const {
+sk_sp<SkFontStyleSet> SkFontMgr_Custom::onCreateStyleSet(int index) const {
     SkASSERT(index < fFamilies.size());
-    return SkRef(fFamilies[index].get());
+    return fFamilies[index];
 }
 
-SkFontStyleSet_Custom* SkFontMgr_Custom::onMatchFamily(const char familyName[]) const {
+sk_sp<SkFontStyleSet> SkFontMgr_Custom::onMatchFamily(const char familyName[]) const {
     for (int i = 0; i < fFamilies.size(); ++i) {
         if (fFamilies[i]->getFamilyName().equals(familyName)) {
-            return SkRef(fFamilies[i].get());
+            return fFamilies[i];
         }
     }
     return nullptr;
 }
 
-SkTypeface* SkFontMgr_Custom::onMatchFamilyStyle(const char familyName[],
-                                const SkFontStyle& fontStyle) const
+sk_sp<SkTypeface> SkFontMgr_Custom::onMatchFamilyStyle(const char familyName[],
+                                                       const SkFontStyle& fontStyle) const
 {
     sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
     return sset->matchStyle(fontStyle);
 }
 
-SkTypeface* SkFontMgr_Custom::onMatchFamilyStyleCharacter(const char familyName[],
-                                                          const SkFontStyle&,
-                                                          const char* bcp47[], int bcp47Count,
-                                                          SkUnichar character) const
+sk_sp<SkTypeface> SkFontMgr_Custom::onMatchFamilyStyleCharacter(
+    const char familyName[], const SkFontStyle&,
+    const char* bcp47[], int bcp47Count,
+    SkUnichar) const
 {
     return nullptr;
 }
@@ -217,11 +217,11 @@ sk_sp<SkTypeface> SkFontMgr_Custom::onLegacyMakeTypeface(const char familyName[]
     sk_sp<SkTypeface> tf;
 
     if (familyName) {
-        tf.reset(this->onMatchFamilyStyle(familyName, style));
+        tf = this->onMatchFamilyStyle(familyName, style);
     }
 
-    if (nullptr == tf) {
-        tf.reset(fDefaultFamily->matchStyle(style));
+    if (!tf) {
+        tf = fDefaultFamily->matchStyle(style);
     }
 
     return tf;

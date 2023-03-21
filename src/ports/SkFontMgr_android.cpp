@@ -33,6 +33,8 @@ using namespace skia_private;
 
 class SkData;
 
+namespace {
+
 class SkTypeface_Android : public SkTypeface_FreeType {
 public:
     SkTypeface_Android(const SkFontStyle& style,
@@ -127,6 +129,10 @@ public:
     using INHERITED = SkTypeface_Android;
 };
 
+template <typename D, typename S> sk_sp<D> sk_sp_static_cast(sk_sp<S>&& s) {
+    return sk_sp<D>(static_cast<D*>(s.release()));
+}
+
 class SkFontStyleSet_Android : public SkFontStyleSet {
     typedef SkTypeface_FreeType::Scanner Scanner;
 
@@ -216,15 +222,18 @@ public:
             name->reset();
         }
     }
-    SkTypeface_AndroidSystem* createTypeface(int index) override {
+    sk_sp<SkTypeface> createTypeface(int index) override {
         if (index < 0 || fStyles.size() <= index) {
             return nullptr;
         }
-        return SkRef(fStyles[index].get());
+        return fStyles[index];
     }
 
-    SkTypeface_AndroidSystem* matchStyle(const SkFontStyle& pattern) override {
-        return static_cast<SkTypeface_AndroidSystem*>(this->matchStyleCSS3(pattern));
+    sk_sp<SkTypeface_AndroidSystem> matchAStyle(const SkFontStyle& pattern) {
+        return sk_sp_static_cast<SkTypeface_AndroidSystem>(this->matchStyleCSS3(pattern));
+    }
+    sk_sp<SkTypeface> matchStyle(const SkFontStyle& pattern) override {
+        return this->matchAStyle(pattern);
     }
 
 private:
@@ -290,34 +299,34 @@ protected:
         familyName->set(fNameToFamilyMap[index].name);
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const override {
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override {
         if (index < 0 || fNameToFamilyMap.size() <= index) {
             return nullptr;
         }
-        return SkRef(fNameToFamilyMap[index].styleSet);
+        return sk_ref_sp(fNameToFamilyMap[index].styleSet);
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override {
         if (!familyName) {
             return nullptr;
         }
         SkAutoAsciiToLC tolc(familyName);
         for (int i = 0; i < fNameToFamilyMap.size(); ++i) {
             if (fNameToFamilyMap[i].name.equals(tolc.lc())) {
-                return SkRef(fNameToFamilyMap[i].styleSet);
+                return sk_ref_sp(fNameToFamilyMap[i].styleSet);
             }
         }
         // TODO: eventually we should not need to name fallback families.
         for (int i = 0; i < fFallbackNameToFamilyMap.size(); ++i) {
             if (fFallbackNameToFamilyMap[i].name.equals(tolc.lc())) {
-                return SkRef(fFallbackNameToFamilyMap[i].styleSet);
+                return sk_ref_sp(fFallbackNameToFamilyMap[i].styleSet);
             }
         }
         return nullptr;
     }
 
-    SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle& style) const override {
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                         const SkFontStyle& style) const override {
         sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(style);
     }
@@ -333,7 +342,7 @@ protected:
             if (familyName != family->fFallbackFor) {
                 continue;
             }
-            sk_sp<SkTypeface_AndroidSystem> face(family->matchStyle(style));
+            sk_sp<SkTypeface_AndroidSystem> face(family->matchAStyle(style));
 
             if (!langTag.isEmpty() &&
                 std::none_of(face->fLang.begin(), face->fLang.end(), [&](SkLanguage lang){
@@ -354,11 +363,11 @@ protected:
         return nullptr;
     }
 
-    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
-                                            const SkFontStyle& style,
-                                            const char* bcp47[],
-                                            int bcp47Count,
-                                            SkUnichar character) const override {
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[],
+                                                  const SkFontStyle& style,
+                                                  const char* bcp47[],
+                                                  int bcp47Count,
+                                                  SkUnichar character) const override {
         // The variant 'elegant' is 'not squashed', 'compact' is 'stays in ascent/descent'.
         // The variant 'default' means 'compact and elegant'.
         // As a result, it is not possible to know the variant context from the font alone.
@@ -376,7 +385,7 @@ protected:
                                                         style, SkToBool(elegant),
                                                         lang.getTag(), character);
                         if (matchingTypeface) {
-                            return matchingTypeface.release();
+                            return std::move(matchingTypeface);
                         }
 
                         lang = lang.getParent();
@@ -387,7 +396,7 @@ protected:
                                                 style, SkToBool(elegant),
                                                 SkString(), character);
                 if (matchingTypeface) {
-                    return matchingTypeface.release();
+                    return std::move(matchingTypeface);
                 }
             }
         }
@@ -474,7 +483,7 @@ private:
 
         static const char* defaultNames[] = { "sans-serif" };
         for (const char* defaultName : defaultNames) {
-            fDefaultStyleSet.reset(this->onMatchFamily(defaultName));
+            fDefaultStyleSet = this->onMatchFamily(defaultName);
             if (fDefaultStyleSet) {
                 break;
             }
@@ -493,6 +502,8 @@ static char const * const gSystemFontUseStrings[] = {
     "OnlyCustom", "PreferCustom", "PreferSystem"
 };
 #endif
+
+}  // namespace
 
 sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
     if (custom) {

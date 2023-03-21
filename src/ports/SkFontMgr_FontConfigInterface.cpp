@@ -48,8 +48,8 @@ public:
 
     int count() override { return 0; }
     void getStyle(int index, SkFontStyle*, SkString* style) override { SkASSERT(false); }
-    SkTypeface* createTypeface(int index) override { SkASSERT(false); return nullptr; }
-    SkTypeface* matchStyle(const SkFontStyle& pattern) override { return nullptr; }
+    sk_sp<SkTypeface> createTypeface(int index) override { SkASSERT(false); return nullptr; }
+    sk_sp<SkTypeface> matchStyle(const SkFontStyle& pattern) override { return nullptr; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -168,15 +168,15 @@ protected:
         SK_ABORT("Not implemented.");
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const override {
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override {
         SK_ABORT("Not implemented.");
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override {
         SK_ABORT("Not implemented.");
     }
 
-    SkTypeface* onMatchFamilyStyle(const char requestedFamilyName[],
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char requestedFamilyName[],
                                    const SkFontStyle& requestedStyle) const override
     {
         SkAutoMutexExclusive ama(fMutex);
@@ -197,10 +197,10 @@ protected:
             // Add this FontIdentity to the FontIdentity cache.
             fTFCache.add(face);
         }
-        return face.release();
+        return face;
     }
 
-    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override {
         SK_ABORT("Not implemented.");
