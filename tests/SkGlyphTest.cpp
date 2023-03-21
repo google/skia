@@ -57,7 +57,7 @@ DEF_TEST(SkGlyphRectBasic, reporter) {
 
 class SkGlyphTestPeer {
 public:
-    static void SetGlyph(SkGlyph* glyph) {
+    static void SetGlyph1(SkGlyph* glyph) {
         glyph->fAdvanceX = 10;
         glyph->fAdvanceY = 11;
         glyph->fLeft = -1;
@@ -66,34 +66,62 @@ public:
         glyph->fHeight = 9;
         glyph->fMaskFormat = SkMask::Format::kA8_Format;
     }
+
+    static void SetGlyph2(SkGlyph* glyph) {
+        glyph->fAdvanceX = 10;
+        glyph->fAdvanceY = 11;
+        glyph->fLeft = 0;
+        glyph->fTop = -1;
+        glyph->fWidth = 8;
+        glyph->fHeight = 9;
+        glyph->fMaskFormat = SkMask::Format::kA8_Format;
+    }
 };
 
 DEF_TEST(SkGlyph_SendMetrics, reporter) {
-    SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
-    SkGlyphTestPeer::SetGlyph(&srcGlyph);
+    {
+        SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
+        SkGlyphTestPeer::SetGlyph1(&srcGlyph);
 
-    SkBinaryWriteBuffer writeBuffer;
-    srcGlyph.flattenMetrics(writeBuffer);
+        SkBinaryWriteBuffer writeBuffer;
+        srcGlyph.flattenMetrics(writeBuffer);
 
-    sk_sp<SkData> data = writeBuffer.snapshotAsData();
+        sk_sp<SkData> data = writeBuffer.snapshotAsData();
 
-    SkReadBuffer readBuffer{data->data(), data->size()};
-    std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
-    REPORTER_ASSERT(reporter, dstGlyph.has_value());
-    REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
-    REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
-    REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
+        SkReadBuffer readBuffer{data->data(), data->size()};
+        std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
+        REPORTER_ASSERT(reporter, dstGlyph.has_value());
+        REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
+        REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
+        REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
+    }
+    {
+        SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
+        SkGlyphTestPeer::SetGlyph2(&srcGlyph);
+
+        SkBinaryWriteBuffer writeBuffer;
+        srcGlyph.flattenMetrics(writeBuffer);
+
+        sk_sp<SkData> data = writeBuffer.snapshotAsData();
+
+        SkReadBuffer readBuffer{data->data(), data->size()};
+        std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
+        REPORTER_ASSERT(reporter, dstGlyph.has_value());
+        REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
+        REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
+        REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
+    }
 
     uint8_t badData[] = {1, 2, 3, 4, 5, 6, 7, 8};
     SkReadBuffer badBuffer{badData, std::size(badData)};
-    dstGlyph = SkGlyph::MakeFromBuffer(badBuffer);
+    std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(badBuffer);
     REPORTER_ASSERT(reporter, !dstGlyph.has_value());
 }
 
 DEF_TEST(SkGlyph_SendWithImage, reporter) {
     SkArenaAlloc alloc{256};
     SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
-    SkGlyphTestPeer::SetGlyph(&srcGlyph);
+    SkGlyphTestPeer::SetGlyph1(&srcGlyph);
 
     static constexpr uint8_t X = 0xff;
     static constexpr uint8_t O = 0x00;
@@ -155,7 +183,7 @@ DEF_TEST(SkGlyph_SendWithImage, reporter) {
 DEF_TEST(SkGlyph_SendWithPath, reporter) {
     SkArenaAlloc alloc{256};
     SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
-    SkGlyphTestPeer::SetGlyph(&srcGlyph);
+    SkGlyphTestPeer::SetGlyph1(&srcGlyph);
 
     SkPath srcPath;
     srcPath.addRect(srcGlyph.rect());
@@ -203,7 +231,7 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
 DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
     SkArenaAlloc alloc{256};
     SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
-    SkGlyphTestPeer::SetGlyph(&srcGlyph);
+    SkGlyphTestPeer::SetGlyph1(&srcGlyph);
 
     class TestDrawable final : public SkDrawable {
     public:
