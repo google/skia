@@ -467,6 +467,9 @@ public:
     // be padded with zeros for smaller inputs. Eta is a scalar. The result is a 4-slot vector.
     void refract_floats();
 
+    // Computes inverse(matN) on the stack. Pass 2, 3 or 4 for n to specify matrix size.
+    void inverse_matrix(int32_t n);
+
     // Shrinks the temp stack, discarding values on top.
     void discard_stack(int32_t count = 1);
 

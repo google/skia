@@ -2570,9 +2570,18 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::floor_float, arg0.type().slotCount());
             return this->binaryOp(arg0.type(), kSubtractOps);
 
-        case IntrinsicKind::k_inversesqrt_IntrinsicKind: {
+        case IntrinsicKind::k_inverse_IntrinsicKind:
+            SkASSERT(arg0.type().isMatrix());
+            SkASSERT(arg0.type().rows() == arg0.type().columns());
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.inverse_matrix(arg0.type().rows());
+            return true;
+
+        case IntrinsicKind::k_inversesqrt_IntrinsicKind:
             return this->pushIntrinsic(kInverseSqrtOps, arg0);
-        }
+
         case IntrinsicKind::k_length_IntrinsicKind:
             return this->pushExpression(arg0) &&
                    this->pushLengthIntrinsic(arg0.type().slotCount());
