@@ -1064,7 +1064,7 @@ optional("gpu") {
   public_deps = []
 
   public = skia_gpu_public
-  sources = skia_gpu_private
+  sources = skia_ganesh_private
 
   libs = []
   frameworks = []

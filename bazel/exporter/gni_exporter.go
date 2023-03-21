@@ -123,14 +123,8 @@ declare_args() {
 
 // The footer written to gn/gpu.gni.
 const gpuGNIFooter = `
-# TODO(kjlubick) Update clients to use the individual targets
-# instead of the monolithic ones.
-skia_gpu_sources = skia_gpu_public + skia_gpu_private
-skia_gl_gpu_sources = skia_gpu_gl_public + skia_gpu_gl_private + skia_gpu_chromium_public
-skia_vk_sources = skia_gpu_vk_public + skia_gpu_vk_private +
-                  skia_gpu_vk_chromium_public + skia_gpu_vk_chromium_private
-skia_metal_sources = skia_gpu_metal_public + skia_gpu_metal_private + skia_gpu_metal_cpp
-skia_dawn_sources = skia_gpu_dawn_public + skia_gpu_dawn_private
+# TODO(kjlubick) Update clients to use the targets with updated names
+skia_gpu_private = skia_ganesh_private
 `
 
 // The footer written to gn/utils.gni.
