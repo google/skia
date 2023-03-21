@@ -2131,6 +2131,12 @@ export interface Paint extends EmbindObject<Paint> {
     setColorInt(color: ColorInt, colorSpace?: ColorSpace): void;
 
     /**
+     * Requests, but does not require, to distribute color error.
+     * @param shouldDither
+     */
+    setDither(shouldDither: boolean): void;
+
+    /**
      * Sets the current image filter, replacing the existing one if there was one.
      * @param filter
      */

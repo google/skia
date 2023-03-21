@@ -436,6 +436,7 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
     paint.setColorFilter(colorFilter);
     paint.setColorInt(CK.ColorAsInt(20, 30, 40));
     paint.setColorInt(CK.ColorAsInt(20, 30, 40), CK.ColorSpace.SRGB);
+    paint.setDither(true);
     paint.setImageFilter(imageFilter);
     paint.setMaskFilter(maskFilter);
     paint.setPathEffect(pathEffect);

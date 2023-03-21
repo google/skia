@@ -533,6 +533,7 @@ var CanvasKit = {
     setAntiAlias: function() {},
     setBlendMode: function() {},
     setColorInt: function() {},
+    setDither: function() {},
     setImageFilter: function() {},
     setMaskFilter: function() {},
     setPathEffect: function() {},

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    a cache of paragraph layouts.
  - Added `CanvasKit.ParagraphBuilder.MakeFromFontCollection` to make a
    `ParagraphBuilder` that uses a given `FontCollection`.
+ - `Paint.setDither` is exposed.
 
 ### Changed
  - `Image.encodeToData` now makes use of the GPU context more consistently.

@@ -1679,6 +1679,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.setColor(SkColor4f::FromColor(color), colorSpace.get());
         }))
         .function("setColorFilter", &SkPaint::setColorFilter)
+        .function("setDither", &SkPaint::setDither)
         .function("setImageFilter", &SkPaint::setImageFilter)
         .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)
