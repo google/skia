@@ -31,6 +31,7 @@
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/gpu/DitherUtils.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -285,83 +286,8 @@ static inline bool blender_requires_shader(const SkBlender* blender) {
     return !mode.has_value() || *mode != SkBlendMode::kDst;
 }
 
+
 #ifndef SK_IGNORE_GPU_DITHER
-static inline float dither_range_for_config(GrColorType dstColorType) {
-    // We use 1 / (2^bitdepth-1) as the range since each channel can hold 2^bitdepth values
-    switch (dstColorType) {
-        // 4 bit
-        case GrColorType::kABGR_4444:
-        case GrColorType::kARGB_4444:
-        case GrColorType::kBGRA_4444:
-            return 1 / 15.f;
-        // 6 bit
-        case GrColorType::kBGR_565:
-            return 1 / 63.f;
-        // 8 bit
-        case GrColorType::kUnknown:
-        case GrColorType::kAlpha_8:
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kGray_8:
-        case GrColorType::kGrayAlpha_88:
-        case GrColorType::kGray_8xxx:
-        case GrColorType::kR_8:
-        case GrColorType::kR_8xxx:
-        case GrColorType::kRG_88:
-        case GrColorType::kRGB_888:
-        case GrColorType::kRGB_888x:
-        case GrColorType::kRGBA_8888:
-        case GrColorType::kRGBA_8888_SRGB:
-        case GrColorType::kBGRA_8888:
-            return 1 / 255.f;
-        // 10 bit
-        case GrColorType::kRGBA_1010102:
-        case GrColorType::kBGRA_1010102:
-            return 1 / 1023.f;
-        // 16 bit
-        case GrColorType::kAlpha_16:
-        case GrColorType::kR_16:
-        case GrColorType::kRG_1616:
-        case GrColorType::kRGBA_16161616:
-            return 1 / 32767.f;
-        // Half
-        case GrColorType::kAlpha_F16:
-        case GrColorType::kGray_F16:
-        case GrColorType::kR_F16:
-        case GrColorType::kRG_F16:
-        case GrColorType::kRGBA_F16:
-        case GrColorType::kRGBA_F16_Clamped:
-        // Float
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kRGBA_F32:
-            return 0.f; // no dithering
-    }
-    SkUNREACHABLE;
-}
-
-static SkBitmap make_dither_lut() {
-    static constexpr struct DitherTable {
-        constexpr DitherTable() : data() {
-            for (int x = 0; x < 8; ++x) {
-                for (int y = 0; y < 8; ++y) {
-                    // The computation of 'm' and 'value' is lifted from CPU backend.
-                    unsigned int m = (y & 1) << 5 | (x & 1) << 4 |
-                                     (y & 2) << 2 | (x & 2) << 1 |
-                                     (y & 4) >> 1 | (x & 4) >> 2;
-                    float value = float(m) * 1.0 / 64.0 - 63.0 / 128.0;
-                    // Bias by 0.5 to be in 0..1, mul by 255 and round to nearest int to make byte.
-                    data[y * 8 + x] = (uint8_t)((value + 0.5) * 255.f + 0.5f);
-                }
-            }
-        }
-        uint8_t data[64];
-    } gTable;
-    SkBitmap bmp;
-    bmp.setInfo(SkImageInfo::MakeA8(8, 8));
-    bmp.setPixels(const_cast<uint8_t*>(gTable.data));
-    bmp.setImmutable();
-    return bmp;
-}
-
 static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
         GrRecordingContext* rContext,
         std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -394,7 +320,7 @@ static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
     // TecnoSpark3Pro    PowerVRGE8320   200    299ms        820ms (2.74x)     592ms (1.98x)
     // Pixel 4           Adreno640       500    110ms        221ms (2.01x)     214ms (1.95x)
     // Galaxy S20 FE     Mali-G77 MP11   600    165ms        360ms (2.18x)     260ms (1.58x)
-    static const SkBitmap gLUT = make_dither_lut();
+    static const SkBitmap gLUT = skgpu::MakeDitherLUT();
     auto [tex, ct] = GrMakeCachedBitmapProxyView(
             rContext, gLUT, /*label=*/"MakeDitherEffect", GrMipmapped::kNo);
     if (!tex) {
@@ -564,9 +490,9 @@ static inline bool skpaint_to_grpaint_impl(
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
-    GrColorType ct = dstColorInfo.colorType();
-    if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
-        float ditherRange = dither_range_for_config(ct);
+    SkColorType ct = GrColorTypeToSkColorType(dstColorInfo.colorType());
+    if (SkPaintPriv::ShouldDither(skPaint, ct) && paintFP != nullptr) {
+        float ditherRange = skgpu::DitherRangeForConfig(ct);
         paintFP = make_dither_effect(
                 context, std::move(paintFP), ditherRange, context->priv().caps());
     }

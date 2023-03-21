@@ -13,6 +13,8 @@ SHARED_FILES = [
     "Blend.cpp",
     "Blend.h",
     "BufferWriter.h",
+    "DitherUtils.cpp",
+    "DitherUtils.h",
     "KeyBuilder.h",
     "MutableTextureStateRef.h",
     "Rectanizer.h",
