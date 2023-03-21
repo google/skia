@@ -15,7 +15,6 @@
 #include "src/core/SkTDynamicHash.h"
 
 #include <unordered_map>
-#include <vector>
 
 /*
  * A simple class which allows clients to add opaque data types, and returns a url where this data

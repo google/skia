@@ -34,14 +34,14 @@ DEF_SIMPLE_GM_CAN_FAIL(mirror_tile, canvas, errorMsg, 140, 370) {
                                    kPremul_SkAlphaType),
                  colors,
                  sizeof(colors));
-    auto imgx = SkImages::RasterFromPixmapCopy(pmx);
+    auto imgx = SkImage::MakeRasterCopy(pmx);
 
     SkPixmap pmy(SkImageInfo::Make({1, std::size(colors)},
                                    kRGBA_8888_SkColorType,
                                    kPremul_SkAlphaType),
                  colors,
                  sizeof(colors[0]));
-    auto imgy = SkImages::RasterFromPixmapCopy(pmy);
+    auto imgy = SkImage::MakeRasterCopy(pmy);
 
     // We draw offscreen and then zoom that up to make the result clear.
     auto surf = canvas->makeSurface(canvas->imageInfo().makeWH(80, 80));

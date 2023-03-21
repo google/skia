@@ -9,7 +9,6 @@
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -82,7 +81,7 @@ protected:
     void onAbandon() override;
     void onRelease() override;
 
-    bool onStealBackendTexture(GrBackendTexture*, SkImages::BackendTextureReleaseProc*) override;
+    bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override;
 
     void onSetLabel() override;
 

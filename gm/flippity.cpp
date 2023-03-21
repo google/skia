@@ -149,7 +149,7 @@ static sk_sp<SkImage> make_reference_image(SkCanvas* mainCanvas,
                                        ii.colorInfo());
     }
 
-    return SkImages::RasterFromBitmap(bm);
+    return SkImage::MakeFromBitmap(bm);
 }
 
 // Here we're converting from a matrix that is intended for UVs to a matrix that is intended

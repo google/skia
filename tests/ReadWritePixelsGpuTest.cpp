@@ -1319,7 +1319,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(GLReadPixelsUnbindPBO,
     // Start with a async read so that we bind to GL_PIXEL_PACK_BUFFER.
     auto info = SkImageInfo::Make(16, 16, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAutoPixmapStorage pmap = make_ref_data(info, /*forceOpaque=*/false);
-    auto image = SkImages::RasterFromPixmap(pmap, nullptr, nullptr);
+    auto image = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
     image = image->makeTextureImage(ctxInfo.directContext());
     if (!image) {
         ERRORF(reporter, "Couldn't make texture image.");

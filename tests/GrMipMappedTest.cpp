@@ -28,7 +28,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -131,14 +130,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
                 auto device = ((SkSurface_Gpu*)surface.get())->getDevice();
                 proxy = device->readSurfaceView().asTextureProxyRef();
             } else {
-                image = SkImages::BorrowTextureFrom(dContext,
-                                                    mbet->texture(),
-                                                    kTopLeft_GrSurfaceOrigin,
-                                                    kRGBA_8888_SkColorType,
-                                                    kPremul_SkAlphaType,
-                                                    /* color space */ nullptr,
-                                                    sk_gpu_test::ManagedBackendTexture::ReleaseProc,
-                                                    mbet->releaseContext());
+                image = SkImage::MakeFromTexture(dContext,
+                                                 mbet->texture(),
+                                                 kTopLeft_GrSurfaceOrigin,
+                                                 kRGBA_8888_SkColorType,
+                                                 kPremul_SkAlphaType,
+                                                 /* color space */ nullptr,
+                                                 sk_gpu_test::ManagedBackendTexture::ReleaseProc,
+                                                 mbet->releaseContext());
                 REPORTER_ASSERT(reporter, (mipmapped == GrMipmapped::kYes) == image->hasMipmaps());
                 proxy = sk_ref_sp(sk_gpu_test::GetTextureImageProxy(image.get(), dContext));
             }

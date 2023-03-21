@@ -697,7 +697,7 @@ protected:
         SkPixmap pixmap(SkImageInfo::Make({2, 2}, kBGRA_8888_SkColorType, kPremul_SkAlphaType),
                         colors,
                         /*rowBytes=*/8);
-        fShader = SkImages::RasterFromPixmapCopy(pixmap)->makeShader(
+        fShader = SkImage::MakeRasterCopy(pixmap)->makeShader(
                 SkTileMode::kClamp, SkTileMode::kClamp, SkSamplingOptions{SkFilterMode::kLinear});
     }
 

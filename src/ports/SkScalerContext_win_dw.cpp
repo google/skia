@@ -1301,7 +1301,7 @@ bool SkScalerContext_DW::drawPngGlyphImage(const SkGlyph& glyph, SkCanvas& canva
                                               glyphData.imageDataSize,
                                               &ReleaseProc,
                                               context);
-    sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(data));
+    sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(data));
     if (!image) {
         return false;
     }

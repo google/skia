@@ -56,7 +56,7 @@ protected:
             }
         }
         auto jpegData = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
-        fImage = SkImages::DeferredFromEncodedData(std::move(jpegData));
+        fImage = SkImage::MakeFromEncoded(std::move(jpegData));
     }
 
     void onDraw(SkCanvas* canvas) override {

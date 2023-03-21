@@ -20,7 +20,6 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -64,12 +63,9 @@ DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLe
                                                               ii.colorType(),
                                                               GrMipmapped(sc.isMipMapped()),
                                                               GrRenderable::kYes);
-        auto gpuImage = SkImages::BorrowTextureFrom(dContext,
-                                                    tex,
-                                                    kTopLeft_GrSurfaceOrigin,
-                                                    ii.colorType(),
-                                                    ii.alphaType(),
-                                                    ii.refColorSpace());
+        auto gpuImage = SkImage::MakeFromTexture(dContext, tex, kTopLeft_GrSurfaceOrigin,
+                                                 ii.colorType(), ii.alphaType(),
+                                                 ii.refColorSpace());
         REPORTER_ASSERT(reporter, gpuImage->isValid(dContext));
 
         // gpu image + context:

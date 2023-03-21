@@ -12,7 +12,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -176,7 +175,7 @@ GrSurfaceProxyView make_src_image(GrRecordingContext* rContext,
     surf->getCanvas()->drawLine({7.f*w/8.f, 0.f}, {7.f*h/8.f, h}, paint);
 
     auto img = surf->makeImageSnapshot();
-    auto [src, ct] = skgpu::ganesh::AsView(rContext, img, GrMipmapped::kNo);
+    auto [src, ct] = as_IB(img)->asView(rContext, GrMipmapped::kNo);
     return src;
 }
 

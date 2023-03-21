@@ -179,7 +179,7 @@ public:
                        sk_sp<GrRenderTargetProxy> newDest,
                        SkIPoint offset);
 
-    // This is public so it can be called by an SkImage factory (in SkImages namespace).
+    // This is public so it can be called by an SkImage factory (in sk_image_factory namespace).
     // It is not meant to be directly called in other situations.
     bool flush(SkSpan<GrSurfaceProxy*> proxies,
                SkSurface::BackendSurfaceAccess access,

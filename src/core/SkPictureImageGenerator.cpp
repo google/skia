@@ -12,11 +12,11 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "src/base/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 
 #if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #endif
 
@@ -50,30 +50,25 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromPicture(
-        const SkISize& size,
-        sk_sp<SkPicture> picture,
-        const SkMatrix* matrix,
-        const SkPaint* paint,
-        SkImages::BitDepth bitDepth,
-        sk_sp<SkColorSpace> colorSpace) {
+std::unique_ptr<SkImageGenerator>
+SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
+                                  const SkMatrix* matrix, const SkPaint* paint,
+                                  SkImage::BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace) {
     return SkImageGenerator::MakeFromPicture(size, picture, matrix, paint, bitDepth,
                                              colorSpace, {});
 }
 
-std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromPicture(const SkISize& size,
-                                                                    sk_sp<SkPicture> picture,
-                                                                    const SkMatrix* matrix,
-                                                                    const SkPaint* paint,
-                                                                    SkImages::BitDepth bitDepth,
-                                                                    sk_sp<SkColorSpace> colorSpace,
-                                                                    SkSurfaceProps props) {
+std::unique_ptr<SkImageGenerator>
+SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
+                                  const SkMatrix* matrix, const SkPaint* paint,
+                                  SkImage::BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace,
+                                  SkSurfaceProps props) {
     if (!picture || !colorSpace || size.isEmpty()) {
         return nullptr;
     }
 
     SkColorType colorType = kN32_SkColorType;
-    if (SkImages::BitDepth::kF16 == bitDepth) {
+    if (SkImage::BitDepth::kF16 == bitDepth) {
         colorType = kRGBA_F16_SkColorType;
     }
 
@@ -142,8 +137,7 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
     if (!image) {
         return {};
     }
-
-    auto [view, ct] = skgpu::ganesh::AsView(ctx, image, mipmapped);
+    auto [view, ct] = as_IB(image)->asView(ctx, mipmapped);
     SkASSERT(view);
     SkASSERT(mipmapped == GrMipmapped::kNo ||
              view.asTextureProxy()->mipmapped() == GrMipmapped::kYes);

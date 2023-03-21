@@ -41,6 +41,6 @@ static inline bool decode_file(const char* filename, SkBitmap* bitmap,
 
 static inline sk_sp<SkImage> decode_file(const char filename[]) {
     sk_sp<SkData> data(SkData::MakeFromFileName(filename));
-    return data ? SkImages::DeferredFromEncodedData(data) : nullptr;
+    return data ? SkImage::MakeFromEncoded(data) : nullptr;
 }
 #endif  // DecodeFile_DEFINED

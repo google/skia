@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 // HASH=4aa2879b9e44dfd6648995326d2c4dcf
-REG_FIDDLE(Image_DeferredFromPicture, 256, 256, false, 0) {
+REG_FIDDLE(Image_MakeFromPicture, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkPictureRecorder recorder;
@@ -18,8 +18,8 @@ void draw(SkCanvas* canvas) {
     for (auto alpha : { 70, 140, 210 } ) {
         paint.setAlpha(alpha);
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        sk_sp<SkImage> image = SkImages::DeferredFromPicture(
-                playback, {50, 50}, nullptr, &paint, SkImages::BitDepth::kU8, srgbColorSpace);
+        sk_sp<SkImage> image = SkImage::MakeFromPicture(playback, {50, 50}, nullptr, &paint,
+                                                        SkImage::BitDepth::kU8, srgbColorSpace);
         canvas->drawImage(image, x, y);
         x += 70; y += 70;
     }

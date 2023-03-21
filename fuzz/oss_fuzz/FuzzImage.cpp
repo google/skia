@@ -12,7 +12,7 @@
 #include "include/core/SkSurface.h"
 
 bool FuzzImageDecode(sk_sp<SkData> bytes) {
-    auto img = SkImages::DeferredFromEncodedData(bytes);
+    auto img = SkImage::MakeFromEncoded(bytes);
     if (nullptr == img.get()) {
         return false;
     }

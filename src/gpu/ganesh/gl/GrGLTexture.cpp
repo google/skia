@@ -8,7 +8,6 @@
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
@@ -154,7 +153,7 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu,
 }
 
 bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,
-                                        SkImages::BackendTextureReleaseProc* releaseProc) {
+                                        SkImage::BackendTextureReleaseProc* releaseProc) {
     *backendTexture = this->getBackendTexture();
     // Set the release proc to a no-op function. GL doesn't require any special cleanup.
     *releaseProc = [](GrBackendTexture){};

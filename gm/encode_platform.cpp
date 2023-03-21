@@ -128,9 +128,9 @@ protected:
 
         for (const auto& rec : gRecs) {
             auto fmt = rec.format; int q = rec.quality;
-            auto opaqueImage = SkImages::DeferredFromEncodedData(encode_data(fmt, opaqueBm, q));
-            auto premulImage = SkImages::DeferredFromEncodedData(encode_data(fmt, premulBm, q));
-            auto unpremulImage = SkImages::DeferredFromEncodedData(encode_data(fmt, unpremulBm, q));
+            auto opaqueImage   = SkImage::MakeFromEncoded(encode_data(fmt, opaqueBm,   q));
+            auto premulImage   = SkImage::MakeFromEncoded(encode_data(fmt, premulBm,   q));
+            auto unpremulImage = SkImage::MakeFromEncoded(encode_data(fmt, unpremulBm, q));
 
             canvas->drawImage(opaqueImage.get(), 0.0f, 0.0f);
             canvas->drawImage(premulImage.get(), 0.0f, 256.0f);

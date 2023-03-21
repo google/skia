@@ -10,15 +10,13 @@ CORE_FILES = [
     "SkImage_Base.h",
     "SkImage_Lazy.cpp",
     "SkImage_Lazy.h",
-    "SkImage_LazyFactories.cpp",
     "SkImage_Raster.cpp",
     "SkImage_Raster.h",
-    "SkImage_RasterFactories.cpp",
     "SkRescaleAndReadPixels.cpp",
     "SkRescaleAndReadPixels.h",
     "SkSurface.cpp",
-    "SkSurface_Base.cpp",
     "SkSurface_Base.h",
+    "SkSurface_Base.cpp",
     "SkSurface_Null.cpp",
     "SkSurface_Raster.cpp",
     "SkSurface_Raster.h",
@@ -30,7 +28,6 @@ split_srcs_and_hdrs(
 )
 
 GPU_FILES = [
-    "SkImage_GaneshFactories.cpp",
     "SkImage_Gpu.cpp",
     "SkImage_Gpu.h",
     "SkImage_GpuBase.cpp",
