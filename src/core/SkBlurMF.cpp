@@ -12,11 +12,14 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkVertices.h"
 #include "src/base/SkMathPriv.h"
+#include "src/core/SkBlitter_A8.h"
 #include "src/core/SkBlurMask.h"
+#include "src/core/SkDrawBase.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRRectPriv.h"
+#include "src/core/SkRasterClip.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkWriteBuffer.h"
@@ -172,8 +175,6 @@ bool SkBlurMaskFilterImpl::filterRRectMask(SkMask* dst, const SkRRect& r,
     return SkBlurMask::BlurRRect(sigma, dst, r, fBlurStyle, margin, createMode);
 }
 
-#include "include/core/SkCanvas.h"
-
 static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
     SkASSERT(mask != nullptr);
 
@@ -188,56 +189,56 @@ static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
     return true;
 }
 
-static bool draw_rrect_into_mask(const SkRRect rrect, SkMask* mask) {
-    if (!prepare_to_draw_into_mask(rrect.rect(), mask)) {
+template <typename Proc> bool draw_into_mask(SkMask* mask, const SkRect& bounds, Proc proc) {
+    if (!prepare_to_draw_into_mask(bounds, mask)) {
         return false;
     }
 
-    // FIXME: This code duplicates code in draw_rects_into_mask, below. Is there a
-    // clean way to share more code?
-    SkBitmap bitmap;
-    bitmap.installMaskPixels(*mask);
+    const int dx = mask->fBounds.fLeft;
+    const int dy = mask->fBounds.fTop;
+    SkRasterClip rclip(mask->fBounds);
+    rclip.setRect(mask->fBounds.makeOffset(-dx, -dy));
 
-    SkCanvas canvas(bitmap);
-    canvas.translate(-SkIntToScalar(mask->fBounds.left()),
-                     -SkIntToScalar(mask->fBounds.top()));
+    SkASSERT(mask->fFormat == SkMask::kA8_Format);
+    auto info = SkImageInfo::MakeA8(mask->fBounds.width(), mask->fBounds.height());
+    auto pm = SkPixmap(info, mask->fImage, mask->fRowBytes);
+
+    SkMatrix ctm = SkMatrix::Translate(-SkIntToScalar(dx), -SkIntToScalar(dy));
+
+    SkMatrixProvider matrixProvider(ctm);
+
+    SkDrawBase draw;
+    draw.fBlitterChooser = SkA8Blitter_Choose;
+    draw.fMatrixProvider = &matrixProvider;
+    draw.fDst            = pm;
+    draw.fRC             = &rclip;
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    canvas.drawRRect(rrect, paint);
+
+    proc(draw, paint);
     return true;
 }
 
 static bool draw_rects_into_mask(const SkRect rects[], int count, SkMask* mask) {
-    if (!prepare_to_draw_into_mask(rects[0], mask)) {
-        return false;
-    }
+    return draw_into_mask(mask, rects[0], [&](SkDrawBase& draw, const SkPaint& paint) {
+        if (1 == count) {
+            draw.drawRect(rects[0], paint);
+        } else {
+            // todo: do I need a fast way to do this?
+            SkPath path = SkPathBuilder().addRect(rects[0])
+                                         .addRect(rects[1])
+                                         .setFillType(SkPathFillType::kEvenOdd)
+                                         .detach();
+            draw.drawPath(path, paint);
+        }
+    });
+}
 
-    SkBitmap bitmap;
-    bitmap.installPixels(SkImageInfo::Make(mask->fBounds.width(),
-                                           mask->fBounds.height(),
-                                           kAlpha_8_SkColorType,
-                                           kPremul_SkAlphaType),
-                         mask->fImage, mask->fRowBytes);
-
-    SkCanvas canvas(bitmap);
-    canvas.translate(-SkIntToScalar(mask->fBounds.left()),
-                     -SkIntToScalar(mask->fBounds.top()));
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-
-    if (1 == count) {
-        canvas.drawRect(rects[0], paint);
-    } else {
-        // todo: do I need a fast way to do this?
-        SkPath path = SkPathBuilder().addRect(rects[0])
-                                     .addRect(rects[1])
-                                     .setFillType(SkPathFillType::kEvenOdd)
-                                     .detach();
-        canvas.drawPath(path, paint);
-    }
-    return true;
+static bool draw_rrect_into_mask(const SkRRect rrect, SkMask* mask) {
+    return draw_into_mask(mask, rrect.rect(), [&](SkDrawBase& draw, const SkPaint& paint) {
+        draw.drawRRect(rrect, paint);
+    });
 }
 
 static bool rect_exceeds(const SkRect& r, SkScalar v) {
