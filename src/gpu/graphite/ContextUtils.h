@@ -14,6 +14,10 @@
 class SkColorInfo;
 class SkM44;
 
+namespace skgpu {
+class Swizzle;
+}
+
 namespace skgpu::graphite {
 
 class DrawParams;
@@ -61,7 +65,8 @@ FragSkSLInfo GetSkSLFS(const ResourceBindingRequirements&,
                        const RuntimeEffectDictionary*,
                        const RenderStep* renderStep,
                        UniquePaintParamsID paintID,
-                       bool useStorageBuffers);
+                       bool useStorageBuffers,
+                       skgpu::Swizzle writeSwizzle);
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,

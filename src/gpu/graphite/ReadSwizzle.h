@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_ReadWriteSwizzle_DEFINED
-#define skgpu_graphite_ReadWriteSwizzle_DEFINED
+#ifndef skgpu_graphite_ReadSwizzle_DEFINED
+#define skgpu_graphite_ReadSwizzle_DEFINED
 
 namespace skgpu::graphite {
 /**
@@ -22,12 +22,6 @@ enum class ReadSwizzle {
     kBGRA
 };
 
-enum class WriteSwizzle {
-    kRGBA, // Default
-    kA000,
-    kBGRA,
-};
-
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_ReadWriteSwizzle_DEFINED
+#endif // skgpu_graphite_ReadSwizzle_DEFINED

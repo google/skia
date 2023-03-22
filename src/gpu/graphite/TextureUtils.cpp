@@ -122,7 +122,7 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
 
     Swizzle swizzle = caps->getReadSwizzle(ct, textureInfo);
     // If the color type is alpha-only, propagate the alpha value to the other channels.
-    if (colorInfo.colorType() == kAlpha_8_SkColorType) {
+    if (SkColorTypeIsAlphaOnly(colorInfo.colorType())) {
         swizzle = Swizzle::Concat(swizzle, Swizzle("aaaa"));
     }
     return {{std::move(proxy), swizzle}, ct};

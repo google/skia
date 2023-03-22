@@ -32,6 +32,10 @@
 
 class SkRuntimeEffect;
 
+namespace skgpu {
+class Swizzle;
+}
+
 namespace skgpu::graphite {
 
 class RenderStep;
@@ -165,7 +169,8 @@ public:
                        const RenderStep* step,
                        const bool useStorageBuffers,
                        const bool defineLocalCoordsVarying,
-                       int* numTexturesAndSamplersUsed) const;
+                       int* numTexturesAndSamplersUsed,
+                       Swizzle writeSwizzle) const;
 
 private:
     std::vector<PaintParamsKey::BlockReader> fBlockReaders;

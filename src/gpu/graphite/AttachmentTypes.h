@@ -12,6 +12,8 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
+#include "src/gpu/Swizzle.h"
+
 #include <array>
 
 namespace skgpu::graphite {
@@ -54,7 +56,8 @@ struct RenderPassDesc {
                                StoreOp storeOp,
                                SkEnumBitMask<DepthStencilFlags> depthStencilFlags,
                                const std::array<float, 4>& clearColor,
-                               bool requiresMSAA);
+                               bool requiresMSAA,
+                               Swizzle writeSwizzle);
 
     AttachmentDesc fColorAttachment;
     std::array<float, 4> fClearColor;
@@ -63,6 +66,8 @@ struct RenderPassDesc {
     AttachmentDesc fDepthStencilAttachment;
     float fClearDepth;
     uint32_t fClearStencil;
+
+    Swizzle fWriteSwizzle;
 
     // TODO:
     // * bounds (TBD whether exact bounds vs. granular)

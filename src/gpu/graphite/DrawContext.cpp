@@ -158,9 +158,10 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
                                     StoreOp storeOp,
                                     SkEnumBitMask<DepthStencilFlags> depthStencilFlags,
                                     const std::array<float, 4>& clearColor,
-                                    bool requiresMSAA) {
+                                    bool requiresMSAA,
+                                    Swizzle writeSwizzle) {
     RenderPassDesc desc;
-
+    desc.fWriteSwizzle = writeSwizzle;
     // It doesn't make sense to have a storeOp for our main target not be store. Why are we doing
     // this DrawPass then
     SkASSERT(storeOp == StoreOp::kStore);
@@ -221,12 +222,13 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
     auto& drawPass = fDrawPasses[0];
     const TextureInfo& targetInfo = drawPass->target()->textureInfo();
     auto [loadOp, storeOp] = drawPass->ops();
+    auto writeSwizzle = caps->getWriteSwizzle(this->colorInfo().colorType(), targetInfo);
 
     RenderPassDesc desc = RenderPassDesc::Make(caps, targetInfo, loadOp, storeOp,
                                                drawPass->depthStencilFlags(),
                                                drawPass->clearColor(),
-                                               drawPass->requiresMSAA());
-
+                                               drawPass->requiresMSAA(),
+                                               writeSwizzle);
     sk_sp<TextureProxy> targetProxy = sk_ref_sp(fDrawPasses[0]->target());
     return RenderPassTask::Make(std::move(fDrawPasses), desc, std::move(targetProxy));
 }
