@@ -734,6 +734,18 @@ void GenerateCoordClampPreamble(const ShaderInfo& shaderInfo,
                           childExpr.c_str());
 }
 
+
+//--------------------------------------------------------------------------------------------------
+static constexpr Uniform kDitherShaderUniforms[] = {
+        { "range", SkSLType::kFloat },
+};
+
+static constexpr TextureAndSampler kDitherTexturesAndSamplers[] = {
+        {"sampler"},
+};
+
+static constexpr char kDitherShaderName[] = "sk_dither_shader";
+
 //--------------------------------------------------------------------------------------------------
 static constexpr Uniform kPerlinNoiseShaderUniforms[] = {
         { "baseFrequency", SkSLType::kFloat2 },
@@ -1444,6 +1456,17 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             GenerateDefaultExpression,
             GenerateCoordClampPreamble,
             kNumCoordClampShaderChildren,
+            { }      // no data payload
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDitherShader] = {
+            "DitherShader",
+            SkSpan(kDitherShaderUniforms),
+            (SnippetRequirementFlags::kPriorStageOutput | SnippetRequirementFlags::kLocalCoords),
+            SkSpan(kDitherTexturesAndSamplers),
+            kDitherShaderName,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
+            kNoChildren,
             { }      // no data payload
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPerlinNoiseShader] = {

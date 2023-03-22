@@ -33,7 +33,8 @@ public:
                 sk_sp<SkShader>,
                 sk_sp<SkColorFilter>,
                 sk_sp<SkBlender> primitiveBlender,
-                bool skipColorXform);
+                bool skipColorXform,
+                bool dither);
     explicit PaintParams(const SkPaint&,
                          sk_sp<SkBlender> primitiveBlender,
                          bool skipColorXform);
@@ -59,6 +60,7 @@ public:
     sk_sp<SkBlender> refPrimitiveBlender() const;
 
     bool skipColorXform() const { return fSkipColorXform; }
+    bool dither() const { return fDither; }
 
     /** Converts an SkColor4f to the destination color space. */
     static SkColor4f Color4fPrepForDst(SkColor4f srgb, const SkColorInfo& dstColorInfo);
@@ -77,6 +79,7 @@ private:
     // the dest is the paint's color (or the paint's shader's computed color).
     sk_sp<SkBlender>     fPrimitiveBlender;
     bool                 fSkipColorXform;
+    bool                 fDither;
 
     // TODO: Will also store ColorFilter, dither, and any extra shader from an
     // active clipShader().

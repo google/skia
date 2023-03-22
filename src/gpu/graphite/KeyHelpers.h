@@ -207,6 +207,21 @@ struct CoordClampShaderBlock {
                            const CoordClampData*);
 };
 
+struct DitherShaderBlock {
+
+    struct DitherData {
+        DitherData(float range) : fRange(range) {}
+
+        float fRange;
+    };
+
+    // The gatherer and data should be null or non-null together
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*,
+                           const DitherData*);
+};
+
 struct PerlinNoiseShaderBlock {
 
     enum class Type {

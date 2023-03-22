@@ -14,6 +14,7 @@
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/Blend.h"
+#include "src/gpu/DitherUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -526,6 +527,54 @@ void CoordClampShaderBlock::BeginBlock(const KeyContext& keyContext,
     }
 
     builder->beginBlock(BuiltInCodeSnippetID::kCoordClampShader);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+namespace {
+
+void add_dither_uniform_data(const ShaderCodeDictionary* dict,
+                             const DitherShaderBlock::DitherData& ditherData,
+                             PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDitherShader)
+
+    gatherer->write(ditherData.fRange);
+
+    gatherer->addFlags(dict->getSnippetRequirementFlags(BuiltInCodeSnippetID::kDitherShader));
+}
+
+} // anonymous namespace
+
+void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
+                                   PaintParamsKeyBuilder* builder,
+                                   PipelineDataGatherer* gatherer,
+                                   const DitherData* ditherData) {
+    SkASSERT(!gatherer == !ditherData);
+
+    auto dict = keyContext.dict();
+    if (gatherer) {
+        static const SkBitmap gLUT = skgpu::MakeDitherLUT();
+
+        sk_sp<SkImage> image = RecorderPriv::CreateCachedImage(keyContext.recorder(), gLUT);
+        if (!image) {
+            SKGPU_LOG_W("Couldn't create dither shader's LUT");
+
+            PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+            return;
+        }
+
+        add_dither_uniform_data(dict, *ditherData, gatherer);
+
+        auto [view, _] = as_IB(image)->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
+        sk_sp<skgpu::graphite::TextureProxy> textureProxy = view.refProxy();
+
+        static constexpr SkSamplingOptions kNearest(SkFilterMode::kNearest, SkMipmapMode::kNone);
+        static constexpr SkTileMode kRepeatTiling[2] = { SkTileMode::kRepeat, SkTileMode::kRepeat };
+
+        gatherer->add(kNearest, kRepeatTiling, std::move(textureProxy));
+    }
+
+    builder->beginBlock(BuiltInCodeSnippetID::kDitherShader);
 }
 
 //--------------------------------------------------------------------------------------------------

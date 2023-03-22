@@ -69,8 +69,10 @@ float DitherRangeForConfig(SkColorType dstColorType) {
 SkBitmap MakeDitherLUT() {
     static constexpr struct DitherTable {
         constexpr DitherTable() : data() {
-            for (int x = 0; x < 8; ++x) {
-                for (int y = 0; y < 8; ++y) {
+            constexpr int kImgSize = 8; // if changed, also change value in sk_dither_shader
+
+            for (int x = 0; x < kImgSize; ++x) {
+                for (int y = 0; y < kImgSize; ++y) {
                     // The computation of 'm' and 'value' is lifted from CPU backend.
                     unsigned int m = (y & 1) << 5 | (x & 1) << 4 |
                                      (y & 2) << 2 | (x & 2) << 1 |
