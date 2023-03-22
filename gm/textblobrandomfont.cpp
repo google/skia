@@ -106,14 +106,19 @@ protected:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (!canvas->recordingContext()) {
-            *errorMsg = "Active context required to create SkSurface";
-            return DrawResult::kSkip;
+        GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
+        bool isGPU = SkToBool(dContext);
+
+#if defined(SK_GRAPHITE)
+        skgpu::graphite::Recorder* recorder = canvas->recorder();
+        isGPU = isGPU || SkToBool(recorder);
+#endif
+
+        if (!isGPU) {
+            *errorMsg = skiagm::GM::kErrorMsg_DrawSkippedGpuOnly;
+            return skiagm::DrawResult::kSkip;
         }
 
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-
-        // This GM exists to test a specific feature of the GPU backend.
         // This GM uses ToolUtils::makeSurface which doesn't work well with vias.
         // This GM uses SkRandomTypeface which doesn't work well with serialization.
         canvas->drawColor(SK_ColorWHITE);

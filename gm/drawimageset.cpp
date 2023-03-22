@@ -299,6 +299,9 @@ private:
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString*) override {
         auto direct = GrAsDirectContext(canvas->recordingContext());
+#if defined(SK_GRAPHITE)
+        auto recorder = canvas->recorder();
+#endif
         static constexpr SkColor kColors[] = {SK_ColorBLUE, SK_ColorTRANSPARENT,
                                               SK_ColorRED,  SK_ColorTRANSPARENT};
         static constexpr SkColor kBGColor = SkColorSetARGB(128, 128, 128, 128);
@@ -312,9 +315,16 @@ private:
                 int i = y * kM + x;
                 fSet[i].fAlpha = (kM - x) / (float) kM;
                 if (y % 2 == 0) {
-                    // TODO: allow making Graphite images here
-                    fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
-                            kAlpha_8_SkColorType, alphaSpace, direct);
+#if defined(SK_GRAPHITE)
+                    if (recorder) {
+                        fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
+                                kAlpha_8_SkColorType, alphaSpace, recorder);
+                    } else
+#endif
+                    {
+                        fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
+                                kAlpha_8_SkColorType, alphaSpace, direct);
+                    }
                 }
             }
         }
