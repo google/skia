@@ -56,7 +56,7 @@ using namespace sktext::gpu;
 using namespace skglyph;
 
 // TODO: remove when new serialization code is done.
-#define SK_SUPPORT_LEGACY_STRIKE_SERIALIZATION
+//#define SK_SUPPORT_LEGACY_STRIKE_SERIALIZATION
 
 namespace {
 #if defined(SK_SUPPORT_LEGACY_STRIKE_SERIALIZATION)
