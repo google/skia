@@ -347,12 +347,16 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         const SkIRect pathBounds = path.getBounds().roundOut();
 
         this->setEmpty();
-        for (int top = clipBounds.fTop; top < clipBounds.fBottom; top += kTileSize) {
-            int bot = std::min(top + kTileSize, clipBounds.fBottom);
-            for (int left = clipBounds.fLeft; left < clipBounds.fRight; left += kTileSize) {
-                int right = std::min(left + kTileSize, clipBounds.fRight);
 
-                SkIRect tileClipBounds = {left, top, right, bot};
+        // Note: With large integers some intermediate calculations can overflow, but the
+        // end results will still be in integer range. Using int64_t for the intermediate
+        // values will handle this situation.
+        for (int64_t top = clipBounds.fTop; top < clipBounds.fBottom; top += kTileSize) {
+            int64_t bot = std::min(top + kTileSize, (int64_t)clipBounds.fBottom);
+            for (int64_t left = clipBounds.fLeft; left < clipBounds.fRight; left += kTileSize) {
+                int64_t right = std::min(left + kTileSize, (int64_t)clipBounds.fRight);
+
+                SkIRect tileClipBounds = {(int)left, (int)top, (int)right, (int)bot};
                 if (!SkIRect::Intersects(pathBounds, tileClipBounds)) {
                     continue;
                 }
