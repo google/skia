@@ -62,6 +62,8 @@ struct SkBitmapProcState;
 struct SkRasterPipelineStage;
 namespace skvm {
 struct InterpreterInstruction;
+}
+namespace SkSL {
 class TraceHook;
 }
 
@@ -130,7 +132,7 @@ namespace SkOpts {
 
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
                                   int nregs, int loop, const int strides[],
-                                  skvm::TraceHook* traceHooks[], int nTraceHooks,
+                                  SkSL::TraceHook* traceHooks[], int nTraceHooks,
                                   int nargs, int n, void* args[]);
 }  // namespace SkOpts
 

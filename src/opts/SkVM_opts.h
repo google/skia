@@ -6,6 +6,7 @@
 
 #include "src/base/SkVx.h"
 #include "src/core/SkVM.h"
+#include "src/sksl/tracing/SkSLTraceHook.h"
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #include <immintrin.h>
 #endif
@@ -53,7 +54,7 @@ namespace SkVMInterpreterTypes {
     inline void interpret_skvm(const skvm::InterpreterInstruction insts[], const int ninsts,
                                const int nregs, const int loop,
                                const int strides[],
-                               skvm::TraceHook* traceHooks[], const int nTraceHooks,
+                               SkSL::TraceHook* traceHooks[], const int nTraceHooks,
                                const int nargs, int n, void* args[]) {
         using namespace skvm;
 
