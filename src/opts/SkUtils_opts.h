@@ -16,15 +16,20 @@ namespace SK_OPTS_NS {
     template <typename T>
     static void memsetT(T buffer[], T value, int count) {
     #if defined(SK_CPU_SSE_LEVEL) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
-        static const int N = 32 / sizeof(T);
+        static constexpr int N = 32 / sizeof(T);
     #else
-        static const int N = 16 / sizeof(T);
+        static constexpr int N = 16 / sizeof(T);
     #endif
+        static_assert(N > 0, "T is too big for memsetT");
+        // Create an N-wide version of value
+        skvx::Vec<N,T> wideValue(value);
         while (count >= N) {
-            skvx::Vec<N,T>(value).store(buffer);
+            // N at a time, copy the values into the destination buffer
+            wideValue.store(buffer);
             buffer += N;
             count  -= N;
         }
+        // If count was not an even multiple of N, take care of the last few.
         while (count --> 0) {
             *buffer++ = value;
         }
