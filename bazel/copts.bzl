@@ -154,6 +154,13 @@ WARNINGS = [
         "-Wno-unused-const-variable",
     ],
     "//conditions:default": [],
+}) + select({
+    "@platforms//os:windows": [
+        # skbug.com/14203
+        "-Wno-nonportable-system-include-path",
+        "-Wno-unknown-argument",
+    ],
+    "//conditions:default": [],
 })
 
 DEFAULT_COPTS = CORE_COPTS + OPT_LEVEL + WARNINGS
