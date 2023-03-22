@@ -13,10 +13,11 @@ exports_files_legacy()
 IWYU_HDRS = [
     "SkASAN.h",
     "SkArenaAllocList.h",
+    "SkEndian.h",
     "SkLeanWindows.h",
-    "SkScopeExit.h",
-    "SkRandom.h",
     "SkMSAN.h",
+    "SkRandom.h",
+    "SkScopeExit.h",
     "SkStringView.h",
     "SkTBlockList.h",
     "SkTDPQueue.h",

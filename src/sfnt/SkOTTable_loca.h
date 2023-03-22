@@ -8,7 +8,7 @@
 #ifndef SkOTTable_loca_DEFINED
 #define SkOTTable_loca_DEFINED
 
-#include "src/core/SkEndian.h"
+#include "src/base/SkEndian.h"
 #include "src/sfnt/SkOTTableTypes.h"
 
 #pragma pack(push, 1)

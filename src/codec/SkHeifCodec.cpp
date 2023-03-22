@@ -13,9 +13,9 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkEndian.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkHeifCodec.h"
-#include "src/core/SkEndian.h"
 
 #define FOURCC(c1, c2, c3, c4) \
     ((c1) << 24 | (c2) << 16 | (c3) << 8 | (c4))

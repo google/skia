@@ -15,8 +15,8 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/base/SkEndian.h"
 #include "src/base/SkUtils.h"
-#include "src/core/SkEndian.h"
 #include "src/core/SkICCPriv.h"
 #include "src/core/SkMD5.h"
 

@@ -8,7 +8,7 @@
 #ifndef SkOTTable_hhea_DEFINED
 #define SkOTTable_hhea_DEFINED
 
-#include "src/core/SkEndian.h"
+#include "src/base/SkEndian.h"
 #include "src/sfnt/SkOTTableTypes.h"
 
 #pragma pack(push, 1)

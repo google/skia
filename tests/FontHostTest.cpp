@@ -18,7 +18,7 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/core/SkEndian.h"
+#include "src/base/SkEndian.h"
 #include "src/core/SkFontStream.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"

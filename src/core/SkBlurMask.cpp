@@ -12,8 +12,8 @@
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkEndian.h"
 #include "src/base/SkMathPriv.h"
-#include "src/core/SkEndian.h"
 #include "src/core/SkMaskBlurFilter.h"
 
 using namespace skia_private;

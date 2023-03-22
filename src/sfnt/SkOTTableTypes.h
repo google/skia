@@ -9,7 +9,7 @@
 #define SkOTTableTypes_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "src/core/SkEndian.h"
+#include "src/base/SkEndian.h"
 
 //All SK_OT_ prefixed types should be considered as big endian.
 typedef uint8_t SK_OT_BYTE;

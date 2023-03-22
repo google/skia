@@ -9,7 +9,7 @@
 #define SkOTTable_name_DEFINED
 
 #include "include/core/SkString.h"
-#include "src/core/SkEndian.h"
+#include "src/base/SkEndian.h"
 #include "src/sfnt/SkOTTableTypes.h"
 
 #pragma pack(push, 1)
