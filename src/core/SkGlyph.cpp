@@ -338,6 +338,10 @@ size_t SkGlyph::addPathFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
 
     size_t memoryIncrease = 0;
     const bool hasPath = buffer.readBool();
+    // Check if the buffer is invalid, so as to not make a logical decision on invalid data.
+    if (!buffer.isValid()) {
+        return 0;
+    }
     if (hasPath) {
         const bool pathIsHairline = buffer.readBool();
         SkPath path;

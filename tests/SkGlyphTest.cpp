@@ -216,25 +216,46 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
     const SkPath* dstPath = dstGlyph->path();
     REPORTER_ASSERT(reporter, *dstPath == srcPath);
 
-    // Add good metrics, but mess up path data
-    SkBinaryWriteBuffer badWriteBuffer;
-    srcGlyph.flattenMetrics(badWriteBuffer);
-    badWriteBuffer.writeInt(7);
-    badWriteBuffer.writeInt(8);
+    {
+        // Add good metrics, but mess up path data
+        SkBinaryWriteBuffer badWriteBuffer;
+        srcGlyph.flattenMetrics(badWriteBuffer);
+        // Force a false value to be read in addPathFromBuffer for hasPath.
+        badWriteBuffer.writeInt(8);
+        badWriteBuffer.writeInt(9);
 
-    data = badWriteBuffer.snapshotAsData();
+        data = badWriteBuffer.snapshotAsData();
 
-    SkReadBuffer badReadBuffer{data->data(), data->size()};
-    dstGlyph = SkGlyph::MakeFromBuffer(badReadBuffer);
-    REPORTER_ASSERT(reporter, badReadBuffer.isValid());  // Reading glyph metrics is okay.
-    REPORTER_ASSERT(reporter, dstGlyph.has_value());
-    REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
-    REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
-    REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
+        SkReadBuffer badReadBuffer{data->data(), data->size()};
+        dstGlyph = SkGlyph::MakeFromBuffer(badReadBuffer);
+        REPORTER_ASSERT(reporter, dstGlyph.has_value());
+        REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
+        REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
+        REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
 
-    dstGlyph->addPathFromBuffer(badReadBuffer, &alloc);
-    REPORTER_ASSERT(reporter, !badReadBuffer.isValid());
-    REPORTER_ASSERT(reporter, !dstGlyph->setPathHasBeenCalled());
+        dstGlyph->addPathFromBuffer(badReadBuffer, &alloc);
+        REPORTER_ASSERT(reporter, !badReadBuffer.isValid());
+        REPORTER_ASSERT(reporter, !dstGlyph->setPathHasBeenCalled());
+    }
+    {
+        // Add good metrics, but no path data.
+        SkBinaryWriteBuffer badWriteBuffer;
+        srcGlyph.flattenMetrics(badWriteBuffer);
+
+        data = badWriteBuffer.snapshotAsData();
+
+        SkReadBuffer badReadBuffer{data->data(), data->size()};
+        dstGlyph = SkGlyph::MakeFromBuffer(badReadBuffer);
+        REPORTER_ASSERT(reporter, badReadBuffer.isValid());  // Reading glyph metrics is okay.
+        REPORTER_ASSERT(reporter, dstGlyph.has_value());
+        REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
+        REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
+        REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
+
+        dstGlyph->addPathFromBuffer(badReadBuffer, &alloc);
+        REPORTER_ASSERT(reporter, !badReadBuffer.isValid());
+        REPORTER_ASSERT(reporter, !dstGlyph->setPathHasBeenCalled());
+    }
 }
 
 DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
