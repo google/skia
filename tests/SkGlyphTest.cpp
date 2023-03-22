@@ -90,6 +90,7 @@ DEF_TEST(SkGlyph_SendMetrics, reporter) {
 
         SkReadBuffer readBuffer{data->data(), data->size()};
         std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
+        REPORTER_ASSERT(reporter, readBuffer.isValid());
         REPORTER_ASSERT(reporter, dstGlyph.has_value());
         REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
         REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
@@ -106,6 +107,7 @@ DEF_TEST(SkGlyph_SendMetrics, reporter) {
 
         SkReadBuffer readBuffer{data->data(), data->size()};
         std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
+        REPORTER_ASSERT(reporter, readBuffer.isValid());
         REPORTER_ASSERT(reporter, dstGlyph.has_value());
         REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
         REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
@@ -115,6 +117,7 @@ DEF_TEST(SkGlyph_SendMetrics, reporter) {
     uint8_t badData[] = {1, 2, 3, 4, 5, 6, 7, 8};
     SkReadBuffer badBuffer{badData, std::size(badData)};
     std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(badBuffer);
+    REPORTER_ASSERT(reporter, !badBuffer.isValid());
     REPORTER_ASSERT(reporter, !dstGlyph.has_value());
 }
 
@@ -147,12 +150,14 @@ DEF_TEST(SkGlyph_SendWithImage, reporter) {
 
     SkReadBuffer readBuffer{data->data(), data->size()};
     std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
+    REPORTER_ASSERT(reporter, readBuffer.isValid());
     REPORTER_ASSERT(reporter, dstGlyph.has_value());
     REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
     REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
     REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
 
     dstGlyph->addImageFromBuffer(readBuffer, &alloc);
+    REPORTER_ASSERT(reporter, readBuffer.isValid());
     uint8_t* dstImage = (uint8_t*)dstGlyph->image();
     for (int y = 0; y < dstGlyph->height(); ++y) {
         for (int x = 0; x < dstGlyph->width(); ++x) {
@@ -170,6 +175,7 @@ DEF_TEST(SkGlyph_SendWithImage, reporter) {
 
     SkReadBuffer badReadBuffer{data->data(), data->size()};
     dstGlyph = SkGlyph::MakeFromBuffer(badReadBuffer);
+    REPORTER_ASSERT(reporter, badReadBuffer.isValid());  // Reading glyph metrics is okay.
     REPORTER_ASSERT(reporter, dstGlyph.has_value());
     REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
     REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
@@ -198,12 +204,14 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
 
     SkReadBuffer readBuffer{data->data(), data->size()};
     std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
+    REPORTER_ASSERT(reporter, readBuffer.isValid());
     REPORTER_ASSERT(reporter, dstGlyph.has_value());
     REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
     REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
     REPORTER_ASSERT(reporter, srcGlyph.maskFormat() == dstGlyph->maskFormat());
 
     dstGlyph->addPathFromBuffer(readBuffer, &alloc);
+    REPORTER_ASSERT(reporter, readBuffer.isValid());
     REPORTER_ASSERT(reporter, dstGlyph->setPathHasBeenCalled());
     const SkPath* dstPath = dstGlyph->path();
     REPORTER_ASSERT(reporter, *dstPath == srcPath);
@@ -218,6 +226,7 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
 
     SkReadBuffer badReadBuffer{data->data(), data->size()};
     dstGlyph = SkGlyph::MakeFromBuffer(badReadBuffer);
+    REPORTER_ASSERT(reporter, badReadBuffer.isValid());  // Reading glyph metrics is okay.
     REPORTER_ASSERT(reporter, dstGlyph.has_value());
     REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
     REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
@@ -260,6 +269,7 @@ DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
 
     SkReadBuffer readBuffer{data->data(), data->size()};
     std::optional<SkGlyph> dstGlyph = SkGlyph::MakeFromBuffer(readBuffer);
+    REPORTER_ASSERT(reporter, readBuffer.isValid());
     REPORTER_ASSERT(reporter, dstGlyph.has_value());
     REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
     REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
@@ -281,6 +291,7 @@ DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
 
     SkReadBuffer badReadBuffer{data->data(), data->size()};
     dstGlyph = SkGlyph::MakeFromBuffer(badReadBuffer);
+    REPORTER_ASSERT(reporter, badReadBuffer.isValid());  // Reading glyph metrics is okay.
     REPORTER_ASSERT(reporter, dstGlyph.has_value());
     REPORTER_ASSERT(reporter, srcGlyph.advanceVector() == dstGlyph->advanceVector());
     REPORTER_ASSERT(reporter, srcGlyph.rect() == dstGlyph->rect());
