@@ -30,9 +30,6 @@ class GrBackendSemaphore;
 struct GrContextOptions;
 class GrDirectContext;
 class GrGLContext;
-class GrPath;
-class GrPathRenderer;
-class GrPathRendererChain;
 class GrPipeline;
 class GrGeometryProcessor;
 class GrRenderTarget;
@@ -886,7 +883,6 @@ private:
     int fCurrentSubmitRenderPassCount = 0;
 #endif
 
-    friend class GrPathRendering;
     using INHERITED = SkRefCnt;
 };
 

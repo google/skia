@@ -41,7 +41,7 @@ public:
 
     TestImageGenerator(TestType type, skiatest::Reporter* reporter,
                        SkColorType colorType = kN32_SkColorType)
-    : INHERITED(GetMyInfo(colorType)), fType(type), fReporter(reporter) {
+    : SkImageGenerator(GetMyInfo(colorType)), fType(type), fReporter(reporter) {
         SkASSERT((fType <= kLast_TestType) && (fType >= 0));
     }
     ~TestImageGenerator() override {}
@@ -87,8 +87,6 @@ protected:
 private:
     const TestType fType;
     skiatest::Reporter* const fReporter;
-
-    using INHERITED = SkImageGenerator;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

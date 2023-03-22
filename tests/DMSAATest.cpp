@@ -27,6 +27,7 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
