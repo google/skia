@@ -3736,6 +3736,7 @@ STAGE_TAIL(acos_float, F* dst) { *dst = acos_(*dst); }
 STAGE_TAIL(atan_float, F* dst) { *dst = atan_(*dst); }
 STAGE_TAIL(sqrt_float, F* dst) { *dst = sqrt_(*dst); }
 STAGE_TAIL(exp_float, F* dst)  { *dst = approx_exp(*dst); }
+STAGE_TAIL(exp2_float, F* dst) { *dst = approx_pow2(*dst); }
 STAGE_TAIL(log_float, F* dst)  { *dst = approx_log(*dst); }
 STAGE_TAIL(log2_float, F* dst) { *dst = approx_log2(*dst); }
 

@@ -2558,6 +2558,9 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
         case IntrinsicKind::k_exp_IntrinsicKind:
             return this->pushIntrinsic(BuilderOp::exp_float, arg0);
 
+        case IntrinsicKind::k_exp2_IntrinsicKind:
+            return this->pushIntrinsic(BuilderOp::exp2_float, arg0);
+
         case IntrinsicKind::k_floor_IntrinsicKind:
             return this->pushIntrinsic(BuilderOp::floor_float, arg0);
 
