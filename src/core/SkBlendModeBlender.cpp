@@ -106,7 +106,7 @@ std::unique_ptr<GrFragmentProcessor> SkBlendModeBlender::asFragmentProcessor(
 }
 #endif
 
-bool SkBlendModeBlender::appendStages(const SkStageRec& rec) const {
+bool SkBlendModeBlender::onAppendStages(const SkStageRec& rec) const {
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }

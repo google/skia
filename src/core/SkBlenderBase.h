@@ -40,8 +40,12 @@ public:
      */
     virtual std::optional<SkBlendMode> asBlendMode() const { return {}; }
 
+    SK_WARN_UNUSED_RESULT bool appendStages(const SkStageRec& rec) const {
+        return this->onAppendStages(rec);
+    }
+
     SK_WARN_UNUSED_RESULT
-    virtual bool appendStages(const SkStageRec& rec) const = 0;
+    virtual bool onAppendStages(const SkStageRec& rec) const = 0;
 
     /** Creates the blend program in SkVM. */
     SK_WARN_UNUSED_RESULT

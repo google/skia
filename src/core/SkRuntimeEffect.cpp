@@ -1630,7 +1630,7 @@ public:
 
     SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }
 
-    bool appendStages(const SkStageRec& rec) const override {
+    bool onAppendStages(const SkStageRec& rec) const override {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
         if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
             // SkRP has support for many parts of #version 300 already, but for now, we restrict its
