@@ -127,5 +127,5 @@ if need_rewriting:
   for path in need_rewriting:
     print('\t' + path)
   print('To do this automatically, run')
-  print('python tools/rewrite_includes.py ' + ' '.join(need_rewriting))
+  print('python3 tools/rewrite_includes.py ' + ' '.join(need_rewriting))
   sys.exit(1)
