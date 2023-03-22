@@ -151,17 +151,17 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
 
     if (!fTraceInfo.empty()) {
         std::string indent = "";
-        for (const SkSL::SkVMTraceInfo& traceInfo : fTraceInfo) {
+        for (const SkSL::TraceInfo& traceInfo : fTraceInfo) {
             int data0 = traceInfo.data[0];
             int data1 = traceInfo.data[1];
             switch (traceInfo.op) {
-                case SkSL::SkVMTraceInfo::Op::kLine:
+                case SkSL::TraceInfo::Op::kLine:
                     o->writeText(indent.c_str());
                     o->writeText("line ");
                     o->writeDecAsText(data0);
                     break;
 
-                case SkSL::SkVMTraceInfo::Op::kVar: {
+                case SkSL::TraceInfo::Op::kVar: {
                     const SlotDebugInfo& slot = fSlotInfo[data0];
                     o->writeText(indent.c_str());
                     o->writeText(slot.name.c_str());
@@ -170,21 +170,21 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
                     o->writeText(this->getSlotValue(data0, data1).c_str());
                     break;
                 }
-                case SkSL::SkVMTraceInfo::Op::kEnter:
+                case SkSL::TraceInfo::Op::kEnter:
                     o->writeText(indent.c_str());
                     o->writeText("enter ");
                     o->writeText(fFuncInfo[data0].name.c_str());
                     indent += "  ";
                     break;
 
-                case SkSL::SkVMTraceInfo::Op::kExit:
+                case SkSL::TraceInfo::Op::kExit:
                     indent.resize(indent.size() - 2);
                     o->writeText(indent.c_str());
                     o->writeText("exit ");
                     o->writeText(fFuncInfo[data0].name.c_str());
                     break;
 
-                case SkSL::SkVMTraceInfo::Op::kScope:
+                case SkSL::TraceInfo::Op::kScope:
                     for (int delta = data0; delta < 0; ++delta) {
                         indent.pop_back();
                     }
@@ -250,7 +250,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
     json.beginArray("trace");
 
     for (size_t index = 0; index < fTraceInfo.size(); ++index) {
-        const SkVMTraceInfo& trace = fTraceInfo[index];
+        const TraceInfo& trace = fTraceInfo[index];
         json.beginArray();
         json.appendS32((int)trace.op);
 
@@ -366,8 +366,8 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
     fTraceInfo.clear();
     fTraceInfo.reserve(trace->size());
     for (const skjson::ArrayValue* element : *trace) {
-        fTraceInfo.push_back(SkVMTraceInfo{});
-        SkVMTraceInfo& info = fTraceInfo.back();
+        fTraceInfo.push_back(TraceInfo{});
+        TraceInfo& info = fTraceInfo.back();
 
         if (!element || element->size() < 1 || element->size() > (1 + std::size(info.data))) {
             return false;
@@ -376,7 +376,7 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
         if (!opVal) {
             return false;
         }
-        info.op = (SkVMTraceInfo::Op)(int)**opVal;
+        info.op = (TraceInfo::Op)(int)**opVal;
         for (size_t elemIdx = 1; elemIdx < element->size(); ++elemIdx) {
             const skjson::NumberValue* dataVal = (*element)[elemIdx];
             if (!dataVal) {

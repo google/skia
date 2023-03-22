@@ -90,23 +90,23 @@ namespace {
         }
 
         void line(int lineNum) override {
-            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kLine,
+            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kLine,
                                           /*data=*/{lineNum, 0}});
         }
         void var(int slot, int32_t val) override {
-            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kVar,
+            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kVar,
                                           /*data=*/{slot, val}});
         }
         void enter(int fnIdx) override {
-            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kEnter,
+            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kEnter,
                                           /*data=*/{fnIdx, 0}});
         }
         void exit(int fnIdx) override {
-            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kExit,
+            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kExit,
                                           /*data=*/{fnIdx, 0}});
         }
         void scope(int delta) override {
-            fTrace->fTraceInfo.push_back({SkSL::SkVMTraceInfo::Op::kScope,
+            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kScope,
                                           /*data=*/{delta, 0}});
         }
 

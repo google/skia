@@ -15,6 +15,18 @@
 
 namespace SkSL {
 
+struct TraceInfo {
+    enum class Op {
+        kLine,  /** data: line number, (unused) */
+        kVar,   /** data: slot, value */
+        kEnter, /** data: function index, (unused) */
+        kExit,  /** data: function index, (unused) */
+        kScope, /** data: scope delta, (unused) */
+    };
+    Op op;
+    int32_t data[2];
+};
+
 struct SlotDebugInfo {
     /** The full name of this variable (without component), e.g. `myArray[3].myStruct.myVector` */
     std::string             name;

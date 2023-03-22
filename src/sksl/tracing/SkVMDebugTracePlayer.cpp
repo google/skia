@@ -37,8 +37,8 @@ void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
             }
         }
 
-        for (const SkVMTraceInfo& trace : fDebugTrace->fTraceInfo) {
-            if (trace.op == SkVMTraceInfo::Op::kLine) {
+        for (const TraceInfo& trace : fDebugTrace->fTraceInfo) {
+            if (trace.op == TraceInfo::Op::kLine) {
                 fLineNumbers[trace.data[0]] += 1;
             }
         }
@@ -214,9 +214,9 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
         return true;
     }
 
-    const SkVMTraceInfo& trace = fDebugTrace->fTraceInfo[position];
+    const TraceInfo& trace = fDebugTrace->fTraceInfo[position];
     switch (trace.op) {
-        case SkVMTraceInfo::Op::kLine: { // data: line number, (unused)
+        case TraceInfo::Op::kLine: { // data: line number, (unused)
             SkASSERT(!fStack.empty());
             int lineNumber = trace.data[0];
             SkASSERT(lineNumber >= 0);
@@ -226,7 +226,7 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
             fLineNumbers[lineNumber] -= 1;
             return true;
         }
-        case SkVMTraceInfo::Op::kVar: {  // data: slot, value
+        case TraceInfo::Op::kVar: {  // data: slot, value
             int slotIdx = trace.data[0];
             int value = trace.data[1];
             SkASSERT(slotIdx >= 0);
@@ -247,7 +247,7 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
             fDirtyMask->set(slotIdx);
             break;
         }
-        case SkVMTraceInfo::Op::kEnter: { // data: function index, (unused)
+        case TraceInfo::Op::kEnter: { // data: function index, (unused)
             int fnIdx = trace.data[0];
             SkASSERT(fnIdx >= 0);
             SkASSERT((size_t)fnIdx < fDebugTrace->fFuncInfo.size());
@@ -256,13 +256,13 @@ bool SkVMDebugTracePlayer::execute(size_t position) {
                               /*fDisplayMask=*/SkBitSet(fDebugTrace->fSlotInfo.size())});
             break;
         }
-        case SkVMTraceInfo::Op::kExit: { // data: function index, (unused)
+        case TraceInfo::Op::kExit: { // data: function index, (unused)
             SkASSERT(!fStack.empty());
             SkASSERT(fStack.back().fFunction == trace.data[0]);
             fStack.pop_back();
             return true;
         }
-        case SkVMTraceInfo::Op::kScope: { // data: scope delta, (unused)
+        case TraceInfo::Op::kScope: { // data: scope delta, (unused)
             SkASSERT(!fStack.empty());
             fScope += trace.data[0];
             if (trace.data[0] < 0) {

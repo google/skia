@@ -59,10 +59,10 @@ DEF_TEST(SkVMDebugTraceWrite, r) {
         {"void testFunc();"},
     };
     i.fTraceInfo = {
-        {SkSL::SkVMTraceInfo::Op::kEnter, {0, 0}},
-        {SkSL::SkVMTraceInfo::Op::kLine,  {5, 0}},
-        {SkSL::SkVMTraceInfo::Op::kVar,   {10, 15}},
-        {SkSL::SkVMTraceInfo::Op::kExit,  {20, 0}},
+        {SkSL::TraceInfo::Op::kEnter, {0, 0}},
+        {SkSL::TraceInfo::Op::kLine,  {5, 0}},
+        {SkSL::TraceInfo::Op::kVar,   {10, 15}},
+        {SkSL::TraceInfo::Op::kExit,  {20, 0}},
     };
     SkDynamicMemoryWStream wstream;
     i.writeTrace(&wstream);
@@ -123,19 +123,19 @@ DEF_TEST(SkVMDebugTraceRead, r) {
 
     REPORTER_ASSERT(r, i.fFuncInfo[0].name == "void testFunc();");
 
-    REPORTER_ASSERT(r, i.fTraceInfo[0].op == SkSL::SkVMTraceInfo::Op::kEnter);
+    REPORTER_ASSERT(r, i.fTraceInfo[0].op == SkSL::TraceInfo::Op::kEnter);
     REPORTER_ASSERT(r, i.fTraceInfo[0].data[0] == 0);
     REPORTER_ASSERT(r, i.fTraceInfo[0].data[1] == 0);
 
-    REPORTER_ASSERT(r, i.fTraceInfo[1].op == SkSL::SkVMTraceInfo::Op::kLine);
+    REPORTER_ASSERT(r, i.fTraceInfo[1].op == SkSL::TraceInfo::Op::kLine);
     REPORTER_ASSERT(r, i.fTraceInfo[1].data[0] == 5);
     REPORTER_ASSERT(r, i.fTraceInfo[1].data[1] == 0);
 
-    REPORTER_ASSERT(r, i.fTraceInfo[2].op == SkSL::SkVMTraceInfo::Op::kVar);
+    REPORTER_ASSERT(r, i.fTraceInfo[2].op == SkSL::TraceInfo::Op::kVar);
     REPORTER_ASSERT(r, i.fTraceInfo[2].data[0] == 10);
     REPORTER_ASSERT(r, i.fTraceInfo[2].data[1] == 15);
 
-    REPORTER_ASSERT(r, i.fTraceInfo[3].op == SkSL::SkVMTraceInfo::Op::kExit);
+    REPORTER_ASSERT(r, i.fTraceInfo[3].op == SkSL::TraceInfo::Op::kExit);
     REPORTER_ASSERT(r, i.fTraceInfo[3].data[0] == 20);
     REPORTER_ASSERT(r, i.fTraceInfo[3].data[1] == 0);
 }
