@@ -7,6 +7,7 @@
 
 #include "include/gpu/graphite/Recording.h"
 
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Log.h"
@@ -25,13 +26,18 @@ namespace skgpu::graphite {
 Recording::Recording(std::unique_ptr<TaskGraph> graph,
                      std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
                      std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
-                     std::unique_ptr<LazyProxyData> targetProxyData)
+                     std::unique_ptr<LazyProxyData> targetProxyData,
+                     SkTArray<sk_sp<RefCntedCallback>>&& finishedProcs)
         : fGraph(std::move(graph))
         , fNonVolatileLazyProxies(std::move(nonVolatileLazyProxies))
         , fVolatileLazyProxies(std::move(volatileLazyProxies))
-        , fTargetProxyData(std::move(targetProxyData)) {}
+        , fTargetProxyData(std::move(targetProxyData))
+        , fFinishedProcs(std::move(finishedProcs)) {}
 
-Recording::~Recording() {}
+Recording::~Recording() {
+    // Any finished procs that haven't been passed to a CommandBuffer fail
+    this->priv().setFailureResultForFinishedProcs();
+}
 
 #if GRAPHITE_TEST_UTILS
 bool Recording::isTargetProxyInstantiated() const {
@@ -86,6 +92,13 @@ void RecordingPriv::deinstantiateVolatileLazyProxies() {
     }
 }
 
+void RecordingPriv::setFailureResultForFinishedProcs() {
+    for (int i = 0; i < fRecording->fFinishedProcs.size(); ++i) {
+        fRecording->fFinishedProcs[i]->setFailureResult();
+    }
+    fRecording->fFinishedProcs.clear();
+}
+
 #if GRAPHITE_TEST_UTILS
 int RecordingPriv::numVolatilePromiseImages() const {
     return fRecording->fVolatileLazyProxies.size();
@@ -133,6 +146,11 @@ bool RecordingPriv::addCommands(Context* context,
     for (size_t i = 0; i < fRecording->fExtraResourceRefs.size(); ++i) {
         commandBuffer->trackResource(fRecording->fExtraResourceRefs[i]);
     }
+    for (int i = 0; i < fRecording->fFinishedProcs.size(); ++i) {
+        commandBuffer->addFinishedProc(std::move(fRecording->fFinishedProcs[i]));
+    }
+    fRecording->fFinishedProcs.clear();
+
     return true;
 }
 

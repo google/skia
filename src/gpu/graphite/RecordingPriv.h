@@ -25,6 +25,8 @@ public:
     bool hasNonVolatileLazyProxies() const;
     bool instantiateNonVolatileLazyProxies(ResourceProvider*);
 
+    void setFailureResultForFinishedProcs();
+
 #if GRAPHITE_TEST_UTILS
     int numVolatilePromiseImages() const;
     int numNonVolatilePromiseImages() const;

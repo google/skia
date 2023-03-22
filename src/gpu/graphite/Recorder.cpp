@@ -16,6 +16,7 @@
 
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/AtlasTypes.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -109,6 +110,10 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
 
 Recorder::~Recorder() {
     ASSERT_SINGLE_OWNER
+    // Any finished procs that haven't been passed to a Recording fail
+    for (int i = 0; i < fFinishedProcs.size(); ++i) {
+        fFinishedProcs[i]->setFailureResult();
+    }
     for (auto& device : fTrackedDevices) {
         device->abandonRecorder();
     }
@@ -170,7 +175,8 @@ std::unique_ptr<Recording> Recorder::snap() {
     std::unique_ptr<Recording> recording(new Recording(std::move(fGraph),
                                                        std::move(nonVolatileLazyProxies),
                                                        std::move(volatileLazyProxies),
-                                                       std::move(targetProxyData)));
+                                                       std::move(targetProxyData),
+                                                       std::move(fFinishedProcs)));
 
     fDrawBufferManager->transferToRecording(recording.get());
     fUploadBufferManager->transferToRecording(recording.get());
@@ -322,6 +328,14 @@ void Recorder::deleteBackendTexture(BackendTexture& texture) {
         return;
     }
     fResourceProvider->deleteBackendTexture(texture);
+}
+
+void Recorder::addFinishInfo(const InsertFinishInfo& info) {
+    if (info.fFinishedProc) {
+        sk_sp<RefCntedCallback> callback =
+                RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
+        fFinishedProcs.push_back(std::move(callback));
+    }
 }
 
 void RecorderPriv::add(sk_sp<Task> task) {

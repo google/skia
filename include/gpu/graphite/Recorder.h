@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/private/base/SingleOwner.h"
+#include "include/private/base/SkTArray.h"
 
 #include <vector>
 
@@ -21,6 +22,7 @@ struct SkImageInfo;
 class SkPixmap;
 
 namespace skgpu {
+class RefCntedCallback;
 class TokenTracker;
 }
 
@@ -119,6 +121,12 @@ public:
      */
     void deleteBackendTexture(BackendTexture&);
 
+    // Adds a proc that will be moved to the Recording upon snap, subsequently attached to the
+    // CommandBuffer when the Recording is added, and called when that CommandBuffer is submitted
+    // and finishes. If the Recorder or Recording is deleted before the proc is added to the
+    // CommandBuffer, it will be called with result Failure.
+    void addFinishInfo(const InsertFinishInfo&);
+
     // Returns a canvas that will record to a proxy surface, which must be instantiated on replay.
     // This can only be called once per Recording; subsequent calls will return null until a
     // Recording is snapped. Additionally, the returned SkCanvas is only valid until the next
@@ -190,6 +198,8 @@ private:
     sk_sp<Device> fTargetProxyDevice;
     std::unique_ptr<SkCanvas> fTargetProxyCanvas;
     std::unique_ptr<Recording::LazyProxyData> fTargetProxyData;
+
+    SkTArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 
 #if GRAPHITE_TEST_UTILS
     // For testing use only -- the Context used to create this Recorder

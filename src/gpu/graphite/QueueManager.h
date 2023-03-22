@@ -35,7 +35,7 @@ public:
     // Adds the commands from the passed in Task to the current CommandBuffer
     bool SK_WARN_UNUSED_RESULT addTask(Task*, Context*);
 
-    // Adds the commands from the passed in Task to the current CommandBuffer
+    // Adds a proc that will be called when the current CommandBuffer is submitted and finishes
     bool SK_WARN_UNUSED_RESULT addFinishInfo(const InsertFinishInfo&, ResourceProvider*);
 
     bool SK_WARN_UNUSED_RESULT submitToGpu();

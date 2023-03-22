@@ -74,6 +74,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         if (callback) {
             callback->setFailureResult();
         }
+        info.fRecording->priv().setFailureResultForFinishedProcs();
         SKGPU_LOG_E("Target surface passed into addRecording call is not graphite-backed");
         return false;
     }
@@ -83,6 +84,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         if (callback) {
             callback->setFailureResult();
         }
+        info.fRecording->priv().setFailureResultForFinishedProcs();
         SKGPU_LOG_E("CommandBuffer creation failed");
         return false;
     }
@@ -92,6 +94,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
             if (callback) {
                 callback->setFailureResult();
             }
+            info.fRecording->priv().setFailureResultForFinishedProcs();
             SKGPU_LOG_E("Non-volatile PromiseImage instantiation has failed");
             return false;
         }
@@ -102,6 +105,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
             if (callback) {
                 callback->setFailureResult();
             }
+            info.fRecording->priv().setFailureResultForFinishedProcs();
             info.fRecording->priv().deinstantiateVolatileLazyProxies();
             SKGPU_LOG_E("Volatile PromiseImage instantiation has failed");
             return false;
@@ -115,6 +119,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         if (callback) {
             callback->setFailureResult();
         }
+        info.fRecording->priv().setFailureResultForFinishedProcs();
         info.fRecording->priv().deinstantiateVolatileLazyProxies();
         SKGPU_LOG_E("Adding Recording commands to the CommandBuffer has failed");
         return false;
