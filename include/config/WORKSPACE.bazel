@@ -1,0 +1,3 @@
+# This empty workspace file lets the SkUserConfig.h file be defined separately from Skia itself.
+# Clients can more easily set their own #defines, copts, and linkopts when building Skia using
+# Bazel.

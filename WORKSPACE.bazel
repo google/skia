@@ -230,6 +230,12 @@ browser_repositories(
     firefox = True,
 )
 
+# Clients must specify their own version of skia_user_config to overwrite SkUserConfig.h
+local_repository(
+    name="skia_user_config",
+    path="include/config",
+)
+
 # Bazel will look for env variables ANDROID_HOME and ANDROID_NDK_HOME.
 # This is NOT hermetic as it requires the user to handle downloading the SDK  and accepting the
 # license independently.

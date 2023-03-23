@@ -85,7 +85,9 @@ for file_path in to_rewrite():
       'tests/sksl/' in file_path or
       'third_party/skcms' in file_path or
       'modules/skcms' in file_path or
-      file_path.startswith('bazel/rbe')):
+      file_path.startswith('bazel/rbe') or
+      # We intentionally list SkUserConfig.h not from the root in this file.
+      file_path == 'include/private/base/SkLoadUserConfig.h'):
     continue
   if (file_path.endswith('.h') or
       file_path.endswith('.c') or

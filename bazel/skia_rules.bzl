@@ -7,14 +7,14 @@ without needing to download a bunch of unnecessary dependencies
 in their WORKSPACE.bazel file.
 """
 
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS", "DEFAULT_OBJC_COPTS")
+load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
-load("//bazel:copts.bzl", "DEFAULT_COPTS", "DEFAULT_OBJC_COPTS")
 load(
     "//bazel:generate_cpp_files_for_headers.bzl",
     _generate_cpp_files_for_header_list = "generate_cpp_files_for_header_list",
     _generate_cpp_files_for_headers = "generate_cpp_files_for_headers",
 )
-load("//bazel:linkopts.bzl", "DEFAULT_LINKOPTS")
 
 generate_cpp_files_for_headers = _generate_cpp_files_for_headers
 generate_cpp_files_for_header_list = _generate_cpp_files_for_header_list
@@ -73,10 +73,10 @@ def skia_cc_binary(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **k
     Args:
         name: the name of the underlying executable.
         copts: Flags which should be passed to the C++ compiler. By default, we use DEFAULT_COPTS
-            from //bazel/copts.bzl.
+            from @skia_user_config//:copts.bzl.
         linkopts: Global flags which should be passed to the C++ linker. By default, we use
-            DEFAULT_LINKOPTS from //bazel/linkopts.bzl. Other linker flags will be passed in
-            via deps (see deps_and_linkopts below).
+            DEFAULT_LINKOPTS from  @skia_user_config//:linkopts.bzl. Other linker flags will be
+            passed in via deps (see deps_and_linkopts below).
         **kwargs: All the normal arguments that cc_binary takes.
     """
     native.cc_binary(name = name, copts = copts, linkopts = linkopts, **kwargs)
@@ -109,7 +109,7 @@ def skia_cc_library(name, copts = DEFAULT_COPTS, **kwargs):
     Args:
         name: the name of the underlying library.
         copts: Flags which should be passed to the C++ compiler. By default, we use DEFAULT_COPTS
-            from //bazel/copts.bzl.
+            from @skia_user_config//:copts.bzl.
         **kwargs: All the normal arguments that cc_library takes.
     """
     native.cc_library(name = name, copts = copts, **kwargs)
@@ -158,7 +158,7 @@ def skia_objc_library(name, copts = DEFAULT_OBJC_COPTS, **kwargs):
     Args:
         name: the name of the underlying target.
         copts: Flags which should be passed to the C++ compiler. By default, we use
-            DEFAULT_OBJC_COPTS from //bazel/copts.bzl.
+            DEFAULT_OBJC_COPTS from @skia_user_config//:copts.bzl.
         **kwargs: Normal arguments to objc_library
     """
 

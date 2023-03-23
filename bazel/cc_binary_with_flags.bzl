@@ -8,7 +8,7 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 
 """
 
-load("//bazel:copts.bzl", "DEFAULT_COPTS")
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 
 _bool_flags = [
     "//bazel/common_config_settings:use_harfbuzz",

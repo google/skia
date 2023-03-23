@@ -546,6 +546,7 @@ func GenTasks(cfg *Config) {
 			"skia/WORKSPACE.bazel",
 			"skia/bazel",
 			"skia/go_repositories.bzl",
+			"skia/include/config", // There's a WORKSPACE.bazel in here
 			"skia/requirements.txt",
 			"skia/toolchain",
 			// Actually needed to build the task drivers

@@ -1,16 +1,18 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
-
 licenses(["notice"])
 
-exports_files_legacy()
+# aka exports_files_legacy()
+exports_files(
+    ["SkUserConfig.h"],
+    visibility = ["//visibility:public"],
+)
 
-skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
+cc_library(
+    name = "user_config",
+    hdrs = [
         "SkUserConfig.h",
     ],
-    visibility = [
-        "//include:__pkg__",
-        "//src:__pkg__",
+    defines = [
+        "SK_USE_BAZEL_CONFIG_HEADER",
     ],
+    visibility = ["//visibility:public"],
 )
