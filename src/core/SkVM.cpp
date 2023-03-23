@@ -127,7 +127,7 @@ namespace skvm {
         int regs = 0;
         int loop = 0;
         std::vector<int> strides;
-        std::vector<SkSL::TraceHook*> traceHooks;
+        std::vector<TraceHook*> traceHooks;
         std::unique_ptr<viz::Visualizer> visualizer;
 
         std::atomic<void*> jit_entry{nullptr};   // TODO: minimal std::memory_orders
@@ -631,7 +631,7 @@ namespace skvm {
     #endif
     }
 
-    int Builder::attachTraceHook(SkSL::TraceHook* hook) {
+    int Builder::attachTraceHook(TraceHook* hook) {
         int traceHookID = (int)fTraceHooks.size();
         fTraceHooks.push_back(hook);
         return traceHookID;
@@ -2694,7 +2694,7 @@ namespace skvm {
     Program::Program(const std::vector<OptimizedInstruction>& instructions,
                      std::unique_ptr<viz::Visualizer> visualizer,
                      const std::vector<int>& strides,
-                     const std::vector<SkSL::TraceHook*>& traceHooks,
+                     const std::vector<TraceHook*>& traceHooks,
                      const char* debug_name, bool allow_jit) : Program() {
         fImpl->visualizer = std::move(visualizer);
         fImpl->strides = strides;

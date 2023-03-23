@@ -11,8 +11,8 @@
 #include "include/sksl/SkSLDebugTrace.h"
 
 #include "include/core/SkPoint.h"
+#include "src/core/SkVM.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
-#include "src/sksl/tracing/SkSLTraceHook.h"
 
 #include <cstdint>
 #include <memory>
@@ -70,7 +70,7 @@ public:
      * A trace hook which populates fTraceInfo during SkVM program evaluation. This will be created
      * automatically by the SkSLVMCodeGenerator.
      */
-    std::unique_ptr<SkSL::TraceHook> fTraceHook;
+    std::unique_ptr<skvm::TraceHook> fTraceHook;
 };
 
 }  // namespace SkSL

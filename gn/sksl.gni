@@ -38,7 +38,6 @@ _include = get_path_info("../include", "abspath")
 #  //src/sksl/ir:ir_hdrs
 #  //src/sksl/ir:ir_srcs
 #  //src/sksl/tracing:private_hdrs
-#  //src/sksl/tracing:skopts_hdrs
 #  //src/sksl/tracing:srcs
 #  //src/sksl/transform:transform_hdrs
 #  //src/sksl/transform:transform_srcs
@@ -243,7 +242,6 @@ skia_sksl_sources = [
   "$_src/sksl/tracing/SkRPDebugTrace.cpp",
   "$_src/sksl/tracing/SkRPDebugTrace.h",
   "$_src/sksl/tracing/SkSLDebugInfo.h",
-  "$_src/sksl/tracing/SkSLTraceHook.h",
   "$_src/sksl/tracing/SkVMDebugTrace.cpp",
   "$_src/sksl/tracing/SkVMDebugTrace.h",
   "$_src/sksl/transform/SkSLAddConstToVarModifiers.cpp",

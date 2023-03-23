@@ -12,7 +12,6 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkMSAN.h"
 #include "src/core/SkVM.h"
-#include "src/sksl/tracing/SkSLTraceHook.h"
 #include "tests/Test.h"
 
 #include <algorithm>
@@ -891,7 +890,7 @@ DEF_TEST(SkVM_assert, r) {
 }
 
 DEF_TEST(SkVM_trace_line, r) {
-    class TestTraceHook : public SkSL::TraceHook {
+    class TestTraceHook : public skvm::TraceHook {
     public:
         void var(int, int32_t) override { fBuffer.push_back(-9999999); }
         void enter(int) override        { fBuffer.push_back(-9999999); }
@@ -917,7 +916,7 @@ DEF_TEST(SkVM_trace_line, r) {
 }
 
 DEF_TEST(SkVM_trace_var, r) {
-    class TestTraceHook : public SkSL::TraceHook {
+    class TestTraceHook : public skvm::TraceHook {
     public:
         void line(int) override                  { fBuffer.push_back(-9999999); }
         void enter(int) override                 { fBuffer.push_back(-9999999); }
@@ -946,7 +945,7 @@ DEF_TEST(SkVM_trace_var, r) {
 }
 
 DEF_TEST(SkVM_trace_enter_exit, r) {
-    class TestTraceHook : public SkSL::TraceHook {
+    class TestTraceHook : public skvm::TraceHook {
     public:
         void line(int) override                   { fBuffer.push_back(-9999999); }
         void var(int, int32_t) override           { fBuffer.push_back(-9999999); }
@@ -979,7 +978,7 @@ DEF_TEST(SkVM_trace_enter_exit, r) {
 }
 
 DEF_TEST(SkVM_trace_scope, r) {
-    class TestTraceHook : public SkSL::TraceHook {
+    class TestTraceHook : public skvm::TraceHook {
     public:
         void var(int, int32_t) override { fBuffer.push_back(-9999999); }
         void enter(int) override        { fBuffer.push_back(-9999999); }
@@ -1005,7 +1004,7 @@ DEF_TEST(SkVM_trace_scope, r) {
 }
 
 DEF_TEST(SkVM_trace_multiple_hooks, r) {
-    class TestTraceHook : public SkSL::TraceHook {
+    class TestTraceHook : public skvm::TraceHook {
     public:
         void var(int, int32_t) override { fBuffer.push_back(-9999999); }
         void enter(int) override        { fBuffer.push_back(-9999999); }

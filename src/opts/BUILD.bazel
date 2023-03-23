@@ -46,7 +46,6 @@ skia_filegroup(
 
 OPTS_HDRS = [
     "//src:private_hdrs",
-    "//src/sksl/tracing:skopts_hdrs",
     "//include:private_hdrs",
     "//include:public_hdrs",
 ]
