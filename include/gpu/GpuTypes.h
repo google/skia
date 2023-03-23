@@ -38,7 +38,7 @@ enum class Budgeted : bool {
  * specific callbacks and are documented with the callback itself.
  */
 enum class CallbackResult : bool {
-    kFailed = true,
+    kFailed = false,
     kSuccess = true,
 };
 
