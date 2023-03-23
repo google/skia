@@ -14,8 +14,7 @@
 static const int kInverseTableSize = 1024; // SK_FDot6One * 16
 
 static inline SkFixed quick_inverse(SkFDot6 x) {
-    SkASSERT(SkAbs32(x) < kInverseTableSize);
-    static const int32_t table[kInverseTableSize * 2] = {
+    static const int32_t table[] = {
         -4096, -4100, -4104, -4108, -4112, -4116, -4120, -4124, -4128, -4132, -4136,
         -4140, -4144, -4148, -4152, -4156, -4161, -4165, -4169, -4173, -4177, -4181,
         -4185, -4190, -4194, -4198, -4202, -4206, -4211, -4215, -4219, -4223, -4228,
@@ -116,10 +115,14 @@ static inline SkFixed quick_inverse(SkFDot6 x) {
         -1048576, -1398101, -2097152, -4194304, 0
     };
 
+    static constexpr size_t kLastEntry = std::size(table) - 1;
+    SkASSERT(SkAbs32(x) <= static_cast<int32_t>(kLastEntry));
+    static_assert(kLastEntry == kInverseTableSize);
+
     if (x > 0) {
-        return -table[kInverseTableSize - x];
+        return -table[kLastEntry - x];
     } else {
-        return table[kInverseTableSize + x];
+        return table[kLastEntry + x];
     }
 }
 
