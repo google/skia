@@ -250,7 +250,10 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
 
     SkPath tmp;
     tmp.setFillType(extract_filltype(packed));
-    tmp.incReserve(pts);
+    {
+      // Reserve the exact number of verbs and points needed.
+      SkPathRef::Editor(&tmp.fPathRef, vbs, pts);
+    }
     for (int i = 0; i < vbs; ++i) {
         switch (*verbs) {
             case kMove_Verb:
