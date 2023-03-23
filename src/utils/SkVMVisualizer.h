@@ -19,7 +19,7 @@
 #include <vector>
 
 class SkWStream;
-namespace SkSL { class SkVMDebugTrace; }
+namespace SkSL { class DebugTracePriv; }
 
 namespace skvm::viz {
     enum InstructionFlags : uint8_t {
@@ -44,7 +44,7 @@ namespace skvm::viz {
 
     class Visualizer {
     public:
-        explicit Visualizer(SkSL::SkVMDebugTrace* debugInfo);
+        explicit Visualizer(SkSL::DebugTracePriv* debugInfo);
         ~Visualizer() = default;
         void dump(SkWStream* output);
         void markAsDeadCode(std::vector<bool>& live, const std::vector<int>& newIds);
@@ -77,7 +77,7 @@ namespace skvm::viz {
 
         void writeText(const char* format, ...) const SK_PRINTF_LIKE(2, 3);
 #if defined(SK_ENABLE_SKSL)
-        SkSL::SkVMDebugTrace* fDebugInfo;
+        SkSL::DebugTracePriv* fDebugInfo;
 #endif
         SkTHashMap<Instruction, size_t, InstructionHash> fIndex;
         SkTArray<Instruction> fInstructions;

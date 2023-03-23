@@ -15,8 +15,7 @@
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
-#include "src/sksl/tracing/SkRPDebugTrace.h"
-#include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/utils/SkBitSet.h"
 
 #if !defined(SKSL_STANDALONE)
@@ -881,7 +880,7 @@ void Builder::matrix_resize(int origColumns, int origRows, int newColumns, int n
 
 std::unique_ptr<Program> Builder::finish(int numValueSlots,
                                          int numUniformSlots,
-                                         SkRPDebugTrace* debugTrace) {
+                                         DebugTracePriv* debugTrace) {
     // Verify that calls to enableExecutionMaskWrites and disableExecutionMaskWrites are balanced.
     SkASSERT(fExecutionMaskWritesEnabled == 0);
 
@@ -995,7 +994,7 @@ Program::Program(SkTArray<Instruction> instrs,
                  int numValueSlots,
                  int numUniformSlots,
                  int numLabels,
-                 SkRPDebugTrace* debugTrace)
+                 DebugTracePriv* debugTrace)
         : fInstructions(std::move(instrs))
         , fNumValueSlots(numValueSlots)
         , fNumUniformSlots(numUniformSlots)
@@ -1759,7 +1758,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
 }
 
 // Finds duplicate names in the program and disambiguates them with subscripts.
-SkTArray<std::string> build_unique_slot_name_list(const SkRPDebugTrace* debugTrace) {
+SkTArray<std::string> build_unique_slot_name_list(const DebugTracePriv* debugTrace) {
     SkTArray<std::string> slotName;
     if (debugTrace) {
         slotName.reserve_back(debugTrace->fSlotInfo.size());

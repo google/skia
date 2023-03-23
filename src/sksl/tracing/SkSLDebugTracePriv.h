@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKVMDEBUGTRACE
-#define SKVMDEBUGTRACE
-
-#include "include/sksl/SkSLDebugTrace.h"
+#ifndef SKSLDEBUGTRACEPRIV
+#define SKSLDEBUGTRACEPRIV
 
 #include "include/core/SkPoint.h"
-#include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "include/sksl/SkSLDebugTrace.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
 
 #include <cstdint>
@@ -24,7 +24,42 @@ class SkWStream;
 
 namespace SkSL {
 
-class SkVMDebugTrace : public DebugTrace {
+struct TraceInfo {
+    enum class Op {
+        kLine,  /** data: line number, (unused) */
+        kVar,   /** data: slot, value */
+        kEnter, /** data: function index, (unused) */
+        kExit,  /** data: function index, (unused) */
+        kScope, /** data: scope delta, (unused) */
+    };
+    Op op;
+    int32_t data[2];
+};
+
+struct SlotDebugInfo {
+    /** The full name of this variable (without component), e.g. `myArray[3].myStruct.myVector` */
+    std::string             name;
+    /** The dimensions of this variable: 1x1 is a scalar, Nx1 is a vector, NxM is a matrix. */
+    uint8_t                 columns = 1, rows = 1;
+    /** Which component of the variable is this slot? (e.g. `vec4.z` is component 2) */
+    uint8_t                 componentIndex = 0;
+    /** Complex types (arrays/structs) can be tracked as a "group" of adjacent slots. */
+    int                     groupIndex = 0;
+    /** What kind of numbers belong in this slot? */
+    SkSL::Type::NumberKind  numberKind = SkSL::Type::NumberKind::kNonnumeric;
+    /** Where is this variable located in the program? */
+    int                     line = 0;
+    Position                pos = {};
+    /** If this slot holds a function's return value, contains 1; if not, -1. */
+    int                     fnReturnValue = -1;
+};
+
+struct FunctionDebugInfo {
+    /** Full function declaration: `float myFunction(half4 color)`) */
+    std::string             name;
+};
+
+class DebugTracePriv : public DebugTrace {
 public:
     /**
      * Sets the device-coordinate pixel to trace. If it's not set, the point at (0, 0) will be used.
@@ -56,6 +91,9 @@ public:
     /** The device-coordinate pixel to trace (controlled by setTraceCoord) */
     SkIPoint fTraceCoord = {};
 
+    /** SkRP stores uniform slot info in fUniformInfo. (In SkVM, they're mixed into fSlotInfo.) */
+    std::vector<SlotDebugInfo> fUniformInfo;
+
     /** A 1:1 mapping of slot numbers to debug information. */
     std::vector<SlotDebugInfo> fSlotInfo;
     std::vector<FunctionDebugInfo> fFuncInfo;
@@ -67,8 +105,8 @@ public:
     std::vector<std::string> fSource;
 
     /**
-     * A trace hook which populates fTraceInfo during SkVM program evaluation. This will be created
-     * automatically by the SkSLVMCodeGenerator.
+     * A trace hook which populates fTraceInfo during shader evaluation. This will be created
+     * automatically during code generation.
      */
     std::unique_ptr<SkSL::TraceHook> fTraceHook;
 };

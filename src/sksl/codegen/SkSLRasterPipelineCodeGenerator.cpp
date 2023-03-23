@@ -58,8 +58,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/tracing/SkRPDebugTrace.h"
-#include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
@@ -84,7 +83,7 @@ class SlotManager {
 public:
     SlotManager(std::vector<SlotDebugInfo>* i) : fSlotDebugInfo(i) {}
 
-    /** Used by `create` to add this variable to SlotDebugInfo inside SkRPDebugTrace. */
+    /** Used by `create` to add this variable to SlotDebugInfo inside the DebugTrace. */
     void addSlotDebugInfoForGroup(const std::string& varName,
                                   const Type& type,
                                   Position pos,
@@ -125,7 +124,7 @@ class LValue;
 
 class Generator {
 public:
-    Generator(const SkSL::Program& program, SkRPDebugTrace* debugTrace)
+    Generator(const SkSL::Program& program, DebugTracePriv* debugTrace)
             : fProgram(program)
             , fContext(fProgram.fContext->fTypes,
                        fProgram.fContext->fCaps,
@@ -152,7 +151,7 @@ public:
                                            const FunctionDefinition& function);
 
     /**
-     * Returns the slot index of this function inside the FunctionDebugInfo array in SkRPDebugTrace.
+     * Returns the slot index of this function inside the FunctionDebugInfo array in DebugTracePriv.
      * The FunctionDebugInfo slot will be created if it doesn't already exist.
      */
     int getFunctionDebugInfo(const FunctionDeclaration& decl);
@@ -352,7 +351,7 @@ private:
     SkSL::Context fContext;
     SkSL::ModifiersPool fModifiersPool;
     Builder fBuilder;
-    SkRPDebugTrace* fDebugTrace = nullptr;
+    DebugTracePriv* fDebugTrace = nullptr;
     SkTHashMap<const Variable*, int> fChildEffectMap;
 
     SlotManager fProgramSlots;
@@ -3433,7 +3432,7 @@ std::unique_ptr<RP::Program> Generator::finish() {
 
 std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& program,
                                                        const FunctionDefinition& function,
-                                                       SkRPDebugTrace* debugTrace) {
+                                                       DebugTracePriv* debugTrace) {
     RP::Generator generator(program, debugTrace);
     if (!generator.writeProgram(function)) {
         return nullptr;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 
 #ifdef SKSL_ENABLE_TRACING
 
@@ -29,7 +29,7 @@ static constexpr char kTraceVersion[] = "20220209";
 
 namespace SkSL {
 
-std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const {
+std::string DebugTracePriv::getSlotComponentSuffix(int slotIndex) const {
     const SkSL::SlotDebugInfo& slot = fSlotInfo[slotIndex];
 
     if (slot.rows > 1) {
@@ -49,7 +49,7 @@ std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const {
     return {};
 }
 
-double SkVMDebugTrace::interpretValueBits(int slotIndex, int32_t valueBits) const {
+double DebugTracePriv::interpretValueBits(int slotIndex, int32_t valueBits) const {
     SkASSERT(slotIndex >= 0);
     SkASSERT((size_t)slotIndex < fSlotInfo.size());
     switch (fSlotInfo[slotIndex].numberKind) {
@@ -71,7 +71,7 @@ double SkVMDebugTrace::interpretValueBits(int slotIndex, int32_t valueBits) cons
     }
 }
 
-std::string SkVMDebugTrace::slotValueToString(int slotIndex, double value) const {
+std::string DebugTracePriv::slotValueToString(int slotIndex, double value) const {
     SkASSERT(slotIndex >= 0);
     SkASSERT((size_t)slotIndex < fSlotInfo.size());
     switch (fSlotInfo[slotIndex].numberKind) {
@@ -86,15 +86,15 @@ std::string SkVMDebugTrace::slotValueToString(int slotIndex, double value) const
     }
 }
 
-std::string SkVMDebugTrace::getSlotValue(int slotIndex, int32_t valueBits) const {
+std::string DebugTracePriv::getSlotValue(int slotIndex, int32_t valueBits) const {
     return this->slotValueToString(slotIndex, this->interpretValueBits(slotIndex, valueBits));
 }
 
-void SkVMDebugTrace::setTraceCoord(const SkIPoint& coord) {
+void DebugTracePriv::setTraceCoord(const SkIPoint& coord) {
     fTraceCoord = coord;
 }
 
-void SkVMDebugTrace::setSource(std::string source) {
+void DebugTracePriv::setSource(std::string source) {
     fSource.clear();
     std::stringstream stream{std::move(source)};
     while (stream.good()) {
@@ -103,7 +103,7 @@ void SkVMDebugTrace::setSource(std::string source) {
     }
 }
 
-void SkVMDebugTrace::dump(SkWStream* o) const {
+void DebugTracePriv::dump(SkWStream* o) const {
     for (size_t index = 0; index < fSlotInfo.size(); ++index) {
         const SlotDebugInfo& info = fSlotInfo[index];
 
@@ -202,7 +202,7 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
     }
 }
 
-void SkVMDebugTrace::writeTrace(SkWStream* w) const {
+void DebugTracePriv::writeTrace(SkWStream* w) const {
     SkJSONWriter json(w);
 
     json.beginObject(); // root
@@ -270,7 +270,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
     json.flush();
 }
 
-bool SkVMDebugTrace::readTrace(SkStream* r) {
+bool DebugTracePriv::readTrace(SkStream* r) {
     sk_sp<SkData> data = SkCopyStreamToData(r);
     skjson::DOM json(reinterpret_cast<const char*>(data->bytes()), data->size());
     const skjson::ObjectValue* root = json.root();
@@ -396,22 +396,22 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
 #include <string>
 
 namespace SkSL {
-    void SkVMDebugTrace::setTraceCoord(const SkIPoint &coord) {}
+    void DebugTracePriv::setTraceCoord(const SkIPoint &coord) {}
 
-    void SkVMDebugTrace::setSource(std::string source) {}
+    void DebugTracePriv::setSource(std::string source) {}
 
-    bool SkVMDebugTrace::readTrace(SkStream *r) { return false; }
+    bool DebugTracePriv::readTrace(SkStream *r) { return false; }
 
-    void SkVMDebugTrace::writeTrace(SkWStream *w) const {}
+    void DebugTracePriv::writeTrace(SkWStream *w) const {}
 
-    void SkVMDebugTrace::dump(SkWStream *o) const {}
+    void DebugTracePriv::dump(SkWStream *o) const {}
 
-    std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const { return ""; }
+    std::string DebugTracePriv::getSlotComponentSuffix(int slotIndex) const { return ""; }
 
-    std::string SkVMDebugTrace::getSlotValue(int slotIndex, int32_t value) const { return ""; }
+    std::string DebugTracePriv::getSlotValue(int slotIndex, int32_t value) const { return ""; }
 
-    double SkVMDebugTrace::interpretValueBits(int slotIndex, int32_t valueBits) const { return 0; }
+    double DebugTracePriv::interpretValueBits(int slotIndex, int32_t valueBits) const { return 0; }
 
-    std::string SkVMDebugTrace::slotValueToString(int slotIndex, double value) const { return ""; }
+    std::string DebugTracePriv::slotValueToString(int slotIndex, double value) const { return ""; }
 }
 #endif

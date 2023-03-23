@@ -67,11 +67,11 @@ struct ProgramSettings {
     // allowed at the requested version. For instance, a valid program must have fully-unrollable
     // `for` loops at version 100, but any loop structure is allowed at version 300.
     SkSL::Version fMaxVersionAllowed = SkSL::Version::k100;
-    // If true, SkVM debug traces will contain the `trace_var` opcode. This opcode can cause the
+    // If true, debug traces will contain the `trace_var` opcode. This opcode can cause the
     // generated code to contain a lot of extra computations, because we need to explicitly compute
     // every temporary value, even ones that would otherwise be optimized away entirely. The other
     // debug opcodes are much less invasive on the generated code.
-    bool fAllowTraceVarInSkVMDebugTrace = true;
+    bool fAllowTraceVarInDebugTrace = true;
     // If true, SkSL will use a memory pool for all IR nodes when compiling a program. This is
     // usually a significant speed increase, but uses more memory, so it is a good idea for programs
     // that will be freed shortly after compilation. It can also be useful to disable this flag when

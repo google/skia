@@ -10,8 +10,7 @@
 #include "include/core/SkStream.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/tracing/SkSLDebugInfo.h"
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"
 
 #include <cstddef>
@@ -20,22 +19,22 @@
 #include <string_view>
 #include <vector>
 
-DEF_TEST(SkVMDebugTraceSetSource, r) {
-    SkSL::SkVMDebugTrace i;
-    i.setSource("SkVMDebugTrace::setSource unit test\n"
+DEF_TEST(DebugTracePrivSetSource, r) {
+    SkSL::DebugTracePriv i;
+    i.setSource("DebugTracePriv::setSource unit test\n"
                 "\t// first line\n"
                 "\t// second line\n"
                 "\t// third line");
 
     REPORTER_ASSERT(r, i.fSource.size() == 4);
-    REPORTER_ASSERT(r, i.fSource[0] == "SkVMDebugTrace::setSource unit test");
+    REPORTER_ASSERT(r, i.fSource[0] == "DebugTracePriv::setSource unit test");
     REPORTER_ASSERT(r, i.fSource[1] == "\t// first line");
     REPORTER_ASSERT(r, i.fSource[2] == "\t// second line");
     REPORTER_ASSERT(r, i.fSource[3] == "\t// third line");
 }
 
-DEF_TEST(SkVMDebugTraceSetSourceReplacesExistingText, r) {
-    SkSL::SkVMDebugTrace i;
+DEF_TEST(DebugTracePrivSetSourceReplacesExistingText, r) {
+    SkSL::DebugTracePriv i;
     i.setSource("One");
     i.setSource("Two");
     i.setSource("Three");
@@ -44,8 +43,8 @@ DEF_TEST(SkVMDebugTraceSetSourceReplacesExistingText, r) {
     REPORTER_ASSERT(r, i.fSource[0] == "Three");
 }
 
-DEF_TEST(SkVMDebugTraceWrite, r) {
-    SkSL::SkVMDebugTrace i;
+DEF_TEST(DebugTracePrivWrite, r) {
+    SkSL::DebugTracePriv i;
     i.fSource = {
         "\t// first line",
         "// \"second line\"",
@@ -82,7 +81,7 @@ DEF_TEST(SkVMDebugTraceWrite, r) {
                     kExpected, (int)actual.size(), actual.data());
 }
 
-DEF_TEST(SkVMDebugTraceRead, r) {
+DEF_TEST(DebugTracePrivRead, r) {
     const std::string_view kJSONTrace =
             R"({"version":"20220209","source":["\t// first line","// \"second line\"","//\\\\//\\)"
             R"(\\ third line"],"slots":[{"name":"SkVM_DebugTrace","columns":1,"rows":2,"index":3,)"
@@ -91,7 +90,7 @@ DEF_TEST(SkVMDebugTraceRead, r) {
             R"(e":[[2],[0,5],[1,10,15],[3,20]]})";
 
     SkMemoryStream stream(kJSONTrace.data(), kJSONTrace.size(), /*copyData=*/false);
-    SkSL::SkVMDebugTrace i;
+    SkSL::DebugTracePriv i;
     REPORTER_ASSERT(r, i.readTrace(&stream));
 
     REPORTER_ASSERT(r, i.fSource.size() == 3);
@@ -140,7 +139,7 @@ DEF_TEST(SkVMDebugTraceRead, r) {
     REPORTER_ASSERT(r, i.fTraceInfo[3].data[1] == 0);
 }
 
-DEF_TEST(SkVMDebugTraceGetSlotComponentSuffix, r) {
+DEF_TEST(DebugTracePrivGetSlotComponentSuffix, r) {
     // SlotDebugInfo fields:
     // - name
     // - columns
@@ -150,7 +149,7 @@ DEF_TEST(SkVMDebugTraceGetSlotComponentSuffix, r) {
     // - line
     // - fnReturnValue
 
-    SkSL::SkVMDebugTrace i;
+    SkSL::DebugTracePriv i;
     i.fSlotInfo = {{"s", 1, 1, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
                    {"v", 4, 1, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
                    {"v", 4, 1, 1,  1,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},

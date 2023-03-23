@@ -25,8 +25,7 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/tracing/SkRPDebugTrace.h"
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/utils/SkShaderUtils.h"
 #include "src/utils/SkVMVisualizer.h"
 #include "tools/skslc/ProcessWorklist.h"
@@ -322,7 +321,7 @@ public:
 static bool detect_shader_settings(const std::string& text,
                                    SkSL::ProgramSettings* settings,
                                    const SkSL::ShaderCaps** caps,
-                                   std::unique_ptr<SkSL::SkVMDebugTrace>* debugTrace) {
+                                   std::unique_ptr<SkSL::DebugTracePriv>* debugTrace) {
     using Factory = ShaderCapsTestFactory;
 
     // Find a matching comment and isolate the name portion.
@@ -427,8 +426,8 @@ static bool detect_shader_settings(const std::string& text,
                 if (consume_suffix(&settingsText, " NoRTFlip")) {
                     settings->fForceNoRTFlip = true;
                 }
-                if (consume_suffix(&settingsText, " NoTraceVarInSkVMDebugTrace")) {
-                    settings->fAllowTraceVarInSkVMDebugTrace = false;
+                if (consume_suffix(&settingsText, " NoTraceVarInDebugTrace")) {
+                    settings->fAllowTraceVarInDebugTrace = false;
                 }
                 if (consume_suffix(&settingsText, " InlineThresholdMax")) {
                     settings->fInlineThreshold = INT_MAX;
@@ -436,9 +435,9 @@ static bool detect_shader_settings(const std::string& text,
                 if (consume_suffix(&settingsText, " Sharpen")) {
                     settings->fSharpenTextures = true;
                 }
-                if (consume_suffix(&settingsText, " SkVMDebugTrace")) {
+                if (consume_suffix(&settingsText, " DebugTrace")) {
                     settings->fOptimize = false;
-                    *debugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
+                    *debugTrace = std::make_unique<SkSL::DebugTracePriv>();
                 }
                 if (consume_suffix(&settingsText, " SPIRVDawnCompatMode")) {
                     settings->fSPIRVDawnCompatMode = true;
@@ -542,9 +541,9 @@ static ResultCode process_command(SkSpan<std::string> args) {
 
     SkSL::ProgramSettings settings;
     const SkSL::ShaderCaps* caps = SkSL::ShaderCapsFactory::Standalone();
-    std::unique_ptr<SkSL::SkVMDebugTrace> skvmDebugTrace;
+    std::unique_ptr<SkSL::DebugTracePriv> debugTrace;
     if (*honorSettings) {
-        if (!detect_shader_settings(text, &settings, &caps, &skvmDebugTrace)) {
+        if (!detect_shader_settings(text, &settings, &caps, &debugTrace)) {
             return ResultCode::kInputError;
         }
     }
@@ -649,13 +648,13 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
-                                                               skvmDebugTrace.get())) {
+                                                               debugTrace.get())) {
                         return false;
                     }
 
                     std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
-                    if (skvmDebugTrace) {
-                        skvmDebugTrace->dump(redirect.get());
+                    if (debugTrace) {
+                        debugTrace->dump(redirect.get());
                     }
                     builder.done().dump(redirect.get());
                     return true;
@@ -664,7 +663,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
         settings.fMaxVersionAllowed = SkSL::Version::k300;
         return compileProgramAsRuntimeShader(
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
-                    SkSL::SkRPDebugTrace skrpDebugTrace;
+                    SkSL::DebugTracePriv skrpDebugTrace;
                     const SkSL::FunctionDeclaration* main = program.getFunction("main");
                     if (!main) {
                         compiler.errorReporter().error({}, "code has no entrypoint");
@@ -753,19 +752,18 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     return true;
                 });
     } else if (skstd::ends_with(outputPath, ".html")) {
-        settings.fAllowTraceVarInSkVMDebugTrace = false;
+        settings.fAllowTraceVarInDebugTrace = false;
 
         SkCpu::CacheRuntimeFeatures();
         return compileProgramAsRuntimeShader(
             [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
-                if (!skvmDebugTrace) {
-                    skvmDebugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
-                    skvmDebugTrace->setSource(text.c_str());
+                if (!debugTrace) {
+                    debugTrace = std::make_unique<SkSL::DebugTracePriv>();
+                    debugTrace->setSource(text.c_str());
                 }
-                auto visualizer = std::make_unique<skvm::viz::Visualizer>(skvmDebugTrace.get());
+                auto visualizer = std::make_unique<skvm::viz::Visualizer>(debugTrace.get());
                 skvm::Builder builder(skvm::Features{}, /*createDuplicates=*/true);
-                if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
-                                                           skvmDebugTrace.get())) {
+                if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder, debugTrace.get())) {
                     return false;
                 }
 

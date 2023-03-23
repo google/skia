@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 
 #include <limits.h>
@@ -14,7 +14,7 @@
 
 namespace SkSL {
 
-void SkVMDebugTracePlayer::reset(sk_sp<SkVMDebugTrace> debugTrace) {
+void SkVMDebugTracePlayer::reset(sk_sp<DebugTracePriv> debugTrace) {
     size_t nslots = debugTrace ? debugTrace->fSlotInfo.size() : 0;
     fDebugTrace = debugTrace;
     fCursor = 0;

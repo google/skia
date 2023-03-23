@@ -8,7 +8,7 @@
 #ifndef SkSLDebuggerSlide_DEFINED
 #define SkSLDebuggerSlide_DEFINED
 
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 #include "tools/viewer/Slide.h"
 
@@ -36,11 +36,11 @@ private:
 
     static constexpr int kNumTopRows = 12;
 
-    sk_sp<SkSL::SkVMDebugTrace> fTrace;
+    sk_sp<SkSL::DebugTracePriv> fTrace;
     SkSL::SkVMDebugTracePlayer fPlayer;
     bool fRefresh = false;
 
-    char fTraceFile[256] = "SkVMDebugTrace.json";
+    char fTraceFile[256] = "SkSLDebugTrace.json";
 };
 
 #endif

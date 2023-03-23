@@ -17,7 +17,7 @@
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/tracing/SkRPDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -51,7 +51,7 @@ static void test(skiatest::Reporter* r,
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     SkRasterPipeline pipeline(&alloc);
     pipeline.append_constant_color(&alloc, startingColor);
-    SkSL::SkRPDebugTrace debugTrace;
+    SkSL::DebugTracePriv debugTrace;
     std::unique_ptr<SkSL::RP::Program> rasterProg =
             SkSL::MakeRasterPipelineProgram(*program, *main->definition(), &debugTrace);
     if (!rasterProg && !expectedResult.has_value()) {

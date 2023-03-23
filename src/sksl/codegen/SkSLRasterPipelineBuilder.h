@@ -22,7 +22,7 @@ class SkWStream;
 
 namespace SkSL {
 
-class SkRPDebugTrace;
+class DebugTracePriv;
 
 namespace RP {
 
@@ -163,7 +163,7 @@ public:
             int numValueSlots,
             int numUniformSlots,
             int numLabels,
-            SkRPDebugTrace* debugTrace);
+            DebugTracePriv* debugTrace);
 
 #if !defined(SKSL_STANDALONE)
     bool appendStages(SkRasterPipeline* pipeline,
@@ -262,7 +262,7 @@ private:
     int fNumTempStackSlots = 0;
     int fNumLabels = 0;
     SkTHashMap<int, int> fTempStackMaxDepths;
-    SkRPDebugTrace* fDebugTrace = nullptr;
+    DebugTracePriv* fDebugTrace = nullptr;
 };
 
 class Builder {
@@ -270,7 +270,7 @@ public:
     /** Finalizes and optimizes the program. */
     std::unique_ptr<Program> finish(int numValueSlots,
                                     int numUniformSlots,
-                                    SkRPDebugTrace* debugTrace = nullptr);
+                                    DebugTracePriv* debugTrace = nullptr);
     /**
      * Peels off a label ID for use in the program. Set the label's position in the program with
      * the `label` instruction. Actually branch to the target with an instruction like

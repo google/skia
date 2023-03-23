@@ -11,8 +11,7 @@
 #include "src/core/SkStreamPriv.h"
 
 #if defined(SK_ENABLE_SKSL)
-#include "src/sksl/tracing/SkSLDebugInfo.h"
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #endif
 
 #include <cstdarg>
@@ -23,9 +22,9 @@
 namespace skvm::viz {
 
 #if defined(SK_ENABLE_SKSL)
-Visualizer::Visualizer(SkSL::SkVMDebugTrace* debugInfo) : fDebugInfo(debugInfo), fOutput(nullptr) {}
+Visualizer::Visualizer(SkSL::DebugTracePriv* debugInfo) : fDebugInfo(debugInfo), fOutput(nullptr) {}
 #else
-Visualizer::Visualizer(SkSL::SkVMDebugTrace* debugInfo) : fOutput(nullptr) {}
+Visualizer::Visualizer(SkSL::DebugTracePriv* debugInfo) : fOutput(nullptr) {}
 #endif
 
 bool Instruction::operator == (const Instruction& o) const {

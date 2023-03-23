@@ -22,13 +22,13 @@ using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
 
 SkSLDebuggerSlide::SkSLDebuggerSlide() {
     fName = "Debugger";
-    fTrace = sk_make_sp<SkSL::SkVMDebugTrace>();
+    fTrace = sk_make_sp<SkSL::DebugTracePriv>();
 }
 
 void SkSLDebuggerSlide::load(SkScalar winWidth, SkScalar winHeight) {}
 
 void SkSLDebuggerSlide::unload() {
-    fTrace = sk_make_sp<SkSL::SkVMDebugTrace>();
+    fTrace = sk_make_sp<SkSL::DebugTracePriv>();
     fPlayer.reset(nullptr);
     fPlayer.setBreakpoints(std::unordered_set<int>{});
 }

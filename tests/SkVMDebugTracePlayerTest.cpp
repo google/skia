@@ -14,8 +14,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"  // IWYU pragma: keep
-#include "src/sksl/tracing/SkSLDebugInfo.h"
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 #include "tests/Test.h"
 
@@ -28,7 +27,7 @@
 
 using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
 
-static sk_sp<SkSL::SkVMDebugTrace> make_trace(skiatest::Reporter* r, std::string src) {
+static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r, std::string src) {
     SkSL::ShaderCaps caps;
     SkSL::Compiler compiler(&caps);
     SkSL::ProgramSettings settings;
@@ -39,7 +38,7 @@ static sk_sp<SkSL::SkVMDebugTrace> make_trace(skiatest::Reporter* r, std::string
             compiler.convertProgram(SkSL::ProgramKind::kRuntimeShader, src, settings);
     REPORTER_ASSERT(r, program);
 
-    auto debugTrace = sk_make_sp<SkSL::SkVMDebugTrace>();
+    auto debugTrace = sk_make_sp<SkSL::DebugTracePriv>();
     SkSL::testingOnly_ProgramToSkVMShader(*program, &b, debugTrace.get());
     skvm::Program p = b.done();
     REPORTER_ASSERT(r, p.nargs() == 5);
@@ -55,7 +54,7 @@ static sk_sp<SkSL::SkVMDebugTrace> make_trace(skiatest::Reporter* r, std::string
     return debugTrace;
 }
 
-static std::string make_stack_string(const SkSL::SkVMDebugTrace& trace,
+static std::string make_stack_string(const SkSL::DebugTracePriv& trace,
                                      const SkSL::SkVMDebugTracePlayer& player) {
     std::vector<int> callStack = player.getCallStack();
     std::string text;
@@ -75,7 +74,7 @@ static std::string make_stack_string(const SkSL::SkVMDebugTrace& trace,
 }
 
 static std::string make_vars_string(
-        const SkSL::SkVMDebugTrace& trace,
+        const SkSL::DebugTracePriv& trace,
         const std::vector<SkSL::SkVMDebugTracePlayer::VariableData>& vars) {
     std::string text;
     auto separator = SkSL::String::Separator();
@@ -98,13 +97,13 @@ static std::string make_vars_string(
     return text;
 }
 
-static std::string make_local_vars_string(const SkSL::SkVMDebugTrace& trace,
+static std::string make_local_vars_string(const SkSL::DebugTracePriv& trace,
                                           const SkSL::SkVMDebugTracePlayer& player) {
     int frame = player.getStackDepth() - 1;
     return make_vars_string(trace, player.getLocalVariables(frame));
 }
 
-static std::string make_global_vars_string(const SkSL::SkVMDebugTrace& trace,
+static std::string make_global_vars_string(const SkSL::DebugTracePriv& trace,
                                            const SkSL::SkVMDebugTracePlayer& player) {
     return make_vars_string(trace, player.getGlobalVariables());
 }
@@ -123,7 +122,7 @@ DEF_TEST(SkSLTracePlayerCanResetToNull, r) {
 }
 
 DEF_TEST(SkSLTracePlayerHelloWorld, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                       // Line 1
 half4 main(float2 xy) {   // Line 2
     return half4(2 + 2);  // Line 3
@@ -162,7 +161,7 @@ half4 main(float2 xy) {   // Line 2
 }
 
 DEF_TEST(SkSLTracePlayerReset, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                       // Line 1
 half4 main(float2 xy) {   // Line 2
     return half4(2 + 2);  // Line 3
@@ -198,7 +197,7 @@ half4 main(float2 xy) {   // Line 2
 }
 
 DEF_TEST(SkSLTracePlayerFunctions, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                             // Line 1
 int fnB() {                     // Line 2
     return 2 + 2;               // Line 3
@@ -280,7 +279,7 @@ half4 main(float2 xy) {         // Line 8
 }
 
 DEF_TEST(SkSLTracePlayerVariables, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                   // Line 1
 float func() {                        // Line 2
     float x = 4, y = 5, z = 6;        // Line 3
@@ -363,7 +362,7 @@ half4 main(float2 xy) {               // Line 6
 }
 
 DEF_TEST(SkSLTracePlayerVariableGroups, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                   // Line 1
 struct S { int x, y, z; };            // Line 2
 half4 main(float2 xy) {               // Line 3
@@ -416,7 +415,7 @@ half4 main(float2 xy) {               // Line 3
 
 
 DEF_TEST(SkSLTracePlayerIfStatement, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                      // Line 1
 half4 main(float2 xy) {  // Line 2
     int val;             // Line 3
@@ -479,7 +478,7 @@ half4 main(float2 xy) {  // Line 2
 }
 
 DEF_TEST(SkSLTracePlayerForLoop, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                // Line 1
 half4 main(float2 xy) {            // Line 2
     int val = 0;                   // Line 3
@@ -544,7 +543,7 @@ half4 main(float2 xy) {            // Line 2
 }
 
 DEF_TEST(SkSLTracePlayerStepOut, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                      // Line 1
 int fn() {               // Line 2
     int a = 11;          // Line 3
@@ -596,7 +595,7 @@ half4 main(float2 xy) {  // Line 9
 }
 
 DEF_TEST(SkSLTracePlayerVariableScope, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 half4 main(float2 xy) {     // Line 2
     int a = 1;              // Line 3
@@ -672,7 +671,7 @@ half4 main(float2 xy) {     // Line 2
 }
 
 DEF_TEST(SkSLTracePlayerNestedBlocks, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 half4 main(float2 xy) {     // Line 2
     {{{{{{{                 // Line 3
@@ -695,7 +694,7 @@ half4 main(float2 xy) {     // Line 2
 }
 
 DEF_TEST(SkSLTracePlayerSwitchStatement, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 half4 main(float2 xy) {     // Line 2
     int x = 2;              // Line 3
@@ -734,7 +733,7 @@ half4 main(float2 xy) {     // Line 2
 }
 
 DEF_TEST(SkSLTracePlayerBreakpoint, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                // Line 1
 int counter = 0;                   // Line 2
 void func() {                      // Line 3
@@ -788,7 +787,7 @@ half4 main(float2 xy) {            // Line 6
 }
 
 DEF_TEST(SkSLTracePlayerStepOverWithBreakpoint, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 int counter = 0;            // Line 2
 void func() {               // Line 3
@@ -819,7 +818,7 @@ half4 main(float2 xy) {     // Line 6
 }
 
 DEF_TEST(SkSLTracePlayerStepOutWithBreakpoint, r) {
-    sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 int counter = 0;            // Line 2
 void func() {               // Line 3

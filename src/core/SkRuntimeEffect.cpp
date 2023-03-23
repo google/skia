@@ -40,7 +40,7 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
@@ -68,7 +68,6 @@
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 #include "src/core/SkStreamPriv.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
-#include "src/sksl/tracing/SkRPDebugTrace.h"
 constexpr bool kRPEnableLiveTrace = false;
 #endif
 
@@ -205,7 +204,7 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram() const {
     // can avoid the cost of invoking the RP code generator until it's actually needed.
     fCompileRPProgramOnce([&] {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-        SkSL::SkRPDebugTrace debugTrace;
+        SkSL::DebugTracePriv debugTrace;
         const_cast<SkRuntimeEffect*>(this)->fRPProgram =
                 MakeRasterPipelineProgram(*fBaseProgram,
                                           fMain,
@@ -346,9 +345,9 @@ SkRuntimeEffect::ChildPtr::ChildPtr(sk_sp<SkFlattenable> f) : fChild(std::move(f
     SkASSERT(flattenable_is_valid_as_child(fChild.get()));
 }
 
-static sk_sp<SkSL::SkVMDebugTrace> make_skvm_debug_trace(SkRuntimeEffect* effect,
+static sk_sp<SkSL::DebugTracePriv> make_skvm_debug_trace(SkRuntimeEffect* effect,
                                                          const SkIPoint& coord) {
-    auto debugTrace = sk_make_sp<SkSL::SkVMDebugTrace>();
+    auto debugTrace = sk_make_sp<SkSL::DebugTracePriv>();
     debugTrace->setSource(effect->source());
     debugTrace->setTraceCoord(coord);
     return debugTrace;
@@ -1388,7 +1387,7 @@ using UniformsCallback = SkRuntimeEffectPriv::UniformsCallback;
 class SkRTShader : public SkShaderBase {
 public:
     SkRTShader(sk_sp<SkRuntimeEffect> effect,
-               sk_sp<SkSL::SkVMDebugTrace> debugTrace,
+               sk_sp<SkSL::DebugTracePriv> debugTrace,
                sk_sp<const SkData> uniforms,
                SkSpan<SkRuntimeEffect::ChildPtr> children)
             : fEffect(std::move(effect))
@@ -1397,7 +1396,7 @@ public:
             , fChildren(children.begin(), children.end()) {}
 
     SkRTShader(sk_sp<SkRuntimeEffect> effect,
-               sk_sp<SkSL::SkVMDebugTrace> debugTrace,
+               sk_sp<SkSL::DebugTracePriv> debugTrace,
                UniformsCallback uniformsCallback,
                SkSpan<SkRuntimeEffect::ChildPtr> children)
             : fEffect(std::move(effect))
@@ -1407,7 +1406,7 @@ public:
 
     SkRuntimeEffect::TracedShader makeTracedClone(const SkIPoint& coord) {
         sk_sp<SkRuntimeEffect> unoptimized = fEffect->makeUnoptimizedClone();
-        sk_sp<SkSL::SkVMDebugTrace> debugTrace = make_skvm_debug_trace(unoptimized.get(), coord);
+        sk_sp<SkSL::DebugTracePriv> debugTrace = make_skvm_debug_trace(unoptimized.get(), coord);
         auto debugShader = sk_make_sp<SkRTShader>(
                 unoptimized, debugTrace, this->uniformData(nullptr), SkSpan(fChildren));
 
@@ -1567,7 +1566,7 @@ private:
     }
 
     sk_sp<SkRuntimeEffect> fEffect;
-    sk_sp<SkSL::SkVMDebugTrace> fDebugTrace;
+    sk_sp<SkSL::DebugTracePriv> fDebugTrace;
     sk_sp<const SkData> fUniformData;
     UniformsCallback fUniformsCallback;
     std::vector<SkRuntimeEffect::ChildPtr> fChildren;

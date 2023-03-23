@@ -320,11 +320,11 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     canvas->restore();
 
     if (debugTrace && writeTrace) {
-        SkFILEWStream traceFile("SkVMDebugTrace.json");
+        SkFILEWStream traceFile("SkSLDebugTrace.json");
         debugTrace->writeTrace(&traceFile);
     }
     if (debugTrace && writeDump) {
-        SkFILEWStream dumpFile("SkVMDebugTrace.dump.txt");
+        SkFILEWStream dumpFile("SkSLDebugTrace.dump.txt");
         debugTrace->dump(&dumpFile);
     }
 }

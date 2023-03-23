@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/tracing/SkVMDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
@@ -26,7 +26,7 @@ namespace SkSL {
 class SkVMDebugTracePlayer {
 public:
     /** Resets playback to the start of the trace. Breakpoints are not cleared. */
-    void reset(sk_sp<SkVMDebugTrace> trace);
+    void reset(sk_sp<DebugTracePriv> trace);
 
     /** Advances the simulation to the next Line op. */
     void step();
@@ -119,7 +119,7 @@ private:
         size_t    fWriteTime;    // when was the variable in this slot most recently written?
                                  // (by cursor position)
     };
-    sk_sp<SkVMDebugTrace>      fDebugTrace;
+    sk_sp<DebugTracePriv>      fDebugTrace;
     size_t                     fCursor = 0;      // position of the read head
     int                        fScope = 0;       // the current scope depth (as tracked by
                                                  // trace_scope)

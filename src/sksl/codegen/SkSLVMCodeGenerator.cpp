@@ -60,9 +60,8 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
-#include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include <algorithm>
 #include <functional>
@@ -137,7 +136,7 @@ class SkVMGenerator {
 public:
     SkVMGenerator(const Program& program,
                   skvm::Builder* builder,
-                  SkVMDebugTrace* debugTrace,
+                  DebugTracePriv* debugTrace,
                   SkVMCallbacks* callbacks);
 
     void writeProgram(SkSpan<skvm::Val> uniforms,
@@ -170,12 +169,12 @@ private:
     Value getSlotValue(size_t slot, size_t nslots);
 
     /**
-     * Returns the slot index of this function inside the FunctionDebugInfo array in SkVMDebugTrace.
+     * Returns the slot index of this function inside the FunctionDebugInfo array in DebugTracePriv.
      * The FunctionDebugInfo slot will be created if it doesn't already exist.
      */
     int getDebugFunctionInfo(const FunctionDeclaration& decl);
 
-    /** Used by `createSlot` to add this variable to SlotDebugInfo inside SkVMDebugTrace. */
+    /** Used by `createSlot` to add this variable to SlotDebugInfo inside the DebugTrace. */
     void addDebugSlotInfo(const std::string& varName, const Type& type, int line,
                           int fnReturnValue);
 
@@ -308,7 +307,7 @@ private:
     //
     const Program& fProgram;
     skvm::Builder* fBuilder;
-    SkVMDebugTrace* fDebugTrace;
+    DebugTracePriv* fDebugTrace;
     int fTraceHookID = -1;
     SkVMCallbacks* fCallbacks;
     // contains the position of each newline in the source, plus a zero at the beginning and the
@@ -379,7 +378,7 @@ static inline bool is_uniform(const SkSL::Variable& var) {
 
 SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Builder* builder,
-                             SkVMDebugTrace* debugTrace,
+                             DebugTracePriv* debugTrace,
                              SkVMCallbacks* callbacks)
         : fProgram(program)
         , fBuilder(builder)
@@ -593,7 +592,7 @@ size_t SkVMGenerator::writeFunction(const IRNode& caller,
 
 void SkVMGenerator::writeToSlot(int slot, skvm::Val value) {
     if (fDebugTrace && (!fSlots[slot].writtenTo || fSlots[slot].val != value)) {
-        if (fProgram.fConfig->fSettings.fAllowTraceVarInSkVMDebugTrace) {
+        if (fProgram.fConfig->fSettings.fAllowTraceVarInDebugTrace) {
             fBuilder->trace_var(fTraceHookID, this->mask(), fTraceMask, slot, i32(value));
         }
         fSlots[slot].writtenTo = true;
@@ -2041,7 +2040,7 @@ void SkVMGenerator::writeStatement(const Statement& s) {
 skvm::Color ProgramToSkVM(const Program& program,
                           const FunctionDefinition& function,
                           skvm::Builder* builder,
-                          SkVMDebugTrace* debugTrace,
+                          DebugTracePriv* debugTrace,
                           SkSpan<skvm::Val> uniforms,
                           skvm::Coord device,
                           skvm::Coord local,
@@ -2084,7 +2083,7 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
     SkASSERT(argSlots <= std::size(args));
 
-    // Make sure that the SkVMDebugTrace starts from a clean slate.
+    // Make sure that the DebugTrace starts from a clean slate.
     if (debugTrace) {
         debugTrace->fSlotInfo.clear();
         debugTrace->fFuncInfo.clear();
@@ -2103,7 +2102,7 @@ skvm::Color ProgramToSkVM(const Program& program,
 bool ProgramToSkVM(const Program& program,
                    const FunctionDefinition& function,
                    skvm::Builder* b,
-                   SkVMDebugTrace* debugTrace,
+                   DebugTracePriv* debugTrace,
                    SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature) {
     SkVMSignature ignored,
@@ -2207,7 +2206,7 @@ bool ProgramToSkVM(const Program& program,
  */
 bool testingOnly_ProgramToSkVMShader(const Program& program,
                                      skvm::Builder* builder,
-                                     SkVMDebugTrace* debugTrace) {
+                                     DebugTracePriv* debugTrace) {
     const SkSL::FunctionDeclaration* main = program.getFunction("main");
     if (!main) {
         return false;
