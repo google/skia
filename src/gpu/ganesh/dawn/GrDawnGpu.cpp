@@ -13,7 +13,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSLProgramKind.h"
-#include "src/core/SkConvertPixels.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

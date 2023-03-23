@@ -61,6 +61,7 @@ supported_files_or_dirs=(
   "src/core/SkPathUtils.cpp"
   "src/core/SkPictureData.cpp"
   "src/core/SkPicturePlayback.cpp"
+  "src/core/SkConvertPixels.cpp"
   "src/core/SkPixmap.cpp"
   "src/core/SkPixmapDraw.cpp"
   "src/core/SkPoint.cpp"

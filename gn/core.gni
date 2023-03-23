@@ -222,6 +222,7 @@ skia_core_sources = [
   "$_src/base/SkQuads.cpp",
   "$_src/base/SkQuads.h",
   "$_src/base/SkRandom.h",
+  "$_src/base/SkRectMemcpy.h",
   "$_src/base/SkSafeMath.cpp",
   "$_src/base/SkSafeMath.h",
   "$_src/base/SkScopeExit.h",

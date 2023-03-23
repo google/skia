@@ -331,6 +331,7 @@ BASE_SRCS_ALL = [
     "src/base/SkQuads.cpp",
     "src/base/SkQuads.h",
     "src/base/SkRandom.h",
+    "src/base/SkRectMemcpy.h",
     "src/base/SkSafeMath.cpp",
     "src/base/SkSafeMath.h",
     "src/base/SkScopeExit.h",

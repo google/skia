@@ -7,7 +7,7 @@
 
 #include "include/core/SkYUVAPixmaps.h"
 
-#include "src/core/SkConvertPixels.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkYUVAInfoLocation.h"
 

@@ -8,12 +8,15 @@
 #ifndef skgpu_BufferWriter_DEFINED
 #define skgpu_BufferWriter_DEFINED
 
-#include <type_traits>
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkConvertPixels.h"
+
+#include <type_traits>
 
 namespace skgpu {
 

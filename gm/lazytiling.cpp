@@ -13,6 +13,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/ganesh/GrCaps.h"

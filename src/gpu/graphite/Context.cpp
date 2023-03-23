@@ -13,6 +13,8 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "src/base/SkRectMemcpy.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
