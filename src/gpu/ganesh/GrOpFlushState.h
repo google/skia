@@ -109,11 +109,11 @@ public:
         return *fOpArgs;
     }
 
-    void setSampledProxyArray(SkTArray<GrSurfaceProxy*, true>* sampledProxies) {
+    void setSampledProxyArray(skia_private::TArray<GrSurfaceProxy*, true>* sampledProxies) {
         fSampledProxies = sampledProxies;
     }
 
-    SkTArray<GrSurfaceProxy*, true>* sampledProxyArray() override {
+    skia_private::TArray<GrSurfaceProxy*, true>* sampledProxyArray() override {
         return fSampledProxies;
     }
 
@@ -311,7 +311,7 @@ private:
 
     // This field is only transiently set during flush. Each OpsTask will set it to point to an
     // array of proxies it uses before call onPrepare and onExecute.
-    SkTArray<GrSurfaceProxy*, true>* fSampledProxies;
+    skia_private::TArray<GrSurfaceProxy*, true>* fSampledProxies;
 
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;

@@ -16,6 +16,8 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
+using namespace skia_private;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 namespace {
@@ -225,7 +227,7 @@ public:
     }
 };
 
-typedef SkTArray<PathSegment, true> PathSegmentArray;
+typedef TArray<PathSegment, true> PathSegmentArray;
 
 void PathSegment::init() {
     const DPoint p0 = { fPts[0].fX, fPts[0].fY };

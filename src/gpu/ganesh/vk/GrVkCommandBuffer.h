@@ -311,8 +311,8 @@ public:
                       const VkImageResolve* regions);
 
     bool submitToQueue(GrVkGpu* gpu, VkQueue queue,
-                       SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
-                       SkTArray<GrVkSemaphore::Resource*>& waitSemaphores);
+                       skia_private::TArray<GrVkSemaphore::Resource*>& signalSemaphores,
+                       skia_private::TArray<GrVkSemaphore::Resource*>& waitSemaphores);
 
     void forceSync(GrVkGpu* gpu);
 
@@ -335,9 +335,9 @@ private:
 
     void onReleaseResources() override;
 
-    SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
+    skia_private::TArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
     VkFence                                                     fSubmitFence;
-    SkTArray<sk_sp<skgpu::RefCntedCallback>>                    fFinishedProcs;
+    skia_private::TArray<sk_sp<skgpu::RefCntedCallback>>                    fFinishedProcs;
 
     using INHERITED = GrVkCommandBuffer;
 };

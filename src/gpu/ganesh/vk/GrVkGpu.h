@@ -330,7 +330,7 @@ private:
                                         const SkIRect&,
                                         const GrOpsRenderPass::LoadAndStoreInfo&,
                                         const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                        const skia_private::TArray<GrSurfaceProxy*, true>& sampledProxies,
                                         GrXferBarrierFlags renderPassXferBarriers) override;
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
@@ -417,7 +417,7 @@ private:
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToSignal;
 
-    SkTArray<std::unique_ptr<SkDrawable::GpuDrawHandler>> fDrawables;
+    skia_private::TArray<std::unique_ptr<SkDrawable::GpuDrawHandler>> fDrawables;
 
     VkPhysicalDeviceProperties                            fPhysDevProps;
     VkPhysicalDeviceMemoryProperties                      fPhysDevMemProps;

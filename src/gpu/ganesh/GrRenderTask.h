@@ -181,7 +181,7 @@ protected:
     // List of texture proxies whose contents are being prepared on a worker thread
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins
     // executing. Can this be replaced?
-    SkTArray<GrTextureProxy*, true> fDeferredProxies;
+    skia_private::TArray<GrTextureProxy*, true> fDeferredProxies;
 
     enum Flags {
         kClosed_Flag           = 0x01,   //!< This task can't accept any more dependencies.

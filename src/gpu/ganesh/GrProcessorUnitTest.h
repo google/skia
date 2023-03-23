@@ -72,7 +72,7 @@ public:
 
 private:
     GrRecordingContext* fContext;
-    SkTArray<ViewInfo> fViews;
+    skia_private::TArray<ViewInfo> fViews;
     std::unique_ptr<SkArenaAlloc> fArena;
     std::unique_ptr<GrFragmentProcessor> fInputFP;
 };
@@ -99,7 +99,7 @@ public:
 private:
     /** A test function which verifies the count of factories. */
     static void VerifyFactoryCount();
-    static SkTArray<GrProcessorTestFactory<ProcessorSmartPtr>*, true>* GetFactories();
+    static skia_private::TArray<GrProcessorTestFactory<ProcessorSmartPtr>*, true>* GetFactories();
 
     MakeProc fMakeProc;
     SkString fName;
@@ -119,7 +119,7 @@ public:
 private:
     /** A test function which verifies the count of factories. */
     static void VerifyFactoryCount();
-    static SkTArray<GrXPFactoryTestFactory*, true>* GetFactories();
+    static skia_private::TArray<GrXPFactoryTestFactory*, true>* GetFactories();
 
     GetFn* fGetProc;
 };

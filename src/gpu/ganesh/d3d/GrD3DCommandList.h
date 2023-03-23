@@ -150,7 +150,7 @@ private:
 
     SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
 
-    SkTArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
+    skia_private::TArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
 };
 
 class GrD3DDirectCommandList : public GrD3DCommandList {

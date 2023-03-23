@@ -129,18 +129,21 @@ public:
 
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
-    void dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
+    void dumpCacheStatsKeyValuePairs(
+            skia_private::TArray<SkString>* keys, skia_private::TArray<double>* values) const;
     void printCacheStats() const;
 
     /** Prints GPU stats to the string if GR_GPU_STATS == 1. */
     void dumpGpuStats(SkString*) const;
-    void dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
+    void dumpGpuStatsKeyValuePairs(
+            skia_private::TArray<SkString>* keys, skia_private::TArray<double>* values) const;
     void printGpuStats() const;
 
     /** These are only active if GR_GPU_STATS == 1. */
     void resetContextStats();
     void dumpContextStats(SkString*) const;
-    void dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
+    void dumpContextStatsKeyValuePairs(
+            skia_private::TArray<SkString>* keys, skia_private::TArray<double>* values) const;
     void printContextStats() const;
 
     /** Get pointer to atlas texture for given mask format. Note that this wraps an

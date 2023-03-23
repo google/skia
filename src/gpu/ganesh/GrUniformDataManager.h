@@ -75,7 +75,7 @@ protected:
     uint32_t fUniformSize;
     bool fWrite16BitUniforms = false;
 
-    SkTArray<Uniform, true> fUniforms;
+    skia_private::TArray<Uniform, true> fUniforms;
 
     mutable SkAutoMalloc fUniformData;
     mutable bool         fUniformsDirty = false;

@@ -21,6 +21,8 @@
 #include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 
+using namespace skia_private;
+
 namespace {
 
 // Returns the rect [topLeftFloor, botRightCeil], which is the rect [r] rounded out to integer
@@ -63,7 +65,7 @@ bool is_visible(const SkRect& pathDevBounds, const SkIRect& clipBounds) {
 // before we render the next one in line. This means there will only ever be one atlas active at a
 // time and that they can all share the same texture.
 void validate_atlas_dependencies(
-        const SkTArray<sk_sp<skgpu::ganesh::AtlasRenderTask>>& atlasTasks) {
+        const TArray<sk_sp<skgpu::ganesh::AtlasRenderTask>>& atlasTasks) {
     for (int i = atlasTasks.size() - 1; i >= 1; --i) {
         auto atlasTask = atlasTasks[i].get();
         auto previousAtlasTask = atlasTasks[i - 1].get();

@@ -14,6 +14,8 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
+using namespace skia_private;
+
 #if GR_TEST_UTILS
 
 class GrGeometryProcessor;
@@ -126,19 +128,19 @@ const GrXPFactory* GrXPFactoryTestFactory::Get(GrProcessorTestData* data) {
  * problems on android.
  */
 template <>
-SkTArray<GrFragmentProcessorTestFactory*, true>* GrFragmentProcessorTestFactory::GetFactories() {
-    static SkTArray<GrFragmentProcessorTestFactory*, true> gFactories;
+TArray<GrFragmentProcessorTestFactory*, true>* GrFragmentProcessorTestFactory::GetFactories() {
+    static TArray<GrFragmentProcessorTestFactory*, true> gFactories;
     return &gFactories;
 }
 
 template <>
-SkTArray<GrGeometryProcessorTestFactory*, true>* GrGeometryProcessorTestFactory::GetFactories() {
-    static SkTArray<GrGeometryProcessorTestFactory*, true> gFactories;
+TArray<GrGeometryProcessorTestFactory*, true>* GrGeometryProcessorTestFactory::GetFactories() {
+    static TArray<GrGeometryProcessorTestFactory*, true> gFactories;
     return &gFactories;
 }
 
-SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() {
-    static SkTArray<GrXPFactoryTestFactory*, true> gFactories;
+TArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() {
+    static TArray<GrXPFactoryTestFactory*, true> gFactories;
     return &gFactories;
 }
 

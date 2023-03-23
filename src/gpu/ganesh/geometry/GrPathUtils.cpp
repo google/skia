@@ -13,6 +13,8 @@
 #include "src/core/SkPointPriv.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
+using namespace skia_private;
+
 static const SkScalar kMinCurveTol = 0.0001f;
 
 static float tolerance_to_wangs_precision(float srcTol) {
@@ -291,7 +293,7 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
 
 void convert_noninflect_cubic_to_quads(const SkPoint p[4],
                                        SkScalar toleranceSqd,
-                                       SkTArray<SkPoint, true>* quads,
+                                       TArray<SkPoint, true>* quads,
                                        int sublevel = 0,
                                        bool preserveFirstTangent = true,
                                        bool preserveLastTangent = true) {
@@ -357,7 +359,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
 void convert_noninflect_cubic_to_quads_with_constraint(const SkPoint p[4],
                                                        SkScalar toleranceSqd,
                                                        SkPathFirstDirection dir,
-                                                       SkTArray<SkPoint, true>* quads,
+                                                       TArray<SkPoint, true>* quads,
                                                        int sublevel = 0) {
     // Notation: Point a is always p[0]. Point b is p[1] unless p[1] == p[0], in which case it is
     // p[2]. Point d is always p[3]. Point c is p[2] unless p[2] == p[3], in which case it is p[1].
@@ -486,7 +488,7 @@ void convert_noninflect_cubic_to_quads_with_constraint(const SkPoint p[4],
 
 void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
                                       SkScalar tolScale,
-                                      SkTArray<SkPoint, true>* quads) {
+                                      TArray<SkPoint, true>* quads) {
     if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
         return;
     }
@@ -507,7 +509,7 @@ void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
 void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
                                                          SkScalar tolScale,
                                                          SkPathFirstDirection dir,
-                                                         SkTArray<SkPoint, true>* quads) {
+                                                         TArray<SkPoint, true>* quads) {
     if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
         return;
     }

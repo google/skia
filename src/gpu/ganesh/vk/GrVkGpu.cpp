@@ -320,7 +320,7 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
         const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        const TArray<GrSurfaceProxy*, true>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
@@ -886,8 +886,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkImage* texImage,
 // This fills in the 'regions' vector in preparation for copying a buffer to an image.
 // 'individualMipOffsets' is filled in as a side-effect.
 static size_t fill_in_compressed_regions(GrStagingBufferManager* stagingBufferManager,
-                                         SkTArray<VkBufferImageCopy>* regions,
-                                         SkTArray<size_t>* individualMipOffsets,
+                                         TArray<VkBufferImageCopy>* regions,
+                                         TArray<size_t>* individualMipOffsets,
                                          GrStagingBufferManager::Slice* slice,
                                          SkTextureCompressionType compression,
                                          VkFormat vkFormat,
@@ -972,7 +972,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkImage* texImage,
     AutoTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
     std::copy_n(texels, mipLevelCount, texelsShallowCopy.get());
 
-    SkTArray<size_t> individualMipOffsets;
+    TArray<size_t> individualMipOffsets;
     size_t combinedBufferSize;
     if (mipLevelCount > 1) {
         combinedBufferSize = GrComputeTightCombinedBufferSize(bpp,
@@ -1004,7 +1004,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkImage* texImage,
     int uploadTop = rect.top();
 
     char* buffer = (char*) slice.fOffsetMapPtr;
-    SkTArray<VkBufferImageCopy> regions(mipLevelCount);
+    TArray<VkBufferImageCopy> regions(mipLevelCount);
 
     int currentWidth = rect.width();
     int currentHeight = rect.height();
@@ -1079,8 +1079,8 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkImage* uploadTexture,
 
 
     GrStagingBufferManager::Slice slice;
-    SkTArray<VkBufferImageCopy> regions;
-    SkTArray<size_t> individualMipOffsets;
+    TArray<VkBufferImageCopy> regions;
+    TArray<size_t> individualMipOffsets;
     SkDEBUGCODE(size_t combinedBufferSize =) fill_in_compressed_regions(&fStagingBufferManager,
                                                                         &regions,
                                                                         &individualMipOffsets,
@@ -1629,7 +1629,7 @@ sk_sp<GrAttachment> GrVkGpu::makeMSAAAttachment(SkISize dimensions,
 
 bool copy_src_data(char* mapPtr,
                    VkFormat vkFormat,
-                   const SkTArray<size_t>& individualMipOffsets,
+                   const TArray<size_t>& individualMipOffsets,
                    const GrPixmap srcData[],
                    int numMipLevels) {
     SkASSERT(srcData && numMipLevels);
@@ -1854,8 +1854,8 @@ bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
     SkTextureCompressionType compression =
             GrBackendFormatToCompressionType(backendTexture.getBackendFormat());
 
-    SkTArray<VkBufferImageCopy> regions;
-    SkTArray<size_t> individualMipOffsets;
+    TArray<VkBufferImageCopy> regions;
+    TArray<size_t> individualMipOffsets;
     GrStagingBufferManager::Slice slice;
 
     fill_in_compressed_regions(&fStagingBufferManager,

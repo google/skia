@@ -114,7 +114,7 @@ private:
     MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
     bool                        fHasWork;
 
-    SkTArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
+    skia_private::TArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
 
 };
 

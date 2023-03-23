@@ -98,7 +98,7 @@ private:
         MTLPixelFormat fStencilFormat;
     };
     id<MTLLibrary> fMSAALoadLibrary;
-    SkTArray<MSAALoadPipelineEntry> fMSAALoadPipelines;
+    skia_private::TArray<MSAALoadPipelineEntry> fMSAALoadPipelines;
 };
 
 #endif

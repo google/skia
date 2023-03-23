@@ -53,7 +53,8 @@ public:
 
     // Appends the instanced input attribs to the back of the array that we will need in order to
     // locate our path in the atlas.
-    void appendInstanceAttribs(SkTArray<GrGeometryProcessor::Attribute>* instanceAttribs) const;
+    void appendInstanceAttribs(
+            skia_private::TArray<GrGeometryProcessor::Attribute>* instanceAttribs) const;
 
     struct Instance {
         Instance(SkIPoint16 locationInAtlas, const SkIRect& pathDevIBounds, bool transposedInAtlas)

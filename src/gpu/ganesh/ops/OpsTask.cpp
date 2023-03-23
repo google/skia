@@ -26,6 +26,8 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/geometry/GrRect.h"
 
+using namespace skia_private;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -48,7 +50,7 @@ GrOpsRenderPass* create_render_pass(GrGpu* gpu,
                                     const std::array<float, 4>& loadClearColor,
                                     GrLoadOp stencilLoadOp,
                                     GrStoreOp stencilStoreOp,
-                                    const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                    const TArray<GrSurfaceProxy*, true>& sampledProxies,
                                     GrXferBarrierFlags renderPassXferBarriers) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,

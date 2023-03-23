@@ -33,6 +33,8 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
+using namespace skia_private;
+
 namespace skgpu::ganesh {
 
 namespace {
@@ -66,7 +68,7 @@ struct Segment {
     }
 };
 
-typedef SkTArray<Segment, true> SegmentArray;
+typedef TArray<Segment, true> SegmentArray;
 
 bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
     SkScalar area = 0;
@@ -365,7 +367,7 @@ struct Draw {
     int fIndexCnt;
 };
 
-typedef SkTArray<Draw, true> DrawArray;
+typedef TArray<Draw, true> DrawArray;
 
 void create_vertices(const SegmentArray& segments,
                      const SkPoint& fanPt,

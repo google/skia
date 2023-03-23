@@ -302,11 +302,11 @@ private:
     };
 
     // Cache of previously created msaa load pipelines
-    SkTArray<MSAALoadPipeline> fMSAALoadPipelines;
+    skia_private::TArray<MSAALoadPipeline> fMSAALoadPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
-    SkTArray<const GrVkRenderPass*> fExternalRenderPasses;
+    skia_private::TArray<const GrVkRenderPass*> fExternalRenderPasses;
 
     // Array of command pools that we are waiting on
     SkSTArray<4, GrVkCommandPool*, true> fActiveCommandPools;

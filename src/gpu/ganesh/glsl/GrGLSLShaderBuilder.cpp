@@ -16,6 +16,8 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+using namespace skia_private;
+
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
     , fInputs(GrGLSLProgramBuilder::kVarsPerBlock)
@@ -286,7 +288,7 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
     };
 
     for (int interface = 0; interface <= kLastInterfaceQualifier; ++interface) {
-        const SkTArray<SkString>& params = fLayoutParams[interface];
+        const TArray<SkString>& params = fLayoutParams[interface];
         if (params.empty()) {
             continue;
         }

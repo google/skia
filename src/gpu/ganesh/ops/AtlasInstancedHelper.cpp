@@ -13,6 +13,8 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
+using namespace skia_private;
+
 namespace skgpu::ganesh {
 
 void AtlasInstancedHelper::getKeyBits(KeyBuilder* b) const {
@@ -20,7 +22,7 @@ void AtlasInstancedHelper::getKeyBits(KeyBuilder* b) const {
 }
 
 void AtlasInstancedHelper::appendInstanceAttribs(
-        SkTArray<GrGeometryProcessor::Attribute>* instanceAttribs) const {
+        TArray<GrGeometryProcessor::Attribute>* instanceAttribs) const {
     instanceAttribs->emplace_back("locations", kFloat4_GrVertexAttribType, SkSLType::kFloat4);
     if (fShaderFlags & ShaderFlags::kCheckBounds) {
         instanceAttribs->emplace_back("sizeInAtlas", kFloat2_GrVertexAttribType, SkSLType::kFloat2);

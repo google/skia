@@ -66,8 +66,8 @@ private:
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     UniformInfoArray    fTextures;
-    SkTArray<skgpu::Swizzle> fSamplerSwizzles;
-    SkTArray<SkString>  fSamplerReferences;
+    skia_private::TArray<skgpu::Swizzle> fSamplerSwizzles;
+    skia_private::TArray<SkString>  fSamplerReferences;
 
     uint32_t fCurrentUBOOffset = 0;
     uint32_t fRTFlipOffset = 0;

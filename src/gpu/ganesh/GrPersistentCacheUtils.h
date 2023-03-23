@@ -25,7 +25,7 @@ namespace GrPersistentCacheUtils {
 
 struct ShaderMetadata {
     SkSL::ProgramSettings* fSettings = nullptr;
-    SkTArray<std::string> fAttributeNames;
+    skia_private::TArray<std::string> fAttributeNames;
     bool fHasSecondaryColorOutput = false;
     sk_sp<SkData> fPlatformData;
 };

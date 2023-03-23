@@ -41,7 +41,7 @@ public:
              const GrOpsRenderPass::LoadAndStoreInfo& resolveInfo,
              GrVkRenderPass::SelfDependencyFlags selfDepFlags,
              GrVkRenderPass::LoadFromResolve loadFromResolve,
-             const SkTArray<GrSurfaceProxy*, true>& sampledProxies);
+             const skia_private::TArray<GrSurfaceProxy*, true>& sampledProxies);
     void reset();
 
     void submit();

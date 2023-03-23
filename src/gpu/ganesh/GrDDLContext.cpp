@@ -14,6 +14,8 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 
+using namespace skia_private;
+
 /**
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
  * cannot allocate any GPU resources.
@@ -56,7 +58,7 @@ private:
         fProgramInfoMap.add(desc, programInfo);
     }
 
-    void detachProgramData(SkTArray<ProgramData>* dst) final {
+    void detachProgramData(TArray<ProgramData>* dst) final {
         SkASSERT(dst->empty());
 
         fProgramInfoMap.toArray(dst);
@@ -87,7 +89,7 @@ private:
             fMap.insert(desc, programInfo);
         }
 
-        void toArray(SkTArray<ProgramData>* dst) {
+        void toArray(TArray<ProgramData>* dst) {
             fMap.foreach([dst](CacheKey* programDesc, CacheValue* programInfo) {
                              // TODO: remove this allocation once the program descs are stored
                              // in the record-time arena.

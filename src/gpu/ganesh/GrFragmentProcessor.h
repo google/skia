@@ -641,7 +641,7 @@ private:
     // The (mangled) name of our entry-point function
     SkString fFunctionName;
 
-    SkTArray<std::unique_ptr<ProgramImpl>, true> fChildProcessors;
+    skia_private::TArray<std::unique_ptr<ProgramImpl>, true> fChildProcessors;
 
     friend class GrFragmentProcessor;
 };

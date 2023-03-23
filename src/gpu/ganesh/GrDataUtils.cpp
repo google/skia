@@ -26,6 +26,8 @@
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 
+using namespace skia_private;
+
 struct ETC1Block {
     uint32_t fHigh;
     uint32_t fLow;
@@ -285,7 +287,7 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
 #endif
 
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
-                                        SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
+                                        TArray<size_t>* individualMipOffsets, int mipLevelCount) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->size());
     SkASSERT(mipLevelCount >= 1);
 

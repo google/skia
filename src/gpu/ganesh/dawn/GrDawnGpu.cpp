@@ -44,6 +44,8 @@
 #include <unistd.h>
 #endif // !defined(SK_BUILD_FOR_WIN)
 
+using namespace skia_private;
+
 static const int kMaxRenderPipelineEntries = 1024;
 
 static wgpu::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
@@ -174,7 +176,7 @@ GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
         const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        const TArray<GrSurfaceProxy*, true>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
     fOpsRenderPass.reset(new GrDawnOpsRenderPass(this, rt, origin, colorInfo, stencilInfo));
     return fOpsRenderPass.get();

@@ -112,7 +112,7 @@ public:
     UNIMPL(bool usesMSAASurface() const)
     UNIMPL(sktext::gpu::StrikeCache* strikeCache() const)
     UNIMPL(GrAtlasManager* atlasManager() const)
-    UNIMPL(SkTArray<GrSurfaceProxy*, true>* sampledProxyArray())
+    UNIMPL(skia_private::TArray<GrSurfaceProxy*, true>* sampledProxyArray())
     UNIMPL(GrDeferredUploadTarget* deferredUploadTarget())
 #undef UNIMPL
 

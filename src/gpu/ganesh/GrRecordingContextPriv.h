@@ -53,7 +53,7 @@ public:
         this->context()->recordProgramInfo(programInfo);
     }
 
-    void detachProgramData(SkTArray<GrRecordingContext::ProgramData>* dst) {
+    void detachProgramData(skia_private::TArray<GrRecordingContext::ProgramData>* dst) {
         this->context()->detachProgramData(dst);
     }
 

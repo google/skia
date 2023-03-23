@@ -26,6 +26,7 @@
 #include "src/text/gpu/TextBlob.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
+using namespace skia_private;
 
 using TextBlobRedrawCoordinator = sktext::gpu::TextBlobRedrawCoordinator;
 
@@ -198,8 +199,8 @@ void GrRecordingContext::Stats::dump(SkString* out) const {
     out->appendf("Num Path Mask Cache Hits: %d\n", fNumPathMaskCacheHits);
 }
 
-void GrRecordingContext::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys,
-                                                  SkTArray<double>* values) const {
+void GrRecordingContext::Stats::dumpKeyValuePairs(TArray<SkString>* keys,
+                                                  TArray<double>* values) const {
     keys->push_back(SkString("path_masks_generated"));
     values->push_back(fNumPathMasksGenerated);
 
@@ -207,8 +208,8 @@ void GrRecordingContext::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys,
     values->push_back(fNumPathMaskCacheHits);
 }
 
-void GrRecordingContext::DMSAAStats::dumpKeyValuePairs(SkTArray<SkString>* keys,
-                                                       SkTArray<double>* values) const {
+void GrRecordingContext::DMSAAStats::dumpKeyValuePairs(TArray<SkString>* keys,
+                                                       TArray<double>* values) const {
     keys->push_back(SkString("dmsaa_render_passes"));
     values->push_back(fNumRenderPasses);
 

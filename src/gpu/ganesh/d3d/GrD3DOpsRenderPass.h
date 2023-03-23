@@ -29,7 +29,7 @@ public:
     bool set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo&,
         const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies);
+        const skia_private::TArray<GrSurfaceProxy*, true>& sampledProxies);
 
     void submit();
 

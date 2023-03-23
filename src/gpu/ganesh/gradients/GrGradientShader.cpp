@@ -23,6 +23,8 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/gradients/GrGradientBitmapCache.h"
 
+using namespace skia_private;
+
 using Vec4 = skvx::Vec<4, float>;
 
 // Intervals smaller than this (that aren't hard stops) on low-precision-only devices force us to
@@ -790,7 +792,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     // SkGradientShader stores positions implicitly when they are evenly spaced, but the getPos()
     // implementation performs a branch for every position index. Since the shader conversion
     // requires lots of position tests, calculate all of the positions up front if needed.
-    SkTArray<SkScalar, true> implicitPos;
+    TArray<SkScalar, true> implicitPos;
     SkScalar* positions;
     if (shader.fPositions) {
         positions = shader.fPositions;

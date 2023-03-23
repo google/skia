@@ -295,7 +295,7 @@ private:
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
     // causing slow downs.
-    SkTArray<GrSurfaceProxy*, true> fSampledProxies;
+    skia_private::TArray<GrSurfaceProxy*, true> fSampledProxies;
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();

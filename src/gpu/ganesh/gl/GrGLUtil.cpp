@@ -14,6 +14,8 @@
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include <stdio.h>
 
+using namespace skia_private;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_GL_LOG_CALLS
@@ -589,7 +591,7 @@ static std::tuple<GrGLVendor, GrGLRenderer, GrGLDriver, GrGLDriverVersion>
 get_angle_gl_vendor_and_renderer(
         const char* innerString,
         const GrGLExtensions& extensions) {
-    SkTArray<SkString> parts;
+    TArray<SkString> parts;
     SkStrSplit(innerString, ",", &parts);
     // This would need some fixing if we have substrings that contain commas.
     if (parts.size() != 3) {

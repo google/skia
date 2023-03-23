@@ -20,6 +20,8 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 namespace {
 
 class DrawAtlasOpImpl final : public GrMeshDrawOp {
@@ -74,7 +76,7 @@ private:
 
     struct Geometry {
         SkPMColor4f fColor;
-        SkTArray<uint8_t, true> fVerts;
+        TArray<uint8_t, true> fVerts;
     };
 
     SkSTArray<1, Geometry, true> fGeoData;
@@ -357,8 +359,8 @@ static SkRect random_texRect(SkRandom* random) {
     return texRect;
 }
 
-static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXform>* xforms,
-                             SkTArray<SkRect>* texRects, SkTArray<GrColor>* colors,
+static void randomize_params(uint32_t count, SkRandom* random, TArray<SkRSXform>* xforms,
+                             TArray<SkRect>* texRects, TArray<GrColor>* colors,
                              bool hasColors) {
     for (uint32_t v = 0; v < count; v++) {
         xforms->push_back(random_xform(random));
@@ -372,9 +374,9 @@ static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXfor
 GR_DRAW_OP_TEST_DEFINE(DrawAtlasOp) {
     uint32_t spriteCount = random->nextRangeU(1, 100);
 
-    SkTArray<SkRSXform> xforms(spriteCount);
-    SkTArray<SkRect> texRects(spriteCount);
-    SkTArray<GrColor> colors;
+    TArray<SkRSXform> xforms(spriteCount);
+    TArray<SkRect> texRects(spriteCount);
+    TArray<GrColor> colors;
 
     bool hasColors = random->nextBool();
 

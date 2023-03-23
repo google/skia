@@ -35,6 +35,8 @@
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/sksl/SkSLCompiler.h"
 
+using namespace skia_private;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGpu::GrGpu(GrDirectContext* direct) : fResetBits(kAll_GrBackendState), fContext(direct) {}
@@ -734,7 +736,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
         const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        const TArray<GrSurfaceProxy*, true>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
 #if SK_HISTOGRAMS_ENABLED
     fCurrentSubmitRenderPassCount++;
@@ -844,7 +846,7 @@ void GrGpu::Stats::dump(SkString* out) {
 #endif
 }
 
-void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
+void GrGpu::Stats::dumpKeyValuePairs(TArray<SkString>* keys, TArray<double>* values) {
     keys->push_back(SkString("render_passes"));
     values->push_back(fRenderPasses);
     keys->push_back(SkString("reordered_dags_over_budget"));

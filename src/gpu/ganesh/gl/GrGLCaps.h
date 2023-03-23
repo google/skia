@@ -195,7 +195,7 @@ public:
     * to be supported by the driver but are legal GLenum names given the GL
     * version and extensions supported.
     */
-    const SkTArray<GrGLFormat, true>& stencilFormats() const {
+    const skia_private::TArray<GrGLFormat, true>& stencilFormats() const {
         return fStencilFormats;
     }
 
@@ -560,8 +560,8 @@ private:
 
     GrGLStandard fStandard = kNone_GrGLStandard;
 
-    SkTArray<GrGLFormat, true> fStencilFormats;
-    SkTArray<GrGLenum, true> fProgramBinaryFormats;
+    skia_private::TArray<GrGLFormat, true> fStencilFormats;
+    skia_private::TArray<GrGLenum, true> fProgramBinaryFormats;
 
     int fMaxFragmentUniformVectors = 0;
     float fMaxTextureMaxAnisotropy = 1.f;

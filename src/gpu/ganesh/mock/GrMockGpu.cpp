@@ -16,6 +16,8 @@
 
 #include <atomic>
 
+using namespace skia_private;
+
 int GrMockGpu::NextInternalTextureID() {
     static std::atomic<int> nextID{1};
     int id;
@@ -62,7 +64,7 @@ GrOpsRenderPass* GrMockGpu::onGetOpsRenderPass(GrRenderTarget* rt,
                                                const SkIRect& bounds,
                                                const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                                const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                               const SkTArray<GrSurfaceProxy*,true>& sampledProxies,
+                                               const TArray<GrSurfaceProxy*,true>& sampledProxies,
                                                GrXferBarrierFlags renderPassXferBarriers) {
     return new GrMockOpsRenderPass(this, rt, origin, colorInfo);
 }

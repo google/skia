@@ -32,11 +32,13 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
+using namespace skia_private;
+
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
 
-using PtArray = SkTArray<SkPoint, true>;
-using IntArray = SkTArray<int, true>;
-using FloatArray = SkTArray<float, true>;
+using PtArray = TArray<SkPoint, true>;
+using IntArray = TArray<int, true>;
+using FloatArray = TArray<float, true>;
 
 namespace {
 

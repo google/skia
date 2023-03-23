@@ -48,7 +48,7 @@
 #include "src/image/SkSurface_Gpu.h"
 #include "src/text/gpu/SDFTControl.h"
 
-
+using namespace skia_private;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext,
@@ -361,7 +361,7 @@ void GrDrawingManager::sortTasks() {
 // Both args must contain the same objects.
 // This is basically a shim because clustering uses LList but the rest of drawmgr uses array.
 template <typename T>
-static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk_sp<T>>* array) {
+static void reorder_array_by_llist(const SkTInternalLList<T>& llist, TArray<sk_sp<T>>* array) {
     int i = 0;
     for (T* t : llist) {
         // Release the pointer that used to live here so it doesn't get unreffed.

@@ -244,7 +244,8 @@ public:
 #if GR_TEST_UTILS
     void dumpStats(SkString*) const;
 
-    void dumpStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* value) const;
+    void dumpStatsKeyValuePairs(
+            skia_private::TArray<SkString>* keys, skia_private::TArray<double>* value) const;
 #endif
 
 #endif // GR_CACHE_STATS
