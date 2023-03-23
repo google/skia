@@ -22,9 +22,6 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/gpu/ManagedBackendTexture.h"
-#ifdef SK_GRAPHITE
-#include "include/gpu/graphite/YUVABackendTextures.h"
-#endif
 
 namespace {
 
@@ -346,11 +343,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
 }
 
 #if defined(SK_GRAPHITE)
-using BackendTexture = skgpu::graphite::BackendTexture;
-using Recorder = skgpu::graphite::Recorder;
-using YUVABackendTextures = skgpu::graphite::YUVABackendTextures;
-
-bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
+bool LazyYUVImage::ensureYUVImage(skgpu::graphite::Recorder* recorder, Type type) {
     size_t idx = static_cast<size_t>(type);
     SkASSERT(idx < std::size(fYUVImage));
     if (fYUVImage[idx] && as_IB(fYUVImage[idx])->isGraphiteBacked()) {
@@ -375,45 +368,8 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
             break;
         }
         case Type::kFromTextures:
-            if (!recorder) {
-                return false;
-            }
-            if (fMipmapped == skgpu::Mipmapped::kYes) {
-                // If this becomes necessary we should invoke SkMipmapBuilder here to make mip
-                // maps from our src data (and then pass a pixmaps array to initialize the planar
-                // textures.
-                return false;
-            }
-            sk_sp<sk_gpu_test::ManagedGraphiteTexture> mbets[SkYUVAInfo::kMaxPlanes];
-            BackendTexture textures[SkYUVAInfo::kMaxPlanes];
-            for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
-                mbets[i] = sk_gpu_test::ManagedGraphiteTexture::MakeFromPixmap(
-                        recorder,
-                        fPixmaps.plane(i),
-                        skgpu::Mipmapped::kNo,
-                        skgpu::Renderable::kNo,
-                        skgpu::Protected::kNo);
-                if (mbets[i]) {
-                    textures[i] = mbets[i]->texture();
-                } else {
-                    return false;
-                }
-            }
-            YUVABackendTextures yuvaTextures(recorder,
-                                             fPixmaps.yuvaInfo(),
-                                             textures);
-            if (!yuvaTextures.isValid()) {
-                return false;
-            }
-            void* imageRelContext =
-                    sk_gpu_test::ManagedGraphiteTexture::MakeYUVAReleaseContext(mbets);
-            fYUVImage[idx] = SkImage::MakeGraphiteFromYUVABackendTextures(
-                    recorder,
-                    yuvaTextures,
-                    fColorSpace,
-                    sk_gpu_test::ManagedGraphiteTexture::ImageReleaseProc,
-                    imageRelContext);
-            break;
+            // TODO: implement this
+            return false;
     }
     return fYUVImage[idx] != nullptr;
 }

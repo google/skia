@@ -148,13 +148,6 @@ struct MBETContext {
 
 namespace sk_gpu_test {
 
-void ManagedGraphiteTexture::FinishedProc(void* ctx, skgpu::CallbackResult) {
-    std::unique_ptr<MBETContext> context(static_cast<MBETContext*>(ctx));
-}
-void ManagedGraphiteTexture::ImageReleaseProc(void* ctx) {
-    std::unique_ptr<MBETContext> context(static_cast<MBETContext*>(ctx));
-}
-
 ManagedGraphiteTexture::~ManagedGraphiteTexture() {
     if (fContext && fTexture.isValid()) {
         fContext->deleteBackendTexture(fTexture);
@@ -171,7 +164,7 @@ void* ManagedGraphiteTexture::MakeYUVAReleaseContext(
 }
 
 sk_sp<skgpu::RefCntedCallback> ManagedGraphiteTexture::refCountedCallback() const {
-    return skgpu::RefCntedCallback::Make(FinishedProc, this->releaseContext());
+    return skgpu::RefCntedCallback::Make(ReleaseProc, this->releaseContext());
 }
 
 sk_sp<ManagedGraphiteTexture> ManagedGraphiteTexture::MakeFromPixmap(Recorder* recorder,
@@ -211,7 +204,7 @@ sk_sp<ManagedGraphiteTexture> ManagedGraphiteTexture::MakeFromPixmap(Recorder* r
                                         static_cast<int>(levels.size()))) {
         return nullptr;
     }
-    recorder->addFinishInfo({mbet->releaseContext(), FinishedProc});
+    recorder->addFinishInfo({mbet->releaseContext(), ReleaseProc});
 
     return mbet;
 }
