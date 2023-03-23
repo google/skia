@@ -37,6 +37,10 @@ class SkWStream;
     #undef SKVM_JIT
 #endif
 
+namespace SkSL {
+class TraceHook;
+}
+
 namespace skvm {
 
     namespace viz {
@@ -600,16 +604,6 @@ namespace skvm {
         bool fp16  = false;
     };
 
-    class TraceHook {
-    public:
-        virtual ~TraceHook() = default;
-        virtual void line(int lineNum) = 0;
-        virtual void var(int slot, int32_t val) = 0;
-        virtual void enter(int fnIdx) = 0;
-        virtual void exit(int fnIdx) = 0;
-        virtual void scope(int delta) = 0;
-    };
-
     class Builder {
     public:
         Builder(bool createDuplicates = false);
@@ -626,7 +620,7 @@ namespace skvm {
         std::vector<OptimizedInstruction> optimize(viz::Visualizer* visualizer = nullptr) const;
 
         // Returns a trace-hook ID which must be passed to the trace opcodes.
-        int attachTraceHook(TraceHook*);
+        int attachTraceHook(SkSL::TraceHook*);
 
         // Convenience arg() wrappers for most common strides, sizeof(T) and 0.
         template <typename T>
@@ -1017,7 +1011,7 @@ namespace skvm {
 
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
-        std::vector<TraceHook*>                       fTraceHooks;
+        std::vector<SkSL::TraceHook*>                 fTraceHooks;
         std::vector<int>                              fStrides;
         const Features                                fFeatures;
         bool                                          fCreateDuplicates;
@@ -1044,7 +1038,7 @@ namespace skvm {
         Program(const std::vector<OptimizedInstruction>& instructions,
                 std::unique_ptr<viz::Visualizer> visualizer,
                 const std::vector<int>& strides,
-                const std::vector<TraceHook*>& traceHooks,
+                const std::vector<SkSL::TraceHook*>& traceHooks,
                 const char* debug_name, bool allow_jit);
 
         Program();

@@ -61,6 +61,7 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "src/sksl/tracing/SkSLTraceHook.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include <algorithm>
@@ -81,7 +82,7 @@ namespace {
     static skvm::F32 operator*(skvm::F32 x, FastF32 y) { return fast_mul(x, y.val); }
     static skvm::F32 operator*(float     x, FastF32 y) { return fast_mul(x, y.val); }
 
-    class SkSLTracer : public skvm::TraceHook {
+    class SkSLTracer : public SkSL::TraceHook {
     public:
         static std::unique_ptr<SkSLTracer> Make(SkSL::SkVMDebugTrace* trace) {
             auto hook = std::make_unique<SkSLTracer>();

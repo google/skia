@@ -71,6 +71,7 @@ skia_filegroup(
         "//src/ports:private_hdrs",
         "//src/sfnt:private_hdrs",
         "//src/shaders:private_hdrs",
+        "//src/sksl/tracing:skopts_hdrs",
         "//src/text:private_hdrs",
         "//src/utils:private_hdrs",
     ] + select({
