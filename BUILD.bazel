@@ -20,6 +20,7 @@ skia_cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src:deps",
+        "@skia_user_config//:user_config",
     ],
 )
 
@@ -46,6 +47,7 @@ skia_cc_library(
     ],
     deps = [
         "//src:deps",
+        "@skia_user_config//:user_config",
     ],
 )
 

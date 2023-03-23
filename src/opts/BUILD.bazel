@@ -11,8 +11,8 @@ Skia's headers. These libraries are each compiled with a different set of compil
 (e.g. architecture options) and linked into the final library or binary.
 """
 
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
-load("//bazel:copts.bzl", "DEFAULT_COPTS")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_cc_library", "skia_filegroup")
 load("//bazel:flags.bzl", "selects")
 
@@ -56,6 +56,7 @@ skia_cc_library(
     copts = DEFAULT_COPTS + ["-march=armv8-a+crc"],
     local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
+    deps = ["@skia_user_config//:user_config"],
 )
 
 skia_cc_library(
@@ -64,6 +65,7 @@ skia_cc_library(
     copts = DEFAULT_COPTS + ["-mssse3"],
     local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
+    deps = ["@skia_user_config//:user_config"],
 )
 
 skia_cc_library(
@@ -72,6 +74,7 @@ skia_cc_library(
     copts = DEFAULT_COPTS + ["-msse4.2"],
     local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
+    deps = ["@skia_user_config//:user_config"],
 )
 
 skia_cc_library(
@@ -80,6 +83,7 @@ skia_cc_library(
     copts = DEFAULT_COPTS + ["-mavx"],
     local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
+    deps = ["@skia_user_config//:user_config"],
 )
 
 skia_cc_library(
@@ -90,6 +94,7 @@ skia_cc_library(
     textual_hdrs = OPTS_HDRS,
     deps = [
         "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
+        "@skia_user_config//:user_config",
     ],
 )
 
@@ -99,6 +104,7 @@ skia_cc_library(
     copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
     local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
+    deps = ["@skia_user_config//:user_config"],
 )
 
 skia_cc_deps(

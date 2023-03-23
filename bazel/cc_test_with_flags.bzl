@@ -12,7 +12,7 @@ https://github.com/bazelbuild/examples/blob/7fc3f8b587ee415ff02ce358caa960f9533a
 
 """
 
-load("//bazel:copts.bzl", "DEFAULT_COPTS")
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("//bazel:cc_binary_with_flags.bzl", "with_flags_transition")
 
 def _transition_rule_impl(ctx):
