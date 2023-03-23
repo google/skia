@@ -7,9 +7,9 @@
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"

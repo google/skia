@@ -9,7 +9,7 @@
 #define SkRawCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkEncodedImageFormat.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkICC.h"
+#include "include/encode/SkICC.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
@@ -17,8 +17,8 @@
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkEndian.h"
 #include "src/base/SkUtils.h"
-#include "src/core/SkICCPriv.h"
 #include "src/core/SkMD5.h"
+#include "src/encode/SkICCPriv.h"
 
 #include <cmath>
 #include <cstring>

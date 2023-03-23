@@ -46,6 +46,7 @@ skia_filegroup(
     srcs = [
         "SkEncoder.cpp",
         "SkImageEncoder.cpp",
+        "SkICC.cpp",
     ] + select_multi({
         ":jpeg_encode_codec": [":jpeg_encode_srcs"],
         ":png_encode_codec": [":png_encode_srcs"],
@@ -59,6 +60,7 @@ skia_filegroup(
     srcs = [
         "SkImageEncoderFns.h",
         "SkImageEncoderPriv.h",
+        "SkICCPriv.h",
     ] + select({
         ":jpeg_encode_codec": [":jpeg_encode_hdrs"],
         "//conditions:default": [],

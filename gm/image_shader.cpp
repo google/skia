@@ -6,12 +6,12 @@
  */
 
 #include "gm/gm.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"

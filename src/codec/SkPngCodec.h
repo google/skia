@@ -8,7 +8,7 @@
 #define SkPngCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkEncodedImageFormat.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTemplates.h"
 

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
@@ -12,7 +13,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"

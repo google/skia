@@ -35,8 +35,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/core.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_core_public",
 			Rules: []string{
-			"//include/core:public_hdrs",
-			"//include/core:legacy_draw_looper",
+				"//include/core:public_hdrs",
+				"//include/core:legacy_draw_looper",
 			}},
 		{Var: "skia_core_sources",
 			Rules: []string{
@@ -80,10 +80,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/core:skpicture_srcs",
 				"//src/shaders:skpicture_srcs",
 			}},
-		{Var: "src_images_srcs",
-			Rules: []string{"//src/encode:srcs"}},
 		{Var: "skia_encode_srcs",
-			Rules: []string{"//src/encode:srcs"}},
+			Rules: []string{
+				"//src/encode:srcs",
+				"//src/encode:private_hdrs",
+			}},
 		{Var: "skia_encode_jpeg_srcs",
 			Rules: []string{"//src/encode:jpeg_encode_srcs", "//src/encode:jpeg_encode_hdrs"}},
 		{Var: "skia_encode_png_srcs",

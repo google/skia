@@ -22,9 +22,9 @@
 #include <FontSub.h>
 #include <limits>
 
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkPaint.h"

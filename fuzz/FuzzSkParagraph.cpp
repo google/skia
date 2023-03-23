@@ -7,10 +7,10 @@
 
 #include "fuzz/Fuzz.h"
 #include "fuzz/FuzzCommon.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkImageEncoder.h"

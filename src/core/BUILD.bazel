@@ -158,8 +158,6 @@ CORE_FILES = [
     "SkGpuBlurUtils.cpp",
     "SkGpuBlurUtils.h",
     "SkGraphics.cpp",
-    "SkICC.cpp",
-    "SkICCPriv.h",
     "SkIDChangeListener.cpp",
     "SkIPoint16.h",
     "SkImageFilter.cpp",

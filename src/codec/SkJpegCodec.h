@@ -9,8 +9,8 @@
 #define SkJpegCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/codec/SkEncodedOrigin.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"

@@ -43,7 +43,7 @@ skia_filegroup(
         "SkDeferredDisplayListRecorder.h",
         "SkDocument.h",
         "SkDrawable.h",
-        "SkEncodedImageFormat.h",
+        "SkEncodedImageFormat.h",  # TODO(kjlubick) remove this shim
         "SkExecutor.h",
         "SkFlattenable.h",
         "SkFont.h",
@@ -54,7 +54,7 @@ skia_filegroup(
         "SkFontStyle.h",
         "SkFontTypes.h",
         "SkGraphics.h",
-        "SkICC.h",
+        "SkICC.h",  # Remove shim
         "SkImage.h",
         "SkImageEncoder.h",
         "SkImageFilter.h",
@@ -77,7 +77,6 @@ skia_filegroup(
         "SkPathUtils.h",
         "SkPixelRef.h",
         "SkPixmap.h",
-        "SkPngChunkReader.h",
         "SkPoint.h",
         "SkPoint3.h",
         "SkPromiseImageTexture.h",

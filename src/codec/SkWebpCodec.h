@@ -8,9 +8,9 @@
 #ifndef SkWebpCodec_DEFINED
 #define SkWebpCodec_DEFINED
 
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"

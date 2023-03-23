@@ -14,7 +14,7 @@
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS) || \
     defined(SK_BUILD_FOR_WIN) || defined(SK_ENABLE_NDK_IMAGES)
-#include "include/core/SkEncodedImageFormat.h"
+#include "include/codec/SkEncodedImageFormat.h"
 class SkWStream;
 #endif
 

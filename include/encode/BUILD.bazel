@@ -8,6 +8,7 @@ skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "SkEncoder.h",
+        "SkICC.h",
         "SkJpegEncoder.h",
         "SkPngEncoder.h",
         "SkWebpEncoder.h",

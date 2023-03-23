@@ -7,9 +7,9 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkICC.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkICC.h"
 #include "modules/skcms/skcms.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"

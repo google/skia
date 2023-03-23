@@ -7,8 +7,8 @@
 
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/codec/SkMasks.h"
 #include "src/core/SkDistanceFieldGen.h"

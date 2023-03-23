@@ -8,7 +8,7 @@
 #include "src/codec/SkSampledCodec.h"
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkEncodedImageFormat.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"

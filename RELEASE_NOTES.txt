@@ -14,6 +14,8 @@ Milestone 113
     return true from rectStaysRect(), consistent with rectStaysRect() implying a non-zero scale.
   * `SkImage::CompressionType` has been renamed to `SkTextureCompressionType` and moved to
     `include/core/SkTextureCompressionType.h`
+  * `SkEncodedImageFormat.h` and `SkPngChunkReader.h` are now in include/codec
+  * `SkICC.h` is now in include/encode
 
 * * *
 
