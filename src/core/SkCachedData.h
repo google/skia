@@ -12,6 +12,8 @@
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkNoncopyable.h"
 
+#include <cstddef>
+
 class SkDiscardableMemory;
 
 class SkCachedData : ::SkNoncopyable {

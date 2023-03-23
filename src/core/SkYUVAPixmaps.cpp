@@ -7,11 +7,20 @@
 
 #include "include/core/SkYUVAPixmaps.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/private/base/SkDebug.h"
 #include "src/base/SkRectMemcpy.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkYUVAInfoLocation.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <utility>
+
 #if defined(SK_GANESH)
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #endif
 

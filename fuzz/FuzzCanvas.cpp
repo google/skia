@@ -8,6 +8,7 @@
 #include "fuzz/Fuzz.h"
 #include "fuzz/FuzzCommon.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFontMgr.h"
