@@ -26,6 +26,7 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "SkRPDebugTrace.cpp",
+        "SkSLTraceHook.cpp",
         "SkVMDebugTrace.cpp",
         ":enabled_srcs",
     ],

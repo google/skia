@@ -243,6 +243,7 @@ skia_sksl_sources = [
   "$_src/sksl/tracing/SkRPDebugTrace.cpp",
   "$_src/sksl/tracing/SkRPDebugTrace.h",
   "$_src/sksl/tracing/SkSLDebugInfo.h",
+  "$_src/sksl/tracing/SkSLTraceHook.cpp",
   "$_src/sksl/tracing/SkSLTraceHook.h",
   "$_src/sksl/tracing/SkVMDebugTrace.cpp",
   "$_src/sksl/tracing/SkVMDebugTrace.h",

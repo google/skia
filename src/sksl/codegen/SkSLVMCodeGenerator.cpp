@@ -65,7 +65,6 @@
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include <algorithm>
-#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <memory>
@@ -81,40 +80,7 @@ namespace {
     static FastF32 operator*(skvm::F32 y) { return {y}; }
     static skvm::F32 operator*(skvm::F32 x, FastF32 y) { return fast_mul(x, y.val); }
     static skvm::F32 operator*(float     x, FastF32 y) { return fast_mul(x, y.val); }
-
-    class SkSLTracer : public SkSL::TraceHook {
-    public:
-        static std::unique_ptr<SkSLTracer> Make(SkSL::SkVMDebugTrace* trace) {
-            auto hook = std::make_unique<SkSLTracer>();
-            hook->fTrace = trace;
-            return hook;
-        }
-
-        void line(int lineNum) override {
-            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kLine,
-                                          /*data=*/{lineNum, 0}});
-        }
-        void var(int slot, int32_t val) override {
-            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kVar,
-                                          /*data=*/{slot, val}});
-        }
-        void enter(int fnIdx) override {
-            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kEnter,
-                                          /*data=*/{fnIdx, 0}});
-        }
-        void exit(int fnIdx) override {
-            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kExit,
-                                          /*data=*/{fnIdx, 0}});
-        }
-        void scope(int delta) override {
-            fTrace->fTraceInfo.push_back({SkSL::TraceInfo::Op::kScope,
-                                          /*data=*/{delta, 0}});
-        }
-
-    private:
-        SkSL::SkVMDebugTrace* fTrace;
-    };
-}  // namespace
+}
 
 namespace SkSL {
 
@@ -455,7 +421,7 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
         fDebugTrace->setSource(*fProgram.fSource);
 
         // Create a trace hook and attach it to the builder.
-        fDebugTrace->fTraceHook = SkSLTracer::Make(fDebugTrace);
+        fDebugTrace->fTraceHook = SkSL::Tracer::Make(&fDebugTrace->fTraceInfo);
         fTraceHookID = fBuilder->attachTraceHook(fDebugTrace->fTraceHook.get());
 
         // The SkVM blitter generates centered pixel coordinates. (0.5, 1.5, 2.5, 3.5, etc.)
