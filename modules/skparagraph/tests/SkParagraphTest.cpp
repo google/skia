@@ -49,6 +49,8 @@
 #include <vector>
 #include <thread>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 #define VeryLongCanvasWidth 1000000
@@ -219,7 +221,7 @@ public:
         std::vector<SkUnicode::Position> words;
         fIcu->getWords(text.data(), text.size(), nullptr, &words);
 
-        SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
+        TArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
         fIcu->computeCodeUnitFlags(
                 text.data(), text.size(), false, &codeUnitFlags);
 
@@ -240,7 +242,7 @@ public:
         }
 
         fClient = SkUnicode::MakeClientBasedUnicode(text, bidiRegions, words, graphemeBreaks, lineBreaks);
-        SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags1;
+        TArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags1;
         fClient->computeCodeUnitFlags(
                 text.data(), text.size(), style.getReplaceTabCharacters(), &codeUnitFlags1);
         SkASSERT(codeUnitFlags.size() == codeUnitFlags1.size());
@@ -293,12 +295,12 @@ public:
     }
 
     bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
-                          SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+                          TArray<SkUnicode::CodeUnitFlags, true>* results) override {
         return fClient->computeCodeUnitFlags(utf8, utf8Units, replaceTabs, results);
     }
 
     bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,
-                          SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+                          TArray<SkUnicode::CodeUnitFlags, true>* results) override {
         return fClient->computeCodeUnitFlags(utf16, utf16Units, replaceTabs, results);
     }
 

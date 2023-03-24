@@ -5,6 +5,8 @@
 #include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 
+using namespace skia_private;
+
 namespace skia {
 namespace textlayout {
 
@@ -56,8 +58,8 @@ private:
     uint32_t computeHash() const;
 
     SkString fText;
-    SkTArray<Placeholder, true> fPlaceholders;
-    SkTArray<Block, true> fTextStyles;
+    TArray<Placeholder, true> fPlaceholders;
+    TArray<Block, true> fTextStyles;
     ParagraphStyle fParagraphStyle;
     uint32_t fHash;
 };
@@ -80,11 +82,11 @@ public:
     ParagraphCacheKey fKey;
 
     // Shaped results
-    SkTArray<Run, false> fRuns;
-    SkTArray<Cluster, true> fClusters;
-    SkTArray<size_t, true> fClustersIndexFromCodeUnit;
+    TArray<Run, false> fRuns;
+    TArray<Cluster, true> fClusters;
+    TArray<size_t, true> fClustersIndexFromCodeUnit;
     // ICU results
-    SkTArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
+    TArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
     std::vector<size_t> fWords;
     std::vector<SkUnicode::BidiRegion> fBidiRegions;
     bool fHasLineBreaks;

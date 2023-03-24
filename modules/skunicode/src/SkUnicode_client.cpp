@@ -32,6 +32,7 @@
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
 
+using namespace skia_private;
 
 #ifndef SK_UNICODE_ICU_IMPLEMENTATION
 const char* SkUnicode_IcuBidi::errorName(UErrorCode status) {
@@ -208,7 +209,7 @@ public:
     bool computeCodeUnitFlags(char utf8[],
                               int utf8Units,
                               bool replaceTabs,
-                              SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+                              TArray<SkUnicode::CodeUnitFlags, true>* results) override {
         results->clear();
         results->push_back_n(utf8Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
         for (auto& lineBreak : fData->fLineBreaks) {
@@ -250,7 +251,7 @@ public:
     }
 
     bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,
-                          SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+                          TArray<SkUnicode::CodeUnitFlags, true>* results) override {
         results->clear();
         results->push_back_n(utf16Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
         for (auto& lineBreak : fData->fLineBreaks) {

@@ -2,6 +2,8 @@
 #include "include/core/SkPathBuilder.h"
 #include "modules/skparagraph/src/Decorations.h"
 
+using namespace skia_private;
+
 namespace skia {
 namespace textlayout {
 
@@ -113,7 +115,7 @@ void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRe
     const SkScalar bounds[2] = {rect.fTop - baseline, rect.fBottom - baseline};
     const SkPaint& decorPaint = fDecorStyle.skPaint();
     auto count = blob->getIntercepts(bounds, nullptr, &decorPaint);
-    SkTArray<SkScalar> intersections(count);
+    TArray<SkScalar> intersections(count);
     intersections.resize(count);
     blob->getIntercepts(bounds, intersections.data(), &decorPaint);
 

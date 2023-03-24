@@ -57,8 +57,10 @@ private:
             std::function<SkScalar(TextRange textRange, SkSpan<Block>, SkScalar&, TextIndex, uint8_t)>;
     bool iterateThroughShapingRegions(const ShapeVisitor& shape);
 
-    using ShapeSingleFontVisitor = std::function<void(Block, SkTArray<SkShaper::Feature>)>;
-    void iterateThroughFontStyles(TextRange textRange, SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
+    using ShapeSingleFontVisitor =
+            std::function<void(Block, skia_private::TArray<SkShaper::Feature>)>;
+    void iterateThroughFontStyles(
+            TextRange textRange, SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
 
     enum Resolved {
         Nothing,

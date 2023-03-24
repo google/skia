@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <utility>
 
+using namespace skia_private;
 
 namespace skia {
 namespace textlayout {
@@ -65,8 +66,8 @@ Paragraph::Paragraph(ParagraphStyle style, sk_sp<FontCollection> fonts)
 
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
-                             SkTArray<Block, true> blocks,
-                             SkTArray<Placeholder, true> placeholders,
+                             TArray<Block, true> blocks,
+                             TArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts,
                              std::shared_ptr<SkUnicode> unicode)
         : Paragraph(std::move(style), std::move(fonts))
@@ -89,8 +90,8 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
-                             SkTArray<Block, true> blocks,
-                             SkTArray<Placeholder, true> placeholders,
+                             TArray<Block, true> blocks,
+                             TArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts,
                              std::shared_ptr<SkUnicode> unicode)
         : ParagraphImpl(SkString(),
@@ -1064,9 +1065,9 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     }
 }
 
-SkTArray<TextIndex> ParagraphImpl::countSurroundingGraphemes(TextRange textRange) const {
+TArray<TextIndex> ParagraphImpl::countSurroundingGraphemes(TextRange textRange) const {
     textRange = textRange.intersection({0, fText.size()});
-    SkTArray<TextIndex> graphemes;
+    TArray<TextIndex> graphemes;
     if ((fCodeUnitProperties[textRange.start] & SkUnicode::CodeUnitFlags::kGraphemeStart) == 0) {
         // Count the previous partial grapheme
         graphemes.emplace_back(textRange.start);

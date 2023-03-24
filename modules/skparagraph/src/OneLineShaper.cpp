@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <unordered_set>
 
+using namespace skia_private;
+
 static inline SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
     SkUnichar val = SkUTF::NextUTF8(ptr, end);
     return val < 0 ? 0xFFFD : val;
@@ -359,7 +361,7 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
                                              SkSpan<Block> styleSpan,
                                              const ShapeSingleFontVisitor& visitor) {
     Block combinedBlock;
-    SkTArray<SkShaper::Feature> features;
+    TArray<SkShaper::Feature> features;
 
     auto addFeatures = [&features](const Block& block) {
         for (auto& ff : block.fStyle.getFontFeatures()) {
@@ -602,7 +604,7 @@ bool OneLineShaper::shape() {
 
         iterateThroughFontStyles(textRange, styleSpan,
                 [this, &shaper, defaultBidiLevel, limitlessWidth, &advanceX]
-                (Block block, SkTArray<SkShaper::Feature> features) {
+                (Block block, TArray<SkShaper::Feature> features) {
             auto blockSpan = SkSpan<Block>(&block, 1);
 
             // Start from the beginning (hoping that it's a simple case one block - one run)
@@ -655,7 +657,7 @@ bool OneLineShaper::shape() {
                     fCurrentText = unresolvedRange;
 
                     // Map the block's features to subranges within the unresolved range.
-                    SkTArray<SkShaper::Feature> adjustedFeatures(features.size());
+                    TArray<SkShaper::Feature> adjustedFeatures(features.size());
                     for (const SkShaper::Feature& feature : features) {
                         SkRange<size_t> featureRange(feature.start, feature.end);
                         if (unresolvedRange.intersects(featureRange)) {

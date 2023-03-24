@@ -28,7 +28,7 @@ public:
     void appendTypeface(sk_sp<SkTypeface> typeface);
 
 private:
-    SkTArray<sk_sp<SkTypeface>> fStyles;
+    skia_private::TArray<sk_sp<SkTypeface>> fStyles;
     SkString fFamilyName;
     SkString fAlias;
 };
@@ -72,7 +72,7 @@ public:
 
 private:
     SkTHashMap<SkString, sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;
-    SkTArray<SkString> fFamilyNames;
+    skia_private::TArray<SkString> fFamilyNames;
 };
 
 }  // namespace textlayout
