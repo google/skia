@@ -151,14 +151,15 @@ public:
                                                         skgpu::Renderable,
                                                         skgpu::Protected = skgpu::Protected::kNo);
 
-    /** image/surface release proc. Just here to support RefCntedCallback creation. */
-    static void ReleaseProc(void* context, skgpu::CallbackResult) {}
+    /** finished and image/surface release procs */
+    static void FinishedProc(void* context, skgpu::CallbackResult);
+    static void ImageReleaseProc(void* context);
 
     ~ManagedGraphiteTexture();
 
     /**
-     * The context to use with ReleaseProc. This adds a ref so it *must* be balanced by a call to
-     * ReleaseProc.
+     * The context to use with the ReleaseProcs. This adds a ref so it *must* be balanced by a call
+     * to TextureReleaseProc or ImageReleaseProc.
      */
     void* releaseContext() const;
 
