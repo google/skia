@@ -14,12 +14,18 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/mock/GrMockTypes.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h" // IWYU pragma: keep
+#include "src/gpu/ganesh/GrImageUtils.h"
+#include "src/gpu/ganesh/SkGr.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/FenceSync.h"
@@ -59,8 +65,8 @@ static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContex
     bmCanvas.clear(SK_ColorRED);
 
     // We start off with the raster image being all red.
-    sk_sp<SkImage> img = sk_image_factory::MakePinnableFromRasterBitmap(bm);
-    REPORTER_ASSERT(reporter, img, "MakePinnableFromRasterBitmap returned null");
+    sk_sp<SkImage> img = SkImages::PinnableRasterFromBitmap(bm);
+    REPORTER_ASSERT(reporter, img, "PinnableImageFromBitmap returned null");
 
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, ii);
     SkCanvas* canvas = gpuSurface->getCanvas();
@@ -128,7 +134,7 @@ static void cleanup_test(skiatest::Reporter* reporter) {
                     continue;
                 }
 
-                img = sk_image_factory::MakePinnableFromRasterBitmap(bm);
+                img = SkImages::PinnableRasterFromBitmap(bm);
                 if (!skgpu::ganesh::PinAsTexture(dContext, img.get())) {
                     continue;
                 }
@@ -152,4 +158,59 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest,
 
     basic_test(reporter, ctxInfo.directContext());
     cleanup_test(reporter);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest_AsGaneshView,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    GrRecordingContext* rContext = ctxInfo.directContext();
+    const SkImageInfo ii = SkImageInfo::Make(64, 64, kN32_SkColorType, kPremul_SkAlphaType);
+
+    SkBitmap bm;
+    bm.allocPixels(ii);
+
+    SkCanvas bmCanvas(bm);
+    bmCanvas.clear(SK_ColorMAGENTA); // arbitrary color
+
+    sk_sp<SkImage> img = SkImages::PinnableRasterFromBitmap(bm);
+    REPORTER_ASSERT(reporter, img, "PinnableImageFromBitmap returned null");
+
+    {
+        skiatest::ReporterContext subtest(reporter, "cached path");
+        auto [view, colortype] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo,
+                   GrImageTexGenPolicy::kDraw);
+        REPORTER_ASSERT(reporter, view, "AsView returned falsey view");
+    }
+
+    {
+        skiatest::ReporterContext subtest(reporter, "unncached path");
+        auto [view, colortype] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo,
+                   GrImageTexGenPolicy::kNew_Uncached_Unbudgeted);
+        REPORTER_ASSERT(reporter, view, "AsView returned falsey view");
+    }
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest_AsFragmentProcessor,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    GrRecordingContext* rContext = ctxInfo.directContext();
+    const SkImageInfo ii = SkImageInfo::Make(64, 64, kN32_SkColorType, kPremul_SkAlphaType);
+
+    SkBitmap bm;
+    bm.allocPixels(ii);
+
+    SkCanvas bmCanvas(bm);
+    bmCanvas.clear(SK_ColorMAGENTA); // arbitrary color
+
+    sk_sp<SkImage> img = SkImages::PinnableRasterFromBitmap(bm);
+    REPORTER_ASSERT(reporter, img, "PinnableImageFromBitmap returned null");
+
+    SkTileMode tm[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
+
+    auto fp = skgpu::ganesh::AsFragmentProcessor(
+            rContext, img.get(), SkSamplingOptions({1/3, 1/3}), tm,
+            SkMatrix::I(), nullptr, nullptr);
+    REPORTER_ASSERT(reporter, fp, "AsFragmentProcessor returned falsey processor");
 }

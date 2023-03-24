@@ -18,6 +18,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/base/SkAutoMalloc.h"
@@ -271,12 +272,12 @@ sk_sp<SkImage> EGLTestHelper::importHardwareBufferForRead(skiatest::Reporter* re
     GrBackendTexture backendTex(DEV_W, DEV_H, GrMipmapped::kNo, textureInfo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
-    sk_sp<SkImage> image = SkImage::MakeFromTexture(fDirectContext,
-                                                    backendTex,
-                                                    kTopLeft_GrSurfaceOrigin,
-                                                    kRGBA_8888_SkColorType,
-                                                    kPremul_SkAlphaType,
-                                                    nullptr);
+    sk_sp<SkImage> image = SkImages::BorrowTextureFrom(fDirectContext,
+                                                       backendTex,
+                                                       kTopLeft_GrSurfaceOrigin,
+                                                       kRGBA_8888_SkColorType,
+                                                       kPremul_SkAlphaType,
+                                                       nullptr);
 
     if (!image) {
         ERRORF(reporter, "Failed to make wrapped GL SkImage");
@@ -816,12 +817,12 @@ sk_sp<SkImage> VulkanTestHelper::importHardwareBufferForRead(skiatest::Reporter*
 
     GrBackendTexture backendTex(DEV_W, DEV_H, imageInfo);
 
-    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(fDirectContext.get(),
-                                                           backendTex,
-                                                           kTopLeft_GrSurfaceOrigin,
-                                                           kRGBA_8888_SkColorType,
-                                                           kPremul_SkAlphaType,
-                                                           nullptr);
+    sk_sp<SkImage> wrappedImage = SkImages::BorrowTextureFrom(fDirectContext.get(),
+                                                              backendTex,
+                                                              kTopLeft_GrSurfaceOrigin,
+                                                              kRGBA_8888_SkColorType,
+                                                              kPremul_SkAlphaType,
+                                                              nullptr);
 
     if (!wrappedImage.get()) {
         ERRORF(reporter, "Failed to create wrapped Vulkan SkImage");
@@ -1209,7 +1210,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
             return;
         }
 
-        sk_sp<SkImage> srcBmpImage = SkImage::MakeFromBitmap(srcBitmap);
+        sk_sp<SkImage> srcBmpImage = SkImages::RasterFromBitmap(srcBitmap);
         surface->getCanvas()->drawImage(srcBmpImage, 0, 0);
 
         // If we are testing sharing of syncs, don't do a read here since it forces sychronization

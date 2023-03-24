@@ -28,6 +28,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -67,25 +68,26 @@
 #include <cstddef>
 #include <utility>
 
-namespace sk_image_factory {
+namespace SkImages {
 
-sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at) {
+sk_sp<SkImage> DeferredFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at) {
     auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, nullptr,
                                                      kTopLeft_GrSurfaceOrigin);
-    return SkImage::MakeFromGenerator(std::move(gen));
+    return DeferredFromGenerator(std::move(gen));
 }
 
-sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at,
-                                                sk_sp<SkColorSpace> cs,
-                                                GrSurfaceOrigin surfaceOrigin) {
+sk_sp<SkImage> DeferredFromAHardwareBuffer(AHardwareBuffer* graphicBuffer,
+                                           SkAlphaType at,
+                                           sk_sp<SkColorSpace> cs,
+                                           GrSurfaceOrigin surfaceOrigin) {
     auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, cs, surfaceOrigin);
-    return SkImage::MakeFromGenerator(std::move(gen));
+    return DeferredFromGenerator(std::move(gen));
 }
 
-sk_sp<SkImage> MakeFromAHardwareBufferWithData(GrDirectContext* dContext,
-                                                        const SkPixmap& pixmap,
-                                                        AHardwareBuffer* hardwareBuffer,
-                                                        GrSurfaceOrigin surfaceOrigin) {
+sk_sp<SkImage> TextureFromAHardwareBufferWithData(GrDirectContext* dContext,
+                                                  const SkPixmap& pixmap,
+                                                  AHardwareBuffer* hardwareBuffer,
+                                                  GrSurfaceOrigin surfaceOrigin) {
     AHardwareBuffer_Desc bufferDesc;
     AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
 
@@ -166,34 +168,28 @@ sk_sp<SkImage> MakeFromAHardwareBufferWithData(GrDirectContext* dContext,
     return image;
 }
 
-} // namespace sk_image_factory
+}  // namespace SkImages
 
 #if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES)
 
-sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(
-        AHardwareBuffer* hardwareBuffer,
-        SkAlphaType alphaType) {
-    return sk_image_factory::MakeFromAHardwareBuffer(hardwareBuffer, alphaType);
+sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuffer, SkAlphaType alphaType) {
+    return SkImages::DeferredFromAHardwareBuffer(hardwareBuffer, alphaType);
 }
 
-sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(
-        AHardwareBuffer* hardwareBuffer,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        GrSurfaceOrigin surfaceOrigin) {
-    return sk_image_factory::MakeFromAHardwareBuffer(hardwareBuffer, alphaType,
-                                                     colorSpace, surfaceOrigin);
+sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuffer,
+                                       SkAlphaType alphaType,
+                                       sk_sp<SkColorSpace> colorSpace,
+                                       GrSurfaceOrigin surfaceOrigin) {
+    return SkImages::DeferredFromAHardwareBuffer(
+            hardwareBuffer, alphaType, colorSpace, surfaceOrigin);
 }
 
-sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(
-        GrDirectContext* context,
-        const SkPixmap& pixmap,
-        AHardwareBuffer* hardwareBuffer,
-        GrSurfaceOrigin surfaceOrigin) {
-    return sk_image_factory::MakeFromAHardwareBufferWithData(context,
-                                                             pixmap,
-                                                             hardwareBuffer,
-                                                             surfaceOrigin);
+sk_sp<SkImage> MakeFromAHardwareBufferWithData(GrDirectContext* context,
+                                               const SkPixmap& pixmap,
+                                               AHardwareBuffer* hardwareBuffer,
+                                               GrSurfaceOrigin surfaceOrigin) {
+    return SkImages::TextureFromAHardwareBufferWithData(
+            context, pixmap, hardwareBuffer, surfaceOrigin);
 }
 
 #endif // SK_DISABLE_LEGACY_IMAGE_FACTORIES

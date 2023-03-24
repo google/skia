@@ -634,9 +634,7 @@ bool SkBitmap::peekPixels(SkPixmap* pmap) const {
     return false;
 }
 
-sk_sp<SkImage> SkBitmap::asImage() const {
-    return SkImage::MakeFromBitmap(*this);
-}
+sk_sp<SkImage> SkBitmap::asImage() const { return SkImages::RasterFromBitmap(*this); }
 
 sk_sp<SkShader> SkBitmap::makeShader(const SkSamplingOptions& sampling,
                                      const SkMatrix& lm) const {

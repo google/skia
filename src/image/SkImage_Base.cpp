@@ -17,22 +17,18 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/image/SkRescaleAndReadPixels.h"
-
-#include <atomic>
-#include <string_view>
-#include <tuple>
-#include <utility>
 
 #if defined(SK_GANESH)
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/gpu/ResourceKey.h"
-#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -44,7 +40,6 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-enum class GrColorType;
 #endif
 
 #if defined(SK_GRAPHITE)
@@ -52,6 +47,9 @@ enum class GrColorType;
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
 #endif
+
+#include <atomic>
+#include <utility>
 
 SkImage_Base::SkImage_Base(const SkImageInfo& info, uint32_t uniqueID)
         : SkImage(info, uniqueID), fAddedToRasterCache(false) {}
@@ -88,6 +86,24 @@ void SkImage_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
     return SkRescaleAndReadPixels(src, info, srcRect, rescaleGamma, rescaleMode, callback, context);
 }
 
+bool SkImage_Base::onAsLegacyBitmap(GrDirectContext* dContext, SkBitmap* bitmap) const {
+    // As the base-class, all we can do is make a copy (regardless of mode).
+    // Subclasses that want to be more optimal should override.
+    SkImageInfo info = fInfo.makeColorType(kN32_SkColorType).makeColorSpace(nullptr);
+    if (!bitmap->tryAllocPixels(info)) {
+        return false;
+    }
+
+    if (!this->readPixels(
+                dContext, bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), 0, 0)) {
+        bitmap->reset();
+        return false;
+    }
+
+    bitmap->setImmutable();
+    return true;
+}
+
 void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
                                                      sk_sp<SkColorSpace> dstColorSpace,
                                                      SkIRect srcRect,
@@ -102,38 +118,6 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
 }
 
 #if defined(SK_GANESH)
-std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Base::asView(GrRecordingContext* context,
-                                                                 GrMipmapped mipmapped,
-                                                                 GrImageTexGenPolicy policy) const {
-    if (!context) {
-        return {};
-    }
-    if (!context->priv().caps()->mipmapSupport() || this->dimensions().area() <= 1) {
-        mipmapped = GrMipmapped::kNo;
-    }
-    return this->onAsView(context, mipmapped, policy);
-}
-
-std::unique_ptr<GrFragmentProcessor> SkImage_Base::asFragmentProcessor(
-        GrRecordingContext* rContext,
-        SkSamplingOptions sampling,
-        const SkTileMode tileModes[2],
-        const SkMatrix& m,
-        const SkRect* subset,
-        const SkRect* domain) const {
-    if (!rContext) {
-        return {};
-    }
-    if (sampling.useCubic && !GrValidCubicResampler(sampling.cubic)) {
-        return {};
-    }
-    if (sampling.mipmap != SkMipmapMode::kNone &&
-        (!rContext->priv().caps()->mipmapSupport() || this->dimensions().area() <= 1)) {
-        sampling = SkSamplingOptions(sampling.filter);
-    }
-    return this->onAsFragmentProcessor(rContext, sampling, tileModes, m, subset, domain);
-}
-
 std::unique_ptr<GrFragmentProcessor> SkImage_Base::MakeFragmentProcessorFromView(
         GrRecordingContext* rContext,
         GrSurfaceProxyView view,
@@ -257,22 +241,6 @@ GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
     return GrBackendTexture(); // invalid
 }
 
-GrSurfaceProxyView SkImage_Base::CopyView(GrRecordingContext* context,
-                                                 GrSurfaceProxyView src,
-                                                 GrMipmapped mipmapped,
-                                                 GrImageTexGenPolicy policy,
-                                                 std::string_view label) {
-    skgpu::Budgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
-                                       ? skgpu::Budgeted::kYes
-                                       : skgpu::Budgeted::kNo;
-    return GrSurfaceProxyView::Copy(context,
-                                    std::move(src),
-                                    mipmapped,
-                                    SkBackingFit::kExact,
-                                    budgeted,
-                                    /*label=*/label);
-}
-
 #endif // defined(SK_GANESH)
 
 #if defined(SK_GRAPHITE)
@@ -346,22 +314,4 @@ GrDirectContext* SkImage_Base::directContext() const {
 #else
     return nullptr;
 #endif
-}
-
-bool SkImage_Base::onAsLegacyBitmap(GrDirectContext* dContext, SkBitmap* bitmap) const {
-    // As the base-class, all we can do is make a copy (regardless of mode).
-    // Subclasses that want to be more optimal should override.
-    SkImageInfo info = fInfo.makeColorType(kN32_SkColorType).makeColorSpace(nullptr);
-    if (!bitmap->tryAllocPixels(info)) {
-        return false;
-    }
-
-    if (!this->readPixels(dContext, bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(),
-                          0, 0)) {
-        bitmap->reset();
-        return false;
-    }
-
-    bitmap->setImmutable();
-    return true;
 }

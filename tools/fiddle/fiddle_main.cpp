@@ -248,7 +248,7 @@ int main(int argc, char** argv) {
             perror(options.source);
             return 1;
         } else {
-            image = SkImage::MakeFromEncoded(std::move(data));
+            image = SkImages::DeferredFromEncodedData(std::move(data));
             if (!image) {
                 perror("Unable to decode the source image.");
                 return 1;

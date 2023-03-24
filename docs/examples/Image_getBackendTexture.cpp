@@ -18,20 +18,20 @@ void draw(SkCanvas* canvas) {
         return;
     }
 
-    sk_sp<SkImage> imageFromBackend = SkImage::MakeFromAdoptedTexture(direct,
-                                                                      backEndTexture,
-                                                                      kBottomLeft_GrSurfaceOrigin,
-                                                                      kRGBA_8888_SkColorType,
-                                                                      kOpaque_SkAlphaType);
+    sk_sp<SkImage> imageFromBackend = SkImages::AdoptTextureFrom(direct,
+                                                                 backEndTexture,
+                                                                 kBottomLeft_GrSurfaceOrigin,
+                                                                 kRGBA_8888_SkColorType,
+                                                                 kOpaque_SkAlphaType);
     GrBackendTexture textureFromImage = imageFromBackend->getBackendTexture(false);
     if (!textureFromImage.isValid()) {
         return;
     }
-    sk_sp<SkImage> imageFromTexture = SkImage::MakeFromAdoptedTexture(direct,
-                                                                      textureFromImage,
-                                                                      kTopLeft_GrSurfaceOrigin,
-                                                                      kRGBA_8888_SkColorType,
-                                                                      kOpaque_SkAlphaType);
+    sk_sp<SkImage> imageFromTexture = SkImages::AdoptTextureFrom(direct,
+                                                                 textureFromImage,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kRGBA_8888_SkColorType,
+                                                                 kOpaque_SkAlphaType);
     canvas->drawImage(imageFromTexture, 0, 0);
     canvas->drawImage(imageFromBackend, 128, 128);
 }

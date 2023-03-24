@@ -804,7 +804,7 @@ static std::vector<sk_sp<SkImage>> find_data_uri_images(sk_sp<SkData> data) {
         if (!raw) {
             continue;
         }
-        auto image = SkImage::MakeFromEncoded(std::move(raw));
+        auto image = SkImages::DeferredFromEncodedData(std::move(raw));
         if (image) {
             images.push_back(std::move(image));
         }

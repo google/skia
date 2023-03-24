@@ -63,7 +63,7 @@ static sk_sp<SkImage> do_read_and_scale(Src* src,
     }
     SkPixmap pixmap(ii, asyncContext->fResult->data(0), asyncContext->fResult->rowBytes(0));
     auto releasePixels = [](const void*, void* c) { delete static_cast<AsyncContext*>(c); };
-    return SkImage::MakeFromRaster(pixmap, releasePixels, asyncContext);
+    return SkImages::RasterFromPixmap(pixmap, releasePixels, asyncContext);
 }
 
 template <typename Src>
@@ -438,7 +438,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_alpha_type, canvas, errorMsg, 512,
                 auto releasePixels = [](const void*, void* c) {
                     delete static_cast<AsyncContext*>(c);
                 };
-                auto result = SkImage::MakeFromRaster(pixmap, releasePixels, asyncContext);
+                auto result = SkImages::RasterFromPixmap(pixmap, releasePixels, asyncContext);
 
                 canvas->drawImage(result, 0, 0);
             } else {

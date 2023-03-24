@@ -156,7 +156,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     // First test SkImages. Since we can't directly create a Graphite SkImage we first have to make
     // a raster SkImage than convert that to a Graphite SkImage via makeTextureImage.
     sk_sp<SkData> data(create_image_data(info));
-    sk_sp<SkImage> image = SkImage::MakeRasterData(info, std::move(data), info.minRowBytes());
+    sk_sp<SkImage> image = SkImages::RasterFromData(info, std::move(data), info.minRowBytes());
     REPORTER_ASSERT(reporter, image);
 
     sk_sp<SkImage> imageGpu = image->makeTextureImage(recorder.get());

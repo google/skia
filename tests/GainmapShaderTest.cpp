@@ -45,7 +45,7 @@ static sk_sp<SkImage> make_1x1_image(
             1, 1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType, imageColorColorSpace);
     SkPixmap writePixelsPixmap(writePixelsInfo, &imageColor, writePixelsInfo.minRowBytes());
     bm.writePixels(writePixelsPixmap, 0, 0);
-    return SkImage::MakeFromBitmap(bm);
+    return SkImages::RasterFromBitmap(bm);
 }
 
 // Return gainmap info that will scale 1 up to the specified hdrRatioMax.
@@ -108,7 +108,7 @@ DEF_TEST(GainmapShader_rects, r) {
     SkPixmap sdrPixmap(SkImageInfo::Make(2, 5, kRGBA_F32_SkColorType, kOpaque_SkAlphaType),
                        sdrColors,
                        2 * sizeof(SkColor4f));
-    auto sdrImage = SkImage::MakeFromRaster(sdrPixmap, nullptr, nullptr);
+    auto sdrImage = SkImages::RasterFromPixmap(sdrPixmap, nullptr, nullptr);
     const auto sdrImageRect = SkRect::MakeXYWH(0.f, 1.f, 2.f, 4.f);
 
     // The top pixel indicates to gain only red, and the bottom pixel indicates to gain everything
@@ -120,7 +120,7 @@ DEF_TEST(GainmapShader_rects, r) {
     SkPixmap gainmapPixmap(SkImageInfo::Make(2, 2, kRGBA_F32_SkColorType, kOpaque_SkAlphaType),
                            gainmapColors,
                            2 * sizeof(SkColor4f));
-    auto gainmapImage = SkImage::MakeFromRaster(gainmapPixmap, nullptr, nullptr);
+    auto gainmapImage = SkImages::RasterFromPixmap(gainmapPixmap, nullptr, nullptr);
     const auto gainmapImageRect = SkRect::MakeXYWH(1.f, 0.f, 1.f, 2.f);
     const SkGainmapInfo gainmapInfo = simple_gainmap_info(2.f);
 

@@ -35,6 +35,8 @@
 #include "include/gpu/graphite/Recorder.h"
 #endif
 
+#include <functional>
+
 class SkBitmap;
 class SkCanvas;
 class SkFontStyle;

@@ -138,6 +138,7 @@ static void imageproc(SkCanvas* canvas, sk_sp<SkImage> image, const SkBitmap&, c
 static void imagesubsetproc(SkCanvas* canvas, sk_sp<SkImage> image, const SkBitmap& bm,
                             const SkIRect& srcR, const SkRect& dstR,
                             const SkSamplingOptions& sampling, const SkPaint* paint) {
+    SkASSERT_RELEASE(image);
     if (!image->bounds().contains(srcR)) {
         imageproc(canvas, std::move(image), bm, srcR, dstR, sampling, paint);
         return;

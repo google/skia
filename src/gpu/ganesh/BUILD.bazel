@@ -112,6 +112,8 @@ CORE_FILES = [
     "GrImageContextPriv.h",
     "GrImageInfo.cpp",
     "GrImageInfo.h",
+    "GrImageUtils.cpp",
+    "GrImageUtils.h",
     "GrManagedResource.cpp",
     "GrManagedResource.h",
     "GrMeshDrawTarget.cpp",

@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
             canvas->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);
         }
     }
-    sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());
+    sk_sp<SkImage> image = SkImages::RasterFromData(info, data, info.minRowBytes());
     canvas->drawImage(image, 0, 0);
 }
 }  // END FIDDLE

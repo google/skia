@@ -37,7 +37,7 @@ static inline sk_sp<SkImage> encode_pixmap_and_make_image(const SkPixmap& src,
     SkJpegEncoder::Options options;
     options.fAlphaOption = alphaOption;
     SkJpegEncoder::Encode(&dst, src, options);
-    return SkImage::MakeFromEncoded(dst.detachAsData());
+    return SkImages::DeferredFromEncodedData(dst.detachAsData());
 }
 
 class EncodeJpegAlphaOptsGM : public GM {

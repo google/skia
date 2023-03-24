@@ -36,10 +36,10 @@ class GrRenderTarget;
 class GrRenderTargetProxy;
 class GrSurface;
 class SkJSONWriter;
+enum class SkTextureCompressionType;
 struct GrContextOptions;
 struct SkIRect;
 struct SkISize;
-enum class SkTextureCompressionType;
 
 namespace skgpu {
     class KeyBuilder;

@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     offscreen.clear(SK_ColorWHITE);
     SkPaint paint;
     offscreen.drawString("%", 1, 10, paint);
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkImage> image = SkImages::RasterFromBitmap(bitmap);
     SkPixmap pixmap;
     if (image->peekPixels(&pixmap)) {
         const SkPMColor* pixels = pixmap.addr32();

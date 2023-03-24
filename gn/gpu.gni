@@ -5,6 +5,7 @@
 #   //include/gpu/BUILD.bazel
 #   //include/gpu/d3d/BUILD.bazel
 #   //include/gpu/dawn/BUILD.bazel
+#   //include/gpu/ganesh/BUILD.bazel
 #   //include/gpu/gl/BUILD.bazel
 #   //include/gpu/gl/egl/BUILD.bazel
 #   //include/gpu/gl/glx/BUILD.bazel
@@ -55,6 +56,7 @@ _include = get_path_info("../include", "abspath")
 #  //include/gpu/mock:public_hdrs
 #  //include/gpu:public_hdrs
 #  //include/gpu:shared_public_hdrs
+#  //include/gpu/ganesh:public_hdrs
 skia_gpu_public = [
   "$_include/gpu/GpuTypes.h",
   "$_include/gpu/GrBackendDrawableInfo.h",
@@ -72,6 +74,7 @@ skia_gpu_public = [
   "$_include/gpu/GrYUVABackendTextures.h",
   "$_include/gpu/MutableTextureState.h",
   "$_include/gpu/ShaderErrorHandler.h",
+  "$_include/gpu/ganesh/SkImageGanesh.h",
   "$_include/gpu/mock/GrMockTypes.h",
 ]
 
@@ -203,6 +206,8 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/GrImageContextPriv.h",
   "$_src/gpu/ganesh/GrImageInfo.cpp",
   "$_src/gpu/ganesh/GrImageInfo.h",
+  "$_src/gpu/ganesh/GrImageUtils.cpp",
+  "$_src/gpu/ganesh/GrImageUtils.h",
   "$_src/gpu/ganesh/GrManagedResource.cpp",
   "$_src/gpu/ganesh/GrManagedResource.h",
   "$_src/gpu/ganesh/GrMemoryPool.cpp",
@@ -532,6 +537,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/text/GrAtlasManager.cpp",
   "$_src/gpu/ganesh/text/GrAtlasManager.h",
   "$_src/image/SkImage_AndroidFactories.cpp",
+  "$_src/image/SkImage_GaneshFactories.cpp",
   "$_src/image/SkImage_Gpu.cpp",
   "$_src/image/SkImage_Gpu.h",
   "$_src/image/SkImage_GpuBase.cpp",

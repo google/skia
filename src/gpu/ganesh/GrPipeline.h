@@ -9,6 +9,7 @@
 #define GrPipeline_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDstProxyView.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

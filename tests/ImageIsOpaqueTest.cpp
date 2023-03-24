@@ -77,17 +77,21 @@ DEF_TEST(Image_isAlphaOnly, reporter) {
         sizeof(pmColors)
     };
     for (auto& image : {
-        SkImage::MakeRasterCopy(pmap),
-        GetResourceAsImage("images/mandrill_128.png"),
-        GetResourceAsImage("images/color_wheel.jpg"),
-        SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr,
-                                 SkImage::BitDepth::kU8,
-                                 SkColorSpace::MakeSRGB()),
-    })
-    {
+                 SkImages::RasterFromPixmapCopy(pmap),
+                 GetResourceAsImage("images/mandrill_128.png"),
+                 GetResourceAsImage("images/color_wheel.jpg"),
+                 SkImages::DeferredFromPicture(make_picture(),
+                                               {10, 10},
+                                               nullptr,
+                                               nullptr,
+                                               SkImages::BitDepth::kU8,
+                                               SkColorSpace::MakeSRGB()),
+         }) {
         REPORTER_ASSERT(reporter, image->isAlphaOnly() == false);
     }
 
-    REPORTER_ASSERT(reporter, SkImage::MakeRasterCopy({
-        SkImageInfo::MakeA8(1, 1), (uint8_t*)&pmColors, 1})->isAlphaOnly() == true);
+    REPORTER_ASSERT(
+            reporter,
+            SkImages::RasterFromPixmapCopy({SkImageInfo::MakeA8(1, 1), (uint8_t*)&pmColors, 1})
+                            ->isAlphaOnly() == true);
 }

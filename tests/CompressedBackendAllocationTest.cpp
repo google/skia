@@ -26,6 +26,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -75,11 +76,8 @@ sk_sp<SkImage> create_image(GrDirectContext* dContext, const GrBackendTexture& b
     SkAlphaType at = SkTextureCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
 
-    return SkImage::MakeFromCompressedTexture(dContext,
-                                              backendTex,
-                                              kTopLeft_GrSurfaceOrigin,
-                                              at,
-                                              nullptr);
+    return SkImages::TextureFromCompressedTexture(
+            dContext, backendTex, kTopLeft_GrSurfaceOrigin, at, nullptr);
 }
 
 // Draw the compressed backend texture (wrapped in an SkImage) into an RGBA surface, attempting

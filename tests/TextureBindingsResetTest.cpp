@@ -24,6 +24,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
@@ -160,8 +161,12 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
         // Above texture creation will have messed with GL state and bindings.
         resetBindings();
         dContext->resetContext();
-        img = SkImage::MakeFromTexture(dContext, backendTexture, kTopLeft_GrSurfaceOrigin,
-                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+        img = SkImages::BorrowTextureFrom(dContext,
+                                          backendTexture,
+                                          kTopLeft_GrSurfaceOrigin,
+                                          kRGBA_8888_SkColorType,
+                                          kPremul_SkAlphaType,
+                                          nullptr);
         REPORTER_ASSERT(reporter, img);
         surf->getCanvas()->drawImage(img, 0, 0);
         img.reset();
@@ -180,8 +185,12 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
         GrBackendTexture rectangleTexture = dContext->createBackendTexture(
                 10, 10, format, GrMipmapped::kNo, GrRenderable::kNo);
         if (rectangleTexture.isValid()) {
-            img = SkImage::MakeFromTexture(dContext, rectangleTexture, kTopLeft_GrSurfaceOrigin,
-                                           kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+            img = SkImages::BorrowTextureFrom(dContext,
+                                              rectangleTexture,
+                                              kTopLeft_GrSurfaceOrigin,
+                                              kRGBA_8888_SkColorType,
+                                              kPremul_SkAlphaType,
+                                              nullptr);
             REPORTER_ASSERT(reporter, img);
             surf->getCanvas()->drawImage(img, 0, 0);
             img.reset();
