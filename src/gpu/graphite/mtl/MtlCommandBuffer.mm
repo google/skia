@@ -130,7 +130,14 @@ bool MtlCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
         for (const auto& dispatch : group->dispatches()) {
             this->bindComputePipeline(group->getPipeline(dispatch.fPipelineIndex));
             for (const ResourceBinding& binding : dispatch.fBindings) {
-                this->bindBuffer(binding.fBuffer.fBuffer, binding.fBuffer.fOffset, binding.fIndex);
+                if (const BindBufferInfo* buffer =
+                            std::get_if<BindBufferInfo>(&binding.fResource)) {
+                    this->bindBuffer(buffer->fBuffer, buffer->fOffset, binding.fIndex);
+                } else {
+                    const TextureIndex* texIdx = std::get_if<TextureIndex>(&binding.fResource);
+                    SkASSERT(texIdx);
+                    this->bindTexture(group->getTexture(*texIdx), binding.fIndex);
+                }
             }
             this->dispatchThreadgroups(dispatch.fParams.fGlobalDispatchSize,
                                        dispatch.fParams.fLocalDispatchSize);
@@ -496,6 +503,7 @@ void MtlCommandBuffer::bindTextureAndSampler(const Texture* texture,
                                              const Sampler* sampler,
                                              unsigned int bindIndex) {
     SkASSERT(texture && sampler);
+    SkASSERT(fActiveRenderCommandEncoder);
 
     id<MTLTexture> mtlTexture = ((const MtlTexture*)texture)->mtlTexture();
     id<MTLSamplerState> mtlSamplerState = ((const MtlSampler*)sampler)->mtlSamplerState();
@@ -670,8 +678,16 @@ void MtlCommandBuffer::bindComputePipeline(const ComputePipeline* computePipelin
 void MtlCommandBuffer::bindBuffer(const Buffer* buffer, unsigned int offset, unsigned int index) {
     SkASSERT(fActiveComputeCommandEncoder);
 
-    id<MTLBuffer> mtlBuffer = buffer ? static_cast<const MtlBuffer*>(buffer)->mtlBuffer() : nullptr;
+    id<MTLBuffer> mtlBuffer = buffer ? static_cast<const MtlBuffer*>(buffer)->mtlBuffer() : nil;
     fActiveComputeCommandEncoder->setBuffer(mtlBuffer, offset, index);
+}
+
+void MtlCommandBuffer::bindTexture(const Texture* texture, unsigned int index) {
+    SkASSERT(fActiveComputeCommandEncoder);
+
+    id<MTLTexture> mtlTexture =
+            texture ? static_cast<const MtlTexture*>(texture)->mtlTexture() : nil;
+    fActiveComputeCommandEncoder->setTexture(mtlTexture, index);
 }
 
 void MtlCommandBuffer::dispatchThreadgroups(const WorkgroupSize& globalSize,

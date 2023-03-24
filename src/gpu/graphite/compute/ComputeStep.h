@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_ComputeStep_DEFINED
-#define skgpu_graphite_ComputeStep_DEFINED
+#ifndef skgpu_graphite_compute_ComputeStep_DEFINED
+#define skgpu_graphite_compute_ComputeStep_DEFINED
 
+#include "include/core/SkColorType.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/ComputeTypes.h"
@@ -15,6 +17,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 namespace skgpu::graphite {
@@ -84,7 +87,8 @@ public:
         kUniformBuffer,
         kStorageBuffer,
 
-        // TODO(b/238794438): Support sampled and storage texture types.
+        kStorageTexture,
+        kTexture,
     };
 
     enum class ResourcePolicy {
@@ -100,6 +104,8 @@ public:
         // If multiple ComputeSteps in a DispatchGroup declare a mapped resource with the same
         // shared slot number, only the first ComputeStep in the series will receive a call to
         // `ComputeStep::prepareBuffer`.
+        //
+        // This only has meaning for buffer resources.
         kMapped,
     };
 
@@ -127,9 +133,8 @@ public:
     virtual std::string computeSkSL(const ResourceBindingRequirements&,
                                     int nextBindingIndex) const = 0;
 
-    // This method will be called for entries in the ComputeStep's resource list to determine the
-    // required allocation sizes. The ComputeStep should return the minimum allocation size for the
-    // resource.
+    // This method will be called for buffer entries in the ComputeStep's resource list to
+    // determine the required allocation size. The ComputeStep must return a non-zero value.
     //
     // TODO(armansito): The only piece of information that the ComputeStep currently uses to make
     // this determination is the draw parameters. This approach particularly doesn't address (and
@@ -140,11 +145,16 @@ public:
     // The buffer sizes are an estimate based on the DrawParams. This is generic enough to allow
     // different schemes (such as dynamic allocations and buffer pools) but may not be easily
     // validated on the CPU.
-    virtual size_t calculateResourceSize(const DrawParams&,
-                                         int resourceIndex,
-                                         const ResourceDesc&) const {
-        return 0u;
-    }
+    virtual size_t calculateBufferSize(const DrawParams&,
+                                       int resourceIndex,
+                                       const ResourceDesc&) const;
+
+    // This method will be called for storage texture entries in the ComputeStep's resource list to
+    // determine the required dimensions and color type. The ComputeStep must return a non-zero
+    // value for the size and a valid color type.
+    virtual std::tuple<SkISize, SkColorType> calculateTextureParameters(const DrawParams&,
+                                                                        int resourceIndex,
+                                                                        const ResourceDesc&) const;
 
     // Return the global dispatch size (aka "workgroup count") for this step based on the draw
     // parameters. The default value is a workgroup count of (1, 1, 1)
@@ -225,4 +235,4 @@ SK_MAKE_BITMASK_OPS(ComputeStep::Flags);
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_graphite_ComputeStep_DEFINED
+#endif  // skgpu_graphite_compute_ComputeStep_DEFINED

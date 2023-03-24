@@ -104,6 +104,7 @@ private:
     void beginComputePass();
     void bindComputePipeline(const ComputePipeline*);
     void bindBuffer(const Buffer* buffer, unsigned int offset, unsigned int index);
+    void bindTexture(const Texture* texture, unsigned int index);
     void dispatchThreadgroups(const WorkgroupSize& globalSize, const WorkgroupSize& localSize);
     void endComputePass();
 

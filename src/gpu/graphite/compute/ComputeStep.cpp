@@ -82,4 +82,15 @@ void ComputeStep::prepareBuffer(
     SK_ABORT("ComputeSteps using a mapped resource must override prepareBuffer()");
 }
 
+size_t ComputeStep::calculateBufferSize(const DrawParams&,
+                                        int resourceIndex,
+                                        const ResourceDesc&) const {
+    return 0u;
+}
+
+std::tuple<SkISize, SkColorType> ComputeStep::calculateTextureParameters(
+        const DrawParams&, int resourceIndex, const ResourceDesc&) const {
+    return {SkISize::MakeEmpty(), kUnknown_SkColorType};
+}
+
 }  // namespace skgpu::graphite

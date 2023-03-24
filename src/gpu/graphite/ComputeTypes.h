@@ -67,15 +67,6 @@ struct ComputePassDesc {
     WorkgroupSize fLocalDispatchSize;
 };
 
-// TODO(armansito): These types aren't specific to compute and could share definitions with render
-// pipeline stack.
-using BindingIndex = uint32_t;
-
-struct ResourceBinding {
-    BindingIndex fIndex;
-    BindBufferInfo fBuffer;
-};
-
 }  // namespace skgpu::graphite
 
 #endif  // skgpu_graphite_ComputeTypes_DEFINED

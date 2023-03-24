@@ -5,22 +5,35 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_DispatchGroup_DEFINED
-#define skgpu_graphite_DispatchGroup_DEFINED
+#ifndef skgpu_graphite_compute_DispatchGroup_DEFINED
+#define skgpu_graphite_compute_DispatchGroup_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/compute/ComputeStep.h"
+
+#include <variant>
 
 namespace skgpu::graphite {
 
 class CommandBuffer;
 class ComputePipeline;
-class ComputeStep;
 class Recorder;
 class ResourceProvider;
+
+using BindingIndex = uint32_t;
+using TextureIndex = uint32_t;
+using DispatchResource = std::variant<BindBufferInfo, TextureIndex>;
+using DispatchResourceOptional = std::variant<std::monostate, BindBufferInfo, TextureIndex>;
+
+struct ResourceBinding {
+    BindingIndex fIndex;
+    DispatchResource fResource;
+};
 
 /**
  * DispatchGroup groups a series of compute pipeline dispatches that need to execute sequentially
@@ -51,6 +64,7 @@ public:
     const skia_private::TArray<Dispatch>& dispatches() const { return fDispatchList; }
 
     const ComputePipeline* getPipeline(size_t index) const { return fPipelines[index].get(); }
+    const Texture* getTexture(TextureIndex index) const;
 
     bool prepareResources(ResourceProvider*);
     void addResourceRefs(CommandBuffer*) const;
@@ -72,6 +86,7 @@ private:
 
     // Resources instantiated by `prepareResources()`
     skia_private::TArray<sk_sp<ComputePipeline>> fPipelines;
+    skia_private::TArray<sk_sp<TextureProxy>> fTextures;
 };
 
 class DispatchGroup::Builder final {
@@ -86,7 +101,8 @@ public:
         BindBufferInfo fInstanceBuffer;
         BindBufferInfo fIndirectDrawBuffer;
 
-        BindBufferInfo fSharedSlots[kMaxComputeDataFlowSlots];
+        // Contains the std::monostate variant if the slot is uninitialized
+        DispatchResourceOptional fSharedSlots[kMaxComputeDataFlowSlots];
 
         OutputTable() = default;
 
@@ -108,11 +124,41 @@ public:
     // dynamically.
     bool appendStep(const ComputeStep*, const DrawParams&, int ssboIndex);
 
+    // Directly assign a texture to a shared slot. ComputeSteps that are appended after this call
+    // will use this resource if they reference the given `slot` index. Builder will not allocate
+    // the resource internally and ComputeSteps will not receive calls to
+    // `calculateTextureParameters`.
+    //
+    // If the slot is already assigned a texture, it will be overwritten. Calling this method does
+    // not have any effect on previously appended ComputeSteps that were already bound that
+    // resource.
+    void assignSharedTexture(sk_sp<TextureProxy> texture, unsigned int slot);
+
     // Finalize and return the constructed DispatchGroup. The Builder can be used to construct a new
     // DispatchGroup after this method returns.
     std::unique_ptr<DispatchGroup> finalize();
 
+    // Returns the buffer resource assigned to the shared slot with the given index, if any.
+    BindBufferInfo getSharedBufferResource(unsigned int slot) const;
+
+    // Returns the texture resource assigned to the shared slot with the given index, if any.
+    sk_sp<TextureProxy> getSharedTextureResource(unsigned int slot) const;
+
 private:
+    // Allocate a buffer for one of the vertex|index|instance|indirect draw buffer slots.
+    BindBufferInfo allocateDrawBuffer(const ComputeStep* step,
+                                      const ComputeStep::ResourceDesc& resource,
+                                      int resourceIdx,
+                                      const DrawParams& params);
+
+    // Allocate a resource that can be assigned to the shared or private data flow slots. Returns a
+    // std::monostate if allocation fails.
+    DispatchResourceOptional allocateResource(const ComputeStep* step,
+                                              const ComputeStep::ResourceDesc& resource,
+                                              int ssboIdx,
+                                              int resourceIdx,
+                                              const DrawParams& params);
+
     // The object under construction.
     std::unique_ptr<DispatchGroup> fObj;
 
@@ -122,4 +168,4 @@ private:
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_graphite_DispatchGroup_DEFINED
+#endif  // skgpu_graphite_compute_DispatchGroup_DEFINED

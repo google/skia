@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
@@ -15,10 +16,12 @@
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ComputeTask.h"
 #include "src/gpu/graphite/ComputeTypes.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SynchronizeToCpuTask.h"
+#include "src/gpu/graphite/UploadTask.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 
@@ -91,9 +94,9 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SingleDispatchTest, reporter, contex
             )";
         }
 
-        size_t calculateResourceSize(const DrawParams&,
-                                     int index,
-                                     const ResourceDesc& r) const override {
+        size_t calculateBufferSize(const DrawParams&,
+                                   int index,
+                                   const ResourceDesc& r) const override {
             if (index == 0) {
                 SkASSERT(r.fFlow == DataFlow::kPrivate);
                 return sizeof(float) * (kProblemSize + 1);
@@ -133,7 +136,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SingleDispatchTest, reporter, contex
     }
 
     // The output buffer should have been placed in the right output slot.
-    BindBufferInfo outputInfo = builder.outputTable().fSharedSlots[0];
+    BindBufferInfo outputInfo = builder.getSharedBufferResource(0);
     if (!outputInfo) {
         ERRORF(reporter, "Failed to allocate an output buffer at slot 0");
         return;
@@ -232,9 +235,9 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             )";
         }
 
-        size_t calculateResourceSize(const DrawParams&,
-                                     int index,
-                                     const ResourceDesc& r) const override {
+        size_t calculateBufferSize(const DrawParams&,
+                                   int index,
+                                   const ResourceDesc& r) const override {
             if (index == 0) {
                 SkASSERT(r.fFlow == DataFlow::kPrivate);
                 return sizeof(float) * (kProblemSize + 1);
@@ -320,9 +323,9 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             )";
         }
 
-        size_t calculateResourceSize(const DrawParams&,
-                                     int index,
-                                     const ResourceDesc& r) const override {
+        size_t calculateBufferSize(const DrawParams&,
+                                   int index,
+                                   const ResourceDesc& r) const override {
             if (index == 0) {
                 return sizeof(float) * kProblemSize;
             }
@@ -358,16 +361,16 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
     // from step 1 while slot 2 contains the result of the second multiplication pass from step 1.
     // Slot 0 is not mappable.
     REPORTER_ASSERT(reporter,
-                    builder.outputTable().fSharedSlots[0],
+                    std::holds_alternative<BindBufferInfo>(builder.outputTable().fSharedSlots[0]),
                     "shared resource at slot 0 is missing");
-    BindBufferInfo outputInfo = builder.outputTable().fSharedSlots[2];
+    BindBufferInfo outputInfo = builder.getSharedBufferResource(2);
     if (!outputInfo) {
-        ERRORF(reporter, "shared resource at slot 2 is missing");
+        ERRORF(reporter, "Failed to allocate an output buffer at slot 0");
         return;
     }
 
     // Extra output buffer from step 1 (corresponding to 'outputBlock2')
-    BindBufferInfo extraOutputInfo = builder.outputTable().fSharedSlots[1];
+    BindBufferInfo extraOutputInfo = builder.getSharedBufferResource(1);
     if (!extraOutputInfo) {
         ERRORF(reporter, "shared resource at slot 1 is missing");
         return;
@@ -416,6 +419,403 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
                     "expected '%f', found '%f'",
                     2 * kFactor2,
                     extraOutData[1]);
+}
+
+// Tests the storage texture binding for a compute dispatch that writes the same color to every
+// pixel of a storage texture.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTexture, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // size.
+    constexpr uint32_t kDim = 16;
+
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep(
+                /*name=*/"TestStorageTextures",
+                /*localDispatchSize=*/{kDim, kDim, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                    }
+                }) {}
+        ~TestComputeStep() override = default;
+
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(binding = 0) writeonly texture2D dest;
+
+                void main() {
+                    write(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
+                }
+            )";
+        }
+
+        std::tuple<SkISize, SkColorType> calculateTextureParameters(
+                const DrawParams&, int index, const ResourceDesc& r) const override {
+            return {{kDim, kDim}, kRGBA_8888_SkColorType};
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step;
+
+    DispatchGroup::Builder builder(recorder.get());
+    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+        ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
+        return;
+    }
+
+    sk_sp<TextureProxy> texture = builder.getSharedTextureResource(0);
+    if (!texture) {
+        ERRORF(reporter, "Shared resource at slot 0 is missing");
+        return;
+    }
+
+    // Record the compute task
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    SkBitmap bitmap;
+    SkImageInfo imgInfo =
+            SkImageInfo::Make(kDim, kDim, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    bitmap.allocPixels(imgInfo);
+
+    SkPixmap pixels;
+    bool peekPixelsSuccess = bitmap.peekPixels(&pixels);
+    REPORTER_ASSERT(reporter, peekPixelsSuccess);
+
+    bool readPixelsSuccess = context->priv().readPixels(pixels, texture.get(), imgInfo, 0, 0);
+    REPORTER_ASSERT(reporter, readPixelsSuccess);
+
+    for (uint32_t x = 0; x < kDim; ++x) {
+        for (uint32_t y = 0; y < kDim; ++y) {
+            SkColor4f expected = SkColor4f::FromColor(SK_ColorGREEN);
+            SkColor4f color = pixels.getColor4f(x, y);
+            REPORTER_ASSERT(reporter, expected == color,
+                            "At position {%u, %u}, "
+                            "expected {%.1f, %.1f, %.1f, %.1f}, "
+                            "found {%.1f, %.1f, %.1f, %.1f}",
+                            x, y,
+                            expected.fR, expected.fG, expected.fB, expected.fA,
+                            color.fR, color.fG, color.fB, color.fA);
+        }
+    }
+}
+
+// Tests the readonly texture binding for a compute dispatch that random-access reads from a
+// CPU-populated texture and copies it to a storage texture.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // size.
+    constexpr uint32_t kDim = 16;
+
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep(
+                /*name=*/"TestSampledTextures",
+                /*localDispatchSize=*/{kDim, kDim, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                    },
+                    {
+                        /*type=*/ResourceType::kStorageTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/1,
+                    }
+                }) {}
+        ~TestComputeStep() override = default;
+
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(binding = 0) readonly texture2D src;
+                layout(binding = 1) writeonly texture2D dest;
+
+                void main() {
+                    half4 color = read(src, sk_LocalInvocationID.xy);
+                    write(dest, sk_LocalInvocationID.xy, color);
+                }
+            )";
+        }
+
+        std::tuple<SkISize, SkColorType> calculateTextureParameters(
+                const DrawParams&, int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 1);
+            return {{kDim, kDim}, kRGBA_8888_SkColorType};
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step;
+
+    // Create and populate an input texture.
+    SkBitmap srcBitmap;
+    SkImageInfo srcInfo =
+            SkImageInfo::Make(kDim, kDim, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    srcBitmap.allocPixels(srcInfo);
+    SkPixmap srcPixels;
+    bool srcPeekPixelsSuccess = srcBitmap.peekPixels(&srcPixels);
+    REPORTER_ASSERT(reporter, srcPeekPixelsSuccess);
+    for (uint32_t x = 0; x < kDim; ++x) {
+        for (uint32_t y = 0; y < kDim; ++y) {
+            *srcPixels.writable_addr32(x, y) =
+                    SkColorSetARGB(255, x * 256 / kDim, y * 256 / kDim, 0);
+        }
+    }
+
+    sk_sp<TextureProxy> srcProxy = TextureProxy::Make(context->priv().caps(),
+                                                      {kDim, kDim},
+                                                      kRGBA_8888_SkColorType,
+                                                      skgpu::Mipmapped::kNo,
+                                                      skgpu::Protected::kNo,
+                                                      skgpu::Renderable::kNo,
+                                                      skgpu::Budgeted::kNo);
+    MipLevel mipLevel;
+    mipLevel.fPixels = srcPixels.addr();
+    mipLevel.fRowBytes = srcPixels.rowBytes();
+    UploadInstance upload = UploadInstance::Make(recorder.get(),
+                                                 srcProxy,
+                                                 srcPixels.info().colorInfo(),
+                                                 srcPixels.info().colorInfo(),
+                                                 {mipLevel},
+                                                 SkIRect::MakeWH(kDim, kDim),
+                                                 std::make_unique<ImageUploadContext>());
+    if (!upload.isValid()) {
+        ERRORF(reporter, "Could not create UploadInstance");
+        return;
+    }
+    recorder->priv().add(UploadTask::Make(std::move(upload)));
+
+    DispatchGroup::Builder builder(recorder.get());
+
+    // Assign the input texture to slot 0. This corresponds to the ComputeStep's "src" texture
+    // binding.
+    builder.assignSharedTexture(std::move(srcProxy), 0);
+
+    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+        ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
+        return;
+    }
+
+    sk_sp<TextureProxy> dst = builder.getSharedTextureResource(1);
+    if (!dst) {
+        ERRORF(reporter, "shared resource at slot 1 is missing");
+        return;
+    }
+
+    // Record the compute task
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    SkBitmap bitmap;
+    SkImageInfo imgInfo =
+            SkImageInfo::Make(kDim, kDim, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    bitmap.allocPixels(imgInfo);
+
+    SkPixmap pixels;
+    bool peekPixelsSuccess = bitmap.peekPixels(&pixels);
+    REPORTER_ASSERT(reporter, peekPixelsSuccess);
+
+    bool readPixelsSuccess = context->priv().readPixels(pixels, dst.get(), imgInfo, 0, 0);
+    REPORTER_ASSERT(reporter, readPixelsSuccess);
+
+    for (uint32_t x = 0; x < kDim; ++x) {
+        for (uint32_t y = 0; y < kDim; ++y) {
+            SkColor4f expected = SkColor4f::FromBytes_RGBA(
+                    SkColorSetARGB(255, x * 256 / kDim, y * 256 / kDim, 0));
+            SkColor4f color = pixels.getColor4f(x, y);
+            REPORTER_ASSERT(reporter, expected == color,
+                            "At position {%u, %u}, "
+                            "expected {%.1f, %.1f, %.1f, %.1f}, "
+                            "found {%.1f, %.1f, %.1f, %.1f}",
+                            x, y,
+                            expected.fR, expected.fG, expected.fB, expected.fA,
+                            color.fR, color.fG, color.fB, color.fA);
+        }
+    }
+}
+
+// Tests that a texture written by one compute step can be sampled by a subsequent step.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // size.
+    constexpr uint32_t kDim = 16;
+
+    // Writes to a texture in slot 0.
+    class TestComputeStep1 : public ComputeStep {
+    public:
+        TestComputeStep1() : ComputeStep(
+                /*name=*/"TestStorageTexturesFirstPass",
+                /*localDispatchSize=*/{kDim, kDim, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                    }
+                }) {}
+        ~TestComputeStep1() override = default;
+
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(binding = 0) writeonly texture2D dest;
+
+                void main() {
+                    write(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
+                }
+            )";
+        }
+
+        std::tuple<SkISize, SkColorType> calculateTextureParameters(
+                const DrawParams&, int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 0);
+            return {{kDim, kDim}, kRGBA_8888_SkColorType};
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step1;
+
+    // Reads from the texture in slot 0 and writes it to another texture in slot 1.
+    class TestComputeStep2 : public ComputeStep {
+    public:
+        TestComputeStep2() : ComputeStep(
+                /*name=*/"TestStorageTexturesSecondPass",
+                /*localDispatchSize=*/{kDim, kDim, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                    },
+                    {
+                        /*type=*/ResourceType::kStorageTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/1,
+                    }
+                }) {}
+        ~TestComputeStep2() override = default;
+
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(binding = 0) readonly texture2D src;
+                layout(binding = 1) writeonly texture2D dest;
+
+                void main() {
+                    half4 color = read(src, sk_LocalInvocationID.xy);
+                    write(dest, sk_LocalInvocationID.xy, color);
+                }
+            )";
+        }
+
+        std::tuple<SkISize, SkColorType> calculateTextureParameters(
+                const DrawParams&, int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 1);
+            return {{kDim, kDim}, kRGBA_8888_SkColorType};
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step2;
+
+    DispatchGroup::Builder builder(recorder.get());
+    builder.appendStep(&step1, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step2, fake_draw_params_for_testing(), 0);
+
+    sk_sp<TextureProxy> dst = builder.getSharedTextureResource(1);
+    if (!dst) {
+        ERRORF(reporter, "shared resource at slot 1 is missing");
+        return;
+    }
+
+    // Record the compute task
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    SkBitmap bitmap;
+    SkImageInfo imgInfo =
+            SkImageInfo::Make(kDim, kDim, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    bitmap.allocPixels(imgInfo);
+
+    SkPixmap pixels;
+    bool peekPixelsSuccess = bitmap.peekPixels(&pixels);
+    REPORTER_ASSERT(reporter, peekPixelsSuccess);
+
+    bool readPixelsSuccess = context->priv().readPixels(pixels, dst.get(), imgInfo, 0, 0);
+    REPORTER_ASSERT(reporter, readPixelsSuccess);
+
+    for (uint32_t x = 0; x < kDim; ++x) {
+        for (uint32_t y = 0; y < kDim; ++y) {
+            SkColor4f expected = SkColor4f::FromColor(SK_ColorGREEN);
+            SkColor4f color = pixels.getColor4f(x, y);
+            REPORTER_ASSERT(reporter, expected == color,
+                            "At position {%u, %u}, "
+                            "expected {%.1f, %.1f, %.1f, %.1f}, "
+                            "found {%.1f, %.1f, %.1f, %.1f}",
+                            x, y,
+                            expected.fR, expected.fG, expected.fB, expected.fA,
+                            color.fR, color.fG, color.fB, color.fA);
+        }
+    }
 }
 
 // TODO(b/260622403): The shader tested here is identical to
@@ -483,9 +883,9 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsTest, reporter, cont
             )";
         }
 
-        size_t calculateResourceSize(const DrawParams&,
-                                     int index,
-                                     const ResourceDesc& r) const override {
+        size_t calculateBufferSize(const DrawParams&,
+                                   int index,
+                                   const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             SkASSERT(r.fSlot == 0);
             SkASSERT(r.fFlow == DataFlow::kShared);
@@ -510,7 +910,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsTest, reporter, cont
     DispatchGroup::Builder builder(recorder.get());
     builder.appendStep(&step, fake_draw_params_for_testing(), 0);
 
-    BindBufferInfo info = builder.outputTable().fSharedSlots[0];
+    BindBufferInfo info = builder.getSharedBufferResource(0);
     if (!info) {
         ERRORF(reporter, "shared resource at slot 0 is missing");
         return;
@@ -623,9 +1023,9 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsOverArrayAndStructTe
             )";
         }
 
-        size_t calculateResourceSize(const DrawParams&,
-                                     int index,
-                                     const ResourceDesc& r) const override {
+        size_t calculateBufferSize(const DrawParams&,
+                                   int index,
+                                   const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             SkASSERT(r.fSlot == 0);
             SkASSERT(r.fFlow == DataFlow::kShared);
@@ -652,7 +1052,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsOverArrayAndStructTe
     DispatchGroup::Builder builder(recorder.get());
     builder.appendStep(&step, fake_draw_params_for_testing(), 0);
 
-    BindBufferInfo info = builder.outputTable().fSharedSlots[0];
+    BindBufferInfo info = builder.getSharedBufferResource(0);
     if (!info) {
         ERRORF(reporter, "shared resource at slot 0 is missing");
         return;
