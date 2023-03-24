@@ -138,8 +138,9 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
 }
 
 sk_sp<Texture> DawnResourceProvider::createWrappedTexture(const BackendTexture& texture) {
-    wgpu::Texture dawnTexture         = texture.getDawnTexture();
-    wgpu::TextureView dawnTextureView = texture.getDawnTextureView();
+    // Convert to smart pointers. wgpu::Texture* constructor will increment the ref count.
+    wgpu::Texture dawnTexture         = texture.getDawnTexturePtr();
+    wgpu::TextureView dawnTextureView = texture.getDawnTextureViewPtr();
     SkASSERT(!dawnTexture || !dawnTextureView);
 
     if (!dawnTexture && !dawnTextureView) {
@@ -216,15 +217,17 @@ BackendTexture DawnResourceProvider::onCreateBackendTexture(SkISize dimensions,
         return {};
     }
 
-    return BackendTexture(std::move(texture));
+    return BackendTexture(texture.Release());
 }
 
 void DawnResourceProvider::onDeleteBackendTexture(BackendTexture& texture) {
     SkASSERT(texture.isValid());
     SkASSERT(texture.backend() == BackendApi::kDawn);
 
-    // Nothing to be done here as all the the cleanup of Dawn's resources will be done inside
-    // BackendTexture::~BackendTexture().
+    // Automatically release the pointers in wgpu::TextureView & wgpu::Texture's dtor.
+    // Acquire() won't increment the ref count.
+    wgpu::TextureView::Acquire(texture.getDawnTextureViewPtr());
+    wgpu::Texture::Acquire(texture.getDawnTexturePtr());
 }
 
 const DawnSharedContext* DawnResourceProvider::dawnSharedContext() const {

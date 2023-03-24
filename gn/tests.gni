@@ -376,6 +376,7 @@ precompile_tests_sources = [
   "$_tests/graphite/PaintParamsKeyTest.cpp",
 ]
 
+graphite_dawn_tests_sources = [ "$_tests/graphite/DawnBackendTextureTest.cpp" ]
 graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.mm" ]
 
 pathops_tests_sources = [

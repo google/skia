@@ -36,21 +36,28 @@ class BackendTexture {
 public:
     BackendTexture();
 #ifdef SK_DAWN
-    // Create a BackendTexture from a wgpu::Texture. Texture info will be
-    // queried from the texture. Comparing to wgpu::TextureView,
+    // Create a BackendTexture from a WGPUTexture. Texture info will be
+    // queried from the texture. Comparing to WGPUTextureView,
     // SkImage::readPixels(), SkSurface::readPixels() and
     // SkSurface::writePixels() are implemented by direct buffer copy. They
-    // should be more efficient. For wgpu::TextureView, those methods will use
-    // create an intermediate wgpu::Texture, and use it to transfer pixels.
-    // Note: for better performance, using wgpu::Texture IS RECOMMENDED.
-    BackendTexture(wgpu::Texture texture);
-    // Create a BackendTexture from a wgpu::TextureView. Texture dimensions and
+    // should be more efficient. For WGPUTextureView, those methods will use
+    // create an intermediate WGPUTexture, and use it to transfer pixels.
+    // Note:
+    //  - for better performance, using WGPUTexture IS RECOMMENDED.
+    //  - The BackendTexture will not call retain or release on the passed in
+    //  WGPUTexture. Thus the client must keep the WGPUTexture valid until
+    //  they are no longer using the BackendTexture.
+    BackendTexture(WGPUTexture texture);
+    // Create a BackendTexture from a WGPUTextureView. Texture dimensions and
     // info have to be provided.
-    // Note: this method is for importing wgpu::TextureView from wgpu::SwapChain
-    // only.
+    // Note:
+    //  - this method is for importing WGPUTextureView from wgpu::SwapChain only.
+    //  - The BackendTexture will not call retain or release on the passed in
+    //  WGPUTextureView. Thus the client must keep the WGPUTextureView valid
+    //  until they are no longer using the BackendTexture.
     BackendTexture(SkISize dimensions,
                    const DawnTextureInfo& info,
-                   wgpu::TextureView textureView);
+                   WGPUTextureView textureView);
 #endif
 #ifdef SK_METAL
     // The BackendTexture will not call retain or release on the passed in MtlHandle. Thus the
@@ -90,8 +97,8 @@ public:
     void setMutableState(const skgpu::MutableTextureState&);
 
 #ifdef SK_DAWN
-    wgpu::Texture getDawnTexture() const;
-    wgpu::TextureView getDawnTextureView() const;
+    WGPUTexture getDawnTexturePtr() const;
+    WGPUTextureView getDawnTextureViewPtr() const;
 #endif
 #ifdef SK_METAL
     MtlHandle getMtlTexture() const;
@@ -111,32 +118,12 @@ private:
 
     sk_sp<MutableTextureStateRef> fMutableState;
 
-#ifdef SK_DAWN
-    struct Dawn {
-        Dawn(wgpu::Texture texture) : fTexture(std::move(texture)) {}
-        Dawn(wgpu::TextureView textureView) : fTextureView(std::move(textureView)) {}
-
-        bool operator==(const Dawn& that) const {
-            return fTexture.Get() == that.fTexture.Get() &&
-                   fTextureView.Get() == that.fTextureView.Get();
-        }
-        bool operator!=(const Dawn& that) const {
-            return !this->operator==(that);
-        }
-        Dawn& operator=(const Dawn& that) {
-            fTexture = that.fTexture;
-            fTextureView = that.fTextureView;
-            return *this;
-        }
-
-        wgpu::Texture fTexture;
-        wgpu::TextureView fTextureView;
-    };
-#endif
-
     union {
 #ifdef SK_DAWN
-        Dawn fDawn;
+        struct {
+            WGPUTexture fDawnTexture;
+            WGPUTextureView fDawnTextureView;
+        };
 #endif
 #ifdef SK_METAL
         MtlHandle fMtlTexture;

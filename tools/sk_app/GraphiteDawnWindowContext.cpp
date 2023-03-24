@@ -83,7 +83,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
                                           kTextureUsage);
     skgpu::graphite::BackendTexture backendTex(this->dimensions(),
                                                info,
-                                               std::move(textureView));
+                                               textureView.Get());
     SkASSERT(this->graphiteRecorder());
     auto surface = SkSurface::MakeGraphiteFromBackendTexture(
         this->graphiteRecorder(),
