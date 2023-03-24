@@ -34,6 +34,8 @@ public:
                                                   uint32_t sampleCount,
                                                   Protected) const override;
 
+    TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
+
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override;
@@ -48,6 +50,7 @@ public:
     uint32_t channelMask(const TextureInfo&) const override;
 
     bool isRenderable(const TextureInfo&) const override;
+    bool isStorage(const TextureInfo&) const override;
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
@@ -107,13 +110,14 @@ private:
         }
 
         enum {
-            kTexturable_Flag  = 0x1,
-            kRenderable_Flag  = 0x2, // Color attachment and blendable
-            kMSAA_Flag        = 0x4,
-            kResolve_Flag     = 0x8,
+            kTexturable_Flag  = 0x01,
+            kRenderable_Flag  = 0x02, // Color attachment and blendable
+            kMSAA_Flag        = 0x04,
+            kResolve_Flag     = 0x08,
+            kStorage_Flag     = 0x10,
         };
-        static const uint16_t kAllFlags = kTexturable_Flag | kRenderable_Flag |
-                                          kMSAA_Flag | kResolve_Flag;
+        static const uint16_t kAllFlags =
+                kTexturable_Flag | kRenderable_Flag | kMSAA_Flag | kResolve_Flag | kStorage_Flag;
 
         uint16_t fFlags = 0;
 

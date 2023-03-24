@@ -160,6 +160,22 @@ sk_sp<TextureProxy> TextureProxy::MakeFullyLazy(const TextureInfo& textureInfo,
     return MakeLazy(SkISize::Make(-1, -1), textureInfo, budgeted, isVolatile, std::move(callback));
 }
 
+sk_sp<TextureProxy> TextureProxy::MakeStorage(const Caps* caps,
+                                              SkISize dimensions,
+                                              SkColorType colorType,
+                                              skgpu::Budgeted budgeted) {
+    if (dimensions.width() < 1 || dimensions.height() < 1) {
+        return nullptr;
+    }
+
+    TextureInfo textureInfo = caps->getDefaultStorageTextureInfo(colorType);
+    if (!textureInfo.isValid()) {
+        return nullptr;
+    }
+
+    return sk_make_sp<TextureProxy>(dimensions, textureInfo, budgeted);
+}
+
 #ifdef SK_DEBUG
 void TextureProxy::validateTexture(const Texture* texture) {
     SkASSERT(this->isFullyLazy() || fDimensions == texture->dimensions());

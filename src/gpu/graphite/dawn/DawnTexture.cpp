@@ -73,6 +73,10 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
         return {};
     }
 
+    if (dawnSpec.fUsage & wgpu::TextureUsage::StorageBinding && !caps->isStorage(info)) {
+        return {};
+    }
+
     int numMipLevels = 1;
     if (info.mipmapped() == Mipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;

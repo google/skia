@@ -795,6 +795,25 @@ TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
     return info;
 }
 
+TextureInfo MtlCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
+    // Storage textures are currently always sampleable from a shader.
+    MTLTextureUsage usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+    MtlPixelFormat format = this->getFormatFromColorType(colorType);
+    if (format == MTLPixelFormatInvalid) {
+        return {};
+    }
+
+    MtlTextureInfo info;
+    info.fSampleCount = 1;
+    info.fMipmapped = Mipmapped::kNo;
+    info.fFormat = format;
+    info.fUsage = usage;
+    info.fStorageMode = MTLStorageModePrivate;
+    info.fFramebufferOnly = false;
+
+    return info;
+}
+
 const Caps::ColorTypeInfo* MtlCaps::getColorTypeInfo(
         SkColorType ct, const TextureInfo& textureInfo) const {
     MTLPixelFormat mtlFormat = static_cast<MTLPixelFormat>(textureInfo.mtlTextureSpec().fFormat);
@@ -889,6 +908,18 @@ bool MtlCaps::isRenderable(const TextureInfo& info) const {
 
 bool MtlCaps::isRenderable(MTLPixelFormat format, uint32_t sampleCount) const {
     return sampleCount <= this->maxRenderTargetSampleCount(format);
+}
+
+bool MtlCaps::isStorage(const TextureInfo& info) const {
+    if (!(info.mtlTextureSpec().fUsage & MTLTextureUsageShaderWrite)) {
+        return false;
+    }
+    if (info.mtlTextureSpec().fFramebufferOnly) {
+        return false;
+    }
+    const FormatInfo& formatInfo =
+            this->getFormatInfo((MTLPixelFormat)info.mtlTextureSpec().fFormat);
+    return info.numSamples() == 1 && SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags);
 }
 
 uint32_t MtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {

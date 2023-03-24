@@ -83,6 +83,11 @@ public:
                                              Volatile,
                                              LazyInstantiateCallback&&);
 
+    static sk_sp<TextureProxy> MakeStorage(const Caps*,
+                                           SkISize dimensions,
+                                           SkColorType,
+                                           skgpu::Budgeted);
+
 private:
     TextureProxy(SkISize dimensions,
                  const TextureInfo&,

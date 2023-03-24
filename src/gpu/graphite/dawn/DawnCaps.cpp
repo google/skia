@@ -72,6 +72,14 @@ bool DawnCaps::isRenderable(const TextureInfo& info) const {
     this->isRenderable(info.dawnTextureSpec().fFormat, info.numSamples());
 }
 
+bool DawnCaps::isStorage(const TextureInfo& info) const {
+    if (!(info.dawnTextureSpec().fUsage & wgpu::TextureUsage::StorageBinding)) {
+        return false;
+    }
+    const FormatInfo& formatInfo = this->getFormatInfo(info.dawnTextureSpec().fFormat);
+    return info.numSamples() == 1 && SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags);
+}
+
 uint32_t DawnCaps::maxRenderTargetSampleCount(wgpu::TextureFormat format) const {
     const FormatInfo& formatInfo = this->getFormatInfo(format);
     if (!SkToBool(formatInfo.fFlags & FormatInfo::kRenderable_Flag)) {
@@ -135,6 +143,26 @@ TextureInfo DawnCaps::getDefaultDepthStencilTextureInfo(
     info.fMipmapped   = Mipmapped::kNo;
     info.fFormat      = DawnDepthStencilFlagsToFormat(depthStencilType);
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
+    return info;
+}
+
+TextureInfo DawnCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
+    // Storage textures are currently always sampleable from a shader.
+    wgpu::TextureUsage usage = wgpu::TextureUsage::StorageBinding |
+                               wgpu::TextureUsage::TextureBinding |
+                               wgpu::TextureUsage::CopySrc;
+    wgpu::TextureFormat format = this->getFormatFromColorType(colorType);
+    if (format == wgpu::TextureFormat::Undefined) {
+        SkDebugf("colorType=%d is not supported\n", static_cast<int>(colorType));
+        return {};
+    }
+
+    DawnTextureInfo info;
+    info.fSampleCount = 1;
+    info.fMipmapped = Mipmapped::kNo;
+    info.fFormat = format;
+    info.fUsage = usage;
+
     return info;
 }
 

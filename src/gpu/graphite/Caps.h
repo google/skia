@@ -70,6 +70,8 @@ public:
                                                           uint32_t sampleCount,
                                                           Protected) const = 0;
 
+    virtual TextureInfo getDefaultStorageTextureInfo(SkColorType) const = 0;
+
     virtual UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                               const RenderPassDesc&) const = 0;
     virtual UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const = 0;
@@ -79,6 +81,7 @@ public:
 
     bool isTexturable(const TextureInfo&) const;
     virtual bool isRenderable(const TextureInfo&) const = 0;
+    virtual bool isStorage(const TextureInfo&) const = 0;
 
     int maxTextureSize() const { return fMaxTextureSize; }
 
