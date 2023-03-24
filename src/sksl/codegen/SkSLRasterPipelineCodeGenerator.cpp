@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLIRNode.h"
@@ -79,6 +80,10 @@ static bool unsupported() {
     return false;
 }
 
+class AutoContinueMask;
+class Generator;
+class LValue;
+
 class SlotManager {
 public:
     SlotManager(std::vector<SlotDebugInfo>* i) : fSlotDebugInfo(i) {}
@@ -119,22 +124,59 @@ private:
     std::vector<SlotDebugInfo>* fSlotDebugInfo;
 };
 
-class AutoContinueMask;
-class LValue;
+class AutoStack {
+public:
+    /**
+     * Creates a temporary stack. The caller is responsible for discarding every entry on this
+     * stack before ~AutoStack is reached.
+     */
+    explicit AutoStack(Generator* g);
+    ~AutoStack();
+
+    /** Activates the associated stack. */
+    void enter();
+
+    /** Undoes a call to `enter`, returning to the previously-active stack. */
+    void exit();
+
+    /** Returns the stack ID of this AutoStack. */
+    int stackID() { return fStackID; }
+
+    /** Clones values from the top of the active stack onto this one. */
+    void pushClone(int slots);
+
+    /** Clones values from a fixed range of the active stack onto this one. */
+    void pushClone(SlotRange range, int offsetFromStackTop);
+
+    /** Clones values from a dynamic range of the active stack onto this one. */
+    void pushCloneIndirect(SlotRange range, int dynamicStackID, int offsetFromStackTop);
+
+private:
+    Generator* fGenerator;
+    int fStackID = 0;
+    int fParentStackID = 0;
+};
 
 class Generator {
 public:
-    Generator(const SkSL::Program& program, DebugTracePriv* debugTrace)
+    Generator(const SkSL::Program& program, DebugTracePriv* debugTrace, bool writeTraceOps)
             : fProgram(program)
             , fContext(fProgram.fContext->fTypes,
                        fProgram.fContext->fCaps,
                        *fProgram.fContext->fErrors)
             , fDebugTrace(debugTrace)
+            , fWriteTraceOps(writeTraceOps)
             , fProgramSlots(debugTrace ? &debugTrace->fSlotInfo : nullptr)
             , fUniformSlots(debugTrace ? &debugTrace->fUniformInfo : nullptr) {
         fContext.fModifiersPool = &fModifiersPool;
         fContext.fConfig = fProgram.fConfig.get();
         fContext.fModule = fProgram.fContext->fModule;
+    }
+
+    ~Generator() {
+        // ~AutoStack calls into the Generator, so we need to make sure the trace mask is reset
+        // before the Generator is destroyed.
+        fTraceMask.reset();
     }
 
     /** Converts the SkSL main() function into a set of Instructions. */
@@ -352,11 +394,13 @@ private:
     SkSL::ModifiersPool fModifiersPool;
     Builder fBuilder;
     DebugTracePriv* fDebugTrace = nullptr;
+    bool fWriteTraceOps = false;
     SkTHashMap<const Variable*, int> fChildEffectMap;
 
     SlotManager fProgramSlots;
     SlotManager fUniformSlots;
 
+    std::optional<AutoStack> fTraceMask;
     const FunctionDefinition* fCurrentFunction = nullptr;
     SlotRange fCurrentFunctionResult;
     AutoContinueMask* fCurrentContinueMask = nullptr;
@@ -426,48 +470,36 @@ private:
     friend class AutoContinueMask;
 };
 
-class AutoStack {
-public:
-    explicit AutoStack(Generator* g)
-            : fGenerator(g)
-            , fStackID(g->createStack()) {}
+AutoStack::AutoStack(Generator* g)
+        : fGenerator(g)
+        , fStackID(g->createStack()) {}
 
-    ~AutoStack() {
-        fGenerator->recycleStack(fStackID);
-    }
+AutoStack::~AutoStack() {
+    fGenerator->recycleStack(fStackID);
+}
 
-    void enter() {
-        fParentStackID = fGenerator->currentStack();
-        fGenerator->setCurrentStack(fStackID);
-    }
+void AutoStack::enter() {
+    fParentStackID = fGenerator->currentStack();
+    fGenerator->setCurrentStack(fStackID);
+}
 
-    void exit() {
-        SkASSERT(fGenerator->currentStack() == fStackID);
-        fGenerator->setCurrentStack(fParentStackID);
-    }
+void AutoStack::exit() {
+    SkASSERT(fGenerator->currentStack() == fStackID);
+    fGenerator->setCurrentStack(fParentStackID);
+}
 
-    void pushClone(int slots) {
-        this->pushClone(SlotRange{0, slots}, /*offsetFromStackTop=*/slots);
-    }
+void AutoStack::pushClone(int slots) {
+    this->pushClone(SlotRange{0, slots}, /*offsetFromStackTop=*/slots);
+}
 
-    void pushClone(SlotRange range, int offsetFromStackTop) {
-        fGenerator->builder()->push_clone_from_stack(range, fStackID, offsetFromStackTop);
-    }
+void AutoStack::pushClone(SlotRange range, int offsetFromStackTop) {
+    fGenerator->builder()->push_clone_from_stack(range, fStackID, offsetFromStackTop);
+}
 
-    void pushCloneIndirect(SlotRange range, int dynamicStackID, int offsetFromStackTop) {
-        fGenerator->builder()->push_clone_indirect_from_stack(
-                range, dynamicStackID, /*otherStackID=*/fStackID, offsetFromStackTop);
-    }
-
-    int stackID() const {
-        return fStackID;
-    }
-
-private:
-    Generator* fGenerator;
-    int fStackID = 0;
-    int fParentStackID = 0;
-};
+void AutoStack::pushCloneIndirect(SlotRange range, int dynamicStackID, int offsetFromStackTop) {
+    fGenerator->builder()->push_clone_indirect_from_stack(
+            range, dynamicStackID, /*otherStackID=*/fStackID, offsetFromStackTop);
+}
 
 class AutoContinueMask {
 public:
@@ -3360,7 +3392,24 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
     if (fDebugTrace) {
         // Copy the program source into the debug info so that it will be written in the trace file.
         fDebugTrace->setSource(*fProgram.fSource);
+
+        // The Raster Pipeline blitter generates centered pixel coordinates. (0.5, 1.5, 2.5,
+        // etc.) Add 0.5 to the requested trace coordinate to match this, then compare against
+        // src.rg, which contains the shader's coordinates. We keep this result in a dedicated
+        // trace-mask stack.
+        if (fWriteTraceOps) {
+            fTraceMask.emplace(this);
+            fTraceMask->enter();
+            fBuilder.push_src_rgba();
+            fBuilder.discard_stack(2);
+            fBuilder.push_literal_f(fDebugTrace->fTraceCoord.fX + 0.5f);
+            fBuilder.push_literal_f(fDebugTrace->fTraceCoord.fY + 0.5f);
+            fBuilder.binary_op(BuilderOp::cmpeq_n_floats, 2);
+            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
+            fTraceMask->exit();
+        }
     }
+
     // Assign slots to the parameters of main; copy src and dst into those slots as appropriate.
     for (const SkSL::Variable* param : function.declaration().parameters()) {
         switch (param->modifiers().fLayout.fBuiltin) {
@@ -3421,6 +3470,14 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
     } else {
         fBuilder.pop_src_rgba();
     }
+
+    // Discard the trace mask.
+    if (fTraceMask.has_value()) {
+        fTraceMask->enter();
+        fBuilder.discard_stack(1);
+        fTraceMask->exit();
+    }
+
     return true;
 }
 
@@ -3432,8 +3489,9 @@ std::unique_ptr<RP::Program> Generator::finish() {
 
 std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& program,
                                                        const FunctionDefinition& function,
-                                                       DebugTracePriv* debugTrace) {
-    RP::Generator generator(program, debugTrace);
+                                                       DebugTracePriv* debugTrace,
+                                                       bool writeTraceOps) {
+    RP::Generator generator(program, debugTrace, writeTraceOps);
     if (!generator.writeProgram(function)) {
         return nullptr;
     }

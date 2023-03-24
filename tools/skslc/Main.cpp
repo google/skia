@@ -669,8 +669,9 @@ static ResultCode process_command(SkSpan<std::string> args) {
                         compiler.errorReporter().error({}, "code has no entrypoint");
                         return false;
                     }
+                    bool wantTraceOps = (debugTrace != nullptr);
                     std::unique_ptr<SkSL::RP::Program> rasterProg = SkSL::MakeRasterPipelineProgram(
-                            program, *main->definition(), &skrpDebugTrace);
+                            program, *main->definition(), &skrpDebugTrace, wantTraceOps);
                     if (!rasterProg) {
                         compiler.errorReporter().error({}, "code is not supported");
                         return false;

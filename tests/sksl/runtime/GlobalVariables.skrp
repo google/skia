@@ -1,13 +1,18 @@
-    1. store_src_rg                   xy = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  gInitialized = 0xBF800000 (-1.0)
-    4. copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
-    5. zero_slot_unmasked             gUninitialized = 0
-    6. copy_constant                  $0 = 0x3F800000 (1.0)
-    7. copy_slot_unmasked             gUninitialized = $0
-    8. label                          label 0x00000000
-    9. zero_slot_unmasked             $0 = 0
-   10. copy_slot_unmasked             $1 = gInitializedFromOther
-   11. zero_slot_unmasked             $2 = 0
-   12. copy_slot_unmasked             $3 = gUninitialized
-   13. load_src                       src.rgba = $0..3
+    1. store_src                      $4..7 = src.rgba
+    2. copy_constant                  $6 = 0x3F000000 (0.5)
+    3. copy_constant                  $7 = 0x3F000000 (0.5)
+    4. cmpeq_2_floats                 $4..5 = equal($4..5, $6..7)
+    5. bitwise_and_int                $4 &= $5
+    6. store_src_rg                   xy = src.rg
+    7. init_lane_masks                CondMask = LoopMask = RetMask = true
+    8. copy_constant                  gInitialized = 0xBF800000 (-1.0)
+    9. copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
+   10. zero_slot_unmasked             gUninitialized = 0
+   11. copy_constant                  $0 = 0x3F800000 (1.0)
+   12. copy_slot_unmasked             gUninitialized = $0
+   13. label                          label 0x00000000
+   14. zero_slot_unmasked             $0 = 0
+   15. copy_slot_unmasked             $1 = gInitializedFromOther
+   16. zero_slot_unmasked             $2 = 0
+   17. copy_slot_unmasked             $3 = gUninitialized
+   18. load_src                       src.rgba = $0..3

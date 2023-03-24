@@ -36,6 +36,7 @@ class SkRuntimeImageFilter;
 
 namespace SkSL {
 class DebugTrace;
+class DebugTracePriv;
 class ErrorReporter;
 class FunctionDefinition;
 struct Program;
@@ -309,7 +310,7 @@ private:
     bool alwaysOpaque()       const { return (fFlags & kAlwaysOpaque_Flag);       }
 
     const SkFilterColorProgram* getFilterColorProgram() const;
-    const SkSL::RP::Program* getRPProgram() const;
+    const SkSL::RP::Program* getRPProgram(SkSL::DebugTracePriv* debugTrace) const;
 
 #if defined(SK_GANESH)
     friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
