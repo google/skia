@@ -1876,12 +1876,7 @@ BLEND_MODE(softlight) {
 // Anything extra we add beyond that is to make the math work with premul inputs.
 
 SI F sat(F r, F g, F b) { return max(r, max(g,b)) - min(r, min(g,b)); }
-
-#if defined(SK_USE_LEGACY_RP_LUMINANCE)
-SI F lum(F r, F g, F b) { return r*0.30f + g*0.59f + b*0.11f; }
-#else
 SI F lum(F r, F g, F b) { return mad(r, 0.30f, mad(g, 0.59f, b*0.11f)); }
-#endif
 
 SI void set_sat(F* r, F* g, F* b, F s) {
     F mn  = min(*r, min(*g,*b)),
