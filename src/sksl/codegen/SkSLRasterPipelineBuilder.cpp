@@ -2429,13 +2429,8 @@ void Program::dump(SkWStream* out) const {
         switch (stage.op) {
         #define M(x) case POp::x: opName = #x; break;
             SK_RASTER_PIPELINE_OPS_ALL(M)
+            SKRP_EXTENDED_OPS(M)
         #undef M
-            case POp::label:                   opName = "label";                   break;
-            case POp::invoke_shader:           opName = "invoke_shader";           break;
-            case POp::invoke_color_filter:     opName = "invoke_color_filter";     break;
-            case POp::invoke_blender:          opName = "invoke_blender";          break;
-            case POp::invoke_to_linear_srgb:   opName = "invoke_to_linear_srgb";   break;
-            case POp::invoke_from_linear_srgb: opName = "invoke_from_linear_srgb"; break;
         }
 
         std::string opText;
