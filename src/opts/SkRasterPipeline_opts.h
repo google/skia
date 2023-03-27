@@ -14,6 +14,7 @@
 #include "modules/skcms/skcms.h"
 #include "src/base/SkUtils.h"  // unaligned_{load,store}
 #include "src/core/SkRasterPipeline.h"
+#include "src/sksl/tracing/SkSLTraceHook.h"
 #include <cstdint>
 
 // Every function in this file should be marked static and inline using SI.
@@ -1644,6 +1645,21 @@ SI I32 cond_to_mask(I32 cond) {
     return cond;
 #endif
 }
+
+#if defined(JUMPER_IS_SCALAR)
+// In scalar mode, `data` only contains a single lane.
+template <typename T>
+SI T select_lane(T data, int lane) {
+    SkASSERT(lane == 0);
+    return data;
+}
+#else
+// In SIMD mode, `data` contains a vector of lanes.
+template <typename T>
+SI T select_lane(V<T> data, int lane) {
+    return data[lane];
+}
+#endif
 
 // Now finally, normal Stages!
 
@@ -3388,6 +3404,48 @@ STAGE_BRANCH(branch_if_no_active_lanes_eq, SkRasterPipeline_BranchIfEqualCtx* ct
     match &= execution_mask();
     // If any lanes matched, don't take the branch.
     return any(match) ? 1 : ctx->offset;
+}
+
+STAGE_TAIL(trace_line, SkRasterPipeline_TraceLineCtx* ctx) {
+    I32* traceMask = (I32*)ctx->traceMask;
+    if (any(execution_mask() & *traceMask)) {
+        ctx->traceHook->line(ctx->lineNumber);
+    }
+}
+
+STAGE_TAIL(trace_enter, SkRasterPipeline_TraceFuncCtx* ctx) {
+    I32* traceMask = (I32*)ctx->traceMask;
+    if (any(execution_mask() & *traceMask)) {
+        ctx->traceHook->enter(ctx->funcIdx);
+    }
+}
+
+STAGE_TAIL(trace_exit, SkRasterPipeline_TraceFuncCtx* ctx) {
+    I32* traceMask = (I32*)ctx->traceMask;
+    if (any(execution_mask() & *traceMask)) {
+        ctx->traceHook->exit(ctx->funcIdx);
+    }
+}
+
+STAGE_TAIL(trace_scope, SkRasterPipeline_TraceScopeCtx* ctx) {
+    I32* traceMask = (I32*)ctx->traceMask;
+    if (any(execution_mask() & *traceMask)) {
+        ctx->traceHook->scope(ctx->delta);
+    }
+}
+
+STAGE_TAIL(trace_var, SkRasterPipeline_TraceVarCtx* ctx) {
+    I32* traceMask = (I32*)ctx->traceMask;
+    I32 mask = execution_mask() & *traceMask;
+    if (any(mask)) {
+        for (size_t lane = 0; lane < N; ++lane) {
+            if (select_lane(mask, lane)) {
+                I32 data = *(I32*)ctx->data;
+                ctx->traceHook->var(ctx->slotIdx, select_lane(data, lane));
+                break;
+            }
+        }
+    }
 }
 
 STAGE_TAIL(zero_slot_unmasked, F* dst) {

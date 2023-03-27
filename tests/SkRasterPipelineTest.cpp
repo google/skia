@@ -11,6 +11,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/gpu/Swizzle.h"
+#include "src/sksl/tracing/SkSLTraceHook.h"
 #include "tests/Test.h"
 
 #include <cmath>
@@ -789,6 +790,190 @@ DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
             }
         }
     }
+}
+
+DEF_TEST(SkRasterPipeline_TraceVar, r) {
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    class TestTraceHook : public SkSL::TraceHook {
+    public:
+        void line(int) override                  { fBuffer.push_back(-9999999); }
+        void enter(int) override                 { fBuffer.push_back(-9999999); }
+        void exit(int) override                  { fBuffer.push_back(-9999999); }
+        void scope(int) override                 { fBuffer.push_back(-9999999); }
+        void var(int slot, int32_t val) override {
+            fBuffer.push_back(slot);
+            fBuffer.push_back(val);
+        }
+
+        SkTArray<int> fBuffer;
+    };
+
+    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
+    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) static constexpr int32_t kData333[8] = {333, 333, 333, 333, 333, 333, 333, 333};
+    alignas(64) static constexpr int32_t kData555[8] = {555, 555, 555, 555, 555, 555, 555, 555};
+    alignas(64) static constexpr int32_t kData666[8] = {666, 666, 666, 666, 666, 666, 666, 666};
+    alignas(64) static constexpr int32_t kData777[8] = {777, 777, 777, 777, 777, 777, 777, 777};
+    alignas(64) static constexpr int32_t kData999[8] = {999, 999, 999, 999, 999, 999, 999, 999};
+
+    TestTraceHook trace;
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipelineOp::init_lane_masks);
+    const SkRasterPipeline_TraceVarCtx kTraceVar1 = {/*traceMask=*/kMaskOff, &trace, 2, kData333};
+    const SkRasterPipeline_TraceVarCtx kTraceVar2 = {/*traceMask=*/kMaskOn,  &trace, 4, kData555};
+    const SkRasterPipeline_TraceVarCtx kTraceVar3 = {/*traceMask=*/kMaskOff, &trace, 5, kData666};
+    const SkRasterPipeline_TraceVarCtx kTraceVar4 = {/*traceMask=*/kMaskOn,  &trace, 6, kData777};
+    const SkRasterPipeline_TraceVarCtx kTraceVar5 = {/*traceMask=*/kMaskOn,  &trace, 8, kData999};
+
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_var, &kTraceVar1);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_var, &kTraceVar2);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
+    p.append(SkRasterPipelineOp::trace_var, &kTraceVar3);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_var, &kTraceVar4);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
+    p.append(SkRasterPipelineOp::trace_var, &kTraceVar5);
+    p.run(0,0,N,1);
+
+    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{4, 555, 6, 777}));
+}
+
+DEF_TEST(SkRasterPipeline_TraceLine, r) {
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    class TestTraceHook : public SkSL::TraceHook {
+    public:
+        void var(int, int32_t) override { fBuffer.push_back(-9999999); }
+        void enter(int) override        { fBuffer.push_back(-9999999); }
+        void exit(int) override         { fBuffer.push_back(-9999999); }
+        void scope(int) override        { fBuffer.push_back(-9999999); }
+        void line(int lineNum) override { fBuffer.push_back(lineNum); }
+
+        SkTArray<int> fBuffer;
+    };
+
+    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
+    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+
+    TestTraceHook trace;
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipelineOp::init_lane_masks);
+    const SkRasterPipeline_TraceLineCtx kTraceLine1 = {/*traceMask=*/kMaskOn,  &trace, 123};
+    const SkRasterPipeline_TraceLineCtx kTraceLine2 = {/*traceMask=*/kMaskOff, &trace, 456};
+    const SkRasterPipeline_TraceLineCtx kTraceLine3 = {/*traceMask=*/kMaskOn,  &trace, 567};
+    const SkRasterPipeline_TraceLineCtx kTraceLine4 = {/*traceMask=*/kMaskOff, &trace, 678};
+    const SkRasterPipeline_TraceLineCtx kTraceLine5 = {/*traceMask=*/kMaskOn,  &trace, 789};
+
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_line, &kTraceLine1);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_line, &kTraceLine2);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
+    p.append(SkRasterPipelineOp::trace_line, &kTraceLine3);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
+    p.append(SkRasterPipelineOp::trace_line, &kTraceLine4);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_line, &kTraceLine5);
+    p.run(0,0,N,1);
+
+    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{123, 789}));
+}
+
+DEF_TEST(SkRasterPipeline_TraceEnterExit, r) {
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    class TestTraceHook : public SkSL::TraceHook {
+    public:
+        void line(int) override         { fBuffer.push_back(-9999999); }
+        void var(int, int32_t) override { fBuffer.push_back(-9999999); }
+        void scope(int) override        { fBuffer.push_back(-9999999); }
+        void enter(int fnIdx) override  {
+            fBuffer.push_back(fnIdx);
+            fBuffer.push_back(1);
+        }
+        void exit(int fnIdx) override {
+            fBuffer.push_back(fnIdx);
+            fBuffer.push_back(0);
+        }
+
+        SkTArray<int> fBuffer;
+    };
+
+    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
+    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+
+    TestTraceHook trace;
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipelineOp::init_lane_masks);
+    const SkRasterPipeline_TraceFuncCtx kTraceFunc1 = {/*traceMask=*/kMaskOff, &trace, 99};
+    const SkRasterPipeline_TraceFuncCtx kTraceFunc2 = {/*traceMask=*/kMaskOn,  &trace, 12};
+    const SkRasterPipeline_TraceFuncCtx kTraceFunc3 = {/*traceMask=*/kMaskOff, &trace, 34};
+    const SkRasterPipeline_TraceFuncCtx kTraceFunc4 = {/*traceMask=*/kMaskOn,  &trace, 56};
+    const SkRasterPipeline_TraceFuncCtx kTraceFunc5 = {/*traceMask=*/kMaskOn,  &trace, 78};
+    const SkRasterPipeline_TraceFuncCtx kTraceFunc6 = {/*traceMask=*/kMaskOff, &trace, 90};
+
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
+    p.append(SkRasterPipelineOp::trace_enter, &kTraceFunc1);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_enter, &kTraceFunc2);
+    p.append(SkRasterPipelineOp::trace_enter, &kTraceFunc3);
+    p.append(SkRasterPipelineOp::trace_exit, &kTraceFunc4);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
+    p.append(SkRasterPipelineOp::trace_exit, &kTraceFunc5);
+    p.append(SkRasterPipelineOp::trace_exit, &kTraceFunc6);
+    p.run(0,0,N,1);
+
+    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{12, 1, 56, 0}));
+}
+
+DEF_TEST(SkRasterPipeline_TraceScope, r) {
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    class TestTraceHook : public SkSL::TraceHook {
+    public:
+        void line(int) override         { fBuffer.push_back(-9999999); }
+        void var(int, int32_t) override { fBuffer.push_back(-9999999); }
+        void enter(int) override        { fBuffer.push_back(-9999999); }
+        void exit(int) override         { fBuffer.push_back(-9999999); }
+        void scope(int delta) override  { fBuffer.push_back(delta); }
+
+        SkTArray<int> fBuffer;
+    };
+
+    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
+    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+
+    TestTraceHook trace;
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipelineOp::init_lane_masks);
+    const SkRasterPipeline_TraceScopeCtx kTraceScope1  = {/*traceMask=*/kMaskOn,  &trace, +1};
+    const SkRasterPipeline_TraceScopeCtx kTraceScope2  = {/*traceMask=*/kMaskOff, &trace, -2};
+    const SkRasterPipeline_TraceScopeCtx kTraceScope3  = {/*traceMask=*/kMaskOff, &trace, +3};
+    const SkRasterPipeline_TraceScopeCtx kTraceScope4  = {/*traceMask=*/kMaskOn,  &trace, +4};
+    const SkRasterPipeline_TraceScopeCtx kTraceScope5  = {/*traceMask=*/kMaskOn,  &trace, -5};
+
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_scope, &kTraceScope1);
+    p.append(SkRasterPipelineOp::trace_scope, &kTraceScope2);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
+    p.append(SkRasterPipelineOp::trace_scope, &kTraceScope3);
+    p.append(SkRasterPipelineOp::trace_scope, &kTraceScope4);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_scope, &kTraceScope5);
+    p.run(0,0,N,1);
+
+    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{1, -5}));
 }
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {

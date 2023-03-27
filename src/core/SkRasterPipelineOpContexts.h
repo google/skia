@@ -8,6 +8,8 @@
 #ifndef SkRasterPipelineOpContexts_DEFINED
 #define SkRasterPipelineOpContexts_DEFINED
 
+namespace SkSL { class TraceHook; }
+
 // The largest number of pixels we handle at a time. We have a separate value for the largest number
 // of pixels we handle in the highp pipeline. Many of the context structs in this file are only used
 // by stages that have no lowp implementation. They can therefore use the (smaller) highp value to
@@ -194,12 +196,37 @@ struct SkRasterPipeline_BranchCtx {
 
 struct SkRasterPipeline_BranchIfEqualCtx : public SkRasterPipeline_BranchCtx {
     int value;
-    const int *ptr;
+    const int* ptr;
 };
 
 struct SkRasterPipeline_CaseOpCtx {
     int expectedValue;
     int* ptr;  // points to a pair of adjacent I32s: {I32 actualValue, I32 defaultMask}
+};
+
+struct SkRasterPipeline_TraceFuncCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int funcIdx;
+};
+
+struct SkRasterPipeline_TraceScopeCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int delta;
+};
+
+struct SkRasterPipeline_TraceLineCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int lineNumber;
+};
+
+struct SkRasterPipeline_TraceVarCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int slotIdx;
+    const int* data;
 };
 
 #endif  // SkRasterPipelineOpContexts_DEFINED
