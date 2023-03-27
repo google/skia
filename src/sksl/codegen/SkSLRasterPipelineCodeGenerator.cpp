@@ -1214,7 +1214,9 @@ std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
     if (fDebugTrace) {
         funcIndex = this->getFunctionDebugInfo(function.declaration());
         SkASSERT(funcIndex >= 0);
-        // TODO(debugger): add trace for function-enter
+        if (fWriteTraceOps) {
+            fBuilder.trace_enter(fTraceMask->stackID(), funcIndex);
+        }
     }
 
     SlotRange lastFunctionResult = fCurrentFunctionResult;
@@ -1227,8 +1229,8 @@ std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
     SlotRange functionResult = fCurrentFunctionResult;
     fCurrentFunctionResult = lastFunctionResult;
 
-    if (fDebugTrace) {
-        // TODO(debugger): add trace for function-exit
+    if (fDebugTrace && fWriteTraceOps) {
+        fBuilder.trace_exit(fTraceMask->stackID(), funcIndex);
     }
 
     return functionResult;

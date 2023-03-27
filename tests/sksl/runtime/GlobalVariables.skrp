@@ -8,11 +8,15 @@
     8. copy_constant                  gInitialized = 0xBF800000 (-1.0)
     9. copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
    10. zero_slot_unmasked             gUninitialized = 0
-   11. copy_constant                  $0 = 0x3F800000 (1.0)
-   12. copy_slot_unmasked             gUninitialized = $0
-   13. label                          label 0x00000000
-   14. zero_slot_unmasked             $0 = 0
-   15. copy_slot_unmasked             $1 = gInitializedFromOther
-   16. zero_slot_unmasked             $2 = 0
-   17. copy_slot_unmasked             $3 = gUninitialized
-   18. load_src                       src.rgba = $0..3
+   11. trace_enter                    TraceEnter(float4 main(float2 xy)) when $4 is true
+   12. trace_enter                    TraceEnter(void init_globals()) when $4 is true
+   13. copy_constant                  $0 = 0x3F800000 (1.0)
+   14. copy_slot_unmasked             gUninitialized = $0
+   15. trace_exit                     TraceExit(void init_globals()) when $4 is true
+   16. label                          label 0x00000000
+   17. zero_slot_unmasked             $0 = 0
+   18. copy_slot_unmasked             $1 = gInitializedFromOther
+   19. zero_slot_unmasked             $2 = 0
+   20. copy_slot_unmasked             $3 = gUninitialized
+   21. trace_exit                     TraceExit(float4 main(float2 xy)) when $4 is true
+   22. load_src                       src.rgba = $0..3

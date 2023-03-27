@@ -5,22 +5,30 @@
     5. bitwise_and_int                $12 &= $13
     6. store_src_rg                   pos = src.rg
     7. init_lane_masks                CondMask = LoopMask = RetMask = true
-    8. copy_constant                  x = 0x00000005 (7.006492e-45)
-    9. copy_slot_unmasked             $0 = x
-   10. label                          label 0x00000000
-   11. copy_constant                  x = 0x00000003 (4.203895e-45)
-   12. copy_slot_unmasked             $1 = x
-   13. label                          label 0x00000001
-   14. add_int                        $0 += $1
-   15. copy_constant                  x = 0x00000002 (2.802597e-45)
+    8. trace_enter                    TraceEnter(half4 main(float2 pos)) when $12 is true
+    9. copy_constant                  x = 0x00000005 (7.006492e-45)
+   10. trace_enter                    TraceEnter(int get(int x)) when $12 is true
+   11. copy_slot_unmasked             $0 = x
+   12. trace_exit                     TraceExit(int get(int x)) when $12 is true
+   13. label                          label 0x00000000
+   14. copy_constant                  x = 0x00000003 (4.203895e-45)
+   15. trace_enter                    TraceEnter(int get(int x)) when $12 is true
    16. copy_slot_unmasked             $1 = x
-   17. label                          label 0x00000002
-   18. add_int                        $0 += $1
-   19. copy_slot_unmasked             ten = $0
-   20. copy_constant                  $1 = 0x0000000A (1.401298e-44)
-   21. cmpeq_int                      $0 = equal($0, $1)
-   22. swizzle_4                      $0..3 = ($0..3).xxxx
-   23. copy_4_constants               $4..7 = colorRed
-   24. copy_4_constants               $8..11 = colorGreen
-   25. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   26. load_src                       src.rgba = $0..3
+   17. trace_exit                     TraceExit(int get(int x)) when $12 is true
+   18. label                          label 0x00000001
+   19. add_int                        $0 += $1
+   20. copy_constant                  x = 0x00000002 (2.802597e-45)
+   21. trace_enter                    TraceEnter(int get(int x)) when $12 is true
+   22. copy_slot_unmasked             $1 = x
+   23. trace_exit                     TraceExit(int get(int x)) when $12 is true
+   24. label                          label 0x00000002
+   25. add_int                        $0 += $1
+   26. copy_slot_unmasked             ten = $0
+   27. copy_constant                  $1 = 0x0000000A (1.401298e-44)
+   28. cmpeq_int                      $0 = equal($0, $1)
+   29. swizzle_4                      $0..3 = ($0..3).xxxx
+   30. copy_4_constants               $4..7 = colorRed
+   31. copy_4_constants               $8..11 = colorGreen
+   32. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   33. trace_exit                     TraceExit(half4 main(float2 pos)) when $12 is true
+   34. load_src                       src.rgba = $0..3
