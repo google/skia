@@ -1333,6 +1333,14 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
         auto SlotA    = [&]() { return &slots.values[N * inst.fSlotA]; };
         auto SlotB    = [&]() { return &slots.values[N * inst.fSlotB]; };
         auto UniformA = [&]() { return &uniforms[inst.fSlotA]; };
+        auto AllocTraceContext = [&](auto* ctx) {
+            // We pass `ctx` solely for its type; the value is unused.
+            using ContextType = typename std::remove_reference<decltype(*ctx)>::type;
+            ctx = alloc->make<ContextType>();
+            ctx->traceMask = reinterpret_cast<int*>(tempStackMap[inst.fImmA] - N);
+            ctx->traceHook = nullptr; // TODO(johnstiles): set the trace hook when one is available
+            return ctx;
+        };
         float*& tempStackPtr = tempStackMap[currentStack];
 
         switch (inst.fOp) {
@@ -1736,14 +1744,43 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 pipeline->push_back({(ProgramOp)inst.fOp, nullptr});
                 break;
 
+            case BuilderOp::trace_line: {
+                auto* ctx = AllocTraceContext((SkRasterPipeline_TraceLineCtx*)nullptr);
+                ctx->lineNumber = inst.fImmB;
+                pipeline->push_back({ProgramOp::trace_line, ctx});
+                break;
+            }
+            case BuilderOp::trace_scope: {
+                auto* ctx = AllocTraceContext((SkRasterPipeline_TraceScopeCtx*)nullptr);
+                ctx->delta = inst.fImmB;
+                pipeline->push_back({ProgramOp::trace_scope, ctx});
+                break;
+            }
+            case BuilderOp::trace_enter:
+            case BuilderOp::trace_exit: {
+                auto* ctx = AllocTraceContext((SkRasterPipeline_TraceFuncCtx*)nullptr);
+                ctx->funcIdx = inst.fImmB;
+                pipeline->push_back({(ProgramOp)inst.fOp, ctx});
+                break;
+            }
+            case BuilderOp::trace_var: {
+                auto* ctx = AllocTraceContext((SkRasterPipeline_TraceVarCtx*)nullptr);
+                ctx->slotIdx = inst.fSlotA;
+                ctx->data = reinterpret_cast<int*>(SlotA());
+                pipeline->push_back({ProgramOp::trace_var, ctx});
+                break;
+            }
             default:
                 SkDEBUGFAILF("Raster Pipeline: unsupported instruction %d", (int)inst.fOp);
                 break;
         }
 
-        tempStackPtr += stack_usage(inst) * N;
-        SkASSERT(tempStackPtr >= slots.stack.begin());
-        SkASSERT(tempStackPtr <= slots.stack.end());
+        int stackUsage = stack_usage(inst);
+        if (stackUsage != 0) {
+            tempStackPtr += stackUsage * N;
+            SkASSERT(tempStackPtr >= slots.stack.begin());
+            SkASSERT(tempStackPtr <= slots.stack.end());
+        }
 
         // Periodically rewind the stack every 500 instructions. When SK_HAS_MUSTTAIL is set,
         // rewinds are not actually used; the appendStackRewind call becomes a no-op. On platforms
@@ -2421,6 +2458,35 @@ void Program::dump(SkWStream* out) const {
                 opArg3 = Imm(sk_bit_cast<float>(ctx->value));
                 break;
             }
+            case POp::trace_var: {
+                const auto* ctx = static_cast<SkRasterPipeline_TraceVarCtx*>(stage.ctx);
+                opArg1 = PtrCtx(ctx->traceMask, 1);
+                opArg2 = PtrCtx(ctx->data, 1);
+                break;
+            }
+            case POp::trace_line: {
+                const auto* ctx = static_cast<SkRasterPipeline_TraceLineCtx*>(stage.ctx);
+                opArg1 = PtrCtx(ctx->traceMask, 1);
+                opArg2 = std::to_string(ctx->lineNumber);
+                break;
+            }
+            case POp::trace_enter:
+            case POp::trace_exit: {
+                const auto* ctx = static_cast<SkRasterPipeline_TraceFuncCtx*>(stage.ctx);
+                opArg1 = PtrCtx(ctx->traceMask, 1);
+                opArg2 = (fDebugTrace &&
+                          ctx->funcIdx >= 0 &&
+                          ctx->funcIdx < (int)fDebugTrace->fFuncInfo.size())
+                                 ? fDebugTrace->fFuncInfo[ctx->funcIdx].name
+                                 : "???";
+                break;
+            }
+            case POp::trace_scope: {
+                const auto* ctx = static_cast<SkRasterPipeline_TraceScopeCtx*>(stage.ctx);
+                opArg1 = PtrCtx(ctx->traceMask, 1);
+                opArg2 = SkSL::String::printf("%+d", ctx->delta);
+                break;
+            }
             default:
                 break;
         }
@@ -2435,6 +2501,26 @@ void Program::dump(SkWStream* out) const {
 
         std::string opText;
         switch (stage.op) {
+            case POp::trace_var:
+                opText = "TraceVar(" + opArg2 + ") when " + opArg1 + " is true";
+                break;
+
+            case POp::trace_line:
+                opText = "TraceLine(" + opArg2 + ") when " + opArg1 + " is true";
+                break;
+
+            case POp::trace_enter:
+                opText = "TraceEnter(" + opArg2 + ") when " + opArg1 + " is true";
+                break;
+
+            case POp::trace_exit:
+                opText = "TraceExit(" + opArg2 + ") when " + opArg1 + " is true";
+                break;
+
+            case POp::trace_scope:
+                opText = "TraceScope(" + opArg2 + ") when " + opArg1 + " is true";
+                break;
+
             case POp::init_lane_masks:
                 opText = "CondMask = LoopMask = RetMask = true";
                 break;

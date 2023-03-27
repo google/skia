@@ -628,6 +628,26 @@ public:
         fInstructions.push_back({BuilderOp::invoke_from_linear_srgb, {}});
     }
 
+    void trace_line(int traceMaskStackID, int line) {
+        fInstructions.push_back({BuilderOp::trace_line, {}, traceMaskStackID, line});
+    }
+
+    void trace_var(int traceMaskStackID, Slot slot) {
+        fInstructions.push_back({BuilderOp::trace_var, {slot}, traceMaskStackID});
+    }
+
+    void trace_enter(int traceMaskStackID, int funcID) {
+        fInstructions.push_back({BuilderOp::trace_enter, {}, traceMaskStackID, funcID});
+    }
+
+    void trace_exit(int traceMaskStackID, int funcID) {
+        fInstructions.push_back({BuilderOp::trace_exit, {}, traceMaskStackID, funcID});
+    }
+
+    void trace_scope(int traceMaskStackID, int delta) {
+        fInstructions.push_back({BuilderOp::trace_scope, {}, traceMaskStackID, delta});
+    }
+
 private:
     void simplifyPopSlotsUnmasked(SlotRange* dst);
 

@@ -11,6 +11,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"
 
 static sk_sp<SkData> get_program_dump(SkSL::RP::Program& program) {
@@ -806,4 +807,66 @@ DEF_TEST(RasterPipelineBuilderAutomaticStackRewinding, r) {
     // long programs.
     REPORTER_ASSERT(r, skstd::contains(as_string_view(dump), "stack_rewind"));
 #endif
+}
+
+DEF_TEST(RasterPipelineBuilderTraceOps, r) {
+    for (bool provideDebugTrace : {false, true}) {
+        SkSL::RP::Builder builder;
+        // Create a trace mask stack on stack-ID 123.
+        builder.set_current_stack(123);
+        builder.push_literal_i(~0);
+        // Emit trace ops.
+        builder.trace_enter(123, 2);
+        builder.trace_scope(123, +1);
+        builder.trace_line(123, 456);
+        builder.trace_var(123, 3);
+        builder.trace_scope(123, -1);
+        builder.trace_exit(123, 2);
+        // Discard the trace mask.
+        builder.discard_stack(1);
+
+        if (!provideDebugTrace) {
+            // Test the output when no DebugTrace info is provided.
+            std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/20,
+                                                                        /*numUniformSlots=*/0);
+            check(r, *program,
+R"(    1. copy_constant                  $0 = 0xFFFFFFFF
+    2. trace_enter                    TraceEnter(???) when $0 is true
+    3. trace_scope                    TraceScope(+1) when $0 is true
+    4. trace_line                     TraceLine(456) when $0 is true
+    5. trace_var                      TraceVar(v3) when $0 is true
+    6. trace_scope                    TraceScope(-1) when $0 is true
+    7. trace_exit                     TraceExit(???) when $0 is true
+)");
+        } else {
+            // Test the output when we supply a populated DebugTrace.
+            SkSL::DebugTracePriv trace;
+            trace.fFuncInfo = {{"FunctionA"}, {"FunctionB"}, {"FunctionC"}, {"FunctionD"}};
+
+            SkSL::SlotDebugInfo slot;
+            slot.name = "Var0";
+            trace.fSlotInfo.push_back(slot);
+            slot.name = "Var1";
+            trace.fSlotInfo.push_back(slot);
+            slot.name = "Var2";
+            trace.fSlotInfo.push_back(slot);
+            slot.name = "Var3";
+            trace.fSlotInfo.push_back(slot);
+            slot.name = "Var4";
+            trace.fSlotInfo.push_back(slot);
+
+            std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/20,
+                                                                        /*numUniformSlots=*/0,
+                                                                        &trace);
+            check(r, *program,
+R"(    1. copy_constant                  $0 = 0xFFFFFFFF
+    2. trace_enter                    TraceEnter(FunctionC) when $0 is true
+    3. trace_scope                    TraceScope(+1) when $0 is true
+    4. trace_line                     TraceLine(456) when $0 is true
+    5. trace_var                      TraceVar(Var3) when $0 is true
+    6. trace_scope                    TraceScope(-1) when $0 is true
+    7. trace_exit                     TraceExit(FunctionC) when $0 is true
+)");
+        }
+    }
 }
