@@ -160,7 +160,7 @@ UNIX_ONLY_TEST(SkUnicode_ReorderVisual, reporter) {
     auto reorder = [&](std::vector<SkUnicode::BidiLevel> levels,
                        std::vector<int32_t> expected) {
             std::vector<int32_t> logicalOrder(levels.size());
-            icu->reorderVisual(levels.data(), levels.size(), &logicalOrder[0]);
+            icu->reorderVisual(levels.data(), levels.size(), logicalOrder.data());
             for (auto i = 0ul; i < levels.size(); ++i) {
                 REPORTER_ASSERT(reporter, expected[i] == logicalOrder[i]);
             }
