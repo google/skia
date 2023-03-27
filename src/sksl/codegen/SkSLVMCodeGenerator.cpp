@@ -210,12 +210,12 @@ private:
     int getLine(Position pos);
 
     /**
-     * Emits an trace_line opcode. writeStatement does this, and statements that alter control flow
+     * Emits a trace_line opcode. writeStatement does this, and statements that alter control flow
      * may need to explicitly add additional traces.
      */
     void emitTraceLine(int line);
 
-    /** Emits an trace_scope opcode, which alters the SkSL variable-scope depth. */
+    /** Emits a trace_scope opcode, which alters the SkSL variable-scope depth. */
     void emitTraceScope(skvm::I32 executionMask, int delta);
 
     /** Initializes uniforms and global variables at the start of main(). */

@@ -6,89 +6,110 @@
     6. store_src_rg                   xy = src.rg
     7. init_lane_masks                CondMask = LoopMask = RetMask = true
     8. trace_enter                    TraceEnter(float4 main(float2 xy)) when $10 is true
-    9. trace_enter                    TraceEnter(float index_by_literal()) when $10 is true
-   10. copy_constant                  $0 = u1[0]
-   11. trace_exit                     TraceExit(float index_by_literal()) when $10 is true
-   12. label                          label 0x00000000
-   13. trace_enter                    TraceEnter(float index_by_loop()) when $10 is true
-   14. zero_slot_unmasked             sum = 0
-   15. copy_constant                  i = 0x00000003 (4.203895e-45)
-   16. label                          label 0x00000003
-   17. copy_slot_unmasked             $1 = sum
-   18. copy_slot_unmasked             $7 = i
-   19. copy_from_indirect_uniform_unm $2 = Indirect(u2[0] + $7)
-   20. add_float                      $1 += $2
-   21. copy_slot_unmasked             sum = $1
-   22. copy_slot_unmasked             $1 = i
-   23. copy_constant                  $2 = 0x00000001 (1.401298e-45)
-   24. sub_int                        $1 -= $2
-   25. copy_slot_unmasked             i = $1
-   26. zero_slot_unmasked             $1 = 0
-   27. copy_slot_unmasked             $2 = i
-   28. cmple_int                      $1 = lessThanEqual($1, $2)
-   29. stack_rewind
-   30. branch_if_no_active_lanes_eq   branch -14 (label 3 at #16) if no lanes of $1 == 0x00000000 (0.0)
-   31. label                          label 0x00000002
-   32. copy_slot_unmasked             $1 = sum
-   33. trace_exit                     TraceExit(float index_by_loop()) when $10 is true
-   34. label                          label 0x00000001
-   35. trace_enter                    TraceEnter(float index_by_complex_loop()) when $10 is true
-   36. copy_constant                  prod = 0x3F800000 (1.0)
-   37. zero_slot_unmasked             i₁ = 0
-   38. label                          label 0x00000006
-   39. copy_slot_unmasked             $2 = prod
-   40. copy_slot_unmasked             $7 = i₁
-   41. copy_constant                  $8 = 0x00000002 (2.802597e-45)
-   42. cmplt_int                      $7 = lessThan($7, $8)
-   43. copy_slot_unmasked             $8 = i₁
-   44. zero_slot_unmasked             $9 = 0
-   45. mix_int                        $7 = mix($8, $9, $7)
-   46. copy_from_indirect_uniform_unm $3 = Indirect(u3[0] + $7)
-   47. mul_float                      $2 *= $3
-   48. copy_slot_unmasked             prod = $2
-   49. copy_slot_unmasked             $2 = i₁
-   50. copy_constant                  $3 = 0x00000001 (1.401298e-45)
-   51. add_int                        $2 += $3
-   52. copy_slot_unmasked             i₁ = $2
-   53. copy_constant                  $3 = 0x00000004 (5.605194e-45)
-   54. cmplt_int                      $2 = lessThan($2, $3)
-   55. stack_rewind
-   56. branch_if_no_active_lanes_eq   branch -18 (label 6 at #38) if no lanes of $2 == 0x00000000 (0.0)
-   57. label                          label 0x00000005
-   58. copy_slot_unmasked             $2 = prod
-   59. trace_exit                     TraceExit(float index_by_complex_loop()) when $10 is true
-   60. label                          label 0x00000004
-   61. trace_enter                    TraceEnter(float index_out_of_bounds_checked()) when $10 is true
-   62. zero_slot_unmasked             sum₁ = 0
-   63. copy_constant                  f = 0xC0133333 (-2.3)
-   64. label                          label 0x0000000A
-   65. store_condition_mask           $3 = CondMask
-   66. zero_slot_unmasked             $4 = 0
-   67. copy_slot_unmasked             $5 = f
-   68. cmplt_float                    $4 = lessThan($4, $5)
-   69. copy_slot_unmasked             $5 = f
-   70. copy_constant                  $6 = 0x41800000 (16.0)
-   71. cmplt_float                    $5 = lessThan($5, $6)
-   72. bitwise_and_int                $4 &= $5
-   73. merge_condition_mask           CondMask = $3 & $4
-   74. copy_slot_unmasked             $5 = sum₁
-   75. copy_slot_unmasked             $7 = f
-   76. cast_to_int_from_float         $7 = FloatToInt($7)
-   77. copy_from_indirect_uniform_unm $6 = Indirect(u4[0] + $7)
-   78. sub_float                      $5 -= $6
-   79. copy_slot_masked               sum₁ = Mask($5)
-   80. load_condition_mask            CondMask = $3
-   81. copy_slot_unmasked             $3 = f
-   82. copy_constant                  $4 = 0x406CCCCD (3.7)
-   83. add_float                      $3 += $4
-   84. copy_slot_unmasked             f = $3
-   85. copy_constant                  $4 = 0x41880000 (17.0)
-   86. cmplt_float                    $3 = lessThan($3, $4)
-   87. stack_rewind
-   88. branch_if_no_active_lanes_eq   branch -24 (label 10 at #64) if no lanes of $3 == 0x00000000 (0.0)
-   89. label                          label 0x00000009
-   90. copy_slot_unmasked             $3 = sum₁
-   91. trace_exit                     TraceExit(float index_out_of_bounds_checked()) when $10 is true
-   92. label                          label 0x00000008
-   93. trace_exit                     TraceExit(float4 main(float2 xy)) when $10 is true
-   94. load_src                       src.rgba = $0..3
+    9. trace_line                     TraceLine(38) when $10 is true
+   10. trace_enter                    TraceEnter(float index_by_literal()) when $10 is true
+   11. trace_line                     TraceLine(5) when $10 is true
+   12. copy_constant                  $0 = u1[0]
+   13. trace_exit                     TraceExit(float index_by_literal()) when $10 is true
+   14. label                          label 0x00000000
+   15. trace_enter                    TraceEnter(float index_by_loop()) when $10 is true
+   16. trace_line                     TraceLine(10) when $10 is true
+   17. zero_slot_unmasked             sum = 0
+   18. trace_line                     TraceLine(11) when $10 is true
+   19. trace_line                     TraceLine(11) when $10 is true
+   20. copy_constant                  i = 0x00000003 (4.203895e-45)
+   21. label                          label 0x00000003
+   22. trace_line                     TraceLine(12) when $10 is true
+   23. copy_slot_unmasked             $1 = sum
+   24. copy_slot_unmasked             $7 = i
+   25. copy_from_indirect_uniform_unm $2 = Indirect(u2[0] + $7)
+   26. add_float                      $1 += $2
+   27. copy_slot_unmasked             sum = $1
+   28. trace_line                     TraceLine(11) when $10 is true
+   29. copy_slot_unmasked             $1 = i
+   30. copy_constant                  $2 = 0x00000001 (1.401298e-45)
+   31. sub_int                        $1 -= $2
+   32. copy_slot_unmasked             i = $1
+   33. zero_slot_unmasked             $1 = 0
+   34. copy_slot_unmasked             $2 = i
+   35. cmple_int                      $1 = lessThanEqual($1, $2)
+   36. stack_rewind
+   37. branch_if_no_active_lanes_eq   branch -16 (label 3 at #21) if no lanes of $1 == 0x00000000 (0.0)
+   38. label                          label 0x00000002
+   39. trace_line                     TraceLine(14) when $10 is true
+   40. copy_slot_unmasked             $1 = sum
+   41. trace_exit                     TraceExit(float index_by_loop()) when $10 is true
+   42. label                          label 0x00000001
+   43. trace_enter                    TraceEnter(float index_by_complex_loop()) when $10 is true
+   44. trace_line                     TraceLine(19) when $10 is true
+   45. copy_constant                  prod = 0x3F800000 (1.0)
+   46. trace_line                     TraceLine(20) when $10 is true
+   47. trace_line                     TraceLine(20) when $10 is true
+   48. zero_slot_unmasked             i₁ = 0
+   49. label                          label 0x00000006
+   50. trace_line                     TraceLine(21) when $10 is true
+   51. copy_slot_unmasked             $2 = prod
+   52. copy_slot_unmasked             $7 = i₁
+   53. copy_constant                  $8 = 0x00000002 (2.802597e-45)
+   54. cmplt_int                      $7 = lessThan($7, $8)
+   55. copy_slot_unmasked             $8 = i₁
+   56. zero_slot_unmasked             $9 = 0
+   57. mix_int                        $7 = mix($8, $9, $7)
+   58. copy_from_indirect_uniform_unm $3 = Indirect(u3[0] + $7)
+   59. mul_float                      $2 *= $3
+   60. copy_slot_unmasked             prod = $2
+   61. trace_line                     TraceLine(20) when $10 is true
+   62. copy_slot_unmasked             $2 = i₁
+   63. copy_constant                  $3 = 0x00000001 (1.401298e-45)
+   64. add_int                        $2 += $3
+   65. copy_slot_unmasked             i₁ = $2
+   66. copy_constant                  $3 = 0x00000004 (5.605194e-45)
+   67. cmplt_int                      $2 = lessThan($2, $3)
+   68. stack_rewind
+   69. branch_if_no_active_lanes_eq   branch -20 (label 6 at #49) if no lanes of $2 == 0x00000000 (0.0)
+   70. label                          label 0x00000005
+   71. trace_line                     TraceLine(23) when $10 is true
+   72. copy_slot_unmasked             $2 = prod
+   73. trace_exit                     TraceExit(float index_by_complex_loop()) when $10 is true
+   74. label                          label 0x00000004
+   75. trace_enter                    TraceEnter(float index_out_of_bounds_checked()) when $10 is true
+   76. trace_line                     TraceLine(28) when $10 is true
+   77. zero_slot_unmasked             sum₁ = 0
+   78. trace_line                     TraceLine(29) when $10 is true
+   79. trace_line                     TraceLine(29) when $10 is true
+   80. copy_constant                  f = 0xC0133333 (-2.3)
+   81. label                          label 0x0000000A
+   82. trace_line                     TraceLine(30) when $10 is true
+   83. store_condition_mask           $3 = CondMask
+   84. zero_slot_unmasked             $4 = 0
+   85. copy_slot_unmasked             $5 = f
+   86. cmplt_float                    $4 = lessThan($4, $5)
+   87. copy_slot_unmasked             $5 = f
+   88. copy_constant                  $6 = 0x41800000 (16.0)
+   89. cmplt_float                    $5 = lessThan($5, $6)
+   90. bitwise_and_int                $4 &= $5
+   91. merge_condition_mask           CondMask = $3 & $4
+   92. trace_line                     TraceLine(31) when $10 is true
+   93. copy_slot_unmasked             $5 = sum₁
+   94. copy_slot_unmasked             $7 = f
+   95. cast_to_int_from_float         $7 = FloatToInt($7)
+   96. copy_from_indirect_uniform_unm $6 = Indirect(u4[0] + $7)
+   97. sub_float                      $5 -= $6
+   98. copy_slot_masked               sum₁ = Mask($5)
+   99. load_condition_mask            CondMask = $3
+  100. trace_line                     TraceLine(29) when $10 is true
+  101. copy_slot_unmasked             $3 = f
+  102. copy_constant                  $4 = 0x406CCCCD (3.7)
+  103. add_float                      $3 += $4
+  104. copy_slot_unmasked             f = $3
+  105. copy_constant                  $4 = 0x41880000 (17.0)
+  106. cmplt_float                    $3 = lessThan($3, $4)
+  107. stack_rewind
+  108. branch_if_no_active_lanes_eq   branch -27 (label 10 at #81) if no lanes of $3 == 0x00000000 (0.0)
+  109. label                          label 0x00000009
+  110. trace_line                     TraceLine(34) when $10 is true
+  111. copy_slot_unmasked             $3 = sum₁
+  112. trace_exit                     TraceExit(float index_out_of_bounds_checked()) when $10 is true
+  113. label                          label 0x00000008
+  114. trace_exit                     TraceExit(float4 main(float2 xy)) when $10 is true
+  115. load_src                       src.rgba = $0..3

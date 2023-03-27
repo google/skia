@@ -66,6 +66,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <float.h>
+#include <iterator>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -315,6 +316,15 @@ public:
     /** Zeroes out a range of slots. */
     void zeroSlotRangeUnmasked(SlotRange r) { fBuilder.zero_slots_unmasked(r); }
 
+    /**
+     * Emits a trace_line opcode. writeStatement does this, and statements that alter control flow
+     * may need to explicitly add additional traces.
+     */
+    void emitTraceLine(Position pos);
+
+    /** Prepares our position-to-line-offset conversion table (stored in `fLineOffsets`). */
+    void calculateLineOffsets();
+
     /** Expression utilities. */
     struct TypedOps {
         BuilderOp fFloatOp;
@@ -410,6 +420,14 @@ private:
     SkTArray<int> fRecycledStacks;
 
     SkTHashMap<const FunctionDefinition*, Analysis::ReturnComplexity> fReturnComplexityMap;
+
+    // `fInsideCompoundStatement` will be nonzero if we are currently writing statements inside of a
+    // compound-statement Block. (Conceptually those statements should all count as one.)
+    int fInsideCompoundStatement = 0;
+
+    // `fLineOffsets` contains the position of each newline in the source, plus a zero at the
+    // beginning, and the total source length at the end, as sentinels.
+    SkTArray<int> fLineOffsets;
 
     static constexpr auto kAbsOps = TypedOps{BuilderOp::abs_float,
                                              BuilderOp::abs_int,
@@ -1236,6 +1254,31 @@ std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
     return functionResult;
 }
 
+void Generator::emitTraceLine(Position pos) {
+    if (fDebugTrace && fWriteTraceOps && pos.valid() && fInsideCompoundStatement == 0) {
+        // Binary search within fLineOffets to convert the position into a line number.
+        SkASSERT(fLineOffsets.size() >= 2);
+        SkASSERT(fLineOffsets[0] == 0);
+        SkASSERT(fLineOffsets.back() == (int)fProgram.fSource->length());
+        int lineNumber = std::distance(
+                fLineOffsets.begin(),
+                std::upper_bound(fLineOffsets.begin(), fLineOffsets.end(), pos.startOffset()));
+
+        fBuilder.trace_line(fTraceMask->stackID(), lineNumber);
+    }
+}
+
+void Generator::calculateLineOffsets() {
+    SkASSERT(fLineOffsets.empty());
+    fLineOffsets.push_back(0);
+    for (size_t i = 0; i < fProgram.fSource->length(); ++i) {
+        if ((*fProgram.fSource)[i] == '\n') {
+            fLineOffsets.push_back(i);
+        }
+    }
+    fLineOffsets.push_back(fProgram.fSource->length());
+}
+
 bool Generator::writeGlobals() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
@@ -1283,6 +1326,11 @@ bool Generator::writeGlobals() {
 }
 
 bool Generator::writeStatement(const Statement& s) {
+    // The debugger should stop on all types of statements, except for Blocks.
+    if (!s.is<Block>()) {
+        this->emitTraceLine(s.fPosition);
+    }
+
     switch (s.kind()) {
         case Statement::Kind::kBlock:
             return this->writeBlock(s.as<Block>());
@@ -1323,11 +1371,27 @@ bool Generator::writeStatement(const Statement& s) {
 }
 
 bool Generator::writeBlock(const Block& b) {
+    if (b.blockKind() == Block::Kind::kCompoundStatement) {
+        this->emitTraceLine(b.fPosition);
+        ++fInsideCompoundStatement;
+    } else {
+        // TODO(johnstiles): add support for trace_scope
+        //this->emitTraceScope(mask, +1);
+    }
+
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         if (!this->writeStatement(*stmt)) {
             return unsupported();
         }
     }
+
+    if (b.blockKind() == Block::Kind::kCompoundStatement) {
+        --fInsideCompoundStatement;
+    } else {
+        // TODO(johnstiles): add support for trace_scope
+        //this->emitTraceScope(mask, -1);
+    }
+
     return true;
 }
 
@@ -1383,6 +1447,9 @@ bool Generator::writeDoStatement(const DoStatement& d) {
 
     autoContinueMask.exitLoopBody();
 
+    // Point the debugger at the do-statement's test-expression before we run it.
+    this->emitTraceLine(d.test()->fPosition);
+
     // Emit the test-expression, in order to combine it with the loop mask.
     if (!this->pushExpression(*d.test())) {
         return false;
@@ -1432,6 +1499,16 @@ bool Generator::writeMasklessForStatement(const ForStatement& f) {
 
     if (!this->writeStatement(*f.statement())) {
         return unsupported();
+    }
+
+    // Point the debugger at the for-statement's next-expression before we run it, or as close as we
+    // can reasonably get.
+    if (f.next()) {
+        this->emitTraceLine(f.next()->fPosition);
+    } else if (f.test()) {
+        this->emitTraceLine(f.test()->fPosition);
+    } else {
+        this->emitTraceLine(f.fPosition);
     }
 
     // If the loop only runs for a single iteration, we are already done. If not...
@@ -1504,6 +1581,16 @@ bool Generator::writeForStatement(const ForStatement& f) {
     }
 
     autoContinueMask.exitLoopBody();
+
+    // Point the debugger at the for-statement's next-expression before we run it, or as close as we
+    // can reasonably get.
+    if (f.next()) {
+        this->emitTraceLine(f.next()->fPosition);
+    } else if (f.test()) {
+        this->emitTraceLine(f.test()->fPosition);
+    } else {
+        this->emitTraceLine(f.fPosition);
+    }
 
     // Run the next-expression. Immediately discard its result.
     if (f.next()) {
@@ -3395,11 +3482,11 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
         // Copy the program source into the debug info so that it will be written in the trace file.
         fDebugTrace->setSource(*fProgram.fSource);
 
-        // The Raster Pipeline blitter generates centered pixel coordinates. (0.5, 1.5, 2.5,
-        // etc.) Add 0.5 to the requested trace coordinate to match this, then compare against
-        // src.rg, which contains the shader's coordinates. We keep this result in a dedicated
-        // trace-mask stack.
         if (fWriteTraceOps) {
+            // The Raster Pipeline blitter generates centered pixel coordinates. (0.5, 1.5, 2.5,
+            // etc.) Add 0.5 to the requested trace coordinate to match this, then compare against
+            // src.rg, which contains the shader's coordinates. We keep this result in a dedicated
+            // trace-mask stack.
             fTraceMask.emplace(this);
             fTraceMask->enter();
             fBuilder.push_src_rgba();
@@ -3409,6 +3496,9 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
             fBuilder.binary_op(BuilderOp::cmpeq_n_floats, 2);
             fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
             fTraceMask->exit();
+
+            // Assemble a position-to-line-number mapping for the debugger.
+            this->calculateLineOffsets();
         }
     }
 
