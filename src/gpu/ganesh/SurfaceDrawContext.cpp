@@ -1806,7 +1806,6 @@ void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     canDrawArgs.fAAType = aaType;
 
     constexpr static bool kDisallowSWPathRenderer = false;
-    constexpr static bool kAllowSWPathRenderer = true;
     using DrawType = PathRendererChain::DrawType;
 
     PathRenderer* pr = nullptr;
@@ -1855,28 +1854,29 @@ void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
         pr = this->drawingManager()->getPathRenderer(canDrawArgs, kDisallowSWPathRenderer,
                                                      DrawType::kColor);
     }
-    if (!pr) {
-        if (shape.style().applies()) {
-            shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
-            if (shape.isEmpty()) {
-                return;
-            }
-            // This time, allow SW renderer
-            pr = this->drawingManager()->getPathRenderer(canDrawArgs, kAllowSWPathRenderer,
-                                                         DrawType::kColor);
-        } else {
-            pr = this->drawingManager()->getSoftwarePathRenderer();
-#if GR_PATH_RENDERER_SPEW
-            SkDebugf("falling back to: %s\n", pr->name());
-#endif
+    if (!pr && shape.style().applies()) {
+        shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
+        if (shape.isEmpty()) {
+            return;
         }
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, kDisallowSWPathRenderer,
+                                                     DrawType::kColor);
     }
 
     if (!pr) {
-#ifdef SK_DEBUG
-        SkDebugf("Unable to find path renderer compatible with path.\n");
+        // Fall back on SW renderer as a last resort.
+        if (GrAATypeIsHW(aaType)) {
+            // No point in trying SW renderer with MSAA.
+            aaType = GrAAType::kCoverage;
+            canDrawArgs.fAAType = aaType;
+        }
+        // This can only fail if a) AA type is MSAA or the style is not applied (already checked),
+        // or b) the SW renderer's proxy provider is null, which should never happen.
+        pr = this->drawingManager()->getSoftwarePathRenderer();
+        SkASSERT(pr->canDrawPath(canDrawArgs) != PathRenderer::CanDrawPath::kNo);
+#if GR_PATH_RENDERER_SPEW
+        SkDebugf("falling back to: %s\n", pr->name());
 #endif
-        return;
     }
 
     PathRenderer::DrawPathArgs args{this->drawingManager()->getContext(),
