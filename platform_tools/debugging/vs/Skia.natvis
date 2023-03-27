@@ -87,7 +87,7 @@
   </Type>
 
   <!-- AutoTArray -->
-  <Type Name="AutoTArray&lt;*&gt;">
+  <Type Name="skia_private::AutoTArray&lt;*&gt;">
     <DisplayString>{{size = {fCount}}}</DisplayString>
     <Expand>
       <Item Name="[size]">fCount</Item>
