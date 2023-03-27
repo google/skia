@@ -534,6 +534,9 @@ public:
         return fDisablePerspectiveSDFText;
     }
 
+    // anglebug.com/7796
+    bool avoidLineDraws() const { return fAvoidLineDraws; }
+
     /**
      * Checks whether the passed color type is renderable. If so, the same color type is passed
      * back along with the default format used for the color type. If not, provides an alternative
@@ -604,6 +607,7 @@ protected:
     bool fAvoidReorderingRenderTasks                 : 1;
     bool fAvoidDithering                             : 1;
     bool fDisablePerspectiveSDFText                  : 1;
+    bool fAvoidLineDraws                             : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

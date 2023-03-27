@@ -4423,14 +4423,19 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         formatWorkarounds->fDisallowBGRA8ReadPixels = true;
     }
 
-    // We disable MSAA for all Intel GPUs. Before Gen9, performance was very bad. Even with Gen9,
-    // we've seen driver crashes in the wild. We don't have data on Gen11 yet.
+    // We disable MSAA for older Intel GPUs. Before Gen9, performance was very bad. Even with Gen9,
+    // we've seen driver crashes in the wild.
     // (crbug.com/527565, crbug.com/983926)
-    if ((ctxInfo.vendor() == GrGLVendor::kIntel ||
-         ctxInfo.angleVendor() == GrGLVendor::kIntel) &&
-         (ctxInfo.renderer() < GrGLRenderer::kIntelIceLake ||
-          !contextOptions.fAllowMSAAOnNewIntel)) {
-         fMSFBOType = kNone_MSFBOType;
+    if (ctxInfo.vendor() == GrGLVendor::kIntel || ctxInfo.angleVendor() == GrGLVendor::kIntel) {
+        // Gen11 seems mostly ok, except we avoid drawing lines with MSAA. (anglebug.com/7796)
+        if (ctxInfo.renderer() >= GrGLRenderer::kIntelIceLake &&
+            contextOptions.fAllowMSAAOnNewIntel) {
+            if (fMSFBOType != kNone_MSFBOType) {
+                fAvoidLineDraws = true;
+            }
+        } else {
+            fMSFBOType = kNone_MSFBOType;
+        }
     }
 
     // ANGLE's D3D9 backend + AMD GPUs are flaky with program binary caching (skbug.com/10395)
