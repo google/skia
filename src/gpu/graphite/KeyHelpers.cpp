@@ -538,7 +538,7 @@ void add_dither_uniform_data(const ShaderCodeDictionary* dict,
                              PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDitherShader)
 
-    gatherer->write(ditherData.fRange);
+    gatherer->writeHalf(ditherData.fRange);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(BuiltInCodeSnippetID::kDitherShader));
 }

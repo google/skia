@@ -126,6 +126,7 @@ public:
     void writeArray(SkSpan<const SkPMColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }
 
+    void writeHalf(float f) { fUniformManager.writeHalf(f); }
     void writeHalf(const SkMatrix& mat) { fUniformManager.writeHalf(mat); }
     void writeHalfArray(SkSpan<const float> floats) { fUniformManager.writeHalfArray(floats); }
 

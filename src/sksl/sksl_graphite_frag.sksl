@@ -285,12 +285,11 @@ $pure half4 sk_image_shader(float2 coords,
 
 $pure half4 sk_dither_shader(half4 colorIn,
                              float2 coords,
-                             float range,
+                             half range,
                              sampler2D lut) {
     const float kImgSize = 8;
 
-    half2 lutCoords = half2(coords.x/kImgSize, coords.y/kImgSize);
-    half value = sample(lut, lutCoords).r - 0.5; // undo the bias in the table
+    half value = sample(lut, coords / kImgSize).r - 0.5; // undo the bias in the table
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.
     return half4(clamp(colorIn.rgb + value * range, 0.0, colorIn.a), colorIn.a);

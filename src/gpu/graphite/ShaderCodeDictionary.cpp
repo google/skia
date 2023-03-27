@@ -737,7 +737,7 @@ void GenerateCoordClampPreamble(const ShaderInfo& shaderInfo,
 
 //--------------------------------------------------------------------------------------------------
 static constexpr Uniform kDitherShaderUniforms[] = {
-        { "range", SkSLType::kFloat },
+        { "range", SkSLType::kHalf },
 };
 
 static constexpr TextureAndSampler kDitherTexturesAndSamplers[] = {
