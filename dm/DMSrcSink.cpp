@@ -102,9 +102,8 @@
 
 using namespace skia_private;
 
-static DEFINE_bool(multiPage, false,
-                   "For document-type backends, render the source into multiple pages");
 static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
+static DEFINE_int(mskpFrame, 0, "Which MSKP frame to draw?");
 
 DECLARE_int(gpuThreads);
 
@@ -1381,13 +1380,13 @@ MSKPSrc::MSKPSrc(Path path) : fPath(path) {
 
 int MSKPSrc::pageCount() const { return fPages.size(); }
 
-SkISize MSKPSrc::size() const { return this->size(0); }
+SkISize MSKPSrc::size() const { return this->size(FLAGS_mskpFrame); }
 SkISize MSKPSrc::size(int i) const {
     return i >= 0 && i < fPages.size() ? fPages[i].fSize.toCeil() : SkISize{0, 0};
 }
 
 Result MSKPSrc::draw(SkCanvas* c) const {
-    return this->draw(0, c);
+    return this->draw(FLAGS_mskpFrame, c);
 }
 Result MSKPSrc::draw(int i, SkCanvas* canvas) const {
     if (this->pageCount() == 0) {
