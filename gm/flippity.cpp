@@ -29,8 +29,8 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/ProxyUtils.h"
 
@@ -143,10 +143,8 @@ static sk_sp<SkImage> make_reference_image(SkCanvas* mainCanvas,
             return nullptr;
         }
 
-        return sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
-                                       kNeedNewImageUniqueID,
-                                       std::move(view),
-                                       ii.colorInfo());
+        return sk_make_sp<SkImage_Ganesh>(
+                sk_ref_sp(dContext), kNeedNewImageUniqueID, std::move(view), ii.colorInfo());
     }
 
     return SkImages::RasterFromBitmap(bm);

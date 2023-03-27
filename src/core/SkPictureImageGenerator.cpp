@@ -16,8 +16,8 @@
 #include "src/image/SkImage_Base.h"
 
 #if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 #endif
 
 class SkPictureImageGenerator : public SkImageGenerator {

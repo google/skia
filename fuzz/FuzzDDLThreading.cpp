@@ -22,7 +22,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkThreadID.h"
 #include "src/core/SkTaskGroup.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include <atomic>

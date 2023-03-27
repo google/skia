@@ -52,7 +52,7 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/OpsTask.h"
-#include "src/image/SkSurface_Gpu.h"
+#include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
@@ -128,7 +128,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
                         sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                         mbet->releaseContext());
 
-                auto device = ((SkSurface_Gpu*)surface.get())->getDevice();
+                auto device = ((SkSurface_Ganesh*)surface.get())->getDevice();
                 proxy = device->readSurfaceView().asTextureProxyRef();
             } else {
                 image = SkImages::BorrowTextureFrom(dContext,
@@ -367,7 +367,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest,
                                                       willUseMips);
             }
             REPORTER_ASSERT(reporter, surface);
-            auto device = ((SkSurface_Gpu*)surface.get())->getDevice();
+            auto device = ((SkSurface_Ganesh*)surface.get())->getDevice();
             GrTextureProxy* texProxy = device->readSurfaceView().asTextureProxy();
             REPORTER_ASSERT(reporter, mipmapped == texProxy->mipmapped());
 

@@ -142,7 +142,6 @@ generate_cpp_files_for_headers(
         "src/encode/SkICCPriv.h",
         "src/encode/SkImageEncoderFns.h",
         "src/encode/SkImageEncoderPriv.h",
-        "src/image/SkImage_Base.h",
     ],
 )
 

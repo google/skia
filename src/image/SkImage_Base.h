@@ -149,11 +149,6 @@ public:
             skgpu::Mipmapped) const;
 
 #endif
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-    bool isYUVA() const {
-        return this->type() == Type::kGaneshYUVA || this->type() == Type::kGraphiteYUVA;
-    }
-#endif
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
@@ -189,6 +184,10 @@ public:
     // True for images instantiated by Graphite in GPU memory
     bool isGraphiteBacked() const {
         return this->type() == Type::kGraphite || this->type() == Type::kGraphiteYUVA;
+    }
+
+    bool isYUVA() const {
+        return this->type() == Type::kGaneshYUVA || this->type() == Type::kGraphiteYUVA;
     }
 
     // Amount of texture memory used by texture-backed images.

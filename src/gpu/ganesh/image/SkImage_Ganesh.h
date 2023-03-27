@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkImage_Gpu_DEFINED
-#define SkImage_Gpu_DEFINED
+#ifndef SkImage_Ganesh_DEFINED
+#define SkImage_Ganesh_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -15,8 +15,8 @@
 #include "include/private/base/SkThreadAnnotations.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuBase.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -50,18 +50,18 @@ namespace skgpu {
 enum class Mipmapped : bool;
 }
 
-class SkImage_Gpu final : public SkImage_GpuBase {
+class SkImage_Ganesh final : public SkImage_GaneshBase {
 public:
-    SkImage_Gpu(sk_sp<GrImageContext> context,
-                uint32_t uniqueID,
-                GrSurfaceProxyView view,
-                SkColorInfo info);
+    SkImage_Ganesh(sk_sp<GrImageContext> context,
+                   uint32_t uniqueID,
+                   GrSurfaceProxyView view,
+                   SkColorInfo info);
 
     static sk_sp<SkImage> MakeWithVolatileSrc(sk_sp<GrRecordingContext> rContext,
                                               GrSurfaceProxyView volatileSrc,
                                               SkColorInfo colorInfo);
 
-    ~SkImage_Gpu() override;
+    ~SkImage_Ganesh() override;
 
     // If this is image is a cached SkSurface snapshot then this method is called by the SkSurface
     // before a write to check if the surface must make a copy to avoid modifying the image's
@@ -79,7 +79,7 @@ public:
 
     size_t onTextureSize() const override;
 
-    using SkImage_GpuBase::onMakeColorTypeAndColorSpace;
+    using SkImage_GaneshBase::onMakeColorTypeAndColorSpace;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
                                                 sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const final;
@@ -105,12 +105,12 @@ public:
     void generatingSurfaceIsDeleted() override;
 
 private:
-    SkImage_Gpu(sk_sp<GrDirectContext>,
-                GrSurfaceProxyView volatileSrc,
-                sk_sp<GrSurfaceProxy> stableCopy,
-                sk_sp<GrRenderTask> copyTask,
-                int volatileSrcTargetCount,
-                SkColorInfo);
+    SkImage_Ganesh(sk_sp<GrDirectContext>,
+                   GrSurfaceProxyView volatileSrc,
+                   sk_sp<GrSurfaceProxy> stableCopy,
+                   sk_sp<GrRenderTask> copyTask,
+                   int volatileSrcTargetCount,
+                   SkColorInfo);
 
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          skgpu::Mipmapped,
@@ -173,7 +173,7 @@ private:
     skgpu::Swizzle fSwizzle;
     GrSurfaceOrigin fOrigin;
 
-    using INHERITED = SkImage_GpuBase;
+    using INHERITED = SkImage_GaneshBase;
 };
 
 #endif

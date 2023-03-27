@@ -36,9 +36,9 @@ sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() { return nu
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/image/SkImage_Gpu.h"
-#include "src/image/SkImage_GpuYUVA.h"
-#include "src/image/SkSurface_Gpu.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
+#include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
 
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
         : fCharacterization(c) {
@@ -172,7 +172,7 @@ bool SkDeferredDisplayListRecorder::init() {
         return false;
     }
 
-    fSurface = sk_make_sp<SkSurface_Gpu>(std::move(device));
+    fSurface = sk_make_sp<SkSurface_Ganesh>(std::move(device));
     return SkToBool(fSurface.get());
 }
 

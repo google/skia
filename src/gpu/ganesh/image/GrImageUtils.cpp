@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/GrImageUtils.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 
 #include "include/core/SkImage.h"
 #include "include/core/SkSamplingOptions.h"

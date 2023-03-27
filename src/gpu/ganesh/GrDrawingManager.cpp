@@ -45,7 +45,7 @@
 #include "src/gpu/ganesh/GrWritePixelsRenderTask.h"
 #include "src/gpu/ganesh/ops/OpsTask.h"
 #include "src/gpu/ganesh/ops/SoftwarePathRenderer.h"
-#include "src/image/SkSurface_Gpu.h"
+#include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
 #include "src/text/gpu/SDFTControl.h"
 
 using namespace skia_private;

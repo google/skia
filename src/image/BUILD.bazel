@@ -29,49 +29,19 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
-GPU_FILES = [
-    "SkImage_GaneshFactories.cpp",
-    "SkImage_Gpu.cpp",
-    "SkImage_Gpu.h",
-    "SkImage_GpuBase.cpp",
-    "SkImage_GpuBase.h",
-    "SkImage_GpuYUVA.cpp",
-    "SkImage_GpuYUVA.h",
-    "SkSurface_Gpu.cpp",
-    "SkSurface_Gpu.h",
-]
-
-split_srcs_and_hdrs(
-    name = "gpu",
-    files = GPU_FILES,
-)
-
 skia_filegroup(
     name = "android_srcs",
     srcs = ["SkImage_AndroidFactories.cpp"],
 )
 
-# Not referenced by Bazel target.
-# File group use to export to //gn/gpu.gni:skia_metal_sources.
-skia_filegroup(
-    name = "mtl_srcs",
-    srcs = ["SkSurface_GpuMtl.mm"],
-)
-
 skia_filegroup(
     name = "srcs",
-    srcs = [":core_srcs"] + select({
-        "//src/gpu:has_gpu_backend": [":gpu_srcs"],
-        "//conditions:default": [],
-    }),
+    srcs = [":core_srcs"],
     visibility = ["//src:__pkg__"],
 )
 
 skia_filegroup(
     name = "private_hdrs",
-    srcs = [":core_hdrs"] + select({
-        "//src/gpu:has_gpu_backend": [":gpu_hdrs"],
-        "//conditions:default": [],
-    }),
+    srcs = [":core_hdrs"],
     visibility = ["//src:__pkg__"],
 )

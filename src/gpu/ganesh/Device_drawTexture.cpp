@@ -21,7 +21,6 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -32,8 +31,9 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrRect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 
 using namespace skia_private;
 
@@ -721,10 +721,10 @@ void Device::drawSpecial(SkSpecialImage* special,
     GrQuadAAFlags aaFlags = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
     GrSurfaceProxyView view = special->view(this->recordingContext());
-    SkImage_Gpu image(sk_ref_sp(special->getContext()),
-                      special->uniqueID(),
-                      std::move(view),
-                      special->colorInfo());
+    SkImage_Ganesh image(sk_ref_sp(special->getContext()),
+                         special->uniqueID(),
+                         std::move(view),
+                         special->colorInfo());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
     SkMatrixProvider matrixProvider(localToDevice);

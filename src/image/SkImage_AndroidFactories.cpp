@@ -61,8 +61,8 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -144,10 +144,8 @@ sk_sp<SkImage> TextureFromAHardwareBufferWithData(GrDirectContext* dContext,
     skgpu::Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView framebufferView(std::move(proxy), surfaceOrigin, swizzle);
     SkColorInfo colorInfo = pixmap.info().colorInfo().makeColorType(colorType);
-    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
-                                                   kNeedNewImageUniqueID,
-                                                   framebufferView,
-                                                   std::move(colorInfo));
+    sk_sp<SkImage> image = sk_make_sp<SkImage_Ganesh>(
+            sk_ref_sp(dContext), kNeedNewImageUniqueID, framebufferView, std::move(colorInfo));
     if (!image) {
         return nullptr;
     }

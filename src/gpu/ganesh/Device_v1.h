@@ -20,7 +20,7 @@ class SkLatticeIter;
 class SkRegion;
 class SkSpecialImage;
 class SkSurface;
-class SkSurface_Gpu;
+class SkSurface_Ganesh;
 class SkVertices;
 
 namespace skgpu::ganesh {
@@ -266,7 +266,7 @@ private:
                          SkFilterMode,
                          const SkPaint&);
 
-    friend class ::SkSurface_Gpu;      // for access to surfaceProps
+    friend class ::SkSurface_Ganesh;  // for access to surfaceProps
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(Device::DeviceFlags)

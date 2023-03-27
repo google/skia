@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkSurface_Gpu_DEFINED
-#define SkSurface_Gpu_DEFINED
+#ifndef SkSurface_Ganesh_DEFINED
+#define SkSurface_Ganesh_DEFINED
 
 #include "include/core/SkTypes.h"
 
@@ -31,7 +31,9 @@ class SkSurface;
 class SkSurfaceCharacterization;
 enum GrSurfaceOrigin : int;
 enum class GrSemaphoresSubmitted : bool;
-namespace skgpu { class MutableTextureState; }
+namespace skgpu {
+class MutableTextureState;
+}
 namespace skgpu {
 namespace ganesh {
 class Device;
@@ -42,10 +44,10 @@ struct SkIPoint;
 struct SkIRect;
 struct SkISize;
 
-class SkSurface_Gpu : public SkSurface_Base {
+class SkSurface_Ganesh : public SkSurface_Base {
 public:
-    SkSurface_Gpu(sk_sp<skgpu::ganesh::Device>);
-    ~SkSurface_Gpu() override;
+    SkSurface_Ganesh(sk_sp<skgpu::ganesh::Device>);
+    ~SkSurface_Ganesh() override;
 
     SkImageInfo imageInfo() const override;
 
@@ -53,15 +55,20 @@ public:
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
     GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
-    bool onReplaceBackendTexture(const GrBackendTexture&, GrSurfaceOrigin, ContentChangeMode, TextureReleaseProc,
+    bool onReplaceBackendTexture(const GrBackendTexture&,
+                                 GrSurfaceOrigin,
+                                 ContentChangeMode,
+                                 TextureReleaseProc,
                                  ReleaseContext) override;
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
-    void onAsyncRescaleAndReadPixels(const SkImageInfo& info, SkIRect srcRect,
-                                     RescaleGamma rescaleGamma, RescaleMode,
+    void onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                     SkIRect srcRect,
+                                     RescaleGamma rescaleGamma,
+                                     RescaleMode,
                                      ReadPixelsCallback callback,
                                      ReadPixelsContext context) override;
     void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -75,13 +82,18 @@ public:
     bool onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
     void onResolveMSAA() override;
-    GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
+    GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access,
+                                  const GrFlushInfo& info,
                                   const skgpu::MutableTextureState*) override;
-    bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
-                 bool deleteSemaphoresAfterWait) override;
+    bool onWait(int numSemaphores,
+                const GrBackendSemaphore* waitSemaphores,
+                bool deleteSemaphoresAfterWait) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool onIsCompatible(const SkSurfaceCharacterization&) const override;
-    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions&,
+    void onDraw(SkCanvas* canvas,
+                SkScalar x,
+                SkScalar y,
+                const SkSamplingOptions&,
                 const SkPaint* paint) override;
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
@@ -94,6 +106,6 @@ private:
     using INHERITED = SkSurface_Base;
 };
 
-#endif // defined(SK_GANESH)
+#endif  // defined(SK_GANESH)
 
-#endif // SkSurface_Gpu_DEFINED
+#endif  // SkSurface_Ganesh_DEFINED

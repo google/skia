@@ -23,11 +23,11 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/shaders/SkImageShader.h"
 #endif
 
@@ -294,11 +294,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
 static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context,
                                           GrSurfaceProxyView view,
                                           const SkColorInfo& colorInfo) {
-
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
-                                   kNeedNewImageUniqueID,
-                                   std::move(view),
-                                   colorInfo);
+    return sk_make_sp<SkImage_Ganesh>(
+            sk_ref_sp(context), kNeedNewImageUniqueID, std::move(view), colorInfo);
 }
 
 class SkSpecialImage_Gpu final : public SkSpecialImage {
@@ -325,15 +322,12 @@ public:
 
         // TODO: In this instance we know we're going to draw a sub-portion of the backing
         // texture into the canvas so it is okay to wrap it in an SkImage. This poses
-        // some problems for full deferral however in that when the deferred SkImage_Gpu
+        // some problems for full deferral however in that when the deferred SkImage_Ganesh
         // instantiates itself it is going to have to either be okay with having a larger
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
-        sk_sp<SkImage> img = sk_sp<SkImage>(
-                new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
-                                this->uniqueID(),
-                                fView,
-                                this->colorInfo()));
+        sk_sp<SkImage> img = sk_sp<SkImage>(new SkImage_Ganesh(
+                sk_ref_sp(canvas->recordingContext()), this->uniqueID(), fView, this->colorInfo()));
 
         canvas->drawImageRect(img, SkRect::Make(this->subset()), dst,
                               sampling, paint, SkCanvas::kStrict_SrcRectConstraint);

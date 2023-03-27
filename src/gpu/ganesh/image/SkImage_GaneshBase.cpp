@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/image/SkImage_GpuBase.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
@@ -29,7 +29,6 @@
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
@@ -39,7 +38,8 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 
 #include <functional>
 #include <memory>
@@ -53,15 +53,19 @@ struct SkIRect;
 #include "src/gpu/graphite/Log.h"
 #endif
 
-SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkImageInfo info, uint32_t uniqueID)
-        : SkImage_Base(std::move(info), uniqueID)
-        , fContext(std::move(context)) {}
+SkImage_GaneshBase::SkImage_GaneshBase(sk_sp<GrImageContext> context,
+                                       SkImageInfo info,
+                                       uint32_t uniqueID)
+        : SkImage_Base(std::move(info), uniqueID), fContext(std::move(context)) {}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage_GpuBase::ValidateBackendTexture(const GrCaps* caps, const GrBackendTexture& tex,
-                                             GrColorType grCT, SkColorType ct, SkAlphaType at,
-                                             sk_sp<SkColorSpace> cs) {
+bool SkImage_GaneshBase::ValidateBackendTexture(const GrCaps* caps,
+                                                const GrBackendTexture& tex,
+                                                GrColorType grCT,
+                                                SkColorType ct,
+                                                SkAlphaType at,
+                                                sk_sp<SkColorSpace> cs) {
     if (!tex.isValid()) {
         return false;
     }
@@ -77,9 +81,9 @@ bool SkImage_GpuBase::ValidateBackendTexture(const GrCaps* caps, const GrBackend
     return caps->areColorTypeAndFormatCompatible(grCT, backendFormat);
 }
 
-bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
-                                                       const GrBackendTexture& tex,
-                                                       SkAlphaType at) {
+bool SkImage_GaneshBase::ValidateCompressedBackendTexture(const GrCaps* caps,
+                                                          const GrBackendTexture& tex,
+                                                          SkAlphaType at) {
     if (!tex.isValid() || tex.width() <= 0 || tex.height() <= 0) {
         return false;
     }
@@ -106,9 +110,9 @@ bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
-                                  SkBitmap* dst,
-                                  CachingHint chint) const {
+bool SkImage_GaneshBase::getROPixels(GrDirectContext* dContext,
+                                     SkBitmap* dst,
+                                     CachingHint chint) const {
     if (!fContext->priv().matches(dContext)) {
         return false;
     }
@@ -155,8 +159,8 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
     return true;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
-                                             GrDirectContext* direct) const {
+sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(const SkIRect& subset,
+                                                GrDirectContext* direct) const {
     if (!fContext->priv().matches(direct)) {
         return nullptr;
     }
@@ -178,42 +182,42 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct),
-                                   kNeedNewImageUniqueID,
-                                   std::move(copyView),
-                                   this->imageInfo().colorInfo());
+    return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(direct),
+                                      kNeedNewImageUniqueID,
+                                      std::move(copyView),
+                                      this->imageInfo().colorInfo());
 }
 
 #if defined(SK_GRAPHITE)
-sk_sp<SkImage> SkImage_GpuBase::onMakeTextureImage(skgpu::graphite::Recorder*,
-                                                   SkImage::RequiredImageProperties) const {
+sk_sp<SkImage> SkImage_GaneshBase::onMakeTextureImage(skgpu::graphite::Recorder*,
+                                                      SkImage::RequiredImageProperties) const {
     SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect&,
-                                             skgpu::graphite::Recorder*,
-                                             RequiredImageProperties) const {
+sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(const SkIRect&,
+                                                skgpu::graphite::Recorder*,
+                                                RequiredImageProperties) const {
     SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeColorTypeAndColorSpace(SkColorType,
-                                                             sk_sp<SkColorSpace>,
-                                                             skgpu::graphite::Recorder*,
-                                                             RequiredImageProperties) const {
+sk_sp<SkImage> SkImage_GaneshBase::onMakeColorTypeAndColorSpace(SkColorType,
+                                                                sk_sp<SkColorSpace>,
+                                                                skgpu::graphite::Recorder*,
+                                                                RequiredImageProperties) const {
     SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
     return nullptr;
 }
 #endif
 
-bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
-                                   const SkImageInfo& dstInfo,
-                                   void* dstPixels,
-                                   size_t dstRB,
-                                   int srcX,
-                                   int srcY,
-                                   CachingHint) const {
+bool SkImage_GaneshBase::onReadPixels(GrDirectContext* dContext,
+                                      const SkImageInfo& dstInfo,
+                                      void* dstPixels,
+                                      size_t dstRB,
+                                      int srcX,
+                                      int srcY,
+                                      CachingHint) const {
     if (!fContext->priv().matches(dContext) ||
         !SkImageInfoValidConversion(dstInfo, this->imageInfo())) {
         return false;
@@ -231,7 +235,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
     return sContext->readPixels(dContext, {dstInfo, dstPixels, dstRB}, {srcX, srcY});
 }
 
-bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
+bool SkImage_GaneshBase::onIsValid(GrRecordingContext* context) const {
     // The base class has already checked that 'context' isn't abandoned (if it's not nullptr)
     if (fContext->priv().abandoned()) {
         return false;
@@ -244,7 +248,7 @@ bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
     return true;
 }
 
-sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
+sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
         GrContextThreadSafeProxy* tsp,
         SkISize dimensions,
         GrBackendFormat backendFormat,
@@ -335,10 +339,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return {};
             }
 
-            fTexture = resourceProvider->wrapBackendTexture(backendTexture,
-                                                            kBorrow_GrWrapOwnership,
-                                                            GrWrapCacheable::kNo,
-                                                            kRead_GrIOType);
+            fTexture = resourceProvider->wrapBackendTexture(
+                    backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType);
             if (!fTexture) {
                 return {};
             }
@@ -356,6 +358,6 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         bool fFulfillProcFailed = false;
     } callback(fulfillProc, std::move(releaseHelper));
 
-    return GrProxyProvider::CreatePromiseProxy(tsp, std::move(callback), backendFormat, dimensions,
-                                               mipmapped);
+    return GrProxyProvider::CreatePromiseProxy(
+            tsp, std::move(callback), backendFormat, dimensions, mipmapped);
 }

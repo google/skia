@@ -27,9 +27,9 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 using namespace  skia_private;
@@ -179,10 +179,10 @@ sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(MaskFormat for
 
     SkColorType colorType = skgpu::MaskFormatToColorType(format);
     SkASSERT(views[index].proxy()->priv().isExact());
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(this->context()),
-                                   kNeedNewImageUniqueID,
-                                   views[index],
-                                   SkColorInfo(colorType, kPremul_SkAlphaType, nullptr));
+    return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(this->context()),
+                                      kNeedNewImageUniqueID,
+                                      views[index],
+                                      SkColorInfo(colorType, kPremul_SkAlphaType, nullptr));
 }
 
 void GrDirectContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(

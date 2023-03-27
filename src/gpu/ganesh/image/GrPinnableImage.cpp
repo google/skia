@@ -12,10 +12,10 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/SkBackingFit.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Raster.h"
 
@@ -31,7 +31,8 @@ struct PinnedData {
 
 class SkImage_RasterPinnable final : public SkImage_Raster {
 public:
-    SkImage_RasterPinnable(const SkBitmap& bm): SkImage_Raster(bm, /*bitmapMayBeMutable = */true) {}
+    SkImage_RasterPinnable(const SkBitmap& bm)
+            : SkImage_Raster(bm, /*bitmapMayBeMutable = */ true) {}
 
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          GrMipmapped,
@@ -43,9 +44,7 @@ public:
 };
 
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_RasterPinnable::onAsView(
-        GrRecordingContext* rContext,
-        GrMipmapped mipmapped,
-        GrImageTexGenPolicy policy) const {
+        GrRecordingContext* rContext, GrMipmapped mipmapped, GrImageTexGenPolicy policy) const {
     if (fPinnedData) {
         // We ignore the mipmap request here. If the pinned view isn't mipmapped then we will
         // fallback to bilinear. The pin API is used by Android Framework which does not expose
@@ -135,4 +134,4 @@ void UnpinTexture(GrRecordingContext*, SkImage* img) {
     }
 }
 
-} // namespace skgpu::ganesh
+}  // namespace skgpu::ganesh

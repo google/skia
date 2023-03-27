@@ -58,12 +58,12 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuYUVA.h"
 #include "src/shaders/SkImageShader.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -394,7 +394,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
  *  but we don't have that facility (at the moment) so we use a little internal knowledge
  *  of *how* the raster version is cached, and look for that.
  */
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu,
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_Ganesh2Cpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
@@ -420,7 +420,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu,
         } else {
             // unexpected, but not really a bug, since the cache is global and this test may be
             // run w/ other threads competing for its budget.
-            SkDebugf("SkImage_Gpu2Cpu : cachedBitmap was already purged\n");
+            SkDebugf("SkImage_Ganesh2Cpu : cachedBitmap was already purged\n");
         }
     }
 
@@ -1603,7 +1603,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::
     // Flushing image 2 should flush.
     i2->flushAndSubmit(dContext);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
-    REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
+    REPORTER_ASSERT(reporter, static_cast<SkImage_GaneshYUVA*>(as_IB(i2.get()))->isTextureBacked());
     s->getCanvas()->drawImage(i2, 0, 0);
     // Flushing image 0 should do nothing, but submit is still called.
     i0->flushAndSubmit(dContext);

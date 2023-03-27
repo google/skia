@@ -2423,7 +2423,7 @@ private:
         fSurfaceBase = sb;
     }
     friend class SkSurface_Base;
-    friend class SkSurface_Gpu;
+    friend class SkSurface_Ganesh;
 
     SkIRect fClipRestrictionRect = SkIRect::MakeEmpty();
     int fClipRestrictionSaveCount = -1;

@@ -38,7 +38,6 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
@@ -47,9 +46,10 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
-#include "src/image/SkImage_GpuBase.h"
 
 #include <algorithm>
 #include <memory>
@@ -121,7 +121,7 @@ sk_sp<SkImage> TextureFromCompressedTexture(GrRecordingContext* context,
 
     const GrCaps* caps = context->priv().caps();
 
-    if (!SkImage_GpuBase::ValidateCompressedBackendTexture(caps, backendTexture, alphaType)) {
+    if (!SkImage_GaneshBase::ValidateCompressedBackendTexture(caps, backendTexture, alphaType)) {
         return nullptr;
     }
 
@@ -140,10 +140,10 @@ sk_sp<SkImage> TextureFromCompressedTexture(GrRecordingContext* context,
     SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, skgpu::Swizzle::RGBA());
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
-                                   kNeedNewImageUniqueID,
-                                   std::move(view),
-                                   SkColorInfo(ct, alphaType, std::move(colorSpace)));
+    return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(context),
+                                      kNeedNewImageUniqueID,
+                                      std::move(view),
+                                      SkColorInfo(ct, alphaType, std::move(colorSpace)));
 }
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrRecordingContext* rContext,
@@ -169,7 +169,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrRecordingContext* rContext,
             rContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     SkColorInfo info(GrColorTypeToSkColorType(colorType), at, std::move(colorSpace));
-    return sk_make_sp<SkImage_Gpu>(
+    return sk_make_sp<SkImage_Ganesh>(
             sk_ref_sp(rContext), kNeedNewImageUniqueID, std::move(view), std::move(info));
 }
 
@@ -194,7 +194,7 @@ sk_sp<SkImage> BorrowTextureFrom(GrRecordingContext* context,
         return nullptr;
     }
 
-    if (!SkImage_GpuBase::ValidateBackendTexture(
+    if (!SkImage_GaneshBase::ValidateBackendTexture(
                 caps, backendTexture, grColorType, colorType, alphaType, colorSpace)) {
         return nullptr;
     }
@@ -244,7 +244,7 @@ sk_sp<SkImage> AdoptTextureFrom(GrRecordingContext* context,
         return nullptr;
     }
 
-    if (!SkImage_GpuBase::ValidateBackendTexture(
+    if (!SkImage_GaneshBase::ValidateBackendTexture(
                 caps, backendTexture, grColorType, colorType, alphaType, colorSpace)) {
         return nullptr;
     }
@@ -289,10 +289,10 @@ sk_sp<SkImage> TextureFromCompressedTextureData(GrDirectContext* direct,
 
     SkColorType colorType = GrCompressionTypeToSkColorType(type);
 
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct),
-                                   kNeedNewImageUniqueID,
-                                   std::move(view),
-                                   SkColorInfo(colorType, kOpaque_SkAlphaType, nullptr));
+    return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(direct),
+                                      kNeedNewImageUniqueID,
+                                      std::move(view),
+                                      SkColorInfo(colorType, kOpaque_SkAlphaType, nullptr));
 }
 
 sk_sp<SkImage> PromiseTextureFrom(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
@@ -333,12 +333,12 @@ sk_sp<SkImage> PromiseTextureFrom(sk_sp<GrContextThreadSafeProxy> threadSafeProx
         return nullptr;
     }
 
-    auto proxy = SkImage_GpuBase::MakePromiseImageLazyProxy(threadSafeProxy.get(),
-                                                            dimensions,
-                                                            backendFormat,
-                                                            mipmapped,
-                                                            textureFulfillProc,
-                                                            std::move(releaseHelper));
+    auto proxy = SkImage_GaneshBase::MakePromiseImageLazyProxy(threadSafeProxy.get(),
+                                                               dimensions,
+                                                               backendFormat,
+                                                               mipmapped,
+                                                               textureFulfillProc,
+                                                               std::move(releaseHelper));
     if (!proxy) {
         return nullptr;
     }
@@ -346,10 +346,10 @@ sk_sp<SkImage> PromiseTextureFrom(sk_sp<GrContextThreadSafeProxy> threadSafeProx
             threadSafeProxy->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     sk_sp<GrImageContext> ctx(GrImageContextPriv::MakeForPromiseImage(std::move(threadSafeProxy)));
-    return sk_make_sp<SkImage_Gpu>(std::move(ctx),
-                                   kNeedNewImageUniqueID,
-                                   std::move(view),
-                                   SkColorInfo(colorType, alphaType, std::move(colorSpace)));
+    return sk_make_sp<SkImage_Ganesh>(std::move(ctx),
+                                      kNeedNewImageUniqueID,
+                                      std::move(view),
+                                      SkColorInfo(colorType, alphaType, std::move(colorSpace)));
 }
 
 sk_sp<SkImage> CrossContextTextureFromPixmap(GrDirectContext* dContext,

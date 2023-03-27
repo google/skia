@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkImage_GpuYUVA_DEFINED
-#define SkImage_GpuYUVA_DEFINED
+#ifndef SkImage_GaneshYUVA_DEFINED
+#define SkImage_GaneshYUVA_DEFINED
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuBase.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -43,12 +43,12 @@ enum class Mipmapped : bool;
 // Initially any direct rendering will be done by passing the individual planes to a shader.
 // Once any method requests a flattened image (e.g., onReadPixels), the flattened RGB
 // proxy will be stored and used for any future rendering.
-class SkImage_GpuYUVA final : public SkImage_GpuBase {
+class SkImage_GaneshYUVA final : public SkImage_GaneshBase {
 public:
-    SkImage_GpuYUVA(sk_sp<GrImageContext>,
-                    uint32_t uniqueID,
-                    GrYUVATextureProxies proxies,
-                    sk_sp<SkColorSpace>);
+    SkImage_GaneshYUVA(sk_sp<GrImageContext>,
+                       uint32_t uniqueID,
+                       GrYUVATextureProxies proxies,
+                       sk_sp<SkColorSpace>);
 
     bool onHasMipmaps() const override;
 
@@ -58,8 +58,9 @@ public:
 
     size_t onTextureSize() const override;
 
-    using SkImage_GpuBase::onMakeColorTypeAndColorSpace;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
+    using SkImage_GaneshBase::onMakeColorTypeAndColorSpace;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
+                                                sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
@@ -71,10 +72,10 @@ private:
         kConvert,
         kReinterpret,
     };
-    SkImage_GpuYUVA(sk_sp<GrImageContext>,
-                    const SkImage_GpuYUVA* image,
-                    sk_sp<SkColorSpace> targetCS,
-                    ColorSpaceMode csMode);
+    SkImage_GaneshYUVA(sk_sp<GrImageContext>,
+                       const SkImage_GaneshYUVA* image,
+                       sk_sp<SkColorSpace> targetCS,
+                       ColorSpaceMode csMode);
 
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          skgpu::Mipmapped,
@@ -87,19 +88,19 @@ private:
                                                                const SkRect*,
                                                                const SkRect*) const override;
 
-    mutable GrYUVATextureProxies     fYUVAProxies;
+    mutable GrYUVATextureProxies fYUVAProxies;
 
     // If this is non-null then the planar data should be converted from fFromColorSpace to
     // this->colorSpace(). Otherwise we assume the planar data (post YUV->RGB conversion) is already
     // in this->colorSpace().
-    const sk_sp<SkColorSpace>        fFromColorSpace;
+    const sk_sp<SkColorSpace> fFromColorSpace;
 
     // Repeated calls to onMakeColorSpace will result in a proliferation of unique IDs and
-    // SkImage_GpuYUVA instances. Cache the result of the last successful onMakeColorSpace call.
-    mutable sk_sp<SkColorSpace>      fOnMakeColorSpaceTarget;
-    mutable sk_sp<SkImage>           fOnMakeColorSpaceResult;
+    // SkImage_GaneshYUVA instances. Cache the result of the last successful onMakeColorSpace call.
+    mutable sk_sp<SkColorSpace> fOnMakeColorSpaceTarget;
+    mutable sk_sp<SkImage> fOnMakeColorSpaceResult;
 
-    using INHERITED = SkImage_GpuBase;
+    using INHERITED = SkImage_GaneshBase;
 };
 
 #endif

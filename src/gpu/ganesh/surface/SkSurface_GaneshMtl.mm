@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrResourceProviderPriv.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/image/SkSurface_Gpu.h"
+#include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
 
 #if defined(SK_GANESH)
 
@@ -23,8 +23,8 @@
 
 #ifdef SK_METAL
 #import <Metal/Metal.h>
-#import <QuartzCore/CAMetalLayer.h>
 #import <MetalKit/MetalKit.h>
+#import <QuartzCore/CAMetalLayer.h>
 
 sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
                                                  GrMTLHandle layer,
@@ -53,21 +53,24 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
                 CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
                 id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
 
-                GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
+                GrMtlGpu* mtlGpu = (GrMtlGpu*)resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
                 if (metalLayer.framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
                             mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu,
+                            desc.fDimensions,
+                            desc.fSampleCnt,
+                            currentDrawable.texture,
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
                 }
 
-                *drawable = (__bridge_retained GrMTLHandle) currentDrawable;
+                *drawable = (__bridge_retained GrMTLHandle)currentDrawable;
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
             },
             backendFormat,
@@ -93,7 +96,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    return sk_make_sp<SkSurface_Gpu>(std::move(device));
+    return sk_make_sp<SkSurface_Ganesh>(std::move(device));
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
@@ -122,14 +125,17 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
                 MTKView* mtkView = (__bridge MTKView*)view;
                 id<CAMetalDrawable> currentDrawable = [mtkView currentDrawable];
 
-                GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
+                GrMtlGpu* mtlGpu = (GrMtlGpu*)resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
                 if (mtkView.framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
                             mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu,
+                            desc.fDimensions,
+                            desc.fSampleCnt,
+                            currentDrawable.texture,
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {
@@ -161,7 +167,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    return sk_make_sp<SkSurface_Gpu>(std::move(device));
+    return sk_make_sp<SkSurface_Ganesh>(std::move(device));
 }
 
 #endif

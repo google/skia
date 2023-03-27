@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkImage_GpuBase_DEFINED
-#define SkImage_GpuBase_DEFINED
+#ifndef SkImage_GaneshBase_DEFINED
+#define SkImage_GaneshBase_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
@@ -35,16 +35,16 @@ struct SkImageInfo;
 namespace skgpu {
 enum class Mipmapped : bool;
 class RefCntedCallback;
-}
+}  // namespace skgpu
 
-class SkImage_GpuBase : public SkImage_Base {
+class SkImage_GaneshBase : public SkImage_Base {
 public:
     GrImageContext* context() const final { return fContext.get(); }
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset, GrDirectContext*) const final;
 
-    bool onReadPixels(GrDirectContext *dContext,
+    bool onReadPixels(GrDirectContext* dContext,
                       const SkImageInfo& dstInfo,
                       void* dstPixels,
                       size_t dstRB,
@@ -54,10 +54,14 @@ public:
 
     bool onIsValid(GrRecordingContext*) const final;
 
-    static bool ValidateBackendTexture(const GrCaps*, const GrBackendTexture& tex,
-                                       GrColorType grCT, SkColorType ct, SkAlphaType at,
+    static bool ValidateBackendTexture(const GrCaps*,
+                                       const GrBackendTexture& tex,
+                                       GrColorType grCT,
+                                       SkColorType ct,
+                                       SkAlphaType at,
                                        sk_sp<SkColorSpace> cs);
-    static bool ValidateCompressedBackendTexture(const GrCaps*, const GrBackendTexture& tex,
+    static bool ValidateCompressedBackendTexture(const GrCaps*,
+                                                 const GrBackendTexture& tex,
                                                  SkAlphaType);
 
     // Helper for making a lazy proxy for a promise image.
@@ -71,7 +75,7 @@ public:
             sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
 protected:
-    SkImage_GpuBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);
+    SkImage_GaneshBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);
 
     sk_sp<GrImageContext> fContext;
 

@@ -370,8 +370,8 @@ sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
 
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/GrImageUtils.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 
 std::unique_ptr<GrFragmentProcessor>
 SkImageShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
