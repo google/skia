@@ -84,15 +84,48 @@ $pure half $apply_xfer_fn(int kind, half x, half cs[7]) {
     return s * x;
 }
 
-// TODO(b/239548614) need to plumb Graphite equivalent of fColorSpaceMathNeedsFloat.
-// This would change 'color' from half4 to float4
-$pure half4 sk_color_space_transform(half4 color,
-                                     int flags,
-                                     int srcKind,
-                                     half srcCoeffs[7],
-                                     half3x3 gamutTransform,
-                                     int dstKind,
-                                     half dstCoeffs[7]) {
+// Some GPUs require full float to get results that are as accurate as expected/required.
+// Most GPUs work just fine with half float. Strangely, the GPUs that have this bug
+// (Mali G series) only require us to promote the type of a few temporaries here --
+// the helper functions can always be written to use half.
+$pure half4 sk_color_space_transform_float(float4 color,
+                                           int flags,
+                                           int srcKind,
+                                           half srcCoeffs[7],
+                                           half3x3 gamutTransform,
+                                           int dstKind,
+                                           half dstCoeffs[7]) {
+    if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
+        color = unpremul(color);
+    }
+
+    if (bool(flags & $kColorSpaceXformFlagLinearize)) {
+        color.r = $apply_xfer_fn(srcKind, half(color.r), srcCoeffs);
+        color.g = $apply_xfer_fn(srcKind, half(color.g), srcCoeffs);
+        color.b = $apply_xfer_fn(srcKind, half(color.b), srcCoeffs);
+    }
+    if (bool(flags & $kColorSpaceXformFlagGamutTransform)) {
+        color.rgb = gamutTransform * color.rgb;
+    }
+    if (bool(flags & $kColorSpaceXformFlagEncode)) {
+        color.r = $apply_xfer_fn(dstKind, half(color.r), dstCoeffs);
+        color.g = $apply_xfer_fn(dstKind, half(color.g), dstCoeffs);
+        color.b = $apply_xfer_fn(dstKind, half(color.b), dstCoeffs);
+    }
+
+    if (bool(flags & $kColorSpaceXformFlagPremul)) {
+        color.rgb *= color.a;
+    }
+    return half4(color);
+}
+
+$pure half4 sk_color_space_transform_half(half4 color,
+                                          int flags,
+                                          int srcKind,
+                                          half srcCoeffs[7],
+                                          half3x3 gamutTransform,
+                                          int dstKind,
+                                          half dstCoeffs[7]) {
     if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
         color = unpremul(color);
     }
@@ -115,6 +148,20 @@ $pure half4 sk_color_space_transform(half4 color,
         color.rgb *= color.a;
     }
     return color;
+}
+
+$pure half4 sk_color_space_transform(half4 color,
+                                     int flags,
+                                     int srcKind,
+                                     half srcCoeffs[7],
+                                     half3x3 gamutTransform,
+                                     int dstKind,
+                                     half dstCoeffs[7]) {
+    return sk_Caps.colorSpaceMathNeedsFloat
+        ? sk_color_space_transform_float(float4(color), flags, srcKind, srcCoeffs,
+                                         gamutTransform, dstKind, dstCoeffs)
+        : sk_color_space_transform_half(color, flags, srcKind, srcCoeffs,
+                                        gamutTransform, dstKind, dstCoeffs);
 }
 
 $pure float $tile(int tileMode, float f, float low, float high) {

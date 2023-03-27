@@ -60,6 +60,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
                        fNoDefaultPrecisionForExternalSamplers);
     writer->appendBool("Rewrite matrix-vector multiply", fRewriteMatrixVectorMultiply);
     writer->appendBool("Rewrite matrix equality comparisons", fRewriteMatrixComparisons);
+    writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
@@ -72,7 +73,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("float == fp32", fFloatIs32Bits);
     writer->appendBool("half == fp32", fHalfIs32Bits);
     writer->appendBool("Has poor fragment precision", fHasLowFragmentPrecision);
-    writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
     writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
     writer->appendBool("Builtin determinant() support", fBuiltinDeterminantSupport);
 
@@ -109,6 +109,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
         SkASSERT(!fRewriteMatrixVectorMultiply);
         SkASSERT(!fRewriteMatrixComparisons);
+        SkASSERT(!fColorSpaceMathNeedsFloat);
     }
     if (options.fReducedShaderVariations) {
         fReducedShaderMode = true;

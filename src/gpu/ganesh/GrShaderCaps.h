@@ -53,7 +53,6 @@ struct GrShaderCaps : SkSL::ShaderCaps {
     // On Nexus 6, the GL context can get lost if a shader does not write a value to gl_FragColor.
     // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
     bool fMustWriteToFragColor = false;
-    bool fColorSpaceMathNeedsFloat = false;
     // When we have the option of using either dFdx or dfDy in a shader, this returns whether we
     // should avoid using dFdx. We have found some drivers have bugs or lower precision when using
     // dFdx.
