@@ -566,31 +566,54 @@ private:
 
 class Context; // Forward declare for FilterResult
 
-// Wraps an SkSpecialImage and metadata needed to rasterize it to a shared layer coordinate space.
-// This includes a transform matrix, sampling options, and clip. Frequently, the transform is an
-// integer translation that effectively places the origin of the image within the layer space. When
-// this is the case, the FilterResult's layerBounds have the same width and height as the subset
-// of the special image and translated to that origin. However, the transform of a FilterResult can
-// be arbitrary, in which case its layer bounds is the bounding box that would contain the sampled
-// image's contents.
+// A FilterResult represents a lazy image anchored in the "layer" coordinate space of the current
+// image filtering context. It's named Filter*Result* since most instances represent the output of
+// a specific image filter (even if that is then used as an input to the next filter). FilterResults
+// are lazy to allow certain operations to combine analytically instead of producing an offscreen
+// image for every node in a filter graph. Helper functions are provided to modify FilterResults
+// that manage this internally.
 //
-// In order to collapse image filter nodes dynamically, FilterResult provides utilities to apply
-// operations (like transform or crop) that attempt to modify the metadata without producing an
-// intermediate image. Internally it tracks when a new image is needed and rasterizes as needed.
+// Even though FilterResult represents a lazy image, it is always backed by a non-lazy source image
+// that is then transformed, sampled, cropped, tiled, and/or color-filtered to produce the resolved
+// image of the FilterResult. It is these actions applied to the source image that can be combined
+// without producing a new intermediate "source" if it's determined that the combined actions
+// rendered once would create an image close enough to the canonical output of rendering each action
+// separately. Eliding offscreen renders in this way can introduce visually imperceptible pixel
+// differences due to avoiding casting down to a lower precision pixel format or performing fewer
+// image sampling sequences.
 //
-// When filter implementations are processing intermediate FilterResult results, it can be assumed
-// that all FilterResult' layerBounds are in the same coordinate space defined by the shared
-// skif::Context.
+// The resolved image of a FilterResult is the output of rendering:
 //
-// NOTE: This is named FilterResult since most instances will represent the output of an image
-// filter (even if that is then used as an input to the next filter). The main exception is the
-// source input used when an input filter is null, but from a data-standpoint it is the same since
-// it is equivalent to the result of an identity filter.
+//   SkMatrix netTransform = RectToRect(fSrcRect, fDstRect);
+//   netTransform.postConcat(fTransform);
+//
+//   SkPaint paint;
+//   paint.setShader(fImage->makeShader(fTileMode, fSamplingOptions, &netTransform));
+//   paint.setColorFilter(fColorFilter);
+//   paint.setBlendMode(kSrc);
+//
+//   canvas->drawRect(fLayerBounds, paint);
+//
+// A FilterResult may represent the output of multiple operations affecting the different meta
+// properties defined above. The operations are applied in order:
+//   1. Tile the image using configured SkTileMode on the source rect.
+//   2. Transform and sample (with configured SkSamplingOptions) from source rect up to the dest
+//      rect and then any additional transform.
+//   3. Apply any SkColorFilter to all pixels from #2 (including transparent black pixels resulting
+//      from decal sampling).
+//   4. Restrict the result to the layer bounds.
+//
+// If a new operation applied to a FilterResult does not respect this order, or cannot be modified
+// to be re-ordered in place (e.g. modify fSrcRect/fDstRect instead of fLayerBounds for a crop),
+// then the FilterResult must be resolved and the new operation applied to a clean slate. If it can
+// be applied while respecting the order of operations than the action is free and no new
+// intermediate image is produced.
+//
+// NOTE: The above comment reflects the end goal of the in-progress FilterResult. Currently
+// SkSpecialImage is used, which internally has a subset property (its fSrcRect) and always has an
+// fDstRect equal to (0,0,subset WH). Tile modes haven't been implemented yet and kDecal
+// is always assumed; Color filters have also not been implemented yet.
 class FilterResult {
-    // Bilinear is used as the default because it can be downgraded to nearest-neighbor when the
-    // final transform is pixel-aligned, and chaining multiple bilinear samples and transforms is
-    // assumed to be visually close enough to sampling once at highest quality and final transform.
-    static constexpr SkSamplingOptions kDefaultSampling{SkFilterMode::kLinear};
 public:
     FilterResult() : FilterResult(nullptr) {}
 
@@ -608,6 +631,11 @@ public:
                     fTransform.mapRect(LayerSpace<SkIRect>(fImage ? fImage->dimensions()
                                                                   : SkISize{0, 0}))) {}
 
+    // Bilinear is used as the default because it can be downgraded to nearest-neighbor when the
+    // final transform is pixel-aligned, and chaining multiple bilinear samples and transforms is
+    // assumed to be visually close enough to sampling once at highest quality and final transform.
+    static constexpr SkSamplingOptions kDefaultSampling{SkFilterMode::kLinear};
+
     explicit operator bool() const { return SkToBool(fImage); }
 
     // TODO(michaelludwig): Given the planned expansion of FilterResult state, it might be nice to
@@ -619,6 +647,10 @@ public:
     // Get the layer-space bounds of the result. This will incorporate any layer-space transform.
     LayerSpace<SkIRect> layerBounds() const {
         return fLayerBounds;
+    }
+
+    SkSamplingOptions sampling() const {
+        return fSamplingOptions;
     }
 
     // Produce a new FilterResult that has been cropped to 'crop', taking into account the context's
