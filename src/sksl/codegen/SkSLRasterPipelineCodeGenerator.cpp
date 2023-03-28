@@ -3509,7 +3509,7 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
             // trace-mask stack.
             fTraceMask.emplace(this);
             fTraceMask->enter();
-            fBuilder.push_src_rgba();
+            fBuilder.push_device_xy01();
             fBuilder.discard_stack(2);
             fBuilder.push_literal_f(fDebugTrace->fTraceCoord.fX + 0.5f);
             fBuilder.push_literal_f(fDebugTrace->fTraceCoord.fY + 0.5f);

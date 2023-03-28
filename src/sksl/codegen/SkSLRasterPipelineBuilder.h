@@ -104,6 +104,7 @@ enum class BuilderOp {
     pop_return_mask,
     push_src_rgba,
     push_dst_rgba,
+    push_device_xy01,
     pop_src_rg,
     pop_src_rgba,
     pop_dst_rgba,
@@ -562,6 +563,10 @@ public:
 
     void push_dst_rgba() {
         fInstructions.push_back({BuilderOp::push_dst_rgba, {}});
+    }
+
+    void push_device_xy01() {
+        fInstructions.push_back({BuilderOp::push_device_xy01, {}});
     }
 
     void pop_src_rg() {

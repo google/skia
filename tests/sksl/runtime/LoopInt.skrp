@@ -1,4 +1,4 @@
-    1. store_src                      $26..29 = src.rgba
+    1. store_device_xy01              $26..29 = DeviceCoords.xy01
     2. copy_constant                  $28 = 0x3F000000 (0.5)
     3. copy_constant                  $29 = 0x3F000000 (0.5)
     4. cmpeq_2_floats                 $26..27 = equal($26..27, $28..29)

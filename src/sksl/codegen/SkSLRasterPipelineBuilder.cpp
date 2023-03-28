@@ -904,6 +904,7 @@ static int stack_usage(const Instruction& inst) {
 
         case BuilderOp::push_src_rgba:
         case BuilderOp::push_dst_rgba:
+        case BuilderOp::push_device_xy01:
             return 4;
 
         case BuilderOp::push_slots:
@@ -1513,6 +1514,11 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::push_dst_rgba: {
                 float* dst = tempStackPtr;
                 pipeline->push_back({ProgramOp::store_dst, dst});
+                break;
+            }
+            case BuilderOp::push_device_xy01: {
+                float* dst = tempStackPtr;
+                pipeline->push_back({ProgramOp::store_device_xy01, dst});
                 break;
             }
             case BuilderOp::pop_src_rg: {
