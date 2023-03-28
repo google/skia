@@ -71,7 +71,7 @@ public:
     void drawPathCoverage(const SkPath& src, const SkPaint& paint,
                           SkBlitter* customBlitter = nullptr) const {
         bool isHairline = paint.getStyle() == SkPaint::kStroke_Style &&
-                          paint.getStrokeWidth() > 0;
+                          paint.getStrokeWidth() == 0;
         this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
 
