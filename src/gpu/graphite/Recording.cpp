@@ -21,13 +21,15 @@
 
 #include <unordered_set>
 
+using namespace skia_private;
+
 namespace skgpu::graphite {
 
 Recording::Recording(std::unique_ptr<TaskGraph> graph,
                      std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
                      std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
                      std::unique_ptr<LazyProxyData> targetProxyData,
-                     SkTArray<sk_sp<RefCntedCallback>>&& finishedProcs)
+                     TArray<sk_sp<RefCntedCallback>>&& finishedProcs)
         : fGraph(std::move(graph))
         , fNonVolatileLazyProxies(std::move(nonVolatileLazyProxies))
         , fVolatileLazyProxies(std::move(volatileLazyProxies))

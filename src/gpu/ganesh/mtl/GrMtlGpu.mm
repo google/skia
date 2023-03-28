@@ -35,6 +35,8 @@
 
 #import <simd/simd.h>
 
+using namespace skia_private;
+
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
@@ -149,7 +151,7 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
             GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+            const TArray<GrSurfaceProxy*, true>& sampledProxies,
             GrXferBarrierFlags renderPassXferBarriers) {
     // For the given render target and requested render pass features we need to find a compatible
     // framebuffer to use.
@@ -351,7 +353,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
-    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    TArray<size_t> individualMipOffsets(mipLevelCount);
     size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bpp,
                                                                  rect.size(),
                                                                  &individualMipOffsets,
@@ -435,7 +437,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     // Either upload only the first miplevel or all miplevels
     int mipLevelCount = (int)mtlTexture.mipmapLevelCount;
 
-    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    TArray<size_t> individualMipOffsets(mipLevelCount);
     size_t combinedBufferSize = 0;
     int currentWidth = tex->width();
     int currentHeight = tex->height();
@@ -634,7 +636,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     auto compressionType = GrBackendFormatToCompressionType(format);
     SkASSERT(compressionType != SkTextureCompressionType::kNone);
 
-    SkTArray<size_t> individualMipOffsets(numMipLevels);
+    TArray<size_t> individualMipOffsets(numMipLevels);
     SkDEBUGCODE(size_t combinedBufferSize =) SkCompressedDataSize(compressionType, dimensions,
                                                                   &individualMipOffsets,
                                                                   mipmapped == GrMipmapped::kYes);
@@ -848,7 +850,7 @@ static GrColorType mtl_format_to_backend_tex_clear_colortype(MTLPixelFormat form
 
 void copy_src_data(char* dst,
                    size_t bytesPerPixel,
-                   const SkTArray<size_t>& individualMipOffsets,
+                   const TArray<size_t>& individualMipOffsets,
                    const GrPixmap srcData[],
                    int numMipLevels,
                    size_t bufferSize) {

@@ -25,6 +25,8 @@
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UploadTask.h"
 
+using namespace skia_private;
+
 namespace skgpu::graphite {
 
 #if defined(DUMP_ATLAS_DATA)
@@ -310,7 +312,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
     if (atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
-        SkTArray<Plot*> availablePlots;
+        TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
         // For all plots but the last one, update number of flushes since used, and check to see

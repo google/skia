@@ -13,6 +13,8 @@
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanTexture.h"
 
+using namespace skia_private;
+
 namespace skgpu::graphite {
 
 std::unique_ptr<VulkanCommandBuffer> VulkanCommandBuffer::Make(
@@ -338,7 +340,7 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     size_t bytesPerBlock = VkFormatBytesPerBlock(dstTextureInfo.fFormat);
 
     // Set up copy regions.
-    SkTArray<VkBufferImageCopy> regions(count);
+    TArray<VkBufferImageCopy> regions(count);
     for (int i = 0; i < count; ++i) {
         VkBufferImageCopy& region = regions.push_back();
         memset(&region, 0, sizeof(VkBufferImageCopy));

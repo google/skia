@@ -79,7 +79,7 @@ private:
     GraphicsPipelineCache fGraphicsPipelineCache SK_GUARDED_BY(fSpinLock);
     ComputePipelineCache  fComputePipelineCache  SK_GUARDED_BY(fSpinLock);
 
-    SkTArray<sk_sp<Resource>> fStaticResource SK_GUARDED_BY(fSpinLock);
+    skia_private::TArray<sk_sp<Resource>> fStaticResource SK_GUARDED_BY(fSpinLock);
 };
 
 } // namespace skgpu::graphite

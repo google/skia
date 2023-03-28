@@ -13,6 +13,8 @@
 
 #include <array>
 
+using namespace skia_private;
+
 namespace skgpu::tess {
 
 namespace {
@@ -22,7 +24,7 @@ void write_curve_index_buffer_base_index(VertexWriter vertexWriter,
                                          uint16_t baseIndex) {
     int triangleCount = bufferSize / (sizeof(uint16_t) * 3);
     SkASSERT(triangleCount >= 1);
-    SkTArray<std::array<uint16_t, 3>> indexData(triangleCount);
+    TArray<std::array<uint16_t, 3>> indexData(triangleCount);
 
     // Connect the vertices with a middle-out triangulation. Refer to InitFixedCountVertexBuffer()
     // for the exact vertex ordering.

@@ -149,7 +149,7 @@ private:
     // TODO: It will be easier to debug/understand the DrawPass structure of a context if
     // consecutive DrawPasses to the same target are stored in a DrawPassChain. A DrawContext with
     // multiple DrawPassChains is then clearly accumulating subpasses across multiple targets.
-    SkTArray<std::unique_ptr<DrawPass>> fDrawPasses;
+    skia_private::TArray<std::unique_ptr<DrawPass>> fDrawPasses;
 
     // Stores the most immediately recorded uploads into Textures. This list is mutable and
     // can be appended to, or have its commands rewritten if they are inlined into a parent DC.

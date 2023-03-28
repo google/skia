@@ -24,7 +24,7 @@ class DrawPass;
  */
 class RenderPassTask final : public Task {
 public:
-    using DrawPassList = SkTArray<std::unique_ptr<DrawPass>>;
+    using DrawPassList = skia_private::TArray<std::unique_ptr<DrawPass>>;
 
     static sk_sp<RenderPassTask> Make(DrawPassList,
                                       const RenderPassDesc&,

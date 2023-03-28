@@ -39,6 +39,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+using namespace skia_private;
+
 namespace skgpu::graphite {
 
 namespace {
@@ -85,11 +87,11 @@ public:
 
     SkSpan<V> data() { return {fIndexToData.data(), fIndexToData.size()}; }
 
-    SkTArray<V>&& detach() { return std::move(fIndexToData); }
+    TArray<V>&& detach() { return std::move(fIndexToData); }
 
 private:
     SkTHashMap<T, Index> fDataToIndex;
-    SkTArray<V> fIndexToData;
+    TArray<V> fIndexToData;
 };
 
 // Tracks uniform data on the CPU and then its transition to storage in a GPU buffer (ubo or ssbo).
@@ -170,8 +172,8 @@ public:
         }
     }
 
-    SkTArray<sk_sp<TextureProxy>>&& detachTextures() { return fProxyCache.detach(); }
-    SkTArray<SamplerDesc>&& detachSamplers() { return fSamplerCache.detach(); }
+    TArray<sk_sp<TextureProxy>>&& detachTextures() { return fProxyCache.detach(); }
+    TArray<SamplerDesc>&& detachSamplers() { return fSamplerCache.detach(); }
 
 private:
     struct ProxyRef {
@@ -280,7 +282,7 @@ private:
     // Access first by pipeline index. The final UniformSsboCache::Index is either used to select
     // the BindBufferInfo for a draw using UBOs, or it's the real index into a packed array of
     // uniforms in a storage buffer object (whose binding is stored in index 0).
-    SkTArray<UniformSsboCache> fPerPipelineCaches;
+    TArray<UniformSsboCache> fPerPipelineCaches;
 
     const bool fUseStorageBuffers;
 

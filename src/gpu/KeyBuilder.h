@@ -15,7 +15,7 @@ namespace skgpu {
 
 class KeyBuilder {
 public:
-    KeyBuilder(SkTArray<uint32_t, true>* data) : fData(data) {}
+    KeyBuilder(skia_private::TArray<uint32_t, true>* data) : fData(data) {}
 
     virtual ~KeyBuilder() {
         // Ensure that flush was called before we went out of scope
@@ -68,14 +68,14 @@ public:
     }
 
 private:
-    SkTArray<uint32_t, true>* fData;
+    skia_private::TArray<uint32_t, true>* fData;
     uint32_t fCurValue = 0;
     uint32_t fBitsUsed = 0;  // ... in current value
 };
 
 class StringKeyBuilder : public KeyBuilder {
 public:
-    StringKeyBuilder(SkTArray<uint32_t, true>* data) : KeyBuilder(data) {}
+    StringKeyBuilder(skia_private::TArray<uint32_t, true>* data) : KeyBuilder(data) {}
 
     void addBits(uint32_t numBits, uint32_t val, std::string_view label) override {
         KeyBuilder::addBits(numBits, val, label);

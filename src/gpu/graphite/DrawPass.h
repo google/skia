@@ -116,13 +116,13 @@ private:
 
     // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
     // an array of actual GraphicsPipelines.
-    SkTArray<GraphicsPipelineDesc> fPipelineDescs;
-    SkTArray<SamplerDesc> fSamplerDescs;
+    skia_private::TArray<GraphicsPipelineDesc> fPipelineDescs;
+    skia_private::TArray<SamplerDesc> fSamplerDescs;
 
     // These resources all get instantiated during prepareResources.
-    SkTArray<sk_sp<GraphicsPipeline>> fFullPipelines;
-    SkTArray<sk_sp<TextureProxy>> fSampledTextures;
-    SkTArray<sk_sp<Sampler>> fSamplers;
+    skia_private::TArray<sk_sp<GraphicsPipeline>> fFullPipelines;
+    skia_private::TArray<sk_sp<TextureProxy>> fSampledTextures;
+    skia_private::TArray<sk_sp<Sampler>> fSamplers;
 };
 
 } // namespace skgpu::graphite

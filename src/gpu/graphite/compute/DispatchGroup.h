@@ -42,13 +42,13 @@ public:
 
     struct Dispatch {
         ComputePassDesc fParams;
-        SkTArray<ResourceBinding> fBindings;
+        skia_private::TArray<ResourceBinding> fBindings;
         int fPipelineIndex = 0;
     };
 
     ~DispatchGroup();
 
-    const SkTArray<Dispatch>& dispatches() const { return fDispatchList; }
+    const skia_private::TArray<Dispatch>& dispatches() const { return fDispatchList; }
 
     const ComputePipeline* getPipeline(size_t index) const { return fPipelines[index].get(); }
 
@@ -64,14 +64,14 @@ private:
     DispatchGroup(const DispatchGroup&) = delete;
     DispatchGroup(DispatchGroup&&) = delete;
 
-    SkTArray<Dispatch> fDispatchList;
+    skia_private::TArray<Dispatch> fDispatchList;
 
     // Pipelines are referenced by index by each Dispatch in `fDispatchList`. They are stored as a
     // pipeline description until instantiated in `prepareResources()`.
-    SkTArray<ComputePipelineDesc> fPipelineDescs;
+    skia_private::TArray<ComputePipelineDesc> fPipelineDescs;
 
     // Resources instantiated by `prepareResources()`
-    SkTArray<sk_sp<ComputePipeline>> fPipelines;
+    skia_private::TArray<sk_sp<ComputePipeline>> fPipelines;
 };
 
 class DispatchGroup::Builder final {
