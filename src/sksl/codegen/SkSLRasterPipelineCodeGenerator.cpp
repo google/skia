@@ -322,6 +322,9 @@ public:
      */
     void emitTraceLine(Position pos);
 
+    /** Emits a trace_scope opcode, which alters the SkSL variable-scope depth. */
+    void emitTraceScope(int delta);
+
     /** Prepares our position-to-line-offset conversion table (stored in `fLineOffsets`). */
     void calculateLineOffsets();
 
@@ -1268,6 +1271,12 @@ void Generator::emitTraceLine(Position pos) {
     }
 }
 
+void Generator::emitTraceScope(int delta) {
+    if (fDebugTrace && fWriteTraceOps) {
+        fBuilder.trace_scope(fTraceMask->stackID(), delta);
+    }
+}
+
 void Generator::calculateLineOffsets() {
     SkASSERT(fLineOffsets.empty());
     fLineOffsets.push_back(0);
@@ -1375,8 +1384,7 @@ bool Generator::writeBlock(const Block& b) {
         this->emitTraceLine(b.fPosition);
         ++fInsideCompoundStatement;
     } else {
-        // TODO(johnstiles): add support for trace_scope
-        //this->emitTraceScope(mask, +1);
+        this->emitTraceScope(+1);
     }
 
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
@@ -1388,8 +1396,7 @@ bool Generator::writeBlock(const Block& b) {
     if (b.blockKind() == Block::Kind::kCompoundStatement) {
         --fInsideCompoundStatement;
     } else {
-        // TODO(johnstiles): add support for trace_scope
-        //this->emitTraceScope(mask, -1);
+        this->emitTraceScope(-1);
     }
 
     return true;
@@ -1480,6 +1487,10 @@ bool Generator::writeMasklessForStatement(const ForStatement& f) {
     SkASSERT(f.test());
     SkASSERT(f.next());
 
+    // We want the loop index to disappear at the end of the loop, so wrap the for statement in a
+    // trace scope.
+    this->emitTraceScope(+1);
+
     // If no lanes are active, skip over the loop entirely. This guards against looping forever;
     // with no lanes active, we wouldn't be able to write the loop variable back to its slot, so
     // we'd never make forward progress.
@@ -1530,6 +1541,8 @@ bool Generator::writeMasklessForStatement(const ForStatement& f) {
     }
 
     fBuilder.label(loopExitID);
+
+    this->emitTraceScope(-1);
     return true;
 }
 
@@ -1546,6 +1559,10 @@ bool Generator::writeForStatement(const ForStatement& f) {
     if (!loopInfo.fHasContinue && !loopInfo.fHasBreak && !loopInfo.fHasReturn && f.unrollInfo()) {
         return this->writeMasklessForStatement(f);
     }
+
+    // We want the loop index to disappear at the end of the loop, so wrap the for statement in a
+    // trace scope.
+    this->emitTraceScope(+1);
 
     // Set up a break target.
     AutoLoopTarget breakTarget(this, &fCurrentBreakTarget);
@@ -1622,6 +1639,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
     fBuilder.pop_loop_mask();
     fBuilder.disableExecutionMaskWrites();
 
+    this->emitTraceScope(-1);
     return true;
 }
 

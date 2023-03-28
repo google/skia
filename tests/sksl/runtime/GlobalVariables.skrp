@@ -9,17 +9,21 @@
     9. copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
    10. zero_slot_unmasked             gUninitialized = 0
    11. trace_enter                    TraceEnter(float4 main(float2 xy)) when $4 is true
-   12. trace_line                     TraceLine(12) when $4 is true
-   13. trace_enter                    TraceEnter(void init_globals()) when $4 is true
-   14. trace_line                     TraceLine(8) when $4 is true
-   15. copy_constant                  $0 = 0x3F800000 (1.0)
-   16. copy_slot_unmasked             gUninitialized = $0
-   17. trace_exit                     TraceExit(void init_globals()) when $4 is true
-   18. label                          label 0x00000000
-   19. trace_line                     TraceLine(13) when $4 is true
-   20. zero_slot_unmasked             $0 = 0
-   21. copy_slot_unmasked             $1 = gInitializedFromOther
-   22. zero_slot_unmasked             $2 = 0
-   23. copy_slot_unmasked             $3 = gUninitialized
-   24. trace_exit                     TraceExit(float4 main(float2 xy)) when $4 is true
-   25. load_src                       src.rgba = $0..3
+   12. trace_scope                    TraceScope(+1) when $4 is true
+   13. trace_line                     TraceLine(12) when $4 is true
+   14. trace_enter                    TraceEnter(void init_globals()) when $4 is true
+   15. trace_scope                    TraceScope(+1) when $4 is true
+   16. trace_line                     TraceLine(8) when $4 is true
+   17. copy_constant                  $0 = 0x3F800000 (1.0)
+   18. copy_slot_unmasked             gUninitialized = $0
+   19. trace_scope                    TraceScope(-1) when $4 is true
+   20. trace_exit                     TraceExit(void init_globals()) when $4 is true
+   21. label                          label 0x00000000
+   22. trace_line                     TraceLine(13) when $4 is true
+   23. zero_slot_unmasked             $0 = 0
+   24. copy_slot_unmasked             $1 = gInitializedFromOther
+   25. zero_slot_unmasked             $2 = 0
+   26. copy_slot_unmasked             $3 = gUninitialized
+   27. trace_scope                    TraceScope(-1) when $4 is true
+   28. trace_exit                     TraceExit(float4 main(float2 xy)) when $4 is true
+   29. load_src                       src.rgba = $0..3
