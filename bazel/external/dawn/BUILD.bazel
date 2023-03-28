@@ -577,19 +577,22 @@ DAWN_VULKAN_SRCS = [
     "src/dawn/native/vulkan/VulkanFunctions.h",
     "src/dawn/native/vulkan/VulkanInfo.cpp",
     "src/dawn/native/vulkan/VulkanInfo.h",
+    "src/dawn/native/vulkan/external_memory/MemoryImportParams.h",
     "src/dawn/native/vulkan/external_memory/MemoryService.cpp",
     "src/dawn/native/vulkan/external_memory/MemoryService.h",
+    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementation.cpp",
+    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementation.h",
     "src/dawn/native/vulkan/external_semaphore/SemaphoreService.cpp",
     "src/dawn/native/vulkan/external_semaphore/SemaphoreService.h",
-    "src/dawn/native/vulkan/external_semaphore/ServiceImplementation.cpp",
-    "src/dawn/native/vulkan/external_semaphore/ServiceImplementation.h",
+    "src/dawn/native/vulkan/external_semaphore/SemaphoreServiceImplementation.cpp",
+    "src/dawn/native/vulkan/external_semaphore/SemaphoreServiceImplementation.h",
 ]
 
 DAWN_VULKAN_LINUX_SRCS = [
     # From dawn/src/dawn/native/BUILD.gn:sources (dawn_enable_vulkan && is_linux)
-    "src/dawn/native/vulkan/external_memory/MemoryServiceOpaqueFD.cpp",
-    "src/dawn/native/vulkan/external_semaphore/ServiceImplementationFD.cpp",
-    "src/dawn/native/vulkan/external_semaphore/ServiceImplementationFD.h",
+    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementationOpaqueFD.cpp",
+    "src/dawn/native/vulkan/external_semaphore/SemaphoreServiceImplementationFD.cpp",
+    "src/dawn/native/vulkan/external_semaphore/SemaphoreServiceImplementationFD.h",
 ]
 
 DAWN_VULKAN_DEFINES = [
