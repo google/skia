@@ -342,10 +342,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				skip(ALL, "test", ALL, "MutableImagesTest")
 				skip(ALL, "test", ALL, "PaintParamsKeyTest")
 				skip(ALL, "test", ALL, "VolatileGraphitePromiseImageTest")
-                                // https://buganizer.corp.google.com/issues/274001762
-                                skip(ALL, "gm", ALL, "wacky_yuv_formats")
-                                skip(ALL, "gm", ALL, "wacky_yuv_formats_cs")
-                                skip(ALL, "gm", ALL, "wacky_yuv_formats_domain")
 				// Fails
 				// https://skbug/14105
 				skip(ALL, "test", ALL, "ImageAsyncReadPixelsGraphite")
