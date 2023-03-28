@@ -31,6 +31,10 @@ void SkGraphics::SetPathAnalyticAADecider(SkGraphics::PathAnalyticAADeciderProc 
     gAnalyticAADeciderProc = decider;
 }
 
+void SkGraphics::SetForceAnalyticAA(bool force) {
+    gSkForceAnalyticAA = force;
+}
+
 static bool ShouldUseAAA(const SkPath& path) {
 #if defined(SK_DISABLE_AAA)
     return false;

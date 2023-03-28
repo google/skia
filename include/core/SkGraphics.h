@@ -157,6 +157,15 @@ public:
      */
     typedef bool (*PathAnalyticAADeciderProc)(const SkPath&);
     static void SetPathAnalyticAADecider(PathAnalyticAADeciderProc);
+
+    /*
+     *  Similar to above, but simply forces the CPU backend to always use analytic AA.
+     *
+     *  NOTE: This is a temporary API, intended for migration of all clients to one algorithm.
+     *        If the PathAnalyticAADeciderProc is *also* set, this setting has no effect.
+     *        Unlike that API, this function is thread-safe.
+     */
+    static void SetForceAnalyticAA(bool);
 };
 
 class SkAutoGraphics {
