@@ -13,6 +13,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 namespace dsl {
@@ -24,7 +26,7 @@ DSLBlock::DSLBlock(SkSL::StatementArray statements,
         , fSymbols(std::move(symbols))
         , fPosition(pos) {}
 
-DSLBlock::DSLBlock(SkTArray<DSLStatement> statements,
+DSLBlock::DSLBlock(TArray<DSLStatement> statements,
                    std::shared_ptr<SymbolTable> symbols,
                    Position pos)
         : fSymbols(std::move(symbols))

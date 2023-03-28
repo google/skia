@@ -35,6 +35,7 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
 using namespace SkSL::dsl;
 
 namespace SkSL {
@@ -741,7 +742,7 @@ DSLType Parser::structDeclaration() {
     if (!depth.increase()) {
         return DSLType(nullptr);
     }
-    SkTArray<DSLField> fields;
+    TArray<DSLField> fields;
     SkTHashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token fieldStart = this->peek();
@@ -795,8 +796,8 @@ DSLType Parser::structDeclaration() {
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
-SkTArray<dsl::DSLGlobalVar> Parser::structVarDeclaration(Position start,
-                                                         const DSLModifiers& modifiers) {
+TArray<dsl::DSLGlobalVar> Parser::structVarDeclaration(Position start,
+                                                       const DSLModifiers& modifiers) {
     DSLType type = this->structDeclaration();
     if (!type.hasValue()) {
         return {};
@@ -1108,7 +1109,7 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         return false;
     }
     this->nextToken();
-    SkTArray<DSLField> fields;
+    TArray<DSLField> fields;
     SkTHashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Position fieldPos = this->position(this->peek());
@@ -1277,7 +1278,7 @@ std::optional<DSLCase> Parser::switchCase() {
     if (!this->expect(Token::Kind::TK_COLON, "':'")) {
         return {};
     }
-    SkTArray<DSLStatement> statements;
+    TArray<DSLStatement> statements;
     while (this->peek().fKind != Token::Kind::TK_RBRACE &&
            this->peek().fKind != Token::Kind::TK_CASE &&
            this->peek().fKind != Token::Kind::TK_DEFAULT) {
@@ -1309,7 +1310,7 @@ DSLStatement Parser::switchStatement() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return {};
     }
-    SkTArray<DSLCase> cases;
+    TArray<DSLCase> cases;
     while (this->peek().fKind == Token::Kind::TK_CASE) {
         std::optional<DSLCase> c = this->switchCase();
         if (!c) {
@@ -1320,7 +1321,7 @@ DSLStatement Parser::switchStatement() {
     // Requiring default: to be last (in defiance of C and GLSL) was a deliberate decision. Other
     // parts of the compiler may rely upon this assumption.
     if (this->peek().fKind == Token::Kind::TK_DEFAULT) {
-        SkTArray<DSLStatement> statements;
+        TArray<DSLStatement> statements;
         Token defaultStart;
         SkAssertResult(this->expect(Token::Kind::TK_DEFAULT, "'default'", &defaultStart));
         if (!this->expect(Token::Kind::TK_COLON, "':'")) {

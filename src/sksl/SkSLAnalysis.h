@@ -234,8 +234,8 @@ void DoFinalizationChecks(const Program& program);
 /**
  * Error checks compute shader in/outs and returns a vector containing them ordered by location.
  */
-SkTArray<const SkSL::Variable*> GetComputeShaderMainParams(const Context& context,
-                                                           const Program& program);
+skia_private::TArray<const SkSL::Variable*> GetComputeShaderMainParams(
+        const Context& context, const Program& program);
 
 /**
  * Tracks the symbol table stack, in conjunction with a ProgramVisitor. Inside `visitStatement`,

@@ -73,6 +73,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 namespace RP {
 
@@ -420,7 +422,7 @@ private:
     int fCurrentBreakTarget = -1;
     int fCurrentStack = 0;
     int fNextStackID = 0;
-    SkTArray<int> fRecycledStacks;
+    TArray<int> fRecycledStacks;
 
     SkTHashMap<const FunctionDefinition*, Analysis::ReturnComplexity> fReturnComplexityMap;
 
@@ -430,7 +432,7 @@ private:
 
     // `fLineOffsets` contains the position of each newline in the source, plus a zero at the
     // beginning, and the total source length at the end, as sentinels.
-    SkTArray<int> fLineOffsets;
+    TArray<int> fLineOffsets;
 
     static constexpr auto kAbsOps = TypedOps{BuilderOp::abs_float,
                                              BuilderOp::abs_int,
@@ -2515,7 +2517,7 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     // Write all the arguments into their parameter's variable slots. Because we never allow
     // recursion, we don't need to worry about overwriting any existing values in those slots.
     // (In fact, we don't even need to apply the write mask.)
-    SkTArray<std::unique_ptr<LValue>> lvalues;
+    TArray<std::unique_ptr<LValue>> lvalues;
     lvalues.resize(c.arguments().size());
 
     for (int index = 0; index < c.arguments().size(); ++index) {

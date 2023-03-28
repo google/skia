@@ -170,7 +170,7 @@ private:
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
 
-    SkTArray<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
+    skia_private::TArray<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
 
     void writeLayout(const Layout& layout, SpvId target, Position pos);
 
@@ -217,7 +217,7 @@ private:
 
     void writeGLSLExtendedInstruction(const Type& type, SpvId id, SpvId floatInst,
                                       SpvId signedInst, SpvId unsignedInst,
-                                      const SkTArray<SpvId>& args, OutputStream& out);
+                                      const skia_private::TArray<SpvId>& args, OutputStream& out);
 
     /**
      * Promotes an expression to a vector. If the expression is already a vector with vectorSize
@@ -233,7 +233,7 @@ private:
      * returns (vec2(float), vec2). It is an error to use mismatched vector sizes, e.g. (float,
      * vec2, vec3).
      */
-    SkTArray<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
+    skia_private::TArray<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 
@@ -269,8 +269,10 @@ private:
      */
     SpvId writeMatrixCopy(SpvId src, const Type& srcType, const Type& dstType, OutputStream& out);
 
-    void addColumnEntry(const Type& columnType, SkTArray<SpvId>* currentColumn,
-                        SkTArray<SpvId>* columnIds, int rows, SpvId entry, OutputStream& out);
+    void addColumnEntry(const Type& columnType,
+                        skia_private::TArray<SpvId>* currentColumn,
+                        skia_private::TArray<SpvId>* columnIds,
+                        int rows, SpvId entry, OutputStream& out);
 
     SpvId writeConstructorCompound(const ConstructorCompound& c, OutputStream& out);
 
@@ -416,7 +418,8 @@ private:
     // 8 Words is enough for nearly all instructions (except variable-length instructions like
     // OpAccessChain or OpConstantComposite).
     using Words = SkSTArray<8, Word, true>;
-    SpvId writeInstruction(SpvOp_ opCode, const SkTArray<Word, true>& words, OutputStream& out);
+    SpvId writeInstruction(
+            SpvOp_ opCode, const skia_private::TArray<Word, true>& words, OutputStream& out);
 
     struct Instruction {
         SpvId                  fOp;
@@ -427,14 +430,16 @@ private:
         struct Hash;
     };
 
-    static Instruction BuildInstructionKey(SpvOp_ opCode, const SkTArray<Word, true>& words);
+    static Instruction BuildInstructionKey(
+            SpvOp_ opCode, const skia_private::TArray<Word, true>& words);
 
     // The writeOpXxxxx calls will simplify and deduplicate ops where possible.
     SpvId writeOpConstantTrue(const Type& type);
     SpvId writeOpConstantFalse(const Type& type);
     SpvId writeOpConstant(const Type& type, int32_t valueBits);
-    SpvId writeOpConstantComposite(const Type& type, const SkTArray<SpvId>& values);
-    SpvId writeOpCompositeConstruct(const Type& type, const SkTArray<SpvId>&, OutputStream& out);
+    SpvId writeOpConstantComposite(const Type& type, const skia_private::TArray<SpvId>& values);
+    SpvId writeOpCompositeConstruct(const Type& type, const skia_private::TArray<SpvId>&,
+                                    OutputStream& out);
     SpvId writeOpCompositeExtract(const Type& type, SpvId base, int component, OutputStream& out);
     SpvId writeOpCompositeExtract(const Type& type, SpvId base, int componentA, int componentB,
                                   OutputStream& out);
@@ -442,8 +447,8 @@ private:
     void writeOpStore(SpvStorageClass_ storageClass, SpvId pointer, SpvId value, OutputStream& out);
 
     // Converts the provided SpvId(s) into an array of scalar OpConstants, if it can be done.
-    bool toConstants(SpvId value, SkTArray<SpvId>* constants);
-    bool toConstants(SkSpan<const SpvId> values, SkTArray<SpvId>* constants);
+    bool toConstants(SpvId value, skia_private::TArray<SpvId>* constants);
+    bool toConstants(SkSpan<const SpvId> values, skia_private::TArray<SpvId>* constants);
 
     // Extracts the requested component SpvId from a composite instruction, if it can be done.
     Instruction* resultTypeForInstruction(const Instruction& instr);
@@ -567,18 +572,18 @@ private:
     // depending on the if condition, we may or may not have actually done that computation). The
     // same logic applies to other control-flow blocks as well. Once an instruction becomes
     // unreachable, we remove it from both op-caches.
-    SkTArray<SpvId> fReachableOps;
+    skia_private::TArray<SpvId> fReachableOps;
 
     // The "store-ops" list contains a running list of all the pointers in the store cache. If a
     // store occurs inside of a conditional block, once that block exits, we no longer know what is
     // stored in that particular SpvId. At that point, we must remove any associated entry from the
     // store cache.
-    SkTArray<SpvId> fStoreOps;
+    skia_private::TArray<SpvId> fStoreOps;
 
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
-    SkTArray<SpvId> fBreakTarget;
-    SkTArray<SpvId> fContinueTarget;
+    skia_private::TArray<SpvId> fBreakTarget;
+    skia_private::TArray<SpvId> fContinueTarget;
     bool fWroteRTFlip = false;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;

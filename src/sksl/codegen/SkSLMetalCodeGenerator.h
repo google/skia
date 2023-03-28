@@ -175,7 +175,7 @@ protected:
 
     std::string getOutParamHelper(const FunctionCall& c,
                                   const ExpressionArray& arguments,
-                                  const SkTArray<VariableReference*>& outVars);
+                                  const skia_private::TArray<VariableReference*>& outVars);
 
     std::string getInversePolyfill(const ExpressionArray& arguments);
 

@@ -65,6 +65,8 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
+using namespace skia_private;
+
 // TODO(skia:13092): This is a temporary debug feature. Remove when the implementation is
 // complete and this is no longer needed.
 #define DUMP_SRC_IR 0
@@ -1777,7 +1779,7 @@ bool WGSLCodeGenerator::writeFunctionDependencyParams(const FunctionDeclaration&
 
 std::string WGSLCodeGenerator::writeOutParamHelper(const FunctionCall& c,
                                                    const ExpressionArray& args,
-                                                   const SkTArray<VariableReference*>& outVars) {
+                                                   const TArray<VariableReference*>& outVars) {
     // It's possible for out-param function arguments to contain an out-param function call
     // expression. Emit the function into a temporary stream to prevent the nested helper from
     // clobbering the current helper as we recursively evaluate argument expressions.

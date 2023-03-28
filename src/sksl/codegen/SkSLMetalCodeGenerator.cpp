@@ -73,6 +73,8 @@
 #include <limits>
 #include <memory>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 static const char* operator_name(Operator op) {
@@ -266,7 +268,7 @@ static bool is_readonly(const InterfaceBlock& block) {
 
 std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
                                                   const ExpressionArray& arguments,
-                                                  const SkTArray<VariableReference*>& outVars) {
+                                                  const TArray<VariableReference*>& outVars) {
     // It's possible for out-param function arguments to contain an out-param function call
     // expression. Emit the function into a temporary stream to prevent the nested helper from
     // clobbering the current helper as we recursively evaluate argument expressions.

@@ -28,6 +28,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 namespace dsl {
@@ -180,7 +182,7 @@ DSLExpression DSLExpression::index(DSLExpression index, Position pos) {
     return DSLExpression(std::move(result), pos);
 }
 
-DSLExpression DSLExpression::operator()(SkTArray<DSLExpression> args, Position pos) {
+DSLExpression DSLExpression::operator()(TArray<DSLExpression> args, Position pos) {
     ExpressionArray converted;
     converted.reserve_back(args.size());
     for (DSLExpression& arg : args) {

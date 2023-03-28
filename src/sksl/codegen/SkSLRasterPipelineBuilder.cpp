@@ -32,6 +32,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 namespace RP {
 
@@ -990,7 +992,7 @@ Program::StackDepthMap Program::tempStackMaxDepths() const {
     return largest;
 }
 
-Program::Program(SkTArray<Instruction> instrs,
+Program::Program(TArray<Instruction> instrs,
                  int numValueSlots,
                  int numUniformSlots,
                  int numLabels,
@@ -1011,7 +1013,7 @@ Program::Program(SkTArray<Instruction> instrs,
     }
 }
 
-void Program::appendCopy(SkTArray<Stage>* pipeline,
+void Program::appendCopy(TArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
                          ProgramOp baseStage,
                          float* dst, int dstStride,
@@ -1035,7 +1037,7 @@ void Program::appendCopy(SkTArray<Stage>* pipeline,
     }
 }
 
-void Program::appendCopySlotsUnmasked(SkTArray<Stage>* pipeline,
+void Program::appendCopySlotsUnmasked(TArray<Stage>* pipeline,
                                       SkArenaAlloc* alloc,
                                       float* dst,
                                       const float* src,
@@ -1047,7 +1049,7 @@ void Program::appendCopySlotsUnmasked(SkTArray<Stage>* pipeline,
                      numSlots);
 }
 
-void Program::appendCopySlotsMasked(SkTArray<Stage>* pipeline,
+void Program::appendCopySlotsMasked(TArray<Stage>* pipeline,
                                     SkArenaAlloc* alloc,
                                     float* dst,
                                     const float* src,
@@ -1059,7 +1061,7 @@ void Program::appendCopySlotsMasked(SkTArray<Stage>* pipeline,
                      numSlots);
 }
 
-void Program::appendCopyConstants(SkTArray<Stage>* pipeline,
+void Program::appendCopyConstants(TArray<Stage>* pipeline,
                                   SkArenaAlloc* alloc,
                                   float* dst,
                                   const float* src,
@@ -1071,7 +1073,7 @@ void Program::appendCopyConstants(SkTArray<Stage>* pipeline,
                      numSlots);
 }
 
-void Program::appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp stage,
+void Program::appendSingleSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp stage,
                                       float* dst, int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots--) {
@@ -1080,7 +1082,7 @@ void Program::appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp stage
     }
 }
 
-void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp baseStage,
+void Program::appendMultiSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp baseStage,
                                      float* dst, int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
@@ -1094,7 +1096,7 @@ void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp baseSt
     pipeline->push_back({stage, dst});
 }
 
-void Program::appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
+void Program::appendAdjacentNWayBinaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                          ProgramOp stage,
                                          float* dst, const float* src, int numSlots) const {
     // The source and destination must be directly next to one another.
@@ -1109,7 +1111,7 @@ void Program::appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc
     }
 }
 
-void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
+void Program::appendAdjacentMultiSlotBinaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                               ProgramOp baseStage,
                                               float* dst, const float* src, int numSlots) const {
     // The source and destination must be directly next to one another.
@@ -1126,7 +1128,7 @@ void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArena
     }
 }
 
-void Program::appendAdjacentNWayTernaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
+void Program::appendAdjacentNWayTernaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                           ProgramOp stage, float* dst, const float* src0,
                                           const float* src1, int numSlots) const {
     // The float pointers must all be immediately adjacent to each other.
@@ -1143,7 +1145,7 @@ void Program::appendAdjacentNWayTernaryOp(SkTArray<Stage>* pipeline, SkArenaAllo
     }
 }
 
-void Program::appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
+void Program::appendAdjacentMultiSlotTernaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                                ProgramOp baseStage, float* dst, const float* src0,
                                                const float* src1, int numSlots) const {
     // The float pointers must all be immediately adjacent to each other.
@@ -1161,7 +1163,7 @@ void Program::appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkAren
     }
 }
 
-void Program::appendStackRewind(SkTArray<Stage>* pipeline) const {
+void Program::appendStackRewind(TArray<Stage>* pipeline) const {
 #if defined(SKSL_STANDALONE) || !SK_HAS_MUSTTAIL
     pipeline->push_back({ProgramOp::stack_rewind, nullptr});
 #endif
@@ -1193,16 +1195,16 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                            RP::Callbacks* callbacks,
                            SkSpan<const float> uniforms) const {
     // Convert our Instruction list to an array of ProgramOps.
-    SkTArray<Stage> stages;
+    TArray<Stage> stages;
     this->makeStages(&stages, alloc, uniforms, this->allocateSlotData(alloc));
 
     // Allocate buffers for branch targets and labels; these are needed to convert labels into
     // actual offsets into the pipeline and fix up branches.
-    SkTArray<SkRasterPipeline_BranchCtx*> branchContexts;
+    TArray<SkRasterPipeline_BranchCtx*> branchContexts;
     branchContexts.reserve_back(fNumLabels);
-    SkTArray<int> labelOffsets;
+    TArray<int> labelOffsets;
     labelOffsets.push_back_n(fNumLabels, -1);
-    SkTArray<int> branchGoesToLabel;
+    TArray<int> branchGoesToLabel;
     branchGoesToLabel.reserve_back(fNumLabels);
 
     for (const Stage& stage : stages) {
@@ -1291,7 +1293,7 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
 
 #endif
 
-void Program::makeStages(SkTArray<Stage>* pipeline,
+void Program::makeStages(TArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
                          SkSpan<const float> uniforms,
                          const SlotData& slots) const {
@@ -1795,8 +1797,8 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
 }
 
 // Finds duplicate names in the program and disambiguates them with subscripts.
-SkTArray<std::string> build_unique_slot_name_list(const DebugTracePriv* debugTrace) {
-    SkTArray<std::string> slotName;
+TArray<std::string> build_unique_slot_name_list(const DebugTracePriv* debugTrace) {
+    TArray<std::string> slotName;
     if (debugTrace) {
         slotName.reserve_back(debugTrace->fSlotInfo.size());
 
@@ -1843,7 +1845,7 @@ void Program::dump(SkWStream* out) const {
     SkSpan<float> uniforms = SkSpan(uniformPtr, fNumUniformSlots);
 
     // Turn this program into an array of Raster Pipeline stages.
-    SkTArray<Stage> stages;
+    TArray<Stage> stages;
     this->makeStages(&stages, &alloc, uniforms, slots);
 
     // Find the labels in the program, and keep track of their offsets.
@@ -1858,7 +1860,7 @@ void Program::dump(SkWStream* out) const {
 
     // Assign unique names to each variable slot; our trace might have multiple variables with the
     // same name, which can make a dump hard to read.
-    SkTArray<std::string> slotName = build_unique_slot_name_list(fDebugTrace);
+    TArray<std::string> slotName = build_unique_slot_name_list(fDebugTrace);
 
     // Emit the program's instruction list.
     for (int index = 0; index < stages.size(); ++index) {

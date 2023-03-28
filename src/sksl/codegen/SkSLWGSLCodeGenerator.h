@@ -254,7 +254,7 @@ private:
     // Generate an out-parameter helper function for the given call and return its name.
     std::string writeOutParamHelper(const FunctionCall&,
                                     const ExpressionArray& args,
-                                    const SkTArray<VariableReference*>& outVars);
+                                    const skia_private::TArray<VariableReference*>& outVars);
 
     // Stores the disallowed identifier names.
     SkTHashSet<std::string_view> fReservedWords;
