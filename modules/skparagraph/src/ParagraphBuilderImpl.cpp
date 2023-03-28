@@ -180,6 +180,18 @@ void ParagraphBuilderImpl::finalize() {
 std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     this->finalize();
     this->addPlaceholder(PlaceholderStyle(), true);
+
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+    SkASSERT(fUsingClientInfo);
+    fUTF8IndexForUTF16Index.clear();
+    fUTF16IndexForUTF8Index.clear();
+    // This is the place where SkUnicode is paired with SkParagraph
+    fUnicode = SkUnicode::MakeClientBasedUnicode(this->getText(),
+                                                 std::move(fWordsUtf16),
+                                                 std::move(fGraphemeBreaksUtf8),
+                                                 std::move(fLineBreaksUtf8));
+#endif
+
     SkASSERT(fUnicode);
     return std::make_unique<ParagraphImpl>(
             fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, fUnicode);
