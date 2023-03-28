@@ -80,7 +80,7 @@ namespace skvm::viz {
         SkSL::DebugTracePriv* fDebugInfo;
 #endif
         SkTHashMap<Instruction, size_t, InstructionHash> fIndex;
-        SkTArray<Instruction> fInstructions;
+        skia_private::TArray<Instruction> fInstructions;
         SkWStream* fOutput;
         SkTHashMap<int, size_t> fToDisassembler;
     };

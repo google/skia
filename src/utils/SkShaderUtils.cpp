@@ -15,6 +15,8 @@
 
 #include <cstddef>
 
+using namespace skia_private;
+
 namespace SkShaderUtils {
 
 class GLSLPrettyPrint {
@@ -196,7 +198,7 @@ std::string PrettyPrint(const std::string& string) {
 
 void VisitLineByLine(const std::string& text,
                      const std::function<void(int lineNumber, const char* lineText)>& visitFn) {
-    SkTArray<SkString> lines;
+    TArray<SkString> lines;
     SkStrSplit(text.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
     for (int i = 0; i < lines.size(); ++i) {
         visitFn(i + 1, lines[i].c_str());

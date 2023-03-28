@@ -28,6 +28,8 @@
 #include <cstring>
 #include <functional>
 
+using namespace skia_private;
+
 /*
   File format:
       BEGINNING_OF_FILE:
@@ -49,7 +51,7 @@ static constexpr char kEndPage[] = "SkMultiPictureEndPage";
 
 const uint32_t kVersion = 2;
 
-static SkSize join(const SkTArray<SkSize>& sizes) {
+static SkSize join(const TArray<SkSize>& sizes) {
     SkSize joined = {0, 0};
     for (SkSize s : sizes) {
         joined = SkSize{std::max(joined.width(), s.width()), std::max(joined.height(), s.height())};
@@ -61,8 +63,8 @@ struct MultiPictureDocument final : public SkDocument {
     const SkSerialProcs fProcs;
     SkPictureRecorder fPictureRecorder;
     SkSize fCurrentPageSize;
-    SkTArray<sk_sp<SkPicture>> fPages;
-    SkTArray<SkSize> fSizes;
+    TArray<sk_sp<SkPicture>> fPages;
+    TArray<SkSize> fSizes;
     std::function<void(const SkPicture*)> fOnEndPage;
     MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs,
         std::function<void(const SkPicture*)> onEndPage)

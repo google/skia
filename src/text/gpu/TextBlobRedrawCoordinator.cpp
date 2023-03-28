@@ -13,6 +13,8 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
+using namespace skia_private;
+
 // This needs to be outside the namespace so we can declare SkMessageBus properly
 DECLARE_SKMESSAGEBUS_MESSAGE(sktext::gpu::TextBlobRedrawCoordinator::PurgeBlobMessage,
                              uint32_t, true)
@@ -156,7 +158,7 @@ void TextBlobRedrawCoordinator::purgeStaleBlobs() {
 }
 
 void TextBlobRedrawCoordinator::internalPurgeStaleBlobs() {
-    SkTArray<PurgeBlobMessage> msgs;
+    TArray<PurgeBlobMessage> msgs;
     fPurgeBlobInbox.poll(&msgs);
 
     for (const auto& msg : msgs) {

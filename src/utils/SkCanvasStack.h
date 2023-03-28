@@ -74,7 +74,7 @@ private:
         using sk_is_trivially_relocatable = std::true_type;
     };
 
-    SkTArray<CanvasData> fCanvasData;
+    skia_private::TArray<CanvasData> fCanvasData;
 
     using INHERITED = SkNWayCanvas;
 };

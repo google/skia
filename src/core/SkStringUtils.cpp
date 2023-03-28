@@ -10,6 +10,8 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkStringUtils.h"
 
+using namespace skia_private;
+
 void SkAppendScalar(SkString* str, SkScalar value, SkScalarAsStringType asType) {
     switch (asType) {
         case kHex_SkScalarAsStringType:
@@ -84,7 +86,7 @@ SkString SkStringFromUTF16(const uint16_t* src, size_t count) {
 void SkStrSplit(const char* str,
                 const char* delimiters,
                 SkStrSplitMode splitMode,
-                SkTArray<SkString>* out) {
+                TArray<SkString>* out) {
     if (splitMode == kCoalesce_SkStrSplitMode) {
         // Skip any delimiters.
         str += strspn(str, delimiters);
