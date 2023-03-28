@@ -706,6 +706,7 @@ BASE_SRCS_ALL = [
     "src/core/SkWriter32.cpp",
     "src/core/SkWriter32.h",
     "src/core/SkXfermode.cpp",
+    "src/core/SkXfermode_Raster.cpp",
     "src/core/SkXfermodeInterpretation.cpp",
     "src/core/SkXfermodeInterpretation.h",
     "src/core/SkXfermodePriv.h",

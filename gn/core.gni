@@ -582,6 +582,7 @@ skia_core_sources = [
   "$_src/core/SkXfermodeInterpretation.cpp",
   "$_src/core/SkXfermodeInterpretation.h",
   "$_src/core/SkXfermodePriv.h",
+  "$_src/core/SkXfermode_Raster.cpp",
   "$_src/core/SkYUVAInfo.cpp",
   "$_src/core/SkYUVAInfoLocation.h",
   "$_src/core/SkYUVAPixmaps.cpp",
