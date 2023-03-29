@@ -94,7 +94,7 @@ public:
     SkString getFamilyName();
 
 private:
-    SkTArray<sk_sp<SkTypeface>> fStyles;
+    skia_private::TArray<sk_sp<SkTypeface>> fStyles;
     SkString fFamilyName;
 
     friend class SkFontMgr_Custom;
@@ -109,7 +109,7 @@ private:
  */
 class SkFontMgr_Custom : public SkFontMgr {
 public:
-    typedef SkTArray<sk_sp<SkFontStyleSet_Custom>> Families;
+    typedef skia_private::TArray<sk_sp<SkFontStyleSet_Custom>> Families;
     class SystemFontLoader {
     public:
         virtual ~SystemFontLoader() { }

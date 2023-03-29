@@ -14,6 +14,8 @@
 #include "src/pathops/SkPathOpsDebug.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
+using namespace skia_private;
+
 // wrap path to keep track of whether the contour is initialized and non-empty
 SkPathWriter::SkPathWriter(SkPath& path)
     : fPathPtr(&path)
@@ -250,7 +252,7 @@ void SkPathWriter::assemble() {
             *runsPtr = opPtT;
         } while (true);
         partWriter.finishContour();
-        const SkTArray<SkPath>& partPartials = partWriter.partials();
+        const TArray<SkPath>& partPartials = partWriter.partials();
         if (partPartials.empty()) {
             continue;
         }

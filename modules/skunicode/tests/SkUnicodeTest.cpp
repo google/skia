@@ -10,9 +10,12 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "tests/Test.h"
-#include <vector>
 #include "modules/skunicode/include/SkUnicode.h"
+#include "tests/Test.h"
+
+#include <vector>
+
+using namespace skia_private;
 
 UNIX_ONLY_TEST(SkUnicode_GetWords, reporter) {
     SkString text("1 22 333 4444 55555 666666 7777777");
@@ -127,7 +130,7 @@ UNIX_ONLY_TEST(SkUnicode_ComputeCodeUnitFlags, reporter) {
     SkString text("1\n22 333 4444 55555 666666 7777777");
     // 4 8 13 19 24
     auto icu = SkUnicode::Make();
-    SkTArray<SkUnicode::CodeUnitFlags> results;
+    TArray<SkUnicode::CodeUnitFlags> results;
     auto result = icu->computeCodeUnitFlags(text.data(),
                                             text.size(),
                                             /*replaceTabs=*/true,

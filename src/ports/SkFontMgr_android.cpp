@@ -64,7 +64,7 @@ public:
                              const SkFontStyle& style,
                              bool isFixedPitch,
                              const SkString& familyName,
-                             const SkTArray<SkLanguage, true>& lang,
+                             const TArray<SkLanguage, true>& lang,
                              FontVariant variantStyle)
         : INHERITED(style, isFixedPitch, familyName)
         , fPathName(pathName)
@@ -237,7 +237,7 @@ public:
     }
 
 private:
-    SkTArray<sk_sp<SkTypeface_AndroidSystem>> fStyles;
+    TArray<sk_sp<SkTypeface_AndroidSystem>> fStyles;
     SkString fFallbackFor;
 
     friend struct NameToFamily;
@@ -333,7 +333,7 @@ protected:
 
     static sk_sp<SkTypeface_AndroidSystem> find_family_style_character(
             const SkString& familyName,
-            const SkTArray<NameToFamily, true>& fallbackNameToFamilyMap,
+            const TArray<NameToFamily, true>& fallbackNameToFamilyMap,
             const SkFontStyle& style, bool elegant,
             const SkString& langTag, SkUnichar character)
     {
@@ -440,14 +440,14 @@ private:
 
     SkTypeface_FreeType::Scanner fScanner;
 
-    SkTArray<sk_sp<SkFontStyleSet_Android>> fStyleSets;
+    TArray<sk_sp<SkFontStyleSet_Android>> fStyleSets;
     sk_sp<SkFontStyleSet> fDefaultStyleSet;
 
-    SkTArray<NameToFamily, true> fNameToFamilyMap;
-    SkTArray<NameToFamily, true> fFallbackNameToFamilyMap;
+    TArray<NameToFamily, true> fNameToFamilyMap;
+    TArray<NameToFamily, true> fFallbackNameToFamilyMap;
 
     void addFamily(FontFamily& family, const bool isolated, int familyIndex) {
-        SkTArray<NameToFamily, true>* nameToFamily = &fNameToFamilyMap;
+        TArray<NameToFamily, true>* nameToFamily = &fNameToFamilyMap;
         if (family.fIsFallbackFont) {
             nameToFamily = &fFallbackNameToFamilyMap;
 

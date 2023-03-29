@@ -95,9 +95,9 @@ private:
      * @param embeddedCodecs codecs for the embedded images, takes ownership
      */
     SkIcoCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream>,
-               SkTArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs);
+               skia_private::TArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs);
 
-    std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> fEmbeddedCodecs;
+    std::unique_ptr<skia_private::TArray<std::unique_ptr<SkCodec>, true>> fEmbeddedCodecs;
 
     // fCurrCodec is owned by this class, but should not be an
     // std::unique_ptr.  It will be deleted by the destructor of fEmbeddedCodecs.

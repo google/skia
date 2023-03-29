@@ -53,7 +53,7 @@ private:
     SkArenaAlloc fArena;
     SkTHashMap<int, SkPDFTagNode*> fNodeMap;
     SkPDFTagNode* fRoot = nullptr;
-    SkTArray<SkTArray<SkPDFTagNode*>> fMarksPerPage;
+    skia_private::TArray<skia_private::TArray<SkPDFTagNode*>> fMarksPerPage;
     std::vector<IDTreeEntry> fIdTreeEntries;
     std::vector<int> fParentTreeAnnotationNodeIds;
 

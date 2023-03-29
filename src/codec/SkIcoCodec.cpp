@@ -138,8 +138,8 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
 
     // Now will construct a candidate codec for each of the embedded images
     uint32_t bytesRead = kIcoDirectoryBytes + numImages * kIcoDirEntryBytes;
-    std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> codecs(
-            new SkTArray<std::unique_ptr<SkCodec>, true>(numImages));
+    std::unique_ptr<TArray<std::unique_ptr<SkCodec>, true>> codecs(
+            new TArray<std::unique_ptr<SkCodec>, true>(numImages));
     for (uint32_t i = 0; i < numImages; i++) {
         uint32_t offset = directoryEntries[i].offset;
         uint32_t size = directoryEntries[i].size;
@@ -208,7 +208,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
 }
 
 SkIcoCodec::SkIcoCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
-                       SkTArray<std::unique_ptr<SkCodec>, true>* codecs)
+                       TArray<std::unique_ptr<SkCodec>, true>* codecs)
     // The source skcms_PixelFormat will not be used. The embedded
     // codec's will be used instead.
     : INHERITED(std::move(info), skcms_PixelFormat(), std::move(stream))

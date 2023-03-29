@@ -133,7 +133,7 @@ public:
         const int numTasks = static_cast<int>(taskAreas.size());
 
         SkMutex mutex;
-        SkTArray<dng_exception> exceptions;
+        TArray<dng_exception> exceptions;
         task.Start(numTasks, tileSize, &Allocator(), Sniffer());
         for (int taskIndex = 0; taskIndex < numTasks; ++taskIndex) {
             taskGroup.add([&mutex, &exceptions, &task, this, taskIndex, taskAreas, tileSize] {
