@@ -151,10 +151,12 @@ bool create_img_shader_paint(sk_sp<SkImage> image,
 }
 
 bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
-    // We send regular filled and hairline [round] rectangles and quadrilaterals, and stroked
+    // We send regular filled and hairline [round] rectangles, stroked/hairline lines, and stroked
     // [r]rects with circular corners to a single Renderer that does not trigger MSAA.
+    // Per-edge AA quadrilaterals also use the same Renderer but those are not "Shapes".
     return !shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
-            (shape.isRect() /* || shape.isQuadrilateral()*/ ||
+            (shape.isRect() ||
+             (shape.isLine() && type != SkStrokeRec::kFill_Style) ||
              (shape.isRRect() && (type != SkStrokeRec::kStroke_Style ||
                                   SkRRectPriv::AllCornersCircular(shape.rrect()))));
 }
@@ -660,32 +662,27 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutab
 
 void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
                         const SkPoint* points, const SkPaint& paint) {
-    // TODO: I'm [ml] not sure either CPU or GPU backend really has a fast path for this that
-    // isn't captured by drawOval and drawLine, so could easily be moved into SkCanvas.
+    SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
+    size_t next = 0;
     if (mode == SkCanvas::kPoints_PointMode) {
-        float radius = 0.5f * paint.getStrokeWidth();
-        for (size_t i = 0; i < count; ++i) {
-            SkRect pointRect = SkRect::MakeLTRB(points[i].fX - radius, points[i].fY - radius,
-                                                points[i].fX + radius, points[i].fY + radius);
-            // drawOval/drawRect with a forced fill style
-            if (paint.getStrokeCap() == SkPaint::kRound_Cap) {
-                this->drawGeometry(this->localToDeviceTransform(),
-                                   Geometry(Shape(SkRRect::MakeOval(pointRect))),
-                                   paint, kFillStyle);
-            } else {
-                this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(pointRect)),
-                                   paint, kFillStyle);
-            }
+        // Treat kPoints mode as stroking zero-length path segments, which produce caps so that
+        // both hairlines and round vs. square geometry are handled entirely on the GPU.
+        // TODO: SkCanvas should probably do the butt to square cap correction.
+        if (paint.getStrokeCap() == SkPaint::kButt_Cap) {
+            stroke.setStrokeParams(SkPaint::kSquare_Cap,
+                                   paint.getStrokeJoin(),
+                                   paint.getStrokeMiter());
         }
     } else {
-        // Force the style to be a stroke, using the radius and cap from the paint
-        SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
-        size_t inc = (mode == SkCanvas::kLines_PointMode) ? 2 : 1;
-        for (size_t i = 0; i < count-1; i += inc) {
-            this->drawGeometry(this->localToDeviceTransform(),
-                               Geometry(Shape(points[i], points[i + 1])),
-                               paint, stroke);
-        }
+        next = 1;
+        count--;
+    }
+
+    size_t inc = mode == SkCanvas::kLines_PointMode ? 2 : 1;
+    for (size_t i = 0; i < count; i += inc) {
+        this->drawGeometry(this->localToDeviceTransform(),
+                           Geometry(Shape(points[i], points[i + next])),
+                           paint, stroke);
     }
 }
 

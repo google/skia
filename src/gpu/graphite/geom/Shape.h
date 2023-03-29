@@ -101,6 +101,7 @@ public:
     // based on what was last set.
     skvx::float2   p0()    const { SkASSERT(this->isLine());  return fRect.topLeft();  }
     skvx::float2   p1()    const { SkASSERT(this->isLine());  return fRect.botRight(); }
+    skvx::float4   line()  const { SkASSERT(this->isLine());  return fRect.ltrb();     }
     const Rect&    rect()  const { SkASSERT(this->isRect());  return fRect;            }
     const SkRRect& rrect() const { SkASSERT(this->isRRect()); return fRRect;           }
     const SkPath&  path()  const { SkASSERT(this->isPath());  return fPath;            }

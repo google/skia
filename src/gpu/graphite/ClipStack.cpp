@@ -1124,7 +1124,7 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
         // or horizontal line (making it non-empty), or it's a zero-length path segment that
         // must produce round or square caps (making it non-empty):
         //     https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes
-        if (any(origSize == 0.f)) {
+        if (styledShape->isLine() || any(origSize == 0.f)) {
             if (style.isFillStyle() ||
                 (style.getCap() == SkPaint::kButt_Cap && all(origSize == 0.f))) {
                 return kClippedOut;

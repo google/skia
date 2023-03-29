@@ -15,6 +15,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -39,7 +40,17 @@ constexpr int kPad = 5;      // padding on both sides of the snowflake
 constexpr int kNumSpokes = 6;
 constexpr SkScalar kStrokeWidth = 5.0f;
 
-static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, const SkPaint& paint) {
+static void draw_line(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1,
+                      const SkPaint& paint, bool useDrawPath) {
+    if (useDrawPath) {
+        canvas->drawPath(SkPath::Line(p0, p1), paint);
+    } else {
+        canvas->drawLine(p0, p1, paint);
+    }
+}
+
+static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, const SkPaint& paint,
+                      bool useDrawPath) {
     SkScalar cos, sin;
 
     // first fin
@@ -48,10 +59,7 @@ static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, cons
     sin *= kRadius / 2.0f;
     cos *= kRadius / 2.0f;
 
-    SkPath p;
-    p.moveTo(offset.fX, offset.fY);
-    p.lineTo(offset.fX + cos, offset.fY + sin);
-    canvas->drawPath(p, paint);
+    draw_line(canvas, offset, offset + SkPoint{cos, sin}, paint, useDrawPath);
 
     // second fin
     sin = SkScalarSin(angle - (SK_ScalarPI/4));
@@ -59,14 +67,11 @@ static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, cons
     sin *= kRadius / 2.0f;
     cos *= kRadius / 2.0f;
 
-    p.reset();
-    p.moveTo(offset.fX, offset.fY);
-    p.lineTo(offset.fX + cos, offset.fY + sin);
-    canvas->drawPath(p, paint);
+    draw_line(canvas, offset, offset + SkPoint{cos, sin}, paint, useDrawPath);
 }
 
 // draw a snowflake centered at the origin
-static void draw_snowflake(SkCanvas* canvas, const SkPaint& paint) {
+static void draw_snowflake(SkCanvas* canvas, const SkPaint& paint, bool useDrawPath) {
 
     canvas->clipRect(SkRect::MakeLTRB(-kRadius-kPad, -kRadius-kPad, kRadius+kPad, kRadius+kPad));
 
@@ -78,22 +83,20 @@ static void draw_snowflake(SkCanvas* canvas, const SkPaint& paint) {
         cos *= kRadius;
 
         // main spoke
-        SkPath p;
-        p.moveTo(-cos, -sin);
-        p.lineTo(cos, sin);
-        canvas->drawPath(p, paint);
+        draw_line(canvas, {-cos, -sin}, {cos, sin}, paint, useDrawPath);
 
         // fins on positive side
         const SkPoint posOffset = SkPoint::Make(0.5f * cos, 0.5f * sin);
-        draw_fins(canvas, posOffset, angle, paint);
+        draw_fins(canvas, posOffset, angle, paint, useDrawPath);
 
         // fins on negative side
         const SkPoint negOffset = SkPoint::Make(-0.5f * cos, -0.5f * sin);
-        draw_fins(canvas, negOffset, angle+SK_ScalarPI, paint);
+        draw_fins(canvas, negOffset, angle+SK_ScalarPI, paint, useDrawPath);
     }
 }
 
-static void draw_row(SkCanvas* canvas, const SkPaint& paint, const SkMatrix& localMatrix) {
+static void draw_row(SkCanvas* canvas, const SkPaint& paint, const SkMatrix& localMatrix,
+                     bool useDrawPath) {
     canvas->translate(kRadius+kPad, 0.0f);
 
     for (auto cap : { SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap }) {
@@ -106,7 +109,7 @@ static void draw_row(SkCanvas* canvas, const SkPaint& paint, const SkMatrix& loc
 
             int saveCount = canvas->save();
             canvas->concat(localMatrix);
-            draw_snowflake(canvas, tmp);
+            draw_snowflake(canvas, tmp, useDrawPath);
             canvas->restoreToCount(saveCount);
 
             canvas->translate(2*(kRadius+kPad), 0.0f);
@@ -120,11 +123,18 @@ namespace skiagm {
 // Various shaders are applied to ensure the coordinate spaces work out right.
 class StrokedLinesGM : public GM {
 public:
-    StrokedLinesGM() { this->setBGColor(ToolUtils::color_to_565(0xFF1A65D7)); }
+    StrokedLinesGM(bool useDrawPath) : fUseDrawPath(useDrawPath) {
+        this->setBGColor(ToolUtils::color_to_565(0xFF1A65D7));
+    }
 
 protected:
     SkString onShortName() override {
-        return SkString("strokedlines");
+        // To preserve history, useDrawPath==true has no suffix.
+        SkString name{"strokedlines"};
+        if (!fUseDrawPath) {
+            name.append("_drawPoints");
+        }
+        return name;
     }
 
     SkISize onISize() override {
@@ -216,7 +226,7 @@ protected:
 
         for (int i = 0; i < fPaints.size(); ++i) {
             int saveCount = canvas->save();
-            draw_row(canvas, fPaints[i], SkMatrix::I());
+            draw_row(canvas, fPaints[i], SkMatrix::I(), fUseDrawPath);
             canvas->restoreToCount(saveCount);
 
             canvas->translate(0, 2*(kRadius+kPad));
@@ -224,7 +234,7 @@ protected:
 
         for (int i = 0; i < fMatrices.size(); ++i) {
             int saveCount = canvas->save();
-            draw_row(canvas, fPaints[0], fMatrices[i]);
+            draw_row(canvas, fPaints[0], fMatrices[i], fUseDrawPath);
             canvas->restoreToCount(saveCount);
 
             canvas->translate(0, 2*(kRadius+kPad));
@@ -235,10 +245,90 @@ private:
     TArray<SkPaint> fPaints;
     TArray<SkMatrix> fMatrices;
 
+    const bool fUseDrawPath;
+
     using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new StrokedLinesGM;)
+DEF_GM(return new StrokedLinesGM(true);)
+DEF_GM(return new StrokedLinesGM(false);)
+
+//////////////////////////////////////////////////////////////////////////////
+
+static constexpr float kStrokeWidth = 20.f;
+
+static void draw_path(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, SkPaint::Cap cap) {
+    // Add a gradient *not* aligned with the line's points to show local coords are tracked properly
+    constexpr SkRect kRect {-kStrokeWidth, -kStrokeWidth, 2*kStrokeWidth, 4*kStrokeWidth};
+    constexpr SkPoint kPts[] {{kRect.fLeft, kRect.fTop}, {kRect.fRight, kRect.fBottom}};
+    constexpr SkColor kColors[] {SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE};
+    constexpr SkScalar kStops[] {0.f, 0.75f, 1.f};
+    sk_sp<SkShader> shader = SkGradientShader::MakeLinear(kPts, kColors, kStops, 3,
+                                                          SkTileMode::kClamp);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    paint.setShader(std::move(shader));
+    paint.setStrokeWidth(kStrokeWidth);
+    paint.setStrokeCap(cap);
+    canvas->drawLine(p0, p1, paint);
+
+    // Show outline and control points
+    SkPath fillPath;
+    SkPath path = SkPath::Line(p0, p1);
+    skpathutils::FillPathWithPaint(path, paint, &fillPath);
+
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(0);
+    paint.setShader(nullptr);
+    paint.setColor(SK_ColorRED);
+    canvas->drawPath(fillPath, paint);
+
+    paint.setStrokeWidth(3);
+    paint.setStrokeCap(SkPaint::kSquare_Cap);
+    int n = fillPath.countPoints();
+    AutoTArray<SkPoint> points(n);
+    fillPath.getPoints(points.get(), n);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
+}
+
+DEF_SIMPLE_GM(strokedline_caps, canvas, 1400, 740) {
+    canvas->translate(kStrokeWidth*3/2, kStrokeWidth*3/2);
+
+    constexpr SkPaint::Cap kCaps[] = {
+        SkPaint::kSquare_Cap, SkPaint::kButt_Cap, SkPaint::kRound_Cap
+    };
+
+    constexpr float kLengths[] = {
+        4*kStrokeWidth, kStrokeWidth, kStrokeWidth/2, kStrokeWidth/4
+    };
+
+    for (size_t i = 0; i < std::size(kCaps); ++i) {
+        SkAutoCanvasRestore acr(canvas, true);
+
+        auto drawLine = [&](float x0, float y0, float x1, float y1) {
+            draw_path(canvas, {x0, y0}, {x1, y1}, kCaps[i]);
+            canvas->translate(std::max(x0, x1) + 2 * kStrokeWidth, 0);
+        };
+
+        for (size_t j = 0; j < std::size(kLengths); ++j) {
+            float l = kLengths[j];
+
+            drawLine(0.f, 0.f, l, l);
+            drawLine(l, l, 0.f, 0.f);
+            drawLine(l/2, 0, l/2, l);
+            drawLine(0, l/2, l, l/2);
+        }
+
+        drawLine(kStrokeWidth/2, kStrokeWidth/2, kStrokeWidth/2, kStrokeWidth/2);
+
+        acr.restore();
+        canvas->translate(0, kLengths[0] + 2 * kStrokeWidth);
+    }
+}
+
 }  // namespace skiagm
