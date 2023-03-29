@@ -36,22 +36,6 @@
 
 static constexpr char kUnitTestReportPath[] = "unit_tests.txt";
 
-// Kind of like Python's readlines(), but without any allocation.
-// Calls `lineFn` on each line.
-static void read_lines(const void* data,
-                       size_t size,
-                       const std::function<void(std::string_view)>& lineFn) {
-    const char* start = (const char*)data;
-    const char* end = start + size;
-    const char* ptr = start;
-    while (ptr < end) {
-        while (*ptr++ != '\n' && ptr < end) {}
-        size_t len = ptr - start;
-        lineFn(std::string_view(start, len));
-        start = ptr;
-    }
-}
-
 // Returns a list of every unit test to be run.
 static std::vector<SkQP::UnitTest> get_unit_tests(int enforcedAndroidAPILevel) {
     std::vector<SkQP::UnitTest> unitTests;
