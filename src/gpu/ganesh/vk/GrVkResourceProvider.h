@@ -59,7 +59,7 @@ public:
                                            VkPipelineLayout layout,
                                            uint32_t subpass);
 
-    GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle)
 
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
     using LoadFromResolve = GrVkRenderPass::LoadFromResolve;

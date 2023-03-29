@@ -43,7 +43,7 @@ public:
 
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
 
-    GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle)
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of GrShaderFlag values indicating from which shaders the uniform
