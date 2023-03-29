@@ -26,7 +26,7 @@ bool valid_client_provided_image(const SkImage* clientProvided,
 
     uint32_t origChannels = SkColorTypeChannelFlags(original->colorType());
     uint32_t clientChannels = SkColorTypeChannelFlags(clientProvided->colorType());
-    if (origChannels != clientChannels) {
+    if ((origChannels & clientChannels) != origChannels) {
         return false;
     }
 

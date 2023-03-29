@@ -101,7 +101,7 @@ protected:
 
         SkRect r = { 0, 0, SkIntToScalar(size*2), SkIntToScalar(size*2) };
 
-        const char* gColorTypeNames[] = { "8888" , "565", "4444" };
+        const char* gColorTypeNames[] = { "8888", "565" };
 
         const char* gFilterNames[] = { "Nearest", "Linear", "Trilinear", "Mitchell", "Aniso" };
 
