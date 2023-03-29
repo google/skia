@@ -478,7 +478,10 @@ protected:
 #if defined(SK_BUILD_FOR_IOS)
         if (familyName == NULL && SkUnicode::isEmoji(character)) {
             SkUniqueCFRef<CTFontRef> ret(CTFontCreateWithName(CFSTR("AppleColorEmoji"), 16, NULL));
-            return SkTypeface_Mac::Make(std::move(ret), OpszVariation(), nullptr).release();
+            if (ret && string) {
+                string.reset();
+                return SkTypeface_Mac::Make(std::move(ret), OpszVariation(), nullptr).release();
+            }
         }
 #endif
         CFRange range = CFRangeMake(0, CFStringGetLength(string.get()));  // in UniChar units.
