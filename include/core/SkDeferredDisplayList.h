@@ -53,7 +53,7 @@ public:
 
     private:
         GrDirectContext*                                 fDContext;
-        const SkTArray<GrRecordingContext::ProgramData>& fProgramData;
+        const skia_private::TArray<GrRecordingContext::ProgramData>& fProgramData;
         int                                              fIndex;
     };
 #endif
@@ -89,7 +89,7 @@ private:
                                  sk_sp<LazyProxyData>);
 
 #if defined(SK_GANESH)
-    const SkTArray<GrRecordingContext::ProgramData>& programData() const {
+    const skia_private::TArray<GrRecordingContext::ProgramData>& programData() const {
         return fProgramData;
     }
 #endif
@@ -100,9 +100,9 @@ private:
     // These are ordered such that the destructor cleans op tasks up first (which may refer back
     // to the arena and memory pool in their destructors).
     GrRecordingContext::OwnedArenas fArenas;
-    SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
+    skia_private::TArray<sk_sp<GrRenderTask>>   fRenderTasks;
 
-    SkTArray<GrRecordingContext::ProgramData> fProgramData;
+    skia_private::TArray<GrRecordingContext::ProgramData> fProgramData;
     sk_sp<GrRenderTargetProxy>      fTargetProxy;
     sk_sp<LazyProxyData>            fLazyProxyData;
 #endif

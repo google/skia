@@ -93,7 +93,7 @@ private:
      *  typefaces with that data id. By storing the index next to the typeface,
      *  this data cache also acts as a typeface cache.
      */
-    mutable SkTArray<DataEntry> fDataCache;
+    mutable skia_private::TArray<DataEntry> fDataCache;
     mutable SkMutex fDataCacheMutex;
 
     friend class SkStyleSet_Indirect;

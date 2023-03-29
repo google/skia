@@ -129,7 +129,7 @@ public:
      */
     DSLExpression operator[](DSLExpression index);
 
-    DSLExpression operator()(SkTArray<DSLExpression, true> args, Position pos = {});
+    DSLExpression operator()(skia_private::TArray<DSLExpression, true> args, Position pos = {});
 
     DSLExpression operator()(ExpressionArray args, Position pos = {});
 

@@ -33,8 +33,9 @@ public:
     DSLBlock(SkSL::StatementArray statements, std::shared_ptr<SymbolTable> symbols = nullptr,
             Position pos = {});
 
-    DSLBlock(SkTArray<DSLStatement> statements, std::shared_ptr<SymbolTable> symbols = nullptr,
-            Position pos = {});
+    DSLBlock(skia_private::TArray<DSLStatement> statements,
+             std::shared_ptr<SymbolTable> symbols = nullptr,
+             Position pos = {});
 
     DSLBlock(DSLBlock&& other) = default;
     DSLBlock& operator=(DSLBlock&& other) = default;

@@ -30,7 +30,7 @@ public:
         ((void)fStatements.push_back(DSLStatement(std::move(statements)).release()), ...);
     }
 
-    DSLCase(DSLExpression value, SkTArray<DSLStatement> statements,
+    DSLCase(DSLExpression value, skia_private::TArray<DSLStatement> statements,
             Position pos = {});
 
     DSLCase(DSLExpression value, SkSL::StatementArray statements,

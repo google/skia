@@ -101,7 +101,7 @@ DSLStatement Declare(DSLVar& var, Position pos = {});
 /**
  * Creates a local variable declaration statement containing multiple variables.
  */
-DSLStatement Declare(SkTArray<DSLVar>& vars, Position pos = {});
+DSLStatement Declare(skia_private::TArray<DSLVar>& vars, Position pos = {});
 
 /**
  * Declares a global variable.
@@ -111,7 +111,7 @@ void Declare(DSLGlobalVar& var, Position pos = {});
 /**
  * Declares a set of global variables.
  */
-void Declare(SkTArray<DSLGlobalVar>& vars, Position pos = {});
+void Declare(skia_private::TArray<DSLGlobalVar>& vars, Position pos = {});
 
 /**
  * default: statements
@@ -144,7 +144,7 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = 
                 Position pos = {});
 
 DSLExpression InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
-                             SkTArray<DSLField> fields, std::string_view varName = "",
+                             skia_private::TArray<DSLField> fields, std::string_view varName = "",
                              int arraySize = 0, Position pos = {});
 
 /**
@@ -160,14 +160,14 @@ DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifF
                      Position  = {});
 
 // Internal use only
-DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos = {});
+DSLStatement Switch(DSLExpression value, skia_private::TArray<DSLCase> cases, Position pos = {});
 
 /**
  * switch (value) { cases }
  */
 template<class... Cases>
 DSLStatement Switch(DSLExpression value, Cases... cases) {
-    SkTArray<DSLCase> caseArray;
+    skia_private::TArray<DSLCase> caseArray;
     caseArray.reserve_back(sizeof...(cases));
     (caseArray.push_back(std::move(cases)), ...);
     return Switch(std::move(value), std::move(caseArray), Position{});

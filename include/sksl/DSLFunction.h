@@ -38,7 +38,7 @@ public:
     template<class... Parameters>
     DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, std::string_view name,
                 Parameters&... parameters) {
-        SkTArray<DSLParameter*> parameterArray;
+        skia_private::TArray<DSLParameter*> parameterArray;
         parameterArray.reserve_back(sizeof...(parameters));
         (parameterArray.push_back(&parameters), ...);
 

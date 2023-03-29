@@ -199,7 +199,7 @@ private:
     std::unique_ptr<SkCanvas> fTargetProxyCanvas;
     std::unique_ptr<Recording::LazyProxyData> fTargetProxyData;
 
-    SkTArray<sk_sp<RefCntedCallback>> fFinishedProcs;
+    skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 
 #if GRAPHITE_TEST_UTILS
     // For testing use only -- the Context used to create this Recorder
