@@ -91,7 +91,7 @@
    91. cmpeq_float                    $1 = equal($1, $2)
    92. zero_slot_unmasked             $19 = 0
    93. merge_condition_mask           CondMask = $0 & $1
-   94. branch_if_no_lanes_active      branch_if_no_lanes_active +62 (label 9 at #156)
+   94. branch_if_no_lanes_active      branch_if_no_lanes_active +65 (label 9 at #159)
    95. copy_slot_unmasked             five₂ = five
    96. trace_var                      TraceVar(five₂) when $28 is true
    97. trace_enter                    TraceEnter(float continue_loop(float five)) when $28 is true
@@ -147,439 +147,468 @@
   147. trace_scope                    TraceScope(-1) when $28 is true
   148. trace_line                     TraceLine(22) when $28 is true
   149. copy_slot_unmasked             $20 = sum
-  150. trace_scope                    TraceScope(-1) when $28 is true
-  151. trace_exit                     TraceExit(float continue_loop(float five)) when $28 is true
-  152. label                          label 0x0000000E
-  153. copy_constant                  $21 = 0x420C0000 (35.0)
-  154. cmpeq_float                    $20 = equal($20, $21)
-  155. copy_slot_masked               $19 = Mask($20)
-  156. label                          label 0x00000009
-  157. load_condition_mask            CondMask = $0
-  158. zero_slot_unmasked             $73 = 0
-  159. merge_condition_mask           CondMask = $18 & $19
-  160. branch_if_no_lanes_active      branch_if_no_lanes_active +63 (label 8 at #223)
-  161. copy_slot_unmasked             five₃ = five
-  162. trace_var                      TraceVar(five₃) when $28 is true
-  163. trace_enter                    TraceEnter(float break_loop(float five)) when $28 is true
-  164. trace_scope                    TraceScope(+1) when $28 is true
-  165. trace_line                     TraceLine(27) when $28 is true
-  166. zero_slot_unmasked             sum₁ = 0
-  167. trace_var                      TraceVar(sum₁) when $28 is true
-  168. trace_line                     TraceLine(28) when $28 is true
-  169. copy_constant                  kOne = 0x3F800000 (1.0)
-  170. trace_var                      TraceVar(kOne) when $28 is true
-  171. trace_line                     TraceLine(29) when $28 is true
-  172. trace_scope                    TraceScope(+1) when $28 is true
-  173. trace_line                     TraceLine(29) when $28 is true
-  174. zero_slot_unmasked             i₂ = 0
-  175. trace_var                      TraceVar(i₂) when $28 is true
-  176. store_loop_mask                $74 = LoopMask
-  177. jump                           jump +28 (label 20 at #205)
-  178. label                          label 0x00000015
-  179. trace_scope                    TraceScope(+1) when $28 is true
-  180. trace_line                     TraceLine(30) when $28 is true
-  181. store_condition_mask           $75 = CondMask
-  182. copy_slot_unmasked             $76 = five₃
-  183. copy_slot_unmasked             $77 = i₂
-  184. cmplt_float                    $76 = lessThan($76, $77)
-  185. merge_condition_mask           CondMask = $75 & $76
-  186. trace_scope                    TraceScope(+1) when $28 is true
-  187. trace_line                     TraceLine(30) when $28 is true
-  188. branch_if_all_lanes_active     branch_if_all_lanes_active +24 (label 19 at #212)
-  189. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-  190. trace_scope                    TraceScope(-1) when $28 is true
-  191. load_condition_mask            CondMask = $75
-  192. trace_line                     TraceLine(31) when $28 is true
-  193. copy_slot_unmasked             $75 = sum₁
-  194. copy_slot_unmasked             $76 = i₂
-  195. add_float                      $75 += $76
-  196. copy_slot_masked               sum₁ = Mask($75)
-  197. trace_var                      TraceVar(sum₁) when $28 is true
-  198. trace_scope                    TraceScope(-1) when $28 is true
-  199. trace_line                     TraceLine(29) when $28 is true
-  200. copy_slot_unmasked             $75 = i₂
-  201. copy_slot_unmasked             $76 = kOne
-  202. add_float                      $75 += $76
-  203. copy_slot_masked               i₂ = Mask($75)
-  204. trace_var                      TraceVar(i₂) when $28 is true
-  205. label                          label 0x00000014
-  206. copy_slot_unmasked             $75 = i₂
-  207. copy_constant                  $76 = 0x41200000 (10.0)
-  208. cmplt_float                    $75 = lessThan($75, $76)
-  209. merge_loop_mask                LoopMask &= $75
-  210. stack_rewind
-  211. branch_if_any_lanes_active     branch_if_any_lanes_active -33 (label 21 at #178)
-  212. label                          label 0x00000013
-  213. load_loop_mask                 LoopMask = $74
-  214. trace_scope                    TraceScope(-1) when $28 is true
-  215. trace_line                     TraceLine(33) when $28 is true
-  216. copy_slot_unmasked             $74 = sum₁
+  150. copy_slot_masked               [continue_loop].result = Mask($20)
+  151. trace_var                      TraceVar([continue_loop].result) when $28 is true
+  152. trace_scope                    TraceScope(-1) when $28 is true
+  153. trace_exit                     TraceExit(float continue_loop(float five)) when $28 is true
+  154. copy_slot_unmasked             $20 = [continue_loop].result
+  155. label                          label 0x0000000E
+  156. copy_constant                  $21 = 0x420C0000 (35.0)
+  157. cmpeq_float                    $20 = equal($20, $21)
+  158. copy_slot_masked               $19 = Mask($20)
+  159. label                          label 0x00000009
+  160. load_condition_mask            CondMask = $0
+  161. zero_slot_unmasked             $73 = 0
+  162. merge_condition_mask           CondMask = $18 & $19
+  163. branch_if_no_lanes_active      branch_if_no_lanes_active +66 (label 8 at #229)
+  164. copy_slot_unmasked             five₃ = five
+  165. trace_var                      TraceVar(five₃) when $28 is true
+  166. trace_enter                    TraceEnter(float break_loop(float five)) when $28 is true
+  167. trace_scope                    TraceScope(+1) when $28 is true
+  168. trace_line                     TraceLine(27) when $28 is true
+  169. zero_slot_unmasked             sum₁ = 0
+  170. trace_var                      TraceVar(sum₁) when $28 is true
+  171. trace_line                     TraceLine(28) when $28 is true
+  172. copy_constant                  kOne = 0x3F800000 (1.0)
+  173. trace_var                      TraceVar(kOne) when $28 is true
+  174. trace_line                     TraceLine(29) when $28 is true
+  175. trace_scope                    TraceScope(+1) when $28 is true
+  176. trace_line                     TraceLine(29) when $28 is true
+  177. zero_slot_unmasked             i₂ = 0
+  178. trace_var                      TraceVar(i₂) when $28 is true
+  179. store_loop_mask                $74 = LoopMask
+  180. jump                           jump +28 (label 20 at #208)
+  181. label                          label 0x00000015
+  182. trace_scope                    TraceScope(+1) when $28 is true
+  183. trace_line                     TraceLine(30) when $28 is true
+  184. store_condition_mask           $75 = CondMask
+  185. copy_slot_unmasked             $76 = five₃
+  186. copy_slot_unmasked             $77 = i₂
+  187. cmplt_float                    $76 = lessThan($76, $77)
+  188. merge_condition_mask           CondMask = $75 & $76
+  189. trace_scope                    TraceScope(+1) when $28 is true
+  190. trace_line                     TraceLine(30) when $28 is true
+  191. branch_if_all_lanes_active     branch_if_all_lanes_active +24 (label 19 at #215)
+  192. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+  193. trace_scope                    TraceScope(-1) when $28 is true
+  194. load_condition_mask            CondMask = $75
+  195. trace_line                     TraceLine(31) when $28 is true
+  196. copy_slot_unmasked             $75 = sum₁
+  197. copy_slot_unmasked             $76 = i₂
+  198. add_float                      $75 += $76
+  199. copy_slot_masked               sum₁ = Mask($75)
+  200. trace_var                      TraceVar(sum₁) when $28 is true
+  201. trace_scope                    TraceScope(-1) when $28 is true
+  202. trace_line                     TraceLine(29) when $28 is true
+  203. copy_slot_unmasked             $75 = i₂
+  204. copy_slot_unmasked             $76 = kOne
+  205. add_float                      $75 += $76
+  206. copy_slot_masked               i₂ = Mask($75)
+  207. trace_var                      TraceVar(i₂) when $28 is true
+  208. label                          label 0x00000014
+  209. copy_slot_unmasked             $75 = i₂
+  210. copy_constant                  $76 = 0x41200000 (10.0)
+  211. cmplt_float                    $75 = lessThan($75, $76)
+  212. merge_loop_mask                LoopMask &= $75
+  213. stack_rewind
+  214. branch_if_any_lanes_active     branch_if_any_lanes_active -33 (label 21 at #181)
+  215. label                          label 0x00000013
+  216. load_loop_mask                 LoopMask = $74
   217. trace_scope                    TraceScope(-1) when $28 is true
-  218. trace_exit                     TraceExit(float break_loop(float five)) when $28 is true
-  219. label                          label 0x00000012
-  220. copy_constant                  $75 = 0x41700000 (15.0)
-  221. cmpeq_float                    $74 = equal($74, $75)
-  222. copy_slot_masked               $73 = Mask($74)
-  223. label                          label 0x00000008
-  224. load_condition_mask            CondMask = $18
-  225. zero_slot_unmasked             $25 = 0
-  226. merge_condition_mask           CondMask = $72 & $73
-  227. branch_if_no_lanes_active      branch_if_no_lanes_active +44 (label 7 at #271)
-  228. trace_enter                    TraceEnter(float float_loop()) when $28 is true
-  229. trace_scope                    TraceScope(+1) when $28 is true
-  230. trace_line                     TraceLine(38) when $28 is true
-  231. zero_slot_unmasked             sum₂ = 0
-  232. trace_var                      TraceVar(sum₂) when $28 is true
-  233. trace_line                     TraceLine(39) when $28 is true
-  234. trace_scope                    TraceScope(+1) when $28 is true
-  235. branch_if_no_lanes_active      branch_if_no_lanes_active +23 (label 23 at #258)
-  236. trace_line                     TraceLine(39) when $28 is true
-  237. copy_constant                  i₃ = 0x3DFBE76D (0.123)
-  238. trace_var                      TraceVar(i₃) when $28 is true
-  239. label                          label 0x00000018
+  218. trace_line                     TraceLine(33) when $28 is true
+  219. copy_slot_unmasked             $74 = sum₁
+  220. copy_slot_masked               [break_loop].result = Mask($74)
+  221. trace_var                      TraceVar([break_loop].result) when $28 is true
+  222. trace_scope                    TraceScope(-1) when $28 is true
+  223. trace_exit                     TraceExit(float break_loop(float five)) when $28 is true
+  224. copy_slot_unmasked             $74 = [break_loop].result
+  225. label                          label 0x00000012
+  226. copy_constant                  $75 = 0x41700000 (15.0)
+  227. cmpeq_float                    $74 = equal($74, $75)
+  228. copy_slot_masked               $73 = Mask($74)
+  229. label                          label 0x00000008
+  230. load_condition_mask            CondMask = $18
+  231. zero_slot_unmasked             $25 = 0
+  232. merge_condition_mask           CondMask = $72 & $73
+  233. branch_if_no_lanes_active      branch_if_no_lanes_active +47 (label 7 at #280)
+  234. trace_enter                    TraceEnter(float float_loop()) when $28 is true
+  235. trace_scope                    TraceScope(+1) when $28 is true
+  236. trace_line                     TraceLine(38) when $28 is true
+  237. zero_slot_unmasked             sum₂ = 0
+  238. trace_var                      TraceVar(sum₂) when $28 is true
+  239. trace_line                     TraceLine(39) when $28 is true
   240. trace_scope                    TraceScope(+1) when $28 is true
-  241. trace_line                     TraceLine(40) when $28 is true
-  242. copy_2_slots_unmasked          $26..27 = sum₂, i₃
-  243. add_float                      $26 += $27
-  244. copy_slot_masked               sum₂ = Mask($26)
-  245. trace_var                      TraceVar(sum₂) when $28 is true
-  246. trace_scope                    TraceScope(-1) when $28 is true
-  247. trace_line                     TraceLine(39) when $28 is true
-  248. copy_slot_unmasked             $26 = i₃
-  249. copy_constant                  $27 = 0x3DE353F8 (0.111)
-  250. add_float                      $26 += $27
-  251. copy_slot_masked               i₃ = Mask($26)
-  252. trace_var                      TraceVar(i₃) when $28 is true
-  253. copy_slot_unmasked             $26 = i₃
-  254. copy_constant                  $27 = 0x3F19999A (0.6)
-  255. cmplt_float                    $26 = lessThan($26, $27)
-  256. stack_rewind
-  257. branch_if_no_active_lanes_eq   branch -18 (label 24 at #239) if no lanes of $26 == 0x00000000 (0.0)
-  258. label                          label 0x00000017
-  259. trace_scope                    TraceScope(-1) when $28 is true
-  260. trace_line                     TraceLine(42) when $28 is true
-  261. copy_slot_unmasked             $26 = sum₂
-  262. copy_constant                  $27 = 0x3FDCCCCD (1.725)
-  263. sub_float                      $26 -= $27
-  264. trace_scope                    TraceScope(-1) when $28 is true
-  265. trace_exit                     TraceExit(float float_loop()) when $28 is true
-  266. label                          label 0x00000016
-  267. abs_float                      $26 = abs($26)
-  268. copy_constant                  $27 = 0x3CCCCCCD (0.025)
-  269. cmplt_float                    $26 = lessThan($26, $27)
-  270. copy_slot_masked               $25 = Mask($26)
-  271. label                          label 0x00000007
-  272. load_condition_mask            CondMask = $72
-  273. zero_slot_unmasked             $63 = 0
-  274. merge_condition_mask           CondMask = $24 & $25
-  275. branch_if_no_lanes_active      branch_if_no_lanes_active +49 (label 6 at #324)
-  276. trace_enter                    TraceEnter(bool loop_operator_le()) when $28 is true
-  277. trace_scope                    TraceScope(+1) when $28 is true
-  278. trace_line                     TraceLine(47) when $28 is true
-  279. trace_line                     TraceLine(48) when $28 is true
-  280. trace_line                     TraceLine(50) when $28 is true
-  281. copy_constant                  $64 = 0x41100000 (9.0)
-  282. swizzle_4                      $64..67 = ($64..67).xxxx
-  283. copy_4_slots_unmasked          result = $64..67
-  284. trace_var                      TraceVar(result) when $28 is true
-  285. trace_line                     TraceLine(51) when $28 is true
+  241. branch_if_no_lanes_active      branch_if_no_lanes_active +23 (label 23 at #264)
+  242. trace_line                     TraceLine(39) when $28 is true
+  243. copy_constant                  i₃ = 0x3DFBE76D (0.123)
+  244. trace_var                      TraceVar(i₃) when $28 is true
+  245. label                          label 0x00000018
+  246. trace_scope                    TraceScope(+1) when $28 is true
+  247. trace_line                     TraceLine(40) when $28 is true
+  248. copy_2_slots_unmasked          $26..27 = sum₂, i₃
+  249. add_float                      $26 += $27
+  250. copy_slot_masked               sum₂ = Mask($26)
+  251. trace_var                      TraceVar(sum₂) when $28 is true
+  252. trace_scope                    TraceScope(-1) when $28 is true
+  253. trace_line                     TraceLine(39) when $28 is true
+  254. copy_slot_unmasked             $26 = i₃
+  255. copy_constant                  $27 = 0x3DE353F8 (0.111)
+  256. add_float                      $26 += $27
+  257. copy_slot_masked               i₃ = Mask($26)
+  258. trace_var                      TraceVar(i₃) when $28 is true
+  259. copy_slot_unmasked             $26 = i₃
+  260. copy_constant                  $27 = 0x3F19999A (0.6)
+  261. cmplt_float                    $26 = lessThan($26, $27)
+  262. stack_rewind
+  263. branch_if_no_active_lanes_eq   branch -18 (label 24 at #245) if no lanes of $26 == 0x00000000 (0.0)
+  264. label                          label 0x00000017
+  265. trace_scope                    TraceScope(-1) when $28 is true
+  266. trace_line                     TraceLine(42) when $28 is true
+  267. copy_slot_unmasked             $26 = sum₂
+  268. copy_constant                  $27 = 0x3FDCCCCD (1.725)
+  269. sub_float                      $26 -= $27
+  270. copy_slot_masked               [float_loop].result = Mask($26)
+  271. trace_var                      TraceVar([float_loop].result) when $28 is true
+  272. trace_scope                    TraceScope(-1) when $28 is true
+  273. trace_exit                     TraceExit(float float_loop()) when $28 is true
+  274. copy_slot_unmasked             $26 = [float_loop].result
+  275. label                          label 0x00000016
+  276. abs_float                      $26 = abs($26)
+  277. copy_constant                  $27 = 0x3CCCCCCD (0.025)
+  278. cmplt_float                    $26 = lessThan($26, $27)
+  279. copy_slot_masked               $25 = Mask($26)
+  280. label                          label 0x00000007
+  281. load_condition_mask            CondMask = $72
+  282. zero_slot_unmasked             $63 = 0
+  283. merge_condition_mask           CondMask = $24 & $25
+  284. branch_if_no_lanes_active      branch_if_no_lanes_active +52 (label 6 at #336)
+  285. trace_enter                    TraceEnter(bool loop_operator_le()) when $28 is true
   286. trace_scope                    TraceScope(+1) when $28 is true
-  287. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 26 at #309)
-  288. trace_line                     TraceLine(51) when $28 is true
-  289. copy_constant                  i₄ = 0x3F800000 (1.0)
-  290. trace_var                      TraceVar(i₄) when $28 is true
-  291. label                          label 0x0000001B
-  292. trace_scope                    TraceScope(+1) when $28 is true
-  293. trace_line                     TraceLine(52) when $28 is true
-  294. copy_4_slots_unmasked          $64..67 = result(1..3), i₄
-  295. copy_4_slots_masked            result = Mask($64..67)
-  296. trace_var                      TraceVar(result) when $28 is true
-  297. trace_scope                    TraceScope(-1) when $28 is true
-  298. trace_line                     TraceLine(51) when $28 is true
-  299. copy_slot_unmasked             $64 = i₄
-  300. copy_constant                  $65 = 0x3F800000 (1.0)
-  301. add_float                      $64 += $65
-  302. copy_slot_masked               i₄ = Mask($64)
-  303. trace_var                      TraceVar(i₄) when $28 is true
-  304. copy_slot_unmasked             $64 = i₄
-  305. copy_constant                  $65 = 0x40400000 (3.0)
-  306. cmple_float                    $64 = lessThanEqual($64, $65)
-  307. stack_rewind
-  308. branch_if_no_active_lanes_eq   branch -17 (label 27 at #291) if no lanes of $64 == 0x00000000 (0.0)
-  309. label                          label 0x0000001A
-  310. trace_scope                    TraceScope(-1) when $28 is true
-  311. trace_line                     TraceLine(54) when $28 is true
-  312. copy_4_slots_unmasked          $64..67 = result
-  313. copy_constant                  $68 = 0x41100000 (9.0)
-  314. copy_constant                  $69 = 0x3F800000 (1.0)
-  315. copy_constant                  $70 = 0x40000000 (2.0)
-  316. copy_constant                  $71 = 0x40400000 (3.0)
-  317. cmpeq_4_floats                 $64..67 = equal($64..67, $68..71)
-  318. bitwise_and_2_ints             $64..65 &= $66..67
-  319. bitwise_and_int                $64 &= $65
-  320. trace_scope                    TraceScope(-1) when $28 is true
-  321. trace_exit                     TraceExit(bool loop_operator_le()) when $28 is true
-  322. label                          label 0x00000019
-  323. copy_slot_masked               $63 = Mask($64)
-  324. label                          label 0x00000006
-  325. load_condition_mask            CondMask = $24
-  326. zero_slot_unmasked             $79 = 0
-  327. merge_condition_mask           CondMask = $62 & $63
-  328. branch_if_no_lanes_active      branch_if_no_lanes_active +49 (label 5 at #377)
-  329. trace_enter                    TraceEnter(bool loop_operator_lt()) when $28 is true
-  330. trace_scope                    TraceScope(+1) when $28 is true
-  331. trace_line                     TraceLine(59) when $28 is true
-  332. trace_line                     TraceLine(60) when $28 is true
-  333. trace_line                     TraceLine(62) when $28 is true
-  334. copy_constant                  $80 = 0x41100000 (9.0)
-  335. swizzle_4                      $80..83 = ($80..83).xxxx
-  336. copy_4_slots_unmasked          result₁ = $80..83
-  337. trace_var                      TraceVar(result₁) when $28 is true
-  338. trace_line                     TraceLine(63) when $28 is true
-  339. trace_scope                    TraceScope(+1) when $28 is true
-  340. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 29 at #362)
-  341. trace_line                     TraceLine(63) when $28 is true
-  342. copy_constant                  i₅ = 0x3F800000 (1.0)
-  343. trace_var                      TraceVar(i₅) when $28 is true
-  344. label                          label 0x0000001E
-  345. trace_scope                    TraceScope(+1) when $28 is true
-  346. trace_line                     TraceLine(64) when $28 is true
-  347. copy_4_slots_unmasked          $80..83 = result₁(1..3), i₅
-  348. copy_4_slots_masked            result₁ = Mask($80..83)
+  287. trace_line                     TraceLine(47) when $28 is true
+  288. trace_line                     TraceLine(48) when $28 is true
+  289. trace_line                     TraceLine(50) when $28 is true
+  290. copy_constant                  $64 = 0x41100000 (9.0)
+  291. swizzle_4                      $64..67 = ($64..67).xxxx
+  292. copy_4_slots_unmasked          result = $64..67
+  293. trace_var                      TraceVar(result) when $28 is true
+  294. trace_line                     TraceLine(51) when $28 is true
+  295. trace_scope                    TraceScope(+1) when $28 is true
+  296. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 26 at #318)
+  297. trace_line                     TraceLine(51) when $28 is true
+  298. copy_constant                  i₄ = 0x3F800000 (1.0)
+  299. trace_var                      TraceVar(i₄) when $28 is true
+  300. label                          label 0x0000001B
+  301. trace_scope                    TraceScope(+1) when $28 is true
+  302. trace_line                     TraceLine(52) when $28 is true
+  303. copy_4_slots_unmasked          $64..67 = result(1..3), i₄
+  304. copy_4_slots_masked            result = Mask($64..67)
+  305. trace_var                      TraceVar(result) when $28 is true
+  306. trace_scope                    TraceScope(-1) when $28 is true
+  307. trace_line                     TraceLine(51) when $28 is true
+  308. copy_slot_unmasked             $64 = i₄
+  309. copy_constant                  $65 = 0x3F800000 (1.0)
+  310. add_float                      $64 += $65
+  311. copy_slot_masked               i₄ = Mask($64)
+  312. trace_var                      TraceVar(i₄) when $28 is true
+  313. copy_slot_unmasked             $64 = i₄
+  314. copy_constant                  $65 = 0x40400000 (3.0)
+  315. cmple_float                    $64 = lessThanEqual($64, $65)
+  316. stack_rewind
+  317. branch_if_no_active_lanes_eq   branch -17 (label 27 at #300) if no lanes of $64 == 0x00000000 (0.0)
+  318. label                          label 0x0000001A
+  319. trace_scope                    TraceScope(-1) when $28 is true
+  320. trace_line                     TraceLine(54) when $28 is true
+  321. copy_4_slots_unmasked          $64..67 = result
+  322. copy_constant                  $68 = 0x41100000 (9.0)
+  323. copy_constant                  $69 = 0x3F800000 (1.0)
+  324. copy_constant                  $70 = 0x40000000 (2.0)
+  325. copy_constant                  $71 = 0x40400000 (3.0)
+  326. cmpeq_4_floats                 $64..67 = equal($64..67, $68..71)
+  327. bitwise_and_2_ints             $64..65 &= $66..67
+  328. bitwise_and_int                $64 &= $65
+  329. copy_slot_masked               [loop_operator_le].result = Mask($64)
+  330. trace_var                      TraceVar([loop_operator_le].result) when $28 is true
+  331. trace_scope                    TraceScope(-1) when $28 is true
+  332. trace_exit                     TraceExit(bool loop_operator_le()) when $28 is true
+  333. copy_slot_unmasked             $64 = [loop_operator_le].result
+  334. label                          label 0x00000019
+  335. copy_slot_masked               $63 = Mask($64)
+  336. label                          label 0x00000006
+  337. load_condition_mask            CondMask = $24
+  338. zero_slot_unmasked             $79 = 0
+  339. merge_condition_mask           CondMask = $62 & $63
+  340. branch_if_no_lanes_active      branch_if_no_lanes_active +52 (label 5 at #392)
+  341. trace_enter                    TraceEnter(bool loop_operator_lt()) when $28 is true
+  342. trace_scope                    TraceScope(+1) when $28 is true
+  343. trace_line                     TraceLine(59) when $28 is true
+  344. trace_line                     TraceLine(60) when $28 is true
+  345. trace_line                     TraceLine(62) when $28 is true
+  346. copy_constant                  $80 = 0x41100000 (9.0)
+  347. swizzle_4                      $80..83 = ($80..83).xxxx
+  348. copy_4_slots_unmasked          result₁ = $80..83
   349. trace_var                      TraceVar(result₁) when $28 is true
-  350. trace_scope                    TraceScope(-1) when $28 is true
-  351. trace_line                     TraceLine(63) when $28 is true
-  352. copy_slot_unmasked             $80 = i₅
-  353. copy_constant                  $81 = 0x3F800000 (1.0)
-  354. add_float                      $80 += $81
-  355. copy_slot_masked               i₅ = Mask($80)
-  356. trace_var                      TraceVar(i₅) when $28 is true
-  357. copy_slot_unmasked             $80 = i₅
-  358. copy_constant                  $81 = 0x40800000 (4.0)
-  359. cmplt_float                    $80 = lessThan($80, $81)
-  360. stack_rewind
-  361. branch_if_no_active_lanes_eq   branch -17 (label 30 at #344) if no lanes of $80 == 0x00000000 (0.0)
-  362. label                          label 0x0000001D
-  363. trace_scope                    TraceScope(-1) when $28 is true
-  364. trace_line                     TraceLine(66) when $28 is true
-  365. copy_4_slots_unmasked          $80..83 = result₁
-  366. copy_constant                  $84 = 0x41100000 (9.0)
-  367. copy_constant                  $85 = 0x3F800000 (1.0)
-  368. copy_constant                  $86 = 0x40000000 (2.0)
-  369. copy_constant                  $87 = 0x40400000 (3.0)
-  370. cmpeq_4_floats                 $80..83 = equal($80..83, $84..87)
-  371. bitwise_and_2_ints             $80..81 &= $82..83
-  372. bitwise_and_int                $80 &= $81
-  373. trace_scope                    TraceScope(-1) when $28 is true
-  374. trace_exit                     TraceExit(bool loop_operator_lt()) when $28 is true
-  375. label                          label 0x0000001C
-  376. copy_slot_masked               $79 = Mask($80)
-  377. label                          label 0x00000005
-  378. load_condition_mask            CondMask = $62
-  379. zero_slot_unmasked             $33 = 0
-  380. merge_condition_mask           CondMask = $78 & $79
-  381. branch_if_no_lanes_active      branch_if_no_lanes_active +49 (label 4 at #430)
-  382. trace_enter                    TraceEnter(bool loop_operator_ge()) when $28 is true
-  383. trace_scope                    TraceScope(+1) when $28 is true
-  384. trace_line                     TraceLine(71) when $28 is true
-  385. trace_line                     TraceLine(72) when $28 is true
-  386. trace_line                     TraceLine(74) when $28 is true
-  387. copy_constant                  $34 = 0x41100000 (9.0)
-  388. swizzle_4                      $34..37 = ($34..37).xxxx
-  389. copy_4_slots_unmasked          result₂ = $34..37
-  390. trace_var                      TraceVar(result₂) when $28 is true
-  391. trace_line                     TraceLine(75) when $28 is true
-  392. trace_scope                    TraceScope(+1) when $28 is true
-  393. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 32 at #415)
-  394. trace_line                     TraceLine(75) when $28 is true
-  395. copy_constant                  i₆ = 0x40400000 (3.0)
-  396. trace_var                      TraceVar(i₆) when $28 is true
-  397. label                          label 0x00000021
+  350. trace_line                     TraceLine(63) when $28 is true
+  351. trace_scope                    TraceScope(+1) when $28 is true
+  352. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 29 at #374)
+  353. trace_line                     TraceLine(63) when $28 is true
+  354. copy_constant                  i₅ = 0x3F800000 (1.0)
+  355. trace_var                      TraceVar(i₅) when $28 is true
+  356. label                          label 0x0000001E
+  357. trace_scope                    TraceScope(+1) when $28 is true
+  358. trace_line                     TraceLine(64) when $28 is true
+  359. copy_4_slots_unmasked          $80..83 = result₁(1..3), i₅
+  360. copy_4_slots_masked            result₁ = Mask($80..83)
+  361. trace_var                      TraceVar(result₁) when $28 is true
+  362. trace_scope                    TraceScope(-1) when $28 is true
+  363. trace_line                     TraceLine(63) when $28 is true
+  364. copy_slot_unmasked             $80 = i₅
+  365. copy_constant                  $81 = 0x3F800000 (1.0)
+  366. add_float                      $80 += $81
+  367. copy_slot_masked               i₅ = Mask($80)
+  368. trace_var                      TraceVar(i₅) when $28 is true
+  369. copy_slot_unmasked             $80 = i₅
+  370. copy_constant                  $81 = 0x40800000 (4.0)
+  371. cmplt_float                    $80 = lessThan($80, $81)
+  372. stack_rewind
+  373. branch_if_no_active_lanes_eq   branch -17 (label 30 at #356) if no lanes of $80 == 0x00000000 (0.0)
+  374. label                          label 0x0000001D
+  375. trace_scope                    TraceScope(-1) when $28 is true
+  376. trace_line                     TraceLine(66) when $28 is true
+  377. copy_4_slots_unmasked          $80..83 = result₁
+  378. copy_constant                  $84 = 0x41100000 (9.0)
+  379. copy_constant                  $85 = 0x3F800000 (1.0)
+  380. copy_constant                  $86 = 0x40000000 (2.0)
+  381. copy_constant                  $87 = 0x40400000 (3.0)
+  382. cmpeq_4_floats                 $80..83 = equal($80..83, $84..87)
+  383. bitwise_and_2_ints             $80..81 &= $82..83
+  384. bitwise_and_int                $80 &= $81
+  385. copy_slot_masked               [loop_operator_lt].result = Mask($80)
+  386. trace_var                      TraceVar([loop_operator_lt].result) when $28 is true
+  387. trace_scope                    TraceScope(-1) when $28 is true
+  388. trace_exit                     TraceExit(bool loop_operator_lt()) when $28 is true
+  389. copy_slot_unmasked             $80 = [loop_operator_lt].result
+  390. label                          label 0x0000001C
+  391. copy_slot_masked               $79 = Mask($80)
+  392. label                          label 0x00000005
+  393. load_condition_mask            CondMask = $62
+  394. zero_slot_unmasked             $33 = 0
+  395. merge_condition_mask           CondMask = $78 & $79
+  396. branch_if_no_lanes_active      branch_if_no_lanes_active +52 (label 4 at #448)
+  397. trace_enter                    TraceEnter(bool loop_operator_ge()) when $28 is true
   398. trace_scope                    TraceScope(+1) when $28 is true
-  399. trace_line                     TraceLine(76) when $28 is true
-  400. copy_4_slots_unmasked          $34..37 = result₂(1..3), i₆
-  401. copy_4_slots_masked            result₂ = Mask($34..37)
-  402. trace_var                      TraceVar(result₂) when $28 is true
-  403. trace_scope                    TraceScope(-1) when $28 is true
-  404. trace_line                     TraceLine(75) when $28 is true
-  405. copy_slot_unmasked             $34 = i₆
-  406. copy_constant                  $35 = 0x3F800000 (1.0)
-  407. sub_float                      $34 -= $35
-  408. copy_slot_masked               i₆ = Mask($34)
-  409. trace_var                      TraceVar(i₆) when $28 is true
-  410. copy_constant                  $34 = 0x3F800000 (1.0)
-  411. copy_slot_unmasked             $35 = i₆
-  412. cmple_float                    $34 = lessThanEqual($34, $35)
-  413. stack_rewind
-  414. branch_if_no_active_lanes_eq   branch -17 (label 33 at #397) if no lanes of $34 == 0x00000000 (0.0)
-  415. label                          label 0x00000020
-  416. trace_scope                    TraceScope(-1) when $28 is true
-  417. trace_line                     TraceLine(78) when $28 is true
-  418. copy_4_slots_unmasked          $34..37 = result₂
-  419. copy_constant                  $38 = 0x41100000 (9.0)
-  420. copy_constant                  $39 = 0x40400000 (3.0)
-  421. copy_constant                  $40 = 0x40000000 (2.0)
-  422. copy_constant                  $41 = 0x3F800000 (1.0)
-  423. cmpeq_4_floats                 $34..37 = equal($34..37, $38..41)
-  424. bitwise_and_2_ints             $34..35 &= $36..37
-  425. bitwise_and_int                $34 &= $35
-  426. trace_scope                    TraceScope(-1) when $28 is true
-  427. trace_exit                     TraceExit(bool loop_operator_ge()) when $28 is true
-  428. label                          label 0x0000001F
-  429. copy_slot_masked               $33 = Mask($34)
-  430. label                          label 0x00000004
-  431. load_condition_mask            CondMask = $78
-  432. zero_slot_unmasked             $53 = 0
-  433. merge_condition_mask           CondMask = $32 & $33
-  434. branch_if_no_lanes_active      branch_if_no_lanes_active +49 (label 3 at #483)
-  435. trace_enter                    TraceEnter(bool loop_operator_gt()) when $28 is true
-  436. trace_scope                    TraceScope(+1) when $28 is true
-  437. trace_line                     TraceLine(83) when $28 is true
-  438. trace_line                     TraceLine(84) when $28 is true
-  439. trace_line                     TraceLine(86) when $28 is true
-  440. copy_constant                  $54 = 0x41100000 (9.0)
-  441. swizzle_4                      $54..57 = ($54..57).xxxx
-  442. copy_4_slots_unmasked          result₃ = $54..57
-  443. trace_var                      TraceVar(result₃) when $28 is true
-  444. trace_line                     TraceLine(87) when $28 is true
-  445. trace_scope                    TraceScope(+1) when $28 is true
-  446. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 35 at #468)
-  447. trace_line                     TraceLine(87) when $28 is true
-  448. copy_constant                  i₇ = 0x40400000 (3.0)
-  449. trace_var                      TraceVar(i₇) when $28 is true
-  450. label                          label 0x00000024
-  451. trace_scope                    TraceScope(+1) when $28 is true
-  452. trace_line                     TraceLine(88) when $28 is true
-  453. copy_4_slots_unmasked          $54..57 = result₃(1..3), i₇
-  454. copy_4_slots_masked            result₃ = Mask($54..57)
-  455. trace_var                      TraceVar(result₃) when $28 is true
-  456. trace_scope                    TraceScope(-1) when $28 is true
-  457. trace_line                     TraceLine(87) when $28 is true
-  458. copy_slot_unmasked             $54 = i₇
-  459. copy_constant                  $55 = 0x3F800000 (1.0)
-  460. sub_float                      $54 -= $55
-  461. copy_slot_masked               i₇ = Mask($54)
-  462. trace_var                      TraceVar(i₇) when $28 is true
-  463. zero_slot_unmasked             $54 = 0
-  464. copy_slot_unmasked             $55 = i₇
-  465. cmplt_float                    $54 = lessThan($54, $55)
-  466. stack_rewind
-  467. branch_if_no_active_lanes_eq   branch -17 (label 36 at #450) if no lanes of $54 == 0x00000000 (0.0)
-  468. label                          label 0x00000023
-  469. trace_scope                    TraceScope(-1) when $28 is true
-  470. trace_line                     TraceLine(90) when $28 is true
-  471. copy_4_slots_unmasked          $54..57 = result₃
-  472. copy_constant                  $58 = 0x41100000 (9.0)
-  473. copy_constant                  $59 = 0x40400000 (3.0)
-  474. copy_constant                  $60 = 0x40000000 (2.0)
-  475. copy_constant                  $61 = 0x3F800000 (1.0)
-  476. cmpeq_4_floats                 $54..57 = equal($54..57, $58..61)
-  477. bitwise_and_2_ints             $54..55 &= $56..57
-  478. bitwise_and_int                $54 &= $55
-  479. trace_scope                    TraceScope(-1) when $28 is true
-  480. trace_exit                     TraceExit(bool loop_operator_gt()) when $28 is true
-  481. label                          label 0x00000022
-  482. copy_slot_masked               $53 = Mask($54)
-  483. label                          label 0x00000003
-  484. load_condition_mask            CondMask = $32
-  485. zero_slot_unmasked             $43 = 0
-  486. merge_condition_mask           CondMask = $52 & $53
-  487. branch_if_no_lanes_active      branch_if_no_lanes_active +38 (label 2 at #525)
-  488. trace_enter                    TraceEnter(bool loop_operator_eq()) when $28 is true
-  489. trace_scope                    TraceScope(+1) when $28 is true
-  490. trace_line                     TraceLine(106) when $28 is true
-  491. trace_line                     TraceLine(108) when $28 is true
-  492. copy_constant                  $44 = 0x41100000 (9.0)
-  493. swizzle_4                      $44..47 = ($44..47).xxxx
-  494. copy_4_slots_unmasked          result₄ = $44..47
-  495. trace_var                      TraceVar(result₄) when $28 is true
-  496. trace_line                     TraceLine(109) when $28 is true
-  497. trace_scope                    TraceScope(+1) when $28 is true
-  498. branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 38 at #510)
-  499. trace_line                     TraceLine(109) when $28 is true
-  500. copy_constant                  i₈ = 0x3F800000 (1.0)
-  501. trace_var                      TraceVar(i₈) when $28 is true
-  502. label                          label 0x00000027
-  503. trace_scope                    TraceScope(+1) when $28 is true
-  504. trace_line                     TraceLine(110) when $28 is true
-  505. copy_4_slots_unmasked          $44..47 = result₄(1..3), i₈
-  506. copy_4_slots_masked            result₄ = Mask($44..47)
-  507. trace_var                      TraceVar(result₄) when $28 is true
-  508. trace_scope                    TraceScope(-1) when $28 is true
-  509. trace_line                     TraceLine(109) when $28 is true
-  510. label                          label 0x00000026
-  511. trace_scope                    TraceScope(-1) when $28 is true
-  512. trace_line                     TraceLine(112) when $28 is true
-  513. copy_4_slots_unmasked          $44..47 = result₄
-  514. copy_constant                  $48 = 0x41100000 (9.0)
-  515. copy_constant                  $49 = 0x41100000 (9.0)
-  516. copy_constant                  $50 = 0x41100000 (9.0)
-  517. copy_constant                  $51 = 0x3F800000 (1.0)
-  518. cmpeq_4_floats                 $44..47 = equal($44..47, $48..51)
-  519. bitwise_and_2_ints             $44..45 &= $46..47
-  520. bitwise_and_int                $44 &= $45
-  521. trace_scope                    TraceScope(-1) when $28 is true
-  522. trace_exit                     TraceExit(bool loop_operator_eq()) when $28 is true
-  523. label                          label 0x00000025
-  524. copy_slot_masked               $43 = Mask($44)
-  525. label                          label 0x00000002
-  526. load_condition_mask            CondMask = $52
-  527. zero_slot_unmasked             $6 = 0
-  528. merge_condition_mask           CondMask = $42 & $43
-  529. branch_if_no_lanes_active      branch_if_no_lanes_active +48 (label 1 at #577)
-  530. trace_enter                    TraceEnter(bool loop_operator_ne()) when $28 is true
-  531. trace_scope                    TraceScope(+1) when $28 is true
-  532. trace_line                     TraceLine(95) when $28 is true
-  533. trace_line                     TraceLine(97) when $28 is true
-  534. copy_constant                  $7 = 0x41100000 (9.0)
-  535. swizzle_4                      $7..10 = ($7..10).xxxx
-  536. copy_4_slots_unmasked          result₅ = $7..10
-  537. trace_var                      TraceVar(result₅) when $28 is true
-  538. trace_line                     TraceLine(98) when $28 is true
-  539. trace_scope                    TraceScope(+1) when $28 is true
-  540. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 41 at #562)
-  541. trace_line                     TraceLine(98) when $28 is true
-  542. copy_constant                  i₉ = 0x3F800000 (1.0)
-  543. trace_var                      TraceVar(i₉) when $28 is true
-  544. label                          label 0x0000002A
-  545. trace_scope                    TraceScope(+1) when $28 is true
-  546. trace_line                     TraceLine(99) when $28 is true
-  547. copy_4_slots_unmasked          $7..10 = result₅(1..3), i₉
-  548. copy_4_slots_masked            result₅ = Mask($7..10)
-  549. trace_var                      TraceVar(result₅) when $28 is true
-  550. trace_scope                    TraceScope(-1) when $28 is true
-  551. trace_line                     TraceLine(98) when $28 is true
-  552. copy_slot_unmasked             $7 = i₉
-  553. copy_constant                  $8 = 0x3F800000 (1.0)
-  554. add_float                      $7 += $8
-  555. copy_slot_masked               i₉ = Mask($7)
-  556. trace_var                      TraceVar(i₉) when $28 is true
-  557. copy_slot_unmasked             $7 = i₉
-  558. copy_constant                  $8 = 0x40800000 (4.0)
-  559. cmpne_float                    $7 = notEqual($7, $8)
-  560. stack_rewind
-  561. branch_if_no_active_lanes_eq   branch -17 (label 42 at #544) if no lanes of $7 == 0x00000000 (0.0)
-  562. label                          label 0x00000029
-  563. trace_scope                    TraceScope(-1) when $28 is true
-  564. trace_line                     TraceLine(101) when $28 is true
-  565. copy_4_slots_unmasked          $7..10 = result₅
-  566. copy_constant                  $11 = 0x41100000 (9.0)
-  567. copy_constant                  $12 = 0x3F800000 (1.0)
-  568. copy_constant                  $13 = 0x40000000 (2.0)
-  569. copy_constant                  $14 = 0x40400000 (3.0)
-  570. cmpeq_4_floats                 $7..10 = equal($7..10, $11..14)
-  571. bitwise_and_2_ints             $7..8 &= $9..10
-  572. bitwise_and_int                $7 &= $8
-  573. trace_scope                    TraceScope(-1) when $28 is true
-  574. trace_exit                     TraceExit(bool loop_operator_ne()) when $28 is true
-  575. label                          label 0x00000028
-  576. copy_slot_masked               $6 = Mask($7)
-  577. label                          label 0x00000001
-  578. load_condition_mask            CondMask = $42
-  579. swizzle_4                      $6..9 = ($6..9).xxxx
-  580. copy_4_constants               $10..13 = colorRed
-  581. copy_4_constants               $14..17 = colorGreen
-  582. mix_4_ints                     $6..9 = mix($10..13, $14..17, $6..9)
-  583. trace_scope                    TraceScope(-1) when $28 is true
-  584. trace_exit                     TraceExit(half4 main(float2 pos)) when $28 is true
-  585. load_src                       src.rgba = $6..9
+  399. trace_line                     TraceLine(71) when $28 is true
+  400. trace_line                     TraceLine(72) when $28 is true
+  401. trace_line                     TraceLine(74) when $28 is true
+  402. copy_constant                  $34 = 0x41100000 (9.0)
+  403. swizzle_4                      $34..37 = ($34..37).xxxx
+  404. copy_4_slots_unmasked          result₂ = $34..37
+  405. trace_var                      TraceVar(result₂) when $28 is true
+  406. trace_line                     TraceLine(75) when $28 is true
+  407. trace_scope                    TraceScope(+1) when $28 is true
+  408. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 32 at #430)
+  409. trace_line                     TraceLine(75) when $28 is true
+  410. copy_constant                  i₆ = 0x40400000 (3.0)
+  411. trace_var                      TraceVar(i₆) when $28 is true
+  412. label                          label 0x00000021
+  413. trace_scope                    TraceScope(+1) when $28 is true
+  414. trace_line                     TraceLine(76) when $28 is true
+  415. copy_4_slots_unmasked          $34..37 = result₂(1..3), i₆
+  416. copy_4_slots_masked            result₂ = Mask($34..37)
+  417. trace_var                      TraceVar(result₂) when $28 is true
+  418. trace_scope                    TraceScope(-1) when $28 is true
+  419. trace_line                     TraceLine(75) when $28 is true
+  420. copy_slot_unmasked             $34 = i₆
+  421. copy_constant                  $35 = 0x3F800000 (1.0)
+  422. sub_float                      $34 -= $35
+  423. copy_slot_masked               i₆ = Mask($34)
+  424. trace_var                      TraceVar(i₆) when $28 is true
+  425. copy_constant                  $34 = 0x3F800000 (1.0)
+  426. copy_slot_unmasked             $35 = i₆
+  427. cmple_float                    $34 = lessThanEqual($34, $35)
+  428. stack_rewind
+  429. branch_if_no_active_lanes_eq   branch -17 (label 33 at #412) if no lanes of $34 == 0x00000000 (0.0)
+  430. label                          label 0x00000020
+  431. trace_scope                    TraceScope(-1) when $28 is true
+  432. trace_line                     TraceLine(78) when $28 is true
+  433. copy_4_slots_unmasked          $34..37 = result₂
+  434. copy_constant                  $38 = 0x41100000 (9.0)
+  435. copy_constant                  $39 = 0x40400000 (3.0)
+  436. copy_constant                  $40 = 0x40000000 (2.0)
+  437. copy_constant                  $41 = 0x3F800000 (1.0)
+  438. cmpeq_4_floats                 $34..37 = equal($34..37, $38..41)
+  439. bitwise_and_2_ints             $34..35 &= $36..37
+  440. bitwise_and_int                $34 &= $35
+  441. copy_slot_masked               [loop_operator_ge].result = Mask($34)
+  442. trace_var                      TraceVar([loop_operator_ge].result) when $28 is true
+  443. trace_scope                    TraceScope(-1) when $28 is true
+  444. trace_exit                     TraceExit(bool loop_operator_ge()) when $28 is true
+  445. copy_slot_unmasked             $34 = [loop_operator_ge].result
+  446. label                          label 0x0000001F
+  447. copy_slot_masked               $33 = Mask($34)
+  448. label                          label 0x00000004
+  449. load_condition_mask            CondMask = $78
+  450. zero_slot_unmasked             $53 = 0
+  451. merge_condition_mask           CondMask = $32 & $33
+  452. branch_if_no_lanes_active      branch_if_no_lanes_active +52 (label 3 at #504)
+  453. trace_enter                    TraceEnter(bool loop_operator_gt()) when $28 is true
+  454. trace_scope                    TraceScope(+1) when $28 is true
+  455. trace_line                     TraceLine(83) when $28 is true
+  456. trace_line                     TraceLine(84) when $28 is true
+  457. trace_line                     TraceLine(86) when $28 is true
+  458. copy_constant                  $54 = 0x41100000 (9.0)
+  459. swizzle_4                      $54..57 = ($54..57).xxxx
+  460. copy_4_slots_unmasked          result₃ = $54..57
+  461. trace_var                      TraceVar(result₃) when $28 is true
+  462. trace_line                     TraceLine(87) when $28 is true
+  463. trace_scope                    TraceScope(+1) when $28 is true
+  464. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 35 at #486)
+  465. trace_line                     TraceLine(87) when $28 is true
+  466. copy_constant                  i₇ = 0x40400000 (3.0)
+  467. trace_var                      TraceVar(i₇) when $28 is true
+  468. label                          label 0x00000024
+  469. trace_scope                    TraceScope(+1) when $28 is true
+  470. trace_line                     TraceLine(88) when $28 is true
+  471. copy_4_slots_unmasked          $54..57 = result₃(1..3), i₇
+  472. copy_4_slots_masked            result₃ = Mask($54..57)
+  473. trace_var                      TraceVar(result₃) when $28 is true
+  474. trace_scope                    TraceScope(-1) when $28 is true
+  475. trace_line                     TraceLine(87) when $28 is true
+  476. copy_slot_unmasked             $54 = i₇
+  477. copy_constant                  $55 = 0x3F800000 (1.0)
+  478. sub_float                      $54 -= $55
+  479. copy_slot_masked               i₇ = Mask($54)
+  480. trace_var                      TraceVar(i₇) when $28 is true
+  481. zero_slot_unmasked             $54 = 0
+  482. copy_slot_unmasked             $55 = i₇
+  483. cmplt_float                    $54 = lessThan($54, $55)
+  484. stack_rewind
+  485. branch_if_no_active_lanes_eq   branch -17 (label 36 at #468) if no lanes of $54 == 0x00000000 (0.0)
+  486. label                          label 0x00000023
+  487. trace_scope                    TraceScope(-1) when $28 is true
+  488. trace_line                     TraceLine(90) when $28 is true
+  489. copy_4_slots_unmasked          $54..57 = result₃
+  490. copy_constant                  $58 = 0x41100000 (9.0)
+  491. copy_constant                  $59 = 0x40400000 (3.0)
+  492. copy_constant                  $60 = 0x40000000 (2.0)
+  493. copy_constant                  $61 = 0x3F800000 (1.0)
+  494. cmpeq_4_floats                 $54..57 = equal($54..57, $58..61)
+  495. bitwise_and_2_ints             $54..55 &= $56..57
+  496. bitwise_and_int                $54 &= $55
+  497. copy_slot_masked               [loop_operator_gt].result = Mask($54)
+  498. trace_var                      TraceVar([loop_operator_gt].result) when $28 is true
+  499. trace_scope                    TraceScope(-1) when $28 is true
+  500. trace_exit                     TraceExit(bool loop_operator_gt()) when $28 is true
+  501. copy_slot_unmasked             $54 = [loop_operator_gt].result
+  502. label                          label 0x00000022
+  503. copy_slot_masked               $53 = Mask($54)
+  504. label                          label 0x00000003
+  505. load_condition_mask            CondMask = $32
+  506. zero_slot_unmasked             $43 = 0
+  507. merge_condition_mask           CondMask = $52 & $53
+  508. branch_if_no_lanes_active      branch_if_no_lanes_active +41 (label 2 at #549)
+  509. trace_enter                    TraceEnter(bool loop_operator_eq()) when $28 is true
+  510. trace_scope                    TraceScope(+1) when $28 is true
+  511. trace_line                     TraceLine(106) when $28 is true
+  512. trace_line                     TraceLine(108) when $28 is true
+  513. copy_constant                  $44 = 0x41100000 (9.0)
+  514. swizzle_4                      $44..47 = ($44..47).xxxx
+  515. copy_4_slots_unmasked          result₄ = $44..47
+  516. trace_var                      TraceVar(result₄) when $28 is true
+  517. trace_line                     TraceLine(109) when $28 is true
+  518. trace_scope                    TraceScope(+1) when $28 is true
+  519. branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 38 at #531)
+  520. trace_line                     TraceLine(109) when $28 is true
+  521. copy_constant                  i₈ = 0x3F800000 (1.0)
+  522. trace_var                      TraceVar(i₈) when $28 is true
+  523. label                          label 0x00000027
+  524. trace_scope                    TraceScope(+1) when $28 is true
+  525. trace_line                     TraceLine(110) when $28 is true
+  526. copy_4_slots_unmasked          $44..47 = result₄(1..3), i₈
+  527. copy_4_slots_masked            result₄ = Mask($44..47)
+  528. trace_var                      TraceVar(result₄) when $28 is true
+  529. trace_scope                    TraceScope(-1) when $28 is true
+  530. trace_line                     TraceLine(109) when $28 is true
+  531. label                          label 0x00000026
+  532. trace_scope                    TraceScope(-1) when $28 is true
+  533. trace_line                     TraceLine(112) when $28 is true
+  534. copy_4_slots_unmasked          $44..47 = result₄
+  535. copy_constant                  $48 = 0x41100000 (9.0)
+  536. copy_constant                  $49 = 0x41100000 (9.0)
+  537. copy_constant                  $50 = 0x41100000 (9.0)
+  538. copy_constant                  $51 = 0x3F800000 (1.0)
+  539. cmpeq_4_floats                 $44..47 = equal($44..47, $48..51)
+  540. bitwise_and_2_ints             $44..45 &= $46..47
+  541. bitwise_and_int                $44 &= $45
+  542. copy_slot_masked               [loop_operator_eq].result = Mask($44)
+  543. trace_var                      TraceVar([loop_operator_eq].result) when $28 is true
+  544. trace_scope                    TraceScope(-1) when $28 is true
+  545. trace_exit                     TraceExit(bool loop_operator_eq()) when $28 is true
+  546. copy_slot_unmasked             $44 = [loop_operator_eq].result
+  547. label                          label 0x00000025
+  548. copy_slot_masked               $43 = Mask($44)
+  549. label                          label 0x00000002
+  550. load_condition_mask            CondMask = $52
+  551. zero_slot_unmasked             $6 = 0
+  552. merge_condition_mask           CondMask = $42 & $43
+  553. branch_if_no_lanes_active      branch_if_no_lanes_active +51 (label 1 at #604)
+  554. trace_enter                    TraceEnter(bool loop_operator_ne()) when $28 is true
+  555. trace_scope                    TraceScope(+1) when $28 is true
+  556. trace_line                     TraceLine(95) when $28 is true
+  557. trace_line                     TraceLine(97) when $28 is true
+  558. copy_constant                  $7 = 0x41100000 (9.0)
+  559. swizzle_4                      $7..10 = ($7..10).xxxx
+  560. copy_4_slots_unmasked          result₅ = $7..10
+  561. trace_var                      TraceVar(result₅) when $28 is true
+  562. trace_line                     TraceLine(98) when $28 is true
+  563. trace_scope                    TraceScope(+1) when $28 is true
+  564. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 41 at #586)
+  565. trace_line                     TraceLine(98) when $28 is true
+  566. copy_constant                  i₉ = 0x3F800000 (1.0)
+  567. trace_var                      TraceVar(i₉) when $28 is true
+  568. label                          label 0x0000002A
+  569. trace_scope                    TraceScope(+1) when $28 is true
+  570. trace_line                     TraceLine(99) when $28 is true
+  571. copy_4_slots_unmasked          $7..10 = result₅(1..3), i₉
+  572. copy_4_slots_masked            result₅ = Mask($7..10)
+  573. trace_var                      TraceVar(result₅) when $28 is true
+  574. trace_scope                    TraceScope(-1) when $28 is true
+  575. trace_line                     TraceLine(98) when $28 is true
+  576. copy_slot_unmasked             $7 = i₉
+  577. copy_constant                  $8 = 0x3F800000 (1.0)
+  578. add_float                      $7 += $8
+  579. copy_slot_masked               i₉ = Mask($7)
+  580. trace_var                      TraceVar(i₉) when $28 is true
+  581. copy_slot_unmasked             $7 = i₉
+  582. copy_constant                  $8 = 0x40800000 (4.0)
+  583. cmpne_float                    $7 = notEqual($7, $8)
+  584. stack_rewind
+  585. branch_if_no_active_lanes_eq   branch -17 (label 42 at #568) if no lanes of $7 == 0x00000000 (0.0)
+  586. label                          label 0x00000029
+  587. trace_scope                    TraceScope(-1) when $28 is true
+  588. trace_line                     TraceLine(101) when $28 is true
+  589. copy_4_slots_unmasked          $7..10 = result₅
+  590. copy_constant                  $11 = 0x41100000 (9.0)
+  591. copy_constant                  $12 = 0x3F800000 (1.0)
+  592. copy_constant                  $13 = 0x40000000 (2.0)
+  593. copy_constant                  $14 = 0x40400000 (3.0)
+  594. cmpeq_4_floats                 $7..10 = equal($7..10, $11..14)
+  595. bitwise_and_2_ints             $7..8 &= $9..10
+  596. bitwise_and_int                $7 &= $8
+  597. copy_slot_masked               [loop_operator_ne].result = Mask($7)
+  598. trace_var                      TraceVar([loop_operator_ne].result) when $28 is true
+  599. trace_scope                    TraceScope(-1) when $28 is true
+  600. trace_exit                     TraceExit(bool loop_operator_ne()) when $28 is true
+  601. copy_slot_unmasked             $7 = [loop_operator_ne].result
+  602. label                          label 0x00000028
+  603. copy_slot_masked               $6 = Mask($7)
+  604. label                          label 0x00000001
+  605. load_condition_mask            CondMask = $42
+  606. swizzle_4                      $6..9 = ($6..9).xxxx
+  607. copy_4_constants               $10..13 = colorRed
+  608. copy_4_constants               $14..17 = colorGreen
+  609. mix_4_ints                     $6..9 = mix($10..13, $14..17, $6..9)
+  610. copy_4_slots_unmasked          [main].result = $6..9
+  611. trace_var                      TraceVar([main].result) when $28 is true
+  612. trace_scope                    TraceScope(-1) when $28 is true
+  613. trace_exit                     TraceExit(half4 main(float2 pos)) when $28 is true
+  614. load_src                       src.rgba = [main].result

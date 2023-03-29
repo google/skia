@@ -403,8 +403,8 @@ public:
     }
 
     bool needsFunctionResultSlots() {
-        return this->returnComplexity(fCurrentFunction) >
-               Analysis::ReturnComplexity::kSingleSafeReturn;
+        return this->shouldWriteTraceOps() || (this->returnComplexity(fCurrentFunction) >
+                                               Analysis::ReturnComplexity::kSingleSafeReturn);
     }
 
     static bool IsUniform(const Variable& var) {

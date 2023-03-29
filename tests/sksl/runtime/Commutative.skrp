@@ -196,6 +196,8 @@
   196. copy_4_constants               $4..7 = colorRed
   197. copy_4_constants               $8..11 = colorGreen
   198. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-  199. trace_scope                    TraceScope(-1) when $12 is true
-  200. trace_exit                     TraceExit(half4 main(float2 xy)) when $12 is true
-  201. load_src                       src.rgba = $0..3
+  199. copy_4_slots_unmasked          [main].result = $0..3
+  200. trace_var                      TraceVar([main].result) when $12 is true
+  201. trace_scope                    TraceScope(-1) when $12 is true
+  202. trace_exit                     TraceExit(half4 main(float2 xy)) when $12 is true
+  203. load_src                       src.rgba = [main].result
