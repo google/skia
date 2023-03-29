@@ -227,6 +227,8 @@ struct SkRasterPipeline_TraceVarCtx {
     SkSL::TraceHook* traceHook;
     int slotIdx, numSlots;
     const int* data;
+    const uint32_t *indirectOffset;  // can be null; if set, an offset applied to `data`
+    uint32_t indirectLimit;          // the indirect offset is clamped to this upper bound
 };
 
 #endif  // SkRasterPipelineOpContexts_DEFINED

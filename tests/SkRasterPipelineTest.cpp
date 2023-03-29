@@ -812,8 +812,10 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
     };
 
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
-    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) static constexpr int32_t  kMaskOn   [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t  kMaskOff  [8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) static constexpr uint32_t kIndirect0[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) static constexpr uint32_t kIndirect1[8] = { 1,  1,  1,  1,  1,  1,  1,  1};
     alignas(64) int32_t kData333[8];
     alignas(64) int32_t kData555[8];
     alignas(64) int32_t kData666[8];
@@ -831,11 +833,34 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
     SkRasterPipeline p(&alloc);
     p.append(SkRasterPipelineOp::init_lane_masks);
-    const SkRasterPipeline_TraceVarCtx kTraceVar1 = {/*traceMask=*/kMaskOff, &trace, 2,1, kData333};
-    const SkRasterPipeline_TraceVarCtx kTraceVar2 = {/*traceMask=*/kMaskOn,  &trace, 4,1, kData555};
-    const SkRasterPipeline_TraceVarCtx kTraceVar3 = {/*traceMask=*/kMaskOff, &trace, 5,1, kData666};
-    const SkRasterPipeline_TraceVarCtx kTraceVar4 = {/*traceMask=*/kMaskOn,  &trace, 6,2, kData777};
-    const SkRasterPipeline_TraceVarCtx kTraceVar5 = {/*traceMask=*/kMaskOn,  &trace, 8,2, kData999};
+    const SkRasterPipeline_TraceVarCtx kTraceVar1 = {/*traceMask=*/kMaskOff,
+                                                     &trace, 2, 1, kData333,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
+    const SkRasterPipeline_TraceVarCtx kTraceVar2 = {/*traceMask=*/kMaskOn,
+                                                     &trace, 4, 1, kData555,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
+    const SkRasterPipeline_TraceVarCtx kTraceVar3 = {/*traceMask=*/kMaskOff,
+                                                     &trace, 5, 1, kData666,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
+    const SkRasterPipeline_TraceVarCtx kTraceVar4 = {/*traceMask=*/kMaskOn,
+                                                     &trace, 6, 2, kData777,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
+    const SkRasterPipeline_TraceVarCtx kTraceVar5 = {/*traceMask=*/kMaskOn,
+                                                     &trace, 8, 2, kData999,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
+    const SkRasterPipeline_TraceVarCtx kTraceVar6 = {/*traceMask=*/kMaskOn,
+                                                     &trace, 9, 1, kData999,
+                                                     /*indirectOffset=*/kIndirect0,
+                                                     /*indirectLimit=*/1};
+    const SkRasterPipeline_TraceVarCtx kTraceVar7 = {/*traceMask=*/kMaskOn,
+                                                     &trace, 9, 1, kData999,
+                                                     /*indirectOffset=*/kIndirect1,
+                                                     /*indirectLimit=*/1};
 
     p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
     p.append(SkRasterPipelineOp::trace_var, &kTraceVar1);
@@ -847,9 +872,13 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
     p.append(SkRasterPipelineOp::trace_var, &kTraceVar4);
     p.append(SkRasterPipelineOp::load_condition_mask, kMaskOff);
     p.append(SkRasterPipelineOp::trace_var, &kTraceVar5);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_var, &kTraceVar6);
+    p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
+    p.append(SkRasterPipelineOp::trace_var, &kTraceVar7);
     p.run(0,0,N,1);
 
-    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{4, 555, 6, 777, 7, 707}));
+    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{4, 555, 6, 777, 7, 707, 9, 999, 10, 909}));
 }
 
 DEF_TEST(SkRasterPipeline_TraceLine, r) {

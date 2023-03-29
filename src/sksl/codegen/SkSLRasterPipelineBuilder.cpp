@@ -1783,6 +1783,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 ctx->slotIdx = inst.fSlotA;
                 ctx->numSlots = inst.fImmB;
                 ctx->data = reinterpret_cast<int*>(SlotA());
+                ctx->indirectOffset = nullptr;
+                ctx->indirectLimit = 0;
                 pipeline->push_back({ProgramOp::trace_var, ctx});
                 break;
             }
@@ -2478,6 +2480,9 @@ void Program::dump(SkWStream* out) const {
                 const auto* ctx = static_cast<SkRasterPipeline_TraceVarCtx*>(stage.ctx);
                 opArg1 = PtrCtx(ctx->traceMask, 1);
                 opArg2 = PtrCtx(ctx->data, ctx->numSlots);
+                if (ctx->indirectOffset != nullptr) {
+                    opArg3 = " + " + PtrCtx(ctx->indirectOffset, 1);
+                }
                 break;
             }
             case POp::trace_line: {
@@ -2518,7 +2523,7 @@ void Program::dump(SkWStream* out) const {
         std::string opText;
         switch (stage.op) {
             case POp::trace_var:
-                opText = "TraceVar(" + opArg2 + ") when " + opArg1 + " is true";
+                opText = "TraceVar(" + opArg2 + opArg3 + ") when " + opArg1 + " is true";
                 break;
 
             case POp::trace_line:
