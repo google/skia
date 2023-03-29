@@ -95,7 +95,7 @@ public:
 
         /*
          * NOTE: Do not use fColorSpace or fHueMethod (yet). These features are in development and
-         * incomplete. This comment (and RELEASE_NOTES.txt) will be updated once the features are
+         * incomplete. This comment (and RELEASE_NOTES.md) will be updated once the features are
          * ready to be used.
          */
         ColorSpace fColorSpace = ColorSpace::kDestination;

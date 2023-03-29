@@ -18,7 +18,7 @@ import sys
 import traceback
 
 
-RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
+RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.md'
 
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
