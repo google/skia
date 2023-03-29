@@ -1,3 +1,5 @@
+/*#pragma settings DebugTrace*/
+
 uniform half4 colorGreen, colorRed;
 uniform float3x3 testMatrix3x3;
 uniform float4x4 testMatrix4x4;

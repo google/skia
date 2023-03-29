@@ -399,6 +399,22 @@ void Builder::push_uniform_indirect(SlotRange fixedRange,
                              dynamicStackID});
 }
 
+void Builder::trace_var_indirect(int traceMaskStackID,
+                                 SlotRange fixedRange,
+                                 int dynamicStackID,
+                                 SlotRange limitRange) {
+    // SlotA: fixed-range start
+    // SlotB: limit-range end
+    // immA: trace-mask stack ID
+    // immB: number of slots
+    // immC: dynamic stack ID
+    fInstructions.push_back({BuilderOp::trace_var_indirect,
+                             {fixedRange.index, limitRange.index + limitRange.count},
+                             traceMaskStackID,
+                             fixedRange.count,
+                             dynamicStackID});
+}
+
 void Builder::push_duplicates(int count) {
     if (!fInstructions.empty()) {
         Instruction& lastInstruction = fInstructions.back();
@@ -1778,13 +1794,25 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({(ProgramOp)inst.fOp, ctx});
                 break;
             }
-            case BuilderOp::trace_var: {
+            case BuilderOp::trace_var:
+            case BuilderOp::trace_var_indirect: {
+                // SlotA: fixed-range start
+                // SlotB: limit-range end
+                // immA: trace-mask stack ID
+                // immB: number of slots
+                // immC: dynamic stack ID
                 auto* ctx = AllocTraceContext((SkRasterPipeline_TraceVarCtx*)nullptr);
                 ctx->slotIdx = inst.fSlotA;
                 ctx->numSlots = inst.fImmB;
                 ctx->data = reinterpret_cast<int*>(SlotA());
-                ctx->indirectOffset = nullptr;
-                ctx->indirectLimit = 0;
+                if (inst.fOp == BuilderOp::trace_var_indirect) {
+                    ctx->indirectOffset =
+                            reinterpret_cast<const uint32_t*>(tempStackMap[inst.fImmC]) - (1 * N);
+                    ctx->indirectLimit = inst.fSlotB - inst.fSlotA - inst.fImmB;
+                } else {
+                    ctx->indirectOffset = nullptr;
+                    ctx->indirectLimit = 0;
+                }
                 pipeline->push_back({ProgramOp::trace_var, ctx});
                 break;
             }

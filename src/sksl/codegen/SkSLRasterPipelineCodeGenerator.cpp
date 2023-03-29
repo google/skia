@@ -789,7 +789,10 @@ public:
         }
         if (gen->shouldWriteTraceOps()) {
             if (dynamicOffset) {
-                // TODO: trace_var_indirect
+                gen->builder()->trace_var_indirect(gen->traceMaskStackID(),
+                                                   fixedOffset,
+                                                   dynamicOffset->stackID(),
+                                                   this->fixedSlotRange(gen));
             } else {
                 gen->builder()->trace_var(gen->traceMaskStackID(), fixedOffset);
             }

@@ -110,6 +110,7 @@ enum class BuilderOp {
     pop_src_rgba,
     pop_dst_rgba,
     set_current_stack,
+    trace_var_indirect,
     branch_if_no_active_lanes_on_stack_top_equal,
     unsupported
 };
@@ -637,22 +638,31 @@ public:
         fInstructions.push_back({BuilderOp::invoke_from_linear_srgb, {}});
     }
 
+    // Writes the current line number to the debug trace.
     void trace_line(int traceMaskStackID, int line) {
         fInstructions.push_back({BuilderOp::trace_line, {}, traceMaskStackID, line});
     }
 
+    // Writes a variable update to the debug trace.
     void trace_var(int traceMaskStackID, SlotRange r) {
         fInstructions.push_back({BuilderOp::trace_var, {r.index}, traceMaskStackID, r.count});
     }
 
+    // Writes a variable update (via indirection) to the debug trace.
+    void trace_var_indirect(int traceMaskStackID, SlotRange fixedRange,
+                            int dynamicStackID, SlotRange limitRange);
+
+    // Writes a function-entrance to the debug trace.
     void trace_enter(int traceMaskStackID, int funcID) {
         fInstructions.push_back({BuilderOp::trace_enter, {}, traceMaskStackID, funcID});
     }
 
+    // Writes a function-exit to the debug trace.
     void trace_exit(int traceMaskStackID, int funcID) {
         fInstructions.push_back({BuilderOp::trace_exit, {}, traceMaskStackID, funcID});
     }
 
+    // Writes a scope-level change to the debug trace.
     void trace_scope(int traceMaskStackID, int delta) {
         fInstructions.push_back({BuilderOp::trace_scope, {}, traceMaskStackID, delta});
     }
