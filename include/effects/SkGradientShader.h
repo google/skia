@@ -91,13 +91,7 @@ public:
         };
         static constexpr int kHueMethodCount = static_cast<int>(HueMethod::kLastHueMethod) + 1;
 
-        InPremul fInPremul = InPremul::kNo;
-
-        /*
-         * NOTE: Do not use fColorSpace or fHueMethod (yet). These features are in development and
-         * incomplete. This comment (and RELEASE_NOTES.md) will be updated once the features are
-         * ready to be used.
-         */
+        InPremul   fInPremul = InPremul::kNo;
         ColorSpace fColorSpace = ColorSpace::kDestination;
         HueMethod  fHueMethod  = HueMethod::kShorter;  // Only relevant for LCH, OKLCH, HSL, or HWB
 

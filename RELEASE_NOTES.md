@@ -2,6 +2,16 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 114
+-------------
+  * Gradient shaders support interpolation in several different color spaces, by passing a
+    `SkGradientShader::Interpolation` struct to the shader factory functions. The color space and
+    hue method options are based on the CSS Color Level 4 specfication:
+    * https://www.w3.org/TR/css-color-4/#interpolation-space
+    * https://www.w3.org/TR/css-color-4/#hue-interpolation
+
+* * *
+
 Milestone 113
 -------------
   * The define SK_SUPPORT_GPU is now SK_GANESH. It is no longer detected as a 0 or 1, but
