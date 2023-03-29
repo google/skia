@@ -43,6 +43,8 @@
 #include <functional>
 #include <utility>
 
+using namespace skia_private;
+
 class GrRecordingContext;
 struct GrContextOptions;
 
@@ -395,9 +397,9 @@ struct TestCase {
     const char *          fName;
     bool                  fShouldFit;
     size_t                fBudget;
-    SkTArray<ProxyParams> fPurgeableResourcesInCache = {};
-    SkTArray<ProxyParams> fUnpurgeableResourcesInCache = {};
-    SkTArray<Interval>    fIntervals;
+    TArray<ProxyParams> fPurgeableResourcesInCache = {};
+    TArray<ProxyParams> fUnpurgeableResourcesInCache = {};
+    TArray<Interval>    fIntervals;
 };
 
 static void memory_budget_test(skiatest::Reporter* reporter,
@@ -410,7 +412,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
 
     // Add purgeable entries.
     size_t expectedPurgeableBytes = 0;
-    SkTArray<sk_sp<GrSurface>> purgeableSurfaces;
+    TArray<sk_sp<GrSurface>> purgeableSurfaces;
     for (auto& params : test.fPurgeableResourcesInCache) {
         SkASSERT(params.fKind == kInstantiated);
         sk_sp<GrSurfaceProxy> proxy = make_proxy(dContext, params);
@@ -424,7 +426,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
 
     // Add unpurgeable entries.
     size_t expectedUnpurgeableBytes = 0;
-    SkTArray<sk_sp<GrSurface>> unpurgeableSurfaces;
+    TArray<sk_sp<GrSurface>> unpurgeableSurfaces;
     for (auto& params : test.fUnpurgeableResourcesInCache) {
         SkASSERT(params.fKind == kInstantiated);
         sk_sp<GrSurfaceProxy> proxy = make_proxy(dContext, params);

@@ -16,6 +16,8 @@
 #include <cstdint>
 #include <memory>
 
+using namespace skia_private;
+
 // A is the top of an inheritance tree of classes that overload op new and
 // and delete to use a GrMemoryPool. The objects have values of different types
 // that can be set and checked.
@@ -247,7 +249,7 @@ public:
     }
 private:
     GrMemoryPool& fPool;
-    SkTArray<void*> fAllocated;
+    TArray<void*> fAllocated;
 };
 
 DEF_TEST(GrMemoryPoolAPI, reporter) {

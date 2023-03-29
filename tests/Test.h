@@ -72,7 +72,7 @@ public:
     }
 
 private:
-    SkTArray<SkString> fContextStack;
+    skia_private::TArray<SkString> fContextStack;
 };
 
 #define REPORT_FAILURE(reporter, cond, message) \

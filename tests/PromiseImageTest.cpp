@@ -42,6 +42,8 @@
 #include <functional>
 #include <utility>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 using namespace sk_gpu_test;
@@ -339,7 +341,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
     // fulfillment due to cache pressure.
     static constexpr int kMaxBytes = 1;
     dContext->setResourceCacheLimit(kMaxBytes);
-    SkTArray<sk_sp<GrTexture>> textures;
+    TArray<sk_sp<GrTexture>> textures;
     for (int i = 0; i < 5; ++i) {
         auto format = dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                        GrRenderable::kNo);

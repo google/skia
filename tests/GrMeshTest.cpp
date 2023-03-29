@@ -72,6 +72,8 @@ class GrSurfaceProxyView;
 enum class GrXferBarrierFlags;
 struct GrContextOptions;
 
+using namespace skia_private;
+
 #if 0
 #include "tools/ToolUtils.h"
 #define WRITE_PNG_CONTEXT_TYPE kANGLE_D3D11_ES3_ContextType
@@ -99,7 +101,7 @@ public:
 
     sk_sp<const GrBuffer> makeIndexBuffer(const uint16_t[], int count);
 
-    template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const SkTArray<T>& data) {
+    template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const TArray<T>& data) {
         return this->makeVertexBuffer(data.begin(), data.size());
     }
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const std::vector<T>& data) {
@@ -168,8 +170,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforce
         return;
     }
 
-    SkTArray<Box> boxes;
-    SkTArray<std::array<Box, 4>> vertexData;
+    TArray<Box> boxes;
+    TArray<std::array<Box, 4>> vertexData;
     SkBitmap gold;
 
     // ---- setup ----------
@@ -217,7 +219,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforce
 
     run_test(dContext, "draw", reporter, sdc, gold,
              [&](DrawMeshHelper* helper) {
-                 SkTArray<Box> expandedVertexData;
+                 TArray<Box> expandedVertexData;
                  for (int i = 0; i < kBoxCount; ++i) {
                      for (int j = 0; j < 6; ++j) {
                          expandedVertexData.push_back(vertexData[i][kIndexPattern[j]]);
@@ -291,7 +293,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforce
                  reporter, sdc, gold,
                  [&](DrawMeshHelper* helper) {
                      helper->fIndexBuffer = indexed ? helper->getIndexBuffer() : nullptr;
-                     SkTArray<uint16_t> baseIndexData;
+                     TArray<uint16_t> baseIndexData;
                      baseIndexData.push_back(kBoxCountX/2 * 6); // for testing base index.
                      for (int i = 0; i < 6; ++i) {
                          baseIndexData.push_back(kIndexPattern[i]);
@@ -358,7 +360,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforce
         run_test(dContext, (indexed) ? "drawIndexedIndirect" : "drawIndirect",
                  reporter, sdc, gold,
                  [&](DrawMeshHelper* helper) {
-                     SkTArray<uint16_t> baseIndexData;
+                     TArray<uint16_t> baseIndexData;
                      baseIndexData.push_back(kBoxCountX/2 * 6); // for testing base index.
                      for (int j = 0; j < kBoxCountY; ++j) {
                          for (int i = 0; i < 6; ++i) {

@@ -46,6 +46,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 using namespace SkSL::dsl;
@@ -1269,7 +1271,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     {
         DSLExpression sqrt(SkSL::ThreadContext::Compiler().convertIdentifier(SkSL::Position(),
                 "sqrt"));
-        SkTArray<DSLExpression> args;
+        TArray<DSLExpression> args;
         args.emplace_back(16);
         EXPECT_EQUAL(sqrt(std::move(args)), "4.0");  // sqrt(16) gets optimized to 4
     }
@@ -1279,7 +1281,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
                 "pow"));
         DSLVar a(kFloat_Type, "a");
         DSLVar b(kFloat_Type, "b");
-        SkTArray<DSLExpression> args;
+        TArray<DSLExpression> args;
         args.emplace_back(a);
         args.emplace_back(b);
         EXPECT_EQUAL(pow(std::move(args)), "pow(a, b)");
@@ -1294,7 +1296,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
 
     EXPECT_EQUAL((If(a > 0, --a), ++b), "if (a > 0) --a; ++b;");
 
-    SkTArray<DSLStatement> statements;
+    TArray<DSLStatement> statements;
     statements.push_back(a.assign(0));
     statements.push_back(++a);
     EXPECT_EQUAL(Block(std::move(statements)), "{ a = 0; ++a; }");
@@ -1350,7 +1352,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
 
     {
         DSLWriter::Reset();
-        SkTArray<Var> vars;
+        TArray<Var> vars;
         vars.push_back(Var(kBool_Type, "a", true));
         vars.push_back(Var(kFloat_Type, "b"));
         EXPECT_EQUAL(Declare(vars), "bool a = true; float b;");
@@ -1370,7 +1372,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     {
         DSLWriter::Reset();
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().empty());
-        SkTArray<GlobalVar> vars;
+        TArray<GlobalVar> vars;
         vars.push_back(GlobalVar(kHalf4_Type, "a"));
         vars.push_back(GlobalVar(kHalf4_Type, "b", Half4(1)));
         Declare(vars);
@@ -1624,7 +1626,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     Var a(kFloat_Type, "a"), b(kInt_Type, "b");
 
-    SkTArray<DSLStatement> caseStatements;
+    TArray<DSLStatement> caseStatements;
     caseStatements.push_back(a.assign(1));
     caseStatements.push_back(Continue());
     Statement x = Switch(b,

@@ -63,6 +63,8 @@
 #include <utility>
 #include <limits>
 
+using namespace skia_private;
+
 class SkReadBuffer;
 class SkWriteBuffer;
 struct GrContextOptions;
@@ -279,7 +281,7 @@ private:
         fFilters.push_back(Filter(name, std::move(filter), needsSaveLayer));
     }
 
-    SkTArray<Filter> fFilters;
+    TArray<Filter> fFilters;
 };
 
 class FixedBoundsImageFilter : public SkImageFilter_Base {

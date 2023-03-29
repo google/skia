@@ -40,6 +40,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -284,7 +286,7 @@ public:
 
         SkBitmap expectedBM = this->readPixels(expectedImage);
         SkBitmap actualBM = this->readPixels(actualImage.get()); // empty if actualImage is null
-        SkTArray<SkIPoint> badPixels;
+        TArray<SkIPoint> badPixels;
         if (!this->compareBitmaps(expectedBM, expectedOrigin, actualBM, actualOrigin, &badPixels)) {
             this->logBitmaps(expectedBM, actualBM, badPixels);
             return false;
@@ -299,7 +301,7 @@ private:
                         SkIPoint expectedOrigin,
                         const SkBitmap& actual,
                         SkIPoint actualOrigin,
-                        SkTArray<SkIPoint>* badPixels) {
+                        TArray<SkIPoint>* badPixels) {
         SkIRect excludeTransparentCheck; // region in expectedBM that can be non-transparent
         if (actual.empty()) {
             // A null image in a FilterResult is equivalent to transparent black, so we should
@@ -456,7 +458,7 @@ private:
 
     void logBitmaps(const SkBitmap& expected,
                     const SkBitmap& actual,
-                    const SkTArray<SkIPoint>& badPixels) {
+                    const TArray<SkIPoint>& badPixels) {
         if (fLoggedErrorImage) {
             return; // no more spam
         }

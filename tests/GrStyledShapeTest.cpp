@@ -61,7 +61,7 @@ bool GrStyledShape::testingOnly_isNonVolatilePath() const {
     return fShape.isPath() && !fShape.path().isVolatile();
 }
 
-using Key = SkTArray<uint32_t>;
+using Key = TArray<uint32_t>;
 
 static bool make_key(Key* key, const GrStyledShape& shape) {
     int size = shape.unstyledKeySize();
@@ -2167,8 +2167,8 @@ DEF_TEST(GrStyledShape_short_path_keys, r) {
 }
 
 DEF_TEST(GrStyledShape, reporter) {
-    SkTArray<std::unique_ptr<Geo>> geos;
-    SkTArray<std::unique_ptr<RRectPathGeo>> rrectPathGeos;
+    TArray<std::unique_ptr<Geo>> geos;
+    TArray<std::unique_ptr<RRectPathGeo>> rrectPathGeos;
 
     for (auto r : { SkRect::MakeWH(10, 20),
                     SkRect::MakeWH(-10, -20),
@@ -2318,7 +2318,7 @@ DEF_TEST(GrStyledShape_arcs, reporter) {
     static constexpr SkScalar kIntervals[] = {1, 2};
     auto dash = SkDashPathEffect::Make(kIntervals, std::size(kIntervals), 1.5f);
 
-    SkTArray<GrStyle> styles;
+    TArray<GrStyle> styles;
     styles.push_back(GrStyle::SimpleFill());
     styles.push_back(GrStyle::SimpleHairline());
     styles.push_back(GrStyle(roundStroke, nullptr));

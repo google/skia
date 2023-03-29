@@ -52,6 +52,8 @@
 #include <string_view>
 #include <vector>
 
+using namespace skia_private;
+
 // This debugging toggle enables extra logging in `test_raster_pipeline`.
 //#define DUMP_RP_PROGRAMS 1
 
@@ -386,7 +388,7 @@ static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, in
     // buffer of uniform floats. TODO: this approach doesn't work for complex types (arrays and
     // structs), but the RP backend doesn't support those yet regardless.
     std::unique_ptr<SkSL::UniformInfo> uniformInfo = program->getUniformInfo();
-    SkTArray<float> uniformValues;
+    TArray<float> uniformValues;
     for (const SkSL::UniformInfo::Uniform& programUniform : uniformInfo->fUniforms) {
         bool foundMatch = false;
         for (const UniformData& data : kUniformData) {

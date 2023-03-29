@@ -47,6 +47,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 class GrRecordingContext;
 class SkPixmap;
 struct GrContextOptions;
@@ -224,7 +226,7 @@ static std::unique_ptr<const char[]> make_compressed_data(SkTextureCompressionTy
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    SkTArray<size_t> mipMapOffsets(numMipLevels);
+    TArray<size_t> mipMapOffsets(numMipLevels);
 
     size_t dataSize = SkCompressedDataSize(compression, dimensions, &mipMapOffsets,
                                            mipmapped == GrMipmapped::kYes);

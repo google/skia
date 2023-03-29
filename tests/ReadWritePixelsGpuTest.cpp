@@ -65,6 +65,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 static constexpr int min_rgb_channel_bits(SkColorType ct) {
@@ -1192,7 +1194,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
         }
         SkAlphaType at = GrColorTypeHasAlpha(ct) ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
         GrImageInfo info(ct, at, nullptr, kW, kH);
-        SkTArray<GrCPixmap> levels;
+        TArray<GrCPixmap> levels;
         const auto& ref = at == kPremul_SkAlphaType ? refP : refO;
         for (int w = kW, h = kH; w || h; w/=2, h/=2) {
             auto level = GrPixmap::Allocate(info.makeWH(std::max(w, 1), std::max(h, 1)));

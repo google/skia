@@ -17,6 +17,8 @@
 #include <cmath>
 #include <numeric>
 
+using namespace skia_private;
+
 DEF_TEST(SkRasterPipeline, r) {
     // Build and run a simple pipeline to exercise SkRasterPipeline,
     // drawing 50% transparent blue over opaque red in half-floats.
@@ -806,7 +808,7 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
             fBuffer.push_back(val);
         }
 
-        SkTArray<int> fBuffer;
+        TArray<int> fBuffer;
     };
 
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
@@ -847,7 +849,7 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
     p.append(SkRasterPipelineOp::trace_var, &kTraceVar5);
     p.run(0,0,N,1);
 
-    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{4, 555, 6, 777, 7, 707}));
+    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{4, 555, 6, 777, 7, 707}));
 }
 
 DEF_TEST(SkRasterPipeline_TraceLine, r) {
@@ -861,7 +863,7 @@ DEF_TEST(SkRasterPipeline_TraceLine, r) {
         void scope(int) override        { fBuffer.push_back(-9999999); }
         void line(int lineNum) override { fBuffer.push_back(lineNum); }
 
-        SkTArray<int> fBuffer;
+        TArray<int> fBuffer;
     };
 
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
@@ -890,7 +892,7 @@ DEF_TEST(SkRasterPipeline_TraceLine, r) {
     p.append(SkRasterPipelineOp::trace_line, &kTraceLine5);
     p.run(0,0,N,1);
 
-    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{123, 789}));
+    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{123, 789}));
 }
 
 DEF_TEST(SkRasterPipeline_TraceEnterExit, r) {
@@ -910,7 +912,7 @@ DEF_TEST(SkRasterPipeline_TraceEnterExit, r) {
             fBuffer.push_back(0);
         }
 
-        SkTArray<int> fBuffer;
+        TArray<int> fBuffer;
     };
 
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
@@ -939,7 +941,7 @@ DEF_TEST(SkRasterPipeline_TraceEnterExit, r) {
     p.append(SkRasterPipelineOp::trace_exit, &kTraceFunc6);
     p.run(0,0,N,1);
 
-    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{12, 1, 56, 0}));
+    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{12, 1, 56, 0}));
 }
 
 DEF_TEST(SkRasterPipeline_TraceScope, r) {
@@ -953,7 +955,7 @@ DEF_TEST(SkRasterPipeline_TraceScope, r) {
         void exit(int) override         { fBuffer.push_back(-9999999); }
         void scope(int delta) override  { fBuffer.push_back(delta); }
 
-        SkTArray<int> fBuffer;
+        TArray<int> fBuffer;
     };
 
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
@@ -980,7 +982,7 @@ DEF_TEST(SkRasterPipeline_TraceScope, r) {
     p.append(SkRasterPipelineOp::trace_scope, &kTraceScope5);
     p.run(0,0,N,1);
 
-    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{1, -5}));
+    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{1, -5}));
 }
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {

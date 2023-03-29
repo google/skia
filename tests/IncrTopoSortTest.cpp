@@ -17,6 +17,8 @@
 #include <algorithm>
 #include <cstdint>
 
+using namespace skia_private;
+
 // A node in the graph. This corresponds to an opsTask in the MDB world.
 class Node : public SkRefCnt {
 public:
@@ -309,14 +311,14 @@ private:
         }
     }
 
-    SkTArray<sk_sp<Node>> fNodes;
+    TArray<sk_sp<Node>> fNodes;
 
     struct StackInfo {
         sk_sp<Node> fNode;  // This gets a ref bc, in 'shift' it will be pulled out of 'fNodes'
         Node*       fDest;
     };
 
-    SkTArray<StackInfo>   fStack;     // only used in addEdges()
+    TArray<StackInfo>   fStack;     // only used in addEdges()
 
     skiatest::Reporter*   fReporter;
 };

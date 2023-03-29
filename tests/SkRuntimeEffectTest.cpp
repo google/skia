@@ -62,6 +62,8 @@
 #include <thread>
 #include <utility>
 
+using namespace skia_private;
+
 class GrRecordingContext;
 struct GrContextOptions;
 struct SkIPoint;
@@ -1486,7 +1488,7 @@ DEF_TEST(SkRuntimeShaderIsOpaque, r) {
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo, CtsEnforcement::kApiLevel_T) {
     struct FpAndKey {
         std::unique_ptr<GrFragmentProcessor> fp;
-        SkTArray<uint32_t, true>             key;
+        TArray<uint32_t, true>             key;
     };
 
     // Constant color, but with an 'specialize' option that decides if the color is inserted in the

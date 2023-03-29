@@ -70,6 +70,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 class GrDstProxyView;
 class GrMeshDrawTarget;
 class GrOpFlushState;
@@ -147,7 +149,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child) {
         return std::unique_ptr<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
-    static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<GrSurfaceProxyView>& views) {
+    static std::unique_ptr<GrFragmentProcessor> Make(const TArray<GrSurfaceProxyView>& views) {
         return std::unique_ptr<GrFragmentProcessor>(new TestFP(views));
     }
 
@@ -163,7 +165,7 @@ public:
     }
 
 private:
-    TestFP(const SkTArray<GrSurfaceProxyView>& views)
+    TestFP(const TArray<GrSurfaceProxyView>& views)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags) {
         for (const GrSurfaceProxyView& view : views) {
             this->registerChild(GrTextureEffect::Make(view, kUnknown_SkAlphaType));
@@ -229,7 +231,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo, CtsEnforce
                                                    /*label=*/"ProcessorRefTest");
 
                 {
-                    SkTArray<GrSurfaceProxyView> views;
+                    TArray<GrSurfaceProxyView> views;
                     views.push_back({proxy, kTopLeft_GrSurfaceOrigin, swizzle});
                     auto fp = TestFP::Make(std::move(views));
                     for (int i = 0; i < parentCnt; ++i) {
