@@ -680,7 +680,7 @@ bool SkPixmap::erase(SkColor color, const SkIRect& subset) const {
     return this->erase(SkColor4f::FromColor(color), &subset);
 }
 
-bool SkPixmap::erase(const SkColor4f& color, SkColorSpace* srcCS, const SkIRect* subset) const {
+bool SkPixmap::erase(const SkColor4f& color, const SkIRect* subset) const {
     if (this->colorType() == kUnknown_SkColorType) {
         return false;
     }
@@ -696,8 +696,7 @@ bool SkPixmap::erase(const SkColor4f& color, SkColorSpace* srcCS, const SkIRect*
 
     const auto dst = SkImageInfo::Make(1, 1, this->colorType(), this->alphaType(),
                                        sk_ref_sp(this->colorSpace()));
-    const auto src = SkImageInfo::Make(1, 1, kRGBA_F32_SkColorType, kPremul_SkAlphaType,
-                                       sk_ref_sp(srcCS));
+    const auto src = SkImageInfo::Make(1, 1, kRGBA_F32_SkColorType, kPremul_SkAlphaType, nullptr);
 
     uint64_t dstPixel[2] = {};   // be large enough for our widest config (F32 x 4)
     SkASSERT((size_t)dst.bytesPerPixel() <= sizeof(dstPixel));

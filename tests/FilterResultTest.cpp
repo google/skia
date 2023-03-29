@@ -477,7 +477,7 @@ private:
 
         if (!badPixels.empty()) {
             for (auto p : badPixels) {
-                expected.erase(SkColors::kRed, nullptr, SkIRect::MakeXYWH(p.fX, p.fY, 1, 1));
+                expected.erase(SkColors::kRed, SkIRect::MakeXYWH(p.fX, p.fY, 1, 1));
             }
             SkString markedURL;
             BitmapToBase64DataURI(expected, &markedURL);

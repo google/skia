@@ -717,27 +717,11 @@ public:
         colorType() is kUnknown_SkColorType, if subset is not nullptr and does
         not intersect bounds(), or if subset is nullptr and bounds() is empty.
 
-        @param color   sRGB unpremultiplied color to write
-        @param subset  bounding integer SkRect of pixels to write; may be nullptr
-        @return        true if pixels are changed
-
-        example: https://fiddle.skia.org/c/@Pixmap_erase_3
-    */
-    bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const {
-        return this->erase(color, nullptr, subset);
-    }
-
-    /** Writes color to pixels bounded by subset; returns true on success.
-        if subset is nullptr, writes colors pixels inside bounds(). Returns false if
-        colorType() is kUnknown_SkColorType, if subset is not nullptr and does
-        not intersect bounds(), or if subset is nullptr and bounds() is empty.
-
         @param color   unpremultiplied color to write
-        @param cs      SkColorSpace of color
         @param subset  bounding integer SkRect of pixels to write; may be nullptr
         @return        true if pixels are changed
     */
-    bool erase(const SkColor4f& color, SkColorSpace* cs, const SkIRect* subset = nullptr) const;
+    bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
 
 private:
     const void*     fPixels;
