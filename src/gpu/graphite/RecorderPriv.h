@@ -59,9 +59,9 @@ public:
         return fRecorder->fTextBlobCache.get();
     }
 
-    static sk_sp<SkImage> CreateCachedImage(Recorder*,
-                                            const SkBitmap&,
-                                            Mipmapped = skgpu::Mipmapped::kNo);
+    static sk_sp<TextureProxy> CreateCachedProxy(Recorder*,
+                                                 const SkBitmap&,
+                                                 Mipmapped = skgpu::Mipmapped::kNo);
 
 #if GRAPHITE_TEST_UTILS
     // used by the Context that created this Recorder to set a back pointer

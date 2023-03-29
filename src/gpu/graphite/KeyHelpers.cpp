@@ -295,21 +295,19 @@ void GradientShaderBlocks::BeginBlock(const KeyContext& keyContext,
     if (gradData.fNumStops > GradientData::kNumInternalStorageStops && gatherer) {
         // TODO: for caching to work in this manner we would have to create the cache key by
         // hashing the bitmap's contents.
-        sk_sp<SkImage> image = RecorderPriv::CreateCachedImage(keyContext.recorder(),
-                                                               gradData.fColorsAndOffsetsBitmap);
-        if (!image) {
+        sk_sp<TextureProxy> proxy =
+                RecorderPriv::CreateCachedProxy(keyContext.recorder(),
+                                                gradData.fColorsAndOffsetsBitmap);
+        if (!proxy) {
             SKGPU_LOG_W("Couldn't create Texture-based gradient's texture");
 
             SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
             return;
         }
 
-        auto [view, _] = as_IB(image)->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
-        sk_sp<skgpu::graphite::TextureProxy> textureProxy = view.refProxy();
-
         static constexpr SkSamplingOptions kNearest(SkFilterMode::kNearest, SkMipmapMode::kNone);
         static constexpr SkTileMode kClampTiling[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
-        gatherer->add(kNearest, kClampTiling, std::move(textureProxy));
+        gatherer->add(kNearest, kClampTiling, std::move(proxy));
     }
 
     BuiltInCodeSnippetID codeSnippetID = BuiltInCodeSnippetID::kSolidColorShader;
@@ -555,8 +553,8 @@ void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
     if (gatherer) {
         static const SkBitmap gLUT = skgpu::MakeDitherLUT();
 
-        sk_sp<SkImage> image = RecorderPriv::CreateCachedImage(keyContext.recorder(), gLUT);
-        if (!image) {
+        sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), gLUT);
+        if (!proxy) {
             SKGPU_LOG_W("Couldn't create dither shader's LUT");
 
             PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
@@ -565,13 +563,10 @@ void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
 
         add_dither_uniform_data(dict, *ditherData, gatherer);
 
-        auto [view, _] = as_IB(image)->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
-        sk_sp<skgpu::graphite::TextureProxy> textureProxy = view.refProxy();
-
         static constexpr SkSamplingOptions kNearest(SkFilterMode::kNearest, SkMipmapMode::kNone);
         static constexpr SkTileMode kRepeatTiling[2] = { SkTileMode::kRepeat, SkTileMode::kRepeat };
 
-        gatherer->add(kNearest, kRepeatTiling, std::move(textureProxy));
+        gatherer->add(kNearest, kRepeatTiling, std::move(proxy));
     }
 
     builder->beginBlock(BuiltInCodeSnippetID::kDitherShader);
@@ -765,8 +760,6 @@ void add_table_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 }
 
 } // anonymous namespace
-
-TableColorFilterBlock::TableColorFilterData::TableColorFilterData() {}
 
 void TableColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,

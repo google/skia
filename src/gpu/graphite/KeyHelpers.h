@@ -342,7 +342,7 @@ struct ComposeColorFilterBlock {
 
 struct TableColorFilterBlock {
     struct TableColorFilterData {
-        TableColorFilterData();
+        TableColorFilterData(sk_sp<TextureProxy> proxy) : fTextureProxy(std::move(proxy)) {}
 
         sk_sp<TextureProxy> fTextureProxy;
     };

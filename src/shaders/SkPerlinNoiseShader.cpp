@@ -1038,13 +1038,14 @@ void SkPerlinNoiseShaderImpl::addToKey(const skgpu::graphite::KeyContext& keyCon
                                                                                 fBaseFrequencyY,
                                                                                 totalMatrix);
 
-    sk_sp<SkImage> permImg = RecorderPriv::CreateCachedImage(keyContext.recorder(),
-                                                             paintingData->getPermutationsBitmap());
+    sk_sp<TextureProxy> perm =
+            RecorderPriv::CreateCachedProxy(keyContext.recorder(),
+                                            paintingData->getPermutationsBitmap());
 
-    sk_sp<SkImage> noiseImg = RecorderPriv::CreateCachedImage(keyContext.recorder(),
-                                                              paintingData->getNoiseBitmap());
+    sk_sp<TextureProxy> noise = RecorderPriv::CreateCachedProxy(keyContext.recorder(),
+                                                                paintingData->getNoiseBitmap());
 
-    if (!permImg || !noiseImg) {
+    if (!perm || !noise) {
         SKGPU_LOG_W("Couldn't create tables for PerlinNoiseShader");
 
         SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
@@ -1058,15 +1059,8 @@ void SkPerlinNoiseShaderImpl::addToKey(const skgpu::graphite::KeyContext& keyCon
                                                  { paintingData->fStitchDataInit.fWidth,
                                                    paintingData->fStitchDataInit.fHeight });
 
-    TextureProxyView view;
-
-    std::tie(view, std::ignore) = as_IB(permImg)->asView(keyContext.recorder(),
-                                                         skgpu::Mipmapped::kNo);
-    data.fPermutationsProxy = view.refProxy();
-
-    std::tie(view, std::ignore) = as_IB(noiseImg)->asView(keyContext.recorder(),
-                                                          skgpu::Mipmapped::kNo);
-    data.fNoiseProxy = view.refProxy();
+    data.fPermutationsProxy = std::move(perm);
+    data.fNoiseProxy = std::move(noise);
 
     // This (1,1) translation is due to WebKit's 1 based coordinates for the noise
     // (as opposed to 0 based, usually). Remember: this matrix (shader2World) is going to be

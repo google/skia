@@ -7,6 +7,7 @@
 
 #include "include/gpu/graphite/Recorder.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
@@ -33,6 +34,7 @@
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/TaskGraph.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 #include "src/gpu/graphite/UploadTask.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
@@ -350,13 +352,18 @@ void RecorderPriv::flushTrackedDevices() {
     }
 }
 
-sk_sp<SkImage> RecorderPriv::CreateCachedImage(Recorder* recorder,
-                                               const SkBitmap& bitmap,
-                                               Mipmapped mipmapped) {
+sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,
+                                                    const SkBitmap& bitmap,
+                                                    Mipmapped mipmapped) {
     // TODO(b/239604347): remove this hack. This is just here until we determine what Graphite's
     // Recorder-level caching story is going to be.
-    sk_sp<SkImage> temp = SkImages::RasterFromBitmap(bitmap);
-    return temp->makeTextureImage(recorder, { mipmapped });
+    if (bitmap.dimensions().area() <= 1) {
+        mipmapped = skgpu::Mipmapped::kNo;
+    }
+
+    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr,
+                                            mipmapped, skgpu::Budgeted::kYes);
+    return view.refProxy();
 }
 
 

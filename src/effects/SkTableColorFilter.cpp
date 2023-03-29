@@ -301,8 +301,8 @@ void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
-    sk_sp<SkImage> image = RecorderPriv::CreateCachedImage(keyContext.recorder(), fBitmap);
-    if (!image) {
+    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), fBitmap);
+    if (!proxy) {
         SKGPU_LOG_W("Couldn't create TableColorFilter's table");
 
         // Return the input color as-is.
@@ -311,10 +311,7 @@ void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext
         return;
     }
 
-    TableColorFilterBlock::TableColorFilterData data;
-
-    auto [view, _] = as_IB(image)->asView(keyContext.recorder(), skgpu::Mipmapped::kNo);
-    data.fTextureProxy = view.refProxy();
+    TableColorFilterBlock::TableColorFilterData data(std::move(proxy));
 
     TableColorFilterBlock::BeginBlock(keyContext, builder, gatherer, data);
     builder->endBlock();
