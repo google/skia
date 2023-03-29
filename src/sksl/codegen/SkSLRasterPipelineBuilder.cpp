@@ -16,6 +16,7 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
+#include "src/sksl/tracing/SkSLTraceHook.h"
 #include "src/utils/SkBitSet.h"
 
 #if !defined(SKSL_STANDALONE)
@@ -1012,7 +1013,13 @@ Program::Program(TArray<Instruction> instrs,
         (void)stackIdx;
         fNumTempStackSlots += depth;
     }
+
+    if (fDebugTrace) {
+        fTraceHook = SkSL::Tracer::Make(&fDebugTrace->fTraceInfo);
+    }
 }
+
+Program::~Program() = default;
 
 void Program::appendCopy(TArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
@@ -1341,7 +1348,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
             using ContextType = typename std::remove_reference<decltype(*ctx)>::type;
             ctx = alloc->make<ContextType>();
             ctx->traceMask = reinterpret_cast<int*>(tempStackMap[inst.fImmA] - N);
-            ctx->traceHook = nullptr; // TODO(johnstiles): set the trace hook when one is available
+            ctx->traceHook = fTraceHook.get();
             return ctx;
         };
         float*& tempStackPtr = tempStackMap[currentStack];
