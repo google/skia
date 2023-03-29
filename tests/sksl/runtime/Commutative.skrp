@@ -9,161 +9,193 @@
     9. trace_scope                    TraceScope(+1) when $12 is true
    10. trace_line                     TraceLine(10) when $12 is true
    11. copy_constant                  ok = 0xFFFFFFFF
-   12. trace_line                     TraceLine(11) when $12 is true
-   13. copy_constant                  $0 = testMatrix2x2(0)
-   14. cast_to_int_from_float         $0 = FloatToInt($0)
-   15. copy_slot_unmasked             a = $0
-   16. copy_2_constants               $0..1 = testMatrix2x2(0..1)
-   17. swizzle_1                      $0 = ($0..1).y
-   18. cast_to_int_from_float         $0 = FloatToInt($0)
-   19. copy_slot_unmasked             b = $0
-   20. trace_line                     TraceLine(12) when $12 is true
-   21. copy_constant                  $0 = testMatrix2x2(2)
-   22. copy_slot_unmasked             c = $0
-   23. copy_2_constants               $0..1 = testMatrix2x2(2..3)
-   24. swizzle_1                      $0 = ($0..1).y
-   25. copy_slot_unmasked             d = $0
-   26. trace_line                     TraceLine(14) when $12 is true
-   27. copy_2_slots_unmasked          $0..1 = a, b
-   28. bitwise_and_int                $0 &= $1
-   29. copy_slot_unmasked             a_and_b = $0
-   30. trace_line                     TraceLine(15) when $12 is true
-   31. copy_slot_unmasked             $0 = b
-   32. copy_slot_unmasked             $1 = a
+   12. trace_var                      TraceVar(ok) when $12 is true
+   13. trace_line                     TraceLine(11) when $12 is true
+   14. copy_constant                  $0 = testMatrix2x2(0)
+   15. cast_to_int_from_float         $0 = FloatToInt($0)
+   16. copy_slot_unmasked             a = $0
+   17. trace_var                      TraceVar(a) when $12 is true
+   18. copy_2_constants               $0..1 = testMatrix2x2(0..1)
+   19. swizzle_1                      $0 = ($0..1).y
+   20. cast_to_int_from_float         $0 = FloatToInt($0)
+   21. copy_slot_unmasked             b = $0
+   22. trace_var                      TraceVar(b) when $12 is true
+   23. trace_line                     TraceLine(12) when $12 is true
+   24. copy_constant                  $0 = testMatrix2x2(2)
+   25. copy_slot_unmasked             c = $0
+   26. trace_var                      TraceVar(c) when $12 is true
+   27. copy_2_constants               $0..1 = testMatrix2x2(2..3)
+   28. swizzle_1                      $0 = ($0..1).y
+   29. copy_slot_unmasked             d = $0
+   30. trace_var                      TraceVar(d) when $12 is true
+   31. trace_line                     TraceLine(14) when $12 is true
+   32. copy_2_slots_unmasked          $0..1 = a, b
    33. bitwise_and_int                $0 &= $1
-   34. copy_slot_unmasked             b_and_a = $0
-   35. trace_line                     TraceLine(16) when $12 is true
-   36. copy_slot_unmasked             $0 = ok
-   37. copy_2_slots_unmasked          $1..2 = a_and_b, b_and_a
-   38. cmpeq_int                      $1 = equal($1, $2)
+   34. copy_slot_unmasked             a_and_b = $0
+   35. trace_var                      TraceVar(a_and_b) when $12 is true
+   36. trace_line                     TraceLine(15) when $12 is true
+   37. copy_slot_unmasked             $0 = b
+   38. copy_slot_unmasked             $1 = a
    39. bitwise_and_int                $0 &= $1
-   40. copy_slot_unmasked             ok = $0
-   41. trace_line                     TraceLine(18) when $12 is true
-   42. copy_2_slots_unmasked          $0..1 = a, b
-   43. bitwise_or_int                 $0 |= $1
-   44. copy_slot_unmasked             a_or_b = $0
-   45. trace_line                     TraceLine(19) when $12 is true
-   46. copy_slot_unmasked             $0 = b
-   47. copy_slot_unmasked             $1 = a
-   48. bitwise_or_int                 $0 |= $1
-   49. copy_slot_unmasked             b_or_a = $0
-   50. trace_line                     TraceLine(20) when $12 is true
-   51. copy_slot_unmasked             $0 = ok
-   52. copy_2_slots_unmasked          $1..2 = a_or_b, b_or_a
-   53. cmpeq_int                      $1 = equal($1, $2)
-   54. bitwise_and_int                $0 &= $1
-   55. copy_slot_unmasked             ok = $0
-   56. trace_line                     TraceLine(22) when $12 is true
-   57. copy_2_slots_unmasked          $0..1 = a, b
-   58. bitwise_xor_int                $0 ^= $1
-   59. copy_slot_unmasked             a_xor_b = $0
-   60. trace_line                     TraceLine(23) when $12 is true
-   61. copy_slot_unmasked             $0 = b
-   62. copy_slot_unmasked             $1 = a
-   63. bitwise_xor_int                $0 ^= $1
-   64. copy_slot_unmasked             b_xor_a = $0
-   65. trace_line                     TraceLine(24) when $12 is true
-   66. copy_slot_unmasked             $0 = ok
-   67. copy_2_slots_unmasked          $1..2 = a_xor_b, b_xor_a
-   68. cmpeq_int                      $1 = equal($1, $2)
-   69. bitwise_and_int                $0 &= $1
-   70. copy_slot_unmasked             ok = $0
-   71. trace_line                     TraceLine(26) when $12 is true
-   72. copy_2_slots_unmasked          $0..1 = a, b
-   73. cmpeq_int                      $0 = equal($0, $1)
-   74. copy_slot_unmasked             a_eq_b = $0
-   75. trace_line                     TraceLine(27) when $12 is true
-   76. copy_slot_unmasked             $0 = b
-   77. copy_slot_unmasked             $1 = a
-   78. cmpeq_int                      $0 = equal($0, $1)
-   79. copy_slot_unmasked             b_eq_a = $0
-   80. trace_line                     TraceLine(28) when $12 is true
-   81. copy_slot_unmasked             $0 = ok
-   82. copy_2_slots_unmasked          $1..2 = a_eq_b, b_eq_a
-   83. cmpeq_int                      $1 = equal($1, $2)
-   84. bitwise_and_int                $0 &= $1
-   85. copy_slot_unmasked             ok = $0
-   86. trace_line                     TraceLine(30) when $12 is true
-   87. copy_2_slots_unmasked          $0..1 = a, b
-   88. cmpne_int                      $0 = notEqual($0, $1)
-   89. copy_slot_unmasked             a_neq_b = $0
-   90. trace_line                     TraceLine(31) when $12 is true
+   40. copy_slot_unmasked             b_and_a = $0
+   41. trace_var                      TraceVar(b_and_a) when $12 is true
+   42. trace_line                     TraceLine(16) when $12 is true
+   43. copy_slot_unmasked             $0 = ok
+   44. copy_2_slots_unmasked          $1..2 = a_and_b, b_and_a
+   45. cmpeq_int                      $1 = equal($1, $2)
+   46. bitwise_and_int                $0 &= $1
+   47. copy_slot_unmasked             ok = $0
+   48. trace_var                      TraceVar(ok) when $12 is true
+   49. trace_line                     TraceLine(18) when $12 is true
+   50. copy_2_slots_unmasked          $0..1 = a, b
+   51. bitwise_or_int                 $0 |= $1
+   52. copy_slot_unmasked             a_or_b = $0
+   53. trace_var                      TraceVar(a_or_b) when $12 is true
+   54. trace_line                     TraceLine(19) when $12 is true
+   55. copy_slot_unmasked             $0 = b
+   56. copy_slot_unmasked             $1 = a
+   57. bitwise_or_int                 $0 |= $1
+   58. copy_slot_unmasked             b_or_a = $0
+   59. trace_var                      TraceVar(b_or_a) when $12 is true
+   60. trace_line                     TraceLine(20) when $12 is true
+   61. copy_slot_unmasked             $0 = ok
+   62. copy_2_slots_unmasked          $1..2 = a_or_b, b_or_a
+   63. cmpeq_int                      $1 = equal($1, $2)
+   64. bitwise_and_int                $0 &= $1
+   65. copy_slot_unmasked             ok = $0
+   66. trace_var                      TraceVar(ok) when $12 is true
+   67. trace_line                     TraceLine(22) when $12 is true
+   68. copy_2_slots_unmasked          $0..1 = a, b
+   69. bitwise_xor_int                $0 ^= $1
+   70. copy_slot_unmasked             a_xor_b = $0
+   71. trace_var                      TraceVar(a_xor_b) when $12 is true
+   72. trace_line                     TraceLine(23) when $12 is true
+   73. copy_slot_unmasked             $0 = b
+   74. copy_slot_unmasked             $1 = a
+   75. bitwise_xor_int                $0 ^= $1
+   76. copy_slot_unmasked             b_xor_a = $0
+   77. trace_var                      TraceVar(b_xor_a) when $12 is true
+   78. trace_line                     TraceLine(24) when $12 is true
+   79. copy_slot_unmasked             $0 = ok
+   80. copy_2_slots_unmasked          $1..2 = a_xor_b, b_xor_a
+   81. cmpeq_int                      $1 = equal($1, $2)
+   82. bitwise_and_int                $0 &= $1
+   83. copy_slot_unmasked             ok = $0
+   84. trace_var                      TraceVar(ok) when $12 is true
+   85. trace_line                     TraceLine(26) when $12 is true
+   86. copy_2_slots_unmasked          $0..1 = a, b
+   87. cmpeq_int                      $0 = equal($0, $1)
+   88. copy_slot_unmasked             a_eq_b = $0
+   89. trace_var                      TraceVar(a_eq_b) when $12 is true
+   90. trace_line                     TraceLine(27) when $12 is true
    91. copy_slot_unmasked             $0 = b
    92. copy_slot_unmasked             $1 = a
-   93. cmpne_int                      $0 = notEqual($0, $1)
-   94. copy_slot_unmasked             b_neq_a = $0
-   95. trace_line                     TraceLine(32) when $12 is true
-   96. copy_slot_unmasked             $0 = ok
-   97. copy_2_slots_unmasked          $1..2 = a_neq_b, b_neq_a
-   98. cmpeq_int                      $1 = equal($1, $2)
-   99. bitwise_and_int                $0 &= $1
-  100. copy_slot_unmasked             ok = $0
-  101. trace_line                     TraceLine(34) when $12 is true
-  102. copy_2_slots_unmasked          $0..1 = a, b
-  103. add_int                        $0 += $1
-  104. copy_slot_unmasked             a_add_b = $0
-  105. trace_line                     TraceLine(35) when $12 is true
-  106. copy_slot_unmasked             $0 = b
-  107. copy_slot_unmasked             $1 = a
-  108. add_int                        $0 += $1
-  109. copy_slot_unmasked             b_add_a = $0
-  110. trace_line                     TraceLine(36) when $12 is true
-  111. copy_slot_unmasked             $0 = ok
-  112. copy_2_slots_unmasked          $1..2 = a_add_b, b_add_a
-  113. cmpeq_int                      $1 = equal($1, $2)
-  114. bitwise_and_int                $0 &= $1
-  115. copy_slot_unmasked             ok = $0
-  116. trace_line                     TraceLine(38) when $12 is true
-  117. copy_2_slots_unmasked          $0..1 = c, d
-  118. add_float                      $0 += $1
-  119. copy_slot_unmasked             c_add_d = $0
-  120. trace_line                     TraceLine(39) when $12 is true
-  121. copy_slot_unmasked             $0 = d
-  122. copy_slot_unmasked             $1 = c
-  123. add_float                      $0 += $1
-  124. copy_slot_unmasked             d_add_c = $0
-  125. trace_line                     TraceLine(40) when $12 is true
-  126. copy_slot_unmasked             $0 = ok
-  127. copy_2_slots_unmasked          $1..2 = c_add_d, d_add_c
-  128. cmpeq_float                    $1 = equal($1, $2)
-  129. bitwise_and_int                $0 &= $1
-  130. copy_slot_unmasked             ok = $0
-  131. trace_line                     TraceLine(42) when $12 is true
-  132. copy_2_slots_unmasked          $0..1 = a, b
-  133. mul_int                        $0 *= $1
-  134. copy_slot_unmasked             a_mul_b = $0
-  135. trace_line                     TraceLine(43) when $12 is true
-  136. copy_slot_unmasked             $0 = b
-  137. copy_slot_unmasked             $1 = a
-  138. mul_int                        $0 *= $1
-  139. copy_slot_unmasked             b_mul_a = $0
-  140. trace_line                     TraceLine(44) when $12 is true
-  141. copy_slot_unmasked             $0 = ok
-  142. copy_2_slots_unmasked          $1..2 = a_mul_b, b_mul_a
-  143. cmpeq_int                      $1 = equal($1, $2)
-  144. bitwise_and_int                $0 &= $1
-  145. copy_slot_unmasked             ok = $0
-  146. trace_line                     TraceLine(46) when $12 is true
-  147. copy_2_slots_unmasked          $0..1 = c, d
-  148. mul_float                      $0 *= $1
-  149. copy_slot_unmasked             c_mul_d = $0
-  150. trace_line                     TraceLine(47) when $12 is true
-  151. copy_slot_unmasked             $0 = d
-  152. copy_slot_unmasked             $1 = c
-  153. mul_float                      $0 *= $1
-  154. copy_slot_unmasked             d_mul_c = $0
-  155. trace_line                     TraceLine(48) when $12 is true
-  156. copy_slot_unmasked             $0 = ok
-  157. copy_2_slots_unmasked          $1..2 = c_mul_d, d_mul_c
-  158. cmpeq_float                    $1 = equal($1, $2)
-  159. bitwise_and_int                $0 &= $1
-  160. copy_slot_unmasked             ok = $0
-  161. trace_line                     TraceLine(50) when $12 is true
-  162. copy_slot_unmasked             $0 = ok
-  163. swizzle_4                      $0..3 = ($0..3).xxxx
-  164. copy_4_constants               $4..7 = colorRed
-  165. copy_4_constants               $8..11 = colorGreen
-  166. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-  167. trace_scope                    TraceScope(-1) when $12 is true
-  168. trace_exit                     TraceExit(half4 main(float2 xy)) when $12 is true
-  169. load_src                       src.rgba = $0..3
+   93. cmpeq_int                      $0 = equal($0, $1)
+   94. copy_slot_unmasked             b_eq_a = $0
+   95. trace_var                      TraceVar(b_eq_a) when $12 is true
+   96. trace_line                     TraceLine(28) when $12 is true
+   97. copy_slot_unmasked             $0 = ok
+   98. copy_2_slots_unmasked          $1..2 = a_eq_b, b_eq_a
+   99. cmpeq_int                      $1 = equal($1, $2)
+  100. bitwise_and_int                $0 &= $1
+  101. copy_slot_unmasked             ok = $0
+  102. trace_var                      TraceVar(ok) when $12 is true
+  103. trace_line                     TraceLine(30) when $12 is true
+  104. copy_2_slots_unmasked          $0..1 = a, b
+  105. cmpne_int                      $0 = notEqual($0, $1)
+  106. copy_slot_unmasked             a_neq_b = $0
+  107. trace_var                      TraceVar(a_neq_b) when $12 is true
+  108. trace_line                     TraceLine(31) when $12 is true
+  109. copy_slot_unmasked             $0 = b
+  110. copy_slot_unmasked             $1 = a
+  111. cmpne_int                      $0 = notEqual($0, $1)
+  112. copy_slot_unmasked             b_neq_a = $0
+  113. trace_var                      TraceVar(b_neq_a) when $12 is true
+  114. trace_line                     TraceLine(32) when $12 is true
+  115. copy_slot_unmasked             $0 = ok
+  116. copy_2_slots_unmasked          $1..2 = a_neq_b, b_neq_a
+  117. cmpeq_int                      $1 = equal($1, $2)
+  118. bitwise_and_int                $0 &= $1
+  119. copy_slot_unmasked             ok = $0
+  120. trace_var                      TraceVar(ok) when $12 is true
+  121. trace_line                     TraceLine(34) when $12 is true
+  122. copy_2_slots_unmasked          $0..1 = a, b
+  123. add_int                        $0 += $1
+  124. copy_slot_unmasked             a_add_b = $0
+  125. trace_var                      TraceVar(a_add_b) when $12 is true
+  126. trace_line                     TraceLine(35) when $12 is true
+  127. copy_slot_unmasked             $0 = b
+  128. copy_slot_unmasked             $1 = a
+  129. add_int                        $0 += $1
+  130. copy_slot_unmasked             b_add_a = $0
+  131. trace_var                      TraceVar(b_add_a) when $12 is true
+  132. trace_line                     TraceLine(36) when $12 is true
+  133. copy_slot_unmasked             $0 = ok
+  134. copy_2_slots_unmasked          $1..2 = a_add_b, b_add_a
+  135. cmpeq_int                      $1 = equal($1, $2)
+  136. bitwise_and_int                $0 &= $1
+  137. copy_slot_unmasked             ok = $0
+  138. trace_var                      TraceVar(ok) when $12 is true
+  139. trace_line                     TraceLine(38) when $12 is true
+  140. copy_2_slots_unmasked          $0..1 = c, d
+  141. add_float                      $0 += $1
+  142. copy_slot_unmasked             c_add_d = $0
+  143. trace_var                      TraceVar(c_add_d) when $12 is true
+  144. trace_line                     TraceLine(39) when $12 is true
+  145. copy_slot_unmasked             $0 = d
+  146. copy_slot_unmasked             $1 = c
+  147. add_float                      $0 += $1
+  148. copy_slot_unmasked             d_add_c = $0
+  149. trace_var                      TraceVar(d_add_c) when $12 is true
+  150. trace_line                     TraceLine(40) when $12 is true
+  151. copy_slot_unmasked             $0 = ok
+  152. copy_2_slots_unmasked          $1..2 = c_add_d, d_add_c
+  153. cmpeq_float                    $1 = equal($1, $2)
+  154. bitwise_and_int                $0 &= $1
+  155. copy_slot_unmasked             ok = $0
+  156. trace_var                      TraceVar(ok) when $12 is true
+  157. trace_line                     TraceLine(42) when $12 is true
+  158. copy_2_slots_unmasked          $0..1 = a, b
+  159. mul_int                        $0 *= $1
+  160. copy_slot_unmasked             a_mul_b = $0
+  161. trace_var                      TraceVar(a_mul_b) when $12 is true
+  162. trace_line                     TraceLine(43) when $12 is true
+  163. copy_slot_unmasked             $0 = b
+  164. copy_slot_unmasked             $1 = a
+  165. mul_int                        $0 *= $1
+  166. copy_slot_unmasked             b_mul_a = $0
+  167. trace_var                      TraceVar(b_mul_a) when $12 is true
+  168. trace_line                     TraceLine(44) when $12 is true
+  169. copy_slot_unmasked             $0 = ok
+  170. copy_2_slots_unmasked          $1..2 = a_mul_b, b_mul_a
+  171. cmpeq_int                      $1 = equal($1, $2)
+  172. bitwise_and_int                $0 &= $1
+  173. copy_slot_unmasked             ok = $0
+  174. trace_var                      TraceVar(ok) when $12 is true
+  175. trace_line                     TraceLine(46) when $12 is true
+  176. copy_2_slots_unmasked          $0..1 = c, d
+  177. mul_float                      $0 *= $1
+  178. copy_slot_unmasked             c_mul_d = $0
+  179. trace_var                      TraceVar(c_mul_d) when $12 is true
+  180. trace_line                     TraceLine(47) when $12 is true
+  181. copy_slot_unmasked             $0 = d
+  182. copy_slot_unmasked             $1 = c
+  183. mul_float                      $0 *= $1
+  184. copy_slot_unmasked             d_mul_c = $0
+  185. trace_var                      TraceVar(d_mul_c) when $12 is true
+  186. trace_line                     TraceLine(48) when $12 is true
+  187. copy_slot_unmasked             $0 = ok
+  188. copy_2_slots_unmasked          $1..2 = c_mul_d, d_mul_c
+  189. cmpeq_float                    $1 = equal($1, $2)
+  190. bitwise_and_int                $0 &= $1
+  191. copy_slot_unmasked             ok = $0
+  192. trace_var                      TraceVar(ok) when $12 is true
+  193. trace_line                     TraceLine(50) when $12 is true
+  194. copy_slot_unmasked             $0 = ok
+  195. swizzle_4                      $0..3 = ($0..3).xxxx
+  196. copy_4_constants               $4..7 = colorRed
+  197. copy_4_constants               $8..11 = colorGreen
+  198. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+  199. trace_scope                    TraceScope(-1) when $12 is true
+  200. trace_exit                     TraceExit(half4 main(float2 xy)) when $12 is true
+  201. load_src                       src.rgba = $0..3

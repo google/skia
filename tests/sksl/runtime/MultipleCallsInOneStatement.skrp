@@ -9,40 +9,44 @@
     9. trace_scope                    TraceScope(+1) when $12 is true
    10. trace_line                     TraceLine(11) when $12 is true
    11. copy_constant                  x = 0x00000005 (7.006492e-45)
-   12. trace_enter                    TraceEnter(int get(int x)) when $12 is true
-   13. trace_scope                    TraceScope(+1) when $12 is true
-   14. trace_line                     TraceLine(6) when $12 is true
-   15. copy_slot_unmasked             $0 = x
-   16. trace_scope                    TraceScope(-1) when $12 is true
-   17. trace_exit                     TraceExit(int get(int x)) when $12 is true
-   18. label                          label 0x00000000
-   19. copy_constant                  x = 0x00000003 (4.203895e-45)
-   20. trace_enter                    TraceEnter(int get(int x)) when $12 is true
-   21. trace_scope                    TraceScope(+1) when $12 is true
-   22. trace_line                     TraceLine(6) when $12 is true
-   23. copy_slot_unmasked             $1 = x
-   24. trace_scope                    TraceScope(-1) when $12 is true
-   25. trace_exit                     TraceExit(int get(int x)) when $12 is true
-   26. label                          label 0x00000001
-   27. add_int                        $0 += $1
-   28. copy_constant                  x = 0x00000002 (2.802597e-45)
-   29. trace_enter                    TraceEnter(int get(int x)) when $12 is true
-   30. trace_scope                    TraceScope(+1) when $12 is true
-   31. trace_line                     TraceLine(6) when $12 is true
-   32. copy_slot_unmasked             $1 = x
-   33. trace_scope                    TraceScope(-1) when $12 is true
-   34. trace_exit                     TraceExit(int get(int x)) when $12 is true
-   35. label                          label 0x00000002
-   36. add_int                        $0 += $1
-   37. copy_slot_unmasked             ten = $0
-   38. trace_line                     TraceLine(12) when $12 is true
-   39. copy_slot_unmasked             $0 = ten
-   40. copy_constant                  $1 = 0x0000000A (1.401298e-44)
-   41. cmpeq_int                      $0 = equal($0, $1)
-   42. swizzle_4                      $0..3 = ($0..3).xxxx
-   43. copy_4_constants               $4..7 = colorRed
-   44. copy_4_constants               $8..11 = colorGreen
-   45. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   46. trace_scope                    TraceScope(-1) when $12 is true
-   47. trace_exit                     TraceExit(half4 main(float2 pos)) when $12 is true
-   48. load_src                       src.rgba = $0..3
+   12. trace_var                      TraceVar(x) when $12 is true
+   13. trace_enter                    TraceEnter(int get(int x)) when $12 is true
+   14. trace_scope                    TraceScope(+1) when $12 is true
+   15. trace_line                     TraceLine(6) when $12 is true
+   16. copy_slot_unmasked             $0 = x
+   17. trace_scope                    TraceScope(-1) when $12 is true
+   18. trace_exit                     TraceExit(int get(int x)) when $12 is true
+   19. label                          label 0x00000000
+   20. copy_constant                  x = 0x00000003 (4.203895e-45)
+   21. trace_var                      TraceVar(x) when $12 is true
+   22. trace_enter                    TraceEnter(int get(int x)) when $12 is true
+   23. trace_scope                    TraceScope(+1) when $12 is true
+   24. trace_line                     TraceLine(6) when $12 is true
+   25. copy_slot_unmasked             $1 = x
+   26. trace_scope                    TraceScope(-1) when $12 is true
+   27. trace_exit                     TraceExit(int get(int x)) when $12 is true
+   28. label                          label 0x00000001
+   29. add_int                        $0 += $1
+   30. copy_constant                  x = 0x00000002 (2.802597e-45)
+   31. trace_var                      TraceVar(x) when $12 is true
+   32. trace_enter                    TraceEnter(int get(int x)) when $12 is true
+   33. trace_scope                    TraceScope(+1) when $12 is true
+   34. trace_line                     TraceLine(6) when $12 is true
+   35. copy_slot_unmasked             $1 = x
+   36. trace_scope                    TraceScope(-1) when $12 is true
+   37. trace_exit                     TraceExit(int get(int x)) when $12 is true
+   38. label                          label 0x00000002
+   39. add_int                        $0 += $1
+   40. copy_slot_unmasked             ten = $0
+   41. trace_var                      TraceVar(ten) when $12 is true
+   42. trace_line                     TraceLine(12) when $12 is true
+   43. copy_slot_unmasked             $0 = ten
+   44. copy_constant                  $1 = 0x0000000A (1.401298e-44)
+   45. cmpeq_int                      $0 = equal($0, $1)
+   46. swizzle_4                      $0..3 = ($0..3).xxxx
+   47. copy_4_constants               $4..7 = colorRed
+   48. copy_4_constants               $8..11 = colorGreen
+   49. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   50. trace_scope                    TraceScope(-1) when $12 is true
+   51. trace_exit                     TraceExit(half4 main(float2 pos)) when $12 is true
+   52. load_src                       src.rgba = $0..3

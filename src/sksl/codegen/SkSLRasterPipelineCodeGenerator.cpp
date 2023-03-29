@@ -309,14 +309,29 @@ public:
     [[nodiscard]] bool pushVariableReference(const VariableReference& v);
 
     /** Pops an expression from the value stack and copies it into slots. */
-    void popToSlotRange(SlotRange r) { fBuilder.pop_slots(r); }
-    void popToSlotRangeUnmasked(SlotRange r) { fBuilder.pop_slots_unmasked(r); }
+    void popToSlotRange(SlotRange r) {
+        fBuilder.pop_slots(r);
+        if (this->shouldWriteTraceOps()) {
+            fBuilder.trace_var(fTraceMask->stackID(), r);
+        }
+    }
+    void popToSlotRangeUnmasked(SlotRange r) {
+        fBuilder.pop_slots_unmasked(r);
+        if (this->shouldWriteTraceOps()) {
+            fBuilder.trace_var(fTraceMask->stackID(), r);
+        }
+    }
 
     /** Pops an expression from the value stack and discards it. */
     void discardExpression(int slots) { fBuilder.discard_stack(slots); }
 
     /** Zeroes out a range of slots. */
-    void zeroSlotRangeUnmasked(SlotRange r) { fBuilder.zero_slots_unmasked(r); }
+    void zeroSlotRangeUnmasked(SlotRange r) {
+        fBuilder.zero_slots_unmasked(r);
+        if (this->shouldWriteTraceOps()) {
+            fBuilder.trace_var(fTraceMask->stackID(), r);
+        }
+    }
 
     /**
      * Emits a trace_line opcode. writeStatement does this, and statements that alter control flow
@@ -329,6 +344,9 @@ public:
 
     /** Prepares our position-to-line-offset conversion table (stored in `fLineOffsets`). */
     void calculateLineOffsets();
+
+    bool shouldWriteTraceOps() { return fDebugTrace && fWriteTraceOps; }
+    int traceMaskStackID() { return fTraceMask->stackID(); }
 
     /** Expression utilities. */
     struct TypedOps {
@@ -767,6 +785,13 @@ public:
                                                                      swizzle.size());
             } else {
                 gen->builder()->swizzle_copy_stack_to_slots(fixedOffset, swizzle, swizzle.size());
+            }
+        }
+        if (gen->shouldWriteTraceOps()) {
+            if (dynamicOffset) {
+                // TODO: trace_var_indirect
+            } else {
+                gen->builder()->trace_var(gen->traceMaskStackID(), fixedOffset);
             }
         }
         return true;
