@@ -819,7 +819,7 @@ DEF_TEST(RasterPipelineBuilderTraceOps, r) {
         builder.trace_enter(123, 2);
         builder.trace_scope(123, +1);
         builder.trace_line(123, 456);
-        builder.trace_var(123, 3);
+        builder.trace_var(123, two_slots_at(3));
         builder.trace_scope(123, -1);
         builder.trace_exit(123, 2);
         // Discard the trace mask.
@@ -834,7 +834,7 @@ R"(    1. copy_constant                  $0 = 0xFFFFFFFF
     2. trace_enter                    TraceEnter(???) when $0 is true
     3. trace_scope                    TraceScope(+1) when $0 is true
     4. trace_line                     TraceLine(456) when $0 is true
-    5. trace_var                      TraceVar(v3) when $0 is true
+    5. trace_var                      TraceVar(v3..4) when $0 is true
     6. trace_scope                    TraceScope(-1) when $0 is true
     7. trace_exit                     TraceExit(???) when $0 is true
 )");
@@ -863,7 +863,7 @@ R"(    1. copy_constant                  $0 = 0xFFFFFFFF
     2. trace_enter                    TraceEnter(FunctionC) when $0 is true
     3. trace_scope                    TraceScope(+1) when $0 is true
     4. trace_line                     TraceLine(456) when $0 is true
-    5. trace_var                      TraceVar(Var3) when $0 is true
+    5. trace_var                      TraceVar(Var3, Var4) when $0 is true
     6. trace_scope                    TraceScope(-1) when $0 is true
     7. trace_exit                     TraceExit(FunctionC) when $0 is true
 )");

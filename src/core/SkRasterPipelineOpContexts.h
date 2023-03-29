@@ -225,7 +225,7 @@ struct SkRasterPipeline_TraceLineCtx {
 struct SkRasterPipeline_TraceVarCtx {
     const int* traceMask;
     SkSL::TraceHook* traceHook;
-    int slotIdx;
+    int slotIdx, numSlots;
     const int* data;
 };
 

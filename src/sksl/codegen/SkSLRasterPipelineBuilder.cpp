@@ -1781,6 +1781,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::trace_var: {
                 auto* ctx = AllocTraceContext((SkRasterPipeline_TraceVarCtx*)nullptr);
                 ctx->slotIdx = inst.fSlotA;
+                ctx->numSlots = inst.fImmB;
                 ctx->data = reinterpret_cast<int*>(SlotA());
                 pipeline->push_back({ProgramOp::trace_var, ctx});
                 break;
@@ -2476,7 +2477,7 @@ void Program::dump(SkWStream* out) const {
             case POp::trace_var: {
                 const auto* ctx = static_cast<SkRasterPipeline_TraceVarCtx*>(stage.ctx);
                 opArg1 = PtrCtx(ctx->traceMask, 1);
-                opArg2 = PtrCtx(ctx->data, 1);
+                opArg2 = PtrCtx(ctx->data, ctx->numSlots);
                 break;
             }
             case POp::trace_line: {

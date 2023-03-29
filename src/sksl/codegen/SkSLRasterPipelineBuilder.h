@@ -641,8 +641,8 @@ public:
         fInstructions.push_back({BuilderOp::trace_line, {}, traceMaskStackID, line});
     }
 
-    void trace_var(int traceMaskStackID, Slot slot) {
-        fInstructions.push_back({BuilderOp::trace_var, {slot}, traceMaskStackID});
+    void trace_var(int traceMaskStackID, SlotRange r) {
+        fInstructions.push_back({BuilderOp::trace_var, {r.index}, traceMaskStackID, r.count});
     }
 
     void trace_enter(int traceMaskStackID, int funcID) {

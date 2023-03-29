@@ -3440,8 +3440,13 @@ STAGE_TAIL(trace_var, SkRasterPipeline_TraceVarCtx* ctx) {
     if (any(mask)) {
         for (size_t lane = 0; lane < N; ++lane) {
             if (select_lane(mask, lane)) {
-                I32 data = *(I32*)ctx->data;
-                ctx->traceHook->var(ctx->slotIdx, select_lane(data, lane));
+                I32* data = (I32*)ctx->data;
+                int slotIdx = ctx->slotIdx, numSlots = ctx->numSlots;
+                while (numSlots--) {
+                    ctx->traceHook->var(slotIdx, select_lane(*data, lane));
+                    ++slotIdx;
+                    ++data;
+                }
                 break;
             }
         }

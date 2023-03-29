@@ -812,21 +812,28 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
     alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
     alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
-    alignas(64) static constexpr int32_t kData333[8] = {333, 333, 333, 333, 333, 333, 333, 333};
-    alignas(64) static constexpr int32_t kData555[8] = {555, 555, 555, 555, 555, 555, 555, 555};
-    alignas(64) static constexpr int32_t kData666[8] = {666, 666, 666, 666, 666, 666, 666, 666};
-    alignas(64) static constexpr int32_t kData777[8] = {777, 777, 777, 777, 777, 777, 777, 777};
-    alignas(64) static constexpr int32_t kData999[8] = {999, 999, 999, 999, 999, 999, 999, 999};
+    alignas(64) int32_t kData333[8];
+    alignas(64) int32_t kData555[8];
+    alignas(64) int32_t kData666[8];
+    alignas(64) int32_t kData777[16];
+    alignas(64) int32_t kData999[16];
+    std::fill(kData333,     kData333 + N,   333);
+    std::fill(kData555,     kData555 + N,   555);
+    std::fill(kData666,     kData666 + N,   666);
+    std::fill(kData777,     kData777 + N,   777);
+    std::fill(kData777 + N, kData777 + 2*N, 707);
+    std::fill(kData999,     kData999 + N,   999);
+    std::fill(kData999 + N, kData999 + 2*N, 909);
 
     TestTraceHook trace;
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
     SkRasterPipeline p(&alloc);
     p.append(SkRasterPipelineOp::init_lane_masks);
-    const SkRasterPipeline_TraceVarCtx kTraceVar1 = {/*traceMask=*/kMaskOff, &trace, 2, kData333};
-    const SkRasterPipeline_TraceVarCtx kTraceVar2 = {/*traceMask=*/kMaskOn,  &trace, 4, kData555};
-    const SkRasterPipeline_TraceVarCtx kTraceVar3 = {/*traceMask=*/kMaskOff, &trace, 5, kData666};
-    const SkRasterPipeline_TraceVarCtx kTraceVar4 = {/*traceMask=*/kMaskOn,  &trace, 6, kData777};
-    const SkRasterPipeline_TraceVarCtx kTraceVar5 = {/*traceMask=*/kMaskOn,  &trace, 8, kData999};
+    const SkRasterPipeline_TraceVarCtx kTraceVar1 = {/*traceMask=*/kMaskOff, &trace, 2,1, kData333};
+    const SkRasterPipeline_TraceVarCtx kTraceVar2 = {/*traceMask=*/kMaskOn,  &trace, 4,1, kData555};
+    const SkRasterPipeline_TraceVarCtx kTraceVar3 = {/*traceMask=*/kMaskOff, &trace, 5,1, kData666};
+    const SkRasterPipeline_TraceVarCtx kTraceVar4 = {/*traceMask=*/kMaskOn,  &trace, 6,2, kData777};
+    const SkRasterPipeline_TraceVarCtx kTraceVar5 = {/*traceMask=*/kMaskOn,  &trace, 8,2, kData999};
 
     p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
     p.append(SkRasterPipelineOp::trace_var, &kTraceVar1);
@@ -840,7 +847,7 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
     p.append(SkRasterPipelineOp::trace_var, &kTraceVar5);
     p.run(0,0,N,1);
 
-    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{4, 555, 6, 777}));
+    REPORTER_ASSERT(r, (trace.fBuffer == SkTArray<int>{4, 555, 6, 777, 7, 707}));
 }
 
 DEF_TEST(SkRasterPipeline_TraceLine, r) {
