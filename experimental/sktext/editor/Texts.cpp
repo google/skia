@@ -1,6 +1,7 @@
 // Copyright 2021 Google LLC.
 #include "experimental/sktext/editor/Texts.h"
 
+using namespace skia_private;
 using namespace skia::text;
 
 namespace skia {
@@ -49,8 +50,8 @@ void EditableText::paint(SkCanvas* canvas) {
     }
 }
 
-SkTArray<DecoratedBlock> EditableText::mergeSelectionIntoDecorations() {
-    SkTArray<DecoratedBlock> merged;
+TArray<DecoratedBlock> EditableText::mergeSelectionIntoDecorations() {
+    TArray<DecoratedBlock> merged;
     merged.reserve_back(fDecorations.size() + fSelection->count());
 
     size_t indexDecor = 0ul;                        // index in fDecorations

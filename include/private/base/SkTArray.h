@@ -684,9 +684,4 @@ public:
     using INHERITED::data;
     using INHERITED::size;
 };
-
-// TODO: remove this typedef when all uses have been converted from SkTArray to TArray.
-template <typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
-using SkTArray = skia_private::TArray<T, MEM_MOVE>;
-
 #endif

@@ -212,8 +212,8 @@ std::unique_ptr<ShapedText> FontResolvedText::shape(UnicodeText* unicodeText,
     auto text16 = unicodeText->getText16();
     auto text8 = SkUnicode::convertUtf16ToUtf8(std::u16string(text16.data(), text16.size()));
     size_t utf16Index = 0;
-    SkTArray<size_t, true> UTF16FromUTF8;
-    SkTArray<size_t, true> UTF8FromUTF16;
+    TArray<size_t, true> UTF16FromUTF8;
+    TArray<size_t, true> UTF8FromUTF16;
     UTF16FromUTF8.push_back_n(text8.size() + 1, utf16Index);
     UTF8FromUTF16.push_back_n(text16.size() + 1, utf16Index);
     unicodeText->getUnicode()->forEachCodepoint(text8.c_str(), text8.size(),
@@ -241,7 +241,7 @@ std::unique_ptr<ShapedText> FontResolvedText::shape(UnicodeText* unicodeText,
     }
     formattingMarks.emplace_back(text8.size()/* UTF8FromUTF16[text16.size() */);
     // Convert fontBlocks from utf16 to utf8
-    SkTArray<ResolvedFontBlock, true> fontBlocks8;
+    TArray<ResolvedFontBlock, true> fontBlocks8;
     for (auto& fb : fResolvedFonts) {
         TextRange text8(UTF8FromUTF16[fb.textRange.fStart], UTF8FromUTF16[fb.textRange.fEnd]);
         fontBlocks8.emplace_back(text8, fb.typeface, fb.size, fb.style);
@@ -412,14 +412,14 @@ std::unique_ptr<WrappedText> ShapedText::wrap(UnicodeText* unicodeText, float wi
     return wrappedText;
 }
 
-SkTArray<int32_t> ShapedText::getVisualOrder(SkUnicode* unicode, RunIndex startRun, RunIndex endRun) {
+TArray<int32_t> ShapedText::getVisualOrder(SkUnicode* unicode, RunIndex startRun, RunIndex endRun) {
     auto numRuns = endRun - startRun + 1;
-    SkTArray<int32_t> results;
+    TArray<int32_t> results;
     results.push_back_n(numRuns);
     if (numRuns == 0) {
         return results;
     }
-    SkTArray<SkUnicode::BidiLevel> runLevels;
+    TArray<SkUnicode::BidiLevel> runLevels;
     runLevels.push_back_n(numRuns);
     size_t runLevelsIndex = 0;
     for (RunIndex runIndex = startRun; runIndex <= endRun; ++runIndex) {

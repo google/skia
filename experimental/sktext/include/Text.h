@@ -81,7 +81,7 @@ public:
 private:
     void initialize(SkSpan<uint16_t> utf16);
 
-    SkTArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
+    skia_private::TArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
     std::u16string fText16;
     std::unique_ptr<SkUnicode> fUnicode;
 };
@@ -109,7 +109,7 @@ public:
     SkSpan<ResolvedFontBlock> resolvedFonts() { return SkSpan<ResolvedFontBlock>(fResolvedFonts.data(), fResolvedFonts.size()); }
 private:
     friend class UnicodeText;
-    SkTArray<ResolvedFontBlock, true> fResolvedFonts;
+    skia_private::TArray<ResolvedFontBlock, true> fResolvedFonts;
 };
 
 class WrappedText;
@@ -153,10 +153,10 @@ private:
 
     void addLine(WrappedText* wrappedText, SkUnicode* unicode, Stretch& stretch, Stretch& spaces, bool hardLineBreak);
 
-    SkTArray<int32_t> getVisualOrder(SkUnicode* unicode, RunIndex start, RunIndex end);
+    skia_private::TArray<int32_t> getVisualOrder(SkUnicode* unicode, RunIndex start, RunIndex end);
 
     // This is all the results from shaping
-    SkTArray<LogicalRun, false> fLogicalRuns;
+    skia_private::TArray<LogicalRun, false> fLogicalRuns;
 
     // Temporary values
     std::unique_ptr<LogicalRun> fCurrentRun;
@@ -239,8 +239,8 @@ private:
     friend class ShapedText;
     WrappedText() : fActualSize(SkSize::MakeEmpty()), fAligned(TextAlign::kNothing) { }
     GlyphRange textToGlyphs(UnicodeText* unicodeText, PositionType positionType, RunIndex runIndex, DirTextRange dirTextRange) const;
-    SkTArray<VisualRun, true> fVisualRuns;    // Broken by lines
-    SkTArray<VisualLine, false> fVisualLines;
+    skia_private::TArray<VisualRun, true> fVisualRuns;    // Broken by lines
+    skia_private::TArray<VisualLine, false> fVisualLines;
     SkSize fActualSize;
     TextAlign fAligned;
 };
@@ -293,8 +293,8 @@ struct Position {
 struct BoxLine {
     BoxLine(size_t index, TextRange text, bool hardBreak, SkRect bounds)
         : fTextRange(text), fIndex(index), fIsHardBreak(hardBreak), fBounds(bounds) { }
-    SkTArray<SkRect, true> fBoxGlyphs;
-    SkTArray<TextIndex, true> fTextByGlyph; // by glyph cluster
+    skia_private::TArray<SkRect, true> fBoxGlyphs;
+    skia_private::TArray<TextIndex, true> fTextByGlyph; // by glyph cluster
     GlyphIndex fTextEnd;
     GlyphIndex fTrailingSpacesEnd;
     TextRange fTextRange;
@@ -364,8 +364,8 @@ private:
     // So it's guaranteed to be one text range
     TextRange glyphsToText(Position position) const;
 
-    SkTArray<BoxLine, true> fBoxLines;
-    SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;
+    skia_private::TArray<BoxLine, true> fBoxLines;
+    skia_private::TArray<GlyphUnitFlags, true> fGlyphUnitProperties;
     SkSize fActualSize;
 };
 

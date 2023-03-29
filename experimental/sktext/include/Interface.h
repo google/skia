@@ -148,8 +148,8 @@ struct Position {
 };
 struct BoxLine {
     BoxLine(size_t index, TextRange text, bool hardBreak, SkRect bounds);
-    SkTArray<SkRect, true> fBoxGlyphs;
-    SkTArray<TextIndex, true> fTextByGlyph; // by glyph cluster
+    skia_private::TArray<SkRect, true> fBoxGlyphs;
+    skia_private::TArray<TextIndex, true> fTextByGlyph; // by glyph cluster
     GlyphIndex fTextEnd;
     GlyphIndex fTrailingSpacesEnd;
     TextRange fTextRange;
