@@ -460,7 +460,7 @@ Milestone 90
   * Fix several minor issues in lighting image filters:
     - The spotlight falloff exponent is no longer clamped to [1, 128]. SVG 1.1 requires the specular
       lighting effect's exponent (shininess) to be clamped; not the spotlight's falloff. Any such
-      parameter clamping is the client's responisibility, which makes Skia's lighting effect easily
+      parameter clamping is the client's responsibility, which makes Skia's lighting effect easily
       adaptable to SVG 1.1 (clamp exponent) or SVG 2 (no clamp).
     - Fix spotlight incorrectly scaling light within the cone angle.
     - Move saturation of RGBA to after multiplying lighting intensity with the lighting color, which
@@ -471,8 +471,11 @@ Milestone 90
     New code should use the new entry point – migration CLs will be coming soon.
     https://review.skia.org/373716
 
+* * *
+
 Milestone 89
 ------------
+
   * Removed SkYUVAIndex and SkYUVASizeInfo. These were no longer used in any
     public APIs.
     https://review.skia.org/352497
