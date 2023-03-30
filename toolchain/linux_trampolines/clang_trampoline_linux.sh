@@ -50,6 +50,7 @@ supported_files_or_dirs=(
   "src/core/SkFlattenable.cpp"
   "src/core/SkGeometry.cpp"
   "src/core/SkGlyph.cpp"
+  "src/core/SkGlyphRunPainter.cpp"
   "src/core/SkICC.cpp"
   "src/core/SkImageInfo.cpp"
   "src/core/SkImageGenerator.cpp"

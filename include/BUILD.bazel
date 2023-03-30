@@ -77,6 +77,7 @@ generate_cpp_files_for_headers(
         "include/core/SkPathTypes.h",
         "include/core/SkRefCnt.h",
         "include/core/SkScalar.h",
+        "include/core/SkSerialProcs.h",
         "include/core/SkSize.h",
         "include/core/SkTypes.h",
         "include/encode/SkEncoder.h",

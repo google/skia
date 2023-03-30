@@ -6,11 +6,14 @@
  * found in the LICENSE file.
  */
 
+#include "src/ports/SkFontHost_FreeType_common.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/effects/SkGradientShader.h"
@@ -19,7 +22,6 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkFDot6.h"
 #include "src/core/SkSwizzlePriv.h"
-#include "src/ports/SkFontHost_FreeType_common.h"
 
 #include <algorithm>
 #include <utility>

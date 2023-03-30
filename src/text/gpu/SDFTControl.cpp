@@ -14,8 +14,10 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #include <tuple>
 

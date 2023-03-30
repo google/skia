@@ -8,22 +8,33 @@
 #include "src/core/SkGlyphRunPainter.h"
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkColorFilter.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkMaskFilter.h"
-#include "include/core/SkPathEffect.h"
-#include "include/private/base/SkTDArray.h"
-#include "src/core/SkDevice.h"
-#include "src/core/SkDraw.h"
-#include "src/core/SkEnumerate.h"
-#include "src/core/SkFontPriv.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkRasterClip.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
-#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/text/GlyphRun.h"
+
+#include <algorithm>
+#include <initializer_list>
+#include <tuple>
+#include <vector>
 
 using namespace skglyph;
 using namespace sktext;

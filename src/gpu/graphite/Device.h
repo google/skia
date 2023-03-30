@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Device_DEFINED
 #define skgpu_graphite_Device_DEFINED
 
+#include "include/core/SkImage.h"
 #include "include/gpu/GpuTypes.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkEnumBitMask.h"

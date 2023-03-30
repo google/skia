@@ -45,7 +45,7 @@ class ShowMipLevels3 : public skiagm::GM {
             auto surf = SkSurface::MakeRasterDirect(builder.level(i));
             surf->getCanvas()->drawColor(colors[i % std::size(colors)]);
         }
-        fImg = builder.attachTo(fImg.get());
+        fImg = builder.attachTo(fImg);
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString*) override {

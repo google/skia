@@ -18,6 +18,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPictureRecorder.h"
