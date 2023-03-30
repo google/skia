@@ -1365,9 +1365,19 @@ bool Generator::writeGlobals() {
 }
 
 bool Generator::writeStatement(const Statement& s) {
-    // The debugger should stop on all types of statements, except for Blocks.
-    if (!s.is<Block>()) {
-        this->emitTraceLine(s.fPosition);
+    switch (s.kind()) {
+        case Statement::Kind::kBlock:
+            // The debugger will stop on statements inside Blocks; there's no need for an additional
+            // stop on the block's initial open-brace.
+        case Statement::Kind::kFor:
+            // The debugger will stop on the init-statement of a for statement, so we don't need to
+            // stop on the outer for-statement itself as well.
+            break;
+
+        default:
+            // The debugger should stop on other statements.
+            this->emitTraceLine(s.fPosition);
+            break;
     }
 
     switch (s.kind()) {
@@ -1598,8 +1608,12 @@ bool Generator::writeForStatement(const ForStatement& f) {
     AutoLoopTarget breakTarget(this, &fCurrentBreakTarget);
 
     // Run the loop initializer.
-    if (f.initializer() && !this->writeStatement(*f.initializer())) {
-        return unsupported();
+    if (f.initializer()) {
+        if (!this->writeStatement(*f.initializer())) {
+            return unsupported();
+        }
+    } else {
+        this->emitTraceLine(f.fPosition);
     }
 
     AutoContinueMask autoContinueMask(this);

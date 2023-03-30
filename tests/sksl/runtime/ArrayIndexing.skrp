@@ -23,142 +23,139 @@
    23. trace_line                     TraceLine(10) when $10 is true
    24. zero_slot_unmasked             sum = 0
    25. trace_var                      TraceVar(sum) when $10 is true
-   26. trace_line                     TraceLine(11) when $10 is true
-   27. trace_scope                    TraceScope(+1) when $10 is true
-   28. trace_line                     TraceLine(11) when $10 is true
-   29. copy_constant                  i = 0x00000003 (4.203895e-45)
-   30. trace_var                      TraceVar(i) when $10 is true
-   31. label                          label 0x00000003
-   32. trace_scope                    TraceScope(+1) when $10 is true
-   33. trace_line                     TraceLine(12) when $10 is true
-   34. copy_slot_unmasked             $1 = sum
-   35. copy_slot_unmasked             $7 = i
-   36. copy_from_indirect_uniform_unm $2 = Indirect(u2[0] + $7)
-   37. add_float                      $1 += $2
-   38. copy_slot_unmasked             sum = $1
-   39. trace_var                      TraceVar(sum) when $10 is true
-   40. trace_scope                    TraceScope(-1) when $10 is true
-   41. trace_line                     TraceLine(11) when $10 is true
-   42. copy_slot_unmasked             $1 = i
-   43. copy_constant                  $2 = 0x00000001 (1.401298e-45)
-   44. sub_int                        $1 -= $2
-   45. copy_slot_unmasked             i = $1
-   46. trace_var                      TraceVar(i) when $10 is true
-   47. zero_slot_unmasked             $1 = 0
-   48. copy_slot_unmasked             $2 = i
-   49. cmple_int                      $1 = lessThanEqual($1, $2)
-   50. stack_rewind
-   51. branch_if_no_active_lanes_eq   branch -20 (label 3 at #31) if no lanes of $1 == 0x00000000 (0.0)
-   52. label                          label 0x00000002
-   53. trace_scope                    TraceScope(-1) when $10 is true
-   54. trace_line                     TraceLine(14) when $10 is true
-   55. copy_slot_unmasked             [index_by_loop].result = sum
-   56. trace_var                      TraceVar([index_by_loop].result) when $10 is true
-   57. trace_scope                    TraceScope(-1) when $10 is true
-   58. trace_exit                     TraceExit(float index_by_loop()) when $10 is true
-   59. copy_slot_unmasked             $1 = [index_by_loop].result
-   60. label                          label 0x00000001
-   61. trace_enter                    TraceEnter(float index_by_complex_loop()) when $10 is true
-   62. trace_scope                    TraceScope(+1) when $10 is true
-   63. trace_line                     TraceLine(19) when $10 is true
-   64. copy_constant                  prod = 0x3F800000 (1.0)
-   65. trace_var                      TraceVar(prod) when $10 is true
+   26. trace_scope                    TraceScope(+1) when $10 is true
+   27. trace_line                     TraceLine(11) when $10 is true
+   28. copy_constant                  i = 0x00000003 (4.203895e-45)
+   29. trace_var                      TraceVar(i) when $10 is true
+   30. label                          label 0x00000003
+   31. trace_scope                    TraceScope(+1) when $10 is true
+   32. trace_line                     TraceLine(12) when $10 is true
+   33. copy_slot_unmasked             $1 = sum
+   34. copy_slot_unmasked             $7 = i
+   35. copy_from_indirect_uniform_unm $2 = Indirect(u2[0] + $7)
+   36. add_float                      $1 += $2
+   37. copy_slot_unmasked             sum = $1
+   38. trace_var                      TraceVar(sum) when $10 is true
+   39. trace_scope                    TraceScope(-1) when $10 is true
+   40. trace_line                     TraceLine(11) when $10 is true
+   41. copy_slot_unmasked             $1 = i
+   42. copy_constant                  $2 = 0x00000001 (1.401298e-45)
+   43. sub_int                        $1 -= $2
+   44. copy_slot_unmasked             i = $1
+   45. trace_var                      TraceVar(i) when $10 is true
+   46. zero_slot_unmasked             $1 = 0
+   47. copy_slot_unmasked             $2 = i
+   48. cmple_int                      $1 = lessThanEqual($1, $2)
+   49. stack_rewind
+   50. branch_if_no_active_lanes_eq   branch -20 (label 3 at #30) if no lanes of $1 == 0x00000000 (0.0)
+   51. label                          label 0x00000002
+   52. trace_scope                    TraceScope(-1) when $10 is true
+   53. trace_line                     TraceLine(14) when $10 is true
+   54. copy_slot_unmasked             [index_by_loop].result = sum
+   55. trace_var                      TraceVar([index_by_loop].result) when $10 is true
+   56. trace_scope                    TraceScope(-1) when $10 is true
+   57. trace_exit                     TraceExit(float index_by_loop()) when $10 is true
+   58. copy_slot_unmasked             $1 = [index_by_loop].result
+   59. label                          label 0x00000001
+   60. trace_enter                    TraceEnter(float index_by_complex_loop()) when $10 is true
+   61. trace_scope                    TraceScope(+1) when $10 is true
+   62. trace_line                     TraceLine(19) when $10 is true
+   63. copy_constant                  prod = 0x3F800000 (1.0)
+   64. trace_var                      TraceVar(prod) when $10 is true
+   65. trace_scope                    TraceScope(+1) when $10 is true
    66. trace_line                     TraceLine(20) when $10 is true
-   67. trace_scope                    TraceScope(+1) when $10 is true
-   68. trace_line                     TraceLine(20) when $10 is true
-   69. zero_slot_unmasked             i₁ = 0
-   70. trace_var                      TraceVar(i₁) when $10 is true
-   71. label                          label 0x00000006
-   72. trace_scope                    TraceScope(+1) when $10 is true
-   73. trace_line                     TraceLine(21) when $10 is true
-   74. copy_slot_unmasked             $2 = prod
-   75. copy_slot_unmasked             $7 = i₁
-   76. copy_constant                  $8 = 0x00000002 (2.802597e-45)
-   77. cmplt_int                      $7 = lessThan($7, $8)
-   78. copy_slot_unmasked             $8 = i₁
-   79. zero_slot_unmasked             $9 = 0
-   80. mix_int                        $7 = mix($8, $9, $7)
-   81. copy_from_indirect_uniform_unm $3 = Indirect(u3[0] + $7)
-   82. mul_float                      $2 *= $3
-   83. copy_slot_unmasked             prod = $2
-   84. trace_var                      TraceVar(prod) when $10 is true
-   85. trace_scope                    TraceScope(-1) when $10 is true
-   86. trace_line                     TraceLine(20) when $10 is true
-   87. copy_slot_unmasked             $2 = i₁
-   88. copy_constant                  $3 = 0x00000001 (1.401298e-45)
-   89. add_int                        $2 += $3
-   90. copy_slot_unmasked             i₁ = $2
-   91. trace_var                      TraceVar(i₁) when $10 is true
-   92. copy_slot_unmasked             $2 = i₁
-   93. copy_constant                  $3 = 0x00000004 (5.605194e-45)
-   94. cmplt_int                      $2 = lessThan($2, $3)
-   95. stack_rewind
-   96. branch_if_no_active_lanes_eq   branch -25 (label 6 at #71) if no lanes of $2 == 0x00000000 (0.0)
-   97. label                          label 0x00000005
-   98. trace_scope                    TraceScope(-1) when $10 is true
-   99. trace_line                     TraceLine(23) when $10 is true
-  100. copy_slot_unmasked             [index_by_complex_loop].result = prod
-  101. trace_var                      TraceVar([index_by_complex_loop].result) when $10 is true
-  102. trace_scope                    TraceScope(-1) when $10 is true
-  103. trace_exit                     TraceExit(float index_by_complex_loop()) when $10 is true
-  104. copy_slot_unmasked             $2 = [index_by_complex_loop].result
-  105. label                          label 0x00000004
-  106. trace_enter                    TraceEnter(float index_out_of_bounds_checked()) when $10 is true
-  107. trace_scope                    TraceScope(+1) when $10 is true
-  108. trace_line                     TraceLine(28) when $10 is true
-  109. zero_slot_unmasked             sum₁ = 0
-  110. trace_var                      TraceVar(sum₁) when $10 is true
-  111. trace_line                     TraceLine(29) when $10 is true
-  112. trace_scope                    TraceScope(+1) when $10 is true
-  113. trace_line                     TraceLine(29) when $10 is true
-  114. copy_constant                  f = 0xC0133333 (-2.3)
-  115. trace_var                      TraceVar(f) when $10 is true
-  116. label                          label 0x0000000A
-  117. trace_scope                    TraceScope(+1) when $10 is true
-  118. trace_line                     TraceLine(30) when $10 is true
-  119. store_condition_mask           $3 = CondMask
-  120. zero_slot_unmasked             $4 = 0
-  121. copy_slot_unmasked             $5 = f
-  122. cmplt_float                    $4 = lessThan($4, $5)
-  123. copy_slot_unmasked             $5 = f
-  124. copy_constant                  $6 = 0x41800000 (16.0)
-  125. cmplt_float                    $5 = lessThan($5, $6)
-  126. bitwise_and_int                $4 &= $5
-  127. merge_condition_mask           CondMask = $3 & $4
-  128. trace_scope                    TraceScope(+1) when $10 is true
-  129. trace_line                     TraceLine(31) when $10 is true
-  130. copy_slot_unmasked             $5 = sum₁
-  131. copy_slot_unmasked             $7 = f
-  132. cast_to_int_from_float         $7 = FloatToInt($7)
-  133. copy_from_indirect_uniform_unm $6 = Indirect(u4[0] + $7)
-  134. sub_float                      $5 -= $6
-  135. copy_slot_masked               sum₁ = Mask($5)
-  136. trace_var                      TraceVar(sum₁) when $10 is true
-  137. trace_scope                    TraceScope(-1) when $10 is true
-  138. load_condition_mask            CondMask = $3
-  139. trace_scope                    TraceScope(-1) when $10 is true
-  140. trace_line                     TraceLine(29) when $10 is true
-  141. copy_slot_unmasked             $3 = f
-  142. copy_constant                  $4 = 0x406CCCCD (3.7)
-  143. add_float                      $3 += $4
-  144. copy_slot_unmasked             f = $3
-  145. trace_var                      TraceVar(f) when $10 is true
-  146. copy_slot_unmasked             $3 = f
-  147. copy_constant                  $4 = 0x41880000 (17.0)
-  148. cmplt_float                    $3 = lessThan($3, $4)
-  149. stack_rewind
-  150. branch_if_no_active_lanes_eq   branch -34 (label 10 at #116) if no lanes of $3 == 0x00000000 (0.0)
-  151. label                          label 0x00000009
-  152. trace_scope                    TraceScope(-1) when $10 is true
-  153. trace_line                     TraceLine(34) when $10 is true
-  154. copy_slot_unmasked             [index_out_of_bounds_checked].result = sum₁
-  155. trace_var                      TraceVar([index_out_of_bounds_checked].result) when $10 is true
-  156. trace_scope                    TraceScope(-1) when $10 is true
-  157. trace_exit                     TraceExit(float index_out_of_bounds_checked()) when $10 is true
-  158. copy_slot_unmasked             $3 = [index_out_of_bounds_checked].result
-  159. label                          label 0x00000008
-  160. copy_4_slots_unmasked          [main].result = $0..3
-  161. trace_var                      TraceVar([main].result) when $10 is true
-  162. trace_scope                    TraceScope(-1) when $10 is true
-  163. trace_exit                     TraceExit(float4 main(float2 xy)) when $10 is true
-  164. load_src                       src.rgba = [main].result
+   67. zero_slot_unmasked             i₁ = 0
+   68. trace_var                      TraceVar(i₁) when $10 is true
+   69. label                          label 0x00000006
+   70. trace_scope                    TraceScope(+1) when $10 is true
+   71. trace_line                     TraceLine(21) when $10 is true
+   72. copy_slot_unmasked             $2 = prod
+   73. copy_slot_unmasked             $7 = i₁
+   74. copy_constant                  $8 = 0x00000002 (2.802597e-45)
+   75. cmplt_int                      $7 = lessThan($7, $8)
+   76. copy_slot_unmasked             $8 = i₁
+   77. zero_slot_unmasked             $9 = 0
+   78. mix_int                        $7 = mix($8, $9, $7)
+   79. copy_from_indirect_uniform_unm $3 = Indirect(u3[0] + $7)
+   80. mul_float                      $2 *= $3
+   81. copy_slot_unmasked             prod = $2
+   82. trace_var                      TraceVar(prod) when $10 is true
+   83. trace_scope                    TraceScope(-1) when $10 is true
+   84. trace_line                     TraceLine(20) when $10 is true
+   85. copy_slot_unmasked             $2 = i₁
+   86. copy_constant                  $3 = 0x00000001 (1.401298e-45)
+   87. add_int                        $2 += $3
+   88. copy_slot_unmasked             i₁ = $2
+   89. trace_var                      TraceVar(i₁) when $10 is true
+   90. copy_slot_unmasked             $2 = i₁
+   91. copy_constant                  $3 = 0x00000004 (5.605194e-45)
+   92. cmplt_int                      $2 = lessThan($2, $3)
+   93. stack_rewind
+   94. branch_if_no_active_lanes_eq   branch -25 (label 6 at #69) if no lanes of $2 == 0x00000000 (0.0)
+   95. label                          label 0x00000005
+   96. trace_scope                    TraceScope(-1) when $10 is true
+   97. trace_line                     TraceLine(23) when $10 is true
+   98. copy_slot_unmasked             [index_by_complex_loop].result = prod
+   99. trace_var                      TraceVar([index_by_complex_loop].result) when $10 is true
+  100. trace_scope                    TraceScope(-1) when $10 is true
+  101. trace_exit                     TraceExit(float index_by_complex_loop()) when $10 is true
+  102. copy_slot_unmasked             $2 = [index_by_complex_loop].result
+  103. label                          label 0x00000004
+  104. trace_enter                    TraceEnter(float index_out_of_bounds_checked()) when $10 is true
+  105. trace_scope                    TraceScope(+1) when $10 is true
+  106. trace_line                     TraceLine(28) when $10 is true
+  107. zero_slot_unmasked             sum₁ = 0
+  108. trace_var                      TraceVar(sum₁) when $10 is true
+  109. trace_scope                    TraceScope(+1) when $10 is true
+  110. trace_line                     TraceLine(29) when $10 is true
+  111. copy_constant                  f = 0xC0133333 (-2.3)
+  112. trace_var                      TraceVar(f) when $10 is true
+  113. label                          label 0x0000000A
+  114. trace_scope                    TraceScope(+1) when $10 is true
+  115. trace_line                     TraceLine(30) when $10 is true
+  116. store_condition_mask           $3 = CondMask
+  117. zero_slot_unmasked             $4 = 0
+  118. copy_slot_unmasked             $5 = f
+  119. cmplt_float                    $4 = lessThan($4, $5)
+  120. copy_slot_unmasked             $5 = f
+  121. copy_constant                  $6 = 0x41800000 (16.0)
+  122. cmplt_float                    $5 = lessThan($5, $6)
+  123. bitwise_and_int                $4 &= $5
+  124. merge_condition_mask           CondMask = $3 & $4
+  125. trace_scope                    TraceScope(+1) when $10 is true
+  126. trace_line                     TraceLine(31) when $10 is true
+  127. copy_slot_unmasked             $5 = sum₁
+  128. copy_slot_unmasked             $7 = f
+  129. cast_to_int_from_float         $7 = FloatToInt($7)
+  130. copy_from_indirect_uniform_unm $6 = Indirect(u4[0] + $7)
+  131. sub_float                      $5 -= $6
+  132. copy_slot_masked               sum₁ = Mask($5)
+  133. trace_var                      TraceVar(sum₁) when $10 is true
+  134. trace_scope                    TraceScope(-1) when $10 is true
+  135. load_condition_mask            CondMask = $3
+  136. trace_scope                    TraceScope(-1) when $10 is true
+  137. trace_line                     TraceLine(29) when $10 is true
+  138. copy_slot_unmasked             $3 = f
+  139. copy_constant                  $4 = 0x406CCCCD (3.7)
+  140. add_float                      $3 += $4
+  141. copy_slot_unmasked             f = $3
+  142. trace_var                      TraceVar(f) when $10 is true
+  143. copy_slot_unmasked             $3 = f
+  144. copy_constant                  $4 = 0x41880000 (17.0)
+  145. cmplt_float                    $3 = lessThan($3, $4)
+  146. stack_rewind
+  147. branch_if_no_active_lanes_eq   branch -34 (label 10 at #113) if no lanes of $3 == 0x00000000 (0.0)
+  148. label                          label 0x00000009
+  149. trace_scope                    TraceScope(-1) when $10 is true
+  150. trace_line                     TraceLine(34) when $10 is true
+  151. copy_slot_unmasked             [index_out_of_bounds_checked].result = sum₁
+  152. trace_var                      TraceVar([index_out_of_bounds_checked].result) when $10 is true
+  153. trace_scope                    TraceScope(-1) when $10 is true
+  154. trace_exit                     TraceExit(float index_out_of_bounds_checked()) when $10 is true
+  155. copy_slot_unmasked             $3 = [index_out_of_bounds_checked].result
+  156. label                          label 0x00000008
+  157. copy_4_slots_unmasked          [main].result = $0..3
+  158. trace_var                      TraceVar([main].result) when $10 is true
+  159. trace_scope                    TraceScope(-1) when $10 is true
+  160. trace_exit                     TraceExit(float4 main(float2 xy)) when $10 is true
+  161. load_src                       src.rgba = [main].result
