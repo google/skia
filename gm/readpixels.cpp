@@ -23,7 +23,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "modules/skcms/skcms.h"
 #include "tools/Resources.h"
 
@@ -164,7 +163,7 @@ protected:
                 }
                 auto dContext = GrAsDirectContext(canvas->recordingContext());
                 if (dContext) {
-                    image = SkImages::TextureFromImage(dContext, image);
+                    image = image->makeTextureImage(dContext);
                 }
                 if (image) {
                     for (SkColorType dstColorType : colorTypes) {

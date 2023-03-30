@@ -45,7 +45,6 @@
 #if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #endif
@@ -584,7 +583,7 @@ sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig) {
             return orig;
         }
 
-        return SkImages::TextureFromImage(dContext, orig);
+        return orig->makeTextureImage(dContext);
     }
 #if defined(SK_GRAPHITE)
     else if (canvas->recorder()) {

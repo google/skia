@@ -50,12 +50,13 @@ public:
                        GrYUVATextureProxies proxies,
                        sk_sp<SkColorSpace>);
 
-    // From SkImage.h
-    size_t textureSize() const override;
-
-    // From SkImage_Base.h
-    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGaneshYUVA; }
     bool onHasMipmaps() const override;
+
+    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) const override;
+
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGaneshYUVA; }
+
+    size_t onTextureSize() const override;
 
     using SkImage_GaneshBase::onMakeColorTypeAndColorSpace;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
@@ -63,9 +64,6 @@ public:
                                                 GrDirectContext*) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
-
-    // From SkImage_GaneshBase.h
-    GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const override;
 
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
 

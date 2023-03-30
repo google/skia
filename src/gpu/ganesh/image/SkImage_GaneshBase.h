@@ -26,14 +26,12 @@ class GrTextureProxy;
 class SkBitmap;
 class SkColorSpace;
 class SkImage;
-enum class GrColorType;
-enum class GrSemaphoresSubmitted : bool;
 enum SkAlphaType : int;
 enum SkColorType : int;
-struct GrFlushInfo;
-struct SkImageInfo;
+enum class GrColorType;
 struct SkIRect;
 struct SkISize;
+struct SkImageInfo;
 namespace skgpu {
 enum class Mipmapped : bool;
 class RefCntedCallback;
@@ -43,12 +41,7 @@ class SkImage_GaneshBase : public SkImage_Base {
 public:
     GrImageContext* context() const final { return fContext.get(); }
 
-    // From SkImage.h
-    bool isValid(GrRecordingContext*) const final;
-
-    // From SkImage_Base.h
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const final;
-
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset, GrDirectContext*) const final;
 
     bool onReadPixels(GrDirectContext* dContext,
@@ -59,8 +52,7 @@ public:
                       int srcY,
                       CachingHint) const override;
 
-    // From SkImage_GaneshBase.h
-    virtual GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const = 0;
+    bool onIsValid(GrRecordingContext*) const final;
 
     static bool ValidateBackendTexture(const GrCaps*,
                                        const GrBackendTexture& tex,

@@ -210,7 +210,7 @@ void D3D12WindowContext::swapBuffers() {
 
 void D3D12WindowContext::resize(int width, int height) {
     // Clean up any outstanding resources in command lists
-    fContext->flush();
+    fContext->flush({});
     fContext->submit(true);
 
     // release the previous surface and backbuffer resources

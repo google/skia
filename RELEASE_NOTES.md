@@ -9,13 +9,6 @@ Milestone 114
     hue method options are based on the CSS Color Level 4 specfication:
     * https://www.w3.org/TR/css-color-4/#interpolation-space
     * https://www.w3.org/TR/css-color-4/#hue-interpolation
-  * `SkImages::GetBackendTextureFromImage` has been renamed `SkImages::MakeBackendTextureFromImage`.
-  * `SkImage::getBackendTexture()` has been moved to `SkImages::GetBackendTextureFromImage()` in
-    `SkImageGanesh.h`.
-  * `SkImage::makeTextureImage()` has been moved to `SkImages::TextureFromImage()` in
-    `SkImageGanesh.h`.
-  * `SkImage::flush()` and `SkImage::flushAndSubmit()` has been moved to
-    `GrDirectContext::flush()` and `GrDirectContext::flushAndSubmit()` in `SkImageGanesh.h`.
 
 * * *
 
