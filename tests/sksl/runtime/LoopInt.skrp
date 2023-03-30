@@ -32,10 +32,10 @@
    32. store_condition_mask           $70 = CondMask
    33. store_condition_mask           $14 = CondMask
    34. branch_if_no_lanes_active      branch_if_no_lanes_active +54 (label 9 at #88)
-   35. store_return_mask              $15 = RetMask
-   36. copy_slot_unmasked             five₁ = five
-   37. trace_var                      TraceVar(five₁) when $26 is true
-   38. trace_enter                    TraceEnter(int return_loop(int five)) when $26 is true
+   35. copy_slot_unmasked             five₁ = five
+   36. trace_var                      TraceVar(five₁) when $26 is true
+   37. trace_enter                    TraceEnter(int return_loop(int five)) when $26 is true
+   38. store_return_mask              $15 = RetMask
    39. trace_scope                    TraceScope(+1) when $26 is true
    40. trace_scope                    TraceScope(+1) when $26 is true
    41. trace_line                     TraceLine(8) when $26 is true
@@ -82,8 +82,8 @@
    82. trace_var                      TraceVar([return_loop].result) when $26 is true
    83. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    84. trace_scope                    TraceScope(-1) when $26 is true
-   85. trace_exit                     TraceExit(int return_loop(int five)) when $26 is true
-   86. load_return_mask               RetMask = $15
+   85. load_return_mask               RetMask = $15
+   86. trace_exit                     TraceExit(int return_loop(int five)) when $26 is true
    87. copy_slot_unmasked             $15 = [return_loop].result
    88. label                          label 0x00000009
    89. copy_constant                  $16 = 0x00000005 (7.006492e-45)

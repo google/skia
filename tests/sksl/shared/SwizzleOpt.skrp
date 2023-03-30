@@ -25,8 +25,8 @@
    25. copy_4_slots_unmasked          v = $0..3
    26. swizzle_4                      $0..3 = ($0..3).wzwz
    27. copy_4_slots_unmasked          v = $0..3
-   28. store_return_mask              $0 = RetMask
-   29. copy_4_slots_unmasked          v₁ = v
+   28. copy_4_slots_unmasked          v₁ = $0..3
+   29. store_return_mask              $0 = RetMask
    30. copy_constant                  x = 0x00000001 (1.401298e-45)
    31. store_loop_mask                $1 = LoopMask
    32. jump                           jump +9 (label 2 at #41)
@@ -54,8 +54,8 @@
    54. copy_constant                  $2 = 0x43E40000 (456.0)
    55. swizzle_4                      $0..3 = ($0..3).yyzz
    56. copy_4_slots_unmasked          v = $0..3
-   57. store_return_mask              $0 = RetMask
-   58. copy_4_slots_unmasked          v₁ = v
+   57. copy_4_slots_unmasked          v₁ = $0..3
+   58. store_return_mask              $0 = RetMask
    59. copy_constant                  x = 0x00000001 (1.401298e-45)
    60. store_loop_mask                $1 = LoopMask
    61. jump                           jump +9 (label 6 at #70)
@@ -86,8 +86,8 @@
    86. copy_constant                  $0 = 0x42F60000 (123.0)
    87. copy_constant                  $1 = 0x43E40000 (456.0)
    88. copy_constant                  $2 = 0x43E40000 (456.0)
-   89. store_return_mask              $3 = RetMask
-   90. copy_4_slots_unmasked          v₁ = v
+   89. copy_4_slots_unmasked          v₁ = v
+   90. store_return_mask              $3 = RetMask
    91. copy_constant                  x = 0x00000001 (1.401298e-45)
    92. store_loop_mask                $4 = LoopMask
    93. jump                           jump +9 (label 10 at #102)
@@ -115,8 +115,8 @@
   115. copy_constant                  $0 = 0x42F60000 (123.0)
   116. copy_constant                  $1 = 0x43E40000 (456.0)
   117. copy_constant                  $2 = 0x43E40000 (456.0)
-  118. store_return_mask              $3 = RetMask
-  119. copy_4_slots_unmasked          v₁ = v
+  118. copy_4_slots_unmasked          v₁ = v
+  119. store_return_mask              $3 = RetMask
   120. copy_constant                  x = 0x00000001 (1.401298e-45)
   121. store_loop_mask                $4 = LoopMask
   122. jump                           jump +9 (label 14 at #131)
@@ -141,8 +141,8 @@
   141. copy_slot_unmasked             $3 = [fn].result
   142. label                          label 0x0000000C
   143. copy_4_slots_unmasked          v = $0..3
-  144. store_return_mask              $0 = RetMask
-  145. copy_4_slots_unmasked          v₁ = v
+  144. copy_4_slots_unmasked          v₁ = $0..3
+  145. store_return_mask              $0 = RetMask
   146. copy_constant                  x = 0x00000001 (1.401298e-45)
   147. store_loop_mask                $1 = LoopMask
   148. jump                           jump +9 (label 18 at #157)
@@ -170,8 +170,8 @@
   170. copy_constant                  $2 = 0x43E40000 (456.0)
   171. swizzle_4                      $0..3 = ($0..3).yxxz
   172. copy_4_slots_unmasked          v = $0..3
-  173. store_return_mask              $0 = RetMask
-  174. copy_4_slots_unmasked          v₁ = v
+  173. copy_4_slots_unmasked          v₁ = $0..3
+  174. store_return_mask              $0 = RetMask
   175. copy_constant                  x = 0x00000001 (1.401298e-45)
   176. store_loop_mask                $1 = LoopMask
   177. jump                           jump +9 (label 22 at #186)

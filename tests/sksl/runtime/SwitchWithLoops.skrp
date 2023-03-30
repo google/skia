@@ -105,8 +105,8 @@
   105. zero_slot_unmasked             $0 = 0
   106. merge_condition_mask           CondMask = $17 & $18
   107. branch_if_no_lanes_active      branch_if_no_lanes_active +53 (label 7 at #160)
-  108. store_return_mask              $1 = RetMask
-  109. copy_slot_unmasked             x₂ = x
+  108. copy_slot_unmasked             x₂ = x
+  109. store_return_mask              $1 = RetMask
   110. zero_2_slots_unmasked          val₁, i₁ = 0
   111. store_loop_mask                $2 = LoopMask
   112. jump                           jump +31 (label 18 at #143)

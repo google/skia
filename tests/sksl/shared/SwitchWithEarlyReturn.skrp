@@ -17,8 +17,8 @@
    17. store_condition_mask           $78 = CondMask
    18. store_condition_mask           $71 = CondMask
    19. branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 14 at #52)
-   20. store_return_mask              $72 = RetMask
-   21. copy_slot_unmasked             x₁ = x
+   20. copy_slot_unmasked             x₁ = x
+   21. store_return_mask              $72 = RetMask
    22. zero_slot_unmasked             val = 0
    23. store_loop_mask                $73 = LoopMask
    24. copy_slot_unmasked             $74 = x₁
@@ -53,8 +53,8 @@
    53. zero_slot_unmasked             $79 = 0
    54. merge_condition_mask           CondMask = $71 & $72
    55. branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 13 at #74)
-   56. store_return_mask              $80 = RetMask
-   57. copy_slot_unmasked             x₂ = x
+   56. copy_slot_unmasked             x₂ = x
+   57. store_return_mask              $80 = RetMask
    58. store_loop_mask                $81 = LoopMask
    59. copy_slot_unmasked             $82 = x₂
    60. store_loop_mask                $83 = LoopMask
@@ -76,8 +76,8 @@
    76. zero_slot_unmasked             $13 = 0
    77. merge_condition_mask           CondMask = $78 & $79
    78. branch_if_no_lanes_active      branch_if_no_lanes_active +25 (label 12 at #103)
-   79. store_return_mask              $14 = RetMask
-   80. copy_slot_unmasked             x₃ = x
+   79. copy_slot_unmasked             x₃ = x
+   80. store_return_mask              $14 = RetMask
    81. store_loop_mask                $15 = LoopMask
    82. copy_slot_unmasked             $16 = x₃
    83. store_loop_mask                $17 = LoopMask
@@ -105,8 +105,8 @@
   105. zero_slot_unmasked             $65 = 0
   106. merge_condition_mask           CondMask = $12 & $13
   107. branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 11 at #140)
-  108. store_return_mask              $66 = RetMask
-  109. copy_slot_unmasked             x₄ = x
+  108. copy_slot_unmasked             x₄ = x
+  109. store_return_mask              $66 = RetMask
   110. zero_slot_unmasked             val₁ = 0
   111. store_loop_mask                $67 = LoopMask
   112. copy_slot_unmasked             $68 = x₄
@@ -142,8 +142,8 @@
   142. zero_slot_unmasked             $85 = 0
   143. merge_condition_mask           CondMask = $64 & $65
   144. branch_if_no_lanes_active      branch_if_no_lanes_active +38 (label 10 at #182)
-  145. store_return_mask              $86 = RetMask
-  146. copy_slot_unmasked             x₅ = x
+  145. copy_slot_unmasked             x₅ = x
+  146. store_return_mask              $86 = RetMask
   147. zero_slot_unmasked             val₂ = 0
   148. store_loop_mask                $87 = LoopMask
   149. copy_slot_unmasked             $88 = x₅
@@ -184,8 +184,8 @@
   184. zero_slot_unmasked             $51 = 0
   185. merge_condition_mask           CondMask = $84 & $85
   186. branch_if_no_lanes_active      branch_if_no_lanes_active +31 (label 9 at #217)
-  187. store_return_mask              $52 = RetMask
-  188. copy_slot_unmasked             x₆ = x
+  187. copy_slot_unmasked             x₆ = x
+  188. store_return_mask              $52 = RetMask
   189. store_loop_mask                $53 = LoopMask
   190. copy_slot_unmasked             $54 = x₆
   191. store_loop_mask                $55 = LoopMask
@@ -219,8 +219,8 @@
   219. zero_slot_unmasked             $20 = 0
   220. merge_condition_mask           CondMask = $50 & $51
   221. branch_if_no_lanes_active      branch_if_no_lanes_active +38 (label 8 at #259)
-  222. store_return_mask              $21 = RetMask
-  223. copy_slot_unmasked             x₇ = x
+  222. copy_slot_unmasked             x₇ = x
+  223. store_return_mask              $21 = RetMask
   224. zero_slot_unmasked             val₃ = 0
   225. store_loop_mask                $22 = LoopMask
   226. copy_slot_unmasked             $23 = x₇
@@ -261,8 +261,8 @@
   261. zero_slot_unmasked             $44 = 0
   262. merge_condition_mask           CondMask = $19 & $20
   263. branch_if_no_lanes_active      branch_if_no_lanes_active +35 (label 7 at #298)
-  264. store_return_mask              $45 = RetMask
-  265. copy_slot_unmasked             x₈ = x
+  264. copy_slot_unmasked             x₈ = x
+  265. store_return_mask              $45 = RetMask
   266. zero_slot_unmasked             val₄ = 0
   267. store_loop_mask                $46 = LoopMask
   268. copy_slot_unmasked             $47 = x₈
@@ -300,8 +300,8 @@
   300. zero_slot_unmasked             $58 = 0
   301. merge_condition_mask           CondMask = $43 & $44
   302. branch_if_no_lanes_active      branch_if_no_lanes_active +27 (label 6 at #329)
-  303. store_return_mask              $59 = RetMask
-  304. copy_slot_unmasked             x₉ = x
+  303. copy_slot_unmasked             x₉ = x
+  304. store_return_mask              $59 = RetMask
   305. store_loop_mask                $60 = LoopMask
   306. copy_slot_unmasked             $61 = x₉
   307. store_loop_mask                $62 = LoopMask
@@ -331,8 +331,8 @@
   331. zero_slot_unmasked             $27 = 0
   332. merge_condition_mask           CondMask = $57 & $58
   333. branch_if_no_lanes_active      branch_if_no_lanes_active +34 (label 5 at #367)
-  334. store_return_mask              $28 = RetMask
-  335. copy_slot_unmasked             x₁₀ = x
+  334. copy_slot_unmasked             x₁₀ = x
+  335. store_return_mask              $28 = RetMask
   336. zero_slot_unmasked             val₅ = 0
   337. store_loop_mask                $29 = LoopMask
   338. copy_slot_unmasked             $30 = x₁₀
@@ -399,8 +399,8 @@
   399. zero_slot_unmasked             $33 = 0
   400. merge_condition_mask           CondMask = $38 & $39
   401. branch_if_no_lanes_active      branch_if_no_lanes_active +23 (label 3 at #424)
-  402. store_return_mask              $34 = RetMask
-  403. copy_slot_unmasked             x₁₂ = x
+  402. copy_slot_unmasked             x₁₂ = x
+  403. store_return_mask              $34 = RetMask
   404. store_loop_mask                $35 = LoopMask
   405. copy_slot_unmasked             $36 = x₁₂
   406. store_loop_mask                $37 = LoopMask
@@ -426,8 +426,8 @@
   426. zero_slot_unmasked             $92 = 0
   427. merge_condition_mask           CondMask = $32 & $33
   428. branch_if_no_lanes_active      branch_if_no_lanes_active +48 (label 2 at #476)
-  429. store_return_mask              $93 = RetMask
-  430. copy_slot_unmasked             x₁₃ = x
+  429. copy_slot_unmasked             x₁₃ = x
+  430. store_return_mask              $93 = RetMask
   431. zero_slot_unmasked             val₇ = 0
   432. store_loop_mask                $94 = LoopMask
   433. copy_slot_unmasked             $95 = x₁₃
@@ -478,8 +478,8 @@
   478. zero_slot_unmasked             $0 = 0
   479. merge_condition_mask           CondMask = $91 & $92
   480. branch_if_no_lanes_active      branch_if_no_lanes_active +51 (label 1 at #531)
-  481. store_return_mask              $1 = RetMask
-  482. copy_slot_unmasked             x₁₄ = x
+  481. copy_slot_unmasked             x₁₄ = x
+  482. store_return_mask              $1 = RetMask
   483. zero_slot_unmasked             val₈ = 0
   484. store_loop_mask                $2 = LoopMask
   485. copy_slot_unmasked             $3 = x₁₄
