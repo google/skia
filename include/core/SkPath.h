@@ -32,6 +32,7 @@ class SkRRect;
 class SkWStream;
 enum class SkPathConvexity;
 enum class SkPathFirstDirection;
+struct SkPathVerbAnalysis;
 
 // WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/9000)
 //#define SK_HIDE_PATH_EDIT_METHODS
@@ -1873,6 +1874,16 @@ private:
      *        this path should be discarded after calling shrinkToFit().
      */
     void shrinkToFit();
+
+    // Creates a new Path after the supplied arguments have been validated by
+    // sk_path_analyze_verbs().
+    static SkPath MakeInternal(const SkPathVerbAnalysis& analsis,
+                               const SkPoint points[],
+                               const uint8_t verbs[],
+                               int verbCount,
+                               const SkScalar conics[],
+                               SkPathFillType fillType,
+                               bool isVolatile);
 
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;

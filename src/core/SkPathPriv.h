@@ -421,6 +421,17 @@ public:
     static void ReverseAddPath(SkPathBuilder* builder, const SkPath& reverseMe) {
         builder->privateReverseAddPath(reverseMe);
     }
+
+    static SkPath MakePath(const SkPathVerbAnalysis& analysis,
+                           const SkPoint points[],
+                           const uint8_t verbs[],
+                           int verbCount,
+                           const SkScalar conics[],
+                           SkPathFillType fillType,
+                           bool isVolatile) {
+        return SkPath::MakeInternal(analysis, points, verbs, verbCount, conics, fillType,
+                                    isVolatile);
+    }
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).

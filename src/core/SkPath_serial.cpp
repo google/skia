@@ -232,6 +232,26 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
     }
     SkASSERT(buffer.pos() <= length);
 
+    if (vbs == 0) {
+        if (pts == 0 && cnx == 0) {
+            reset();
+            setFillType(extract_filltype(packed));
+            return buffer.pos();
+        }
+        // No verbs but points and/or conic weights is a not a valid path.
+        return 0;
+    }
+
+    if (!verbsAreReversed) {
+        SkPathVerbAnalysis analysis = sk_path_analyze_verbs(verbs, vbs);
+        if (!analysis.valid || analysis.points != pts || analysis.weights != cnx) {
+            return 0;
+        }
+        *this = SkPathPriv::MakePath(analysis, points, verbs, vbs, conics,
+                                     extract_filltype(packed), false);
+        return buffer.pos();
+    }
+
 #define CHECK_POINTS_CONICS(p, c)       \
     do {                                \
         if (p && ((pts -= p) < 0)) {    \
@@ -242,20 +262,16 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
         }                               \
     } while (0)
 
-    int verbsStep = 1;
-    if (verbsAreReversed) {
-        verbs += vbs - 1;
-        verbsStep = -1;
-    }
-
     SkPath tmp;
     tmp.setFillType(extract_filltype(packed));
     {
       // Reserve the exact number of verbs and points needed.
       SkPathRef::Editor(&tmp.fPathRef, vbs, pts);
     }
-    for (int i = 0; i < vbs; ++i) {
-        switch (*verbs) {
+
+    SkASSERT(vbs > 0);
+    for (const uint8_t* verbsPtr = verbs + vbs - 1; verbsPtr != verbs; --verbsPtr) {
+        switch (*verbsPtr) {
             case kMove_Verb:
                 CHECK_POINTS_CONICS(1, 0);
                 tmp.moveTo(*points++);
@@ -285,7 +301,6 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
             default:
                 return 0;   // bad verb
         }
-        verbs += verbsStep;
     }
 #undef CHECK_POINTS_CONICS
     if (pts || cnx) {
