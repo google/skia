@@ -1,0 +1,46 @@
+# Copyright 2023 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# TODO(b/278927674): This GN file is here for convenience until official Rust integration in Skia is
+# ready. Currently this requires a manual build step to prepare the cxxbridge headers and a
+# libvello_cpp.a artifact required by the `vello_cpp` rule below. From within this directory, run:
+#
+#    # x86 (debug):
+#    $ cargo build --target-dir=target
+#
+#    # x86 (release):
+#    $ cargo build --release --target-dir=target
+#
+#    # Apple ARM (debug):
+#    $ cargo build --target=aarch64-apple-darwin --target-dir=target
+#
+#    # Apple ARM (release):
+#    $ cargo build --target=aarch64-apple-darwin --release --target-dir=target
+#
+# These commands will place the artifacts under `third_party/vello/target`.
+
+import("../third_party.gni")
+
+_build_root = ""
+if (is_mac && target_cpu == "arm64") {
+  _build_root = "./target/aarch64-apple-darwin"
+} else {
+  _build_root = "./target"
+}
+
+third_party("cpp") {
+  public_include_dirs = [
+    "include/",
+    "$_build_root/cxxbridge",
+  ]
+
+  sources = [ "$_build_root/cxxbridge/vello_cpp/src/lib.rs.cc" ]
+
+  if (is_debug) {
+    libs = [ "$_build_root/debug/libvello_cpp.a" ]
+  } else {
+    libs = [ "$_build_root/release/libvello_cpp.a" ]
+  }
+}
