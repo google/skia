@@ -107,7 +107,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest,
 
     // Test flushing via the SkImage
     canvas->drawImage(image, 0, 0);
-    image->flush(dContext, flushInfoFinishedProc);
+    dContext->flush(image, flushInfoFinishedProc);
     dContext->submit();
     if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately

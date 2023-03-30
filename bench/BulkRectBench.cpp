@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
@@ -225,7 +226,11 @@ protected:
             bm.eraseColor(fColors[i].toSkColor());
             auto image = bm.asImage();
 
-            fImages[i] = direct ? image->makeTextureImage(direct) : std::move(image);
+            if (direct) {
+                fImages[i] = SkImages::TextureFromImage(direct, image);
+            } else {
+                fImages[i] = std::move(image);
+            }
         }
     }
 

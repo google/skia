@@ -266,7 +266,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU,
     }
 
     GrSurfaceOrigin readBackOrigin;
-    GrBackendTexture readBackBackendTex = srcImage->getBackendTexture(false, &readBackOrigin);
+    GrBackendTexture readBackBackendTex;
+    bool ok = SkImages::GetBackendTextureFromImage(
+            srcImage, &readBackBackendTex, false, &readBackOrigin);
+    REPORTER_ASSERT(reporter, ok);
     if (!GrBackendTexture::TestingOnly_Equals(readBackBackendTex, backendTex)) {
         ERRORF(reporter, "backend mismatch\n");
     }

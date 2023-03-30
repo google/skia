@@ -128,7 +128,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
     surf.reset();
     GrBackendTexture btex;
     SkImages::BackendTextureReleaseProc texRelease;
-    if (!SkImages::GetBackendTextureFromImage(dContext, std::move(img), &btex, &texRelease)) {
+    if (!SkImages::MakeBackendTextureFromImage(dContext, std::move(img), &btex, &texRelease)) {
         // Not all backends support stealing textures yet.
         // ERRORF(reporter, "Could not turn image into texture");
         return;

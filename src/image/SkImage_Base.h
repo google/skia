@@ -36,7 +36,6 @@ class TextureProxyView;
 }
 #endif
 
-class GrBackendTexture;
 class GrDirectContext;
 class GrImageContext;
 class GrRecordingContext;
@@ -62,6 +61,14 @@ class SkImage_Base : public SkImage {
 public:
     ~SkImage_Base() override;
 
+    // From SkImage.h
+    size_t textureSize() const override { return 0; }
+#if defined(SK_GRAPHITE)
+    sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
+                                    RequiredImageProperties) const override;
+#endif
+
+    // Methods that we want to use elsewhere in Skia, but not be a part of the public API.
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
@@ -109,10 +116,6 @@ public:
     GrDirectContext* directContext() const;
 
 #if defined(SK_GANESH)
-    virtual GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) const {
-        return GrSemaphoresSubmitted::kNo;
-    }
-
     // TODO(kjlubick) move the implementations of this out into GrImageUtils.cpp
     virtual std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                                  GrMipmapped,
@@ -135,9 +138,6 @@ public:
     // If this image is the current cached image snapshot of a surface then this is called when the
     // surface is destroyed to indicate no further writes may happen to surface backing store.
     virtual void generatingSurfaceIsDeleted() {}
-
-    virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
-                                                 GrSurfaceOrigin* origin) const;
 #endif
 #if defined(SK_GRAPHITE)
     // Returns a TextureProxyView representation of the image, if possible. This also returns
@@ -190,16 +190,15 @@ public:
         return this->type() == Type::kGaneshYUVA || this->type() == Type::kGraphiteYUVA;
     }
 
-    // Amount of texture memory used by texture-backed images.
-    virtual size_t onTextureSize() const { return 0; }
+    bool isTextureBacked() const override {
+        return this->isGaneshBacked() || this->isGraphiteBacked();
+    }
 
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.
     virtual void notifyAddedToRasterCache() const {
         fAddedToRasterCache.store(true);
     }
-
-    virtual bool onIsValid(GrRecordingContext*) const = 0;
 
     virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                         GrDirectContext*) const = 0;
@@ -263,6 +262,10 @@ static inline SkImage_Base* as_IB(const sk_sp<SkImage>& image) {
 
 static inline const SkImage_Base* as_IB(const SkImage* image) {
     return static_cast<const SkImage_Base*>(image);
+}
+
+static inline const SkImage_Base* as_IB(sk_sp<const SkImage> image) {
+    return static_cast<const SkImage_Base*>(image.get());
 }
 
 #endif

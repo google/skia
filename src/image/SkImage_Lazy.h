@@ -65,12 +65,15 @@ public:
 
     SkImage_Lazy(Validator* validator);
 
+    // From SkImage.h
+    bool isValid(GrRecordingContext*) const override;
+
+    // From SkImage_Base.h
     bool onHasMipmaps() const override {
         // TODO: Should we defer to the generator? The generator interface currently doesn't have
         // a way to provide content for levels other than via SkImageGenerator::generateTexture().
         return false;
     }
-
     bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
     sk_sp<SkData> onRefEncoded() const override;
@@ -89,8 +92,6 @@ public:
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const override;
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
-
-    bool onIsValid(GrRecordingContext*) const override;
 
 #if defined(SK_GANESH)
     // Returns the texture proxy. CachingHint refers to whether the generator's output should be

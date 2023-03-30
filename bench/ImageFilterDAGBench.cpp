@@ -11,6 +11,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tools/Resources.h"
 
 // Exercise a blur filter connected to 5 inputs of the same merge filter.
@@ -75,7 +76,7 @@ protected:
 
         auto dContext = GrAsDirectContext(canvas->recordingContext());
         // makeWithFilter will only use the GPU backend if the image is already a texture
-        sk_sp<SkImage> image = fImage->makeTextureImage(dContext);
+        sk_sp<SkImage> image = SkImages::TextureFromImage(dContext, fImage);
         if (!image) {
             image = fImage;
         }

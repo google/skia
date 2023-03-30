@@ -34,6 +34,7 @@ class GrGpu;
 class GrResourceCache;
 class GrResourceProvider;
 class SkData;
+class SkImage;
 class SkPixmap;
 class SkTaskGroup;
 class SkTraceMemoryDump;
@@ -392,7 +393,24 @@ public:
      */
     GrSemaphoresSubmitted flush(const GrFlushInfo& info);
 
-    void flush() { this->flush({}); }
+    void flush() { this->flush(GrFlushInfo()); }
+
+    /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
+     *  texture-backed (including promise texture images) or if the GrDirectContext does not
+     *  have the same context ID as the context backing the image then this is a no-op.
+     *  If the image was not used in any non-culled draws in the current queue of work for the
+     *  passed GrDirectContext then this is a no-op unless the GrFlushInfo contains semaphores or
+     *  a finish proc. Those are respected even when the image has not been used.
+     *  @param image    the non-null image to flush.
+     *  @param info     flush options
+     */
+    GrSemaphoresSubmitted flush(sk_sp<const SkImage> image, const GrFlushInfo& info);
+    void flush(sk_sp<const SkImage> image);
+
+    /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
+        GPU.
+    */
+    void flushAndSubmit(sk_sp<const SkImage> image);
 
     /**
      * Submit outstanding work to the gpu from all previously un-submitted flushes. The return

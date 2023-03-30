@@ -49,6 +49,10 @@ public:
     SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false);
     ~SkImage_Raster() override;
 
+    // From SkImage.h
+    bool isValid(GrRecordingContext* context) const override { return true; }
+
+    // From SkImage_Base.h
     bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
@@ -71,7 +75,6 @@ public:
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
-    bool onIsValid(GrRecordingContext* context) const override { return true; }
     void notifyAddedToRasterCache() const override {
         // We explicitly DON'T want to call INHERITED::notifyAddedToRasterCache. That ties the
         // lifetime of derived/cached resources to the image. In this case, we only want cached
