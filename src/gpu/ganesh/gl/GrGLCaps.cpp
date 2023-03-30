@@ -4109,6 +4109,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fShaderCaps->fColorSpaceMathNeedsFloat = true;
     }
 
+#if defined(SK_BUILD_FOR_ANDROID)
+    fShaderCaps->fPerlinNoiseRoundingFix = true;
+#endif
+
     // On Mali 400 there is a bug using dFd* in the x direction. So we avoid using it when possible.
     if (ctxInfo.renderer() == GrGLRenderer::kMali4xx) {
         fShaderCaps->fAvoidDfDxForGradientsWhenPossible = true;

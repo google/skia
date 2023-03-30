@@ -43,6 +43,8 @@ static const CapsLookupTable& caps_lookup_table() {
                               &ShaderCaps::fRewriteMatrixVectorMultiply),
         CapsLookupTable::Pair("colorSpaceMathNeedsFloat",
                               &ShaderCaps::fColorSpaceMathNeedsFloat),
+        CapsLookupTable::Pair("PerlinNoiseRoundingFix",
+                              &ShaderCaps::fPerlinNoiseRoundingFix),
     });
     return *sCapsLookupTable;
 }

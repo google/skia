@@ -868,11 +868,13 @@ $pure half4 noise_helper(half2 noiseVec,
 
     half2 latticeIdx = half2(sampleX, sampleY);
 
-    const half kInv255 = 0.003921569;   // 1.0 / 255.0
+    if (sk_Caps.PerlinNoiseRoundingFix) {
+        // Aggressively round to the nearest exact (N / 255) floating point values.
+        // This prevents rounding errors on some platforms (e.g., Tegras)
+        const half kInv255 = 1.0 / 255.0;
 
-    // Aggressively round to the nearest exact (N / 255) floating point values.
-    // This prevents rounding errors on some platforms (e.g., Tegras)
-    latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(kInv255);
+        latticeIdx = floor(latticeIdx * half2(255.0) + half2(0.5)) * half2(kInv255);
+    }
 
     // Get (x,y) coordinates with the permuted x
     half4 noiseXCoords = kBlockSize*latticeIdx.xyxy + floorVal.yyww;
