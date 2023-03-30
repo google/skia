@@ -325,5 +325,5 @@ func main() {
 
 Automatic commit by the RecreateSKPs bot.
 `
-	gerrit_steps.UploadCL(ctx, g, co, "skia", "main", baseRev, commitMsg, []string{"rmistry@google.com"}, false)
+	gerrit_steps.UploadCL(ctx, g, co, "skia", "main", baseRev, "", commitMsg, []string{"rmistry@google.com"}, false)
 }
