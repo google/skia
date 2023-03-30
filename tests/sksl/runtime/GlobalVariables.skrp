@@ -12,23 +12,24 @@
    12. zero_slot_unmasked             gUninitialized = 0
    13. trace_var                      TraceVar(gUninitialized) when $1 is true
    14. trace_enter                    TraceEnter(float4 main(float2 xy)) when $1 is true
-   15. trace_scope                    TraceScope(+1) when $1 is true
-   16. trace_line                     TraceLine(12) when $1 is true
-   17. trace_enter                    TraceEnter(void init_globals()) when $1 is true
-   18. trace_scope                    TraceScope(+1) when $1 is true
-   19. trace_line                     TraceLine(8) when $1 is true
-   20. copy_constant                  $0 = 0x3F800000 (1.0)
-   21. copy_slot_unmasked             gUninitialized = $0
-   22. trace_var                      TraceVar(gUninitialized) when $1 is true
-   23. trace_scope                    TraceScope(-1) when $1 is true
-   24. trace_exit                     TraceExit(void init_globals()) when $1 is true
-   25. label                          label 0x00000000
-   26. trace_line                     TraceLine(13) when $1 is true
-   27. zero_slot_unmasked             [main].result(0) = 0
-   28. copy_slot_unmasked             [main].result(1) = gInitializedFromOther
-   29. zero_slot_unmasked             [main].result(2) = 0
-   30. copy_slot_unmasked             [main].result(3) = gUninitialized
-   31. trace_var                      TraceVar([main].result) when $1 is true
-   32. trace_scope                    TraceScope(-1) when $1 is true
-   33. trace_exit                     TraceExit(float4 main(float2 xy)) when $1 is true
-   34. load_src                       src.rgba = [main].result
+   15. trace_var                      TraceVar(xy) when $1 is true
+   16. trace_scope                    TraceScope(+1) when $1 is true
+   17. trace_line                     TraceLine(12) when $1 is true
+   18. trace_enter                    TraceEnter(void init_globals()) when $1 is true
+   19. trace_scope                    TraceScope(+1) when $1 is true
+   20. trace_line                     TraceLine(8) when $1 is true
+   21. copy_constant                  $0 = 0x3F800000 (1.0)
+   22. copy_slot_unmasked             gUninitialized = $0
+   23. trace_var                      TraceVar(gUninitialized) when $1 is true
+   24. trace_scope                    TraceScope(-1) when $1 is true
+   25. trace_exit                     TraceExit(void init_globals()) when $1 is true
+   26. label                          label 0x00000000
+   27. trace_line                     TraceLine(13) when $1 is true
+   28. zero_slot_unmasked             [main].result(0) = 0
+   29. copy_slot_unmasked             [main].result(1) = gInitializedFromOther
+   30. zero_slot_unmasked             [main].result(2) = 0
+   31. copy_slot_unmasked             [main].result(3) = gUninitialized
+   32. trace_var                      TraceVar([main].result) when $1 is true
+   33. trace_scope                    TraceScope(-1) when $1 is true
+   34. trace_exit                     TraceExit(float4 main(float2 xy)) when $1 is true
+   35. load_src                       src.rgba = [main].result

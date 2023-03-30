@@ -1270,6 +1270,16 @@ std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
         }
     }
 
+    // We need to explicitly emit trace ops for the variables in main(), since they are initialized
+    // before it is safe to use trace-var. (We can't invoke init-lane-masks until after we've
+    // copied the inputs from main into slots, because dst.rgba is used to pass in a
+    // blend-destination color, but we clobber it and put in the execution mask instead.)
+    if (this->shouldWriteTraceOps() && function.declaration().isMain()) {
+        for (const Variable* var : function.declaration().parameters()) {
+            fBuilder.trace_var(fTraceMask->stackID(), this->getVariableSlots(*var));
+        }
+    }
+
     // Set up a slot range dedicated to this function's return value.
     SlotRange lastFunctionResult = fCurrentFunctionResult;
     fCurrentFunctionResult = this->getFunctionSlots(callSite, function.declaration());
