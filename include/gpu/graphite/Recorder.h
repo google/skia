@@ -41,6 +41,7 @@ class Device;
 class DrawBufferManager;
 class GlobalCache;
 class ImageProvider;
+class ProxyCache;
 class RecorderPriv;
 class ResourceProvider;
 class RuntimeEffectDictionary;
@@ -188,6 +189,7 @@ private:
     std::unique_ptr<TokenTracker> fTokenTracker;
     std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
     std::unique_ptr<sktext::gpu::TextBlobRedrawCoordinator> fTextBlobCache;
+    std::unique_ptr<ProxyCache> fProxyCache;
     sk_sp<ImageProvider> fClientImageProvider;
 
     // In debug builds we guard against improper thread handling

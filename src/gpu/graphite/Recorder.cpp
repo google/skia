@@ -7,7 +7,6 @@
 
 #include "include/gpu/graphite/Recorder.h"
 
-#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
@@ -28,13 +27,13 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
+#include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/TaskGraph.h"
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 #include "src/gpu/graphite/UploadTask.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
@@ -95,7 +94,8 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         , fAtlasManager(std::make_unique<AtlasManager>(this))
         , fTokenTracker(std::make_unique<TokenTracker>())
         , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>())
-        , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID)) {
+        , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID))
+        , fProxyCache(std::make_unique<ProxyCache>()){
 
     fClientImageProvider = options.fImageProvider;
     if (!fClientImageProvider) {
@@ -355,17 +355,8 @@ void RecorderPriv::flushTrackedDevices() {
 sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,
                                                     const SkBitmap& bitmap,
                                                     Mipmapped mipmapped) {
-    // TODO(b/239604347): remove this hack. This is just here until we determine what Graphite's
-    // Recorder-level caching story is going to be.
-    if (bitmap.dimensions().area() <= 1) {
-        mipmapped = skgpu::Mipmapped::kNo;
-    }
-
-    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr,
-                                            mipmapped, skgpu::Budgeted::kYes);
-    return view.refProxy();
+    return recorder->fProxyCache->findOrCreateCachedProxy(recorder, bitmap, mipmapped);
 }
-
 
 #if GRAPHITE_TEST_UTILS
 // used by the Context that created this Recorder to set a back pointer
