@@ -145,13 +145,13 @@ public:
     /** Returns the stack ID of this AutoStack. */
     int stackID() { return fStackID; }
 
-    /** Clones values from the top of the active stack onto this one. */
+    /** Clones values from this stack onto the top of the active stack. */
     void pushClone(int slots);
 
-    /** Clones values from a fixed range of the active stack onto this one. */
+    /** Clones values from a fixed range of this stack onto the top of the active stack. */
     void pushClone(SlotRange range, int offsetFromStackTop);
 
-    /** Clones values from a dynamic range of the active stack onto this one. */
+    /** Clones values from a dynamic range of this stack onto the top of the active stack. */
     void pushCloneIndirect(SlotRange range, int dynamicStackID, int offsetFromStackTop);
 
 private:
@@ -339,7 +339,13 @@ public:
      */
     void emitTraceLine(Position pos);
 
-    /** Emits a trace_scope opcode, which alters the SkSL variable-scope depth. */
+    /**
+     * Emits a trace_scope opcode, which alters the SkSL variable-scope depth.
+     * Unlike the other trace ops, trace_scope takes a dedicated mask instead of the trace-scope
+     * mask. Call `pushTraceScopeMask` to synthesize this mask; discard it when you're done.
+     */
+    void pushTraceScopeMask();
+    void discardTraceScopeMask();
     void emitTraceScope(int delta);
 
     /** Prepares our position-to-line-offset conversion table (stored in `fLineOffsets`). */
@@ -1331,9 +1337,26 @@ void Generator::emitTraceLine(Position pos) {
     }
 }
 
+void Generator::pushTraceScopeMask() {
+    if (this->shouldWriteTraceOps()) {
+        // Take the intersection of the trace mask and the execution mask. To do this, start with an
+        // all-zero mask, then use select to overwrite those zeros with the trace mask across all
+        // executing lanes. We'll get the trace mask in executing lanes, and zero in dead lanes.
+        fBuilder.push_literal_i(0);
+        fTraceMask->pushClone(/*slots=*/1);
+        fBuilder.select(/*slots=*/1);
+    }
+}
+
+void Generator::discardTraceScopeMask() {
+    if (this->shouldWriteTraceOps()) {
+        this->discardExpression(/*slots=*/1);
+    }
+}
+
 void Generator::emitTraceScope(int delta) {
-    if (fDebugTrace && fWriteTraceOps) {
-        fBuilder.trace_scope(fTraceMask->stackID(), delta);
+    if (this->shouldWriteTraceOps()) {
+        fBuilder.trace_scope(this->currentStack(), delta);
     }
 }
 
@@ -1454,6 +1477,7 @@ bool Generator::writeBlock(const Block& b) {
         this->emitTraceLine(b.fPosition);
         ++fInsideCompoundStatement;
     } else {
+        this->pushTraceScopeMask();
         this->emitTraceScope(+1);
     }
 
@@ -1467,6 +1491,7 @@ bool Generator::writeBlock(const Block& b) {
         --fInsideCompoundStatement;
     } else {
         this->emitTraceScope(-1);
+        this->discardTraceScopeMask();
     }
 
     return true;
@@ -1559,6 +1584,7 @@ bool Generator::writeMasklessForStatement(const ForStatement& f) {
 
     // We want the loop index to disappear at the end of the loop, so wrap the for statement in a
     // trace scope.
+    this->pushTraceScopeMask();
     this->emitTraceScope(+1);
 
     // If no lanes are active, skip over the loop entirely. This guards against looping forever;
@@ -1613,6 +1639,7 @@ bool Generator::writeMasklessForStatement(const ForStatement& f) {
     fBuilder.label(loopExitID);
 
     this->emitTraceScope(-1);
+    this->discardTraceScopeMask();
     return true;
 }
 
@@ -1632,6 +1659,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
 
     // We want the loop index to disappear at the end of the loop, so wrap the for statement in a
     // trace scope.
+    this->pushTraceScopeMask();
     this->emitTraceScope(+1);
 
     // Set up a break target.
@@ -1714,6 +1742,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
     fBuilder.disableExecutionMaskWrites();
 
     this->emitTraceScope(-1);
+    this->discardTraceScopeMask();
     return true;
 }
 

@@ -1011,7 +1011,7 @@ DEF_TEST(SkRasterPipeline_TraceScope, r) {
     p.append(SkRasterPipelineOp::trace_scope, &kTraceScope5);
     p.run(0,0,N,1);
 
-    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{1, -5}));
+    REPORTER_ASSERT(r, (trace.fBuffer == TArray<int>{+1, +4, -5}));
 }
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {

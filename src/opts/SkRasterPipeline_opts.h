@@ -3428,8 +3428,11 @@ STAGE_TAIL(trace_exit, SkRasterPipeline_TraceFuncCtx* ctx) {
 }
 
 STAGE_TAIL(trace_scope, SkRasterPipeline_TraceScopeCtx* ctx) {
+    // Note that trace_scope intentionally does not incorporate the execution mask. Otherwise, the
+    // scopes would become unbalanced if the execution mask changed in the middle of a block. The
+    // caller is responsible for providing a combined trace- and execution-mask.
     I32* traceMask = (I32*)ctx->traceMask;
-    if (any(execution_mask() & *traceMask)) {
+    if (any(*traceMask)) {
         ctx->traceHook->scope(ctx->delta);
     }
 }
