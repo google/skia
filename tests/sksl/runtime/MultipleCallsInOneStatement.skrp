@@ -12,9 +12,9 @@
    12. copy_slot_masked               $0 = Mask($1)
    13. trace_scope                    TraceScope(+1) when $0 is true
    14. trace_line                     TraceLine(11) when $13 is true
-   15. copy_constant                  x = 0x00000005 (7.006492e-45)
-   16. trace_var                      TraceVar(x) when $13 is true
-   17. trace_enter                    TraceEnter(int get(int x)) when $13 is true
+   15. trace_enter                    TraceEnter(int get(int x)) when $13 is true
+   16. copy_constant                  x = 0x00000005 (7.006492e-45)
+   17. trace_var                      TraceVar(x) when $13 is true
    18. zero_slot_unmasked             $1 = 0
    19. copy_slot_unmasked             $2 = $13
    20. copy_slot_masked               $1 = Mask($2)
@@ -26,9 +26,9 @@
    26. trace_exit                     TraceExit(int get(int x)) when $13 is true
    27. copy_slot_unmasked             $1 = [get].result
    28. label                          label 0x00000000
-   29. copy_constant                  x = 0x00000003 (4.203895e-45)
-   30. trace_var                      TraceVar(x) when $13 is true
-   31. trace_enter                    TraceEnter(int get(int x)) when $13 is true
+   29. trace_enter                    TraceEnter(int get(int x)) when $13 is true
+   30. copy_constant                  x = 0x00000003 (4.203895e-45)
+   31. trace_var                      TraceVar(x) when $13 is true
    32. zero_slot_unmasked             $2 = 0
    33. copy_slot_unmasked             $3 = $13
    34. copy_slot_masked               $2 = Mask($3)
@@ -41,9 +41,9 @@
    41. copy_slot_unmasked             $2 = [get].result
    42. label                          label 0x00000001
    43. add_int                        $1 += $2
-   44. copy_constant                  x = 0x00000002 (2.802597e-45)
-   45. trace_var                      TraceVar(x) when $13 is true
-   46. trace_enter                    TraceEnter(int get(int x)) when $13 is true
+   44. trace_enter                    TraceEnter(int get(int x)) when $13 is true
+   45. copy_constant                  x = 0x00000002 (2.802597e-45)
+   46. trace_var                      TraceVar(x) when $13 is true
    47. zero_slot_unmasked             $2 = 0
    48. copy_slot_unmasked             $3 = $13
    49. copy_slot_masked               $2 = Mask($3)

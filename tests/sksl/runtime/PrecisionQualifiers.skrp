@@ -338,9 +338,9 @@
   338. zero_slot_unmasked             $36 = 0
   339. merge_condition_mask           CondMask = $22 & $23
   340. branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 3 at #359)
-  341. copy_constant                  value = 0x3F800000 (1.0)
-  342. trace_var                      TraceVar(value) when $18 is true
-  343. trace_enter                    TraceEnter(bool highp_param(float value)) when $18 is true
+  341. trace_enter                    TraceEnter(bool highp_param(float value)) when $18 is true
+  342. copy_constant                  value = 0x3F800000 (1.0)
+  343. trace_var                      TraceVar(value) when $18 is true
   344. zero_slot_unmasked             $37 = 0
   345. copy_slot_unmasked             $38 = $18
   346. copy_slot_masked               $37 = Mask($38)
@@ -361,9 +361,9 @@
   361. zero_slot_unmasked             $31 = 0
   362. merge_condition_mask           CondMask = $35 & $36
   363. branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 2 at #382)
-  364. copy_constant                  value₁ = 0x40000000 (2.0)
-  365. trace_var                      TraceVar(value₁) when $18 is true
-  366. trace_enter                    TraceEnter(bool mediump_param(half value)) when $18 is true
+  364. trace_enter                    TraceEnter(bool mediump_param(half value)) when $18 is true
+  365. copy_constant                  value₁ = 0x40000000 (2.0)
+  366. trace_var                      TraceVar(value₁) when $18 is true
   367. zero_slot_unmasked             $32 = 0
   368. copy_slot_unmasked             $33 = $18
   369. copy_slot_masked               $32 = Mask($33)
@@ -384,9 +384,9 @@
   384. zero_slot_unmasked             $1 = 0
   385. merge_condition_mask           CondMask = $30 & $31
   386. branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 1 at #405)
-  387. copy_constant                  value₂ = 0x40400000 (3.0)
-  388. trace_var                      TraceVar(value₂) when $18 is true
-  389. trace_enter                    TraceEnter(bool lowp_param(half value)) when $18 is true
+  387. trace_enter                    TraceEnter(bool lowp_param(half value)) when $18 is true
+  388. copy_constant                  value₂ = 0x40400000 (3.0)
+  389. trace_var                      TraceVar(value₂) when $18 is true
   390. zero_slot_unmasked             $2 = 0
   391. copy_slot_unmasked             $3 = $18
   392. copy_slot_masked               $2 = Mask($3)

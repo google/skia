@@ -36,9 +36,9 @@
    36. store_condition_mask           $23 = CondMask
    37. store_condition_mask           $0 = CondMask
    38. branch_if_no_lanes_active      branch_if_no_lanes_active +66 (label 10 at #104)
-   39. copy_slot_unmasked             five₁ = five
-   40. trace_var                      TraceVar(five₁) when $40 is true
-   41. trace_enter                    TraceEnter(float return_loop(float five)) when $40 is true
+   39. trace_enter                    TraceEnter(float return_loop(float five)) when $40 is true
+   40. copy_slot_unmasked             five₁ = five
+   41. trace_var                      TraceVar(five₁) when $40 is true
    42. store_return_mask              $1 = RetMask
    43. zero_slot_unmasked             $2 = 0
    44. copy_slot_unmasked             $3 = $40
@@ -107,9 +107,9 @@
   107. zero_slot_unmasked             $24 = 0
   108. merge_condition_mask           CondMask = $0 & $1
   109. branch_if_no_lanes_active      branch_if_no_lanes_active +76 (label 9 at #185)
-  110. copy_slot_unmasked             five₂ = five
-  111. trace_var                      TraceVar(five₂) when $40 is true
-  112. trace_enter                    TraceEnter(float continue_loop(float five)) when $40 is true
+  110. trace_enter                    TraceEnter(float continue_loop(float five)) when $40 is true
+  111. copy_slot_unmasked             five₂ = five
+  112. trace_var                      TraceVar(five₂) when $40 is true
   113. zero_slot_unmasked             $25 = 0
   114. copy_slot_unmasked             $26 = $40
   115. copy_slot_masked               $25 = Mask($26)
@@ -187,9 +187,9 @@
   187. zero_slot_unmasked             $89 = 0
   188. merge_condition_mask           CondMask = $23 & $24
   189. branch_if_no_lanes_active      branch_if_no_lanes_active +77 (label 8 at #266)
-  190. copy_slot_unmasked             five₃ = five
-  191. trace_var                      TraceVar(five₃) when $40 is true
-  192. trace_enter                    TraceEnter(float break_loop(float five)) when $40 is true
+  190. trace_enter                    TraceEnter(float break_loop(float five)) when $40 is true
+  191. copy_slot_unmasked             five₃ = five
+  192. trace_var                      TraceVar(five₃) when $40 is true
   193. zero_slot_unmasked             $90 = 0
   194. copy_slot_unmasked             $91 = $40
   195. copy_slot_masked               $90 = Mask($91)

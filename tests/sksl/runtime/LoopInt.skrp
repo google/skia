@@ -36,9 +36,9 @@
    36. store_condition_mask           $83 = CondMask
    37. store_condition_mask           $15 = CondMask
    38. branch_if_no_lanes_active      branch_if_no_lanes_active +66 (label 9 at #104)
-   39. copy_slot_unmasked             five₁ = five
-   40. trace_var                      TraceVar(five₁) when $35 is true
-   41. trace_enter                    TraceEnter(int return_loop(int five)) when $35 is true
+   39. trace_enter                    TraceEnter(int return_loop(int five)) when $35 is true
+   40. copy_slot_unmasked             five₁ = five
+   41. trace_var                      TraceVar(five₁) when $35 is true
    42. store_return_mask              $16 = RetMask
    43. zero_slot_unmasked             $17 = 0
    44. copy_slot_unmasked             $18 = $35
@@ -107,9 +107,9 @@
   107. zero_slot_unmasked             $84 = 0
   108. merge_condition_mask           CondMask = $15 & $16
   109. branch_if_no_lanes_active      branch_if_no_lanes_active +76 (label 8 at #185)
-  110. copy_slot_unmasked             five₂ = five
-  111. trace_var                      TraceVar(five₂) when $35 is true
-  112. trace_enter                    TraceEnter(int continue_loop(int five)) when $35 is true
+  110. trace_enter                    TraceEnter(int continue_loop(int five)) when $35 is true
+  111. copy_slot_unmasked             five₂ = five
+  112. trace_var                      TraceVar(five₂) when $35 is true
   113. zero_slot_unmasked             $85 = 0
   114. copy_slot_unmasked             $86 = $35
   115. copy_slot_masked               $85 = Mask($86)
@@ -187,9 +187,9 @@
   187. zero_slot_unmasked             $26 = 0
   188. merge_condition_mask           CondMask = $83 & $84
   189. branch_if_no_lanes_active      branch_if_no_lanes_active +77 (label 7 at #266)
-  190. copy_constant                  five₃ = 0x00000005 (7.006492e-45)
-  191. trace_var                      TraceVar(five₃) when $35 is true
-  192. trace_enter                    TraceEnter(int break_loop(int five)) when $35 is true
+  190. trace_enter                    TraceEnter(int break_loop(int five)) when $35 is true
+  191. copy_constant                  five₃ = 0x00000005 (7.006492e-45)
+  192. trace_var                      TraceVar(five₃) when $35 is true
   193. zero_slot_unmasked             $27 = 0
   194. copy_slot_unmasked             $28 = $35
   195. copy_slot_masked               $27 = Mask($28)
