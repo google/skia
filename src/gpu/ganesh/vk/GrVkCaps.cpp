@@ -553,6 +553,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fShaderCaps->fColorSpaceMathNeedsFloat = true;
     }
 
+    // On the Mali G76 and T880, the Perlin noise code needs to aggressively snap to multiples
+    // of 1/255 to avoid artifacts in the double table lookup.
+    if (kARM_VkVendor == properties.vendorID) {
+        fShaderCaps->fPerlinNoiseRoundingFix = true;
+    }
+
     // On various devices, when calling vkCmdClearAttachments on a primary command buffer, it
     // corrupts the bound buffers on the command buffer. As a workaround we invalidate our knowledge
     // of bound buffers so that we will rebind them on the next draw.

@@ -4110,6 +4110,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
 #if defined(SK_BUILD_FOR_ANDROID)
+    // On the following GPUs, the Perlin noise code needs to aggressively snap to multiples
+    // of 1/255 to avoid artifacts in the double table lookup:
+    //    Tegra3, PowerVRGE8320 (Wembley), MaliG76, and Adreno308
+    // Given the range of vendors we're just blanket enabling it on Android for OpenGL.
     fShaderCaps->fPerlinNoiseRoundingFix = true;
 #endif
 
