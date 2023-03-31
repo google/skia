@@ -138,6 +138,7 @@ var CanvasKit = {
     _render: function() {},
     _seek: function() {},
     _seekFrame: function() {},
+    _setTransform: function() {},
     _size: function() {},
   },
 
