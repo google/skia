@@ -91,7 +91,7 @@ class SlotManager {
 public:
     SlotManager(std::vector<SlotDebugInfo>* i) : fSlotDebugInfo(i) {}
 
-    /** Used by `create` to add this variable to SlotDebugInfo inside the DebugTrace. */
+    /** Used by `createSlots` to add this variable to SlotDebugInfo inside the DebugTrace. */
     void addSlotDebugInfoForGroup(const std::string& varName,
                                   const Type& type,
                                   Position pos,
@@ -1461,7 +1461,19 @@ bool Generator::writeGlobals() {
 
             if (IsUniform(*var)) {
                 // Create the uniform slot map in first-to-last order.
-                (void)this->getUniformSlots(*var);
+                SlotRange uniformSlotRange = this->getUniformSlots(*var);
+
+                if (this->shouldWriteTraceOps()) {
+                    // We expect uniform values to show up in the debug trace. To make this happen
+                    // without updating the file format, we synthesize a value-slot range for the
+                    // uniform here, and copy the uniform data into the value slots. This allows
+                    // trace_var to work naturally. This wastes a bit of memory, but debug traces
+                    // don't need to be hyper-efficient.
+                    SlotRange copyRange = fProgramSlots.getVariableSlots(*var);
+                    fBuilder.push_uniform(uniformSlotRange);
+                    this->popToSlotRangeUnmasked(copyRange);
+                }
+
                 continue;
             }
 
