@@ -520,6 +520,28 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
         return;
     }
 
+    // If the last instruction is pushing a uniform, we can simplify it by copying the uniform
+    // directly into the destination slot.
+    if (lastInstruction.fOp == BuilderOp::push_uniform) {
+        // Get the last slot.
+        Slot sourceSlot = lastInstruction.fSlotA + lastInstruction.fImmA - 1;
+        lastInstruction.fImmA--;
+        if (lastInstruction.fImmA == 0) {
+            fInstructions.pop_back();
+        }
+
+        // Consume one destination slot.
+        dst->count--;
+        Slot destinationSlot = dst->index + dst->count;
+
+        // Continue simplifying if possible.
+        this->simplifyPopSlotsUnmasked(dst);
+
+        // Write the constant directly to the destination slot.
+        this->copy_uniform_to_slots_unmasked({destinationSlot, 1}, {sourceSlot, 1});
+        return;
+    }
+
     // If the last instruction is pushing a zero, we can save a step by directly zeroing out
     // the destination slot.
     if (lastInstruction.fOp == BuilderOp::push_zeros) {
@@ -646,6 +668,28 @@ void Builder::copy_slots_unmasked(SlotRange dst, SlotRange src) {
 
     SkASSERT(dst.count == src.count);
     fInstructions.push_back({BuilderOp::copy_slot_unmasked, {dst.index, src.index}, dst.count});
+}
+
+void Builder::copy_uniform_to_slots_unmasked(SlotRange dst, SlotRange src) {
+    // If the last instruction copied adjacent slots, just extend it.
+    if (!fInstructions.empty()) {
+        Instruction& lastInstr = fInstructions.back();
+
+        // If the last op is copy-constant...
+        if (lastInstr.fOp == BuilderOp::copy_uniform_to_slots_unmasked &&
+            // and this op's destination is immediately after the last copy-constant's destination
+            lastInstr.fSlotA + lastInstr.fImmA == dst.index &&
+            // and this op's source is immediately after the last copy-constant's source
+            lastInstr.fSlotB + lastInstr.fImmA == src.index) {
+            // then we can just extend the copy!
+            lastInstr.fImmA += dst.count;
+            return;
+        }
+    }
+
+    SkASSERT(dst.count == src.count);
+    fInstructions.push_back({BuilderOp::copy_uniform_to_slots_unmasked, {dst.index, src.index},
+                             dst.count});
 }
 
 void Builder::copy_stack_to_slots_unmasked(SlotRange dst, int offsetFromStackTop) {
@@ -1359,6 +1403,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
         auto SlotA    = [&]() { return &slots.values[N * inst.fSlotA]; };
         auto SlotB    = [&]() { return &slots.values[N * inst.fSlotB]; };
         auto UniformA = [&]() { return &uniforms[inst.fSlotA]; };
+        auto UniformB = [&]() { return &uniforms[inst.fSlotB]; };
         auto AllocTraceContext = [&](auto* ctx) {
             // We pass `ctx` solely for its type; the value is unused.
             using ContextType = typename std::remove_reference<decltype(*ctx)>::type;
@@ -1596,6 +1641,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::push_uniform: {
                 float* dst = tempStackPtr;
                 this->appendCopyConstants(pipeline, alloc, dst, UniformA(), inst.fImmA);
+                break;
+            }
+            case BuilderOp::copy_uniform_to_slots_unmasked: {
+                this->appendCopyConstants(pipeline, alloc, SlotA(), UniformB(), inst.fImmA);
                 break;
             }
             case BuilderOp::push_zeros: {

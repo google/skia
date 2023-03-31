@@ -92,6 +92,7 @@ enum class BuilderOp {
     copy_stack_to_slots,
     copy_stack_to_slots_unmasked,
     copy_stack_to_slots_indirect,
+    copy_uniform_to_slots_unmasked,
     swizzle_copy_stack_to_slots,
     swizzle_copy_stack_to_slots_indirect,
     discard_stack,
@@ -370,6 +371,9 @@ public:
 
     // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
     void push_uniform(SlotRange src);
+
+    // Translates into copy_constants (from uniforms into value-slots) in Raster Pipeline.
+    void copy_uniform_to_slots_unmasked(SlotRange dst, SlotRange src);
 
     // Translates into copy_from_indirect_uniform_unmasked (from values into temp stack) in Raster
     // Pipeline. `fixedRange` denotes a fixed set of slots; this range is pushed forward by the

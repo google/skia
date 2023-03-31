@@ -192,8 +192,8 @@
   192. bitwise_and_int                $1 &= $2
   193. bitwise_and_int                $0 &= $1
   194. copy_slot_unmasked             _0_ok = $0
-  195. copy_constant                  $0 = unknownInput
-  196. copy_slot_unmasked             _2_unknown = $0
+  195. copy_constant                  _2_unknown = unknownInput
+  196. copy_slot_unmasked             $0 = _2_unknown
   197. swizzle_4                      $0..3 = ($0..3).xxxx
   198. copy_4_slots_unmasked          _1_x = $0..3
   199. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
