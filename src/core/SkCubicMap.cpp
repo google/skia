@@ -10,9 +10,44 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkVx.h"
-#include "src/core/SkOpts.h"
 
 #include <algorithm>
+
+static float eval_poly(float t, float b) { return b; }
+
+template <typename... Rest>
+static float eval_poly(float t, float m, float b, Rest... rest) {
+    return eval_poly(t, sk_fmaf(m, t, b), rest...);
+}
+
+static float cubic_solver(float A, float B, float C, float D) {
+#ifdef SK_DEBUG
+    auto valid = [](float t) { return t >= 0 && t <= 1; };
+#endif
+
+    auto guess_nice_cubic_root = [](float a, float b, float c, float d) { return -d; };
+    float t = guess_nice_cubic_root(A, B, C, D);
+
+    int iters = 0;
+    const int MAX_ITERS = 8;
+    for (; iters < MAX_ITERS; ++iters) {
+        SkASSERT(valid(t));
+        float f = eval_poly(t, A, B, C, D);        // f   = At^3 + Bt^2 + Ct + D
+        if (sk_float_abs(f) <= 0.00005f) {
+            break;
+        }
+        float fp = eval_poly(t, 3*A, 2*B, C);      // f'  = 3At^2 + 2Bt + C
+        float fpp = eval_poly(t, 3*A + 3*A, 2*B);  // f'' = 6At + 2B
+
+        float numer = 2 * fp * f;
+        float denom = sk_fmaf(2 * fp, fp, -(f * fpp));
+
+        t -= numer / denom;
+    }
+
+    SkASSERT(valid(t));
+    return t;
+}
 
 static inline bool nearly_zero(SkScalar x) {
     SkASSERT(x >= 0);
@@ -20,7 +55,7 @@ static inline bool nearly_zero(SkScalar x) {
 }
 
 static float compute_t_from_x(float A, float B, float C, float x) {
-    return SkOpts::cubic_solver(A, B, C, -x);
+    return cubic_solver(A, B, C, -x);
 }
 
 float SkCubicMap::computeYFromX(float x) const {

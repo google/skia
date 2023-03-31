@@ -38,7 +38,6 @@
     #define SK_OPTS_NS portable
 #endif
 
-#include "src/core/SkCubicSolver.h"
 #include "src/opts/SkBitmapProcState_opts.h"
 #include "src/opts/SkBlitMask_opts.h"
 #include "src/opts/SkBlitRow_opts.h"
@@ -80,8 +79,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(rect_memset16);
     DEFINE_DEFAULT(rect_memset32);
     DEFINE_DEFAULT(rect_memset64);
-
-    DEFINE_DEFAULT(cubic_solver);
 
     DEFINE_DEFAULT(hash_fn);
 

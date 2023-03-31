@@ -427,7 +427,6 @@ BASE_SRCS_ALL = [
     "src/core/SkCubicClipper.cpp",
     "src/core/SkCubicClipper.h",
     "src/core/SkCubicMap.cpp",
-    "src/core/SkCubicSolver.h",
     "src/core/SkData.cpp",
     "src/core/SkDataTable.cpp",
     "src/core/SkDebug.cpp",

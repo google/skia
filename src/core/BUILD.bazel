@@ -97,7 +97,6 @@ CORE_FILES = [
     "SkCubicClipper.cpp",
     "SkCubicClipper.h",
     "SkCubicMap.cpp",
-    "SkCubicSolver.h",
     "SkDataTable.cpp",
     "SkDebug.cpp",
     "SkDebugUtils.h",

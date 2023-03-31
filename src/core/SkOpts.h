@@ -105,8 +105,6 @@ namespace SkOpts {
     extern void (*rect_memset32)(uint32_t[], uint32_t, int, size_t, int);
     extern void (*rect_memset64)(uint64_t[], uint64_t, int, size_t, int);
 
-    extern float (*cubic_solver)(float, float, float, float);
-
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         // hash_fn is defined in SkOpts_spi.h so it can be used by //modules
         return hash_fn(data, bytes, seed);
