@@ -38,9 +38,6 @@ std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
 
 namespace skgpu::graphite {
 
-using DataPayloadField = PaintParamsKey::DataPayloadField;
-using DataPayloadType = PaintParamsKey::DataPayloadType;
-
 std::string ShaderSnippet::getMangledUniformName(const ShaderInfo& shaderInfo,
                                                  int uniformIdx,
                                                  int mangleId) const {
@@ -197,15 +194,6 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
     return preamble + "\n" + mainBody;
 }
 
-ShaderCodeDictionary::Entry* ShaderCodeDictionary::makeEntry(const PaintParamsKey& key,
-                                                             const skgpu::BlendInfo& blendInfo) {
-    uint8_t* newKeyData = fArena.makeArray<uint8_t>(key.sizeInBytes());
-    memcpy(newKeyData, key.data(), key.sizeInBytes());
-
-    SkSpan<const uint8_t> newKeyAsSpan = SkSpan(newKeyData, key.sizeInBytes());
-    return fArena.make([&](void *ptr) { return new(ptr) Entry(newKeyAsSpan, blendInfo); });
-}
-
 size_t ShaderCodeDictionary::PaintParamsKeyPtr::Hash::operator()(PaintParamsKeyPtr p) const {
     return SkOpts::hash_fn(p.fKey->data(), p.fKey->sizeInBytes(), 0);
 }
@@ -231,8 +219,13 @@ const ShaderCodeDictionary::Entry* ShaderCodeDictionary::findOrCreate(
         return *existingEntry;
     }
 
-    Entry* newEntry = this->makeEntry(key, builder->blendInfo());
-    newEntry->setUniqueID(fEntryVector.size());
+    uint32_t newID = fEntryVector.size();
+    uint8_t* newKeyData = fArena.makeArrayDefault<uint8_t>(key.sizeInBytes());
+    memcpy(newKeyData, key.data(), key.sizeInBytes());
+
+    PaintParamsKey newKey{{newKeyData, key.sizeInBytes()}};
+    Entry* newEntry = fArena.make([&](void *ptr) { return new(ptr) Entry(newKey, newID); });
+
     fHash.set(PaintParamsKeyPtr{&newEntry->paintParamsKey()}, newEntry);
     fEntryVector.push_back(newEntry);
 
@@ -257,12 +250,6 @@ SkSpan<const Uniform> ShaderCodeDictionary::getUniforms(BuiltInCodeSnippetID id)
     return fBuiltInCodeSnippets[(int) id].fUniforms;
 }
 
-SkSpan<const DataPayloadField> ShaderCodeDictionary::dataPayloadExpectations(
-        int codeSnippetID) const {
-    // All callers of this entry point should already have ensured that 'codeSnippetID' is valid
-    return this->getEntry(codeSnippetID)->fDataPayloadExpectations;
-}
-
 const ShaderSnippet* ShaderCodeDictionary::getEntry(int codeSnippetID) const {
     if (codeSnippetID < 0) {
         return nullptr;
@@ -285,7 +272,6 @@ void ShaderCodeDictionary::getShaderInfo(UniquePaintParamsID uniqueID,
     auto entry = this->lookup(uniqueID);
 
     entry->paintParamsKey().toShaderInfo(this, info);
-    info->setBlendInfo(entry->blendInfo());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1031,9 +1017,6 @@ static constexpr char kPassthroughShaderName[] = "sk_passthrough";
 static constexpr char kPassthroughBlenderName[] = "blend_src_over";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr PaintParamsKey::DataPayloadField kFixedFunctionDataFields[] = {
-    { "blendMode", PaintParamsKey::DataPayloadType::kByte, 1},
-};
 
 // This method generates the glue code for the case where the SkBlendMode-based blending is
 // handled with fixed function blending.
@@ -1042,7 +1025,6 @@ std::string GenerateFixedFunctionBlenderExpression(const ShaderInfo&,
                                                    const PaintParamsKey::BlockReader& reader,
                                                    const ShaderSnippet::Args& args) {
     SkASSERT(reader.entry()->fUniforms.empty());
-    SkASSERT(reader.numDataPayloadFields() == 1);
 
     // The actual blending is set up via the fixed function pipeline so we don't actually
     // need to access the blend mode in the glue code.
@@ -1067,7 +1049,6 @@ std::string GenerateShaderBasedBlenderExpression(const ShaderInfo& shaderInfo,
     const bool usePrimitiveColorAsDst = reader.entry()->blendAgainstPrimitiveColor();
 
     SkASSERT(reader.entry()->fUniforms.size() == 1);
-    SkASSERT(reader.numDataPayloadFields() == 0);
 
     std::string uniformName = reader.entry()->getMangledUniformName(shaderInfo, 0, entryIndex);
 
@@ -1110,8 +1091,7 @@ int ShaderCodeDictionary::addUserDefinedSnippet(
         const char* functionName,
         ShaderSnippet::GenerateExpressionForSnippetFn expressionGenerator,
         ShaderSnippet::GeneratePreambleForSnippetFn preambleGenerator,
-        int numChildren,
-        SkSpan<const PaintParamsKey::DataPayloadField> dataPayloadExpectations) {
+        int numChildren) {
     // TODO: the memory for user-defined entries could go in the dictionary's arena but that
     // would have to be a thread safe allocation since the arena also stores entries for
     // 'fHash' and 'fEntryVector'
@@ -1122,16 +1102,13 @@ int ShaderCodeDictionary::addUserDefinedSnippet(
                                                                        functionName,
                                                                        expressionGenerator,
                                                                        preambleGenerator,
-                                                                       numChildren,
-                                                                       dataPayloadExpectations));
+                                                                       numChildren));
 
     return kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1;
 }
 
 // TODO: this version needs to be removed
-int ShaderCodeDictionary::addUserDefinedSnippet(
-        const char* name,
-        SkSpan<const DataPayloadField> dataPayloadExpectations) {
+int ShaderCodeDictionary::addUserDefinedSnippet(const char* name) {
     return this->addUserDefinedSnippet("UserDefined",
                                        {},  // no uniforms
                                        SnippetRequirementFlags::kNone,
@@ -1139,8 +1116,7 @@ int ShaderCodeDictionary::addUserDefinedSnippet(
                                        name,
                                        GenerateDefaultExpression,
                                        GenerateDefaultPreamble,
-                                       kNoChildren,
-                                       dataPayloadExpectations);
+                                       kNoChildren);
 }
 
 static SkSLType uniform_type_to_sksl_type(const SkRuntimeEffect::Uniform& u) {
@@ -1237,8 +1213,7 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
                                                        kRuntimeShaderName,
                                                        GenerateRuntimeShaderExpression,
                                                        GenerateRuntimeShaderPreamble,
-                                                       (int)effect->children().size(),
-                                                       /*dataPayloadExpectations=*/{});
+                                                       (int)effect->children().size());
     fRuntimeEffectMap.set(key, newCodeSnippetID);
     return newCodeSnippetID;
 }
@@ -1255,8 +1230,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kErrorName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPassthroughShader] = {
             "PassthroughShader",
@@ -1266,8 +1240,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kPassthroughShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPassthroughBlender] = {
             "PassthroughBlender",
@@ -1278,8 +1251,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kPassthroughBlenderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            {}       // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSolidColorShader] = {
             "SolidColor",
@@ -1289,8 +1261,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kSolidShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLinearGradientShader4] = {
             "LinearGradient4",
@@ -1300,8 +1271,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kLinearGradient4Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLinearGradientShader8] = {
             "LinearGradient8",
@@ -1311,8 +1281,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kLinearGradient8Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLinearGradientShaderTexture] = {
             "LinearGradientTexture",
@@ -1322,8 +1291,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kLinearGradientTextureName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRadialGradientShader4] = {
             "RadialGradient4",
@@ -1333,8 +1301,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kRadialGradient4Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRadialGradientShader8] = {
             "RadialGradient8",
@@ -1344,8 +1311,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kRadialGradient8Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRadialGradientShaderTexture] = {
             "RadialGradientTexture",
@@ -1355,8 +1321,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kRadialGradientTextureName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSweepGradientShader4] = {
             "SweepGradient4",
@@ -1366,8 +1331,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kSweepGradient4Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSweepGradientShader8] = {
             "SweepGradient8",
@@ -1377,8 +1341,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kSweepGradient8Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSweepGradientShaderTexture] = {
             "SweepGradientTexture",
@@ -1388,8 +1351,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kSweepGradientTextureName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kConicalGradientShader4] = {
             "ConicalGradient4",
@@ -1399,8 +1361,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kConicalGradient4Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kConicalGradientShader8] = {
             "ConicalGradient8",
@@ -1410,8 +1371,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kConicalGradient8Name,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kConicalGradientShaderTexture] = {
             "ConicalGradientTexture",
@@ -1421,8 +1381,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kConicalGradientTextureName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLocalMatrixShader] = {
             "LocalMatrixShader",
@@ -1433,8 +1392,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kLocalMatrixShaderName,
             GenerateDefaultExpression,
             GenerateLocalMatrixPreamble,
-            kNumLocalMatrixShaderChildren,
-            { }      // no data payload
+            kNumLocalMatrixShaderChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kImageShader] = {
             "ImageShader",
@@ -1444,8 +1402,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kImageShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCoordClampShader] = {
             "CoordClampShader",
@@ -1455,8 +1412,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kCoordClampShaderName,
             GenerateDefaultExpression,
             GenerateCoordClampPreamble,
-            kNumCoordClampShaderChildren,
-            { }      // no data payload
+            kNumCoordClampShaderChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDitherShader] = {
             "DitherShader",
@@ -1466,8 +1422,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kDitherShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPerlinNoiseShader] = {
             "PerlinNoiseShader",
@@ -1477,8 +1432,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kPerlinNoiseShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPorterDuffBlendShader] = {
             "PorterDuffBlendShader",
@@ -1488,8 +1442,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kPorterDuffBlendShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNumBlendShaderChildren,
-            { }      // no data payload
+            kNumBlendShaderChildren
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendShader] = {
@@ -1500,8 +1453,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kBlendShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNumBlendShaderChildren,
-            { }      // no data payload
+            kNumBlendShaderChildren
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorFilterShader] = {
@@ -1512,8 +1464,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kColorFilterShaderName,
             GenerateDefaultExpression,
             GenerateNestedChildrenPreamble,
-            kNumColorFilterShaderChildren,
-            { }      // no data payload
+            kNumColorFilterShaderChildren
     };
 
     // SkColorFilter snippets
@@ -1525,8 +1476,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kMatrixColorFilterName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendColorFilter] = {
             "BlendColorFilter",
@@ -1536,8 +1486,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kBlendColorFilterName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kComposeColorFilter] = {
             "ComposeColorFilter",
@@ -1547,8 +1496,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kComposeColorFilterName,
             GenerateDefaultExpression,
             GenerateNestedChildrenPreamble,
-            kNumComposeColorFilterChildren,
-            { }      // no data payload
+            kNumComposeColorFilterChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kTableColorFilter] = {
             "TableColorFilter",
@@ -1558,8 +1506,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kTableColorFilterName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kGaussianColorFilter] = {
             "GaussianColorFilter",
@@ -1569,8 +1516,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kGaussianColorFilterName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformColorFilter] = {
             "ColorSpaceTransform",
@@ -1580,19 +1526,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kColorSpaceTransformName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
-    };
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kFixedFunctionBlender] = {
-            "FixedFunctionBlender",
-            { },     // no uniforms
-            SnippetRequirementFlags::kNone,
-            { },     // no samplers
-            "FF-blending",  // fixed function blending doesn't use static SkSL
-            GenerateFixedFunctionBlenderExpression,
-            GenerateDefaultPreamble,
-            kNoChildren,
-            kFixedFunctionDataFields
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kShaderBasedBlender] = {
             "ShaderBasedBlender",
@@ -1602,8 +1536,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kBlendHelperName,
             GenerateShaderBasedBlenderExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColorShaderBasedBlender] = {
             "PrimitiveColorShaderBasedBlender",
@@ -1613,9 +1546,43 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kBlendHelperName,
             GenerateShaderBasedBlenderExpression,
             GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
+            kNoChildren
     };
+
+    // Fixed-function blend mode snippets are all the same, their functionality is entirely defined
+    // by their unique code snippet IDs.
+    for (int i = 0; i <= (int) SkBlendMode::kLastCoeffMode; ++i) {
+        int ffBlendModeID = kFixedFunctionBlendModeIDOffset + i;
+        fBuiltInCodeSnippets[ffBlendModeID] = {
+                SkBlendMode_Name(static_cast<SkBlendMode>(i)),
+                { },     // no uniforms
+                SnippetRequirementFlags::kNone,
+                { },     // no samplers
+                "",  // fixed function blending doesn't use static SkSL
+                GenerateFixedFunctionBlenderExpression,
+                GenerateDefaultPreamble,
+                kNoChildren
+        };
+    }
 }
+
+// Verify that the built-in code IDs for fixed function blending are consistent with SkBlendMode.
+// clang-format off
+static_assert((int)SkBlendMode::kClear    == (int)BuiltInCodeSnippetID::kFixedFunctionClearBlendMode    - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kSrc      == (int)BuiltInCodeSnippetID::kFixedFunctionSrcBlendMode      - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kDst      == (int)BuiltInCodeSnippetID::kFixedFunctionDstBlendMode      - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kSrcOver  == (int)BuiltInCodeSnippetID::kFixedFunctionSrcOverBlendMode  - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kDstOver  == (int)BuiltInCodeSnippetID::kFixedFunctionDstOverBlendMode  - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kSrcIn    == (int)BuiltInCodeSnippetID::kFixedFunctionSrcInBlendMode    - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kDstIn    == (int)BuiltInCodeSnippetID::kFixedFunctionDstInBlendMode    - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kSrcOut   == (int)BuiltInCodeSnippetID::kFixedFunctionSrcOutBlendMode   - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kDstOut   == (int)BuiltInCodeSnippetID::kFixedFunctionDstOutBlendMode   - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kSrcATop  == (int)BuiltInCodeSnippetID::kFixedFunctionSrcATopBlendMode  - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kDstATop  == (int)BuiltInCodeSnippetID::kFixedFunctionDstATopBlendMode  - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kXor      == (int)BuiltInCodeSnippetID::kFixedFunctionXorBlendMode      - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kPlus     == (int)BuiltInCodeSnippetID::kFixedFunctionPlusBlendMode     - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kModulate == (int)BuiltInCodeSnippetID::kFixedFunctionModulateBlendMode - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kScreen   == (int)BuiltInCodeSnippetID::kFixedFunctionScreenBlendMode   - kFixedFunctionBlendModeIDOffset);
+// clang-format on
 
 } // namespace skgpu::graphite

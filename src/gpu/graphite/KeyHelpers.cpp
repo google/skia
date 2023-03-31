@@ -816,43 +816,6 @@ void ColorSpaceTransformBlock::BeginBlock(const KeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 namespace {
 
-constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
-                                                 skgpu::BlendCoeff dstCoeff) {
-    return { skgpu::BlendEquation::kAdd,
-             srcCoeff,
-             dstCoeff,
-             SK_PMColor4fTRANSPARENT,
-             skgpu::BlendModifiesDst(skgpu::BlendEquation::kAdd, srcCoeff, dstCoeff) };
-}
-
-static constexpr int kNumCoeffModes = (int)SkBlendMode::kLastCoeffMode + 1;
-/*>> No coverage, input color unknown <<*/
-static constexpr skgpu::BlendInfo gBlendTable[kNumCoeffModes] = {
-        /* clear */      make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
-        /* src */        make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kZero),
-        /* dst */        make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
-        /* src-over */   make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
-        /* dst-over */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
-        /* src-in */     make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kZero),
-        /* dst-in */     make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSA),
-        /* src-out */    make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kZero),
-        /* dst-out */    make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kISA),
-        /* src-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
-        /* dst-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kSA),
-        /* xor */        make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
-        /* plus */       make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
-        /* modulate */   make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSC),
-        /* screen */     make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC)
-};
-
-const skgpu::BlendInfo& get_blend_info(SkBlendMode bm) {
-    if (bm <= SkBlendMode::kLastCoeffMode) {
-        return gBlendTable[(int) bm];
-    }
-
-    return gBlendTable[(int) SkBlendMode::kSrc];
-}
-
 void add_shaderbasedblender_uniform_data(const ShaderCodeDictionary* dict,
                                          SkBlendMode bm,
                                          PipelineDataGatherer* gatherer) {
@@ -873,15 +836,10 @@ void BlendModeBlock::BeginBlock(const KeyContext& keyContext,
     auto dict = keyContext.dict();
 
     if (bm <= SkBlendMode::kLastCoeffMode) {
-        builder->setBlendInfo(get_blend_info(bm));
-
-        builder->beginBlock(BuiltInCodeSnippetID::kFixedFunctionBlender);
-        static_assert(SkTFitsIn<uint8_t>(SkBlendMode::kLastMode));
-        builder->addByte(static_cast<uint8_t>(bm));
+        BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
+                kFixedFunctionBlendModeIDOffset + (int) bm);
+        builder->beginBlock(fixedFuncBlendModeID);
     } else {
-        // TODO: set up the correct blend info
-        builder->setBlendInfo({});
-
         if (gatherer) {
             add_shaderbasedblender_uniform_data(dict, bm, gatherer);
         }

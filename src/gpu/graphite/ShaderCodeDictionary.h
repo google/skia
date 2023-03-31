@@ -88,8 +88,7 @@ struct ShaderSnippet {
                   const char* functionName,
                   GenerateExpressionForSnippetFn expressionGenerator,
                   GeneratePreambleForSnippetFn preambleGenerator,
-                  int numChildren,
-                  SkSpan<const PaintParamsKey::DataPayloadField> dataPayloadExpectations)
+                  int numChildren)
         : fName(name)
         , fUniforms(uniforms)
         , fSnippetRequirementFlags(snippetRequirementFlags)
@@ -97,8 +96,7 @@ struct ShaderSnippet {
         , fStaticFunctionName(functionName)
         , fExpressionGenerator(expressionGenerator)
         , fPreambleGenerator(preambleGenerator)
-        , fNumChildren(numChildren)
-        , fDataPayloadExpectations(dataPayloadExpectations) {}
+        , fNumChildren(numChildren) {}
 
     std::string getMangledUniformName(const ShaderInfo& shaderInfo,
                                       int uniformIdx,
@@ -126,7 +124,6 @@ struct ShaderSnippet {
     GenerateExpressionForSnippetFn fExpressionGenerator = nullptr;
     GeneratePreambleForSnippetFn fPreambleGenerator = nullptr;
     int fNumChildren = 0;
-    SkSpan<const PaintParamsKey::DataPayloadField> fDataPayloadExpectations;
 };
 
 // This is just a simple collection object that gathers together all the information needed
@@ -196,28 +193,14 @@ public:
             return fUniqueID;
         }
         const PaintParamsKey& paintParamsKey() const { return fKey; }
-        const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
     private:
         friend class ShaderCodeDictionary;
 
-        Entry(const PaintParamsKey& key, const skgpu::BlendInfo& blendInfo)
-                : fKey(key.asSpan())
-                , fBlendInfo(blendInfo) {
-        }
-
-        void setUniqueID(uint32_t newID) {
-            SkASSERT(!fUniqueID.isValid());
-            fUniqueID = UniquePaintParamsID(newID);
-        }
+        Entry(const PaintParamsKey& key, uint32_t newID) : fUniqueID(newID), fKey(key.asSpan()) {}
 
         UniquePaintParamsID fUniqueID;  // fixed-size (uint32_t) unique ID assigned to a key
         PaintParamsKey fKey; // variable-length paint key descriptor
-
-        // The BlendInfo isn't used in the hash (that is the key's job) but it does directly vary
-        // with the key. It could, theoretically, be recreated from the key but that would add
-        // extra complexity.
-        skgpu::BlendInfo fBlendInfo;
     };
 
     const Entry* findOrCreate(PaintParamsKeyBuilder*) SK_EXCLUDES(fSpinLock);
@@ -229,8 +212,6 @@ public:
             BuiltInCodeSnippetID id) const {
         return fBuiltInCodeSnippets[(int) id].fSnippetRequirementFlags;
     }
-
-    SkSpan<const PaintParamsKey::DataPayloadField> dataPayloadExpectations(int snippetID) const;
 
     bool isValidID(int snippetID) const;
 
@@ -244,14 +225,13 @@ public:
 
     int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect);
 
-    int addUserDefinedSnippet(const char* name,
-                              SkSpan<const PaintParamsKey::DataPayloadField> expectations);
+    // TODO: Remove or make testing-only
+    int addUserDefinedSnippet(const char* name);
 
 private:
-    Entry* makeEntry(const PaintParamsKey&, const skgpu::BlendInfo&);
-
     // TODO: this is still experimental but, most likely, it will need to be made thread-safe
-    // It returns the code snippet ID to use to identify the supplied user-defined code
+    // It returns the code snippet ID to use to identify the supplied user-defined code.
+    // TODO: Rename to addRuntimeEffectSnippet().
     int addUserDefinedSnippet(
         const char* name,
         SkSpan<const Uniform> uniforms,
@@ -260,8 +240,7 @@ private:
         const char* functionName,
         ShaderSnippet::GenerateExpressionForSnippetFn expressionGenerator,
         ShaderSnippet::GeneratePreambleForSnippetFn preambleGenerator,
-        int numChildren,
-        SkSpan<const PaintParamsKey::DataPayloadField> dataPayloadExpectations);
+        int numChildren);
 
     const char* addTextToArena(std::string_view text);
 

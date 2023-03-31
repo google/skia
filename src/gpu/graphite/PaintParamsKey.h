@@ -28,13 +28,13 @@ class ShaderInfo;
 struct ShaderSnippet;
 
 // This class is a compact representation of the shader needed to implement a given
-// PaintParams. Its structure is a series of blocks where each block has a
-// Header, consisting of 2 bytes:
+// PaintParams. Its structure is a series of blocks where each block has a Header, consisting of:
 //   4 bytes: code-snippet ID
 //   1 byte: size of the block, in bytes (header, plus all data payload bytes)
 // The rest of the data in the block is dependent on the individual code snippet.
 // If a given block has child blocks, they appear in the key right after their parent
-// block's header.
+// block's header. The number of children for a given code ID is constant and defined in the
+// ShaderCodeDictionary's snippet entries.
 class PaintParamsKey {
 public:
     #pragma pack(push, 1)
@@ -47,20 +47,6 @@ public:
     static const int kBlockSizeOffsetInBytes = offsetof(Header, blockSize);
     static const int kMaxBlockSize = std::numeric_limits<uint8_t>::max();
 
-    enum class DataPayloadType {
-        kByte,
-        kInt,
-        kFloat4,
-    };
-
-    // A given snippet's data payload is stored as an SkSpan of DataPayloadFields in the
-    // ShaderCodeDictionary. That span just defines the structure of the data payload. The actual
-    // data is stored in the paint params key.
-    struct DataPayloadField {
-        const char* fName;
-        DataPayloadType fType;
-        uint32_t fCount;
-    };
 
     ~PaintParamsKey();
 
@@ -80,16 +66,9 @@ public:
         // Return the childIndex-th child's BlockReader
         BlockReader child(const ShaderCodeDictionary*, int childIndex) const;
 
-        // Retrieve the fieldIndex-th field in the data payload as a span. The type being read
-        // is checked against the data payload's structure.
-        SkSpan<const uint8_t> bytes(int fieldIndex) const;
-        SkSpan<const int32_t> ints(int fieldIndex) const;
-        SkSpan<const SkColor4f> colors(int fieldIndex) const;
-
         const ShaderSnippet* entry() const { return fEntry; }
 
 #ifdef SK_DEBUG
-        int numDataPayloadFields() const;
         void dump(const ShaderCodeDictionary*, int indent) const;
 #endif
 
@@ -99,10 +78,6 @@ public:
         BlockReader(const ShaderCodeDictionary*,
                     SkSpan<const uint8_t> parentSpan,
                     int offsetInParent);
-
-        // The data payload appears after any children and occupies the remainder of the
-        // block's space.
-        SkSpan<const uint8_t> dataPayload() const;
 
         SkSpan<const uint8_t> fBlock;
         const ShaderSnippet* fEntry;
@@ -143,10 +118,6 @@ private:
     // is in the dictionary). In this case the dictionary will own the memory backing the span.
     PaintParamsKey(SkSpan<const uint8_t> rawData);
 
-    static void AddBlockToShaderInfo(const ShaderCodeDictionary*,
-                                     const BlockReader&,
-                                     ShaderInfo*);
-
     // The memory referenced in 'fData' is always owned by someone else.
     // If 'fOriginatingBuilder' is null, the dictionary's SkArena owns the 'fData' memory and no
     // explicit freeing is required.
@@ -175,27 +146,9 @@ public:
         SkASSERT(!this->isLocked());
     }
 
-    void setBlendInfo(const skgpu::BlendInfo& blendInfo) {
-        fBlendInfo = blendInfo;
-    }
-    const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
-
     void beginBlock(int32_t codeSnippetID);
     void beginBlock(BuiltInCodeSnippetID id) { this->beginBlock(static_cast<int32_t>(id)); }
     void endBlock();
-
-    void addBytes(uint32_t numBytes, const uint8_t* data);
-    void addByte(uint8_t data) {
-        this->addBytes(1, &data);
-    }
-    void addInts(uint32_t numInts, const int32_t* data);
-    void addInt(int32_t data) {
-        this->addInts(1, &data);
-    }
-    void add(int numColors, const SkColor4f* colors);
-    void add(const SkColor4f& color) {
-        this->add(/*numColors=*/1, &color);
-    }
 
 #ifdef SK_DEBUG
     // Check that the builder has been reset to its initial state prior to creating a new key.
@@ -217,7 +170,6 @@ public:
     void unlock() {
         SkASSERT(fLocked);
         fData.clear();
-        fBlendInfo = {};
 
         SkDEBUGCODE(fLocked = false;)
         SkDEBUGCODE(this->checkReset();)
@@ -226,7 +178,6 @@ public:
     void discard() {
         SkASSERT(!fIsValid && !fLocked);
         fData.clear();
-        fBlendInfo = {};
         fIsValid = true;
         SkDEBUGCODE(this->checkReset());
     }
@@ -234,20 +185,13 @@ public:
     SkDEBUGCODE(bool isLocked() const { return fLocked; })
 
 private:
-    void addToKey(uint32_t count, const void* data, PaintParamsKey::DataPayloadType payloadType);
     void makeInvalid();
-
-#ifdef SK_DEBUG
-    void checkExpectations(PaintParamsKey::DataPayloadType actualType, uint32_t actualCount);
-#endif
 
     // Information about the current block being written
     struct StackFrame {
         int fCodeSnippetID;
         int fHeaderOffset;
 #ifdef SK_DEBUG
-        SkSpan<const PaintParamsKey::DataPayloadField> fDataPayloadExpectations;
-        int fCurDataPayloadEntry = 0;
         int fNumExpectedChildren = 0;
         int fNumActualChildren = 0;
 #endif
@@ -262,7 +206,6 @@ private:
     // repeated use of the builder will hit a high-water mark and avoid lots of allocations.
     SkTDArray<StackFrame> fStack;
     SkTDArray<uint8_t> fData;
-    skgpu::BlendInfo fBlendInfo;
 };
 
 } // skgpu::graphite

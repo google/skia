@@ -12,7 +12,6 @@
 
 namespace skgpu::graphite {
 
-// TODO: this needs to be expanded into a more flexible dictionary (esp. for user-supplied SkSL)
 enum class BuiltInCodeSnippetID : int32_t {
     // This isn't just a signal for a failure during paintparams key creation. It also actually
     // implements the default behavior for an erroneous draw. Currently it just draws solid
@@ -57,13 +56,40 @@ enum class BuiltInCodeSnippetID : int32_t {
     kPassthroughBlender,
 
     // BlendMode code snippets (applying a blend to a destination)
-    kFixedFunctionBlender,
     kShaderBasedBlender,
     kPrimitiveColorShaderBasedBlender, // Blend dst: primitiveColor variable emitted by RenderStep
+// Fixed-function blend modes are used for the final blend with the dst buffer's color when the
+    // SkPaint is using a coefficient-based SkBlendMode. The actual coefficients are extracted into
+    // the SkBlendInfo associated with each pipeline, but a unique code snippet ID is assigned so
+    // that the pipeline keys remain distinct. They are ordered to match SkBlendMode such
+    // that (id - kFirstFixedFunctionBlendMode) == SkBlendMode).
+    //
+    // NOTE: Pipeline code generation depends on the fixed-function code IDs being contiguous and
+    // be defined last in the enum.
+    kFixedFunctionClearBlendMode,
+    kFixedFunctionSrcBlendMode,
+    kFixedFunctionDstBlendMode,
+    kFixedFunctionSrcOverBlendMode,
+    kFixedFunctionDstOverBlendMode,
+    kFixedFunctionSrcInBlendMode,
+    kFixedFunctionDstInBlendMode,
+    kFixedFunctionSrcOutBlendMode,
+    kFixedFunctionDstOutBlendMode,
+    kFixedFunctionSrcATopBlendMode,
+    kFixedFunctionDstATopBlendMode,
+    kFixedFunctionXorBlendMode,
+    kFixedFunctionPlusBlendMode,
+    kFixedFunctionModulateBlendMode,
+    kFixedFunctionScreenBlendMode,
 
-    kLast = kPrimitiveColorShaderBasedBlender
+    kFirstFixedFunctionBlendMode = kFixedFunctionClearBlendMode,
+    kLast = kFixedFunctionScreenBlendMode
 };
 static constexpr int kBuiltInCodeSnippetIDCount = static_cast<int>(BuiltInCodeSnippetID::kLast)+1;
+static constexpr int kFixedFunctionBlendModeIDOffset =
+        static_cast<int>(BuiltInCodeSnippetID::kFirstFixedFunctionBlendMode);
+
+static_assert(BuiltInCodeSnippetID::kLast == BuiltInCodeSnippetID::kFixedFunctionScreenBlendMode);
 
 } // skgpu::graphite
 

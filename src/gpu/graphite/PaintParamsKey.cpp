@@ -13,9 +13,6 @@
 
 namespace skgpu::graphite {
 
-using DataPayloadType  = PaintParamsKey::DataPayloadType;
-using DataPayloadField = PaintParamsKey::DataPayloadField;
-
 //--------------------------------------------------------------------------------------------------
 static PaintParamsKey::Header read_header(SkSpan<const uint8_t> parentSpan, int headerOffset) {
     SkASSERT(headerOffset + sizeof(PaintParamsKey::Header) <= parentSpan.size());
@@ -38,7 +35,6 @@ void PaintParamsKeyBuilder::checkReset() {
     SkASSERT(this->sizeInBytes() == 0);
     SkASSERT(fIsValid);
     SkASSERT(fStack.empty());
-    SkASSERT(fBlendInfo == skgpu::BlendInfo());
 }
 #endif
 
@@ -60,31 +56,20 @@ void PaintParamsKeyBuilder::beginBlock(int32_t codeSnippetID) {
 #ifdef SK_DEBUG
     if (!fStack.empty()) {
         // The children of a block should appear before any of the parent's data
-        SkASSERT(fStack.back().fCurDataPayloadEntry == 0);
         fStack.back().fNumActualChildren++;
     }
-
-    static constexpr DataPayloadField kHeader[2] = {
-            {"snippetID", DataPayloadType::kInt, 1},
-            {"blockSize", DataPayloadType::kByte, 1},
-    };
-
-    static const SkSpan<const DataPayloadField> kHeaderExpectations(kHeader);
 #endif
 
     SkASSERT(!this->isLocked());
 
-    fStack.push_back({ codeSnippetID, this->sizeInBytes(),
-                       SkDEBUGCODE(kHeaderExpectations, 0) });
+    fStack.push_back({ codeSnippetID, this->sizeInBytes() });
 
-    this->addInt(codeSnippetID);
-    this->addByte(0);  // this will be filled in when endBlock is called
+    memcpy(fData.append(sizeof(int32_t)), &codeSnippetID, sizeof(int32_t));
+    fData.push_back(0); // block size, this will be filled in when endBlock is called
 
 #ifdef SK_DEBUG
     const ShaderSnippet* snippet = fDict->getEntry(codeSnippetID);
 
-    fStack.back().fDataPayloadExpectations = snippet->fDataPayloadExpectations;
-    fStack.back().fCurDataPayloadEntry = 0;
     fStack.back().fNumExpectedChildren = snippet->fNumChildren;
     fStack.back().fNumActualChildren = 0;
 #endif
@@ -103,8 +88,6 @@ void PaintParamsKeyBuilder::endBlock() {
     }
 
     // All the expected fields should be filled in at this point
-    SkASSERT(fStack.back().fCurDataPayloadEntry ==
-             SkTo<int>(fStack.back().fDataPayloadExpectations.size()));
     SkASSERT(fStack.back().fNumActualChildren == fStack.back().fNumExpectedChildren);
     SkASSERT(!this->isLocked());
 
@@ -128,67 +111,6 @@ void PaintParamsKeyBuilder::endBlock() {
     fData[headerOffset + PaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
 
     fStack.pop_back();
-
-#ifdef SK_DEBUG
-    if (!fStack.empty()) {
-        // The children of a block should appear before any of the parent's data
-        SkASSERT(fStack.back().fCurDataPayloadEntry == 0);
-    }
-#endif
-}
-
-#ifdef SK_DEBUG
-void PaintParamsKeyBuilder::checkExpectations(DataPayloadType actualType, uint32_t actualCount) {
-    StackFrame& frame = fStack.back();
-    const auto& expectations = frame.fDataPayloadExpectations;
-
-    // TODO: right now we reject writing 'n' bytes one at a time. We could allow it by tracking
-    // the number of bytes written in the stack frame.
-    SkASSERT(expectations[frame.fCurDataPayloadEntry].fType == actualType);
-    SkASSERT(expectations[frame.fCurDataPayloadEntry].fCount == actualCount);
-
-    frame.fCurDataPayloadEntry++;
-}
-#endif // SK_DEBUG
-
-static int field_size(DataPayloadType type) {
-    switch (type) {
-        case DataPayloadType::kByte:   return 1;
-        case DataPayloadType::kInt:    return 4;
-        case DataPayloadType::kFloat4: return 16;
-    }
-    SkUNREACHABLE;
-}
-
-void PaintParamsKeyBuilder::addToKey(uint32_t count,
-                                     const void* data,
-                                     DataPayloadType payloadType) {
-    if (!this->isValid()) {
-        return;
-    }
-
-    if (fStack.empty()) {
-        // SKGPU_LOG_W("Missing call to 'beginBlock'.");
-        this->makeInvalid();
-        return;
-    }
-
-    SkDEBUGCODE(this->checkExpectations(payloadType, count);)
-    SkASSERT(!this->isLocked());
-
-    fData.append(field_size(payloadType) * count, reinterpret_cast<const uint8_t*>(data));
-}
-
-void PaintParamsKeyBuilder::addBytes(uint32_t numBytes, const uint8_t* data) {
-    this->addToKey(numBytes, data, DataPayloadType::kByte);
-}
-
-void PaintParamsKeyBuilder::addInts(uint32_t numInts, const int32_t* data) {
-    this->addToKey(numInts, data, DataPayloadType::kInt);
-}
-
-void PaintParamsKeyBuilder::add(int numColors, const SkColor4f* colors) {
-    this->addToKey(numColors, colors, DataPayloadType::kFloat4);
 }
 
 PaintParamsKey PaintParamsKeyBuilder::lockAsKey() {
@@ -265,29 +187,65 @@ void PaintParamsKey::dump(const ShaderCodeDictionary* dict) const {
 }
 #endif // SK_DEBUG
 
-void PaintParamsKey::AddBlockToShaderInfo(const ShaderCodeDictionary* dict,
-                                          const PaintParamsKey::BlockReader& reader,
-                                          ShaderInfo* result) {
+constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
+                                                 skgpu::BlendCoeff dstCoeff) {
+    return { skgpu::BlendEquation::kAdd,
+             srcCoeff,
+             dstCoeff,
+             SK_PMColor4fTRANSPARENT,
+             skgpu::BlendModifiesDst(skgpu::BlendEquation::kAdd, srcCoeff, dstCoeff) };
+}
 
+static constexpr int kNumCoeffModes = (int)SkBlendMode::kLastCoeffMode + 1;
+static constexpr skgpu::BlendInfo gBlendTable[kNumCoeffModes] = {
+        /* clear */      make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
+        /* src */        make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kZero),
+        /* dst */        make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
+        /* src-over */   make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
+        /* dst-over */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
+        /* src-in */     make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kZero),
+        /* dst-in */     make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSA),
+        /* src-out */    make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kZero),
+        /* dst-out */    make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kISA),
+        /* src-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
+        /* dst-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kSA),
+        /* xor */        make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
+        /* plus */       make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
+        /* modulate */   make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSC),
+        /* screen */     make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC)
+};
+
+static void add_block_to_shader_info(const ShaderCodeDictionary* dict,
+                                     const PaintParamsKey::BlockReader& reader,
+                                     ShaderInfo* result) {
     result->add(reader);
     result->addFlags(dict->getEntry(reader.codeSnippetId())->fSnippetRequirementFlags);
 
-    // The child blocks appear right after the parent block's header in the key and go
-    // right after the parent's SnippetEntry in the shader info
-    for (int i = 0; i < reader.numChildren(); ++i) {
-        BlockReader childReader = reader.child(dict, i);
+    if (reader.codeSnippetId() < kBuiltInCodeSnippetIDCount &&
+        reader.codeSnippetId() >= kFixedFunctionBlendModeIDOffset) {
+        SkASSERT(reader.numChildren() == 0);
 
-        AddBlockToShaderInfo(dict, childReader, result);
+        // Set SkBlendInfo on the ShaderInfo if the block represents a fixed function blend. The
+        // key and paint are defined in such a way that this can occur at most once.
+        int coeffBlendMode = reader.codeSnippetId() - kFixedFunctionBlendModeIDOffset;
+        SkASSERT(coeffBlendMode >= 0 &&
+                 static_cast<SkBlendMode>(coeffBlendMode) <= SkBlendMode::kLastCoeffMode);
+        result->setBlendInfo(gBlendTable[coeffBlendMode]);
+    } else {
+        // The child blocks appear right after the parent block's header in the key and go
+        // right after the parent's SnippetEntry in the shader info
+        for (int i = 0; i < reader.numChildren(); ++i) {
+            add_block_to_shader_info(dict, reader.child(dict, i), result);
+        }
     }
 }
 
 void PaintParamsKey::toShaderInfo(const ShaderCodeDictionary* dict,
                                   ShaderInfo* result) const {
-
     int curHeaderOffset = 0;
     while (curHeaderOffset < this->sizeInBytes()) {
-        PaintParamsKey::BlockReader reader = this->reader(dict, curHeaderOffset);
-        AddBlockToShaderInfo(dict, reader, result);
+        BlockReader reader = this->reader(dict, curHeaderOffset);
+        add_block_to_shader_info(dict, reader, result);
         curHeaderOffset += reader.blockSize();
     }
 }
@@ -336,59 +294,7 @@ int32_t PaintParamsKey::BlockReader::codeSnippetId() const {
     return header.codeSnippetID;
 }
 
-SkSpan<const uint8_t> PaintParamsKey::BlockReader::dataPayload() const {
-    int payloadOffset = sizeof(Header);
-    for (int i = 0; i < fEntry->fNumChildren; ++i) {
-        Header header = read_header(fBlock, payloadOffset);
-        payloadOffset += header.blockSize;
-    }
-
-    int payloadSize = this->blockSize() - payloadOffset;
-    return fBlock.subspan(payloadOffset, payloadSize);
-}
-
-static int field_offset(SkSpan<const DataPayloadField> fields, int fieldIndex) {
-    int byteOffset = 0;
-    for (int i = 0; i < fieldIndex; ++i) {
-        byteOffset += field_size(fields[i].fType) * fields[i].fCount;
-    }
-    return byteOffset;
-}
-
-template <typename T>
-static SkSpan<const T> payload_subspan_for_field(SkSpan<const uint8_t> dataPayload,
-                                                 SkSpan<const DataPayloadField> fields,
-                                                 int fieldIndex) {
-    int offset = field_offset(fields, fieldIndex);
-    return {reinterpret_cast<const T*>(&dataPayload[offset]), fields[fieldIndex].fCount};
-}
-
-SkSpan<const uint8_t> PaintParamsKey::BlockReader::bytes(int fieldIndex) const {
-    SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kByte);
-    return payload_subspan_for_field<uint8_t>(this->dataPayload(),
-                                              fEntry->fDataPayloadExpectations,
-                                              fieldIndex);
-}
-
-SkSpan<const int32_t> PaintParamsKey::BlockReader::ints(int fieldIndex) const {
-    SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kInt);
-    return payload_subspan_for_field<int32_t>(this->dataPayload(),
-                                              fEntry->fDataPayloadExpectations,
-                                              fieldIndex);
-}
-
-SkSpan<const SkColor4f> PaintParamsKey::BlockReader::colors(int fieldIndex) const {
-    SkASSERT(fEntry->fDataPayloadExpectations[fieldIndex].fType == DataPayloadType::kFloat4);
-    return payload_subspan_for_field<SkColor4f>(this->dataPayload(),
-                                                fEntry->fDataPayloadExpectations,
-                                                fieldIndex);
-}
-
 #ifdef SK_DEBUG
-
-int PaintParamsKey::BlockReader::numDataPayloadFields() const {
-    return fEntry->fDataPayloadExpectations.size();
-}
 
 static void output_indent(int indent) {
     SkDebugf("%*c", 4 * indent, ' ');
@@ -414,19 +320,6 @@ void PaintParamsKey::BlockReader::dump(const ShaderCodeDictionary* dict, int ind
 
         PaintParamsKey::BlockReader childReader = this->child(dict, i);
         childReader.dump(dict, indent+1);
-    }
-
-    for (int i = 0; i < (int) fEntry->fDataPayloadExpectations.size(); ++i) {
-        output_indent(indent);
-        SkDebugf("%s[%d]: ",
-                 fEntry->fDataPayloadExpectations[i].fName,
-                 fEntry->fDataPayloadExpectations[i].fCount);
-        SkSpan<const uint8_t> bytes = this->bytes(i);
-        for (uint8_t b : bytes) {
-            SkDebugf("%d,", b);
-        }
-
-        SkDebugf("\n");
     }
 }
 
