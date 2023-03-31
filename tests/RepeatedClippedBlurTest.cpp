@@ -23,6 +23,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "tests/CtsEnforcement.h"
@@ -75,7 +76,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest,
         bm.eraseArea(SkIRect::MakeXYWH(1, 2, 1277, 1274), SK_ColorGREEN);
 
         sk_sp<SkImage> rasterImg = bm.asImage();
-        bigImg = rasterImg->makeTextureImage(dContext);
+        bigImg = SkImages::TextureFromImage(dContext, rasterImg);
     }
 
     sk_sp<SkImage> smImg;

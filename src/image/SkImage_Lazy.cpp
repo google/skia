@@ -29,6 +29,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/SkBackingFit.h"
@@ -253,7 +254,7 @@ sk_sp<SkData> SkImage_Lazy::onRefEncoded() const {
     return nullptr;
 }
 
-bool SkImage_Lazy::onIsValid(GrRecordingContext* context) const {
+bool SkImage_Lazy::isValid(GrRecordingContext* context) const {
     ScopedGenerator generator(fSharedGenerator);
     return generator->isValid(context);
 }
@@ -265,8 +266,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext
     //       "realize" a subset?
 
 #if defined(SK_GANESH)
-    auto pixels = direct ? this->makeTextureImage(direct)
-                         : this->makeRasterImage();
+    auto pixels = direct ? SkImages::TextureFromImage(direct, this) : this->makeRasterImage();
 #else
     auto pixels = this->makeRasterImage();
 #endif

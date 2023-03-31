@@ -25,6 +25,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -55,16 +56,15 @@
 #include <memory>
 #include <utility>
 
-class GrImageContext;
 enum SkColorType : int;
 enum class SkTextureCompressionType;
 
 namespace SkImages {
 
-bool GetBackendTextureFromImage(GrDirectContext* direct,
-                                sk_sp<SkImage> image,
-                                GrBackendTexture* backendTexture,
-                                BackendTextureReleaseProc* releaseProc) {
+bool MakeBackendTextureFromImage(GrDirectContext* direct,
+                                 sk_sp<SkImage> image,
+                                 GrBackendTexture* backendTexture,
+                                 BackendTextureReleaseProc* releaseProc) {
     if (!image || !backendTexture || !releaseProc) {
         return false;
     }
@@ -89,7 +89,7 @@ bool GetBackendTextureFromImage(GrDirectContext* direct,
         if (!image) {
             return false;
         }
-        return GetBackendTextureFromImage(direct, std::move(image), backendTexture, releaseProc);
+        return MakeBackendTextureFromImage(direct, std::move(image), backendTexture, releaseProc);
     }
 
     SkASSERT(!texture->resourcePriv().refsWrappedObjects());
@@ -104,6 +104,21 @@ bool GetBackendTextureFromImage(GrDirectContext* direct,
 
     // Steal the backend texture from the GrTexture, releasing the GrTexture in the process.
     return GrTexture::StealBackendTexture(std::move(textureRef), backendTexture, releaseProc);
+}
+
+bool GetBackendTextureFromImage(sk_sp<const SkImage> img,
+                                GrBackendTexture* outTexture,
+                                bool flushPendingGrContextIO,
+                                GrSurfaceOrigin* origin) {
+    if (!img) {
+        return false;
+    }
+    auto ib = as_IB(img);
+    if (ib->type() != SkImage_Base::Type::kGanesh) {
+        return false;
+    }
+    auto ig = static_cast<const SkImage_Ganesh*>(img.get());
+    return ig->getExistingBackendTexture(outTexture, flushPendingGrContextIO, origin);
 }
 
 sk_sp<SkImage> TextureFromCompressedTexture(GrRecordingContext* context,
@@ -276,7 +291,7 @@ sk_sp<SkImage> TextureFromCompressedTextureData(GrDirectContext* direct,
         if (!tmp) {
             return nullptr;
         }
-        return tmp->makeTextureImage(direct, mipmapped);
+        return TextureFromImage(direct, tmp, mipmapped);
     }
 
     GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
@@ -406,6 +421,43 @@ sk_sp<SkImage> CrossContextTextureFromPixmap(GrDirectContext* dContext,
                                                     pixmap->alphaType(),
                                                     pixmap->info().refColorSpace());
     return DeferredFromGenerator(std::move(gen));
+}
+
+sk_sp<SkImage> TextureFromImage(GrDirectContext* dContext,
+                                const SkImage* img,
+                                skgpu::Mipmapped mipmapped,
+                                skgpu::Budgeted budgeted) {
+    if (!dContext || !img) {
+        return nullptr;
+    }
+    auto ib = as_IB(img);
+    if (!dContext->priv().caps()->mipmapSupport() || ib->dimensions().area() <= 1) {
+        mipmapped = GrMipmapped::kNo;
+    }
+
+    if (ib->isGaneshBacked()) {
+        if (!ib->context()->priv().matches(dContext)) {
+            return nullptr;
+        }
+
+        if (mipmapped == GrMipmapped::kNo || ib->hasMipmaps()) {
+            return sk_ref_sp(const_cast<SkImage_Base*>(ib));
+        }
+    }
+    GrImageTexGenPolicy policy = budgeted == skgpu::Budgeted::kYes
+                                         ? GrImageTexGenPolicy::kNew_Uncached_Budgeted
+                                         : GrImageTexGenPolicy::kNew_Uncached_Unbudgeted;
+    // TODO: Don't flatten YUVA images here. Add mips to the planes instead.
+    auto [view, ct] = skgpu::ganesh::AsView(dContext, ib, mipmapped, policy);
+    if (!view) {
+        return nullptr;
+    }
+    SkASSERT(view.asTextureProxy());
+    SkASSERT(mipmapped == GrMipmapped::kNo ||
+             view.asTextureProxy()->mipmapped() == GrMipmapped::kYes);
+    SkColorInfo colorInfo(GrColorTypeToSkColorType(ct), ib->alphaType(), ib->refColorSpace());
+    return sk_make_sp<SkImage_Ganesh>(
+            sk_ref_sp(dContext), ib->uniqueID(), std::move(view), std::move(colorInfo));
 }
 
 }  // namespace SkImages

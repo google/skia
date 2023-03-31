@@ -6,12 +6,16 @@
  */
 
 #include "include/android/SkImageAndroid.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -19,7 +23,9 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Raster.h"
 
+#include <cstdint>
 #include <memory>
+#include <tuple>
 
 struct PinnedData {
     GrSurfaceProxyView fPinnedView;

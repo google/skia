@@ -24,6 +24,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/ports/SkImageGeneratorCG.h"
 #include "include/ports/SkImageGeneratorNDK.h"
 #include "include/ports/SkImageGeneratorWIC.h"
@@ -1119,10 +1120,9 @@ Result SKPSrc::draw(SkCanvas* canvas) const {
             DeserializationContext* context = reinterpret_cast<DeserializationContext*>(ctx);
 
             if (context->fDirectContext) {
-                image = image->makeTextureImage(context->fDirectContext);
+                return SkImages::TextureFromImage(context->fDirectContext, image);
             }
         }
-
         return image;
     };
     procs.fImageCtx = &ctx;

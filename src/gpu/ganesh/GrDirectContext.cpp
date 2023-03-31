@@ -8,6 +8,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSize.h"
@@ -48,9 +49,11 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/SurfaceContext.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/gpu/ganesh/mock/GrMockGpu.h"
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
+#include "src/image/SkImage_Base.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
@@ -466,6 +469,26 @@ bool GrDirectContext::submit(bool syncCpu) {
     }
 
     return fGpu->submitToGpu(syncCpu);
+}
+
+GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<const SkImage> image,
+                                             const GrFlushInfo& flushInfo) {
+    if (!image) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    auto ib = as_IB(image);
+    if (!ib->isGaneshBacked()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    auto igb = static_cast<const SkImage_GaneshBase*>(image.get());
+    return igb->flush(this, flushInfo);
+}
+
+void GrDirectContext::flush(sk_sp<const SkImage> image) { this->flush(image, {}); }
+
+void GrDirectContext::flushAndSubmit(sk_sp<const SkImage> image) {
+    this->flush(image, {});
+    this->submit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

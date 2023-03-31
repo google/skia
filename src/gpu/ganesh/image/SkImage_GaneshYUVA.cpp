@@ -127,8 +127,8 @@ bool SkImage_GaneshYUVA::setupMipmapsForPlanes(GrRecordingContext* context) cons
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrSemaphoresSubmitted SkImage_GaneshYUVA::onFlush(GrDirectContext* dContext,
-                                                  const GrFlushInfo& info) const {
+GrSemaphoresSubmitted SkImage_GaneshYUVA::flush(GrDirectContext* dContext,
+                                                const GrFlushInfo& info) const {
     if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -152,7 +152,7 @@ bool SkImage_GaneshYUVA::onHasMipmaps() const {
     return fYUVAProxies.mipmapped() == GrMipmapped::kYes;
 }
 
-size_t SkImage_GaneshYUVA::onTextureSize() const {
+size_t SkImage_GaneshYUVA::textureSize() const {
     size_t size = 0;
     for (int i = 0; i < fYUVAProxies.numPlanes(); ++i) {
         size += fYUVAProxies.proxy(i)->gpuMemorySize();

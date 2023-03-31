@@ -50,18 +50,6 @@ void Image_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace
 
 using namespace skgpu::graphite;
 
-sk_sp<SkImage> SkImage::makeTextureImage(Recorder* recorder,
-                                         RequiredImageProperties requiredProps) const {
-    if (!recorder) {
-        return nullptr;
-    }
-    if (this->dimensions().area() <= 1) {
-        requiredProps.fMipmapped = skgpu::Mipmapped::kNo;
-    }
-
-    return as_IB(this)->onMakeTextureImage(recorder, requiredProps);
-}
-
 sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset,
                                    skgpu::graphite::Recorder* recorder,
                                    RequiredImageProperties requiredProps) const {

@@ -33,13 +33,13 @@ class SkColorInfo;
 class SkColorSpace;
 class SkImage;
 class SkMatrix;
-enum GrSurfaceOrigin : int;
-enum SkColorType : int;
-enum SkYUVColorSpace : int;
 enum class GrColorType;
 enum class GrImageTexGenPolicy : int;
 enum class GrSemaphoresSubmitted : bool;
 enum class SkTileMode;
+enum GrSurfaceOrigin : int;
+enum SkColorType : int;
+enum SkYUVColorSpace : int;
 struct GrFlushInfo;
 struct SkIRect;
 struct SkISize;
@@ -63,21 +63,13 @@ public:
 
     ~SkImage_Ganesh() override;
 
-    // If this is image is a cached SkSurface snapshot then this method is called by the SkSurface
-    // before a write to check if the surface must make a copy to avoid modifying the image's
-    // contents.
-    bool surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const;
+    // From SkImage.h
+    size_t textureSize() const override;
 
-    bool onHasMipmaps() const override;
-
-    GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) const override;
-
-    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
-                                         GrSurfaceOrigin* origin) const final;
-
+    // From SkImage_Base.h
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGanesh; }
 
-    size_t onTextureSize() const override;
+    bool onHasMipmaps() const override;
 
     using SkImage_GaneshBase::onMakeColorTypeAndColorSpace;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
@@ -103,6 +95,18 @@ public:
                                            ReadPixelsContext) const override;
 
     void generatingSurfaceIsDeleted() override;
+
+    // From SkImage_GaneshBase.h
+    GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const override;
+
+    // If this is image is a cached SkSurface snapshot then this method is called by the SkSurface
+    // before a write to check if the surface must make a copy to avoid modifying the image's
+    // contents.
+    bool surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const;
+
+    bool getExistingBackendTexture(GrBackendTexture* outTexture,
+                                   bool flushPendingGrContextIO,
+                                   GrSurfaceOrigin* origin) const;
 
 private:
     SkImage_Ganesh(sk_sp<GrDirectContext>,
