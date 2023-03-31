@@ -23,9 +23,9 @@ class Statement;
 
 using ComponentArray = SkSTArray<4, int8_t>; // for Swizzles
 
-class ExpressionArray : public SkSTArray<2, std::unique_ptr<Expression>> {
+class ExpressionArray : public skia_private::STArray<2, std::unique_ptr<Expression>> {
 public:
-    using SkSTArray::SkSTArray;
+    using STArray::STArray;
 
     /** Returns a new ExpressionArray containing a clone of every element. */
     ExpressionArray clone() const;

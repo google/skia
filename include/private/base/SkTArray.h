@@ -632,56 +632,67 @@ template <typename T, bool M> static inline void swap(TArray<T, M>& a, TArray<T,
     a.swap(b);
 }
 
-}  // namespace skia_private
-
-/**
- * Subclass of TArray that contains a preallocated memory block for the array.
- */
+// Subclass of TArray that contains a pre-allocated memory block for the array.
 template <int N, typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
-class SkSTArray : private SkAlignedSTStorage<N,T>, public skia_private::TArray<T, MEM_MOVE> {
-private:
+class STArray : private SkAlignedSTStorage<N,T>, public TArray<T, MEM_MOVE> {
     static_assert(N > 0);
-    using STORAGE   = SkAlignedSTStorage<N,T>;
-    using INHERITED = skia_private::TArray<T, MEM_MOVE>;
+    using Storage = SkAlignedSTStorage<N,T>;
 
 public:
-    SkSTArray()
-        : STORAGE{}, INHERITED(static_cast<STORAGE*>(this)) {}
+    STArray()
+        : Storage{}
+        , TArray<T, MEM_MOVE>(this) {}  // Must use () to avoid confusion with initializer_list
+                                        // when T=bool because * are convertable to bool.
 
-    SkSTArray(const T* array, int count)
-        : STORAGE{}, INHERITED(array, count, static_cast<STORAGE*>(this)) {}
+    STArray(const T* array, int count)
+        : Storage{}
+        , TArray<T, MEM_MOVE>{array, count, this} {}
 
-    SkSTArray(std::initializer_list<T> data) : SkSTArray(data.begin(), SkToInt(data.size())) {}
+    STArray(std::initializer_list<T> data)
+        : STArray{data.begin(), SkToInt(data.size())} {}
 
-    explicit SkSTArray(int reserveCount) : SkSTArray() {
-        this->reserve_back(reserveCount);
-    }
+    explicit STArray(int reserveCount)
+        : STArray() { this->reserve_back(reserveCount); }
 
-    SkSTArray         (const SkSTArray&  that) : SkSTArray() { *this = that; }
-    explicit SkSTArray(const INHERITED&  that) : SkSTArray() { *this = that; }
-    SkSTArray         (      SkSTArray&& that) : SkSTArray() { *this = std::move(that); }
-    explicit SkSTArray(      INHERITED&& that) : SkSTArray() { *this = std::move(that); }
+    STArray(const STArray& that)
+        : STArray() { *this = that; }
 
-    SkSTArray& operator=(const SkSTArray& that) {
-        INHERITED::operator=(that);
+    explicit STArray(const TArray<T, MEM_MOVE>& that)
+        : STArray() { *this = that; }
+
+    STArray(STArray&& that)
+        : STArray() { *this = std::move(that); }
+
+    explicit STArray(TArray<T, MEM_MOVE>&& that)
+        : STArray() { *this = std::move(that); }
+
+    STArray& operator=(const STArray& that) {
+        TArray<T, MEM_MOVE>::operator=(that);
         return *this;
     }
-    SkSTArray& operator=(const INHERITED& that) {
-        INHERITED::operator=(that);
+
+    STArray& operator=(const TArray<T, MEM_MOVE>& that) {
+        TArray<T, MEM_MOVE>::operator=(that);
         return *this;
     }
 
-    SkSTArray& operator=(SkSTArray&& that) {
-        INHERITED::operator=(std::move(that));
+    STArray& operator=(STArray&& that) {
+        TArray<T, MEM_MOVE>::operator=(std::move(that));
         return *this;
     }
-    SkSTArray& operator=(INHERITED&& that) {
-        INHERITED::operator=(std::move(that));
+
+    STArray& operator=(TArray<T, MEM_MOVE>&& that) {
+        TArray<T, MEM_MOVE>::operator=(std::move(that));
         return *this;
     }
 
     // Force the use of TArray for data() and size().
-    using INHERITED::data;
-    using INHERITED::size;
+    using TArray<T, MEM_MOVE>::data;
+    using TArray<T, MEM_MOVE>::size;
 };
+}  // namespace skia_private
+
+template <int N, typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
+using SkSTArray = skia_private::STArray<N, T, MEM_MOVE>;
+
 #endif
