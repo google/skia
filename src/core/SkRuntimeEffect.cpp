@@ -560,6 +560,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
         flags |= kAlwaysOpaque_Flag;
     }
 
+    // Go through program elements, pulling out information that we need
     size_t offset = 0;
     std::vector<Uniform> uniforms;
     std::vector<Child> children;
@@ -567,7 +568,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
     int elidedSampleCoords = 0;
     const SkSL::Context& ctx(compiler.context());
 
-    // Go through program elements, pulling out information that we need
     for (const SkSL::ProgramElement* elem : program->elements()) {
         // Variables (uniform, etc.)
         if (elem->is<SkSL::GlobalVarDeclaration>()) {

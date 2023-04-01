@@ -140,12 +140,6 @@ struct Program {
      */
     const FunctionDeclaration* getFunction(const char* functionName) const;
 
-    /**
-     * Returns a list of uniforms used by this Program. The uniform list will exclude opaque types
-     * like textures, samplers, or child effects.
-     */
-    std::unique_ptr<UniformInfo> getUniformInfo();
-
     std::string description() const;
     const ProgramUsage* usage() const { return fUsage.get(); }
 
