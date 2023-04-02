@@ -32,7 +32,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRectMemcpy.h"
@@ -1323,7 +1322,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(GLReadPixelsUnbindPBO,
     auto info = SkImageInfo::Make(16, 16, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAutoPixmapStorage pmap = make_ref_data(info, /*forceOpaque=*/false);
     auto image = SkImages::RasterFromPixmap(pmap, nullptr, nullptr);
-    image = SkImages::TextureFromImage(ctxInfo.directContext(), image);
+    image = image->makeTextureImage(ctxInfo.directContext());
     if (!image) {
         ERRORF(reporter, "Couldn't make texture image.");
         return;

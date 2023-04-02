@@ -28,11 +28,6 @@ public:
                       int srcY,
                       CachingHint) const override { return false; }
 
-    // From SkImage.h
-    // TODO(egdaniel) This feels wrong. Re-think how this method is used and works.
-    bool isValid(GrRecordingContext*) const override { return true; }
-
-    // From SkImage_Base.h
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
 
     bool getROPixels(GrDirectContext*,
@@ -40,6 +35,8 @@ public:
                      CachingHint = kAllow_CachingHint) const override { return false; }
 
     sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
+
+    bool onIsValid(GrRecordingContext*) const override { return true; }
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
                                                 sk_sp<SkColorSpace>,

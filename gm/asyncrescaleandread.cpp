@@ -16,7 +16,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/base/SkScopeExit.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tools/Resources.h"
@@ -214,7 +213,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         return do_rescale_grid(canvas, surface.get(), dContext, srcRect, newSize,
                                doYUV420, errorMsg);
     } else if (dContext) {
-        image = SkImages::TextureFromImage(dContext, image);
+        image = image->makeTextureImage(dContext);
         if (!image) {
             *errorMsg = "Could not create image.";
             // When testing abandoned GrContext we expect surface creation to fail.
@@ -401,8 +400,8 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_alpha_type, canvas, errorMsg, 512,
     auto upmImg = upmSurf->makeImageSnapshot();
 
     if (dContext) {
-        pmImg = SkImages::TextureFromImage(dContext, pmImg);
-        upmImg = SkImages::TextureFromImage(dContext, upmImg);
+        pmImg  =  pmImg->makeTextureImage(dContext);
+        upmImg = upmImg->makeTextureImage(dContext);
         if (!pmImg || !upmImg) {
             *errorMsg = "could not make texture images";
             return skiagm::DrawResult::kFail;

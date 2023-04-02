@@ -30,7 +30,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkReadBuffer.h"
@@ -400,10 +399,8 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
             for (auto mm : { false, true }) {
                 sk_sp<SkImage> texImage;
                 if (dContext) {
-                    texImage = SkImages::TextureFromImage(dContext,
-                                                          image,
-                                                          mm ? skgpu::Mipmapped::kYes
-                                                             : skgpu::Mipmapped::kNo);
+                    texImage = image->makeTextureImage(dContext,
+                                                       mm ? GrMipmapped::kYes : GrMipmapped::kNo);
                 } else {
 #if defined(SK_GRAPHITE)
                     texImage = image->makeTextureImage(recorder,
