@@ -16,19 +16,52 @@
 #include "src/core/SkColorFilterPriv.h"
 #include "tools/Resources.h"
 
-// Just need an interesting filter, nothing to special about colormatrix
+static constexpr char kRuntimeNone_GPU_SRC[] = R"(
+    half4 main(half4 inColor) { return inColor; }
+)";
+
+static constexpr char kRuntimeColorMatrix_GPU_SRC[] = R"(
+    // WTB matrix/vector inputs.
+    uniform half m0 , m1 , m2 , m3 , m4 ,
+                 m5 , m6 , m7 , m8 , m9 ,
+                 m10, m11, m12, m13, m14,
+                 m15, m16, m17, m18, m19;
+    half4 main(half4 inColor) {
+        half4 c = unpremul(inColor);
+
+        half4x4 m = half4x4(m0, m5, m10, m15,
+                            m1, m6, m11, m16,
+                            m2, m7, m12, m17,
+                            m3, m8, m13, m18);
+        c = m * c + half4  (m4, m9, m14, m19);
+
+        c = saturate(c);
+        c.rgb *= c.a;
+        return c;
+    }
+)";
+
+static constexpr float kGrayscaleMatrix[] = {
+    0.2126f, 0.7152f, 0.0722f, 0.0f, 0.0f,
+    0.2126f, 0.7152f, 0.0722f, 0.0f, 0.0f,
+    0.2126f, 0.7152f, 0.0722f, 0.0f, 0.0f,
+    0.0f,    0.0f,    0.0f,    1.0f, 0.0f,
+};
+
+// Just need an interesting filter; nothing too special about color-matrix.
 static sk_sp<SkColorFilter> make_grayscale() {
-    float matrix[20];
-    memset(matrix, 0, 20 * sizeof(float));
-    matrix[0] = matrix[5] = matrix[10] = 0.2126f;
-    matrix[1] = matrix[6] = matrix[11] = 0.7152f;
-    matrix[2] = matrix[7] = matrix[12] = 0.0722f;
-    matrix[18] = 1.0f;
-    return SkColorFilters::Matrix(matrix);
+    return SkColorFilters::Matrix(kGrayscaleMatrix);
+}
+
+static sk_sp<SkColorFilter> make_grayscale_rt() {
+    sk_sp<SkRuntimeEffect> effect =
+            SkRuntimeEffect::MakeForColorFilter(SkString(kRuntimeColorMatrix_GPU_SRC)).effect;
+    return effect->makeColorFilter(
+            SkData::MakeWithCopy(kGrayscaleMatrix, sizeof(kGrayscaleMatrix)));
 }
 
 /**
- *  Different ways to draw the same thing (a red rect)
+ *  Different ways to draw the same thing (a red rect with a color filter)
  *  All of their timings should be about the same
  *  (we allow for slight overhead to figure out that we can undo the presence of the filters)
  */
@@ -38,11 +71,17 @@ public:
         kNoFilter_Type,
         kColorFilter_Type,
         kImageFilter_Type,
+        kRuntimeColorFilter_Type,
     };
 
     FilteredRectBench(Type t) : fType(t) {
-        static const char* suffix[] = { "nofilter", "colorfilter", "imagefilter" };
-        fName.printf("filteredrect_%s", suffix[t]);
+        static constexpr const char* kSuffix[] = {
+                "nofilter",
+                "colorfilter",
+                "imagefilter",
+                "runtimecolorfilter",
+        };
+        fName.printf("filteredrect_%s", kSuffix[t]);
         fPaint.setColor(SK_ColorRED);
     }
 
@@ -60,7 +99,10 @@ protected:
                 break;
             case kImageFilter_Type:
                 fPaint.setImageFilter(SkImageFilters::ColorFilter(make_grayscale(), nullptr));
-            break;
+                break;
+            case kRuntimeColorFilter_Type:
+                fPaint.setColorFilter(make_grayscale_rt());
+                break;
         }
     }
 
@@ -82,6 +124,7 @@ private:
 DEF_BENCH( return new FilteredRectBench(FilteredRectBench::kNoFilter_Type); )
 DEF_BENCH( return new FilteredRectBench(FilteredRectBench::kColorFilter_Type); )
 DEF_BENCH( return new FilteredRectBench(FilteredRectBench::kImageFilter_Type); )
+DEF_BENCH( return new FilteredRectBench(FilteredRectBench::kRuntimeColorFilter_Type); )
 
 namespace  {
 
@@ -127,32 +170,7 @@ private:
     sk_sp<SkColorFilter> fColorFilter;
 };
 
-const char RuntimeNone_GPU_SRC[] = R"(
-    half4 main(half4 inColor) { return inColor; }
-)";
-
-const char RuntimeColorMatrix_GPU_SRC[] = R"(
-    // WTB matrix/vector inputs.
-    uniform half m0 , m1 , m2 , m3 , m4 ,
-                 m5 , m6 , m7 , m8 , m9 ,
-                 m10, m11, m12, m13, m14,
-                 m15, m16, m17, m18, m19;
-    half4 main(half4 inColor) {
-        half4 c = unpremul(inColor);
-
-        half4x4 m = half4x4(m0, m5, m10, m15,
-                            m1, m6, m11, m16,
-                            m2, m7, m12, m17,
-                            m3, m8, m13, m18);
-        c = m * c + half4  (m4, m9, m14, m19);
-
-        c = saturate(c);
-        c.rgb *= c.a;
-        return c;
-    }
-)";
-
-static constexpr float gColorMatrix[] = {
+static constexpr float kColorMatrix[] = {
     0.3f, 0.3f, 0.0f, 0.0f, 0.3f,
     0.0f, 0.3f, 0.3f, 0.0f, 0.3f,
     0.0f, 0.0f, 0.3f, 0.3f, 0.3f,
@@ -172,9 +190,9 @@ DEF_BENCH( return new ColorFilterBench("linear_to_srgb",
 DEF_BENCH( return new ColorFilterBench("srgb_to_linear",
     []() { return SkColorFilters::SRGBToLinearGamma(); }); )
 DEF_BENCH( return new ColorFilterBench("matrix_rgba",
-    []() { return SkColorFilters::Matrix(gColorMatrix); }); )
+    []() { return SkColorFilters::Matrix(kColorMatrix); }); )
 DEF_BENCH( return new ColorFilterBench("matrix_hsla",
-    []() { return SkColorFilters::HSLAMatrix(gColorMatrix); }); )
+    []() { return SkColorFilters::HSLAMatrix(kColorMatrix); }); )
 DEF_BENCH( return new ColorFilterBench("compose_src",
     []() { return SkColorFilters::Compose(SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc),
                                           SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc));
@@ -203,13 +221,13 @@ DEF_BENCH( return new ColorFilterBench("gaussian", []() {
 #if defined(SK_GANESH)
 DEF_BENCH( return new ColorFilterBench("src_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect =
-                SkRuntimeEffect::MakeForColorFilter(SkString(RuntimeNone_GPU_SRC)).effect;
+                SkRuntimeEffect::MakeForColorFilter(SkString(kRuntimeNone_GPU_SRC)).effect;
         return gEffect->makeColorFilter(SkData::MakeEmpty());
     });)
 DEF_BENCH( return new ColorFilterBench("matrix_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect =
-                SkRuntimeEffect::MakeForColorFilter(SkString(RuntimeColorMatrix_GPU_SRC)).effect;
-        return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
+                SkRuntimeEffect::MakeForColorFilter(SkString(kRuntimeColorMatrix_GPU_SRC)).effect;
+        return gEffect->makeColorFilter(SkData::MakeWithCopy(kColorMatrix, sizeof(kColorMatrix)));
     });)
 #endif
 
