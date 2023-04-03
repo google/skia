@@ -57,7 +57,15 @@ platform(
     name = "android_arm32",
     constraint_values = [
         "@platforms//os:android",
-        "@platforms//cpu:arm",
+        "@platforms//cpu:armv7",
+    ],
+)
+
+platform(
+    name = "android_arm64",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:arm64",
     ],
 )
 

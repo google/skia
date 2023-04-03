@@ -2,6 +2,7 @@ load("//bazel:skia_rules.bzl", "exports_files_legacy")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
 load(":mac_toolchain_config.bzl", "provide_mac_toolchain_config")
+load(":ndk_linux_arm64_toolchain_config.bzl", "ndk_cc_toolchain_config")
 
 licenses(["notice"])
 
@@ -64,6 +65,38 @@ toolchain(
     ],
     toolchain = ":mac_host",
     # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
+    toolchain_type = "@rules_cc//cc:toolchain_type",
+)
+
+# Based on:
+# https://skia.googlesource.com/skcms/+/ba39d81f9797aa973bdf01aa6b0363b280352fba/toolchain/BUILD.bazel#28
+toolchain(
+    name = "linux_amd64_ndk_arm64_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:android",
+        "@platforms//cpu:arm64",
+    ],
+    toolchain = ":linux_amd64_ndk_arm64",
+    toolchain_type = "@rules_cc//cc:toolchain_type",
+)
+
+# Based on:
+# https://skia.googlesource.com/skcms/+/ba39d81f9797aa973bdf01aa6b0363b280352fba/toolchain/BUILD.bazel#42
+toolchain(
+    name = "linux_amd64_ndk_arm32_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:android",
+        "@platforms//cpu:armv7",
+    ],
+    toolchain = ":linux_amd64_ndk_arm32",
     toolchain_type = "@rules_cc//cc:toolchain_type",
 )
 
@@ -154,4 +187,76 @@ cc_toolchain(
     strip_files = ":not_implemented",
     supports_param_files = False,
     toolchain_config = ":mac_toolchain_config",
+)
+
+filegroup(
+    name = "ndk_arm64_v8a_toolchain_all_files",
+    srcs = [
+        "android_trampolines/aarch64-linux-android-ar.sh",
+        "android_trampolines/aarch64-linux-android-dwp.sh",
+        "android_trampolines/aarch64-linux-android-ld.sh",
+        "android_trampolines/aarch64-linux-android-nm.sh",
+        "android_trampolines/aarch64-linux-android-objcopy.sh",
+        "android_trampolines/aarch64-linux-android-objdump.sh",
+        "android_trampolines/aarch64-linux-android-strip.sh",
+        "android_trampolines/clang.sh",
+    ] + ["@ndk_linux_amd64//:arm64_v8a_all_files"],
+)
+
+ndk_cc_toolchain_config(
+    name = "ndk_arm64_v8a_toolchain_config",
+    cpu = "arm64-v8a",
+)
+
+# Based on:
+# https://skia.googlesource.com/skcms/+/ba39d81f9797aa973bdf01aa6b0363b280352fba/toolchain/BUILD.bazel#109
+cc_toolchain(
+    name = "linux_amd64_ndk_arm64",
+    all_files = ":ndk_arm64_v8a_toolchain_all_files",
+    ar_files = ":ndk_arm64_v8a_toolchain_all_files",
+    compiler_files = ":ndk_arm64_v8a_toolchain_all_files",
+    dwp_files = ":not_implemented",
+    dynamic_runtime_lib = "@ndk_linux_amd64//:arm64_v8a_dynamic_runtime_libraries",
+    linker_files = ":ndk_arm64_v8a_toolchain_all_files",
+    objcopy_files = ":not_implemented",
+    static_runtime_lib = "@ndk_linux_amd64//:arm64_v8a_static_runtime_libraries",
+    strip_files = ":not_implemented",
+    supports_param_files = False,
+    toolchain_config = ":ndk_arm64_v8a_toolchain_config",
+)
+
+filegroup(
+    name = "ndk_armeabi_v7a_toolchain_all_files",
+    srcs = [
+        "android_trampolines/arm-linux-androideabi-ar.sh",
+        "android_trampolines/arm-linux-androideabi-dwp.sh",
+        "android_trampolines/arm-linux-androideabi-ld.sh",
+        "android_trampolines/arm-linux-androideabi-nm.sh",
+        "android_trampolines/arm-linux-androideabi-objcopy.sh",
+        "android_trampolines/arm-linux-androideabi-objdump.sh",
+        "android_trampolines/arm-linux-androideabi-strip.sh",
+        "android_trampolines/clang.sh",
+    ] + ["@ndk_linux_amd64//:armeabi_v7a_all_files"],
+)
+
+ndk_cc_toolchain_config(
+    name = "ndk_armeabi_v7a_toolchain_config",
+    cpu = "armeabi-v7a",
+)
+
+# Based on:
+# https://skia.googlesource.com/skcms/+/ba39d81f9797aa973bdf01aa6b0363b280352fba/toolchain/BUILD.bazel#139
+cc_toolchain(
+    name = "linux_amd64_ndk_arm32",
+    all_files = ":ndk_armeabi_v7a_toolchain_all_files",
+    ar_files = ":ndk_armeabi_v7a_toolchain_all_files",
+    compiler_files = ":ndk_armeabi_v7a_toolchain_all_files",
+    dwp_files = ":not_implemented",
+    dynamic_runtime_lib = "@ndk_linux_amd64//:armeabi_v7a_dynamic_runtime_libraries",
+    linker_files = ":ndk_armeabi_v7a_toolchain_all_files",
+    objcopy_files = ":not_implemented",
+    static_runtime_lib = "@ndk_linux_amd64//:armeabi_v7a_static_runtime_libraries",
+    strip_files = ":not_implemented",
+    supports_param_files = False,
+    toolchain_config = ":ndk_armeabi_v7a_toolchain_config",
 )

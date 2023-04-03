@@ -44,6 +44,13 @@ build:for_mac_x64 --platforms=//bazel/platform:mac_x64_hermetic --cc_output_dire
 build:for_mac_m1 --config=for_mac_arm64
 build:for_mac_intel --config=for_mac_x64
 
+# Android configuration for 32-bit ARM (armeabi-v7a ABI).
+build:for_android_arm32 --platforms=//bazel/platform:android_arm32 --cc_output_directory_tag=android_arm32
+build:for_android_arm32_with_rbe --config=for_android_arm32 --config=linux_rbe
+
+# Android configuration for 64-bit ARM (arm64-v8a ABI).
+build:for_android_arm64 --platforms=//bazel/platform:android_arm64 --cc_output_directory_tag=android_arm64
+build:for_android_arm64_with_rbe --config=for_android_arm64 --config=linux_rbe
 
 # =============================================================================
 # Configurations (what features we want on)
