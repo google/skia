@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ClearBuffersTask.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/Log.h"
@@ -173,13 +174,13 @@ std::tuple<void*, BindBufferInfo> DrawBufferManager::getMappedStorage(size_t req
     return this->prepareMappedBindBuffer(&info, requiredBytes);
 }
 
-BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes) {
+BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes, ClearBuffer cleared) {
     if (!requiredBytes) {
         return {};
     }
 
     auto& info = fCurrentBuffers[kGpuOnlyStorageBufferIndex];
-    return this->prepareBindBuffer(&info, requiredBytes);
+    return this->prepareBindBuffer(&info, requiredBytes, /*mappable=*/false, cleared);
 }
 
 BindBufferInfo DrawBufferManager::getVertexStorage(size_t requiredBytes) {
@@ -210,6 +211,10 @@ BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes) {
 }
 
 void DrawBufferManager::transferToRecording(Recording* recording) {
+    if (!fClearList.empty()) {
+        recording->priv().addTask(ClearBuffersTask::Make(std::move(fClearList)));
+    }
+
     bool useTransferBuffer = !fCaps->drawBufferCanBeMapped();
     for (auto& [buffer, transferBuffer] : fUsedBuffers) {
         if (useTransferBuffer) {
@@ -267,7 +272,8 @@ std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(Buff
 
 BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
                                                     size_t requiredBytes,
-                                                    bool mappable) {
+                                                    bool mappable,
+                                                    ClearBuffer cleared) {
     SkASSERT(info);
     SkASSERT(requiredBytes);
 
@@ -304,6 +310,10 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     info->fOffset = SkAlignTo(info->fOffset, info->fStartAlignment);
     BindBufferInfo bindInfo{info->fBuffer.get(), info->fOffset};
     info->fOffset += requiredBytes;
+
+    if (cleared == ClearBuffer::kYes) {
+        fClearList.push_back({bindInfo.fBuffer, bindInfo.fOffset, requiredBytes});
+    }
 
     return bindInfo;
 }

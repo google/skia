@@ -1095,3 +1095,112 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsOverArrayAndStructTe
                     kExpectedCount,
                     secondHalfCount);
 }
+
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ClearedBuffer, reporter, context) {
+    constexpr uint32_t kProblemSize = 512;
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // The ComputeStep requests an unmapped buffer that is zero-initialized. It writes the output to
+    // a mapped buffer which test verifies.
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep(
+                /*name=*/"TestClearedBuffer",
+                /*localDispatchSize=*/{kProblemSize, 1, 1},
+                /*resources=*/{
+                    // Zero initialized input buffer
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kPrivate,
+                        /*policy=*/ResourcePolicy::kClear,
+                    },
+                    // Output buffer:
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,  // shared to allow us to access it from the
+                                                     // Builder
+                        /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
+                        /*slot=*/0,
+                    }
+                }) {}
+        ~TestComputeStep() override = default;
+
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(set=0, binding=0) readonly buffer inputBlock
+                {
+                    uint in_data[];
+                };
+                layout(set=0, binding=1) buffer outputBlock
+                {
+                    uint out_data[];
+                };
+                void main() {
+                    out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x];
+                }
+            )";
+        }
+
+        size_t calculateBufferSize(const DrawParams&,
+                                   int index,
+                                   const ResourceDesc& r) const override {
+            return sizeof(uint32_t) * kProblemSize;
+        }
+
+        void prepareBuffer(const DrawParams&,
+                           int ssboIndex,
+                           int resourceIndex,
+                           const ResourceDesc& r,
+                           void* buffer,
+                           size_t bufferSize) const override {
+            // Should receive this call only for the mapped buffer.
+            SkASSERT(resourceIndex == 1);
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step;
+
+    DispatchGroup::Builder builder(recorder.get());
+    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+        ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
+        return;
+    }
+
+    // The output buffer should have been placed in the right output slot.
+    BindBufferInfo outputInfo = builder.getSharedBufferResource(0);
+    if (!outputInfo) {
+        ERRORF(reporter, "Failed to allocate an output buffer at slot 0");
+        return;
+    }
+
+    // Record the compute task
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    recorder->priv().add(SynchronizeToCpuTask::Make(sk_ref_sp(outputInfo.fBuffer)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    // Verify the contents of the output buffer.
+    uint32_t* outData = static_cast<uint32_t*>(map_bind_buffer(outputInfo));
+    SkASSERT(outputInfo.fBuffer->isMapped() && outData != nullptr);
+    for (unsigned int i = 0; i < kProblemSize; ++i) {
+        const uint32_t found = outData[i];
+        REPORTER_ASSERT(reporter, 0u == found, "expected '0u', found '%u'", found);
+    }
+}

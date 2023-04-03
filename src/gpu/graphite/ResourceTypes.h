@@ -71,6 +71,15 @@ enum class AccessPattern : int {
 };
 
 /**
+ * Determines whether the contents of a GPU buffer sub-allocation gets cleared to 0 before being
+ * used in a GPU command submission.
+ */
+enum class ClearBuffer : bool {
+    kNo = false,
+    kYes = true,
+};
+
+/**
  * Must the contents of the Resource be preserved af a render pass or can a more efficient
  * representation be chosen when supported by hardware.
  */
@@ -121,6 +130,19 @@ struct BindBufferInfo {
         return fBuffer == o.fBuffer && (!fBuffer || fOffset == o.fOffset);
     }
     bool operator!=(const BindBufferInfo& o) const { return !(*this == o); }
+};
+
+/**
+ * Represents a buffer region that should be cleared to 0. A ClearBuffersTask does not take an
+ * owning reference to the buffer it clears. A higher layer is responsible for managing the lifetime
+ * and usage refs of the buffer.
+ */
+struct ClearBufferInfo {
+    const Buffer* fBuffer = nullptr;
+    size_t fOffset = 0;
+    size_t fSize = 0;
+
+    operator bool() const { return SkToBool(fBuffer); }
 };
 
 };  // namespace skgpu::graphite

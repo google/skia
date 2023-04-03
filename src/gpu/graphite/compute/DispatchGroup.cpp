@@ -269,7 +269,10 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                     result = bufInfo;
                 }
             } else {
-                auto bufInfo = bufferMgr->getStorage(bufferSize);
+                auto bufInfo = bufferMgr->getStorage(bufferSize,
+                                                     resource.fPolicy == ResourcePolicy::kClear
+                                                             ? ClearBuffer::kYes
+                                                             : ClearBuffer::kNo);
                 if (bufInfo) {
                     result = bufInfo;
                 }
