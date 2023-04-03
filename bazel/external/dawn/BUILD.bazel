@@ -589,14 +589,10 @@ DAWN_VULKAN_SRCS = [
 ]
 
 DAWN_VULKAN_LINUX_SRCS = [
-    # From dawn/src/dawn/native/BUILD.gn:sources (dawn_enable_vulkan && (is_android || is_linux || is_chromeos))
+    # From dawn/src/dawn/native/BUILD.gn:sources (dawn_enable_vulkan && is_linux)
+    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementationOpaqueFD.cpp",
     "src/dawn/native/vulkan/external_semaphore/SemaphoreServiceImplementationFD.cpp",
     "src/dawn/native/vulkan/external_semaphore/SemaphoreServiceImplementationFD.h",
-    # From dawn/src/dawn/native/BUILD.gn:sources (dawn_enable_vulkan && (is_linux || is_chromeos))
-    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementationDmaBuf.cpp",
-    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementationDmaBuf.h",
-    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementationOpaqueFD.cpp",
-    "src/dawn/native/vulkan/external_memory/MemoryServiceImplementationOpaqueFD.h",
 ]
 
 DAWN_VULKAN_DEFINES = [
