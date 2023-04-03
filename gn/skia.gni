@@ -25,6 +25,7 @@ declare_args() {
                         (is_wasm && skia_canvaskit_enable_skottie)
   skia_enable_precompile = true
   skia_enable_sksl = true
+  skia_enable_sksl_in_raster_pipeline = false
   skia_enable_sksl_tracing = is_skia_dev_build
   skia_enable_skvm_jit_when_possible = is_skia_dev_build
   skia_enable_svg = !is_component_build

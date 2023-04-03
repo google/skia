@@ -60,9 +60,6 @@
 
 using namespace skia_private;
 
-// This debugging toggle enables extra logging in `test_raster_pipeline`.
-//#define DUMP_RP_PROGRAMS 1
-
 namespace SkSL { class Context; }
 struct GrContextOptions;
 
@@ -90,7 +87,12 @@ namespace SkSLTestFlags {
 }
 
 static constexpr bool is_skvm(int flags) {
+#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+    // We aren't using SkVM to execute our SkSL, so there's nothing to test.
+    return false;
+#else
     return flags & SkSLTestFlags::VM;
+#endif
 }
 
 static constexpr bool is_gpu(int flags) {
@@ -349,10 +351,6 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, int flags) {
     SkSL::dsl::End();
 }
 
-#if defined(DUMP_RP_PROGRAMS)
-#include "src/core/SkStreamPriv.h"
-#endif
-
 static void report_rp_pass(skiatest::Reporter* r, const char* testFile, int flags) {
     if (!(flags & SkSLTestFlags::RP)) {
         ERRORF(r, "NEW: %s", testFile);
@@ -445,14 +443,6 @@ static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, in
         return;
     }
 
-#if defined(DUMP_RP_PROGRAMS)
-    // Dump the program instructions via SkDebugf.
-    SkDebugf("----- %s -----\n\n", testFile);
-    SkDebugfStream stream;
-    rasterProg->dump(&stream);
-    SkDebugf("\n-----\n\n");
-#endif
-
     // Append the SkSL program to the raster pipeline.
     pipeline.append_constant_color(&alloc, SkColors::kTransparent);
     rasterProg->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, SkSpan(uniformValues));
@@ -479,9 +469,6 @@ static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, in
     // Success!
     report_rp_pass(r, testFile, flags);
 }
-
-#undef DUMP_RP_PROGRAMS
-#undef REPORT_RP_PASS_FAIL
 
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                         \
     DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_skvm(flags)) { test_skvm(r, path, flags); } \

@@ -62,9 +62,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
-// This flag can be enabled to use the new Raster Pipeline code generator for SkSL.
-//#define SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-
+// Set `skia_enable_sksl_in_raster_pipeline = true` in your GN args to use Raster Pipeline SkSL.
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 #include "src/core/SkStreamPriv.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
@@ -435,6 +433,7 @@ static void write_child_effects(SkWriteBuffer& buffer,
     }
 }
 
+#ifndef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 static std::vector<skvm::Val> make_skvm_uniforms(skvm::Builder* p,
                                                  skvm::Uniforms* uniforms,
                                                  size_t inputSize,
@@ -453,6 +452,7 @@ static std::vector<skvm::Val> make_skvm_uniforms(skvm::Builder* p,
 
     return uniform;
 }
+#endif
 
 SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options) {
     SkSL::ProgramSettings settings;
@@ -1286,6 +1286,9 @@ public:
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           const SkColorInfo& colorInfo,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        return {};
+#else
         SkASSERT(SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(),
                                               fEffect.get()));
 
@@ -1307,6 +1310,7 @@ public:
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p,/*debugTrace=*/nullptr,
                                    SkSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
                                    c, c, &callbacks);
+#endif
     }
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
@@ -1510,6 +1514,9 @@ public:
                         const SkColorInfo& colorInfo,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc* alloc) const override {
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        return {};
+#else
         if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
             return {};
         }
@@ -1541,6 +1548,7 @@ public:
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, fDebugTrace.get(),
                                    SkSpan(uniform), device, local, paint, paint, &callbacks);
+#endif
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -1658,6 +1666,9 @@ public:
     skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
                           SkArenaAlloc* alloc) const override {
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        return {};
+#else
         if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
             return {};
         }
@@ -1678,6 +1689,7 @@ public:
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p,/*debugTrace=*/nullptr,
                                    SkSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
                                    src, dst, &callbacks);
+#endif
     }
 
 #if defined(SK_GANESH)
