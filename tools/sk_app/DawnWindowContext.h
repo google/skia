@@ -13,7 +13,6 @@
 #include "tools/sk_app/WindowContext.h"
 #include "webgpu/webgpu_cpp.h"
 #include "dawn/native/DawnNative.h"
-#include "dawn/dawn_wsi.h"
 
 namespace sk_app {
 
@@ -38,12 +37,10 @@ protected:
     virtual void onSwapBuffers() = 0;
     virtual GrSurfaceOrigin getRTOrigin() const { return kTopLeft_GrSurfaceOrigin; }
     void destroyContext();
-    virtual DawnSwapChainImplementation createSwapChainImplementation( int width, int height,
-        const DisplayParams& params) = 0;
 
     sk_sp<SkSurface>              fSurface;
-    DawnSwapChainImplementation   fSwapChainImplementation;
     wgpu::TextureFormat           fSwapChainFormat;
+    wgpu::Surface                 fDawnSurface;
     wgpu::SwapChain               fSwapChain;
     wgpu::Device                  fDevice;
     std::unique_ptr<dawn::native::Instance> fInstance;

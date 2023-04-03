@@ -8,12 +8,6 @@
 #include "tools/sk_app/DawnWindowContext.h"
 #include "tools/sk_app/unix/WindowContextFactory_unix.h"
 #include "dawn/native/DawnNative.h"
-#include "dawn/native/VulkanBackend.h"
-#include "src/ports/SkOSLibrary.h"
-#include "tools/gpu/vk/VkTestUtils.h"
-
-#include <vulkan/vulkan.h>
-#include <X11/Xlib-xcb.h>
 
 using sk_app::window_context_factory::XlibWindowInfo;
 using sk_app::DisplayParams;
@@ -27,14 +21,11 @@ public:
     ~DawnVulkanWindowContext_xlib() override {}
     wgpu::Device onInitializeContext() override;
     void onDestroyContext() override {}
-    DawnSwapChainImplementation createSwapChainImplementation(
-            int width, int height, const DisplayParams& params) override;
     void onSwapBuffers() override {}
 
 private:
     Display*     fDisplay;
     XWindow      fWindow;
-    VkSurfaceKHR fVkSurface = nullptr;
 };
 
 DawnVulkanWindowContext_xlib::DawnVulkanWindowContext_xlib(const XlibWindowInfo& winInfo,
@@ -50,43 +41,18 @@ DawnVulkanWindowContext_xlib::DawnVulkanWindowContext_xlib(const XlibWindowInfo&
     this->initializeContext(width, height);
 }
 
-DawnSwapChainImplementation DawnVulkanWindowContext_xlib::createSwapChainImplementation(
-        int width, int height, const DisplayParams& params) {
-    return dawn::native::vulkan::CreateNativeSwapChainImpl(fDevice.Get(), fVkSurface);
-}
-
 wgpu::Device DawnVulkanWindowContext_xlib::onInitializeContext() {
-    wgpu::Device device = this->createDevice(wgpu::BackendType::Vulkan);
-    if (!device) {
-        return nullptr;
-    }
+    wgpu::SurfaceDescriptorFromXlibWindow xlibDesc;
+    xlibDesc.display = fDisplay;
+    xlibDesc.window = fWindow;
 
-    void *vkLib = SkLoadDynamicLibrary("libvulkan.so.1");
-    if (!vkLib) {
-        return nullptr;
-    }
-    VkInstance instance = dawn::native::vulkan::GetInstance(device.Get());
-    if (!instance) {
-        return nullptr;
-    }
-    auto createXcbSurfaceKHR =
-        reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(SkGetProcedureAddress(vkLib,
-                                                                        "vkCreateXcbSurfaceKHR"));
-    if (!createXcbSurfaceKHR) {
-        printf("couldn't get extensions :(\n");
-        return nullptr;
-    }
+    wgpu::SurfaceDescriptor surfaceDesc;
+    surfaceDesc.nextInChain = &xlibDesc;
 
-    VkXcbSurfaceCreateInfoKHR surfaceCreateInfo;
-    memset(&surfaceCreateInfo, 0, sizeof(VkXcbSurfaceCreateInfoKHR));
-    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.pNext = nullptr;
-    surfaceCreateInfo.flags = 0;
-    surfaceCreateInfo.connection = XGetXCBConnection(fDisplay);
-    surfaceCreateInfo.window = fWindow;
+    fDawnSurface = wgpu::Instance(fInstance->Get()).CreateSurface(&surfaceDesc);
+    SkASSERT(fDawnSurface);
 
-    createXcbSurfaceKHR(instance, &surfaceCreateInfo, nullptr, &fVkSurface);
-    return device;
+    return this->createDevice(wgpu::BackendType::Vulkan);
 }
 
 namespace window_context_factory {

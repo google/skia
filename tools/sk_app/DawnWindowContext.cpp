@@ -21,6 +21,18 @@ static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
     SkASSERT(false);
 }
 
+static wgpu::SwapChainDescriptor CreateSwapChainDesc(int width,
+                                                     int height,
+                                                     wgpu::TextureFormat format) {
+    wgpu::SwapChainDescriptor desc;
+    desc.format = format;
+    desc.usage = kUsage;
+    desc.width = width;
+    desc.height = height;
+    desc.presentMode = wgpu::PresentMode::Mailbox;
+    return desc;
+}
+
 namespace sk_app {
 
 DawnWindowContext::DawnWindowContext(const DisplayParams& params,
@@ -41,15 +53,15 @@ void DawnWindowContext::initializeContext(int width, int height) {
     if (!fContext) {
         return;
     }
-    fSwapChainImplementation = this->createSwapChainImplementation(width, height, fDisplayParams);
-    wgpu::SwapChainDescriptor swapChainDesc;
-    swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
-    fSwapChain = fDevice.CreateSwapChain(nullptr, &swapChainDesc);
+
+    wgpu::SwapChainDescriptor swapChainDesc =
+        CreateSwapChainDesc(width, height, fSwapChainFormat);
+    fSwapChain = fDevice.CreateSwapChain(fDawnSurface, &swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, kUsage, width, height);
+
     fDevice.SetUncapturedErrorCallback(PrintDeviceError, 0);
 }
 
@@ -91,12 +103,9 @@ void DawnWindowContext::swapBuffers() {
 void DawnWindowContext::resize(int w, int h) {
     fWidth = w;
     fHeight = h;
-    fSwapChainImplementation = this->createSwapChainImplementation(w, h, fDisplayParams);
-    wgpu::SwapChainDescriptor swapChainDesc;
-    swapChainDesc.width = w;
-    swapChainDesc.height = h;
-    swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
-    fSwapChain = fDevice.CreateSwapChain(nullptr, &swapChainDesc);
+    wgpu::SwapChainDescriptor swapChainDesc =
+        CreateSwapChainDesc(w, h, fSwapChainFormat);
+    fSwapChain = fDevice.CreateSwapChain(fDawnSurface, &swapChainDesc);
     if (!fSwapChain) {
         fContext.reset();
         return;
