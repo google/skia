@@ -262,7 +262,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             size_t bufferSize = step->calculateBufferSize(params, resourceIdx, resource);
             SkASSERT(bufferSize);
             if (resource.fPolicy == ResourcePolicy::kMapped) {
-                auto [ptr, bufInfo] = bufferMgr->getMappedStorage(bufferSize);
+                auto [ptr, bufInfo] = bufferMgr->getStoragePointer(bufferSize);
                 // Allocation failures are handled below.
                 if (ptr) {
                     step->prepareBuffer(params, ssboIdx, resourceIdx, resource, ptr, bufferSize);

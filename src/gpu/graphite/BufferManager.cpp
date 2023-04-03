@@ -165,7 +165,7 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_
     return {UniformWriter(ptr, requiredBytes), bindInfo};
 }
 
-std::tuple<void*, BindBufferInfo> DrawBufferManager::getMappedStorage(size_t requiredBytes) {
+std::tuple<void*, BindBufferInfo> DrawBufferManager::getStoragePointer(size_t requiredBytes) {
     if (!requiredBytes) {
         return {};
     }
@@ -180,7 +180,7 @@ BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes, ClearBuffer c
     }
 
     auto& info = fCurrentBuffers[kGpuOnlyStorageBufferIndex];
-    return this->prepareBindBuffer(&info, requiredBytes, /*mappable=*/false, cleared);
+    return this->prepareBindBuffer(&info, requiredBytes, /*supportCpuUpload=*/false, cleared);
 }
 
 BindBufferInfo DrawBufferManager::getVertexStorage(size_t requiredBytes) {
@@ -260,7 +260,7 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
 
 std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(BufferInfo* info,
                                                                             size_t requiredBytes) {
-    auto bindInfo = this->prepareBindBuffer(info, requiredBytes, /*mappable=*/true);
+    auto bindInfo = this->prepareBindBuffer(info, requiredBytes, /*supportCpuUpload=*/true);
     if (!bindInfo) {
         return {nullptr, {}};
     }
@@ -272,12 +272,13 @@ std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(Buff
 
 BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
                                                     size_t requiredBytes,
-                                                    bool mappable,
+                                                    bool supportCpuUpload,
                                                     ClearBuffer cleared) {
     SkASSERT(info);
     SkASSERT(requiredBytes);
 
-    bool useTransferBuffer = mappable && !fCaps->drawBufferCanBeMapped();
+    // A transfer buffer is not necessary if the caller does not intend to upload CPU data to it.
+    bool useTransferBuffer = supportCpuUpload && !fCaps->drawBufferCanBeMapped();
 
     if (info->fBuffer &&
         !can_fit(requiredBytes, info->fBuffer.get(), info->fOffset, info->fStartAlignment)) {
@@ -286,11 +287,15 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     }
 
     if (!info->fBuffer) {
+        // This buffer can be GPU-only if
+        //     a) the caller does not intend to ever upload CPU data to the buffer; or
+        //     b) CPU data will get uploaded to fBuffer only via a transfer buffer
+        AccessPattern accessPattern = (useTransferBuffer || !supportCpuUpload)
+                                              ? AccessPattern::kGpuOnly
+                                              : AccessPattern::kHostVisible;
         size_t bufferSize = sufficient_block_size(requiredBytes, info->fBlockSize);
-        info->fBuffer = fResourceProvider->findOrCreateBuffer(
-                bufferSize,
-                info->fType,
-                useTransferBuffer ? AccessPattern::kGpuOnly : AccessPattern::kHostVisible);
+        info->fBuffer =
+                fResourceProvider->findOrCreateBuffer(bufferSize, info->fType, accessPattern);
         info->fOffset = 0;
         if (!info->fBuffer) {
             return {};

@@ -43,11 +43,11 @@ public:
     std::tuple<UniformWriter, BindBufferInfo> getUniformWriter(size_t requiredBytes);
     std::tuple<UniformWriter, BindBufferInfo> getSsboWriter(size_t requiredBytes);
 
-    // Returns a pointer to a mapped storage buffer slice without a specific data writer.
-    std::tuple<void*, BindBufferInfo> getMappedStorage(size_t requiredBytes);
+    // Returns a pointer to a mapped storage buffer suballocation without a specific data writer.
+    std::tuple<void*, BindBufferInfo> getStoragePointer(size_t requiredBytes);
 
-    // Utilities that return an unmapped buffer slice with a particular usage. These slices are
-    // intended to be only accessed by the GPU and are configured to prioritize GPU reads.
+    // Utilities that return an unmapped buffer suballocation for a particular usage. These buffers
+    // are intended to be only accessed by the GPU and are not intended for CPU data uploads.
     BindBufferInfo getStorage(size_t requiredBytes, ClearBuffer cleared = ClearBuffer::kNo);
     BindBufferInfo getVertexStorage(size_t requiredBytes);
     BindBufferInfo getIndexStorage(size_t requiredBytes);
@@ -85,7 +85,7 @@ private:
                                                              size_t requiredBytes);
     BindBufferInfo prepareBindBuffer(BufferInfo* info,
                                      size_t requiredBytes,
-                                     bool mappable = false,
+                                     bool supportCpuUpload = false,
                                      ClearBuffer cleared = ClearBuffer::kNo);
 
     ResourceProvider* const fResourceProvider;
