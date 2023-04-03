@@ -2982,6 +2982,7 @@ if (skia_enable_tools) {
         "tools/viewer/AnimBlurSlide.cpp",
         "tools/viewer/AnimTimer.h",
         "tools/viewer/AnimatedImageSlide.cpp",
+        "tools/viewer/AnimatedRectsSlide.cpp",
         "tools/viewer/AnimatedTextSlide.cpp",
         "tools/viewer/ArcSlide.cpp",
         "tools/viewer/AtlasSlide.cpp",
