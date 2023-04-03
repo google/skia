@@ -23,6 +23,7 @@
 namespace skgpu::graphite {
 
 class DrawParams;
+class UniformManager;
 struct ResourceBindingRequirements;
 
 /**
@@ -98,14 +99,16 @@ public:
         kClear,
 
         // The ComputeStep will be asked to initialize the memory on the CPU via
-        // `ComputeStep::prepareBuffer` prior to pipeline execution. This may incur a transfer cost
-        // on platforms that do not allow buffers to be mapped in shared memory.
+        // `ComputeStep::prepareStorageBuffer` or `ComputeStep::prepareUniformBuffer` prior to
+        // pipeline execution. This may incur a transfer cost on platforms that do not allow buffers
+        // to be mapped in shared memory.
         //
         // If multiple ComputeSteps in a DispatchGroup declare a mapped resource with the same
-        // shared slot number, only the first ComputeStep in the series will receive a call to
-        // `ComputeStep::prepareBuffer`.
+        // shared slot number, only the first ComputeStep in the group will receive a call to
+        // prepare the buffer.
         //
-        // This only has meaning for buffer resources.
+        // This only has meaning for buffer resources. A resource with the `kUniformBuffer` resource
+        // type must specify the `kMapped` resource policy.
         kMapped,
     };
 
@@ -167,18 +170,37 @@ public:
         return WorkgroupSize();
     }
 
-    // Populates a buffer resource which was specified as "mapped". This method will only be called
-    // once for a resource right after its allocation and before pipeline execution. For shared
-    // resources, only the first ComputeStep in a DispatchGroup will be asked to prepare the buffer.
+    // Populates a storage buffer resource which was specified as "mapped". This method will only be
+    // called once for a resource right after its allocation and before pipeline execution. For
+    // shared resources, only the first ComputeStep in a DispatchGroup will be asked to prepare the
+    // buffer.
     //
     // `resourceIndex` matches the order in which `resource` was enumerated by
     // `ComputeStep::resources()`.
-    virtual void prepareBuffer(const DrawParams&,
-                               int ssboIndex,
-                               int resourceIndex,
-                               const ResourceDesc& resource,
-                               void* buffer,
-                               size_t bufferSize) const;
+    virtual void prepareStorageBuffer(const DrawParams&,
+                                      int ssboIndex,
+                                      int resourceIndex,
+                                      const ResourceDesc& resource,
+                                      void* buffer,
+                                      size_t bufferSize) const;
+
+    // Populates a uniform buffer resource. This method will be called once for a resource right
+    // after its allocation and before pipeline execution. For shared resources, only the first
+    // ComputeStep in a DispatchGroup will be asked to prepare the buffer.
+    //
+    // `resourceIndex` matches the order in which `resource` was enumerated by
+    // `ComputeStep::resources()`.
+    //
+    // The implementation must use the provided `UniformManager` to populate the buffer. On debug
+    // builds, the implementation must validate the buffer layout by setting up an expectation, for
+    // example:
+    //
+    //     SkDEBUGCODE(mgr->setExpectedUniforms({{"foo", SkSLType::kFloat}}));
+    //
+    virtual void prepareUniformBuffer(const DrawParams&,
+                                      int resourceIndex,
+                                      const ResourceDesc&,
+                                      UniformManager*) const;
 
     SkSpan<const ResourceDesc> resources() const { return SkSpan(fResources); }
 

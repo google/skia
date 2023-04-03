@@ -77,9 +77,16 @@ ComputeStep::ComputeStep(std::string_view name,
     }
 }
 
-void ComputeStep::prepareBuffer(
+void ComputeStep::prepareStorageBuffer(
         const DrawParams&, int, int, const ResourceDesc&, void*, size_t) const {
-    SK_ABORT("ComputeSteps using a mapped resource must override prepareBuffer()");
+    SK_ABORT("ComputeSteps using a mapped storage buffer must override prepareStorageBuffer()");
+}
+
+void ComputeStep::prepareUniformBuffer(const DrawParams&,
+                                       int,
+                                       const ResourceDesc&,
+                                       UniformManager*) const {
+    SK_ABORT("ComputeSteps using a uniform buffer must override prepareUniformBuffer()");
 }
 
 size_t ComputeStep::calculateBufferSize(const DrawParams&,
