@@ -309,6 +309,9 @@ skia_cc_deps(
     name = "deps",
     linkopts = select({
         "@platforms//os:linux": ["-ldl"],
+        "@platforms//os:android": [
+            "-llog",  # Provides __android_log_vprint, needed by //src/ports/SkDebug_android.cpp.
+        ],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -316,7 +319,7 @@ skia_cc_deps(
         ":uses_freetype": ["@freetype"],
         "//conditions:default": [],
     }) + select({
-        ":uses_fontconfig": ["//bazel/external/fontconfig:fontconfig"],
+        ":uses_fontconfig": ["//bazel/external/fontconfig"],
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:uses_android_fontmgr": ["@expat"],

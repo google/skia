@@ -19,8 +19,8 @@ skia_filegroup(
         "//src/codec:srcs",
         "//src/core:srcs",
         "//src/effects:srcs",
-        "//src/image:srcs",
         "//src/encode:srcs",
+        "//src/image:srcs",
         "//src/pathops:srcs",
         "//src/ports:srcs",
         "//src/sfnt:srcs",
@@ -53,6 +53,9 @@ skia_filegroup(
             ":generated_srcs",
         ],
         "//conditions:default": [],
+    }) + select({
+        "@platforms//os:android": ["//src/image:android_srcs"],
+        "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
 )
@@ -64,8 +67,8 @@ skia_filegroup(
         "//src/codec:private_hdrs",
         "//src/core:private_hdrs",
         "//src/effects:private_hdrs",
-        "//src/image:private_hdrs",
         "//src/encode:private_hdrs",
+        "//src/image:private_hdrs",
         "//src/opts:private_hdrs",
         "//src/pathops:private_hdrs",
         "//src/ports:private_hdrs",
@@ -106,11 +109,11 @@ skia_cc_deps(
     name = "deps",
     visibility = ["//:__pkg__"],
     deps = [
+        "//modules/skcms",
         "//src/codec:deps",
         "//src/encode:deps",
-        "//src/ports:deps",
         "//src/opts:deps",
-        "//modules/skcms:skcms",
+        "//src/ports:deps",
     ] + select({
         "//src/gpu:has_gpu_backend": ["//src/gpu:deps"],
         "//conditions:default": [],

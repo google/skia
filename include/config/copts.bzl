@@ -33,12 +33,18 @@ Skia and the third party dep depend on that.
 CORE_COPTS = [
     "-fstrict-aliasing",
     "-fPIC",
-    "-fvisibility=hidden",
     "-fno-rtti",  # Reduces code size
 ] + select({
     # SkRawCodec catches any exceptions thrown by dng_sdk, insulating the rest of Skia.
     "//src/codec:raw_decode_codec": [],
     "//conditions:default": ["-fno-exceptions"],
+}) + select({
+    "@platforms//os:android": [],
+    "//conditions:default": [
+        # On Android, this option causes the linker to fail
+        # (e.g. "undefined reference to `SkString::data()'").
+        "-fvisibility=hidden",
+    ],
 })
 
 OPT_LEVEL = select({

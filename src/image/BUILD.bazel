@@ -32,6 +32,7 @@ split_srcs_and_hdrs(
 skia_filegroup(
     name = "android_srcs",
     srcs = ["SkImage_AndroidFactories.cpp"],
+    visibility = ["//src:__pkg__"],
 )
 
 skia_filegroup(

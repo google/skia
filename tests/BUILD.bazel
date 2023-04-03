@@ -674,3 +674,25 @@ selects.config_setting_group(
         ":force_cpu_tests_false",
     ],
 )
+
+# This target is known to build successfully for Android with the following Bazel invocations:
+#
+#     # For 64-bit ARM.
+#     $ bazel build //tests:known_good_android_ganesh_test \
+#           --config=for_android_arm64_with_rbe \
+#           --gpu_backend=gl_backend \
+#           --enable_gpu_test_utils
+#
+#     # For 32-bit ARM.
+#     $ bazel build //tests:known_good_android_ganesh_test \
+#           --config=for_android_arm32_with_rbe \
+#           --gpu_backend=gl_backend \
+#           --enable_gpu_test_utils
+#
+# lovisolo@ has yet to test the resulting binaries on a physical Android device.
+#
+# Building this alias is equivalent to building //tests:text_blob_cache_test.
+alias(
+    name = "known_good_android_ganesh_test",
+    actual = ":TextBlobCacheTest",
+)
