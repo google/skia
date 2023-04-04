@@ -482,48 +482,6 @@ bool Analysis::UpdateVariableRefKind(Expression* expr,
     return true;
 }
 
-class ES2IndexingVisitor : public ProgramVisitor {
-public:
-    ES2IndexingVisitor(ErrorReporter& errors) : fErrors(errors) {}
-
-    bool visitStatement(const Statement& s) override {
-        if (s.is<ForStatement>()) {
-            const ForStatement& f = s.as<ForStatement>();
-            SkASSERT(f.initializer() && f.initializer()->is<VarDeclaration>());
-            const Variable* var = f.initializer()->as<VarDeclaration>().var();
-            auto [iter, inserted] = fLoopIndices.insert(var);
-            SkASSERT(inserted);
-            bool result = this->visitStatement(*f.statement());
-            fLoopIndices.erase(iter);
-            return result;
-        }
-        return INHERITED::visitStatement(s);
-    }
-
-    bool visitExpression(const Expression& e) override {
-        if (e.is<IndexExpression>()) {
-            const IndexExpression& i = e.as<IndexExpression>();
-            if (!Analysis::IsConstantIndexExpression(*i.index(), &fLoopIndices)) {
-                fErrors.error(i.fPosition, "index expression must be constant");
-                return true;
-            }
-        }
-        return INHERITED::visitExpression(e);
-    }
-
-    using ProgramVisitor::visitProgramElement;
-
-private:
-    ErrorReporter& fErrors;
-    std::set<const Variable*> fLoopIndices;
-    using INHERITED = ProgramVisitor;
-};
-
-void Analysis::ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors) {
-    ES2IndexingVisitor visitor(errors);
-    visitor.visitProgramElement(pe);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // ProgramVisitor
 

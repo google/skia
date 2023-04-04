@@ -13,7 +13,6 @@
 
 #include <cstdint>
 #include <memory>
-#include <set>
 #include <vector>
 
 namespace SkSL {
@@ -194,14 +193,13 @@ bool IsSameExpressionTree(const Expression& left, const Expression& right);
 bool IsConstantExpression(const Expression& expr);
 
 /**
- * Returns true if expr is a valid constant-index-expression, as defined by GLSL 1.0, Appendix A,
- * Section 5. A constant-index-expression is:
+ * Ensures that any index-expressions inside of for-loops qualify as 'constant-index-expressions' as
+ * defined by GLSL 1.0, Appendix A, Section 5. A constant-index-expression is:
  * - A constant-expression
  * - Loop indices (as defined in Appendix A, Section 4)
  * - Expressions composed of both of the above
  */
-bool IsConstantIndexExpression(const Expression& expr,
-                               const std::set<const Variable*>* loopIndices);
+void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 
 /**
  * Ensures that a for-loop meets the strict requirements of The OpenGL ES Shading Language 1.00,
@@ -217,8 +215,6 @@ std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(Position pos,
                                                   const Expression* loopNext,
                                                   const Statement* loopStatement,
                                                   ErrorReporter* errors);
-
-void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 
 /** Detects functions that fail to return a value on at least one path. */
 bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl, const Statement& body);

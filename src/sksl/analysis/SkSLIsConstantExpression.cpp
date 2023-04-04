@@ -8,23 +8,33 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLStatement.h"
+#include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include <set>
+#include <memory>
 
 namespace SkSL {
+
+class ProgramElement;
+
+namespace {
 
 // Checks for ES2 constant-expression rules, and (optionally) constant-index-expression rules
 // (if loopIndices is non-nullptr)
 class ConstantExpressionVisitor : public ProgramVisitor {
 public:
-    ConstantExpressionVisitor(const std::set<const Variable*>* loopIndices)
+    ConstantExpressionVisitor(const SkTHashSet<const Variable*>* loopIndices)
             : fLoopIndices(loopIndices) {}
 
     bool visitExpression(const Expression& e) override {
@@ -47,7 +57,7 @@ public:
                     (v->modifiers().fFlags & Modifiers::kConst_Flag)) {
                     return false;
                 }
-                return !fLoopIndices || fLoopIndices->find(v) == fLoopIndices->end();
+                return !fLoopIndices || !fLoopIndices->contains(v);
             }
 
             // ... not a sequence expression (skia:13311)...
@@ -97,17 +107,58 @@ public:
     }
 
 private:
-    const std::set<const Variable*>* fLoopIndices;
+    const SkTHashSet<const Variable*>* fLoopIndices;
     using INHERITED = ProgramVisitor;
 };
+
+// Visits a function, tracks its loop indices, and verifies that every index-expression in the
+// function qualifies as a constant-index-expression.
+class ES2IndexingVisitor : public ProgramVisitor {
+public:
+    ES2IndexingVisitor(ErrorReporter& errors) : fErrors(errors) {}
+
+    bool visitStatement(const Statement& s) override {
+        if (s.is<ForStatement>()) {
+            const ForStatement& f = s.as<ForStatement>();
+            SkASSERT(f.initializer() && f.initializer()->is<VarDeclaration>());
+            const Variable* var = f.initializer()->as<VarDeclaration>().var();
+            SkASSERT(!fLoopIndices.contains(var));
+            fLoopIndices.add(var);
+            bool result = this->visitStatement(*f.statement());
+            fLoopIndices.remove(var);
+            return result;
+        }
+        return INHERITED::visitStatement(s);
+    }
+
+    bool visitExpression(const Expression& e) override {
+        if (e.is<IndexExpression>()) {
+            const IndexExpression& i = e.as<IndexExpression>();
+            if (ConstantExpressionVisitor{&fLoopIndices}.visitExpression(*i.index())) {
+                fErrors.error(i.fPosition, "index expression must be constant");
+                return true;
+            }
+        }
+        return INHERITED::visitExpression(e);
+    }
+
+    using ProgramVisitor::visitProgramElement;
+
+private:
+    ErrorReporter& fErrors;
+    SkTHashSet<const Variable*> fLoopIndices;
+    using INHERITED = ProgramVisitor;
+};
+
+}  // namespace
 
 bool Analysis::IsConstantExpression(const Expression& expr) {
     return !ConstantExpressionVisitor{/*loopIndices=*/nullptr}.visitExpression(expr);
 }
 
-bool Analysis::IsConstantIndexExpression(const Expression& expr,
-                                         const std::set<const Variable*>* loopIndices) {
-    return !ConstantExpressionVisitor{loopIndices}.visitExpression(expr);
+void Analysis::ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors) {
+    ES2IndexingVisitor visitor(errors);
+    visitor.visitProgramElement(pe);
 }
 
 }  // namespace SkSL
