@@ -21,6 +21,7 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -69,11 +70,11 @@ public:
             return true;
         }
         if (expr.is<Swizzle>()) {
-            // It's a swizzle: `input.___a`.
+            // It's a swizzle: check for `input.___a`.
             return this->isInputSwizzleEndingWithAlpha(expr);
         }
         if (expr.is<ConstructorSplat>() || expr.is<ConstructorCompound>()) {
-            // This is a splat or compound constructor with `input.a` as its final component.
+            // This is a splat or compound constructor; check for `input.a` as its final component.
             const AnyConstructor& ctor = expr.asAnyConstructor();
             return this->returnsInputAlpha(*ctor.argumentSpan().back());
         }
@@ -81,6 +82,12 @@ public:
             // Ignore typecasts between float and half.
             const Expression& arg = *expr.as<ConstructorCompoundCast>().argument();
             return arg.type().componentType().isFloat() && this->returnsInputAlpha(arg);
+        }
+        if (expr.is<TernaryExpression>()) {
+            // Both sides of the ternary must preserve input alpha.
+            const TernaryExpression& ternary = expr.as<TernaryExpression>();
+            return this->returnsInputAlpha(*ternary.ifTrue()) &&
+                   this->returnsInputAlpha(*ternary.ifFalse());
         }
         // We weren't able to pattern-match here.
         return false;

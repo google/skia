@@ -1401,7 +1401,11 @@ DEF_TEST(SkRuntimeColorFilterFlags, r) {
     expectAlphaUnchanged("half4 main(half4 color) { return half4(half2(1), half2(color.a)); }");
     expectAlphaUnchanged("half4 main(half4 color) { return half4(color.a); }");
     expectAlphaUnchanged("half4 main(half4 color) { return half4(float4(color.baba)); }");
-
+    expectAlphaUnchanged("half4 main(half4 color) { return color.r != color.g ? color :"
+                                                                              " color.000a; }");
+    expectAlphaUnchanged("half4 main(half4 color) { return color.a == color.r ? color.rrra : "
+                                                          "color.g == color.b ? color.ggga : "
+                                                                            "   color.bbba; }");
     // These swizzles don't end in alpha.
     expectAlphaChanged("half4 main(half4 color) { return color.argb; }");
     expectAlphaChanged("half4 main(half4 color) { return color.rrrr; }");
@@ -1411,6 +1415,11 @@ DEF_TEST(SkRuntimeColorFilterFlags, r) {
 
     // This splat constructor doesn't use alpha.
     expectAlphaChanged("half4 main(half4 color) { return half4(color.r); }");
+
+    // These ternaries don't return alpha on both sides
+    expectAlphaChanged("half4 main(half4 color) { return color.a > 0 ? half4(0) : color; }");
+    expectAlphaChanged("half4 main(half4 color) { return color.g < 1 ? color.bgra : color.abgr; }");
+    expectAlphaChanged("half4 main(half4 color) { return color.b > 0.5 ? half4(0) : half4(1); }");
 
     // Performing arithmetic on the input causes it to report as "alpha changed" even if the
     // arithmetic is a no-op; we aren't smart enough to see through it.
