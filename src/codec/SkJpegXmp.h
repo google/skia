@@ -32,7 +32,7 @@ public:
     bool getGainmapInfoHDRGainMap(SkGainmapInfo* info) const;
 
     // If this includes GContainer metadata and the GContainer contains an item with semantic
-    // RecoveryMap and Mime of image/jpeg, then return true, and populate |offset| and |size| with
+    // GainMap and Mime of image/jpeg, then return true, and populate |offset| and |size| with
     // that item's offset (from the end of the primary JPEG image's EndOfImage), and the size of
     // the gainmap.
     bool getContainerGainmapLocation(size_t* offset, size_t* size) const;

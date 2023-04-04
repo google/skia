@@ -293,6 +293,29 @@ static const char* get_attr(const SkDOM* dom,
     return get_unique_child_text(*dom, node, name);
 }
 
+// Perform get_attr and parse the result as a bool.
+static bool get_attr_bool(const SkDOM* dom,
+                          const SkDOM::Node* node,
+                          const std::string& prefix,
+                          const std::string& key,
+                          bool* outValue) {
+    const char* attr = get_attr(dom, node, prefix, key);
+    if (!attr) {
+        return false;
+    }
+    switch (SkParse::FindList(attr, "False,True")) {
+        case 0:
+            *outValue = false;
+            return true;
+        case 1:
+            *outValue = true;
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
 // Perform get_attr and parse the result as an int32_t.
 static bool get_attr_int32(const SkDOM* dom,
                            const SkDOM::Node* node,
@@ -531,7 +554,7 @@ bool SkJpegXmp::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
     }
 
     // Iterate through the items in the Container:Directory's sequence. Keep a running sum of the
-    // Item:Length of all items that appear before the RecoveryMap.
+    // Item:Length of all items that appear before the GainMap.
     bool isFirstItem = true;
     size_t offset = 0;
     for (const auto* li = dom->getFirstChild(seq, "rdf:li"); li;
@@ -590,13 +613,13 @@ bool SkJpegXmp::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
                 return false;
             }
             // If this is not the recovery map, then read past it.
-            if (strcmp(itemSemantic, "RecoveryMap") != 0) {
+            if (strcmp(itemSemantic, "GainMap") != 0) {
                 offset += length;
                 continue;
             }
             // The recovery map must have mime type image/jpeg in this implementation.
             if (strcmp(itemMime, "image/jpeg") != 0) {
-                SkCodecPrintf("RecoveryMap does not report that it is image/jpeg.\n");
+                SkCodecPrintf("GainMap does not report that it is image/jpeg.\n");
                 return false;
             }
 
@@ -670,6 +693,7 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     const char* hdrgmPrefix = get_namespace_prefix(namespaces[0]);
 
     // Initialize the parameters to their defaults.
+    bool baseRenditionIsHDR = false;
     SkColor4f gainMapMin = {1.f, 1.f, 1.f, 1.f};
     SkColor4f gainMapMax = {2.f, 2.f, 2.f, 1.f};
     SkColor4f gamma = {1.f, 1.f, 1.f, 1.f};
@@ -679,7 +703,7 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     SkScalar hdrCapacityMax = 2.f;
 
     // Read all parameters that are present.
-    const char* baseRendition = get_attr(dom, node, hdrgmPrefix, "BaseRendition");
+    get_attr_bool(dom, node, hdrgmPrefix, "BaseRenditionIsHDR", &baseRenditionIsHDR);
     get_attr_float3(dom, node, hdrgmPrefix, "GainMapMin", &gainMapMin);
     get_attr_float3(dom, node, hdrgmPrefix, "GainMapMax", &gainMapMax);
     get_attr_float3(dom, node, hdrgmPrefix, "Gamma", &gamma);
@@ -703,7 +727,7 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     outGainmapInfo->fEpsilonHdr = offsetHdr;
     outGainmapInfo->fDisplayRatioSdr = sk_float_exp(hdrCapacityMin * kLog2);
     outGainmapInfo->fDisplayRatioHdr = sk_float_exp(hdrCapacityMax * kLog2);
-    if (baseRendition && !strcmp(baseRendition, "HDR")) {
+    if (baseRenditionIsHDR) {
         outGainmapInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kHDR;
     } else {
         outGainmapInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
