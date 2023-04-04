@@ -444,8 +444,6 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP)
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "src/core/SkColorFilterBase.h"
 
-extern const char* SKSL_OVERDRAW_SRC;
-
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
     SkColor colors[SkOverdrawColorFilter::kNumColors];
     for (SkColor& c : colors) {
