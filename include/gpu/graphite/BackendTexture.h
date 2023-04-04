@@ -32,7 +32,7 @@ class MutableTextureStateRef;
 
 namespace skgpu::graphite {
 
-class BackendTexture {
+class SK_API BackendTexture {
 public:
     BackendTexture();
 #ifdef SK_DAWN

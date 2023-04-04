@@ -24,7 +24,7 @@
 
 namespace skgpu::graphite {
 
-class TextureInfo {
+class SK_API TextureInfo {
 public:
     TextureInfo() {}
 #ifdef SK_DAWN
