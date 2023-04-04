@@ -26,6 +26,11 @@ using namespace skia_private;
 
 namespace skgpu::graphite {
 
+UploadInstance::UploadInstance() = default;
+UploadInstance::UploadInstance(UploadInstance&&) = default;
+UploadInstance& UploadInstance::operator=(UploadInstance&&) = default;
+UploadInstance::~UploadInstance() = default;
+
 UploadInstance::UploadInstance(const Buffer* buffer,
                                size_t bytesPerPixel,
                                sk_sp<TextureProxy> textureProxy,

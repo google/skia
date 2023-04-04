@@ -77,6 +77,9 @@ public:
                                const std::vector<MipLevel>& levels,
                                const SkIRect& dstRect,
                                std::unique_ptr<ConditionalUploadContext>);
+    UploadInstance(UploadInstance&&);
+    UploadInstance& operator=(UploadInstance&&);
+    ~UploadInstance();
 
     bool isValid() const { return fBuffer != nullptr; }
 
@@ -86,7 +89,7 @@ public:
     void addCommand(Context*, CommandBuffer*, Task::ReplayTargetData) const;
 
 private:
-    UploadInstance() {}
+    UploadInstance();
     UploadInstance(const Buffer*,
                    size_t bytesPerPixel,
                    sk_sp<TextureProxy>,
