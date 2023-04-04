@@ -69,10 +69,6 @@ def _get_default_compile_flags(cpu):
             "-funwind-tables",
             "-fstack-protector-strong",
             "-fno-addrsig",
-            "-Werror=return-type",
-            "-Werror=int-to-pointer-cast",
-            "-Werror=pointer-to-int-cast",
-            "-Werror=implicit-function-declaration",
         ]
     if cpu == _ARM64_V8A:
         return [
@@ -90,10 +86,6 @@ def _get_default_compile_flags(cpu):
             "-funwind-tables",
             "-fstack-protector-strong",
             "-fno-addrsig",
-            "-Werror=return-type",
-            "-Werror=int-to-pointer-cast",
-            "-Werror=pointer-to-int-cast",
-            "-Werror=implicit-function-declaration",
         ]
     fail("Unknown CPU: " + cpu)
 
@@ -108,7 +100,6 @@ def _get_default_link_flags(cpu):
             NDK_PATH + "/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-no-canonical-prefixes",
             "-Wl,-z,relro",
-            "-Wl,--gc-sections",
             "-lm",
         ]
     if cpu == _ARM64_V8A:
@@ -121,7 +112,6 @@ def _get_default_link_flags(cpu):
             NDK_PATH + "/sources/cxx-stl/llvm-libc++/libs/arm64-v8a",
             "-no-canonical-prefixes",
             "-Wl,-z,relro",
-            "-Wl,--gc-sections",
             "-lm",
         ]
     fail("Unknown CPU: " + cpu)
