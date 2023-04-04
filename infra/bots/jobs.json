@@ -69,7 +69,10 @@
    },
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_API30"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_FrameworkWorkarounds"},
-  {"name": "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn"},
+  {"name": "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn",
+   "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*",
+     "bazel/external/dawn/*", "DEPS"]}
+  },
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_HWASAN"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_Vulkan"},
