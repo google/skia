@@ -15,6 +15,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/SkBackingFit.h"
@@ -122,7 +123,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
     SkASSERT(SkIRect::MakeWH(kWidth, kHeight) == special->subset());
 
     // Create a gpu-backed special image from a gpu-backed SkImage
-    image = image->makeTextureImage(dContext);
+    image = SkImages::TextureFromImage(dContext, image);
     special = DeviceTestingAccess::MakeSpecial(device.get(), image.get());
     SkASSERT(special->isTextureBacked());
     SkASSERT(kWidth == special->width());

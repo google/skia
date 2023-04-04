@@ -18,6 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkImagePriv.h"
 #include "tools/Resources.h"
 
@@ -166,7 +167,11 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
             } else
 #endif
             {
-                images[j] = direct ? image->makeTextureImage(direct) : image->makeRasterImage();
+                if (direct) {
+                    images[j] = SkImages::TextureFromImage(direct, image);
+                } else {
+                    images[j] = image->makeRasterImage();
+                }
             }
 
             canvas->translate(0, 128);
@@ -221,7 +226,7 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     } else
 #endif
     {
-        gpuImage = image->makeTextureImage(direct);
+        gpuImage = SkImages::TextureFromImage(direct, image);
     }
     if (gpuImage) {
         image = gpuImage;

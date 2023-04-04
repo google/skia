@@ -24,7 +24,6 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
@@ -236,11 +235,6 @@ GrSurfaceProxyView SkImage_Base::FindOrMakeCachedMipmappedView(GrRecordingContex
     return copy;
 }
 
-GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
-                                                   GrSurfaceOrigin* origin) const {
-    return GrBackendTexture(); // invalid
-}
-
 #endif // defined(SK_GANESH)
 
 #if defined(SK_GRAPHITE)
@@ -304,6 +298,18 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
                                                      std::move(targetColorSpace),
                                                      recorder,
                                                      requiredProps);
+}
+
+sk_sp<SkImage> SkImage_Base::makeTextureImage(skgpu::graphite::Recorder* recorder,
+                                              RequiredImageProperties requiredProps) const {
+    if (!recorder) {
+        return nullptr;
+    }
+    if (this->dimensions().area() <= 1) {
+        requiredProps.fMipmapped = skgpu::Mipmapped::kNo;
+    }
+
+    return as_IB(this)->onMakeTextureImage(recorder, requiredProps);
 }
 
 #endif // SK_GRAPHITE

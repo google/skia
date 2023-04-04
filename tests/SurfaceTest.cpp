@@ -38,6 +38,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
@@ -635,11 +636,15 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu,
         sk_sp<SkImage> image(surface->makeImageSnapshot());
 
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        GrBackendTexture backendTex = image->getBackendTexture(false);
+        GrBackendTexture backendTex;
+        bool ok = SkImages::GetBackendTextureFromImage(image, &backendTex, false);
+        REPORTER_ASSERT(reporter, ok);
         REPORTER_ASSERT(reporter, backendTex.isValid());
         surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        GrBackendTexture backendTex2 = image->getBackendTexture(false);
+        GrBackendTexture backendTex2;
+        ok = SkImages::GetBackendTextureFromImage(image, &backendTex2, false);
+        REPORTER_ASSERT(reporter, ok);
         REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(backendTex, backendTex2));
     }
 }

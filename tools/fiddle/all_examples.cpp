@@ -371,7 +371,7 @@ using namespace skia_private;
 #include "docs/examples/Image_DeferredFromPicture.cpp"
 #include "docs/examples/Image_Filter_Methods.cpp"
 #include "docs/examples/Image_FromBitmap.cpp"
-#include "docs/examples/Image_GetBackendTextureFromImage.cpp"
+#include "docs/examples/Image_MakeBackendTextureFromImage.cpp"
 #include "docs/examples/Image_RasterFromData.cpp"
 #include "docs/examples/Image_RasterFromPixmap.cpp"
 #include "docs/examples/Image_RasterFromPixmapCopy.cpp"
