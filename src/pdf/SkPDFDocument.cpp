@@ -132,7 +132,7 @@ static void serialize_footer(const SkPDFOffsetMap& offsetMap,
     trailerDict.emitObject(wStream);
     wStream->writeText("\nstartxref\n");
     wStream->writeBigDecAsText(xRefFileOffset);
-    wStream->writeText("\n%%EOF");
+    wStream->writeText("\n%%EOF\n");
 }
 
 static SkPDFIndirectReference generate_page_tree(
