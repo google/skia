@@ -25,7 +25,6 @@ class ShaderCodeDictionary;
     data members or virtual methods. */
 class ContextPriv {
 public:
-#if GRAPHITE_TEST_UTILS
     const Caps* caps() const { return fContext->fSharedContext->caps(); }
 
     const ShaderCodeDictionary* shaderCodeDictionary() const {
@@ -50,6 +49,7 @@ public:
         return fContext->fPlotUploadTracker.get();
     }
 
+#if GRAPHITE_TEST_UTILS
     void startCapture() {
         fContext->fQueueManager->startCapture();
     }
