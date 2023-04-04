@@ -166,9 +166,7 @@ public:
     // this determination is the draw parameters. There might be other inputs to this calculation
     // for intermediate compute stages that may not be known on the CPU. One way to address this is
     // to drive the workgroup dimensions via an indirect dispatch.
-    virtual WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const {
-        return WorkgroupSize();
-    }
+    virtual WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const;
 
     // Populates a storage buffer resource which was specified as "mapped". This method will only be
     // called once for a resource right after its allocation and before pipeline execution. For

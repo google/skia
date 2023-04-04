@@ -70,7 +70,10 @@ Builder::Builder(Recorder* recorder) : fObj(new DispatchGroup()), fRecorder(reco
     SkASSERT(fRecorder);
 }
 
-bool Builder::appendStep(const ComputeStep* step, const DrawParams& params, int ssboIndex) {
+bool Builder::appendStep(const ComputeStep* step,
+                         const DrawParams& params,
+                         int ssboIndex,
+                         std::optional<WorkgroupSize> globalSize) {
     SkASSERT(fObj);
     SkASSERT(step);
 
@@ -159,12 +162,20 @@ bool Builder::appendStep(const ComputeStep* step, const DrawParams& params, int 
     }
 
     dispatch.fPipelineIndex = fObj->fPipelineDescs.size() - 1;
-    dispatch.fParams.fGlobalDispatchSize = step->calculateGlobalDispatchSize(params);
+    dispatch.fParams.fGlobalDispatchSize =
+            globalSize ? *globalSize : step->calculateGlobalDispatchSize(params);
     dispatch.fParams.fLocalDispatchSize = step->localDispatchSize();
 
     fObj->fDispatchList.push_back(std::move(dispatch));
 
     return true;
+}
+
+void Builder::assignSharedBuffer(BindBufferInfo buffer, unsigned int slot) {
+    SkASSERT(fObj);
+    SkASSERT(buffer);
+
+    fOutputTable.fSharedSlots[slot] = buffer;
 }
 
 void Builder::assignSharedTexture(sk_sp<TextureProxy> texture, unsigned int slot) {

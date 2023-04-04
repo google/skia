@@ -128,6 +128,10 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SingleDispatchTest, reporter, contex
                 inData[i + 1] = i + 1;
             }
         }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
@@ -273,6 +277,10 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
                 inData[i + 1] = i + 1;
             }
         }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
     } step1;
 
     class TestComputeStep2 : public ComputeStep {
@@ -351,6 +359,10 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             }
             SkASSERT(r.fFlow == DataFlow::kPrivate);
             *static_cast<float*>(buffer) = kFactor2;
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
         }
     } step2;
 
@@ -543,6 +555,127 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_UniformBufferTest, reporter, context
     BindBufferInfo outputInfo = builder.getSharedBufferResource(0);
     if (!outputInfo) {
         ERRORF(reporter, "Failed to allocate an output buffer at slot 0");
+        return;
+    }
+
+    // Record the compute task
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    recorder->priv().add(SynchronizeToCpuTask::Make(sk_ref_sp(outputInfo.fBuffer)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    // Verify the contents of the output buffer.
+    float* outData = static_cast<float*>(map_bind_buffer(outputInfo));
+    SkASSERT(outputInfo.fBuffer->isMapped() && outData != nullptr);
+    for (unsigned int i = 0; i < kProblemSize; ++i) {
+        const float expected = (i + 1) * kFactor;
+        const float found = outData[i];
+        REPORTER_ASSERT(reporter, expected == found, "expected '%f', found '%f'", expected, found);
+    }
+}
+
+// TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
+// compute programs.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ExternallyAssignedBuffer, reporter, context) {
+    constexpr uint32_t kProblemSize = 512;
+    constexpr float kFactor = 4.f;
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep(
+                /*name=*/"ExternallyAssignedBuffer",
+                /*localDispatchSize=*/{kProblemSize, 1, 1},
+                /*resources=*/{
+                    // Input buffer:
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kPrivate,
+                        /*policy=*/ResourcePolicy::kMapped,
+                    },
+                    // Output buffer:
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,  // shared to allow us to access it from the
+                                                     // Builder
+                        /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
+                        /*slot=*/0,
+                    }
+                }) {}
+        ~TestComputeStep() override = default;
+
+        // A kernel that multiplies a large array of floats by a supplied factor.
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(set=0, binding=0) readonly buffer inputBlock
+                {
+                    float factor;
+                    float in_data[];
+                };
+                layout(set=0, binding=1) buffer outputBlock
+                {
+                    float out_data[];
+                };
+                void main() {
+                    out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * factor;
+                }
+            )";
+        }
+
+        size_t calculateBufferSize(const DrawParams&,
+                                   int resourceIndex,
+                                   const ResourceDesc& r) const override {
+            SkASSERT(resourceIndex == 0);
+            SkASSERT(r.fFlow == DataFlow::kPrivate);
+            return sizeof(float) * (kProblemSize + 1);
+        }
+
+        void prepareStorageBuffer(const DrawParams&,
+                                  int ssboIndex,
+                                  int resourceIndex,
+                                  const ResourceDesc& r,
+                                  void* buffer,
+                                  size_t bufferSize) const override {
+            SkASSERT(resourceIndex == 0);
+            SkASSERT(r.fFlow == DataFlow::kPrivate);
+
+            size_t dataCount = sizeof(float) * (kProblemSize + 1);
+            SkASSERT(bufferSize == dataCount);
+            SkSpan<float> inData(static_cast<float*>(buffer), dataCount);
+            inData[0] = kFactor;
+            for (unsigned int i = 0; i < kProblemSize; ++i) {
+                inData[i + 1] = i + 1;
+            }
+        }
+    } step;
+
+    // We allocate a buffer and directly assign it to the DispatchGroup::Builder. The ComputeStep
+    // will not participate in the creation of this buffer.
+    auto [_, outputInfo] =
+            recorder->priv().drawBufferManager()->getStoragePointer(sizeof(float) * kProblemSize);
+    REPORTER_ASSERT(reporter, outputInfo, "Failed to allocate output buffer");
+
+    DispatchGroup::Builder builder(recorder.get());
+    builder.assignSharedBuffer(outputInfo, 0);
+
+    // Initialize the step with a pre-determined global size
+    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0, {WorkgroupSize(1, 1, 1)})) {
+        ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
         return;
     }
 

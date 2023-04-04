@@ -122,7 +122,24 @@ public:
     // the new ComputeStep. If the ComputeStep specifies a geometry input resource, it will be
     // prompted to populate it using the draw parameters. All other resources will be assigned
     // dynamically.
-    bool appendStep(const ComputeStep*, const DrawParams&, int ssboIndex);
+    //
+    // If the global dispatch size (i.e. workgroup count) is known ahead of time it can be
+    // optionally provided here while appending a step. If provided, the ComputeStep will not
+    // receive a call to `calculateGlobalDispatchSize`.
+    bool appendStep(const ComputeStep*,
+                    const DrawParams&,
+                    int ssboIndex,
+                    std::optional<WorkgroupSize> globalSize = std::nullopt);
+
+    // Directly assign a buffer range to a shared slot. ComputeSteps that are appended after this
+    // call will use this resouce if they reference the given `slot` index. Builder will not
+    // allocate the resource internally and ComputeSteps will not receive calls to
+    // `calculateBufferSize`.
+    //
+    // If the slot is already assigned a buffer, it will be overwritten. Calling this method does
+    // not have any effect on previously appended ComputeSteps that were already bound that
+    // resource.
+    void assignSharedBuffer(BindBufferInfo buffer, unsigned int slot);
 
     // Directly assign a texture to a shared slot. ComputeSteps that are appended after this call
     // will use this resource if they reference the given `slot` index. Builder will not allocate

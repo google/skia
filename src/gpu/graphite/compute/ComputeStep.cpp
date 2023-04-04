@@ -79,25 +79,32 @@ ComputeStep::ComputeStep(std::string_view name,
 
 void ComputeStep::prepareStorageBuffer(
         const DrawParams&, int, int, const ResourceDesc&, void*, size_t) const {
-    SK_ABORT("ComputeSteps using a mapped storage buffer must override prepareStorageBuffer()");
+    SK_ABORT("ComputeSteps that initialize a mapped storage buffer must override "
+             "prepareStorageBuffer()");
 }
 
 void ComputeStep::prepareUniformBuffer(const DrawParams&,
                                        int,
                                        const ResourceDesc&,
                                        UniformManager*) const {
-    SK_ABORT("ComputeSteps using a uniform buffer must override prepareUniformBuffer()");
+    SK_ABORT("ComputeSteps that initialize a uniform buffer must override prepareUniformBuffer()");
 }
 
-size_t ComputeStep::calculateBufferSize(const DrawParams&,
-                                        int resourceIndex,
-                                        const ResourceDesc&) const {
+size_t ComputeStep::calculateBufferSize(const DrawParams&, int, const ResourceDesc&) const {
+    SK_ABORT("ComputeSteps that initialize a storage buffer must override calculateBufferSize()");
     return 0u;
 }
 
 std::tuple<SkISize, SkColorType> ComputeStep::calculateTextureParameters(
         const DrawParams&, int resourceIndex, const ResourceDesc&) const {
+    SK_ABORT("ComputeStep that initialize a texture must override calculateTextureParameters()");
     return {SkISize::MakeEmpty(), kUnknown_SkColorType};
+}
+
+WorkgroupSize ComputeStep::calculateGlobalDispatchSize(const DrawParams&) const {
+    SK_ABORT("ComputeSteps must override calculateGlobalDispatchSize() if it participates "
+             "in resource creation");
+    return WorkgroupSize();
 }
 
 }  // namespace skgpu::graphite
