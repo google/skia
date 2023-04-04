@@ -133,6 +133,9 @@ static void serialize_footer(const SkPDFOffsetMap& offsetMap,
     wStream->writeText("\nstartxref\n");
     wStream->writeBigDecAsText(xRefFileOffset);
     wStream->writeText("\n%%EOF");
+#ifndef SK_IGNORE_PDF_EOF_NEWLINE_FIX
+    wStream->writeText("\n");
+#endif
 }
 
 static SkPDFIndirectReference generate_page_tree(
