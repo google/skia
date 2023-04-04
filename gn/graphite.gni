@@ -35,7 +35,7 @@ skia_graphite_sources = [
   "$_src/ClearBuffersTask.h",
   "$_src/ClientMappedBufferManager.cpp",
   "$_src/ClientMappedBufferManager.h",
-  "$_src/ClipStack.cpp",
+  "$_src/ClipStack_graphite.cpp",
   "$_src/ClipStack_graphite.h",
   "$_src/CommandBuffer.cpp",
   "$_src/CommandBuffer.h",
