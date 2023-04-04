@@ -17,6 +17,32 @@
 
 using namespace skia_private;
 
+#ifdef SK_UNICODE_CLIENT_IMPLEMENTATION
+UNIX_ONLY_TEST(SkUnicode_Client, reporter) {
+    std::u16string text = u"\U000f2008";
+    auto utf8 = SkUnicode::convertUtf16ToUtf8(text.data(), text.size());
+    auto client = SkUnicode::MakeClientBasedUnicode
+                  (SkSpan<char>(&utf8[0], utf8.size()), {}, {}, {});
+    skia_private::TArray<SkUnicode::CodeUnitFlags, true> results;
+    client->computeCodeUnitFlags(utf8.data(), utf8.size(), false, &results);
+
+    for (auto flag : results) {
+        REPORTER_ASSERT(reporter, !SkUnicode::isPartOfWhiteSpaceBreak(flag));
+    }
+}
+#endif
+#ifdef SK_UNICODE_ICU_IMPLEMENTATION
+UNIX_ONLY_TEST(SkUnicode_Native, reporter) {
+    std::u16string text = u"\U000f2008";
+    auto utf8 = SkUnicode::convertUtf16ToUtf8(text.data(), text.size());
+    auto icu = SkUnicode::Make();
+    skia_private::TArray<SkUnicode::CodeUnitFlags, true> results;
+    icu->computeCodeUnitFlags(utf8.data(), utf8.size(), false, &results);
+    for (auto flag : results) {
+        REPORTER_ASSERT(reporter, !SkUnicode::isPartOfWhiteSpaceBreak(flag));
+    }
+}
+#endif
 UNIX_ONLY_TEST(SkUnicode_GetWords, reporter) {
     SkString text("1 22 333 4444 55555 666666 7777777");
     std::vector<SkUnicode::Position> expected = { 0, 1, 2, 4, 5, 8, 9, 13, 14, 19, 20, 26, 27, 34 };

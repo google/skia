@@ -21,6 +21,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <array>
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
 #include <unicode/uchar.h>
@@ -101,7 +102,7 @@ public:
             : fData(std::make_shared<Data>(text,
                                            std::move(words),
                                            std::move(graphemeBreaks),
-                                           std::move(lineBreaks))) {}
+                                           std::move(lineBreaks))) { }
     SkUnicode_client(const SkUnicode_client* origin)
             : fData(origin->fData) {}
 
@@ -138,63 +139,63 @@ public:
     }
 
     static bool isWhitespace(SkUnichar unichar) {
-        std::u16string whitespaces =
-       u"\u0009" // character tabulation
-        "\u000A" // line feed
-        "\u000B" // line tabulation
-        "\u000C" // form feed
-        "\u000D" // carriage return
-        "\u0020" // space
-      //"\u0085" // next line
-      //"\u00A0" // no-break space
-        "\u1680" // ogham space mark
-        "\u2000" // en quad
-        "\u2001" // em quad
-        "\u2002" // en space
-        "\u2003" // em space
-        "\u2004" // three-per-em space
-        "\u2005" // four-per-em space
-        "\u2006" // six-per-em space
-      //"\u2007" // figure space
-        "\u2008" // punctuation space
-        "\u2009" // thin space
-        "\u200A" // hair space
-        "\u2028" // line separator
-        "\u2029" // paragraph separator
-      //"\u202F" // narrow no-break space
-        "\u205F" // medium mathematical space
-        "\u3000";// ideographic space
-        return whitespaces.find(unichar) != std::u16string::npos;
+        static constexpr std::array<SkUnichar, 21> whitespaces {
+                0x0009, // character tabulation
+                0x000A, // line feed
+                0x000B, // line tabulation
+                0x000C, // form feed
+                0x000D, // carriage return
+                0x0020, // space
+              //0x0085, // next line
+              //0x00A0, // no-break space
+                0x1680, // ogham space mark
+                0x2000, // en quad
+                0x2001, // em quad
+                0x2002, // en space
+                0x2003, // em space
+                0x2004, // three-per-em space
+                0x2005, // four-per-em space
+                0x2006, // six-per-em space
+              //0x2007, // figure space
+                0x2008, // punctuation space
+                0x2009, // thin space
+                0x200A, // hair space
+                0x2028, // line separator
+                0x2029, // paragraph separator
+              //0x202F, // narrow no-break space
+                0x205F, // medium mathematical space
+                0x3000};// ideographic space
+        return std::find(whitespaces.begin(), whitespaces.end(), unichar) != whitespaces.end();
     }
 
     static bool isSpace(SkUnichar unichar) {
-        std::u16string spaces =
-       u"\u0009" // character tabulation
-        "\u000A" // line feed
-        "\u000B" // line tabulation
-        "\u000C" // form feed
-        "\u000D" // carriage return
-        "\u0020" // space
-        "\u0085" // next line
-        "\u00A0" // no-break space
-        "\u1680" // ogham space mark
-        "\u2000" // en quad
-        "\u2001" // em quad
-        "\u2002" // en space
-        "\u2003" // em space
-        "\u2004" // three-per-em space
-        "\u2005" // four-per-em space
-        "\u2006" // six-per-em space
-        "\u2007" // figure space
-        "\u2008" // punctuation space
-        "\u2009" // thin space
-        "\u200A" // hair space
-        "\u2028" // line separator
-        "\u2029" // paragraph separator
-        "\u202F" // narrow no-break space
-        "\u205F" // medium mathematical space
-        "\u3000"; // ideographic space
-        return spaces.find(unichar) != std::u16string::npos;
+        static constexpr std::array<SkUnichar, 25> spaces {
+                0x0009, // character tabulation
+                0x000A, // line feed
+                0x000B, // line tabulation
+                0x000C, // form feed
+                0x000D, // carriage return
+                0x0020, // space
+                0x0085, // next line
+                0x00A0, // no-break space
+                0x1680, // ogham space mark
+                0x2000, // en quad
+                0x2001, // em quad
+                0x2002, // en space
+                0x2003, // em space
+                0x2004, // three-per-em space
+                0x2005, // four-per-em space
+                0x2006, // six-per-em space
+                0x2007, // figure space
+                0x2008, // punctuation space
+                0x2009, // thin space
+                0x200A, // hair space
+                0x2028, // line separator
+                0x2029, // paragraph separator
+                0x202F, // narrow no-break space
+                0x205F, // medium mathematical space
+                0x3000}; // ideographic space
+        return std::find(spaces.begin(), spaces.end(), unichar) != spaces.end();
     }
 
     static bool isTabulation(SkUnichar utf8) {
