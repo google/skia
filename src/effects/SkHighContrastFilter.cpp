@@ -54,19 +54,20 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
                                     ": d / (l > 0.5 ? 2.0 - sum : sum);"
                 "return half3(h,s,l);"
             "}"
-            "half4 main(half4 c) {"
+            "half4 main(half4 inColor) {"
+                "half3 c = inColor.rgb;"
                 "if (grayscale == 1) {"
-                    "c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;"
+                    "c = dot(half3(0.2126, 0.7152, 0.0722), c).rrr;"
                 "}"
                 "if (invertStyle == 1) {"  // brightness
-                    "c.rgb = 1 - c.rgb;"
+                    "c = 1 - c;"
                 "} else if (invertStyle == 2) {"  // lightness
-                    "c.rgb = rgb_to_hsl(c.rgb);"
+                    "c = rgb_to_hsl(c);"
                     "c.b = 1 - c.b;"
-                    "c.rgb = $hsl_to_rgb(c.rgb);"
+                    "c = $hsl_to_rgb(c);"
                 "}"
-                "c.rgb = mix(half3(0.5), c.rgb, contrast);"
-                "return half4(saturate(c.rgb), c.a);"
+                "c = mix(half3(0.5), c, contrast);"
+                "return half4(saturate(c), inColor.a);"
             "}";
 
     static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(

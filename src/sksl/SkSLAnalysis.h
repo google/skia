@@ -73,7 +73,7 @@ bool ReturnsOpaqueColor(const FunctionDefinition& function);
  * unchanged. This is a very conservative analysis, and only supports returning a swizzle of the
  * input color, or returning a constructor that ends with `input.a`.
  */
-bool ReturnsInputAlpha(const FunctionDefinition& function);
+bool ReturnsInputAlpha(const FunctionDefinition& function, const ProgramUsage& usage);
 
 /**
  * Checks for recursion or overly-deep function-call chains, and rejects programs which have them.

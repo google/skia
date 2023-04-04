@@ -980,7 +980,8 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
 
     // This is very conservative, and only returns true when the input alpha is returned as-is
     // from main() with no intervening copies or arithmetic.
-    bool alphaUnchanged = SkSL::Analysis::ReturnsInputAlpha(effect->fMain);
+    bool alphaUnchanged = SkSL::Analysis::ReturnsInputAlpha(effect->fMain,
+                                                            *effect->fBaseProgram->usage());
 
     // We'll use this program to filter one color at a time, don't bother with jit
     return std::unique_ptr<SkFilterColorProgram>(

@@ -11,6 +11,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
@@ -34,7 +35,7 @@ namespace {
 
 class ReturnsInputAlphaVisitor : public ProgramVisitor {
 public:
-    ReturnsInputAlphaVisitor() = default;
+    ReturnsInputAlphaVisitor(const ProgramUsage& u) : fUsage(u) {}
 
     bool visitProgramElement(const ProgramElement& pe) override {
         const FunctionDeclaration& decl = pe.as<FunctionDefinition>().declaration();
@@ -48,6 +49,13 @@ public:
             return true;
         }
         fInputVar = parameters[0];
+
+        // If the input variable has been written-to, then returning `input.a` isn't sufficient to
+        // guarantee that alpha is preserved.
+        ProgramUsage::VariableCounts counts = fUsage.get(*fInputVar);
+        if (counts.fWrite != 0) {
+            return true;
+        }
 
         return INHERITED::visitProgramElement(pe);
     }
@@ -106,6 +114,7 @@ public:
     }
 
 private:
+    const ProgramUsage& fUsage;
     const Variable* fInputVar;
 
     using INHERITED = ProgramVisitor;
@@ -113,8 +122,8 @@ private:
 
 }  // namespace
 
-bool Analysis::ReturnsInputAlpha(const FunctionDefinition& function) {
-    ReturnsInputAlphaVisitor visitor;
+bool Analysis::ReturnsInputAlpha(const FunctionDefinition& function, const ProgramUsage& usage) {
+    ReturnsInputAlphaVisitor visitor{usage};
     return !visitor.visitProgramElement(function);
 }
 

@@ -1406,6 +1406,9 @@ DEF_TEST(SkRuntimeColorFilterFlags, r) {
     expectAlphaUnchanged("half4 main(half4 color) { return color.a == color.r ? color.rrra : "
                                                           "color.g == color.b ? color.ggga : "
                                                                             "   color.bbba; }");
+    // Modifying the input color invalidates the check.
+    expectAlphaChanged("half4 main(half4 color) { color.a = 0; return color; }");
+
     // These swizzles don't end in alpha.
     expectAlphaChanged("half4 main(half4 color) { return color.argb; }");
     expectAlphaChanged("half4 main(half4 color) { return color.rrrr; }");
