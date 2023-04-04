@@ -1495,6 +1495,7 @@ BASE_SRCS_ALL = [
     "src/sksl/analysis/SkSLProgramUsage.cpp",
     "src/sksl/analysis/SkSLProgramUsage.h",
     "src/sksl/analysis/SkSLProgramVisitor.h",
+    "src/sksl/analysis/SkSLReturnsInputAlpha.cpp",
     "src/sksl/analysis/SkSLSwitchCaseContainsExit.cpp",
     "src/sksl/analysis/SkSLSymbolTableStackBuilder.cpp",
     "src/sksl/codegen/SkSLCodeGenerator.h",

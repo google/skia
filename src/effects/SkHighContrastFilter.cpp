@@ -54,8 +54,7 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
                                     ": d / (l > 0.5 ? 2.0 - sum : sum);"
                 "return half3(h,s,l);"
             "}"
-            "half4 main(half4 inColor) {"
-                "half4 c = inColor;"  // linear unpremul RGBA in dst gamut
+            "half4 main(half4 c) {"
                 "if (grayscale == 1) {"
                     "c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;"
                 "}"

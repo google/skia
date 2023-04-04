@@ -69,6 +69,13 @@ bool CallsColorTransformIntrinsics(const Program& program);
 bool ReturnsOpaqueColor(const FunctionDefinition& function);
 
 /**
+ * Determines if `function` is a color filter which returns the alpha component of the input color
+ * unchanged. This is a very conservative analysis, and only supports returning a swizzle of the
+ * input color, or returning a constructor that ends with `input.a`.
+ */
+bool ReturnsInputAlpha(const FunctionDefinition& function);
+
+/**
  * Checks for recursion or overly-deep function-call chains, and rejects programs which have them.
  * Also, computes the size of the program in a completely flattened state--loops fully unrolled,
  * function calls inlined--and rejects programs that exceed an arbitrary upper bound. This is

@@ -1376,21 +1376,56 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeStructNameReuse_GPU,
 }
 
 DEF_TEST(SkRuntimeColorFilterFlags, r) {
-    {   // Here's a non-trivial filter that doesn't change alpha.
-        auto [effect, err] = SkRuntimeEffect::MakeForColorFilter(SkString{
-                "half4 main(half4 color) { return color + half4(1,1,1,0); }"});
-        REPORTER_ASSERT(r, effect && err.isEmpty());
+    auto expectAlphaUnchanged = [&](const char* shader) {
+        auto [effect, err] = SkRuntimeEffect::MakeForColorFilter(SkString{shader});
+        REPORTER_ASSERT(r, effect && err.isEmpty(), "%s", shader);
         sk_sp<SkColorFilter> filter = effect->makeColorFilter(SkData::MakeEmpty());
-        REPORTER_ASSERT(r, filter && filter->isAlphaUnchanged());
-    }
+        REPORTER_ASSERT(r, filter && filter->isAlphaUnchanged(), "%s", shader);
+    };
 
-    {  // Here's one that definitely changes alpha.
-        auto [effect, err] = SkRuntimeEffect::MakeForColorFilter(SkString{
-                "half4 main(half4 color) { return color + half4(0,0,0,4); }"});
-        REPORTER_ASSERT(r, effect && err.isEmpty());
+    auto expectAlphaChanged = [&](const char* shader) {
+        auto [effect, err] = SkRuntimeEffect::MakeForColorFilter(SkString{shader});
+        REPORTER_ASSERT(r, effect && err.isEmpty(), "%s", shader);
         sk_sp<SkColorFilter> filter = effect->makeColorFilter(SkData::MakeEmpty());
-        REPORTER_ASSERT(r, filter && !filter->isAlphaUnchanged());
-    }
+        REPORTER_ASSERT(r, filter && !filter->isAlphaUnchanged(), "%s", shader);
+    };
+
+    // We expect these patterns to be detected as alpha-unchanged.
+    expectAlphaUnchanged("half4 main(half4 color) { return color; }");
+    expectAlphaUnchanged("half4 main(half4 color) { return color.aaaa; }");
+    expectAlphaUnchanged("half4 main(half4 color) { return color.bgra; }");
+    expectAlphaUnchanged("half4 main(half4 color) { return color.rraa; }");
+    expectAlphaUnchanged("half4 main(half4 color) { return color.010a; }");
+    expectAlphaUnchanged("half4 main(half4 color) { return half4(0, 0, 0, color.a); }");
+    expectAlphaUnchanged("half4 main(half4 color) { return half4(half2(1), color.ba); }");
+    expectAlphaUnchanged("half4 main(half4 color) { return half4(half2(1), half2(color.a)); }");
+    expectAlphaUnchanged("half4 main(half4 color) { return half4(color.a); }");
+    expectAlphaUnchanged("half4 main(half4 color) { return half4(float4(color.baba)); }");
+
+    // These swizzles don't end in alpha.
+    expectAlphaChanged("half4 main(half4 color) { return color.argb; }");
+    expectAlphaChanged("half4 main(half4 color) { return color.rrrr; }");
+
+    // This compound constructor doesn't end in alpha.
+    expectAlphaChanged("half4 main(half4 color) { return half4(1, 1, 1, color.r); }");
+
+    // This splat constructor doesn't use alpha.
+    expectAlphaChanged("half4 main(half4 color) { return half4(color.r); }");
+
+    // Performing arithmetic on the input causes it to report as "alpha changed" even if the
+    // arithmetic is a no-op; we aren't smart enough to see through it.
+    expectAlphaChanged("half4 main(half4 color) { return color + half4(1,1,1,0); }");
+    expectAlphaChanged("half4 main(half4 color) { return color + half4(0,0,0,4); }");
+
+    // All exit paths are checked.
+    expectAlphaChanged("half4 main(half4 color) { "
+                       "    if (color.r > 0.5) { return color; }"
+                       "    return half4(0);"
+                       "}");
+    expectAlphaChanged("half4 main(half4 color) { "
+                       "    if (color.r > 0.5) { return half4(0); }"
+                       "    return color;"
+                       "}");
 }
 
 DEF_TEST(SkRuntimeShaderSampleCoords, r) {

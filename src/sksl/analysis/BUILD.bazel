@@ -20,6 +20,7 @@ ANALYSIS_FILES = [
     "SkSLProgramUsage.cpp",
     "SkSLProgramUsage.h",
     "SkSLProgramVisitor.h",
+    "SkSLReturnsInputAlpha.cpp",
     "SkSLSwitchCaseContainsExit.cpp",
     "SkSLSymbolTableStackBuilder.cpp",
 ]
