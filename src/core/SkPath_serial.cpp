@@ -11,6 +11,7 @@
 #include "include/private/base/SkPathEnums.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/base/SkBuffer.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkPathPriv.h"
@@ -242,71 +243,20 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
         return 0;
     }
 
-    if (!verbsAreReversed) {
-        SkPathVerbAnalysis analysis = sk_path_analyze_verbs(verbs, vbs);
-        if (!analysis.valid || analysis.points != pts || analysis.weights != cnx) {
-            return 0;
+    SkAutoMalloc reversedStorage;
+    if (verbsAreReversed) {
+      uint8_t* tmpVerbs = (uint8_t*)reversedStorage.reset(vbs);
+        for (int i = 0; i < vbs; ++i) {
+            tmpVerbs[i] = verbs[vbs - i - 1];
         }
-        *this = SkPathPriv::MakePath(analysis, points, verbs, vbs, conics,
-                                     extract_filltype(packed), false);
-        return buffer.pos();
+        verbs = tmpVerbs;
     }
 
-#define CHECK_POINTS_CONICS(p, c)       \
-    do {                                \
-        if (p && ((pts -= p) < 0)) {    \
-            return 0;                   \
-        }                               \
-        if (c && ((cnx -= c) < 0)) {    \
-            return 0;                   \
-        }                               \
-    } while (0)
-
-    SkPath tmp;
-    tmp.setFillType(extract_filltype(packed));
-    {
-      // Reserve the exact number of verbs and points needed.
-      SkPathRef::Editor(&tmp.fPathRef, vbs, pts);
+    SkPathVerbAnalysis analysis = sk_path_analyze_verbs(verbs, vbs);
+    if (!analysis.valid || analysis.points != pts || analysis.weights != cnx) {
+        return 0;
     }
-
-    SkASSERT(vbs > 0);
-    for (const uint8_t* verbsPtr = verbs + vbs - 1; verbsPtr != verbs; --verbsPtr) {
-        switch (*verbsPtr) {
-            case kMove_Verb:
-                CHECK_POINTS_CONICS(1, 0);
-                tmp.moveTo(*points++);
-                break;
-            case kLine_Verb:
-                CHECK_POINTS_CONICS(1, 0);
-                tmp.lineTo(*points++);
-                break;
-            case kQuad_Verb:
-                CHECK_POINTS_CONICS(2, 0);
-                tmp.quadTo(points[0], points[1]);
-                points += 2;
-                break;
-            case kConic_Verb:
-                CHECK_POINTS_CONICS(2, 1);
-                tmp.conicTo(points[0], points[1], *conics++);
-                points += 2;
-                break;
-            case kCubic_Verb:
-                CHECK_POINTS_CONICS(3, 0);
-                tmp.cubicTo(points[0], points[1], points[2]);
-                points += 3;
-                break;
-            case kClose_Verb:
-                tmp.close();
-                break;
-            default:
-                return 0;   // bad verb
-        }
-    }
-#undef CHECK_POINTS_CONICS
-    if (pts || cnx) {
-        return 0;   // leftover points and/or conics
-    }
-
-    *this = std::move(tmp);
+    *this = SkPathPriv::MakePath(analysis, points, verbs, vbs, conics,
+                                 extract_filltype(packed), false);
     return buffer.pos();
 }
