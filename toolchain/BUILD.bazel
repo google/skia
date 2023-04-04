@@ -122,7 +122,7 @@ filegroup(
 filegroup(
     name = "link_linux_amd64_files",
     srcs = [
-        # Bazel assumes it is talking to Clang when linking.
+        # Bazel usually assumes it is talking to Clang when linking.
         "linux_trampolines/clang_trampoline_linux.sh",
         "@clang_linux_amd64//:link_files",
     ],
@@ -152,6 +152,24 @@ filegroup(
     ],
 )
 
+filegroup(
+    name = "all_linux_amd64_files",
+    srcs = [
+        ":archive_linux_amd64_files",
+        ":compile_linux_amd64_files",
+        ":link_linux_amd64_files",
+    ],
+)
+
+filegroup(
+    name = "all_mac_files",
+    srcs = [
+        ":archive_mac_files",
+        ":compile_mac_files",
+        ":link_mac_files",
+    ],
+)
+
 provide_linux_amd64_toolchain_config(
     name = "linux_amd64_toolchain_config",
 )
@@ -163,7 +181,9 @@ provide_mac_toolchain_config(
 # https://bazel.build/reference/be/c-cpp#cc_toolchain
 cc_toolchain(
     name = "linux_amd64_host",
-    all_files = ":not_implemented",
+    # Use by the rust toolchain when linking
+    # https://github.com/bazelbuild/rules_rust/blob/dab425760656c449d3a0f73c490be92c240b6ef2/rust/private/rustc.bzl#L627
+    all_files = ":all_linux_amd64_files",
     ar_files = ":archive_linux_amd64_files",
     compiler_files = ":compile_linux_amd64_files",
     dwp_files = ":not_implemented",
@@ -177,7 +197,7 @@ cc_toolchain(
 
 cc_toolchain(
     name = "mac_host",
-    all_files = ":compile_mac_files",  # Apparently also used to compile objc code
+    all_files = ":all_mac_files",  # Apparently also used to compile objc code
     ar_files = ":archive_mac_files",
     compiler_files = ":compile_mac_files",
     dwp_files = ":not_implemented",

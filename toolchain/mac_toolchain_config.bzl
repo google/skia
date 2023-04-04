@@ -113,7 +113,6 @@ def _make_action_configs():
 
     # https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=435;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
     clang_tool = tool(path = "mac_trampolines/clang_trampoline_mac.sh")
-    lld_tool = tool(path = "mac_trampolines/lld_trampoline_mac.sh")
     ar_tool = tool(path = "mac_trampolines/ar_trampoline_mac.sh")
 
     # https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=488;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
@@ -148,7 +147,7 @@ def _make_action_configs():
 
     cpp_link_dynamic_library_action = action_config(
         action_name = ACTION_NAMES.cpp_link_dynamic_library,
-        tools = [lld_tool],
+        tools = [clang_tool],
     )
     cpp_link_executable_action = action_config(
         action_name = ACTION_NAMES.cpp_link_executable,
@@ -158,7 +157,7 @@ def _make_action_configs():
     )
     cpp_link_nodeps_dynamic_library_action = action_config(
         action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-        tools = [lld_tool],
+        tools = [clang_tool],
     )
 
     # objc archiver and cpp archiver actions use the same base flags
@@ -331,7 +330,11 @@ def _make_default_flags():
     )
 
     link_exe_flags = flag_set(
-        actions = [ACTION_NAMES.cpp_link_executable],
+        actions = [
+            ACTION_NAMES.cpp_link_executable,
+            ACTION_NAMES.cpp_link_dynamic_library,
+            ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        ],
         flag_groups = [
             flag_group(
                 flags = [
@@ -344,11 +347,11 @@ def _make_default_flags():
                     "-Wl,-syslibroot",
                     XCODE_MACSDK_SYMLINK,
                     "-fuse-ld=lld",
-                    # We chose to use the llvm runtime, not the gcc one because it is already
-                    # included in the clang binary
-                    "--rtlib=compiler-rt",
                     "-std=c++17",
-                    "-lstdc++",
+                    "-stdlib=libc++",
+                    EXTERNAL_TOOLCHAIN + "/lib/libc++.a",
+                    EXTERNAL_TOOLCHAIN + "/lib/libc++abi.a",
+                    EXTERNAL_TOOLCHAIN + "/lib/libunwind.a",
                 ],
             ),
         ],
@@ -442,7 +445,7 @@ def _make_target_specific_flags(ctx):
         flag_groups = [
             flag_group(
                 flags = [
-                    "--target=arm64-apple-macos11",
+                    "--target=arm64-apple-macos12",
                 ],
             ),
         ],
@@ -461,7 +464,7 @@ def _make_target_specific_flags(ctx):
         flag_groups = [
             flag_group(
                 flags = [
-                    "--target=x86_64-apple-macos11",
+                    "--target=x86_64-apple-macos12",
                 ],
             ),
         ],

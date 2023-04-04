@@ -82,7 +82,6 @@ def _make_action_configs():
 
     # https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=435;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
     clang_tool = tool(path = "linux_trampolines/clang_trampoline_linux.sh")
-    lld_tool = tool(path = "linux_trampolines/lld_trampoline_linux.sh")
     ar_tool = tool(path = "linux_trampolines/ar_trampoline_linux.sh")
 
     # https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=488;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
@@ -109,7 +108,7 @@ def _make_action_configs():
 
     cpp_link_dynamic_library_action = action_config(
         action_name = ACTION_NAMES.cpp_link_dynamic_library,
-        tools = [lld_tool],
+        tools = [clang_tool],
     )
     cpp_link_executable_action = action_config(
         action_name = ACTION_NAMES.cpp_link_executable,
@@ -119,7 +118,7 @@ def _make_action_configs():
     )
     cpp_link_nodeps_dynamic_library_action = action_config(
         action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-        tools = [lld_tool],
+        tools = [clang_tool],
     )
 
     # This is the same rule as
@@ -251,7 +250,11 @@ def _make_default_flags():
     )
 
     link_exe_flags = flag_set(
-        actions = [ACTION_NAMES.cpp_link_executable],
+        actions = [
+            ACTION_NAMES.cpp_link_executable,
+            ACTION_NAMES.cpp_link_dynamic_library,
+            ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        ],
         flag_groups = [
             flag_group(
                 flags = [

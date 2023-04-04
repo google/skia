@@ -1,0 +1,23 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_rust//rust:defs.bzl", "rust_library")
+
+rust_library(
+    name = "cxx",
+    srcs = glob(["src/**/*.rs"]),
+    crate_features = [
+        "alloc",
+        "std",
+    ],
+    edition = "2018",
+    proc_macro_deps = [
+        "@cxx_deps//:cxxbridge-macro",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [":core-lib"],
+)
+
+cc_library(
+    name = "core-lib",
+    srcs = ["src/cxx.cc"],
+    hdrs = ["include/cxx.h"],
+)
