@@ -154,8 +154,6 @@ public:
 
     void compact(AtlasToken startTokenForNextFlush);
 
-    void evictAllPlots();
-
     uint32_t maxPages() const {
         return fMaxPages;
     }

@@ -69,14 +69,6 @@ public:
 
     bool recordUploads(UploadList*, bool useCachedUploads);
 
-    void evictAtlases() {
-        for (int i = 0; i < kMaskFormatCount; ++i) {
-            if (fAtlases[i]) {
-                fAtlases[i]->evictAllPlots();
-            }
-        }
-    }
-
     // Some clients may wish to verify the integrity of the texture backing store of the
     // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
     // changes every time something is removed from the texture backing store.
