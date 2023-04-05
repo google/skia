@@ -42,6 +42,8 @@ using SkDeserialPictureProc = sk_sp<SkPicture> (*)(const void* data, size_t leng
  *  Called with the encoded form of an image. The proc can return an image object, or if it
  *  returns nullptr, then Skia will take its default action to try to create an image from the data.
  *
+ *  This will also be used to decode the internal mipmap layers that are saved on some images.
+ *
  *  Note that unlike SkDeserialPictureProc and SkDeserialTypefaceProc, return nullptr from this
  *  does not indicate failure, but is a signal for Skia to take its default action.
  */

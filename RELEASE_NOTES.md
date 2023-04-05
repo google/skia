@@ -18,6 +18,8 @@ Milestone 114
     `GrDirectContext::flush()` and `GrDirectContext::flushAndSubmit()` in `SkImageGanesh.h`.
   * `SkSurfaceProperties::kAlwaysDither_Flag` added to globally enable dithering for a specific
     `SkSurface` target.
+  * `SkSerialImageProc` and `SkDeserialImageProc` are now also used to encode/decode the SkMipmap
+    layers of certain SkImages.
 
 * * *
 
