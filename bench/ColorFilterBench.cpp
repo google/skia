@@ -16,6 +16,8 @@
 #include "src/core/SkColorFilterPriv.h"
 #include "tools/Resources.h"
 
+#include <functional>
+
 static constexpr char kRuntimeNone_GPU_SRC[] = R"(
     half4 main(half4 inColor) { return inColor; }
 )";
@@ -233,21 +235,17 @@ DEF_BENCH( return new ColorFilterBench("matrix_runtime", []() {
 
 class FilterColorBench final : public Benchmark {
 public:
-    explicit FilterColorBench() {}
+    explicit FilterColorBench(const char* name, std::function<sk_sp<SkColorFilter>()> f)
+            : fName(name)
+            , fFilterFn(std::move(f)) {}
 
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
 private:
-    const char* onGetName() override { return "matrix_filterColor4f"; }
+    const char* onGetName() override { return fName; }
 
     void onDelayedSetup() override {
-        SkScalar colorMatrix[20] = {
-            0.9f, 0.9f, 0.9f, 0.9f, 0.9f,
-            0.9f, 0.9f, 0.9f, 0.9f, 0.9f,
-            0.9f, 0.9f, 0.9f, 0.9f, 0.9f,
-            0.9f, 0.9f, 0.9f, 0.9f, 0.9f
-        };
-        fColorFilter = SkColorFilters::Matrix(colorMatrix);
+        fColorFilter = fFilterFn();
     }
 
     void onDraw(int loops, SkCanvas*) override {
@@ -258,7 +256,10 @@ private:
         }
     }
 
+    const char* fName;
+    std::function<sk_sp<SkColorFilter>()> fFilterFn;
     sk_sp<SkColorFilter> fColorFilter;
 };
 
-DEF_BENCH( return new FilterColorBench(); )
+DEF_BENCH( return new FilterColorBench("matrix_filtercolor4f", &make_grayscale); )
+DEF_BENCH( return new FilterColorBench("runtime_filtercolor4f", &make_grayscale_rt); )
