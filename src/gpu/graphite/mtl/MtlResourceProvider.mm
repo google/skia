@@ -172,31 +172,42 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
 
 sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
         const ComputePipelineDesc& pipelineDesc) {
-    std::string msl;
-    SkSL::Program::Inputs inputs;
-    SkSL::ProgramSettings settings;
-
-    auto skslCompiler = this->skslCompiler();
+    sk_cfp<id<MTLLibrary>> library;
+    std::string entryPointName;
     ShaderErrorHandler* errorHandler = fSharedContext->caps()->shaderErrorHandler();
+    if (pipelineDesc.computeStep()->supportsNativeShader()) {
+        auto nativeShader = pipelineDesc.computeStep()->nativeShaderSource(
+                ComputeStep::NativeShaderFormat::kMSL);
+        library =
+                MtlCompileShaderLibrary(this->mtlSharedContext(),
+                                        {reinterpret_cast<const char*>(nativeShader.fSource.data()),
+                                         nativeShader.fSource.size()},
+                                        errorHandler);
+        entryPointName = std::move(nativeShader.fEntryPoint);
+    } else {
+        std::string msl;
+        SkSL::Program::Inputs inputs;
+        SkSL::ProgramSettings settings;
 
-    auto computeSkSL = pipelineDesc.computeStep()->computeSkSL(
-            fSharedContext->caps()->resourceBindingRequirements(),
-            /*nextBindingIndex=*/0);
-    if (!SkSLToMSL(skslCompiler,
-                   computeSkSL,
-                   SkSL::ProgramKind::kCompute,
-                   settings,
-                   &msl,
-                   &inputs,
-                   errorHandler)) {
-        return nullptr;
+        auto skslCompiler = this->skslCompiler();
+        auto computeSkSL = pipelineDesc.computeStep()->computeSkSL(
+                fSharedContext->caps()->resourceBindingRequirements(),
+                /*nextBindingIndex=*/0);
+        if (!SkSLToMSL(skslCompiler,
+                       computeSkSL,
+                       SkSL::ProgramKind::kCompute,
+                       settings,
+                       &msl,
+                       &inputs,
+                       errorHandler)) {
+            return nullptr;
+        }
+        library = MtlCompileShaderLibrary(this->mtlSharedContext(), msl, errorHandler);
+        entryPointName = "computeMain";
     }
-
-    auto library = MtlCompileShaderLibrary(this->mtlSharedContext(), msl, errorHandler);
-
     return MtlComputePipeline::Make(this->mtlSharedContext(),
                                     pipelineDesc.computeStep()->name(),
-                                    {library.get(), "computeMain"});
+                                    {library.get(), std::move(entryPointName)});
 }
 
 sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,

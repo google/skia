@@ -1492,3 +1492,126 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ClearedBuffer, reporter, context) {
         REPORTER_ASSERT(reporter, 0u == found, "expected '0u', found '%u'", found);
     }
 }
+
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    constexpr uint32_t kWorkgroupCount = 32;
+    constexpr uint32_t kWorkgroupSize = 1024;
+
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep(
+                /*name=*/"TestAtomicOperationsMetal",
+                /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kMapped,
+                        /*slot=*/0,
+                    }
+                },
+                /*baseFlags=*/Flags::kSupportsNativeShader) {}
+        ~TestComputeStep() override = default;
+
+        NativeShaderSource nativeShaderSource(NativeShaderFormat format) const override {
+            SkASSERT(format == NativeShaderFormat::kMSL);
+            static constexpr std::string_view kSource = R"(
+                #include <metal_stdlib>
+
+                using namespace metal;
+
+                kernel void atomicCount(uint3 localId [[thread_position_in_threadgroup]],
+                                        device atomic_uint& globalCounter [[buffer(0)]]) {
+                    threadgroup atomic_uint localCounter;
+
+                    // Initialize the local counter.
+                    if (localId.x == 0u) {
+                        atomic_store_explicit(&localCounter, 0u, memory_order_relaxed);
+                    }
+
+                    // Synchronize the threads in the workgroup so they all see the initial value.
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+                    // All threads increment the counter.
+                    atomic_fetch_add_explicit(&localCounter, 1u, memory_order_relaxed);
+
+                    // Synchronize the threads again to ensure they have all executed the increment
+                    // and the following load reads the same value across all threads in the
+                    // workgroup.
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+                    // Add the workgroup-only tally to the global counter.
+                    if (localId.x == 0u) {
+                        uint tally = atomic_load_explicit(&localCounter, memory_order_relaxed);
+                        atomic_fetch_add_explicit(&globalCounter, tally, memory_order_relaxed);
+                    }
+                }
+            )";
+            return {SkSpan(reinterpret_cast<const uint8_t*>(kSource.data()), kSource.length()),
+                    "atomicCount"};
+        }
+
+        size_t calculateBufferSize(const DrawParams&,
+                                   int index,
+                                   const ResourceDesc& r) const override {
+            SkASSERT(index == 0);
+            SkASSERT(r.fSlot == 0);
+            SkASSERT(r.fFlow == DataFlow::kShared);
+            return sizeof(uint32_t);
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(kWorkgroupCount, 1, 1);
+        }
+
+        void prepareStorageBuffer(const DrawParams&,
+                                  int ssboIndex,
+                                  int resourceIndex,
+                                  const ResourceDesc& r,
+                                  void* buffer,
+                                  size_t bufferSize) const override {
+            SkASSERT(resourceIndex == 0);
+            *static_cast<uint32_t*>(buffer) = 0;
+        }
+    } step;
+
+    DispatchGroup::Builder builder(recorder.get());
+    builder.appendStep(&step, fake_draw_params_for_testing(), 0);
+
+    BindBufferInfo info = builder.getSharedBufferResource(0);
+    if (!info) {
+        ERRORF(reporter, "shared resource at slot 0 is missing");
+        return;
+    }
+
+    // Record the compute pass task.
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    recorder->priv().add(SynchronizeToCpuTask::Make(sk_ref_sp(info.fBuffer)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    // Verify the contents of the output buffer.
+    constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize;
+    const uint32_t result = static_cast<const uint32_t*>(map_bind_buffer(info))[0];
+    REPORTER_ASSERT(reporter,
+                    result == kExpectedCount,
+                    "expected '%d', found '%d'",
+                    kExpectedCount,
+                    result);
+}

@@ -130,11 +130,28 @@ public:
 
     virtual ~ComputeStep() = default;
 
-    // Returns a complete SkSL compute program. The returned SkSL must declare all resoure bindings
-    // starting at `nextBindingIndex` in the order in which they are enumerated by
-    // `ComputeStep::resources()`.
-    virtual std::string computeSkSL(const ResourceBindingRequirements&,
-                                    int nextBindingIndex) const = 0;
+    // Returns a complete SkSL compute program. The returned SkSL must constitute a complete compute
+    // program and declare all resource bindings starting at `nextBindingIndex` in the order in
+    // which they are enumerated by `ComputeStep::resources()`.
+    //
+    // If this ComputeStep supports native shader source then it must override
+    // `nativeShaderSource()` instead.
+    virtual std::string computeSkSL(const ResourceBindingRequirements&, int nextBindingIndex) const;
+
+    // A ComputeStep that supports native shader source then then it must implement
+    // `nativeShaderSource()` and return the shader source in the requested format. This is intended
+    // to instantiate a compute pipeline from a pre-compiled shader module. The returned source must
+    // constitute a shader module that contains at least one compute entry-point function that
+    // matches the specified name.
+    enum class NativeShaderFormat {
+        kWGSL,
+        kMSL,
+    };
+    struct NativeShaderSource {
+        SkSpan<const uint8_t> fSource;
+        std::string fEntryPoint;
+    };
+    virtual NativeShaderSource nativeShaderSource(NativeShaderFormat) const;
 
     // This method will be called for buffer entries in the ComputeStep's resource list to
     // determine the required allocation size. The ComputeStep must return a non-zero value.
@@ -214,6 +231,8 @@ public:
     // other backends, this value will be baked into the pipeline.
     WorkgroupSize localDispatchSize() const { return fLocalDispatchSize; }
 
+    bool supportsNativeShader() const { return fFlags & Flags::kSupportsNativeShader; }
+
     // Data flow behavior queries:
     bool outputsVertices() const { return fFlags & Flags::kOutputsVertexBuffer; }
     bool outputsIndices() const { return fFlags & Flags::kOutputsIndexBuffer; }
@@ -221,20 +240,22 @@ public:
     bool writesIndirectDraw() const { return fFlags & Flags::kOutputsIndirectDrawBuffer; }
 
 protected:
-    ComputeStep(std::string_view name,
-                WorkgroupSize localDispatchSize,
-                SkSpan<const ResourceDesc> resources);
-
-private:
     enum class Flags : uint8_t {
-        kNone                      = 0b0000,
-        kOutputsVertexBuffer       = 0b0001,
-        kOutputsIndexBuffer        = 0b0010,
-        kOutputsInstanceBuffer     = 0b0100,
-        kOutputsIndirectDrawBuffer = 0b1000,
+        kNone                      = 0b00000,
+        kOutputsVertexBuffer       = 0b00001,
+        kOutputsIndexBuffer        = 0b00010,
+        kOutputsInstanceBuffer     = 0b00100,
+        kOutputsIndirectDrawBuffer = 0b01000,
+        kSupportsNativeShader      = 0b10000,
     };
     SK_DECL_BITMASK_OPS_FRIENDS(Flags);
 
+    ComputeStep(std::string_view name,
+                WorkgroupSize localDispatchSize,
+                SkSpan<const ResourceDesc> resources,
+                Flags baseFlags = Flags::kNone);
+
+private:
     // Disallow copy and move
     ComputeStep(const ComputeStep&) = delete;
     ComputeStep(ComputeStep&&)      = delete;

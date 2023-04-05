@@ -57,10 +57,10 @@ MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mas
 }
 
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
-                                               const std::string& msl,
+                                               std::string_view msl,
                                                ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
-    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
+    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.data())
                                                         length:msl.size()
                                                       encoding:NSUTF8StringEncoding
                                                   freeWhenDone:NO];
@@ -85,7 +85,8 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
                                                   options:options
                                                     error:&error]);
     if (!compiledLibrary) {
-        errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
+        std::string mslStr(msl);
+        errorHandler->compileError(mslStr.c_str(), error.debugDescription.UTF8String);
         return nil;
     }
 

@@ -11,6 +11,8 @@
 #include "include/ports/SkCFObject.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
+#include <string_view>
+
 #import <Metal/Metal.h>
 
 namespace skgpu {
@@ -23,7 +25,7 @@ class MtlSharedContext;
 MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
 
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
-                                               const std::string& msl,
+                                               std::string_view msl,
                                                ShaderErrorHandler* errorHandler);
 } // namespace skgpu::graphite
 

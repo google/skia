@@ -27,9 +27,10 @@ static uint32_t next_id() {
 
 ComputeStep::ComputeStep(std::string_view name,
                          WorkgroupSize localDispatchSize,
-                         SkSpan<const ResourceDesc> resources)
+                         SkSpan<const ResourceDesc> resources,
+                         Flags baseFlags)
         : fUniqueID(next_id())
-        , fFlags(Flags::kNone)
+        , fFlags(baseFlags)
         , fName(name)
         , fResources(resources.begin(), resources.end())
         , fLocalDispatchSize(localDispatchSize) {
@@ -88,6 +89,16 @@ void ComputeStep::prepareUniformBuffer(const DrawParams&,
                                        const ResourceDesc&,
                                        UniformManager*) const {
     SK_ABORT("ComputeSteps that initialize a uniform buffer must override prepareUniformBuffer()");
+}
+
+std::string ComputeStep::computeSkSL(const ResourceBindingRequirements&, int) const {
+    SK_ABORT("ComputeSteps must override computeSkSL() unless they support native shader source");
+    return "";
+}
+
+ComputeStep::NativeShaderSource ComputeStep::nativeShaderSource(NativeShaderFormat) const {
+    SK_ABORT("ComputeSteps that support native shader source must override nativeShaderSource()");
+    return {};
 }
 
 size_t ComputeStep::calculateBufferSize(const DrawParams&, int, const ResourceDesc&) const {
