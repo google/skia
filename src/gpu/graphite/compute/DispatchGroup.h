@@ -56,6 +56,7 @@ public:
     struct Dispatch {
         ComputePassDesc fParams;
         skia_private::TArray<ResourceBinding> fBindings;
+        skia_private::TArray<ComputeStep::WorkgroupBufferDesc> fWorkgroupBuffers;
         int fPipelineIndex = 0;
     };
 

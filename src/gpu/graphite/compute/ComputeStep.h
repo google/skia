@@ -11,6 +11,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 
@@ -128,6 +129,14 @@ public:
                 : fType(type), fFlow(flow), fPolicy(policy), fSlot(slot) {}
     };
 
+    // On platforms that support late bound workgroup shared resources (e.g. Metal) a ComputeStep
+    // can optionally provide a list of memory sizes and binding indices.
+    struct WorkgroupBufferDesc {
+        // The buffer size in bytes.
+        size_t size;
+        size_t index;
+    };
+
     virtual ~ComputeStep() = default;
 
     // Returns a complete SkSL compute program. The returned SkSL must constitute a complete compute
@@ -218,6 +227,7 @@ public:
                                       UniformManager*) const;
 
     SkSpan<const ResourceDesc> resources() const { return SkSpan(fResources); }
+    SkSpan<const WorkgroupBufferDesc> workgroupBuffers() const { return SkSpan(fWorkgroupBuffers); }
 
     // Identifier that can be used as part of a unique key for a compute pipeline state object
     // associated with this `ComputeStep`.
@@ -253,6 +263,7 @@ protected:
     ComputeStep(std::string_view name,
                 WorkgroupSize localDispatchSize,
                 SkSpan<const ResourceDesc> resources,
+                SkSpan<const WorkgroupBufferDesc> workgroupBuffers = {},
                 Flags baseFlags = Flags::kNone);
 
 private:
@@ -263,7 +274,8 @@ private:
     uint32_t fUniqueID;
     SkEnumBitMask<Flags> fFlags;
     std::string fName;
-    std::vector<ResourceDesc> fResources;
+    skia_private::TArray<ResourceDesc> fResources;
+    skia_private::TArray<WorkgroupBufferDesc> fWorkgroupBuffers;
 
     // TODO(b/240615224): Subclasses should simply specify the workgroup size that they need.
     // The ComputeStep constructor should check and reduce that number based on the maximum

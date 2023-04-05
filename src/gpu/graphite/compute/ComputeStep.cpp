@@ -28,11 +28,13 @@ static uint32_t next_id() {
 ComputeStep::ComputeStep(std::string_view name,
                          WorkgroupSize localDispatchSize,
                          SkSpan<const ResourceDesc> resources,
+                         SkSpan<const WorkgroupBufferDesc> workgroupBuffers,
                          Flags baseFlags)
         : fUniqueID(next_id())
         , fFlags(baseFlags)
         , fName(name)
-        , fResources(resources.begin(), resources.end())
+        , fResources(resources.data(), resources.size())
+        , fWorkgroupBuffers(workgroupBuffers.data(), workgroupBuffers.size())
         , fLocalDispatchSize(localDispatchSize) {
 #ifdef SK_DEBUG
     std::unordered_set<int> slots;

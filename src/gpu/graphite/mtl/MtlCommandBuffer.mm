@@ -139,6 +139,10 @@ bool MtlCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
                     this->bindTexture(group->getTexture(*texIdx), binding.fIndex);
                 }
             }
+            SkASSERT(fActiveComputeCommandEncoder);
+            for (const ComputeStep::WorkgroupBufferDesc& wgBuf : dispatch.fWorkgroupBuffers) {
+                fActiveComputeCommandEncoder->setThreadgroupMemoryLength(wgBuf.size, wgBuf.index);
+            }
             this->dispatchThreadgroups(dispatch.fParams.fGlobalDispatchSize,
                                        dispatch.fParams.fLocalDispatchSize);
         }

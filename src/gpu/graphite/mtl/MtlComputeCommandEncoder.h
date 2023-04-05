@@ -88,6 +88,10 @@ public:
         }
     }
 
+    void setThreadgroupMemoryLength(NSUInteger length, NSUInteger index) {
+        [(*fCommandEncoder) setThreadgroupMemoryLength:length atIndex:index];
+    }
+
     void dispatchThreadgroups(const WorkgroupSize& globalSize, const WorkgroupSize& localSize) {
         MTLSize threadgroupCount =
                 MTLSizeMake(globalSize.fWidth, globalSize.fHeight, globalSize.fDepth);
