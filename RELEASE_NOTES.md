@@ -16,6 +16,8 @@ Milestone 114
     `SkImageGanesh.h`.
   * `SkImage::flush()` and `SkImage::flushAndSubmit()` has been moved to
     `GrDirectContext::flush()` and `GrDirectContext::flushAndSubmit()` in `SkImageGanesh.h`.
+  * `SkSurfaceProperties::kAlwaysDither_Flag` added to globally enable dithering for a specific
+    `SkSurface` target.
 
 * * *
 

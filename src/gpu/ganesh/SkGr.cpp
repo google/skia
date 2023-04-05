@@ -18,6 +18,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -491,7 +492,8 @@ static inline bool skpaint_to_grpaint_impl(
 
 #ifndef SK_IGNORE_GPU_DITHER
     SkColorType ct = GrColorTypeToSkColorType(dstColorInfo.colorType());
-    if (SkPaintPriv::ShouldDither(skPaint, ct) && paintFP != nullptr) {
+    if (paintFP != nullptr && (
+            surfaceProps.isAlwaysDither() || SkPaintPriv::ShouldDither(skPaint, ct))) {
         float ditherRange = skgpu::DitherRangeForConfig(ct);
         paintFP = make_dither_effect(
                 context, std::move(paintFP), ditherRange, context->priv().caps());
