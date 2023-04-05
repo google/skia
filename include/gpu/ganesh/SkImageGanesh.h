@@ -343,10 +343,16 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> gpu
     @param flushPendingGrContextIO  flag to flush outstanding requests
     @return                         back-end API texture handle; invalid on failure
 */
-SK_API bool GetBackendTextureFromImage(sk_sp<const SkImage> img,
+SK_API bool GetBackendTextureFromImage(const SkImage* img,
                                        GrBackendTexture* outTexture,
                                        bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin = nullptr);
+inline bool GetBackendTextureFromImage(sk_sp<const SkImage> img,
+                                       GrBackendTexture* outTexture,
+                                       bool flushPendingGrContextIO,
+                                       GrSurfaceOrigin* origin = nullptr) {
+    return GetBackendTextureFromImage(img.get(), outTexture, flushPendingGrContextIO, origin);
+}
 
 /** Extracts the backendTexture from an existing SkImage.
     If the image is not already GPU-backed, the raster data will be uploaded as a texture

@@ -106,7 +106,7 @@ bool MakeBackendTextureFromImage(GrDirectContext* direct,
     return GrTexture::StealBackendTexture(std::move(textureRef), backendTexture, releaseProc);
 }
 
-bool GetBackendTextureFromImage(sk_sp<const SkImage> img,
+bool GetBackendTextureFromImage(const SkImage* img,
                                 GrBackendTexture* outTexture,
                                 bool flushPendingGrContextIO,
                                 GrSurfaceOrigin* origin) {
@@ -117,7 +117,7 @@ bool GetBackendTextureFromImage(sk_sp<const SkImage> img,
     if (ib->type() != SkImage_Base::Type::kGanesh) {
         return false;
     }
-    auto ig = static_cast<const SkImage_Ganesh*>(img.get());
+    auto ig = static_cast<const SkImage_Ganesh*>(img);
     return ig->getExistingBackendTexture(outTexture, flushPendingGrContextIO, origin);
 }
 

@@ -689,7 +689,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(
 GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
                                             GrSurfaceOrigin* origin) const {
     GrBackendTexture rv;
-    SkImages::GetBackendTextureFromImage(sk_ref_sp(this), &rv, flushPendingGrContextIO, origin);
+    SkImages::GetBackendTextureFromImage(this, &rv, flushPendingGrContextIO, origin);
     return rv;
 }
 #endif
