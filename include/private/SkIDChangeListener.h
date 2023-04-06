@@ -66,7 +66,7 @@ public:
 
     private:
         mutable SkMutex fMutex;
-        SkSTArray<1, sk_sp<SkIDChangeListener>> fListeners SK_GUARDED_BY(fMutex);
+        skia_private::STArray<1, sk_sp<SkIDChangeListener>> fListeners SK_GUARDED_BY(fMutex);
     };
 
 private:

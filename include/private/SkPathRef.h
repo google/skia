@@ -55,9 +55,9 @@ class SK_API SkPathRef final : public SkNVRefCnt<SkPathRef> {
 public:
     // See https://bugs.chromium.org/p/skia/issues/detail?id=13817 for how these sizes were
     // determined.
-    using PointsArray = SkSTArray<4, SkPoint>;
-    using VerbsArray = SkSTArray<4, uint8_t>;
-    using ConicWeightsArray = SkSTArray<2, SkScalar>;
+    using PointsArray = skia_private::STArray<4, SkPoint>;
+    using VerbsArray = skia_private::STArray<4, uint8_t>;
+    using ConicWeightsArray = skia_private::STArray<2, SkScalar>;
 
     SkPathRef(PointsArray points, VerbsArray verbs, ConicWeightsArray weights,
               unsigned segmentMask)
