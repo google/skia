@@ -339,9 +339,10 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> gpu
 
     If flushPendingGrContextIO is true, completes deferred I/O operations.
     If origin in not nullptr, copies location of content drawn into SkImage.
-    @param outTexture               Will be set to the underlying texture of the image.
+    @param outTexture               Will be set to the underlying texture of the image if non-null.
     @param flushPendingGrContextIO  flag to flush outstanding requests
-    @return                         back-end API texture handle; invalid on failure
+    @param origin                   Will be set to the origin orientation of the image if non-null.
+    @return                         false if a Ganesh backend texture cannot be retrieved.
 */
 SK_API bool GetBackendTextureFromImage(const SkImage* img,
                                        GrBackendTexture* outTexture,
@@ -364,6 +365,7 @@ inline bool GetBackendTextureFromImage(sk_sp<const SkImage> img,
     @param image                      image, either CPU-backed or GPU-backed
     @param backendTexture             Will be set to the underlying texture of the image.
     @param backendTextureReleaseProc  Called when the texture is released
+    @return                           false if image cannot be uploaded.
 */
 SK_API bool MakeBackendTextureFromImage(GrDirectContext* context,
                                         sk_sp<SkImage> image,
