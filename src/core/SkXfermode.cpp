@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkBlendMode.h"
-#include "include/core/SkString.h"
 #include "src/core/SkXfermodePriv.h"
 
 #if defined(SK_GANESH)
@@ -54,37 +53,6 @@ const char* SkBlendMode_Name(SkBlendMode bm) {
     SkUNREACHABLE;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
-    SkBlendModeCoeff src, dst;
-    if (!SkBlendMode_AsCoeff(mode, &src, &dst)) {
-        return false;
-    }
-
-    switch (src) {
-        case SkBlendModeCoeff::kDA:
-        case SkBlendModeCoeff::kDC:
-        case SkBlendModeCoeff::kIDA:
-        case SkBlendModeCoeff::kIDC:
-            return false;
-        default:
-            break;
-    }
-
-    switch (dst) {
-        case SkBlendModeCoeff::kZero:
-            return true;
-        case SkBlendModeCoeff::kISA:
-            return kOpaque_SrcColorOpacity == opacityType;
-        case SkBlendModeCoeff::kSA:
-            return kTransparentBlack_SrcColorOpacity == opacityType ||
-            kTransparentAlpha_SrcColorOpacity == opacityType;
-        case SkBlendModeCoeff::kSC:
-            return kTransparentBlack_SrcColorOpacity == opacityType;
-        default:
-            return false;
-    }
-}
 
 #if defined(SK_GANESH)
 const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {

@@ -54,8 +54,6 @@ struct GrContextOptions;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define ILLEGAL_MODE    ((SkXfermode::Mode)-1)
-
 static const int outset = 100;
 static const SkColor bgColor = SK_ColorWHITE;
 static const int strokeWidth = 4;

@@ -27,7 +27,7 @@ const char* gTypeNames[] = {
     "mask", "rect", "sprite",
 };
 
-// Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
+// Benchmark that draws non-AA rects or AA text with an SkBlendMode.
 class XfermodeBench : public Benchmark {
 public:
     XfermodeBench(SkBlendMode mode, Type t) : fBlendMode(mode) {

@@ -130,7 +130,7 @@ static_assert((int)skgpu::BlendCoeff::kSA == (int)SkBlendModeCoeff::kSA);
 static_assert((int)skgpu::BlendCoeff::kISA == (int)SkBlendModeCoeff::kISA);
 static_assert((int)skgpu::BlendCoeff::kDA == (int)SkBlendModeCoeff::kDA);
 static_assert((int)skgpu::BlendCoeff::kIDA == (int)SkBlendModeCoeff::kIDA);
-// static_assert(SkXfermode::kCoeffCount == 10);
+static_assert((int)SkBlendModeCoeff::kCoeffCount == 10);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Texture management

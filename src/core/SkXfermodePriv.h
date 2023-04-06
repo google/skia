@@ -12,12 +12,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
 
-class GrFragmentProcessor;
-class GrTexture;
-class GrXPFactory;
-class SkRasterPipeline;
-class SkString;
-
 class SkXfermode : public SkRefCnt {
 public:
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
@@ -41,19 +35,6 @@ public:
         SkASSERT(!xfer->unique());
         return xfer.get();
     }
-
-    enum SrcColorOpacity {
-        // The src color is known to be opaque (alpha == 255)
-        kOpaque_SrcColorOpacity = 0,
-        // The src color is known to be fully transparent (color == 0)
-        kTransparentBlack_SrcColorOpacity = 1,
-        // The src alpha is known to be fully transparent (alpha == 0)
-        kTransparentAlpha_SrcColorOpacity = 2,
-        // The src color opacity is unknown
-        kUnknown_SrcColorOpacity = 3
-    };
-
-    static bool IsOpaque(SkBlendMode, SrcColorOpacity);
 
 protected:
     SkXfermode() {}

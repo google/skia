@@ -107,7 +107,7 @@ bool equal_pixels(const SkImage* a, const SkImage* b);
 sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);
 
 /** Draw a checkerboard pattern in the current canvas, restricted to
-    the current clip, using SkXfermode::kSrc_Mode. */
+    the current clip, using SkBlendMode::kSrc. */
 void draw_checkerboard(SkCanvas* canvas, SkColor color1, SkColor color2, int checkSize);
 
 /** Make it easier to create a bitmap-based checkerboard */
