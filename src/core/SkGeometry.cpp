@@ -1396,6 +1396,7 @@ static SkScalar subdivide_w_value(SkScalar w) {
     return SkScalarSqrt(SK_ScalarHalf + w * SK_ScalarHalf);
 }
 
+#if defined(SK_SUPPORT_LEGACY_CONIC_CHOP)
 void SkConic::chop(SkConic * SK_RESTRICT dst) const {
     float2 scale = SkScalarInvert(SK_Scalar1 + fW);
     SkScalar newW = subdivide_w_value(fW);
@@ -1423,6 +1424,41 @@ void SkConic::chop(SkConic * SK_RESTRICT dst) const {
 
     dst[0].fW = dst[1].fW = newW;
 }
+#else
+void SkConic::chop(SkConic * SK_RESTRICT dst) const {
+
+    // Observe that scale will always smaller than 1 because fW > 0.
+    const float scale = SkScalarInvert(SK_Scalar1 + fW);
+
+    // The subdivided control points below are the sums of the following three terms. Because the
+    // terms are multiplied by something <1, and the resulting control points lie within the
+    // control points of the original then the terms and the sums below will not overflow. Note
+    // that fW * scale approaches 1 as fW becomes very large.
+    float2 t0 = from_point(fPts[0]) * scale;
+    float2 t1 = from_point(fPts[1]) * (fW * scale);
+    float2 t2 = from_point(fPts[2]) * scale;
+
+    // Calculate the subdivided control points
+    const SkPoint p1 = to_point(t0 + t1);
+    const SkPoint p3 = to_point(t1 + t2);
+
+    // p2 = (t0 + 2*t1 + t2) / 2. Divide the terms by 2 before the sum to keep the sum for p2
+    // from overflowing.
+    const SkPoint p2 = to_point(0.5f * t0 + t1 + 0.5f * t2);
+
+    SkASSERT(p1.isFinite() && p2.isFinite() && p3.isFinite());
+
+    dst[0].fPts[0] = fPts[0];
+    dst[0].fPts[1] = p1;
+    dst[0].fPts[2] = p2;
+    dst[1].fPts[0] = p2;
+    dst[1].fPts[1] = p3;
+    dst[1].fPts[2] = fPts[2];
+
+    // Update w.
+    dst[0].fW = dst[1].fW = subdivide_w_value(fW);
+}
+#endif  // SK_SUPPORT_LEGACY_CONIC_CHOP
 
 /*
  *  "High order approximation of conic sections by quadratic splines"
