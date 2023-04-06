@@ -229,8 +229,8 @@ private:
 
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
 
-    mutable SkMutex                                 fMutex;
-    mutable SkTHashMap<SkString, sk_sp<ImageAsset>> fImageCache;
+    mutable SkMutex                                             fMutex;
+    mutable skia_private::THashMap<SkString, sk_sp<ImageAsset>> fImageCache;
 
     using INHERITED = ResourceProviderProxyBase;
 };

@@ -38,6 +38,8 @@
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
 #include <freetype/ftsynth.h>
 
+using namespace skia_private;
+
 namespace {
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
 }
@@ -492,7 +494,7 @@ struct OpaquePaintHasher {
   }
 };
 
-using VisitedSet = SkTHashSet<FT_OpaquePaint, OpaquePaintHasher>;
+using VisitedSet = THashSet<FT_OpaquePaint, OpaquePaintHasher>;
 
 bool generateFacePathCOLRv1(FT_Face face, SkGlyphID glyphID, SkPath* path);
 

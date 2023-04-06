@@ -45,13 +45,13 @@ private:
     static void Copy(SkPDF::StructureElementNode& node,
                      SkPDFTagNode* dst,
                      SkArenaAlloc* arena,
-                     SkTHashMap<int, SkPDFTagNode*>* nodeMap);
+                     skia_private::THashMap<int, SkPDFTagNode*>* nodeMap);
     SkPDFIndirectReference PrepareTagTreeToEmit(SkPDFIndirectReference parent,
                                                 SkPDFTagNode* node,
                                                 SkPDFDocument* doc);
 
     SkArenaAlloc fArena;
-    SkTHashMap<int, SkPDFTagNode*> fNodeMap;
+    skia_private::THashMap<int, SkPDFTagNode*> fNodeMap;
     SkPDFTagNode* fRoot = nullptr;
     skia_private::TArray<skia_private::TArray<SkPDFTagNode*>> fMarksPerPage;
     std::vector<IDTreeEntry> fIdTreeEntries;

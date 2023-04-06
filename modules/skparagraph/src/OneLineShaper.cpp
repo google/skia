@@ -435,8 +435,8 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
             const char* ch = unresolvedText.begin();
             // We have the global cache for all already found typefaces for SkUnichar
             // but we still need to keep track of all SkUnichars used in this unresolved block
-            SkTHashSet<SkUnichar> alreadyTriedCodepoints;
-            SkTHashSet<SkTypefaceID> alreadyTriedTypefaces;
+            THashSet<SkUnichar> alreadyTriedCodepoints;
+            THashSet<SkTypefaceID> alreadyTriedTypefaces;
             while (true) {
 
                 if (ch == unresolvedText.end()) {

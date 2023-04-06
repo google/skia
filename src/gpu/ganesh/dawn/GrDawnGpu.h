@@ -277,7 +277,7 @@ private:
     // fence because Dawn currently does not support unregistering a callback to prevent a potential
     // use-after-free.
     bool fSubmittedWorkDoneCallbackPending = false;
-    SkTHashSet<GrDawnAsyncWait*> fQueueFences;
+    skia_private::THashSet<GrDawnAsyncWait*> fQueueFences;
 
     struct ProgramDescHash {
         uint32_t operator()(const GrProgramDesc& desc) const {

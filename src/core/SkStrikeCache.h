@@ -99,7 +99,8 @@ private:
         static const SkDescriptor& GetKey(const sk_sp<SkStrike>& strike);
         static uint32_t Hash(const SkDescriptor& descriptor);
     };
-    SkTHashTable<sk_sp<SkStrike>, SkDescriptor, StrikeTraits> fStrikeLookup SK_GUARDED_BY(fLock);
+    skia_private::THashTable<sk_sp<SkStrike>, SkDescriptor, StrikeTraits> fStrikeLookup
+            SK_GUARDED_BY(fLock);
 
     size_t  fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
     size_t  fTotalMemoryUsed SK_GUARDED_BY(fLock) {0};

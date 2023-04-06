@@ -164,7 +164,7 @@ class SkBreakIterator_icu : public SkBreakIterator {
 };
 
 class SkIcuBreakIteratorCache {
-    SkTHashMap<SkUnicode::BreakType, ICUBreakIterator> fBreakCache;
+    THashMap<SkUnicode::BreakType, ICUBreakIterator> fBreakCache;
     SkMutex fBreakCacheMutex;
 
  public:

@@ -162,7 +162,7 @@ private:
     SkWriter32 fWriter;
 
     // Only used if we do not have an fFactorySet
-    SkTHashMap<const char*, uint32_t> fFlattenableDict;
+    skia_private::THashMap<const char*, uint32_t> fFlattenableDict;
 };
 
 enum SkWriteBufferImageFlags {

@@ -15,6 +15,8 @@
 
 #include <chrono>
 
+using namespace skia_private;
+
 namespace {
 
 /**
@@ -184,10 +186,10 @@ struct TraceEventSerializationState {
         return shortID;
     }
 
-    uint64_t                          fClockOffset;
-    SkTHashMap<uint64_t, const char*> fBaseTypeResolver;
-    int                               fNextThreadID;
-    SkTHashMap<SkThreadID, int>       fShortThreadIDMap;
+    uint64_t                        fClockOffset;
+    THashMap<uint64_t, const char*> fBaseTypeResolver;
+    int                             fNextThreadID;
+    THashMap<SkThreadID, int>       fShortThreadIDMap;
 };
 
 }  // namespace

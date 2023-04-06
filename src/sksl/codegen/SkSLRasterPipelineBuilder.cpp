@@ -1375,7 +1375,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
     // Assemble a map holding the current stack-top for each temporary stack. Position each temp
     // stack immediately after the previous temp stack; temp stacks are never allowed to overlap.
     int pos = 0;
-    SkTHashMap<int, float*> tempStackMap;
+    THashMap<int, float*> tempStackMap;
     for (auto& [idx, depth] : fTempStackMaxDepths) {
         tempStackMap[idx] = slots.stack.begin() + (pos * N);
         pos += depth;
@@ -1395,7 +1395,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
     };
 
     // We can reuse constants from our arena by placing them in this map.
-    SkTHashMap<int, int*> constantLookupMap; // <constant value, pointer into arena>
+    THashMap<int, int*> constantLookupMap; // <constant value, pointer into arena>
 
     // Write each BuilderOp to the pipeline array.
     pipeline->reserve_back(fInstructions.size());
@@ -1896,12 +1896,12 @@ TArray<std::string> build_unique_slot_name_list(const DebugTracePriv* debugTrace
         slotName.reserve_back(debugTrace->fSlotInfo.size());
 
         // The map consists of <variable name, <source position, unique name>>.
-        SkTHashMap<std::string_view, SkTHashMap<int, std::string>> uniqueNameMap;
+        THashMap<std::string_view, THashMap<int, std::string>> uniqueNameMap;
 
         for (const SlotDebugInfo& slotInfo : debugTrace->fSlotInfo) {
             // Look up this variable by its name and source position.
             int pos = slotInfo.pos.valid() ? slotInfo.pos.startOffset() : 0;
-            SkTHashMap<int, std::string>& positionMap = uniqueNameMap[slotInfo.name];
+            THashMap<int, std::string>& positionMap = uniqueNameMap[slotInfo.name];
             std::string& uniqueName = positionMap[pos];
 
             // Have we seen this variable name/position combination before?
@@ -1942,7 +1942,7 @@ void Program::dump(SkWStream* out) const {
     this->makeStages(&stages, &alloc, uniforms, slots);
 
     // Find the labels in the program, and keep track of their offsets.
-    SkTHashMap<int, int> labelToStageMap; // <label ID, stage index>
+    THashMap<int, int> labelToStageMap; // <label ID, stage index>
     for (int index = 0; index < stages.size(); ++index) {
         if (stages[index].op == ProgramOp::label) {
             int labelID = sk_bit_cast<intptr_t>(stages[index].ctx);

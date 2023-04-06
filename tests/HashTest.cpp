@@ -19,15 +19,17 @@
 #include <string_view>
 #include <utility>
 
+using namespace skia_private;
+
 // Tests use of const foreach().  map.count() is of course the better way to do this.
-static int count(const SkTHashMap<int, double>& map) {
+static int count(const THashMap<int, double>& map) {
     int n = 0;
     map.foreach([&n](int, double) { n++; });
     return n;
 }
 
 DEF_TEST(HashMap, r) {
-    SkTHashMap<int, double> map;
+    THashMap<int, double> map;
 
     map.set(3, 4.0);
     REPORTER_ASSERT(r, map.count() == 1);
@@ -54,7 +56,7 @@ DEF_TEST(HashMap, r) {
     }
 
     // Test walking the map with iterators, using preincrement (++iter).
-    for (SkTHashMap<int, double>::Iter iter = map.begin(); iter != map.end(); ++iter) {
+    for (THashMap<int, double>::Iter iter = map.begin(); iter != map.end(); ++iter) {
         REPORTER_ASSERT(r, iter->first * 2 == (*iter).second);
     }
 
@@ -65,7 +67,7 @@ DEF_TEST(HashMap, r) {
 
     // Ensure that iteration works equally well on a const map, using postincrement (iter++).
     const auto& cmap = map;
-    for (SkTHashMap<int, double>::Iter iter = cmap.begin(); iter != cmap.end(); iter++) {
+    for (THashMap<int, double>::Iter iter = cmap.begin(); iter != cmap.end(); iter++) {
         REPORTER_ASSERT(r, iter->first * 2 == (*iter).second);
     }
 
@@ -79,7 +81,7 @@ DEF_TEST(HashMap, r) {
         REPORTER_ASSERT(r, number * 2 == timesTwo);
     }
 
-    SkTHashMap<int, double> clone = map;
+    THashMap<int, double> clone = map;
 
     for (int i = 0; i < N; i++) {
         found = map.find(i);
@@ -120,7 +122,7 @@ DEF_TEST(HashMap, r) {
 
     {
         // Test that we don't leave dangling values in empty slots.
-        SkTHashMap<int, sk_sp<SkRefCnt>> refMap;
+        THashMap<int, sk_sp<SkRefCnt>> refMap;
         auto ref = sk_make_sp<SkRefCnt>();
         REPORTER_ASSERT(r, ref->unique());
 
@@ -135,7 +137,7 @@ DEF_TEST(HashMap, r) {
 }
 
 DEF_TEST(HashMapCtor, r) {
-    SkTHashMap<int, std::string_view> map{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}};
+    THashMap<int, std::string_view> map{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}};
     REPORTER_ASSERT(r, map.count() == 4);
     REPORTER_ASSERT(r, map.approxBytesUsed() >= 4 * (sizeof(int) + sizeof(std::string_view)));
 
@@ -165,7 +167,7 @@ DEF_TEST(HashMapCtor, r) {
 DEF_TEST(HashMapCtorOneElem, r) {
     // Start out with a single element. The initializer list constructor sets the capacity
     // conservatively. Searching for elements beyond the capacity should succeed.
-    SkTHashMap<int, std::string_view> map{{1, "one"}};
+    THashMap<int, std::string_view> map{{1, "one"}};
     REPORTER_ASSERT(r, map.count() == 1);
     REPORTER_ASSERT(r, map.approxBytesUsed() >= (sizeof(int) + sizeof(std::string_view)));
 
@@ -187,7 +189,7 @@ DEF_TEST(HashMapCtorOneElem, r) {
 }
 
 DEF_TEST(HashSetCtor, r) {
-    SkTHashSet<std::string_view> set{"one", "two", "three", "four"};
+    THashSet<std::string_view> set{"one", "two", "three", "four"};
     REPORTER_ASSERT(r, set.count() == 4);
     REPORTER_ASSERT(r, set.approxBytesUsed() >= 4 * sizeof(std::string_view));
 
@@ -202,7 +204,7 @@ DEF_TEST(HashSetCtor, r) {
 DEF_TEST(HashSetCtorOneElem, r) {
     // Start out with a single element. The initializer list constructor sets the capacity
     // conservatively. Searching for elements beyond the capacity should succeed.
-    SkTHashSet<std::string_view> set{"one"};
+    THashSet<std::string_view> set{"one"};
     REPORTER_ASSERT(r, set.count() == 1);
     REPORTER_ASSERT(r, set.approxBytesUsed() >= sizeof(std::string_view));
 
@@ -218,7 +220,7 @@ DEF_TEST(HashSetCtorOneElem, r) {
 
 template <typename T>
 static void test_hash_set(skiatest::Reporter* r) {
-    SkTHashSet<T> set;
+    THashSet<T> set;
 
     set.add(T("Hello"));
     set.add(T("World"));
@@ -230,12 +232,12 @@ static void test_hash_set(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, *set.find(T("Hello")) == T("Hello"));
 
     // Test walking the set with iterators, using preincrement (++iter).
-    for (typename SkTHashSet<T>::Iter iter = set.begin(); iter != set.end(); ++iter) {
+    for (typename THashSet<T>::Iter iter = set.begin(); iter != set.end(); ++iter) {
         REPORTER_ASSERT(r, *iter == T("Hello") || *iter == T("World"));
     }
 
     // Test walking the set with iterators, using postincrement (iter++).
-    for (typename SkTHashSet<T>::Iter iter = set.begin(); iter != set.end(); iter++) {
+    for (typename THashSet<T>::Iter iter = set.begin(); iter != set.end(); iter++) {
         REPORTER_ASSERT(r, *iter == T("Hello") || *iter == T("World"));
     }
 
@@ -246,7 +248,7 @@ static void test_hash_set(skiatest::Reporter* r) {
 
     // Ensure that iteration works equally well on a const set.
     const auto& cset = set;
-    for (typename SkTHashSet<T>::Iter iter = cset.begin(); iter != cset.end(); iter++) {
+    for (typename THashSet<T>::Iter iter = cset.begin(); iter != cset.end(); iter++) {
         REPORTER_ASSERT(r, *iter == T("Hello") || *iter == T("World"));
     }
 
@@ -255,7 +257,7 @@ static void test_hash_set(skiatest::Reporter* r) {
         REPORTER_ASSERT(r, entry == T("Hello") || entry == T("World"));
     }
 
-    SkTHashSet<T> clone = set;
+    THashSet<T> clone = set;
     REPORTER_ASSERT(r, clone.count() == 2);
     REPORTER_ASSERT(r, clone.contains(T("Hello")));
     REPORTER_ASSERT(r, clone.contains(T("World")));
@@ -334,7 +336,7 @@ struct HashCopyCounter {
 }  // namespace
 
 DEF_TEST(HashSetCopyCounter, r) {
-    SkTHashSet<CopyCounter, HashCopyCounter> set;
+    THashSet<CopyCounter, HashCopyCounter> set;
 
     uint32_t globalCounter = 0;
     CopyCounter copyCounter1(1, &globalCounter);
@@ -372,7 +374,7 @@ DEF_TEST(HashFindOrNull, r) {
         static uint32_t Hash(int key) { return key; }
     };
 
-    SkTHashTable<Entry*, int, HashTraits> table;
+    THashTable<Entry*, int, HashTraits> table;
 
     REPORTER_ASSERT(r, nullptr == table.findOrNull(7));
 
@@ -383,7 +385,7 @@ DEF_TEST(HashFindOrNull, r) {
 }
 
 DEF_TEST(HashTableGrowsAndShrinks, r) {
-    SkTHashSet<int> s;
+    THashSet<int> s;
     auto check_count_cap = [&](int count, int cap) {
         REPORTER_ASSERT(r, s.count() == count);
         REPORTER_ASSERT(r, s.approxBytesUsed() == (sizeof(int) + sizeof(uint32_t)) * cap);

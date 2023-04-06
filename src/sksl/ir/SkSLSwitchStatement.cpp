@@ -27,6 +27,8 @@
 #include <forward_list>
 #include <iterator>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 std::unique_ptr<Statement> SwitchStatement::clone() const {
@@ -54,7 +56,7 @@ std::string SwitchStatement::description() const {
 static std::forward_list<const SwitchCase*> find_duplicate_case_values(
         const StatementArray& cases) {
     std::forward_list<const SwitchCase*> duplicateCases;
-    SkTHashSet<SKSL_INT> intValues;
+    THashSet<SKSL_INT> intValues;
     bool foundDefault = false;
 
     for (const std::unique_ptr<Statement>& stmt : cases) {

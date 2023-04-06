@@ -303,7 +303,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     // We need to detect cases where the caller passes the same variable as an out-param more than
     // once, and avoid reusing the variable name. (In those cases we can actually just ignore the
     // redundant input parameter entirely, and not give it any name.)
-    SkTHashSet<const Variable*> writtenVars;
+    THashSet<const Variable*> writtenVars;
 
     for (int index = 0; index < arguments.size(); ++index) {
         this->write(separator);

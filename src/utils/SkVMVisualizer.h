@@ -79,10 +79,10 @@ namespace skvm::viz {
 #if defined(SK_ENABLE_SKSL)
         SkSL::DebugTracePriv* fDebugInfo;
 #endif
-        SkTHashMap<Instruction, size_t, InstructionHash> fIndex;
+        skia_private::THashMap<Instruction, size_t, InstructionHash> fIndex;
         skia_private::TArray<Instruction> fInstructions;
         SkWStream* fOutput;
-        SkTHashMap<int, size_t> fToDisassembler;
+        skia_private::THashMap<int, size_t> fToDisassembler;
     };
 } // namespace skvm::viz
 

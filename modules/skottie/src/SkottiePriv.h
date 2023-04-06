@@ -289,10 +289,10 @@ private:
         const AssetInfo* fInfo = nullptr;
     };
 
-    SkTHashMap<SkString, AssetInfo>                fAssets;
-    SkTHashMap<SkString, FontInfo>                 fFonts;
-    sk_sp<CustomFont::GlyphCompMapper>             fCustomGlyphMapper;
-    mutable SkTHashMap<SkString, FootageAssetInfo> fImageAssetCache;
+    skia_private::THashMap<SkString, AssetInfo>                fAssets;
+    skia_private::THashMap<SkString, FontInfo>                 fFonts;
+    sk_sp<CustomFont::GlyphCompMapper>                         fCustomGlyphMapper;
+    mutable skia_private::THashMap<SkString, FootageAssetInfo> fImageAssetCache;
 
     const skjson::ObjectValue* fSlotsRoot;
 

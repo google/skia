@@ -438,5 +438,6 @@
   # out if this can be done with a glob.
   { symbol: ["skia_private", "private", "\"include/private/base/SkTemplates.h\"", "public"] },
   { symbol: ["skia_private", "private", "\"include/private/base/SkTArray.h\"", "public"] },
+  { symbol: ["skia_private", "private", "\"src/core/SkTHash.h\"", "public"] },
   { symbol: ["skia_private", "private", "\"src/core/SkTraceEvent.h\"", "public"] },
 ]

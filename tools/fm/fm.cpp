@@ -408,7 +408,7 @@ int main(int argc, char** argv) {
         baseOptions.fShaderCacheStrategy = GrContextOptions::ShaderCacheStrategy::kBackendSource;
     }
 
-    SkTHashMap<SkString, skiagm::GMFactory> gm_factories;
+    THashMap<SkString, skiagm::GMFactory> gm_factories;
     for (skiagm::GMFactory factory : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm{factory()};
         if (FLAGS_listGMs) {
@@ -418,7 +418,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    SkTHashMap<SkString, const skiatest::Test*> tests;
+    THashMap<SkString, const skiatest::Test*> tests;
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
         if (test.fTestType != skiatest::TestType::kCPU) {
             continue;  // TODO

@@ -109,7 +109,7 @@ public:
     };
 
     struct ProgramRequirements {
-        using DepsMap = SkTHashMap<const FunctionDeclaration*, FunctionDependencies>;
+        using DepsMap = skia_private::THashMap<const FunctionDeclaration*, FunctionDependencies>;
 
         ProgramRequirements() = default;
         ProgramRequirements(DepsMap dependencies, bool mainNeedsCoordsArgument)
@@ -257,7 +257,7 @@ private:
                                     const skia_private::TArray<VariableReference*>& outVars);
 
     // Stores the disallowed identifier names.
-    SkTHashSet<std::string_view> fReservedWords;
+    skia_private::THashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
     int fPipelineInputCount = 0;
     bool fDeclaredUniformsStruct = false;
@@ -268,7 +268,7 @@ private:
     // dereference them when the variable is referenced. The contents of this set are expected to
     // be uniquely scoped for each out-param helper and will be cleared every time a new out-param
     // helper function has been emitted.
-    SkTHashSet<const Variable*> fOutParamArgVars;
+    skia_private::THashSet<const Variable*> fOutParamArgVars;
 
     // Output processing state.
     int fIndentation = 0;
@@ -276,7 +276,7 @@ private:
 
     int fSwizzleHelperCount = 0;
     StringStream fExtraFunctions;      // all internally synthesized helpers are written here
-    SkTHashSet<std::string> fHelpers;  // all synthesized helper functions, by name
+    skia_private::THashSet<std::string> fHelpers;  // all synthesized helper functions, by name
 };
 
 }  // namespace SkSL

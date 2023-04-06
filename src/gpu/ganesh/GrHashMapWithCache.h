@@ -61,7 +61,7 @@ public:
 
     // Remove the key/value entry in the table with this key.
     void remove(K key) {
-        // Match SkTHashMap requirement. The caller can find() if they're unsure.
+        // Match THashMap requirement. The caller can find() if they're unsure.
         SkASSERT(fMap.find(fLastKey));
         fLastKey = std::move(key);
         fLastValue = nullptr;
@@ -76,9 +76,9 @@ public:
     }
 
 private:
-    SkTHashMap<K, V, HashT> fMap;
-    mutable K               fLastKey   = KeyTraits::GetInvalidKey();
-    mutable V*              fLastValue = nullptr;
+    skia_private::THashMap<K, V, HashT> fMap;
+    mutable K                           fLastKey   = KeyTraits::GetInvalidKey();
+    mutable V*                          fLastValue = nullptr;
 };
 
 #endif

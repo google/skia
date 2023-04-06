@@ -535,7 +535,7 @@ public:
     }
 
 private:
-    SkTHashMap<SkString, SkString> fOptionsMap;
+    THashMap<SkString, SkString> fOptionsMap;
 };
 
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,

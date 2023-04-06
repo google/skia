@@ -1246,7 +1246,7 @@ public:
                  const TestSVGTypeface&     typeface,
                  SkGlyphID                  glyphId,
                  TestSVGTypeface::GlyfInfo* glyf,
-                 SkTHashMap<SkColor, int>*  colors,
+                 THashMap<SkColor, int>*    colors,
                  SkWStream*                 out)
             : SkNoDrawCanvas(glyphBounds.roundOut().width(), glyphBounds.roundOut().height())
             , fBaselineOffset(glyphBounds.top())
@@ -1431,7 +1431,7 @@ private:
     const TestSVGTypeface&     fTypeface;
     SkGlyphID                  fGlyphId;
     TestSVGTypeface::GlyfInfo* fGlyf;
-    SkTHashMap<SkColor, int>*  fColors;
+    THashMap<SkColor, int>*    fColors;
     SkWStream* const           fOut;
     SkOpBuilder                fBasePath;
     int                        fLayerId;
@@ -1443,7 +1443,7 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     out->writeText("<ttFont sfntVersion=\"\\x00\\x01\\x00\\x00\" ttLibVersion=\"3.19\">\n");
 
-    SkTHashMap<SkColor, int> colors;
+    THashMap<SkColor, int> colors;
     TArray<GlyfInfo>       glyfInfos(fGlyphCount);
 
     // Need to know all the glyphs up front for the common tables.

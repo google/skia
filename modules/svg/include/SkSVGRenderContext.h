@@ -52,7 +52,7 @@ struct SkSVGPresentationContext {
     SkSVGPresentationContext(const SkSVGPresentationContext&)            = default;
     SkSVGPresentationContext& operator=(const SkSVGPresentationContext&) = default;
 
-    const SkTHashMap<SkString, SkSVGColorType>* fNamedColors = nullptr;
+    const skia_private::THashMap<SkString, SkSVGColorType>* fNamedColors = nullptr;
 
     // Inherited presentation attributes, computed for the current node.
     SkSVGPresentationAttributes fInherited;

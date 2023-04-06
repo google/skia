@@ -24,6 +24,8 @@
 
 #include <memory>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 class ProgramElement;
@@ -34,7 +36,7 @@ namespace {
 // (if loopIndices is non-nullptr)
 class ConstantExpressionVisitor : public ProgramVisitor {
 public:
-    ConstantExpressionVisitor(const SkTHashSet<const Variable*>* loopIndices)
+    ConstantExpressionVisitor(const THashSet<const Variable*>* loopIndices)
             : fLoopIndices(loopIndices) {}
 
     bool visitExpression(const Expression& e) override {
@@ -107,7 +109,7 @@ public:
     }
 
 private:
-    const SkTHashSet<const Variable*>* fLoopIndices;
+    const THashSet<const Variable*>* fLoopIndices;
     using INHERITED = ProgramVisitor;
 };
 
@@ -146,7 +148,7 @@ public:
 
 private:
     ErrorReporter& fErrors;
-    SkTHashSet<const Variable*> fLoopIndices;
+    THashSet<const Variable*> fLoopIndices;
     using INHERITED = ProgramVisitor;
 };
 

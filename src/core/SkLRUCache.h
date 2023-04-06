@@ -122,9 +122,9 @@ private:
         delete entry;
     }
 
-    int                             fMaxCount;
-    SkTHashTable<Entry*, K, Traits> fMap;
-    SkTInternalLList<Entry>         fLRU;
+    int                                         fMaxCount;
+    skia_private::THashTable<Entry*, K, Traits> fMap;
+    SkTInternalLList<Entry>                     fLRU;
 };
 
 #endif

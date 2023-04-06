@@ -266,7 +266,7 @@ private:
         };
     };
 
-    using PaintHashMap = SkTHashMap<PaintParamsKeyPtr, Entry*, PaintParamsKeyPtr::Hash>;
+    using PaintHashMap = skia_private::THashMap<PaintParamsKeyPtr, Entry*, PaintParamsKeyPtr::Hash>;
 
     PaintHashMap fHash SK_GUARDED_BY(fSpinLock);
     std::vector<Entry*> fEntryVector SK_GUARDED_BY(fSpinLock);
@@ -291,7 +291,7 @@ private:
     // an existing ID. Entries in the runtime-effect map are never removed; they only disappear when
     // the context is discarded, which takes the ShaderCodeDictionary along with it. However, they
     // are extremely small (< 20 bytes) so the memory footprint should be unnoticeable.
-    using RuntimeEffectMap = SkTHashMap<RuntimeEffectKey, int32_t>;
+    using RuntimeEffectMap = skia_private::THashMap<RuntimeEffectKey, int32_t>;
     RuntimeEffectMap fRuntimeEffectMap SK_GUARDED_BY(fSpinLock);
 
     // This arena holds:

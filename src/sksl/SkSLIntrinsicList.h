@@ -134,7 +134,7 @@ enum IntrinsicKind : int8_t {
 #undef SKSL_INTRINSIC
 
 // Returns a map which allows IntrinsicKind values to be looked up by name.
-using IntrinsicMap = SkTHashMap<std::string_view, IntrinsicKind>;
+using IntrinsicMap = skia_private::THashMap<std::string_view, IntrinsicKind>;
 const IntrinsicMap& GetIntrinsicMap();
 
 // Looks up intrinsic functions by name.

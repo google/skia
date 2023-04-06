@@ -46,7 +46,7 @@ private:
 
     const DawnSharedContext* dawnSharedContext() const;
 
-    SkTHashMap<uint64_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
+    skia_private::THashMap<uint64_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
 };
 
 } // namespace skgpu::graphite

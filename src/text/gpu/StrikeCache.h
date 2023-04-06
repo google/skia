@@ -37,7 +37,7 @@ private:
         static uint32_t Hash(SkPackedGlyphID key);
     };
     // Map SkPackedGlyphID -> Glyph*.
-    SkTHashTable<Glyph*, SkPackedGlyphID, HashTraits> fCache;
+    skia_private::THashTable<Glyph*, SkPackedGlyphID, HashTraits> fCache;
 
     // Store for the glyph information.
     SkArenaAlloc fAlloc{512};
@@ -64,7 +64,7 @@ private:
         static uint32_t Hash(const SkDescriptor& strikeSpec);
     };
 
-    using StrikeHash = SkTHashTable<sk_sp<TextStrike>, const SkDescriptor&, HashTraits>;
+    using StrikeHash = skia_private::THashTable<sk_sp<TextStrike>, const SkDescriptor&, HashTraits>;
 
     StrikeHash fCache;
 };

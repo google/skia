@@ -677,7 +677,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
     this->addAttribute("font-size", font.getSize());
 
     SkString familyName;
-    SkTHashSet<SkString> familySet;
+    THashSet<SkString> familySet;
     sk_sp<SkTypeface> tface = font.refTypefaceOrDefault();
 
     SkASSERT(tface);

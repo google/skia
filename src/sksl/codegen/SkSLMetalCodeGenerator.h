@@ -293,9 +293,9 @@ protected:
 
     int getUniformSet(const Modifiers& m);
 
-    SkTHashSet<std::string_view> fReservedWords;
-    SkTHashMap<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
-    SkTHashMap<const InterfaceBlock*, std::string_view> fInterfaceBlockNameMap;
+    skia_private::THashSet<std::string_view> fReservedWords;
+    skia_private::THashMap<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
+    skia_private::THashMap<const InterfaceBlock*, std::string_view> fInterfaceBlockNameMap;
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;
     const char* fLineEnding;
@@ -307,8 +307,8 @@ protected:
     bool fAtLineStart = false;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
-    SkTHashMap<const FunctionDeclaration*, Requirements> fRequirements;
-    SkTHashSet<std::string> fHelpers;
+    skia_private::THashMap<const FunctionDeclaration*, Requirements> fRequirements;
+    skia_private::THashSet<std::string> fHelpers;
     int fUniformBuffer = -1;
     std::string fRTFlipName;
     const FunctionDeclaration* fCurrentFunction = nullptr;

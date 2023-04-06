@@ -19,6 +19,8 @@
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTHash.h"
 
+using namespace skia_private;
+
 #ifdef SK_BUILD_FOR_IOS
   enum { kDefaultCacheSize = 2 * 1024 * 1024 };
 #else
@@ -140,13 +142,13 @@ private:
         delete v;
     }
 private:
-    SkTDynamicHash<Value, Key>                            fLookup;
-    mutable SkTInternalLList<Value>                       fLRU;
+    SkTDynamicHash<Value, Key>                          fLookup;
+    mutable SkTInternalLList<Value>                     fLRU;
     // Value* always points to an item in fLookup.
-    SkTHashMap<const SkImageFilter*, std::vector<Value*>> fImageFilterValues;
-    size_t                                                fMaxBytes;
-    size_t                                                fCurrentBytes;
-    mutable SkMutex                                       fMutex;
+    THashMap<const SkImageFilter*, std::vector<Value*>> fImageFilterValues;
+    size_t                                              fMaxBytes;
+    size_t                                              fCurrentBytes;
+    mutable SkMutex                                     fMutex;
 };
 
 } // namespace

@@ -72,6 +72,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 namespace {
     // sksl allows the optimizations of fast_mul(), so we want to use that most of the time.
     // This little sneaky snippet of code lets us use ** as a fast multiply infix operator.
@@ -321,7 +323,7 @@ private:
     std::vector<Slot> fSlots;
 
     // [Variable/Function, first slot in fSlots]
-    SkTHashMap<const IRNode*, size_t> fSlotMap;
+    THashMap<const IRNode*, size_t> fSlotMap;
 
     // Debug trace mask (set to true when fTraceCoord matches device coordinates)
     skvm::I32 fTraceMask;

@@ -31,7 +31,7 @@ public:
     void reset() { fDict.reset(); }
 
 private:
-    SkTHashMap<int, sk_sp<const SkRuntimeEffect>> fDict;
+    skia_private::THashMap<int, sk_sp<const SkRuntimeEffect>> fDict;
 };
 
 } // namespace skgpu::graphite

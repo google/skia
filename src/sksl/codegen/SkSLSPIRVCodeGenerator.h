@@ -532,9 +532,9 @@ private:
         int32_t boolOp;
     };
     Intrinsic getIntrinsic(IntrinsicKind) const;
-    SkTHashMap<const FunctionDeclaration*, SpvId> fFunctionMap;
-    SkTHashMap<const Variable*, SpvId> fVariableMap;
-    SkTHashMap<const Type*, SpvId> fStructMap;
+    skia_private::THashMap<const FunctionDeclaration*, SpvId> fFunctionMap;
+    skia_private::THashMap<const Variable*, SpvId> fVariableMap;
+    skia_private::THashMap<const Type*, SpvId> fStructMap;
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;
     StringStream fVariableBuffer;
@@ -554,16 +554,20 @@ private:
         std::unique_ptr<Variable> fTexture;
         std::unique_ptr<Variable> fSampler;
     };
-    SkTHashMap<const Variable*, std::unique_ptr<SynthesizedTextureSamplerPair>>
+    skia_private::THashMap<const Variable*, std::unique_ptr<SynthesizedTextureSamplerPair>>
             fSynthesizedSamplerMap;
 
     // These caches map SpvIds to Instructions, and vice-versa. This enables us to deduplicate code
     // (by detecting an Instruction we've already issued and reusing the SpvId), and to introspect
     // and simplify code we've already emitted  (by taking a SpvId from an Instruction and following
     // it back to its source).
-    SkTHashMap<Instruction, SpvId, Instruction::Hash> fOpCache;  // maps instruction -> SpvId
-    SkTHashMap<SpvId, Instruction> fSpvIdCache;                  // maps SpvId -> instruction
-    SkTHashMap<SpvId, SpvId> fStoreCache;                        // maps ptr SpvId -> value SpvId
+
+    // A map of instruction -> SpvId:
+    skia_private::THashMap<Instruction, SpvId, Instruction::Hash> fOpCache;
+    // A map of SpvId -> instruction:
+    skia_private::THashMap<SpvId, Instruction> fSpvIdCache;
+    // A map of SpvId -> value SpvId:
+    skia_private::THashMap<SpvId, SpvId> fStoreCache;
 
     // "Reachable" ops are instructions which can safely be accessed from the current block.
     // For instance, if our SPIR-V contains `%3 = OpFAdd %1 %2`, we would be able to access and
@@ -591,8 +595,9 @@ private:
     // interface block.
     UniformBuffer fUniformBuffer;
     std::vector<const VarDeclaration*> fTopLevelUniforms;
-    SkTHashMap<const Variable*, int> fTopLevelUniformMap; // <var, UniformBuffer field index>
-    SkTHashSet<const Variable*> fSPIRVBonusVariables;
+    skia_private::THashMap<const Variable*, int>
+            fTopLevelUniformMap;  // <var, UniformBuffer field index>
+    skia_private::THashSet<const Variable*> fSPIRVBonusVariables;
     SpvId fUniformBufferId = NA;
 
     friend class PointerLValue;

@@ -423,7 +423,7 @@ struct Gold : public SkString {
         }
     };
 };
-static SkTHashSet<Gold, Gold::Hash>* gGold = new SkTHashSet<Gold, Gold::Hash>;
+static THashSet<Gold, Gold::Hash>* gGold = new THashSet<Gold, Gold::Hash>;
 
 static void add_gold(JsonWriter::BitmapResult r) {
     gGold->add(Gold(r.config, r.sourceType, r.sourceOptions, r.name, r.md5));
@@ -447,7 +447,7 @@ static void gather_gold() {
     static constexpr char kNewline[] = "\n";
 #endif
 
-static SkTHashSet<SkString>* gUninterestingHashes = new SkTHashSet<SkString>;
+static THashSet<SkString>* gUninterestingHashes = new THashSet<SkString>;
 
 static void gather_uninteresting_hashes() {
     if (!FLAGS_uninterestingHashesFile.isEmpty()) {

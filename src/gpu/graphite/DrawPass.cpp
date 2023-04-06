@@ -90,7 +90,7 @@ public:
     TArray<V>&& detach() { return std::move(fIndexToData); }
 
 private:
-    SkTHashMap<T, Index> fDataToIndex;
+    THashMap<T, Index> fDataToIndex;
     TArray<V> fIndexToData;
 };
 

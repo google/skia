@@ -126,11 +126,11 @@ private:
 
 #ifdef SK_DEBUG
     // Because this exists preallocSize wants to use offsetof, so keep GrMemoryPool standard layout
-    // without depending on SkTHashSet being standard layout. Note that std::unique_ptr may not be
+    // without depending on THashSet being standard layout. Note that std::unique_ptr may not be
     // standard layout.
     struct Debug{
-        SkTHashSet<int>  fAllocatedIDs;
-        int              fAllocationCount;
+        skia_private::THashSet<int> fAllocatedIDs;
+        int                         fAllocationCount;
     };
     Debug* fDebug{nullptr};
 #endif

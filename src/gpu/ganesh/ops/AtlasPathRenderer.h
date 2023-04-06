@@ -109,7 +109,7 @@ private:
         float fAffineMatrix[6];
         uint32_t fFillRule;
     };
-    SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
+    skia_private::THashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };
 
 }  // namespace skgpu::ganesh

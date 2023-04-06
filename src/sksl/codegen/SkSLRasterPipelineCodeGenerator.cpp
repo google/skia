@@ -122,7 +122,7 @@ public:
     int slotCount() const { return fSlotCount; }
 
 private:
-    SkTHashMap<const IRNode*, SlotRange> fSlotMap;
+    THashMap<const IRNode*, SlotRange> fSlotMap;
     int fSlotCount = 0;
     std::vector<SlotDebugInfo>* fSlotDebugInfo;
 };
@@ -434,7 +434,7 @@ private:
     Builder fBuilder;
     DebugTracePriv* fDebugTrace = nullptr;
     bool fWriteTraceOps = false;
-    SkTHashMap<const Variable*, int> fChildEffectMap;
+    THashMap<const Variable*, int> fChildEffectMap;
 
     SlotManager fProgramSlots;
     SlotManager fUniformSlots;
@@ -448,7 +448,7 @@ private:
     int fNextStackID = 0;
     TArray<int> fRecycledStacks;
 
-    SkTHashMap<const FunctionDefinition*, Analysis::ReturnComplexity> fReturnComplexityMap;
+    THashMap<const FunctionDefinition*, Analysis::ReturnComplexity> fReturnComplexityMap;
 
     // `fInsideCompoundStatement` will be nonzero if we are currently writing statements inside of a
     // compound-statement Block. (Conceptually those statements should all count as one.)

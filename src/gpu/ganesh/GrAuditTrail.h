@@ -151,8 +151,8 @@ private:
     static void JsonifyTArray(SkJSONWriter& writer, const char* name, const T& array);
 
     OpPool fOpPool;
-    SkTHashMap<uint32_t, int> fIDLookup;
-    SkTHashMap<int, Ops*> fClientIDLookup;
+    skia_private::THashMap<uint32_t, int> fIDLookup;
+    skia_private::THashMap<int, Ops*> fClientIDLookup;
     OpsTask fOpsTask;
     skia_private::TArray<SkString> fCurrentStackTrace;
 

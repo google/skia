@@ -247,7 +247,7 @@ private:
     struct PathHash {
         uint32_t operator()(const SkPath& p) { return p.getGenerationID(); }
     };
-    SkTHashMap<SkPath, int, PathHash> fPaths;
+    skia_private::THashMap<SkPath, int, PathHash> fPaths;
 
     SkWriter32 fWriter;
 

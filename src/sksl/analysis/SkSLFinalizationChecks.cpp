@@ -36,6 +36,8 @@
 #include <string>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 namespace {
 
@@ -156,7 +158,7 @@ private:
     const Context& fContext;
     const ProgramUsage& fUsage;
     // we pack the set/binding pair into a single 64 bit int
-    SkTHashSet<uint64_t> fBindings;
+    THashSet<uint64_t> fBindings;
 };
 
 }  // namespace

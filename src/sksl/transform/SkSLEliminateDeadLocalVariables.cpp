@@ -30,6 +30,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 class Context;
@@ -128,7 +130,7 @@ static bool eliminate_dead_local_variables(const Context& context,
         bool fMadeChanges = false;
         const Context& fContext;
         ProgramUsage* fUsage;
-        SkTHashSet<const Variable*> fDeadVariables;
+        THashSet<const Variable*> fDeadVariables;
         bool fAssignmentWasEliminated = false;
 
         using INHERITED = ProgramWriter;

@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    SkTHashMap<SkString, sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;
+    skia_private::THashMap<SkString, sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;
     skia_private::TArray<SkString> fFamilyNames;
 };
 

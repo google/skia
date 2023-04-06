@@ -14,6 +14,8 @@
 #include "src/core/SkRectPriv.h"
 #include "tools/fonts/RandomScalerContext.h"
 
+using namespace skia_private;
+
 class SkDescriptor;
 
 class RandomScalerContext : public SkScalerContext {
@@ -35,11 +37,11 @@ private:
     SkRandomTypeface* getRandomTypeface() const {
         return static_cast<SkRandomTypeface*>(this->getTypeface());
     }
-    std::unique_ptr<SkScalerContext> fProxy;
+    std::unique_ptr<SkScalerContext>   fProxy;
     // Many of the SkGlyphs returned are the same as those created by the fProxy.
     // When they are not, the originals are kept here.
-    SkTHashMap<SkPackedGlyphID, SkGlyph> fProxyGlyphs;
-    bool                             fFakeIt;
+    THashMap<SkPackedGlyphID, SkGlyph> fProxyGlyphs;
+    bool                               fFakeIt;
 };
 
 RandomScalerContext::RandomScalerContext(sk_sp<SkRandomTypeface>       face,

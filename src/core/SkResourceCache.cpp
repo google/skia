@@ -75,7 +75,7 @@ namespace {
 }  // namespace
 
 class SkResourceCache::Hash :
-    public SkTHashTable<SkResourceCache::Rec*, SkResourceCache::Key, HashTraits> {};
+    public THashTable<SkResourceCache::Rec*, SkResourceCache::Key, HashTraits> {};
 
 
 ///////////////////////////////////////////////////////////////////////////////

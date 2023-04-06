@@ -242,7 +242,7 @@ private:
     const char* fBase = nullptr;  // beginning of buffer
 
     // Only used if we do not have an fFactoryArray.
-    SkTHashMap<uint32_t, SkFlattenable::Factory> fFlattenableDict;
+    skia_private::THashMap<uint32_t, SkFlattenable::Factory> fFlattenableDict;
 
     int fVersion = 0;
 

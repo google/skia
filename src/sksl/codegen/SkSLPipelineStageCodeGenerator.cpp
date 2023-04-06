@@ -60,6 +60,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 namespace PipelineStage {
 
@@ -146,9 +148,9 @@ private:
     const char*    fDestColor;
     Callbacks*     fCallbacks;
 
-    SkTHashMap<const Variable*, std::string>            fVariableNames;
-    SkTHashMap<const FunctionDeclaration*, std::string> fFunctionNames;
-    SkTHashMap<const Type*, std::string>                fStructNames;
+    THashMap<const Variable*, std::string>            fVariableNames;
+    THashMap<const FunctionDeclaration*, std::string> fFunctionNames;
+    THashMap<const Type*, std::string>                fStructNames;
 
     StringStream* fBuffer = nullptr;
     bool          fCastReturnsToHalf = false;

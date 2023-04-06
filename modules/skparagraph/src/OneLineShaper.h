@@ -135,7 +135,7 @@ private:
             size_t operator()(const FontKey& key) const;
         };
     };
-    SkTHashMap<FontKey, sk_sp<SkTypeface>, FontKey::Hasher> fFallbackFonts;
+    skia_private::THashMap<FontKey, sk_sp<SkTypeface>, FontKey::Hasher> fFallbackFonts;
 };
 
 }  // namespace textlayout

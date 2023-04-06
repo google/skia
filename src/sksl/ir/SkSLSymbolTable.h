@@ -206,7 +206,7 @@ private:
     bool fBuiltin = false;
     bool fAtModuleBoundary = false;
     std::forward_list<std::string> fOwnedStrings;
-    SkTHashMap<SymbolKey, Symbol*, SymbolKey::Hash> fSymbols;
+    skia_private::THashMap<SymbolKey, Symbol*, SymbolKey::Hash> fSymbols;
 };
 
 }  // namespace SkSL

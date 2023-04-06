@@ -165,7 +165,7 @@ private:
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
     sk_sp<GrD3DPipeline> fMipmapPipeline;
 
-    SkTHashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
+    skia_private::THashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
 
     DescriptorTableCache fShaderResourceDescriptorTableCache;
     DescriptorTableCache fSamplerDescriptorTableCache;

@@ -1009,12 +1009,12 @@ namespace skvm {
         // If the passed in ID is a bit-not, return the value being bit-notted. Otherwise, NA.
         Val holdsBitNot(Val id);
 
-        SkTHashMap<Instruction, Val, InstructionHash> fIndex;
-        std::vector<Instruction>                      fProgram;
-        std::vector<SkSL::TraceHook*>                 fTraceHooks;
-        std::vector<int>                              fStrides;
-        const Features                                fFeatures;
-        bool                                          fCreateDuplicates;
+        skia_private::THashMap<Instruction, Val, InstructionHash> fIndex;
+        std::vector<Instruction>                                  fProgram;
+        std::vector<SkSL::TraceHook*>                             fTraceHooks;
+        std::vector<int>                                          fStrides;
+        const Features                                            fFeatures;
+        bool                                                      fCreateDuplicates;
     };
 
     // Optimization passes and data structures normally used by Builder::optimize(),

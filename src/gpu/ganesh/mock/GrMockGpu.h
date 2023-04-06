@@ -232,7 +232,7 @@ private:
     static int NextInternalRenderTargetID();
     static int NextExternalRenderTargetID();
 
-    SkTHashSet<int> fOutstandingTestingOnlyTextureIDs;
+    skia_private::THashSet<int> fOutstandingTestingOnlyTextureIDs;
 
     using INHERITED = GrGpu;
 };

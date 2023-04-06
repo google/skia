@@ -29,6 +29,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 static std::vector<std::string> get_expected_errors(const char* shaderString) {
     // Error expectations are embedded in the source with a special *%%* marker, like so:
     //
@@ -91,7 +93,7 @@ static void check_expected_errors(skiatest::Reporter* r,
 static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
     // In a size-optimized build, there are a handful of errors which report differently, or not at
     // all. Skip over those tests.
-    static const auto* kTestsToSkip = new SkTHashSet<std::string_view>{
+    static const auto* kTestsToSkip = new THashSet<std::string_view>{
         // These are tests that have been deleted, but which may still show up (and fail) on bots,
         // because the resources directory isn't properly cleaned up. (skbug.com/12987)
         "sksl/errors/InvalidThreadgroupRTS.rts",

@@ -278,7 +278,7 @@ private:
     SkVMBlitter::Key fHoveredKey;
     skvm::Program    fHoveredProgram;
 
-    SkTHashMap<SkVMBlitter::Key, std::string> fDisassemblyCache;
+    skia_private::THashMap<SkVMBlitter::Key, std::string> fDisassemblyCache;
 };
 
 #endif

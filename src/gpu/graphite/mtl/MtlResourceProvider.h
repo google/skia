@@ -50,8 +50,9 @@ private:
     sk_cfp<id<MTLDepthStencilState>> findOrCreateCompatibleDepthStencilState(
             const DepthStencilSettings&);
 
-    SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
-    SkTHashMap<uint64_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
+    skia_private::THashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>>
+            fDepthStencilStates;
+    skia_private::THashMap<uint64_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
 };
 
 } // namespace skgpu::graphite

@@ -170,7 +170,7 @@ public:
     void dump(SkWStream* out) const;
 
 private:
-    using StackDepthMap = SkTHashMap<int, int>; // <stack index, depth of stack>
+    using StackDepthMap = skia_private::THashMap<int, int>; // <stack index, depth of stack>
 
     struct SlotData {
         SkSpan<float> values;
@@ -257,7 +257,7 @@ private:
     int fNumUniformSlots = 0;
     int fNumTempStackSlots = 0;
     int fNumLabels = 0;
-    SkTHashMap<int, int> fTempStackMaxDepths;
+    skia_private::THashMap<int, int> fTempStackMaxDepths;
     DebugTracePriv* fDebugTrace = nullptr;
     std::unique_ptr<SkSL::TraceHook> fTraceHook;
 };

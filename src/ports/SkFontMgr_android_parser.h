@@ -96,7 +96,7 @@ struct FontFamily {
     skia_private::TArray<SkString, true> fNames;
     skia_private::TArray<FontFileInfo, true> fFonts;
     skia_private::TArray<SkLanguage, true> fLanguages;
-    SkTHashMap<SkString, std::unique_ptr<FontFamily>> fallbackFamilies;
+    skia_private::THashMap<SkString, std::unique_ptr<FontFamily>> fallbackFamilies;
     FontVariant fVariant;
     int fOrder; // internal to the parser, not useful to users.
     bool fIsFallbackFont;

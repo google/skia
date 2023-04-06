@@ -133,10 +133,10 @@ private:
 
     SkMatrix fInitialTransform;
 
-    SkTHashSet<SkPDFIndirectReference> fGraphicStateResources;
-    SkTHashSet<SkPDFIndirectReference> fXObjectResources;
-    SkTHashSet<SkPDFIndirectReference> fShaderResources;
-    SkTHashSet<SkPDFIndirectReference> fFontResources;
+    skia_private::THashSet<SkPDFIndirectReference> fGraphicStateResources;
+    skia_private::THashSet<SkPDFIndirectReference> fXObjectResources;
+    skia_private::THashSet<SkPDFIndirectReference> fShaderResources;
+    skia_private::THashSet<SkPDFIndirectReference> fFontResources;
     int fNodeId;
 
     SkDynamicMemoryWStream fContent;

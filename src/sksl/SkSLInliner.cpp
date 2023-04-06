@@ -68,6 +68,8 @@
 #include <string_view>
 #include <utility>
 
+using namespace skia_private;
+
 namespace SkSL {
 namespace {
 
@@ -991,8 +993,8 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
     this->buildCandidateList(elements, symbols, usage, &candidateList);
 
     // Inline the candidates where we've determined that it's safe to do so.
-    using StatementRemappingTable = SkTHashMap<std::unique_ptr<Statement>*,
-                                               std::unique_ptr<Statement>*>;
+    using StatementRemappingTable = THashMap<std::unique_ptr<Statement>*,
+                                             std::unique_ptr<Statement>*>;
     StatementRemappingTable statementRemappingTable;
 
     bool madeChanges = false;

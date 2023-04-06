@@ -40,7 +40,8 @@ private:
     struct UniqueKeyHash {
         uint32_t operator()(const skgpu::UniqueKey& key) const;
     };
-    typedef SkTHashMap<skgpu::UniqueKey, sk_sp<TextureProxy>, UniqueKeyHash> UniqueKeyProxyHash;
+    typedef skia_private::THashMap<skgpu::UniqueKey, sk_sp<TextureProxy>, UniqueKeyHash>
+            UniqueKeyProxyHash;
 
     UniqueKeyProxyHash fCache;
 };

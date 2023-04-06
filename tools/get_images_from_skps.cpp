@@ -24,6 +24,8 @@
 #include <iostream>
 #include <map>
 
+using namespace skia_private;
+
 static DEFINE_string2(skps, s, "skps", "A path to a directory of skps or a single skp.");
 static DEFINE_string2(out, o, "img-out", "A path to an output directory.");
 static DEFINE_bool(testDecode, false,
@@ -41,7 +43,7 @@ static const char* gOutputDir;
 static std::map<std::string, unsigned int> gSkpToUnknownCount = {};
 static std::map<std::string, unsigned int> gSkpToUnsupportedCount;
 
-static SkTHashSet<SkMD5::Digest> gSeen;
+static THashSet<SkMD5::Digest> gSeen;
 
 struct Sniffer {
 

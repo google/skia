@@ -51,6 +51,7 @@
 #include "src/text/gpu/TextBlob.h"
 #endif
 
+using namespace skia_private;
 using namespace sktext;
 using namespace sktext::gpu;
 using namespace skglyph;
@@ -250,7 +251,7 @@ private:
     bool fHaveSentFontMetrics{false};
 
     // The masks and paths that currently reside in the GPU process.
-    SkTHashTable<SkGlyphDigest, SkPackedGlyphID, SkGlyphDigest> fSentGlyphs;
+    THashTable<SkGlyphDigest, SkPackedGlyphID, SkGlyphDigest> fSentGlyphs;
 
     // The Masks, SDFT Mask, and Paths that need to be sent to the GPU task for the processed
     // TextBlobs. Cleared after diffs are serialized.
@@ -514,11 +515,11 @@ private:
     DescToRemoteStrike fDescToRemoteStrike;
 
     SkStrikeServer::DiscardableHandleManager* const fDiscardableHandleManager;
-    SkTHashSet<SkTypefaceID> fCachedTypefaces;
+    THashSet<SkTypefaceID> fCachedTypefaces;
     size_t fMaxEntriesInDescriptorMap = kMaxEntriesInDescriptorMap;
 
     // State cached until the next serialization.
-    SkTHashSet<RemoteStrike*> fRemoteStrikesToSend;
+    THashSet<RemoteStrike*> fRemoteStrikesToSend;
     std::vector<SkTypefaceProxyPrototype> fTypefacesToSend;
 };
 
@@ -881,7 +882,7 @@ private:
 
     sk_sp<SkTypeface> addTypeface(const SkTypefaceProxyPrototype& typefaceProto);
 
-    SkTHashMap<SkTypefaceID, sk_sp<SkTypeface>> fServerTypefaceIdToTypeface;
+    THashMap<SkTypefaceID, sk_sp<SkTypeface>> fServerTypefaceIdToTypeface;
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableHandleManager;
     SkStrikeCache* const fStrikeCache;
     const bool fIsLogging;

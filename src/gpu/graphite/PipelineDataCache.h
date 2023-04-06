@@ -73,7 +73,7 @@ private:
         }
     };
 
-    SkTHashSet<DataRef, Hash> fDataPointers;
+    skia_private::THashSet<DataRef, Hash> fDataPointers;
     // Holds the data that is pointed to by fDataPointers
     SkArenaAlloc fArena{0};
 };

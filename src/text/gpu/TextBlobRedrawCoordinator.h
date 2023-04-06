@@ -118,7 +118,7 @@ private:
 
     mutable SkSpinlock fSpinLock;
     TextBlobList fBlobList SK_GUARDED_BY(fSpinLock);
-    SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fSpinLock);
+    skia_private::THashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fSpinLock);
     size_t fSizeBudget SK_GUARDED_BY(fSpinLock);
     size_t fCurrentSize SK_GUARDED_BY(fSpinLock) {0};
 

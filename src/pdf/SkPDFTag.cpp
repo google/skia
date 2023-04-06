@@ -132,7 +132,7 @@ SkPDFTagTree::~SkPDFTagTree() = default;
 void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
                         SkPDFTagNode* dst,
                         SkArenaAlloc* arena,
-                        SkTHashMap<int, SkPDFTagNode*>* nodeMap) {
+                        THashMap<int, SkPDFTagNode*>* nodeMap) {
     nodeMap->set(node.fNodeId, dst);
     for (int nodeId : node.fAdditionalNodeIds) {
         SkASSERT(!nodeMap->find(nodeId));

@@ -743,7 +743,7 @@ DSLType Parser::structDeclaration() {
         return DSLType(nullptr);
     }
     TArray<DSLField> fields;
-    SkTHashSet<std::string_view> fieldNames;
+    THashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token fieldStart = this->peek();
         DSLModifiers modifiers = this->modifiers();
@@ -886,7 +886,7 @@ DSLLayout Parser::layout() {
         WGSL
     };
 
-    using LayoutMap = SkTHashMap<std::string_view, LayoutToken>;
+    using LayoutMap = THashMap<std::string_view, LayoutToken>;
     static LayoutMap* sLayoutTokens = new LayoutMap{
             {"location",                    LayoutToken::LOCATION},
             {"offset",                      LayoutToken::OFFSET},
@@ -1110,7 +1110,7 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     }
     this->nextToken();
     TArray<DSLField> fields;
-    SkTHashSet<std::string_view> fieldNames;
+    THashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Position fieldPos = this->position(this->peek());
         DSLModifiers fieldModifiers = this->modifiers();

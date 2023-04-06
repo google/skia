@@ -62,6 +62,7 @@
 #include <optional>
 #include <vector>
 
+using namespace skia_private;
 using Slug = sktext::gpu::Slug;
 
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
@@ -115,7 +116,7 @@ public:
         fLockedHandles.reset();
         fLastDeletedHandleId = fNextHandleId;
     }
-    const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const {
+    const THashSet<SkDiscardableHandleId>& lockedHandles() const {
         SkAutoMutexExclusive l(fMutex);
 
         return fLockedHandles;
@@ -151,7 +152,7 @@ private:
 
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
-    SkTHashSet<SkDiscardableHandleId> fLockedHandles;
+    THashSet<SkDiscardableHandleId> fLockedHandles;
     int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
 };
 

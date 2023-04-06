@@ -156,7 +156,7 @@ private:
         SkISize layerBounds;
     };
 
-    SkTHashMap<LayerKey, DrawEvent> fDraws;
+    skia_private::THashMap<LayerKey, DrawEvent> fDraws;
     // The list of all keys in the map above (it has no keys() method)
     std::vector<LayerKey> keys;
 };

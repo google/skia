@@ -25,6 +25,8 @@
 #include <string_view>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 void Transform::ReplaceConstVarsWithLiterals(Module& module, ProgramUsage* usage) {
@@ -55,7 +57,7 @@ void Transform::ReplaceConstVarsWithLiterals(Module& module, ProgramUsage* usage
         }
 
         ProgramUsage* fUsage;
-        SkTHashSet<const Variable*> fCandidates;
+        THashSet<const Variable*> fCandidates;
 
         using INHERITED = ProgramWriter;
     };

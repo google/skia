@@ -29,6 +29,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 bool Analysis::CheckProgramStructure(const Program& program, bool enforceSizeLimit) {
@@ -197,7 +199,7 @@ bool Analysis::CheckProgramStructure(const Program& program, bool enforceSizeLim
 
         const Context& fContext;
         size_t fFunctionSize = 0;
-        SkTHashMap<const FunctionDeclaration*, size_t> fFunctionCostMap;
+        THashMap<const FunctionDeclaration*, size_t> fFunctionCostMap;
         std::vector<const FunctionDeclaration*> fStack;
     };
 

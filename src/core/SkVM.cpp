@@ -26,6 +26,8 @@
 #include <unistd.h>
 #endif
 
+using namespace skia_private;
+
 bool gSkVMAllowJIT{false};
 bool gSkVMJITViaDylib{false};
 
@@ -2831,9 +2833,9 @@ namespace skvm {
         using A = Assembler;
         using SkVMJitTypes::Reg;
 
-        SkTHashMap<int, A::Label> constants;    // Constants (mostly splats) share the same pool.
-        A::Label                  iota;         // Varies per lane, for Op::index.
-        A::Label                  load64_index; // Used to load low or high half of 64-bit lanes.
+        THashMap<int, A::Label> constants;    // Constants (mostly splats) share the same pool.
+        A::Label                iota;         // Varies per lane, for Op::index.
+        A::Label                load64_index; // Used to load low or high half of 64-bit lanes.
 
         // The `regs` array tracks everything we know about each register's state:
         //   - NA:   empty

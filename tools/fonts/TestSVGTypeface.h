@@ -156,7 +156,7 @@ private:
     const SkFontMetrics              fFontMetrics;
     std::unique_ptr<Glyph[]>         fGlyphs;
     int                              fGlyphCount;
-    SkTHashMap<SkUnichar, SkGlyphID> fCMap;
+    skia_private::THashMap<SkUnichar, SkGlyphID> fCMap;
     friend class SkTestSVGScalerContext;
 };
 

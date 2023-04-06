@@ -363,7 +363,7 @@ public:
 
     static bool FitsInAtlas(const SkGlyph& glyph);
 
-    // GetKey and Hash implement the required methods for SkTHashTable.
+    // GetKey and Hash implement the required methods for THashTable.
     static SkPackedGlyphID GetKey(SkGlyphDigest digest) {
         return SkPackedGlyphID{SkTo<uint32_t>(digest.fPackedID)};
     }
