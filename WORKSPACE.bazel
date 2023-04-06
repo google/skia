@@ -319,6 +319,21 @@ load("@cxx_deps//:defs.bzl", cxx_deps = "crate_repositories")
 # ... and adds them to the workspace.
 cxx_deps()
 
+# The fontations repository consists of multiple crates. We download those
+# listed in the external/fontations/Cargo.* files.
+# Add this entry to have a root repository from which the individual
+# fontations crates can be fetched.
+# This allows them to be used as deps in other bazel targets.
+crates_repository(
+    name = "fontations",
+    cargo_lockfile = "//bazel/external/fontations:Cargo.lock",
+    manifests = ["//bazel/external/fontations:Cargo.toml"],
+)
+
+load("@fontations//:defs.bzl", fontations_crates = "crate_repositories")
+
+fontations_crates()
+
 ###############################################################
 
 # Bazel will look for env variables ANDROID_HOME and ANDROID_NDK_HOME.
