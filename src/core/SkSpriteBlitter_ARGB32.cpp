@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTemplates.h"
@@ -111,10 +110,12 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
             // this can handle alpha, but not xfermode
             return allocator->make<Sprite_D32_S32>(source, alpha);
         }
+#if defined(SK_USE_LEGACY_XFERMODE_SPRITE_BLITTERS)
         if (255 == alpha) {
             // this can handle an xfermode, but not alpha
             return allocator->make<Sprite_D32_S32A_Xfer>(source, paint);
         }
+#endif
     }
     return nullptr;
 }
