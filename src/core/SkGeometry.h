@@ -325,14 +325,11 @@ enum SkRotationDirection {
 struct SkConic {
     SkConic() {}
     SkConic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {
-        fPts[0] = p0;
-        fPts[1] = p1;
-        fPts[2] = p2;
-        fW = w;
+        this->set(p0, p1, p2, w);
     }
+
     SkConic(const SkPoint pts[3], SkScalar w) {
-        memcpy(fPts, pts, sizeof(fPts));
-        fW = w;
+        this->set(pts, w);
     }
 
     SkPoint  fPts[3];
@@ -340,14 +337,23 @@ struct SkConic {
 
     void set(const SkPoint pts[3], SkScalar w) {
         memcpy(fPts, pts, 3 * sizeof(SkPoint));
-        fW = w;
+        this->setW(w);
     }
 
     void set(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {
         fPts[0] = p0;
         fPts[1] = p1;
         fPts[2] = p2;
-        fW = w;
+        this->setW(w);
+    }
+
+    void setW(SkScalar w) {
+        if (SkScalarIsFinite(w)) {
+            SkASSERT(w > 0);
+        }
+
+        // Guard against bad weights by forcing them to 1.
+        fW = w > 0 && SkScalarIsFinite(w) ? w : 1;
     }
 
     /**
