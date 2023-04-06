@@ -116,7 +116,6 @@ public:
     void blitMask(const SkMask&, const SkIRect&) override;
 
 private:
-    SkXfermode*         fXfermode;
     SkPMColor*          fBuffer;
     SkBlitRow::Proc32   fProc32;
     SkBlitRow::Proc32   fProc32Blend;
