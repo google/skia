@@ -1878,7 +1878,6 @@ PORTS_SRCS_IOS = [
     "src/ports/SkFontMgr_mac_ct.cpp",
     "src/ports/SkFontMgr_mac_ct_factory.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
-    "src/ports/SkImageEncoder_CG.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
     "src/ports/SkImageGeneratorCG.cpp",
     "src/ports/SkMemory_malloc.cpp",

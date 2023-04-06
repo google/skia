@@ -20,6 +20,11 @@ Milestone 114
     `SkSurface` target.
   * `SkSerialImageProc` and `SkDeserialImageProc` are now also used to encode/decode the SkMipmap
     layers of certain SkImages.
+  * The defines `SK_USE_WIC_ENCODER` and `SK_USE_CG_ENCODER` have been removed, as well as the code
+    to use the Windows Image Codecs and Core Graphics as a way to have Skia encode files in PNG,
+    JPEG, and WEBP format. Skia continues to support use of the NDK codecs on Android, as well
+    as using external C++ libraries (e.g. libpng, libjpeg-turbo) to *encode* images. WIC and CG
+    are still used to *decode* images on the appropriate platforms.
 
 * * *
 

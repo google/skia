@@ -35,27 +35,12 @@ static const struct {
     SkEncodedImageFormat format;
     int                  quality;
 } gRecs[] = {
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kJPEG, 100},
-    { SkEncodedImageFormat::kGIF,  100},
-    { SkEncodedImageFormat::kBMP,  100},
-    { SkEncodedImageFormat::kICO,  100},
-#elif defined(SK_BUILD_FOR_WIN)
-    // Our WIC encoder does not support GIF, BMP, or ICO.
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kJPEG, 100},
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kPNG,  100},
-#else
     // We don't support GIF, BMP, or ICO. This applies to both NDK and SkEncoder.
     { SkEncodedImageFormat::kPNG,  100},
     { SkEncodedImageFormat::kJPEG, 100},
     { SkEncodedImageFormat::kWEBP, 100}, // Lossless
     { SkEncodedImageFormat::kWEBP,  80}, // Lossy
     { SkEncodedImageFormat::kPNG,  100},
-#endif
 };
 
 } // anonymous namespace
@@ -66,11 +51,7 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
         return nullptr;
     }
     SkDynamicMemoryWStream buf;
-    #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        return SkEncodeImageWithCG(&buf, src, type) ? buf.detachAsData() : nullptr;
-    #elif defined(SK_BUILD_FOR_WIN)
-        return SkEncodeImageWithWIC(&buf, src, type, quality) ? buf.detachAsData() : nullptr;
-    #elif defined(SK_ENABLE_NDK_IMAGES)
+    #if defined(SK_ENABLE_NDK_IMAGES)
         return SkEncodeImageWithNDK(&buf, src, type, quality) ? buf.detachAsData() : nullptr;
     #else
         switch (type) {

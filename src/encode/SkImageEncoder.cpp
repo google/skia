@@ -17,7 +17,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
 
-#if SK_ENABLE_NDK_IMAGES || SK_USE_CG_ENCODER || SK_USE_WIC_ENCODER
+#if SK_ENABLE_NDK_IMAGES
 #include "src/encode/SkImageEncoderPriv.h"
 #endif
 
@@ -52,12 +52,7 @@ bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFormat f, 
 
 bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                    SkEncodedImageFormat format, int quality) {
-    #ifdef SK_USE_CG_ENCODER
-        (void)quality;
-        return SkEncodeImageWithCG(dst, src, format);
-    #elif SK_USE_WIC_ENCODER
-        return SkEncodeImageWithWIC(dst, src, format, quality);
-    #elif SK_ENABLE_NDK_IMAGES
+    #if SK_ENABLE_NDK_IMAGES
         return SkEncodeImageWithNDK(dst, src, format, quality);
     #else
         switch(format) {
