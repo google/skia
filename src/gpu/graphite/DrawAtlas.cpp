@@ -173,6 +173,7 @@ bool DrawAtlas::addToPage(unsigned int pageIdx, int width, int height, const voi
 
 bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder, bool useCachedUploads) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TokenTracker* tokenTracker = recorder->priv().tokenTracker();
     for (uint32_t pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
         PlotList::Iter plotIter;
         plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
@@ -181,18 +182,32 @@ bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder, bool useCached
                 TextureProxy* proxy = fProxies[pageIdx].get();
                 SkASSERT(proxy);
 
+                // Need to grab this before it gets reset by prepareForUpload()
+                bool setUploadToken = plot->needsUpload();
+
                 const void* dataPtr;
                 SkIRect dstRect;
                 std::tie(dataPtr, dstRect) = plot->prepareForUpload(useCachedUploads);
                 if (dstRect.isEmpty()) {
                     continue;
                 }
+                // We don't want to set the uploadToken for the conditional uploads
+                // we create at the start of a Recording -- if we do then each time we snap
+                // a new Recording it will update the token and effectively consider those
+                // uploads to take precedence over the ones that originally set up that
+                // state. Then when we play the Recording back it will overwrite those
+                // Plots even though they already contain the necessary glyphs. The Plots
+                // should keep the token value for the non-conditional uploads that
+                // originally set that state.
+                if (setUploadToken) {
+                    plot->setLastUploadToken(tokenTracker->nextFlushToken());
+                }
 
                 std::vector<MipLevel> levels;
                 levels.push_back({dataPtr, fBytesPerPixel*fPlotWidth});
 
-                plot->setLastUploadToken(recorder->priv().tokenTracker()->nextFlushToken());
-
+                // We need a conditional context for all uploads to ensure that they are
+                // registered in the PlotUploadTracker.
                 auto uploadContext = PlotUploadContext::Make(plot->plotLocator(),
                                                              plot->lastUploadToken(),
                                                              fAtlasID);
