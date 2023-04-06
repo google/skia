@@ -10,7 +10,6 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkRasterPipelineOpList.h"
-#include "src/core/SkTHash.h"
 
 #include <cstdint>
 #include <initializer_list>
@@ -170,7 +169,7 @@ public:
     void dump(SkWStream* out) const;
 
 private:
-    using StackDepthMap = skia_private::THashMap<int, int>; // <stack index, depth of stack>
+    using StackDepths = skia_private::TArray<int>; // [stack index] = depth of stack
 
     struct SlotData {
         SkSpan<float> values;
@@ -187,7 +186,7 @@ private:
                     SkSpan<const float> uniforms,
                     const SlotData& slots) const;
     void optimize();
-    StackDepthMap tempStackMaxDepths() const;
+    StackDepths tempStackMaxDepths() const;
 
     // These methods are used to split up large multi-slot operations into multiple ops as needed.
     void appendCopy(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
@@ -257,7 +256,7 @@ private:
     int fNumUniformSlots = 0;
     int fNumTempStackSlots = 0;
     int fNumLabels = 0;
-    skia_private::THashMap<int, int> fTempStackMaxDepths;
+    StackDepths fTempStackMaxDepths;
     DebugTracePriv* fDebugTrace = nullptr;
     std::unique_ptr<SkSL::TraceHook> fTraceHook;
 };

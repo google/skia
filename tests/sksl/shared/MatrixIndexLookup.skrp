@@ -1,8 +1,8 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. store_condition_mask           $14 = CondMask
+    3. store_condition_mask           $12 = CondMask
     4. branch_if_no_lanes_active      branch_if_no_lanes_active +48 (label 2 at #52)
-    5. store_return_mask              $15 = RetMask
+    5. store_return_mask              $13 = RetMask
     6. copy_4_constants               matrix(0..3) = testMatrix3x3(0..3)
     7. copy_4_constants               matrix(4..7) = testMatrix3x3(4..7)
     8. copy_constant                  matrix(8) = testMatrix3x3(8)
@@ -10,48 +10,48 @@
    10. copy_constant                  expected(1) = 0x40000000 (2.0)
    11. copy_constant                  expected(2) = 0x40400000 (3.0)
    12. zero_slot_unmasked             index = 0
-   13. store_loop_mask                $16 = LoopMask
+   13. store_loop_mask                $14 = LoopMask
    14. jump                           jump +25 (label 4 at #39)
    15. label                          label 0x00000005
-   16. store_condition_mask           $17 = CondMask
-   17. copy_slot_unmasked             $12 = index
-   18. copy_constant                  $13 = 0x00000003 (4.203895e-45)
-   19. mul_int                        $12 *= $13
-   20. copy_from_indirect_unmasked    $18..20 = Indirect(matrix(0..2) + $12)
-   21. copy_3_slots_unmasked          $21..23 = expected
-   22. cmpne_3_floats                 $18..20 = notEqual($18..20, $21..23)
-   23. bitwise_or_int                 $19 |= $20
-   24. bitwise_or_int                 $18 |= $19
-   25. merge_condition_mask           CondMask = $17 & $18
-   26. zero_slot_unmasked             $19 = 0
-   27. copy_slot_masked               [test3x3].result = Mask($19)
+   16. store_condition_mask           $15 = CondMask
+   17. copy_slot_unmasked             $22 = index
+   18. copy_constant                  $23 = 0x00000003 (4.203895e-45)
+   19. mul_int                        $22 *= $23
+   20. copy_from_indirect_unmasked    $16..18 = Indirect(matrix(0..2) + $22)
+   21. copy_3_slots_unmasked          $19..21 = expected
+   22. cmpne_3_floats                 $16..18 = notEqual($16..18, $19..21)
+   23. bitwise_or_int                 $17 |= $18
+   24. bitwise_or_int                 $16 |= $17
+   25. merge_condition_mask           CondMask = $15 & $16
+   26. zero_slot_unmasked             $17 = 0
+   27. copy_slot_masked               [test3x3].result = Mask($17)
    28. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   29. load_condition_mask            CondMask = $17
-   30. copy_3_slots_unmasked          $17..19 = expected
-   31. copy_constant                  $20 = 0x40400000 (3.0)
-   32. swizzle_3                      $20..22 = ($20..22).xxx
-   33. add_3_floats                   $17..19 += $20..22
-   34. copy_3_slots_masked            expected = Mask($17..19)
-   35. copy_slot_unmasked             $17 = index
-   36. copy_constant                  $18 = 0x00000001 (1.401298e-45)
-   37. add_int                        $17 += $18
-   38. copy_slot_masked               index = Mask($17)
+   29. load_condition_mask            CondMask = $15
+   30. copy_3_slots_unmasked          $15..17 = expected
+   31. copy_constant                  $18 = 0x40400000 (3.0)
+   32. swizzle_3                      $18..20 = ($18..20).xxx
+   33. add_3_floats                   $15..17 += $18..20
+   34. copy_3_slots_masked            expected = Mask($15..17)
+   35. copy_slot_unmasked             $15 = index
+   36. copy_constant                  $16 = 0x00000001 (1.401298e-45)
+   37. add_int                        $15 += $16
+   38. copy_slot_masked               index = Mask($15)
    39. label                          label 0x00000004
-   40. copy_slot_unmasked             $17 = index
-   41. copy_constant                  $18 = 0x00000003 (4.203895e-45)
-   42. cmplt_int                      $17 = lessThan($17, $18)
-   43. merge_loop_mask                LoopMask &= $17
+   40. copy_slot_unmasked             $15 = index
+   41. copy_constant                  $16 = 0x00000003 (4.203895e-45)
+   42. cmplt_int                      $15 = lessThan($15, $16)
+   43. merge_loop_mask                LoopMask &= $15
    44. stack_rewind
    45. branch_if_any_lanes_active     branch_if_any_lanes_active -30 (label 5 at #15)
    46. label                          label 0x00000003
-   47. load_loop_mask                 LoopMask = $16
-   48. copy_constant                  $16 = 0xFFFFFFFF
-   49. copy_slot_masked               [test3x3].result = Mask($16)
-   50. load_return_mask               RetMask = $15
-   51. copy_slot_unmasked             $15 = [test3x3].result
+   47. load_loop_mask                 LoopMask = $14
+   48. copy_constant                  $14 = 0xFFFFFFFF
+   49. copy_slot_masked               [test3x3].result = Mask($14)
+   50. load_return_mask               RetMask = $13
+   51. copy_slot_unmasked             $13 = [test3x3].result
    52. label                          label 0x00000002
    53. zero_slot_unmasked             $0 = 0
-   54. merge_condition_mask           CondMask = $14 & $15
+   54. merge_condition_mask           CondMask = $12 & $13
    55. branch_if_no_lanes_active      branch_if_no_lanes_active +52 (label 1 at #107)
    56. store_return_mask              $1 = RetMask
    57. copy_4_constants               matrix₁(0..3) = testMatrix4x4(0..3)
@@ -67,10 +67,10 @@
    67. jump                           jump +25 (label 8 at #92)
    68. label                          label 0x00000009
    69. store_condition_mask           $3 = CondMask
-   70. copy_slot_unmasked             $12 = index₁
-   71. copy_constant                  $13 = 0x00000004 (5.605194e-45)
-   72. mul_int                        $12 *= $13
-   73. copy_from_indirect_unmasked    $4..7 = Indirect(matrix₁(0..3) + $12)
+   70. copy_slot_unmasked             $22 = index₁
+   71. copy_constant                  $23 = 0x00000004 (5.605194e-45)
+   72. mul_int                        $22 *= $23
+   73. copy_from_indirect_unmasked    $4..7 = Indirect(matrix₁(0..3) + $22)
    74. copy_4_slots_unmasked          $8..11 = expected₁
    75. cmpne_4_floats                 $4..7 = notEqual($4..7, $8..11)
    76. bitwise_or_2_ints              $4..5 |= $6..7
@@ -105,7 +105,7 @@
   105. label                          label 0x00000006
   106. copy_slot_masked               $0 = Mask($1)
   107. label                          label 0x00000001
-  108. load_condition_mask            CondMask = $14
+  108. load_condition_mask            CondMask = $12
   109. swizzle_4                      $0..3 = ($0..3).xxxx
   110. copy_4_constants               $4..7 = colorRed
   111. copy_4_constants               $8..11 = colorGreen

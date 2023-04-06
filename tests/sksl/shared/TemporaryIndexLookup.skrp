@@ -13,18 +13,18 @@
    13. add_float                      $2 += $3
    14. copy_slot_masked               expected = Mask($2)
    15. store_condition_mask           $2 = CondMask
-   16. copy_slot_unmasked             $19 = i
-   17. copy_constant                  $20 = 0x00000003 (4.203895e-45)
-   18. mul_int                        $19 *= $20
-   19. copy_slot_unmasked             $17 = j
-   20. copy_slot_unmasked             $18 = $19
-   21. add_int                        $17 += $18
+   16. copy_slot_unmasked             $8 = i
+   17. copy_constant                  $9 = 0x00000003 (4.203895e-45)
+   18. mul_int                        $8 *= $9
+   19. copy_slot_unmasked             $10 = j
+   20. copy_slot_unmasked             $11 = $8
+   21. add_int                        $10 += $11
    22. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 6 at #26)
-   23. copy_4_constants               $8..11 = testMatrix3x3(0..3)
-   24. copy_4_constants               $12..15 = testMatrix3x3(4..7)
-   25. copy_constant                  $16 = testMatrix3x3(8)
+   23. copy_4_constants               $12..15 = testMatrix3x3(0..3)
+   24. copy_4_constants               $16..19 = testMatrix3x3(4..7)
+   25. copy_constant                  $20 = testMatrix3x3(8)
    26. label                          label 0x00000006
-   27. copy_from_indirect_unmasked    $3 = Indirect($8 + $17)
+   27. copy_from_indirect_unmasked    $3 = Indirect($12 + $10)
    28. copy_slot_unmasked             $4 = expected
    29. cmpne_float                    $3 = notEqual($3, $4)
    30. merge_condition_mask           CondMask = $2 & $3

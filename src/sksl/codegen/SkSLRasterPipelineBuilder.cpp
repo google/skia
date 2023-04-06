@@ -14,6 +14,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
@@ -1032,23 +1033,37 @@ static int stack_usage(const Instruction& inst) {
     }
 }
 
-Program::StackDepthMap Program::tempStackMaxDepths() const {
-    StackDepthMap largest;
-    StackDepthMap current;
+Program::StackDepths Program::tempStackMaxDepths() const {
+    // Count the number of separate temp stacks that the program uses.
+    int numStacks = 1;
+    for (const Instruction& inst : fInstructions) {
+        if (inst.fOp == BuilderOp::set_current_stack) {
+            numStacks = std::max(numStacks, inst.fImmA + 1);
+        }
+    }
+
+    // Walk the program and calculate how deep each stack can potentially get.
+    StackDepths largest, current;
+    largest.push_back_n(numStacks, 0);
+    current.push_back_n(numStacks, 0);
 
     int curIdx = 0;
     for (const Instruction& inst : fInstructions) {
         if (inst.fOp == BuilderOp::set_current_stack) {
             curIdx = inst.fImmA;
+            SkASSERTF(curIdx >= 0 && curIdx < numStacks,
+                      "instruction references nonexistent stack %d", curIdx);
         }
         current[curIdx] += stack_usage(inst);
         largest[curIdx] = std::max(current[curIdx], largest[curIdx]);
+        // If we assert here, the generated program has popped off the top of the stack.
         SkASSERTF(current[curIdx] >= 0, "unbalanced temp stack push/pop on stack %d", curIdx);
     }
 
-    for (const auto& [stackIdx, depth] : current) {
-        (void)stackIdx;
-        SkASSERTF(depth == 0, "unbalanced temp stack push/pop");
+    // Ensure that when the program is complete, our stacks are fully balanced.
+    for (int stackIdx = 0; stackIdx < numStacks; ++stackIdx) {
+        // If we assert here, the generated program has pushed more data than it has popped.
+        SkASSERTF(current[stackIdx] == 0, "unbalanced temp stack push/pop on stack %d", stackIdx);
     }
 
     return largest;
@@ -1069,8 +1084,7 @@ Program::Program(TArray<Instruction> instrs,
     fTempStackMaxDepths = this->tempStackMaxDepths();
 
     fNumTempStackSlots = 0;
-    for (const auto& [stackIdx, depth] : fTempStackMaxDepths) {
-        (void)stackIdx;
+    for (const int depth : fTempStackMaxDepths) {
         fNumTempStackSlots += depth;
     }
 
@@ -1368,17 +1382,17 @@ void Program::makeStages(TArray<Stage>* pipeline,
     SkASSERT(fNumUniformSlots == SkToInt(uniforms.size()));
 
     const int N = SkOpts::raster_pipeline_highp_stride;
-    StackDepthMap tempStackDepth;
     int currentStack = 0;
     int mostRecentRewind = 0;
 
     // Assemble a map holding the current stack-top for each temporary stack. Position each temp
     // stack immediately after the previous temp stack; temp stacks are never allowed to overlap.
     int pos = 0;
-    THashMap<int, float*> tempStackMap;
-    for (auto& [idx, depth] : fTempStackMaxDepths) {
+    TArray<float*> tempStackMap;
+    tempStackMap.resize(fTempStackMaxDepths.size());
+    for (int idx = 0; idx < fTempStackMaxDepths.size(); ++idx) {
         tempStackMap[idx] = slots.stack.begin() + (pos * N);
-        pos += depth;
+        pos += fTempStackMaxDepths[idx];
     }
 
     // Track labels that we have reached in processing.
