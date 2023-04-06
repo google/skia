@@ -116,6 +116,11 @@ TestHarness CurrentTestHarness() {
 }
 
 int main() {
+#ifdef SK_BUILD_FOR_ANDROID
+    extern bool gSkDebugToStdOut; // If true, sends SkDebugf to stdout as well.
+    gSkDebugToStdOut = true;
+#endif
+
     BazelReporter reporter;
     for (skiatest::Test test : skiatest::TestRegistry::Range()) {
         if (test.fTestType == skiatest::TestType::kCPU) {
