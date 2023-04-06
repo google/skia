@@ -651,37 +651,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 
 #endif  // !SK_DISABLE_LEGACY_IMAGE_FACTORIES && SK_GANESH
 
-#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES) && defined(SK_BUILD_FOR_ANDROID) && \
-        __ANDROID_API__ >= 26 && !defined(SK_BUILD_FOR_GOOGLE3)
-
-#include "include/android/SkImageAndroid.h"
-
-sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(
-            AHardwareBuffer* hardwareBuffer,
-            SkAlphaType alphaType) {
-    return SkImages::DeferredFromAHardwareBuffer(hardwareBuffer, alphaType);
-}
-
-sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(
-            AHardwareBuffer* hardwareBuffer,
-            SkAlphaType alphaType,
-            sk_sp<SkColorSpace> colorSpace,
-            GrSurfaceOrigin surfaceOrigin) {
-    return SkImages::DeferredFromAHardwareBuffer(hardwareBuffer, alphaType, colorSpace,
-                                                 surfaceOrigin);
-}
-
-sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(
-            GrDirectContext* context,
-            const SkPixmap& pixmap,
-            AHardwareBuffer* hardwareBuffer,
-            GrSurfaceOrigin surfaceOrigin) {
-    return SkImages::TextureFromAHardwareBufferWithData(context, pixmap, hardwareBuffer,
-                                                        surfaceOrigin);
-}
-
-#endif
-
 #if !defined(SK_DISABLE_LEGACY_GET_BACKEND_TEXTURE) && defined(SK_GANESH)
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"  // IWYU pragma: keep
