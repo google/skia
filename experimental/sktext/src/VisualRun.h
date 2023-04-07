@@ -91,9 +91,9 @@ class VisualRun {
 
     SkVector fAdvance;
     DirTextRange fDirTextRange;
-    SkSTArray<128, SkGlyphID, true> fGlyphs;
-    SkSTArray<128, SkPoint, true> fPositions;
-    SkSTArray<128, TextIndex, true> fClusters;
+    skia_private::STArray<128, SkGlyphID, true> fGlyphs;
+    skia_private::STArray<128, SkPoint, true> fPositions;
+    skia_private::STArray<128, TextIndex, true> fClusters;
     GlyphIndex fTrailingSpacesStart;
 };
 
