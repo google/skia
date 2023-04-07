@@ -52,32 +52,25 @@ enum class DstColorType {
  */
 
 struct PassthroughShaderBlock {
-
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
-
 };
 
 struct PassthroughBlenderBlock {
-
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
-
 };
 
 struct SolidColorShaderBlock {
-
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const SkPMColor4f&);
-
 };
 
 struct GradientShaderBlocks {
-
     struct GradientData {
         // The number of stops stored internal to this data structure before falling back to
         // bitmap storage.
@@ -142,11 +135,9 @@ struct GradientShaderBlocks {
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const GradientData&);
-
 };
 
 struct LocalMatrixShaderBlock {
-
     struct LMShaderData {
         LMShaderData(const SkMatrix& localMatrix)
                 : fLocalMatrix(localMatrix) {
@@ -159,11 +150,9 @@ struct LocalMatrixShaderBlock {
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const LMShaderData*);
-
 };
 
 struct ImageShaderBlock {
-
     struct ImageData {
         ImageData(const SkSamplingOptions& sampling,
                   SkTileMode tileModeX,
@@ -189,11 +178,9 @@ struct ImageShaderBlock {
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const ImageData*);
-
 };
 
 struct CoordClampShaderBlock {
-
     struct CoordClampData {
         CoordClampData(SkRect subset) : fSubset(subset) {}
 
@@ -208,7 +195,6 @@ struct CoordClampShaderBlock {
 };
 
 struct DitherShaderBlock {
-
     struct DitherData {
         DitherData(float range) : fRange(range) {}
 
@@ -223,7 +209,6 @@ struct DitherShaderBlock {
 };
 
 struct PerlinNoiseShaderBlock {
-
     enum class Type {
         kFractalNoise,
         kTurbulence,
