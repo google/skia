@@ -86,7 +86,7 @@ public:
 
     /** Poll for messages and unmap any incoming buffers. */
     void process() {
-        SkSTArray<4, BufferFinishedMessage> messages;
+        skia_private::STArray<4, BufferFinishedMessage> messages;
         fFinishedBufferInbox.poll(&messages);
         if (!fAbandoned) {
             for (auto& m : messages) {
@@ -216,7 +216,7 @@ private:
         sk_sp<T> fMappedBuffer;
         size_t fRowBytes;
     };
-    SkSTArray<3, Plane> fPlanes;
+    skia_private::STArray<3, Plane> fPlanes;
     IDType fIntendedRecipient;
 };
 

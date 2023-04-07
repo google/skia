@@ -45,7 +45,7 @@ private:
         SkIRect fMSAAResolveRect;
     };
 
-    SkSTArray<4, Resolve> fResolves;
+    skia_private::STArray<4, Resolve> fResolves;
 };
 
 #endif

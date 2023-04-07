@@ -1364,7 +1364,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
 
     // Elements not represented as an analytic FP or skipped will be collected here and later
     // applied by using the stencil buffer or a cached SW mask.
-    SkSTArray<kNumStackMasks, const Element*> elementsForMask;
+    STArray<kNumStackMasks, const Element*> elementsForMask;
 
     bool maskRequiresAA = false;
     auto atlasPathRenderer = rContext->priv().drawingManager()->getAtlasPathRenderer();

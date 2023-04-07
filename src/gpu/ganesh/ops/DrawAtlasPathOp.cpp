@@ -22,6 +22,8 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
+using namespace skia_private;
+
 namespace {
 
 class DrawAtlasPathShader : public GrGeometryProcessor {
@@ -69,7 +71,7 @@ private:
     const skgpu::ganesh::AtlasInstancedHelper* const fAtlasHelper;
     TextureSampler fAtlasAccess;
     constexpr static int kMaxInstanceAttribs = 6;
-    SkSTArray<kMaxInstanceAttribs, GrGeometryProcessor::Attribute> fAttribs;
+    STArray<kMaxInstanceAttribs, GrGeometryProcessor::Attribute> fAttribs;
 };
 
 class DrawAtlasPathShader::Impl : public ProgramImpl {

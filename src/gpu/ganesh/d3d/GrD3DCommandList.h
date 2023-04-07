@@ -134,9 +134,11 @@ protected:
 
     gr_cp<ID3D12GraphicsCommandList> fCommandList;
 
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrManagedResource>> fTrackedResources;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrRecycledResource>> fTrackedRecycledResources;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGpuBuffers;
+    template<typename T>
+    using TrackedResourceArray = skia_private::STArray<kInitialTrackedResourcesCount, T>;
+    TrackedResourceArray<sk_sp<GrManagedResource>> fTrackedResources;
+    TrackedResourceArray<sk_sp<GrRecycledResource>> fTrackedRecycledResources;
+    TrackedResourceArray<sk_sp<const GrBuffer>> fTrackedGpuBuffers;
 
 
     // When we create a command list it starts in an active recording state
@@ -148,7 +150,7 @@ private:
 
     gr_cp<ID3D12CommandAllocator> fAllocator;
 
-    SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
+    skia_private::STArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
 
     skia_private::TArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
 };

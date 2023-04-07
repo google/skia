@@ -418,7 +418,7 @@ private:
     }
 
     inline static constexpr int kMinItems = 4;
-    SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
+    skia_private::STArray<kMinItems, PlotData, true> fPlotsToUpdate;
     // TODO: increase this to uint64_t to allow more plots per page
     uint32_t fPlotAlreadyUpdated[skgpu::PlotLocator::kMaxMultitexturePages];
 };

@@ -104,9 +104,10 @@ private:
 
     static const int kInitialTrackedResourcesCount = 32;
 
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrManagedResource>> fTrackedResources;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGrBuffers;
-    SkSTArray<16, gr_cb<const GrSurface>> fTrackedGrSurfaces;
+    skia_private::STArray<
+        kInitialTrackedResourcesCount, sk_sp<const GrManagedResource>> fTrackedResources;
+    skia_private::STArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGrBuffers;
+    skia_private::STArray<16, gr_cb<const GrSurface>> fTrackedGrSurfaces;
 
     id<MTLCommandBuffer>        fCmdBuffer;
     id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;

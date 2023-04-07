@@ -1111,7 +1111,7 @@ bool GrGLGpu::uploadColorToTex(GrGLFormat textureFormat,
     std::unique_ptr<char[]> pixelStorage;
     size_t bpp = 0;
     int numLevels = SkMipmap::ComputeLevelCount(texDims) + 1;
-    SkSTArray<16, GrMipLevel> levels;
+    STArray<16, GrMipLevel> levels;
     levels.resize(numLevels);
     SkISize levelDims = texDims;
     for (int i = 0; i < numLevels; ++i, levelDims = {std::max(levelDims.width()  >> 1, 1),
@@ -2193,7 +2193,7 @@ void GrGLGpu::endCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
     }
 
     if (GrGLCaps::kNone_InvalidateFBType != this->glCaps().invalidateFBType()) {
-        SkSTArray<2, GrGLenum> discardAttachments;
+        STArray<2, GrGLenum> discardAttachments;
         if (GrStoreOp::kDiscard == colorLoadStore.fStoreOp) {
             discardAttachments.push_back(
                     rt->isFBO0(useMultisampleFBO) ? GR_GL_COLOR : GR_GL_COLOR_ATTACHMENT0);

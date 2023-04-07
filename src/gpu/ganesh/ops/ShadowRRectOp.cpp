@@ -20,6 +20,8 @@
 #include "src/gpu/ganesh/effects/GrShadowGeoProc.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 namespace {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -649,7 +651,7 @@ private:
         }
     }
 
-    SkSTArray<1, Geometry, true> fGeoData;
+    STArray<1, Geometry, true> fGeoData;
     int fVertCount;
     int fIndexCount;
     GrSurfaceProxyView fFalloffView;

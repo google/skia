@@ -877,7 +877,7 @@ private:
         GrGpuSubmittedProc fProc;
         GrGpuSubmittedContext fContext;
     };
-    SkSTArray<4, SubmittedProc> fSubmittedProcs;
+    skia_private::STArray<4, SubmittedProc> fSubmittedProcs;
 
     bool fOOMed = false;
 

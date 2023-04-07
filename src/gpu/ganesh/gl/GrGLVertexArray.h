@@ -87,7 +87,7 @@ private:
         int                       fDivisor;
     };
 
-    SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
+    skia_private::STArray<16, AttribArrayState, true> fAttribArrayStates;
     int fNumEnabledArrays;
     GrPrimitiveRestart fPrimitiveRestartEnabled;
     bool fEnableStateIsValid = false;

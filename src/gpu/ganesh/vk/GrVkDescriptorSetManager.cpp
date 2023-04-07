@@ -19,7 +19,7 @@ using namespace skia_private;
 #endif
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu* gpu) {
-    SkSTArray<1, uint32_t> visibilities;
+    STArray<1, uint32_t> visibilities;
     uint32_t stages = kVertex_GrShaderFlag | kFragment_GrShaderFlag;
     visibilities.push_back(stages);
     TArray<const GrVkSampler*> samplers;
@@ -28,8 +28,8 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
         GrVkGpu* gpu, VkDescriptorType type, const GrVkUniformHandler& uniformHandler) {
-    SkSTArray<4, uint32_t> visibilities;
-    SkSTArray<4, const GrVkSampler*> immutableSamplers;
+    STArray<4, uint32_t> visibilities;
+    STArray<4, const GrVkSampler*> immutableSamplers;
     SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     for (int i = 0 ; i < uniformHandler.numSamplers(); ++i) {
         visibilities.push_back(uniformHandler.samplerVisibility(i));
@@ -45,7 +45,7 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateZeroSamplerManager(GrV
 }
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateInputManager(GrVkGpu* gpu) {
-    SkSTArray<1, uint32_t> visibilities;
+    STArray<1, uint32_t> visibilities;
     visibilities.push_back(kFragment_GrShaderFlag);
     TArray<const GrVkSampler*> samplers;
     return Create(gpu, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, visibilities, samplers);

@@ -63,9 +63,9 @@ private:
     enum {
         kPreAllocCount = 8,
     };
-    SkSTArray<kPreAllocCount, sk_sp<PathRenderer>> fChain;
-    AtlasPathRenderer*                             fAtlasPathRenderer = nullptr;
-    PathRenderer*                                  fTessellationPathRenderer = nullptr;
+    skia_private::STArray<kPreAllocCount, sk_sp<PathRenderer>> fChain;
+    AtlasPathRenderer* fAtlasPathRenderer = nullptr;
+    PathRenderer* fTessellationPathRenderer = nullptr;
 };
 
 }  // namespace skgpu::ganesh

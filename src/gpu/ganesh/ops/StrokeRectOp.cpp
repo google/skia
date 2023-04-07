@@ -24,6 +24,8 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 namespace skgpu::ganesh::StrokeRectOp {
 
 namespace {
@@ -577,7 +579,7 @@ private:
                                       bool usesMSAASurface) const;
 
     Helper         fHelper;
-    SkSTArray<1, RectInfo, true> fRects;
+    STArray<1, RectInfo, true> fRects;
     SkMatrix       fViewMatrix;
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;

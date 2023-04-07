@@ -26,6 +26,8 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 namespace skgpu::ganesh::LatticeOp {
 
 namespace {
@@ -381,7 +383,7 @@ private:
     };
 
     Helper fHelper;
-    SkSTArray<1, Patch, true> fPatches;
+    STArray<1, Patch, true> fPatches;
     GrSurfaceProxyView fView;
     SkAlphaType fAlphaType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;

@@ -18,6 +18,8 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
+using namespace skia_private;
+
 namespace skgpu::ganesh::RegionOp {
 
 namespace {
@@ -188,7 +190,7 @@ private:
 
     Helper fHelper;
     SkMatrix fViewMatrix;
-    SkSTArray<1, RegionInfo, true> fRegions;
+    STArray<1, RegionInfo, true> fRegions;
     bool fWideColor;
 
     GrSimpleMesh*  fMesh = nullptr;

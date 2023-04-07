@@ -428,7 +428,7 @@ private:
 
     VkFormat fPreferredStencilFormat;
 
-    SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
+    skia_private::STArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
 
     bool fMustSyncCommandBuffersWithQueue = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;

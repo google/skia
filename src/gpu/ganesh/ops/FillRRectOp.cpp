@@ -27,6 +27,8 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 namespace skgpu::ganesh::FillRRectOp {
 
 namespace {
@@ -407,7 +409,7 @@ private:
     const ProcessorFlags fFlags;
 
     constexpr static int kMaxInstanceAttribs = 6;
-    SkSTArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
+    STArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
     const Attribute* fColorAttrib;
 };
 

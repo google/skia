@@ -31,6 +31,8 @@
 #include "src/gpu/ganesh/ops/GrPathStencilSettings.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
+using namespace skia_private;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
 
@@ -567,7 +569,7 @@ private:
         SkScalar fTolerance;
     };
 
-    SkSTArray<1, PathData, true> fPaths;
+    STArray<1, PathData, true> fPaths;
     Helper fHelper;
     SkPMColor4f fColor;
     uint8_t fCoverage;

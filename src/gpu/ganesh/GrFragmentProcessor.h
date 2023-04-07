@@ -455,7 +455,7 @@ private:
         kWillReadDstColor_Flag = kFirstPrivateFlag << 3,
     };
 
-    SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
+    skia_private::STArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
     const GrFragmentProcessor* fParent = nullptr;
     uint32_t fFlags = 0;
     SkSL::SampleUsage fUsage;
@@ -625,7 +625,7 @@ public:
         Iter& operator=(const Iter&) = delete;
 
     private:
-        SkSTArray<4, ProgramImpl*, true> fFPStack;
+        skia_private::STArray<4, ProgramImpl*, true> fFPStack;
     };
 
 private:

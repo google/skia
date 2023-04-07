@@ -376,7 +376,7 @@ static inline void add_quad(const SkPoint pts[3], PathSegmentArray* segments) {
 
 static inline void add_cubic(const SkPoint pts[4],
                              PathSegmentArray* segments) {
-    SkSTArray<15, SkPoint, true> quads;
+    STArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, &quads);
     int count = quads.size();
     for (int q = 0; q < count; q += 3) {
@@ -774,7 +774,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
 
     // polygonize path into line and quad segments
     SkPathEdgeIter iter(workingPath);
-    SkSTArray<15, PathSegment, true> segments;
+    STArray<15, PathSegment, true> segments;
     while (auto e = iter.next()) {
         switch (e.fEdge) {
             case SkPathEdgeIter::Edge::kLine: {

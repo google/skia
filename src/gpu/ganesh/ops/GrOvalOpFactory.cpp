@@ -32,6 +32,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
 
 using skgpu::VertexWriter;
@@ -1477,7 +1479,7 @@ private:
 
     SkMatrix fViewMatrixIfUsingLocalCoords;
     Helper fHelper;
-    SkSTArray<1, Circle, true> fCircles;
+    STArray<1, Circle, true> fCircles;
     int fVertCount;
     int fIndexCount;
     bool fAllFill;
@@ -1801,7 +1803,7 @@ private:
 
     SkMatrix fViewMatrixIfUsingLocalCoords;
     Helper fHelper;
-    SkSTArray<1, Circle, true> fCircles;
+    STArray<1, Circle, true> fCircles;
     int fVertCount;
     int fIndexCount;
     bool fWideColor;
@@ -2096,7 +2098,7 @@ private:
     bool fStroked;
     bool fWideColor;
     bool fUseScale;
-    SkSTArray<1, Ellipse, true> fEllipses;
+    STArray<1, Ellipse, true> fEllipses;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -2374,7 +2376,7 @@ private:
     Helper fHelper;
     bool fWideColor;
     bool fUseScale;
-    SkSTArray<1, Ellipse, true> fEllipses;
+    STArray<1, Ellipse, true> fEllipses;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -2839,7 +2841,7 @@ private:
     int fIndexCount;
     bool fAllFill;
     bool fWideColor;
-    SkSTArray<1, RRect, true> fRRects;
+    STArray<1, RRect, true> fRRects;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -3157,7 +3159,7 @@ private:
     bool fStroked;
     bool fWideColor;
     bool fUseScale;
-    SkSTArray<1, RRect, true> fRRects;
+    STArray<1, RRect, true> fRRects;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;

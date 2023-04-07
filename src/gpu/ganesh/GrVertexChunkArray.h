@@ -34,7 +34,7 @@ struct GrVertexChunk {
 //
 // We only preallocate 1 chunk because if the array needs to grow, then we're also allocating a
 // brand new GPU buffer anyway.
-using GrVertexChunkArray = SkSTArray<1, GrVertexChunk>;
+using GrVertexChunkArray = skia_private::STArray<1, GrVertexChunk>;
 
 // Builds a GrVertexChunkArray. The provided Target must not be used externally throughout the
 // entire lifetime of this object.

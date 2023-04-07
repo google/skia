@@ -1159,7 +1159,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
         if (!this->currentCommandBuffer()) {
             return nullptr;
         }
-        SkSTArray<1, VkImageSubresourceRange> ranges;
+        STArray<1, VkImageSubresourceRange> ranges;
         bool inRange = false;
         GrVkImage* texImage = tex->textureImage();
         for (uint32_t i = 0; i < texImage->mipLevels(); ++i) {

@@ -28,6 +28,8 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
+using namespace skia_private;
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace skgpu::ganesh {
 
@@ -326,7 +328,7 @@ private:
         SkPaint::Join fJoin;
     };
 
-    SkSTArray<1, PathData, true> fPaths;
+    STArray<1, PathData, true> fPaths;
     Helper fHelper;
     bool fWideColor;
 

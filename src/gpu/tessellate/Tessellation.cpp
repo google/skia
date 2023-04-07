@@ -16,6 +16,8 @@
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
+using namespace skia_private;
+
 namespace skgpu::tess {
 
 namespace {
@@ -151,8 +153,8 @@ private:
     SkPath fPath;
 
     // Used for stack-based recursion (instead of using the runtime stack).
-    SkSTArray<8, SkPoint> fPointStack;
-    SkSTArray<2, float> fWeightStack;
+    STArray<8, SkPoint> fPointStack;
+    STArray<2, float> fWeightStack;
 };
 
 }  // namespace

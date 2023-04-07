@@ -16,6 +16,8 @@
 #include "src/gpu/ganesh/tessellate/GrPathTessellationShader.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 
+using namespace skia_private;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 namespace skgpu::ganesh {
@@ -57,7 +59,7 @@ private:
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
     constexpr static int kMaxInstanceAttribCount = 3;
-    SkSTArray<kMaxInstanceAttribCount, Attribute> fInstanceAttribs;
+    STArray<kMaxInstanceAttribCount, Attribute> fInstanceAttribs;
 };
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(

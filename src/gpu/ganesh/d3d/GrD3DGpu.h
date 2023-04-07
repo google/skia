@@ -314,7 +314,7 @@ private:
     std::unique_ptr<GrD3DDirectCommandList> fCurrentDirectCommandList;
     // One-off special-case descriptors created directly for the mipmap compute shader
     // and hence aren't tracked by the normal path.
-    SkSTArray<32, GrD3DDescriptorHeap::CPUHandle> fMipmapCPUDescriptors;
+    skia_private::STArray<32, GrD3DDescriptorHeap::CPUHandle> fMipmapCPUDescriptors;
 
     struct OutstandingCommandList {
         OutstandingCommandList(std::unique_ptr<GrD3DDirectCommandList> commandList,

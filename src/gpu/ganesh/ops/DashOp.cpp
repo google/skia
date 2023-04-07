@@ -33,6 +33,8 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 using AAMode = skgpu::ganesh::DashOp::AAMode;
 
 #if GR_TEST_UTILS
@@ -349,8 +351,8 @@ private:
         // rectangles.  We preserve all of this work in the rects / draws arrays below.  Then we
         // iterate again over these decomposed dashes to generate vertices
         static const int kNumStackDashes = 128;
-        SkSTArray<kNumStackDashes, SkRect, true> rects;
-        SkSTArray<kNumStackDashes, DashDraw, true> draws;
+        STArray<kNumStackDashes, SkRect, true> rects;
+        STArray<kNumStackDashes, DashDraw, true> draws;
 
         int totalRectCount = 0;
         int rectOffset = 0;
@@ -683,7 +685,7 @@ private:
     bool fullDash() const { return fFullDash; }
     SkPaint::Cap cap() const { return fCap; }
 
-    SkSTArray<1, LineData, true> fLines;
+    STArray<1, LineData, true> fLines;
     SkPMColor4f fColor;
     bool fUsesLocalCoords : 1;
     bool fFullDash : 1;

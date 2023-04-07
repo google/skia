@@ -89,7 +89,7 @@ private:
 
     // Pass 2: Fill the path's inner fan with a stencil test against the curves. (In extenuating
     // circumstances this might require two separate draws.)
-    SkSTArray<2, const GrProgramInfo*> fFanPrograms;
+    skia_private::STArray<2, const GrProgramInfo*> fFanPrograms;
 
     // Pass 3: Draw convex hulls around each curve.
     const GrProgramInfo* fCoverHullsProgram = nullptr;

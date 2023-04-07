@@ -153,7 +153,7 @@ private:
 #endif
 
     inline static constexpr int kInitialTrackedResourcesCount = 32;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
+    skia_private::STArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
     skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 };
 

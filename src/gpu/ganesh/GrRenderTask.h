@@ -176,7 +176,7 @@ protected:
     // targetUpdateBounds must not extend beyond the proxy bounds.
     virtual ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) = 0;
 
-    SkSTArray<1, sk_sp<GrSurfaceProxy>> fTargets;
+    skia_private::STArray<1, sk_sp<GrSurfaceProxy>> fTargets;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins
@@ -270,9 +270,9 @@ private:
     uint32_t               fFlags;
 
     // 'this' GrRenderTask relies on the output of the GrRenderTasks in 'fDependencies'
-    SkSTArray<1, GrRenderTask*, true> fDependencies;
+    skia_private::STArray<1, GrRenderTask*, true> fDependencies;
     // 'this' GrRenderTask's output is relied on by the GrRenderTasks in 'fDependents'
-    SkSTArray<1, GrRenderTask*, true> fDependents;
+    skia_private::STArray<1, GrRenderTask*, true> fDependents;
 
     // For performance reasons, we should perform texture resolves back-to-back as much as possible.
     // (http://skbug.com/9406). To accomplish this, we make and reuse one single resolve task for

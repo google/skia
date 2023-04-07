@@ -32,6 +32,8 @@
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
 
+using namespace skia_private;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 using MaskFormat = skgpu::MaskFormat;
@@ -654,7 +656,7 @@ private:
         SkMatrix      fViewMatrix;
     };
 
-    SkSTArray<1, Entry> fShapes;
+    STArray<1, Entry> fShapes;
     Helper fHelper;
     bool fGammaCorrect;
     bool fWideColor;

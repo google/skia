@@ -273,7 +273,7 @@ inline void add_quad_segment(const SkPoint pts[3], SegmentArray* segments) {
 inline void add_cubic_segments(const SkPoint pts[4],
                                SkPathFirstDirection dir,
                                SegmentArray* segments) {
-    SkSTArray<15, SkPoint, true> quads;
+    STArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuadsConstrainToTangents(pts, SK_Scalar1, dir, &quads);
     int count = quads.size();
     for (int q = 0; q < count; q += 3) {
@@ -798,7 +798,7 @@ private:
                 kPreallocSegmentCnt = 512 / sizeof(Segment),
                 kPreallocDrawCnt = 4,
             };
-            SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
+            STArray<kPreallocSegmentCnt, Segment, true> segments;
             SkPoint fanPt;
 
             if (!get_segments(*pathPtr, *viewMatrix, &segments, &fanPt, &vertexCount,
@@ -828,7 +828,7 @@ private:
                 return;
             }
 
-            SkSTArray<kPreallocDrawCnt, Draw, true> draws;
+            STArray<kPreallocDrawCnt, Draw, true> draws;
             VertexColor color(args.fColor, fWideColor);
             create_vertices(segments, fanPt, color, &draws, verts, idxs, kVertexStride);
 
@@ -888,7 +888,7 @@ private:
     };
 
     Helper fHelper;
-    SkSTArray<1, PathData, true> fPaths;
+    STArray<1, PathData, true> fPaths;
     bool fWideColor;
 
     struct MeshDraw {

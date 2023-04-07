@@ -258,7 +258,7 @@ protected:
 
     GrGLSLProgramBuilder* fProgramBuilder;
     std::string fCompilerString;
-    SkSTArray<kPrealloc, SkString> fShaderStrings;
+    skia_private::STArray<kPrealloc, SkString> fShaderStrings;
     SkString fCode;
     SkString fFunctions;
     SkString fExtensions;
@@ -268,7 +268,7 @@ protected:
     VarArray fInputs;
     VarArray fOutputs;
     uint32_t fFeaturesAddedMask;
-    SkSTArray<1, SkString> fLayoutParams[kLastInterfaceQualifier + 1];
+    skia_private::STArray<1, SkString> fLayoutParams[kLastInterfaceQualifier + 1];
     int fCodeIndex;
     bool fFinalized;
 

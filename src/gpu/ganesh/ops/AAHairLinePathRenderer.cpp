@@ -34,7 +34,7 @@
 
 using namespace skia_private;
 
-#define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
+#define PREALLOC_PTARRAY(N) STArray<(N),SkPoint, true>
 
 using PtArray = TArray<SkPoint, true>;
 using IntArray = TArray<int, true>;
@@ -950,7 +950,7 @@ private:
         SkScalar fCapLength;
     };
 
-    SkSTArray<1, PathData, true> fPaths;
+    STArray<1, PathData, true> fPaths;
     Helper fHelper;
     SkPMColor4f fColor;
     uint8_t fCoverage;

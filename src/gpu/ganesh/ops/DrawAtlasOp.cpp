@@ -79,7 +79,7 @@ private:
         TArray<uint8_t, true> fVerts;
     };
 
-    SkSTArray<1, Geometry, true> fGeoData;
+    STArray<1, Geometry, true> fGeoData;
     Helper fHelper;
     SkMatrix fViewMatrix;
     SkPMColor4f fColor;

@@ -155,9 +155,9 @@ private:
 
     GrD3DGpu* fGpu;
 
-    SkSTArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
-    SkSTArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
-    SkSTArray<2, sk_sp<GrD3DCommandSignature>> fCommandSignatures;
+    skia_private::STArray<4, std::unique_ptr<GrD3DDirectCommandList>> fAvailableDirectCommandLists;
+    skia_private::STArray<4, sk_sp<GrD3DRootSignature>> fRootSignatures;
+    skia_private::STArray<2, sk_sp<GrD3DCommandSignature>> fCommandSignatures;
 
     GrD3DCpuDescriptorManager fCpuDescriptorManager;
     GrD3DDescriptorTableManager fDescriptorTableManager;
