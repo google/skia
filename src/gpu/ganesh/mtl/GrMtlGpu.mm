@@ -1048,7 +1048,7 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
     SkASSERT(compression != SkTextureCompressionType::kNone);
 
     // Create a transfer buffer and fill with data.
-    SkSTArray<16, size_t> individualMipOffsets;
+    STArray<16, size_t> individualMipOffsets;
     size_t combinedBufferSize;
     combinedBufferSize = SkCompressedDataSize(compression,
                                               backendTexture.dimensions(),

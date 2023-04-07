@@ -691,8 +691,4 @@ public:
     using TArray<T, MEM_MOVE>::size;
 };
 }  // namespace skia_private
-
-template <int N, typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
-using SkSTArray = skia_private::STArray<N, T, MEM_MOVE>;
-
-#endif
+#endif  // SkTArray_DEFINED
