@@ -679,9 +679,9 @@ void Builder::copy_uniform_to_slots_unmasked(SlotRange dst, SlotRange src) {
         // If the last op is copy-constant...
         if (lastInstr.fOp == BuilderOp::copy_uniform_to_slots_unmasked &&
             // and this op's destination is immediately after the last copy-constant's destination
-            lastInstr.fSlotA + lastInstr.fImmA == dst.index &&
+            lastInstr.fSlotB + lastInstr.fImmA == dst.index &&
             // and this op's source is immediately after the last copy-constant's source
-            lastInstr.fSlotB + lastInstr.fImmA == src.index) {
+            lastInstr.fSlotA + lastInstr.fImmA == src.index) {
             // then we can just extend the copy!
             lastInstr.fImmA += dst.count;
             return;
@@ -689,7 +689,7 @@ void Builder::copy_uniform_to_slots_unmasked(SlotRange dst, SlotRange src) {
     }
 
     SkASSERT(dst.count == src.count);
-    fInstructions.push_back({BuilderOp::copy_uniform_to_slots_unmasked, {dst.index, src.index},
+    fInstructions.push_back({BuilderOp::copy_uniform_to_slots_unmasked, {src.index, dst.index},
                              dst.count});
 }
 
@@ -1098,14 +1098,14 @@ Program::~Program() = default;
 void Program::appendCopy(TArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
                          ProgramOp baseStage,
-                         float* dst, int dstStride,
-                         const float* src, int srcStride,
+                         float* dst,
+                         const float* src,
                          int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
-        this->appendCopy(pipeline, alloc, baseStage, dst, dstStride, src, srcStride,/*numSlots=*/4);
-        dst += 4 * dstStride;
-        src += 4 * srcStride;
+        this->appendCopy(pipeline, alloc, baseStage, dst, src, /*numSlots=*/4);
+        dst += 4 * SkOpts::raster_pipeline_highp_stride;
+        src += 4 * SkOpts::raster_pipeline_highp_stride;
         numSlots -= 4;
     }
 
@@ -1126,9 +1126,7 @@ void Program::appendCopySlotsUnmasked(TArray<Stage>* pipeline,
                                       int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_unmasked,
-                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
-                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
-                     numSlots);
+                     dst,  src, numSlots);
 }
 
 void Program::appendCopySlotsMasked(TArray<Stage>* pipeline,
@@ -1138,21 +1136,7 @@ void Program::appendCopySlotsMasked(TArray<Stage>* pipeline,
                                     int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_masked,
-                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
-                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
-                     numSlots);
-}
-
-void Program::appendCopyUniforms(TArray<Stage>* pipeline,
-                                 SkArenaAlloc* alloc,
-                                 float* dst,
-                                 const float* src,
-                                 int numSlots) const {
-    this->appendCopy(pipeline, alloc,
-                     ProgramOp::copy_uniform,
-                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
-                     src, /*srcStride=*/1,
-                     numSlots);
+                     dst, src, numSlots);
 }
 
 void Program::appendSingleSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp stage,
@@ -1414,7 +1398,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
         auto SlotA    = [&]() { return &slots.values[N * inst.fSlotA]; };
         auto SlotB    = [&]() { return &slots.values[N * inst.fSlotB]; };
         auto UniformA = [&]() { return &uniforms[inst.fSlotA]; };
-        auto UniformB = [&]() { return &uniforms[inst.fSlotB]; };
         auto AllocTraceContext = [&](auto* ctx) {
             // We pass `ctx` solely for its type; the value is unused.
             using ContextType = typename std::remove_reference<decltype(*ctx)>::type;
@@ -1649,13 +1632,24 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({op, ctx});
                 break;
             }
-            case BuilderOp::push_uniform: {
-                float* dst = tempStackPtr;
-                this->appendCopyUniforms(pipeline, alloc, dst, UniformA(), inst.fImmA);
-                break;
-            }
+            case BuilderOp::push_uniform:
             case BuilderOp::copy_uniform_to_slots_unmasked: {
-                this->appendCopyUniforms(pipeline, alloc, SlotA(), UniformB(), inst.fImmA);
+                const float* src = UniformA();
+                float* dst = (inst.fOp == BuilderOp::push_uniform) ? tempStackPtr : SlotB();
+
+                for (int remaining = inst.fImmA; remaining > 0; remaining -= 4) {
+                    auto ctx = alloc->make<SkRasterPipeline_UniformCtx>();
+                    ctx->dst = dst;
+                    ctx->src = src;
+                    switch (remaining) {
+                        case 1:  pipeline->push_back({ProgramOp::copy_uniform,    ctx}); break;
+                        case 2:  pipeline->push_back({ProgramOp::copy_2_uniforms, ctx}); break;
+                        case 3:  pipeline->push_back({ProgramOp::copy_3_uniforms, ctx}); break;
+                        default: pipeline->push_back({ProgramOp::copy_4_uniforms, ctx}); break;
+                    }
+                    dst += 4 * N;
+                    src += 4;
+                }
                 break;
             }
             case BuilderOp::push_zeros: {
@@ -2148,7 +2142,7 @@ void Program::dump(SkWStream* out) const {
         // dictated by the op itself).
         auto CopyUniformCtx = [&](const void* v,
                                   int numSlots) -> std::tuple<std::string, std::string> {
-            const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
+            const auto *ctx = static_cast<const SkRasterPipeline_UniformCtx*>(v);
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    MultiImmCtx(ctx->src, numSlots));
         };

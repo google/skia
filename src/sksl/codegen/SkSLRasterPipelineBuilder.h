@@ -188,16 +188,13 @@ private:
     void optimize();
     StackDepths tempStackMaxDepths() const;
 
-    // These methods are used to split up large multi-slot operations into multiple ops as needed.
+    // These methods are used to split up multi-slot copies into multiple ops as needed.
     void appendCopy(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                    ProgramOp baseStage,
-                    float* dst, int dstStride, const float* src, int srcStride, int numSlots) const;
+                    ProgramOp baseStage, float* dst, const float* src, int numSlots) const;
     void appendCopySlotsUnmasked(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                  float* dst, const float* src, int numSlots) const;
     void appendCopySlotsMasked(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                float* dst, const float* src, int numSlots) const;
-    void appendCopyUniforms(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                            float* dst, const float* src, int numSlots) const;
 
     // Appends a single-slot single-input math operation to the pipeline. The op `stage` will
     // appended `numSlots` times, starting at position `dst` and advancing one slot for each

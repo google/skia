@@ -3477,25 +3477,25 @@ STAGE_TAIL(zero_4_slots_unmasked, F* dst) {
     sk_bzero(dst, sizeof(F) * 4);
 }
 
-STAGE_TAIL(copy_uniform, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_uniform, SkRasterPipeline_UniformCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
 }
-STAGE_TAIL(copy_2_uniforms, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_2_uniforms, SkRasterPipeline_UniformCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
 }
-STAGE_TAIL(copy_3_uniforms, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_3_uniforms, SkRasterPipeline_UniformCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
 }
-STAGE_TAIL(copy_4_uniforms, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_4_uniforms, SkRasterPipeline_UniformCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];

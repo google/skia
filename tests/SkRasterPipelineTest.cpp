@@ -1201,7 +1201,7 @@ DEF_TEST(SkRasterPipeline_CopyUniforms, r) {
         // Run `copy_n_uniforms` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
+        auto* ctx = alloc.make<SkRasterPipeline_UniformCtx>();
         ctx->dst = slots;
         ctx->src = uniforms;
         p.append(op.stage, ctx);

@@ -155,6 +155,11 @@ struct SkRasterPipeline_ConstantCtx {
     float value;
 };
 
+struct SkRasterPipeline_UniformCtx {
+    float *dst;
+    const float *src;
+};
+
 struct SkRasterPipeline_BinaryOpCtx {
     float *dst;
     const float *src;
