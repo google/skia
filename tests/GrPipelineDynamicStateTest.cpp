@@ -51,6 +51,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 class GrAppliedClip;
 class GrDstProxyView;
 class GrGLSLProgramDataManager;
@@ -187,7 +189,7 @@ private:
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
                             flushState->drawOpArgs().writeView().swizzle());
-        SkSTArray<kNumMeshes, GrSimpleMesh> meshes;
+        STArray<kNumMeshes, GrSimpleMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrSimpleMesh& mesh = meshes.push_back();
             mesh.set(fVertexBuffer, 4, 4 * i);

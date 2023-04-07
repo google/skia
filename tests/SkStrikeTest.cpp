@@ -48,6 +48,7 @@
 #include <tuple>
 #include <vector>
 
+using namespace skia_private;
 
 using namespace sktext;
 using namespace skglyph;
@@ -144,16 +145,16 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
             auto local = data.subspan(threadIndex * 2, data.size() - kThreadCount * 2);
             for (int i = 0; i < 100; i++) {
                 // Accepted buffers.
-                SkSTArray<64, SkPackedGlyphID> acceptedPackedGlyphIDs;
-                SkSTArray<64, SkPoint> acceptedPositions;
-                SkSTArray<64, SkMask::Format> acceptedFormats;
+                STArray<64, SkPackedGlyphID> acceptedPackedGlyphIDs;
+                STArray<64, SkPoint> acceptedPositions;
+                STArray<64, SkMask::Format> acceptedFormats;
                 acceptedPackedGlyphIDs.resize(glyphCount);
                 acceptedPositions.resize(glyphCount);
                 const auto acceptedBuffer = SkMakeZip(acceptedPackedGlyphIDs, acceptedPositions);
 
                 // Rejected buffers.
-                SkSTArray<64, SkGlyphID> rejectedGlyphIDs;
-                SkSTArray<64, SkPoint> rejectedPositions;
+                STArray<64, SkGlyphID> rejectedGlyphIDs;
+                STArray<64, SkPoint> rejectedPositions;
                 rejectedGlyphIDs.resize(glyphCount);
                 rejectedPositions.resize(glyphCount);
                 const auto rejectedBuffer = SkMakeZip(rejectedGlyphIDs, rejectedPositions);
