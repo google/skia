@@ -183,7 +183,7 @@ void Builder::discard_stack(int32_t count) {
                 lastInstruction.fImmA += count;
                 return;
 
-            case BuilderOp::push_zeros:
+            case BuilderOp::push_constant:
             case BuilderOp::push_clone:
             case BuilderOp::push_clone_from_stack:
             case BuilderOp::push_clone_indirect_from_stack:
@@ -200,7 +200,6 @@ void Builder::discard_stack(int32_t count) {
                 }
                 continue;
 
-            case BuilderOp::push_constant:
             case BuilderOp::push_condition_mask:
             case BuilderOp::push_loop_mask:
             case BuilderOp::push_return_mask:
@@ -416,12 +415,47 @@ void Builder::trace_var_indirect(int traceMaskStackID,
                              dynamicStackID});
 }
 
+void Builder::copy_constant(Slot slot, int constantValue) {
+    // If the last instruction copied the same constant, just extend it.
+    if (!fInstructions.empty()) {
+        Instruction& lastInstr = fInstructions.back();
+
+        // If the last op is copy-constant...
+        if (lastInstr.fOp == BuilderOp::copy_constant &&
+            // and has the same value
+            lastInstr.fImmB == constantValue &&
+            // and the slot is immediately after the last copy-constant's destination
+            lastInstr.fSlotA + lastInstr.fImmA == slot) {
+            // then we can just extend the copy!
+            lastInstr.fImmA += 1;
+            return;
+        }
+    }
+    fInstructions.push_back({BuilderOp::copy_constant, {slot}, 1, constantValue});
+}
+
+void Builder::push_constant_i(int32_t val, int count) {
+    SkASSERT(count >= 0);
+    if (count > 0) {
+        if (!fInstructions.empty()) {
+            Instruction& lastInstruction = fInstructions.back();
+
+            // If the previous op is pushing the same value, we can just push more of them.
+            if (lastInstruction.fOp == BuilderOp::push_constant && lastInstruction.fImmB == val) {
+                lastInstruction.fImmA += count;
+                return;
+            }
+        }
+        fInstructions.push_back({BuilderOp::push_constant, {}, count, val});
+    }
+}
+
 void Builder::push_duplicates(int count) {
     if (!fInstructions.empty()) {
         Instruction& lastInstruction = fInstructions.back();
 
-        // If the previous op is pushing a zero, we can just push more of them.
-        if (lastInstruction.fOp == BuilderOp::push_zeros) {
+        // If the previous op is pushing a constant, we can just push more of them.
+        if (lastInstruction.fOp == BuilderOp::push_constant) {
             lastInstruction.fImmA += count;
             return;
         }
@@ -443,6 +477,22 @@ void Builder::push_duplicates(int count) {
         case 1:  this->push_clone(/*numSlots=*/1);                 break;
         default: break;
     }
+}
+
+void Builder::push_clone(int numSlots, int offsetFromStackTop) {
+    // If we are cloning the stack top...
+    if (numSlots == 1 && offsetFromStackTop == 0) {
+        if (!fInstructions.empty()) {
+            // ... and the previous op is pushing a constant...
+            Instruction& lastInstruction = fInstructions.back();
+            if (lastInstruction.fOp == BuilderOp::push_constant) {
+                // ... we can just push more of them.
+                lastInstruction.fImmA += 1;
+                return;
+            }
+        }
+    }
+    fInstructions.push_back({BuilderOp::push_clone, {}, numSlots, numSlots + offsetFromStackTop});
 }
 
 void Builder::push_clone_from_stack(SlotRange range, int otherStackID, int offsetFromStackTop) {
@@ -505,9 +555,12 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
     // If the last instruction is pushing a constant, we can simplify it by copying the constant
     // directly into the destination slot.
     if (lastInstruction.fOp == BuilderOp::push_constant) {
-        // Remove the constant-push instruction.
-        int value = lastInstruction.fImmA;
-        fInstructions.pop_back();
+        // Get the last slot.
+        int32_t value = lastInstruction.fImmB;
+        lastInstruction.fImmA--;
+        if (lastInstruction.fImmA == 0) {
+            fInstructions.pop_back();
+        }
 
         // Consume one destination slot.
         dst->count--;
@@ -545,7 +598,7 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
 
     // If the last instruction is pushing a zero, we can save a step by directly zeroing out
     // the destination slot.
-    if (lastInstruction.fOp == BuilderOp::push_zeros) {
+    if (lastInstruction.fOp == BuilderOp::push_constant && lastInstruction.fImmB == 0) {
         // Remove one zero-push.
         lastInstruction.fImmA--;
         if (lastInstruction.fImmA == 0) {
@@ -931,7 +984,7 @@ void Builder::matrix_resize(int origColumns, int origRows, int newColumns, int n
                 } else {
                     // We need to synthesize a literal 0.
                     if (zeroOffset == 0) {
-                        this->push_zeros(1);
+                        this->push_constant_f(0.0f);
                         zeroOffset = consumedSlots++;
                     }
                     elements[index++] = zeroOffset;
@@ -958,7 +1011,6 @@ void Program::optimize() {
 
 static int stack_usage(const Instruction& inst) {
     switch (inst.fOp) {
-        case BuilderOp::push_constant:
         case BuilderOp::push_condition_mask:
         case BuilderOp::push_loop_mask:
         case BuilderOp::push_return_mask:
@@ -969,11 +1021,11 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_device_xy01:
             return 4;
 
+        case BuilderOp::push_constant:
         case BuilderOp::push_slots:
         case BuilderOp::push_slots_indirect:
         case BuilderOp::push_uniform:
         case BuilderOp::push_uniform_indirect:
-        case BuilderOp::push_zeros:
         case BuilderOp::push_clone:
         case BuilderOp::push_clone_from_stack:
         case BuilderOp::push_clone_indirect_from_stack:
@@ -1652,12 +1704,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 }
                 break;
             }
-            case BuilderOp::push_zeros: {
-                float* dst = tempStackPtr;
-                this->appendMultiSlotUnaryOp(pipeline, ProgramOp::zero_slot_unmasked, dst,
-                                             inst.fImmA);
-                break;
-            }
             case BuilderOp::push_condition_mask: {
                 float* dst = tempStackPtr;
                 pipeline->push_back({ProgramOp::store_condition_mask, dst});
@@ -1717,10 +1763,26 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
             case BuilderOp::copy_constant:
             case BuilderOp::push_constant: {
-                auto ctx = alloc->make<SkRasterPipeline_ConstantCtx>();
-                ctx->dst = (inst.fOp == BuilderOp::push_constant) ? tempStackPtr : SlotA();
-                ctx->value = sk_bit_cast<float>(inst.fImmA);
-                pipeline->push_back({ProgramOp::copy_constant, ctx});
+                float* dst = (inst.fOp == BuilderOp::copy_constant) ? SlotA() : tempStackPtr;
+                if (inst.fImmB == 0) {
+                    // We have a dedicated op for writing constant zeros.
+                    this->appendMultiSlotUnaryOp(pipeline, ProgramOp::zero_slot_unmasked, dst,
+                                                 inst.fImmA);
+                } else {
+                    // Splat constant values onto the stack.
+                    for (int remaining = inst.fImmA; remaining > 0; remaining -= 4) {
+                        auto ctx = alloc->make<SkRasterPipeline_ConstantCtx>();
+                        ctx->dst = dst;
+                        ctx->value = sk_bit_cast<float>(inst.fImmB);
+                        switch (remaining) {
+                            case 1:  pipeline->push_back({ProgramOp::copy_constant,    ctx}); break;
+                            case 2:  pipeline->push_back({ProgramOp::splat_2_constants,ctx}); break;
+                            case 3:  pipeline->push_back({ProgramOp::splat_3_constants,ctx}); break;
+                            default: pipeline->push_back({ProgramOp::splat_4_constants,ctx}); break;
+                        }
+                        dst += 4 * N;
+                    }
+                }
                 break;
             }
             case BuilderOp::copy_stack_to_slots: {
@@ -2235,6 +2297,13 @@ void Program::dump(SkWStream* out) const {
             return std::make_tuple(dst, src);
         };
 
+        // Interpret the context value as a ConstantCtx structure.
+        auto ConstantCtx = [&](const void* v, int slots) -> std::tuple<std::string, std::string> {
+            const auto* ctx = static_cast<const SkRasterPipeline_ConstantCtx*>(v);
+            return std::make_tuple(PtrCtx(ctx->dst, slots),
+                                   Imm(ctx->value));
+        };
+
         std::string opArg1, opArg2, opArg3, opSwizzle;
         using POp = ProgramOp;
         switch (stage.op) {
@@ -2368,12 +2437,22 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = PtrCtx(stage.ctx, 16);
                 break;
 
-            case POp::copy_constant: {
-                const auto* ctx = static_cast<SkRasterPipeline_ConstantCtx*>(stage.ctx);
-                opArg1 = PtrCtx(ctx->dst, 1);
-                opArg2 = Imm(ctx->value);
+            case POp::copy_constant:
+                std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 1);
                 break;
-            }
+
+            case POp::splat_2_constants:
+                std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 2);
+                break;
+
+            case POp::splat_3_constants:
+                std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 3);
+                break;
+
+            case POp::splat_4_constants:
+                std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 4);
+                break;
+
             case POp::copy_uniform:
                 std::tie(opArg1, opArg2) = CopyUniformCtx(stage.ctx, 1);
                 break;
@@ -2769,9 +2848,11 @@ void Program::dump(SkWStream* out) const {
             case POp::copy_3_uniforms:             case POp::copy_4_uniforms:
             case POp::copy_slot_unmasked:          case POp::copy_2_slots_unmasked:
             case POp::copy_3_slots_unmasked:       case POp::copy_4_slots_unmasked:
-            case POp::copy_constant:               case POp::shuffle:
+            case POp::copy_constant:               case POp::splat_2_constants:
+            case POp::splat_3_constants:           case POp::splat_4_constants:
             case POp::swizzle_1:                   case POp::swizzle_2:
             case POp::swizzle_3:                   case POp::swizzle_4:
+            case POp::shuffle:
                 opText = opArg1 + " = " + opArg2;
                 break;
 

@@ -3506,7 +3506,23 @@ STAGE_TAIL(copy_4_uniforms, SkRasterPipeline_UniformCtx* ctx) {
 
 STAGE_TAIL(copy_constant, SkRasterPipeline_ConstantCtx* ctx) {
     F* dst = (F*)ctx->dst;
-    *dst = ctx->value;
+    F value = ctx->value;
+    dst[0] = value;
+}
+STAGE_TAIL(splat_2_constants, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    F value = ctx->value;
+    dst[0] = dst[1] = value;
+}
+STAGE_TAIL(splat_3_constants, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    F value = ctx->value;
+    dst[0] = dst[1] = dst[2] = value;
+}
+STAGE_TAIL(splat_4_constants, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    F value = ctx->value;
+    dst[0] = dst[1] = dst[2] = dst[3] = value;
 }
 
 STAGE_TAIL(copy_slot_unmasked, SkRasterPipeline_BinaryOpCtx* ctx) {

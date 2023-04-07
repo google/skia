@@ -84,7 +84,6 @@ enum class BuilderOp {
     push_slots_indirect,
     push_uniform,
     push_uniform_indirect,
-    push_zeros,
     push_clone,
     push_clone_from_stack,
     push_clone_indirect_from_stack,
@@ -349,20 +348,18 @@ public:
     void branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID);
 
     // We use the same SkRasterPipeline op regardless of the literal type, and bitcast the value.
-    void push_constant_f(float val) {
-        this->push_constant_i(sk_bit_cast<int32_t>(val));
+    void push_constant_i(int32_t val, int count = 1);
+
+    void push_zeros(int count) {
+        this->push_constant_i(/*val=*/0, count);
     }
 
-    void push_constant_i(int32_t val) {
-        if (val == 0) {
-            this->push_zeros(1);
-        } else {
-            fInstructions.push_back({BuilderOp::push_constant, {}, val});
-        }
+    void push_constant_f(float val) {
+        this->push_constant_i(sk_bit_cast<int32_t>(val), /*count=*/1);
     }
 
     void push_constant_u(uint32_t val) {
-        this->push_constant_i(sk_bit_cast<int32_t>(val));
+        this->push_constant_i(sk_bit_cast<int32_t>(val), /*count=*/1);
     }
 
     // Translates into copy_uniforms (from uniforms into temp stack) in Raster Pipeline.
@@ -376,19 +373,6 @@ public:
     // value at the top of stack `dynamicStack`. Pass the range of the uniform being indexed as
     // `limitRange`; this is used as a hard cap, to avoid indexing outside of bounds.
     void push_uniform_indirect(SlotRange fixedRange, int dynamicStack, SlotRange limitRange);
-
-    void push_zeros(int count) {
-        // Translates into zero_slot_unmasked in Raster Pipeline.
-        SkASSERT(count >= 0);
-        if (count > 0) {
-            if (!fInstructions.empty() && fInstructions.back().fOp == BuilderOp::push_zeros) {
-                // Coalesce adjacent push_zero ops into a single op.
-                fInstructions.back().fImmA += count;
-            } else {
-                fInstructions.push_back({BuilderOp::push_zeros, {}, count});
-            }
-        }
-    }
 
     // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
     void push_slots(SlotRange src);
@@ -477,10 +461,7 @@ public:
 
     // Creates a single clone of an item on the current temp stack. The cloned item can consist of
     // any number of slots, and can be copied from an earlier position on the stack.
-    void push_clone(int numSlots, int offsetFromStackTop = 0) {
-        fInstructions.push_back({BuilderOp::push_clone, {}, numSlots,
-                                 numSlots + offsetFromStackTop});
-    }
+    void push_clone(int numSlots, int offsetFromStackTop = 0);
 
     // Clones a range of slots from another stack onto this stack.
     void push_clone_from_stack(SlotRange range, int otherStackID, int offsetFromStackTop);
@@ -516,9 +497,8 @@ public:
 
     void copy_slots_unmasked(SlotRange dst, SlotRange src);
 
-    void copy_constant(Slot slot, int constantValue) {
-        fInstructions.push_back({BuilderOp::copy_constant, {slot}, constantValue});
-    }
+    // Directly writes a constant value into a slot.
+    void copy_constant(Slot slot, int constantValue);
 
     // Stores zeros across the entire slot range.
     void zero_slots_unmasked(SlotRange dst);

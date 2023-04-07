@@ -65,86 +65,81 @@
    65. zero_4_slots_unmasked          af4[0] = 0
    66. zero_slot_unmasked             $0 = 0
    67. copy_slot_unmasked             af4[0](0) = $0
-   68. copy_constant                  $0 = 0x3F800000 (1.0)
-   69. swizzle_4                      $0..3 = ($0..3).xxxx
-   70. swizzle_copy_4_slots_masked    (af4[0]).ywxz = Mask($0..3)
-   71. zero_4_slots_unmasked          s.f, s.af[0], s.af[1], s.af[2] = 0
-   72. zero_4_slots_unmasked          s.af[3], s.af[4], s.h4(0..1) = 0
-   73. zero_4_slots_unmasked          s.h4(2..3), s.ah4[0](0..1) = 0
-   74. zero_4_slots_unmasked          s.ah4[0](2..3), s.ah4[1](0..1) = 0
-   75. zero_4_slots_unmasked          s.ah4[1](2..3), s.ah4[2](0..1) = 0
-   76. zero_4_slots_unmasked          s.ah4[2](2..3), s.ah4[3](0..1) = 0
-   77. zero_4_slots_unmasked          s.ah4[3](2..3), s.ah4[4](0..1) = 0
-   78. zero_2_slots_unmasked          s.ah4[4](2..3) = 0
-   79. zero_slot_unmasked             $0 = 0
-   80. copy_slot_unmasked             s.f = $0
-   81. zero_slot_unmasked             $0 = 0
-   82. copy_slot_unmasked             s.af[1] = $0
-   83. copy_constant                  $0 = 0x41100000 (9.0)
-   84. swizzle_3                      $0..2 = ($0..2).xxx
-   85. swizzle_copy_3_slots_masked    (s.h4(0..2)).zxy = Mask($0..2)
-   86. copy_constant                  $0 = 0x40A00000 (5.0)
-   87. copy_slot_unmasked             $1 = $0
-   88. swizzle_copy_2_slots_masked    (s.ah4[2]).yw = Mask($0..1)
-   89. zero_4_slots_unmasked          $0..3 = 0
-   90. copy_4_slots_unmasked          globalVar = $0..3
+   68. splat_4_constants              $0..3 = 0x3F800000 (1.0)
+   69. swizzle_copy_4_slots_masked    (af4[0]).ywxz = Mask($0..3)
+   70. zero_4_slots_unmasked          s.f, s.af[0], s.af[1], s.af[2] = 0
+   71. zero_4_slots_unmasked          s.af[3], s.af[4], s.h4(0..1) = 0
+   72. zero_4_slots_unmasked          s.h4(2..3), s.ah4[0](0..1) = 0
+   73. zero_4_slots_unmasked          s.ah4[0](2..3), s.ah4[1](0..1) = 0
+   74. zero_4_slots_unmasked          s.ah4[1](2..3), s.ah4[2](0..1) = 0
+   75. zero_4_slots_unmasked          s.ah4[2](2..3), s.ah4[3](0..1) = 0
+   76. zero_4_slots_unmasked          s.ah4[3](2..3), s.ah4[4](0..1) = 0
+   77. zero_2_slots_unmasked          s.ah4[4](2..3) = 0
+   78. zero_slot_unmasked             $0 = 0
+   79. copy_slot_unmasked             s.f = $0
+   80. zero_slot_unmasked             $0 = 0
+   81. copy_slot_unmasked             s.af[1] = $0
+   82. splat_3_constants              $0..2 = 0x41100000 (9.0)
+   83. swizzle_copy_3_slots_masked    (s.h4(0..2)).zxy = Mask($0..2)
+   84. splat_2_constants              $0..1 = 0x40A00000 (5.0)
+   85. swizzle_copy_2_slots_masked    (s.ah4[2]).yw = Mask($0..1)
+   86. zero_4_slots_unmasked          $0..3 = 0
+   87. copy_4_slots_unmasked          globalVar = $0..3
+   88. zero_slot_unmasked             $0 = 0
+   89. copy_slot_unmasked             globalStruct.f = $0
+   90. zero_slot_unmasked             l = 0
    91. zero_slot_unmasked             $0 = 0
-   92. copy_slot_unmasked             globalStruct.f = $0
-   93. zero_slot_unmasked             l = 0
-   94. zero_slot_unmasked             $0 = 0
-   95. copy_slot_unmasked             l = $0
-   96. copy_2_slots_unmasked          $0..1 = ai[0], ai4[0](0)
-   97. add_int                        $0 += $1
-   98. copy_slot_unmasked             ai[0] = $0
-   99. copy_constant                  $0 = 0x3F800000 (1.0)
-  100. copy_slot_unmasked             s.f = $0
-  101. copy_constant                  $0 = 0x40000000 (2.0)
-  102. copy_slot_unmasked             s.af[0] = $0
-  103. copy_constant                  $0 = 0x3F800000 (1.0)
-  104. swizzle_4                      $0..3 = ($0..3).xxxx
-  105. copy_4_slots_unmasked          s.h4 = $0..3
-  106. copy_constant                  $0 = 0x40000000 (2.0)
-  107. swizzle_4                      $0..3 = ($0..3).xxxx
-  108. copy_4_slots_unmasked          s.ah4[0] = $0..3
-  109. copy_slot_unmasked             f = af4[0](0)
-  110. copy_slot_unmasked             $0 = f
-  111. copy_slot_unmasked             af4[0](0) = $0
-  112. label                          label 0x00000000
-  113. copy_slot_unmasked             h = ah3x3[0](0)
-  114. copy_slot_unmasked             $0 = h
-  115. copy_slot_unmasked             ah3x3[0](0) = $0
-  116. label                          label 0x00000001
-  117. copy_slot_unmasked             i₁ = i
-  118. copy_slot_unmasked             $0 = i₁
-  119. copy_slot_unmasked             i = $0
-  120. label                          label 0x00000002
-  121. copy_slot_unmasked             i₁ = i4(1)
-  122. copy_slot_unmasked             $0 = i₁
-  123. copy_slot_unmasked             i4(1) = $0
-  124. label                          label 0x00000003
-  125. copy_slot_unmasked             i₁ = ai[0]
-  126. copy_slot_unmasked             $0 = i₁
-  127. copy_slot_unmasked             ai[0] = $0
-  128. label                          label 0x00000004
-  129. copy_slot_unmasked             i₁ = ai4[0](0)
-  130. copy_slot_unmasked             $0 = i₁
-  131. copy_slot_unmasked             ai4[0](0) = $0
-  132. label                          label 0x00000005
-  133. copy_slot_unmasked             h = x(1)
-  134. copy_slot_unmasked             $0 = h
-  135. copy_slot_unmasked             x(1) = $0
-  136. label                          label 0x00000006
-  137. copy_slot_unmasked             f = s.f
-  138. copy_slot_unmasked             $0 = f
-  139. copy_slot_unmasked             s.f = $0
-  140. label                          label 0x00000007
-  141. copy_slot_unmasked             h = l
-  142. copy_slot_unmasked             $0 = h
-  143. copy_slot_unmasked             l = $0
-  144. label                          label 0x00000008
-  145. copy_slot_unmasked             f = f3x3(0)
-  146. copy_slot_unmasked             $0 = f
-  147. copy_slot_unmasked             f3x3(0) = $0
-  148. label                          label 0x00000009
-  149. copy_4_uniforms                $0..3 = colorGreen
-  150. load_src                       src.rgba = $0..3
+   92. copy_slot_unmasked             l = $0
+   93. copy_2_slots_unmasked          $0..1 = ai[0], ai4[0](0)
+   94. add_int                        $0 += $1
+   95. copy_slot_unmasked             ai[0] = $0
+   96. copy_constant                  $0 = 0x3F800000 (1.0)
+   97. copy_slot_unmasked             s.f = $0
+   98. copy_constant                  $0 = 0x40000000 (2.0)
+   99. copy_slot_unmasked             s.af[0] = $0
+  100. splat_4_constants              $0..3 = 0x3F800000 (1.0)
+  101. copy_4_slots_unmasked          s.h4 = $0..3
+  102. splat_4_constants              $0..3 = 0x40000000 (2.0)
+  103. copy_4_slots_unmasked          s.ah4[0] = $0..3
+  104. copy_slot_unmasked             f = af4[0](0)
+  105. copy_slot_unmasked             $0 = f
+  106. copy_slot_unmasked             af4[0](0) = $0
+  107. label                          label 0x00000000
+  108. copy_slot_unmasked             h = ah3x3[0](0)
+  109. copy_slot_unmasked             $0 = h
+  110. copy_slot_unmasked             ah3x3[0](0) = $0
+  111. label                          label 0x00000001
+  112. copy_slot_unmasked             i₁ = i
+  113. copy_slot_unmasked             $0 = i₁
+  114. copy_slot_unmasked             i = $0
+  115. label                          label 0x00000002
+  116. copy_slot_unmasked             i₁ = i4(1)
+  117. copy_slot_unmasked             $0 = i₁
+  118. copy_slot_unmasked             i4(1) = $0
+  119. label                          label 0x00000003
+  120. copy_slot_unmasked             i₁ = ai[0]
+  121. copy_slot_unmasked             $0 = i₁
+  122. copy_slot_unmasked             ai[0] = $0
+  123. label                          label 0x00000004
+  124. copy_slot_unmasked             i₁ = ai4[0](0)
+  125. copy_slot_unmasked             $0 = i₁
+  126. copy_slot_unmasked             ai4[0](0) = $0
+  127. label                          label 0x00000005
+  128. copy_slot_unmasked             h = x(1)
+  129. copy_slot_unmasked             $0 = h
+  130. copy_slot_unmasked             x(1) = $0
+  131. label                          label 0x00000006
+  132. copy_slot_unmasked             f = s.f
+  133. copy_slot_unmasked             $0 = f
+  134. copy_slot_unmasked             s.f = $0
+  135. label                          label 0x00000007
+  136. copy_slot_unmasked             h = l
+  137. copy_slot_unmasked             $0 = h
+  138. copy_slot_unmasked             l = $0
+  139. label                          label 0x00000008
+  140. copy_slot_unmasked             f = f3x3(0)
+  141. copy_slot_unmasked             $0 = f
+  142. copy_slot_unmasked             f3x3(0) = $0
+  143. label                          label 0x00000009
+  144. copy_4_uniforms                $0..3 = colorGreen
+  145. load_src                       src.rgba = $0..3
