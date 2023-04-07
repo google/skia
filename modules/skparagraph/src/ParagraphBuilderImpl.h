@@ -97,9 +97,9 @@ protected:
     void finalize();
 
     SkString fUtf8;
-    SkSTArray<4, TextStyle, true> fTextStyles;
-    SkSTArray<4, Block, true> fStyledBlocks;
-    SkSTArray<4, Placeholder, true> fPlaceholders;
+    skia_private::STArray<4, TextStyle, true> fTextStyles;
+    skia_private::STArray<4, Block, true> fStyledBlocks;
+    skia_private::STArray<4, Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 

@@ -25,6 +25,8 @@
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
+using namespace skia_private;
+
 namespace skottie {
 namespace internal {
 
@@ -143,7 +145,7 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         sksg::Merge::Mode  merge_mode;   // for clipping
     };
 
-    SkSTArray<4, MaskRecord, true> mask_stack;
+    STArray<4, MaskRecord, true> mask_stack;
     bool has_effect = false;
 
     for (const skjson::ObjectValue* m : *jmask) {

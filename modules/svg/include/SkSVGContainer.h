@@ -27,7 +27,7 @@ protected:
     bool hasChildren() const final;
 
     // TODO: add some sort of child iterator, and hide the container.
-    SkSTArray<1, sk_sp<SkSVGNode>, true> fChildren;
+    skia_private::STArray<1, sk_sp<SkSVGNode>, true> fChildren;
 
 private:
     using INHERITED = SkSVGTransformableNode;

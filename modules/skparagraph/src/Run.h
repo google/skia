@@ -187,18 +187,19 @@ private:
     // These fields are not modified after shaping completes and can safely be
     // shared among copies of the run that are held by different paragraphs.
     struct GlyphData {
-        SkSTArray<64, SkGlyphID, true> glyphs;
-        SkSTArray<64, SkPoint, true> positions;
-        SkSTArray<64, SkPoint, true> offsets;
-        SkSTArray<64, uint32_t, true> clusterIndexes;
+        skia_private::STArray<64, SkGlyphID, true> glyphs;
+        skia_private::STArray<64, SkPoint, true> positions;
+        skia_private::STArray<64, SkPoint, true> offsets;
+        skia_private::STArray<64, uint32_t, true> clusterIndexes;
     };
     std::shared_ptr<GlyphData> fGlyphData;
-    SkSTArray<64, SkGlyphID, true>& fGlyphs;
-    SkSTArray<64, SkPoint, true>& fPositions;
-    SkSTArray<64, SkPoint, true>& fOffsets;
-    SkSTArray<64, uint32_t, true>& fClusterIndexes;
+    skia_private::STArray<64, SkGlyphID, true>& fGlyphs;
+    skia_private::STArray<64, SkPoint, true>& fPositions;
+    skia_private::STArray<64, SkPoint, true>& fOffsets;
+    skia_private::STArray<64, uint32_t, true>& fClusterIndexes;
 
-    SkSTArray<64, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)
+    skia_private::STArray<64, SkPoint, true> fJustificationShifts; // For justification
+                                                                   // (current and prev shifts)
 
     SkFontMetrics fFontMetrics;
     const SkScalar fHeightMultiplier;

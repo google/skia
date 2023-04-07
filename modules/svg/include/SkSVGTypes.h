@@ -181,7 +181,7 @@ public:
         kColor,
         kICCColor,
     };
-    using Vars = SkSTArray<1, SkString>;
+    using Vars = skia_private::STArray<1, SkString>;
 
     SkSVGColor() : SkSVGColor(SK_ColorBLACK) {}
     explicit SkSVGColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c), fVars(nullptr) {}

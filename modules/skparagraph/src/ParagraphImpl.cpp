@@ -1129,7 +1129,7 @@ void ParagraphImpl::visit(const Visitor& visitor) {
             SkTextBlob::Iter iter(*rec.fBlob);
             SkTextBlob::Iter::ExperimentalRun run;
 
-            SkSTArray<128, uint32_t> clusterStorage;
+            STArray<128, uint32_t> clusterStorage;
             const Run* R = rec.fVisitor_Run;
             const uint32_t* clusterPtr = &R->fClusterIndexes[0];
 

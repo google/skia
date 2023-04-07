@@ -176,7 +176,7 @@ private:
     ClusterRange fClusterRange;
     ClusterRange fGhostClusterRange;
     // Avoid the malloc/free in the common case of one run per line
-    SkSTArray<1, size_t, true> fRunsInVisualOrder;
+    skia_private::STArray<1, size_t, true> fRunsInVisualOrder;
     SkVector fAdvance;                  // Text size
     SkVector fOffset;                   // Text position
     SkScalar fShift;                    // Let right
