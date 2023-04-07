@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
+#include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
 namespace skgpu::graphite {
@@ -54,10 +55,10 @@ sk_sp<Buffer> VulkanResourceProvider::createBuffer(size_t size,
     return VulkanBuffer::Make(this->vulkanSharedContext(), size, type, prioritizeGpuReads);
 }
 
-sk_sp<Sampler> VulkanResourceProvider::createSampler(const SkSamplingOptions&,
+sk_sp<Sampler> VulkanResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
                                                      SkTileMode xTileMode,
                                                      SkTileMode yTileMode) {
-    return nullptr;
+    return VulkanSampler::Make(this->vulkanSharedContext(), samplingOptions, xTileMode, yTileMode);
 }
 
 BackendTexture VulkanResourceProvider::onCreateBackendTexture(SkISize dimensions,
