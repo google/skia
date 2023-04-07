@@ -35,7 +35,7 @@ using namespace skia_private;
 
 constexpr int kRunArrayStackCount = 256;
 
-// This is a simple data structure which is like a SkSTArray<N,T,true>, except that:
+// This is a simple data structure which is like a STArray<N,T,true>, except that:
 //   - It does not initialize memory.
 //   - It does not distinguish between reserved space and initialized space.
 //   - resizeToAtLeast() instead of resize()

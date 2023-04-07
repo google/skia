@@ -469,7 +469,7 @@ bool Parser::functionDeclarationEnd(Position start,
                                     DSLModifiers& modifiers,
                                     DSLType type,
                                     const Token& name) {
-    SkSTArray<8, DSLParameter> parameters;
+    STArray<8, DSLParameter> parameters;
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_RPAREN) {
         // `()` means no parameters at all.
@@ -492,7 +492,7 @@ bool Parser::functionDeclarationEnd(Position start,
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
         return false;
     }
-    SkSTArray<8, DSLParameter*> parameterPointers;
+    STArray<8, DSLParameter*> parameterPointers;
     parameterPointers.reserve_back(parameters.size());
     for (DSLParameter& param : parameters) {
         parameterPointers.push_back(&param);

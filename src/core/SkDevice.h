@@ -612,7 +612,7 @@ private:
         fClipStack.emplace_back(this->bounds(), /*isAA=*/false, /*isRect=*/true);
     }
 
-    SkSTArray<4, ClipState> fClipStack;
+    skia_private::STArray<4, ClipState> fClipStack;
 
     using INHERITED = SkBaseDevice;
 };

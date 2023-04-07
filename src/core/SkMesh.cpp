@@ -45,6 +45,8 @@
 #include <type_traits>
 #include <utility>
 
+using namespace skia_private;
+
 using Attribute = SkMeshSpecification::Attribute;
 using Varying   = SkMeshSpecification::Varying;
 
@@ -413,7 +415,7 @@ SkMeshSpecification::Result SkMeshSpecification::Make(SkSpan<const Attribute> at
         }
     }
 
-    SkSTArray<kMaxVaryings, Varying> tempVaryings;
+    STArray<kMaxVaryings, Varying> tempVaryings;
     if (!userProvidedPositionVarying) {
         // Even though we check the # of varyings in MakeFromSourceWithStructs we check here, too,
         // to avoid overflow with + 1.

@@ -36,6 +36,8 @@
 #include <tuple>
 #include <vector>
 
+using namespace skia_private;
+
 using namespace skglyph;
 using namespace sktext;
 
@@ -173,10 +175,10 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
                                                    const sktext::GlyphRunList& glyphRunList,
                                                    const SkPaint& paint,
                                                    const SkMatrix& drawMatrix) {
-    SkSTArray<64, const SkGlyph*> acceptedPackedGlyphIDs;
-    SkSTArray<64, SkPoint> acceptedPositions;
-    SkSTArray<64, SkGlyphID> rejectedGlyphIDs;
-    SkSTArray<64, SkPoint> rejectedPositions;
+    STArray<64, const SkGlyph*> acceptedPackedGlyphIDs;
+    STArray<64, SkPoint> acceptedPositions;
+    STArray<64, SkGlyphID> rejectedGlyphIDs;
+    STArray<64, SkPoint> rejectedPositions;
     const int maxGlyphRunSize = glyphRunList.maxGlyphRunSize();
     acceptedPackedGlyphIDs.resize(maxGlyphRunSize);
     acceptedPositions.resize(maxGlyphRunSize);

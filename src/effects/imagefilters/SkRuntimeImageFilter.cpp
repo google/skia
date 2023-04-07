@@ -39,6 +39,8 @@
 #include <string_view>
 #include <utility>
 
+using namespace skia_private;
+
 class SkRuntimeImageFilter final : public SkImageFilter_Base {
 public:
     SkRuntimeImageFilter(sk_sp<SkRuntimeEffect> effect,
@@ -74,7 +76,7 @@ private:
 
     mutable SkSpinlock fShaderBuilderLock;
     mutable SkRuntimeShaderBuilder fShaderBuilder;
-    SkSTArray<1, SkString> fChildShaderNames;
+    STArray<1, SkString> fChildShaderNames;
 
     using INHERITED = SkImageFilter_Base;
 };
@@ -121,8 +123,8 @@ sk_sp<SkFlattenable> SkRuntimeImageFilter::CreateProc(SkReadBuffer& buffer) {
     }
 
     // Read the child shader names
-    SkSTArray<4, std::string_view> childShaderNames;
-    SkSTArray<4, SkString> childShaderNameStrings;
+    STArray<4, std::string_view> childShaderNames;
+    STArray<4, SkString> childShaderNameStrings;
     childShaderNames.resize(common.inputCount());
     childShaderNameStrings.resize(common.inputCount());
     for (int i = 0; i < common.inputCount(); i++) {
@@ -190,7 +192,7 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     const int inputCount = this->countInputs();
     SkASSERT(inputCount == fChildShaderNames.size());
 
-    SkSTArray<1, sk_sp<SkShader>> inputShaders;
+    STArray<1, sk_sp<SkShader>> inputShaders;
     for (int i = 0; i < inputCount; i++) {
         SkIPoint inputOffset = SkIPoint::Make(0, 0);
         sk_sp<SkSpecialImage> input(this->filterInput(i, ctx, &inputOffset));

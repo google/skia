@@ -86,9 +86,9 @@ namespace skvm {
         void word(uint32_t);
 
         struct Label {
-            int                                      offset = 0;
+            int offset = 0;
             enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
-            SkSTArray<2, int>                        references;
+            skia_private::STArray<2, int> references;
         };
 
         // x86-64

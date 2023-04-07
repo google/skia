@@ -129,7 +129,7 @@ struct Value {
     SkSpan<skvm::Val> asSpan() { return SkSpan(fVals); }
 
 private:
-    SkSTArray<4, skvm::Val, true> fVals;
+    STArray<4, skvm::Val, true> fVals;
 };
 
 }  // namespace
@@ -1759,7 +1759,7 @@ Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
     // IndexExpressions. The underlying VariableReference has a range of slots for its storage,
     // and each expression wrapped around that selects a sub-set of those slots (Field/Index),
     // or rearranges them (Swizzle).
-    SkSTArray<4, size_t, true> slots;
+    STArray<4, size_t, true> slots;
     slots.resize(rhs.slots());
 
     // Start with the identity slot map - this basically says that the values from rhs belong in

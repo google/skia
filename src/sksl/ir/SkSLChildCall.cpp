@@ -16,6 +16,8 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+using namespace skia_private;
+
 namespace SkSL {
 
 std::unique_ptr<Expression> ChildCall::clone(Position pos) const {
@@ -40,7 +42,7 @@ std::string ChildCall::description(OperatorPrecedence) const {
     const Type* half4 = context.fTypes.fHalf4.get();
     const Type* float2 = context.fTypes.fFloat2.get();
 
-    auto params = [&]() -> SkSTArray<2, const Type*> {
+    auto params = [&]() -> STArray<2, const Type*> {
         switch (child.type().typeKind()) {
             case Type::TypeKind::kBlender:     return { half4, half4 };
             case Type::TypeKind::kColorFilter: return { half4 };

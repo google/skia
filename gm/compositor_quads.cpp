@@ -326,7 +326,7 @@ protected:
         // splits are hardcoded below; subtile quad orderings are such that the sub tiles remain in
         // clockwise order and match expected edges for QuadAAFlags. subtile indices refer to the
         // 6-element 'points' array.
-        SkSTArray<3, std::array<int, 4>> subtiles;
+        STArray<3, std::array<int, 4>> subtiles;
         int s2 = -1; // Index of an original vertex chosen for a artificial split
         if (splitIndices[1] - splitIndices[0] == 2) {
             // Opposite edges, so the split trivially forms 2 sub quads

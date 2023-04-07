@@ -102,7 +102,7 @@ struct DragCanvas {
     ImVec2 fSize;
 
     // Screen coordinates of points (for additional user drawing)
-    SkSTArray<4, ImVec2, true> fScreenPoints;
+    skia_private::STArray<4, ImVec2, true> fScreenPoints;
 
     // To simplify dragPoint
     SkMatrix fLocalToScreen;

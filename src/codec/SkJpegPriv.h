@@ -41,7 +41,7 @@ struct skjpeg_error_mgr : jpeg_error_mgr {
         jmp_buf fJmpBuf;
     };
 
-    SkSTArray<4, jmp_buf*> fJmpBufStack;
+    skia_private::STArray<4, jmp_buf*> fJmpBufStack;
 };
 
 #endif

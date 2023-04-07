@@ -18,6 +18,8 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
+using namespace skia_private;
+
 #if defined(SK_GRAPHITE)
 #include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -103,7 +105,7 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
 }
 
 template <int N, typename T, bool MEM_MOVE>
-static bool validate_array(SkReadBuffer& buffer, size_t count, SkSTArray<N, T, MEM_MOVE>* array) {
+static bool validate_array(SkReadBuffer& buffer, size_t count, STArray<N, T, MEM_MOVE>* array) {
     if (!buffer.validateCanReadN<T>(count)) {
         return false;
     }

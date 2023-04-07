@@ -26,6 +26,8 @@
 #include <cstdint>
 #include <optional>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 static bool validate_swizzle_domain(const ComponentArray& fields) {
@@ -189,7 +191,7 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
         int8_t fArgIndex;
         ComponentArray fComponents;
     };
-    SkSTArray<4, ReorderedArgument> reorderedArgs;
+    STArray<4, ReorderedArgument> reorderedArgs;
     for (int8_t c : components) {
         const ConstructorArgMap& argument = argMap[c];
         const Expression& baseArg = *baseArguments[argument.fArgIndex];

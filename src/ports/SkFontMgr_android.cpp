@@ -121,8 +121,8 @@ public:
 
     const SkString fPathName;
     int fIndex;
-    const SkSTArray<4, SkFixed, true> fAxes;
-    const SkSTArray<4, SkLanguage, true> fLang;
+    const STArray<4, SkFixed, true> fAxes;
+    const STArray<4, SkLanguage, true> fLang;
     const FontVariant fVariantStyle;
     SkAutoTCallVProc<FILE, sk_fclose> fFile;
 

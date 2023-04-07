@@ -10,6 +10,8 @@
 
 #include "fuzz/Fuzz.h"
 
+using namespace skia_private;
+
 template <typename T>
 T extract(SkSpan<const uint8_t>& data) {
     T result = 0;
@@ -23,8 +25,8 @@ static void FuzzSkMeshSpecification(SkSpan<const uint8_t> data) {
     using Attribute = SkMeshSpecification::Attribute;
     using Varying = SkMeshSpecification::Varying;
 
-    SkSTArray<SkMeshSpecification::kMaxAttributes, Attribute> attributes;
-    SkSTArray<SkMeshSpecification::kMaxVaryings,   Varying>   varyings;
+    STArray<SkMeshSpecification::kMaxAttributes, Attribute> attributes;
+    STArray<SkMeshSpecification::kMaxVaryings,   Varying>   varyings;
     size_t vertexStride;
     SkString vs, fs;
 

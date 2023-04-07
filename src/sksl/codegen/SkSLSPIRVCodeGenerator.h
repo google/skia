@@ -417,14 +417,14 @@ private:
     struct Word;
     // 8 Words is enough for nearly all instructions (except variable-length instructions like
     // OpAccessChain or OpConstantComposite).
-    using Words = SkSTArray<8, Word, true>;
+    using Words = skia_private::STArray<8, Word, true>;
     SpvId writeInstruction(
             SpvOp_ opCode, const skia_private::TArray<Word, true>& words, OutputStream& out);
 
     struct Instruction {
-        SpvId                  fOp;
-        int32_t                fResultKind;
-        SkSTArray<8, int32_t>  fWords;
+        SpvId fOp;
+        int32_t fResultKind;
+        skia_private::STArray<8, int32_t>  fWords;
 
         bool operator==(const Instruction& that) const;
         struct Hash;

@@ -34,6 +34,8 @@
 #include <string>
 #include <utility>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 static bool is_vec_or_mat(const Type& type) {
@@ -395,7 +397,7 @@ static std::unique_ptr<Expression> make_reciprocal_expression(const Context& con
     }
     // Verify that each slot contains a finite, non-zero literal, take its reciprocal.
     int nslots = right.type().slotCount();
-    SkSTArray<4, double> values;
+    STArray<4, double> values;
     for (int index = 0; index < nslots; ++index) {
         std::optional<double> value = right.getConstantValue(index);
         if (!value) {

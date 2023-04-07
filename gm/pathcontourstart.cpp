@@ -30,7 +30,7 @@ protected:
         const SkScalar kMaxDashLen = 100;
         const SkScalar kDashGrowth = 1.2f;
 
-        SkSTArray<100, SkScalar> intervals;
+        STArray<100, SkScalar> intervals;
         for (SkScalar len = 1; len < kMaxDashLen; len *= kDashGrowth) {
             intervals.push_back(len);
             intervals.push_back(len);

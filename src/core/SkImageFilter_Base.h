@@ -186,7 +186,7 @@ protected:
     private:
         CropRect fCropRect;
         // most filters accept at most 2 input-filters
-        SkSTArray<2, sk_sp<SkImageFilter>, true> fInputs;
+        skia_private::STArray<2, sk_sp<SkImageFilter>, true> fInputs;
     };
 
     // Whether or not to recurse to child input filters for certain operations that walk the DAG.

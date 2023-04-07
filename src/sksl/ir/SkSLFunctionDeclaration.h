@@ -130,7 +130,7 @@ public:
      * that each argument can actually be coerced to the final parameter type, respecting the
      * narrowing-conversions flag. This is handled in callCost(), or in convertCall() (via coerce).
      */
-    using ParamTypes = SkSTArray<8, const Type*>;
+    using ParamTypes = skia_private::STArray<8, const Type*>;
     bool determineFinalTypes(const ExpressionArray& arguments,
                              ParamTypes* outParameterTypes,
                              const Type** outReturnType) const;

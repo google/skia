@@ -26,6 +26,8 @@
 #include <memory>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 class Expression;
@@ -189,8 +191,8 @@ static void eliminate_unreachable_code(SkSpan<std::unique_ptr<ProgramElement>> e
         }
 
         ProgramUsage* fUsage;
-        SkSTArray<32, bool> fFoundFunctionExit;
-        SkSTArray<32, bool> fFoundBlockExit;
+        STArray<32, bool> fFoundFunctionExit;
+        STArray<32, bool> fFoundBlockExit;
 
         using INHERITED = ProgramWriter;
     };

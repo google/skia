@@ -959,7 +959,7 @@ void WGSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     SkASSERT(SkToSizeT(args.size()) == params.size());
 
     bool foundOutParam = false;
-    SkSTArray<16, VariableReference*> outVars;
+    STArray<16, VariableReference*> outVars;
     outVars.push_back_n(args.size(), static_cast<VariableReference*>(nullptr));
 
     for (int i = 0; i < args.size(); ++i) {

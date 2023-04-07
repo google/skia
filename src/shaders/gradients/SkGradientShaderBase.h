@@ -56,8 +56,8 @@ public:
         bool unflatten(SkReadBuffer&, SkMatrix* legacyLocalMatrix);
 
     private:
-        SkSTArray<16, SkColor4f, true> fColorStorage;
-        SkSTArray<16, SkScalar , true> fPositionStorage;
+        skia_private::STArray<16, SkColor4f, true> fColorStorage;
+        skia_private::STArray<16, SkScalar , true> fPositionStorage;
     };
 
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
@@ -174,14 +174,14 @@ private:
 struct SkColor4fXformer {
     SkColor4fXformer(const SkGradientShaderBase* shader, SkColorSpace* dst);
 
-    SkSTArray<4, SkPMColor4f, true> fColors;
-    sk_sp<SkColorSpace>             fIntermediateColorSpace;
+    skia_private::STArray<4, SkPMColor4f, true> fColors;
+    sk_sp<SkColorSpace> fIntermediateColorSpace;
 };
 
 struct SkColorConverter {
     SkColorConverter(const SkColor* colors, int count);
 
-    SkSTArray<2, SkColor4f, true> fColors4f;
+    skia_private::STArray<2, SkColor4f, true> fColors4f;
 };
 
 void SkRegisterLinearGradientShaderFlattenable();

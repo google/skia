@@ -426,7 +426,7 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     SkASSERT(SkToSizeT(arguments.size()) == parameters.size());
 
     bool foundOutParam = false;
-    SkSTArray<16, VariableReference*> outVars;
+    STArray<16, VariableReference*> outVars;
     outVars.push_back_n(arguments.size(), (VariableReference*)nullptr);
 
     for (int index = 0; index < arguments.size(); ++index) {
