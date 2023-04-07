@@ -3,8 +3,8 @@
     3. zero_slot_unmasked             ok = 0
     4. copy_constant                  $0 = 0xFFFFFFFF
     5. copy_slot_unmasked             ok = $0
-    6. copy_4_constants               green = colorGreen
-    7. copy_4_constants               red = colorRed
+    6. copy_4_uniforms                green = colorGreen
+    7. copy_4_uniforms                red = colorRed
     8. zero_slot_unmasked             param = 0
     9. copy_constant                  $0 = 0xFFFFFFFF
    10. copy_slot_unmasked             x = $0

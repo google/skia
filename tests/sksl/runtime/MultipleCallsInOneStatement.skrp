@@ -5,9 +5,9 @@
     5. bitwise_and_int                $13 &= $14
     6. store_src_rg                   pos = src.rg
     7. init_lane_masks                CondMask = LoopMask = RetMask = true
-    8. copy_4_constants               colorRed = colorRed
+    8. copy_4_uniforms                colorRed = colorRed
     9. trace_var                      TraceVar(colorRed) when $13 is true
-   10. copy_4_constants               colorGreen = colorGreen
+   10. copy_4_uniforms                colorGreen = colorGreen
    11. trace_var                      TraceVar(colorGreen) when $13 is true
    12. trace_enter                    TraceEnter(half4 main(float2 pos)) when $13 is true
    13. trace_var                      TraceVar(pos) when $13 is true
@@ -67,8 +67,8 @@
    67. copy_constant                  $2 = 0x0000000A (1.401298e-44)
    68. cmpeq_int                      $1 = equal($1, $2)
    69. swizzle_4                      $1..4 = ($1..4).xxxx
-   70. copy_4_constants               $5..8 = colorRed
-   71. copy_4_constants               $9..12 = colorGreen
+   70. copy_4_uniforms                $5..8 = colorRed
+   71. copy_4_uniforms                $9..12 = colorGreen
    72. mix_4_ints                     $1..4 = mix($5..8, $9..12, $1..4)
    73. copy_4_slots_unmasked          [main].result = $1..4
    74. trace_var                      TraceVar([main].result) when $13 is true

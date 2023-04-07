@@ -3477,31 +3477,36 @@ STAGE_TAIL(zero_4_slots_unmasked, F* dst) {
     sk_bzero(dst, sizeof(F) * 4);
 }
 
-STAGE_TAIL(copy_constant, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_uniform, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
 }
-STAGE_TAIL(copy_2_constants, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_2_uniforms, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
 }
-STAGE_TAIL(copy_3_constants, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_3_uniforms, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
 }
-STAGE_TAIL(copy_4_constants, SkRasterPipeline_BinaryOpCtx* ctx) {
+STAGE_TAIL(copy_4_uniforms, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
     dst[3] = src[3];
+}
+
+STAGE_TAIL(copy_constant, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    *dst = ctx->value;
 }
 
 STAGE_TAIL(copy_slot_unmasked, SkRasterPipeline_BinaryOpCtx* ctx) {

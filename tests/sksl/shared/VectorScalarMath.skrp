@@ -1,8 +1,8 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  _0_ok = 0xFFFFFFFF
-    4. copy_4_constants               _1_inputRed = colorRed
-    5. copy_4_constants               _2_inputGreen = colorGreen
+    4. copy_4_uniforms                _1_inputRed = colorRed
+    5. copy_4_uniforms                _2_inputGreen = colorGreen
     6. copy_4_slots_unmasked          $0..3 = _1_inputRed
     7. copy_constant                  $4 = 0x40000000 (2.0)
     8. swizzle_4                      $4..7 = ($4..7).xxxx
@@ -263,10 +263,10 @@
   263. merge_condition_mask           CondMask = $12 & $13
   264. branch_if_no_lanes_active      branch_if_no_lanes_active +265 (label 1 at #529)
   265. copy_constant                  ok = 0xFFFFFFFF
-  266. copy_4_constants               $1..4 = colorRed
+  266. copy_4_uniforms                $1..4 = colorRed
   267. cast_to_int_from_4_floats      $1..4 = FloatToInt($1..4)
   268. copy_4_slots_unmasked          inputRed = $1..4
-  269. copy_4_constants               $1..4 = colorGreen
+  269. copy_4_uniforms                $1..4 = colorGreen
   270. cast_to_int_from_4_floats      $1..4 = FloatToInt($1..4)
   271. copy_4_slots_unmasked          inputGreen = $1..4
   272. copy_4_slots_unmasked          $1..4 = inputRed
@@ -529,7 +529,7 @@
   529. label                          label 0x00000001
   530. load_condition_mask            CondMask = $12
   531. swizzle_4                      $0..3 = ($0..3).xxxx
-  532. copy_4_constants               $4..7 = colorRed
-  533. copy_4_constants               $8..11 = colorGreen
+  532. copy_4_uniforms                $4..7 = colorRed
+  533. copy_4_uniforms                $8..11 = colorGreen
   534. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   535. load_src                       src.rgba = $0..3

@@ -8,8 +8,8 @@
     8. copy_constant                  $5 = 0x41100000 (9.0)
     9. copy_constant                  $6 = 0x41100000 (9.0)
    10. copy_constant                  $7 = 0x41100000 (9.0)
-   11. copy_4_constants               $8..11 = colorRed
-   12. copy_4_constants               $12..15 = colorGreen
+   11. copy_4_uniforms                $8..11 = colorRed
+   12. copy_4_uniforms                $12..15 = colorGreen
    13. mul_n_floats                   $0..7 *= $8..15
    14. copy_4_slots_unmasked          h24(0..3) = $0..3
    15. copy_4_slots_unmasked          h24(4..7) = $4..7
@@ -21,8 +21,8 @@
    21. copy_constant                  $5 = 0x40C00000 (6.0)
    22. copy_constant                  $6 = 0x40E00000 (7.0)
    23. copy_constant                  $7 = 0x41000000 (8.0)
-   24. copy_4_constants               $8..11 = colorRed
-   25. copy_4_constants               $12..15 = colorGreen
+   24. copy_4_uniforms                $8..11 = colorRed
+   25. copy_4_uniforms                $12..15 = colorGreen
    26. mul_n_floats                   $0..7 *= $8..15
    27. copy_4_slots_unmasked          h42(0..3) = $0..3
    28. copy_4_slots_unmasked          h42(4..7) = $4..7
@@ -87,7 +87,7 @@
    87. bitwise_and_int                $1 &= $2
    88. bitwise_and_int                $0 &= $1
    89. swizzle_4                      $0..3 = ($0..3).xxxx
-   90. copy_4_constants               $4..7 = colorRed
-   91. copy_4_constants               $8..11 = colorGreen
+   90. copy_4_uniforms                $4..7 = colorRed
+   91. copy_4_uniforms                $8..11 = colorGreen
    92. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    93. load_src                       src.rgba = $0..3

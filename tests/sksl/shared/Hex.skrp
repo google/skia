@@ -25,5 +25,5 @@
    25. copy_constant                  $1 = 0x00000001 (1.401298e-45)
    26. add_int                        $0 += $1
    27. copy_slot_unmasked             i5 = $0
-   28. copy_4_constants               $0..3 = colorGreen
+   28. copy_4_uniforms                $0..3 = colorGreen
    29. load_src                       src.rgba = $0..3

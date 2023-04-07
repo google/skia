@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  $0 = unknownInput
+    3. copy_uniform                   $0 = unknownInput
     4. cast_to_int_from_float         $0 = FloatToInt($0)
     5. copy_slot_unmasked             i = $0
     6. swizzle_4                      $0..3 = ($0..3).xxxx

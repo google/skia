@@ -200,7 +200,7 @@ void Builder::discard_stack(int32_t count) {
                 }
                 continue;
 
-            case BuilderOp::push_literal:
+            case BuilderOp::push_constant:
             case BuilderOp::push_condition_mask:
             case BuilderOp::push_loop_mask:
             case BuilderOp::push_return_mask:
@@ -504,7 +504,7 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
 
     // If the last instruction is pushing a constant, we can simplify it by copying the constant
     // directly into the destination slot.
-    if (lastInstruction.fOp == BuilderOp::push_literal) {
+    if (lastInstruction.fOp == BuilderOp::push_constant) {
         // Remove the constant-push instruction.
         int value = lastInstruction.fImmA;
         fInstructions.pop_back();
@@ -924,7 +924,7 @@ void Builder::matrix_resize(int origColumns, int origRows, int newColumns, int n
                 if (c == r) {
                     // We need to synthesize a literal 1.
                     if (oneOffset == 0) {
-                        this->push_literal_f(1.0f);
+                        this->push_constant_f(1.0f);
                         oneOffset = consumedSlots++;
                     }
                     elements[index++] = oneOffset;
@@ -958,7 +958,7 @@ void Program::optimize() {
 
 static int stack_usage(const Instruction& inst) {
     switch (inst.fOp) {
-        case BuilderOp::push_literal:
+        case BuilderOp::push_constant:
         case BuilderOp::push_condition_mask:
         case BuilderOp::push_loop_mask:
         case BuilderOp::push_return_mask:
@@ -1143,13 +1143,13 @@ void Program::appendCopySlotsMasked(TArray<Stage>* pipeline,
                      numSlots);
 }
 
-void Program::appendCopyConstants(TArray<Stage>* pipeline,
-                                  SkArenaAlloc* alloc,
-                                  float* dst,
-                                  const float* src,
-                                  int numSlots) const {
+void Program::appendCopyUniforms(TArray<Stage>* pipeline,
+                                 SkArenaAlloc* alloc,
+                                 float* dst,
+                                 const float* src,
+                                 int numSlots) const {
     this->appendCopy(pipeline, alloc,
-                     ProgramOp::copy_constant,
+                     ProgramOp::copy_uniform,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
                      src, /*srcStride=*/1,
                      numSlots);
@@ -1408,9 +1408,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
         }
     };
 
-    // We can reuse constants from our arena by placing them in this map.
-    THashMap<int, int*> constantLookupMap; // <constant value, pointer into arena>
-
     // Write each BuilderOp to the pipeline array.
     pipeline->reserve_back(fInstructions.size());
     for (const Instruction& inst : fInstructions) {
@@ -1654,11 +1651,11 @@ void Program::makeStages(TArray<Stage>* pipeline,
             }
             case BuilderOp::push_uniform: {
                 float* dst = tempStackPtr;
-                this->appendCopyConstants(pipeline, alloc, dst, UniformA(), inst.fImmA);
+                this->appendCopyUniforms(pipeline, alloc, dst, UniformA(), inst.fImmA);
                 break;
             }
             case BuilderOp::copy_uniform_to_slots_unmasked: {
-                this->appendCopyConstants(pipeline, alloc, SlotA(), UniformB(), inst.fImmA);
+                this->appendCopyUniforms(pipeline, alloc, SlotA(), UniformB(), inst.fImmA);
                 break;
             }
             case BuilderOp::push_zeros: {
@@ -1725,17 +1722,11 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 break;
 
             case BuilderOp::copy_constant:
-            case BuilderOp::push_literal: {
-                float* dst = (inst.fOp == BuilderOp::push_literal) ? tempStackPtr : SlotA();
-                int* constantPtr;
-                if (int** lookup = constantLookupMap.find(inst.fImmA)) {
-                    constantPtr = *lookup;
-                } else {
-                    constantPtr = alloc->make<int>(inst.fImmA);
-                    constantLookupMap[inst.fImmA] = constantPtr;
-                }
-                SkASSERT(constantPtr);
-                this->appendCopyConstants(pipeline, alloc, dst, (float*)constantPtr,/*numSlots=*/1);
+            case BuilderOp::push_constant: {
+                auto ctx = alloc->make<SkRasterPipeline_ConstantCtx>();
+                ctx->dst = (inst.fOp == BuilderOp::push_constant) ? tempStackPtr : SlotA();
+                ctx->value = sk_bit_cast<float>(inst.fImmA);
+                pipeline->push_back({ProgramOp::copy_constant, ctx});
                 break;
             }
             case BuilderOp::copy_stack_to_slots: {
@@ -2153,10 +2144,10 @@ void Program::dump(SkWStream* out) const {
                                    PtrCtx(ctx->src, numSlots));
         };
 
-        // Interpret the context value as a BinaryOp structure for copy_n_constants (numSlots is
+        // Interpret the context value as a BinaryOp structure for copy_n_uniforms (numSlots is
         // dictated by the op itself).
-        auto CopyConstantCtx = [&](const void* v,
-                                   int numSlots) -> std::tuple<std::string, std::string> {
+        auto CopyUniformCtx = [&](const void* v,
+                                  int numSlots) -> std::tuple<std::string, std::string> {
             const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    MultiImmCtx(ctx->src, numSlots));
@@ -2383,21 +2374,26 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = PtrCtx(stage.ctx, 16);
                 break;
 
-
-            case POp::copy_constant:
-                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 1);
+            case POp::copy_constant: {
+                const auto* ctx = static_cast<SkRasterPipeline_ConstantCtx*>(stage.ctx);
+                opArg1 = PtrCtx(ctx->dst, 1);
+                opArg2 = Imm(ctx->value);
+                break;
+            }
+            case POp::copy_uniform:
+                std::tie(opArg1, opArg2) = CopyUniformCtx(stage.ctx, 1);
                 break;
 
-            case POp::copy_2_constants:
-                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 2);
+            case POp::copy_2_uniforms:
+                std::tie(opArg1, opArg2) = CopyUniformCtx(stage.ctx, 2);
                 break;
 
-            case POp::copy_3_constants:
-                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 3);
+            case POp::copy_3_uniforms:
+                std::tie(opArg1, opArg2) = CopyUniformCtx(stage.ctx, 3);
                 break;
 
-            case POp::copy_4_constants:
-                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 4);
+            case POp::copy_4_uniforms:
+                std::tie(opArg1, opArg2) = CopyUniformCtx(stage.ctx, 4);
                 break;
 
             case POp::copy_slot_masked:
@@ -2775,13 +2771,13 @@ void Program::dump(SkWStream* out) const {
                 opText = opArg1 + " = Mask(" + opArg2 + ")";
                 break;
 
-            case POp::copy_constant:               case POp::copy_2_constants:
-            case POp::copy_3_constants:            case POp::copy_4_constants:
+            case POp::copy_uniform:                case POp::copy_2_uniforms:
+            case POp::copy_3_uniforms:             case POp::copy_4_uniforms:
             case POp::copy_slot_unmasked:          case POp::copy_2_slots_unmasked:
             case POp::copy_3_slots_unmasked:       case POp::copy_4_slots_unmasked:
+            case POp::copy_constant:               case POp::shuffle:
             case POp::swizzle_1:                   case POp::swizzle_2:
             case POp::swizzle_3:                   case POp::swizzle_4:
-            case POp::shuffle:
                 opText = opArg1 + " = " + opArg2;
                 break;
 

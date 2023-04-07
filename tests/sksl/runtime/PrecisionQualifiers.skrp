@@ -5,9 +5,9 @@
     5. bitwise_and_int                $13 &= $14
     6. store_src_rg                   coords = src.rg
     7. init_lane_masks                CondMask = LoopMask = RetMask = true
-    8. copy_4_constants               colorGreen = colorGreen
+    8. copy_4_uniforms                colorGreen = colorGreen
     9. trace_var                      TraceVar(colorGreen) when $13 is true
-   10. copy_4_constants               colorRed = colorRed
+   10. copy_4_uniforms                colorRed = colorRed
    11. trace_var                      TraceVar(colorRed) when $13 is true
    12. trace_enter                    TraceEnter(vec4 main(vec2 coords)) when $13 is true
    13. trace_var                      TraceVar(coords) when $13 is true
@@ -24,7 +24,7 @@
    24. copy_4_slots_unmasked          one = $1..4
    25. trace_var                      TraceVar(one) when $13 is true
    26. trace_line                     TraceLine(60) when $13 is true
-   27. copy_4_constants               green = colorGreen
+   27. copy_4_uniforms                green = colorGreen
    28. trace_var                      TraceVar(green) when $13 is true
    29. trace_line                     TraceLine(61) when $13 is true
    30. copy_4_slots_unmasked          $1..4 = green
@@ -35,7 +35,7 @@
    35. copy_4_slots_unmasked          green = $1..4
    36. trace_var                      TraceVar(green) when $13 is true
    37. trace_line                     TraceLine(63) when $13 is true
-   38. copy_4_constants               red = colorRed
+   38. copy_4_uniforms                red = colorRed
    39. trace_var                      TraceVar(red) when $13 is true
    40. trace_line                     TraceLine(64) when $13 is true
    41. copy_4_slots_unmasked          $1..4 = red

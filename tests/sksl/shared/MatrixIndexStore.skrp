@@ -5,18 +5,18 @@
     5. bitwise_and_int                $35 &= $36
     6. store_src_rg                   coords = src.rg
     7. init_lane_masks                CondMask = LoopMask = RetMask = true
-    8. copy_4_constants               colorGreen = colorGreen
+    8. copy_4_uniforms                colorGreen = colorGreen
     9. trace_var                      TraceVar(colorGreen) when $35 is true
-   10. copy_4_constants               colorRed = colorRed
+   10. copy_4_uniforms                colorRed = colorRed
    11. trace_var                      TraceVar(colorRed) when $35 is true
-   12. copy_4_constants               testMatrix3x3(0..3) = testMatrix3x3(0..3)
-   13. copy_4_constants               testMatrix3x3(4..7) = testMatrix3x3(4..7)
-   14. copy_constant                  testMatrix3x3(8) = testMatrix3x3(8)
+   12. copy_4_uniforms                testMatrix3x3(0..3) = testMatrix3x3(0..3)
+   13. copy_4_uniforms                testMatrix3x3(4..7) = testMatrix3x3(4..7)
+   14. copy_uniform                   testMatrix3x3(8) = testMatrix3x3(8)
    15. trace_var                      TraceVar(testMatrix3x3) when $35 is true
-   16. copy_4_constants               testMatrix4x4(0..3) = testMatrix4x4(0..3)
-   17. copy_4_constants               testMatrix4x4(4..7) = testMatrix4x4(4..7)
-   18. copy_4_constants               testMatrix4x4(8..11) = testMatrix4x4(8..11)
-   19. copy_4_constants               testMatrix4x4(12..15) = testMatrix4x4(12..15)
+   16. copy_4_uniforms                testMatrix4x4(0..3) = testMatrix4x4(0..3)
+   17. copy_4_uniforms                testMatrix4x4(4..7) = testMatrix4x4(4..7)
+   18. copy_4_uniforms                testMatrix4x4(8..11) = testMatrix4x4(8..11)
+   19. copy_4_uniforms                testMatrix4x4(12..15) = testMatrix4x4(12..15)
    20. trace_var                      TraceVar(testMatrix4x4) when $35 is true
    21. trace_enter                    TraceEnter(half4 main(float2 coords)) when $35 is true
    22. trace_var                      TraceVar(coords) when $35 is true
@@ -87,9 +87,9 @@
    87. copy_4_slots_unmasked          $41..44 = matrix(0..3)
    88. copy_4_slots_unmasked          $45..48 = matrix(4..7)
    89. copy_slot_unmasked             $49 = matrix(8)
-   90. copy_4_constants               $50..53 = testMatrix3x3(0..3)
-   91. copy_4_constants               $54..57 = testMatrix3x3(4..7)
-   92. copy_constant                  $58 = testMatrix3x3(8)
+   90. copy_4_uniforms                $50..53 = testMatrix3x3(0..3)
+   91. copy_4_uniforms                $54..57 = testMatrix3x3(4..7)
+   92. copy_uniform                   $58 = testMatrix3x3(8)
    93. cmpeq_n_floats                 $41..49 = equal($41..49, $50..58)
    94. bitwise_and_4_ints             $42..45 &= $46..49
    95. bitwise_and_2_ints             $42..43 &= $44..45
@@ -167,10 +167,10 @@
   167. copy_4_slots_unmasked          $7..10 = matrix₁(4..7)
   168. copy_4_slots_unmasked          $11..14 = matrix₁(8..11)
   169. copy_4_slots_unmasked          $15..18 = matrix₁(12..15)
-  170. copy_4_constants               $19..22 = testMatrix4x4(0..3)
-  171. copy_4_constants               $23..26 = testMatrix4x4(4..7)
-  172. copy_4_constants               $27..30 = testMatrix4x4(8..11)
-  173. copy_4_constants               $31..34 = testMatrix4x4(12..15)
+  170. copy_4_uniforms                $19..22 = testMatrix4x4(0..3)
+  171. copy_4_uniforms                $23..26 = testMatrix4x4(4..7)
+  172. copy_4_uniforms                $27..30 = testMatrix4x4(8..11)
+  173. copy_4_uniforms                $31..34 = testMatrix4x4(12..15)
   174. cmpeq_n_floats                 $3..18 = equal($3..18, $19..34)
   175. bitwise_and_4_ints             $11..14 &= $15..18
   176. bitwise_and_4_ints             $7..10 &= $11..14
@@ -187,8 +187,8 @@
   187. label                          label 0x00000001
   188. load_condition_mask            CondMask = $39
   189. swizzle_4                      $1..4 = ($1..4).xxxx
-  190. copy_4_constants               $5..8 = colorRed
-  191. copy_4_constants               $9..12 = colorGreen
+  190. copy_4_uniforms                $5..8 = colorRed
+  191. copy_4_uniforms                $9..12 = colorGreen
   192. mix_4_ints                     $1..4 = mix($5..8, $9..12, $1..4)
   193. copy_4_slots_unmasked          [main].result = $1..4
   194. trace_var                      TraceVar([main].result) when $35 is true

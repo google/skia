@@ -13,7 +13,7 @@
    13. cast_to_float_from_int         $3 = IntToFloat($3)
    14. cmpne_float                    $2 = notEqual($2, $3)
    15. merge_condition_mask           CondMask = $1 & $2
-   16. copy_4_constants               $3..6 = colorRed
+   16. copy_4_uniforms                $3..6 = colorRed
    17. copy_4_slots_masked            [main].result = Mask($3..6)
    18. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    19. load_condition_mask            CondMask = $1
@@ -30,7 +30,7 @@
    30. branch_if_any_lanes_active     branch_if_any_lanes_active -24 (label 2 at #6)
    31. label                          label 0x00000000
    32. load_loop_mask                 LoopMask = $0
-   33. copy_4_constants               $0..3 = colorGreen
+   33. copy_4_uniforms                $0..3 = colorGreen
    34. copy_4_slots_masked            [main].result = Mask($0..3)
    35. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    36. load_src                       src.rgba = [main].result

@@ -1,42 +1,42 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  $0 = colorGreen(0)
-    4. copy_constant                  $1 = colorGreen(2)
+    3. copy_uniform                   $0 = colorGreen(0)
+    4. copy_uniform                   $1 = colorGreen(2)
     5. div_float                      $0 /= $1
     6. copy_slot_unmasked             NAN1 = $0
-    7. copy_constant                  $0 = colorGreen(2)
-    8. copy_constant                  $1 = colorGreen(0)
+    7. copy_uniform                   $0 = colorGreen(2)
+    8. copy_uniform                   $1 = colorGreen(0)
     9. div_float                      $0 /= $1
    10. copy_slot_unmasked             NAN2 = $0
-   11. copy_constant                  $0 = colorGreen(0)
-   12. copy_constant                  $1 = colorGreen(2)
+   11. copy_uniform                   $0 = colorGreen(0)
+   12. copy_uniform                   $1 = colorGreen(2)
    13. mul_float                      $0 *= $1
    14. copy_slot_unmasked             ZP = $0
    15. zero_slot_unmasked             $0 = 0
-   16. copy_constant                  $1 = colorGreen(0)
+   16. copy_uniform                   $1 = colorGreen(0)
    17. sub_float                      $0 -= $1
-   18. copy_constant                  $1 = colorGreen(2)
+   18. copy_uniform                   $1 = colorGreen(2)
    19. mul_float                      $0 *= $1
    20. copy_slot_unmasked             ZM = $0
-   21. copy_constant                  $0 = colorGreen(1)
+   21. copy_uniform                   $0 = colorGreen(1)
    22. copy_constant                  $1 = 0x42280000 (42.0)
    23. mul_float                      $0 *= $1
    24. copy_slot_unmasked             F42 = $0
-   25. copy_constant                  $0 = colorGreen(1)
+   25. copy_uniform                   $0 = colorGreen(1)
    26. copy_constant                  $1 = 0x422C0000 (43.0)
    27. mul_float                      $0 *= $1
    28. copy_slot_unmasked             F43 = $0
-   29. copy_constant                  $0 = colorGreen(1)
+   29. copy_uniform                   $0 = colorGreen(1)
    30. copy_constant                  $1 = 0x42300000 (44.0)
    31. mul_float                      $0 *= $1
    32. copy_slot_unmasked             F44 = $0
-   33. copy_constant                  $0 = colorGreen(1)
+   33. copy_uniform                   $0 = colorGreen(1)
    34. copy_constant                  $1 = 0x42340000 (45.0)
    35. mul_float                      $0 *= $1
    36. copy_slot_unmasked             F45 = $0
    37. copy_constant                  EQ = 0xFFFFFFFF
    38. zero_slot_unmasked             NE = 0
-   39. copy_constant                  $0 = colorGreen(0)
+   39. copy_uniform                   $0 = colorGreen(0)
    40. copy_constant                  $1 = 0x3F800000 (1.0)
    41. add_float                      $0 += $1
    42. copy_slot_unmasked             _0_one = $0
@@ -89,7 +89,7 @@
    89. copy_slot_unmasked             f2 = ZM
    90. copy_slot_unmasked             f3 = ZP
    91. copy_slot_unmasked             f4 = F43
-   92. copy_constant                  $69 = colorGreen(0)
+   92. copy_uniform                   $69 = colorGreen(0)
    93. copy_constant                  $70 = 0x3F800000 (1.0)
    94. add_float                      $69 += $70
    95. copy_slot_unmasked             one = $69
@@ -136,7 +136,7 @@
   136. copy_slot_unmasked             f1 = F42
   137. copy_2_slots_unmasked          f2, f3 = NAN1, NAN2
   138. copy_slot_unmasked             f4 = F43
-  139. copy_constant                  $58 = colorGreen(0)
+  139. copy_uniform                   $58 = colorGreen(0)
   140. copy_constant                  $59 = 0x3F800000 (1.0)
   141. add_float                      $58 += $59
   142. copy_slot_unmasked             one = $58
@@ -182,7 +182,7 @@
   182. copy_slot_unmasked             f1 = F42
   183. copy_2_slots_unmasked          f2, f3 = NAN1, NAN2
   184. copy_slot_unmasked             f4 = F43
-  185. copy_constant                  $47 = colorGreen(0)
+  185. copy_uniform                   $47 = colorGreen(0)
   186. copy_constant                  $48 = 0x3F800000 (1.0)
   187. add_float                      $47 += $48
   188. copy_slot_unmasked             one = $47
@@ -227,7 +227,7 @@
   227. branch_if_no_lanes_active      branch_if_no_lanes_active +40 (label 4 at #267)
   228. copy_slot_unmasked             eq₁ = NE
   229. copy_4_slots_unmasked          f1₁, f2₁, f3₁, f4₁ = F42, F43, F44, F45
-  230. copy_constant                  $36 = colorGreen(0)
+  230. copy_uniform                   $36 = colorGreen(0)
   231. copy_constant                  $37 = 0x40000000 (2.0)
   232. add_float                      $36 += $37
   233. copy_slot_unmasked             two = $36
@@ -271,7 +271,7 @@
   271. branch_if_no_lanes_active      branch_if_no_lanes_active +41 (label 3 at #312)
   272. copy_slot_unmasked             eq₁ = EQ
   273. copy_4_slots_unmasked          f1₁, f2₁, f3₁, f4₁ = F42, F43, F44, F45
-  274. copy_constant                  $25 = colorGreen(0)
+  274. copy_uniform                   $25 = colorGreen(0)
   275. copy_constant                  $26 = 0x40000000 (2.0)
   276. add_float                      $25 += $26
   277. copy_slot_unmasked             two = $25
@@ -319,7 +319,7 @@
   319. copy_slot_unmasked             f2₁ = ZM
   320. copy_slot_unmasked             f3₁ = ZP
   321. copy_slot_unmasked             f4₁ = F42
-  322. copy_constant                  $14 = colorGreen(0)
+  322. copy_uniform                   $14 = colorGreen(0)
   323. copy_constant                  $15 = 0x40000000 (2.0)
   324. add_float                      $14 += $15
   325. copy_slot_unmasked             two = $14
@@ -366,7 +366,7 @@
   366. copy_slot_unmasked             f2₁ = ZM
   367. copy_slot_unmasked             f3₁ = ZP
   368. copy_slot_unmasked             f4₁ = F42
-  369. copy_constant                  $1 = colorGreen(0)
+  369. copy_uniform                   $1 = colorGreen(0)
   370. copy_constant                  $2 = 0x40000000 (2.0)
   371. add_float                      $1 += $2
   372. copy_slot_unmasked             two = $1
@@ -407,7 +407,7 @@
   407. label                          label 0x00000001
   408. load_condition_mask            CondMask = $12
   409. swizzle_4                      $0..3 = ($0..3).xxxx
-  410. copy_4_constants               $4..7 = colorRed
-  411. copy_4_constants               $8..11 = colorGreen
+  410. copy_4_uniforms                $4..7 = colorRed
+  411. copy_4_uniforms                $8..11 = colorGreen
   412. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   413. load_src                       src.rgba = $0..3

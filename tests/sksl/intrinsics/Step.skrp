@@ -11,7 +11,7 @@
    11. copy_constant                  expectedB(1) = 0x3F800000 (1.0)
    12. zero_2_slots_unmasked          expectedB(2..3) = 0
    13. copy_constant                  $0 = 0x3F000000 (0.5)
-   14. copy_constant                  $1 = testInputs(0)
+   14. copy_uniform                   $1 = testInputs(0)
    15. cmplt_float                    $0 = lessThan($0, $1)
    16. copy_constant                  $1 = 0x3F800000 (1.0)
    17. bitwise_and_int                $0 &= $1
@@ -19,7 +19,7 @@
    19. cmpeq_float                    $0 = equal($0, $1)
    20. copy_constant                  $1 = 0x3F000000 (0.5)
    21. copy_slot_unmasked             $2 = $1
-   22. copy_2_constants               $3..4 = testInputs(0..1)
+   22. copy_2_uniforms                $3..4 = testInputs(0..1)
    23. cmplt_2_floats                 $1..2 = lessThan($1..2, $3..4)
    24. copy_constant                  $3 = 0x3F800000 (1.0)
    25. copy_slot_unmasked             $4 = $3
@@ -30,7 +30,7 @@
    30. bitwise_and_int                $0 &= $1
    31. copy_constant                  $1 = 0x3F000000 (0.5)
    32. swizzle_3                      $1..3 = ($1..3).xxx
-   33. copy_3_constants               $4..6 = testInputs(0..2)
+   33. copy_3_uniforms                $4..6 = testInputs(0..2)
    34. cmplt_3_floats                 $1..3 = lessThan($1..3, $4..6)
    35. copy_constant                  $4 = 0x3F800000 (1.0)
    36. swizzle_3                      $4..6 = ($4..6).xxx
@@ -42,7 +42,7 @@
    42. bitwise_and_int                $0 &= $1
    43. copy_constant                  $1 = 0x3F000000 (0.5)
    44. swizzle_4                      $1..4 = ($1..4).xxxx
-   45. copy_4_constants               $5..8 = testInputs
+   45. copy_4_uniforms                $5..8 = testInputs
    46. cmplt_4_floats                 $1..4 = lessThan($1..4, $5..8)
    47. copy_constant                  $5 = 0x3F800000 (1.0)
    48. swizzle_4                      $5..8 = ($5..8).xxxx
@@ -76,7 +76,7 @@
    76. bitwise_and_2_ints             $1..2 &= $3..4
    77. bitwise_and_int                $1 &= $2
    78. bitwise_and_int                $0 &= $1
-   79. copy_constant                  $1 = testInputs(0)
+   79. copy_uniform                   $1 = testInputs(0)
    80. zero_slot_unmasked             $2 = 0
    81. cmplt_float                    $1 = lessThan($1, $2)
    82. copy_constant                  $2 = 0x3F800000 (1.0)
@@ -84,7 +84,7 @@
    84. copy_slot_unmasked             $2 = expectedB(0)
    85. cmpeq_float                    $1 = equal($1, $2)
    86. bitwise_and_int                $0 &= $1
-   87. copy_2_constants               $1..2 = testInputs(0..1)
+   87. copy_2_uniforms                $1..2 = testInputs(0..1)
    88. zero_slot_unmasked             $3 = 0
    89. copy_constant                  $4 = 0x3F800000 (1.0)
    90. cmplt_2_floats                 $1..2 = lessThan($1..2, $3..4)
@@ -95,7 +95,7 @@
    95. cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
    96. bitwise_and_int                $1 &= $2
    97. bitwise_and_int                $0 &= $1
-   98. copy_3_constants               $1..3 = testInputs(0..2)
+   98. copy_3_uniforms                $1..3 = testInputs(0..2)
    99. zero_slot_unmasked             $4 = 0
   100. copy_constant                  $5 = 0x3F800000 (1.0)
   101. zero_slot_unmasked             $6 = 0
@@ -108,7 +108,7 @@
   108. bitwise_and_int                $2 &= $3
   109. bitwise_and_int                $1 &= $2
   110. bitwise_and_int                $0 &= $1
-  111. copy_4_constants               $1..4 = testInputs
+  111. copy_4_uniforms                $1..4 = testInputs
   112. copy_4_slots_unmasked          $5..8 = constGreen
   113. cmplt_4_floats                 $1..4 = lessThan($1..4, $5..8)
   114. copy_constant                  $5 = 0x3F800000 (1.0)
@@ -146,7 +146,7 @@
   146. bitwise_and_int                $1 &= $2
   147. bitwise_and_int                $0 &= $1
   148. swizzle_4                      $0..3 = ($0..3).xxxx
-  149. copy_4_constants               $4..7 = colorRed
-  150. copy_4_constants               $8..11 = colorGreen
+  149. copy_4_uniforms                $4..7 = colorRed
+  150. copy_4_uniforms                $8..11 = colorGreen
   151. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   152. load_src                       src.rgba = $0..3

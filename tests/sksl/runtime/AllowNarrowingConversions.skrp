@@ -4,7 +4,7 @@
     4. swizzle_4                      $0..3 = ($0..3).xxxx
     5. copy_4_slots_unmasked          one = $0..3
     6. zero_4_slots_unmasked          zero = 0
-    7. copy_4_constants               green = colorGreen
+    7. copy_4_uniforms                green = colorGreen
     8. copy_4_slots_unmasked          $0..3 = green
     9. copy_4_slots_unmasked          $4..7 = one
    10. mul_4_floats                   $0..3 *= $4..7

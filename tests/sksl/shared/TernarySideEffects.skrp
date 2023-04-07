@@ -134,9 +134,9 @@
   134. cmpeq_float                    $5 = equal($5, $6)
   135. bitwise_and_int                $4 &= $5
   136. swizzle_4                      $4..7 = ($4..7).xxxx
-  137. copy_4_constants               $8..11 = colorRed
-  138. copy_4_constants               $12..15 = colorGreen
+  137. copy_4_uniforms                $8..11 = colorRed
+  138. copy_4_uniforms                $12..15 = colorGreen
   139. mix_4_ints                     $4..7 = mix($8..11, $12..15, $4..7)
-  140. copy_4_constants               $8..11 = colorRed
+  140. copy_4_uniforms                $8..11 = colorRed
   141. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   142. load_src                       src.rgba = $0..3

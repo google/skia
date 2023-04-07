@@ -10,7 +10,7 @@
    10. sqrt_float                     $2 = sqrt($2)
    11. sqrt_float                     $3 = sqrt($3)
    12. copy_2_slots_unmasked          coords = $0..1
-   13. copy_4_constants               $0..3 = testMatrix2x2
+   13. copy_4_uniforms                $0..3 = testMatrix2x2
    14. zero_slot_unmasked             $4 = 0
    15. copy_constant                  $5 = 0x40000000 (2.0)
    16. copy_constant                  $6 = 0x40C00000 (6.0)
@@ -72,7 +72,7 @@
    72. bitwise_and_int                $1 &= $2
    73. bitwise_and_int                $0 &= $1
    74. swizzle_4                      $0..3 = ($0..3).xxxx
-   75. copy_4_constants               $4..7 = colorRed
-   76. copy_4_constants               $8..11 = colorGreen
+   75. copy_4_uniforms                $4..7 = colorRed
+   76. copy_4_uniforms                $8..11 = colorGreen
    77. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    78. load_src                       src.rgba = $0..3

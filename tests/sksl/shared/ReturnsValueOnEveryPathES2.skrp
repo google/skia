@@ -7,7 +7,7 @@
     7. copy_constant                  $31 = 0xFFFFFFFF
     8. branch_if_no_active_lanes_eq   branch +16 (label 5 at #24) if no lanes of $31 == 0xFFFFFFFF
     9. branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 7 at #22)
-   10. copy_constant                  $29 = unknownInput
+   10. copy_uniform                   $29 = unknownInput
    11. copy_constant                  $30 = 0x3F800000 (1.0)
    12. cmpeq_float                    $29 = equal($29, $30)
    13. branch_if_no_active_lanes_eq   branch +4 (label 8 at #17) if no lanes of $29 == 0xFFFFFFFF
@@ -81,7 +81,7 @@
    81. store_loop_mask                $15 = LoopMask
    82. jump                           jump +19 (label 19 at #101)
    83. label                          label 0x00000014
-   84. copy_constant                  $16 = unknownInput
+   84. copy_uniform                   $16 = unknownInput
    85. copy_constant                  $17 = 0x3F800000 (1.0)
    86. cmpeq_float                    $16 = equal($16, $17)
    87. branch_if_no_active_lanes_eq   branch +5 (label 21 at #92) if no lanes of $16 == 0xFFFFFFFF
@@ -116,7 +116,7 @@
   116. zero_slot_unmasked             $0 = 0
   117. merge_condition_mask           CondMask = $12 & $13
   118. branch_if_no_lanes_active      branch_if_no_lanes_active +42 (label 1 at #160)
-  119. copy_constant                  $1 = unknownInput
+  119. copy_uniform                   $1 = unknownInput
   120. copy_constant                  $2 = 0x3F800000 (1.0)
   121. cmpeq_float                    $1 = equal($1, $2)
   122. branch_if_no_active_lanes_eq   branch +4 (label 24 at #126) if no lanes of $1 == 0xFFFFFFFF
@@ -124,7 +124,7 @@
   124. copy_slot_masked               [if_else_chain].result = Mask($2)
   125. jump                           jump +31 (label 25 at #156)
   126. label                          label 0x00000018
-  127. copy_constant                  $2 = unknownInput
+  127. copy_uniform                   $2 = unknownInput
   128. copy_constant                  $3 = 0x40000000 (2.0)
   129. cmpeq_float                    $2 = equal($2, $3)
   130. branch_if_no_active_lanes_eq   branch +4 (label 26 at #134) if no lanes of $2 == 0xFFFFFFFF
@@ -132,7 +132,7 @@
   132. copy_slot_masked               [if_else_chain].result = Mask($3)
   133. jump                           jump +22 (label 27 at #155)
   134. label                          label 0x0000001A
-  135. copy_constant                  $3 = unknownInput
+  135. copy_uniform                   $3 = unknownInput
   136. copy_constant                  $4 = 0x40400000 (3.0)
   137. cmpeq_float                    $3 = equal($3, $4)
   138. branch_if_no_active_lanes_eq   branch +4 (label 28 at #142) if no lanes of $3 == 0xFFFFFFFF
@@ -140,7 +140,7 @@
   140. copy_slot_masked               [if_else_chain].result = Mask($4)
   141. jump                           jump +13 (label 29 at #154)
   142. label                          label 0x0000001C
-  143. copy_constant                  $4 = unknownInput
+  143. copy_uniform                   $4 = unknownInput
   144. copy_constant                  $5 = 0x40800000 (4.0)
   145. cmpeq_float                    $4 = equal($4, $5)
   146. branch_if_no_active_lanes_eq   branch +4 (label 30 at #150) if no lanes of $4 == 0xFFFFFFFF
@@ -160,7 +160,7 @@
   160. label                          label 0x00000001
   161. load_condition_mask            CondMask = $12
   162. swizzle_4                      $0..3 = ($0..3).xxxx
-  163. copy_4_constants               $4..7 = colorRed
-  164. copy_4_constants               $8..11 = colorGreen
+  163. copy_4_uniforms                $4..7 = colorRed
+  164. copy_4_uniforms                $8..11 = colorGreen
   165. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   166. load_src                       src.rgba = $0..3

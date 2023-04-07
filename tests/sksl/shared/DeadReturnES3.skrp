@@ -70,7 +70,7 @@
    70. label                          label 0x00000013
    71. zero_slot_unmasked             $36 = 0
    72. zero_slot_unmasked             $30 = 0
-   73. copy_constant                  $31 = colorGreen(1)
+   73. copy_uniform                   $31 = colorGreen(1)
    74. cmplt_float                    $30 = lessThan($30, $31)
    75. branch_if_no_active_lanes_eq   branch +5 (label 20 at #80) if no lanes of $30 == 0xFFFFFFFF
    76. copy_constant                  $31 = 0xFFFFFFFF
@@ -106,7 +106,7 @@
   106. label                          label 0x00000018
   107. zero_slot_unmasked             $32 = 0
   108. zero_slot_unmasked             $24 = 0
-  109. copy_constant                  $25 = colorGreen(1)
+  109. copy_uniform                   $25 = colorGreen(1)
   110. cmplt_float                    $24 = lessThan($24, $25)
   111. branch_if_no_active_lanes_eq   branch +4 (label 25 at #115) if no lanes of $24 == 0xFFFFFFFF
   112. branch_if_all_lanes_active     branch_if_all_lanes_active +13 (label 23 at #125)
@@ -135,7 +135,7 @@
   135. store_return_mask              $17 = RetMask
   136. store_loop_mask                $18 = LoopMask
   137. label                          label 0x0000001D
-  138. copy_constant                  $19 = colorGreen(1)
+  138. copy_uniform                   $19 = colorGreen(1)
   139. zero_slot_unmasked             $20 = 0
   140. cmpeq_float                    $19 = equal($19, $20)
   141. branch_if_no_active_lanes_eq   branch +5 (label 30 at #146) if no lanes of $19 == 0xFFFFFFFF
@@ -196,7 +196,7 @@
   196. label                          label 0x00000001
   197. load_condition_mask            CondMask = $12
   198. swizzle_4                      $0..3 = ($0..3).xxxx
-  199. copy_4_constants               $4..7 = colorRed
-  200. copy_4_constants               $8..11 = colorGreen
+  199. copy_4_uniforms                $4..7 = colorRed
+  200. copy_4_uniforms                $8..11 = colorGreen
   201. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   202. load_src                       src.rgba = $0..3

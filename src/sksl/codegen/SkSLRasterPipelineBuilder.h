@@ -79,7 +79,7 @@ enum class BuilderOp {
 
     // ... and also has Builder-specific ops. These ops generally interface with the stack, and are
     // converted into ProgramOps during `makeStages`.
-    push_literal,
+    push_constant,
     push_slots,
     push_slots_indirect,
     push_uniform,
@@ -196,8 +196,8 @@ private:
                                  float* dst, const float* src, int numSlots) const;
     void appendCopySlotsMasked(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                float* dst, const float* src, int numSlots) const;
-    void appendCopyConstants(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                             float* dst, const float* src, int numSlots) const;
+    void appendCopyUniforms(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
+                            float* dst, const float* src, int numSlots) const;
 
     // Appends a single-slot single-input math operation to the pipeline. The op `stage` will
     // appended `numSlots` times, starting at position `dst` and advancing one slot for each
@@ -352,26 +352,26 @@ public:
     void branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID);
 
     // We use the same SkRasterPipeline op regardless of the literal type, and bitcast the value.
-    void push_literal_f(float val) {
-        this->push_literal_i(sk_bit_cast<int32_t>(val));
+    void push_constant_f(float val) {
+        this->push_constant_i(sk_bit_cast<int32_t>(val));
     }
 
-    void push_literal_i(int32_t val) {
+    void push_constant_i(int32_t val) {
         if (val == 0) {
             this->push_zeros(1);
         } else {
-            fInstructions.push_back({BuilderOp::push_literal, {}, val});
+            fInstructions.push_back({BuilderOp::push_constant, {}, val});
         }
     }
 
-    void push_literal_u(uint32_t val) {
-        this->push_literal_i(sk_bit_cast<int32_t>(val));
+    void push_constant_u(uint32_t val) {
+        this->push_constant_i(sk_bit_cast<int32_t>(val));
     }
 
-    // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
+    // Translates into copy_uniforms (from uniforms into temp stack) in Raster Pipeline.
     void push_uniform(SlotRange src);
 
-    // Translates into copy_constants (from uniforms into value-slots) in Raster Pipeline.
+    // Translates into copy_uniforms (from uniforms into value-slots) in Raster Pipeline.
     void copy_uniform_to_slots_unmasked(SlotRange dst, SlotRange src);
 
     // Translates into copy_from_indirect_uniform_unmasked (from values into temp stack) in Raster

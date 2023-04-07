@@ -72,7 +72,7 @@
    72. copy_constant                  $1 = 0x40C00000 (6.0)
    73. cmpeq_float                    $0 = equal($0, $1)
    74. swizzle_4                      $0..3 = ($0..3).xxxx
-   75. copy_4_constants               $4..7 = colorRed
-   76. copy_4_constants               $8..11 = colorGreen
+   75. copy_4_uniforms                $4..7 = colorRed
+   76. copy_4_uniforms                $8..11 = colorGreen
    77. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    78. load_src                       src.rgba = $0..3

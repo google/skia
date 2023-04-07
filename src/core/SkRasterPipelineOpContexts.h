@@ -150,6 +150,11 @@ struct SkRasterPipeline_TablesCtx {
     const uint8_t *r, *g, *b, *a;
 };
 
+struct SkRasterPipeline_ConstantCtx {
+    float *dst;
+    float value;
+};
+
 struct SkRasterPipeline_BinaryOpCtx {
     float *dst;
     const float *src;

@@ -3,17 +3,17 @@
     3. copy_constant                  minus = 0x00000002 (2.802597e-45)
     4. copy_constant                  star = 0x00000003 (4.203895e-45)
     5. copy_constant                  slash = 0x00000004 (5.605194e-45)
-    6. copy_constant                  f1 = colorGreen(1)
+    6. copy_uniform                   f1 = colorGreen(1)
     7. copy_constant                  $0 = 0x40000000 (2.0)
-    8. copy_constant                  $1 = colorGreen(1)
+    8. copy_uniform                   $1 = colorGreen(1)
     9. mul_float                      $0 *= $1
    10. copy_slot_unmasked             f2 = $0
    11. copy_constant                  $0 = 0x40400000 (3.0)
-   12. copy_constant                  $1 = colorGreen(1)
+   12. copy_uniform                   $1 = colorGreen(1)
    13. mul_float                      $0 *= $1
    14. copy_slot_unmasked             f3 = $0
    15. copy_constant                  $0 = 0x40800000 (4.0)
-   16. copy_constant                  $1 = colorGreen(1)
+   16. copy_uniform                   $1 = colorGreen(1)
    17. mul_float                      $0 *= $1
    18. copy_slot_unmasked             f4 = $0
    19. copy_slot_unmasked             $0 = f1
@@ -29,7 +29,7 @@
    29. copy_constant                  $4 = 0x3F800000 (1.0)
    30. add_float                      $3 += $4
    31. copy_4_slots_unmasked          _0_expected = $0..3
-   32. copy_constant                  _1_one = colorRed(0)
+   32. copy_uniform                   _1_one = colorRed(0)
    33. copy_slot_unmasked             $0 = f1
    34. copy_slot_unmasked             $1 = _1_one
    35. mul_float                      $0 *= $1
@@ -88,7 +88,7 @@
    88. copy_constant                  $44 = 0x3F800000 (1.0)
    89. sub_float                      $43 -= $44
    90. copy_4_slots_unmasked          expected = $40..43
-   91. copy_constant                  one = colorRed(0)
+   91. copy_uniform                   one = colorRed(0)
    92. copy_slot_unmasked             $40 = m11
    93. copy_slot_unmasked             $41 = one
    94. mul_float                      $40 *= $41
@@ -189,7 +189,7 @@
   189. copy_constant                  $31 = 0x40000000 (2.0)
   190. mul_float                      $30 *= $31
   191. copy_4_slots_unmasked          expected = $27..30
-  192. copy_constant                  one = colorRed(0)
+  192. copy_uniform                   one = colorRed(0)
   193. copy_slot_unmasked             $27 = m11
   194. copy_slot_unmasked             $28 = one
   195. mul_float                      $27 *= $28
@@ -290,7 +290,7 @@
   290. copy_constant                  $18 = 0x3F000000 (0.5)
   291. mul_float                      $17 *= $18
   292. copy_4_slots_unmasked          expected = $14..17
-  293. copy_constant                  one = colorRed(0)
+  293. copy_uniform                   one = colorRed(0)
   294. copy_slot_unmasked             $14 = m11
   295. copy_slot_unmasked             $15 = one
   296. mul_float                      $14 *= $15
@@ -376,7 +376,7 @@
   376. zero_slot_unmasked             $0 = 0
   377. merge_condition_mask           CondMask = $12 & $13
   378. branch_if_no_lanes_active      branch_if_no_lanes_active +45 (label 1 at #423)
-  379. copy_constant                  $1 = colorRed(0)
+  379. copy_uniform                   $1 = colorRed(0)
   380. copy_constant                  $2 = 0x41200000 (10.0)
   381. mul_float                      $1 *= $2
   382. copy_slot_unmasked             ten = $1
@@ -385,14 +385,14 @@
   385. copy_slot_unmasked             $4 = $3
   386. copy_4_slots_unmasked          mat = $1..4
   387. copy_constant                  $5 = 0x3F800000 (1.0)
-  388. copy_constant                  $6 = testInputs(0)
+  388. copy_uniform                   $6 = testInputs(0)
   389. div_float                      $5 /= $6
   390. swizzle_4                      $5..8 = ($5..8).xxxx
   391. mul_4_floats                   $1..4 *= $5..8
   392. copy_4_slots_unmasked          div = $1..4
   393. copy_4_slots_unmasked          $1..4 = mat
   394. copy_constant                  $5 = 0x3F800000 (1.0)
-  395. copy_constant                  $6 = testInputs(0)
+  395. copy_uniform                   $6 = testInputs(0)
   396. div_float                      $5 /= $6
   397. swizzle_4                      $5..8 = ($5..8).xxxx
   398. mul_4_floats                   $1..4 *= $5..8
@@ -423,7 +423,7 @@
   423. label                          label 0x00000001
   424. load_condition_mask            CondMask = $12
   425. swizzle_4                      $0..3 = ($0..3).xxxx
-  426. copy_4_constants               $4..7 = colorRed
-  427. copy_4_constants               $8..11 = colorGreen
+  426. copy_4_uniforms                $4..7 = colorRed
+  427. copy_4_uniforms                $8..11 = colorGreen
   428. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   429. load_src                       src.rgba = $0..3

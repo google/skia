@@ -135,10 +135,10 @@ DEF_TEST(RasterPipelineBuilderCaseOp, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
 
-    builder.push_literal_i(123);    // push a test value
-    builder.push_literal_i(~0);     // push an all-on default mask
-    builder.case_op(123);           // do `case 123:`
-    builder.case_op(124);           // do `case 124:`
+    builder.push_constant_i(123);  // push a test value
+    builder.push_constant_i(~0);   // push an all-on default mask
+    builder.case_op(123);          // do `case 123:`
+    builder.case_op(124);          // do `case 124:`
     builder.discard_stack(2);
 
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
@@ -197,13 +197,13 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.set_current_stack(1);
-    builder.push_literal_i(999);                                          // push into 2
+    builder.push_constant_i(999);                                         // push into 2
     builder.set_current_stack(0);
-    builder.push_literal_f(13.5f);                                        // push into 0
+    builder.push_constant_f(13.5f);                                       // push into 0
     builder.push_clone_from_stack(one_slot_at(0), /*otherStackID=*/1, /*offsetFromStackTop=*/1);
                                                                           // push into 1 from 2
     builder.discard_stack();                                              // discard 2
-    builder.push_literal_u(357);                                          // push into 2
+    builder.push_constant_u(357);                                         // push into 2
     builder.set_current_stack(1);
     builder.push_clone_from_stack(one_slot_at(0), /*otherStackID=*/0, /*offsetFromStackTop=*/1);
                                                                           // push into 3 from 0
@@ -223,7 +223,7 @@ DEF_TEST(RasterPipelineBuilderPushPopIndirect, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.set_current_stack(1);
-    builder.push_literal_i(3);
+    builder.push_constant_i(3);
     builder.set_current_stack(0);
     builder.push_slots_indirect(two_slots_at(0), /*dynamicStack=*/1, ten_slots_at(0));
     builder.push_slots_indirect(four_slots_at(10), /*dynamicStack=*/1, ten_slots_at(10));
@@ -307,7 +307,7 @@ R"(    1. copy_4_slots_unmasked          $0..3 = v10..13
 DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_literal_f(1.0f);           // push into 0
+    builder.push_constant_f(1.0f);          // push into 0
     builder.push_duplicates(1);             // duplicate into 1
     builder.push_duplicates(2);             // duplicate into 2~3
     builder.push_duplicates(3);             // duplicate into 4~6
@@ -343,7 +343,7 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
 DEF_TEST(RasterPipelineBuilderTransposeMatrix, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_literal_f(1.0f);           // push into 0
+    builder.push_constant_f(1.0f);          // push into 0
     builder.push_duplicates(15);            // duplicate into 1~15
     builder.transpose(2, 2);                // transpose a 2x2 matrix
     builder.transpose(3, 3);                // transpose a 3x3 matrix
@@ -370,16 +370,16 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
 DEF_TEST(RasterPipelineBuilderDiagonalMatrix, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_literal_f(0.0f);           // push into 0
-    builder.push_literal_f(1.0f);           // push into 1
+    builder.push_constant_f(0.0f);          // push into 0
+    builder.push_constant_f(1.0f);          // push into 1
     builder.diagonal_matrix(2, 2);          // generate a 2x2 diagonal matrix
     builder.discard_stack(4);               // balance stack
-    builder.push_literal_f(0.0f);           // push into 0
-    builder.push_literal_f(2.0f);           // push into 1
+    builder.push_constant_f(0.0f);          // push into 0
+    builder.push_constant_f(2.0f);          // push into 1
     builder.diagonal_matrix(4, 4);          // generate a 4x4 diagonal matrix
     builder.discard_stack(16);              // balance stack
-    builder.push_literal_f(0.0f);           // push into 0
-    builder.push_literal_f(3.0f);           // push into 1
+    builder.push_constant_f(0.0f);          // push into 0
+    builder.push_constant_f(3.0f);          // push into 1
     builder.diagonal_matrix(2, 3);          // generate a 2x3 diagonal matrix
     builder.discard_stack(6);               // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
@@ -400,10 +400,10 @@ R"(    1. zero_slot_unmasked             $0 = 0
 DEF_TEST(RasterPipelineBuilderMatrixResize, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_literal_f(1.0f);           // synthesize a 2x2 matrix
-    builder.push_literal_f(2.0f);
-    builder.push_literal_f(3.0f);
-    builder.push_literal_f(4.0f);
+    builder.push_constant_f(1.0f);          // synthesize a 2x2 matrix
+    builder.push_constant_f(2.0f);
+    builder.push_constant_f(3.0f);
+    builder.push_constant_f(4.0f);
     builder.matrix_resize(2, 2, 4, 4);      // resize 2x2 matrix into 4x4
     builder.matrix_resize(4, 4, 2, 2);      // resize 4x4 matrix back into 2x2
     builder.matrix_resize(2, 2, 2, 4);      // resize 2x2 matrix into 2x4
@@ -552,7 +552,7 @@ DEF_TEST(RasterPipelineBuilderBinaryFloatOps, r) {
     using BuilderOp = SkSL::RP::BuilderOp;
 
     SkSL::RP::Builder builder;
-    builder.push_literal_f(10.0f);
+    builder.push_constant_f(10.0f);
     builder.push_duplicates(30);
     builder.binary_op(BuilderOp::add_n_floats, 1);
     builder.binary_op(BuilderOp::sub_n_floats, 2);
@@ -594,7 +594,7 @@ DEF_TEST(RasterPipelineBuilderBinaryIntOps, r) {
     using BuilderOp = SkSL::RP::BuilderOp;
 
     SkSL::RP::Builder builder;
-    builder.push_literal_i(123);
+    builder.push_constant_i(123);
     builder.push_duplicates(40);
     builder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
     builder.binary_op(BuilderOp::bitwise_xor_n_ints, 2);
@@ -645,7 +645,7 @@ DEF_TEST(RasterPipelineBuilderBinaryUIntOps, r) {
     using BuilderOp = SkSL::RP::BuilderOp;
 
     SkSL::RP::Builder builder;
-    builder.push_literal_u(456);
+    builder.push_constant_u(456);
     builder.push_duplicates(21);
     builder.binary_op(BuilderOp::div_n_uints, 6);
     builder.binary_op(BuilderOp::cmplt_n_uints, 5);
@@ -675,7 +675,7 @@ DEF_TEST(RasterPipelineBuilderUnaryOps, r) {
     using BuilderOp = SkSL::RP::BuilderOp;
 
     SkSL::RP::Builder builder;
-    builder.push_literal_i(456);
+    builder.push_constant_i(456);
     builder.push_duplicates(4);
     builder.unary_op(BuilderOp::cast_to_float_from_int, 1);
     builder.unary_op(BuilderOp::cast_to_float_from_uint, 2);
@@ -736,11 +736,11 @@ DEF_TEST(RasterPipelineBuilderUniforms, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/10);
     check(r, *program,
-R"(    1. copy_4_constants               $0..3 = u0..3
-    2. copy_4_constants               $4..7 = u4..7
-    3. copy_2_constants               $8..9 = u8..9
-    4. copy_4_constants               $10..13 = u0..3
-    5. copy_constant                  $14 = u4
+R"(    1. copy_4_uniforms                $0..3 = u0..3
+    2. copy_4_uniforms                $4..7 = u4..7
+    3. copy_2_uniforms                $8..9 = u8..9
+    4. copy_4_uniforms                $10..13 = u0..3
+    5. copy_uniform                   $14 = u4
     6. abs_int                        $14 = abs($14)
 )");
 }
@@ -772,7 +772,7 @@ DEF_TEST(RasterPipelineBuilderTernaryFloatOps, r) {
     using BuilderOp = SkSL::RP::BuilderOp;
 
     SkSL::RP::Builder builder;
-    builder.push_literal_f(0.75f);
+    builder.push_constant_f(0.75f);
     builder.push_duplicates(8);
     builder.ternary_op(BuilderOp::mix_n_floats, 3);
     builder.discard_stack(3);
@@ -791,7 +791,7 @@ DEF_TEST(RasterPipelineBuilderAutomaticStackRewinding, r) {
     using BuilderOp = SkSL::RP::BuilderOp;
 
     SkSL::RP::Builder builder;
-    builder.push_literal_i(1);
+    builder.push_constant_i(1);
     builder.push_duplicates(2000);
     builder.unary_op(BuilderOp::abs_int, 1);  // perform work so the program isn't eliminated
     builder.discard_stack(2001);
@@ -814,7 +814,7 @@ DEF_TEST(RasterPipelineBuilderTraceOps, r) {
         SkSL::RP::Builder builder;
         // Create a trace mask stack on stack-ID 123.
         builder.set_current_stack(123);
-        builder.push_literal_i(~0);
+        builder.push_constant_i(~0);
         // Emit trace ops.
         builder.trace_enter(123, 2);
         builder.trace_scope(123, +1);

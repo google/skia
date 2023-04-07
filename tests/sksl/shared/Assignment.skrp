@@ -146,5 +146,5 @@
   146. copy_slot_unmasked             $0 = f
   147. copy_slot_unmasked             f3x3(0) = $0
   148. label                          label 0x00000009
-  149. copy_4_constants               $0..3 = colorGreen
+  149. copy_4_uniforms                $0..3 = colorGreen
   150. load_src                       src.rgba = $0..3

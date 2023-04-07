@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  $0 = colorGreen(1)
+    3. copy_uniform                   $0 = colorGreen(1)
     4. cast_to_int_from_float         $0 = FloatToInt($0)
     5. copy_slot_unmasked             x = $0
     6. zero_slot_unmasked             _0_ok = 0
@@ -69,7 +69,7 @@
    69. label                          label 0x00000006
    70. load_condition_mask            CondMask = $12
    71. swizzle_4                      $0..3 = ($0..3).xxxx
-   72. copy_4_constants               $4..7 = colorRed
-   73. copy_4_constants               $8..11 = colorGreen
+   72. copy_4_uniforms                $4..7 = colorRed
+   73. copy_4_uniforms                $8..11 = colorGreen
    74. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    75. load_src                       src.rgba = $0..3

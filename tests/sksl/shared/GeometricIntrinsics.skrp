@@ -43,5 +43,5 @@
    43. copy_slot_unmasked             $3 = $2
    44. mul_2_floats                   $0..1 *= $2..3
    45. copy_2_slots_unmasked          _1_x = $0..1
-   46. copy_4_constants               $0..3 = colorGreen
+   46. copy_4_uniforms                $0..3 = colorGreen
    47. load_src                       src.rgba = $0..3

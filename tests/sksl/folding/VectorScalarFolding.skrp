@@ -192,7 +192,7 @@
   192. bitwise_and_int                $1 &= $2
   193. bitwise_and_int                $0 &= $1
   194. copy_slot_unmasked             _0_ok = $0
-  195. copy_constant                  _2_unknown = unknownInput
+  195. copy_uniform                   _2_unknown = unknownInput
   196. copy_slot_unmasked             $0 = _2_unknown
   197. swizzle_4                      $0..3 = ($0..3).xxxx
   198. copy_4_slots_unmasked          _1_x = $0..3
@@ -606,7 +606,7 @@
   606. bitwise_and_int                $2 &= $3
   607. bitwise_and_int                $1 &= $2
   608. copy_slot_masked               ok = Mask($1)
-  609. copy_constant                  $1 = unknownInput
+  609. copy_uniform                   $1 = unknownInput
   610. cast_to_int_from_float         $1 = FloatToInt($1)
   611. copy_slot_unmasked             unknown = $1
   612. swizzle_4                      $1..4 = ($1..4).xxxx
@@ -828,7 +828,7 @@
   828. label                          label 0x00000001
   829. load_condition_mask            CondMask = $12
   830. swizzle_4                      $0..3 = ($0..3).xxxx
-  831. copy_4_constants               $4..7 = colorRed
-  832. copy_4_constants               $8..11 = colorGreen
+  831. copy_4_uniforms                $4..7 = colorRed
+  832. copy_4_uniforms                $8..11 = colorGreen
   833. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   834. load_src                       src.rgba = $0..3

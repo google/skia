@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  _0_unknown = unknownInput
+    3. copy_uniform                   _0_unknown = unknownInput
     4. copy_constant                  _1_ok = 0xFFFFFFFF
     5. copy_slot_unmasked             $0 = _1_ok
     6. zero_4_slots_unmasked          $1..4 = 0
@@ -72,7 +72,7 @@
    72. zero_slot_unmasked             $0 = 0
    73. merge_condition_mask           CondMask = $12 & $13
    74. branch_if_no_lanes_active      branch_if_no_lanes_active +72 (label 1 at #146)
-   75. copy_constant                  $1 = unknownInput
+   75. copy_uniform                   $1 = unknownInput
    76. cast_to_int_from_float         $1 = FloatToInt($1)
    77. copy_slot_unmasked             unknown = $1
    78. copy_constant                  ok = 0xFFFFFFFF
@@ -146,7 +146,7 @@
   146. label                          label 0x00000001
   147. load_condition_mask            CondMask = $12
   148. swizzle_4                      $0..3 = ($0..3).xxxx
-  149. copy_4_constants               $4..7 = colorRed
-  150. copy_4_constants               $8..11 = colorGreen
+  149. copy_4_uniforms                $4..7 = colorRed
+  150. copy_4_uniforms                $8..11 = colorGreen
   151. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   152. load_src                       src.rgba = $0..3

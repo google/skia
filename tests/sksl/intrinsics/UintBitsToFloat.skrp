@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_4_constants               $0..3 = testMatrix2x2
+    3. copy_4_uniforms                $0..3 = testMatrix2x2
     4. copy_constant                  $4 = 0x3F800000 (1.0)
     5. copy_constant                  $5 = 0x3F800000 (1.0)
     6. copy_constant                  $6 = 0xBF800000 (-1.0)
@@ -32,7 +32,7 @@
    32. bitwise_and_int                $1 &= $2
    33. bitwise_and_int                $0 &= $1
    34. swizzle_4                      $0..3 = ($0..3).xxxx
-   35. copy_4_constants               $4..7 = colorRed
-   36. copy_4_constants               $8..11 = colorGreen
+   35. copy_4_uniforms                $4..7 = colorRed
+   36. copy_4_uniforms                $8..11 = colorGreen
    37. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    38. load_src                       src.rgba = $0..3

@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_4_constants               x = colorWhite
+    3. copy_4_uniforms                x = colorWhite
     4. copy_constant                  r = 0xC0A00000 (-5.0)
     5. store_loop_mask                $0 = LoopMask
     6. jump                           jump +20 (label 1 at #26)

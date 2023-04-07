@@ -1,13 +1,13 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_4_constants               $0..3 = testInputs
+    3. copy_4_uniforms                $0..3 = testInputs
     4. abs_4_floats                   $0..3 = abs($0..3)
     5. copy_constant                  $4 = 0x42C80000 (100.0)
     6. swizzle_4                      $4..7 = ($4..7).xxxx
     7. mul_4_floats                   $0..3 *= $4..7
     8. cast_to_uint_from_4_floats     $0..3 = FloatToUint($0..3)
     9. copy_4_slots_unmasked          uintValues = $0..3
-   10. copy_4_constants               $0..3 = colorGreen
+   10. copy_4_uniforms                $0..3 = colorGreen
    11. copy_constant                  $4 = 0x42C80000 (100.0)
    12. swizzle_4                      $4..7 = ($4..7).xxxx
    13. mul_4_floats                   $0..3 *= $4..7
@@ -136,7 +136,7 @@
   136. bitwise_and_int                $1 &= $2
   137. bitwise_and_int                $0 &= $1
   138. swizzle_4                      $0..3 = ($0..3).xxxx
-  139. copy_4_constants               $4..7 = colorRed
-  140. copy_4_constants               $8..11 = colorGreen
+  139. copy_4_uniforms                $4..7 = colorRed
+  140. copy_4_uniforms                $8..11 = colorGreen
   141. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   142. load_src                       src.rgba = $0..3

@@ -10,8 +10,8 @@
    10. copy_constant                  expectedXYZW(1) = 0x44518000 (838.0)
    11. copy_constant                  expectedXYZW(2) = 0xC4744000 (-977.0)
    12. copy_constant                  expectedXYZW(3) = 0x448B8000 (1116.0)
-   13. copy_constant                  $0 = I(0)
-   14. copy_constant                  $1 = N(0)
+   13. copy_uniform                   $0 = I(0)
+   14. copy_uniform                   $1 = N(0)
    15. copy_2_slots_unmasked          $2..3 = $0..1
    16. mul_float                      $2 *= $3
    17. copy_constant                  $3 = 0x40000000 (2.0)
@@ -20,8 +20,8 @@
    20. sub_float                      $0 -= $1
    21. copy_slot_unmasked             $1 = expectedX
    22. cmpeq_float                    $0 = equal($0, $1)
-   23. copy_2_constants               $1..2 = I(0..1)
-   24. copy_2_constants               $3..4 = N(0..1)
+   23. copy_2_uniforms                $1..2 = I(0..1)
+   24. copy_2_uniforms                $3..4 = N(0..1)
    25. copy_4_slots_unmasked          $5..8 = $1..4
    26. dot_2_floats                   $5 = dot($5..6, $7..8)
    27. copy_constant                  $6 = 0x40000000 (2.0)
@@ -33,8 +33,8 @@
    33. cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
    34. bitwise_and_int                $1 &= $2
    35. bitwise_and_int                $0 &= $1
-   36. copy_3_constants               $1..3 = I(0..2)
-   37. copy_3_constants               $4..6 = N(0..2)
+   36. copy_3_uniforms                $1..3 = I(0..2)
+   37. copy_3_uniforms                $4..6 = N(0..2)
    38. copy_4_slots_unmasked          $7..10 = $1..4
    39. copy_2_slots_unmasked          $11..12 = $5..6
    40. dot_3_floats                   $7 = dot($7..9, $10..12)
@@ -48,8 +48,8 @@
    48. bitwise_and_int                $2 &= $3
    49. bitwise_and_int                $1 &= $2
    50. bitwise_and_int                $0 &= $1
-   51. copy_4_constants               $1..4 = I
-   52. copy_4_constants               $5..8 = N
+   51. copy_4_uniforms                $1..4 = I
+   52. copy_4_uniforms                $5..8 = N
    53. copy_4_slots_unmasked          $9..12 = $1..4
    54. copy_4_slots_unmasked          $13..16 = $5..8
    55. dot_4_floats                   $9 = dot($9..12, $13..16)
@@ -91,7 +91,7 @@
    91. bitwise_and_int                $1 &= $2
    92. bitwise_and_int                $0 &= $1
    93. swizzle_4                      $0..3 = ($0..3).xxxx
-   94. copy_4_constants               $4..7 = colorRed
-   95. copy_4_constants               $8..11 = colorGreen
+   94. copy_4_uniforms                $4..7 = colorRed
+   95. copy_4_uniforms                $8..11 = colorGreen
    96. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    97. load_src                       src.rgba = $0..3

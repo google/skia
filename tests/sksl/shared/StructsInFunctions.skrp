@@ -64,14 +64,14 @@
    64. copy_constant                  c1.i3(0) = 0x00000005 (7.006492e-45)
    65. copy_constant                  c1.i3(1) = 0x00000006 (8.407791e-45)
    66. copy_constant                  c1.i3(2) = 0x00000007 (9.809089e-45)
-   67. copy_constant                  c2.f4(0) = colorGreen(1)
+   67. copy_uniform                   c2.f4(0) = colorGreen(1)
    68. copy_constant                  c2.f4(1) = 0x40000000 (2.0)
    69. copy_constant                  c2.f4(2) = 0x40400000 (3.0)
    70. copy_constant                  c2.f4(3) = 0x40800000 (4.0)
    71. copy_constant                  c2.i3(0) = 0x00000005 (7.006492e-45)
    72. copy_constant                  c2.i3(1) = 0x00000006 (8.407791e-45)
    73. copy_constant                  c2.i3(2) = 0x00000007 (9.809089e-45)
-   74. copy_constant                  c3.f4(0) = colorGreen(0)
+   74. copy_uniform                   c3.f4(0) = colorGreen(0)
    75. copy_constant                  c3.f4(1) = 0x40000000 (2.0)
    76. copy_constant                  c3.f4(2) = 0x40400000 (3.0)
    77. copy_constant                  c3.f4(3) = 0x40800000 (4.0)
@@ -207,7 +207,7 @@
   207. bitwise_and_int                $0 &= $1
   208. copy_slot_unmasked             valid = $0
   209. swizzle_4                      $0..3 = ($0..3).xxxx
-  210. copy_4_constants               $4..7 = colorRed
-  211. copy_4_constants               $8..11 = colorGreen
+  210. copy_4_uniforms                $4..7 = colorRed
+  211. copy_4_uniforms                $8..11 = colorGreen
   212. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   213. load_src                       src.rgba = $0..3

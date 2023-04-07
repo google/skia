@@ -134,7 +134,7 @@
   134. label                          label 0x00000001
   135. load_condition_mask            CondMask = $12
   136. swizzle_4                      $0..3 = ($0..3).xxxx
-  137. copy_4_constants               $4..7 = colorRed
-  138. copy_4_constants               $8..11 = colorGreen
+  137. copy_4_uniforms                $4..7 = colorRed
+  138. copy_4_uniforms                $8..11 = colorGreen
   139. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   140. load_src                       src.rgba = $0..3

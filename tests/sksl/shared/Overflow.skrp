@@ -318,7 +318,7 @@
   318. copy_4_slots_unmasked          $4..7 = u4
   319. mul_4_ints                     $0..3 *= $4..7
   320. copy_4_slots_unmasked          hugeUvec = $0..3
-  321. copy_4_constants               $0..3 = colorGreen
+  321. copy_4_uniforms                $0..3 = colorGreen
   322. copy_slot_unmasked             $4 = huge
   323. zero_slot_unmasked             $5 = 0
   324. max_float                      $4 = max($4, $5)

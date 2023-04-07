@@ -5,16 +5,16 @@
     5. bitwise_and_int                $12 &= $13
     6. store_src_rg                   xy = src.rg
     7. init_lane_masks                CondMask = LoopMask = RetMask = true
-    8. copy_4_constants               u1[0], u1[1], u1[2], u1[3] = u1[0], u1[1], u1[2], u1[3]
+    8. copy_4_uniforms                u1[0], u1[1], u1[2], u1[3] = u1[0], u1[1], u1[2], u1[3]
     9. trace_var                      TraceVar(u1[0], u1[1], u1[2], u1[3]) when $12 is true
-   10. copy_4_constants               u2[0], u2[1], u2[2], u2[3] = u2[0], u2[1], u2[2], u2[3]
+   10. copy_4_uniforms                u2[0], u2[1], u2[2], u2[3] = u2[0], u2[1], u2[2], u2[3]
    11. trace_var                      TraceVar(u2[0], u2[1], u2[2], u2[3]) when $12 is true
-   12. copy_4_constants               u3[0], u3[1], u3[2], u3[3] = u3[0], u3[1], u3[2], u3[3]
+   12. copy_4_uniforms                u3[0], u3[1], u3[2], u3[3] = u3[0], u3[1], u3[2], u3[3]
    13. trace_var                      TraceVar(u3[0], u3[1], u3[2], u3[3]) when $12 is true
-   14. copy_4_constants               u4[0], u4[1], u4[2], u4[3] = u4[0], u4[1], u4[2], u4[3]
-   15. copy_4_constants               u4[4], u4[5], u4[6], u4[7] = u4[4], u4[5], u4[6], u4[7]
-   16. copy_4_constants               u4[8], u4[9], u4[10], u4[11] = u4[8], u4[9], u4[10], u4[11]
-   17. copy_4_constants               u4[12], u4[13], u4[14], u4[15] = u4[12], u4[13], u4[14], u4[15]
+   14. copy_4_uniforms                u4[0], u4[1], u4[2], u4[3] = u4[0], u4[1], u4[2], u4[3]
+   15. copy_4_uniforms                u4[4], u4[5], u4[6], u4[7] = u4[4], u4[5], u4[6], u4[7]
+   16. copy_4_uniforms                u4[8], u4[9], u4[10], u4[11] = u4[8], u4[9], u4[10], u4[11]
+   17. copy_4_uniforms                u4[12], u4[13], u4[14], u4[15] = u4[12], u4[13], u4[14], u4[15]
    18. trace_var                      TraceVar(u4[0], u4[1], u4[2], u4[3], u4[4], u4[5], u4[6], u4[7], u4[8], u4[9], u4[10], u4[11], u4[12], u4[13], u4[14], u4[15]) when $12 is true
    19. trace_enter                    TraceEnter(float4 main(float2 xy)) when $12 is true
    20. trace_var                      TraceVar(xy) when $12 is true
@@ -29,7 +29,7 @@
    29. copy_slot_masked               $1 = Mask($2)
    30. trace_scope                    TraceScope(+1) when $1 is true
    31. trace_line                     TraceLine(5) when $12 is true
-   32. copy_constant                  [index_by_literal].result = u1[0]
+   32. copy_uniform                   [index_by_literal].result = u1[0]
    33. trace_var                      TraceVar([index_by_literal].result) when $12 is true
    34. trace_scope                    TraceScope(-1) when $1 is true
    35. trace_exit                     TraceExit(float index_by_literal()) when $12 is true

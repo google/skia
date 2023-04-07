@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  _0_x = colorWhite(0)
+    3. copy_uniform                   _0_x = colorWhite(0)
     4. zero_slot_unmasked             $0 = 0
     5. copy_slot_unmasked             $1 = _0_x
     6. sub_float                      $0 -= $1
@@ -17,7 +17,7 @@
    17. zero_slot_unmasked             $76 = 0
    18. merge_condition_mask           CondMask = $79 & $80
    19. branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 6 at #31)
-   20. copy_constant                  $77 = colorWhite(0)
+   20. copy_uniform                   $77 = colorWhite(0)
    21. cast_to_int_from_float         $77 = FloatToInt($77)
    22. copy_slot_unmasked             x = $77
    23. zero_slot_unmasked             $77 = 0
@@ -33,7 +33,7 @@
    33. zero_slot_unmasked             $70 = 0
    34. merge_condition_mask           CondMask = $75 & $76
    35. branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 5 at #47)
-   36. copy_2_constants               x₁ = colorWhite(0..1)
+   36. copy_2_uniforms                x₁ = colorWhite(0..1)
    37. zero_2_slots_unmasked          $71..72 = 0
    38. copy_2_slots_unmasked          $73..74 = x₁
    39. sub_2_floats                   $71..72 -= $73..74
@@ -49,7 +49,7 @@
    49. zero_slot_unmasked             $64 = 0
    50. merge_condition_mask           CondMask = $69 & $70
    51. branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 4 at #66)
-   52. copy_constant                  $65 = colorWhite(0)
+   52. copy_uniform                   $65 = colorWhite(0)
    53. cast_to_int_from_float         $65 = FloatToInt($65)
    54. copy_slot_unmasked             $66 = $65
    55. copy_2_slots_unmasked          x₂ = $65..66
@@ -72,7 +72,7 @@
    72. copy_constant                  negated(1) = 0xC0000000 (-2.0)
    73. copy_constant                  negated(2) = 0xC0400000 (-3.0)
    74. copy_constant                  negated(3) = 0xC0800000 (-4.0)
-   75. copy_4_constants               x₃ = testMatrix2x2
+   75. copy_4_uniforms                x₃ = testMatrix2x2
    76. zero_4_slots_unmasked          $55..58 = 0
    77. copy_4_slots_unmasked          $59..62 = x₃
    78. sub_4_floats                   $55..58 -= $59..62
@@ -97,9 +97,9 @@
    97. copy_constant                  negated₁(6) = 0xC0E00000 (-7.0)
    98. copy_constant                  negated₁(7) = 0xC1000000 (-8.0)
    99. copy_constant                  negated₁(8) = 0xC1100000 (-9.0)
-  100. copy_4_constants               x₄(0..3) = testMatrix3x3(0..3)
-  101. copy_4_constants               x₄(4..7) = testMatrix3x3(4..7)
-  102. copy_constant                  x₄(8) = testMatrix3x3(8)
+  100. copy_4_uniforms                x₄(0..3) = testMatrix3x3(0..3)
+  101. copy_4_uniforms                x₄(4..7) = testMatrix3x3(4..7)
+  102. copy_uniform                   x₄(8) = testMatrix3x3(8)
   103. zero_4_slots_unmasked          $35..38 = 0
   104. zero_4_slots_unmasked          $39..42 = 0
   105. zero_slot_unmasked             $43 = 0
@@ -141,10 +141,10 @@
   141. copy_constant                  negated₂(13) = 0xC1600000 (-14.0)
   142. copy_constant                  negated₂(14) = 0xC1700000 (-15.0)
   143. copy_constant                  negated₂(15) = 0xC1800000 (-16.0)
-  144. copy_4_constants               x₅(0..3) = testMatrix4x4(0..3)
-  145. copy_4_constants               x₅(4..7) = testMatrix4x4(4..7)
-  146. copy_4_constants               x₅(8..11) = testMatrix4x4(8..11)
-  147. copy_4_constants               x₅(12..15) = testMatrix4x4(12..15)
+  144. copy_4_uniforms                x₅(0..3) = testMatrix4x4(0..3)
+  145. copy_4_uniforms                x₅(4..7) = testMatrix4x4(4..7)
+  146. copy_4_uniforms                x₅(8..11) = testMatrix4x4(8..11)
+  147. copy_4_uniforms                x₅(12..15) = testMatrix4x4(12..15)
   148. zero_4_slots_unmasked          $1..4 = 0
   149. zero_4_slots_unmasked          $5..8 = 0
   150. zero_4_slots_unmasked          $9..12 = 0
@@ -173,7 +173,7 @@
   173. label                          label 0x00000001
   174. load_condition_mask            CondMask = $33
   175. swizzle_4                      $0..3 = ($0..3).xxxx
-  176. copy_4_constants               $4..7 = colorRed
-  177. copy_4_constants               $8..11 = colorGreen
+  176. copy_4_uniforms                $4..7 = colorRed
+  177. copy_4_uniforms                $8..11 = colorGreen
   178. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   179. load_src                       src.rgba = $0..3

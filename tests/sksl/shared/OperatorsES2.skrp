@@ -39,7 +39,7 @@
    39. copy_constant                  $2 = 0x40000000 (2.0)
    40. cmplt_float                    $1 = lessThan($1, $2)
    41. cmpeq_int                      $0 = equal($0, $1)
-   42. copy_constant                  $1 = unknownInput
+   42. copy_uniform                   $1 = unknownInput
    43. copy_constant                  $2 = 0x40000000 (2.0)
    44. cmple_float                    $1 = lessThanEqual($1, $2)
    45. copy_slot_unmasked             $2 = y
@@ -49,7 +49,7 @@
    49. bitwise_or_int                 $0 |= $1
    50. copy_slot_unmasked             b = $0
    51. copy_constant                  $0 = 0x40000000 (2.0)
-   52. copy_constant                  $1 = unknownInput
+   52. copy_uniform                   $1 = unknownInput
    53. cmplt_float                    $0 = lessThan($0, $1)
    54. copy_slot_unmasked             c = $0
    55. copy_2_slots_unmasked          $0..1 = b, c
@@ -116,7 +116,7 @@
   116. cmpeq_int                      $1 = equal($1, $2)
   117. bitwise_and_int                $0 &= $1
   118. swizzle_4                      $0..3 = ($0..3).xxxx
-  119. copy_4_constants               $4..7 = colorRed
-  120. copy_4_constants               $8..11 = colorGreen
+  119. copy_4_uniforms                $4..7 = colorRed
+  120. copy_4_uniforms                $8..11 = colorGreen
   121. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   122. load_src                       src.rgba = $0..3

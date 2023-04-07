@@ -37,9 +37,9 @@
    37. copy_4_slots_unmasked          $34..37 = _0_matrix(0..3)
    38. copy_4_slots_unmasked          $38..41 = _0_matrix(4..7)
    39. copy_slot_unmasked             $42 = _0_matrix(8)
-   40. copy_4_constants               $43..46 = testMatrix3x3(0..3)
-   41. copy_4_constants               $47..50 = testMatrix3x3(4..7)
-   42. copy_constant                  $51 = testMatrix3x3(8)
+   40. copy_4_uniforms                $43..46 = testMatrix3x3(0..3)
+   41. copy_4_uniforms                $47..50 = testMatrix3x3(4..7)
+   42. copy_uniform                   $51 = testMatrix3x3(8)
    43. cmpeq_n_floats                 $34..42 = equal($34..42, $43..51)
    44. bitwise_and_4_ints             $35..38 &= $39..42
    45. bitwise_and_2_ints             $35..36 &= $37..38
@@ -88,10 +88,10 @@
    88. copy_4_slots_unmasked          $5..8 = matrix(4..7)
    89. copy_4_slots_unmasked          $9..12 = matrix(8..11)
    90. copy_4_slots_unmasked          $13..16 = matrix(12..15)
-   91. copy_4_constants               $17..20 = testMatrix4x4(0..3)
-   92. copy_4_constants               $21..24 = testMatrix4x4(4..7)
-   93. copy_4_constants               $25..28 = testMatrix4x4(8..11)
-   94. copy_4_constants               $29..32 = testMatrix4x4(12..15)
+   91. copy_4_uniforms                $17..20 = testMatrix4x4(0..3)
+   92. copy_4_uniforms                $21..24 = testMatrix4x4(4..7)
+   93. copy_4_uniforms                $25..28 = testMatrix4x4(8..11)
+   94. copy_4_uniforms                $29..32 = testMatrix4x4(12..15)
    95. cmpeq_n_floats                 $1..16 = equal($1..16, $17..32)
    96. bitwise_and_4_ints             $9..12 &= $13..16
    97. bitwise_and_4_ints             $5..8 &= $9..12
@@ -103,7 +103,7 @@
   103. label                          label 0x00000003
   104. load_condition_mask            CondMask = $33
   105. swizzle_4                      $0..3 = ($0..3).xxxx
-  106. copy_4_constants               $4..7 = colorRed
-  107. copy_4_constants               $8..11 = colorGreen
+  106. copy_4_uniforms                $4..7 = colorRed
+  107. copy_4_uniforms                $8..11 = colorGreen
   108. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   109. load_src                       src.rgba = $0..3

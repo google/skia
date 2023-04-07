@@ -3,7 +3,7 @@
     3. copy_constant                  _0_ok = 0xFFFFFFFF
     4. copy_slot_unmasked             $0 = _0_ok
     5. zero_slot_unmasked             $1 = 0
-    6. copy_constant                  $2 = unknownInput
+    6. copy_uniform                   $2 = unknownInput
     7. shuffle                        $1..9 = ($1..9)[1 0 0 0 1 0 0 0 1]
     8. zero_slot_unmasked             $10 = 0
     9. copy_constant                  $11 = 0x3F800000 (1.0)
@@ -22,7 +22,7 @@
    22. zero_3_slots_unmasked          $2..4 = 0
    23. copy_constant                  $5 = 0x41100000 (9.0)
    24. zero_3_slots_unmasked          $6..8 = 0
-   25. copy_constant                  $9 = unknownInput
+   25. copy_uniform                   $9 = unknownInput
    26. zero_slot_unmasked             $10 = 0
    27. copy_constant                  $11 = 0x41100000 (9.0)
    28. swizzle_4                      $10..13 = ($10..13).yxxy
@@ -36,7 +36,7 @@
    36. bitwise_and_int                $1 &= $2
    37. bitwise_and_int                $0 &= $1
    38. copy_slot_unmasked             _0_ok = $0
-   39. copy_4_constants               $1..4 = testMatrix2x2
+   39. copy_4_uniforms                $1..4 = testMatrix2x2
    40. copy_constant                  $5 = 0x3F800000 (1.0)
    41. copy_constant                  $6 = 0x40000000 (2.0)
    42. copy_constant                  $7 = 0x40400000 (3.0)
@@ -46,7 +46,7 @@
    46. bitwise_and_int                $1 &= $2
    47. bitwise_and_int                $0 &= $1
    48. copy_slot_unmasked             _0_ok = $0
-   49. copy_4_constants               $19..22 = testMatrix2x2
+   49. copy_4_uniforms                $19..22 = testMatrix2x2
    50. zero_slot_unmasked             $23 = 0
    51. copy_constant                  $24 = 0x3F800000 (1.0)
    52. shuffle                        $21..27 = ($21..27)[2 0 1 2 2 2 3]
@@ -62,7 +62,7 @@
    62. bitwise_and_int                $1 &= $2
    63. bitwise_and_int                $0 &= $1
    64. copy_slot_unmasked             _0_ok = $0
-   65. copy_4_constants               $19..22 = testMatrix2x2
+   65. copy_4_uniforms                $19..22 = testMatrix2x2
    66. zero_slot_unmasked             $23 = 0
    67. copy_constant                  $24 = 0x3F800000 (1.0)
    68. shuffle                        $21..27 = ($21..27)[2 0 1 2 2 2 3]
@@ -160,7 +160,7 @@
   160. label                          label 0x00000001
   161. load_condition_mask            CondMask = $19
   162. swizzle_4                      $0..3 = ($0..3).xxxx
-  163. copy_4_constants               $4..7 = colorRed
-  164. copy_4_constants               $8..11 = colorGreen
+  163. copy_4_uniforms                $4..7 = colorRed
+  164. copy_4_uniforms                $8..11 = colorGreen
   165. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   166. load_src                       src.rgba = $0..3

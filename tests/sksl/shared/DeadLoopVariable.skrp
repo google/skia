@@ -15,5 +15,5 @@
    15. branch_if_any_lanes_active     branch_if_any_lanes_active -9 (label 2 at #6)
    16. label                          label 0x00000000
    17. load_loop_mask                 LoopMask = $0
-   18. copy_4_constants               $0..3 = colorGreen
+   18. copy_4_uniforms                $0..3 = colorGreen
    19. load_src                       src.rgba = $0..3

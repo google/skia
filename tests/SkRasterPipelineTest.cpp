@@ -1174,40 +1174,40 @@ DEF_TEST(SkRasterPipeline_ZeroSlotsUnmasked, r) {
     }
 }
 
-DEF_TEST(SkRasterPipeline_CopyConstants, r) {
+DEF_TEST(SkRasterPipeline_CopyUniforms, r) {
     // Allocate space for 5 dest slots.
     alignas(64) float slots[5 * SkRasterPipeline_kMaxStride_highp];
-    float constants[5];
+    float uniforms[5];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
-    struct CopySlotsOp {
+    struct CopyUniformsOp {
         SkRasterPipelineOp stage;
         int numSlotsAffected;
     };
 
-    static const CopySlotsOp kCopyOps[] = {
-        {SkRasterPipelineOp::copy_constant,    1},
-        {SkRasterPipelineOp::copy_2_constants, 2},
-        {SkRasterPipelineOp::copy_3_constants, 3},
-        {SkRasterPipelineOp::copy_4_constants, 4},
+    static const CopyUniformsOp kCopyOps[] = {
+        {SkRasterPipelineOp::copy_uniform,    1},
+        {SkRasterPipelineOp::copy_2_uniforms, 2},
+        {SkRasterPipelineOp::copy_3_uniforms, 3},
+        {SkRasterPipelineOp::copy_4_uniforms, 4},
     };
 
-    for (const CopySlotsOp& op : kCopyOps) {
+    for (const CopyUniformsOp& op : kCopyOps) {
         // Initialize the destination slots to 1,2,3...
         std::iota(&slots[0], &slots[5 * N], 1.0f);
-        // Initialize the constant buffer to 1000,1001,1002...
-        std::iota(&constants[0], &constants[5], 1000.0f);
+        // Initialize the uniform buffer to 1000,1001,1002...
+        std::iota(&uniforms[0], &uniforms[5], 1000.0f);
 
-        // Run `copy_constants` over our data.
+        // Run `copy_n_uniforms` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
         auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = slots;
-        ctx->src = constants;
+        ctx->src = uniforms;
         p.append(op.stage, ctx);
         p.run(0,0,1,1);
 
-        // Verify that our constants have been broadcast into each slot.
+        // Verify that our uniforms have been broadcast into each slot.
         float expectedUnchanged = 1.0f;
         float expectedChanged = 1000.0f;
         float* destPtr = &slots[0];
@@ -1223,6 +1223,42 @@ DEF_TEST(SkRasterPipeline_CopyConstants, r) {
                 expectedUnchanged += 1.0f;
             }
             expectedChanged += 1.0f;
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_CopyConstant, r) {
+    // Allocate space for 5 dest slots.
+    alignas(64) float slots[5 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    for (int index = 0; index < 5; ++index) {
+        // Initialize the destination slots to 1,2,3...
+        std::iota(&slots[0], &slots[5 * N], 1.0f);
+
+        // Overwrite one destination slot with a constant (1000 + the slot number).
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        auto* ctx = alloc.make<SkRasterPipeline_ConstantCtx>();
+        ctx->dst = &slots[N * index];
+        ctx->value = 1000.0f + index;
+        p.append(SkRasterPipelineOp::copy_constant, ctx);
+        p.run(0,0,1,1);
+
+        // Verify that our constant value has been broadcast into exactly one slot.
+        float expectedUnchanged = 1.0f;
+        float* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (checkSlot == index) {
+                    REPORTER_ASSERT(r, *destPtr == ctx->value);
+                } else {
+                    REPORTER_ASSERT(r, *destPtr == expectedUnchanged);
+                }
+
+                ++destPtr;
+                expectedUnchanged += 1.0f;
+            }
         }
     }
 }

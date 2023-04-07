@@ -133,7 +133,8 @@
     M(asin_float)       M(acos_float)          M(atan_float)          M(atan2_n_floats)       \
     M(sqrt_float)       M(pow_n_floats)        M(exp_float)           M(exp2_float)           \
     M(log_float)        M(log2_float)          M(refract_4_floats)                            \
-    M(copy_constant)    M(copy_2_constants)    M(copy_3_constants)    M(copy_4_constants)     \
+    M(copy_uniform)     M(copy_2_uniforms)     M(copy_3_uniforms)     M(copy_4_uniforms)      \
+    M(copy_constant)                                                                          \
     M(copy_slot_masked) M(copy_2_slots_masked) M(copy_3_slots_masked) M(copy_4_slots_masked)  \
     M(copy_from_indirect_unmasked) M(copy_from_indirect_uniform_unmasked)                     \
     M(copy_to_indirect_masked)     M(swizzle_copy_to_indirect_masked)                         \

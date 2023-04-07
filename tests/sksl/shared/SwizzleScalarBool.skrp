@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  $0 = unknownInput
+    3. copy_uniform                   $0 = unknownInput
     4. zero_slot_unmasked             $1 = 0
     5. cmpne_float                    $0 = notEqual($0, $1)
     6. copy_slot_unmasked             b = $0

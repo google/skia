@@ -139,7 +139,7 @@
   139. bitwise_and_int                $0 &= $1
   140. copy_slot_unmasked             ok = $0
   141. swizzle_4                      $0..3 = ($0..3).xxxx
-  142. copy_4_constants               $4..7 = colorRed
-  143. copy_4_constants               $8..11 = colorGreen
+  142. copy_4_uniforms                $4..7 = colorRed
+  143. copy_4_uniforms                $8..11 = colorGreen
   144. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   145. load_src                       src.rgba = $0..3

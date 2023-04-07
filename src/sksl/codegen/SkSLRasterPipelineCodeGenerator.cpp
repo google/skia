@@ -579,7 +579,7 @@ public:
     void enterLoopBody() {
         if (fContinueMaskStack.has_value()) {
             fContinueMaskStack->enter();
-            fGenerator->builder()->push_literal_i(0);
+            fGenerator->builder()->push_constant_i(0);
             fContinueMaskStack->exit();
         }
     }
@@ -965,7 +965,7 @@ public:
         // Multiply the index-expression result by the per-value slot count.
         int slotCount = fIndexExpr->type().slotCount();
         if (slotCount != 1) {
-            fGenerator->builder()->push_literal_i(fIndexExpr->type().slotCount());
+            fGenerator->builder()->push_constant_i(fIndexExpr->type().slotCount());
             fGenerator->builder()->binary_op(BuilderOp::mul_n_ints, 1);
         }
 
@@ -1400,7 +1400,7 @@ void Generator::pushTraceScopeMask() {
         // Take the intersection of the trace mask and the execution mask. To do this, start with an
         // all-zero mask, then use select to overwrite those zeros with the trace mask across all
         // executing lanes. We'll get the trace mask in executing lanes, and zero in dead lanes.
-        fBuilder.push_literal_i(0);
+        fBuilder.push_constant_i(0);
         fTraceMask->pushClone(/*slots=*/1);
         fBuilder.select(/*slots=*/1);
     }
@@ -1581,7 +1581,7 @@ bool Generator::writeContinueStatement(const ContinueStatement&) {
 
     // Set any currently-executing lanes in the continue-mask to true via `select.`
     fCurrentContinueMask->enter();
-    fBuilder.push_literal_i(~0);
+    fBuilder.push_constant_i(~0);
     fBuilder.select(/*slots=*/1);
 
     // Disable any currently-executing lanes from the loop mask.
@@ -2592,9 +2592,9 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
     if (inner.type().componentType().isBoolean()) {
         // Converting boolean to int or float can be accomplished via bitwise-and.
         if (c.type().componentType().isFloat()) {
-            fBuilder.push_literal_f(1.0f);
+            fBuilder.push_constant_f(1.0f);
         } else if (c.type().componentType().isSigned() || c.type().componentType().isUnsigned()) {
-            fBuilder.push_literal_i(1);
+            fBuilder.push_constant_i(1);
         } else {
             SkDEBUGFAILF("unexpected cast from bool to %s", c.type().description().c_str());
             return unsupported();
@@ -2957,7 +2957,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
                 return unsupported();
             }
             // The intrinsics accept a three-component value; add alpha for the push/pop_src_rgba
-            fBuilder.push_literal_f(1.0f);
+            fBuilder.push_constant_f(1.0f);
             // Copy arguments from the stack into src
             fBuilder.pop_src_rgba();
 
@@ -3126,7 +3126,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             // Stack: I, N, dot(I,N)
             fBuilder.dot_floats(slotCount);
             // Stack: I, N, dot(I,N), 2
-            fBuilder.push_literal_f(2.0);
+            fBuilder.push_constant_f(2.0);
             // Stack: I, N, dot(I,N) * 2
             fBuilder.binary_op(BuilderOp::mul_n_floats, 1);
             // Stack: I, N * dot(I,N) * 2
@@ -3194,7 +3194,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             if (!this->pushExpression(arg0)) {
                 return unsupported();
             }
-            fBuilder.push_literal_f(0.0);
+            fBuilder.push_constant_f(0.0);
             if (!this->pushExpression(arg1) || !this->pushExpression(arg2)) {
                 return unsupported();
             }
@@ -3203,7 +3203,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             // Stack: N, (0 <= dot(I,NRef))
             fBuilder.binary_op(BuilderOp::cmple_n_floats, 1);
             // Stack: N, (0 <= dot(I,NRef)), 0x80000000
-            fBuilder.push_literal_i(0x80000000);
+            fBuilder.push_constant_i(0x80000000);
             // Stack: N, (0 <= dot(I,NRef)) & 0x80000000)
             fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
             // Stack: N, vec(0 <= dot(I,NRef)) & 0x80000000)
@@ -3285,19 +3285,19 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
 bool Generator::pushLiteral(const Literal& l) {
     switch (l.type().numberKind()) {
         case Type::NumberKind::kFloat:
-            fBuilder.push_literal_f(l.floatValue());
+            fBuilder.push_constant_f(l.floatValue());
             return true;
 
         case Type::NumberKind::kSigned:
-            fBuilder.push_literal_i(l.intValue());
+            fBuilder.push_constant_i(l.intValue());
             return true;
 
         case Type::NumberKind::kUnsigned:
-            fBuilder.push_literal_u(l.intValue());
+            fBuilder.push_constant_u(l.intValue());
             return true;
 
         case Type::NumberKind::kBoolean:
-            fBuilder.push_literal_i(l.boolValue() ? ~0 : 0);
+            fBuilder.push_constant_i(l.boolValue() ? ~0 : 0);
             return true;
 
         default:
@@ -3621,8 +3621,8 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
             fTraceMask->enter();
             fBuilder.push_device_xy01();
             fBuilder.discard_stack(2);
-            fBuilder.push_literal_f(fDebugTrace->fTraceCoord.fX + 0.5f);
-            fBuilder.push_literal_f(fDebugTrace->fTraceCoord.fY + 0.5f);
+            fBuilder.push_constant_f(fDebugTrace->fTraceCoord.fX + 0.5f);
+            fBuilder.push_constant_f(fDebugTrace->fTraceCoord.fY + 0.5f);
             fBuilder.binary_op(BuilderOp::cmpeq_n_floats, 2);
             fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
             fTraceMask->exit();

@@ -20,7 +20,7 @@
    20. copy_slot_masked               [inside_while_loop].result = Mask($79)
    21. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    22. label                          label 0x0000000E
-   23. copy_constant                  $79 = unknownInput
+   23. copy_uniform                   $79 = unknownInput
    24. copy_constant                  $80 = 0x42F60000 (123.0)
    25. cmpeq_float                    $79 = equal($79, $80)
    26. merge_loop_mask                LoopMask &= $79
@@ -120,7 +120,7 @@
   120. branch_if_no_lanes_active      branch_if_no_lanes_active +31 (label 7 at #151)
   121. store_return_mask              $53 = RetMask
   122. store_loop_mask                $54 = LoopMask
-  123. copy_constant                  $55 = unknownInput
+  123. copy_uniform                   $55 = unknownInput
   124. cast_to_int_from_float         $55 = FloatToInt($55)
   125. store_loop_mask                $56 = LoopMask
   126. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
@@ -155,7 +155,7 @@
   155. branch_if_no_lanes_active      branch_if_no_lanes_active +27 (label 6 at #182)
   156. store_return_mask              $46 = RetMask
   157. store_loop_mask                $47 = LoopMask
-  158. copy_constant                  $48 = unknownInput
+  158. copy_uniform                   $48 = unknownInput
   159. cast_to_int_from_float         $48 = FloatToInt($48)
   160. store_loop_mask                $49 = LoopMask
   161. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
@@ -186,7 +186,7 @@
   186. branch_if_no_lanes_active      branch_if_no_lanes_active +23 (label 5 at #209)
   187. store_return_mask              $40 = RetMask
   188. store_loop_mask                $41 = LoopMask
-  189. copy_constant                  $42 = unknownInput
+  189. copy_uniform                   $42 = unknownInput
   190. cast_to_int_from_float         $42 = FloatToInt($42)
   191. store_loop_mask                $43 = LoopMask
   192. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
@@ -213,7 +213,7 @@
   213. branch_if_no_lanes_active      branch_if_no_lanes_active +41 (label 4 at #254)
   214. store_return_mask              $31 = RetMask
   215. store_loop_mask                $32 = LoopMask
-  216. copy_constant                  $33 = unknownInput
+  216. copy_uniform                   $33 = unknownInput
   217. cast_to_int_from_float         $33 = FloatToInt($33)
   218. store_loop_mask                $34 = LoopMask
   219. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
@@ -258,7 +258,7 @@
   258. branch_if_no_lanes_active      branch_if_no_lanes_active +44 (label 3 at #302)
   259. store_return_mask              $22 = RetMask
   260. store_loop_mask                $23 = LoopMask
-  261. copy_constant                  $24 = unknownInput
+  261. copy_uniform                   $24 = unknownInput
   262. cast_to_int_from_float         $24 = FloatToInt($24)
   263. store_loop_mask                $25 = LoopMask
   264. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
@@ -306,13 +306,13 @@
   306. branch_if_no_lanes_active      branch_if_no_lanes_active +35 (label 2 at #341)
   307. store_return_mask              $14 = RetMask
   308. store_loop_mask                $15 = LoopMask
-  309. copy_constant                  $16 = unknownInput
+  309. copy_uniform                   $16 = unknownInput
   310. cast_to_int_from_float         $16 = FloatToInt($16)
   311. store_loop_mask                $17 = LoopMask
   312. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
   313. case_op                        if ($16 == 0x00000001) { LoopMask = true; $17 = false; }
   314. branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 61 at #328)
-  315. copy_constant                  $18 = unknownInput
+  315. copy_uniform                   $18 = unknownInput
   316. copy_constant                  $19 = 0x42F60000 (123.0)
   317. cmpeq_float                    $18 = equal($18, $19)
   318. branch_if_no_active_lanes_eq   branch +5 (label 62 at #323) if no lanes of $18 == 0xFFFFFFFF
@@ -345,13 +345,13 @@
   345. branch_if_no_lanes_active      branch_if_no_lanes_active +30 (label 1 at #375)
   346. store_return_mask              $1 = RetMask
   347. store_loop_mask                $2 = LoopMask
-  348. copy_constant                  $3 = unknownInput
+  348. copy_uniform                   $3 = unknownInput
   349. cast_to_int_from_float         $3 = FloatToInt($3)
   350. store_loop_mask                $4 = LoopMask
   351. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
   352. case_op                        if ($3 == 0x00000001) { LoopMask = true; $4 = false; }
   353. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 67 at #362)
-  354. copy_constant                  $5 = unknownInput
+  354. copy_uniform                   $5 = unknownInput
   355. copy_constant                  $6 = 0x42F60000 (123.0)
   356. cmpeq_float                    $5 = equal($5, $6)
   357. branch_if_no_active_lanes_eq   branch +4 (label 68 at #361) if no lanes of $5 == 0xFFFFFFFF
@@ -375,7 +375,7 @@
   375. label                          label 0x00000001
   376. load_condition_mask            CondMask = $12
   377. swizzle_4                      $0..3 = ($0..3).xxxx
-  378. copy_4_constants               $4..7 = colorRed
-  379. copy_4_constants               $8..11 = colorGreen
+  378. copy_4_uniforms                $4..7 = colorRed
+  379. copy_4_uniforms                $8..11 = colorGreen
   380. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   381. load_src                       src.rgba = $0..3

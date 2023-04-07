@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_4_constants               inputA = testMatrix4x4(0..3)
-    4. copy_4_constants               inputB = testMatrix4x4(4..7)
+    3. copy_4_uniforms                inputA = testMatrix4x4(0..3)
+    4. copy_4_uniforms                inputB = testMatrix4x4(4..7)
     5. copy_constant                  expected(0) = 0x40A00000 (5.0)
     6. copy_constant                  expected(1) = 0x41880000 (17.0)
     7. copy_constant                  expected(2) = 0x42180000 (38.0)
@@ -46,7 +46,7 @@
    46. cmpeq_float                    $1 = equal($1, $2)
    47. bitwise_and_int                $0 &= $1
    48. swizzle_4                      $0..3 = ($0..3).xxxx
-   49. copy_4_constants               $4..7 = colorRed
-   50. copy_4_constants               $8..11 = colorGreen
+   49. copy_4_uniforms                $4..7 = colorRed
+   50. copy_4_uniforms                $8..11 = colorGreen
    51. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    52. load_src                       src.rgba = $0..3

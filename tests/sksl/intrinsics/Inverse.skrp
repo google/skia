@@ -102,7 +102,7 @@
   102. bitwise_or_int                 $1 |= $2
   103. bitwise_and_int                $0 &= $1
   104. swizzle_4                      $0..3 = ($0..3).xxxx
-  105. copy_4_constants               $4..7 = colorRed
-  106. copy_4_constants               $8..11 = colorGreen
+  105. copy_4_uniforms                $4..7 = colorRed
+  106. copy_4_uniforms                $8..11 = colorGreen
   107. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   108. load_src                       src.rgba = $0..3

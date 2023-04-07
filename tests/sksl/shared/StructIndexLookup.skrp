@@ -72,7 +72,7 @@
    72. bitwise_or_int                 $4 |= $5
    73. bitwise_or_int                 $3 |= $4
    74. merge_condition_mask           CondMask = $2 & $3
-   75. copy_4_constants               $4..7 = colorRed
+   75. copy_4_uniforms                $4..7 = colorRed
    76. copy_4_slots_masked            [main].result = Mask($4..7)
    77. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    78. load_condition_mask            CondMask = $2
@@ -97,7 +97,7 @@
    97. copy_from_indirect_unmasked    $5 = Indirect(expected(0) + $9)
    98. cmpne_float                    $4 = notEqual($4, $5)
    99. merge_condition_mask           CondMask = $3 & $4
-  100. copy_4_constants               $5..8 = colorRed
+  100. copy_4_uniforms                $5..8 = colorRed
   101. copy_4_slots_masked            [main].result = Mask($5..8)
   102. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
   103. load_condition_mask            CondMask = $3
@@ -140,7 +140,7 @@
   140. branch_if_any_lanes_active     branch_if_any_lanes_active -91 (label 2 at #49)
   141. label                          label 0x00000000
   142. load_loop_mask                 LoopMask = $0
-  143. copy_4_constants               $0..3 = colorGreen
+  143. copy_4_uniforms                $0..3 = colorGreen
   144. copy_4_slots_masked            [main].result = Mask($0..3)
   145. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
   146. load_src                       src.rgba = [main].result

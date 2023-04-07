@@ -1,10 +1,10 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  f = colorGreen(1)
-    4. copy_constant                  $0 = colorGreen(1)
+    3. copy_uniform                   f = colorGreen(1)
+    4. copy_uniform                   $0 = colorGreen(1)
     5. cast_to_int_from_float         $0 = FloatToInt($0)
     6. copy_slot_unmasked             i = $0
-    7. copy_constant                  $0 = colorGreen(1)
+    7. copy_uniform                   $0 = colorGreen(1)
     8. zero_slot_unmasked             $1 = 0
     9. cmpne_float                    $0 = notEqual($0, $1)
    10. copy_slot_unmasked             b = $0
@@ -61,7 +61,7 @@
    61. copy_constant                  $1 = 0x41100000 (9.0)
    62. cmpeq_float                    $0 = equal($0, $1)
    63. swizzle_4                      $0..3 = ($0..3).xxxx
-   64. copy_4_constants               $4..7 = colorRed
-   65. copy_4_constants               $8..11 = colorGreen
+   64. copy_4_uniforms                $4..7 = colorRed
+   65. copy_4_uniforms                $8..11 = colorGreen
    66. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
    67. load_src                       src.rgba = $0..3

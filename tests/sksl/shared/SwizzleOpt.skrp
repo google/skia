@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_4_constants               v = testInputs
+    3. copy_4_uniforms                v = testInputs
     4. zero_slot_unmasked             $0 = 0
     5. copy_4_slots_unmasked          $1..4 = v
     6. swizzle_3                      $1..3 = ($1..3).zyx
@@ -203,12 +203,12 @@
   203. copy_constant                  $2 = 0x40000000 (2.0)
   204. copy_constant                  $3 = 0x40400000 (3.0)
   205. copy_4_slots_unmasked          v = $0..3
-  206. copy_3_constants               $0..2 = colorRed(0..2)
+  206. copy_3_uniforms                $0..2 = colorRed(0..2)
   207. copy_constant                  $3 = 0x3F800000 (1.0)
   208. copy_4_slots_unmasked          v = $0..3
-  209. copy_constant                  $0 = colorRed(0)
+  209. copy_uniform                   $0 = colorRed(0)
   210. copy_constant                  $1 = 0x3F800000 (1.0)
-  211. copy_2_constants               $2..3 = colorRed(1..2)
+  211. copy_2_uniforms                $2..3 = colorRed(1..2)
   212. copy_4_slots_unmasked          v = $0..3
   213. swizzle_copy_4_slots_masked    (v).wzyx = Mask($0..3)
   214. copy_2_slots_unmasked          $0..1 = v(1..2)
@@ -224,7 +224,7 @@
   224. bitwise_and_2_ints             $0..1 &= $2..3
   225. bitwise_and_int                $0 &= $1
   226. swizzle_4                      $0..3 = ($0..3).xxxx
-  227. copy_4_constants               $4..7 = colorRed
-  228. copy_4_constants               $8..11 = colorGreen
+  227. copy_4_uniforms                $4..7 = colorRed
+  228. copy_4_uniforms                $8..11 = colorGreen
   229. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
   230. load_src                       src.rgba = $0..3
