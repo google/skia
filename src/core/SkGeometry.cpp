@@ -1427,7 +1427,7 @@ void SkConic::chop(SkConic * SK_RESTRICT dst) const {
 #else
 void SkConic::chop(SkConic * SK_RESTRICT dst) const {
 
-    // Observe that scale will always smaller than 1 because fW > 0.
+    // Observe that scale will always be smaller than 1 because fW > 0.
     const float scale = SkScalarInvert(SK_Scalar1 + fW);
 
     // The subdivided control points below are the sums of the following three terms. Because the
