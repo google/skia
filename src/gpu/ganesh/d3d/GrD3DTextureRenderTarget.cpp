@@ -142,6 +142,9 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
         SkColor4f clearColor = { 0, 0, 0, 0 };
         std::tie(msInfo, msState) =
                 GrD3DTextureResource::CreateMSAA(gpu, dimensions, sampleCnt, info, clearColor);
+        if (!msInfo.fResource || !msState) {
+            return nullptr;
+        }
 
         const GrD3DDescriptorHeap::CPUHandle msaaRenderTargetView =
                 gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
@@ -201,6 +204,9 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
         SkColor4f clearColor = { 1, 1, 1, 1 };
         std::tie(msInfo, msState) =
                 GrD3DTextureResource::CreateMSAA(gpu, dimensions, sampleCnt, info, clearColor);
+        if (!msInfo.fResource || !msState) {
+            return nullptr;
+        }
 
         const GrD3DDescriptorHeap::CPUHandle msaaRenderTargetView =
                 gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
