@@ -18,14 +18,14 @@
 
 #include "unicode/udata.h"
 
-static void* win_mmap(const char* dataFile) {
+static void* win_mmap(const wchar_t* dataFile) {
     if (!dataFile) {
         return nullptr;
     }
     struct FCloseWrapper { void operator()(FILE* f) { fclose(f); } };
-    std::unique_ptr<FILE, FCloseWrapper> stream(fopen(dataFile, "rb"));
+    std::unique_ptr<FILE, FCloseWrapper> stream(_wfopen(dataFile, L"rb"));
     if (!stream) {
-        fprintf(stderr, "SkIcuLoader: datafile missing: %s.\n", dataFile);
+        fprintf(stderr, "SkIcuLoader: datafile missing: %ls.\n", dataFile);
         return nullptr;
     }
     int fileno = _fileno(stream.get());
@@ -68,26 +68,39 @@ static bool init_icu(void* addr) {
     return true;
 }
 
-static std::string library_directory() {
+static std::wstring get_module_path(HMODULE module) {
+    DWORD len;
+    std::wstring path;
+    path.resize(MAX_PATH);
+
+    len = GetModuleFileNameW(module, (LPWSTR)path.data(), (DWORD)path.size());
+    if (len > path.size()) {
+        path.resize(len);
+        len = GetModuleFileNameW(module, (LPWSTR)path.data(), (DWORD)path.size());
+    }
+    path.resize(len);
+    std::size_t end = path.rfind('\\');
+    if (end == std::wstring::npos) {
+        return std::wstring();
+    }
+    path.resize(end);
+    return path;
+}
+
+static std::wstring library_directory() {
     HMODULE hModule = NULL;
     GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
         reinterpret_cast<LPCSTR>(&library_directory), &hModule);
-    char path[MAX_PATH];
-    GetModuleFileNameA(hModule, path, MAX_PATH);
-    const char* end = strrchr(path, '\\');
-    return end ? std::string(path, end - path) : std::string();
+    return get_module_path(hModule);
 }
 
-static std::string executable_directory() {
+static std::wstring executable_directory() {
     HMODULE hModule = GetModuleHandleA(NULL);
-    char path[MAX_PATH];
-    GetModuleFileNameA(hModule, path, MAX_PATH);
-    const char* end = strrchr(path, '\\');
-    return end ? std::string(path, end - path) : std::string();
+    return get_module_path(hModule);
 }
 
-static bool load_from(const std::string& dir) {
-    auto sPath = dir + "\\icudtl.dat";
+static bool load_from(const std::wstring& dir) {
+    auto sPath = dir + L"\\icudtl.dat";
     if (void* addr = win_mmap(sPath.c_str())) {
         if (init_icu(addr)) {
             return true;
