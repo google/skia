@@ -13,8 +13,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "tests/Test.h"
-
 #include "tests/TestHarness.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrContextOptions.h"
@@ -115,11 +115,13 @@ TestHarness CurrentTestHarness() {
     return TestHarness::kBazelTestRunner;
 }
 
-int main() {
+int main(int argc, char** argv) {
 #ifdef SK_BUILD_FOR_ANDROID
     extern bool gSkDebugToStdOut; // If true, sends SkDebugf to stdout as well.
     gSkDebugToStdOut = true;
 #endif
+
+    CommandLineFlags::Parse(argc, argv);
 
     BazelReporter reporter;
     for (skiatest::Test test : skiatest::TestRegistry::Range()) {
