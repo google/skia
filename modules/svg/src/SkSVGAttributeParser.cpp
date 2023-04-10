@@ -800,7 +800,7 @@ bool SkSVGAttributeParser::parse(SkSVGObjectBoundingBoxUnits* objectBoundingBoxU
 // https://www.w3.org/TR/SVG11/shapes.html#PolygonElementPointsAttribute
 template <>
 bool SkSVGAttributeParser::parse(SkSVGPointsType* points) {
-    SkTDArray<SkPoint> pts;
+    SkSVGPointsType pts;
 
     // Skip initial wsp.
     // list-of-points:
@@ -839,7 +839,7 @@ bool SkSVGAttributeParser::parse(SkSVGPointsType* points) {
     }
 
     if (parsedValue && this->parseEOSToken()) {
-        *points = pts;
+        *points = std::move(pts);
         return true;
     }
 
@@ -906,7 +906,7 @@ bool SkSVGAttributeParser::parse(SkSVGDashArray* dashArray) {
         *dashArray = SkSVGDashArray(SkSVGDashArray::Type::kInherit);
         parsedValue = true;
     } else {
-        SkTDArray<SkSVGLength> dashes;
+        std::vector<SkSVGLength> dashes;
         for (;;) {
             SkSVGLength dash;
             // parseLength() also consumes trailing separators.

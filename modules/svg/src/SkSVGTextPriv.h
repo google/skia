@@ -8,6 +8,7 @@
 #ifndef SkSVGTextPriv_DEFINED
 #define SkSVGTextPriv_DEFINED
 
+#include "include/private/base/SkTArray.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGText.h"
