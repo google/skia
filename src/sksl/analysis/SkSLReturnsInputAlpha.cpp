@@ -115,7 +115,7 @@ public:
 
 private:
     const ProgramUsage& fUsage;
-    const Variable* fInputVar;
+    const Variable* fInputVar = nullptr;
 
     using INHERITED = ProgramVisitor;
 };
