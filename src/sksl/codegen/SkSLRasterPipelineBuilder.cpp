@@ -1314,7 +1314,8 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                            SkSpan<const float> uniforms) const {
     // Convert our Instruction list to an array of ProgramOps.
     TArray<Stage> stages;
-    this->makeStages(&stages, alloc, uniforms, this->allocateSlotData(alloc));
+    SlotData slotData = this->allocateSlotData(alloc);
+    this->makeStages(&stages, alloc, uniforms, slotData);
 
     // Allocate buffers for branch targets and labels; these are needed to convert labels into
     // actual offsets into the pipeline and fix up branches.
@@ -1324,6 +1325,14 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
     labelOffsets.push_back_n(fNumLabels, -1);
     TArray<int> branchGoesToLabel;
     branchGoesToLabel.reserve_back(fNumLabels);
+
+    auto resetBasePointer = [&]() {
+        // Whenever we hand off control to another shader, we have to assume that it might overwrite
+        // the base pointer (if it uses SkSL, it will!), so we reset it on return.
+        pipeline->append(SkRasterPipelineOp::set_base_pointer, slotData.values.data());
+    };
+
+    resetBasePointer();
 
     for (const Stage& stage : stages) {
         switch (stage.op) {
@@ -1335,18 +1344,21 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                 if (!callbacks || !callbacks->appendShader(sk_bit_cast<intptr_t>(stage.ctx))) {
                     return false;
                 }
+                resetBasePointer();
                 break;
 
             case ProgramOp::invoke_color_filter:
                 if (!callbacks || !callbacks->appendColorFilter(sk_bit_cast<intptr_t>(stage.ctx))) {
                     return false;
                 }
+                resetBasePointer();
                 break;
 
             case ProgramOp::invoke_blender:
                 if (!callbacks || !callbacks->appendBlender(sk_bit_cast<intptr_t>(stage.ctx))) {
                     return false;
                 }
+                resetBasePointer();
                 break;
 
             case ProgramOp::invoke_to_linear_srgb:
@@ -1354,6 +1366,8 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                     return false;
                 }
                 callbacks->toLinearSrgb();
+                // A ColorSpaceXform shouldn't ever alter the base pointer, so we don't need to call
+                // resetBasePointer here.
                 break;
 
             case ProgramOp::invoke_from_linear_srgb:
@@ -1361,6 +1375,8 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                     return false;
                 }
                 callbacks->fromLinearSrgb();
+                // A ColorSpaceXform shouldn't ever alter the base pointer, so we don't need to call
+                // resetBasePointer here.
                 break;
 
             case ProgramOp::label: {

@@ -8,6 +8,8 @@
 #ifndef SkRasterPipelineOpContexts_DEFINED
 #define SkRasterPipelineOpContexts_DEFINED
 
+#include <cstddef>
+
 namespace SkSL { class TraceHook; }
 
 // The largest number of pixels we handle at a time. We have a separate value for the largest number
@@ -115,6 +117,7 @@ struct SkRasterPipeline_RewindCtx {
     float dg[SkRasterPipeline_kMaxStride_highp];
     float db[SkRasterPipeline_kMaxStride_highp];
     float da[SkRasterPipeline_kMaxStride_highp];
+    std::byte* base;
     SkRasterPipelineStage* stage;
 };
 

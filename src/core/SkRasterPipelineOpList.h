@@ -100,6 +100,7 @@
     M(alter_2pt_conical_unswap)                                    \
     M(mask_2pt_conical_nan)                                        \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
+    M(set_base_pointer)                                            \
     /* Dedicated SkSL stages begin here: */                                                   \
     M(init_lane_masks) M(store_device_xy01)                                                   \
     M(load_condition_mask) M(store_condition_mask) M(merge_condition_mask)                    \
