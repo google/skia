@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
@@ -41,6 +42,15 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
 
     // Graphite requires Vulkan version 1.1 or later, which has protected support.
     fProtectedSupport = true;
+
+    fRequiredUniformBufferAlignment = 1;
+    fRequiredStorageBufferAlignment = 1;
+    fRequiredTransferBufferAlignment = 4;
+
+    fResourceBindingReqs.fUniformBufferLayout = Layout::kStd430;
+    fResourceBindingReqs.fStorageBufferLayout = Layout::kStd430;
+    fResourceBindingReqs.fSeparateTextureAndSamplerBinding = false;
+    fResourceBindingReqs.fDistinctIndexRanges = false;
 
     // Enable the use of memoryless attachments for tiler GPUs (ARM Mali and Qualcomm Adreno).
     if (physDevProperties.vendorID == kARM_VkVendor ||
@@ -970,5 +980,73 @@ const VulkanCaps::DepthStencilFormatInfo& VulkanCaps::getDepthStencilFormatInfo(
     VulkanCaps* nonConstThis = const_cast<VulkanCaps*>(this);
     return nonConstThis->getDepthStencilFormatInfo(format);
 }
+
+const Caps::ColorTypeInfo* VulkanCaps::getColorTypeInfo(SkColorType ct,
+                                                        const TextureInfo& textureInfo) const {
+    VkFormat vkFormat = textureInfo.vulkanTextureSpec().fFormat;
+    if (vkFormat == VK_FORMAT_UNDEFINED) {
+        return nullptr;
+    }
+
+    const FormatInfo& info = this->getFormatInfo(vkFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const ColorTypeInfo& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == ct) {
+            return &ctInfo;
+        }
+    }
+
+    return nullptr;
+}
+
+void VulkanCaps::buildKeyForTexture(SkISize dimensions,
+                                    const TextureInfo& info,
+                                    ResourceType type,
+                                    Shareable shareable,
+                                    GraphiteResourceKey* key) const {
+    const VulkanTextureSpec& vkSpec = info.vulkanTextureSpec();
+
+    SkASSERT(!dimensions.isEmpty());
+
+    // We expect that the VkFormat enum is at most a 32-bit value.
+    static_assert(VK_FORMAT_MAX_ENUM == 0x7FFFFFFF);
+    SkASSERT(vkSpec.fFormat != VK_FORMAT_UNDEFINED);
+    uint32_t formatKey = static_cast<uint32_t>(vkSpec.fFormat);
+
+    uint32_t samplesKey = SamplesToKey(info.numSamples());
+    // We don't have to key the number of mip levels because it is inherit in the combination of
+    // isMipped and dimensions.
+    bool isMipped = info.mipmapped() == Mipmapped::kYes;
+    Protected isProtected = info.isProtected();
+
+    // Confirm all the below parts of the key can fit in a single uint32_t. The sum of the shift
+    // amounts in the asserts must be less than or equal to 32. vkSpec.fFlags will go into its
+    // own 32-bit block.
+    SkASSERT(samplesKey < (1u << 3));
+    SkASSERT(static_cast<uint32_t>(isMipped) < (1u << 1));
+    SkASSERT(static_cast<uint32_t>(isProtected) < (1u << 1));
+    SkASSERT(vkSpec.fImageTiling < (1u << 1));
+    SkASSERT(vkSpec.fImageUsageFlags < (1u << 5));
+    SkASSERT(vkSpec.fSharingMode < (1u << 1));
+    SkASSERT(vkSpec.fAspectMask < (1u << 11));
+
+    // We need two uint32_ts for dimensions, 1 for format, and 2 for the rest of the key.
+    static int kNum32DataCnt = 2 + 1 + 2;
+
+    GraphiteResourceKey::Builder builder(key, type, kNum32DataCnt, shareable);
+
+    builder[0] = dimensions.width();
+    builder[1] = dimensions.height();
+    builder[2] = formatKey;
+    builder[3] = (static_cast<uint32_t>(vkSpec.fFlags));
+    builder[4] = (samplesKey << 0) |
+                 (static_cast<uint32_t>(isMipped) << 3) |
+                 (static_cast<uint32_t>(isProtected) << 4) |
+                 (static_cast<uint32_t>(vkSpec.fImageTiling) << 5) |
+                 (static_cast<uint32_t>(vkSpec.fImageUsageFlags) << 10) |
+                 (static_cast<uint32_t>(vkSpec.fSharingMode) << 11) |
+                 (static_cast<uint32_t>(vkSpec.fAspectMask) << 12);
+}
+
 } // namespace skgpu::graphite
 

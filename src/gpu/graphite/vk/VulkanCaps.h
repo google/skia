@@ -55,7 +55,7 @@ public:
                             const TextureInfo&,
                             ResourceType,
                             Shareable,
-                            GraphiteResourceKey*) const override {}
+                            GraphiteResourceKey*) const override;
 
     size_t bytesPerPixel(const TextureInfo&) const override;
 
@@ -102,9 +102,7 @@ private:
                                      VkPhysicalDevice,
                                      const VkPhysicalDeviceProperties&);
 
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override {
-        return nullptr;
-    }
+    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
 
     bool onIsTexturable(const TextureInfo&) const override { return false; }
 
