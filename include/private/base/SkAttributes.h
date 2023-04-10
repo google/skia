@@ -72,6 +72,19 @@
 #endif
 
 /**
+ * Helper macro to define no_sanitize attributes only with clang.
+ */
+#if defined(__clang__) && defined(__has_attribute)
+  #if __has_attribute(no_sanitize)
+    #define SK_CLANG_NO_SANITIZE(A) SK_NO_SANITIZE(A)
+  #endif
+#endif
+
+#if !defined(SK_CLANG_NO_SANITIZE)
+  #define SK_CLANG_NO_SANITIZE(A)
+#endif
+
+/**
  * Annotates a class' non-trivial special functions as trivial for the purposes of calls.
  * Allows a class with a non-trivial destructor to be __is_trivially_relocatable.
  * Use of this attribute on a public API breaks platform ABI.
