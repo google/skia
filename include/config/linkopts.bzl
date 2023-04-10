@@ -10,6 +10,13 @@ because the relevant Skia source file was compiled in.
 
 """
 
+CORE_LINKOPTS = select({
+    "@platforms//os:android": [
+        "-ldl",
+    ],
+    "//conditions:default": [],
+})
+
 OPT_LEVEL = select({
     "//bazel/common_config_settings:debug_build": [],
     "//bazel/common_config_settings:fast_build_linux": [
@@ -25,4 +32,4 @@ OPT_LEVEL = select({
     ],
 })
 
-DEFAULT_LINKOPTS = OPT_LEVEL
+DEFAULT_LINKOPTS = CORE_LINKOPTS + OPT_LEVEL

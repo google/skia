@@ -9,6 +9,7 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 """
 
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
+load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 
 _bool_flags = [
     "//bazel/common_config_settings:use_harfbuzz",
@@ -131,7 +132,7 @@ transition_rule = rule(
     executable = True,
 )
 
-def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
+def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwargs):
     """Builds a cc_binary as if set_flags were set on the CLI.
 
     Args:
@@ -140,6 +141,8 @@ def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
         set_flags: dictionary of string to list of strings. The keys should be the name of the
             flag, and the values should be the desired valid settings for that flag.
         copts: a list of strings or select statements that control the compiler flags.
+            It has a sensible list of defaults.
+        linkopts: a list of strings or select statements that control the linker flags.
             It has a sensible list of defaults.
         **kwargs: Any flags that a cc_binary normally takes.
     """
@@ -156,5 +159,6 @@ def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
     native.cc_binary(
         name = cc_binary_name,
         copts = copts,
+        linkopts = linkopts,
         **kwargs
     )
