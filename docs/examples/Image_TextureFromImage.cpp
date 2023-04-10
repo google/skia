@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 // HASH=eeec9e07e604b44d0208899a2fe5bef5
-REG_FIDDLE(Image_makeTextureImage, 256, 256, false, 5) {
+REG_FIDDLE(Image_TextureFromImage, 256, 256, false, 5) {
 void draw(SkCanvas* canvas) {
     auto dContext = GrAsDirectContext(canvas->recordingContext());
     if (!dContext) {
@@ -21,7 +21,7 @@ void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        sk_sp<SkImage> texture(image->makeTextureImage(dContext));
+        sk_sp<SkImage> texture = SkImages::TextureFromImage(dContext, image);
         canvas->drawImage(texture, 0, 0);
         canvas->drawString(label, 20, texture->height() / 4, font, paint);
     };

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 // HASH=d093aad721261f421c4bef4a296aab48
-REG_FIDDLE(Image_getBackendTexture, 256, 256, false, 3) {
+REG_FIDDLE(Image_GetBackendTextureFromImage, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     SkFont font;
     SkPaint paint;
@@ -23,10 +23,11 @@ void draw(SkCanvas* canvas) {
                                                                  kBottomLeft_GrSurfaceOrigin,
                                                                  kRGBA_8888_SkColorType,
                                                                  kOpaque_SkAlphaType);
-    GrBackendTexture textureFromImage = imageFromBackend->getBackendTexture(false);
-    if (!textureFromImage.isValid()) {
+    GrBackendTexture textureFromImage;
+    if (!SkImages::GetBackendTextureFromImage(imageFromBackend, &textureFromImage, false)) {
         return;
     }
+
     sk_sp<SkImage> imageFromTexture = SkImages::AdoptTextureFrom(direct,
                                                                  textureFromImage,
                                                                  kTopLeft_GrSurfaceOrigin,

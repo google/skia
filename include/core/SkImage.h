@@ -15,15 +15,6 @@
 #include "include/core/SkSize.h"
 #include "include/private/base/SkAPI.h"
 
-namespace skgpu {
-enum class Mipmapped : bool;
-enum class Budgeted : bool;
-}  // namespace skgpu
-enum GrSurfaceOrigin : int;
-struct GrFlushInfo;
-
-enum class GrSemaphoresSubmitted : bool; // IWYU pragma: keep
-
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/GraphiteTypes.h"
 class SkYUVAPixmaps;
@@ -34,7 +25,6 @@ class SkYUVAPixmaps;
 #include <memory>
 #include <optional>
 
-class GrBackendTexture;
 class GrDirectContext;
 class GrRecordingContext;
 class SkBitmap;
@@ -1125,75 +1115,6 @@ public:
         differently.
     */
     sk_sp<SkImage> reinterpretColorSpace(sk_sp<SkColorSpace> newColorSpace) const;
-
-    // ===============================================================================
-    // Methods below here are no-op for non-gpu backed images
-
-#if !defined(SK_DISABLE_LEGACY_MAKE_TEXTURE_IMAGE) && defined(SK_GANESH)
-    /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
-        compatible with SkSurface created with dstColorSpace. The returned SkImage respects
-        mipmapped setting; if mipmapped equals skgpu::Mipmapped::kYes, the backing texture
-        allocates mip map levels.
-        The mipmapped parameter is effectively treated as kNo if MIP maps are not supported by the
-        GPU.
-        Returns original SkImage if the image is already texture-backed, the context matches, and
-        mipmapped is compatible with the backing GPU texture. skgpu::Budgeted is ignored in this
-       case.
-        Returns nullptr if context is nullptr, or if SkImage was created with another
-        GrDirectContext.
-
-        DEPRECATED: Use SkImages::TextureFromImage instead
-
-        @param GrDirectContext the GrDirectContext in play, if it exists
-        @param skgpu::Mipmapped Whether created SkImage texture must allocate mip map levels.
-                                Defaults to no.
-        @param skgpu::Budgeted Whether to count a newly created texture for the returned image
-                               counts against the context's budget. Defaults to yes.
-        @return                created SkImage, or nullptr
-    */
-    sk_sp<SkImage> makeTextureImage(GrDirectContext*, skgpu::Mipmapped, skgpu::Budgeted) const;
-    sk_sp<SkImage> makeTextureImage(GrDirectContext*, skgpu::Mipmapped) const;
-    sk_sp<SkImage> makeTextureImage(GrDirectContext*) const;
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_IMAGE_FLUSH) && defined(SK_GANESH)
-    /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
-       texture-backed (including promise texture images) or if the GrDirectContext does not
-       have the same context ID as the context backing the image then this is a no-op.
-       If the image was not used in any non-culled draws in the current queue of work for the
-       passed GrDirectContext then this is a no-op unless the GrFlushInfo contains semaphores or
-       a finish proc. Those are respected even when the image has not been used.
-
-       DEPRECATED: Use GrDirectContext::flush() and GrDirectContext::flushAndSubmit()
-
-       @param context  the context on which to flush pending usages of the image.
-       @param info     flush options
-    */
-    GrSemaphoresSubmitted flush(GrDirectContext* context, const GrFlushInfo& flushInfo) const;
-
-    void flush(GrDirectContext* context) const;
-
-    /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
-        GPU.
-    */
-    void flushAndSubmit(GrDirectContext*) const;
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_GET_BACKEND_TEXTURE) && defined(SK_GANESH)
-    /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
-        object is returned. Call GrBackendTexture::isValid to determine if the result
-        is valid.
-
-        DEPRECATED: Use SkImages::GetBackendTextureFromImage()
-
-        If flushPendingGrContextIO is true, completes deferred I/O operations.
-        If origin in not nullptr, copies location of content drawn into SkImage.
-        @param flushPendingGrContextIO  flag to flush outstanding requests
-        @return                         back-end API texture handle; invalid on failure
-    */
-    GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
-                                       GrSurfaceOrigin* origin = nullptr) const;
-#endif
 
 private:
     SkImage(const SkImageInfo& info, uint32_t uniqueID);
