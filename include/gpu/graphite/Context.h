@@ -16,6 +16,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/base/SingleOwner.h"
 
+#include <functional>
 #include <memory>
 
 class SkRuntimeEffect;
