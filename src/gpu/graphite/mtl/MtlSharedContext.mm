@@ -58,6 +58,8 @@ MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
         , fDevice(std::move(device)) {}
 
 MtlSharedContext::~MtlSharedContext() {
+    // need to clear out resources before the allocator (if any) is removed
+    this->globalCache()->deleteResources();
 }
 
 std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(SingleOwner* singleOwner) {

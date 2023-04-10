@@ -18,7 +18,21 @@ GlobalCache::GlobalCache()
         : fGraphicsPipelineCache(256) // TODO: find a good value for these limits
         , fComputePipelineCache(16) {}
 
-GlobalCache::~GlobalCache() = default;
+GlobalCache::~GlobalCache() {
+    // These should have been cleared out earlier by deleteResources().
+    SkDEBUGCODE(SkAutoSpinlock lock{ fSpinLock });
+    SkASSERT(fGraphicsPipelineCache.count() == 0);
+    SkASSERT(fComputePipelineCache.count() == 0);
+    SkASSERT(fStaticResource.size() == 0);
+}
+
+void GlobalCache::deleteResources() {
+    SkAutoSpinlock lock{ fSpinLock };
+
+    fGraphicsPipelineCache.reset();
+    fComputePipelineCache.reset();
+    fStaticResource.clear();
+}
 
 sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(const UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};

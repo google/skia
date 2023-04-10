@@ -82,7 +82,19 @@ VulkanCommandBuffer::VulkanCommandBuffer(VkCommandPool pool,
     this->begin();
 }
 
-VulkanCommandBuffer::~VulkanCommandBuffer() {}
+VulkanCommandBuffer::~VulkanCommandBuffer() {
+    SkASSERT(!fActive);
+
+    if (VK_NULL_HANDLE != fSubmitFence) {
+        VULKAN_CALL(fSharedContext->interface(), DestroyFence(fSharedContext->device(),
+                                                              fSubmitFence,
+                                                              nullptr));
+    }
+    // This should delete any command buffers as well.
+    VULKAN_CALL(fSharedContext->interface(), DestroyCommandPool(fSharedContext->device(),
+                                                                fPool,
+                                                                nullptr));
+}
 
 void VulkanCommandBuffer::onResetCommandBuffer() {
     SkASSERT(!fActive);

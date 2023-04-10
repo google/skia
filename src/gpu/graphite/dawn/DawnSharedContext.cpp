@@ -54,7 +54,10 @@ DawnSharedContext::DawnSharedContext(const DawnBackendContext& backendContext,
         , fQueue(backendContext.fQueue)
         , fNoopFragment(std::move(noopFragment)) {}
 
-DawnSharedContext::~DawnSharedContext() = default;
+DawnSharedContext::~DawnSharedContext() {
+    // need to clear out resources before any allocator is removed
+    this->globalCache()->deleteResources();
+}
 
 std::unique_ptr<ResourceProvider> DawnSharedContext::makeResourceProvider(
         SingleOwner* singleOwner) {

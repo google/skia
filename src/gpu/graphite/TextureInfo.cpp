@@ -72,8 +72,7 @@ bool TextureInfo::operator==(const TextureInfo& that) const {
 #endif
 #ifdef SK_VULKAN
         case BackendApi::kVulkan:
-            // TODO: Actually fill this out
-            return false;
+            return fVkSpec == that.fVkSpec;
 #endif
         default:
             return false;

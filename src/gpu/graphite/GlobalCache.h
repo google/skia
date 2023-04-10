@@ -38,6 +38,8 @@ public:
     GlobalCache();
     ~GlobalCache();
 
+    void deleteResources();
+
     // Find a cached GraphicsPipeline that matches the associated key.
     sk_sp<GraphicsPipeline> findGraphicsPipeline(const UniqueKey&) SK_EXCLUDES(fSpinLock);
     // Associate the given pipeline with the key. If the key has already had a separate pipeline

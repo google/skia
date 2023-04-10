@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
+#include "src/gpu/graphite/vk/VulkanTexture.h"
 
 namespace skgpu::graphite {
 
@@ -45,8 +46,9 @@ sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const Compu
     return nullptr;
 }
 
-sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize, const TextureInfo&, skgpu::Budgeted) {
-    return nullptr;
+sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size, const TextureInfo& info,
+                                                     skgpu::Budgeted budgeted) {
+    return VulkanTexture::Make(this->vulkanSharedContext(), size, info, budgeted);
 }
 
 sk_sp<Buffer> VulkanResourceProvider::createBuffer(size_t size,
