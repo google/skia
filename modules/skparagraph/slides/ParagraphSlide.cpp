@@ -4011,9 +4011,9 @@ public:
     }
 };
 
-class ParagraphSlideLast : public ParagraphSlide_Base {
+class ParagraphSlideMixedTextDirection : public ParagraphSlide_Base {
 public:
-    ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
+    ParagraphSlideMixedTextDirection() { fName = "ParagraphSlideMixedTextDirection"; }
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
@@ -4043,6 +4043,40 @@ public:
         draw(u"English text (defalt RTL)", 1, TextDirection::kRtl);
         draw(u"تظاهرات و(defalt LTR) تجمعات اعتراضی در سراسر کشور ۲۳ مهر", 2, TextDirection::kLtr);
         draw(u"تظاهرات و(defalt RTL) تجمعات اعتراضی در سراسر کشور ۲۳ مهر", 2, TextDirection::kRtl);
+    }
+};
+
+
+class ParagraphSlideLast : public ParagraphSlide_Base {
+public:
+    ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
+    void draw(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+        text_style.setFontSize(100);
+        text_style.setColor(SK_ColorBLACK);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+        paragraph_style.setTextAlign(TextAlign::kStart);
+        paragraph_style.setEllipsis(u"\u2026");
+        auto draw = [&](std::u16string text) {
+            paragraph_style.setMaxLines(1);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(this->size().width());
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(0, paragraph->getHeight() + 10);
+        };
+
+        draw(u"你abcdefsdasdsasas");
+        draw(u"한111111111111111111");
+        draw(u"abcdefsdasds1112222");
     }
 };
 }  // namespace
@@ -4118,5 +4152,6 @@ DEF_SLIDE(return new ParagraphSlide_MultiStyle_EmojiFamily();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic1();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Zalgo();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic2();)
+DEF_SLIDE(return new ParagraphSlideMixedTextDirection();)
 DEF_SLIDE(return new ParagraphSlideLast();)
 
