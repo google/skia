@@ -111,7 +111,7 @@
    },
   {"name": "Build-Debian10-Clang-x86_64-Debug-Graphite_Dawn"},
   {"name": "Build-Debian10-Clang-x86_64-Debug-Graphite_Vulkan",
-   "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
+   "cq_config": {}
    },
   {"name": "Build-Debian10-Clang-x86_64-Debug-Vulkan"},
   {"name": "Build-Debian10-Clang-x86_64-Debug-Wuffs",
@@ -281,7 +281,9 @@
   {"name": "Build-Win-MSVC-x86-Release"},
   {"name": "Build-Win-MSVC-x86_64-Debug"},
   {"name": "Build-Win-MSVC-x86_64-Debug-Direct3D"},
-  {"name": "Build-Win-MSVC-x86_64-Debug-Graphite_Dawn"},
+  {"name": "Build-Win-MSVC-x86_64-Debug-Graphite_Dawn",
+   "cq_config": {}
+   },
   {"name": "Build-Win-MSVC-x86_64-Debug-Graphite_Vulkan",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
    },
