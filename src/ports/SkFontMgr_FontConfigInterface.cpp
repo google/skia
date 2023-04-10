@@ -177,9 +177,17 @@ protected:
     }
 
     sk_sp<SkTypeface> onMatchFamilyStyle(const char requestedFamilyName[],
-                                   const SkFontStyle& requestedStyle) const override
+                                         const SkFontStyle& requestedStyle) const override
     {
         SkAutoMutexExclusive ama(fMutex);
+
+        // Check if this request is already in the request cache.
+        using Request = SkFontRequestCache::Request;
+        std::unique_ptr<Request> request(Request::Create(requestedFamilyName, requestedStyle));
+        sk_sp<SkTypeface> face = fCache.findAndRef(request.get());
+        if (face) {
+            return sk_sp<SkTypeface>(face);
+        }
 
         SkFontConfigInterface::FontIdentity identity;
         SkString outFamilyName;
@@ -191,12 +199,15 @@ protected:
         }
 
         // Check if a typeface with this FontIdentity is already in the FontIdentity cache.
-        sk_sp<SkTypeface> face = fTFCache.findByProcAndRef(find_by_FontIdentity, &identity);
+        face = fTFCache.findByProcAndRef(find_by_FontIdentity, &identity);
         if (!face) {
             face.reset(SkTypeface_FCI::Create(fFCI, identity, std::move(outFamilyName), outStyle));
             // Add this FontIdentity to the FontIdentity cache.
             fTFCache.add(face);
         }
+        // Add this request to the request cache.
+        fCache.add(face, request.release());
+
         return face;
     }
 
