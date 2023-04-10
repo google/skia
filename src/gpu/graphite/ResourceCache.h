@@ -113,6 +113,8 @@ private:
 
     ResourceMap fResourceMap;
 
+    size_t fBudgetedBytes = 0;
+
     SingleOwner* fSingleOwner = nullptr;
 
     bool fIsShutdown = false;
