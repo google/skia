@@ -76,10 +76,26 @@ private:
 } // namespace
 
 const AnimationBuilder::FootageAssetInfo*
-AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& jimage) const {
-    const skjson::StringValue* name = jimage["p"];
-    const skjson::StringValue* path = jimage["u"];
-    const skjson::StringValue* id   = jimage["id"];
+AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& defaultJImage) const {
+    const skjson::ObjectValue* jimage = &defaultJImage;
+    if (const skjson::StringValue* slotID = defaultJImage["sid"] ) {
+        if (!(this->fSlotsRoot)) {
+            this->log(Logger::Level::kWarning, nullptr,
+                         "Slotid found but no slots were found in the json. Using default asset.");
+        } else {
+            const skjson::ObjectValue* slot = (*(this->fSlotsRoot))[slotID->begin()];
+            if (!slot) {
+                this->log(Logger::Level::kWarning, nullptr,
+                             "Specified slotID not found in 'slots'. Using default asset.");
+            } else {
+                jimage = (*slot)["p"];
+            }
+        }
+    }
+
+    const skjson::StringValue* name = (*jimage)["p"];
+    const skjson::StringValue* path = (*jimage)["u"];
+    const skjson::StringValue* id   = (*jimage)["id"];
     if (!name || !path || !id) {
         return nullptr;
     }
@@ -96,8 +112,8 @@ AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& jimage) const {
         return nullptr;
     }
 
-    const auto size = SkISize::Make(ParseDefault<int>(jimage["w"], 0),
-                                    ParseDefault<int>(jimage["h"], 0));
+    const auto size = SkISize::Make(ParseDefault<int>((*jimage)["w"], 0),
+                                    ParseDefault<int>((*jimage)["h"], 0));
     return fImageAssetCache.set(res_id, { std::move(asset), size });
 }
 
