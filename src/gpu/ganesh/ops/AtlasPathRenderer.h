@@ -108,8 +108,11 @@ private:
         uint32_t fPathGenID;
         float fAffineMatrix[6];
         uint32_t fFillRule;
+
+        using Hash = SkForceDirectHash<AtlasPathKey>;
     };
-    skia_private::THashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
+
+    skia_private::THashMap<AtlasPathKey, SkIPoint16, AtlasPathKey::Hash> fAtlasPathCache;
 };
 
 }  // namespace skgpu::ganesh

@@ -68,7 +68,7 @@ public:
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
              sk_sp<TextureProxy> proxy) {
-        fTextureData.push_back({std::move(proxy), {sampling, {tileModes[0], tileModes[1]}}});
+        fTextureData.push_back({std::move(proxy), SamplerDesc{sampling, tileModes}});
     }
 
     void reset() {

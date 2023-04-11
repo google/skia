@@ -149,31 +149,38 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
  * Struct used to describe how a Texture/TextureProxy/TextureProxyView is sampled.
  */
 struct SamplerDesc {
-    SkSamplingOptions fSamplingOptions;
-    SkTileMode fTileModes[2];
-
-    bool operator==(const SamplerDesc& o) const {
-        return fSamplingOptions == o.fSamplingOptions &&
-               fTileModes[0] == o.fTileModes[0] &&
-               fTileModes[1] == o.fTileModes[1];
-    }
-    bool operator!=(const SamplerDesc& o) const {
-        return !(*this == o);
-    }
-
-    uint32_t asKey() const {
-        static_assert(kSkTileModeCount <= 4 && kSkFilterModeCount <= 2);
+    static_assert(kSkTileModeCount <= 4 && kSkFilterModeCount <= 2 && kSkMipmapModeCount <= 4);
+    SamplerDesc(const SkSamplingOptions& samplingOptions, const SkTileMode tileModes[2])
+            : fDesc((static_cast<int>(tileModes[0])           << 0) |
+                    (static_cast<int>(tileModes[1])           << 2) |
+                    (static_cast<int>(samplingOptions.filter) << 4) |
+                    (static_cast<int>(samplingOptions.mipmap) << 5)) {
         // Cubic sampling is handled in a shader, with the actual texture sampled by with NN,
         // but that is what a cubic SkSamplingOptions is set to if you ignore 'cubic', which let's
         // us simplify how we construct SamplerDec's from the options passed to high-level draws.
-        SkASSERT(!fSamplingOptions.useCubic || (fSamplingOptions.filter == SkFilterMode::kNearest &&
-                                                fSamplingOptions.mipmap == SkMipmapMode::kNone));
-        // TODO: Add support for anisotropic filtering
-        return (static_cast<int>(fTileModes[0])           << 0) |
-               (static_cast<int>(fTileModes[1])           << 2) |
-               (static_cast<int>(fSamplingOptions.filter) << 4) |
-               (static_cast<int>(fSamplingOptions.mipmap) << 5);
+        SkASSERT(!samplingOptions.useCubic || (samplingOptions.filter == SkFilterMode::kNearest &&
+                                               samplingOptions.mipmap == SkMipmapMode::kNone));
     }
+
+    SamplerDesc(const SamplerDesc&) = default;
+
+    bool operator==(const SamplerDesc& o) const { return o.fDesc == fDesc; }
+    bool operator!=(const SamplerDesc& o) const { return o.fDesc != fDesc; }
+
+    SkTileMode tileModeX() const { return static_cast<SkTileMode>((fDesc >> 0) & 0b11); }
+    SkTileMode tileModeY() const { return static_cast<SkTileMode>((fDesc >> 2) & 0b11); }
+
+    // NOTE: returns the HW sampling options to use, so a bicubic SkSamplingOptions will become
+    // nearest-neighbor sampling in HW.
+    SkSamplingOptions samplingOptions() const {
+        // TODO: Add support for anisotropic filtering
+        SkFilterMode filter = static_cast<SkFilterMode>((fDesc >> 4) & 0b01);
+        SkMipmapMode mipmap = static_cast<SkMipmapMode>((fDesc >> 5) & 0b11);
+        return SkSamplingOptions(filter, mipmap);
+    }
+
+private:
+    uint32_t fDesc;
 };
 
 enum class UniformSlot {

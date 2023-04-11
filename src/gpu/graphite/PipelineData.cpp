@@ -84,7 +84,7 @@ uint32_t TextureDataBlock::hash() const {
     uint32_t hash = 0;
 
     for (auto& d : fTextureData) {
-        uint32_t samplerKey = std::get<1>(d).asKey();
+        SamplerDesc samplerKey = std::get<1>(d);
         hash = SkOpts::hash_fn(&samplerKey, sizeof(samplerKey), hash);
 
         // Because the lifetime of the TextureDataCache is for just one Recording and the

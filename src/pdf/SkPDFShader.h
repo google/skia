@@ -51,6 +51,8 @@ struct SkPDFImageShaderKey {
     SkBitmapKey fBitmapKey;
     SkTileMode fImageTileModes[2];
     SkColor4f fPaintColor;
+
+    using Hash = SkForceDirectHash<SkPDFImageShaderKey>;
 };
 SK_END_REQUIRE_DENSE
 

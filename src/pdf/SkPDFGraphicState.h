@@ -55,6 +55,8 @@ struct SkPDFStrokeGraphicState {
     uint8_t fPADDING = 0;
     bool operator==(const SkPDFStrokeGraphicState& o) const { return !memcmp(this, &o, sizeof(o)); }
     bool operator!=(const SkPDFStrokeGraphicState& o) const { return !(*this == o); }
+
+    using Hash = SkForceDirectHash<SkPDFStrokeGraphicState>;
 };
 SK_END_REQUIRE_DENSE
 
@@ -65,6 +67,8 @@ struct SkPDFFillGraphicState {
     uint8_t fPADDING[3] = {0, 0, 0};
     bool operator==(const SkPDFFillGraphicState& o) const { return !memcmp(this, &o, sizeof(o)); }
     bool operator!=(const SkPDFFillGraphicState& o) const { return !(*this == o); }
+
+    using Hash = SkForceDirectHash<SkPDFFillGraphicState>;
 };
 SK_END_REQUIRE_DENSE
 

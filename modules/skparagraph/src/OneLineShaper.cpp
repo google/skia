@@ -3,7 +3,9 @@
 #include "modules/skparagraph/src/Iterators.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
 #include "src/base/SkUTF.h"
+
 #include <algorithm>
+#include <cstdint>
 #include <unordered_set>
 
 using namespace skia_private;
@@ -756,11 +758,10 @@ bool OneLineShaper::FontKey::operator==(const OneLineShaper::FontKey& other) con
     return fUnicode == other.fUnicode && fFontStyle == other.fFontStyle && fLocale == other.fLocale;
 }
 
-size_t OneLineShaper::FontKey::Hasher::operator()(const OneLineShaper::FontKey& key) const {
-
+uint32_t OneLineShaper::FontKey::Hasher::operator()(const OneLineShaper::FontKey& key) const {
     return SkGoodHash()(key.fUnicode) ^
            SkGoodHash()(key.fFontStyle) ^
-           SkGoodHash()(key.fLocale.c_str());
+           SkGoodHash()(key.fLocale);
 }
 
 }  // namespace textlayout

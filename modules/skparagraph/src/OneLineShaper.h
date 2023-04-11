@@ -132,7 +132,7 @@ private:
         bool operator==(const FontKey& other) const;
 
         struct Hasher {
-            size_t operator()(const FontKey& key) const;
+            uint32_t operator()(const FontKey& key) const;
         };
     };
     skia_private::THashMap<FontKey, sk_sp<SkTypeface>, FontKey::Hasher> fFallbackFonts;
