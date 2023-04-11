@@ -23,7 +23,6 @@ public:
     ~DawnMTLWindowContext() override;
     wgpu::Device onInitializeContext() override;
     void onDestroyContext() override;
-    void onSwapBuffers() override;
     void resize(int width, int height) override;
 private:
     NSView*              fMainView;
@@ -68,9 +67,6 @@ wgpu::Device DawnMTLWindowContext::onInitializeContext() {
 }
 
 void DawnMTLWindowContext::onDestroyContext() {
-}
-
-void DawnMTLWindowContext::onSwapBuffers() {
 }
 
 void DawnMTLWindowContext::resize(int w, int h) {

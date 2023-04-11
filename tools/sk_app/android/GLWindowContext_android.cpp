@@ -23,12 +23,11 @@ public:
 
     ~GLWindowContext_android() override;
 
-    void onSwapBuffers() override;
-
     sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
 
 private:
+    void onSwapBuffers() override;
 
     EGLDisplay fDisplay;
     EGLContext fEGLContext;

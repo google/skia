@@ -101,17 +101,7 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
     return surface;
 }
 
-void GraphiteMetalWindowContext::swapBuffers() {
-    // This chunk of code should not be in this class but higher up either in Window or
-    // WindowContext
-    std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
-    if (recording) {
-        skgpu::graphite::InsertRecordingInfo info;
-        info.fRecording = recording.get();
-        fGraphiteContext->insertRecording(info);
-        fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
-    }
-
+void GraphiteMetalWindowContext::onSwapBuffers() {
     id<CAMetalDrawable> currentDrawable = (id<CAMetalDrawable>)fDrawableHandle;
 
     id<MTLCommandBuffer> commandBuffer([*fQueue commandBuffer]);

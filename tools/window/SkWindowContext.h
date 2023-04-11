@@ -29,7 +29,7 @@ public:
 
     virtual sk_sp<SkSurface> getBackbufferSurface() = 0;
 
-    virtual void swapBuffers() = 0;
+    void swapBuffers();
 
     virtual bool isValid() = 0;
 
@@ -54,6 +54,8 @@ public:
 
 protected:
     virtual bool isGpuContext() { return true;  }
+
+    virtual void onSwapBuffers() = 0;
 
     sk_sp<GrDirectContext> fContext;
 #if defined(SK_GRAPHITE)

@@ -21,7 +21,6 @@ public:
 
     bool onInitializeContext() override;
     void onDestroyContext() override;
-    void onSwapBuffers() override;
     void resize(int w, int h) override;
 
 private:
@@ -69,8 +68,6 @@ bool GraphiteDawnD3D12WindowContext_win::onInitializeContext() {
 }
 
 void GraphiteDawnD3D12WindowContext_win::onDestroyContext() {}
-
-void GraphiteDawnD3D12WindowContext_win::onSwapBuffers() {}
 
 void GraphiteDawnD3D12WindowContext_win::resize(int w, int h) {
     fSwapChain = this->createSwapChain();

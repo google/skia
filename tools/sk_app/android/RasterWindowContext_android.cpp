@@ -20,7 +20,6 @@ public:
     RasterWindowContext_android(ANativeWindow*, const DisplayParams& params);
 
     sk_sp<SkSurface> getBackbufferSurface() override;
-    void swapBuffers() override;
 
     bool isValid() override { return SkToBool(fNativeWindow); }
     void resize(int w, int h) override;
@@ -28,6 +27,8 @@ public:
 
 private:
     void setBuffersGeometry();
+    void onSwapBuffers() override;
+
     sk_sp<SkSurface> fBackbufferSurface = nullptr;
     ANativeWindow* fNativeWindow = nullptr;
     ANativeWindow_Buffer fBuffer;
@@ -84,7 +85,7 @@ sk_sp<SkSurface> RasterWindowContext_android::getBackbufferSurface() {
 }
 
 
-void RasterWindowContext_android::swapBuffers() {
+void RasterWindowContext_android::onSwapBuffers() {
     ANativeWindow_unlockAndPost(fNativeWindow);
     fBackbufferSurface.reset(nullptr);
 }

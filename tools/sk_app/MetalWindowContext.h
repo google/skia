@@ -25,8 +25,6 @@ public:
 
     bool isValid() override { return fValid; }
 
-    void swapBuffers() override;
-
     void setDisplayParams(const DisplayParams& params) override;
 
     void activate(bool isActive) override;
@@ -45,6 +43,8 @@ protected:
     // onDestroyContext().
     void destroyContext();
     virtual void onDestroyContext() = 0;
+
+    void onSwapBuffers() override;
 
     bool                        fValid;
     sk_cfp<id<MTLDevice>>       fDevice;

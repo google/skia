@@ -27,7 +27,6 @@ public:
     ~VulkanWindowContext() override;
 
     sk_sp<SkSurface> getBackbufferSurface() override;
-    void swapBuffers() override;
 
     bool isValid() override { return fDevice != VK_NULL_HANDLE; }
 
@@ -62,6 +61,7 @@ private:
     bool createSwapchain(int width, int height, const DisplayParams& params);
     bool createBuffers(VkFormat format, VkImageUsageFlags, SkColorType colorType, VkSharingMode);
     void destroyBuffers();
+    void onSwapBuffers() override;
 
     VkInstance fInstance = VK_NULL_HANDLE;
     VkPhysicalDevice fPhysicalDevice = VK_NULL_HANDLE;

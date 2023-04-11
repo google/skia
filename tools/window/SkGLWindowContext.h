@@ -22,7 +22,6 @@ public:
     bool isValid() override { return SkToBool(fBackendContext.get()); }
 
     void resize(int w, int h) override;
-    void swapBuffers() override;
 
     void setDisplayParams(const SkDisplayParams& params) override;
 
@@ -38,8 +37,6 @@ protected:
     // onDestroyContext().
     void destroyContext();
     virtual void onDestroyContext() = 0;
-
-    virtual void onSwapBuffers() = 0;
 
     sk_sp<const GrGLInterface> fBackendContext;
     sk_sp<SkSurface>           fSurface;

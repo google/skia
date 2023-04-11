@@ -26,7 +26,6 @@ public:
 
     bool onInitializeContext() override;
     void onDestroyContext() override;
-    void onSwapBuffers() override;
     void resize(int w, int h) override;
 
 private:
@@ -92,9 +91,6 @@ void GraphiteDawnMetalWindowContext_mac::onDestroyContext() {
     fMetalLayer = nil;
     fMainView.layer = nil;
     fMainView.wantsLayer = NO;
-}
-
-void GraphiteDawnMetalWindowContext_mac::onSwapBuffers() {
 }
 
 void GraphiteDawnMetalWindowContext_mac::resize(int w, int h) {

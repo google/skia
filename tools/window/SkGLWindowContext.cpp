@@ -78,10 +78,6 @@ sk_sp<SkSurface> SkGLWindowContext::getBackbufferSurface() {
     return fSurface;
 }
 
-void SkGLWindowContext::swapBuffers() {
-    this->onSwapBuffers();
-}
-
 void SkGLWindowContext::resize(int w, int h) {
     this->destroyContext();
     this->initializeContext();

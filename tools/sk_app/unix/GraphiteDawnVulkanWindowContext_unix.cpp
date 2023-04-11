@@ -22,7 +22,6 @@ public:
 
     bool onInitializeContext() override;
     void onDestroyContext() override;
-    void onSwapBuffers() override;
     void resize(int w, int h) override;
 
 private:
@@ -78,8 +77,6 @@ bool GraphiteDawnVulkanWindowContext_unix::onInitializeContext() {
 }
 
 void GraphiteDawnVulkanWindowContext_unix::onDestroyContext() {}
-
-void GraphiteDawnVulkanWindowContext_unix::onSwapBuffers() {}
 
 void GraphiteDawnVulkanWindowContext_unix::resize(int w, int h) {
     fSwapChain = this->createSwapChain();

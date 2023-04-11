@@ -18,7 +18,6 @@ public:
     ~DawnD3D12WindowContext() override;
     wgpu::Device onInitializeContext() override;
     void onDestroyContext() override;
-    void onSwapBuffers() override;
 private:
     HWND                 fWindow;
 };
@@ -51,9 +50,6 @@ wgpu::Device DawnD3D12WindowContext::onInitializeContext() {
 }
 
 void DawnD3D12WindowContext::onDestroyContext() {
-}
-
-void DawnD3D12WindowContext::onSwapBuffers() {
 }
 
 namespace window_context_factory {

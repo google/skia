@@ -25,8 +25,6 @@ public:
 
     ~GLWindowContext_mac() override;
 
-    void onSwapBuffers() override;
-
     sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
 
@@ -34,6 +32,7 @@ public:
 
 private:
     void teardownContext();
+    void onSwapBuffers() override;
 
     NSView*              fMainView;
     NSOpenGLContext*     fGLContext;

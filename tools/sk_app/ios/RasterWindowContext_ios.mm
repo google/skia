@@ -42,14 +42,14 @@ public:
 
     sk_sp<SkSurface> getBackbufferSurface() override;
 
-    void onSwapBuffers() override;
-
     sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
 
     void resize(int w, int h) override;
 
 private:
+    void onSwapBuffers() override;
+
     sk_app::Window_ios*  fWindow;
     UIViewController*    fViewController;
     RasterView*          fRasterView;

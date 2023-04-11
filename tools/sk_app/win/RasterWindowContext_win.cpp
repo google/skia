@@ -22,12 +22,13 @@ public:
     RasterWindowContext_win(HWND, const DisplayParams&);
 
     sk_sp<SkSurface> getBackbufferSurface() override;
-    void swapBuffers() override;
     bool isValid() override { return SkToBool(fWnd); }
     void resize(int w, int h) override;
     void setDisplayParams(const DisplayParams& params) override;
 
 protected:
+    void onSwapBuffers() override;
+
     SkAutoMalloc fSurfaceMemory;
     sk_sp<SkSurface> fBackbufferSurface;
     HWND fWnd;
@@ -71,7 +72,7 @@ void RasterWindowContext_win::resize(int w, int h) {
 
 sk_sp<SkSurface> RasterWindowContext_win::getBackbufferSurface() { return fBackbufferSurface; }
 
-void RasterWindowContext_win::swapBuffers() {
+void RasterWindowContext_win::onSwapBuffers() {
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(fSurfaceMemory.get());
     HDC dc = GetDC(fWnd);
     StretchDIBits(dc, 0, 0, fWidth, fHeight, 0, 0, fWidth, fHeight, bmpInfo->bmiColors, bmpInfo,

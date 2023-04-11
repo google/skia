@@ -532,7 +532,7 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
     return sk_ref_sp(surface);
 }
 
-void VulkanWindowContext::swapBuffers() {
+void VulkanWindowContext::onSwapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
     SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();

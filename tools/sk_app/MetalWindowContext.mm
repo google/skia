@@ -151,7 +151,7 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     return surface;
 }
 
-void MetalWindowContext::swapBuffers() {
+void MetalWindowContext::onSwapBuffers() {
     id<CAMetalDrawable> currentDrawable = (id<CAMetalDrawable>)fDrawableHandle;
 
     id<MTLCommandBuffer> commandBuffer([*fQueue commandBuffer]);

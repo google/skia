@@ -21,7 +21,6 @@ public:
     ~DawnVulkanWindowContext_xlib() override {}
     wgpu::Device onInitializeContext() override;
     void onDestroyContext() override {}
-    void onSwapBuffers() override {}
 
 private:
     Display*     fDisplay;
