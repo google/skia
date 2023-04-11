@@ -32,13 +32,28 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "no_jpeg_encode_srcs",
+    srcs = ["SkJpegEncoder_none.cpp"],
+)
+
+skia_filegroup(
     name = "png_encode_srcs",
     srcs = ["SkPngEncoder.cpp"],
 )
 
 skia_filegroup(
+    name = "no_png_encode_srcs",
+    srcs = ["SkPngEncoder_none.cpp"],
+)
+
+skia_filegroup(
     name = "webp_encode_srcs",
     srcs = ["SkWebpEncoder.cpp"],
+)
+
+skia_filegroup(
+    name = "no_webp_encode_srcs",
+    srcs = ["SkWebpEncoder_none.cpp"],
 )
 
 skia_filegroup(

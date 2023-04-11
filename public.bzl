@@ -1725,6 +1725,26 @@ BASE_SRCS_ALL = [
     "src/xps/SkXPSDocument.cpp",
 ]
 
+ENCODE_SRCS = []
+
+ENCODE_JPEG_SRCS = []
+
+NO_ENCODE_JPEG_SRCS = [
+    "src/encode/SkJpegEncoder_none.cpp",
+]
+
+ENCODE_PNG_SRCS = []
+
+NO_ENCODE_PNG_SRCS = [
+    "src/encode/SkPngEncoder_none.cpp",
+]
+
+ENCODE_WEBP_SRCS = []
+
+NO_ENCODE_WEBP_SRCS = [
+    "src/encode/SkWebpEncoder_none.cpp",
+]
+
 TEXTUAL_HDRS = [
     "src/sksl/generated/sksl_compute.minified.sksl",
     "src/sksl/generated/sksl_compute.unoptimized.sksl",
