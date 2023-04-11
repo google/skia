@@ -101,6 +101,14 @@ split_srcs_and_hdrs(
     files = DECODE_JPEG_FILES,
 )
 
+filegroup(
+    name = "jpeg_xmp",
+    srcs = [
+        "SkJpegXmp.cpp",
+        "SkJpegXmp.h",
+    ],
+)
+
 DECODE_PNG_FILES = [
     "SkEncodedInfo.cpp",
     "SkIcoCodec.cpp",

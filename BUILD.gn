@@ -1418,13 +1418,10 @@ optional("xml") {
   public_defines = [ "SK_XML" ]
 
   deps = [ "//third_party/expat" ]
-  sources = [
-    "src/svg/SkSVGCanvas.cpp",
-    "src/svg/SkSVGDevice.cpp",
-    "src/xml/SkDOM.cpp",
-    "src/xml/SkXMLParser.cpp",
-    "src/xml/SkXMLWriter.cpp",
-  ]
+  sources = skia_xml_sources + [
+              "src/svg/SkSVGCanvas.cpp",
+              "src/svg/SkSVGDevice.cpp",
+            ]
 }
 
 optional("skvm_jit") {

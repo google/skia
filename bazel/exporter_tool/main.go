@@ -31,6 +31,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/codec:decode_bmp_srcs",
 			},
 		},
+		{Var: "skia_codec_jpeg_xmp",
+			Rules: []string{
+				"//src/codec:jpeg_xmp",
+			},
+		},
 	}},
 	{GNI: "gn/core.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_core_public",
@@ -226,6 +231,13 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/xps:core_hdrs",
 				"//src/xps:core_srcs",
+			}}},
+	},
+	{GNI: "gn/xml.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_xml_sources",
+			Rules: []string{
+				"//src/xml:xml_hdrs",
+				"//src/xml:xml_srcs",
 			}}},
 	},
 	{GNI: "gn/gpu.gni", Vars: []exporter.GNIFileListExportDesc{
