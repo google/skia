@@ -8,12 +8,16 @@
 #ifndef SkWebpEncoder_DEFINED
 #define SkWebpEncoder_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h" // IWYU pragma: keep
 #include "include/encode/SkEncoder.h"
 #include "include/private/base/SkAPI.h"
 
 class SkPixmap;
 class SkWStream;
+class SkData;
+class GrDirectContext;
+class SkImage;
 struct skcms_ICCProfile;
 
 namespace SkWebpEncoder {
@@ -57,6 +61,16 @@ namespace SkWebpEncoder {
      *  Returns true on success.  Returns false on an invalid or unsupported |src|.
      */
     SK_API bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
+
+    /**
+     *  Encode the provided image and return the resulting bytes. If the image was created as
+     *  a texture-backed image on a GPU context, that |ctx| must be provided so the pixels
+     *  can be read before being encoded. For raster-backed images, |ctx| can be nullptr.
+     *  |options| may be used to control the encoding behavior.
+     *
+     *  Returns nullptr if the pixels could not be read or encoding otherwise fails.
+     */
+    SK_API sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& options);
 
     /**
      *  Encode the |src| frames to the |dst| stream.

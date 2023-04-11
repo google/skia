@@ -6,8 +6,10 @@ REG_FIDDLE(Image_DeferredFromEncodedData, 256, 256, false, 3) {
     void draw(SkCanvas * canvas) {
         int x = 0;
         for (int quality : {100, 50, 10, 1}) {
-            sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, quality);
-            sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(encodedData);
+            SkJpegEncoder::Options options;
+            options.fQuality = quality;
+            sk_sp<SkData> data(SkJpegEncoder::Encode(nullptr, image.get(), options));
+            sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(data);
             canvas->drawImage(image, x, 0);
             x += 64;
         }

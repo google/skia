@@ -10,6 +10,7 @@
 #ifdef SK_ENCODE_JPEG
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
@@ -28,6 +29,7 @@
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
 #include "src/encode/SkJPEGWriteUtility.h"
+#include "src/image/SkImage_Base.h"
 
 #include <csetjmp>
 #include <cstdint>
@@ -35,7 +37,9 @@
 #include <memory>
 #include <utility>
 
+class GrDirectContext;
 class SkColorSpace;
+class SkImage;
 
 extern "C" {
     #include "jpeglib.h"
@@ -414,6 +418,23 @@ bool SkJpegEncoder::Encode(SkWStream* dst,
                            const Options& options) {
     auto encoder = SkJpegEncoder::Make(dst, src, srcColorSpace, options);
     return encoder.get() && encoder->encodeRows(src.yuvaInfo().height());
+}
+
+sk_sp<SkData> SkJpegEncoder::Encode(GrDirectContext* ctx,
+                                    const SkImage* img,
+                                    const Options& options) {
+    if (!img) {
+        return nullptr;
+    }
+    SkBitmap bm;
+    if (!as_IB(img)->getROPixels(ctx, &bm)) {
+        return nullptr;
+    }
+    SkDynamicMemoryWStream stream;
+    if (Encode(&stream, bm.pixmap(), options)) {
+        return stream.detachAsData();
+    }
+    return nullptr;
 }
 
 #endif

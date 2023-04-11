@@ -22,6 +22,7 @@ static DEFINE_double(duration, 1.0,
 static DEFINE_double(frame, 1.0,
                      "A double value in [0, 1] that specifies the point in animation to draw.");
 
+#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -111,9 +112,9 @@ static void dump_output(const sk_sp<SkData>& data,
     }
 }
 
-static sk_sp<SkData> encode_snapshot(const sk_sp<SkSurface>& surface) {
+static sk_sp<SkData> encode_snapshot(GrDirectContext* ctx, const sk_sp<SkSurface>& surface) {
     sk_sp<SkImage> img(surface->makeImageSnapshot());
-    return img ? img->encodeToData() : nullptr;
+    return SkPngEncoder::Encode(ctx, img.get(), {});
 }
 
 static SkCanvas* prepare_canvas(SkCanvas * canvas) {
@@ -272,7 +273,7 @@ int main(int argc, char** argv) {
         auto rasterSurface = SkSurface::MakeRaster(info);
         srand(0);
         draw(prepare_canvas(rasterSurface->getCanvas()));
-        rasterData = encode_snapshot(rasterSurface);
+        rasterData = encode_snapshot(nullptr, rasterSurface);
     }
 #ifdef SK_GL
     if (options.gpu) {
@@ -293,7 +294,7 @@ int main(int argc, char** argv) {
             }
             srand(0);
             draw(prepare_canvas(surface->getCanvas()));
-            gpuData = encode_snapshot(surface);
+            gpuData = encode_snapshot(direct.get(), surface);
         }
     }
 #endif

@@ -8,6 +8,7 @@
 #ifndef SkJpegEncoder_DEFINED
 #define SkJpegEncoder_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/encode/SkEncoder.h"
 #include "include/private/base/SkAPI.h"
 
@@ -18,6 +19,8 @@ class SkData;
 class SkJpegEncoderMgr;
 class SkPixmap;
 class SkWStream;
+class SkImage;
+class GrDirectContext;
 class SkYUVAPixmaps;
 struct skcms_ICCProfile;
 
@@ -98,6 +101,16 @@ public:
                        const SkYUVAPixmaps& src,
                        const SkColorSpace* srcColorSpace,
                        const Options& options);
+
+    /**
+     *  Encode the provided image and return the resulting bytes. If the image was created as
+     *  a texture-backed image on a GPU context, that |ctx| must be provided so the pixels
+     *  can be read before being encoded. For raster-backed images, |ctx| can be nullptr.
+     *  |options| may be used to control the encoding behavior.
+     *
+     *  Returns nullptr if the pixels could not be read or encoding otherwise fails.
+     */
+    static sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& options);
 
     /**
      *  Create a jpeg encoder that will encode the |src| pixels to the |dst| stream.

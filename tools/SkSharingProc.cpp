@@ -13,6 +13,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
+#include "include/encode/SkPngEncoder.h"
 
 namespace {
     sk_sp<SkData> collectNonTextureImagesProc(SkImage* img, void* ctx) {
@@ -48,7 +49,7 @@ sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
         if (iter2 != context->fNonTexMap.end()) {
             img = iter2->second.get();
         }
-        return img->encodeToData();
+        return SkPngEncoder::Encode(nullptr, img, {});
     }
     uint32_t fid = context->fImageMap[id];
     // if present, return only the in-file id we registered the first time we serialized it.

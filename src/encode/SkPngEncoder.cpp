@@ -10,6 +10,7 @@
 #ifdef SK_ENCODE_PNG
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
@@ -29,6 +30,7 @@
 #include "src/codec/SkPngPriv.h"
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
+#include "src/image/SkImage_Base.h"
 
 #include <algorithm>
 #include <csetjmp>
@@ -40,6 +42,9 @@
 
 #include <png.h>
 #include <pngconf.h>
+
+class GrDirectContext;
+class SkImage;
 
 static_assert(PNG_FILTER_NONE  == (int)SkPngEncoder::FilterFlag::kNone,  "Skia libpng filter err.");
 static_assert(PNG_FILTER_SUB   == (int)SkPngEncoder::FilterFlag::kSub,   "Skia libpng filter err.");
@@ -488,6 +493,23 @@ bool SkPngEncoder::onEncodeRows(int numRows) {
 bool SkPngEncoder::Encode(SkWStream* dst, const SkPixmap& src, const Options& options) {
     auto encoder = SkPngEncoder::Make(dst, src, options);
     return encoder.get() && encoder->encodeRows(src.height());
+}
+
+sk_sp<SkData> SkPngEncoder::Encode(GrDirectContext* ctx,
+                                   const SkImage* img,
+                                   const Options& options) {
+    if (!img) {
+        return nullptr;
+    }
+    SkBitmap bm;
+    if (!as_IB(img)->getROPixels(ctx, &bm)) {
+        return nullptr;
+    }
+    SkDynamicMemoryWStream stream;
+    if (Encode(&stream, bm.pixmap(), options)) {
+        return stream.detachAsData();
+    }
+    return nullptr;
 }
 
 #endif

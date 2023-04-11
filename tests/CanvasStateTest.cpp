@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDataTable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
@@ -25,6 +26,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/utils/SkCanvasStateUtils.h"
@@ -91,7 +93,7 @@ private:
 #endif
 
 static void write_image(const SkImage* img, const char path[]) {
-    auto data = img->encodeToData();
+    auto data = SkPngEncoder::Encode(nullptr, img, {});
     SkFILEWStream(path).write(data->data(), data->size());
 }
 

@@ -29,6 +29,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkMalloc.h"
@@ -252,7 +253,7 @@ static sk_sp<SkImage> make_codec(const SkImageInfo& info,
                                  GrRecordingContext*,
                                  void (*draw)(SkCanvas*)) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw));
-    return SkImages::DeferredFromEncodedData(image->encodeToData());
+    return SkImages::DeferredFromEncodedData(SkPngEncoder::Encode(nullptr, image.get(), {}));
 }
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info,

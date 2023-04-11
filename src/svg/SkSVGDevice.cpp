@@ -14,6 +14,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDataTable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkImage.h"
@@ -38,6 +39,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTPin.h"
@@ -69,10 +71,6 @@ class SkMesh;
 class SkBlender;
 class SkVertices;
 struct SkSamplingOptions;
-
-#ifdef SK_CODEC_DECODES_JPEG
-#include "src/codec/SkJpegCodec.h"
-#endif
 
 namespace {
 
@@ -502,44 +500,49 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
     resources->fColorFilter.printf("url(#%s)", colorfilterID.c_str());
 }
 
-namespace {
-bool is_png(const void* bytes, size_t length) {
-    constexpr uint8_t kPngSig[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
-    return length >= sizeof(kPngSig) && !memcmp(bytes, kPngSig, sizeof(kPngSig));
+static bool is_png(const void* bytes, size_t length) {
+    static constexpr uint8_t pngSig[] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    return length >= sizeof(pngSig) && !memcmp(bytes, pngSig, sizeof(pngSig));
 }
-}  // namespace
+
+static bool is_jpeg(const void* bytes, size_t length) {
+    static constexpr uint8_t jpegSig[] = {0xFF, 0xD8, 0xFF};
+    return length >= sizeof(jpegSig) && !memcmp(bytes, jpegSig, sizeof(jpegSig));
+}
 
 // Returns data uri from bytes.
 // it will use any cached data if available, otherwise will
 // encode as png.
 sk_sp<SkData> AsDataUri(SkImage* image) {
-    sk_sp<SkData> imageData = image->encodeToData();
-    if (!imageData) {
-        return nullptr;
-    }
+    static constexpr char jpgDataPrefix[] = "data:image/jpeg;base64,";
+    static constexpr char pngDataPrefix[] = "data:image/png;base64,";
 
-    const char* selectedPrefix = nullptr;
-    size_t selectedPrefixLength = 0;
+    SkASSERT(!image->isTextureBacked());
 
-#ifdef SK_CODEC_DECODES_JPEG
-    if (SkJpegCodec::IsJpeg(imageData->data(), imageData->size())) {
-        const static char jpgDataPrefix[] = "data:image/jpeg;base64,";
-        selectedPrefix = jpgDataPrefix;
-        selectedPrefixLength = sizeof(jpgDataPrefix);
-    }
-    else
-#endif
-    {
-        if (!is_png(imageData->data(), imageData->size())) {
-#ifdef SK_ENCODE_PNG
-            imageData = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
-#else
-            return nullptr;
-#endif
+    const char* selectedPrefix = pngDataPrefix;
+    size_t selectedPrefixLength = sizeof(pngDataPrefix);
+
+    sk_sp<SkData> imageData = image->refEncodedData();
+    if (imageData) {  // Already encoded as something
+        if (is_jpeg(imageData->data(), imageData->size())) {
+            selectedPrefix = jpgDataPrefix;
+            selectedPrefixLength = sizeof(jpgDataPrefix);
+        } else if (!is_png(imageData->data(), imageData->size())) {
+            // re-encode the image as a PNG.
+            // GrDirectContext is nullptr because we shouldn't have any texture-based images
+            // passed in.
+            imageData = SkPngEncoder::Encode(nullptr, image, {});
+            if (!imageData) {
+                return nullptr;
+            }
         }
-        const static char pngDataPrefix[] = "data:image/png;base64,";
-        selectedPrefix = pngDataPrefix;
-        selectedPrefixLength = sizeof(pngDataPrefix);
+        // else, it's already encoded as a PNG - we don't need to do anything.
+    } else {
+        // It was not encoded as something, so we need to encode it as a PNG.
+        imageData = SkPngEncoder::Encode(nullptr, image, {});
+        if (!imageData) {
+            return nullptr;
+        }
     }
 
     size_t b64Size = SkBase64::Encode(imageData->data(), imageData->size(), nullptr);

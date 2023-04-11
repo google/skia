@@ -15,6 +15,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/encode/SkWebpEncoder.h"
 #include "tools/Resources.h"
 
 namespace skiagm {
@@ -130,10 +131,24 @@ protected:
 
         for (SkAlphaType alphaType : alphaTypes) {
             auto src = make_image(colorType, alphaType);
-            auto decoded =
-                    src ? SkImages::DeferredFromEncodedData(src->encodeToData(fFormat, fQuality))
-                        : nullptr;
-            if (!src || !decoded) {
+            if (!src) {
+                break;
+            }
+            SkASSERT_RELEASE(fFormat == SkEncodedImageFormat::kWEBP);
+            SkWebpEncoder::Options options;
+            if (fQuality < 100) {
+                options.fCompression = SkWebpEncoder::Compression::kLossy;
+                options.fQuality = fQuality;
+            } else {
+                options.fCompression = SkWebpEncoder::Compression::kLossless;
+                // in lossless mode, this is effort. 70 is the default effort in SkImageEncoder,
+                // which follows Blink and WebPConfigInit.
+                options.fQuality = 70;
+            }
+            auto data = SkWebpEncoder::Encode(nullptr, src.get(), options);
+            SkASSERT(data);
+            auto decoded = SkImages::DeferredFromEncodedData(data);
+            if (!decoded) {
                 break;
             }
 

@@ -15,6 +15,9 @@
 
 #include <memory>
 
+class GrDirectContext;
+class SkData;
+class SkImage;
 class SkPixmap;
 class SkPngEncoderMgr;
 class SkWStream;
@@ -84,6 +87,16 @@ public:
      *  Returns true on success.  Returns false on an invalid or unsupported |src|.
      */
     static bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
+
+    /**
+     *  Encode the provided image and return the resulting bytes. If the image was created as
+     *  a texture-backed image on a GPU context, that |ctx| must be provided so the pixels
+     *  can be read before being encoded. For raster-backed images, |ctx| can be nullptr.
+     *  |options| may be used to control the encoding behavior.
+     *
+     *  Returns nullptr if the pixels could not be read or encoding otherwise fails.
+     */
+    static sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& options);
 
     /**
      *  Create a png encoder that will encode the |src| pixels to the |dst| stream.

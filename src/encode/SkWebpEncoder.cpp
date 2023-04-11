@@ -24,10 +24,14 @@
 #include "src/core/SkImageInfoPriv.h"
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
+#include "src/image/SkImage_Base.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+
+class GrDirectContext;
+class SkImage;
 
 // A WebP encoder only, on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
@@ -244,6 +248,23 @@ bool SkWebpEncoder::EncodeAnimated(SkWStream* stream,
     enc.reset();
 
     return stream->write(assembled.bytes, assembled.size);
+}
+
+sk_sp<SkData> SkWebpEncoder::Encode(GrDirectContext* ctx,
+                                    const SkImage* img,
+                                    const Options& options) {
+    if (!img) {
+        return nullptr;
+    }
+    SkBitmap bm;
+    if (!as_IB(img)->getROPixels(ctx, &bm)) {
+        return nullptr;
+    }
+    SkDynamicMemoryWStream stream;
+    if (Encode(&stream, bm.pixmap(), options)) {
+        return stream.detachAsData();
+    }
+    return nullptr;
 }
 
 #endif

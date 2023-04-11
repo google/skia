@@ -15,6 +15,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDataTable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
@@ -34,6 +35,7 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
@@ -214,7 +216,7 @@ static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext,
 
 static void test_encode(skiatest::Reporter* reporter, GrDirectContext* dContext, SkImage* image) {
     const SkIRect ir = SkIRect::MakeXYWH(5, 5, 10, 10);
-    sk_sp<SkData> origEncoded = image->encodeToData();
+    sk_sp<SkData> origEncoded = SkPngEncoder::Encode(dContext, image, {});
     REPORTER_ASSERT(reporter, origEncoded);
     REPORTER_ASSERT(reporter, origEncoded->size() > 0);
 
@@ -1400,7 +1402,7 @@ DEF_TEST(image_roundtrip_encode, reporter) {
     make_all_premul(&bm0);
 
     auto img0 = bm0.asImage();
-    sk_sp<SkData> data = img0->encodeToData(SkEncodedImageFormat::kPNG, 100);
+    sk_sp<SkData> data = SkPngEncoder::Encode(nullptr, img0.get(), {});
     auto img1 = SkImages::DeferredFromEncodedData(data);
 
     SkBitmap bm1;
@@ -1485,7 +1487,7 @@ DEF_TEST(ImageScalePixels, reporter) {
     test_scale_pixels(reporter, rasterImage.get(), pmRed);
 
     // Test encoded image
-    sk_sp<SkData> data = rasterImage->encodeToData();
+    sk_sp<SkData> data = SkPngEncoder::Encode(nullptr, rasterImage.get(), {});
     sk_sp<SkImage> codecImage = SkImages::DeferredFromEncodedData(data);
     test_scale_pixels(reporter, codecImage.get(), pmRed);
 }
@@ -1657,7 +1659,7 @@ DEF_TEST(image_subset_encode_skbug_7752, reporter) {
     const int H = image->height();
 
     auto check_roundtrip = [&](sk_sp<SkImage> img) {
-        auto img2 = SkImages::DeferredFromEncodedData(img->encodeToData());
+        auto img2 = SkImages::DeferredFromEncodedData(SkPngEncoder::Encode(nullptr, img.get(), {}));
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), img2.get()));
     };
     check_roundtrip(image); // should trivially pass

@@ -25,6 +25,9 @@ Milestone 114
     JPEG, and WEBP format. Skia continues to support use of the NDK codecs on Android, as well
     as using external C++ libraries (e.g. libpng, libjpeg-turbo) to *encode* images. WIC and CG
     are still used to *decode* images on the appropriate platforms.
+  * `SkImage::encodeToData` has been deprecated. Clients should use `refEncodedData` if the image
+    was from an encoded bytestream or one of `SkPngEncoder::Encode`, `SkJpegEncoder::Encode`,
+    `SkWebpEncoder::Encode` directly.
 
 * * *
 

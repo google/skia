@@ -664,6 +664,7 @@ public:
     bool scalePixels(const SkPixmap& dst, const SkSamplingOptions&,
                      CachingHint cachingHint = kAllow_CachingHint) const;
 
+#if !defined(SK_DISABLE_LEGACY_IMAGE_ENCODE_METHODS)
     /** Encodes SkImage pixels, returning result as SkData.
 
         Returns nullptr if encoding fails, or if encodedImageFormat is not supported.
@@ -680,6 +681,9 @@ public:
         error. When used, quality equaling 100 encodes with the least error. quality may
         be ignored by the encoder.
 
+       DEPRECATED: Use SkPngEncoder::Encode, SkJpegEncoder::Encode, or SkWebpEncoder::Encode
+                   directly instead.
+
         @param context             the GrDirectContext in play, if it exists; can be nullptr
         @param encodedImageFormat  one of: SkEncodedImageFormat::kJPEG, SkEncodedImageFormat::kPNG,
                                    SkEncodedImageFormat::kWEBP
@@ -691,10 +695,7 @@ public:
     sk_sp<SkData> encodeToData(GrDirectContext* context,
                                SkEncodedImageFormat encodedImageFormat,
                                int quality) const;
-#ifndef SK_IMAGE_READ_PIXELS_DISABLE_LEGACY_API
-    // Deprecated, use above version instead
     sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const;
-#endif
 
     /** Encodes SkImage pixels, returning result as SkData. Returns existing encoded data
         if present; otherwise, SkImage is encoded with SkEncodedImageFormat::kPNG. Skia
@@ -703,13 +704,13 @@ public:
         Returns nullptr if existing encoded data is missing or invalid, and
         encoding fails.
 
+        DEPRECATED: Use SkImage::refEncodedData and/or SkPngEncoder::Encode directly instead.
+
         @return  encoded SkImage, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_encodeToData_2
     */
     sk_sp<SkData> encodeToData(GrDirectContext* context) const;
-#ifndef SK_IMAGE_READ_PIXELS_DISABLE_LEGACY_API
-    // Deprecated, use above version instead
     sk_sp<SkData> encodeToData() const;
 #endif
 

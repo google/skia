@@ -10,11 +10,13 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 
 static void write_png(const char* path, sk_sp<SkImage> img) {
-    sk_sp<SkData>  png = img->encodeToData();
+    sk_sp<SkData> png = SkPngEncoder::Encode(nullptr, img.get(), {});
+    SkASSERT(png);
     SkFILEWStream(path).write(png->data(), png->size());
 }
 

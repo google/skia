@@ -8,6 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkTextBlobTrace.h"
@@ -82,9 +83,12 @@ int main(int argc, char** argv) {
         }
 
         sk_sp<SkImage> img(surf->makeImageSnapshot());
-        if (sk_sp<SkData> png = img ? img->encodeToData() : nullptr) {
-            SkString path = SkStringPrintf("text_blob_trace_%04d.png", i);
-            SkFILEWStream(path.c_str()).write(png->data(), png->size());
+        if (img) {
+            sk_sp<SkData> png = SkPngEncoder::Encode(nullptr, img.get(), {});
+            if (png) {
+                SkString path = SkStringPrintf("text_blob_trace_%04d.png", i);
+                SkFILEWStream(path.c_str()).write(png->data(), png->size());
+            }
         }
     }
     return 0;
