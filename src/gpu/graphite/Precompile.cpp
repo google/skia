@@ -157,9 +157,9 @@ void PaintOptions::buildCombinations(
 
         // The 'findOrCreate' calls lockAsKey on builder and then destroys the returned
         // PaintParamsKey. This serves to reset the builder.
-        auto entry = keyContext.dict()->findOrCreate(&builder);
+        UniquePaintParamsID paintID = keyContext.dict()->findOrCreate(&builder);
 
-        processCombination(entry->uniqueID());
+        processCombination(paintID);
     }
 }
 

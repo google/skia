@@ -194,56 +194,37 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
     return preamble + "\n" + mainBody;
 }
 
-size_t ShaderCodeDictionary::PaintParamsKeyPtr::Hash::operator()(PaintParamsKeyPtr p) const {
-    return SkOpts::hash_fn(p.fKey->data(), p.fKey->sizeInBytes(), 0);
-}
-
-size_t ShaderCodeDictionary::RuntimeEffectKey::Hash::operator()(RuntimeEffectKey k) const {
-    return SkOpts::hash_fn(&k, sizeof(k), 0);
-}
-
-const ShaderCodeDictionary::Entry* ShaderCodeDictionary::findOrCreate(
-        PaintParamsKeyBuilder* builder) {
-    if (!builder->isValid()) {
-        builder->discard();
-        return nullptr;
+UniquePaintParamsID ShaderCodeDictionary::findOrCreate(PaintParamsKeyBuilder* builder) {
+    AutoLockBuilderAsKey keyView{builder};
+    if (!keyView->isValid()) {
+        return UniquePaintParamsID::InvalidID();
     }
-
-    PaintParamsKey key = builder->lockAsKey();
 
     SkAutoSpinlock lock{fSpinLock};
 
-    Entry** existingEntry = fHash.find(PaintParamsKeyPtr{&key});
+    UniquePaintParamsID* existingEntry = fPaintKeyToID.find(*keyView);
     if (existingEntry) {
-        SkASSERT(fEntryVector[(*existingEntry)->uniqueID().asUInt()] == *existingEntry);
+        SkASSERT(fIDToPaintKey[(*existingEntry).asUInt()] == *keyView);
         return *existingEntry;
     }
 
-    uint32_t newID = fEntryVector.size();
-    uint8_t* newKeyData = fArena.makeArrayDefault<uint8_t>(key.sizeInBytes());
-    memcpy(newKeyData, key.data(), key.sizeInBytes());
+    // Detach from the builder and copy into the arena
+    PaintParamsKey key = keyView->clone(&fArena);
+    UniquePaintParamsID newID{SkTo<uint32_t>(fIDToPaintKey.size())};
 
-    PaintParamsKey newKey{{newKeyData, key.sizeInBytes()}};
-    Entry* newEntry = fArena.make([&](void *ptr) { return new(ptr) Entry(newKey, newID); });
-
-    fHash.set(PaintParamsKeyPtr{&newEntry->paintParamsKey()}, newEntry);
-    fEntryVector.push_back(newEntry);
-
-    return newEntry;
+    fPaintKeyToID.set(key, newID);
+    fIDToPaintKey.push_back(key);
+    return newID;
 }
 
-const ShaderCodeDictionary::Entry* ShaderCodeDictionary::lookup(
-        UniquePaintParamsID codeID) const {
-
+PaintParamsKey ShaderCodeDictionary::lookup(UniquePaintParamsID codeID) const {
     if (!codeID.isValid()) {
-        return nullptr;
+        return PaintParamsKey::Invalid();
     }
 
     SkAutoSpinlock lock{fSpinLock};
-
-    SkASSERT(codeID.asUInt() < fEntryVector.size());
-
-    return fEntryVector[codeID.asUInt()];
+    SkASSERT(codeID.asUInt() < SkTo<uint32_t>(fIDToPaintKey.size()));
+    return fIDToPaintKey[codeID.asUInt()];
 }
 
 SkSpan<const Uniform> ShaderCodeDictionary::getUniforms(BuiltInCodeSnippetID id) const {
@@ -269,9 +250,8 @@ const ShaderSnippet* ShaderCodeDictionary::getEntry(int codeSnippetID) const {
 
 void ShaderCodeDictionary::getShaderInfo(UniquePaintParamsID uniqueID,
                                          ShaderInfo* info) const {
-    auto entry = this->lookup(uniqueID);
-
-    entry->paintParamsKey().toShaderInfo(this, info);
+    PaintParamsKey key = this->lookup(uniqueID);
+    return key.toShaderInfo(this, info);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1220,7 +1200,7 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
 
 ShaderCodeDictionary::ShaderCodeDictionary() {
     // The 0th index is reserved as invalid
-    fEntryVector.push_back(nullptr);
+    fIDToPaintKey.push_back(PaintParamsKey::Invalid());
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kError] = {
             "Error",

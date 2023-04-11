@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 
 
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -16,13 +17,17 @@ using namespace skgpu::graphite;
 
 namespace {
 
-PaintParamsKey create_key(PaintParamsKeyBuilder* builder, int snippetID) {
-    SkDEBUGCODE(builder->checkReset());
-
+void add_block(PaintParamsKeyBuilder* builder, int snippetID) {
     builder->beginBlock(snippetID);
     builder->endBlock();
+}
 
-    return builder->lockAsKey();
+PaintParamsKey create_key(const ShaderCodeDictionary* dict, int snippetID, SkArenaAlloc* arena) {
+    PaintParamsKeyBuilder builder{dict};
+    add_block(&builder, snippetID);
+
+    AutoLockBuilderAsKey keyView{&builder};
+    return keyView->clone(arena);
 }
 
 bool coeff_equal(SkBlendModeCoeff skCoeff, skgpu::BlendCoeff gpuCoeff) {
@@ -46,25 +51,31 @@ bool coeff_equal(SkBlendModeCoeff skCoeff, skgpu::BlendCoeff gpuCoeff) {
 // These are intended to be unit tests of the PaintParamsKeyBuilder and PaintParamsKey.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, context) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-    PaintParamsKeyBuilder builder(dict);
 
-    // Invalid code snippet ID, key creation fails.
-    PaintParamsKey key = create_key(&builder, kBuiltInCodeSnippetIDCount);
-    REPORTER_ASSERT(reporter, key.isErrorKey());
+    // A builder without any data is invalid. The Builder and the PaintParamKeys can include
+    // invalid IDs without themselves becoming invalid. Normally adding an invalid ID triggers an
+    // assert in debug builds, since the properly functioning key system should never encounter an
+    // invalid ID. However, if the program gets in a malformed state on release builds, the key
+    // could contain an invalid ID. In that case the invalid snippet IDs are detected when
+    // reconstructing the key into an effect tree for SkSL generation.
+    // TODO: Manually construct an invalid span and test that it returns a null ShaderNode tree
+    // as part of the follow-up CL that replaces BlockReaders with ShaderNodes.
+    PaintParamsKeyBuilder builder(dict);
+    AutoLockBuilderAsKey keyView{&builder};
+    REPORTER_ASSERT(reporter, !keyView->isValid());
+    REPORTER_ASSERT(reporter, !PaintParamsKey::Invalid().isValid());
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
+    SkArenaAlloc arena{256};
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     int userSnippetID1 = dict->addUserDefinedSnippet("key1");
     int userSnippetID2 = dict->addUserDefinedSnippet("key2");
 
-    PaintParamsKeyBuilder builderA(dict);
-    PaintParamsKeyBuilder builderB(dict);
-    PaintParamsKeyBuilder builderC(dict);
-    PaintParamsKey keyA = create_key(&builderA, userSnippetID1);
-    PaintParamsKey keyB = create_key(&builderB, userSnippetID1);
-    PaintParamsKey keyC = create_key(&builderC, userSnippetID2);
+    PaintParamsKey keyA = create_key(dict, userSnippetID1, &arena);
+    PaintParamsKey keyB = create_key(dict, userSnippetID1, &arena);
+    PaintParamsKey keyC = create_key(dict, userSnippetID2, &arena);
 
     // Verify that keyA matches keyB, and that it does not match keyC.
     REPORTER_ASSERT(reporter, keyA == keyB);
@@ -78,10 +89,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeySetsBlendInfoOnShaderInfo, reporter, conte
 
     for (int bm = 0; bm <= (int) SkBlendMode::kLastCoeffMode; ++bm) {
         PaintParamsKeyBuilder builder(dict);
-        PaintParamsKey key = create_key(&builder, bm + kFixedFunctionBlendModeIDOffset);
+        add_block(&builder, bm + kFixedFunctionBlendModeIDOffset);
+
+        AutoLockBuilderAsKey keyView{&builder};
 
         ShaderInfo shaderInfo;
-        key.toShaderInfo(dict, &shaderInfo);
+        keyView->toShaderInfo(dict, &shaderInfo);
 
         SkBlendModeCoeff expectedSrc, expectedDst;
         REPORTER_ASSERT(reporter, SkBlendMode_AsCoeff(static_cast<SkBlendMode>(bm),

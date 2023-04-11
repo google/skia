@@ -7,185 +7,99 @@
 
 #include "src/gpu/graphite/PaintParamsKey.h"
 
-#include <cstring>
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu::graphite {
 
 //--------------------------------------------------------------------------------------------------
-static PaintParamsKey::Header read_header(SkSpan<const uint8_t> parentSpan, int headerOffset) {
-    SkASSERT(headerOffset + sizeof(PaintParamsKey::Header) <= parentSpan.size());
-
-    PaintParamsKey::Header header;
-    memcpy(&header, &parentSpan[headerOffset], sizeof(PaintParamsKey::Header));
-    SkASSERT(header.blockSize >= sizeof(PaintParamsKey::Header));
-    SkASSERT(headerOffset + header.blockSize <= static_cast<int>(parentSpan.size()));
-
-    return header;
-}
-
-//--------------------------------------------------------------------------------------------------
-PaintParamsKeyBuilder::PaintParamsKeyBuilder(const ShaderCodeDictionary* dict)
-        : fDict(dict) {}
+// PaintParamsKeyBuilder
 
 #ifdef SK_DEBUG
+
 void PaintParamsKeyBuilder::checkReset() {
-    SkASSERT(!this->isLocked());
-    SkASSERT(this->sizeInBytes() == 0);
-    SkASSERT(fIsValid);
+    SkASSERT(!fLocked);
+    SkASSERT(fData.empty());
     SkASSERT(fStack.empty());
 }
-#endif
+void PaintParamsKeyBuilder::pushStack(int32_t codeSnippetID) {
+    SkASSERT(fDict->isValidID(codeSnippetID));
 
-// Block headers have the following structure:
-//   4 bytes: code-snippet ID
-//   1 byte: size of the block, in bytes (header, plus all data payload bytes)
-// This call stores the header's offset in the key on the stack to be used in 'endBlock'
-void PaintParamsKeyBuilder::beginBlock(int32_t codeSnippetID) {
-    if (!this->isValid()) {
-        return;
-    }
-
-    if (!fDict->isValidID(codeSnippetID)) {
-        // SKGPU_LOG_W("Unknown code snippet ID.");
-        this->makeInvalid();
-        return;
-    }
-
-#ifdef SK_DEBUG
     if (!fStack.empty()) {
-        // The children of a block should appear before any of the parent's data
         fStack.back().fNumActualChildren++;
+        SkASSERT(fStack.back().fNumActualChildren <= fStack.back().fNumExpectedChildren);
     }
-#endif
 
-    SkASSERT(!this->isLocked());
-
-    fStack.push_back({ codeSnippetID, this->sizeInBytes() });
-
-    memcpy(fData.append(sizeof(int32_t)), &codeSnippetID, sizeof(int32_t));
-    fData.push_back(0); // block size, this will be filled in when endBlock is called
-
-#ifdef SK_DEBUG
     const ShaderSnippet* snippet = fDict->getEntry(codeSnippetID);
-
-    fStack.back().fNumExpectedChildren = snippet->fNumChildren;
-    fStack.back().fNumActualChildren = 0;
-#endif
+    fStack.push_back({codeSnippetID, snippet->fNumChildren});
 }
 
-// Update the size byte of a block header
-void PaintParamsKeyBuilder::endBlock() {
-    if (!this->isValid()) {
-        return;
-    }
-
-    if (fStack.empty()) {
-        // SKGPU_LOG_W("Mismatched beginBlock/endBlocks.");
-        this->makeInvalid();
-        return;
-    }
-
-    // All the expected fields should be filled in at this point
+void PaintParamsKeyBuilder::popStack() {
+    SkASSERT(!fStack.empty());
     SkASSERT(fStack.back().fNumActualChildren == fStack.back().fNumExpectedChildren);
-    SkASSERT(!this->isLocked());
-
-    int headerOffset = fStack.back().fHeaderOffset;
-
-#ifdef SK_DEBUG
-    // We don't use `read_header` here because the header block size isn't valid yet.
-    PaintParamsKey::Header header;
-    memcpy(&header, &fData[headerOffset], sizeof(PaintParamsKey::Header));
-    SkASSERT(header.codeSnippetID == fStack.back().fCodeSnippetID);
-    SkASSERT(header.blockSize == 0);
-#endif
-
-    int blockSize = this->sizeInBytes() - headerOffset;
-    if (blockSize > PaintParamsKey::kMaxBlockSize) {
-        // SKGPU_LOG_W("Key's data payload is too large.");
-        this->makeInvalid();
-        return;
-    }
-
-    fData[headerOffset + PaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
-
     fStack.pop_back();
 }
 
-PaintParamsKey PaintParamsKeyBuilder::lockAsKey() {
-    if (!fStack.empty()) {
-        // SKGPU_LOG_W("Mismatched beginBlock/endBlocks.");
-        this->makeInvalid();  // fall through
-    }
-
-    SkASSERT(!this->isLocked());
-
-    // Partially reset for reuse. Note that the key resulting from this call will be holding a lock
-    // on this builder and must be deleted before this builder is fully reset.
-    fIsValid = true;
-    fStack.clear();
-
-    return PaintParamsKey(SkSpan(fData.begin(), fData.size()), this);
-}
-
-void PaintParamsKeyBuilder::makeInvalid() {
-    SkASSERT(fIsValid);
-    SkASSERT(!this->isLocked());
-
-    fStack.clear();
-    fData.clear();
-    this->beginBlock(BuiltInCodeSnippetID::kError);
-    this->endBlock();
-
-    SkASSERT(fIsValid);
-    fIsValid = false;
-}
+#endif // SK_DEBUG
 
 //--------------------------------------------------------------------------------------------------
-PaintParamsKey::PaintParamsKey(SkSpan<const uint8_t> span,
-                               PaintParamsKeyBuilder* originatingBuilder)
-        : fData(span)
-        , fOriginatingBuilder(originatingBuilder) {
-    fOriginatingBuilder->lock();
-}
-
-PaintParamsKey::PaintParamsKey(SkSpan<const uint8_t> rawData)
-        : fData(rawData)
-        , fOriginatingBuilder(nullptr) {
-}
-
-PaintParamsKey::~PaintParamsKey() {
-    if (fOriginatingBuilder) {
-        fOriginatingBuilder->unlock();
-    }
-}
-
-bool PaintParamsKey::operator==(const PaintParamsKey& that) const {
-    return fData.size() == that.fData.size() &&
-           !memcmp(fData.data(), that.fData.data(), fData.size());
-}
+// PaintParamsKey
 
 PaintParamsKey::BlockReader PaintParamsKey::reader(const ShaderCodeDictionary* dict,
                                                    int headerOffset) const {
     return BlockReader(dict, fData, headerOffset);
 }
 
+PaintParamsKey PaintParamsKey::clone(SkArenaAlloc* arena) const {
+    int32_t* newData = arena->makeArrayDefault<int32_t>(fData.size());
+    memcpy(newData, fData.data(), fData.size_bytes());
+    return PaintParamsKey({newData, fData.size()});
+}
+
 #ifdef SK_DEBUG
 
 // This just iterates over the top-level blocks calling block-specific dump methods.
 void PaintParamsKey::dump(const ShaderCodeDictionary* dict) const {
+    const int size = SkTo<int>(fData.size());
     SkDebugf("--------------------------------------\n");
-    SkDebugf("PaintParamsKey (%dB):\n", this->sizeInBytes());
+    SkDebugf("PaintParamsKey (%d):\n", size);
 
     int curHeaderOffset = 0;
-    while (curHeaderOffset < this->sizeInBytes()) {
+    while (curHeaderOffset < size) {
         BlockReader reader = this->reader(dict, curHeaderOffset);
         reader.dump(dict, /*indent=*/0);
         curHeaderOffset += reader.blockSize();
     }
 }
 #endif // SK_DEBUG
+
+namespace {
+
+// TODO: This is inefficient but lets us reconstruct the BlockReaders without storing the size in
+// the key. In a follow-up CL, BlockReader will be removed and a ShaderNode tree will be constructed
+// once for a key during SkSL generation that has more conventional access patterns. Then this
+// helper will go away entirely because the entire tree can be created in a single key traversal.
+int skip_children_offset(const ShaderCodeDictionary* dict,
+                         SkSpan<const int32_t> keySpan,
+                         int firstChildOffset,
+                         int numChildrenToSkip) {
+    // Should only be called for snippets/blocks that have children to advance over
+    SkASSERT(!keySpan.empty());
+
+    int offset = firstChildOffset;
+    for (int i = 0; i < numChildrenToSkip; ++i) {
+        // Always advance 1 over the code snippet ID for the child
+        int32_t childID = keySpan[offset++];
+        const ShaderSnippet* entry = dict->getEntry(childID);
+        SkASSERT(entry);
+
+        if (entry->fNumChildren > 0) {
+            offset += skip_children_offset(dict, keySpan, offset, entry->fNumChildren);
+        }
+    }
+    return offset - firstChildOffset;
+}
 
 constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
                                                  skgpu::BlendCoeff dstCoeff) {
@@ -215,9 +129,9 @@ static constexpr skgpu::BlendInfo gBlendTable[kNumCoeffModes] = {
         /* screen */     make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC)
 };
 
-static void add_block_to_shader_info(const ShaderCodeDictionary* dict,
-                                     const PaintParamsKey::BlockReader& reader,
-                                     ShaderInfo* result) {
+void add_block_to_shader_info(const ShaderCodeDictionary* dict,
+                              const PaintParamsKey::BlockReader& reader,
+                              ShaderInfo* result) {
     result->add(reader);
     result->addFlags(dict->getEntry(reader.codeSnippetId())->fSnippetRequirementFlags);
 
@@ -240,37 +154,37 @@ static void add_block_to_shader_info(const ShaderCodeDictionary* dict,
     }
 }
 
+} // anonymous
+
 void PaintParamsKey::toShaderInfo(const ShaderCodeDictionary* dict,
                                   ShaderInfo* result) const {
+    const int size = SkTo<int>(fData.size());
     int curHeaderOffset = 0;
-    while (curHeaderOffset < this->sizeInBytes()) {
+    while (curHeaderOffset < size) {
         BlockReader reader = this->reader(dict, curHeaderOffset);
         add_block_to_shader_info(dict, reader, result);
         curHeaderOffset += reader.blockSize();
     }
 }
 
-#if GRAPHITE_TEST_UTILS
-bool PaintParamsKey::isErrorKey() const {
-    if (this->sizeInBytes() != sizeof(Header)) {
-        return false;
-    }
-    Header header = read_header(this->asSpan(), /*headerOffset=*/0);
-    return header.codeSnippetID == (int32_t) BuiltInCodeSnippetID::kError &&
-           header.blockSize == sizeof(Header);
-}
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PaintParamsKey::BlockReader::BlockReader(const ShaderCodeDictionary* dict,
-                                         SkSpan<const uint8_t> parentSpan,
+                                         SkSpan<const int32_t> parentSpan,
                                          int offsetInParent) {
-    Header header = read_header(parentSpan, offsetInParent);
-
-    fBlock = parentSpan.subspan(offsetInParent, header.blockSize);
-    fEntry = dict->getEntry(header.codeSnippetID);
+    int32_t codeSnippetID = parentSpan[offsetInParent];
+    fEntry = dict->getEntry(codeSnippetID);
     SkASSERT(fEntry);
+
+    int blockSize = 1; // always at least 1 for the block's ID
+    if (fEntry->fNumChildren > 0) {
+        blockSize += skip_children_offset(dict,
+                                          parentSpan,
+                                          offsetInParent + 1,
+                                          fEntry->fNumChildren);
+    }
+
+    fBlock = parentSpan.subspan(offsetInParent, blockSize);
 }
 
 int PaintParamsKey::BlockReader::numChildren() const { return fEntry->fNumChildren; }
@@ -280,18 +194,9 @@ PaintParamsKey::BlockReader PaintParamsKey::BlockReader::child(
         int childIndex) const {
     SkASSERT(childIndex < fEntry->fNumChildren);
 
-    int childOffset = sizeof(Header);
-    for (int i = 0; i < childIndex; ++i) {
-        Header header = read_header(fBlock, childOffset);
-        childOffset += header.blockSize;
-    }
-
+    int childOffset = 1; // skip parent ID
+    childOffset += skip_children_offset(dict, fBlock, childOffset, childIndex);
     return BlockReader(dict, fBlock, childOffset);
-}
-
-int32_t PaintParamsKey::BlockReader::codeSnippetId() const {
-    Header header = read_header(fBlock, 0);
-    return header.codeSnippetID;
 }
 
 #ifdef SK_DEBUG

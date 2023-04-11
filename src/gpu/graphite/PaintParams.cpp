@@ -143,8 +143,6 @@ void PaintParams::toKey(const KeyContext& keyContext,
         BlendModeBlock::BeginBlock(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
         builder->endBlock();
     }
-
-    SkASSERT(builder->sizeInBytes() > 0);
 }
 
 } // namespace skgpu::graphite

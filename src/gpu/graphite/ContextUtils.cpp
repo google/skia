@@ -39,21 +39,21 @@ ExtractPaintData(Recorder* recorder,
     KeyContext keyContext(recorder, local2Dev, targetColorInfo, p.color());
     p.toKey(keyContext, builder, gatherer);
 
-    auto entry = recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
-    if (!entry) {
-        return { UniquePaintParamsID::InvalidID(), nullptr, nullptr };
+    UniquePaintParamsID paintID = recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
+    const UniformDataBlock* uniforms = nullptr;
+    const TextureDataBlock* textures = nullptr;
+    if (paintID.isValid()) {
+        if (gatherer->hasUniforms()) {
+            UniformDataCache* uniformDataCache = recorder->priv().uniformDataCache();
+            uniforms = uniformDataCache->insert(gatherer->finishUniformDataBlock());
+        }
+        if (gatherer->hasTextures()) {
+            TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
+            textures = textureDataCache->insert(gatherer->textureDataBlock());
+        }
     }
 
-    UniformDataCache* uniformDataCache = recorder->priv().uniformDataCache();
-    TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
-    const UniformDataBlock* uniforms =
-            gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
-                                    : nullptr;
-    const TextureDataBlock* textures =
-            gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
-                                    : nullptr;
-
-    return { entry->uniqueID(), uniforms, textures };
+    return { paintID, uniforms, textures };
 }
 
 std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepData(

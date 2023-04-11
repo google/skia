@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkThreadAnnotations.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
@@ -28,6 +29,8 @@
 #include <memory>
 #include <string>
 #include <string_view>
+
+// TODO: Remove once BlockReader is not a thing
 #include <vector>
 
 class SkRuntimeEffect;
@@ -186,26 +189,9 @@ class ShaderCodeDictionary {
 public:
     ShaderCodeDictionary();
 
-    struct Entry {
-    public:
-        UniquePaintParamsID uniqueID() const {
-            SkASSERT(fUniqueID.isValid());
-            return fUniqueID;
-        }
-        const PaintParamsKey& paintParamsKey() const { return fKey; }
+    UniquePaintParamsID findOrCreate(PaintParamsKeyBuilder*) SK_EXCLUDES(fSpinLock);
 
-    private:
-        friend class ShaderCodeDictionary;
-
-        Entry(const PaintParamsKey& key, uint32_t newID) : fUniqueID(newID), fKey(key.asSpan()) {}
-
-        UniquePaintParamsID fUniqueID;  // fixed-size (uint32_t) unique ID assigned to a key
-        PaintParamsKey fKey; // variable-length paint key descriptor
-    };
-
-    const Entry* findOrCreate(PaintParamsKeyBuilder*) SK_EXCLUDES(fSpinLock);
-
-    const Entry* lookup(UniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
+    PaintParamsKey lookup(UniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
     SkSpan<const Uniform> getUniforms(BuiltInCodeSnippetID) const;
     SkEnumBitMask<SnippetRequirementFlags> getSnippetRequirementFlags(
@@ -250,26 +236,17 @@ private:
 
     // The value returned from 'getEntry' must be stable so, hold the user-defined code snippet
     // entries as pointers.
-    std::vector<std::unique_ptr<ShaderSnippet>> fUserDefinedCodeSnippets;
+    skia_private::TArray<std::unique_ptr<ShaderSnippet>> fUserDefinedCodeSnippets;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;
 
-    struct PaintParamsKeyPtr {
-        const PaintParamsKey* fKey;
+    using PaintIDMap = skia_private::THashMap<PaintParamsKey,
+                                              UniquePaintParamsID,
+                                              PaintParamsKey::Hash>;
 
-        bool operator==(PaintParamsKeyPtr rhs) const {
-            return *fKey == *rhs.fKey;
-        }
-        struct Hash {
-            size_t operator()(PaintParamsKeyPtr) const;
-        };
-    };
-
-    using PaintHashMap = skia_private::THashMap<PaintParamsKeyPtr, Entry*, PaintParamsKeyPtr::Hash>;
-
-    PaintHashMap fHash SK_GUARDED_BY(fSpinLock);
-    std::vector<Entry*> fEntryVector SK_GUARDED_BY(fSpinLock);
+    PaintIDMap fPaintKeyToID SK_GUARDED_BY(fSpinLock);
+    skia_private::TArray<PaintParamsKey> fIDToPaintKey SK_GUARDED_BY(fSpinLock);
 
     SK_BEGIN_REQUIRE_DENSE
     struct RuntimeEffectKey {
@@ -279,9 +256,6 @@ private:
         bool operator==(RuntimeEffectKey rhs) const {
             return fHash == rhs.fHash && fUniformSize == rhs.fUniformSize;
         }
-        struct Hash {
-            size_t operator()(RuntimeEffectKey) const;
-        };
     };
     SK_END_REQUIRE_DENSE
 
@@ -295,7 +269,7 @@ private:
     RuntimeEffectMap fRuntimeEffectMap SK_GUARDED_BY(fSpinLock);
 
     // This arena holds:
-    //   - the Entries held in `fHash` and `fEntryVector`
+    //   - the backing data for PaintParamsKeys in `fPaintKeyToID` and `fIDToPaintKey`
     //   - Uniform data created by `findOrCreateRuntimeEffectSnippet`
     // and in all cases is guarded by `fSpinLock`
     SkArenaAlloc fArena{256};
