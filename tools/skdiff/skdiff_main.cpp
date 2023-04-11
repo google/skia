@@ -6,7 +6,6 @@
  */
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkStream.h"
 #include "include/private/base/SkTDArray.h"

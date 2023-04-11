@@ -17,6 +17,8 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
 
+#if !defined(SK_DISABLE_LEGACY_IMAGE_ENCODER)
+
 bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFormat f, int q) {
     SkPixmap pixmap;
     return src.peekPixels(&pixmap) && SkEncodeImage(dst, pixmap, f, q);
@@ -71,3 +73,5 @@ sk_sp<SkData> SkEncodeBitmap(const SkBitmap& src, SkEncodedImageFormat format, i
     SkPixmap pixmap;
     return src.peekPixels(&pixmap) ? SkEncodePixmap(pixmap, format, quality) : nullptr;
 }
+
+#endif

@@ -7,12 +7,10 @@
 
 #include "include/core/SkImage.h"
 
-#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
@@ -200,6 +198,8 @@ sk_sp<SkShader> SkImage::makeRawShader(SkTileMode tmx, SkTileMode tmy,
 }
 
 #if !defined(SK_DISABLE_LEGACY_IMAGE_ENCODE_METHODS)
+#include "include/core/SkImageEncoder.h"
+#include "include/codec/SkEncodedImageFormat.h"
 sk_sp<SkData> SkImage::encodeToData(GrDirectContext* context, SkEncodedImageFormat type,
                                     int quality) const {
     SkBitmap bm;

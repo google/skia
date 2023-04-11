@@ -22,11 +22,9 @@
 #include <FontSub.h>
 #include <limits>
 
-#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathUtils.h"
@@ -35,6 +33,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkVertices.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
@@ -634,7 +633,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         const SkAlpha alpha,
         IXpsOMTileBrush** xpsBrush) {
     SkDynamicMemoryWStream write;
-    if (!SkEncodeImage(&write, bitmap, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkPngEncoder::Encode(&write, bitmap.pixmap(), {})) {
         HRM(E_FAIL, "Unable to encode bitmap as png.");
     }
     SkTScopedComPtr<IStream> read;

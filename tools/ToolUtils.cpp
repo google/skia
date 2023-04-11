@@ -24,6 +24,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkFontPriv.h"
@@ -737,5 +738,15 @@ skgpu::graphite::RecorderOptions CreateTestingRecorderOptions() {
 }
 
 #endif // SK_GRAPHITE
+
+bool EncodeImageToPngFile(const char* path, const SkBitmap& src) {
+    SkFILEWStream file(path);
+    return file.isValid() && SkPngEncoder::Encode(&file, src.pixmap(), {});
+}
+
+bool EncodeImageToPngFile(const char* path, const SkPixmap& src) {
+    SkFILEWStream file(path);
+    return file.isValid() && SkPngEncoder::Encode(&file, src, {});
+}
 
 }  // namespace ToolUtils

@@ -11,7 +11,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
@@ -47,26 +46,26 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
         return nullptr;
     }
     SkDynamicMemoryWStream buf;
-#if defined(SK_ENABLE_NDK_IMAGES)
-    return SkEncodeImage(&buf, src, type, quality) ? buf.detachAsData() : nullptr;
-#else
     switch (type) {
         case SkEncodedImageFormat::kPNG: {
-            bool success = SkPngEncoder::Encode(&buf, src, SkPngEncoder::Options());
+            bool success = SkPngEncoder::Encode(&buf, src, {});
             return success ? buf.detachAsData() : nullptr;
         }
         case SkEncodedImageFormat::kJPEG: {
-            bool success = SkJpegEncoder::Encode(&buf, src, SkJpegEncoder::Options());
+            SkJpegEncoder::Options opts;
+            opts.fQuality = quality;
+            bool success = SkJpegEncoder::Encode(&buf, src, opts);
             return success ? buf.detachAsData() : nullptr;
         }
         case SkEncodedImageFormat::kWEBP: {
-            bool success = SkWebpEncoder::Encode(&buf, src, SkWebpEncoder::Options());
+            SkWebpEncoder::Options opts;
+            opts.fQuality = quality;
+            bool success = SkWebpEncoder::Encode(&buf, src, opts);
             return success ? buf.detachAsData() : nullptr;
         }
         default:
             SkUNREACHABLE;
     }
-#endif
 }
 
 namespace skiagm {

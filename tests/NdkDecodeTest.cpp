@@ -8,7 +8,11 @@
 #include "include/core/SkTypes.h"
 #ifdef SK_ENABLE_NDK_IMAGES
 #include "include/core/SkColorSpace.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 #include "include/ports/SkImageGeneratorNDK.h"
+
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -92,8 +96,20 @@ DEF_TEST(NdkDecode_reportedColorSpace, r) {
         for (auto format : { SkEncodedImageFormat::kPNG,
                              SkEncodedImageFormat::kJPEG,
                              SkEncodedImageFormat::kWEBP }) {
-            auto data = SkEncodeBitmap(bm, format, 80);
-            auto gen = SkImageGeneratorNDK::MakeFromEncodedNDK(std::move(data));
+            SkDynamicMemoryWStream stream;
+            if (format == SkEncodedImageFormat::kJPEG) {
+                SkJpegEncoder::Options opts;
+                opts.fQuality = 80;
+                REPORTER_ASSERT(r, SkJpegEncoder::Encode(&stream, bm.pixmap(), opts));
+            } else if (format == SkEncodedImageFormat::kPNG) {
+                REPORTER_ASSERT(r, SkPngEncoder::Encode(&stream, bm.pixmap(), {}));
+            } else {
+                SkWebpEncoder::Options opts;
+                opts.fQuality = 80;
+                REPORTER_ASSERT(r, SkWebpEncoder::Encode(&stream, bm.pixmap(), opts));
+            }
+
+            auto gen = SkImageGeneratorNDK::MakeFromEncodedNDK(stream.detachAsData());
             if (!gen) {
                 ERRORF(r, "Failed to encode!");
                 return;

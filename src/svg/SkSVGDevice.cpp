@@ -7,7 +7,6 @@
 
 #include "src/svg/SkSVGDevice.h"
 
-#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkClipOp.h"
@@ -18,7 +17,6 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -967,7 +965,7 @@ void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIs
 
 static sk_sp<SkData> encode(const SkBitmap& src) {
     SkDynamicMemoryWStream buf;
-    return SkEncodeImage(&buf, src, SkEncodedImageFormat::kPNG, 80) ? buf.detachAsData() : nullptr;
+    return SkPngEncoder::Encode(&buf, src.pixmap(), {}) ? buf.detachAsData() : nullptr;
 }
 
 void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkPaint& paint) {

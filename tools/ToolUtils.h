@@ -14,7 +14,6 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
@@ -263,11 +262,8 @@ private:
     SkTDArray<uint32_t>      fTargets;
 };
 
-template <typename T>
-inline bool EncodeImageToFile(const char* path, const T& src, SkEncodedImageFormat f, int q) {
-    SkFILEWStream file(path);
-    return file.isValid() && SkEncodeImage(&file, src, f, q);
-}
+bool EncodeImageToPngFile(const char* path, const SkBitmap& src);
+bool EncodeImageToPngFile(const char* path, const SkPixmap& src);
 
 bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
 void copy_to_g8(SkBitmap* dst, const SkBitmap& src);

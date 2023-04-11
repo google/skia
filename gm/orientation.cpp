@@ -116,7 +116,7 @@ static void make_images() {
         num.append(".png");
         SkPixmap pm;
         surf->makeImageSnapshot()->peekPixels(&pm);
-        ToolUtils::EncodeImageToFile(num.c_str(), pm, SkEncodedImageFormat::kPNG, 100);
+        ToolUtils::EncodeImageToPngFile(num.c_str(), pm);
     }
 }
 

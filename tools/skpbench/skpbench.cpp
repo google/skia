@@ -649,7 +649,7 @@ int main(int argc, char** argv) {
         if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
             exitf(ExitErr::kIO, "failed to create directory for png \"%s\"", FLAGS_png[0]);
         }
-        if (!ToolUtils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
+        if (!ToolUtils::EncodeImageToPngFile(FLAGS_png[0], bmp)) {
             exitf(ExitErr::kIO, "failed to save png to \"%s\"", FLAGS_png[0]);
         }
     }

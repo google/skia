@@ -11,13 +11,13 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/encode/SkPngEncoder.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkReadBuffer.h"
@@ -431,7 +431,8 @@ static void fuzz_api(sk_sp<SkData> bytes, SkString name) {
 
 static void dump_png(SkBitmap bitmap) {
     if (!FLAGS_dump.isEmpty()) {
-        ToolUtils::EncodeImageToFile(FLAGS_dump[0], bitmap, SkEncodedImageFormat::kPNG, 100);
+        SkFILEWStream file(FLAGS_dump[0]);
+        SkPngEncoder::Encode(&file, bitmap.pixmap(), {});
         SkDebugf("Dumped to %s\n", FLAGS_dump[0]);
     }
 }

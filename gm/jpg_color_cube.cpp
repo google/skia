@@ -6,17 +6,18 @@
  */
 
 #include "gm/gm.h"
-#include "include/codec/SkEncodedImageFormat.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkJpegEncoder.h"
 #include "include/private/base/SkTPin.h"
 
 #include <utility>
@@ -55,8 +56,9 @@ protected:
                 bY += 64;
             }
         }
-        auto jpegData = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
-        fImage = SkImages::DeferredFromEncodedData(std::move(jpegData));
+        SkDynamicMemoryWStream stream;
+        SkASSERT_RELEASE(SkJpegEncoder::Encode(&stream, bmp.pixmap(), {}));
+        fImage = SkImages::DeferredFromEncodedData(stream.detachAsData());
     }
 
     void onDraw(SkCanvas* canvas) override {

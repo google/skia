@@ -665,7 +665,7 @@ static void run_test(GrDirectContext* dContext,
     SkString filename;
     filename.printf("GrMeshTest_%s_%s.png", TOSTRING(WRITE_PNG_CONTEXT_TYPE), testName);
     SkDebugf("writing %s...\n", filename.c_str());
-    ToolUtils::EncodeImageToFile(filename.c_str(), resultPM, SkEncodedImageFormat::kPNG, 100);
+    ToolUtils::EncodeImageToPngFile(filename.c_str(), resultPM);
 #endif
 
     for (int y = 0; y < h; ++y) {

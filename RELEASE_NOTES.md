@@ -35,6 +35,8 @@ Milestone 114
       - `SK_ENCODE_WEBP` -> `skia_use_libwebp_encode`
     Other clients should make sure the appropriate `*EncoderImpl.cpp` files from `src/encode` are
     included in the build.
+  * `SkImageEncoder` has been deprecated. Clients should use one of `SkPngEncoder::Encode`,
+    `SkJpegEncoder::Encode` or `SkWebpEncoder::Encode` directly.
 
 * * *
 

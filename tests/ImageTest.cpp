@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
@@ -17,7 +16,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkDataTable.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
@@ -31,6 +29,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
@@ -201,8 +200,9 @@ static sk_sp<SkImage> create_codec_image() {
     sk_sp<SkData> data(create_image_data(&info));
     SkBitmap bitmap;
     bitmap.installPixels(info, data->writable_data(), info.minRowBytes());
-    auto src = SkEncodeBitmap(bitmap, SkEncodedImageFormat::kPNG, 100);
-    return SkImages::DeferredFromEncodedData(std::move(src));
+    SkDynamicMemoryWStream stream;
+    SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, bitmap.pixmap(), {}));
+    return SkImages::DeferredFromEncodedData(stream.detachAsData());
 }
 static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext,
                                        bool withMips = false,

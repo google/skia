@@ -6,7 +6,7 @@
  */
 
 #include "gm/gm.h"
-#include "include/codec/SkEncodedImageFormat.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -15,7 +15,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
@@ -29,6 +28,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
@@ -353,13 +353,15 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
             [&] { return bmp.asImage(); },
             // Create encoded image.
             [&] {
-                auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kPNG, 100);
-                return SkImages::DeferredFromEncodedData(std::move(src));
+                SkDynamicMemoryWStream stream;
+                SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, bmp.pixmap(), {}));
+                return SkImages::DeferredFromEncodedData(stream.detachAsData());
             },
             // Create YUV encoded image.
             [&] {
-                auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
-                return SkImages::DeferredFromEncodedData(std::move(src));
+                SkDynamicMemoryWStream stream;
+                SkASSERT_RELEASE(SkJpegEncoder::Encode(&stream, bmp.pixmap(), {}));
+                return SkImages::DeferredFromEncodedData(stream.detachAsData());
             },
             // Create a picture image.
             [&] {

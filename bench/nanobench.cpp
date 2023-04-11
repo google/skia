@@ -26,11 +26,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkMacros.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkLeanWindows.h"
@@ -460,7 +460,7 @@ static bool write_canvas_png(Target* target, const SkString& filename) {
         SkDebugf("Can't write %s.\n", filename.c_str());
         return false;
     }
-    if (!SkEncodeImage(&stream, bmp, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkPngEncoder::Encode(&stream, bmp.pixmap(), {})) {
         SkDebugf("Can't encode a PNG.\n");
         return false;
     }

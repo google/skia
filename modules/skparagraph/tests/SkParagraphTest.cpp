@@ -10,7 +10,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -21,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkPngEncoder.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
@@ -152,7 +152,7 @@ public:
         if (!tmpDir.isEmpty()) {
             SkString path = SkOSPath::Join(tmpDir.c_str(), name);
             SkFILEWStream file(path.c_str());
-            if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
+            if (!SkPngEncoder::Encode(&file, bits.pixmap(), {})) {
                 SkDebugf("Cannot write a picture %s\n", name);
             }
         }

@@ -7,8 +7,8 @@
 
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 
-#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColorSpace.h"
+#include "include/encode/SkPngEncoder.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/codec/SkMasks.h"
 #include "src/core/SkDistanceFieldGen.h"
@@ -248,7 +248,6 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater* upd
 #include "src/gpu/ganesh/SurfaceContext.h"
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkStream.h"
 #include <stdio.h>
 
@@ -291,7 +290,7 @@ static bool save_pixels(GrDirectContext* dContext, GrSurfaceProxyView view, GrCo
         return false;
     }
 
-    if (!SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkPngEncoder::Encode(&file, bm.pixmap(), {})) {
         SkDebugf("------ failed to encode %s\n", filename);
         remove(filename);   // remove any partial file
         return false;
