@@ -14,8 +14,8 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"  // IWYU pragma: keep
+#include "src/sksl/tracing/SkSLDebugTracePlayer.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
-#include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 #include "tests/Test.h"
 
 #include <cstddef>
@@ -25,7 +25,7 @@
 #include <unordered_set>
 #include <vector>
 
-using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
+using LineNumberMap = SkSL::SkSLDebugTracePlayer::LineNumberMap;
 
 static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r, std::string src) {
     SkSL::ShaderCaps caps;
@@ -55,7 +55,7 @@ static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r, std::string
 }
 
 static std::string make_stack_string(const SkSL::DebugTracePriv& trace,
-                                     const SkSL::SkVMDebugTracePlayer& player) {
+                                     const SkSL::SkSLDebugTracePlayer& player) {
     std::vector<int> callStack = player.getCallStack();
     std::string text;
     const char* separator = "";
@@ -75,10 +75,10 @@ static std::string make_stack_string(const SkSL::DebugTracePriv& trace,
 
 static std::string make_vars_string(
         const SkSL::DebugTracePriv& trace,
-        const std::vector<SkSL::SkVMDebugTracePlayer::VariableData>& vars) {
+        const std::vector<SkSL::SkSLDebugTracePlayer::VariableData>& vars) {
     std::string text;
     auto separator = SkSL::String::Separator();
-    for (const SkSL::SkVMDebugTracePlayer::VariableData& var : vars) {
+    for (const SkSL::SkSLDebugTracePlayer::VariableData& var : vars) {
         text += separator();
 
         if (var.fSlotIndex < 0 || (size_t)var.fSlotIndex >= trace.fSlotInfo.size()) {
@@ -98,18 +98,18 @@ static std::string make_vars_string(
 }
 
 static std::string make_local_vars_string(const SkSL::DebugTracePriv& trace,
-                                          const SkSL::SkVMDebugTracePlayer& player) {
+                                          const SkSL::SkSLDebugTracePlayer& player) {
     int frame = player.getStackDepth() - 1;
     return make_vars_string(trace, player.getLocalVariables(frame));
 }
 
 static std::string make_global_vars_string(const SkSL::DebugTracePriv& trace,
-                                           const SkSL::SkVMDebugTracePlayer& player) {
+                                           const SkSL::SkSLDebugTracePlayer& player) {
     return make_vars_string(trace, player.getGlobalVariables());
 }
 
 DEF_TEST(SkSLTracePlayerCanResetToNull, r) {
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(nullptr);
 
     // We should be in a reasonable state.
@@ -128,7 +128,7 @@ half4 main(float2 xy) {   // Line 2
     return half4(2 + 2);  // Line 3
 }                         // Line 4
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
 
     // We have not started tracing yet.
@@ -167,7 +167,7 @@ half4 main(float2 xy) {   // Line 2
     return half4(2 + 2);  // Line 3
 }                         // Line 4
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
 
     // We have not started tracing yet.
@@ -209,7 +209,7 @@ half4 main(float2 xy) {         // Line 8
     return half4(fnA());        // Line 9
 }                               // Line 10
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
 
     // We have not started tracing yet.
@@ -294,7 +294,7 @@ half4 main(float2 xy) {               // Line 6
     return half4(a);                  // Line 12
 }                                     // Line 13
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
 
     REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 1}, {7, 1},
@@ -375,7 +375,7 @@ half4 main(float2 xy) {               // Line 3
     return half4(0);                  // Line 10
 }                                     // Line 11
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     player.step();
 
@@ -434,7 +434,7 @@ half4 main(float2 xy) {  // Line 2
     return half4(val);   // Line 16
 }                        // Line 17
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
 
     REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 1}, {5, 1},
@@ -488,7 +488,7 @@ half4 main(float2 xy) {            // Line 2
     return half4(val);             // Line 7
 }                                  // Line 8
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
 
     REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 3}, {5, 2},
@@ -556,7 +556,7 @@ half4 main(float2 xy) {  // Line 9
     return half4(fn());  // Line 10
 }                        // Line 11
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 1}, {5, 1},
                                                                         {6, 1}, {7, 1}, {10, 1}}));
@@ -618,7 +618,7 @@ half4 main(float2 xy) {     // Line 2
     return half4(0);        // Line 20
 }
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {5, 1}, {7, 1},
                                                                         {9, 1}, {11, 1}, {13, 1},
@@ -680,7 +680,7 @@ half4 main(float2 xy) {     // Line 2
     return half4(0);        // Line 6
 }
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     player.step();
 
@@ -710,7 +710,7 @@ half4 main(float2 xy) {     // Line 2
     return half4(x);        // Line 13
 }
 )");
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     player.step();
 
@@ -750,7 +750,7 @@ half4 main(float2 xy) {            // Line 6
 }                                  // Line 14
 )");
     // Run the simulation with a variety of breakpoints set.
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     player.setBreakpoints(std::unordered_set<int>{8, 13, 20});
     player.run();
@@ -799,7 +799,7 @@ half4 main(float2 xy) {     // Line 6
 }                           // Line 9
 )");
     // Try stepping over with no breakpoint set; we will step over.
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     player.step();
     REPORTER_ASSERT(r, player.getCurrentLine() == 7);
@@ -832,7 +832,7 @@ half4 main(float2 xy) {     // Line 8
 }                           // Line 11
 )");
     // Try stepping out with no breakpoint set; we will step out.
-    SkSL::SkVMDebugTracePlayer player;
+    SkSL::SkSLDebugTracePlayer player;
     player.reset(trace);
     player.step();
     REPORTER_ASSERT(r, player.getCurrentLine() == 9);

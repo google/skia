@@ -16,7 +16,7 @@
 #include "imgui.h"
 
 using namespace sk_app;
-using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
+using LineNumberMap = SkSL::SkSLDebugTracePlayer::LineNumberMap;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -224,7 +224,7 @@ void SkSLDebuggerSlide::showVariableTable() {
             ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthStretch;
 
     int frame = fPlayer.getStackDepth() - 1;
-    std::vector<SkSL::SkVMDebugTracePlayer::VariableData> vars;
+    std::vector<SkSL::SkSLDebugTracePlayer::VariableData> vars;
     if (frame >= 0) {
         vars = fPlayer.getLocalVariables(frame);
     } else {
@@ -240,7 +240,7 @@ void SkSLDebuggerSlide::showVariableTable() {
             clipper.Begin(vars.size());
             while (clipper.Step()) {
                 for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
-                    const SkSL::SkVMDebugTracePlayer::VariableData& var = vars.at(row);
+                    const SkSL::SkSLDebugTracePlayer::VariableData& var = vars.at(row);
                     SkASSERT(var.fSlotIndex >= 0);
                     SkASSERT((size_t)var.fSlotIndex < fTrace->fSlotInfo.size());
                     const SkSL::SlotDebugInfo& slotInfo = fTrace->fSlotInfo[var.fSlotIndex];

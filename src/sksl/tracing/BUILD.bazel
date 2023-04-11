@@ -8,7 +8,7 @@ exports_files_legacy()
 skia_filegroup(
     name = "enabled_srcs",
     srcs = select({
-        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.cpp"],
+        "//src/sksl:enable_sksl_tracing_true": ["SkSLDebugTracePlayer.cpp"],
         "//src/sksl:enable_sksl_tracing_false": [],
     }),
 )
@@ -17,7 +17,7 @@ skia_filegroup(
 skia_filegroup(
     name = "enabled_hdrs",
     srcs = select({
-        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.h"],
+        "//src/sksl:enable_sksl_tracing_true": ["SkSLDebugTracePlayer.h"],
         "//src/sksl:enable_sksl_tracing_false": [],
     }),
 )
@@ -25,8 +25,8 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        "SkSLTraceHook.cpp",
         "SkSLDebugTracePriv.cpp",
+        "SkSLTraceHook.cpp",
         ":enabled_srcs",
     ],
     visibility = ["//src/sksl:__pkg__"],

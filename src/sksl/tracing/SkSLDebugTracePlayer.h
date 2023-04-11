@@ -21,9 +21,9 @@
 namespace SkSL {
 
 /**
- * Plays back a SkVM debug trace, allowing its contents to be viewed like a traditional debugger.
+ * Plays back a SkSL debug trace, allowing its contents to be viewed like a traditional debugger.
  */
-class SkVMDebugTracePlayer {
+class SkSLDebugTracePlayer {
 public:
     /** Resets playback to the start of the trace. Breakpoints are not cleared. */
     void reset(sk_sp<DebugTracePriv> trace);

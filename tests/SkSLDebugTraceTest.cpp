@@ -51,7 +51,7 @@ DEF_TEST(DebugTracePrivWrite, r) {
         "//\\\\//\\\\ third line",
     };
     i.fSlotInfo = {
-        {"SkVM_DebugTrace", 1, 2, 3, 4, (SkSL::Type::NumberKind)5,  6,  SkSL::Position{}, -1},
+        {"SkSL_DebugTrace", 1, 2, 3, 4, (SkSL::Type::NumberKind)5,  6,  SkSL::Position{}, -1},
         {"Unit_Test",       6, 7, 8, 8, (SkSL::Type::NumberKind)10, 11, SkSL::Position{}, 12},
     };
     i.fFuncInfo = {
@@ -69,7 +69,7 @@ DEF_TEST(DebugTracePrivWrite, r) {
 
     static constexpr char kExpected[] =
             R"({"version":"20220209","source":["\t// first line","// \"second line\"","//\\\\//\\)"
-            R"(\\ third line"],"slots":[{"name":"SkVM_DebugTrace","columns":1,"rows":2,"index":3,)"
+            R"(\\ third line"],"slots":[{"name":"SkSL_DebugTrace","columns":1,"rows":2,"index":3,)"
             R"("groupIdx":4,"kind":5,"line":6},{"name":"Unit_Test","columns":6,"rows":7,"index":8)"
             R"(,"kind":10,"line":11,"retval":12}],"functions":[{"name":"void testFunc();"}],"trac)"
             R"(e":[[2],[0,5],[1,10,15],[3,20]]})";
@@ -84,7 +84,7 @@ DEF_TEST(DebugTracePrivWrite, r) {
 DEF_TEST(DebugTracePrivRead, r) {
     const std::string_view kJSONTrace =
             R"({"version":"20220209","source":["\t// first line","// \"second line\"","//\\\\//\\)"
-            R"(\\ third line"],"slots":[{"name":"SkVM_DebugTrace","columns":1,"rows":2,"index":3,)"
+            R"(\\ third line"],"slots":[{"name":"SkSL_DebugTrace","columns":1,"rows":2,"index":3,)"
             R"("groupIdx":4,"kind":5,"line":6},{"name":"Unit_Test","columns":6,"rows":7,"index":8)"
             R"(,"kind":10,"line":11,"retval":12}],"functions":[{"name":"void testFunc();"}],"trac)"
             R"(e":[[2],[0,5],[1,10,15],[3,20]]})";
@@ -102,7 +102,7 @@ DEF_TEST(DebugTracePrivRead, r) {
     REPORTER_ASSERT(r, i.fSource[1] == "// \"second line\"");
     REPORTER_ASSERT(r, i.fSource[2] == "//\\\\//\\\\ third line");
 
-    REPORTER_ASSERT(r, i.fSlotInfo[0].name == "SkVM_DebugTrace");
+    REPORTER_ASSERT(r, i.fSlotInfo[0].name == "SkSL_DebugTrace");
     REPORTER_ASSERT(r, i.fSlotInfo[0].columns == 1);
     REPORTER_ASSERT(r, i.fSlotInfo[0].rows == 2);
     REPORTER_ASSERT(r, i.fSlotInfo[0].componentIndex == 3);

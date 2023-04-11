@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/tracing/SkSLDebugTracePlayer.h"
+
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
-#include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 
 #include <limits.h>
 #include <algorithm>
@@ -14,7 +15,7 @@
 
 namespace SkSL {
 
-void SkVMDebugTracePlayer::reset(sk_sp<DebugTracePriv> debugTrace) {
+void SkSLDebugTracePlayer::reset(sk_sp<DebugTracePriv> debugTrace) {
     size_t nslots = debugTrace ? debugTrace->fSlotInfo.size() : 0;
     fDebugTrace = debugTrace;
     fCursor = 0;
@@ -45,7 +46,7 @@ void SkVMDebugTracePlayer::reset(sk_sp<DebugTracePriv> debugTrace) {
     }
 }
 
-void SkVMDebugTracePlayer::step() {
+void SkSLDebugTracePlayer::step() {
     this->tidyState();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++)) {
@@ -54,7 +55,7 @@ void SkVMDebugTracePlayer::step() {
     }
 }
 
-void SkVMDebugTracePlayer::stepOver() {
+void SkSLDebugTracePlayer::stepOver() {
     this->tidyState();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
@@ -67,7 +68,7 @@ void SkVMDebugTracePlayer::stepOver() {
     }
 }
 
-void SkVMDebugTracePlayer::stepOut() {
+void SkSLDebugTracePlayer::stepOut() {
     this->tidyState();
     size_t initialStackDepth = fStack.size();
     while (!this->traceHasCompleted()) {
@@ -80,7 +81,7 @@ void SkVMDebugTracePlayer::stepOut() {
     }
 }
 
-void SkVMDebugTracePlayer::run() {
+void SkSLDebugTracePlayer::run() {
     this->tidyState();
     while (!this->traceHasCompleted()) {
         if (this->execute(fCursor++)) {
@@ -91,7 +92,7 @@ void SkVMDebugTracePlayer::run() {
     }
 }
 
-void SkVMDebugTracePlayer::tidyState() {
+void SkSLDebugTracePlayer::tidyState() {
     fDirtyMask->reset();
 
     // Conceptually this is `fStack.back().fDisplayMask &= ~fReturnValues`, but SkBitSet doesn't
@@ -101,16 +102,16 @@ void SkVMDebugTracePlayer::tidyState() {
     });
 }
 
-bool SkVMDebugTracePlayer::traceHasCompleted() const {
+bool SkSLDebugTracePlayer::traceHasCompleted() const {
     return !fDebugTrace || fCursor >= fDebugTrace->fTraceInfo.size();
 }
 
-int32_t SkVMDebugTracePlayer::getCurrentLine() const {
+int32_t SkSLDebugTracePlayer::getCurrentLine() const {
     SkASSERT(!fStack.empty());
     return fStack.back().fLine;
 }
 
-int32_t SkVMDebugTracePlayer::getCurrentLineInStackFrame(int stackFrameIndex) const {
+int32_t SkSLDebugTracePlayer::getCurrentLineInStackFrame(int stackFrameIndex) const {
     // The first entry on the stack is the "global" frame before we enter main, so offset our index
     // by one to account for it.
     ++stackFrameIndex;
@@ -119,23 +120,23 @@ int32_t SkVMDebugTracePlayer::getCurrentLineInStackFrame(int stackFrameIndex) co
     return fStack[stackFrameIndex].fLine;
 }
 
-bool SkVMDebugTracePlayer::atBreakpoint() const {
+bool SkSLDebugTracePlayer::atBreakpoint() const {
     return fBreakpointLines.count(this->getCurrentLine());
 }
 
-void SkVMDebugTracePlayer::setBreakpoints(std::unordered_set<int> breakpointLines) {
+void SkSLDebugTracePlayer::setBreakpoints(std::unordered_set<int> breakpointLines) {
     fBreakpointLines = std::move(breakpointLines);
 }
 
-void SkVMDebugTracePlayer::addBreakpoint(int line) {
+void SkSLDebugTracePlayer::addBreakpoint(int line) {
     fBreakpointLines.insert(line);
 }
 
-void SkVMDebugTracePlayer::removeBreakpoint(int line) {
+void SkSLDebugTracePlayer::removeBreakpoint(int line) {
     fBreakpointLines.erase(line);
 }
 
-std::vector<int> SkVMDebugTracePlayer::getCallStack() const {
+std::vector<int> SkSLDebugTracePlayer::getCallStack() const {
     SkASSERT(!fStack.empty());
     std::vector<int> funcs;
     funcs.reserve(fStack.size() - 1);
@@ -145,12 +146,12 @@ std::vector<int> SkVMDebugTracePlayer::getCallStack() const {
     return funcs;
 }
 
-int SkVMDebugTracePlayer::getStackDepth() const {
+int SkSLDebugTracePlayer::getStackDepth() const {
     SkASSERT(!fStack.empty());
     return fStack.size() - 1;
 }
 
-std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getVariablesForDisplayMask(
+std::vector<SkSLDebugTracePlayer::VariableData> SkSLDebugTracePlayer::getVariablesForDisplayMask(
         const SkBitSet& displayMask) const {
     SkASSERT(displayMask.size() == fSlots.size());
 
@@ -166,7 +167,7 @@ std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getVariabl
     return vars;
 }
 
-std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getLocalVariables(
+std::vector<SkSLDebugTracePlayer::VariableData> SkSLDebugTracePlayer::getLocalVariables(
         int stackFrameIndex) const {
     // The first entry on the stack is the "global" frame before we enter main, so offset our index
     // by one to account for it.
@@ -178,14 +179,14 @@ std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getLocalVa
     return this->getVariablesForDisplayMask(fStack[stackFrameIndex].fDisplayMask);
 }
 
-std::vector<SkVMDebugTracePlayer::VariableData> SkVMDebugTracePlayer::getGlobalVariables() const {
+std::vector<SkSLDebugTracePlayer::VariableData> SkSLDebugTracePlayer::getGlobalVariables() const {
     if (fStack.empty()) {
         return {};
     }
     return this->getVariablesForDisplayMask(fStack.front().fDisplayMask);
 }
 
-void SkVMDebugTracePlayer::updateVariableWriteTime(int slotIdx, size_t cursor) {
+void SkSLDebugTracePlayer::updateVariableWriteTime(int slotIdx, size_t cursor) {
     // The slotIdx could point to any slot within a variable.
     // We want to update the write time on EVERY slot associated with this variable.
     // The SlotInfo's groupIndex gives us enough information to find the affected range.
@@ -208,7 +209,7 @@ void SkVMDebugTracePlayer::updateVariableWriteTime(int slotIdx, size_t cursor) {
     }
 }
 
-bool SkVMDebugTracePlayer::execute(size_t position) {
+bool SkSLDebugTracePlayer::execute(size_t position) {
     if (position >= fDebugTrace->fTraceInfo.size()) {
         SkDEBUGFAILF("position %zu out of range", position);
         return true;
