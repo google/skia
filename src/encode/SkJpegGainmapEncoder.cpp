@@ -7,11 +7,10 @@
 
 #include "include/private/SkJpegGainmapEncoder.h"
 
-#ifdef SK_ENCODE_JPEG
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStream.h"
+#include "include/encode/SkEncoder.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/SkGainmapInfo.h"
 #include "src/codec/SkCodecPriv.h"
@@ -402,5 +401,3 @@ bool SkJpegGainmapEncoder::MakeMPF(SkWStream* dst, const SkData** images, size_t
     }
     return true;
 }
-
-#endif  // SK_ENCODE_JPEG

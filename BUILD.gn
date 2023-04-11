@@ -1238,8 +1238,7 @@ optional("jpeg_decode") {
 }
 
 optional("jpeg_encode") {
-  enabled = skia_use_libjpeg_turbo_encode
-  public_defines = [ "SK_ENCODE_JPEG" ]
+  enabled = skia_use_libjpeg_turbo_encode && !skia_use_ndk_images
 
   deps = [ "//third_party/libjpeg-turbo:libjpeg" ]
   public = [ "include/encode/SkJpegEncoder.h" ]
@@ -1353,8 +1352,7 @@ optional("png_decode") {
 }
 
 optional("png_encode") {
-  enabled = skia_use_libpng_encode
-  public_defines = [ "SK_ENCODE_PNG" ]
+  enabled = skia_use_libpng_encode && !skia_use_ndk_images
   public = [ "include/encode/SkPngEncoder.h" ]
 
   deps = [ "//third_party/libpng" ]
@@ -1399,8 +1397,7 @@ optional("webp_decode") {
 }
 
 optional("webp_encode") {
-  enabled = skia_use_libwebp_encode
-  public_defines = [ "SK_ENCODE_WEBP" ]
+  enabled = skia_use_libwebp_encode && !skia_use_ndk_images
   public = [ "include/encode/SkWebpEncoder.h" ]
 
   deps = [ "//third_party/libwebp" ]

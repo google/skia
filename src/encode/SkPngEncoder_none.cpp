@@ -6,3 +6,16 @@
  */
 
 // This should be a temporary file that can be removed when SkImageEncoder is removed
+
+#include "include/encode/SkPngEncoder.h"
+
+class SkPixmap;
+class SkWStream;
+
+namespace SkPngEncoder {
+
+bool Encode(SkWStream*, const SkPixmap&, const Options&) {
+    return false;
+}
+
+}  // namespace SkPngEncoder

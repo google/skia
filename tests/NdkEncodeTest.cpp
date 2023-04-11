@@ -12,7 +12,6 @@
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/private/base/SkMalloc.h"
-#include "src/encode/SkImageEncoderPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -40,7 +39,7 @@ static const struct {
 
 static sk_sp<SkData> encode_ndk(const SkPixmap& pmap, SkEncodedImageFormat format, int quality) {
     SkDynamicMemoryWStream stream;
-    return SkEncodeImageWithNDK(&stream, pmap, format, quality) ? stream.detachAsData() : nullptr;
+    return SkEncodeImage(&stream, pmap, format, quality) ? stream.detachAsData() : nullptr;
 }
 
 DEF_TEST(NdkEncode, r) {

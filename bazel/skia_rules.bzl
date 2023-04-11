@@ -19,7 +19,7 @@ load(
 generate_cpp_files_for_headers = _generate_cpp_files_for_headers
 generate_cpp_files_for_header_list = _generate_cpp_files_for_header_list
 
-def select_multi(values_map):
+def select_multi(values_map, default_cases = None):
     """select() but allowing multiple matches of the keys.
 
     select_multi works around a restriction in native select() that prevents multiple
@@ -49,6 +49,8 @@ def select_multi(values_map):
 
     Args:
         values_map: dictionary of labels to a list of labels, just like select()
+        default_cases: dictionary of labels to a list of labels to be used in the default case.
+                       If not provided or a key is not mentioned, an empty list will be used.
 
     Returns:
         A list of values that is filled in by the generated select statements.
@@ -56,10 +58,12 @@ def select_multi(values_map):
     if len(values_map) == 0:
         return []
     rv = []
+    if not default_cases:
+        default_cases = {}
     for key, value in values_map.items():
         rv += select({
             key: value,
-            "//conditions:default": [],
+            "//conditions:default": default_cases.get(key, []),
         })
     return rv
 

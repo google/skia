@@ -28,6 +28,13 @@ Milestone 114
   * `SkImage::encodeToData` has been deprecated. Clients should use `refEncodedData` if the image
     was from an encoded bytestream or one of `SkPngEncoder::Encode`, `SkJpegEncoder::Encode`,
     `SkWebpEncoder::Encode` directly.
+  * The following defines no longer do anything. GN clients should instead set the provided
+    arguments (from gn/skia.gni) as necessary:
+      - `SK_ENCODE_PNG` -> `skia_use_libjpeg_turbo_encode`
+      - `SK_ENCODE_JPEG` -> `skia_use_libpng_encode`
+      - `SK_ENCODE_WEBP` -> `skia_use_libwebp_encode`
+    Other clients should make sure the appropriate `*EncoderImpl.cpp` files from `src/encode` are
+    included in the build.
 
 * * *
 

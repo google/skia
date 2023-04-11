@@ -762,17 +762,6 @@ BASE_SRCS_ALL = [
     "src/effects/imagefilters/SkRuntimeImageFilter.h",
     "src/effects/imagefilters/SkShaderImageFilter.cpp",
     "src/effects/imagefilters/SkTileImageFilter.cpp",
-    "src/encode/SkEncoder.cpp",
-    "src/encode/SkICCPriv.h",
-    "src/encode/SkICC.cpp",
-    "src/encode/SkImageEncoder.cpp",
-    "src/encode/SkImageEncoderFns.h",
-    "src/encode/SkImageEncoderPriv.h",
-    "src/encode/SkJpegEncoder.cpp",
-    "src/encode/SkJPEGWriteUtility.cpp",
-    "src/encode/SkJPEGWriteUtility.h",
-    "src/encode/SkPngEncoder.cpp",
-    "src/encode/SkWebpEncoder.cpp",
     "src/fonts/SkFontMgr_indirect.cpp",
     "src/fonts/SkRemotableFontMgr.cpp",
     "src/gpu/AsyncReadTypes.h",
@@ -1725,21 +1714,38 @@ BASE_SRCS_ALL = [
     "src/xps/SkXPSDocument.cpp",
 ]
 
-ENCODE_SRCS = []
+ENCODE_SRCS = [
+    "src/encode/SkEncoder.cpp",
+    "src/encode/SkICCPriv.h",
+    "src/encode/SkICC.cpp",
+    "src/encode/SkImageEncoder.cpp",
+    "src/encode/SkImageEncoderFns.h",
+    "src/encode/SkImageEncoderPriv.h",
+]
 
-ENCODE_JPEG_SRCS = []
+ENCODE_JPEG_SRCS = [
+    "src/encode/SkJpegEncoderImpl.h",
+    "src/encode/SkJpegEncoderImpl.cpp",
+    "src/encode/SkJPEGWriteUtility.cpp",
+    "src/encode/SkJPEGWriteUtility.h",
+]
 
 NO_ENCODE_JPEG_SRCS = [
     "src/encode/SkJpegEncoder_none.cpp",
 ]
 
-ENCODE_PNG_SRCS = []
+ENCODE_PNG_SRCS = [
+    "src/encode/SkPngEncoderImpl.cpp",
+    "src/encode/SkPngEncoderImpl.h",
+]
 
 NO_ENCODE_PNG_SRCS = [
     "src/encode/SkPngEncoder_none.cpp",
 ]
 
-ENCODE_WEBP_SRCS = []
+ENCODE_WEBP_SRCS = [
+    "src/encode/SkWebpEncoderImpl.cpp",
+]
 
 NO_ENCODE_WEBP_SRCS = [
     "src/encode/SkWebpEncoder_none.cpp",
@@ -2113,28 +2119,21 @@ UNIX_DEFINES = [
     "SK_BUILD_FOR_UNIX",
     "SK_CODEC_DECODES_PNG",
     "SK_CODEC_DECODES_WEBP",
-    "SK_ENCODE_PNG",
-    "SK_ENCODE_WEBP",
     "SK_R32_SHIFT=16",
     "SK_GL",
     "SK_CODEC_DECODES_JPEG",
-    "SK_ENCODE_JPEG",
 ]
 ANDROID_DEFINES = [
     "SK_BUILD_FOR_ANDROID",
     "SK_CODEC_DECODES_PNG",
     "SK_CODEC_DECODES_WEBP",
-    "SK_ENCODE_PNG",
-    "SK_ENCODE_WEBP",
     "SK_GL",
     "SK_CODEC_DECODES_JPEG",
-    "SK_ENCODE_JPEG",
 ]
 IOS_DEFINES = [
     "SK_BUILD_FOR_IOS",
     "SK_GL",
     "SK_CODEC_DECODES_JPEG",
-    "SK_ENCODE_JPEG",
 ]
 WASM_DEFINES = [
     "SK_DISABLE_LEGACY_SHADERCONTEXT",
@@ -2145,24 +2144,19 @@ WASM_DEFINES = [
     "SK_FORCE_8_BYTE_ALIGNMENT",
     "SKNX_NO_SIMD",
     "SK_CODEC_DECODES_JPEG",
-    "SK_ENCODE_JPEG",
 ]
 FUCHSIA_DEFINES = [
     "SK_BUILD_FOR_UNIX",
     "SK_CODEC_DECODES_PNG",
     "SK_CODEC_DECODES_WEBP",
-    "SK_ENCODE_PNG",
-    "SK_ENCODE_WEBP",
     "SK_R32_SHIFT=16",
     "SK_VULKAN",
     "SK_CODEC_DECODES_JPEG",
-    "SK_ENCODE_JPEG",
 ]
 MACOS_DEFINES = [
     "SK_BUILD_FOR_MAC",
     "SK_GL",
     "SK_CODEC_DECODES_JPEG",
-    "SK_ENCODE_JPEG",
 ]
 ANDROID_NO_CODECS_DEFINES = [
     "SK_BUILD_FOR_ANDROID",
