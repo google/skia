@@ -1,0 +1,14 @@
+struct S {
+    half4 ah4[1];
+    half ah[99999];
+    half4 h4;
+    half h;
+};
+
+void func(int small,
+          S big_chungus,
+          S no_report /*we don't need to report overflows past the first*/) {}
+
+/*%%*
+variable 'big_chungus' exceeds the stack size limit
+*%%*/
