@@ -542,6 +542,11 @@ skia_cpu_tests(
 skia_ganesh_tests(
     name = "debugger_tests",
     extra_deps = ["//tools/debugger"],
+    flags = {
+        "include_encoder": [
+            "png_encode_codec",
+        ],
+    },
     harness = ":tests_base",
     tests = DEBUGGER_TESTS,
 )
@@ -555,6 +560,11 @@ skia_ganesh_tests(
 
 skia_ganesh_tests(
     name = "ganesh_tests",
+    flags = {
+        "include_encoder": [
+            "png_encode_codec",
+        ],
+    },
     harness = ":tests_base",
     resources = ["//resources"],
     tests = GANESH_TESTS,
