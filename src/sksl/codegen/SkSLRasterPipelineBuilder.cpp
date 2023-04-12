@@ -1152,31 +1152,31 @@ Program::~Program() = default;
 void Program::appendCopy(TArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
                          ProgramOp baseStage,
-                         float* dst,
-                         const float* src,
+                         SkRPOffset dst,
+                         SkRPOffset src,
                          int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
         this->appendCopy(pipeline, alloc, baseStage, dst, src, /*numSlots=*/4);
-        dst += 4 * SkOpts::raster_pipeline_highp_stride;
-        src += 4 * SkOpts::raster_pipeline_highp_stride;
+        dst += 4 * SkOpts::raster_pipeline_highp_stride * sizeof(float);
+        src += 4 * SkOpts::raster_pipeline_highp_stride * sizeof(float);
         numSlots -= 4;
     }
 
     if (numSlots > 0) {
         SkASSERT(numSlots <= 4);
         auto stage = (ProgramOp)((int)baseStage + numSlots - 1);
-        auto* ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
-        ctx->dst = dst;
-        ctx->src = src;
-        pipeline->push_back({stage, ctx});
+        SkRasterPipeline_BinaryOpCtx ctx;
+        ctx.dst = dst;
+        ctx.src = src;
+        pipeline->push_back({stage, SkRPCtxUtils::Pack(ctx, alloc)});
     }
 }
 
 void Program::appendCopySlotsUnmasked(TArray<Stage>* pipeline,
                                       SkArenaAlloc* alloc,
-                                      float* dst,
-                                      const float* src,
+                                      SkRPOffset dst,
+                                      SkRPOffset src,
                                       int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_unmasked,
@@ -1185,8 +1185,8 @@ void Program::appendCopySlotsUnmasked(TArray<Stage>* pipeline,
 
 void Program::appendCopySlotsMasked(TArray<Stage>* pipeline,
                                     SkArenaAlloc* alloc,
-                                    float* dst,
-                                    const float* src,
+                                    SkRPOffset dst,
+                                    SkRPOffset src,
                                     int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_masked,
@@ -1218,25 +1218,25 @@ void Program::appendMultiSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp baseStag
 
 void Program::appendAdjacentNWayBinaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                          ProgramOp stage,
-                                         float* dst, const float* src, int numSlots) const {
+                                         SkRPOffset dst, SkRPOffset src, int numSlots) const {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
-    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
+    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots * sizeof(float)) == src);
 
     if (numSlots > 0) {
-        auto ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
-        ctx->dst = dst;
-        ctx->src = src;
-        pipeline->push_back({stage, ctx});
+        SkRasterPipeline_BinaryOpCtx ctx;
+        ctx.dst = dst;
+        ctx.src = src;
+        pipeline->push_back({stage, SkRPCtxUtils::Pack(ctx, alloc)});
     }
 }
 
 void Program::appendAdjacentMultiSlotBinaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                              ProgramOp baseStage,
-                                              float* dst, const float* src, int numSlots) const {
+                                              ProgramOp baseStage, std::byte* basePtr,
+                                              SkRPOffset dst, SkRPOffset src, int numSlots) const {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
-    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
+    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots * sizeof(float)) == src);
 
     if (numSlots > 4) {
         this->appendAdjacentNWayBinaryOp(pipeline, alloc, baseStage, dst, src, numSlots);
@@ -1244,7 +1244,7 @@ void Program::appendAdjacentMultiSlotBinaryOp(TArray<Stage>* pipeline, SkArenaAl
     }
     if (numSlots > 0) {
         auto specializedStage = (ProgramOp)((int)baseStage + numSlots);
-        pipeline->push_back({specializedStage, dst});
+        pipeline->push_back({specializedStage, basePtr + dst});
     }
 }
 
@@ -1462,8 +1462,9 @@ void Program::makeStages(TArray<Stage>* pipeline,
         }
     };
 
+    auto* const basePtr = (std::byte*)slots.values.data();
     auto OffsetFromBase = [&](const void* ptr) -> SkRPOffset {
-        return (SkRPOffset)((std::byte*)ptr - (std::byte*)slots.values.data());
+        return (SkRPOffset)((std::byte*)ptr - basePtr);
     };
 
     // Write each BuilderOp to the pipeline array.
@@ -1554,14 +1555,18 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
                 this->appendAdjacentNWayBinaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
-                                                 dst, src, inst.fImmA);
+                                                 OffsetFromBase(dst), OffsetFromBase(src),
+                                                 inst.fImmA);
                 break;
             }
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
                 this->appendAdjacentMultiSlotBinaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
-                                                      dst, src, inst.fImmA);
+                                                      basePtr,
+                                                      OffsetFromBase(dst),
+                                                      OffsetFromBase(src),
+                                                      inst.fImmA);
                 break;
             }
             case ALL_N_WAY_TERNARY_OP_CASES: {
@@ -1583,15 +1588,24 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::select: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                this->appendCopySlotsMasked(pipeline, alloc, dst, src, inst.fImmA);
+                this->appendCopySlotsMasked(pipeline, alloc,
+                                            OffsetFromBase(dst),
+                                            OffsetFromBase(src),
+                                            inst.fImmA);
                 break;
             }
             case BuilderOp::copy_slot_masked:
-                this->appendCopySlotsMasked(pipeline, alloc, SlotA(), SlotB(), inst.fImmA);
+                this->appendCopySlotsMasked(pipeline, alloc,
+                                            OffsetFromBase(SlotA()),
+                                            OffsetFromBase(SlotB()),
+                                            inst.fImmA);
                 break;
 
             case BuilderOp::copy_slot_unmasked:
-                this->appendCopySlotsUnmasked(pipeline, alloc, SlotA(), SlotB(), inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc,
+                                              OffsetFromBase(SlotA()),
+                                              OffsetFromBase(SlotB()),
+                                              inst.fImmA);
                 break;
 
             case BuilderOp::zero_slot_unmasked:
@@ -1674,7 +1688,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
             }
             case BuilderOp::push_slots: {
                 float* dst = tempStackPtr;
-                this->appendCopySlotsUnmasked(pipeline, alloc, dst, SlotA(), inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc,
+                                              OffsetFromBase(dst),
+                                              OffsetFromBase(SlotA()),
+                                              inst.fImmA);
                 break;
             }
             case BuilderOp::copy_stack_to_slots_indirect:
@@ -1810,12 +1827,18 @@ void Program::makeStages(TArray<Stage>* pipeline,
             }
             case BuilderOp::copy_stack_to_slots: {
                 float* src = tempStackPtr - (inst.fImmB * N);
-                this->appendCopySlotsMasked(pipeline, alloc, SlotA(), src, inst.fImmA);
+                this->appendCopySlotsMasked(pipeline, alloc,
+                                            OffsetFromBase(SlotA()),
+                                            OffsetFromBase(src),
+                                            inst.fImmA);
                 break;
             }
             case BuilderOp::copy_stack_to_slots_unmasked: {
                 float* src = tempStackPtr - (inst.fImmB * N);
-                this->appendCopySlotsUnmasked(pipeline, alloc, SlotA(), src, inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc,
+                                              OffsetFromBase(SlotA()),
+                                              OffsetFromBase(src),
+                                              inst.fImmA);
                 break;
             }
             case BuilderOp::swizzle_copy_stack_to_slots: {
@@ -1834,7 +1857,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::push_clone: {
                 float* src = tempStackPtr - (inst.fImmB * N);
                 float* dst = tempStackPtr;
-                this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc,
+                                              OffsetFromBase(dst),
+                                              OffsetFromBase(src),
+                                              inst.fImmA);
                 break;
             }
             case BuilderOp::push_clone_from_stack: {
@@ -1844,7 +1870,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 float* sourceStackPtr = tempStackMap[inst.fImmB];
                 float* src = sourceStackPtr - (inst.fImmC * N);
                 float* dst = tempStackPtr;
-                this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc,
+                                              OffsetFromBase(dst),
+                                              OffsetFromBase(src),
+                                              inst.fImmA);
                 break;
             }
             case BuilderOp::push_clone_indirect_from_stack: {
@@ -2210,6 +2239,12 @@ void Program::dump(SkWStream* out) const {
                                    PtrCtx(ctxAsSlot + (N * numSlots), numSlots));
         };
 
+        // Interprets a slab offset as two adjacent slot ranges.
+        auto AdjacentOffsetCtx = [&](SkRPOffset offset,
+                                     int numSlots) -> std::tuple<std::string, std::string> {
+            return AdjacentPtrCtx((std::byte*)slots.values.data() + offset, numSlots);
+        };
+
         // Interpret the context value as a pointer to three adjacent values.
         auto Adjacent3PtrCtx = [&](const void* ctx, int numSlots) ->
                                   std::tuple<std::string, std::string, std::string> {
@@ -2223,9 +2258,9 @@ void Program::dump(SkWStream* out) const {
         // dictated by the op itself).
         auto BinaryOpCtx = [&](const void* v,
                                int numSlots) -> std::tuple<std::string, std::string> {
-            const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
-            return std::make_tuple(PtrCtx(ctx->dst, numSlots),
-                                   PtrCtx(ctx->src, numSlots));
+            auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_BinaryOpCtx*)v);
+            return std::make_tuple(OffsetCtx(ctx.dst, numSlots),
+                                   OffsetCtx(ctx.src, numSlots));
         };
 
         // Interpret the context value as a BinaryOp structure for copy_n_uniforms (numSlots is
@@ -2240,9 +2275,9 @@ void Program::dump(SkWStream* out) const {
         // Interpret the context value as a BinaryOp structure (numSlots is inferred from the
         // distance between pointers).
         auto AdjacentBinaryOpCtx = [&](const void* v) -> std::tuple<std::string, std::string> {
-            const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
-            int numSlots = (ctx->src - ctx->dst) / N;
-            return AdjacentPtrCtx(ctx->dst, numSlots);
+            auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_BinaryOpCtx*)v);
+            int numSlots = (ctx.src - ctx.dst) / (N * sizeof(float));
+            return AdjacentOffsetCtx(ctx.dst, numSlots);
         };
 
         // Interpret the context value as a TernaryOp structure (numSlots is inferred from the

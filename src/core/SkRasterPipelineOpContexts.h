@@ -166,8 +166,8 @@ struct SkRasterPipeline_UniformCtx {
 };
 
 struct SkRasterPipeline_BinaryOpCtx {
-    float *dst;
-    const float *src;
+    SkRPOffset dst;
+    SkRPOffset src;
 };
 
 struct SkRasterPipeline_TernaryOpCtx {

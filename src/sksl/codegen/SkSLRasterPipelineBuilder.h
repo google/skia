@@ -11,6 +11,7 @@
 #include "src/base/SkUtils.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
@@ -18,6 +19,7 @@
 class SkArenaAlloc;
 class SkRasterPipeline;
 class SkWStream;
+using SkRPOffset = uint32_t;
 
 namespace SkSL {
 
@@ -188,12 +190,22 @@ private:
     StackDepths tempStackMaxDepths() const;
 
     // These methods are used to split up multi-slot copies into multiple ops as needed.
-    void appendCopy(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                    ProgramOp baseStage, float* dst, const float* src, int numSlots) const;
-    void appendCopySlotsUnmasked(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                 float* dst, const float* src, int numSlots) const;
-    void appendCopySlotsMasked(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                               float* dst, const float* src, int numSlots) const;
+    void appendCopy(skia_private::TArray<Stage>* pipeline,
+                    SkArenaAlloc* alloc,
+                    ProgramOp baseStage,
+                    SkRPOffset dst,
+                    SkRPOffset src,
+                    int numSlots) const;
+    void appendCopySlotsUnmasked(skia_private::TArray<Stage>* pipeline,
+                                 SkArenaAlloc* alloc,
+                                 SkRPOffset dst,
+                                 SkRPOffset src,
+                                 int numSlots) const;
+    void appendCopySlotsMasked(skia_private::TArray<Stage>* pipeline,
+                               SkArenaAlloc* alloc,
+                               SkRPOffset dst,
+                               SkRPOffset src,
+                               int numSlots) const;
 
     // Appends a single-slot single-input math operation to the pipeline. The op `stage` will
     // appended `numSlots` times, starting at position `dst` and advancing one slot for each
@@ -215,7 +227,7 @@ private:
     // pointers implicitly gives the number of slots.
     void appendAdjacentNWayBinaryOp(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                     ProgramOp stage,
-                                    float* dst, const float* src, int numSlots) const;
+                                    SkRPOffset dst, SkRPOffset src, int numSlots) const;
 
     // Appends a multi-slot two-input math operation to the pipeline. `src` must be _immediately_
     // after `dst` in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage, which
@@ -224,8 +236,8 @@ private:
     // stage list, listed in that order; pass `add_n_floats` and we pick the appropriate op based on
     // `numSlots`.
     void appendAdjacentMultiSlotBinaryOp(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                         ProgramOp baseStage,
-                                         float* dst, const float* src, int numSlots) const;
+                                         ProgramOp baseStage, std::byte* basePtr,
+                                         SkRPOffset dst, SkRPOffset src, int numSlots) const;
 
     // Appends a multi-slot math operation having three inputs (dst, src0, src1) and one output
     // (dst) to the pipeline. The three inputs must be _immediately_ adjacent in memory. `baseStage`
