@@ -109,7 +109,6 @@ void DawnWindowContext::resize(int w, int h) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, kUsage, fWidth, fHeight);
 }
 
 void DawnWindowContext::setDisplayParams(const DisplayParams& params) {

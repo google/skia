@@ -134,7 +134,6 @@ wgpu::SwapChain GraphiteDawnWindowContext::createSwapChain() {
     swapChainDesc.width = fWidth;
     swapChainDesc.height = fHeight;
     swapChainDesc.presentMode = wgpu::PresentMode::Fifo;
-    swapChainDesc.implementation = 0;
     auto swapChain = fDevice.CreateSwapChain(fSurface, &swapChainDesc);
     SkASSERT(swapChain);
     return swapChain;
