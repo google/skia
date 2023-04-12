@@ -12,6 +12,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipelineContextUtils.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkTHash.h"
@@ -26,6 +27,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstring>
 #include <iterator>
 #include <string>
@@ -1460,6 +1462,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
         }
     };
 
+    auto OffsetFromBase = [&](const void* ptr) -> SkRPOffset {
+        return (SkRPOffset)((std::byte*)ptr - (std::byte*)slots.values.data());
+    };
+
     // Write each BuilderOp to the pipeline array.
     pipeline->reserve_back(fInstructions.size());
     for (const Instruction& inst : fInstructions) {
@@ -1787,14 +1793,15 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 } else {
                     // Splat constant values onto the stack.
                     for (int remaining = inst.fImmA; remaining > 0; remaining -= 4) {
-                        auto ctx = alloc->make<SkRasterPipeline_ConstantCtx>();
-                        ctx->dst = dst;
-                        ctx->value = sk_bit_cast<float>(inst.fImmB);
+                        SkRasterPipeline_ConstantCtx ctx;
+                        ctx.dst = OffsetFromBase(dst);
+                        ctx.value = sk_bit_cast<float>(inst.fImmB);
+                        void* ptr = SkRPCtxUtils::Pack(ctx, alloc);
                         switch (remaining) {
-                            case 1:  pipeline->push_back({ProgramOp::copy_constant,    ctx}); break;
-                            case 2:  pipeline->push_back({ProgramOp::splat_2_constants,ctx}); break;
-                            case 3:  pipeline->push_back({ProgramOp::splat_3_constants,ctx}); break;
-                            default: pipeline->push_back({ProgramOp::splat_4_constants,ctx}); break;
+                            case 1:  pipeline->push_back({ProgramOp::copy_constant,    ptr}); break;
+                            case 2:  pipeline->push_back({ProgramOp::splat_2_constants,ptr}); break;
+                            case 3:  pipeline->push_back({ProgramOp::splat_3_constants,ptr}); break;
+                            default: pipeline->push_back({ProgramOp::splat_4_constants,ptr}); break;
                         }
                         dst += 4 * N;
                     }
@@ -2190,6 +2197,11 @@ void Program::dump(SkWStream* out) const {
             return "ExternalPtr(" + AsRange(0, numSlots) + ")";
         };
 
+        // Interprets a slab offset as a slot range.
+        auto OffsetCtx = [&](SkRPOffset offset, int numSlots) -> std::string {
+            return PtrCtx((std::byte*)slots.values.data() + offset, numSlots);
+        };
+
         // Interpret the context value as a pointer to two adjacent values.
         auto AdjacentPtrCtx = [&](const void* ctx,
                                   int numSlots) -> std::tuple<std::string, std::string> {
@@ -2313,11 +2325,11 @@ void Program::dump(SkWStream* out) const {
             return std::make_tuple(dst, src);
         };
 
-        // Interpret the context value as a ConstantCtx structure.
+        // Interpret the context value as a packed ConstantCtx structure.
         auto ConstantCtx = [&](const void* v, int slots) -> std::tuple<std::string, std::string> {
-            const auto* ctx = static_cast<const SkRasterPipeline_ConstantCtx*>(v);
-            return std::make_tuple(PtrCtx(ctx->dst, slots),
-                                   Imm(ctx->value));
+            auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_ConstantCtx*)v);
+            return std::make_tuple(OffsetCtx(ctx.dst, slots),
+                                   Imm(ctx.value));
         };
 
         std::string opArg1, opArg2, opArg3, opSwizzle;

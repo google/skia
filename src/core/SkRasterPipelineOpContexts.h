@@ -153,8 +153,10 @@ struct SkRasterPipeline_TablesCtx {
     const uint8_t *r, *g, *b, *a;
 };
 
+using SkRPOffset = uint32_t;
+
 struct SkRasterPipeline_ConstantCtx {
-    float *dst;
+    SkRPOffset dst;
     float value;
 };
 
