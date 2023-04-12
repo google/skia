@@ -14,11 +14,8 @@
 #include "modules/skcms/skcms.h"
 #include "src/base/SkUtils.h"  // unaligned_{load,store}
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkRasterPipelineContextUtils.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
-
 #include <cstdint>
-#include <type_traits>
 
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)
@@ -1349,7 +1346,7 @@ static void start_pipeline(size_t dx, size_t dy,
         sk_unaligned_store(ctx->dg, dg);
         sk_unaligned_store(ctx->db, db);
         sk_unaligned_store(ctx->da, da);
-        ctx->base  = base;
+        ctx->base = ctx->base;
         ctx->stage = program;
     }
 #endif
@@ -3518,28 +3515,24 @@ STAGE_TAIL(copy_4_uniforms, SkRasterPipeline_UniformCtx* ctx) {
     dst[3] = src[3];
 }
 
-STAGE_TAIL(copy_constant, SkRasterPipeline_ConstantCtx* packed) {
-    auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+STAGE_TAIL(copy_constant, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    F value = ctx->value;
     dst[0] = value;
 }
-STAGE_TAIL(splat_2_constants, SkRasterPipeline_ConstantCtx* packed) {
-    auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+STAGE_TAIL(splat_2_constants, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    F value = ctx->value;
     dst[0] = dst[1] = value;
 }
-STAGE_TAIL(splat_3_constants, SkRasterPipeline_ConstantCtx* packed) {
-    auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+STAGE_TAIL(splat_3_constants, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    F value = ctx->value;
     dst[0] = dst[1] = dst[2] = value;
 }
-STAGE_TAIL(splat_4_constants, SkRasterPipeline_ConstantCtx* packed) {
-    auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+STAGE_TAIL(splat_4_constants, SkRasterPipeline_ConstantCtx* ctx) {
+    F* dst = (F*)ctx->dst;
+    F value = ctx->value;
     dst[0] = dst[1] = dst[2] = dst[3] = value;
 }
 

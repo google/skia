@@ -1303,11 +1303,10 @@ DEF_TEST(SkRasterPipeline_CopyConstant, r) {
         // Overwrite one destination slot with a constant (1000 + the slot number).
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        SkRasterPipeline_ConstantCtx ctx;
-        ctx.dst = N * index * sizeof(float);
-        ctx.value = 1000.0f + index;
-        p.append(SkRasterPipelineOp::set_base_pointer, &slots[0]);
-        p.append(SkRasterPipelineOp::copy_constant, SkRPCtxUtils::Pack(ctx, &alloc));
+        auto* ctx = alloc.make<SkRasterPipeline_ConstantCtx>();
+        ctx->dst = &slots[N * index];
+        ctx->value = 1000.0f + index;
+        p.append(SkRasterPipelineOp::copy_constant, ctx);
         p.run(0,0,1,1);
 
         // Verify that our constant value has been broadcast into exactly one slot.
@@ -1316,7 +1315,7 @@ DEF_TEST(SkRasterPipeline_CopyConstant, r) {
         for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
             for (int checkLane = 0; checkLane < N; ++checkLane) {
                 if (checkSlot == index) {
-                    REPORTER_ASSERT(r, *destPtr == ctx.value);
+                    REPORTER_ASSERT(r, *destPtr == ctx->value);
                 } else {
                     REPORTER_ASSERT(r, *destPtr == expectedUnchanged);
                 }
