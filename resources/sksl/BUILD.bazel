@@ -351,6 +351,7 @@ skia_filegroup(
         "errors/PrivateTypes.rts",
         "errors/PrivateVariables.rts",
         "errors/ProgramTooLarge_Globals.rts",
+        "errors/ProgramTooLarge_Parameters.rts",
         "errors/ProgramTooLarge_Stack.rts",
         "errors/PrototypeInFuncBody.rts",
         "errors/RTAdjustType.sksl",
