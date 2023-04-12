@@ -27,7 +27,6 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/utils/SkShaderUtils.h"
-#include "src/utils/SkVMVisualizer.h"
 #include "tools/skslc/ProcessWorklist.h"
 
 #include "spirv-tools/libspirv.hpp"
@@ -752,27 +751,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     out.writeString(SkShaderUtils::PrettyPrint(callbacks.fOutput));
                     return true;
                 });
-    } else if (skstd::ends_with(outputPath, ".html")) {
-        settings.fAllowTraceVarInDebugTrace = false;
-
-        SkCpu::CacheRuntimeFeatures();
-        return compileProgramAsRuntimeShader(
-            [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
-                if (!debugTrace) {
-                    debugTrace = std::make_unique<SkSL::DebugTracePriv>();
-                    debugTrace->setSource(text.c_str());
-                }
-                auto visualizer = std::make_unique<skvm::viz::Visualizer>(debugTrace.get());
-                skvm::Builder builder(skvm::Features{}, /*createDuplicates=*/true);
-                if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder, debugTrace.get())) {
-                    return false;
-                }
-
-                skvm::Program p = builder.done(/*debug_name=*/nullptr, /*allow_jit=*/false,
-                                               std::move(visualizer));
-                p.visualize(as_SkWStream(out).get());
-                return true;
-            });
     } else {
         printf("expected output path to end with one of: .glsl, .html, .metal, .hlsl, .wgsl, "
                ".spirv, .asm.vert, .asm.frag, .skrp, .skvm, .stage (got '%s')\n",

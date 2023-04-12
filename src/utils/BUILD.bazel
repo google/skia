@@ -10,8 +10,6 @@ CORE_SKSLC_FILES = [
     "SkParse.cpp",
     "SkOSPath.h",
     "SkOSPath.cpp",
-    "SkVMVisualizer.cpp",
-    "SkVMVisualizer.h",
 ]
 
 split_srcs_and_hdrs(
@@ -124,8 +122,8 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":core_srcs",
         ":core_skslc_srcs",
+        ":core_srcs",
     ] + select({
         "//src/sksl:needs_sksl": [":sksl_srcs"],
         "//conditions:default": [],

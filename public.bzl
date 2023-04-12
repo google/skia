@@ -1708,8 +1708,6 @@ BASE_SRCS_ALL = [
     "src/utils/SkShadowUtils.cpp",
     "src/utils/SkTestCanvas.h",
     "src/utils/SkTextUtils.cpp",
-    "src/utils/SkVMVisualizer.cpp",
-    "src/utils/SkVMVisualizer.h",
     "src/xps/SkXPSDevice.cpp",
     "src/xps/SkXPSDevice.h",
     "src/xps/SkXPSDocument.cpp",

@@ -323,5 +323,4 @@ skslc_deps = [
   "$_src/utils/SkOSPath.cpp",
   "$_src/utils/SkParse.cpp",
   "$_src/utils/SkShaderUtils.cpp",
-  "$_src/utils/SkVMVisualizer.cpp",
 ]
