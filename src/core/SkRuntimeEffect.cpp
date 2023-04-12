@@ -549,6 +549,15 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
         flags |= kSamplesOutsideMain_Flag;
     }
 
+    // Look for color filters that preserve the input alpha. This analysis is very conservative, and
+    // only returns true when the input alpha is returned as-is from main() with no intervening
+    // copies or arithmetic.
+    if (flags & kAllowColorFilter_Flag) {
+        if (SkSL::Analysis::ReturnsInputAlpha(*main->definition(), *program->usage())) {
+            flags |= kAlphaUnchanged_Flag;
+        }
+    }
+
     // Determine if this effect uses of the color transform intrinsics. Effects need to know this
     // so they can allocate color transform objects, etc.
     if (SkSL::Analysis::CallsColorTransformIntrinsics(*program)) {
@@ -978,24 +987,16 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         return nullptr;
     }
 
-    // This is very conservative, and only returns true when the input alpha is returned as-is
-    // from main() with no intervening copies or arithmetic.
-    bool alphaUnchanged = SkSL::Analysis::ReturnsInputAlpha(effect->fMain,
-                                                            *effect->fBaseProgram->usage());
-
     // We'll use this program to filter one color at a time, don't bother with jit
     return std::unique_ptr<SkFilterColorProgram>(
             new SkFilterColorProgram(p.done(/*debug_name=*/nullptr, /*allow_jit=*/false),
-                                     std::move(sampleCalls),
-                                     alphaUnchanged));
+                                     std::move(sampleCalls)));
 }
 
 SkFilterColorProgram::SkFilterColorProgram(skvm::Program program,
-                                           std::vector<SampleCall> sampleCalls,
-                                           bool alphaUnchanged)
+                                           std::vector<SampleCall> sampleCalls)
         : fProgram(std::move(program))
-        , fSampleCalls(std::move(sampleCalls))
-        , fAlphaUnchanged(alphaUnchanged) {}
+        , fSampleCalls(std::move(sampleCalls)) {}
 
 SkPMColor4f SkFilterColorProgram::eval(
         const SkPMColor4f& inColor,
@@ -1347,7 +1348,7 @@ public:
 
     bool onIsAlphaUnchanged() const override {
         return fEffect->getFilterColorProgram() &&
-               fEffect->getFilterColorProgram()->isAlphaUnchanged();
+               fEffect->isAlphaUnchanged();
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

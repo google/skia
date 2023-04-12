@@ -142,8 +142,6 @@ public:
                      const void* uniformData,
                      std::function<SkPMColor4f(int, SkPMColor4f)> evalChild) const;
 
-    bool isAlphaUnchanged() const { return fAlphaUnchanged; }
-
 private:
     struct SampleCall {
         enum class Kind {
@@ -162,13 +160,10 @@ private:
         };
     };
 
-    SkFilterColorProgram(skvm::Program program,
-                         std::vector<SampleCall> sampleCalls,
-                         bool alphaUnchanged);
+    SkFilterColorProgram(skvm::Program program, std::vector<SampleCall> sampleCalls);
 
     skvm::Program           fProgram;
     std::vector<SampleCall> fSampleCalls;
-    bool                    fAlphaUnchanged;
 };
 
 #endif  // SK_ENABLE_SKSL

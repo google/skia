@@ -283,6 +283,7 @@ private:
         kSamplesOutsideMain_Flag = 0x10,
         kUsesColorTransform_Flag = 0x20,
         kAlwaysOpaque_Flag       = 0x40,
+        kAlphaUnchanged_Flag     = 0x80,
     };
 
     SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
@@ -308,6 +309,7 @@ private:
     bool samplesOutsideMain() const { return (fFlags & kSamplesOutsideMain_Flag); }
     bool usesColorTransform() const { return (fFlags & kUsesColorTransform_Flag); }
     bool alwaysOpaque()       const { return (fFlags & kAlwaysOpaque_Flag);       }
+    bool isAlphaUnchanged()   const { return (fFlags & kAlphaUnchanged_Flag);     }
 
     const SkFilterColorProgram* getFilterColorProgram() const;
     const SkSL::RP::Program* getRPProgram(SkSL::DebugTracePriv* debugTrace) const;
