@@ -1,20 +1,20 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          x[0], x[1] = 0
-    4. zero_2_slots_unmasked          $0..1 = 0
+    3. splat_4_constants              x[0], x[1] = 0
+    4. splat_2_constants              $0..1 = 0
     5. copy_2_slots_unmasked          x[0] = $0..1
     6. copy_constant                  $0 = 0x3F800000 (1.0)
-    7. zero_slot_unmasked             $1 = 0
+    7. copy_constant                  $1 = 0
     8. copy_2_slots_unmasked          x[1] = $0..1
-    9. zero_4_slots_unmasked          y[0], y[1] = 0
-   10. zero_slot_unmasked             $0 = 0
+    9. splat_4_constants              y[0], y[1] = 0
+   10. copy_constant                  $0 = 0
    11. copy_constant                  $1 = 0x3F800000 (1.0)
    12. copy_2_slots_unmasked          y[0] = $0..1
    13. copy_constant                  $0 = 0xBF800000 (-1.0)
    14. copy_constant                  $1 = 0x40000000 (2.0)
    15. copy_2_slots_unmasked          y[1] = $0..1
-   16. zero_4_slots_unmasked          z[0].v, z[1].v = 0
-   17. zero_slot_unmasked             $0 = 0
+   16. splat_4_constants              z[0].v, z[1].v = 0
+   17. copy_constant                  $0 = 0
    18. copy_constant                  $1 = 0x3F800000 (1.0)
    19. copy_2_slots_unmasked          z[0].v₁ = $0..1
    20. copy_constant                  $0 = 0x40000000 (2.0)
@@ -22,7 +22,7 @@
    22. copy_2_slots_unmasked          z[1].v₁ = $0..1
    23. copy_4_slots_unmasked          $0..3 = z[0].v₁, z[1].v₁
    24. copy_4_slots_unmasked          z[0].v, z[1].v = $0..3
-   25. label                          label 0x00000000
+   25. label                          label 0
    26. copy_slot_unmasked             $0 = x[0](0)
    27. copy_2_slots_unmasked          $1..2 = x[0]
    28. swizzle_1                      $1 = ($1..2).y

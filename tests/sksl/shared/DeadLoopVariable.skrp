@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             x = 0
+    3. copy_constant                  x = 0
     4. store_loop_mask                $0 = LoopMask
     5. jump                           jump +4 (label 1 at #9)
     6. label                          label 0x00000002
@@ -13,7 +13,7 @@
    13. merge_loop_mask                LoopMask &= $1
    14. stack_rewind
    15. branch_if_any_lanes_active     branch_if_any_lanes_active -9 (label 2 at #6)
-   16. label                          label 0x00000000
+   16. label                          label 0
    17. load_loop_mask                 LoopMask = $0
    18. copy_4_uniforms                $0..3 = colorGreen
    19. load_src                       src.rgba = $0..3

@@ -5,7 +5,7 @@
     5. cast_to_int_from_float         $0 = FloatToInt($0)
     6. copy_slot_unmasked             i = $0
     7. copy_uniform                   $0 = colorGreen(1)
-    8. zero_slot_unmasked             $1 = 0
+    8. copy_constant                  $1 = 0
     9. cmpne_float                    $0 = notEqual($0, $1)
    10. copy_slot_unmasked             b = $0
    11. copy_slot_unmasked             f1 = f
@@ -25,11 +25,11 @@
    25. bitwise_and_int                $0 &= $1
    26. copy_slot_unmasked             i3 = $0
    27. copy_slot_unmasked             $0 = f
-   28. zero_slot_unmasked             $1 = 0
+   28. copy_constant                  $1 = 0
    29. cmpne_float                    $0 = notEqual($0, $1)
    30. copy_slot_unmasked             b1 = $0
    31. copy_slot_unmasked             $0 = i
-   32. zero_slot_unmasked             $1 = 0
+   32. copy_constant                  $1 = 0
    33. cmpne_int                      $0 = notEqual($0, $1)
    34. copy_slot_unmasked             b2 = $0
    35. copy_slot_unmasked             b3 = b

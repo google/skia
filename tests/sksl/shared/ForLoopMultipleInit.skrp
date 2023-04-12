@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          result = 0
-    4. zero_2_slots_unmasked          a, b = 0
+    3. splat_4_constants              result = 0
+    4. splat_2_constants              a, b = 0
     5. store_loop_mask                $0 = LoopMask
     6. jump                           jump +18 (label 1 at #24)
     7. label                          label 0x00000002
@@ -32,9 +32,9 @@
    32. merge_loop_mask                LoopMask &= $1
    33. stack_rewind
    34. branch_if_any_lanes_active     branch_if_any_lanes_active -27 (label 2 at #7)
-   35. label                          label 0x00000000
+   35. label                          label 0
    36. load_loop_mask                 LoopMask = $0
-   37. zero_slot_unmasked             c = 0
+   37. copy_constant                  c = 0
    38. store_loop_mask                $0 = LoopMask
    39. jump                           jump +10 (label 4 at #49)
    40. label                          label 0x00000005
@@ -55,7 +55,7 @@
    55. branch_if_any_lanes_active     branch_if_any_lanes_active -15 (label 5 at #40)
    56. label                          label 0x00000003
    57. load_loop_mask                 LoopMask = $0
-   58. zero_slot_unmasked             d[0] = 0
+   58. copy_constant                  d[0] = 0
    59. copy_constant                  d[1] = 0x41200000 (10.0)
    60. copy_constant                  e[0] = 0x3F800000 (1.0)
    61. copy_constant                  e[1] = 0x40000000 (2.0)

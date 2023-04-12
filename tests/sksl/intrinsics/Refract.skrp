@@ -1,10 +1,10 @@
     1. store_src_rg                   v0..1 = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          result = 0
+    3. splat_4_constants              result = 0
     4. copy_uniform                   $0 = a
-    5. zero_3_slots_unmasked          $1..3 = 0
+    5. splat_3_constants              $1..3 = 0
     6. copy_uniform                   $4 = b
-    7. zero_3_slots_unmasked          $5..7 = 0
+    7. splat_3_constants              $5..7 = 0
     8. copy_uniform                   $8 = c
     9. refract_4_floats               $0..3 = refract($0..3, $4..7, $8)
    10. copy_slot_unmasked             result(0) = $0
@@ -17,11 +17,11 @@
    17. copy_constant                  $1 = 0xBF5DB3D7 (-0.8660254)
    18. copy_2_slots_unmasked          result(0..1) = $0..1
    19. copy_constant                  $0 = 0x3F000000 (0.5)
-   20. zero_slot_unmasked             $1 = 0
+   20. copy_constant                  $1 = 0
    21. copy_constant                  $2 = 0xBF5DB3D7 (-0.8660254)
    22. copy_3_slots_unmasked          result(0..2) = $0..2
    23. copy_constant                  $0 = 0x3F000000 (0.5)
-   24. zero_2_slots_unmasked          $1..2 = 0
+   24. splat_2_constants              $1..2 = 0
    25. copy_constant                  $3 = 0xBF5DB3D7 (-0.8660254)
    26. copy_4_slots_unmasked          result = $0..3
    27. load_src                       src.rgba = $0..3

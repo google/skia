@@ -1,11 +1,11 @@
     1. store_src_rg                   v0..1 = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             zero = 0
+    3. copy_constant                  zero = 0
     4. splat_4_constants              globalArray[0], globalArray[1], globalVector = 0x3F800000 (1.0)
     5. splat_4_constants              globalMatrix = 0x3F800000 (1.0)
-    6. zero_slot_unmasked             localArray[0] = 0
+    6. copy_constant                  localArray[0] = 0
     7. splat_3_constants              localArray[1], localVector = 0x3F800000 (1.0)
-    8. zero_slot_unmasked             localMatrix(0) = 0
+    8. copy_constant                  localMatrix(0) = 0
     9. copy_constant                  localMatrix(1) = 0x3F800000 (1.0)
    10. copy_constant                  localMatrix(2) = 0x40000000 (2.0)
    11. copy_constant                  localMatrix(3) = 0x40400000 (3.0)

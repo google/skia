@@ -1,12 +1,12 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          _0_matrix(0..3) = 0
-    4. zero_4_slots_unmasked          _0_matrix(4..7) = 0
-    5. zero_slot_unmasked             _0_matrix(8) = 0
+    3. splat_4_constants              _0_matrix(0..3) = 0
+    4. splat_4_constants              _0_matrix(4..7) = 0
+    5. copy_constant                  _0_matrix(8) = 0
     6. copy_constant                  _1_values(0) = 0x40400000 (3.0)
     7. copy_constant                  _1_values(1) = 0x40000000 (2.0)
     8. copy_constant                  _1_values(2) = 0x3F800000 (1.0)
-    9. zero_slot_unmasked             _2_index = 0
+    9. copy_constant                  _2_index = 0
    10. label                          label 0x00000001
    11. copy_slot_unmasked             $33 = _2_index
    12. copy_constant                  $34 = 0x00000003 (4.203895e-45)
@@ -30,8 +30,8 @@
    30. copy_constant                  $1 = 0x00000003 (4.203895e-45)
    31. cmplt_int                      $0 = lessThan($0, $1)
    32. stack_rewind
-   33. branch_if_no_active_lanes_eq   branch -23 (label 1 at #10) if no lanes of $0 == 0x00000000 (0.0)
-   34. label                          label 0x00000000
+   33. branch_if_no_active_lanes_eq   branch -23 (label 1 at #10) if no lanes of $0 == 0
+   34. label                          label 0
    35. store_condition_mask           $33 = CondMask
    36. copy_4_slots_unmasked          $34..37 = _0_matrix(0..3)
    37. copy_4_slots_unmasked          $38..41 = _0_matrix(4..7)
@@ -44,19 +44,19 @@
    44. bitwise_and_2_ints             $35..36 &= $37..38
    45. bitwise_and_int                $35 &= $36
    46. bitwise_and_int                $34 &= $35
-   47. zero_slot_unmasked             $0 = 0
+   47. copy_constant                  $0 = 0
    48. merge_condition_mask           CondMask = $33 & $34
    49. branch_if_no_lanes_active      branch_if_no_lanes_active +52 (label 3 at #101)
-   50. zero_4_slots_unmasked          matrix(0..3) = 0
-   51. zero_4_slots_unmasked          matrix(4..7) = 0
-   52. zero_4_slots_unmasked          matrix(8..11) = 0
-   53. zero_4_slots_unmasked          matrix(12..15) = 0
+   50. splat_4_constants              matrix(0..3) = 0
+   51. splat_4_constants              matrix(4..7) = 0
+   52. splat_4_constants              matrix(8..11) = 0
+   53. splat_4_constants              matrix(12..15) = 0
    54. copy_constant                  values(0) = 0x40800000 (4.0)
    55. copy_constant                  values(1) = 0x40400000 (3.0)
    56. copy_constant                  values(2) = 0x40000000 (2.0)
    57. copy_constant                  values(3) = 0x3F800000 (1.0)
    58. branch_if_no_lanes_active      branch_if_no_lanes_active +26 (label 5 at #84)
-   59. zero_slot_unmasked             index = 0
+   59. copy_constant                  index = 0
    60. label                          label 0x00000006
    61. copy_slot_unmasked             $52 = index
    62. copy_constant                  $53 = 0x00000004 (5.605194e-45)
@@ -80,7 +80,7 @@
    80. copy_constant                  $2 = 0x00000004 (5.605194e-45)
    81. cmplt_int                      $1 = lessThan($1, $2)
    82. stack_rewind
-   83. branch_if_no_active_lanes_eq   branch -23 (label 6 at #60) if no lanes of $1 == 0x00000000 (0.0)
+   83. branch_if_no_active_lanes_eq   branch -23 (label 6 at #60) if no lanes of $1 == 0
    84. label                          label 0x00000005
    85. copy_4_slots_unmasked          $1..4 = matrix(0..3)
    86. copy_4_slots_unmasked          $5..8 = matrix(4..7)

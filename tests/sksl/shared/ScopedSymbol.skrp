@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             glob = 0
+    3. copy_constant                  glob = 0
     4. copy_constant                  $0 = 0x00000002 (2.802597e-45)
     5. copy_slot_unmasked             glob = $0
     6. copy_constant                  _0_var = 0xFFFFFFFF
@@ -16,9 +16,9 @@
    16. label                          label 0x00000006
    17. jump                           jump +3 (label 5 at #20)
    18. label                          label 0x00000004
-   19. zero_slot_unmasked             $20 = 0
+   19. copy_constant                  $20 = 0
    20. label                          label 0x00000005
-   21. zero_slot_unmasked             $17 = 0
+   21. copy_constant                  $17 = 0
    22. merge_condition_mask           CondMask = $19 & $20
    23. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #28)
    24. copy_constant                  S = 0xFFFFFFFF
@@ -27,7 +27,7 @@
    27. copy_slot_masked               $17 = Mask($18)
    28. label                          label 0x00000003
    29. load_condition_mask            CondMask = $19
-   30. zero_slot_unmasked             $13 = 0
+   30. copy_constant                  $13 = 0
    31. merge_condition_mask           CondMask = $16 & $17
    32. branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 2 at #39)
    33. copy_constant                  S.i = 0x00000001 (1.401298e-45)
@@ -38,7 +38,7 @@
    38. copy_slot_masked               $13 = Mask($14)
    39. label                          label 0x00000002
    40. load_condition_mask            CondMask = $16
-   41. zero_slot_unmasked             $0 = 0
+   41. copy_constant                  $0 = 0
    42. merge_condition_mask           CondMask = $12 & $13
    43. branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 1 at #50)
    44. copy_constant                  glob₁ = 0x00000001 (1.401298e-45)

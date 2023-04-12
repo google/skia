@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  expectedVec(0) = 0x3F800000 (1.0)
-    4. zero_3_slots_unmasked          expectedVec(1..3) = 0
+    4. splat_3_constants              expectedVec(1..3) = 0
     5. copy_uniform                   $0 = inputVal(0)
     6. copy_slot_unmasked             $1 = $0
     7. abs_float                      $1 = abs($1)
@@ -47,16 +47,16 @@
    47. copy_slot_unmasked             $2 = expectedVec(0)
    48. cmpeq_float                    $1 = equal($1, $2)
    49. bitwise_and_int                $0 &= $1
-   50. zero_slot_unmasked             $1 = 0
+   50. copy_constant                  $1 = 0
    51. copy_constant                  $2 = 0x3F800000 (1.0)
    52. copy_4_slots_unmasked          $3..6 = expectedVec
    53. swizzle_2                      $3..4 = ($3..4).yx
    54. cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
    55. bitwise_and_int                $1 &= $2
    56. bitwise_and_int                $0 &= $1
-   57. zero_slot_unmasked             $1 = 0
+   57. copy_constant                  $1 = 0
    58. copy_constant                  $2 = 0x3F800000 (1.0)
-   59. zero_slot_unmasked             $3 = 0
+   59. copy_constant                  $3 = 0
    60. copy_4_slots_unmasked          $4..7 = expectedVec
    61. swizzle_3                      $4..6 = ($4..6).zxy
    62. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
@@ -64,7 +64,7 @@
    64. bitwise_and_int                $1 &= $2
    65. bitwise_and_int                $0 &= $1
    66. copy_constant                  $1 = 0x3F800000 (1.0)
-   67. zero_3_slots_unmasked          $2..4 = 0
+   67. splat_3_constants              $2..4 = 0
    68. copy_4_slots_unmasked          $5..8 = expectedVec
    69. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
    70. bitwise_and_2_ints             $1..2 &= $3..4

@@ -14,7 +14,7 @@
    14. cmpeq_4_floats                 $20..23 = equal($20..23, $24..27)
    15. bitwise_and_2_ints             $20..21 &= $22..23
    16. bitwise_and_int                $20 &= $21
-   17. zero_slot_unmasked             $0 = 0
+   17. copy_constant                  $0 = 0
    18. merge_condition_mask           CondMask = $19 & $20
    19. branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 1 at #41)
    20. copy_4_uniforms                $1..4 = testMatrix3x3(0..3)
@@ -22,15 +22,15 @@
    22. copy_uniform                   $9 = testMatrix3x3(8)
    23. shuffle                        $3..4 = ($3..4)[1 2]
    24. label                          label 0x00000003
-   25. zero_slot_unmasked             $5 = 0
+   25. copy_constant                  $5 = 0
    26. copy_constant                  $6 = 0x3F800000 (1.0)
    27. shuffle                        $3..9 = ($3..9)[2 0 1 2 2 2 3]
    28. copy_constant                  $10 = 0x3F800000 (1.0)
    29. copy_constant                  $11 = 0x40000000 (2.0)
-   30. zero_slot_unmasked             $12 = 0
+   30. copy_constant                  $12 = 0
    31. copy_constant                  $13 = 0x40800000 (4.0)
    32. copy_constant                  $14 = 0x40A00000 (5.0)
-   33. zero_3_slots_unmasked          $15..17 = 0
+   33. splat_3_constants              $15..17 = 0
    34. copy_constant                  $18 = 0x3F800000 (1.0)
    35. cmpeq_n_floats                 $1..9 = equal($1..9, $10..18)
    36. bitwise_and_4_ints             $2..5 &= $6..9

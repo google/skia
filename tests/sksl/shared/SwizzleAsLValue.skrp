@@ -1,6 +1,6 @@
     1. store_src_rg                   v0..1 = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          color = 0
+    3. splat_4_constants              color = 0
     4. copy_4_uniforms                $0..3 = colorGreen
     5. splat_4_constants              $4..7 = 0x3F000000 (0.5)
     6. mul_4_floats                   $0..3 *= $4..7
@@ -18,7 +18,7 @@
    18. copy_4_slots_unmasked          $0..3 = color
    19. swizzle_4                      $0..3 = ($0..3).zywx
    20. copy_constant                  $4 = 0x3E800000 (0.25)
-   21. zero_2_slots_unmasked          $5..6 = 0
+   21. splat_2_constants              $5..6 = 0
    22. copy_constant                  $7 = 0x3F400000 (0.75)
    23. add_4_floats                   $0..3 += $4..7
    24. swizzle_copy_4_slots_masked    (color).zywx = Mask($0..3)
@@ -26,7 +26,7 @@
    26. copy_slot_unmasked             $1 = color(3)
    27. copy_constant                  $2 = 0x3F800000 (1.0)
    28. cmple_float                    $1 = lessThanEqual($1, $2)
-   29. zero_slot_unmasked             $2 = 0
+   29. copy_constant                  $2 = 0
    30. copy_slot_unmasked             $3 = color(2)
    31. mix_int                        $1 = mix($2, $3, $1)
    32. add_float                      $0 += $1

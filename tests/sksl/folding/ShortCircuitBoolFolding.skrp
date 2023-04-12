@@ -1,10 +1,10 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             $0 = 0
+    3. copy_constant                  $0 = 0
     4. copy_uniform                   $1 = unknownInput
     5. cmplt_float                    $0 = lessThan($0, $1)
     6. copy_slot_unmasked             _0_expr = $0
-    7. zero_2_slots_unmasked          _1_ok, _2_bad = 0
+    7. splat_2_constants              _1_ok, _2_bad = 0
     8. store_condition_mask           $0 = CondMask
     9. copy_slot_unmasked             $1 = _0_expr
    10. merge_condition_mask           CondMask = $0 & $1
@@ -86,7 +86,7 @@
    86. copy_slot_masked               _2_bad = Mask($2)
    87. load_condition_mask            CondMask = $0
    88. store_condition_mask           $0 = CondMask
-   89. zero_slot_unmasked             $1 = 0
+   89. copy_constant                  $1 = 0
    90. copy_slot_unmasked             $2 = _0_expr
    91. cmpeq_int                      $1 = equal($1, $2)
    92. merge_condition_mask           CondMask = $0 & $1
@@ -213,7 +213,7 @@
   213. load_condition_mask            CondMask = $0
   214. store_condition_mask           $0 = CondMask
   215. copy_slot_unmasked             $1 = _0_expr
-  216. zero_slot_unmasked             $2 = 0
+  216. copy_constant                  $2 = 0
   217. cmpeq_int                      $1 = equal($1, $2)
   218. merge_condition_mask           CondMask = $0 & $1
   219. copy_slot_unmasked             $2 = _2_bad
@@ -282,7 +282,7 @@
   282. load_condition_mask            CondMask = $0
   283. copy_slot_unmasked             $0 = _4_b
   284. copy_slot_unmasked             _3_a = $0
-  285. zero_slot_unmasked             $1 = 0
+  285. copy_constant                  $1 = 0
   286. cmpne_float                    $0 = notEqual($0, $1)
   287. copy_constant                  $1 = 0xFFFFFFFF
   288. bitwise_or_int                 $0 |= $1
@@ -305,7 +305,7 @@
   305. copy_constant                  $1 = 0x00000016 (3.082857e-44)
   306. cmpeq_int                      $0 = equal($0, $1)
   307. copy_slot_unmasked             $1 = _2_bad
-  308. zero_slot_unmasked             $2 = 0
+  308. copy_constant                  $2 = 0
   309. cmpeq_int                      $1 = equal($1, $2)
   310. bitwise_and_int                $0 &= $1
   311. swizzle_4                      $0..3 = ($0..3).xxxx

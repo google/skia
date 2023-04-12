@@ -1,8 +1,8 @@
     1. store_src_rg                   xy = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          color = 0
+    3. splat_4_constants              color = 0
     4. splat_4_constants              $0..3 = 0x3F800000 (1.0)
     5. copy_4_slots_unmasked          color = $0..3
-    6. label                          label 0x00000000
+    6. label                          label 0
     7. copy_4_slots_unmasked          $0..3 = color
     8. load_src                       src.rgba = $0..3

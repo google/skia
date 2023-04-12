@@ -1,12 +1,12 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          data.outer[0].inner[0].values, data.outer[0].inner[1].values(0) = 0
-    4. zero_4_slots_unmasked          data.outer[0].inner[1].values(1..2), data.outer[0].inner[2].values(0..1) = 0
-    5. zero_4_slots_unmasked          data.outer[0].inner[2].values(2), data.outer[1].inner[0].values = 0
-    6. zero_4_slots_unmasked          data.outer[1].inner[1].values, data.outer[1].inner[2].values(0) = 0
-    7. zero_4_slots_unmasked          data.outer[1].inner[2].values(1..2), data.outer[2].inner[0].values(0..1) = 0
-    8. zero_4_slots_unmasked          data.outer[2].inner[0].values(2), data.outer[2].inner[1].values = 0
-    9. zero_3_slots_unmasked          data.outer[2].inner[2].values = 0
+    3. splat_4_constants              data.outer[0].inner[0].values, data.outer[0].inner[1].values(0) = 0
+    4. splat_4_constants              data.outer[0].inner[1].values(1..2), data.outer[0].inner[2].values(0..1) = 0
+    5. splat_4_constants              data.outer[0].inner[2].values(2), data.outer[1].inner[0].values = 0
+    6. splat_4_constants              data.outer[1].inner[1].values, data.outer[1].inner[2].values(0) = 0
+    7. splat_4_constants              data.outer[1].inner[2].values(1..2), data.outer[2].inner[0].values(0..1) = 0
+    8. splat_4_constants              data.outer[2].inner[0].values(2), data.outer[2].inner[1].values = 0
+    9. splat_3_constants              data.outer[2].inner[2].values = 0
    10. copy_constant                  $0 = 0x3F800000 (1.0)
    11. copy_constant                  $1 = 0x41200000 (10.0)
    12. copy_constant                  $2 = 0x42C80000 (100.0)
@@ -43,11 +43,11 @@
    43. copy_constant                  $1 = 0x42B40000 (90.0)
    44. copy_constant                  $2 = 0x44610000 (900.0)
    45. copy_3_slots_masked            data.outer[2].inner[2].values = Mask($0..2)
-   46. zero_4_slots_unmasked          expected, i = 0
+   46. splat_4_constants              expected, i = 0
    47. store_loop_mask                $0 = LoopMask
    48. jump                           jump +86 (label 1 at #134)
    49. label                          label 0x00000002
-   50. zero_slot_unmasked             j = 0
+   50. copy_constant                  j = 0
    51. store_loop_mask                $1 = LoopMask
    52. jump                           jump +69 (label 4 at #121)
    53. label                          label 0x00000005
@@ -76,7 +76,7 @@
    76. copy_4_slots_masked            [main].result = Mask($4..7)
    77. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    78. load_condition_mask            CondMask = $2
-   79. zero_slot_unmasked             k = 0
+   79. copy_constant                  k = 0
    80. store_loop_mask                $2 = LoopMask
    81. jump                           jump +27 (label 7 at #108)
    82. label                          label 0x00000008
@@ -138,7 +138,7 @@
   138. merge_loop_mask                LoopMask &= $1
   139. stack_rewind
   140. branch_if_any_lanes_active     branch_if_any_lanes_active -91 (label 2 at #49)
-  141. label                          label 0x00000000
+  141. label                          label 0
   142. load_loop_mask                 LoopMask = $0
   143. copy_4_uniforms                $0..3 = colorGreen
   144. copy_4_slots_masked            [main].result = Mask($0..3)

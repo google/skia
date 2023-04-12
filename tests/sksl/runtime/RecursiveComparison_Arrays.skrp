@@ -12,7 +12,7 @@
    12. copy_uniform                   $1 = colorGreen(2)
    13. mul_float                      $0 *= $1
    14. copy_slot_unmasked             ZP = $0
-   15. zero_slot_unmasked             $0 = 0
+   15. copy_constant                  $0 = 0
    16. copy_uniform                   $1 = colorGreen(0)
    17. sub_float                      $0 -= $1
    18. copy_uniform                   $1 = colorGreen(2)
@@ -31,19 +31,19 @@
    31. mul_float                      $0 *= $1
    32. copy_slot_unmasked             F44 = $0
    33. copy_constant                  EQ = 0xFFFFFFFF
-   34. zero_slot_unmasked             NE = 0
+   34. copy_constant                  NE = 0
    35. copy_uniform                   $0 = colorGreen(0)
    36. copy_constant                  $1 = 0x3F800000 (1.0)
    37. add_float                      $0 += $1
    38. copy_slot_unmasked             _0_one = $0
-   39. zero_3_slots_unmasked          _1_a[0], _1_a[1], _1_a[2] = 0
+   39. splat_3_constants              _1_a[0], _1_a[1], _1_a[2] = 0
    40. copy_slot_unmasked             $0 = F42
    41. copy_slot_unmasked             _1_a[0] = $0
    42. copy_slot_unmasked             $0 = ZM
    43. copy_slot_unmasked             _1_a[1] = $0
    44. copy_slot_unmasked             $0 = ZP
    45. copy_slot_unmasked             _1_a[2] = $0
-   46. zero_3_slots_unmasked          _2_b[0], _2_b[1], _2_b[2] = 0
+   46. splat_3_constants              _2_b[0], _2_b[1], _2_b[2] = 0
    47. copy_slot_unmasked             $0 = F42
    48. copy_slot_unmasked             $1 = _0_one
    49. mul_float                      $0 *= $1
@@ -80,7 +80,7 @@
    80. copy_slot_masked               $67 = Mask($68)
    81. label                          label 0x00000008
    82. load_condition_mask            CondMask = $74
-   83. zero_slot_unmasked             $58 = 0
+   83. copy_constant                  $58 = 0
    84. merge_condition_mask           CondMask = $66 & $67
    85. branch_if_no_lanes_active      branch_if_no_lanes_active +49 (label 7 at #134)
    86. copy_slot_unmasked             eq = NE
@@ -91,14 +91,14 @@
    91. copy_constant                  $60 = 0x3F800000 (1.0)
    92. add_float                      $59 += $60
    93. copy_slot_unmasked             one = $59
-   94. zero_3_slots_unmasked          a[0], a[1], a[2] = 0
+   94. splat_3_constants              a[0], a[1], a[2] = 0
    95. copy_slot_unmasked             $59 = f1
    96. copy_slot_masked               a[0] = Mask($59)
    97. copy_slot_unmasked             $59 = f2
    98. copy_slot_masked               a[1] = Mask($59)
    99. copy_slot_unmasked             $59 = f3
   100. copy_slot_masked               a[2] = Mask($59)
-  101. zero_3_slots_unmasked          b[0], b[1], b[2] = 0
+  101. splat_3_constants              b[0], b[1], b[2] = 0
   102. copy_slot_unmasked             $59 = f1
   103. copy_slot_unmasked             $60 = one
   104. mul_float                      $59 *= $60
@@ -133,7 +133,7 @@
   133. copy_slot_masked               $58 = Mask($59)
   134. label                          label 0x00000007
   135. load_condition_mask            CondMask = $66
-  136. zero_slot_unmasked             $49 = 0
+  136. copy_constant                  $49 = 0
   137. merge_condition_mask           CondMask = $57 & $58
   138. branch_if_no_lanes_active      branch_if_no_lanes_active +47 (label 6 at #185)
   139. copy_slot_unmasked             eq = NE
@@ -143,14 +143,14 @@
   143. copy_constant                  $51 = 0x3F800000 (1.0)
   144. add_float                      $50 += $51
   145. copy_slot_unmasked             one = $50
-  146. zero_3_slots_unmasked          a[0], a[1], a[2] = 0
+  146. splat_3_constants              a[0], a[1], a[2] = 0
   147. copy_slot_unmasked             $50 = f1
   148. copy_slot_masked               a[0] = Mask($50)
   149. copy_slot_unmasked             $50 = f2
   150. copy_slot_masked               a[1] = Mask($50)
   151. copy_slot_unmasked             $50 = f3
   152. copy_slot_masked               a[2] = Mask($50)
-  153. zero_3_slots_unmasked          b[0], b[1], b[2] = 0
+  153. splat_3_constants              b[0], b[1], b[2] = 0
   154. copy_slot_unmasked             $50 = f1
   155. copy_slot_unmasked             $51 = one
   156. mul_float                      $50 *= $51
@@ -184,7 +184,7 @@
   184. copy_slot_masked               $49 = Mask($50)
   185. label                          label 0x00000006
   186. load_condition_mask            CondMask = $57
-  187. zero_slot_unmasked             $40 = 0
+  187. copy_constant                  $40 = 0
   188. merge_condition_mask           CondMask = $48 & $49
   189. branch_if_no_lanes_active      branch_if_no_lanes_active +48 (label 5 at #237)
   190. copy_slot_unmasked             eq = EQ
@@ -194,14 +194,14 @@
   194. copy_constant                  $42 = 0x3F800000 (1.0)
   195. add_float                      $41 += $42
   196. copy_slot_unmasked             one = $41
-  197. zero_3_slots_unmasked          a[0], a[1], a[2] = 0
+  197. splat_3_constants              a[0], a[1], a[2] = 0
   198. copy_slot_unmasked             $41 = f1
   199. copy_slot_masked               a[0] = Mask($41)
   200. copy_slot_unmasked             $41 = f2
   201. copy_slot_masked               a[1] = Mask($41)
   202. copy_slot_unmasked             $41 = f3
   203. copy_slot_masked               a[2] = Mask($41)
-  204. zero_3_slots_unmasked          b[0], b[1], b[2] = 0
+  204. splat_3_constants              b[0], b[1], b[2] = 0
   205. copy_slot_unmasked             $41 = f1
   206. copy_slot_unmasked             $42 = one
   207. mul_float                      $41 *= $42
@@ -236,7 +236,7 @@
   236. copy_slot_masked               $40 = Mask($41)
   237. label                          label 0x00000005
   238. load_condition_mask            CondMask = $48
-  239. zero_slot_unmasked             $31 = 0
+  239. copy_constant                  $31 = 0
   240. merge_condition_mask           CondMask = $39 & $40
   241. branch_if_no_lanes_active      branch_if_no_lanes_active +44 (label 4 at #285)
   242. copy_slot_unmasked             eq₁ = NE
@@ -245,14 +245,14 @@
   245. copy_constant                  $33 = 0x40000000 (2.0)
   246. add_float                      $32 += $33
   247. copy_slot_unmasked             two = $32
-  248. zero_3_slots_unmasked          a[0]₁, a[1]₁, a[2]₁ = 0
+  248. splat_3_constants              a[0]₁, a[1]₁, a[2]₁ = 0
   249. copy_slot_unmasked             $32 = f1₁
   250. copy_slot_masked               a[0]₁ = Mask($32)
   251. copy_slot_unmasked             $32 = f2₁
   252. copy_slot_masked               a[1]₁ = Mask($32)
   253. copy_slot_unmasked             $32 = f3₁
   254. copy_slot_masked               a[2]₁ = Mask($32)
-  255. zero_3_slots_unmasked          b[0]₁, b[1]₁, b[2]₁ = 0
+  255. splat_3_constants              b[0]₁, b[1]₁, b[2]₁ = 0
   256. copy_slot_unmasked             $32 = f1₁
   257. copy_slot_unmasked             $33 = two
   258. mul_float                      $32 *= $33
@@ -284,7 +284,7 @@
   284. copy_slot_masked               $31 = Mask($32)
   285. label                          label 0x00000004
   286. load_condition_mask            CondMask = $39
-  287. zero_slot_unmasked             $22 = 0
+  287. copy_constant                  $22 = 0
   288. merge_condition_mask           CondMask = $30 & $31
   289. branch_if_no_lanes_active      branch_if_no_lanes_active +45 (label 3 at #334)
   290. copy_slot_unmasked             eq₁ = EQ
@@ -293,14 +293,14 @@
   293. copy_constant                  $24 = 0x40000000 (2.0)
   294. add_float                      $23 += $24
   295. copy_slot_unmasked             two = $23
-  296. zero_3_slots_unmasked          a[0]₁, a[1]₁, a[2]₁ = 0
+  296. splat_3_constants              a[0]₁, a[1]₁, a[2]₁ = 0
   297. copy_slot_unmasked             $23 = f1₁
   298. copy_slot_masked               a[0]₁ = Mask($23)
   299. copy_slot_unmasked             $23 = f2₁
   300. copy_slot_masked               a[1]₁ = Mask($23)
   301. copy_slot_unmasked             $23 = f3₁
   302. copy_slot_masked               a[2]₁ = Mask($23)
-  303. zero_3_slots_unmasked          b[0]₁, b[1]₁, b[2]₁ = 0
+  303. splat_3_constants              b[0]₁, b[1]₁, b[2]₁ = 0
   304. copy_slot_unmasked             $23 = f1₁
   305. copy_slot_unmasked             $24 = two
   306. mul_float                      $23 *= $24
@@ -333,7 +333,7 @@
   333. copy_slot_masked               $22 = Mask($23)
   334. label                          label 0x00000003
   335. load_condition_mask            CondMask = $30
-  336. zero_slot_unmasked             $13 = 0
+  336. copy_constant                  $13 = 0
   337. merge_condition_mask           CondMask = $21 & $22
   338. branch_if_no_lanes_active      branch_if_no_lanes_active +46 (label 2 at #384)
   339. copy_slot_unmasked             eq₁ = NE
@@ -344,14 +344,14 @@
   344. copy_constant                  $15 = 0x40000000 (2.0)
   345. add_float                      $14 += $15
   346. copy_slot_unmasked             two = $14
-  347. zero_3_slots_unmasked          a[0]₁, a[1]₁, a[2]₁ = 0
+  347. splat_3_constants              a[0]₁, a[1]₁, a[2]₁ = 0
   348. copy_slot_unmasked             $14 = f1₁
   349. copy_slot_masked               a[0]₁ = Mask($14)
   350. copy_slot_unmasked             $14 = f2₁
   351. copy_slot_masked               a[1]₁ = Mask($14)
   352. copy_slot_unmasked             $14 = f3₁
   353. copy_slot_masked               a[2]₁ = Mask($14)
-  354. zero_3_slots_unmasked          b[0]₁, b[1]₁, b[2]₁ = 0
+  354. splat_3_constants              b[0]₁, b[1]₁, b[2]₁ = 0
   355. copy_slot_unmasked             $14 = f1₁
   356. copy_slot_unmasked             $15 = two
   357. mul_float                      $14 *= $15
@@ -383,7 +383,7 @@
   383. copy_slot_masked               $13 = Mask($14)
   384. label                          label 0x00000002
   385. load_condition_mask            CondMask = $21
-  386. zero_slot_unmasked             $0 = 0
+  386. copy_constant                  $0 = 0
   387. merge_condition_mask           CondMask = $12 & $13
   388. branch_if_no_lanes_active      branch_if_no_lanes_active +47 (label 1 at #435)
   389. copy_slot_unmasked             eq₁ = EQ
@@ -394,14 +394,14 @@
   394. copy_constant                  $2 = 0x40000000 (2.0)
   395. add_float                      $1 += $2
   396. copy_slot_unmasked             two = $1
-  397. zero_3_slots_unmasked          a[0]₁, a[1]₁, a[2]₁ = 0
+  397. splat_3_constants              a[0]₁, a[1]₁, a[2]₁ = 0
   398. copy_slot_unmasked             $1 = f1₁
   399. copy_slot_masked               a[0]₁ = Mask($1)
   400. copy_slot_unmasked             $1 = f2₁
   401. copy_slot_masked               a[1]₁ = Mask($1)
   402. copy_slot_unmasked             $1 = f3₁
   403. copy_slot_masked               a[2]₁ = Mask($1)
-  404. zero_3_slots_unmasked          b[0]₁, b[1]₁, b[2]₁ = 0
+  404. splat_3_constants              b[0]₁, b[1]₁, b[2]₁ = 0
   405. copy_slot_unmasked             $1 = f1₁
   406. copy_slot_unmasked             $2 = two
   407. mul_float                      $1 *= $2

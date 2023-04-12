@@ -4,17 +4,17 @@
     4. splat_2_constants              x2 = 0x40000000 (2.0)
     5. splat_3_constants              x3 = 0x40400000 (3.0)
     6. splat_4_constants              x4 = 0x40800000 (4.0)
-    7. zero_slot_unmasked             $0 = 0
+    7. copy_constant                  $0 = 0
     8. copy_constant                  $1 = 0x40000000 (2.0)
     9. swizzle_4                      $0..3 = ($0..3).yxxy
    10. copy_4_slots_unmasked          x5 = $0..3
-   11. zero_slot_unmasked             $0 = 0
+   11. copy_constant                  $0 = 0
    12. copy_constant                  $1 = 0x40400000 (3.0)
    13. shuffle                        $0..8 = ($0..8)[1 0 0 0 1 0 0 0 1]
    14. copy_4_slots_unmasked          x6(0..3) = $0..3
    15. copy_4_slots_unmasked          x6(4..7) = $4..7
    16. copy_slot_unmasked             x6(8) = $8
-   17. zero_slot_unmasked             $0 = 0
+   17. copy_constant                  $0 = 0
    18. copy_constant                  $1 = 0x40800000 (4.0)
    19. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
    20. copy_4_slots_unmasked          x7(0..3) = $0..3
@@ -25,17 +25,17 @@
    25. splat_2_constants              x9 = 0x40000000 (2.0)
    26. splat_3_constants              x10 = 0x40400000 (3.0)
    27. splat_4_constants              x11 = 0x40800000 (4.0)
-   28. zero_slot_unmasked             $0 = 0
+   28. copy_constant                  $0 = 0
    29. copy_constant                  $1 = 0x40000000 (2.0)
    30. swizzle_4                      $0..3 = ($0..3).yxxy
    31. copy_4_slots_unmasked          x12 = $0..3
-   32. zero_slot_unmasked             $0 = 0
+   32. copy_constant                  $0 = 0
    33. copy_constant                  $1 = 0x40400000 (3.0)
    34. shuffle                        $0..8 = ($0..8)[1 0 0 0 1 0 0 0 1]
    35. copy_4_slots_unmasked          x13(0..3) = $0..3
    36. copy_4_slots_unmasked          x13(4..7) = $4..7
    37. copy_slot_unmasked             x13(8) = $8
-   38. zero_slot_unmasked             $0 = 0
+   38. copy_constant                  $0 = 0
    39. copy_constant                  $1 = 0x40800000 (4.0)
    40. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
    41. copy_4_slots_unmasked          x14(0..3) = $0..3
@@ -73,7 +73,7 @@
    73. copy_slot_unmasked             $243 = x1
    74. copy_constant                  $244 = 0x3F800000 (1.0)
    75. cmpeq_float                    $243 = equal($243, $244)
-   76. zero_slot_unmasked             $237 = 0
+   76. copy_constant                  $237 = 0
    77. merge_condition_mask           CondMask = $242 & $243
    78. branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 21 at #86)
    79. copy_2_slots_unmasked          $238..239 = x2
@@ -85,7 +85,7 @@
    85. copy_slot_masked               $237 = Mask($238)
    86. label                          label 0x00000015
    87. load_condition_mask            CondMask = $242
-   88. zero_slot_unmasked             $229 = 0
+   88. copy_constant                  $229 = 0
    89. merge_condition_mask           CondMask = $236 & $237
    90. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 20 at #99)
    91. copy_3_slots_unmasked          $230..232 = x3
@@ -98,7 +98,7 @@
    98. copy_slot_masked               $229 = Mask($230)
    99. label                          label 0x00000014
   100. load_condition_mask            CondMask = $236
-  101. zero_slot_unmasked             $219 = 0
+  101. copy_constant                  $219 = 0
   102. merge_condition_mask           CondMask = $228 & $229
   103. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 19 at #112)
   104. copy_4_slots_unmasked          $220..223 = x4
@@ -111,12 +111,12 @@
   111. copy_slot_masked               $219 = Mask($220)
   112. label                          label 0x00000013
   113. load_condition_mask            CondMask = $228
-  114. zero_slot_unmasked             $209 = 0
+  114. copy_constant                  $209 = 0
   115. merge_condition_mask           CondMask = $218 & $219
   116. branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 18 at #127)
   117. copy_4_slots_unmasked          $210..213 = x5
   118. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 25 at #122)
-  119. zero_slot_unmasked             $214 = 0
+  119. copy_constant                  $214 = 0
   120. copy_constant                  $215 = 0x40000000 (2.0)
   121. swizzle_4                      $214..217 = ($214..217).yxxy
   122. label                          label 0x00000019
@@ -126,14 +126,14 @@
   126. copy_slot_masked               $209 = Mask($210)
   127. label                          label 0x00000012
   128. load_condition_mask            CondMask = $218
-  129. zero_slot_unmasked             $189 = 0
+  129. copy_constant                  $189 = 0
   130. merge_condition_mask           CondMask = $208 & $209
   131. branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 17 at #146)
   132. copy_4_slots_unmasked          $190..193 = x6(0..3)
   133. copy_4_slots_unmasked          $194..197 = x6(4..7)
   134. copy_slot_unmasked             $198 = x6(8)
   135. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 26 at #139)
-  136. zero_slot_unmasked             $199 = 0
+  136. copy_constant                  $199 = 0
   137. copy_constant                  $200 = 0x40400000 (3.0)
   138. shuffle                        $199..207 = ($199..207)[1 0 0 0 1 0 0 0 1]
   139. label                          label 0x0000001A
@@ -145,7 +145,7 @@
   145. copy_slot_masked               $189 = Mask($190)
   146. label                          label 0x00000011
   147. load_condition_mask            CondMask = $208
-  148. zero_slot_unmasked             $155 = 0
+  148. copy_constant                  $155 = 0
   149. merge_condition_mask           CondMask = $188 & $189
   150. branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 16 at #167)
   151. copy_4_slots_unmasked          $156..159 = x7(0..3)
@@ -153,7 +153,7 @@
   153. copy_4_slots_unmasked          $164..167 = x7(8..11)
   154. copy_4_slots_unmasked          $168..171 = x7(12..15)
   155. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 27 at #159)
-  156. zero_slot_unmasked             $172 = 0
+  156. copy_constant                  $172 = 0
   157. copy_constant                  $173 = 0x40800000 (4.0)
   158. shuffle                        $172..187 = ($172..187)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
   159. label                          label 0x0000001B
@@ -166,7 +166,7 @@
   166. copy_slot_masked               $155 = Mask($156)
   167. label                          label 0x00000010
   168. load_condition_mask            CondMask = $188
-  169. zero_slot_unmasked             $151 = 0
+  169. copy_constant                  $151 = 0
   170. merge_condition_mask           CondMask = $154 & $155
   171. branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 15 at #178)
   172. copy_slot_unmasked             $152 = x8
@@ -177,7 +177,7 @@
   177. copy_slot_masked               $151 = Mask($152)
   178. label                          label 0x0000000F
   179. load_condition_mask            CondMask = $154
-  180. zero_slot_unmasked             $145 = 0
+  180. copy_constant                  $145 = 0
   181. merge_condition_mask           CondMask = $150 & $151
   182. branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 14 at #190)
   183. copy_2_slots_unmasked          $146..147 = x9
@@ -189,7 +189,7 @@
   189. copy_slot_masked               $145 = Mask($146)
   190. label                          label 0x0000000E
   191. load_condition_mask            CondMask = $150
-  192. zero_slot_unmasked             $137 = 0
+  192. copy_constant                  $137 = 0
   193. merge_condition_mask           CondMask = $144 & $145
   194. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 13 at #203)
   195. copy_3_slots_unmasked          $138..140 = x10
@@ -202,7 +202,7 @@
   202. copy_slot_masked               $137 = Mask($138)
   203. label                          label 0x0000000D
   204. load_condition_mask            CondMask = $144
-  205. zero_slot_unmasked             $127 = 0
+  205. copy_constant                  $127 = 0
   206. merge_condition_mask           CondMask = $136 & $137
   207. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 12 at #216)
   208. copy_4_slots_unmasked          $128..131 = x11
@@ -215,12 +215,12 @@
   215. copy_slot_masked               $127 = Mask($128)
   216. label                          label 0x0000000C
   217. load_condition_mask            CondMask = $136
-  218. zero_slot_unmasked             $117 = 0
+  218. copy_constant                  $117 = 0
   219. merge_condition_mask           CondMask = $126 & $127
   220. branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 11 at #231)
   221. copy_4_slots_unmasked          $118..121 = x12
   222. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 32 at #226)
-  223. zero_slot_unmasked             $122 = 0
+  223. copy_constant                  $122 = 0
   224. copy_constant                  $123 = 0x40000000 (2.0)
   225. swizzle_4                      $122..125 = ($122..125).yxxy
   226. label                          label 0x00000020
@@ -230,14 +230,14 @@
   230. copy_slot_masked               $117 = Mask($118)
   231. label                          label 0x0000000B
   232. load_condition_mask            CondMask = $126
-  233. zero_slot_unmasked             $97 = 0
+  233. copy_constant                  $97 = 0
   234. merge_condition_mask           CondMask = $116 & $117
   235. branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 10 at #250)
   236. copy_4_slots_unmasked          $98..101 = x13(0..3)
   237. copy_4_slots_unmasked          $102..105 = x13(4..7)
   238. copy_slot_unmasked             $106 = x13(8)
   239. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 33 at #243)
-  240. zero_slot_unmasked             $107 = 0
+  240. copy_constant                  $107 = 0
   241. copy_constant                  $108 = 0x40400000 (3.0)
   242. shuffle                        $107..115 = ($107..115)[1 0 0 0 1 0 0 0 1]
   243. label                          label 0x00000021
@@ -249,7 +249,7 @@
   249. copy_slot_masked               $97 = Mask($98)
   250. label                          label 0x0000000A
   251. load_condition_mask            CondMask = $116
-  252. zero_slot_unmasked             $63 = 0
+  252. copy_constant                  $63 = 0
   253. merge_condition_mask           CondMask = $96 & $97
   254. branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 9 at #271)
   255. copy_4_slots_unmasked          $64..67 = x14(0..3)
@@ -257,7 +257,7 @@
   257. copy_4_slots_unmasked          $72..75 = x14(8..11)
   258. copy_4_slots_unmasked          $76..79 = x14(12..15)
   259. branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 34 at #263)
-  260. zero_slot_unmasked             $80 = 0
+  260. copy_constant                  $80 = 0
   261. copy_constant                  $81 = 0x40800000 (4.0)
   262. shuffle                        $80..95 = ($80..95)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
   263. label                          label 0x00000022
@@ -270,7 +270,7 @@
   270. copy_slot_masked               $63 = Mask($64)
   271. label                          label 0x00000009
   272. load_condition_mask            CondMask = $96
-  273. zero_slot_unmasked             $59 = 0
+  273. copy_constant                  $59 = 0
   274. merge_condition_mask           CondMask = $62 & $63
   275. branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 8 at #282)
   276. copy_slot_unmasked             $60 = x15
@@ -281,7 +281,7 @@
   281. copy_slot_masked               $59 = Mask($60)
   282. label                          label 0x00000008
   283. load_condition_mask            CondMask = $62
-  284. zero_slot_unmasked             $53 = 0
+  284. copy_constant                  $53 = 0
   285. merge_condition_mask           CondMask = $58 & $59
   286. branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 7 at #294)
   287. copy_2_slots_unmasked          $54..55 = x16
@@ -293,7 +293,7 @@
   293. copy_slot_masked               $53 = Mask($54)
   294. label                          label 0x00000007
   295. load_condition_mask            CondMask = $58
-  296. zero_slot_unmasked             $45 = 0
+  296. copy_constant                  $45 = 0
   297. merge_condition_mask           CondMask = $52 & $53
   298. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 6 at #307)
   299. copy_3_slots_unmasked          $46..48 = x17
@@ -306,7 +306,7 @@
   306. copy_slot_masked               $45 = Mask($46)
   307. label                          label 0x00000006
   308. load_condition_mask            CondMask = $52
-  309. zero_slot_unmasked             $35 = 0
+  309. copy_constant                  $35 = 0
   310. merge_condition_mask           CondMask = $44 & $45
   311. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 5 at #320)
   312. copy_4_slots_unmasked          $36..39 = x18
@@ -319,7 +319,7 @@
   319. copy_slot_masked               $35 = Mask($36)
   320. label                          label 0x00000005
   321. load_condition_mask            CondMask = $44
-  322. zero_slot_unmasked             $31 = 0
+  322. copy_constant                  $31 = 0
   323. merge_condition_mask           CondMask = $34 & $35
   324. branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 4 at #331)
   325. copy_slot_unmasked             $32 = x19
@@ -330,7 +330,7 @@
   330. copy_slot_masked               $31 = Mask($32)
   331. label                          label 0x00000004
   332. load_condition_mask            CondMask = $34
-  333. zero_slot_unmasked             $25 = 0
+  333. copy_constant                  $25 = 0
   334. merge_condition_mask           CondMask = $30 & $31
   335. branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 3 at #343)
   336. copy_2_slots_unmasked          $26..27 = x20
@@ -342,7 +342,7 @@
   342. copy_slot_masked               $25 = Mask($26)
   343. label                          label 0x00000003
   344. load_condition_mask            CondMask = $30
-  345. zero_slot_unmasked             $17 = 0
+  345. copy_constant                  $17 = 0
   346. merge_condition_mask           CondMask = $24 & $25
   347. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 2 at #356)
   348. copy_3_slots_unmasked          $18..20 = x21
@@ -355,7 +355,7 @@
   355. copy_slot_masked               $17 = Mask($18)
   356. label                          label 0x00000002
   357. load_condition_mask            CondMask = $24
-  358. zero_slot_unmasked             $0 = 0
+  358. copy_constant                  $0 = 0
   359. merge_condition_mask           CondMask = $16 & $17
   360. branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 1 at #369)
   361. copy_4_slots_unmasked          $1..4 = x22

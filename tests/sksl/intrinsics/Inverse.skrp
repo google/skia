@@ -19,7 +19,7 @@
    19. copy_constant                  inv4x4(3) = 0x3F000000 (0.5)
    20. copy_constant                  inv4x4(4) = 0x3F800000 (1.0)
    21. copy_constant                  inv4x4(5) = 0x3F000000 (0.5)
-   22. zero_slot_unmasked             inv4x4(6) = 0
+   22. copy_constant                  inv4x4(6) = 0
    23. copy_constant                  inv4x4(7) = 0xBF000000 (-0.5)
    24. copy_constant                  inv4x4(8) = 0xC1000000 (-8.0)
    25. copy_constant                  inv4x4(9) = 0xBF800000 (-1.0)
@@ -60,7 +60,7 @@
    60. copy_constant                  $4 = 0x3F000000 (0.5)
    61. copy_constant                  $5 = 0x3F800000 (1.0)
    62. copy_constant                  $6 = 0x3F000000 (0.5)
-   63. zero_slot_unmasked             $7 = 0
+   63. copy_constant                  $7 = 0
    64. copy_constant                  $8 = 0xBF000000 (-0.5)
    65. copy_constant                  $9 = 0xC1000000 (-8.0)
    66. copy_constant                  $10 = 0xBF800000 (-1.0)

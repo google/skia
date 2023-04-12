@@ -19,7 +19,7 @@
    19. copy_slot_unmasked             v = $0
    20. copy_constant                  $1 = 0x3F800000 (1.0)
    21. add_float                      $0 += $1
-   22. label                          label 0x00000000
+   22. label                          label 0
    23. copy_slot_unmasked             $0 = c
    24. copy_constant                  $1 = 0x429A0000 (77.0)
    25. add_float                      $0 += $1
@@ -32,11 +32,11 @@
    32. cos_float                      $0 = cos($0)
    33. copy_slot_unmasked             b = $0
    34. copy_slot_unmasked             b = $0
-   35. zero_slot_unmasked             x = 0
+   35. copy_constant                  x = 0
    36. store_loop_mask                $0 = LoopMask
    37. jump                           jump +11 (label 3 at #48)
    38. label                          label 0x00000004
-   39. zero_slot_unmasked             $5 = 0
+   39. copy_constant                  $5 = 0
    40. copy_constant                  $6 = 0xFFFFFFFF
    41. copy_slot_masked               $5 = Mask($6)
    42. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)

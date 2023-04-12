@@ -1,10 +1,10 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  expectedA(0) = 0x3F400000 (0.75)
-    4. zero_slot_unmasked             expectedA(1) = 0
+    4. copy_constant                  expectedA(1) = 0
     5. copy_constant                  expectedA(2) = 0x3F400000 (0.75)
     6. splat_2_constants              expectedA(3), expectedB(0) = 0x3E800000 (0.25)
-    7. zero_slot_unmasked             expectedB(1) = 0
+    7. copy_constant                  expectedB(1) = 0
     8. copy_constant                  expectedB(2) = 0x3F400000 (0.75)
     9. copy_constant                  expectedB(3) = 0x3F800000 (1.0)
    10. copy_uniform                   $0 = testInputs(0)
@@ -40,13 +40,13 @@
    40. cmpeq_float                    $1 = equal($1, $2)
    41. bitwise_and_int                $0 &= $1
    42. copy_constant                  $1 = 0x3F400000 (0.75)
-   43. zero_slot_unmasked             $2 = 0
+   43. copy_constant                  $2 = 0
    44. copy_2_slots_unmasked          $3..4 = expectedA(0..1)
    45. cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
    46. bitwise_and_int                $1 &= $2
    47. bitwise_and_int                $0 &= $1
    48. copy_constant                  $1 = 0x3F400000 (0.75)
-   49. zero_slot_unmasked             $2 = 0
+   49. copy_constant                  $2 = 0
    50. copy_constant                  $3 = 0x3F400000 (0.75)
    51. copy_3_slots_unmasked          $4..6 = expectedA(0..2)
    52. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
@@ -54,7 +54,7 @@
    54. bitwise_and_int                $1 &= $2
    55. bitwise_and_int                $0 &= $1
    56. copy_constant                  $1 = 0x3F400000 (0.75)
-   57. zero_slot_unmasked             $2 = 0
+   57. copy_constant                  $2 = 0
    58. copy_constant                  $3 = 0x3F400000 (0.75)
    59. copy_constant                  $4 = 0x3E800000 (0.25)
    60. copy_4_slots_unmasked          $5..8 = expectedA
@@ -96,13 +96,13 @@
    96. cmpeq_float                    $1 = equal($1, $2)
    97. bitwise_and_int                $0 &= $1
    98. copy_constant                  $1 = 0x3E800000 (0.25)
-   99. zero_slot_unmasked             $2 = 0
+   99. copy_constant                  $2 = 0
   100. copy_2_slots_unmasked          $3..4 = expectedB(0..1)
   101. cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
   102. bitwise_and_int                $1 &= $2
   103. bitwise_and_int                $0 &= $1
   104. copy_constant                  $1 = 0x3E800000 (0.25)
-  105. zero_slot_unmasked             $2 = 0
+  105. copy_constant                  $2 = 0
   106. copy_constant                  $3 = 0x3F400000 (0.75)
   107. copy_3_slots_unmasked          $4..6 = expectedB(0..2)
   108. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
@@ -110,7 +110,7 @@
   110. bitwise_and_int                $1 &= $2
   111. bitwise_and_int                $0 &= $1
   112. copy_constant                  $1 = 0x3E800000 (0.25)
-  113. zero_slot_unmasked             $2 = 0
+  113. copy_constant                  $2 = 0
   114. copy_constant                  $3 = 0x3F400000 (0.75)
   115. copy_constant                  $4 = 0x3F800000 (1.0)
   116. copy_4_slots_unmasked          $5..8 = expectedB

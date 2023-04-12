@@ -141,8 +141,6 @@
     M(copy_to_indirect_masked)     M(swizzle_copy_to_indirect_masked)                         \
     M(copy_slot_unmasked)          M(copy_2_slots_unmasked)                                   \
     M(copy_3_slots_unmasked)       M(copy_4_slots_unmasked)                                   \
-    M(zero_slot_unmasked)          M(zero_2_slots_unmasked)                                   \
-    M(zero_3_slots_unmasked)       M(zero_4_slots_unmasked)                                   \
     M(swizzle_copy_slot_masked)    M(swizzle_copy_2_slots_masked)                             \
     M(swizzle_copy_3_slots_masked) M(swizzle_copy_4_slots_masked)                             \
     M(swizzle_1) M(swizzle_2) M(swizzle_3) M(swizzle_4) M(shuffle)                            \

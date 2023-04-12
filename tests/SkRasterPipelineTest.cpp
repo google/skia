@@ -1191,51 +1191,6 @@ DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
     }
 }
 
-DEF_TEST(SkRasterPipeline_ZeroSlotsUnmasked, r) {
-    // Allocate space for 5 dest slots.
-    alignas(64) float slots[5 * SkRasterPipeline_kMaxStride_highp];
-    const int N = SkOpts::raster_pipeline_highp_stride;
-
-    struct ZeroSlotsOp {
-        SkRasterPipelineOp stage;
-        int numSlotsAffected;
-    };
-
-    static const ZeroSlotsOp kZeroOps[] = {
-        {SkRasterPipelineOp::zero_slot_unmasked,    1},
-        {SkRasterPipelineOp::zero_2_slots_unmasked, 2},
-        {SkRasterPipelineOp::zero_3_slots_unmasked, 3},
-        {SkRasterPipelineOp::zero_4_slots_unmasked, 4},
-    };
-
-    for (const ZeroSlotsOp& op : kZeroOps) {
-        // Initialize the destination slots to 1,2,3...
-        std::iota(&slots[0], &slots[5 * N], 1.0f);
-
-        // Run `zero_slots_unmasked` over our data.
-        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
-        SkRasterPipeline p(&alloc);
-        p.append(op.stage, &slots[0]);
-        p.run(0,0,1,1);
-
-        // Verify that the destination has been zeroed out in each slot.
-        float expectedUnchanged = 1.0f;
-        float* destPtr = &slots[0];
-        for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
-            for (int checkLane = 0; checkLane < N; ++checkLane) {
-                if (checkSlot < op.numSlotsAffected) {
-                    REPORTER_ASSERT(r, *destPtr == 0.0f);
-                } else {
-                    REPORTER_ASSERT(r, *destPtr == expectedUnchanged);
-                }
-
-                ++destPtr;
-                expectedUnchanged += 1.0f;
-            }
-        }
-    }
-}
-
 DEF_TEST(SkRasterPipeline_CopyUniforms, r) {
     // Allocate space for 5 dest slots.
     alignas(64) float slots[5 * SkRasterPipeline_kMaxStride_highp];

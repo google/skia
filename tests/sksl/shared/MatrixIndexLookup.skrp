@@ -9,7 +9,7 @@
     9. copy_constant                  expected(0) = 0x3F800000 (1.0)
    10. copy_constant                  expected(1) = 0x40000000 (2.0)
    11. copy_constant                  expected(2) = 0x40400000 (3.0)
-   12. zero_slot_unmasked             index = 0
+   12. copy_constant                  index = 0
    13. store_loop_mask                $14 = LoopMask
    14. jump                           jump +24 (label 4 at #38)
    15. label                          label 0x00000005
@@ -23,7 +23,7 @@
    23. bitwise_or_int                 $17 |= $18
    24. bitwise_or_int                 $16 |= $17
    25. merge_condition_mask           CondMask = $15 & $16
-   26. zero_slot_unmasked             $17 = 0
+   26. copy_constant                  $17 = 0
    27. copy_slot_masked               [test3x3].result = Mask($17)
    28. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    29. load_condition_mask            CondMask = $15
@@ -49,7 +49,7 @@
    49. load_return_mask               RetMask = $13
    50. copy_slot_unmasked             $13 = [test3x3].result
    51. label                          label 0x00000002
-   52. zero_slot_unmasked             $0 = 0
+   52. copy_constant                  $0 = 0
    53. merge_condition_mask           CondMask = $12 & $13
    54. branch_if_no_lanes_active      branch_if_no_lanes_active +51 (label 1 at #105)
    55. store_return_mask              $1 = RetMask
@@ -61,7 +61,7 @@
    61. copy_constant                  expected₁(1) = 0x40000000 (2.0)
    62. copy_constant                  expected₁(2) = 0x40400000 (3.0)
    63. copy_constant                  expected₁(3) = 0x40800000 (4.0)
-   64. zero_slot_unmasked             index₁ = 0
+   64. copy_constant                  index₁ = 0
    65. store_loop_mask                $2 = LoopMask
    66. jump                           jump +24 (label 8 at #90)
    67. label                          label 0x00000009
@@ -75,7 +75,7 @@
    75. bitwise_or_2_ints              $4..5 |= $6..7
    76. bitwise_or_int                 $4 |= $5
    77. merge_condition_mask           CondMask = $3 & $4
-   78. zero_slot_unmasked             $5 = 0
+   78. copy_constant                  $5 = 0
    79. copy_slot_masked               [test4x4].result = Mask($5)
    80. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    81. load_condition_mask            CondMask = $3

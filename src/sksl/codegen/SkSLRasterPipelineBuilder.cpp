@@ -598,27 +598,6 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
         return;
     }
 
-    // If the last instruction is pushing a zero, we can save a step by directly zeroing out
-    // the destination slot.
-    if (lastInstruction.fOp == BuilderOp::push_constant && lastInstruction.fImmB == 0) {
-        // Remove one zero-push.
-        lastInstruction.fImmA--;
-        if (lastInstruction.fImmA == 0) {
-            fInstructions.pop_back();
-        }
-
-        // Consume one destination slot.
-        dst->count--;
-        Slot destinationSlot = dst->index + dst->count;
-
-        // Continue simplifying if possible.
-        this->simplifyPopSlotsUnmasked(dst);
-
-        // Zero the destination slot directly.
-        this->zero_slots_unmasked({destinationSlot, 1});
-        return;
-    }
-
     // If the last instruction is pushing a slot, we can just copy that slot.
     if (lastInstruction.fOp == BuilderOp::push_slots) {
         // Get the last slot.
@@ -789,16 +768,14 @@ void Builder::zero_slots_unmasked(SlotRange dst) {
     if (!fInstructions.empty()) {
         Instruction& lastInstruction = fInstructions.back();
 
-        if (lastInstruction.fOp == BuilderOp::zero_slot_unmasked) {
+        if (lastInstruction.fOp == BuilderOp::copy_constant && lastInstruction.fImmB == 0) {
             if (lastInstruction.fSlotA + lastInstruction.fImmA == dst.index) {
                 // The previous instruction was zeroing the range immediately before this range.
                 // Combine the ranges.
                 lastInstruction.fImmA += dst.count;
                 return;
             }
-        }
 
-        if (lastInstruction.fOp == BuilderOp::zero_slot_unmasked) {
             if (lastInstruction.fSlotA == dst.index + dst.count) {
                 // The previous instruction was zeroing the range immediately after this range.
                 // Combine the ranges.
@@ -809,7 +786,7 @@ void Builder::zero_slots_unmasked(SlotRange dst) {
         }
     }
 
-    fInstructions.push_back({BuilderOp::zero_slot_unmasked, {dst.index}, dst.count});
+    fInstructions.push_back({BuilderOp::copy_constant, {dst.index}, dst.count, 0});
 }
 
 static int pack_nybbles(SkSpan<const int8_t> components) {
@@ -1608,11 +1585,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
                                               inst.fImmA);
                 break;
 
-            case BuilderOp::zero_slot_unmasked:
-                this->appendMultiSlotUnaryOp(pipeline, ProgramOp::zero_slot_unmasked,
-                                             SlotA(), inst.fImmA);
-                break;
-
             case BuilderOp::refract_4_floats: {
                 float* dst = tempStackPtr - (9 * N);
                 pipeline->push_back({ProgramOp::refract_4_floats, dst});
@@ -1803,25 +1775,19 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::copy_constant:
             case BuilderOp::push_constant: {
                 float* dst = (inst.fOp == BuilderOp::copy_constant) ? SlotA() : tempStackPtr;
-                if (inst.fImmB == 0) {
-                    // We have a dedicated op for writing constant zeros.
-                    this->appendMultiSlotUnaryOp(pipeline, ProgramOp::zero_slot_unmasked, dst,
-                                                 inst.fImmA);
-                } else {
-                    // Splat constant values onto the stack.
-                    for (int remaining = inst.fImmA; remaining > 0; remaining -= 4) {
-                        SkRasterPipeline_ConstantCtx ctx;
-                        ctx.dst = OffsetFromBase(dst);
-                        ctx.value = sk_bit_cast<float>(inst.fImmB);
-                        void* ptr = SkRPCtxUtils::Pack(ctx, alloc);
-                        switch (remaining) {
-                            case 1:  pipeline->push_back({ProgramOp::copy_constant,    ptr}); break;
-                            case 2:  pipeline->push_back({ProgramOp::splat_2_constants,ptr}); break;
-                            case 3:  pipeline->push_back({ProgramOp::splat_3_constants,ptr}); break;
-                            default: pipeline->push_back({ProgramOp::splat_4_constants,ptr}); break;
-                        }
-                        dst += 4 * N;
+                // Splat constant values onto the stack.
+                for (int remaining = inst.fImmA; remaining > 0; remaining -= 4) {
+                    SkRasterPipeline_ConstantCtx ctx;
+                    ctx.dst = OffsetFromBase(dst);
+                    ctx.value = sk_bit_cast<float>(inst.fImmB);
+                    void* ptr = SkRPCtxUtils::Pack(ctx, alloc);
+                    switch (remaining) {
+                        case 1:  pipeline->push_back({ProgramOp::copy_constant,    ptr}); break;
+                        case 2:  pipeline->push_back({ProgramOp::splat_2_constants,ptr}); break;
+                        case 3:  pipeline->push_back({ProgramOp::splat_3_constants,ptr}); break;
+                        default: pipeline->push_back({ProgramOp::splat_4_constants,ptr}); break;
                     }
+                    dst += 4 * N;
                 }
                 break;
             }
@@ -2084,6 +2050,10 @@ void Program::dump(SkWStream* out) const {
 
         // Print a 32-bit immediate value of unknown type (int/float).
         auto Imm = [&](float immFloat, bool showAsFloat = true) -> std::string {
+            // Special case exact zero as "0" for readability (vs `0x00000000 (0.0)`).
+            if (sk_bit_cast<int32_t>(immFloat) == 0) {
+                return "0";
+            }
             // Start with `0x3F800000` as a baseline.
             uint32_t immUnsigned;
             memcpy(&immUnsigned, &immFloat, sizeof(uint32_t));
@@ -2430,7 +2400,6 @@ void Program::dump(SkWStream* out) const {
             case POp::reenable_loop_mask:
             case POp::load_return_mask:
             case POp::store_return_mask:
-            case POp::zero_slot_unmasked:
             case POp::bitwise_not_int:
             case POp::cast_to_float_from_int: case POp::cast_to_float_from_uint:
             case POp::cast_to_int_from_float: case POp::cast_to_uint_from_float:
@@ -2452,7 +2421,6 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
-            case POp::zero_2_slots_unmasked:
             case POp::bitwise_not_2_ints:
             case POp::load_src_rg:               case POp::store_src_rg:
             case POp::cast_to_float_from_2_ints: case POp::cast_to_float_from_2_uints:
@@ -2464,7 +2432,6 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = PtrCtx(stage.ctx, 2);
                 break;
 
-            case POp::zero_3_slots_unmasked:
             case POp::bitwise_not_3_ints:
             case POp::cast_to_float_from_3_ints: case POp::cast_to_float_from_3_uints:
             case POp::cast_to_int_from_3_floats: case POp::cast_to_uint_from_3_floats:
@@ -2480,7 +2447,6 @@ void Program::dump(SkWStream* out) const {
             case POp::store_src:
             case POp::store_dst:
             case POp::store_device_xy01:
-            case POp::zero_4_slots_unmasked:
             case POp::bitwise_not_4_ints:
             case POp::cast_to_float_from_4_ints: case POp::cast_to_float_from_4_uints:
             case POp::cast_to_int_from_4_floats: case POp::cast_to_uint_from_4_floats:
@@ -2931,11 +2897,6 @@ void Program::dump(SkWStream* out) const {
             case POp::swizzle_copy_to_indirect_masked:
                 opText = "Indirect(" + opArg1 + " + " + opArg3 + ")." + opSwizzle + " = Mask(" +
                          opArg2 + ")";
-                break;
-
-            case POp::zero_slot_unmasked:    case POp::zero_2_slots_unmasked:
-            case POp::zero_3_slots_unmasked: case POp::zero_4_slots_unmasked:
-                opText = opArg1 + " = 0";
                 break;
 
             case POp::abs_float:    case POp::abs_int:

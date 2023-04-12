@@ -314,7 +314,7 @@
   314. copy_4_slots_unmasked          hugeUvec = $0..3
   315. copy_4_uniforms                $0..3 = colorGreen
   316. copy_slot_unmasked             $4 = huge
-  317. zero_slot_unmasked             $5 = 0
+  317. copy_constant                  $5 = 0
   318. max_float                      $4 = max($4, $5)
   319. copy_constant                  $5 = 0x3F800000 (1.0)
   320. min_float                      $4 = min($4, $5)
@@ -322,7 +322,7 @@
   322. mul_4_floats                   $0..3 *= $4..7
   323. copy_slot_unmasked             $4 = hugeI
   324. cast_to_float_from_int         $4 = IntToFloat($4)
-  325. zero_slot_unmasked             $5 = 0
+  325. copy_constant                  $5 = 0
   326. max_float                      $4 = max($4, $5)
   327. copy_constant                  $5 = 0x3F800000 (1.0)
   328. min_float                      $4 = min($4, $5)
@@ -330,7 +330,7 @@
   330. mul_4_floats                   $0..3 *= $4..7
   331. copy_slot_unmasked             $4 = hugeU
   332. cast_to_float_from_uint        $4 = UintToFloat($4)
-  333. zero_slot_unmasked             $5 = 0
+  333. copy_constant                  $5 = 0
   334. max_float                      $4 = max($4, $5)
   335. copy_constant                  $5 = 0x3F800000 (1.0)
   336. min_float                      $4 = min($4, $5)
@@ -338,7 +338,7 @@
   338. mul_4_floats                   $0..3 *= $4..7
   339. copy_slot_unmasked             $4 = hugeS
   340. cast_to_float_from_int         $4 = IntToFloat($4)
-  341. zero_slot_unmasked             $5 = 0
+  341. copy_constant                  $5 = 0
   342. max_float                      $4 = max($4, $5)
   343. copy_constant                  $5 = 0x3F800000 (1.0)
   344. min_float                      $4 = min($4, $5)
@@ -346,7 +346,7 @@
   346. mul_4_floats                   $0..3 *= $4..7
   347. copy_slot_unmasked             $4 = hugeUS
   348. cast_to_float_from_uint        $4 = UintToFloat($4)
-  349. zero_slot_unmasked             $5 = 0
+  349. copy_constant                  $5 = 0
   350. max_float                      $4 = max($4, $5)
   351. copy_constant                  $5 = 0x3F800000 (1.0)
   352. min_float                      $4 = min($4, $5)
@@ -354,7 +354,7 @@
   354. mul_4_floats                   $0..3 *= $4..7
   355. copy_slot_unmasked             $4 = hugeNI
   356. cast_to_float_from_int         $4 = IntToFloat($4)
-  357. zero_slot_unmasked             $5 = 0
+  357. copy_constant                  $5 = 0
   358. max_float                      $4 = max($4, $5)
   359. copy_constant                  $5 = 0x3F800000 (1.0)
   360. min_float                      $4 = min($4, $5)
@@ -362,7 +362,7 @@
   362. mul_4_floats                   $0..3 *= $4..7
   363. copy_slot_unmasked             $4 = hugeNS
   364. cast_to_float_from_int         $4 = IntToFloat($4)
-  365. zero_slot_unmasked             $5 = 0
+  365. copy_constant                  $5 = 0
   366. max_float                      $4 = max($4, $5)
   367. copy_constant                  $5 = 0x3F800000 (1.0)
   368. min_float                      $4 = min($4, $5)
@@ -370,14 +370,14 @@
   370. mul_4_floats                   $0..3 *= $4..7
   371. copy_4_slots_unmasked          $4..7 = hugeIvec
   372. cast_to_float_from_4_ints      $4..7 = IntToFloat($4..7)
-  373. zero_4_slots_unmasked          $8..11 = 0
+  373. splat_4_constants              $8..11 = 0
   374. max_4_floats                   $4..7 = max($4..7, $8..11)
   375. splat_4_constants              $8..11 = 0x3F800000 (1.0)
   376. min_4_floats                   $4..7 = min($4..7, $8..11)
   377. mul_4_floats                   $0..3 *= $4..7
   378. copy_4_slots_unmasked          $4..7 = hugeUvec
   379. cast_to_float_from_4_uints     $4..7 = UintToFloat($4..7)
-  380. zero_4_slots_unmasked          $8..11 = 0
+  380. splat_4_constants              $8..11 = 0
   381. max_4_floats                   $4..7 = max($4..7, $8..11)
   382. splat_4_constants              $8..11 = 0x3F800000 (1.0)
   383. min_4_floats                   $4..7 = min($4..7, $8..11)

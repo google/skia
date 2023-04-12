@@ -1,6 +1,6 @@
     1. store_src_rg                   v0..1 = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             _0_TrueTrue = 0
+    3. copy_constant                  _0_TrueTrue = 0
     4. copy_constant                  _2_y = 0x00000001 (1.401298e-45)
     5. copy_slot_unmasked             $0 = _2_y
     6. copy_constant                  $1 = 0x00000001 (1.401298e-45)
@@ -10,7 +10,7 @@
    10. store_condition_mask           $19 = CondMask
    11. store_condition_mask           $26 = CondMask
    12. copy_slot_unmasked             $27 = _0_TrueTrue
-   13. zero_slot_unmasked             $20 = 0
+   13. copy_constant                  $20 = 0
    14. merge_condition_mask           CondMask = $26 & $27
    15. branch_if_no_lanes_active      branch_if_no_lanes_active +36 (label 3 at #51)
    16. splat_2_constants              x, y = 0x00000001 (1.401298e-45)
@@ -42,7 +42,7 @@
    42. copy_slot_masked               [TrueFalse].result = Mask($23)
    43. bitwise_not_int                $22 = ~$22
    44. merge_condition_mask           CondMask = $21 & $22
-   45. zero_slot_unmasked             $23 = 0
+   45. copy_constant                  $23 = 0
    46. copy_slot_masked               [TrueFalse].result = Mask($23)
    47. load_condition_mask            CondMask = $21
    48. copy_slot_unmasked             $21 = [TrueFalse].result
@@ -50,7 +50,7 @@
    50. copy_slot_masked               $20 = Mask($21)
    51. label                          label 0x00000003
    52. load_condition_mask            CondMask = $26
-   53. zero_slot_unmasked             $13 = 0
+   53. copy_constant                  $13 = 0
    54. merge_condition_mask           CondMask = $19 & $20
    55. branch_if_no_lanes_active      branch_if_no_lanes_active +36 (label 2 at #91)
    56. splat_2_constants              x₁, y₁ = 0x00000001 (1.401298e-45)
@@ -82,7 +82,7 @@
    82. copy_slot_masked               [FalseTrue].result = Mask($16)
    83. bitwise_not_int                $15 = ~$15
    84. merge_condition_mask           CondMask = $14 & $15
-   85. zero_slot_unmasked             $16 = 0
+   85. copy_constant                  $16 = 0
    86. copy_slot_masked               [FalseTrue].result = Mask($16)
    87. load_condition_mask            CondMask = $14
    88. copy_slot_unmasked             $14 = [FalseTrue].result
@@ -90,7 +90,7 @@
    90. copy_slot_masked               $13 = Mask($14)
    91. label                          label 0x00000002
    92. load_condition_mask            CondMask = $19
-   93. zero_slot_unmasked             $0 = 0
+   93. copy_constant                  $0 = 0
    94. merge_condition_mask           CondMask = $12 & $13
    95. branch_if_no_lanes_active      branch_if_no_lanes_active +36 (label 1 at #131)
    96. splat_2_constants              x₂, y₂ = 0x00000001 (1.401298e-45)
@@ -112,7 +112,7 @@
   112. copy_slot_masked               $2 = Mask($3)
   113. load_condition_mask            CondMask = $19
   114. merge_condition_mask           CondMask = $1 & $2
-  115. zero_slot_unmasked             $3 = 0
+  115. copy_constant                  $3 = 0
   116. copy_slot_masked               [FalseFalse].result = Mask($3)
   117. bitwise_not_int                $2 = ~$2
   118. merge_condition_mask           CondMask = $1 & $2

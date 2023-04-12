@@ -4,21 +4,21 @@
     4. store_condition_mask           $12 = CondMask
     5. store_condition_mask           $21 = CondMask
     6. copy_slot_unmasked             $22 = _4_ok
-    7. zero_slot_unmasked             $13 = 0
+    7. copy_constant                  $13 = 0
     8. merge_condition_mask           CondMask = $21 & $22
     9. branch_if_no_lanes_active      branch_if_no_lanes_active +23 (label 2 at #32)
    10. copy_constant                  one = 0x00000001 (1.401298e-45)
    11. copy_constant                  two = 0x00000002 (2.802597e-45)
    12. copy_constant                  ok = 0xFFFFFFFF
    13. copy_slot_unmasked             $14 = ok
-   14. zero_3_slots_unmasked          $15..17 = 0
+   14. splat_3_constants              $15..17 = 0
    15. copy_slot_unmasked             $18 = one
    16. sub_int                        $17 -= $18
    17. copy_slot_unmasked             $18 = one
    18. copy_slot_unmasked             $19 = one
    19. add_int                        $18 += $19
    20. sub_2_ints                     $15..16 -= $17..18
-   21. zero_2_slots_unmasked          $17..18 = 0
+   21. splat_2_constants              $17..18 = 0
    22. copy_2_slots_unmasked          $19..20 = one, two
    23. sub_int                        $19 -= $20
    24. copy_constant                  $20 = 0x00000002 (2.802597e-45)
@@ -31,7 +31,7 @@
    31. copy_slot_masked               $13 = Mask($14)
    32. label                          label 0x00000002
    33. load_condition_mask            CondMask = $21
-   34. zero_slot_unmasked             $0 = 0
+   34. copy_constant                  $0 = 0
    35. merge_condition_mask           CondMask = $12 & $13
    36. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 1 at #41)
    37. copy_constant                  ok₁ = 0xFFFFFFFF

@@ -1,11 +1,11 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             h22(0) = 0
+    3. copy_constant                  h22(0) = 0
     4. copy_constant                  h22(1) = 0x40A00000 (5.0)
     5. copy_constant                  h22(2) = 0x41200000 (10.0)
     6. copy_constant                  h22(3) = 0x41700000 (15.0)
     7. copy_4_uniforms                $0..3 = testMatrix2x2
-    8. zero_slot_unmasked             $4 = 0
+    8. copy_constant                  $4 = 0
     9. copy_constant                  $5 = 0x3F800000 (1.0)
    10. swizzle_4                      $4..7 = ($4..7).yxxy
    11. mul_4_floats                   $0..3 *= $4..7
@@ -21,7 +21,7 @@
    21. copy_4_slots_unmasked          h33(4..7) = $4..7
    22. copy_slot_unmasked             h33(8) = $8
    23. copy_4_slots_unmasked          $0..3 = h22
-   24. zero_slot_unmasked             $4 = 0
+   24. copy_constant                  $4 = 0
    25. copy_constant                  $5 = 0x40A00000 (5.0)
    26. copy_constant                  $6 = 0x41200000 (10.0)
    27. copy_constant                  $7 = 0x41700000 (15.0)
@@ -30,7 +30,7 @@
    30. bitwise_and_int                $0 &= $1
    31. copy_4_slots_unmasked          $1..4 = f22
    32. copy_constant                  $5 = 0x3F800000 (1.0)
-   33. zero_2_slots_unmasked          $6..7 = 0
+   33. splat_2_constants              $6..7 = 0
    34. copy_constant                  $8 = 0x40800000 (4.0)
    35. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
    36. bitwise_and_2_ints             $1..2 &= $3..4

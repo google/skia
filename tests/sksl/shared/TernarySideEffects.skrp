@@ -118,10 +118,10 @@
   118. copy_slot_masked               $0 = Mask($1)
   119. load_condition_mask            CondMask = $16
   120. copy_constant                  b = 0xFFFFFFFF
-  121. zero_slot_unmasked             $0 = 0
+  121. copy_constant                  $0 = 0
   122. copy_slot_unmasked             b = $0
   123. copy_slot_unmasked             $1 = b
-  124. zero_slot_unmasked             $2 = 0
+  124. copy_constant                  $2 = 0
   125. mix_int                        $0 = mix($1, $2, $0)
   126. copy_slot_unmasked             c = $0
   127. swizzle_4                      $0..3 = ($0..3).xxxx

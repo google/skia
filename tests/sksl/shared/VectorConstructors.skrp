@@ -22,12 +22,12 @@
    22. cast_to_int_from_float         $1 = FloatToInt($1)
    23. copy_2_slots_unmasked          v10 = $0..1
    24. copy_constant                  v11(0) = 0xFFFFFFFF
-   25. zero_slot_unmasked             v11(1) = 0
+   25. copy_constant                  v11(1) = 0
    26. copy_constant                  v11(2) = 0xFFFFFFFF
-   27. zero_slot_unmasked             v11(3) = 0
+   27. copy_constant                  v11(3) = 0
    28. copy_constant                  v12(0) = 0x3F800000 (1.0)
-   29. zero_4_slots_unmasked          v12(1), v13, v14(0) = 0
-   30. zero_slot_unmasked             v14(1) = 0
+   29. splat_4_constants              v12(1), v13, v14(0) = 0
+   30. copy_constant                  v14(1) = 0
    31. splat_4_constants              v15, v16 = 0xFFFFFFFF
    32. splat_3_constants              v17 = 0xFFFFFFFF
    33. splat_4_constants              v18 = 0x00000001 (1.401298e-45)

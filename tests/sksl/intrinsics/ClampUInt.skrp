@@ -12,7 +12,7 @@
    12. copy_constant                  expectedA(2) = 0x00000113 (3.853571e-43)
    13. copy_constant                  expectedA(3) = 0x0000012C (4.203895e-43)
    14. copy_constant                  clampLow(0) = 0x00000064 (1.401298e-43)
-   15. zero_2_slots_unmasked          clampLow(1..2) = 0
+   15. splat_2_constants              clampLow(1..2) = 0
    16. copy_constant                  clampLow(3) = 0x0000012C (4.203895e-43)
    17. copy_constant                  expectedB(0) = 0x00000064 (1.401298e-43)
    18. copy_constant                  expectedB(1) = 0x000000C8 (2.802597e-43)
@@ -95,7 +95,7 @@
    95. bitwise_and_int                $0 &= $1
    96. copy_2_slots_unmasked          $1..2 = uintValues(0..1)
    97. copy_constant                  $3 = 0x00000064 (1.401298e-43)
-   98. zero_slot_unmasked             $4 = 0
+   98. copy_constant                  $4 = 0
    99. max_2_uints                    $1..2 = max($1..2, $3..4)
   100. copy_constant                  $3 = 0x0000012C (4.203895e-43)
   101. copy_constant                  $4 = 0x00000190 (5.605194e-43)
@@ -106,7 +106,7 @@
   106. bitwise_and_int                $0 &= $1
   107. copy_3_slots_unmasked          $1..3 = uintValues(0..2)
   108. copy_constant                  $4 = 0x00000064 (1.401298e-43)
-  109. zero_2_slots_unmasked          $5..6 = 0
+  109. splat_2_constants              $5..6 = 0
   110. max_3_uints                    $1..3 = max($1..3, $4..6)
   111. copy_constant                  $4 = 0x0000012C (4.203895e-43)
   112. copy_constant                  $5 = 0x00000190 (5.605194e-43)

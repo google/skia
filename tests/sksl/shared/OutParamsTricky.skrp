@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             result(0) = 0
+    3. copy_constant                  result(0) = 0
     4. copy_constant                  result(1) = 0x3F800000 (1.0)
     5. copy_constant                  result(2) = 0x40000000 (2.0)
     6. copy_constant                  result(3) = 0x40400000 (3.0)
@@ -24,11 +24,11 @@
    24. swizzle_copy_2_slots_masked    (color).yw = Mask($0..1)
    25. copy_4_slots_unmasked          $0..3 = color
    26. copy_4_slots_unmasked          result = $0..3
-   27. label                          label 0x00000000
+   27. label                          label 0
    28. copy_4_slots_unmasked          $0..3 = result
    29. copy_constant                  $4 = 0x40000000 (2.0)
    30. copy_constant                  $5 = 0x40400000 (3.0)
-   31. zero_slot_unmasked             $6 = 0
+   31. copy_constant                  $6 = 0
    32. copy_constant                  $7 = 0x40A00000 (5.0)
    33. cmpeq_4_floats                 $0..3 = equal($0..3, $4..7)
    34. bitwise_and_2_ints             $0..1 &= $2..3

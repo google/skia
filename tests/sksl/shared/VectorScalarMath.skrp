@@ -82,9 +82,9 @@
    82. copy_4_slots_unmasked          _3_x = $0..3
    83. copy_slot_unmasked             $0 = _0_ok
    84. copy_4_slots_unmasked          $1..4 = _3_x
-   85. zero_slot_unmasked             $5 = 0
+   85. copy_constant                  $5 = 0
    86. splat_2_constants              $6..7 = 0x40A00000 (5.0)
-   87. zero_slot_unmasked             $8 = 0
+   87. copy_constant                  $8 = 0
    88. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
    89. bitwise_and_2_ints             $1..2 &= $3..4
    90. bitwise_and_int                $1 &= $2
@@ -229,7 +229,7 @@
   229. copy_slot_unmasked             _0_ok = $0
   230. store_condition_mask           $12 = CondMask
   231. copy_slot_unmasked             $13 = _0_ok
-  232. zero_slot_unmasked             $0 = 0
+  232. copy_constant                  $0 = 0
   233. merge_condition_mask           CondMask = $12 & $13
   234. branch_if_no_lanes_active      branch_if_no_lanes_active +234 (label 1 at #468)
   235. copy_constant                  ok = 0xFFFFFFFF
@@ -303,7 +303,7 @@
   303. copy_slot_unmasked             $1 = ok
   304. copy_4_slots_unmasked          $2..5 = x
   305. copy_constant                  $6 = 0x00000002 (2.802597e-45)
-  306. zero_slot_unmasked             $7 = 0
+  306. copy_constant                  $7 = 0
   307. copy_constant                  $8 = 0x00000009 (1.261169e-44)
   308. copy_constant                  $9 = 0x00000002 (2.802597e-45)
   309. cmpeq_4_ints                   $2..5 = equal($2..5, $6..9)
@@ -318,9 +318,9 @@
   318. copy_4_slots_masked            x = Mask($1..4)
   319. copy_slot_unmasked             $1 = ok
   320. copy_4_slots_unmasked          $2..5 = x
-  321. zero_slot_unmasked             $6 = 0
+  321. copy_constant                  $6 = 0
   322. splat_2_constants              $7..8 = 0x00000005 (7.006492e-45)
-  323. zero_slot_unmasked             $9 = 0
+  323. copy_constant                  $9 = 0
   324. cmpeq_4_ints                   $2..5 = equal($2..5, $6..9)
   325. bitwise_and_2_ints             $2..3 &= $4..5
   326. bitwise_and_int                $2 &= $3

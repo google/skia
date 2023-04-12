@@ -28,7 +28,7 @@
    28. bitwise_and_int                $1 &= $2
    29. bitwise_and_int                $0 &= $1
    30. copy_slot_unmasked             _0_ok = $0
-   31. zero_slot_unmasked             $0 = 0
+   31. copy_constant                  $0 = 0
    32. copy_constant                  $1 = 0x40C00000 (6.0)
    33. swizzle_4                      $0..3 = ($0..3).yxxy
    34. copy_4_slots_unmasked          _3_m4 = $0..3
@@ -58,7 +58,7 @@
    58. bitwise_and_int                $1 &= $2
    59. bitwise_and_int                $0 &= $1
    60. copy_slot_unmasked             _0_ok = $0
-   61. zero_slot_unmasked             $0 = 0
+   61. copy_constant                  $0 = 0
    62. copy_2_slots_unmasked          $1..2 = _1_m1(2..3)
    63. swizzle_1                      $1 = ($1..2).y
    64. swizzle_4                      $0..3 = ($0..3).yxxy
@@ -66,7 +66,7 @@
    66. copy_slot_unmasked             $0 = _0_ok
    67. copy_4_slots_unmasked          $1..4 = _4_m5
    68. copy_constant                  $5 = 0x40800000 (4.0)
-   69. zero_2_slots_unmasked          $6..7 = 0
+   69. splat_2_constants              $6..7 = 0
    70. copy_constant                  $8 = 0x40800000 (4.0)
    71. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
    72. bitwise_and_2_ints             $1..2 &= $3..4
@@ -88,7 +88,7 @@
    88. bitwise_and_int                $1 &= $2
    89. bitwise_and_int                $0 &= $1
    90. copy_slot_unmasked             _0_ok = $0
-   91. zero_slot_unmasked             $0 = 0
+   91. copy_constant                  $0 = 0
    92. copy_constant                  $1 = 0x41300000 (11.0)
    93. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
    94. copy_4_slots_unmasked          _7_m10(0..3) = $0..3
@@ -135,7 +135,7 @@
   135. store_condition_mask           $33 = CondMask
   136. store_condition_mask           $68 = CondMask
   137. copy_slot_unmasked             $69 = _0_ok
-  138. zero_slot_unmasked             $34 = 0
+  138. copy_constant                  $34 = 0
   139. merge_condition_mask           CondMask = $68 & $69
   140. branch_if_no_lanes_active      branch_if_no_lanes_active +202 (label 2 at #342)
   141. copy_constant                  ok = 0xFFFFFFFF
@@ -166,14 +166,14 @@
   166. bitwise_and_int                $36 &= $37
   167. bitwise_and_int                $35 &= $36
   168. copy_slot_masked               ok = Mask($35)
-  169. zero_slot_unmasked             $35 = 0
+  169. copy_constant                  $35 = 0
   170. copy_constant                  $36 = 0x40C00000 (6.0)
   171. swizzle_4                      $35..38 = ($35..38).yxxy
   172. copy_4_slots_unmasked          m4 = $35..38
   173. copy_slot_unmasked             $35 = ok
   174. copy_4_slots_unmasked          $36..39 = m4
   175. copy_constant                  $40 = 0x40C00000 (6.0)
-  176. zero_2_slots_unmasked          $41..42 = 0
+  176. splat_2_constants              $41..42 = 0
   177. copy_constant                  $43 = 0x40C00000 (6.0)
   178. cmpeq_4_floats                 $36..39 = equal($36..39, $40..43)
   179. bitwise_and_2_ints             $36..37 &= $38..39
@@ -206,7 +206,7 @@
   206. bitwise_and_int                $36 &= $37
   207. bitwise_and_int                $35 &= $36
   208. copy_slot_masked               ok = Mask($35)
-  209. zero_slot_unmasked             $35 = 0
+  209. copy_constant                  $35 = 0
   210. copy_2_slots_unmasked          $36..37 = m1(2..3)
   211. swizzle_1                      $36 = ($36..37).y
   212. swizzle_4                      $35..38 = ($35..38).yxxy
@@ -214,7 +214,7 @@
   214. copy_slot_unmasked             $35 = ok
   215. copy_4_slots_unmasked          $36..39 = m5
   216. copy_constant                  $40 = 0x40800000 (4.0)
-  217. zero_2_slots_unmasked          $41..42 = 0
+  217. splat_2_constants              $41..42 = 0
   218. copy_constant                  $43 = 0x40800000 (4.0)
   219. cmpeq_4_floats                 $36..39 = equal($36..39, $40..43)
   220. bitwise_and_2_ints             $36..37 &= $38..39
@@ -251,7 +251,7 @@
   251. bitwise_and_int                $36 &= $37
   252. bitwise_and_int                $35 &= $36
   253. copy_slot_masked               ok = Mask($35)
-  254. zero_slot_unmasked             $35 = 0
+  254. copy_constant                  $35 = 0
   255. copy_constant                  $36 = 0x41100000 (9.0)
   256. shuffle                        $35..43 = ($35..43)[1 0 0 0 1 0 0 0 1]
   257. copy_4_slots_unmasked          m9(0..3) = $35..38
@@ -262,9 +262,9 @@
   262. copy_4_slots_unmasked          $40..43 = m9(4..7)
   263. copy_slot_unmasked             $44 = m9(8)
   264. copy_constant                  $45 = 0x41100000 (9.0)
-  265. zero_3_slots_unmasked          $46..48 = 0
+  265. splat_3_constants              $46..48 = 0
   266. copy_constant                  $49 = 0x41100000 (9.0)
-  267. zero_3_slots_unmasked          $50..52 = 0
+  267. splat_3_constants              $50..52 = 0
   268. copy_constant                  $53 = 0x41100000 (9.0)
   269. cmpeq_n_floats                 $36..44 = equal($36..44, $45..53)
   270. bitwise_and_4_ints             $37..40 &= $41..44
@@ -273,7 +273,7 @@
   273. bitwise_and_int                $36 &= $37
   274. bitwise_and_int                $35 &= $36
   275. copy_slot_masked               ok = Mask($35)
-  276. zero_slot_unmasked             $35 = 0
+  276. copy_constant                  $35 = 0
   277. copy_constant                  $36 = 0x41300000 (11.0)
   278. shuffle                        $35..50 = ($35..50)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
   279. copy_4_slots_unmasked          m10(0..3) = $35..38
@@ -286,11 +286,11 @@
   286. copy_4_slots_unmasked          $44..47 = m10(8..11)
   287. copy_4_slots_unmasked          $48..51 = m10(12..15)
   288. copy_constant                  $52 = 0x41300000 (11.0)
-  289. zero_4_slots_unmasked          $53..56 = 0
+  289. splat_4_constants              $53..56 = 0
   290. copy_constant                  $57 = 0x41300000 (11.0)
-  291. zero_4_slots_unmasked          $58..61 = 0
+  291. splat_4_constants              $58..61 = 0
   292. copy_constant                  $62 = 0x41300000 (11.0)
-  293. zero_4_slots_unmasked          $63..66 = 0
+  293. splat_4_constants              $63..66 = 0
   294. copy_constant                  $67 = 0x41300000 (11.0)
   295. cmpeq_n_floats                 $36..51 = equal($36..51, $52..67)
   296. bitwise_and_4_ints             $44..47 &= $48..51
@@ -341,11 +341,11 @@
   341. copy_slot_masked               $34 = Mask($35)
   342. label                          label 0x00000002
   343. load_condition_mask            CondMask = $68
-  344. zero_slot_unmasked             $0 = 0
+  344. copy_constant                  $0 = 0
   345. merge_condition_mask           CondMask = $33 & $34
   346. branch_if_no_lanes_active      branch_if_no_lanes_active +20 (label 1 at #366)
-  347. zero_4_slots_unmasked          x = 0
-  348. zero_4_slots_unmasked          y = 0
+  347. splat_4_constants              x = 0
+  348. splat_4_constants              y = 0
   349. copy_constant                  $1 = 0x3F800000 (1.0)
   350. copy_constant                  $2 = 0x40000000 (2.0)
   351. copy_constant                  $3 = 0x40400000 (3.0)

@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  expected(0) = 0x3F400000 (0.75)
-    4. zero_slot_unmasked             expected(1) = 0
+    4. copy_constant                  expected(1) = 0
     5. copy_constant                  expected(2) = 0x3F400000 (0.75)
     6. copy_constant                  expected(3) = 0x3E800000 (0.25)
     7. copy_uniform                   $4 = testInputs(0)
@@ -15,7 +15,7 @@
    15. floor_2_floats                 $7..8 = floor($7..8)
    16. sub_2_floats                   $5..6 -= $7..8
    17. copy_constant                  $7 = 0x3F400000 (0.75)
-   18. zero_slot_unmasked             $8 = 0
+   18. copy_constant                  $8 = 0
    19. cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
    20. bitwise_and_int                $5 &= $6
    21. bitwise_and_int                $4 &= $5
@@ -24,7 +24,7 @@
    24. floor_3_floats                 $8..10 = floor($8..10)
    25. sub_3_floats                   $5..7 -= $8..10
    26. copy_constant                  $8 = 0x3F400000 (0.75)
-   27. zero_slot_unmasked             $9 = 0
+   27. copy_constant                  $9 = 0
    28. copy_constant                  $10 = 0x3F400000 (0.75)
    29. cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
    30. bitwise_and_int                $6 &= $7
@@ -42,7 +42,7 @@
    42. branch_if_no_active_lanes_eq   branch +3 (label 0 at #45) if no lanes of $4 == 0xFFFFFFFF
    43. copy_4_uniforms                $0..3 = colorGreen
    44. jump                           jump +3 (label 1 at #47)
-   45. label                          label 0x00000000
+   45. label                          label 0
    46. copy_4_uniforms                $0..3 = colorRed
    47. label                          label 0x00000001
    48. load_src                       src.rgba = $0..3

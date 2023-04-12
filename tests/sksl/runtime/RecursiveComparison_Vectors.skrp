@@ -12,7 +12,7 @@
    12. copy_uniform                   $1 = colorGreen(2)
    13. mul_float                      $0 *= $1
    14. copy_slot_unmasked             ZP = $0
-   15. zero_slot_unmasked             $0 = 0
+   15. copy_constant                  $0 = 0
    16. copy_uniform                   $1 = colorGreen(0)
    17. sub_float                      $0 -= $1
    18. copy_uniform                   $1 = colorGreen(2)
@@ -35,7 +35,7 @@
    35. mul_float                      $0 *= $1
    36. copy_slot_unmasked             F45 = $0
    37. copy_constant                  EQ = 0xFFFFFFFF
-   38. zero_slot_unmasked             NE = 0
+   38. copy_constant                  NE = 0
    39. copy_uniform                   $0 = colorGreen(0)
    40. copy_constant                  $1 = 0x3F800000 (1.0)
    41. add_float                      $0 += $1
@@ -81,7 +81,7 @@
    81. copy_slot_masked               $79 = Mask($80)
    82. label                          label 0x00000008
    83. load_condition_mask            CondMask = $88
-   84. zero_slot_unmasked             $68 = 0
+   84. copy_constant                  $68 = 0
    85. merge_condition_mask           CondMask = $78 & $79
    86. branch_if_no_lanes_active      branch_if_no_lanes_active +44 (label 7 at #130)
    87. copy_slot_unmasked             eq = NE
@@ -129,7 +129,7 @@
   129. copy_slot_masked               $68 = Mask($69)
   130. label                          label 0x00000007
   131. load_condition_mask            CondMask = $78
-  132. zero_slot_unmasked             $57 = 0
+  132. copy_constant                  $57 = 0
   133. merge_condition_mask           CondMask = $67 & $68
   134. branch_if_no_lanes_active      branch_if_no_lanes_active +42 (label 6 at #176)
   135. copy_slot_unmasked             eq = NE
@@ -175,7 +175,7 @@
   175. copy_slot_masked               $57 = Mask($58)
   176. label                          label 0x00000006
   177. load_condition_mask            CondMask = $67
-  178. zero_slot_unmasked             $46 = 0
+  178. copy_constant                  $46 = 0
   179. merge_condition_mask           CondMask = $56 & $57
   180. branch_if_no_lanes_active      branch_if_no_lanes_active +43 (label 5 at #223)
   181. copy_slot_unmasked             eq = EQ
@@ -222,7 +222,7 @@
   222. copy_slot_masked               $46 = Mask($47)
   223. label                          label 0x00000005
   224. load_condition_mask            CondMask = $56
-  225. zero_slot_unmasked             $35 = 0
+  225. copy_constant                  $35 = 0
   226. merge_condition_mask           CondMask = $45 & $46
   227. branch_if_no_lanes_active      branch_if_no_lanes_active +40 (label 4 at #267)
   228. copy_slot_unmasked             eq₁ = NE
@@ -266,7 +266,7 @@
   266. copy_slot_masked               $35 = Mask($36)
   267. label                          label 0x00000004
   268. load_condition_mask            CondMask = $45
-  269. zero_slot_unmasked             $24 = 0
+  269. copy_constant                  $24 = 0
   270. merge_condition_mask           CondMask = $34 & $35
   271. branch_if_no_lanes_active      branch_if_no_lanes_active +41 (label 3 at #312)
   272. copy_slot_unmasked             eq₁ = EQ
@@ -311,7 +311,7 @@
   311. copy_slot_masked               $24 = Mask($25)
   312. label                          label 0x00000003
   313. load_condition_mask            CondMask = $34
-  314. zero_slot_unmasked             $13 = 0
+  314. copy_constant                  $13 = 0
   315. merge_condition_mask           CondMask = $23 & $24
   316. branch_if_no_lanes_active      branch_if_no_lanes_active +43 (label 2 at #359)
   317. copy_slot_unmasked             eq₁ = NE
@@ -358,7 +358,7 @@
   358. copy_slot_masked               $13 = Mask($14)
   359. label                          label 0x00000002
   360. load_condition_mask            CondMask = $23
-  361. zero_slot_unmasked             $0 = 0
+  361. copy_constant                  $0 = 0
   362. merge_condition_mask           CondMask = $12 & $13
   363. branch_if_no_lanes_active      branch_if_no_lanes_active +44 (label 1 at #407)
   364. copy_slot_unmasked             eq₁ = EQ

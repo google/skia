@@ -11,6 +11,6 @@
    11. copy_4_slots_masked            [main].result = Mask($2..5)
    12. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    13. label                          label 0x00000001
-   14. label                          label 0x00000000
+   14. label                          label 0
    15. load_loop_mask                 LoopMask = $0
    16. load_src                       src.rgba = [main].result

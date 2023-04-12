@@ -1,12 +1,12 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_2_slots_unmasked          s.x, s.y = 0
+    3. splat_2_constants              s.x, s.y = 0
     4. copy_constant                  $0 = 0x3F800000 (1.0)
     5. copy_slot_unmasked             s.x = $0
     6. copy_constant                  $0 = 0x00000002 (2.802597e-45)
     7. copy_slot_unmasked             s.y = $0
     8. copy_2_slots_unmasked          $0..1 = s.x, s.y
-    9. label                          label 0x00000000
+    9. label                          label 0
    10. copy_2_slots_unmasked          s.x₁, s.y₁ = $0..1
    11. copy_2_slots_unmasked          s.x₂, s.y₂ = $0..1
    12. copy_2_slots_unmasked          $0..1 = s.x₂, s.y₂
@@ -30,10 +30,10 @@
    30. copy_constant                  $1 = 0x00000003 (4.203895e-45)
    31. label                          label 0x00000003
    32. copy_2_slots_unmasked          expected.x, expected.y = $0..1
-   33. zero_4_slots_unmasked          n1.a.x, n1.a.y, n1.b.x, n1.b.y = 0
-   34. zero_4_slots_unmasked          n2.a.x, n2.a.y, n2.b.x, n2.b.y = 0
-   35. zero_4_slots_unmasked          n3.a.x, n3.a.y, n3.b.x, n3.b.y = 0
-   36. zero_2_slots_unmasked          s.x, s.y = 0
+   33. splat_4_constants              n1.a.x, n1.a.y, n1.b.x, n1.b.y = 0
+   34. splat_4_constants              n2.a.x, n2.a.y, n2.b.x, n2.b.y = 0
+   35. splat_4_constants              n3.a.x, n3.a.y, n3.b.x, n3.b.y = 0
+   36. splat_2_constants              s.x, s.y = 0
    37. copy_constant                  $0 = 0x3F800000 (1.0)
    38. copy_slot_unmasked             s.x = $0
    39. copy_constant                  $0 = 0x00000002 (2.802597e-45)
@@ -108,12 +108,12 @@
   108. cmpeq_int                      $15 = equal($15, $16)
   109. bitwise_and_int                $14 &= $15
   110. bitwise_and_int                $13 &= $14
-  111. zero_slot_unmasked             $0 = 0
+  111. copy_constant                  $0 = 0
   112. merge_condition_mask           CondMask = $12 & $13
   113. branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #130)
   114. copy_slot_unmasked             $1 = s.x₁
   115. branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #122)
-  116. zero_2_slots_unmasked          s.x, s.y = 0
+  116. splat_2_constants              s.x, s.y = 0
   117. copy_constant                  $17 = 0x3F800000 (1.0)
   118. copy_slot_masked               s.x = Mask($17)
   119. copy_constant                  $17 = 0x00000002 (2.802597e-45)

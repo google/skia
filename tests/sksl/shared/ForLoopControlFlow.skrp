@@ -6,14 +6,14 @@
     6. jump                           jump +20 (label 1 at #26)
     7. label                          label 0x00000002
     8. copy_slot_unmasked             $1 = r
-    9. zero_slot_unmasked             $2 = 0
+    9. copy_constant                  $2 = 0
    10. max_float                      $1 = max($1, $2)
    11. copy_constant                  $2 = 0x3F800000 (1.0)
    12. min_float                      $1 = min($1, $2)
    13. copy_slot_masked               x(0) = Mask($1)
    14. store_condition_mask           $1 = CondMask
    15. copy_slot_unmasked             $2 = x(0)
-   16. zero_slot_unmasked             $3 = 0
+   16. copy_constant                  $3 = 0
    17. cmpeq_float                    $2 = equal($2, $3)
    18. merge_condition_mask           CondMask = $1 & $2
    19. branch_if_all_lanes_active     branch_if_all_lanes_active +14 (label 0 at #33)
@@ -30,13 +30,13 @@
    30. merge_loop_mask                LoopMask &= $1
    31. stack_rewind
    32. branch_if_any_lanes_active     branch_if_any_lanes_active -25 (label 2 at #7)
-   33. label                          label 0x00000000
+   33. label                          label 0
    34. load_loop_mask                 LoopMask = $0
    35. copy_constant                  b = 0x40A00000 (5.0)
    36. store_loop_mask                $0 = LoopMask
    37. jump                           jump +21 (label 4 at #58)
    38. label                          label 0x00000005
-   39. zero_slot_unmasked             $4 = 0
+   39. copy_constant                  $4 = 0
    40. copy_slot_unmasked             $1 = b
    41. copy_slot_masked               x(2) = Mask($1)
    42. store_condition_mask           $1 = CondMask
@@ -48,7 +48,7 @@
    48. copy_slot_masked               $4 = Mask($5)
    49. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    50. load_condition_mask            CondMask = $1
-   51. zero_slot_unmasked             $1 = 0
+   51. copy_constant                  $1 = 0
    52. copy_slot_masked               x(1) = Mask($1)
    53. reenable_loop_mask             LoopMask |= $4
    54. copy_slot_unmasked             $1 = b
@@ -56,7 +56,7 @@
    56. sub_float                      $1 -= $2
    57. copy_slot_masked               b = Mask($1)
    58. label                          label 0x00000004
-   59. zero_slot_unmasked             $1 = 0
+   59. copy_constant                  $1 = 0
    60. copy_slot_unmasked             $2 = b
    61. cmple_float                    $1 = lessThanEqual($1, $2)
    62. merge_loop_mask                LoopMask &= $1

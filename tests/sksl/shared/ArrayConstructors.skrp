@@ -8,7 +8,7 @@
     8. copy_constant                  test2[0](1) = 0x40000000 (2.0)
     9. copy_constant                  test2[1](0) = 0x40400000 (3.0)
    10. copy_constant                  test2[1](1) = 0x40800000 (4.0)
-   11. zero_slot_unmasked             $0 = 0
+   11. copy_constant                  $0 = 0
    12. copy_constant                  $1 = 0x41800000 (16.0)
    13. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
    14. copy_4_slots_unmasked          test3[0](0..3) = $0..3

@@ -1,17 +1,17 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             ok = 0
+    3. copy_constant                  ok = 0
     4. copy_constant                  $0 = 0xFFFFFFFF
     5. copy_slot_unmasked             ok = $0
     6. copy_4_uniforms                green = colorGreen
     7. copy_4_uniforms                red = colorRed
-    8. zero_slot_unmasked             param = 0
+    8. copy_constant                  param = 0
     9. copy_constant                  $0 = 0xFFFFFFFF
    10. copy_slot_unmasked             x = $0
-   11. zero_slot_unmasked             $0 = 0
+   11. copy_constant                  $0 = 0
    12. copy_slot_unmasked             $1 = x
    13. copy_slot_unmasked             param = $1
-   14. label                          label 0x00000000
+   14. label                          label 0
    15. copy_constant                  call = 0xFFFFFFFF
    16. copy_slot_unmasked             $0 = ok
    17. copy_slot_unmasked             $1 = param

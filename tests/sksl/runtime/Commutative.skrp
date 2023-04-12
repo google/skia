@@ -12,7 +12,7 @@
    12. trace_var                      TraceVar(testMatrix2x2) when $13 is true
    13. trace_enter                    TraceEnter(half4 main(float2 xy)) when $13 is true
    14. trace_var                      TraceVar(xy) when $13 is true
-   15. zero_slot_unmasked             $0 = 0
+   15. copy_constant                  $0 = 0
    16. copy_slot_unmasked             $1 = $13
    17. copy_slot_masked               $0 = Mask($1)
    18. trace_scope                    TraceScope(+1) when $0 is true

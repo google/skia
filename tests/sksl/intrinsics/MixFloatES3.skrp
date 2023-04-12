@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_4_uniforms                $0..3 = colorGreen
-    4. zero_4_slots_unmasked          $4..7 = 0
+    4. splat_4_constants              $4..7 = 0
     5. cmpne_4_floats                 $0..3 = notEqual($0..3, $4..7)
     6. copy_4_slots_unmasked          FTFT = $0..3
     7. swizzle_4                      $0..3 = ($0..3).wzyx

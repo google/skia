@@ -215,8 +215,8 @@ private:
 
     // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
     // an single-slot "apply_op" stage, which must be immediately followed by specializations for
-    // 2-4 slots. For instance, {`zero_slot`, `zero_2_slots`, `zero_3_slots`, `zero_4_slots`}
-    // must be contiguous ops in the stage list, listed in that order; pass `zero_slot` and we
+    // 2-4 slots. For instance, {`ceil_float`, `ceil_2_floats`, `ceil_3_floats`, `ceil_4_floats`}
+    // must be contiguous ops in the stage list, listed in that order; pass `ceil_float` and we
     // pick the appropriate op based on `numSlots`.
     void appendMultiSlotUnaryOp(skia_private::TArray<Stage>* pipeline, ProgramOp baseStage,
                                 float* dst, int numSlots) const;

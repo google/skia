@@ -8,7 +8,7 @@
     8. cast_to_uint_from_float        $0 = FloatToUint($0)
     9. copy_slot_unmasked             u = $0
    10. copy_uniform                   $0 = colorGreen(1)
-   11. zero_slot_unmasked             $1 = 0
+   11. copy_constant                  $1 = 0
    12. cmpne_float                    $0 = notEqual($0, $1)
    13. copy_slot_unmasked             b = $0
    14. copy_slot_unmasked             f1 = f
@@ -39,15 +39,15 @@
    39. bitwise_and_int                $0 &= $1
    40. copy_slot_unmasked             u4 = $0
    41. copy_slot_unmasked             $0 = f
-   42. zero_slot_unmasked             $1 = 0
+   42. copy_constant                  $1 = 0
    43. cmpne_float                    $0 = notEqual($0, $1)
    44. copy_slot_unmasked             b1 = $0
    45. copy_slot_unmasked             $0 = i
-   46. zero_slot_unmasked             $1 = 0
+   46. copy_constant                  $1 = 0
    47. cmpne_int                      $0 = notEqual($0, $1)
    48. copy_slot_unmasked             b2 = $0
    49. copy_slot_unmasked             $0 = u
-   50. zero_slot_unmasked             $1 = 0
+   50. copy_constant                  $1 = 0
    51. cmpne_int                      $0 = notEqual($0, $1)
    52. copy_slot_unmasked             b3 = $0
    53. copy_slot_unmasked             b4 = b

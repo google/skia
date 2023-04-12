@@ -3,13 +3,13 @@
     3. splat_4_constants              globalArray[0], globalArray[1], globalArray[2], globalArray[3] = 0x3F800000 (1.0)
     4. splat_4_constants              globalArray[4], globalVector, globalMatrix(0) = 0x3F800000 (1.0)
     5. splat_3_constants              globalMatrix(1..3) = 0x3F800000 (1.0)
-    6. zero_slot_unmasked             localArray[0] = 0
+    6. copy_constant                  localArray[0] = 0
     7. copy_constant                  localArray[1] = 0x3F800000 (1.0)
     8. copy_constant                  localArray[2] = 0x40000000 (2.0)
     9. copy_constant                  localArray[3] = 0x40400000 (3.0)
    10. copy_constant                  localArray[4] = 0x40800000 (4.0)
    11. splat_2_constants              localVector = 0x3F800000 (1.0)
-   12. zero_slot_unmasked             localMatrix(0) = 0
+   12. copy_constant                  localMatrix(0) = 0
    13. copy_constant                  localMatrix(1) = 0x3F800000 (1.0)
    14. copy_constant                  localMatrix(2) = 0x40000000 (2.0)
    15. copy_constant                  localMatrix(3) = 0x40400000 (3.0)
@@ -56,10 +56,10 @@
    56. copy_4_uniforms                $1..4 = colorRed
    57. copy_4_slots_masked            [main].result = Mask($1..4)
    58. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   59. label                          label 0x00000000
-   60. zero_slot_unmasked             $0 = 0
+   59. label                          label 0
+   60. copy_constant                  $0 = 0
    61. copy_constant                  $1 = 0x3F800000 (1.0)
-   62. zero_slot_unmasked             $2 = 0
+   62. copy_constant                  $2 = 0
    63. copy_constant                  $3 = 0x3F800000 (1.0)
    64. copy_4_slots_masked            [main].result = Mask($0..3)
    65. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)

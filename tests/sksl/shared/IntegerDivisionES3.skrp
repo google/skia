@@ -15,7 +15,7 @@
    15. jump                           jump +46 (label 4 at #61)
    16. label                          label 0x00000005
    17. copy_slot_unmasked             _0_x = x
-   18. zero_slot_unmasked             _1_result = 0
+   18. copy_constant                  _1_result = 0
    19. store_loop_mask                $2 = LoopMask
    20. jump                           jump +10 (label 7 at #30)
    21. label                          label 0x00000008
@@ -78,7 +78,7 @@
    78. merge_loop_mask                LoopMask &= $1
    79. stack_rewind
    80. branch_if_any_lanes_active     branch_if_any_lanes_active -68 (label 2 at #12)
-   81. label                          label 0x00000000
+   81. label                          label 0
    82. load_loop_mask                 LoopMask = $0
    83. copy_4_uniforms                $0..3 = colorGreen
    84. copy_4_slots_masked            [main].result = Mask($0..3)

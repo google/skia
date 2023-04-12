@@ -5,13 +5,13 @@
     5. copy_4_slots_unmasked          a = _1_x, _2_y, _3_z, _4_w
     6. copy_4_uniforms                _9_x, _10_y, _11_z, _12_w = testInputs
     7. copy_4_slots_unmasked          b = _9_x, _10_y, _11_z, _12_w
-    8. zero_slot_unmasked             c(0) = 0
+    8. copy_constant                  c(0) = 0
     9. copy_constant                  c(1) = 0x3F800000 (1.0)
    10. copy_constant                  c(2) = 0x40000000 (2.0)
    11. copy_constant                  c(3) = 0x40400000 (3.0)
    12. copy_4_slots_unmasked          $0..3 = a
    13. copy_constant                  $4 = 0xBFA00000 (-1.25)
-   14. zero_slot_unmasked             $5 = 0
+   14. copy_constant                  $5 = 0
    15. copy_constant                  $6 = 0x3F400000 (0.75)
    16. copy_constant                  $7 = 0x40100000 (2.25)
    17. cmpeq_4_floats                 $0..3 = equal($0..3, $4..7)
@@ -19,7 +19,7 @@
    19. bitwise_and_int                $0 &= $1
    20. copy_4_slots_unmasked          $1..4 = b
    21. copy_constant                  $5 = 0xBFA00000 (-1.25)
-   22. zero_slot_unmasked             $6 = 0
+   22. copy_constant                  $6 = 0
    23. copy_constant                  $7 = 0x3F400000 (0.75)
    24. copy_constant                  $8 = 0x40100000 (2.25)
    25. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -27,7 +27,7 @@
    27. bitwise_and_int                $1 &= $2
    28. bitwise_and_int                $0 &= $1
    29. copy_4_slots_unmasked          $1..4 = c
-   30. zero_slot_unmasked             $5 = 0
+   30. copy_constant                  $5 = 0
    31. copy_constant                  $6 = 0x3F800000 (1.0)
    32. copy_constant                  $7 = 0x40000000 (2.0)
    33. copy_constant                  $8 = 0x40400000 (3.0)

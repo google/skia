@@ -10,7 +10,7 @@
    10. trace_var                      TraceVar(colorGreen) when $13 is true
    11. trace_enter                    TraceEnter(half4 main(float2 pos)) when $13 is true
    12. trace_var                      TraceVar(pos) when $13 is true
-   13. zero_slot_unmasked             $0 = 0
+   13. copy_constant                  $0 = 0
    14. copy_slot_unmasked             $1 = $13
    15. copy_slot_masked               $0 = Mask($1)
    16. trace_scope                    TraceScope(+1) when $0 is true
@@ -18,7 +18,7 @@
    18. trace_enter                    TraceEnter(int get(int x)) when $13 is true
    19. copy_constant                  x = 0x00000005 (7.006492e-45)
    20. trace_var                      TraceVar(x) when $13 is true
-   21. zero_slot_unmasked             $1 = 0
+   21. copy_constant                  $1 = 0
    22. copy_slot_unmasked             $2 = $13
    23. copy_slot_masked               $1 = Mask($2)
    24. trace_scope                    TraceScope(+1) when $1 is true
@@ -28,11 +28,11 @@
    28. trace_scope                    TraceScope(-1) when $1 is true
    29. trace_exit                     TraceExit(int get(int x)) when $13 is true
    30. copy_slot_unmasked             $1 = [get].result
-   31. label                          label 0x00000000
+   31. label                          label 0
    32. trace_enter                    TraceEnter(int get(int x)) when $13 is true
    33. copy_constant                  x = 0x00000003 (4.203895e-45)
    34. trace_var                      TraceVar(x) when $13 is true
-   35. zero_slot_unmasked             $2 = 0
+   35. copy_constant                  $2 = 0
    36. copy_slot_unmasked             $3 = $13
    37. copy_slot_masked               $2 = Mask($3)
    38. trace_scope                    TraceScope(+1) when $2 is true
@@ -47,7 +47,7 @@
    47. trace_enter                    TraceEnter(int get(int x)) when $13 is true
    48. copy_constant                  x = 0x00000002 (2.802597e-45)
    49. trace_var                      TraceVar(x) when $13 is true
-   50. zero_slot_unmasked             $2 = 0
+   50. copy_constant                  $2 = 0
    51. copy_slot_unmasked             $3 = $13
    52. copy_slot_masked               $2 = Mask($3)
    53. trace_scope                    TraceScope(+1) when $2 is true

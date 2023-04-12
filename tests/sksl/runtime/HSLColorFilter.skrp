@@ -13,7 +13,7 @@
    13. copy_slot_unmasked             C = $0
    14. copy_4_slots_unmasked          $0..3 = hsl
    15. swizzle_3                      $0..2 = ($0..2).xxx
-   16. zero_slot_unmasked             $3 = 0
+   16. copy_constant                  $3 = 0
    17. copy_constant                  $4 = 0x3F2AAAAB (0.6666667)
    18. copy_constant                  $5 = 0x3EAAAAAB (0.333333343)
    19. add_3_floats                   $0..2 += $3..5
@@ -28,7 +28,7 @@
    28. abs_3_floats                   $0..2 = abs($0..2)
    29. splat_3_constants              $3..5 = 0x3F800000 (1.0)
    30. sub_3_floats                   $0..2 -= $3..5
-   31. zero_3_slots_unmasked          $3..5 = 0
+   31. splat_3_constants              $3..5 = 0
    32. max_3_floats                   $0..2 = max($0..2, $3..5)
    33. splat_3_constants              $3..5 = 0x3F800000 (1.0)
    34. min_3_floats                   $0..2 = min($0..2, $3..5)

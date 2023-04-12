@@ -6,7 +6,7 @@
     6. cast_to_int_from_float         $1 = FloatToInt($1)
     7. store_loop_mask                $2 = LoopMask
     8. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-    9. case_op                        if ($1 == 0x00000000) { LoopMask = true; $2 = false; }
+    9. case_op                        if ($1 == 0) { LoopMask = true; $2 = false; }
    10. branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 1 at #13)
    11. branch_if_all_lanes_active     branch_if_all_lanes_active +35 (label 0 at #46)
    12. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
@@ -43,7 +43,7 @@
    43. branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 0 at #46)
    44. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    45. label                          label 0x00000007
-   46. label                          label 0x00000000
+   46. label                          label 0
    47. load_loop_mask                 LoopMask = $0
    48. copy_4_slots_unmasked          $0..3 = color
    49. load_src                       src.rgba = $0..3

@@ -7,10 +7,10 @@
     7. splat_4_constants              _2_splat_2(0..3) = 0x40000000 (2.0)
     8. splat_4_constants              _2_splat_2(4..7) = 0x40000000 (2.0)
     9. copy_constant                  _2_splat_2(8) = 0x40000000 (2.0)
-   10. zero_4_slots_unmasked          _3_m(0..3) = 0
-   11. zero_4_slots_unmasked          _3_m(4..7) = 0
-   12. zero_slot_unmasked             _3_m(8) = 0
-   13. zero_slot_unmasked             $0 = 0
+   10. splat_4_constants              _3_m(0..3) = 0
+   11. splat_4_constants              _3_m(4..7) = 0
+   12. copy_constant                  _3_m(8) = 0
+   13. copy_constant                  $0 = 0
    14. copy_constant                  $1 = 0x40000000 (2.0)
    15. shuffle                        $0..8 = ($0..8)[1 0 0 0 1 0 0 0 1]
    16. copy_4_slots_unmasked          _3_m(0..3) = $0..3
@@ -39,7 +39,7 @@
    39. bitwise_and_int                $1 &= $2
    40. bitwise_and_int                $0 &= $1
    41. copy_slot_unmasked             _0_ok = $0
-   42. zero_slot_unmasked             $0 = 0
+   42. copy_constant                  $0 = 0
    43. copy_constant                  $1 = 0x40000000 (2.0)
    44. shuffle                        $0..8 = ($0..8)[1 0 0 0 1 0 0 0 1]
    45. copy_4_slots_unmasked          _3_m(0..3) = $0..3
@@ -68,7 +68,7 @@
    68. bitwise_and_int                $1 &= $2
    69. bitwise_and_int                $0 &= $1
    70. copy_slot_unmasked             _0_ok = $0
-   71. zero_slot_unmasked             $0 = 0
+   71. copy_constant                  $0 = 0
    72. copy_constant                  $1 = 0x40000000 (2.0)
    73. shuffle                        $0..8 = ($0..8)[1 0 0 0 1 0 0 0 1]
    74. copy_4_slots_unmasked          _3_m(0..3) = $0..3
@@ -85,7 +85,7 @@
    85. copy_4_slots_unmasked          $1..4 = _3_m(0..3)
    86. copy_4_slots_unmasked          $5..8 = _3_m(4..7)
    87. copy_slot_unmasked             $9 = _3_m(8)
-   88. zero_slot_unmasked             $10 = 0
+   88. copy_constant                  $10 = 0
    89. copy_constant                  $11 = 0x3F000000 (0.5)
    90. shuffle                        $10..18 = ($10..18)[1 0 0 0 1 0 0 0 1]
    91. cmpeq_n_floats                 $1..9 = equal($1..9, $10..18)
@@ -101,7 +101,7 @@
   101. copy_4_slots_unmasked          _3_m(0..3) = $0..3
   102. copy_4_slots_unmasked          _3_m(4..7) = $4..7
   103. copy_slot_unmasked             _3_m(8) = $8
-  104. zero_slot_unmasked             $9 = 0
+  104. copy_constant                  $9 = 0
   105. copy_constant                  $10 = 0x40000000 (2.0)
   106. shuffle                        $9..17 = ($9..17)[1 0 0 0 1 0 0 0 1]
   107. add_n_floats                   $0..8 += $9..17
@@ -130,7 +130,7 @@
   130. copy_4_slots_unmasked          _3_m(0..3) = $0..3
   131. copy_4_slots_unmasked          _3_m(4..7) = $4..7
   132. copy_slot_unmasked             _3_m(8) = $8
-  133. zero_slot_unmasked             $9 = 0
+  133. copy_constant                  $9 = 0
   134. copy_constant                  $10 = 0x40000000 (2.0)
   135. shuffle                        $9..17 = ($9..17)[1 0 0 0 1 0 0 0 1]
   136. sub_n_floats                   $0..8 -= $9..17
@@ -385,7 +385,7 @@
   385. copy_slot_unmasked             _0_ok = $0
   386. store_condition_mask           $34 = CondMask
   387. copy_slot_unmasked             $35 = _0_ok
-  388. zero_slot_unmasked             $0 = 0
+  388. copy_constant                  $0 = 0
   389. merge_condition_mask           CondMask = $34 & $35
   390. branch_if_no_lanes_active      branch_if_no_lanes_active +387 (label 1 at #777)
   391. copy_constant                  ok = 0xFFFFFFFF
@@ -395,10 +395,10 @@
   395. splat_4_constants              splat_2(0..3) = 0x40000000 (2.0)
   396. splat_4_constants              splat_2(4..7) = 0x40000000 (2.0)
   397. copy_constant                  splat_2(8) = 0x40000000 (2.0)
-  398. zero_4_slots_unmasked          m(0..3) = 0
-  399. zero_4_slots_unmasked          m(4..7) = 0
-  400. zero_slot_unmasked             m(8) = 0
-  401. zero_slot_unmasked             $1 = 0
+  398. splat_4_constants              m(0..3) = 0
+  399. splat_4_constants              m(4..7) = 0
+  400. copy_constant                  m(8) = 0
+  401. copy_constant                  $1 = 0
   402. copy_constant                  $2 = 0x40000000 (2.0)
   403. shuffle                        $1..9 = ($1..9)[1 0 0 0 1 0 0 0 1]
   404. copy_4_slots_masked            m(0..3) = Mask($1..4)
@@ -427,7 +427,7 @@
   427. bitwise_and_int                $2 &= $3
   428. bitwise_and_int                $1 &= $2
   429. copy_slot_masked               ok = Mask($1)
-  430. zero_slot_unmasked             $1 = 0
+  430. copy_constant                  $1 = 0
   431. copy_constant                  $2 = 0x40000000 (2.0)
   432. shuffle                        $1..9 = ($1..9)[1 0 0 0 1 0 0 0 1]
   433. copy_4_slots_masked            m(0..3) = Mask($1..4)
@@ -456,7 +456,7 @@
   456. bitwise_and_int                $2 &= $3
   457. bitwise_and_int                $1 &= $2
   458. copy_slot_masked               ok = Mask($1)
-  459. zero_slot_unmasked             $1 = 0
+  459. copy_constant                  $1 = 0
   460. copy_constant                  $2 = 0x40000000 (2.0)
   461. shuffle                        $1..9 = ($1..9)[1 0 0 0 1 0 0 0 1]
   462. copy_4_slots_masked            m(0..3) = Mask($1..4)
@@ -473,7 +473,7 @@
   473. copy_4_slots_unmasked          $2..5 = m(0..3)
   474. copy_4_slots_unmasked          $6..9 = m(4..7)
   475. copy_slot_unmasked             $10 = m(8)
-  476. zero_slot_unmasked             $11 = 0
+  476. copy_constant                  $11 = 0
   477. copy_constant                  $12 = 0x3F000000 (0.5)
   478. shuffle                        $11..19 = ($11..19)[1 0 0 0 1 0 0 0 1]
   479. cmpeq_n_floats                 $2..10 = equal($2..10, $11..19)
@@ -489,7 +489,7 @@
   489. copy_4_slots_masked            m(0..3) = Mask($1..4)
   490. copy_4_slots_masked            m(4..7) = Mask($5..8)
   491. copy_slot_masked               m(8) = Mask($9)
-  492. zero_slot_unmasked             $10 = 0
+  492. copy_constant                  $10 = 0
   493. copy_constant                  $11 = 0x40000000 (2.0)
   494. shuffle                        $10..18 = ($10..18)[1 0 0 0 1 0 0 0 1]
   495. add_n_floats                   $1..9 += $10..18
@@ -519,7 +519,7 @@
   519. copy_4_slots_masked            m(0..3) = Mask($1..4)
   520. copy_4_slots_masked            m(4..7) = Mask($5..8)
   521. copy_slot_masked               m(8) = Mask($9)
-  522. zero_slot_unmasked             $10 = 0
+  522. copy_constant                  $10 = 0
   523. copy_constant                  $11 = 0x40000000 (2.0)
   524. shuffle                        $10..18 = ($10..18)[1 0 0 0 1 0 0 0 1]
   525. sub_n_floats                   $1..9 -= $10..18

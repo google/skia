@@ -3477,20 +3477,6 @@ STAGE_TAIL(trace_var, SkRasterPipeline_TraceVarCtx* ctx) {
     }
 }
 
-STAGE_TAIL(zero_slot_unmasked, F* dst) {
-    // We don't even bother masking off the tail; we're filling slots, not the destination surface.
-    sk_bzero(dst, sizeof(F) * 1);
-}
-STAGE_TAIL(zero_2_slots_unmasked, F* dst) {
-    sk_bzero(dst, sizeof(F) * 2);
-}
-STAGE_TAIL(zero_3_slots_unmasked, F* dst) {
-    sk_bzero(dst, sizeof(F) * 3);
-}
-STAGE_TAIL(zero_4_slots_unmasked, F* dst) {
-    sk_bzero(dst, sizeof(F) * 4);
-}
-
 STAGE_TAIL(copy_uniform, SkRasterPipeline_UniformCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;

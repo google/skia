@@ -3,11 +3,11 @@
     3. copy_uniform                   _0_unknown = unknownInput
     4. copy_constant                  _1_ok = 0xFFFFFFFF
     5. copy_slot_unmasked             $0 = _1_ok
-    6. zero_4_slots_unmasked          $1..4 = 0
+    6. splat_4_constants              $1..4 = 0
     7. copy_slot_unmasked             $5 = _0_unknown
     8. swizzle_4                      $5..8 = ($5..8).xxxx
     9. div_4_floats                   $1..4 /= $5..8
-   10. zero_4_slots_unmasked          $5..8 = 0
+   10. splat_4_constants              $5..8 = 0
    11. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
    12. bitwise_and_2_ints             $1..2 &= $3..4
    13. bitwise_and_int                $1 &= $2
@@ -61,7 +61,7 @@
    61. copy_slot_unmasked             _1_ok = $0
    62. store_condition_mask           $12 = CondMask
    63. copy_slot_unmasked             $13 = _1_ok
-   64. zero_slot_unmasked             $0 = 0
+   64. copy_constant                  $0 = 0
    65. merge_condition_mask           CondMask = $12 & $13
    66. branch_if_no_lanes_active      branch_if_no_lanes_active +64 (label 1 at #130)
    67. copy_uniform                   $1 = unknownInput
@@ -69,11 +69,11 @@
    69. copy_slot_unmasked             unknown = $1
    70. copy_constant                  ok = 0xFFFFFFFF
    71. copy_slot_unmasked             $1 = ok
-   72. zero_4_slots_unmasked          $2..5 = 0
+   72. splat_4_constants              $2..5 = 0
    73. copy_slot_unmasked             $6 = unknown
    74. swizzle_4                      $6..9 = ($6..9).xxxx
    75. div_4_ints                     $2..5 /= $6..9
-   76. zero_4_slots_unmasked          $6..9 = 0
+   76. splat_4_constants              $6..9 = 0
    77. cmpeq_4_ints                   $2..5 = equal($2..5, $6..9)
    78. bitwise_and_2_ints             $2..3 &= $4..5
    79. bitwise_and_int                $2 &= $3

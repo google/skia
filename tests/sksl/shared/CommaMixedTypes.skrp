@@ -1,6 +1,6 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          result = 0
+    3. splat_4_constants              result = 0
     4. copy_uniform                   $0 = colorGreen(0)
     5. copy_slot_unmasked             result(0) = $0
     6. copy_uniform                   $0 = colorGreen(1)

@@ -1,13 +1,13 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_4_slots_unmasked          color = 0
+    3. splat_4_constants              color = 0
     4. copy_uniform                   $0 = colorWhite(0)
     5. copy_constant                  $1 = 0x3F800000 (1.0)
     6. cmpeq_float                    $0 = equal($0, $1)
     7. branch_if_no_active_lanes_eq   branch +3 (label 0 at #10) if no lanes of $0 == 0xFFFFFFFF
     8. copy_constant                  $1 = 0x3F800000 (1.0)
     9. copy_slot_unmasked             color(1) = $1
-   10. label                          label 0x00000000
+   10. label                          label 0
    11. copy_uniform                   $0 = colorWhite(0)
    12. copy_constant                  $1 = 0x40000000 (2.0)
    13. cmpeq_float                    $0 = equal($0, $1)

@@ -69,7 +69,7 @@
    69. swizzle_1                      $54 = ($54..55).y
    70. cmpeq_float                    $53 = equal($53, $54)
    71. bitwise_and_int                $52 &= $53
-   72. zero_slot_unmasked             $39 = 0
+   72. copy_constant                  $39 = 0
    73. merge_condition_mask           CondMask = $51 & $52
    74. branch_if_no_lanes_active      branch_if_no_lanes_active +93 (label 4 at #167)
    75. copy_slot_unmasked             op = minus
@@ -166,7 +166,7 @@
   166. copy_slot_masked               $39 = Mask($40)
   167. label                          label 0x00000004
   168. load_condition_mask            CondMask = $51
-  169. zero_slot_unmasked             $26 = 0
+  169. copy_constant                  $26 = 0
   170. merge_condition_mask           CondMask = $38 & $39
   171. branch_if_no_lanes_active      branch_if_no_lanes_active +93 (label 3 at #264)
   172. copy_slot_unmasked             op = star
@@ -263,7 +263,7 @@
   263. copy_slot_masked               $26 = Mask($27)
   264. label                          label 0x00000003
   265. load_condition_mask            CondMask = $38
-  266. zero_slot_unmasked             $13 = 0
+  266. copy_constant                  $13 = 0
   267. merge_condition_mask           CondMask = $25 & $26
   268. branch_if_no_lanes_active      branch_if_no_lanes_active +93 (label 2 at #361)
   269. copy_slot_unmasked             op = slash
@@ -360,7 +360,7 @@
   360. copy_slot_masked               $13 = Mask($14)
   361. label                          label 0x00000002
   362. load_condition_mask            CondMask = $25
-  363. zero_slot_unmasked             $0 = 0
+  363. copy_constant                  $0 = 0
   364. merge_condition_mask           CondMask = $12 & $13
   365. branch_if_no_lanes_active      branch_if_no_lanes_active +41 (label 1 at #406)
   366. copy_uniform                   $1 = colorRed(0)

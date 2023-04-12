@@ -381,13 +381,13 @@ DEF_TEST(RasterPipelineBuilderDiagonalMatrix, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
-R"(    1. zero_slot_unmasked             $0 = 0
+R"(    1. copy_constant                  $0 = 0
     2. copy_constant                  $1 = 0x3F800000 (1.0)
     3. swizzle_4                      $0..3 = ($0..3).yxxy
-    4. zero_slot_unmasked             $0 = 0
+    4. copy_constant                  $0 = 0
     5. copy_constant                  $1 = 0x40000000 (2.0)
     6. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
-    7. zero_slot_unmasked             $0 = 0
+    7. copy_constant                  $0 = 0
     8. copy_constant                  $1 = 0x40400000 (3.0)
     9. shuffle                        $0..5 = ($0..5)[1 0 0 0 1 0]
 )");
@@ -413,15 +413,15 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     2. copy_constant                  $1 = 0x40000000 (2.0)
     3. copy_constant                  $2 = 0x40400000 (3.0)
     4. copy_constant                  $3 = 0x40800000 (4.0)
-    5. zero_slot_unmasked             $4 = 0
+    5. copy_constant                  $4 = 0
     6. copy_constant                  $5 = 0x3F800000 (1.0)
     7. shuffle                        $2..15 = ($2..15)[2 2 0 1 2 2 2 2 3 2 2 2 2 3]
     8. shuffle                        $2..3 = ($2..3)[2 3]
-    9. zero_slot_unmasked             $4 = 0
+    9. copy_constant                  $4 = 0
    10. shuffle                        $2..7 = ($2..7)[2 2 0 1 2 2]
-   11. zero_slot_unmasked             $8 = 0
+   11. copy_constant                  $8 = 0
    12. shuffle                        $2..7 = ($2..7)[2 3 6 6 6 6]
-   13. zero_slot_unmasked             $8 = 0
+   13. copy_constant                  $8 = 0
    14. copy_constant                  $9 = 0x3F800000 (1.0)
    15. shuffle                        $2..8 = ($2..8)[6 0 1 6 2 3 7]
 )");
@@ -432,31 +432,31 @@ DEF_TEST(RasterPipelineBuilderBranches, r) {
     // We have guaranteed tail-calling, and don't need to rewind the stack.
     static constexpr char kExpectationWithKnownExecutionMask[] =
 R"(    1. jump                           jump +9 (label 3 at #10)
-    2. label                          label 0x00000000
-    3. zero_slot_unmasked             v0 = 0
+    2. label                          label 0
+    3. copy_constant                  v0 = 0
     4. label                          label 0x00000001
-    5. zero_slot_unmasked             v1 = 0
+    5. copy_constant                  v1 = 0
     6. jump                           jump -4 (label 0 at #2)
     7. label                          label 0x00000002
-    8. zero_slot_unmasked             v2 = 0
+    8. copy_constant                  v2 = 0
     9. jump                           jump -7 (label 0 at #2)
    10. label                          label 0x00000003
-   11. branch_if_no_active_lanes_eq   branch -4 (label 2 at #7) if no lanes of v2 == 0x00000000 (0.0)
+   11. branch_if_no_active_lanes_eq   branch -4 (label 2 at #7) if no lanes of v2 == 0
    12. branch_if_no_active_lanes_eq   branch -10 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
     static constexpr char kExpectationWithExecutionMaskWrites[] =
 R"(    1. jump                           jump +10 (label 3 at #11)
-    2. label                          label 0x00000000
-    3. zero_slot_unmasked             v0 = 0
+    2. label                          label 0
+    3. copy_constant                  v0 = 0
     4. label                          label 0x00000001
-    5. zero_slot_unmasked             v1 = 0
+    5. copy_constant                  v1 = 0
     6. branch_if_no_lanes_active      branch_if_no_lanes_active -2 (label 1 at #4)
     7. branch_if_all_lanes_active     branch_if_all_lanes_active -5 (label 0 at #2)
     8. label                          label 0x00000002
-    9. zero_slot_unmasked             v2 = 0
+    9. copy_constant                  v2 = 0
    10. branch_if_any_lanes_active     branch_if_any_lanes_active -8 (label 0 at #2)
    11. label                          label 0x00000003
-   12. branch_if_no_active_lanes_eq   branch -4 (label 2 at #8) if no lanes of v2 == 0x00000000 (0.0)
+   12. branch_if_no_active_lanes_eq   branch -4 (label 2 at #8) if no lanes of v2 == 0
    13. branch_if_no_active_lanes_eq   branch -11 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
 #else
@@ -464,39 +464,39 @@ R"(    1. jump                           jump +10 (label 3 at #11)
     // branches.
     static constexpr char kExpectationWithKnownExecutionMask[] =
 R"(    1. jump                           jump +11 (label 3 at #12)
-    2. label                          label 0x00000000
-    3. zero_slot_unmasked             v0 = 0
+    2. label                          label 0
+    3. copy_constant                  v0 = 0
     4. label                          label 0x00000001
-    5. zero_slot_unmasked             v1 = 0
+    5. copy_constant                  v1 = 0
     6. stack_rewind
     7. jump                           jump -5 (label 0 at #2)
     8. label                          label 0x00000002
-    9. zero_slot_unmasked             v2 = 0
+    9. copy_constant                  v2 = 0
    10. stack_rewind
    11. jump                           jump -9 (label 0 at #2)
    12. label                          label 0x00000003
    13. stack_rewind
-   14. branch_if_no_active_lanes_eq   branch -6 (label 2 at #8) if no lanes of v2 == 0x00000000 (0.0)
+   14. branch_if_no_active_lanes_eq   branch -6 (label 2 at #8) if no lanes of v2 == 0
    15. stack_rewind
    16. branch_if_no_active_lanes_eq   branch -14 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
     static constexpr char kExpectationWithExecutionMaskWrites[] =
 R"(    1. jump                           jump +13 (label 3 at #14)
-    2. label                          label 0x00000000
-    3. zero_slot_unmasked             v0 = 0
+    2. label                          label 0
+    3. copy_constant                  v0 = 0
     4. label                          label 0x00000001
-    5. zero_slot_unmasked             v1 = 0
+    5. copy_constant                  v1 = 0
     6. stack_rewind
     7. branch_if_no_lanes_active      branch_if_no_lanes_active -3 (label 1 at #4)
     8. stack_rewind
     9. branch_if_all_lanes_active     branch_if_all_lanes_active -7 (label 0 at #2)
    10. label                          label 0x00000002
-   11. zero_slot_unmasked             v2 = 0
+   11. copy_constant                  v2 = 0
    12. stack_rewind
    13. branch_if_any_lanes_active     branch_if_any_lanes_active -11 (label 0 at #2)
    14. label                          label 0x00000003
    15. stack_rewind
-   16. branch_if_no_active_lanes_eq   branch -6 (label 2 at #10) if no lanes of v2 == 0x00000000 (0.0)
+   16. branch_if_no_active_lanes_eq   branch -6 (label 2 at #10) if no lanes of v2 == 0
    17. stack_rewind
    18. branch_if_no_active_lanes_eq   branch -16 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
@@ -752,10 +752,10 @@ DEF_TEST(RasterPipelineBuilderPushZeros, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/10);
     check(r, *program,
-R"(    1. zero_4_slots_unmasked          $0..3 = 0
-    2. zero_4_slots_unmasked          $4..7 = 0
-    3. zero_4_slots_unmasked          $8..11 = 0
-    4. zero_3_slots_unmasked          $12..14 = 0
+R"(    1. splat_4_constants              $0..3 = 0
+    2. splat_4_constants              $4..7 = 0
+    3. splat_4_constants              $8..11 = 0
+    4. splat_3_constants              $12..14 = 0
     5. abs_int                        $14 = abs($14)
 )");
 }

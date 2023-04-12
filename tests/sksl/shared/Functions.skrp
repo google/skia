@@ -2,7 +2,7 @@
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  x = 0x41200000 (10.0)
     4. copy_slot_unmasked             x₁ = x
-    5. zero_2_slots_unmasked          y[0], y[1] = 0
+    5. splat_2_constants              y[0], y[1] = 0
     6. copy_slot_unmasked             $0 = x₁
     7. copy_slot_unmasked             y[0] = $0
     8. copy_slot_unmasked             $0 = x₁
@@ -15,7 +15,7 @@
    15. label                          label 0x00000001
    16. copy_slot_unmasked             x₁ = $0
    17. copy_slot_unmasked             x = $0
-   18. label                          label 0x00000000
+   18. label                          label 0
    19. copy_slot_unmasked             $0 = x
    20. copy_constant                  $1 = 0x43480000 (200.0)
    21. cmpeq_float                    $0 = equal($0, $1)
