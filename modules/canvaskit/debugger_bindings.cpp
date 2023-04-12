@@ -256,7 +256,7 @@ class SkpDebugPlayer {
     // filenames like "\\1" in DrawImage commands.
     // Return type is the PNG data as a base64 encoded string with prepended URI.
     std::string getImageResource(int index) {
-      sk_sp<SkData> pngData = SkPngEncoder::Encode(nullptr, fImages[index], {});
+      sk_sp<SkData> pngData = SkPngEncoder::Encode(nullptr, fImages[index].get(), {});
       size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
       SkString dst;
       dst.resize(len);
