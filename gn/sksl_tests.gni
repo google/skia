@@ -283,6 +283,7 @@ sksl_error_tests = [
   "/sksl/errors/VoidInStruct.rts",
   "/sksl/errors/VoidVariable.rts",
   "/sksl/errors/WhileTypeMismatch.sksl",
+  "/sksl/errors/ProgramTooLarge_Parameters.rts",
 ]
 
 sksl_glsl_tests = [
