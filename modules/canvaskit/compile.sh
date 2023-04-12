@@ -168,24 +168,33 @@ DO_DECODE="true"
 if [[ $@ == *no_codecs* ]]; then
   echo "Omitting codecs"
   DO_DECODE="false"
-  ENCODE_PNG="false"
   ENCODE_JPEG="false"
+  ENCODE_PNG="false"
   ENCODE_WEBP="false"
+  NO_ENCODE_JPEG="true"
+  NO_ENCODE_PNG="true"
+  NO_ENCODE_WEBP="true"
 else
 
   ENCODE_PNG="true"
+  NO_ENCODE_PNG="false"
   if [[ $@ == *no_encode_png* ]]; then
     ENCODE_PNG="false"
+    NO_ENCODE_PNG="true"
   fi
 
   ENCODE_JPEG="true"
+  NO_ENCODE_JPEG="false"
   if [[ $@ == *no_encode_jpeg* ]]; then
     ENCODE_JPEG="false"
+    NO_ENCODE_JPEG="true"
   fi
 
   ENCODE_WEBP="true"
+  NO_ENCODE_WEBP="false"
   if [[ $@ == *no_encode_webp* ]]; then
     ENCODE_WEBP="false"
+    NO_ENCODE_WEBP="true"
   fi
 
 fi # no_codecs
@@ -213,10 +222,13 @@ echo "Compiling"
   skia_use_libheif=false \
   skia_use_libjpeg_turbo_decode=${DO_DECODE} \
   skia_use_libjpeg_turbo_encode=${ENCODE_JPEG} \
+  skia_use_no_jpeg_encode=${NO_ENCODE_JPEG} \
   skia_use_libpng_decode=${DO_DECODE} \
   skia_use_libpng_encode=${ENCODE_PNG} \
+  skia_use_no_png_encode=${NO_ENCODE_PNG} \
   skia_use_libwebp_decode=${DO_DECODE} \
   skia_use_libwebp_encode=${ENCODE_WEBP} \
+  skia_use_no_webp_encode=${NO_ENCODE_WEBP} \
   skia_use_lua=false \
   skia_use_piex=false \
   skia_use_system_freetype2=false \

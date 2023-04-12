@@ -1548,6 +1548,16 @@ skia_component("skia") {
     defines += [ "SK_BUILD_FOR_DEBUGGER" ]
   }
 
+  if (skia_use_no_jpeg_encode) {
+    sources += skia_no_encode_jpeg_srcs
+  }
+  if (skia_use_no_png_encode) {
+    sources += skia_no_encode_png_srcs
+  }
+  if (skia_use_no_webp_encode) {
+    sources += skia_no_encode_webp_srcs
+  }
+
   if (is_win) {
     sources += [
       "src/ports/SkDebug_win.cpp",
