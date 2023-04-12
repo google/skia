@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <new>
@@ -116,6 +117,27 @@ DEF_TEST(ArenaAllocReset, r) {
     arena.makeArrayDefault<char>(256);
     arena.reset();
     arena.reset();
+}
+
+DEF_TEST(ArenaAllocIsEmpty, r) {
+    char storage[1000];
+    for (int arenaSize : {1, 2, 3, 10, 100, 1000}) {
+        for (int alloc1Size : {1, 10, 100, 1000}) {
+            for (int alloc2Size : {1, 10, 100, 1000}) {
+                SkArenaAllocWithReset arena(storage, arenaSize, 1000);
+                REPORTER_ASSERT(r, arena.isEmpty());
+
+                [[maybe_unused]] char* alloc1 = arena.makeArray<char>(alloc1Size);
+                REPORTER_ASSERT(r, !arena.isEmpty());
+
+                [[maybe_unused]] char* alloc2 = arena.makeArray<char>(alloc2Size);
+                REPORTER_ASSERT(r, !arena.isEmpty());
+
+                arena.reset();
+                REPORTER_ASSERT(r, arena.isEmpty());
+            }
+        }
+    }
 }
 
 DEF_TEST(ArenaAllocWithMultipleBlocks, r) {

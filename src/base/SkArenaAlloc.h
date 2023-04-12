@@ -192,14 +192,18 @@ public:
         return objStart;
     }
 
-private:
-    static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
-
+protected:
     using FooterAction = char* (char*);
     struct Footer {
         uint8_t unaligned_action[sizeof(FooterAction*)];
         uint8_t padding;
     };
+
+    char* cursor() { return fCursor; }
+    char* end() { return fEnd; }
+
+private:
+    static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
 
     static char* SkipPod(char* footerEnd);
     static void RunDtorsOnBlock(char* footerEnd);
@@ -296,6 +300,9 @@ public:
 
     // Destroy all allocated objects, free any heap allocations.
     void reset();
+
+    // Returns true if the alloc has never made any objects.
+    bool isEmpty();
 
 private:
     char* const    fFirstBlock;
