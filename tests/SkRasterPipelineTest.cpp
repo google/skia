@@ -10,6 +10,7 @@
 #include "src/base/SkUtils.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineContextUtils.h"
 #include "src/gpu/Swizzle.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
 #include "tests/Test.h"
@@ -42,6 +43,65 @@ DEF_TEST(SkRasterPipeline, r) {
     REPORTER_ASSERT(r, ((result >> 16) & 0xffff) == 0x0000);
     REPORTER_ASSERT(r, ((result >> 32) & 0xffff) == 0x3800);
     REPORTER_ASSERT(r, ((result >> 48) & 0xffff) == 0x3c00);
+}
+
+DEF_TEST(SkRasterPipeline_PackSmallContext, r) {
+    struct PackableObject {
+        std::array<uint8_t, sizeof(void*)> data;
+    };
+
+    // Create an arena with storage.
+    using StorageArray = std::array<char, 128>;
+    StorageArray storage = {};
+    SkArenaAllocWithReset alloc(storage.data(), storage.size(), 500);
+
+    // Construct and pack one PackableObject.
+    PackableObject object;
+    std::fill(object.data.begin(), object.data.end(), 123);
+
+    const void* packed = SkRPCtxUtils::Pack(object, &alloc);
+
+    // The alloc should still be empty.
+    REPORTER_ASSERT(r, alloc.isEmpty());
+
+    // `packed` should now contain a bitwise cast of the raw object data.
+    uintptr_t objectBits = sk_bit_cast<uintptr_t>(packed);
+    for (size_t index = 0; index < sizeof(void*); ++index) {
+        REPORTER_ASSERT(r, (objectBits & 0xFF) == 123);
+        objectBits >>= 8;
+    }
+
+    // Now unpack it.
+    auto unpacked = SkRPCtxUtils::Unpack((const PackableObject*)packed);
+
+    // The data should be identical to the original.
+    REPORTER_ASSERT(r, unpacked.data == object.data);
+}
+
+DEF_TEST(SkRasterPipeline_PackBigContext, r) {
+    struct BigObject {
+        std::array<uint8_t, sizeof(void*) + 1> data;
+    };
+
+    // Create an arena with storage.
+    using StorageArray = std::array<char, 128>;
+    StorageArray storage = {};
+    SkArenaAllocWithReset alloc(storage.data(), storage.size(), 500);
+
+    // Construct and pack one BigObject.
+    BigObject object;
+    std::fill(object.data.begin(), object.data.end(), 123);
+
+    const void* packed = SkRPCtxUtils::Pack(object, &alloc);
+
+    // The alloc should not be empty any longer.
+    REPORTER_ASSERT(r, !alloc.isEmpty());
+
+    // Now unpack it.
+    auto unpacked = SkRPCtxUtils::Unpack((const BigObject*)packed);
+
+    // The data should be identical to the original.
+    REPORTER_ASSERT(r, unpacked.data == object.data);
 }
 
 DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
