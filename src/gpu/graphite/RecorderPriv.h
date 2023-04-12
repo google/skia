@@ -58,10 +58,13 @@ public:
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {
         return fRecorder->fTextBlobCache.get();
     }
+    ProxyCache* proxyCache() { return fRecorder->fProxyCache.get(); }
 
     static sk_sp<TextureProxy> CreateCachedProxy(Recorder*,
                                                  const SkBitmap&,
                                                  Mipmapped = skgpu::Mipmapped::kNo);
+
+    uint32_t recorderID() const { return fRecorder->fRecorderID; }
 
 #if GRAPHITE_TEST_UTILS
     // used by the Context that created this Recorder to set a back pointer

@@ -95,7 +95,7 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         , fTokenTracker(std::make_unique<TokenTracker>())
         , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>())
         , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID))
-        , fProxyCache(std::make_unique<ProxyCache>()){
+        , fProxyCache(std::make_unique<ProxyCache>(fRecorderID)){
 
     fClientImageProvider = options.fImageProvider;
     if (!fClientImageProvider) {

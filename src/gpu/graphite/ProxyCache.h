@@ -9,7 +9,9 @@
 #define skgpu_graphite_ProxyCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "src/core/SkMessageBus.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/ResourceKey.h"
 
 class SkBitmap;
 
@@ -24,18 +26,27 @@ class Recorder;
 class TextureProxy;
 
 // This class encapsulates the _internal_ Recorder-local caching of utility proxies.
-// TODO: Add IDChangeListeners to the Bitmaps
-//       Add mailboxes to receive change messages
-//       Add a message processing call to remove newly unreachable proxies
-//       Add a removeUniquelyHeld entry point and link into purging system
-//       Unit test all that
+// TODO:
+//   Add a removeUniquelyHeld entry point and link into purging system
+//   Unit test all that
 class ProxyCache {
 public:
+    ProxyCache(uint32_t recorderID);
     ~ProxyCache();
 
     sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder*, const SkBitmap&, Mipmapped);
 
+#if GRAPHITE_TEST_UTILS
+    int numCached() const;
+    void forceProcessInvalidKeyMsgs();
+#endif
+
 private:
+    void processInvalidKeyMsgs();
+
+    typedef SkMessageBus<skgpu::UniqueKeyInvalidatedMsg_Graphite, uint32_t>::Inbox InvalidKeyInbox;
+
+    InvalidKeyInbox fInvalidUniqueKeyInbox;
 
     struct UniqueKeyHash {
         uint32_t operator()(const skgpu::UniqueKey& key) const;
