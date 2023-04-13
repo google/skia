@@ -99,6 +99,10 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         }
 
         void addLocalVariable(const Variable* var, Position pos) {
+            if (var->type().isOrContainsUnsizedArray()) {
+                fContext.fErrors->error(pos, "unsized arrays are not permitted here");
+                return;
+            }
             // We count the number of slots used, but don't consider the precision of the base type.
             // In practice, this reflects what GPUs actually do pretty well. (i.e., RelaxedPrecision
             // math doesn't mean your variable takes less space.) We also don't attempt to reclaim
@@ -129,16 +133,10 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
 
         bool visitStatement(Statement& stmt) override {
             switch (stmt.kind()) {
-                case Statement::Kind::kVarDeclaration: {
-                    const Variable* var = stmt.as<VarDeclaration>().var();
-                    if (var->type().isOrContainsUnsizedArray()) {
-                        fContext.fErrors->error(stmt.fPosition,
-                                                "unsized arrays are not permitted here");
-                    } else {
-                        this->addLocalVariable(var, stmt.fPosition);
-                    }
+                case Statement::Kind::kVarDeclaration:
+                    this->addLocalVariable(stmt.as<VarDeclaration>().var(), stmt.fPosition);
                     break;
-                }
+
                 case Statement::Kind::kReturn: {
                     // Early returns from a vertex main() function will bypass sk_Position
                     // normalization, so SkASSERT that we aren't doing that. If this becomes an
