@@ -6,11 +6,10 @@ struct S {
 };
 
 int small;
-S medium;
-S large[10];
-S extra_large[100];
-S xxl[50000];
-
+S medium[30];
+S large[50];
+S extra_large[70];
+S xxl[90];
 
 /*%%*
 global variable 'extra_large' exceeds the size limit
