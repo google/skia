@@ -3,4 +3,7 @@
 error: 1: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
-1 error
+error: 2: array size is too large
+    int[2147483646] a, b=a, c=a, d=a, e=a, f=a, g=a, h=a, i=a, j=a, k=a;
+    ^^^^^^^^^^^^^^^
+2 errors

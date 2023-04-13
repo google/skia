@@ -270,7 +270,7 @@ DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
 
 DSLType Array(const DSLType& base, int count, Position pos) {
     count = base.skslType().convertArraySize(ThreadContext::Context(), pos,
-            DSLExpression(count, pos).release());
+                                             DSLExpression(count, pos).release());
     if (!count) {
         return DSLType(kPoison_Type);
     }
@@ -282,7 +282,7 @@ DSLType UnsizedArray(const DSLType& base, Position pos) {
         return DSLType(kPoison_Type);
     }
     return ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(),
-            SkSL::Type::kUnsizedArray);
+                                                           SkSL::Type::kUnsizedArray);
 }
 
 DSLType StructType(std::string_view name,
