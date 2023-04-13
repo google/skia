@@ -27,8 +27,9 @@ class TextureProxy;
 
 // This class encapsulates the _internal_ Recorder-local caching of utility proxies.
 // TODO:
-//   Add a removeUniquelyHeld entry point and link into purging system
-//   Unit test all that
+//   Add purgeProxiesNotUsedSince method
+//   Link into Context purging system
+//   Add unit tests
 class ProxyCache {
 public:
     ProxyCache(uint32_t recorderID);
@@ -39,10 +40,14 @@ public:
 #if GRAPHITE_TEST_UTILS
     int numCached() const;
     void forceProcessInvalidKeyMsgs();
+    void forceFreeUniquelyHeld();
 #endif
 
 private:
+    friend class ResourceCache; // for freeUniquelyHeld
+
     void processInvalidKeyMsgs();
+    void freeUniquelyHeld();
 
     typedef SkMessageBus<skgpu::UniqueKeyInvalidatedMsg_Graphite, uint32_t>::Inbox InvalidKeyInbox;
 

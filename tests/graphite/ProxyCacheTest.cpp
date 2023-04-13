@@ -125,4 +125,47 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest3, r, context) {
     REPORTER_ASSERT(r, proxyCache->numCached() == 2);
 }
 
+// This test exercises the ProxyCache's freeUniquelyHeld method.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ProxyCache* proxyCache = recorder->priv().proxyCache();
+
+    SkBitmap bitmap;
+    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+
+    sk_sp<TextureProxy> nonMipmapped = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
+                                                                           Mipmapped::kNo);
+    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
+
+    sk_sp<TextureProxy> mipmapped = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
+                                                                        Mipmapped::kYes);
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    {
+        auto recording = recorder->snap();
+        context->insertRecording({ recording.get() });
+        context->submit(SyncToCpu::kYes);
+    }
+
+    proxyCache->forceFreeUniquelyHeld();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    nonMipmapped.reset();
+    proxyCache->forceFreeUniquelyHeld();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
+
+    mipmapped.reset();
+    proxyCache->forceFreeUniquelyHeld();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+}
+
 }  // namespace skgpu::graphite

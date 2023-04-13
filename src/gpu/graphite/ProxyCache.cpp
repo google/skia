@@ -72,6 +72,8 @@ uint32_t ProxyCache::UniqueKeyHash::operator()(const skgpu::UniqueKey& key) cons
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const SkBitmap& bitmap,
                                                         Mipmapped mipmapped) {
+    this->processInvalidKeyMsgs();
+
     if (bitmap.dimensions().area() <= 1) {
         mipmapped = skgpu::Mipmapped::kNo;
     }
@@ -114,6 +116,22 @@ void ProxyCache::processInvalidKeyMsgs() {
     }
 }
 
+void ProxyCache::freeUniquelyHeld() {
+    this->processInvalidKeyMsgs();
+
+    std::vector<skgpu::UniqueKey> toRemove;
+
+    fCache.foreach([&](const skgpu::UniqueKey& key, const sk_sp<TextureProxy>* proxy) {
+        if ((*proxy)->unique()) {
+            toRemove.push_back(key);
+        }
+    });
+
+    for (const skgpu::UniqueKey& k : toRemove) {
+        fCache.remove(k);
+    }
+}
+
 #if GRAPHITE_TEST_UTILS
 int ProxyCache::numCached() const {
     return fCache.count();
@@ -121,6 +139,10 @@ int ProxyCache::numCached() const {
 
 void ProxyCache::forceProcessInvalidKeyMsgs() {
     this->processInvalidKeyMsgs();
+}
+
+void ProxyCache::forceFreeUniquelyHeld() {
+    this->freeUniquelyHeld();
 }
 
 #endif // GRAPHITE_TEST_UTILS
