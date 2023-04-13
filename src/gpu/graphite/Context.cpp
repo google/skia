@@ -219,16 +219,12 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
         SkImage::ReadPixelsCallback* fClientCallback;
         SkImage::ReadPixelsContext fClientContext;
         SkISize fSize;
-        size_t fRowBytes;
         ClientMappedBufferManager* fMappedBufferManager;
         PixelTransferResult fTransferResult;
     };
-    size_t rowBytes = fSharedContext->caps()->getAlignedTextureDataRowBytes(
-            srcRect.width() * SkColorTypeBytesPerPixel(dstColorInfo.colorType()));
     auto* finishContext = new FinishContext{callback,
                                             callbackContext,
                                             srcRect.size(),
-                                            rowBytes,
                                             fMappedBufferManager.get(),
                                             std::move(transferResult)};
     GpuFinishedProc finishCallback = [](GpuFinishedContext c, CallbackResult status) {
@@ -237,7 +233,7 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
             ClientMappedBufferManager* manager = context->fMappedBufferManager;
             auto result = std::make_unique<AsyncReadResult>(manager->ownerID());
             if (!result->addTransferResult(context->fTransferResult, context->fSize,
-                                        context->fRowBytes, manager)) {
+                                           context->fTransferResult.fRowBytes, manager)) {
                 result.reset();
             }
             (*context->fClientCallback)(context->fClientContext, std::move(result));
@@ -310,13 +306,17 @@ Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
     if (srcImageInfo.colorInfo() != dstColorInfo) {
-        result.fPixelConverter = [dims = srcRect.size(), dstColorInfo, srcImageInfo, rowBytes](
+        SkISize dims = srcRect.size();
+        SkImageInfo srcInfo = SkImageInfo::Make(dims, srcImageInfo.colorInfo());
+        SkImageInfo dstInfo = SkImageInfo::Make(dims, dstColorInfo);
+        result.fRowBytes = dstInfo.minRowBytes();
+        result.fPixelConverter = [dstInfo, srcInfo, rowBytes](
                 void* dst, const void* src) {
-            SkImageInfo srcInfo = SkImageInfo::Make(dims, srcImageInfo.colorInfo());
-            SkImageInfo dstInfo = SkImageInfo::Make(dims, dstColorInfo);
             SkAssertResult(SkConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
                                            srcInfo, src, rowBytes));
         };
+    } else {
+        result.fRowBytes = rowBytes;
     }
 
     return result;
