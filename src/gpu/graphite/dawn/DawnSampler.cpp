@@ -71,7 +71,12 @@ sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
     desc.minFilter     = desc.magFilter;
     desc.mipmapFilter  = mipmap_mode_to_dawn_filter_mode(samplingOptions.mipmap);
     desc.lodMinClamp   = 0.0f;
-    desc.lodMaxClamp   = FLT_MAX;
+    if (samplingOptions.mipmap == SkMipmapMode::kNone) {
+        // Disabling mipmap by clamping max lod to first level only.
+        desc.lodMaxClamp = 0.0f;
+    } else {
+        desc.lodMaxClamp = FLT_MAX;
+    }
     desc.maxAnisotropy = 1;
     desc.compare       = wgpu::CompareFunction::Undefined;
 
