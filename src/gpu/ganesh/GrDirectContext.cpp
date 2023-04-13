@@ -28,6 +28,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
@@ -384,7 +385,7 @@ void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed
 
     this->checkAsyncWorkCompletion();
     fMappedBufferManager->process();
-    auto purgeTime = GrStdSteadyClock::now() - msNotUsed;
+    auto purgeTime = skgpu::StdSteadyClock::now() - msNotUsed;
 
     fResourceCache->purgeAsNeeded();
     fResourceCache->purgeResourcesNotUsedSince(purgeTime, scratchResourcesOnly);

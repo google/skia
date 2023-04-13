@@ -17,21 +17,11 @@
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTypeTraits.h"
 
-#include <chrono>
 #include <functional>
 
 class GrBackendFormat;
 class GrCaps;
 class GrSurfaceProxy;
-
-// The old libstdc++ uses the draft name "monotonic_clock" rather than "steady_clock". This might
-// not actually be monotonic, depending on how libstdc++ was built. However, this is only currently
-// used for idle resource purging so it shouldn't cause a correctness problem.
-#if defined(__GLIBCXX__) && (__GLIBCXX__ < 20130000)
-using GrStdSteadyClock = std::chrono::monotonic_clock;
-#else
-using GrStdSteadyClock = std::chrono::steady_clock;
-#endif
 
 /**
  *  divide, rounding up

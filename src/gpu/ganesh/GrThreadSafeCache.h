@@ -81,7 +81,8 @@ public:
     void dropUniqueRefs(GrResourceCache* resourceCache)  SK_EXCLUDES(fSpinLock);
 
     // Drop uniquely held refs that were last accessed before 'purgeTime'
-    void dropUniqueRefsOlderThan(GrStdSteadyClock::time_point purgeTime)  SK_EXCLUDES(fSpinLock);
+    void dropUniqueRefsOlderThan(
+            skgpu::StdSteadyClock::time_point purgeTime)  SK_EXCLUDES(fSpinLock);
 
     SkDEBUGCODE(bool has(const skgpu::UniqueKey&)  SK_EXCLUDES(fSpinLock);)
 
@@ -268,7 +269,7 @@ private:
         }
 
         // The thread-safe cache gets to directly manipulate the llist and last-access members
-        GrStdSteadyClock::time_point fLastAccess;
+        skgpu::StdSteadyClock::time_point fLastAccess;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
 
         // for SkTDynamicHash

@@ -483,7 +483,7 @@ void GrResourceCache::purgeAsNeeded() {
     this->validate();
 }
 
-void GrResourceCache::purgeUnlockedResources(const GrStdSteadyClock::time_point* purgeTime,
+void GrResourceCache::purgeUnlockedResources(const skgpu::StdSteadyClock::time_point* purgeTime,
                                              bool scratchResourcesOnly) {
 
     if (!scratchResourcesOnly) {
@@ -498,7 +498,7 @@ void GrResourceCache::purgeUnlockedResources(const GrStdSteadyClock::time_point*
         while (fPurgeableQueue.count()) {
             GrGpuResource* resource = fPurgeableQueue.peek();
 
-            const GrStdSteadyClock::time_point resourceTime =
+            const skgpu::StdSteadyClock::time_point resourceTime =
                     resource->cacheAccess().timeWhenResourceBecamePurgeable();
             if (purgeTime && resourceTime >= *purgeTime) {
                 // Resources were given both LRU timestamps and tagged with a frame number when
@@ -528,7 +528,7 @@ void GrResourceCache::purgeUnlockedResources(const GrStdSteadyClock::time_point*
         for (int i = 0; i < fPurgeableQueue.count(); i++) {
             GrGpuResource* resource = fPurgeableQueue.at(i);
 
-            const GrStdSteadyClock::time_point resourceTime =
+            const skgpu::StdSteadyClock::time_point resourceTime =
                     resource->cacheAccess().timeWhenResourceBecamePurgeable();
             if (purgeTime && resourceTime >= *purgeTime) {
                 // scratch or not, all later iterations will be too recently used to purge.

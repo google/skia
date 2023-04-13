@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
@@ -78,7 +79,7 @@ void GrThreadSafeCache::dropUniqueRefs(GrResourceCache* resourceCache) {
     }
 }
 
-void GrThreadSafeCache::dropUniqueRefsOlderThan(GrStdSteadyClock::time_point purgeTime) {
+void GrThreadSafeCache::dropUniqueRefsOlderThan(skgpu::StdSteadyClock::time_point purgeTime) {
     SkAutoSpinlock lock{fSpinLock};
 
     // Iterate from LRU to MRU
@@ -105,7 +106,7 @@ void GrThreadSafeCache::dropUniqueRefsOlderThan(GrStdSteadyClock::time_point pur
 void GrThreadSafeCache::makeExistingEntryMRU(Entry* entry) {
     SkASSERT(fUniquelyKeyedEntryList.isInList(entry));
 
-    entry->fLastAccess = GrStdSteadyClock::now();
+    entry->fLastAccess = skgpu::StdSteadyClock::now();
     fUniquelyKeyedEntryList.remove(entry);
     fUniquelyKeyedEntryList.addToHead(entry);
 }
@@ -163,7 +164,7 @@ GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const skgpu::UniqueKey& ke
 }
 
 GrThreadSafeCache::Entry* GrThreadSafeCache::makeNewEntryMRU(Entry* entry) {
-    entry->fLastAccess = GrStdSteadyClock::now();
+    entry->fLastAccess = skgpu::StdSteadyClock::now();
     fUniquelyKeyedEntryList.addToHead(entry);
     fUniquelyKeyedEntryMap.add(entry);
     return entry;

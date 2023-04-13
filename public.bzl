@@ -773,6 +773,7 @@ BASE_SRCS_ALL = [
     "src/gpu/BufferWriter.h",
     "src/gpu/DitherUtils.cpp",
     "src/gpu/DitherUtils.h",
+    "src/gpu/GpuTypesPriv.h",
     "src/gpu/GrAHardwareBufferUtils.h",
     "src/gpu/GrRectanizer.h",
     "src/gpu/KeyBuilder.h",

@@ -38,6 +38,7 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMessageBus.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
@@ -1482,7 +1483,7 @@ static void test_13(GrDirectContext* dContext, skiatest::Reporter* reporter,
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    auto firstTime = GrStdSteadyClock::now();
+    auto firstTime = skgpu::StdSteadyClock::now();
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     (helper.*addAccess)(helper.ddlCanvas2(), 2*kImageWH, kNoID, false, false);
@@ -1496,7 +1497,7 @@ static void test_13(GrDirectContext* dContext, skiatest::Reporter* reporter,
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
-    auto secondTime = GrStdSteadyClock::now();
+    auto secondTime = skgpu::StdSteadyClock::now();
 
     auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(secondTime - firstTime);
     dContext->performDeferredCleanup(msecs);

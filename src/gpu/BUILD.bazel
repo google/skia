@@ -15,6 +15,7 @@ SHARED_FILES = [
     "BufferWriter.h",
     "DitherUtils.cpp",
     "DitherUtils.h",
+    "GpuTypesPriv.h",
     "KeyBuilder.h",
     "MutableTextureStateRef.h",
     "Rectanizer.h",
