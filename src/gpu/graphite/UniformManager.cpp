@@ -79,7 +79,10 @@ struct Rules140 {
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
-            return Rules140<BaseType, RowsOrVecLength>::Stride(Uniform::kNonArray);
+            uint32_t stride = Rules140<BaseType, RowsOrVecLength>::Stride(Uniform::kNonArray);
+
+            // By Rule 4, the stride and alignment of the individual element must always match vec4.
+            return SkAlignTo(stride, tight_vec_size<float>(4));
         }
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
@@ -337,6 +340,21 @@ public:
     }
 };
 
+static bool is_matrix(SkSLType type) {
+    switch (type) {
+        case SkSLType::kHalf2x2:
+        case SkSLType::kHalf3x3:
+        case SkSLType::kHalf4x4:
+        case SkSLType::kFloat2x2:
+        case SkSLType::kFloat3x3:
+        case SkSLType::kFloat4x4:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
@@ -413,8 +431,8 @@ static uint32_t get_ubo_aligned_offset(Layout layout,
                                        SkSLType type,
                                        bool isArray) {
     uint32_t alignmentMask;
-    if (layout == Layout::kStd140 && isArray) {
-        // std140 array element alignment always equals the base alignment of a vec4.
+    if (layout == Layout::kStd140 && (isArray || is_matrix(type))) {
+        // std140 array and matrix element alignment always equals the base alignment of a vec4.
         alignmentMask = sksltype_to_alignment_mask(SkSLType::kFloat4);
     } else {
         alignmentMask = sksltype_to_alignment_mask(type);
