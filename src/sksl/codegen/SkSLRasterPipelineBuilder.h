@@ -169,6 +169,8 @@ public:
 
     void dump(SkWStream* out) const;
 
+    int numUniforms() const { return fNumUniformSlots; }
+
 private:
     using StackDepths = skia_private::TArray<int>; // [stack index] = depth of stack
 
