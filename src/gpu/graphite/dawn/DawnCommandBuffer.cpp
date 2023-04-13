@@ -820,6 +820,7 @@ bool DawnCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
 
         dst.origin.x = copyData[i].fRect.x();
         dst.origin.y = copyData[i].fRect.y();
+        dst.mipLevel = copyData[i].fMipLevel;
 
         wgpu::Extent3D copySize = {static_cast<uint32_t>(copyData[i].fRect.width()),
                                    static_cast<uint32_t>(copyData[i].fRect.height()),
