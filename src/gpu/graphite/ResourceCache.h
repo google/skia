@@ -81,6 +81,7 @@ private:
     void returnResourceToCache(Resource*, LastRemovedRef);
 
     uint32_t getNextTimestamp();
+    void setResourceTimestamp(Resource*, uint32_t timestamp);
 
     bool inPurgeableQueue(Resource*) const;
 
@@ -108,7 +109,12 @@ private:
     // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
     // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
     // purgeable resources by this value, and thus is used to purge resources in LRU order.
+    // Resources with a size of zero are set to have max uint32_t value. This will also put them at
+    // the end of the LRU priority queue. This will allow us to not purge these resources even when
+    // we are over budget.
     uint32_t fTimestamp = 0;
+    static const uint32_t kMaxTimestamp = 0xFFFFFFFF;
+
     PurgeableQueue fPurgeableQueue;
     ResourceArray fNonpurgeableResources;
     std::unique_ptr<ProxyCache> fProxyCache;
