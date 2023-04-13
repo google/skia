@@ -16,6 +16,8 @@
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/ganesh/d3d/GrD3DAMDMemoryAllocator.h"
@@ -606,10 +608,16 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface,
     fDevice->GetCopyableFootprints(&desc, 0, 1, 0, &placedFootprint,
                                    nullptr, nullptr, &transferTotalBytes);
     SkASSERT(transferTotalBytes);
-    // TODO: implement some way of reusing buffers instead of making a new one every time.
-    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(transferTotalBytes,
-                                                           GrGpuBufferType::kXferGpuToCpu,
-                                                           kDynamic_GrAccessPattern);
+    GrResourceProvider* resourceProvider =
+        this->getContext()->priv().resourceProvider();
+    sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
+            transferTotalBytes,
+            GrGpuBufferType::kXferGpuToCpu,
+            kDynamic_GrAccessPattern,
+            GrResourceProvider::ZeroInit::kNo);
+    if (!transferBuffer) {
+        return false;
+    }
 
     this->readOrTransferPixels(texResource, rect, transferBuffer, placedFootprint);
     this->submitDirectCommandList(SyncQueue::kForce);
