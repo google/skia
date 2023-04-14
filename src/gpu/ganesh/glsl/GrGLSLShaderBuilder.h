@@ -9,12 +9,12 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLStatement.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/SkSLString.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <stdarg.h>
 

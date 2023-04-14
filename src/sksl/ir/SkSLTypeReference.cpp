@@ -8,7 +8,7 @@
 #include "src/sksl/ir/SkSLTypeReference.h"
 
 #include "include/core/SkTypes.h"
-#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLErrorReporter.h"
 
 namespace SkSL {
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/DSL.h"
+#include "src/sksl/dsl/DSL.h"
 #include "tests/Test.h"
 
 #include <string_view>
@@ -14,10 +14,10 @@ struct GrContextOptions;
 
 // This file verifies that DSL code compiles with only a DSL.h import. We don't bother with any
 // 'real' tests here, as those are all in SkSLDSLTest.cpp.
-// IWYU pragma: no_include "include/sksl/DSLCore.h"
-// IWYU pragma: no_include "include/sksl/DSLExpression.h"
-// IWYU pragma: no_include "include/sksl/DSLStatement.h"
-// IWYU pragma: no_include "include/sksl/DSLType.h"
+// IWYU pragma: no_include "src/sksl/dsl/DSLCore.h"
+// IWYU pragma: no_include "src/sksl/dsl/DSLExpression.h"
+// IWYU pragma: no_include "src/sksl/dsl/DSLStatement.h"
+// IWYU pragma: no_include "src/sksl/dsl/DSLType.h"
 
 using namespace SkSL::dsl;
 

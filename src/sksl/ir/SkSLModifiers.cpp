@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 #include "include/core/SkTypes.h"
-#include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLPosition.h"
 #include "src/base/SkMathPriv.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLPosition.h"
 
 namespace SkSL {
 

@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/render/TessellateWedgesRenderStep.h"
 
-#include "include/private/SkSLString.h"
+#include "src/sksl/SkSLString.h"
 
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawParams.h"

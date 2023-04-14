@@ -8,10 +8,10 @@
 
 #ifdef SK_ENABLE_SKSL
 #include "include/gpu/GrDirectContext.h"
-#include "include/sksl/DSLCore.h"
-#include "include/sksl/DSLExpression.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/sksl/dsl/DSLCore.h"
+#include "src/sksl/dsl/DSLExpression.h"
 #include "tools/gpu/GrContextFactory.h"
 
 using namespace SkSL::dsl;

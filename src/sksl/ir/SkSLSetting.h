@@ -8,10 +8,10 @@
 #ifndef SKSL_SETTING
 #define SKSL_SETTING
 
-#include "include/private/SkSLIRNode.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 
 #include <cstdint>
 #include <memory>

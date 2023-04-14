@@ -11,12 +11,12 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
-#include "include/sksl/DSLBlock.h"
-#include "include/sksl/DSLExpression.h"
-#include "include/sksl/DSLModifiers.h"
-#include "include/sksl/DSLStatement.h"
-#include "include/sksl/DSLVar.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/dsl/DSLBlock.h"
+#include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLModifiers.h"
+#include "src/sksl/dsl/DSLStatement.h"
+#include "src/sksl/dsl/DSLVar.h"
 
 #include <string_view>
 #include <utility>

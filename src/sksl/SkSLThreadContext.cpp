@@ -7,11 +7,11 @@
 
 #include "src/sksl/SkSLThreadContext.h"
 
-#include "include/private/SkSLProgramElement.h"
-#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <type_traits>

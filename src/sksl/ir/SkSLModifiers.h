@@ -8,7 +8,7 @@
 #ifndef SKSL_MODIFIERS
 #define SKSL_MODIFIERS
 
-#include "include/private/SkSLLayout.h"
+#include "src/sksl/ir/SkSLLayout.h"
 
 #include <cstddef>
 #include <memory>

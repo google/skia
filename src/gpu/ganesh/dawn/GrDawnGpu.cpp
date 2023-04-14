@@ -12,7 +12,6 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkSLProgramKind.h"
 #include "src/base/SkRectMemcpy.h"
 #include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -34,6 +33,7 @@
 #include "src/gpu/ganesh/dawn/GrDawnRenderTarget.h"
 #include "src/gpu/ganesh/dawn/GrDawnTexture.h"
 #include "src/gpu/ganesh/dawn/GrDawnUtil.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 #include "src/base/SkAutoMalloc.h"

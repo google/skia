@@ -10,8 +10,8 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
-#include "include/sksl/DSLStatement.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/dsl/DSLStatement.h"
 
 #include <memory>
 

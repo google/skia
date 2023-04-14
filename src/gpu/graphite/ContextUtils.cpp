@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/ContextUtils.h"
 
 #include <string>
-#include "include/private/SkSLString.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
@@ -21,6 +20,7 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/sksl/SkSLString.h"
 
 namespace skgpu::graphite {
 

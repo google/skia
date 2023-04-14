@@ -9,8 +9,8 @@
 #define SKSL_PROGRAMSETTINGS
 
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/sksl/SkSLVersion.h"
+#include "src/sksl/SkSLProgramKind.h"
 
 #include <vector>
 

@@ -10,7 +10,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/sksl/SkSLDebugTrace.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
 

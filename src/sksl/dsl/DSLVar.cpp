@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/DSLVar.h"
+#include "src/sksl/dsl/DSLVar.h"
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkSLStatement.h"
-#include "include/private/SkSLSymbol.h"
-#include "include/sksl/DSLModifiers.h"
-#include "include/sksl/DSLType.h"
-#include "include/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/dsl/DSLModifiers.h"
+#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 

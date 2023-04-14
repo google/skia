@@ -8,11 +8,11 @@
 #ifndef SKSL_DSL_VAR
 #define SKSL_DSL_VAR
 
-#include "include/private/SkSLStatement.h"
-#include "include/sksl/DSLExpression.h"
-#include "include/sksl/DSLModifiers.h"
-#include "include/sksl/DSLType.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLModifiers.h"
+#include "src/sksl/dsl/DSLType.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <cstdint>
 #include <memory>

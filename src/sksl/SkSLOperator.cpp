@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLOperator.h"
 
 #include "include/core/SkTypes.h"
 #include "src/base/SkStringView.h"

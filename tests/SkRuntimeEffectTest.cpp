@@ -33,7 +33,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLDebugTrace.h"
 #include "include/sksl/SkSLVersion.h"
@@ -51,6 +50,7 @@
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
+#include "src/sksl/SkSLString.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 

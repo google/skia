@@ -8,7 +8,7 @@
 #ifndef SKSL_DSL_PRIV
 #define SKSL_DSL_PRIV
 
-#include "include/private/SkSLProgramKind.h"
+#include "src/sksl/SkSLProgramKind.h"
 
 namespace SkSL {
 

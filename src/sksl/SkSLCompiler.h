@@ -10,10 +10,10 @@
 
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 #include <array>
 #include <cstdint>

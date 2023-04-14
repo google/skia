@@ -8,10 +8,10 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 
 #include "include/private/SkSLDefines.h"
-#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/DSLLayout.h"
+#include "src/sksl/dsl/DSLLayout.h"
 
 #include "src/sksl/SkSLThreadContext.h"
 

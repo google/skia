@@ -6,13 +6,11 @@
  */
 
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkSLString.h"
-#include "include/private/base/SkAssert.h"
 #include "src/base/SkStringView.h"
+#include "src/sksl/SkSLString.h"
 
 #include <cerrno>
 #include <cmath>
-#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <locale>

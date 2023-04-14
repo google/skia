@@ -7,7 +7,6 @@
 
 #include "src/gpu/ganesh/dawn/GrDawnProgramBuilder.h"
 
-#include "include/private/SkSLProgramKind.h"
 #include "src/gpu/ganesh/GrAutoLocaleSetter.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
@@ -15,6 +14,7 @@
 #include "src/gpu/ganesh/dawn/GrDawnTexture.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/utils/SkShaderUtils.h"
 
 static wgpu::BlendFactor to_dawn_blend_factor(skgpu::BlendCoeff coeff) {

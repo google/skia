@@ -8,11 +8,11 @@
 #include "src/sksl/ir/SkSLChildCall.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTArray.h"
-#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 

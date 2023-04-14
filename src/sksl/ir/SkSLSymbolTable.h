@@ -10,8 +10,8 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
-#include "include/private/SkSLSymbol.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 
 #include <cstddef>
 #include <cstdint>

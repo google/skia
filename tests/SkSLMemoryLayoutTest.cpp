@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLModifiers.h"
-#include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLMemoryLayout.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "tests/Test.h"
 

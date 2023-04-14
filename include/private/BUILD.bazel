@@ -12,15 +12,7 @@ skia_filegroup(
     name = "sksl_private_hdrs",
     srcs = [
         "SkSLDefines.h",
-        "SkSLIRNode.h",
-        "SkSLLayout.h",
-        "SkSLModifiers.h",
-        "SkSLProgramElement.h",
-        "SkSLProgramKind.h",
         "SkSLSampleUsage.h",
-        "SkSLStatement.h",
-        "SkSLString.h",
-        "SkSLSymbol.h",
     ],
 )
 
@@ -40,8 +32,8 @@ skia_filegroup(
         "SkSpinlock.h",
         "SkWeakRefCnt.h",
         ":sksl_private_hdrs",
-        "//include/private/chromium:private_hdrs",
         "//include/private/base:private_hdrs",
+        "//include/private/chromium:private_hdrs",
     ] + select({
         "//src/gpu:has_gpu_backend": [
             "//include/private/gpu:private_hdrs",

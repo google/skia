@@ -7,10 +7,10 @@
 
 #include "src/gpu/ganesh/GrPersistentCacheUtils.h"
 
-#include "include/private/SkSLString.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLString.h"
 
 namespace GrPersistentCacheUtils {
 

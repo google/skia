@@ -10,9 +10,9 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/sksl/DSLExpression.h"
-#include "include/sksl/DSLModifiers.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLModifiers.h"
 
 #include <cstdint>
 #include <string_view>

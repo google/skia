@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/DSLCase.h"
+#include "src/sksl/dsl/DSLCase.h"
 
 using namespace skia_private;
 

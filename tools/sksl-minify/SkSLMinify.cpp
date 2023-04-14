@@ -7,7 +7,6 @@
 
 #define SK_OPTS_NS sksl_minify_standalone
 #include "include/core/SkStream.h"
-#include "include/private/SkSLProgramKind.h"
 #include "src/base/SkStringView.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
@@ -17,6 +16,7 @@
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModuleLoader.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"

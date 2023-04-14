@@ -9,10 +9,10 @@
 #define SKSL_FUNCTIONDECLARATION
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLSymbol.h"
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLIntrinsicList.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 
 #include <memory>
 #include <string>

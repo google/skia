@@ -8,8 +8,8 @@
 #ifndef SKSL_STATEMENT
 #define SKSL_STATEMENT
 
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLSymbol.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 
 namespace SkSL {
 

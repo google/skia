@@ -9,8 +9,8 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/private/base/SkTArray.h"
-#include "include/sksl/SkSLOperator.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLPosition.h"
 
 #include <cstdint>
 #include <memory>

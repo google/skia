@@ -9,7 +9,6 @@
 
 #include "include/core/SkM44.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/SkSLString.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
@@ -17,6 +16,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/sksl/SkSLString.h"
 #include "src/text/gpu/SubRunContainer.h"
 
 using AtlasSubRun = sktext::gpu::AtlasSubRun;

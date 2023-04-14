@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
@@ -14,6 +12,8 @@
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h" // IWYU pragma: keep
 
 #include <type_traits>

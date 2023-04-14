@@ -8,8 +8,8 @@
 #ifndef SKSL_IRNODE
 #define SKSL_IRNODE
 
-#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLPool.h"
+#include "src/sksl/SkSLPosition.h"
 
 #include <string>
 
