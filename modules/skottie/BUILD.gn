@@ -7,7 +7,10 @@ import("../../gn/skia.gni")
 
 if (skia_enable_skottie) {
   config("public_config") {
-    defines = [ "SK_ENABLE_SKOTTIE" ]
+    defines = [
+      "SK_ENABLE_SKOTTIE",
+      "SK_ENABLE_SKOTTIE_SKSLEFFECT",
+    ]
     include_dirs = [ "include" ]
   }
 
