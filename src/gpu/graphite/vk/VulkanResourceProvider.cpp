@@ -22,8 +22,9 @@
 namespace skgpu::graphite {
 
 VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
-                                               SingleOwner* singleOwner)
-        : ResourceProvider(sharedContext, singleOwner) {}
+                                               SingleOwner* singleOwner,
+                                               uint32_t recorderID)
+        : ResourceProvider(sharedContext, singleOwner, recorderID) {}
 
 VulkanResourceProvider::~VulkanResourceProvider() {}
 

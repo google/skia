@@ -11,17 +11,22 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
+#include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/Resource.h"
 
 namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
-sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner) {
-    return sk_sp<ResourceCache>(new ResourceCache(singleOwner));
+sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner, uint32_t recorderID) {
+    return sk_sp<ResourceCache>(new ResourceCache(singleOwner, recorderID));
 }
 
-ResourceCache::ResourceCache(SingleOwner* singleOwner) : fSingleOwner(singleOwner) {
+ResourceCache::ResourceCache(SingleOwner* singleOwner, uint32_t recorderID)
+        : fSingleOwner(singleOwner) {
+    if (recorderID != SK_InvalidGenID) {
+        fProxyCache = std::make_unique<ProxyCache>(recorderID);
+    }
     // TODO: Maybe when things start using ResourceCache, then like Ganesh the compiler won't
     // complain about not using fSingleOwner in Release builds and we can delete this.
 #ifndef SK_DEBUG

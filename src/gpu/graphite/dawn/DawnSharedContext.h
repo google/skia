@@ -23,7 +23,8 @@ public:
     static sk_sp<SharedContext> Make(const DawnBackendContext&, const ContextOptions&);
     ~DawnSharedContext() override;
 
-    std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) override;
+    std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
+                                                           uint32_t recorderID) override;
 
     const DawnCaps* dawnCaps() const { return static_cast<const DawnCaps*>(this->caps()); }
     const wgpu::Device& device() const { return fDevice; }
@@ -44,4 +45,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DawnSharedContext_DEFINED
-

@@ -83,7 +83,8 @@ public:
 
 protected:
     ResourceProvider(SharedContext* sharedContext,
-                     SingleOwner* singleOwner);
+                     SingleOwner* singleOwner,
+                     uint32_t recorderID);
 
     SharedContext* fSharedContext;
 

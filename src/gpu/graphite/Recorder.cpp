@@ -94,15 +94,14 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         , fAtlasManager(std::make_unique<AtlasManager>(this))
         , fTokenTracker(std::make_unique<TokenTracker>())
         , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>())
-        , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID))
-        , fProxyCache(std::make_unique<ProxyCache>(fRecorderID)){
+        , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID)) {
 
     fClientImageProvider = options.fImageProvider;
     if (!fClientImageProvider) {
         fClientImageProvider = DefaultImageProvider::Make();
     }
 
-    fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner());
+    fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(), fRecorderID);
     fDrawBufferManager.reset( new DrawBufferManager(fResourceProvider.get(),
                                                     fSharedContext->caps()));
     fUploadBufferManager.reset(new UploadBufferManager(fResourceProvider.get(),
@@ -355,7 +354,7 @@ void RecorderPriv::flushTrackedDevices() {
 sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,
                                                     const SkBitmap& bitmap,
                                                     Mipmapped mipmapped) {
-    return recorder->fProxyCache->findOrCreateCachedProxy(recorder, bitmap, mipmapped);
+    return recorder->priv().proxyCache()->findOrCreateCachedProxy(recorder, bitmap, mipmapped);
 }
 
 #if GRAPHITE_TEST_UTILS

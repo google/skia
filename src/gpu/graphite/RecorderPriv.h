@@ -11,6 +11,8 @@
 #include <functional>
 
 #include "include/gpu/graphite/Recorder.h"
+#include "src/gpu/graphite/ResourceCache.h"
+#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 
 class SkBitmap;
@@ -29,6 +31,7 @@ public:
     const Caps* caps() const { return fRecorder->fSharedContext->caps(); }
 
     ResourceProvider* resourceProvider() { return fRecorder->fResourceProvider.get(); }
+    ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }
 
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRecorder->fRuntimeEffectDict.get();
@@ -58,7 +61,7 @@ public:
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {
         return fRecorder->fTextBlobCache.get();
     }
-    ProxyCache* proxyCache() { return fRecorder->fProxyCache.get(); }
+    ProxyCache* proxyCache() { return this->resourceCache()->proxyCache(); }
 
     static sk_sp<TextureProxy> CreateCachedProxy(Recorder*,
                                                  const SkBitmap&,

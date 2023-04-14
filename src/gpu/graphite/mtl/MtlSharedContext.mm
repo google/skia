@@ -62,8 +62,10 @@ MtlSharedContext::~MtlSharedContext() {
     this->globalCache()->deleteResources();
 }
 
-std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(SingleOwner* singleOwner) {
-    return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this, singleOwner));
+std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(SingleOwner* singleOwner,
+                                                                         uint32_t recorderID) {
+    return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this, singleOwner,
+                                                                     recorderID));
 }
 
 } // namespace skgpu::graphite

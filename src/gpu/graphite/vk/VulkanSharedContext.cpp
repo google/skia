@@ -127,8 +127,10 @@ VulkanSharedContext::~VulkanSharedContext() {
 }
 
 std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
-        SingleOwner* singleOwner) {
-    return std::unique_ptr<ResourceProvider>(new VulkanResourceProvider(this, singleOwner));
+        SingleOwner* singleOwner,
+        uint32_t recorderID) {
+    return std::unique_ptr<ResourceProvider>(new VulkanResourceProvider(this, singleOwner,
+                                                                        recorderID));
 }
 
 bool VulkanSharedContext::checkVkResult(VkResult result) const {
@@ -149,4 +151,3 @@ bool VulkanSharedContext::checkVkResult(VkResult result) const {
     }
 }
 } // namespace skgpu::graphite
-

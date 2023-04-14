@@ -60,9 +60,10 @@ DawnSharedContext::~DawnSharedContext() {
 }
 
 std::unique_ptr<ResourceProvider> DawnSharedContext::makeResourceProvider(
-        SingleOwner* singleOwner) {
-    return std::unique_ptr<ResourceProvider>(new DawnResourceProvider(this, singleOwner));
+        SingleOwner* singleOwner,
+        uint32_t recorderID) {
+    return std::unique_ptr<ResourceProvider>(new DawnResourceProvider(this, singleOwner,
+                                                                      recorderID));
 }
 
 } // namespace skgpu::graphite
-

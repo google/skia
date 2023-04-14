@@ -37,8 +37,9 @@
 namespace skgpu::graphite {
 
 MtlResourceProvider::MtlResourceProvider(SharedContext* sharedContext,
-                                         SingleOwner* singleOwner)
-        : ResourceProvider(sharedContext, singleOwner) {}
+                                         SingleOwner* singleOwner,
+                                         uint32_t recorderID)
+        : ResourceProvider(sharedContext, singleOwner, recorderID) {}
 
 const MtlSharedContext* MtlResourceProvider::mtlSharedContext() {
     return static_cast<const MtlSharedContext*>(fSharedContext);

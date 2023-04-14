@@ -61,7 +61,9 @@ sk_sp<SkIDChangeListener> make_unique_key_invalidation_listener(const skgpu::Uni
 
 namespace skgpu::graphite {
 
-ProxyCache::ProxyCache(uint32_t recorderID) : fInvalidUniqueKeyInbox(recorderID) {}
+ProxyCache::ProxyCache(uint32_t recorderID) : fInvalidUniqueKeyInbox(recorderID) {
+    SkASSERT(recorderID != SK_InvalidGenID);
+}
 
 ProxyCache::~ProxyCache() {}
 
