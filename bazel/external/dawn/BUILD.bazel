@@ -759,10 +759,6 @@ TINT_SRCS = [
     "src/tint/resolver/validator.cc",
     "src/tint/resolver/validator.h",
 
-    # From dawn/src/tint/BUILD.gn:libtint_demangler_src
-    "src/tint/demangler.cc",
-    "src/tint/demangler.h",
-
     # From dawn/src/tint/BUILD.gn:libtint_initializer_src
     "src/tint/tint.cc",
 
