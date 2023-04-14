@@ -77,6 +77,7 @@ build --flag_alias=enable_vma=//src/gpu:use_vulkan_memory_allocator
 build --flag_alias=with_default_global_memory_pool=//src/lazy:use_default_global_memory_pool
 build --flag_alias=with_no_global_memory_pool=no//src/lazy:use_default_global_memory_pool
 build --flag_alias=with_harfbuzz=//bazel/common_config_settings:use_harfbuzz
+build --flag_alias=with_fontations=//bazel/common_config_settings:use_fontations
 build --flag_alias=with_no_harfbuzz=no//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_icu=//bazel/common_config_settings:use_icu
 build --flag_alias=with_no_icu=no//bazel/common_config_settings:use_icu

@@ -1388,6 +1388,14 @@ optional("typeface_freetype") {
   ]
 }
 
+optional("typeface_fontations") {
+  enabled = skia_use_fontations
+  sources = [
+    "src/ports/SkTypeface_fontations.cpp",
+    "src/ports/SkTypeface_fontations.h",
+  ]
+}
+
 optional("webp_decode") {
   enabled = skia_use_libwebp_decode
   public_defines = [ "SK_CODEC_DECODES_WEBP" ]
@@ -1637,6 +1645,10 @@ skia_component("skia") {
   if (skia_enable_spirv_validation) {
     deps += [ "//third_party/externals/spirv-tools:spvtools_val" ]
     defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
+  }
+
+  if (skia_use_fontations) {
+    deps += [ ":typeface_fontations" ]
   }
 
   if (skia_include_multiframe_procs) {
@@ -2214,6 +2226,9 @@ if (skia_enable_tools) {
     }
     if (!skia_enable_ganesh) {
       sources -= ganesh_gm_sources
+    }
+    if (skia_use_fontations) {
+      sources += fontations_gm_sources
     }
     deps = [
       ":etc1",

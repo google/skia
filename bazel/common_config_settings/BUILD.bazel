@@ -209,6 +209,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "use_fontations",
+    default = False,
+)
+
+bool_flag(
     name = "use_icu",
     default = False,
 )

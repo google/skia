@@ -554,6 +554,7 @@ private:
     friend class SkTestScalerContext;
     friend class SkTestSVGScalerContext;
     friend class SkUserScalerContext;
+    friend class SkFontationsScalerContext;
     friend class TestSVGTypeface;
     friend class TestTypeface;
     friend class SkGlyphTestPeer;
