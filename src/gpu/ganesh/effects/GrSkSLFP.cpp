@@ -11,6 +11,7 @@
 #include "include/private/SkSLString.h"
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkFilterColorProgram.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkVM.h"
