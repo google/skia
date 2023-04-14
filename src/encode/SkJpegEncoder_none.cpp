@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/base/SkAssert.h"
 
 class GrDirectContext;
-class SkData;
 class SkImage;
 class SkPixmap;
 class SkWStream;
