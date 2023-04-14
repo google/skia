@@ -661,6 +661,12 @@ bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
         return false;
     }
 
+#if !defined(SK_USE_LEGACY_XFERMODE_SHADER_BLITTERS)
+    if (!paint.isSrcOver()) {
+        return false;
+    }
+#endif
+
     const SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     const auto mode = paint.asBlendMode();
 
