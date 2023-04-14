@@ -56,7 +56,7 @@ static size_t element_size(Layout layout, SkSLType type) {
     return (layout == Layout::kMetal && !SkSLTypeIsFullPrecisionNumericType(type)) ? 2 : 4;
 }
 
-DEF_TEST(UniformManagerCheckSingleUniform, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckSingleUniform, r) {
     // Verify that the uniform manager can hold all the basic uniform types, in every layout.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -72,7 +72,7 @@ DEF_TEST(UniformManagerCheckSingleUniform, r) {
     }
 }
 
-DEF_TEST(UniformManagerCheckFloatEncoding, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckFloatEncoding, r) {
     // Verify that the uniform manager encodes float data properly.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -103,7 +103,7 @@ DEF_TEST(UniformManagerCheckFloatEncoding, r) {
     }
 }
 
-DEF_TEST(UniformManagerCheckIntEncoding, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckIntEncoding, r) {
     // Verify that the uniform manager encodes int data properly.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -133,7 +133,7 @@ DEF_TEST(UniformManagerCheckIntEncoding, r) {
     }
 }
 
-DEF_TEST(UniformManagerCheckScalarVectorPacking, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckScalarVectorPacking, r) {
     // Verify that the uniform manager can pack scalars and vectors of identical type correctly.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -165,7 +165,7 @@ DEF_TEST(UniformManagerCheckScalarVectorPacking, r) {
     }
 }
 
-DEF_TEST(UniformManagerCheckMatrixPacking, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckMatrixPacking, r) {
     // Verify that the uniform manager can pack matrices correctly.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -205,7 +205,7 @@ DEF_TEST(UniformManagerCheckMatrixPacking, r) {
     }
 }
 
-DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckPaddingScalarVector, r) {
     // Verify that the uniform manager properly adds padding between pairs of scalar/vector.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -304,7 +304,7 @@ DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
     }
 }
 
-DEF_TEST(UniformManagerCheckPaddingVectorMatrix, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckPaddingVectorMatrix, r) {
     // Verify that the uniform manager properly adds padding between vectors and matrices.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -423,7 +423,7 @@ DEF_TEST(UniformManagerCheckPaddingVectorMatrix, r) {
     }
 }
 
-DEF_TEST(UniformManagerCheckPaddingMatrixVector, r) {
+DEF_GRAPHITE_TEST(UniformManagerCheckPaddingMatrixVector, r) {
     // Verify that the uniform manager properly adds padding between matrices and vectors.
     for (Layout layout : kLayouts) {
         UniformManager mgr(layout);
@@ -556,7 +556,7 @@ DEF_TEST(UniformManagerCheckPaddingMatrixVector, r) {
     }
 }
 
-DEF_TEST(UniformManagerMetalArrayLayout, r) {
+DEF_GRAPHITE_TEST(UniformManagerMetalArrayLayout, r) {
     UniformManager mgr(Layout::kMetal);
 
     // Tests set up a uniform block with a single half (to force alignment) and an array of 3
@@ -628,7 +628,7 @@ DEF_TEST(UniformManagerMetalArrayLayout, r) {
     }
 }
 
-DEF_TEST(UniformManagerStd430ArrayLayout, r) {
+DEF_GRAPHITE_TEST(UniformManagerStd430ArrayLayout, r) {
     UniformManager mgr(Layout::kStd430);
 
     // Tests set up a uniform block with a single half (to force alignment) and an array of 3
@@ -700,7 +700,7 @@ DEF_TEST(UniformManagerStd430ArrayLayout, r) {
     }
 }
 
-DEF_TEST(UniformManagerStd140ArrayLayout, r) {
+DEF_GRAPHITE_TEST(UniformManagerStd140ArrayLayout, r) {
     UniformManager mgr(Layout::kStd140);
 
     // Tests set up a uniform block with a single half (to force alignment) and an array of 3
@@ -780,7 +780,7 @@ DEF_TEST(UniformManagerStd140ArrayLayout, r) {
 
 // This test validates that the uniform data for matrix types get written out according to the
 // layout expectations.
-DEF_TEST(UniformManagerStd140MatrixLayoutContents, r) {
+DEF_GRAPHITE_TEST(UniformManagerStd140MatrixLayoutContents, r) {
     UniformManager mgr(Layout::kStd140);
 
     // float2x2, half2x2
@@ -834,7 +834,7 @@ DEF_TEST(UniformManagerStd140MatrixLayoutContents, r) {
 
 // This test validates that the uniform data for matrix types get written out according to the
 // layout expectations.
-DEF_TEST(UniformManagerStd430MatrixLayoutContents, r) {
+DEF_GRAPHITE_TEST(UniformManagerStd430MatrixLayoutContents, r) {
     UniformManager mgr(Layout::kStd430);
 
     // float2x2, half2x2
