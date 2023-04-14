@@ -16,5 +16,6 @@ rust_binary(
     deps = [
         "@fontations//:font-types",
         "@fontations//:read-fonts",
+        "@fontations//:skrifa",
     ],
 )

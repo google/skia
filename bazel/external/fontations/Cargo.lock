@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "font-types"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d5d0db7e3de5a2deb4f900a5dab286848813b0af934f4f374421099e2efe87a"
+checksum = "d153f69273d7552224b21b9f1e50b537fa04571ad0ca0f3a4d65e5063e334a7f"
 
 [[package]]
 name = "fontations_bridge"
@@ -14,13 +14,23 @@ version = "0.1.0"
 dependencies = [
  "font-types",
  "read-fonts",
+ "skrifa",
 ]
 
 [[package]]
 name = "read-fonts"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3263f8e0874a9edf6ccc2639e09130d2734bed31871cf1481f06da350548b550"
+checksum = "8a16a652e8d355f7ea13cf656449b13e73c7eacde27bc58586f3bdd86e423526"
 dependencies = [
  "font-types",
+]
+
+[[package]]
+name = "skrifa"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85eeb719a3191a8422136fa5e9e043b88b0451a1cfa9a02d51d415c1cfd43bf6"
+dependencies = [
+ "read-fonts",
 ]
