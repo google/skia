@@ -13,6 +13,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureUtils.h"
 
@@ -86,6 +87,9 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
         make_bitmap_key(&key, bitmap, Mipmapped::kYes);
 
         if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
+            if (Resource* resource = (*cached)->texture(); resource) {
+                resource->updateAccessTime();
+            }
             return *cached;
         }
     }
@@ -93,6 +97,9 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
     make_bitmap_key(&key, bitmap, mipmapped);
 
     if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
+        if (Resource* resource = (*cached)->texture(); resource) {
+            resource->updateAccessTime();
+        }
         return *cached;
     }
 

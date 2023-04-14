@@ -62,6 +62,7 @@ public:
     void deinstantiate();
     sk_sp<Texture> refTexture() const;
     const Texture* texture() const;
+    Texture* texture() { return fTexture.get(); }
 
     static sk_sp<TextureProxy> Make(const Caps*,
                                     SkISize dimensions,
