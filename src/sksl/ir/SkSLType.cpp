@@ -1194,9 +1194,14 @@ SKSL_INT Type::convertArraySize(const Context& context,
         context.fErrors->error(size->fPosition, "array size must be positive");
         return 0;
     }
-    if (SkSafeMath::Mul(this->slotCount(), count) > kVariableSlotLimit) {
-        context.fErrors->error(size->fPosition, "array size is too large");
-        return 0;
+    // We can't get a meaningful slot count if the interior type contains an unsized array; we'll
+    // assert if we try. Unsized arrays should only occur in a handful of limited cases (e.g. an
+    // interface block with a trailing buffer), and will never be valid in a runtime effect.
+    if (!this->isOrContainsUnsizedArray()) {
+        if (SkSafeMath::Mul(this->slotCount(), count) > kVariableSlotLimit) {
+            context.fErrors->error(size->fPosition, "array size is too large");
+            return 0;
+        }
     }
     return static_cast<int>(count);
 }
