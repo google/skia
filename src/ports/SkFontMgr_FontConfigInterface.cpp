@@ -157,7 +157,9 @@ public:
     SkFontMgr_FCI(sk_sp<SkFontConfigInterface> fci)
         : fFCI(std::move(fci))
         , fCache(kMaxSize)
-    {}
+    {
+        SkASSERT_RELEASE(fFCI);
+    }
 
 protected:
     int onCountFamilies() const override {
