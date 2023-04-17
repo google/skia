@@ -153,8 +153,7 @@ sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorFill(const skjson::ObjectValue& 
                                                      const AnimationBuilder* abuilder) {
     auto color_node  = sksg::Color::Make(SK_ColorBLACK);
     auto color_paint = AttachFill(jpaint, abuilder, color_node);
-
-    abuilder->dispatchColorProperty(color_node);
+    abuilder->dispatchColorProperty(color_node, jpaint["c"]);
 
     return color_paint;
 }
@@ -163,8 +162,7 @@ sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorStroke(const skjson::ObjectValue
                                                        const AnimationBuilder* abuilder) {
     auto color_node  = sksg::Color::Make(SK_ColorBLACK);
     auto color_paint = AttachStroke(jpaint, abuilder, color_node);
-
-    abuilder->dispatchColorProperty(color_node);
+    abuilder->dispatchColorProperty(color_node, jpaint["c"]);
 
     return color_paint;
 }

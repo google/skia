@@ -285,9 +285,11 @@ public:
 
     void onColorProperty(const char node_name[],
                          const LazyHandle<skottie::ColorPropertyHandle>& c) override {
-        const auto it = fColorMap.find(node_name);
-        if (it != fColorMap.end()) {
-            c()->set(it->second);
+        if (node_name) {
+            const auto it = fColorMap.find(node_name);
+            if (it != fColorMap.end()) {
+                c()->set(it->second);
+            }
         }
     }
 

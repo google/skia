@@ -50,7 +50,7 @@ private:
         EffectBinder(jprops, abuilder, this)
             .bind(  kColor_Index, fColor  )
             .bind(kOpacity_Index, fOpacity);
-
+        // TODO: find where sid is placed for Fill Effect placed in Essential Properties
         abuilder.dispatchColorProperty(fColorNode);
     }
 

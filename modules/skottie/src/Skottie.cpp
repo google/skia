@@ -196,11 +196,18 @@ void AnimationBuilder::dispatchMarkers(const skjson::ArrayValue* jmarkers) const
     }
 }
 
-bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const {
+bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c,
+                                             const skjson::ObjectValue* jcolor) const {
     bool dispatched = false;
 
     if (fPropertyObserver) {
-        fPropertyObserver->onColorProperty(fPropertyObserverContext,
+        const char * node_name = fPropertyObserverContext;
+        if (jcolor) {
+            if (const skjson::StringValue* slotID = (*jcolor)["sid"]) {
+                node_name = slotID->begin();
+            }
+        }
+        fPropertyObserver->onColorProperty(node_name,
             [&]() {
                 dispatched = true;
                 return std::make_unique<ColorPropertyHandle>(c);
@@ -258,10 +265,8 @@ sk_sp<ExpressionManager> AnimationBuilder::expression_manager() const {
 
 void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* observer,
                                                           const skjson::ObjectValue& obj) {
-
     const skjson::StringValue* name = obj["nm"];
-
-    fBuilder->fPropertyObserverContext = name ? name->begin() : nullptr;
+    fBuilder->fPropertyObserverContext = name ? name->begin() : fPrevContext;
 }
 
 } // namespace internal
