@@ -46,6 +46,7 @@ bool DawnFormatIsDepthOrStencil(wgpu::TextureFormat format) {
     switch (format) {
         case wgpu::TextureFormat::Stencil8: // fallthrough
         case wgpu::TextureFormat::Depth32Float:
+        case wgpu::TextureFormat::Depth24PlusStencil8:
         case wgpu::TextureFormat::Depth32FloatStencil8:
             return true;
         default:
@@ -56,6 +57,7 @@ bool DawnFormatIsDepthOrStencil(wgpu::TextureFormat format) {
 bool DawnFormatIsDepth(wgpu::TextureFormat format) {
     switch (format) {
         case wgpu::TextureFormat::Depth32Float:
+        case wgpu::TextureFormat::Depth24PlusStencil8:
         case wgpu::TextureFormat::Depth32FloatStencil8:
             return true;
         default:
@@ -66,6 +68,7 @@ bool DawnFormatIsDepth(wgpu::TextureFormat format) {
 bool DawnFormatIsStencil(wgpu::TextureFormat format) {
     switch (format) {
         case wgpu::TextureFormat::Stencil8: // fallthrough
+        case wgpu::TextureFormat::Depth24PlusStencil8:
         case wgpu::TextureFormat::Depth32FloatStencil8:
             return true;
         default:
@@ -82,8 +85,7 @@ wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlag
     } else if (mask == DepthStencilFlags::kStencil) {
         return wgpu::TextureFormat::Stencil8;
     } else if (mask == DepthStencilFlags::kDepthStencil) {
-        // wgpu::TextureFormatDepth24Unorm_Stencil8 is supported on Mac family GPUs.
-        return wgpu::TextureFormat::Depth32FloatStencil8;
+        return wgpu::TextureFormat::Depth24PlusStencil8;
     }
     SkASSERT(false);
     return wgpu::TextureFormat::Undefined;
