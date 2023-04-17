@@ -32,8 +32,12 @@ public:
     static sk_sp<TestResource> Make(const SharedContext* sharedContext,
                                     Ownership owned,
                                     skgpu::Budgeted budgeted,
-                                    Shareable shareable) {
-        auto resource = sk_sp<TestResource>(new TestResource(sharedContext, owned, budgeted));
+                                    Shareable shareable,
+                                    size_t gpuMemorySize = 1) {
+        auto resource = sk_sp<TestResource>(new TestResource(sharedContext,
+                                                             owned,
+                                                             budgeted,
+                                                             gpuMemorySize));
         if (!resource) {
             return nullptr;
         }
@@ -56,8 +60,11 @@ public:
     }
 
 private:
-    TestResource(const SharedContext* sharedContext, Ownership owned, skgpu::Budgeted budgeted)
-            : Resource(sharedContext, owned, budgeted, /*gpuMemorySize=*/0) {}
+    TestResource(const SharedContext* sharedContext,
+                 Ownership owned,
+                 skgpu::Budgeted budgeted,
+                 size_t gpuMemorySize)
+            : Resource(sharedContext, owned, budgeted, gpuMemorySize) {}
 
     void freeGpuData() override {}
 };
@@ -236,6 +243,252 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     surface.reset();
     resourceCache->forceProcessReturnedResources();
     REPORTER_ASSERT(reporter, surfaceResourcePtr->budgeted() == skgpu::Budgeted::kYes);
+}
+
+namespace {
+sk_sp<Resource> add_new_resource(skiatest::Reporter* reporter,
+                                 const SharedContext* sharedContext,
+                                 ResourceCache* resourceCache,
+                                 size_t gpuMemorySize) {
+    auto resource = TestResource::Make(sharedContext,
+                                       Ownership::kOwned,
+                                       skgpu::Budgeted::kYes,
+                                       Shareable::kNo,
+                                       gpuMemorySize);
+    if (!resource) {
+        ERRORF(reporter, "Failed to make TestResource");
+        return nullptr;
+    }
+    resourceCache->insertResource(resource.get());
+    return std::move(resource);
+}
+
+Resource* add_new_purgeable_resource(skiatest::Reporter* reporter,
+                                     const SharedContext* sharedContext,
+                                     ResourceCache* resourceCache,
+                                     size_t gpuMemorySize) {
+    auto resource = add_new_resource(reporter, sharedContext, resourceCache, gpuMemorySize);
+    if (!resource) {
+        return nullptr;
+    }
+
+    Resource* ptr = resource.get();
+    resource.reset();
+    resourceCache->forceProcessReturnedResources();
+    return ptr;
+}
+} // namespace
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeAsNeededResourcesTest, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
+    ResourceCache* resourceCache = resourceProvider->resourceCache();
+    const SharedContext* sharedContext = resourceProvider->sharedContext();
+
+    resourceCache->setMaxBudget(10);
+
+    auto resourceSize10 = add_new_resource(reporter,
+                                           sharedContext,
+                                           resourceCache,
+                                           /*gpuMemorySize=*/10);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 10);
+
+    auto resourceSize1 = add_new_resource(reporter,
+                                          sharedContext,
+                                          resourceCache,
+                                          /*gpuMemorySize=*/1);
+
+    // We should now be over budget, but nothing should be purged since neither resource is
+    // purgeable.
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 11);
+
+    // Dropping the ref to the size 1 resource should cause it to get purged when we add a new
+    // resource to the cache.
+    resourceSize1.reset();
+
+    auto resourceSize2 = add_new_resource(reporter,
+                                          sharedContext,
+                                          resourceCache,
+                                          /*gpuMemorySize=*/2);
+
+    // The purging should have happened when we return the resource above so we also shouldn't
+    // see anything in the purgeable queue.
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 12);
+
+    // Reset the cache back to no resources by setting budget to 0.
+    resourceSize10.reset();
+    resourceSize2.reset();
+    resourceCache->forceProcessReturnedResources();
+    resourceCache->setMaxBudget(0);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 0);
+
+    // Add a bunch of purgeable resources that keeps us under budget. Nothing should ever get purged.
+    resourceCache->setMaxBudget(10);
+    auto resourceSize1Ptr = add_new_purgeable_resource(reporter,
+                                                       sharedContext,
+                                                       resourceCache,
+                                                       /*gpuMemorySize=*/1);
+    /*auto resourceSize2Ptr=*/ add_new_purgeable_resource(reporter,
+                                                          sharedContext,
+                                                          resourceCache,
+                                                          /*gpuMemorySize=*/2);
+    auto resourceSize3Ptr = add_new_purgeable_resource(reporter,
+                                                       sharedContext,
+                                                       resourceCache,
+                                                       /*gpuMemorySize=*/3);
+    auto resourceSize4Ptr = add_new_purgeable_resource(reporter,
+                                                       sharedContext,
+                                                       resourceCache,
+                                                       /*gpuMemorySize=*/4);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 4);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == resourceSize1Ptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 10);
+
+    // Now add some resources that should cause things to get purged.
+    // Add a size 2 resource should purge the original size 1 and size 2
+    add_new_purgeable_resource(reporter,
+                               sharedContext,
+                               resourceCache,
+                               /*gpuMemorySize=*/2);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 3);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == resourceSize3Ptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 9);
+
+    // Adding a non-purgeable resource should also trigger resources to be purged from purgeable
+    // queue.
+    resourceSize10 = add_new_resource(reporter,
+                                      sharedContext,
+                                      resourceCache,
+                                      /*gpuMemorySize=*/10);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 10);
+
+    // Adding a resources that is purgeable back to the cache shouldn't trigger the previous
+    // non-purgeable resource or itself to be purged yet (since processing our return mailbox
+    // doesn't trigger the purgeAsNeeded call)
+    resourceSize4Ptr = add_new_purgeable_resource(reporter,
+                                                  sharedContext,
+                                                  resourceCache,
+                                                  /*gpuMemorySize=*/4);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == resourceSize4Ptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 14);
+
+    // Resetting the budget to 0 should trigger purging the size 4 purgeable resource but should
+    // leave the non purgeable size 10 alone.
+    resourceCache->setMaxBudget(0);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 10);
+
+    resourceSize10.reset();
+    resourceCache->forceProcessReturnedResources();
+    resourceCache->forcePurgeAsNeeded();
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 0);
+}
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteZeroSizedResourcesTest, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
+    ResourceCache* resourceCache = resourceProvider->resourceCache();
+    const SharedContext* sharedContext = resourceProvider->sharedContext();
+
+    // First make a normal resource that has a non zero size
+    Resource* resourcePtr = add_new_purgeable_resource(reporter,
+                                                       sharedContext,
+                                                       resourceCache,
+                                                       /*gpuMemorySize=*/1);
+    if (!resourcePtr) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == resourcePtr);
+
+    // First confirm if we set the max budget to zero, this sized resource is removed.
+    resourceCache->setMaxBudget(0);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == nullptr);
+
+    // Set the budget back to something higher
+    resourceCache->setMaxBudget(100);
+
+    // Now create a zero sized resource and add it to the cache.
+    resourcePtr = add_new_purgeable_resource(reporter,
+                                             sharedContext,
+                                             resourceCache,
+                                             /*gpuMemorySize=*/0);
+    if (!resourcePtr) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == resourcePtr);
+
+    // Setting the budget down to 0 should not cause the zero sized resource to be purged
+    resourceCache->setMaxBudget(0);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == resourcePtr);
+
+    // Now add a sized resource to cache. Set budget higher again so that it fits
+    resourceCache->setMaxBudget(100);
+
+    Resource* sizedResourcePtr = add_new_purgeable_resource(reporter,
+                                                            sharedContext,
+                                                            resourceCache,
+                                                            /*gpuMemorySize=*/1);
+    if (!resourcePtr) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
+    // Even though the zero sized resource was added to the cache first, the top of the purgeable
+    // stack should be the sized resource.
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == sizedResourcePtr);
+
+    // Add another zero sized resource
+    resourcePtr = add_new_purgeable_resource(reporter,
+                                             sharedContext,
+                                             resourceCache,
+                                             /*gpuMemorySize=*/0);
+    if (!resourcePtr) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 3);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 3);
+    // Again the sized resource should still be the top of the purgeable queue
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue() == sizedResourcePtr);
+
+    // If we set the cache budget to 0, it should clear out the sized resource but leave the two
+    // zero-sized resources.
+    resourceCache->setMaxBudget(0);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue()->gpuMemorySize() == 0);
 }
 
 }  // namespace skgpu::graphite

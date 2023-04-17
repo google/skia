@@ -96,6 +96,8 @@ void ResourceCache::insertResource(Resource* resource) {
     if (resource->budgeted() == skgpu::Budgeted::kYes) {
         fBudgetedBytes += resource->gpuMemorySize();
     }
+
+    this->purgeAsNeeded();
 }
 
 Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
@@ -126,6 +128,13 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
         this->refAndMakeResourceMRU(resource);
         this->validate();
     }
+
+    // processReturnedResources may have added resources back into our budget if they were being
+    // using in an SkImage or SkSurface previously. However, instead of calling purgeAsNeeded in
+    // processReturnedResources, we delay calling it until now so we don't end up purging a resource
+    // we're looking for in this function.
+    this->purgeAsNeeded();
+
     return resource;
 }
 
@@ -305,6 +314,40 @@ bool ResourceCache::inPurgeableQueue(Resource* resource) const {
         return true;
     }
     return false;
+}
+
+void ResourceCache::purgeAsNeeded() {
+    ASSERT_SINGLE_OWNER
+
+    this->processReturnedResources();
+
+    if (this->overbudget()) {
+        // TODO: Call out to image cache to free uniquely owned resources
+
+        // After the image cache frees resources we need to return those resources to the cache
+        this->processReturnedResources();
+    }
+    while (this->overbudget() && fPurgeableQueue.count()) {
+        Resource* resource = fPurgeableQueue.peek();
+        SkASSERT(!resource->wasDestroyed());
+        SkASSERT(fResourceMap.find(resource->key()));
+
+        if (resource->timestamp() == kMaxTimestamp) {
+            // If we hit a resource that is at kMaxTimestamp, then we've hit the part of the
+            // purgeable queue with all zero sized resources. We don't want to actually remove those
+            // so we just break here.
+            SkASSERT(resource->gpuMemorySize() == 0);
+            break;
+        }
+
+        fResourceMap.remove(resource->key(), resource);
+        this->removeFromPurgeableQueue(resource);
+        fBudgetedBytes -= resource->gpuMemorySize();
+
+        resource->unrefCache();
+    }
+
+    this->validate();
 }
 
 uint32_t ResourceCache::getNextTimestamp() {
@@ -530,6 +573,18 @@ bool ResourceCache::isInCache(const Resource* resource) const {
 
 int ResourceCache::numFindableResources() const {
     return fResourceMap.count();
+}
+
+void ResourceCache::setMaxBudget(size_t bytes) {
+    fMaxBytes = bytes;
+    this->purgeAsNeeded();
+}
+
+Resource* ResourceCache::topOfPurgeableQueue() {
+    if (!fPurgeableQueue.count()) {
+        return nullptr;
+    }
+    return fPurgeableQueue.peek();
 }
 
 #endif // GRAPHITE_TEST_UTILS
