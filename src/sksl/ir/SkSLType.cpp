@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <string_view>
@@ -512,7 +513,7 @@ public:
             , fFields(std::move(fields))
             , fInterfaceBlock(interfaceBlock) {}
 
-    const std::vector<Field>& fields() const override {
+    SkSpan<const Field> fields() const override {
         return fFields;
     }
 
@@ -1029,8 +1030,12 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
             // We are cloning an existing struct, so there's no need to call MakeStructType and
             // fully error-check it again.
             const std::string* name = symbolTable->takeOwnershipOfString(std::string(this->name()));
-            return symbolTable->add(std::make_unique<StructType>(
-                    this->fPosition, *name, this->fields(), this->isInterfaceBlock()));
+            SkSpan<const Field> fieldSpan = this->fields();
+            return symbolTable->add(
+                    std::make_unique<StructType>(this->fPosition,
+                                                 *name,
+                                                 std::vector(fieldSpan.begin(), fieldSpan.end()),
+                                                 this->isInterfaceBlock()));
         }
         default:
             SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());

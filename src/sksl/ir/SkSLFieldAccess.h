@@ -8,6 +8,7 @@
 #ifndef SKSL_FIELDACCESS
 #define SKSL_FIELDACCESS
 
+#include "include/core/SkSpan.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -19,7 +20,6 @@
 #include <string>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 namespace SkSL {
 

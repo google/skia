@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLConstructorStruct.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
@@ -16,7 +17,6 @@
 #include "src/sksl/ir/SkSLType.h"
 
 #include <string>
-#include <vector>
 
 namespace SkSL {
 

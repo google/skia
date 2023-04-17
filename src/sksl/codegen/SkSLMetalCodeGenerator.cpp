@@ -72,6 +72,7 @@
 #include <functional>
 #include <limits>
 #include <memory>
+#include <vector>
 
 using namespace skia_private;
 
@@ -2365,8 +2366,9 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(";");
 }
 
-void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, Position parentPos,
-        const InterfaceBlock* parentIntf) {
+void MetalCodeGenerator::writeFields(SkSpan<const Type::Field> fields,
+                                     Position parentPos,
+                                     const InterfaceBlock* parentIntf) {
     MemoryLayout memoryLayout(MemoryLayout::Standard::kMetal);
     int currentOffset = 0;
     for (const Type::Field& field : fields) {

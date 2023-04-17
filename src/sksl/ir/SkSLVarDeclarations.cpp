@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+#include "include/core/SkSpan.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -24,7 +25,6 @@
 
 #include <cstddef>
 #include <string_view>
-#include <vector>
 
 namespace SkSL {
 namespace {

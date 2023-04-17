@@ -23,8 +23,6 @@
 #include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLType.h"
 
-#include <vector>
-
 namespace SkSL {
 
 static std::unique_ptr<Expression> convert_compound_constructor(const Context& context,

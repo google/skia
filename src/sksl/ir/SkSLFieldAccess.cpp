@@ -47,10 +47,10 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
         return nullptr;
     }
     if (baseType.isStruct()) {
-        const std::vector<Type::Field>& fields = baseType.fields();
+        SkSpan<const Type::Field> fields = baseType.fields();
         for (size_t i = 0; i < fields.size(); i++) {
             if (fields[i].fName == field) {
-                return FieldAccess::Make(context, pos, std::move(base), (int) i);
+                return FieldAccess::Make(context, pos, std::move(base), (int)i);
             }
         }
     }
