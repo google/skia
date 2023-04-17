@@ -1273,15 +1273,17 @@ SkGradientShaderBase::ColorStopOptimizer::ColorStopOptimizer(const SkColor4f* co
 }
 
 #if defined(SK_GRAPHITE)
+
+namespace {
+
 // Please see GrGradientShader.cpp::make_interpolated_to_dst for substantial comments
 // as to why this code is structured this way.
-void SkGradientShaderBase::MakeInterpolatedToDst(
-        const skgpu::graphite::KeyContext& keyContext,
-        skgpu::graphite::PaintParamsKeyBuilder* builder,
-        skgpu::graphite::PipelineDataGatherer* gatherer,
-        const skgpu::graphite::GradientShaderBlocks::GradientData& gradData,
-        const SkGradientShaderBase::Interpolation& interp,
-        SkColorSpace* intermediateCS) {
+void make_interpolated_to_dst(const skgpu::graphite::KeyContext& keyContext,
+                              skgpu::graphite::PaintParamsKeyBuilder* builder,
+                              skgpu::graphite::PipelineDataGatherer* gatherer,
+                              const skgpu::graphite::GradientShaderBlocks::GradientData& gradData,
+                              const SkGradientShaderBase::Interpolation& interp,
+                              SkColorSpace* intermediateCS) {
     using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
     using namespace skgpu::graphite;
 
@@ -1324,4 +1326,34 @@ void SkGradientShaderBase::MakeInterpolatedToDst(
 
     builder->endBlock();
 }
-#endif
+
+} // anonymous namespace
+
+void SkGradientShaderBase::addToKeyCommon(const skgpu::graphite::KeyContext& keyContext,
+                                          skgpu::graphite::PaintParamsKeyBuilder* builder,
+                                          skgpu::graphite::PipelineDataGatherer* gatherer,
+                                          GradientType type,
+                                          SkPoint point0, SkPoint point1,
+                                          float radius0, float radius1,
+                                          float bias, float scale) const {
+    using namespace skgpu::graphite;
+
+    SkColor4fXformer xformedColors(this, keyContext.dstColorInfo().colorSpace());
+    const SkPMColor4f* colors = xformedColors.fColors.begin();
+
+    GradientShaderBlocks::GradientData data(type,
+                                            point0, point1,
+                                            radius0, radius1,
+                                            bias, scale,
+                                            fTileMode,
+                                            fColorCount,
+                                            colors,
+                                            fPositions,
+                                            fInterpolation);
+
+    make_interpolated_to_dst(keyContext, builder, gatherer,
+                             data, fInterpolation,
+                             xformedColors.fIntermediateColorSpace.get());
+}
+
+#endif // defined(SK_GRAPHITE)

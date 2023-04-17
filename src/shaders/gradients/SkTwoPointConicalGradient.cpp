@@ -540,24 +540,11 @@ SkTwoPointConicalGradient::asFragmentProcessor(const GrFPArgs& args, const Matri
 void SkTwoPointConicalGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                          skgpu::graphite::PaintParamsKeyBuilder* builder,
                                          skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    SkColor4fXformer xformedColors(this, keyContext.dstColorInfo().colorSpace());
-    const SkPMColor4f* colors = xformedColors.fColors.begin();
-
-    GradientShaderBlocks::GradientData data(GradientType::kConical,
-                                            fCenter1, fCenter2,
-                                            fRadius1, fRadius2,
-                                            0.0f, 0.0f,
-                                            fTileMode,
-                                            fColorCount,
-                                            colors,
-                                            fPositions,
-                                            fInterpolation);
-
-    MakeInterpolatedToDst(keyContext, builder, gatherer,
-                          data, fInterpolation,
-                          xformedColors.fIntermediateColorSpace.get());
+    this->addToKeyCommon(keyContext, builder, gatherer,
+                         GradientType::kConical,
+                         fCenter1, fCenter2,
+                         fRadius1, fRadius2,
+                         0.0f, 0.0f);
 }
 #endif
 

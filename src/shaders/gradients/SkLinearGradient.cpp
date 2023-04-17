@@ -104,24 +104,11 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 void SkLinearGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
                                 skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    SkColor4fXformer xformedColors(this, keyContext.dstColorInfo().colorSpace());
-    const SkPMColor4f* colors = xformedColors.fColors.begin();
-
-    GradientShaderBlocks::GradientData data(GradientType::kLinear,
-                                            fStart, fEnd,
-                                            0.0f, 0.0f,
-                                            0.0f, 0.0f,
-                                            fTileMode,
-                                            fColorCount,
-                                            colors,
-                                            fPositions,
-                                            fInterpolation);
-
-    MakeInterpolatedToDst(keyContext, builder, gatherer,
-                          data, fInterpolation,
-                          xformedColors.fIntermediateColorSpace.get());
+    this->addToKeyCommon(keyContext, builder, gatherer,
+                         GradientType::kLinear,
+                         fStart, fEnd,
+                         0.0f, 0.0f,
+                         0.0f, 0.0f);
 }
 #endif
 
