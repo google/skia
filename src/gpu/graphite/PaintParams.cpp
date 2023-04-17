@@ -112,15 +112,13 @@ void PaintParams::toKey(const KeyContext& keyContext,
     }
 
     if (fPrimitiveBlender) {
-        as_BB(fPrimitiveBlender)->addToKey(keyContext, builder, gatherer, DstColorType::kPrimitive);
+        AddPrimitiveBlendBlock(keyContext, builder, gatherer, fPrimitiveBlender.get());
     }
 
     // Apply the paint's alpha value.
-    auto alphaColorFilter = SkColorFilters::Blend({0, 0, 0, fColor.fA},
-                                                  /* colorSpace= */ nullptr,
-                                                  SkBlendMode::kDstIn);
-    if (alphaColorFilter) {
-        as_CFB(alphaColorFilter)->addToKey(keyContext, builder, gatherer);
+    if (fColor.fA != 1.0f) {
+        AddColorBlendBlock(
+                keyContext, builder, gatherer, SkBlendMode::kDstIn, {0, 0, 0, fColor.fA});
     }
 
     if (fColorFilter) {
@@ -137,11 +135,15 @@ void PaintParams::toKey(const KeyContext& keyContext,
     }
 #endif
 
-    if (fFinalBlender) {
-        as_BB(fFinalBlender)->addToKey(keyContext, builder, gatherer, DstColorType::kSurface);
-    } else {
-        BlendModeBlock::BeginBlock(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+    std::optional<SkBlendMode> finalBlendMode = this->asFinalBlendMode();
+    if (finalBlendMode && *finalBlendMode <= SkBlendMode::kLastCoeffMode) {
+        BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
+                kFixedFunctionBlendModeIDOffset + (int) *finalBlendMode);
+        builder->beginBlock(fixedFuncBlendModeID);
         builder->endBlock();
+
+    } else {
+        AddDstBlendBlock(keyContext, builder, gatherer, fFinalBlender.get());
     }
 }
 

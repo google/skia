@@ -18,8 +18,10 @@ enum class BuiltInCodeSnippetID : int32_t {
     // magenta.
     kError,
 
+    // Snippet that passes through prior stage output
+    kPriorOutput,
+
     // SkShader code snippets
-    kPassthroughShader,
     kSolidColorShader,
     kLinearGradientShader4,
     kLinearGradientShader8,
@@ -39,26 +41,25 @@ enum class BuiltInCodeSnippetID : int32_t {
     kCoordClampShader,
     kDitherShader,
     kPerlinNoiseShader,
-    kPorterDuffBlendShader,     // ComposeShader (lightweight, only supports Porter-Duff blends)
-    kBlendShader,               // ComposeShader (more code, but supports every SkBlendMode)
     kColorFilterShader,
     kRuntimeShader,
 
     // SkColorFilter code snippets
     kMatrixColorFilter,
-    kBlendColorFilter,
     kComposeColorFilter,
     kTableColorFilter,
     kGaussianColorFilter,
     kColorSpaceXformColorFilter,
 
-    // SkBlender code snippets (evaluating a blend as part of the shader graph)
-    kPassthroughBlender,
+    // SkBlender code snippets
+    kBlendShader,
+    kBlendModeBlender,
+    kCoeffBlender,
 
-    // BlendMode code snippets (applying a blend to a destination)
-    kShaderBasedBlender,
-    kPrimitiveColorShaderBasedBlender, // Blend dst: primitiveColor variable emitted by RenderStep
-// Fixed-function blend modes are used for the final blend with the dst buffer's color when the
+    // Special dst values to use as blender children
+    kPrimitiveColor,  // Emits special variable holding the primitiveColor emitted by a RenderStep
+
+    // Fixed-function blend modes are used for the final blend with the dst buffer's color when the
     // SkPaint is using a coefficient-based SkBlendMode. The actual coefficients are extracted into
     // the SkBlendInfo associated with each pipeline, but a unique code snippet ID is assigned so
     // that the pipeline keys remain distinct. They are ordered to match SkBlendMode such

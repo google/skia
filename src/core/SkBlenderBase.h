@@ -69,16 +69,9 @@ public:
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 
 #if defined(SK_GRAPHITE)
-    /**
-     * TODO: Make pure virtual.
-     * dstColorType = kPrimitive when blending the result of the paint evaluation with a primitive
-     * color (which is supplied by certain geometries). dstColorType = kSurface when blending the
-     * result of the paint evaluation with the back buffer.
-     */
     virtual void addToKey(const skgpu::graphite::KeyContext&,
                           skgpu::graphite::PaintParamsKeyBuilder*,
-                          skgpu::graphite::PipelineDataGatherer*,
-                          skgpu::graphite::DstColorType dstColorType) const;
+                          skgpu::graphite::PipelineDataGatherer*) const = 0;
 #endif
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }

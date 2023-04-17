@@ -51,13 +51,7 @@ enum class DstColorType {
  * as parent-child relationships.
  */
 
-struct PassthroughShaderBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*);
-};
-
-struct PassthroughBlenderBlock {
+struct PriorOutputBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
@@ -243,30 +237,26 @@ struct PerlinNoiseShaderBlock {
                            const PerlinNoiseData*);
 };
 
-
-struct PorterDuffBlendShaderBlock {
-    struct PorterDuffBlendShaderData {
-        SkSpan<const float> fPorterDuffConstants;
-    };
-
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const PorterDuffBlendShaderData&);
+struct BlendShaderBlock {
+    static void BeginBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*);
 };
 
-struct BlendShaderBlock {
-    /**
-     * Blend shader blocks are used to blend the output of two shaders.
-     */
-    struct BlendShaderData {
-        SkBlendMode fBM;
-    };
-
+struct BlendModeBlenderBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
-                           const BlendShaderData&);
+                           SkBlendMode blendMode);
+};
+
+struct CoeffBlenderBlock {
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*,
+                           SkSpan<const float> coeffs);
+};
+
+struct PrimitiveColorBlock {
+    static void BeginBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*);
 };
 
 struct ColorFilterShaderBlock {
@@ -297,26 +287,6 @@ struct MatrixColorFilterBlock {
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const MatrixColorFilterData*);
-};
-
-struct BlendColorFilterBlock {
-    /**
-     * Blend color filter blocks are used to blend the output of a shader with a color uniform.
-     */
-    struct BlendColorFilterData {
-        BlendColorFilterData(SkBlendMode blendMode, const SkPMColor4f& srcColor)
-                : fBlendMode(blendMode)
-                , fSrcColor(srcColor) {
-        }
-
-        SkBlendMode fBlendMode;
-        SkPMColor4f fSrcColor;
-    };
-
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const BlendColorFilterData*);
 };
 
 struct ComposeColorFilterBlock {
@@ -359,27 +329,32 @@ struct ColorSpaceTransformBlock {
                            const ColorSpaceTransformData*);
 };
 
-struct BlendModeBlock {
-    /**
-     * Blend mode blocks are used to blend a color attachment with the output of a shader.
-     */
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           SkBlendMode);
-};
+/**
+ * Dst blend blocks are used to blend the output of a shader with a color attachment.
+ */
+void AddDstBlendBlock(const KeyContext&,
+                      PaintParamsKeyBuilder*,
+                      PipelineDataGatherer*,
+                      const SkBlender*);
 
-struct PrimitiveBlendModeBlock {
-    /**
-     * Primitive blend mode blocks are used to blend a primitive color emitted by certain draw
-     * geometry calls (drawVertices, drawAtlas, etc.) with either the paint color or the output of
-     * another shader. Dst: primitiveColor Src: Paint color/shader output
-     */
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           SkBlendMode);
-};
+/**
+ * Primitive blend blocks are used to blend either the paint color or the output of another shader
+ * with a primitive color emitted by certain draw geometry calls (drawVertices, drawAtlas, etc.).
+ * Dst: primitiveColor Src: Paint color/shader output
+ */
+void AddPrimitiveBlendBlock(const KeyContext&,
+                            PaintParamsKeyBuilder*,
+                            PipelineDataGatherer*,
+                            const SkBlender*);
+
+/**
+ * Color filter blend blocks are used to blend a color uniform with the output of a shader.
+ */
+void AddColorBlendBlock(const KeyContext&,
+                        PaintParamsKeyBuilder*,
+                        PipelineDataGatherer*,
+                        SkBlendMode,
+                        const SkPMColor4f& srcColor);
 
 struct RuntimeEffectBlock {
     struct ShaderData {

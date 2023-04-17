@@ -148,7 +148,7 @@ void SkColorFilterBase::addToKey(const skgpu::graphite::KeyContext& keyContext,
     using namespace skgpu::graphite;
 
     // Return the input color as-is.
-    PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+    PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
 }
 #endif

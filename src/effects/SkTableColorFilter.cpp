@@ -306,7 +306,7 @@ void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext
         SKGPU_LOG_W("Couldn't create TableColorFilter's table");
 
         // Return the input color as-is.
-        PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+        PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
         builder->endBlock();
         return;
     }

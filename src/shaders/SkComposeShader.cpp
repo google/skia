@@ -180,18 +180,21 @@ void SkShader_Blend::addToKey(const skgpu::graphite::KeyContext& keyContext,
                               skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
+    BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
+
+    as_SB(fSrc)->addToKey(keyContext, builder, gatherer);
+    as_SB(fDst)->addToKey(keyContext, builder, gatherer);
+
     SkSpan<const float> porterDuffConstants = skgpu::GetPorterDuffBlendConstants(fMode);
     if (!porterDuffConstants.empty()) {
-        PorterDuffBlendShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                               {porterDuffConstants});
+        CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, porterDuffConstants);
+        builder->endBlock();
     } else {
-        BlendShaderBlock::BeginBlock(keyContext, builder, gatherer, {fMode});
+        BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, fMode);
+        builder->endBlock();
     }
 
-    as_SB(fDst)->addToKey(keyContext, builder, gatherer);
-    as_SB(fSrc)->addToKey(keyContext, builder, gatherer);
-
-    builder->endBlock();
+    builder->endBlock();  // BlendShaderBlock
 }
 #endif
 
@@ -224,13 +227,13 @@ sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
 #ifdef SK_ENABLE_SKSL
     // This isn't a built-in blend mode; we might as well use a runtime effect to evaluate it.
     static SkRuntimeEffect* sBlendEffect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform shader s, d;"
         "uniform blender b;"
-        "uniform shader d, s;"
         "half4 main(float2 xy) {"
             "return b.eval(s.eval(xy), d.eval(xy));"
         "}"
     );
-    SkRuntimeEffect::ChildPtr children[] = {std::move(blender), std::move(dst), std::move(src)};
+    SkRuntimeEffect::ChildPtr children[] = {std::move(src), std::move(dst), std::move(blender)};
     return sBlendEffect->makeShader(/*uniforms=*/{}, children);
 #else
     // We need SkSL to render this blend.

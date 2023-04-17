@@ -125,9 +125,20 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     }
 
     if (addPrimitiveBlender) {
-        PrimitiveBlendModeBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
-                                            SkBlendMode::kSrcOver);
+        BlendShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
+        // src -- prior output
+        PriorOutputBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
         keyBuilder->endBlock();
+        // dst -- primitive color
+        PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
+        keyBuilder->endBlock();
+        // blender -- shader based blending
+        // TODO: Support runtime blenders for primitive blending in the precompile API.
+        // In the meantime, assume for now that we're using a coefficient blend mode here.
+        SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kSrcOver);
+        CoeffBlenderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr, coeffs);
+        keyBuilder->endBlock();
+        keyBuilder->endBlock();  // BlendShaderBlock
     }
 
     PrecompileBase::AddToKey(keyContext, keyBuilder, fMaskFilterOptions,
@@ -135,12 +146,30 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     PrecompileBase::AddToKey(keyContext, keyBuilder, fColorFilterOptions,
                              desiredColorFilterCombination);
 
-    if (fBlenderOptions.empty()) {
-        BlendModeBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
-                                   SkBlendMode::kSrcOver);
+    sk_sp<PrecompileBlender> blender =
+            PrecompileBase::SelectOption(fBlenderOptions, desiredBlendCombination);
+    std::optional<SkBlendMode> finalBlendMode = blender ? blender->asBlendMode()
+                                                        : SkBlendMode::kSrcOver;
+    if (finalBlendMode && *finalBlendMode <= SkBlendMode::kLastCoeffMode) {
+        BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
+                kFixedFunctionBlendModeIDOffset + (int) *finalBlendMode);
+        keyBuilder->beginBlock(fixedFuncBlendModeID);
         keyBuilder->endBlock();
+
     } else {
+        BlendShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
+        // src -- prior output
+        PriorOutputBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
+        keyBuilder->endBlock();
+        // dst -- surface color
+        // TODO(b/238757201): Use the surface color as the destination by replacing
+        // SolidColorShaderBlock with a DstColorBlock
+        SolidColorShaderBlock::BeginBlock(
+                keyContext, keyBuilder, /* gatherer= */ nullptr, {1, 1, 1, 1});
+        keyBuilder->endBlock();
+        // blender -- shader based blending
         PrecompileBase::AddToKey(keyContext, keyBuilder, fBlenderOptions, desiredBlendCombination);
+        keyBuilder->endBlock();  // BlendShaderBlock
     }
 }
 

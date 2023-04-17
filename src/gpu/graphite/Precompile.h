@@ -61,6 +61,9 @@ protected:
                          const std::vector<sk_sp<T>>& options,
                          int desiredOption);
 
+    template<typename T>
+    static const sk_sp<T> SelectOption(const std::vector<sk_sp<T>>& options, int desiredOption);
+
 private:
     friend class PaintOptions;
     friend class PrecompileBasePriv;
@@ -88,6 +91,18 @@ void PrecompileBase::AddToKey(const KeyContext& keyContext,
 
         desiredOption -= option->numCombinations();
     }
+}
+
+template<typename T>
+const sk_sp<T> PrecompileBase::SelectOption(const std::vector<sk_sp<T>>& options,
+                                            int desiredOption) {
+    for (const sk_sp<T>& option : options) {
+        if (desiredOption < option->numCombinations()) {
+            return option;
+        }
+        desiredOption -= option->numCombinations();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

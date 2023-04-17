@@ -442,17 +442,18 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
 
         if (fImage->isAlphaOnly()) {
             SkSpan<const float> constants = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kDstIn);
-            // expects dst, src
-            PorterDuffBlendShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                                   {constants});
+            BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
+
+                // src
+                ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+                builder->endBlock();
 
                 // dst
                 SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
                                                   keyContext.paintColor());
                 builder->endBlock();
 
-                // src
-                ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+                CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, constants);
                 builder->endBlock();
 
             builder->endBlock();
