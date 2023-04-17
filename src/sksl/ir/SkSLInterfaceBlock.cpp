@@ -53,7 +53,10 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
         context.fErrors->error(pos, "interface blocks are not allowed in this kind of program");
         return nullptr;
     }
-
+    if (!variable->type().componentType().isInterfaceBlock()) {
+        context.fErrors->error(pos, "interface block type is not valid");
+        return nullptr;
+    }
     // Find sk_RTAdjust and error out if it's not of type `float4`.
     SkSpan<const Type::Field> fields = variable->type().componentType().fields();
     std::optional<int> rtAdjustIndex = find_rt_adjust_index(fields);
