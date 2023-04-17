@@ -84,6 +84,7 @@ void ResourceCache::insertResource(Resource* resource) {
     // We must set the timestamp before adding to the array in case the timestamp wraps and we wind
     // up iterating over all the resources that already have timestamps.
     this->setResourceTimestamp(resource, this->getNextTimestamp());
+    resource->updateAccessTime();
 
     this->addToNonpurgeableArray(resource);
 

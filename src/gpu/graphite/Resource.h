@@ -107,6 +107,10 @@ public:
         fKey = key;
     }
 
+#if GRAPHITE_TEST_UTILS
+    bool testingShouldDeleteASAP() const { return fDeleteASAP == DeleteASAP::kYes; }
+#endif
+
 protected:
     Resource(const SharedContext*, Ownership, skgpu::Budgeted, size_t gpuMemorySize);
     virtual ~Resource();
