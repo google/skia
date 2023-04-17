@@ -40,7 +40,7 @@ public:
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
 
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
-                                      const RenderPassDesc&) const override { return {}; }
+                                      const RenderPassDesc&) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
 
     uint32_t channelMask(const TextureInfo&) const override;

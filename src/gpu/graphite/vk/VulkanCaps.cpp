@@ -999,6 +999,22 @@ const Caps::ColorTypeInfo* VulkanCaps::getColorTypeInfo(SkColorType ct,
     return nullptr;
 }
 
+UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
+                                              const RenderPassDesc&) const {
+    UniqueKey pipelineKey;
+    {
+        static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain =
+            UniqueKey::GenerateDomain();
+
+        // TODO: set proper key size
+        UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain, 1, "GraphicsPipeline");
+        // TODO: fill in key data here
+        builder.finish();
+    }
+
+    return pipelineKey;
+}
+
 void VulkanCaps::buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo& info,
                                     ResourceType type,
