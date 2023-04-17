@@ -704,9 +704,10 @@
   },
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite_Metal_ColorSpaces"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
-  {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn",
-   "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "dm/.+"]}
+  {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn",
+       "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "dm/.+"]}
   },
+  {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "dm/.+"]}
   },
@@ -833,6 +834,7 @@
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D",
    "cq_config": {}
    },
+  {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "dm/.+"]}
   },
