@@ -34,7 +34,7 @@ SDFTextRenderStep::SDFTextRenderStep(bool isA8)
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"deviceMatrix", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2},
-                                   {"distanceAdjust", SkSLType::kFloat}},
+                                   {"distAdjust", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGEqualPass,
                      /*vertexAttrs=*/ {},
@@ -105,17 +105,17 @@ const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
         // and the supported range of distances is [-4 * 127/128, 4].
         // Hence to convert to floats our multiplier (width of the range) is 4 * 255/128 = 7.96875
         // and zero threshold is 128/255 = 0.50196078431.
-        "half distance = 7.96875*(texColor - 0.50196078431);"
+        "half dist = 7.96875*(texColor - 0.50196078431);"
 
         // We may further adjust the distance for gamma correction.
-        "distance -= half(distanceAdjust);"
+        "dist -= half(distAdjust);"
 
         // After the distance is unpacked, we need to correct it by a factor dependent on the
         // current transformation. For general transforms, to determine the amount of correction
         // we multiply a unit vector pointing along the SDF gradient direction by the Jacobian of
         // unormTexCoords (which is the inverse transform for this fragment) and take the length of
         // the result.
-        "half2 dist_grad = half2(float2(dFdx(distance), dFdy(distance)));"
+        "half2 dist_grad = half2(float2(dFdx(dist), dFdy(dist)));"
             "half dg_len2 = dot(dist_grad, dist_grad);"
 
         // The length of the gradient may be near 0, so we need to check for that. This also
@@ -135,7 +135,7 @@ const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
         // This gives us a smooth step across approximately one fragment.
         "half afwidth = 0.65*length(grad);"
         // TODO: handle aliased and sRGB rendering
-        "half val = smoothstep(-afwidth, afwidth, distance);"
+        "half val = smoothstep(-afwidth, afwidth, dist);"
         "outputCoverage = half4(val);";
 }
 
