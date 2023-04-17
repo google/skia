@@ -251,6 +251,9 @@ void DawnCaps::initShaderCaps() {
     // WGSL does not support infinities regardless of hardware support. There are discussions around
     // enabling it using an extension in the future.
     shaderCaps->fInfinitySupport = false;
+
+    // WGSL supports shader derivatives in the fragment shader
+    shaderCaps->fShaderDerivativeSupport = true;
 }
 
 void DawnCaps::initFormatTable(const wgpu::Device& device) {
