@@ -23,7 +23,11 @@ struct SkGainmapInfo;
  */
 class SK_API SkJpegMetadataDecoder {
 public:
+    SkJpegMetadataDecoder() {}
     virtual ~SkJpegMetadataDecoder() {}
+
+    SkJpegMetadataDecoder(const SkJpegMetadataDecoder&) = delete;
+    SkJpegMetadataDecoder& operator=(const SkJpegMetadataDecoder&) = delete;
 
     /**
      * A segment from a JPEG file. This is usually populated from a jpeg_marker_struct.
