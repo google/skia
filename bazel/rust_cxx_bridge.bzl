@@ -1,7 +1,7 @@
 """
 This file specifies a macro that generates a C++ .h and .cc file
 based on a rust file. It uses the cxx crate [1], specifically the
-cxxbridge executable. This is based off of the example provided [2].
+cxxbridge executable. This is based off of the example provided in [2].
 
 
 [1] https://cxx.rs/build/bazel.html
@@ -11,7 +11,7 @@ cxxbridge executable. This is based off of the example provided [2].
 load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-def rust_cxx_bridge(name, src, deps = []):
+def rust_cxx_bridge(name, src, deps = [], visibility = []):
     out_h = "gen/%s.h" % src
     out_cc = "gen/%s.cc" % src
     run_binary(
@@ -33,6 +33,5 @@ def rust_cxx_bridge(name, src, deps = []):
         srcs = [out_cc],
         hdrs = [out_h],
         deps = deps,
+        visibility = visibility,
     )
-
-#

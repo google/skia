@@ -1,5 +1,5 @@
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_static_library")
-load(":rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 
 rust_binary(
     name = "rust_hello_world",
