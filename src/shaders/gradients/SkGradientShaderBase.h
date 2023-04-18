@@ -120,6 +120,11 @@ protected:
     SkTileMode     fTileMode;
 
 #if defined(SK_GRAPHITE)
+    // When the number of stops exceeds Graphite's uniform-based limit the colors and offsets
+    // are stored in this bitmap. It is stored in the shader so it can be cached with a stable
+    // id and easily regenerated if purged.
+    mutable SkBitmap fColorsAndOffsetsBitmap;
+
     void addToKeyCommon(const skgpu::graphite::KeyContext&,
                         skgpu::graphite::PaintParamsKeyBuilder*,
                         skgpu::graphite::PipelineDataGatherer*,

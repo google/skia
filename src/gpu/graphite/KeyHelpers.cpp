@@ -9,7 +9,6 @@
 
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/base/SkHalf.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDebugUtils.h"
@@ -203,6 +202,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
                                                  int numStops,
                                                  const SkPMColor4f* colors,
                                                  float* offsets,
+                                                 sk_sp<TextureProxy> colorsAndOffsetsProxy,
                                                  const SkGradientShader::Interpolation& interp)
         : fType(type)
         , fBias(bias)
@@ -234,43 +234,8 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
             fOffsets[i] = fOffsets[fNumStops-1];
         }
     } else {
-        fColorsAndOffsetsBitmap.allocPixels(SkImageInfo::Make(fNumStops, 2,
-                                                              kRGBA_F16_SkColorType,
-                                                              kPremul_SkAlphaType));
-
-        for (int i = 0; i < fNumStops; i++) {
-            // TODO: there should be a way to directly set a premul pixel in a bitmap with
-            // a premul color.
-            SkColor4f unpremulColor = colors[i].unpremul();
-            fColorsAndOffsetsBitmap.erase(unpremulColor,
-                                          SkIRect::MakeXYWH(i, 0, 1, 1));
-
-            float offset = offsets ? offsets[i] : SkIntToFloat(i) / (fNumStops-1);
-            SkASSERT(offset >= 0.0f && offset <= 1.0f);
-
-            int exponent;
-            float mantissa = frexp(offset, &exponent);
-
-            SkHalf halfE = SkFloatToHalf(exponent);
-            if ((int) SkHalfToFloat(halfE) != exponent) {
-                SKGPU_LOG_W("Encoding gradient to f16 failed");
-                fValid = false;
-                break;
-            }
-
-#if defined(SK_DEBUG)
-            SkHalf halfM = SkFloatToHalf(mantissa);
-
-            float restored = ldexp(SkHalfToFloat(halfM), (int) SkHalfToFloat(halfE));
-            float error = abs(restored - offset);
-            SkASSERT(error < 0.001f);
-#endif
-
-            // TODO: we're only using 2 of the f16s here. The encoding could be altered to better
-            // preserve precision. This encoding yields < 0.001f error for 2^20 evenly spaced stops.
-            fColorsAndOffsetsBitmap.erase(SkColor4f{mantissa, (float) exponent, 0, 1},
-                                          SkIRect::MakeXYWH(i, 1, 1, 1));
-        }
+        fColorsAndOffsetsProxy = std::move(colorsAndOffsetsProxy);
+        SkASSERT(fColorsAndOffsetsProxy);
     }
 }
 
@@ -280,27 +245,12 @@ void GradientShaderBlocks::BeginBlock(const KeyContext& keyContext,
                                       const GradientData& gradData) {
     auto dict = keyContext.dict();
 
-    if (!gradData.fValid) {
-        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
-        return;
-    }
-
     if (gradData.fNumStops > GradientData::kNumInternalStorageStops && gatherer) {
-        // TODO: for caching to work in this manner we would have to create the cache key by
-        // hashing the bitmap's contents.
-        sk_sp<TextureProxy> proxy =
-                RecorderPriv::CreateCachedProxy(keyContext.recorder(),
-                                                gradData.fColorsAndOffsetsBitmap);
-        if (!proxy) {
-            SKGPU_LOG_W("Couldn't create Texture-based gradient's texture");
-
-            SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
-            return;
-        }
+        SkASSERT(gradData.fColorsAndOffsetsProxy);
 
         static constexpr SkSamplingOptions kNearest(SkFilterMode::kNearest, SkMipmapMode::kNone);
         static constexpr SkTileMode kClampTiling[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
-        gatherer->add(kNearest, kClampTiling, std::move(proxy));
+        gatherer->add(kNearest, kClampTiling, gradData.fColorsAndOffsetsProxy);
     }
 
     BuiltInCodeSnippetID codeSnippetID = BuiltInCodeSnippetID::kSolidColorShader;
