@@ -273,6 +273,8 @@ skia_filegroup(
         "errors/InterfaceBlockReservedName.sksl",
         "errors/InterfaceBlockScope.sksl",
         "errors/InterfaceBlockStorageModifiers.sksl",
+        "errors/InterfaceBlockWithInvalidNestedStruct.sksl",
+        "errors/InterfaceBlockWithInvalidStruct.sksl",
         "errors/InterfaceBlockWithNoMembers.sksl",
         "errors/IntrinsicInGlobalVariable.sksl",
         "errors/InvalidAssignment.rts",

@@ -665,6 +665,7 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
                                            std::string_view name,
                                            std::vector<Field> fields,
                                            bool interfaceBlock) {
+    size_t slots = 0;
     for (const Field& field : fields) {
         if (field.fModifiers.fFlags != Modifiers::kNo_Flag) {
             std::string desc = field.fModifiers.description();
@@ -688,21 +689,25 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
             context.fErrors->error(field.fPosition, "opaque type '" + field.fType->displayName() +
                                                     "' is not permitted in a struct");
         }
+        if (field.fType->isOrContainsUnsizedArray()) {
+            if (!interfaceBlock) {
+                // Reject unsized arrays anywhere in structs.
+                context.fErrors->error(field.fPosition, "unsized arrays are not permitted here");
+            }
+        } else {
+            // If we haven't already exceeded the struct size limit...
+            if (slots < kVariableSlotLimit) {
+                // ... see if this field causes us to exceed the size limit.
+                slots = SkSafeMath::Add(slots, field.fType->slotCount());
+                if (slots >= kVariableSlotLimit) {
+                    context.fErrors->error(pos, "struct is too large");
+                }
+            }
+        }
     }
     for (const Field& field : fields) {
         if (is_too_deeply_nested(field.fType, kMaxStructDepth)) {
             context.fErrors->error(pos, "struct '" + std::string(name) + "' is too deeply nested");
-            break;
-        }
-    }
-    size_t slots = 0;
-    for (const Field& field : fields) {
-        if (field.fType->isUnsizedArray()) {
-            continue;
-        }
-        slots = SkSafeMath::Add(slots, field.fType->slotCount());
-        if (slots >= kVariableSlotLimit) {
-            context.fErrors->error(pos, "struct is too large");
             break;
         }
     }

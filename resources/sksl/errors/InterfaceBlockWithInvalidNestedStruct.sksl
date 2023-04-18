@@ -1,0 +1,16 @@
+struct S {
+    int[] unsizedArray;
+};
+
+struct R {
+    S s;
+};
+
+layout(set = 0, binding = 0) buffer storageBlock {
+    R r;
+};
+
+/*%%*
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+*%%*/

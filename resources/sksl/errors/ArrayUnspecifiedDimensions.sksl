@@ -3,12 +3,16 @@ int arrFloat[1.];
 int arrBool[true];
 
 struct S {
-    int inStruct[];
+    int inStructVariable[];
 };
 S arrOfStruct[];
 
 int unsized_in_expression_a() { return int[](0)[0]; }
 S   unsized_in_expression_b() { return S(int[](0)); }
+
+struct AnotherStruct {
+    int[] inStructType;
+};
 
 void unsized_in_parameter_a(int x[]) {}
 void unsized_in_parameter_b(int[] x) {}
@@ -28,6 +32,7 @@ unsized arrays are not permitted here
 unsized arrays are not permitted here
 missing index in '[]'
 missing index in '[]'
+unsized arrays are not permitted here
 unsized arrays are not permitted here
 unsized arrays are not permitted here
 unsized arrays are not permitted here
