@@ -190,6 +190,7 @@ sksl_error_tests = [
   "/sksl/errors/ProgramTooLarge_Globals.rts",
   "/sksl/errors/ProgramTooLarge_Parameters.rts",
   "/sksl/errors/ProgramTooLarge_Stack.rts",
+  "/sksl/errors/ProgramTooLarge_Struct.rts",
   "/sksl/errors/PrototypeInFuncBody.rts",
   "/sksl/errors/RTAdjustType.sksl",
   "/sksl/errors/ReadonlyWriteonly.compute",

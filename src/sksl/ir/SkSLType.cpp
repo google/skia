@@ -12,6 +12,7 @@
 #include "include/private/SkTFitsIn.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -679,6 +680,17 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
             break;
         }
     }
+    size_t slots = 0;
+    for (const Field& field : fields) {
+        if (field.fType->isUnsizedArray()) {
+            continue;
+        }
+        slots = SkSafeMath::Add(slots, field.fType->slotCount());
+        if (slots >= kVariableSlotLimit) {
+            context.fErrors->error(pos, "struct is too large");
+            break;
+        }
+    }
     return std::make_unique<StructType>(pos, name, std::move(fields), interfaceBlock);
 }
 
@@ -1129,8 +1141,9 @@ bool Type::checkIfUsableInArray(const Context& context, Position arrayPos) const
     return true;
 }
 
-SKSL_INT Type::convertArraySize(const Context& context, Position arrayPos,
-        std::unique_ptr<Expression> size) const {
+SKSL_INT Type::convertArraySize(const Context& context,
+                                Position arrayPos,
+                                std::unique_ptr<Expression> size) const {
     size = context.fTypes.fInt->coerceExpression(std::move(size), context);
     if (!size) {
         return 0;
@@ -1147,7 +1160,7 @@ SKSL_INT Type::convertArraySize(const Context& context, Position arrayPos,
         context.fErrors->error(size->fPosition, "array size must be positive");
         return 0;
     }
-    if (!SkTFitsIn<int32_t>(count)) {
+    if (SkSafeMath::Mul(this->slotCount(), count) > kVariableSlotLimit) {
         context.fErrors->error(size->fPosition, "array size is too large");
         return 0;
     }
