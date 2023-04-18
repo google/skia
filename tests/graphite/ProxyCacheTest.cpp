@@ -129,47 +129,88 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest3, r, context) {
     REPORTER_ASSERT(r, proxyCache->numCached() == 2);
 }
 
-// This test exercises the ProxyCache's freeUniquelyHeld method.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context) {
-    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+namespace {
+
+struct ProxyCacheSetup {
+    bool valid() const {
+        return !fBitmap1.empty() && !fBitmap2.empty() && fProxy1 && fProxy2;
+    }
+
+    SkBitmap fBitmap1;
+    sk_sp<TextureProxy> fProxy1;
+    SkBitmap fBitmap2;
+    sk_sp<TextureProxy> fProxy2;
+
+    skgpu::StdSteadyClock::time_point fTimeBetweenProxyCreation;
+    skgpu::StdSteadyClock::time_point fTimeAfterAllProxyCreation;
+};
+
+ProxyCacheSetup setup_test(Context* context, Recorder* recorder, skiatest::Reporter* r) {
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
-    REPORTER_ASSERT(r, success);
-    if (!success) {
-        return;
+    ProxyCacheSetup setup;
+
+    bool success1 = GetResourceAsBitmap("images/mandrill_32.png", &setup.fBitmap1);
+    bool success2 = GetResourceAsBitmap("images/mandrill_64.png", &setup.fBitmap2);
+    if (!success1 || !success2) {
+        return {};
     }
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
 
-    sk_sp<TextureProxy> nonMipmapped = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                           Mipmapped::kNo);
+    setup.fProxy1 = proxyCache->findOrCreateCachedProxy(recorder, setup.fBitmap1, Mipmapped::kNo);
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
 
-    sk_sp<TextureProxy> mipmapped = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                        Mipmapped::kYes);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-
     {
-        // Ensure the Textures get created and any lingering creation refs are cleaned up
+        // Ensure proxy1's Texture is created (and timestamped) at this time
         auto recording = recorder->snap();
         context->insertRecording({ recording.get() });
         context->submit(SyncToCpu::kYes);
     }
 
-    proxyCache->forceFreeUniquelyHeld();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    setup.fTimeBetweenProxyCreation = skgpu::StdSteadyClock::now();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
+    setup.fProxy2 = proxyCache->findOrCreateCachedProxy(recorder, setup.fBitmap2, Mipmapped::kNo);
     REPORTER_ASSERT(r, proxyCache->numCached() == 2);
 
-    nonMipmapped.reset();
-    proxyCache->forceFreeUniquelyHeld();
+    {
+        // Ensure proxy2's Texture is created (and timestamped) at this time
+        auto recording = recorder->snap();
+        context->insertRecording({ recording.get() });
+        context->submit(SyncToCpu::kYes);
+    }
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    setup.fTimeAfterAllProxyCreation = skgpu::StdSteadyClock::now();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+    return setup;
+}
+
+} // anonymous namespace
+
+// This test exercises the ProxyCache's freeUniquelyHeld method.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ProxyCache* proxyCache = recorder->priv().proxyCache();
+
+    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    REPORTER_ASSERT(r, setup.valid());
+    if (!setup.valid()) {
+        return;
+    }
+
+    proxyCache->forceFreeUniquelyHeld();
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    setup.fProxy1.reset();
+    proxyCache->forceFreeUniquelyHeld();
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
 
-    mipmapped.reset();
+    setup.fProxy2.reset();
     proxyCache->forceFreeUniquelyHeld();
-
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
 }
 
@@ -178,60 +219,27 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5, r, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
-    REPORTER_ASSERT(r, success);
-    if (!success) {
+    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    REPORTER_ASSERT(r, setup.valid());
+    if (!setup.valid()) {
         return;
     }
 
-    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+    REPORTER_ASSERT(r, !setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, !setup.fProxy2->texture()->testingShouldDeleteASAP());
 
-    sk_sp<TextureProxy> proxy1 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                     Mipmapped::kNo);
+    proxyCache->forcePurgeProxiesNotUsedSince(setup.fTimeBetweenProxyCreation);
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
+    REPORTER_ASSERT(r, setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, !setup.fProxy2->texture()->testingShouldDeleteASAP());
 
-    {
-        // Ensure proxy1's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
-    }
-
-    REPORTER_ASSERT(r, !proxy1->texture()->testingShouldDeleteASAP());
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    auto time0 = skgpu::StdSteadyClock::now();
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-
-    sk_sp<TextureProxy> proxy2 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                     Mipmapped::kYes);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-
-    {
-        // Ensure proxy2's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
-    }
-
-    REPORTER_ASSERT(r, !proxy2->texture()->testingShouldDeleteASAP());
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    auto time1 = skgpu::StdSteadyClock::now();
-
-    proxyCache->forcePurgeProxiesNotUsedSince(time0);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-    REPORTER_ASSERT(r, proxy1->texture()->testingShouldDeleteASAP());
-    REPORTER_ASSERT(r, !proxy2->texture()->testingShouldDeleteASAP());
-
-    sk_sp<TextureProxy> test = proxyCache->find(bitmap, Mipmapped::kNo);
+    sk_sp<TextureProxy> test = proxyCache->find(setup.fBitmap1, Mipmapped::kNo);
     REPORTER_ASSERT(r, !test);   // proxy1 should've been purged
 
-    proxyCache->forcePurgeProxiesNotUsedSince(time1);
+    proxyCache->forcePurgeProxiesNotUsedSince(setup.fTimeAfterAllProxyCreation);
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-    REPORTER_ASSERT(r, proxy1->texture()->testingShouldDeleteASAP());
-    REPORTER_ASSERT(r, proxy2->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, setup.fProxy2->texture()->testingShouldDeleteASAP());
 }
 
 // This test simply verifies that the ProxyCache is correctly updating the Resource's
@@ -240,75 +248,40 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6, r, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    SkBitmap bitmap1, bitmap2;
-    bool success1 = GetResourceAsBitmap("images/mandrill_128.png", &bitmap1);
-    bool success2 = GetResourceAsBitmap("images/mandrill_256.png", &bitmap2);
-    REPORTER_ASSERT(r, success1 && success2);
-    if (!success1 || !success2) {
+    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    REPORTER_ASSERT(r, setup.valid());
+    if (!setup.valid()) {
         return;
     }
 
-    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-
-    sk_sp<TextureProxy> proxy1 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap1,
-                                                                     Mipmapped::kNo);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-
-    {
-        // Ensure proxy1's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
-    }
-
-    REPORTER_ASSERT(r, !proxy1->texture()->testingShouldDeleteASAP());
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    auto time0 = skgpu::StdSteadyClock::now();
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-
-    sk_sp<TextureProxy> proxy2 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap2,
-                                                                     Mipmapped::kNo);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-
-    {
-        // Ensure proxy2's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
-    }
-
-    REPORTER_ASSERT(r, !proxy2->texture()->testingShouldDeleteASAP());
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    auto time1 = skgpu::StdSteadyClock::now();
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    REPORTER_ASSERT(r, !setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, !setup.fProxy2->texture()->testingShouldDeleteASAP());
 
     // update proxy1's timestamp
-    sk_sp<TextureProxy> test = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap1,
+    sk_sp<TextureProxy> test = proxyCache->findOrCreateCachedProxy(recorder.get(), setup.fBitmap1,
                                                                    Mipmapped::kNo);
-    REPORTER_ASSERT(r, test == proxy1);
+    REPORTER_ASSERT(r, test == setup.fProxy1);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    auto time2 = skgpu::StdSteadyClock::now();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    auto timeAfterProxy1Update = skgpu::StdSteadyClock::now();
 
-    proxyCache->forcePurgeProxiesNotUsedSince(time0);
+    proxyCache->forcePurgeProxiesNotUsedSince(setup.fTimeBetweenProxyCreation);
     REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-    REPORTER_ASSERT(r, !proxy1->texture()->testingShouldDeleteASAP());
-    REPORTER_ASSERT(r, !proxy2->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, !setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, !setup.fProxy2->texture()->testingShouldDeleteASAP());
 
-    proxyCache->forcePurgeProxiesNotUsedSince(time1);
+    proxyCache->forcePurgeProxiesNotUsedSince(setup.fTimeAfterAllProxyCreation);
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-    REPORTER_ASSERT(r, !proxy1->texture()->testingShouldDeleteASAP());
-    REPORTER_ASSERT(r, proxy2->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, !setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, setup.fProxy2->texture()->testingShouldDeleteASAP());
 
-    test = proxyCache->find(bitmap2, Mipmapped::kNo);
+    test = proxyCache->find(setup.fBitmap2, Mipmapped::kNo);
     REPORTER_ASSERT(r, !test);   // proxy2 should've been purged
 
-    proxyCache->forcePurgeProxiesNotUsedSince(time2);
+    proxyCache->forcePurgeProxiesNotUsedSince(timeAfterProxy1Update);
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-    REPORTER_ASSERT(r, proxy1->texture()->testingShouldDeleteASAP());
-    REPORTER_ASSERT(r, proxy2->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, setup.fProxy2->texture()->testingShouldDeleteASAP());
 }
 
 // Verify that the ProxyCache's purgeProxiesNotUsedSince method can clear out multiple proxies.
@@ -316,47 +289,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7, r, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
-    REPORTER_ASSERT(r, success);
-    if (!success) {
+    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    REPORTER_ASSERT(r, setup.valid());
+    if (!setup.valid()) {
         return;
     }
 
+    REPORTER_ASSERT(r, !setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, !setup.fProxy2->texture()->testingShouldDeleteASAP());
+
+    proxyCache->forcePurgeProxiesNotUsedSince(setup.fTimeAfterAllProxyCreation);
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-
-    sk_sp<TextureProxy> proxy1 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                     Mipmapped::kNo);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-
-    {
-        // Ensure proxy1's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
-    }
-
-    sk_sp<TextureProxy> proxy2 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                     Mipmapped::kYes);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-
-    {
-        // Ensure proxy2's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
-    }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    auto time0 = skgpu::StdSteadyClock::now();
-
-    REPORTER_ASSERT(r, !proxy1->texture()->testingShouldDeleteASAP());
-    REPORTER_ASSERT(r, !proxy2->texture()->testingShouldDeleteASAP());
-
-    proxyCache->forcePurgeProxiesNotUsedSince(time0);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-    REPORTER_ASSERT(r, proxy1->texture()->testingShouldDeleteASAP());
-    REPORTER_ASSERT(r, proxy2->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, setup.fProxy1->texture()->testingShouldDeleteASAP());
+    REPORTER_ASSERT(r, setup.fProxy2->texture()->testingShouldDeleteASAP());
 }
 
 // Verify that the ProxyCache's freeUniquelyHeld behavior is working in the ResourceCache.
@@ -367,58 +312,35 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context) {
 
     resourceCache->setMaxBudget(0);
 
-    SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
-    REPORTER_ASSERT(r, success);
-    if (!success) {
+    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    REPORTER_ASSERT(r, setup.valid());
+    if (!setup.valid()) {
         return;
-    }
-
-    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-
-    sk_sp<TextureProxy> proxy1 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                     Mipmapped::kNo);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-
-    {
-        // Ensure proxy1's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
-    }
-
-    sk_sp<TextureProxy> proxy2 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                     Mipmapped::kYes);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-
-    {
-        // Ensure proxy2's Texture is created (and timestamped) at this time
-        auto recording = recorder->snap();
-        context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
     }
 
     resourceCache->forcePurgeAsNeeded();
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 2);
 
-    proxy1.reset();
+    setup.fProxy1.reset();
     proxyCache->forceProcessInvalidKeyMsgs();
 
-    sk_sp<TextureProxy> test = proxyCache->find(bitmap, Mipmapped::kNo);
+    // unreffing fProxy1 and forcing message processing shouldn't purge proxy1 from the cache
+    sk_sp<TextureProxy> test = proxyCache->find(setup.fBitmap1, Mipmapped::kNo);
     REPORTER_ASSERT(r, test);
     test.reset();
 
     resourceCache->forcePurgeAsNeeded();
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-    test = proxyCache->find(bitmap, Mipmapped::kNo);
+    test = proxyCache->find(setup.fBitmap1, Mipmapped::kNo);
     REPORTER_ASSERT(r, !test);   // proxy1 should've been purged
 
-    proxy2.reset();
+    setup.fProxy2.reset();
     proxyCache->forceProcessInvalidKeyMsgs();
 
-    test = proxyCache->find(bitmap, Mipmapped::kYes);
+    // unreffing fProxy2 and forcing message processing shouldn't purge proxy2 from the cache
+    test = proxyCache->find(setup.fBitmap2, Mipmapped::kNo);
     REPORTER_ASSERT(r, test);
     test.reset();
 
