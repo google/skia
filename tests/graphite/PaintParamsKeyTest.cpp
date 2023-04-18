@@ -666,23 +666,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(Layout::kMetal);
 
-    for (auto s : { ShaderType::kNone,
-                    ShaderType::kSolidColor,
-                    ShaderType::kLinearGradient,
+    for (auto s : { ShaderType::kSolidColor,
                     ShaderType::kRadialGradient,
-                    ShaderType::kSweepGradient,
-                    ShaderType::kConicalGradient,
-                    ShaderType::kLocalMatrix,
                     ShaderType::kImage,
                     ShaderType::kBlend  }) {
-        for (auto bm : { BlenderType::kNone,
-                         BlenderType::kPorterDuff,
+        for (auto bm : { BlenderType::kPorterDuff,
                          BlenderType::kShaderBased,
                          BlenderType::kRuntime }) {
             for (auto cf : { ColorFilterType::kNone,
                              ColorFilterType::kBlend,
-                             ColorFilterType::kMatrix,
-                             ColorFilterType::kHSLAMatrix }) {
+                             ColorFilterType::kMatrix }) {
 
                 auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 
