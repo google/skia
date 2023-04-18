@@ -237,11 +237,18 @@ bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&
     return dispatched;
 }
 
-bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t) const {
+bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t,
+                                            const skjson::ObjectValue* jtext) const {
     bool dispatched = false;
 
     if (fPropertyObserver) {
-        fPropertyObserver->onTextProperty(fPropertyObserverContext,
+        const char * node_name = fPropertyObserverContext;
+        if (jtext) {
+            if (const skjson::StringValue* slotID = (*jtext)["sid"]) {
+                node_name = slotID->begin();
+            }
+        }
+        fPropertyObserver->onTextProperty(node_name,
             [&]() {
                 dispatched = true;
                 return std::make_unique<TextPropertyHandle>(t);

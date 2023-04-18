@@ -294,7 +294,8 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     //                },
     //                "t": 0
     //            }
-    //        ]
+    //        ],
+    //        "sid": "optionalSlotID"
     //    },
     //    "m": { // more options
     //           "g": 1,     // Anchor Point Grouping
@@ -396,8 +397,7 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     };
 
     adapter->fPathInfo = attach_path((*jt)["p"]);
-
-    abuilder->dispatchTextProperty(adapter);
+    abuilder->dispatchTextProperty(adapter, jd);
 
     return adapter;
 }
