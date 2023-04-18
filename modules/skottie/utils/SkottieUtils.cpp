@@ -293,6 +293,16 @@ public:
         }
     }
 
+    void onOpacityProperty(const char node_name[],
+                           const LazyHandle<skottie::OpacityPropertyHandle>& o) override {
+        if (node_name) {
+            const auto it = fOpacityMap.find(node_name);
+            if (it != fOpacityMap.end()) {
+                o()->set(it->second);
+            }
+        }
+    }
+
     void onTextProperty(const char node_name[],
                         const LazyHandle<skottie::TextPropertyHandle>& t) override {
         const auto it = fTextMap.find(node_name);
@@ -303,11 +313,12 @@ public:
         }
     }
 
-    // TODO(jmbetancourt): add support for other PropertyObserver callbacks
+    // TODO(jmbetancourt): add support for onTransformProperty
 private:
     using SlotID = std::string;
 
     std::unordered_map<SlotID, skottie::ColorPropertyValue> fColorMap;
+    std::unordered_map<SlotID, SkScalar>                    fOpacityMap;
     std::unordered_map<SlotID, SkString>                    fTextMap;
 
     friend class SlotManager;
@@ -321,6 +332,10 @@ SlotManager::SlotManager() {
 // TODO: consider having a generic setSlotMethod that is overloaded by PropertyValue type
 void SlotManager::setColorSlot(std::string slotID, SkColor color) {
     fPropertyObserver->fColorMap[slotID] = color;
+}
+
+void SlotManager::setOpacitySlot(std::string slotID, SkScalar opacity) {
+    fPropertyObserver->fOpacityMap[slotID] = opacity;
 }
 
 void SlotManager::setTextStringSlot(std::string slotID, SkString text) {
