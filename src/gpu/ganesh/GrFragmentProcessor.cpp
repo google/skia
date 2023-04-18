@@ -326,7 +326,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
             "return fp.eval(color);"
         "}"
     );
-    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(effect, "OverrideInput", /*inputFP=*/nullptr,
                           color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                            : GrSkSLFP::OptFlags::kNone,

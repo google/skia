@@ -302,9 +302,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
 GrFragmentProcessor::OptimizationFlags GrSkSLFP::DetermineOptimizationFlags(
         OptFlags of, SkRuntimeEffect* effect) {
     OptimizationFlags optFlags = static_cast<OptimizationFlags>(of);
-    if (effect->allowColorFilter() &&
-        effect->children().empty() &&
-        effect->getFilterColorProgram()) {
+    if (SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect)) {
         optFlags |= kConstantOutputForConstantInput_OptimizationFlag;
     }
     return optFlags;
