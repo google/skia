@@ -359,4 +359,72 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7, r, context) {
     REPORTER_ASSERT(r, proxy2->texture()->testingShouldDeleteASAP());
 }
 
+// Verify that the ProxyCache's freeUniquelyHeld behavior is working in the ResourceCache.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceCache* resourceCache = recorder->priv().resourceCache();
+    ProxyCache* proxyCache = recorder->priv().proxyCache();
+
+    resourceCache->setMaxBudget(0);
+
+    SkBitmap bitmap;
+    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+
+    sk_sp<TextureProxy> proxy1 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
+                                                                     Mipmapped::kNo);
+    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
+
+    {
+        // Ensure proxy1's Texture is created (and timestamped) at this time
+        auto recording = recorder->snap();
+        context->insertRecording({ recording.get() });
+        context->submit(SyncToCpu::kYes);
+    }
+
+    sk_sp<TextureProxy> proxy2 = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
+                                                                     Mipmapped::kYes);
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    {
+        // Ensure proxy2's Texture is created (and timestamped) at this time
+        auto recording = recorder->snap();
+        context->insertRecording({ recording.get() });
+        context->submit(SyncToCpu::kYes);
+    }
+
+    resourceCache->forcePurgeAsNeeded();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    proxy1.reset();
+    proxyCache->forceProcessInvalidKeyMsgs();
+
+    sk_sp<TextureProxy> test = proxyCache->find(bitmap, Mipmapped::kNo);
+    REPORTER_ASSERT(r, test);
+    test.reset();
+
+    resourceCache->forcePurgeAsNeeded();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
+    test = proxyCache->find(bitmap, Mipmapped::kNo);
+    REPORTER_ASSERT(r, !test);   // proxy1 should've been purged
+
+    proxy2.reset();
+    proxyCache->forceProcessInvalidKeyMsgs();
+
+    test = proxyCache->find(bitmap, Mipmapped::kYes);
+    REPORTER_ASSERT(r, test);
+    test.reset();
+
+    resourceCache->forcePurgeAsNeeded();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+}
+
 }  // namespace skgpu::graphite
