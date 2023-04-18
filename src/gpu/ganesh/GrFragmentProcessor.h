@@ -274,6 +274,10 @@ public:
         return SkToBool(fFlags & kConstantOutputForConstantInput_OptimizationFlag);
     }
 
+    void clearConstantOutputForConstantInputFlag() {
+        fFlags &= ~kConstantOutputForConstantInput_OptimizationFlag;
+    }
+
     /** Returns true if this and other processor conservatively draw identically. It can only return
         true when the two processor are of the same subclass (i.e. they return the same object from
         from getFactory()).

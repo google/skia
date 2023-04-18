@@ -294,12 +294,19 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
     return fp;
 }
 
+GrFragmentProcessor::OptimizationFlags GrSkSLFP::DetermineOptimizationFlags(
+        OptFlags of, SkRuntimeEffect* effect) {
+    OptimizationFlags optFlags = static_cast<OptimizationFlags>(of);
+    if (effect->allowColorFilter() &&
+        effect->children().empty() &&
+        effect->getFilterColorProgram()) {
+        optFlags |= kConstantOutputForConstantInput_OptimizationFlag;
+    }
+    return optFlags;
+}
+
 GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, OptFlags optFlags)
-        : INHERITED(kGrSkSLFP_ClassID,
-                    static_cast<OptimizationFlags>(optFlags) |
-                            (effect->getFilterColorProgram()
-                                     ? kConstantOutputForConstantInput_OptimizationFlag
-                                     : kNone_OptimizationFlags))
+        : INHERITED(kGrSkSLFP_ClassID, DetermineOptimizationFlags(optFlags, effect.get()))
         , fEffect(std::move(effect))
         , fName(name)
         , fUniformSize(SkToU32(fEffect->uniformSize())) {
@@ -333,6 +340,7 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOp
     if (mergeOptFlags) {
         this->mergeOptimizationFlags(ProcessorOptimizationFlags(child.get()));
     }
+    this->clearConstantOutputForConstantInputFlag();
     this->registerChild(std::move(child), fEffect->fSampleUsages[childIndex]);
 }
 
@@ -426,7 +434,8 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
     SkASSERT(program);
 
     auto evalChild = [&](int index, SkPMColor4f color) {
-        return ConstantOutputForConstantInput(this->childProcessor(index), color);
+        SkDEBUGFAIL("constant-output-for-constant-input unsupported when child shaders present");
+        return inputColor;
     };
 
     SkPMColor4f color = (fInputChildIndex >= 0)

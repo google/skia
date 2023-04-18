@@ -175,6 +175,8 @@ private:
     GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, OptFlags optFlags);
     GrSkSLFP(const GrSkSLFP& other);
 
+    static OptimizationFlags DetermineOptimizationFlags(OptFlags of, SkRuntimeEffect* effect);
+
     void addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOptFlags);
     void setInput(std::unique_ptr<GrFragmentProcessor> input);
     void setDestColorFP(std::unique_ptr<GrFragmentProcessor> destColorFP);
