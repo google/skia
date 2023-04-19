@@ -15,9 +15,18 @@
 #include <memory>
 #include <vector>
 
-#ifdef SK_ENABLE_SKSL
-
 class SkRuntimeEffect;
+
+#if defined(SK_ENABLE_SKSL)
+#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+
+// SkRP does not use SkFilterColorProgram; this stub implementation can be removed post-SkVM.
+class SkFilterColorProgram {
+public:
+    static std::unique_ptr<SkFilterColorProgram> Make(const SkRuntimeEffect*) { return nullptr; }
+};
+
+#else  // !defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
 
 /**
  * Runtime effects are often long lived & cached. Individual color filters or FPs created from them
@@ -61,6 +70,6 @@ private:
     std::vector<SampleCall> fSampleCalls;
 };
 
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 #endif  // SK_ENABLE_SKSL
-
 #endif  // SkFilterColorProgram_DEFINED

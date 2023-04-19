@@ -147,6 +147,10 @@ sk_sp<const SkData> SkRuntimeEffectPriv::TransformUniforms(
         SkSpan<const SkRuntimeEffect::Uniform> uniforms,
         sk_sp<const SkData> originalData,
         const SkColorSpace* dstCS) {
+    if (!dstCS) {
+        // There's no destination color-space; we can early-out immediately.
+        return originalData;
+    }
     SkColorSpaceXformSteps steps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                                  dstCS,               kUnpremul_SkAlphaType);
     return TransformUniforms(uniforms, std::move(originalData), steps);
@@ -1115,39 +1119,43 @@ public:
     }
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
+#if !defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
         // Get the generic program for filtering a single color
-        const SkFilterColorProgram* program = fEffect->getFilterColorProgram();
-        if (!program) {
-            // We were unable to build a cached (per-effect) program. Use the base-class fallback,
-            // which builds a program for the specific filter instance.
-            return SkColorFilterBase::onFilterColor4f(color, dstCS);
+        if (const SkFilterColorProgram* program = fEffect->getFilterColorProgram()) {
+            // Get our specific uniform values
+            sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(
+                    fEffect->uniforms(),
+                    fUniforms,
+                    dstCS);
+            SkASSERT(inputs);
+
+            auto evalChild = [&](int index, SkPMColor4f inColor) {
+                const auto& child = fChildren[index];
+
+                // SkFilterColorProgram::Make has guaranteed that any children will be color filters.
+                SkASSERT(!child.shader());
+                SkASSERT(!child.blender());
+                if (SkColorFilter* colorFilter = child.colorFilter()) {
+                    return as_CFB(colorFilter)->onFilterColor4f(inColor, dstCS);
+                }
+                return inColor;
+            };
+
+            return program->eval(color, inputs->data(), evalChild);
         }
-
-        // Get our specific uniform values
-        sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(
-                fEffect->uniforms(),
-                fUniforms,
-                dstCS);
-        SkASSERT(inputs);
-
-        auto evalChild = [&](int index, SkPMColor4f inColor) {
-            const auto& child = fChildren[index];
-
-            // SkFilterColorProgram::Make has guaranteed that any children will be color filters.
-            SkASSERT(!child.shader());
-            SkASSERT(!child.blender());
-            if (SkColorFilter* colorFilter = child.colorFilter()) {
-                return as_CFB(colorFilter)->onFilterColor4f(inColor, dstCS);
-            }
-            return inColor;
-        };
-
-        return program->eval(color, inputs->data(), evalChild);
+#endif
+        // We were unable to build a cached (per-effect) program. Use the base-class fallback,
+        // which builds a program for the specific filter instance.
+        return SkColorFilterBase::onFilterColor4f(color, dstCS);
     }
 
     bool onIsAlphaUnchanged() const override {
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        return fEffect->isAlphaUnchanged();
+#else
         return fEffect->getFilterColorProgram() &&
                fEffect->isAlphaUnchanged();
+#endif
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

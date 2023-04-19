@@ -50,7 +50,11 @@ public:
         if (!effect->allowColorFilter() || !effect->children().empty()) {
             return false;
         }
+#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+        return true;
+#else
         return effect->getFilterColorProgram();
+#endif
     }
 
     static uint32_t Hash(const SkRuntimeEffect& effect) {
