@@ -546,13 +546,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fSupportsDiscardableMSAAForDMSAA = false;
     }
 
-    // On Mali G series GPUs, applying transfer functions in the fragment shader with half-floats
-    // produces answers that are much less accurate than expected/required. This forces full floats
-    // for some intermediate values to get acceptable results.
-    if (kARM_VkVendor == properties.vendorID) {
-        fShaderCaps->fColorSpaceMathNeedsFloat = true;
-    }
-
     // On the Mali G76 and T880, the Perlin noise code needs to aggressively snap to multiples
     // of 1/255 to avoid artifacts in the double table lookup.
     if (kARM_VkVendor == properties.vendorID) {
