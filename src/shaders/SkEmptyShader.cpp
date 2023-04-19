@@ -27,6 +27,7 @@ protected:
 
     bool appendStages(const SkStageRec&, const MatrixRec&) const override { return false; }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord,
                         skvm::Coord,
@@ -35,6 +36,7 @@ protected:
                         const SkColorInfo&,
                         skvm::Uniforms*,
                         SkArenaAlloc*) const override;
+#endif
 
 private:
     friend void ::SkRegisterEmptyShaderFlattenable();
@@ -43,6 +45,7 @@ private:
     using INHERITED = SkShaderBase;
 };
 
+#if defined(SK_ENABLE_SKVM)
 skvm::Color SkEmptyShader::program(skvm::Builder*,
                                    skvm::Coord,
                                    skvm::Coord,
@@ -53,6 +56,7 @@ skvm::Color SkEmptyShader::program(skvm::Builder*,
                                    SkArenaAlloc*) const {
     return {};  // signal failure
 }
+#endif
 
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
     return SkShaders::Empty();

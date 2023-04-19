@@ -438,7 +438,7 @@ static void write_child_effects(SkWriteBuffer& buffer,
     }
 }
 
-#ifndef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+#ifdef SK_ENABLE_SKVM
 static std::vector<skvm::Val> make_skvm_uniforms(skvm::Builder* p,
                                                  skvm::Uniforms* uniforms,
                                                  size_t inputSize,
@@ -952,6 +952,7 @@ public:
             , fColorInfo(colorInfo) {}
 
     skvm::Color sampleShader(int ix, skvm::Coord coord) override {
+#if defined(SK_ENABLE_SKVM)
         // We haven't tracked device coords and the runtime effect could have arbitrarily
         // manipulated the passed coords. We should be in a state where any pending matrix was
         // already applied before the runtime effect's code could have manipulated the coords
@@ -968,6 +969,7 @@ public:
                                           fUniforms,
                                           fAlloc);
         }
+#endif
         return fInColor;
     }
 
@@ -1091,9 +1093,7 @@ public:
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           const SkColorInfo& colorInfo,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-        return {};
-#else
+#ifdef SK_ENABLE_SKVM
         SkASSERT(SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(),
                                               fEffect.get()));
 
@@ -1115,6 +1115,8 @@ public:
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p,/*debugTrace=*/nullptr,
                                    SkSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
                                    c, c, &callbacks);
+#else
+        return {};
 #endif
     }
 
@@ -1315,6 +1317,7 @@ public:
         return false;
     }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder* p,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -1323,9 +1326,6 @@ public:
                         const SkColorInfo& colorInfo,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc* alloc) const override {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-        return {};
-#else
         if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
             return {};
         }
@@ -1357,8 +1357,8 @@ public:
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, fDebugTrace.get(),
                                    SkSpan(uniform), device, local, paint, paint, &callbacks);
-#endif
     }
+#endif
 
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
@@ -1475,9 +1475,7 @@ public:
     skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
                           SkArenaAlloc* alloc) const override {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-        return {};
-#else
+#ifdef SK_ENABLE_SKVM
         if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
             return {};
         }
@@ -1498,6 +1496,8 @@ public:
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p,/*debugTrace=*/nullptr,
                                    SkSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
                                    src, dst, &callbacks);
+#else
+        return {};
 #endif
     }
 

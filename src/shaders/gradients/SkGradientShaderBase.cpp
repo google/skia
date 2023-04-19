@@ -485,6 +485,7 @@ bool SkGradientShaderBase::appendStages(const SkStageRec& rec, const MatrixRec& 
     return true;
 }
 
+#if defined(SK_ENABLE_SKVM)
 // Color conversion functions used in gradient interpolation, based on
 // https://www.w3.org/TR/css-color-4/#color-conversion-code
 static skvm::Color css_lab_to_xyz(skvm::Color lab) {
@@ -804,6 +805,7 @@ skvm::Color SkGradientShaderBase::program(skvm::Builder* p,
         pun_to_F32(mask & pun_to_I32(color.a)),
     };
 }
+#endif  // defined(SK_ENABLE_SKVM)
 
 bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque && (this->getTileMode() != SkTileMode::kDecal);

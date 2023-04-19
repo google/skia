@@ -14,6 +14,7 @@ SkTransformShader::SkTransformShader(const SkShaderBase& shader, bool allowPersp
     SkMatrix::I().get9(fMatrixStorage);
 }
 
+#if defined(SK_ENABLE_SKVM)
 skvm::Color SkTransformShader::program(skvm::Builder* b,
                                        skvm::Coord device,
                                        skvm::Coord local,
@@ -60,6 +61,7 @@ skvm::Color SkTransformShader::program(skvm::Builder* b,
     skvm::Coord newLocal = {x, y};
     return fShader.program(b, device, newLocal, color, *childMRec, dst, uniforms, alloc);
 }
+#endif
 
 bool SkTransformShader::update(const SkMatrix& matrix) {
     if (SkMatrix inv; matrix.invert(&inv)) {
