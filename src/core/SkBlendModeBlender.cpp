@@ -68,6 +68,8 @@ sk_sp<SkBlender> SkBlender::Mode(SkBlendMode mode) {
 }
 
 #if defined(SK_GRAPHITE)
+#include "src/gpu/Blend.h"
+
 void SkBlendModeBlender::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {

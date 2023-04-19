@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_ContextUtils_DEFINED
 #define skgpu_graphite_ContextUtils_DEFINED
 
+#include "src/gpu/Blend.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 
@@ -27,6 +28,7 @@ class PipelineDataGatherer;
 class Recorder;
 class RenderStep;
 class RuntimeEffectDictionary;
+class ShaderNode;
 class UniquePaintParamsID;
 
 struct ResourceBindingRequirements;
@@ -71,7 +73,7 @@ FragSkSLInfo GetSkSLFS(const ResourceBindingRequirements&,
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
                                     const Layout layout,
-                                    const std::vector<PaintParamsKey::BlockReader>&);
+                                    SkSpan<const ShaderNode*> nodes);
 std::string EmitRenderStepUniforms(int bufferID,
                                    const char* name,
                                    const Layout layout,
@@ -79,12 +81,12 @@ std::string EmitRenderStepUniforms(int bufferID,
 std::string EmitPaintParamsStorageBuffer(int bufferID,
                                          const char* bufferTypePrefix,
                                          const char* bufferNamePrefix,
-                                         const std::vector<PaintParamsKey::BlockReader>& readers);
+                                         SkSpan<const ShaderNode*> nodes);
 std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
                                     const char* ssboIndex,
                                     const char* uniformName);
 std::string EmitTexturesAndSamplers(const ResourceBindingRequirements&,
-                                    const std::vector<PaintParamsKey::BlockReader>&,
+                                    SkSpan<const ShaderNode*> nodes,
                                     int* binding);
 std::string EmitSamplerLayout(const ResourceBindingRequirements&, int* binding);
 std::string EmitVaryings(const RenderStep* step,

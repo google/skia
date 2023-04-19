@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/FactoryFunctions.h"
 
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"

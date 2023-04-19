@@ -407,6 +407,9 @@ SkImageShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) 
 #endif
 
 #if defined(SK_GRAPHITE)
+
+#include "src/gpu/Blend.h"
+
 void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
                              skgpu::graphite::PipelineDataGatherer* gatherer) const {

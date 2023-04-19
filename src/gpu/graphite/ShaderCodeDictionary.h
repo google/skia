@@ -18,6 +18,7 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Uniform.h"
@@ -29,9 +30,6 @@
 #include <memory>
 #include <string>
 #include <string_view>
-
-// TODO: Remove once BlockReader is not a thing
-#include <vector>
 
 class SkRuntimeEffect;
 
@@ -65,20 +63,22 @@ enum class SnippetRequirementFlags : uint32_t {
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
-struct ShaderSnippet {
-    using GeneratePreambleForSnippetFn = void (*)(const ShaderInfo& shaderInfo,
-                                                  int* entryIndex,
-                                                  const PaintParamsKey::BlockReader&,
-                                                  std::string* preamble);
+class ShaderInfo;
+class ShaderNode;
 
+// ShaderSnippets define the "ABI" of a SkSL module function and its required uniform data, as
+// well as functions for generating the invoking SkSL. Snippets are composed into an effect tree
+// using ShaderNodes.
+struct ShaderSnippet {
+    using GeneratePreambleForSnippetFn = std::string (*)(const ShaderInfo& shaderInfo,
+                                                         const ShaderNode*);
     struct Args {
-        std::string_view fPriorStageOutput;
-        std::string_view fBlenderDstColor;
-        std::string_view fFragCoord;
+        std::string fPriorStageOutput;
+        std::string fBlenderDstColor;
+        std::string fFragCoord;
     };
     using GenerateExpressionForSnippetFn = std::string (*)(const ShaderInfo& shaderInfo,
-                                                           int entryIndex,
-                                                           const PaintParamsKey::BlockReader&,
+                                                           const ShaderNode*,
                                                            const Args& args);
 
     ShaderSnippet() = default;
@@ -100,11 +100,6 @@ struct ShaderSnippet {
         , fPreambleGenerator(preambleGenerator)
         , fNumChildren(numChildren) {}
 
-    std::string getMangledUniformName(const ShaderInfo& shaderInfo,
-                                      int uniformIdx,
-                                      int mangleId) const;
-    std::string getMangledSamplerName(int samplerIdx, int mangleId) const;
-
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
     }
@@ -125,62 +120,99 @@ struct ShaderSnippet {
     int fNumChildren = 0;
 };
 
-// This is just a simple collection object that gathers together all the information needed
-// for program creation and its invocation.
+// ShaderNodes organize snippets into an effect tree, and provide random access to the dynamically
+// bound child snippets. Each node has a fixed number of children defined by its code ID
+// (either a BuiltInCodeSnippetID or a runtime effect's assigned ID). All children are non-null.
+// A ShaderNode tree represents a decompressed PaintParamsKey.
+class ShaderNode {
+public:
+    // ShaderNodes should be created in conjunction with an SkArenaAlloc that owns all nodes.
+    ShaderNode(const ShaderSnippet* snippet,
+               SkSpan<const ShaderNode*> children,
+               int codeID,
+               int keyIndex)
+            : fEntry(snippet)
+            , fChildren(children)
+            , fCodeID(codeID)
+            , fKeyIndex(keyIndex)
+            , fRequiredFlags(snippet->fSnippetRequirementFlags) {
+        SkASSERT(children.size() == (size_t) fEntry->fNumChildren);
+        // TODO: RuntimeEffects can actually mask off requirements if they invoke a child with
+        // explicit arguments.
+        for (const ShaderNode* child : children) {
+            fRequiredFlags |= child->requiredFlags();
+        }
+    }
+
+    int32_t codeSnippetId() const { return fCodeID; }
+    int32_t keyIndex() const { return fKeyIndex; }
+    const ShaderSnippet* entry() const { return fEntry; }
+
+    SkEnumBitMask<SnippetRequirementFlags> requiredFlags() const { return fRequiredFlags; }
+
+    int numChildren() const { return fEntry->fNumChildren; }
+    SkSpan<const ShaderNode*> children() const { return fChildren; }
+    const ShaderNode* child(int childIndex) const { return fChildren[childIndex]; }
+
+private:
+    const ShaderSnippet* fEntry; // Owned by the ShaderCodeDictionary
+    SkSpan<const ShaderNode*> fChildren; // Owned by the ShaderInfo's arena
+
+    int32_t fCodeID;
+    int32_t fKeyIndex; // index back to PaintParamsKey, unique across nodes within a ShaderInfo
+
+    SkEnumBitMask<SnippetRequirementFlags> fRequiredFlags;
+};
+
+// ShaderInfo holds all root ShaderNodes defined for a PaintParams as well as the extracted fixed
+// function blending parameters and other aggregate requirements for the effect trees that have
+// been linked into a single fragment program (sans any RenderStep fragment work and fixed SkSL
+// logic required for all rendering in Graphite).
 class ShaderInfo {
 public:
-    ShaderInfo(const RuntimeEffectDictionary* rteDict = nullptr,
-               const char* ssboIndex = nullptr)
-            : fRuntimeEffectDictionary(rteDict)
-            , fSsboIndex(ssboIndex) {}
-    ~ShaderInfo() = default;
-    ShaderInfo(ShaderInfo&&) = default;
-    ShaderInfo& operator=(ShaderInfo&&) = default;
-    ShaderInfo(const ShaderInfo&) = delete;
-    ShaderInfo& operator=(const ShaderInfo&) = delete;
+    ShaderInfo(UniquePaintParamsID id,
+               const ShaderCodeDictionary* dict,
+               const RuntimeEffectDictionary* rteDict,
+               const char* ssboIndex);
 
-    void add(const PaintParamsKey::BlockReader& reader) {
-        fBlockReaders.push_back(reader);
-    }
-    void addFlags(SkEnumBitMask<SnippetRequirementFlags> flags) {
-        fSnippetRequirementFlags |= flags;
-    }
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
     }
-    const PaintParamsKey::BlockReader& blockReader(int index) const {
-        return fBlockReaders[index];
-    }
+
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRuntimeEffectDictionary;
     }
     const char* ssboIndex() const { return fSsboIndex; }
 
-    void setBlendInfo(const skgpu::BlendInfo& blendInfo) {
-        fBlendInfo = blendInfo;
-    }
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
     std::string toSkSL(const ResourceBindingRequirements& bindingReqs,
                        const RenderStep* step,
                        const bool useStorageBuffers,
-                       const bool defineLocalCoordsVarying,
                        int* numTexturesAndSamplersUsed,
                        Swizzle writeSwizzle) const;
 
 private:
-    std::vector<PaintParamsKey::BlockReader> fBlockReaders;
+    // All shader nodes and arrays of children pointers are held in this arena
+    SkArenaAlloc fShaderNodeAlloc{256};
 
-    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags{SnippetRequirementFlags::kNone};
-    const RuntimeEffectDictionary* fRuntimeEffectDictionary = nullptr;
-
+    const RuntimeEffectDictionary* fRuntimeEffectDictionary;
     const char* fSsboIndex;
 
-    // The blendInfo doesn't actually contribute to the program's creation but, it contains the
-    // matching fixed-function settings that the program's caller needs to set up.
+    // De-compressed shader tree from a PaintParamsKey with accumulated blend info and requirements.
+    // The blendInfo doesn't contribute to the program's SkSL but contains the fixed-function state
+    // required to function correctly, which the program's caller is responsible for configuring.
+    // TODO: There should really only be one root node representing the final blend, which has a
+    // child defining how the src color is calculated.
+    SkSpan<const ShaderNode*> fRootNodes;
     skgpu::BlendInfo fBlendInfo;
+    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
 };
 
+// ShaderCodeDictionary is a thread-safe dictionary of ShaderSnippets to code IDs for use with
+// creating PaintParamKeys, as well as assigning unique IDs to each encountered PaintParamKey.
+// It defines ShaderSnippets for every BuiltInCodeSnippetID and maintains records for IDs per
+// SkRuntimeEffect, including de-duplicating equivalent SkRuntimeEffect objects.
 class ShaderCodeDictionary {
 public:
     ShaderCodeDictionary();
@@ -202,8 +234,6 @@ public:
     const ShaderSnippet* getEntry(BuiltInCodeSnippetID codeSnippetID) const {
         return this->getEntry(SkTo<int>(codeSnippetID));
     }
-
-    void getShaderInfo(UniquePaintParamsID, ShaderInfo*) const;
 
     int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect);
 

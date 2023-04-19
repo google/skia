@@ -8,24 +8,22 @@
 #ifndef skgpu_graphite_PaintParamsKey_DEFINED
 #define skgpu_graphite_PaintParamsKey_DEFINED
 
-#include "include/core/SkColor.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
 #include "include/private/base/SkMacros.h"
-#include "include/private/base/SkTDArray.h"
-#include "src/gpu/Blend.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 
 #include <limits>
+#include <cstring> // for memcmp
 
 class SkArenaAlloc;
 
 namespace skgpu::graphite {
 
 class ShaderCodeDictionary;
-class ShaderInfo;
-struct ShaderSnippet;
+class ShaderNode;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of nodes where each node consists of:
@@ -52,41 +50,13 @@ public:
     // than the returned key.
     PaintParamsKey clone(SkArenaAlloc*) const;
 
-    // TODO: Remove in favor of arena-allocated node tree that can be created from the key, vs.
-    // the current lightweight, index-based view of the key (which complicates SkSL generation).
-    class BlockReader {
-    public:
-        // Returns the combined size of the node's ID and all children.
-        int blockSize() const { return SkTo<int>(fBlock.size()); }
-
-        int numChildren() const;
-
-        // Returns the code-snippet ID of this block.
-        int32_t codeSnippetId() const { return fBlock[0]; }
-
-        // Return the childIndex-th child's BlockReader
-        BlockReader child(const ShaderCodeDictionary*, int childIndex) const;
-
-        const ShaderSnippet* entry() const { return fEntry; }
-
-#ifdef SK_DEBUG
-        void dump(const ShaderCodeDictionary*, int indent) const;
-#endif
-
-    private:
-        friend class PaintParamsKey; // for ctor
-
-        BlockReader(const ShaderCodeDictionary*,
-                    SkSpan<const int32_t> parentSpan,
-                    int offsetInParent);
-
-        SkSpan<const int32_t> fBlock;
-        const ShaderSnippet* fEntry;
-    };
-
-    BlockReader reader(const ShaderCodeDictionary*, int headerOffset) const;
-
-    void toShaderInfo(const ShaderCodeDictionary*, ShaderInfo*) const;
+    // Converts the key into a forest of ShaderNode trees. If the key is valid this will return at
+    // least one root node. If the key contains unknown shader snippet IDs, returns an empty span.
+    // All shader nodes, and the returned span's backing data, are owned by the provided arena.
+    // TODO: Strengthen PaintParams key generation so we can assume there's only ever one root node
+    // representing the final blend (either a shader blend (with 2 children: main effect & dst) or
+    // a fixed function blend (with 1 child being the main effect)).
+    SkSpan<const ShaderNode*> getRootNodes(const ShaderCodeDictionary*, SkArenaAlloc*) const;
 
 #ifdef SK_DEBUG
     void dump(const ShaderCodeDictionary*) const;
@@ -108,6 +78,13 @@ private:
     friend class PaintParamsKeyBuilder;   // for the parented-data ctor
 
     constexpr PaintParamsKey(SkSpan<const int32_t> span) : fData(span) {}
+
+    // Returns null if the node or any of its children have an invalid snippet ID. Recursively
+    // creates a node and all of its children, incrementing 'currentIndex' by the total number of
+    // nodes created.
+    const ShaderNode* createNode(const ShaderCodeDictionary*,
+                                 int* currentIndex,
+                                 SkArenaAlloc* arena) const;
 
     // The memory referenced in 'fData' is always owned by someone else. It either shares the span
     // of from the Builder, or clone() puts the span in an arena.
@@ -175,7 +152,7 @@ private:
 
     // The data array uses clear() on unlock so that it's underlying storage and repeated use of the
     // builder will hit a high-water mark and avoid lots of allocations when recording draws.
-    SkTDArray<int32_t> fData;
+    skia_private::TArray<int32_t> fData;
 
 #ifdef SK_DEBUG
     void pushStack(int32_t codeSnippetID);
@@ -189,7 +166,7 @@ private:
     };
 
     const ShaderCodeDictionary* fDict;
-    SkTDArray<StackFrame> fStack;
+    skia_private::TArray<StackFrame> fStack;
     bool fLocked = false;
 #endif
 };
