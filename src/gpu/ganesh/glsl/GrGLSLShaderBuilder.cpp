@@ -136,6 +136,16 @@ void GrGLSLShaderBuilder::appendInputLoad(SamplerHandle samplerHandle) {
     this->codeAppend(load.c_str());
 }
 
+#if defined(SK_LEGACY_HALF_PRECISION_COLOR_SPACE_MATH)
+    #define SCALAR_VAR_TYPE SkSLType::kHalf
+    #define VEC_VAR_TYPE    SkSLType::kHalf4
+    #define SKSL_TYPE_STR   "half"
+#else
+    #define SCALAR_VAR_TYPE SkSLType::kFloat
+    #define VEC_VAR_TYPE    SkSLType::kFloat4
+    #define SKSL_TYPE_STR   "float"
+#endif
+
 void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                                                 const char* srcColor,
                                                 GrGLSLColorSpaceXformHelper* colorXformHelper) {
@@ -152,19 +162,19 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform,
                           skcms_TFType tfType) {
-        const GrShaderVar gTFArgs[] = { GrShaderVar("x", SkSLType::kHalf) };
+        const GrShaderVar gTFArgs[] = { GrShaderVar("x", SCALAR_VAR_TYPE) };
         const char* coeffs = uniformHandler->getUniformCStr(uniform);
         SkString body;
         // Temporaries to make evaluation line readable. We always use the sRGBish names, so the
         // PQ and HLG math is confusing.
-        body.appendf("half G = %s[0];", coeffs);
-        body.appendf("half A = %s[1];", coeffs);
-        body.appendf("half B = %s[2];", coeffs);
-        body.appendf("half C = %s[3];", coeffs);
-        body.appendf("half D = %s[4];", coeffs);
-        body.appendf("half E = %s[5];", coeffs);
-        body.appendf("half F = %s[6];", coeffs);
-        body.append("half s = sign(x);");
+        body.appendf(SKSL_TYPE_STR " G = %s[0];", coeffs);
+        body.appendf(SKSL_TYPE_STR " A = %s[1];", coeffs);
+        body.appendf(SKSL_TYPE_STR " B = %s[2];", coeffs);
+        body.appendf(SKSL_TYPE_STR " C = %s[3];", coeffs);
+        body.appendf(SKSL_TYPE_STR " D = %s[4];", coeffs);
+        body.appendf(SKSL_TYPE_STR " E = %s[5];", coeffs);
+        body.appendf(SKSL_TYPE_STR " F = %s[6];", coeffs);
+        body.append(SKSL_TYPE_STR " s = sign(x);");
         body.append("x = abs(x);");
         switch (tfType) {
             case skcms_TFType_sRGBish:
@@ -185,7 +195,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         }
         body.append("return s * x;");
         SkString funcName = this->getMangledFunctionName(name);
-        this->emitFunction(SkSLType::kHalf, funcName.c_str(), {gTFArgs, std::size(gTFArgs)},
+        this->emitFunction(SCALAR_VAR_TYPE, funcName.c_str(), {gTFArgs, std::size(gTFArgs)},
                            body.c_str());
         return funcName;
     };
@@ -204,13 +214,13 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     SkString gamutXformFuncName;
     if (colorXformHelper->applyGamutXform()) {
-        const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", SkSLType::kHalf4) };
+        const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", VEC_VAR_TYPE) };
         const char* xform = uniformHandler->getUniformCStr(colorXformHelper->gamutXformUniform());
         SkString body;
         body.appendf("color.rgb = (%s * color.rgb);", xform);
         body.append("return color;");
         gamutXformFuncName = this->getMangledFunctionName("gamut_xform");
-        this->emitFunction(SkSLType::kHalf4, gamutXformFuncName.c_str(),
+        this->emitFunction(VEC_VAR_TYPE, gamutXformFuncName.c_str(),
                            {gGamutXformArgs, std::size(gGamutXformArgs)}, body.c_str());
     }
 
@@ -221,13 +231,18 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         // (Mali G series) only require us to promote the type of a few temporaries here --
         // the helper functions above can always be written to use half.
         bool useFloat = fProgramBuilder->shaderCaps()->fColorSpaceMathNeedsFloat;
+#if !defined(SK_LEGACY_HALF_PRECISION_COLOR_SPACE_MATH)
+        useFloat = true;
+#endif
 
         const GrShaderVar gColorXformArgs[] = {
                 GrShaderVar("color", useFloat ? SkSLType::kFloat4 : SkSLType::kHalf4)};
+
         SkString body;
         if (colorXformHelper->applyUnpremul()) {
             body.append("color = unpremul(color);");
         }
+#if defined(SK_LEGACY_HALF_PRECISION_COLOR_SPACE_MATH)
         if (colorXformHelper->applySrcTF()) {
             body.appendf("color.r = %s(half(color.r));", srcTFFuncName.c_str());
             body.appendf("color.g = %s(half(color.g));", srcTFFuncName.c_str());
@@ -241,6 +256,21 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
             body.appendf("color.g = %s(half(color.g));", dstTFFuncName.c_str());
             body.appendf("color.b = %s(half(color.b));", dstTFFuncName.c_str());
         }
+#else
+        if (colorXformHelper->applySrcTF()) {
+            body.appendf("color.r = %s(color.r);", srcTFFuncName.c_str());
+            body.appendf("color.g = %s(color.g);", srcTFFuncName.c_str());
+            body.appendf("color.b = %s(color.b);", srcTFFuncName.c_str());
+        }
+        if (colorXformHelper->applyGamutXform()) {
+            body.appendf("color = %s(color);", gamutXformFuncName.c_str());
+        }
+        if (colorXformHelper->applyDstTF()) {
+            body.appendf("color.r = %s(color.r);", dstTFFuncName.c_str());
+            body.appendf("color.g = %s(color.g);", dstTFFuncName.c_str());
+            body.appendf("color.b = %s(color.b);", dstTFFuncName.c_str());
+        }
+#endif
         if (colorXformHelper->applyPremul()) {
             body.append("color.rgb *= color.a;");
         }
@@ -251,6 +281,10 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         out->appendf("%s(%s)", colorXformFuncName.c_str(), srcColor);
     }
 }
+
+#undef SCALAR_VAR_TYPE
+#undef VEC_VAR_TYPE
+#undef SKSL_TYPE_STR
 
 void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
                                                 GrGLSLColorSpaceXformHelper* colorXformHelper) {
