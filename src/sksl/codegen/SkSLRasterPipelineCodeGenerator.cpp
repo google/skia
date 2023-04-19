@@ -2571,57 +2571,71 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
     if (!this->pushExpression(inner)) {
         return unsupported();
     }
-    if (inner.type().componentType().numberKind() == c.type().componentType().numberKind()) {
+    const Type::NumberKind innerKind = inner.type().componentType().numberKind();
+    const Type::NumberKind outerKind = c.type().componentType().numberKind();
+
+    if (innerKind == outerKind) {
         // Since we ignore type precision, this cast is effectively a no-op.
         return true;
     }
-    if (inner.type().componentType().isSigned() && c.type().componentType().isUnsigned()) {
-        // Treat uint(int) as a no-op.
-        return true;
-    }
-    if (inner.type().componentType().isUnsigned() && c.type().componentType().isSigned()) {
-        // Treat int(uint) as a no-op.
-        return true;
+
+    switch (innerKind) {
+        case Type::NumberKind::kSigned:
+            if (outerKind == Type::NumberKind::kUnsigned) {
+                // Treat uint(int) as a no-op.
+                return true;
+            }
+            if (outerKind == Type::NumberKind::kFloat) {
+                fBuilder.unary_op(BuilderOp::cast_to_float_from_int, c.type().slotCount());
+                return true;
+            }
+            break;
+
+        case Type::NumberKind::kUnsigned:
+            if (outerKind == Type::NumberKind::kSigned) {
+                // Treat int(uint) as a no-op.
+                return true;
+            }
+            if (outerKind == Type::NumberKind::kFloat) {
+                fBuilder.unary_op(BuilderOp::cast_to_float_from_uint, c.type().slotCount());
+                return true;
+            }
+            break;
+
+        case Type::NumberKind::kBoolean:
+            // Converting boolean to int or float can be accomplished via bitwise-and.
+            if (outerKind == Type::NumberKind::kFloat) {
+                fBuilder.push_constant_f(1.0f);
+            } else if (outerKind == Type::NumberKind::kSigned ||
+                       outerKind == Type::NumberKind::kUnsigned) {
+                fBuilder.push_constant_i(1);
+            } else {
+                SkDEBUGFAILF("unexpected cast from bool to %s", c.type().description().c_str());
+                return unsupported();
+            }
+            fBuilder.push_duplicates(c.type().slotCount() - 1);
+            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, c.type().slotCount());
+            return true;
+
+        case Type::NumberKind::kFloat:
+            if (outerKind == Type::NumberKind::kSigned) {
+                fBuilder.unary_op(BuilderOp::cast_to_int_from_float, c.type().slotCount());
+                return true;
+            }
+            if (outerKind == Type::NumberKind::kUnsigned) {
+                fBuilder.unary_op(BuilderOp::cast_to_uint_from_float, c.type().slotCount());
+                return true;
+            }
+            break;
+
+        case Type::NumberKind::kNonnumeric:
+            break;
     }
 
-    if (c.type().componentType().isBoolean()) {
+    if (outerKind == Type::NumberKind::kBoolean) {
         // Converting int or float to boolean can be accomplished via `notEqual(x, 0)`.
         fBuilder.push_zeros(c.type().slotCount());
         return this->binaryOp(inner.type(), kNotEqualOps);
-    }
-    if (inner.type().componentType().isBoolean()) {
-        // Converting boolean to int or float can be accomplished via bitwise-and.
-        if (c.type().componentType().isFloat()) {
-            fBuilder.push_constant_f(1.0f);
-        } else if (c.type().componentType().isSigned() || c.type().componentType().isUnsigned()) {
-            fBuilder.push_constant_i(1);
-        } else {
-            SkDEBUGFAILF("unexpected cast from bool to %s", c.type().description().c_str());
-            return unsupported();
-        }
-        fBuilder.push_duplicates(c.type().slotCount() - 1);
-        fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, c.type().slotCount());
-        return true;
-    }
-    // We have dedicated ops to cast between float and integer types.
-    if (inner.type().componentType().isFloat()) {
-        if (c.type().componentType().isSigned()) {
-            fBuilder.unary_op(BuilderOp::cast_to_int_from_float, c.type().slotCount());
-            return true;
-        }
-        if (c.type().componentType().isUnsigned()) {
-            fBuilder.unary_op(BuilderOp::cast_to_uint_from_float, c.type().slotCount());
-            return true;
-        }
-    } else if (c.type().componentType().isFloat()) {
-        if (inner.type().componentType().isSigned()) {
-            fBuilder.unary_op(BuilderOp::cast_to_float_from_int, c.type().slotCount());
-            return true;
-        }
-        if (inner.type().componentType().isUnsigned()) {
-            fBuilder.unary_op(BuilderOp::cast_to_float_from_uint, c.type().slotCount());
-            return true;
-        }
     }
 
     SkDEBUGFAILF("unexpected cast from %s to %s",
