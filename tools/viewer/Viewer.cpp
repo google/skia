@@ -950,6 +950,7 @@ void Viewer::initSlides() {
         }
     }
 
+#ifdef SKSL_ENABLE_TRACING
     // Runtime shader debugger
     {
         auto slide = sk_make_sp<SkSLDebuggerSlide>();
@@ -957,6 +958,7 @@ void Viewer::initSlides() {
             fSlides.push_back(std::move(slide));
         }
     }
+#endif
 
     for (const auto& info : gExternalSlidesInfo) {
         for (const auto& flag : info.fFlags) {

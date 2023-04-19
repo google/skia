@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <utility>
 
+#ifdef SKSL_ENABLE_TRACING
+
 namespace SkSL {
 
 void SkSLDebugTracePlayer::reset(sk_sp<DebugTracePriv> debugTrace) {
@@ -283,3 +285,5 @@ bool SkSLDebugTracePlayer::execute(size_t position) {
 }
 
 }  // namespace SkSL
+
+#endif  // SKSL_ENABLE_TRACING

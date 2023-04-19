@@ -32,6 +32,8 @@
 #include <utility>
 #include <vector>
 
+#ifdef SKSL_ENABLE_TRACING
+
 using LineNumberMap = SkSL::SkSLDebugTracePlayer::LineNumberMap;
 
 static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r,
@@ -1038,3 +1040,5 @@ half4 main(float2 xy) {     // Line 8
         REPORTER_ASSERT(r, player.getCurrentLine() == 6);
     }
 }
+
+#endif  // SKSL_ENABLE_TRACING
