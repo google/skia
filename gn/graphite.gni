@@ -292,11 +292,6 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanTexture.h",
 ]
 
-skia_graphite_piet_sources = [
-  "$_src/PietRenderTask.cpp",
-  "$_src/PietRenderTask.h",
-]
-
 skia_graphite_precompile_public = []
 
 skia_graphite_precompile_sources = [

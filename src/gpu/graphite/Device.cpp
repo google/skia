@@ -1156,13 +1156,6 @@ void Device::flushPendingWorkToRecorder() {
         fRecorder->priv().add(std::move(uploadTask));
     }
 
-#ifdef SK_ENABLE_PIET_GPU
-    auto pietTask = fDC->snapPietRenderTask(fRecorder);
-    if (pietTask) {
-        fRecorder->priv().add(std::move(pietTask));
-    }
-#endif
-
     fClip.recordDeferredClipDraws();
     auto drawTask = fDC->snapRenderPassTask(fRecorder);
     if (drawTask) {

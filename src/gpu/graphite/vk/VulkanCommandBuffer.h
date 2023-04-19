@@ -139,10 +139,6 @@ private:
                          void* barrier);
     void submitPipelineBarriers(bool forSelfDependency = false);
 
-#ifdef SK_ENABLE_PIET_GPU
-    void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) override;
-#endif
-
     VkCommandPool fPool;
     VkCommandBuffer fPrimaryCommandBuffer;
     const VulkanSharedContext* fSharedContext;

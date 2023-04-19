@@ -21,13 +21,6 @@
 
 #include <vector>
 
-#ifdef SK_ENABLE_PIET_GPU
-#include "src/gpu/graphite/PietRenderTask.h"
-namespace skgpu::piet {
-class Scene;
-}
-#endif
-
 class SkPixmap;
 
 namespace skgpu::graphite {
@@ -86,12 +79,6 @@ public:
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
 
-#ifdef SK_ENABLE_PIET_GPU
-    bool recordPietSceneRender(Recorder* recorder,
-                               sk_sp<TextureProxy> targetProxy,
-                               sk_sp<const skgpu::piet::Scene> pietScene);
-#endif
-
     // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or
     // appended DrawPasses from a child SDC. A new DrawList is started to record subsequent drawing
@@ -122,9 +109,6 @@ public:
     // TODO: see if we can merge transfers into this
     sk_sp<Task> snapUploadTask(Recorder*);
 
-#ifdef SK_ENABLE_PIET_GPU
-    sk_sp<Task> snapPietRenderTask(Recorder*);
-#endif
 
 private:
     DrawContext(sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
@@ -154,10 +138,6 @@ private:
     // Stores the most immediately recorded uploads into Textures. This list is mutable and
     // can be appended to, or have its commands rewritten if they are inlined into a parent DC.
     std::unique_ptr<UploadList> fPendingUploads;
-
-#ifdef SK_ENABLE_PIET_GPU
-    std::vector<PietRenderInstance> fPendingPietRenders;
-#endif
 };
 
 } // namespace skgpu::graphite

@@ -883,17 +883,4 @@ bool MtlCommandBuffer::onClearBuffer(const Buffer* buffer, size_t offset, size_t
     return true;
 }
 
-#ifdef SK_ENABLE_PIET_GPU
-void MtlCommandBuffer::onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) {
-    SkASSERT(!fActiveRenderCommandEncoder);
-    SkASSERT(!fActiveComputeCommandEncoder);
-    this->endBlitCommandEncoder();
-
-    SkASSERT(fPietRenderer);
-
-    id<MTLTexture> mtlTexture = static_cast<const MtlTexture*>(target)->mtlTexture();
-    fPietRenderer->render(scene, mtlTexture, fCommandBuffer.get());
-}
-#endif
-
 } // namespace skgpu::graphite

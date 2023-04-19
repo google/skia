@@ -204,11 +204,4 @@ bool CommandBuffer::clearBuffer(const Buffer* buffer, size_t offset, size_t size
     return true;
 }
 
-#ifdef SK_ENABLE_PIET_GPU
-void CommandBuffer::renderPietScene(const skgpu::piet::Scene& scene, sk_sp<Texture> target) {
-    this->onRenderPietScene(scene, target.get());
-    this->trackResource(std::move(target));
-}
-#endif
-
 } // namespace skgpu::graphite

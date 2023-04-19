@@ -1176,13 +1176,6 @@ optional("gpu") {
   }
 }
 
-optional("piet") {
-  enabled = skia_use_piet
-  public_defines = [ "SK_ENABLE_PIET_GPU" ]
-  public_deps = [ "//third_party/piet-gpu" ]
-  sources = skia_piet_gpu_sources
-}
-
 optional("heif") {
   enabled = skia_use_libheif
   public_defines = [ "SK_HAS_HEIF_LIBRARY" ]
@@ -1277,16 +1270,9 @@ optional("graphite") {
   public_defines = []
 
   enabled = skia_enable_graphite
-  deps = [
-    ":gpu_shared",
-    ":piet",
-  ]
+  deps = [ ":gpu_shared" ]
   public = skia_graphite_public
   sources = skia_graphite_sources
-
-  if (skia_use_piet) {
-    sources += skia_graphite_piet_sources
-  }
 
   if (skia_use_dawn) {
     public += skia_graphite_dawn_public
@@ -1501,7 +1487,6 @@ skia_component("skia") {
     ":jpeg_decode",
     ":jpegxl_decode",
     ":ndk_images",
-    ":piet",
     ":png_decode",
     ":raw",
     ":skvm_jit",

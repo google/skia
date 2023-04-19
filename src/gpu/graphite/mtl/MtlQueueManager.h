@@ -11,10 +11,6 @@
 #include "include/ports/SkCFObject.h"
 #include "src/gpu/graphite/QueueManager.h"
 
-#ifdef SK_ENABLE_PIET_GPU
-#include "src/gpu/piet/Render.h"
-#endif
-
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
@@ -38,10 +34,6 @@ private:
 #endif
 
     sk_cfp<id<MTLCommandQueue>> fQueue;
-
-#ifdef SK_ENABLE_PIET_GPU
-    skgpu::piet::MtlRenderer fPietRenderer;
-#endif
 };
 
 } // namespace skgpu::graphite

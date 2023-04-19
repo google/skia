@@ -18,9 +18,6 @@ MtlQueueManager::MtlQueueManager(sk_cfp<id<MTLCommandQueue>> queue,
                                  const SharedContext* sharedContext)
         : QueueManager(sharedContext)
         , fQueue(std::move(queue))
-#ifdef SK_ENABLE_PIET_GPU
-        , fPietRenderer(this->mtlSharedContext()->device(), fQueue.get())
-#endif
 {
 }
 
@@ -34,11 +31,6 @@ std::unique_ptr<CommandBuffer> MtlQueueManager::getNewCommandBuffer(
     auto cmdBuffer = MtlCommandBuffer::Make(fQueue.get(),
                                             this->mtlSharedContext(),
                                             mtlResourceProvider);
-
-#ifdef SK_ENABLE_PIET_GPU
-    cmdBuffer->setPietRenderer(&fPietRenderer);
-#endif
-
     return std::move(cmdBuffer);
 }
 

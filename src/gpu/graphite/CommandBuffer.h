@@ -21,12 +21,6 @@ namespace skgpu {
 class RefCntedCallback;
 }
 
-#ifdef SK_ENABLE_PIET_GPU
-namespace skgpu::piet {
-class Scene;
-}
-#endif
-
 namespace skgpu::graphite {
 
 class Buffer;
@@ -93,10 +87,6 @@ public:
     bool synchronizeBufferToCpu(sk_sp<Buffer>);
     bool clearBuffer(const Buffer* buffer, size_t offset, size_t size);
 
-#ifdef SK_ENABLE_PIET_GPU
-    void renderPietScene(const skgpu::piet::Scene& scene, sk_sp<Texture> target);
-#endif
-
     // This sets a translation to be applied to any subsequently added command, assuming these
     // commands are part of a translated replay of a Graphite recording.
     void setReplayTranslation(SkIVector translation) { fReplayTranslation = translation; }
@@ -143,10 +133,6 @@ private:
                                         SkIPoint dstPoint) = 0;
     virtual bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) = 0;
     virtual bool onClearBuffer(const Buffer*, size_t offset, size_t size) = 0;
-
-#ifdef SK_ENABLE_PIET_GPU
-    virtual void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) = 0;
-#endif
 
 #ifdef SK_DEBUG
     bool fHasWork = false;
