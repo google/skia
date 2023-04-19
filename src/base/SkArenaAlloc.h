@@ -320,6 +320,11 @@ class SkSTArenaAlloc : private std::array<char, InlineStorageSize>, public SkAre
 public:
     explicit SkSTArenaAlloc(size_t firstHeapAllocation = InlineStorageSize)
         : SkArenaAlloc{this->data(), this->size(), firstHeapAllocation} {}
+
+    ~SkSTArenaAlloc() {
+        // Be sure to unpoison the memory that is probably on the stack.
+        sk_asan_unpoison_memory_region(this->data(), this->size());
+    }
 };
 
 template <size_t InlineStorageSize>
@@ -328,6 +333,11 @@ class SkSTArenaAllocWithReset
 public:
     explicit SkSTArenaAllocWithReset(size_t firstHeapAllocation = InlineStorageSize)
             : SkArenaAllocWithReset{this->data(), this->size(), firstHeapAllocation} {}
+
+    ~SkSTArenaAllocWithReset() {
+        // Be sure to unpoison the memory that is probably on the stack.
+        sk_asan_unpoison_memory_region(this->data(), this->size());
+    }
 };
 
 #endif  // SkArenaAlloc_DEFINED
