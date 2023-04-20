@@ -1687,19 +1687,6 @@ STAGE(seed_shader, NoCtx) {
     a = 0;
 }
 
-STAGE(store_device_xy01, F* dst) {
-    // This is very similar to `seed_shader + store_src`, but b/a are backwards.
-    // (sk_FragCoord actually puts w=1 in the w slot.)
-    static constexpr float iota[] = {
-        0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
-        8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
-    };
-    dst[0] = cast(dx) + sk_unaligned_load<F>(iota);
-    dst[1] = cast(dy) + 0.5f;
-    dst[2] = 0.0f;
-    dst[3] = 1.0f;
-}
-
 STAGE(dither, const float* rate) {
     // Get [(dx,dy), (dx+1,dy), (dx+2,dy), ...] loaded up in integer vectors.
     uint32_t iota[] = {0,1,2,3,4,5,6,7};
@@ -3294,6 +3281,10 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+STAGE_TAIL(set_base_pointer, std::byte* p) {
+    base = p;
+}
+
 // All control flow stages used by SkSL maintain some state in the common registers:
 //   dr: condition mask
 //   dg: loop mask
@@ -3304,15 +3295,36 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
 #define update_execution_mask() da = sk_bit_cast<F>(sk_bit_cast<I32>(dr) & \
                                                     sk_bit_cast<I32>(dg) & \
                                                     sk_bit_cast<I32>(db))
-
-STAGE_TAIL(set_base_pointer, std::byte* p) {
-    base = p;
-}
-
 STAGE_TAIL(init_lane_masks, NoCtx) {
     uint32_t iota[] = {0,1,2,3,4,5,6,7};
     I32 mask = tail ? cond_to_mask(sk_unaligned_load<U32>(iota) < tail) : I32(~0);
     dr = dg = db = da = sk_bit_cast<F>(mask);
+}
+
+STAGE_TAIL(store_device_xy01, F* dst) {
+    // This is very similar to `seed_shader + store_src`, but b/a are backwards.
+    // (sk_FragCoord actually puts w=1 in the w slot.)
+    static constexpr float iota[] = {
+        0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
+        8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
+    };
+    dst[0] = cast(dx) + sk_unaligned_load<F>(iota);
+    dst[1] = cast(dy) + 0.5f;
+    dst[2] = 0.0f;
+    dst[3] = 1.0f;
+}
+
+STAGE_TAIL(exchange_src, F* rgba) {
+    // Swaps r,g,b,a registers with the values at `rgba`.
+    F temp[4] = {r, g, b, a};
+    r = rgba[0];
+    rgba[0] = temp[0];
+    g = rgba[1];
+    rgba[1] = temp[1];
+    b = rgba[2];
+    rgba[2] = temp[2];
+    a = rgba[3];
+    rgba[3] = temp[3];
 }
 
 STAGE_TAIL(load_condition_mask, F* ctx) {

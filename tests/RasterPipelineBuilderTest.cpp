@@ -157,6 +157,7 @@ DEF_TEST(RasterPipelineBuilderPushPopSrcDst, r) {
 
     builder.push_src_rgba();
     builder.push_dst_rgba();
+    builder.exchange_src();
     builder.push_src_rgba();
     builder.pop_src_rgba();
     builder.pop_dst_rgba();
@@ -168,11 +169,12 @@ DEF_TEST(RasterPipelineBuilderPushPopSrcDst, r) {
     check(r, *program,
 R"(    1. store_src                      $0..3 = src.rgba
     2. store_dst                      $4..7 = dst.rgba
-    3. store_src                      $8..11 = src.rgba
-    4. load_src                       src.rgba = $8..11
-    5. load_dst                       dst.rgba = $4..7
-    6. load_src_rg                    src.rg = $2..3
-    7. load_src_rg                    src.rg = $0..1
+    3. exchange_src                   swap(src.rgba, $4..7)
+    4. store_src                      $8..11 = src.rgba
+    5. load_src                       src.rgba = $8..11
+    6. load_dst                       dst.rgba = $4..7
+    7. load_src_rg                    src.rg = $2..3
+    8. load_src_rg                    src.rg = $0..1
 )");
 }
 

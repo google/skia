@@ -2231,6 +2231,36 @@ DEF_TEST(SkRasterPipeline_Jump, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_ExchangeSrc, r) {
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    alignas(64) float registerValue[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    alignas(64) float exchangeValue[4 * SkRasterPipeline_kMaxStride_highp] = {};
+
+    std::iota(&registerValue[0], &registerValue[4 * N], 1.0f);
+    std::iota(&exchangeValue[0], &exchangeValue[4 * N], 1000.0f);
+
+    // This program should swap the contents of `registerValue` and `exchangeValue`.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append(SkRasterPipelineOp::load_src,     registerValue);
+    p.append(SkRasterPipelineOp::exchange_src, exchangeValue);
+    p.append(SkRasterPipelineOp::store_src,    registerValue);
+    p.run(0,0,N,1);
+
+    float* registerPtr = &registerValue[0];
+    float* exchangePtr = &exchangeValue[0];
+    float expectedRegister = 1000.0f, expectedExchange = 1.0f;
+    for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+        for (int checkLane = 0; checkLane < N; ++checkLane) {
+            REPORTER_ASSERT(r, *registerPtr++ == expectedRegister);
+            REPORTER_ASSERT(r, *exchangePtr++ == expectedExchange);
+            expectedRegister += 1.0f;
+            expectedExchange += 1.0f;
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
     // Allocate space for 4 slots.
     alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};

@@ -558,6 +558,11 @@ public:
         fInstructions.push_back({BuilderOp::pop_loop_mask, {}});
     }
 
+    // Exchanges src.rgba with the four values at the top of the stack.
+    void exchange_src() {
+        fInstructions.push_back({BuilderOp::exchange_src, {}});
+    }
+
     void push_src_rgba() {
         fInstructions.push_back({BuilderOp::push_src_rgba, {}});
     }

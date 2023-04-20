@@ -1628,6 +1628,11 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::shuffle, ctx});
                 break;
             }
+            case BuilderOp::exchange_src: {
+                float* dst = tempStackPtr - (4 * N);
+                pipeline->push_back({ProgramOp::exchange_src, dst});
+                break;
+            }
             case BuilderOp::push_src_rgba: {
                 float* dst = tempStackPtr;
                 pipeline->push_back({ProgramOp::store_src, dst});
@@ -2444,6 +2449,7 @@ void Program::dump(SkWStream* out) const {
 
             case POp::load_src:
             case POp::load_dst:
+            case POp::exchange_src:
             case POp::store_src:
             case POp::store_dst:
             case POp::store_device_xy01:
@@ -2781,6 +2787,10 @@ void Program::dump(SkWStream* out) const {
 
             case POp::store_src_rg:
                 opText = opArg1 + " = src.rg";
+                break;
+
+            case POp::exchange_src:
+                opText = "swap(src.rgba, " + opArg1 + ")";
                 break;
 
             case POp::store_src:
