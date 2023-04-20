@@ -3281,24 +3281,24 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+// All control flow stages used by SkSL maintain some state in the common registers:
+//   r: condition mask
+//   g: loop mask
+//   b: return mask
+//   a: execution mask (intersection of all three masks)
+// After updating r/g/b, you must invoke update_execution_mask().
+#define execution_mask()        sk_bit_cast<I32>(a)
+#define update_execution_mask() a = sk_bit_cast<F>(sk_bit_cast<I32>(r) & \
+                                                   sk_bit_cast<I32>(g) & \
+                                                   sk_bit_cast<I32>(b))
 STAGE_TAIL(set_base_pointer, std::byte* p) {
     base = p;
 }
 
-// All control flow stages used by SkSL maintain some state in the common registers:
-//   dr: condition mask
-//   dg: loop mask
-//   db: return mask
-//   da: execution mask (intersection of all three masks)
-// After updating dr/dg/db, you must invoke update_execution_mask().
-#define execution_mask()        sk_bit_cast<I32>(da)
-#define update_execution_mask() da = sk_bit_cast<F>(sk_bit_cast<I32>(dr) & \
-                                                    sk_bit_cast<I32>(dg) & \
-                                                    sk_bit_cast<I32>(db))
 STAGE_TAIL(init_lane_masks, NoCtx) {
     uint32_t iota[] = {0,1,2,3,4,5,6,7};
     I32 mask = tail ? cond_to_mask(sk_unaligned_load<U32>(iota) < tail) : I32(~0);
-    dr = dg = db = da = sk_bit_cast<F>(mask);
+    r = g = b = a = sk_bit_cast<F>(mask);
 }
 
 STAGE_TAIL(store_device_xy01, F* dst) {
@@ -3328,46 +3328,46 @@ STAGE_TAIL(exchange_src, F* rgba) {
 }
 
 STAGE_TAIL(load_condition_mask, F* ctx) {
-    dr = sk_unaligned_load<F>(ctx);
+    r = sk_unaligned_load<F>(ctx);
     update_execution_mask();
 }
 
 STAGE_TAIL(store_condition_mask, F* ctx) {
-    sk_unaligned_store(ctx, dr);
+    sk_unaligned_store(ctx, r);
 }
 
 STAGE_TAIL(merge_condition_mask, I32* ptr) {
     // Set the condition-mask to the intersection of two adjacent masks at the pointer.
-    dr = sk_bit_cast<F>(ptr[0] & ptr[1]);
+    r = sk_bit_cast<F>(ptr[0] & ptr[1]);
     update_execution_mask();
 }
 
 STAGE_TAIL(load_loop_mask, F* ctx) {
-    dg = sk_unaligned_load<F>(ctx);
+    g = sk_unaligned_load<F>(ctx);
     update_execution_mask();
 }
 
 STAGE_TAIL(store_loop_mask, F* ctx) {
-    sk_unaligned_store(ctx, dg);
+    sk_unaligned_store(ctx, g);
 }
 
 STAGE_TAIL(mask_off_loop_mask, NoCtx) {
     // We encountered a break statement. If a lane was active, it should be masked off now, and stay
     // masked-off until the termination of the loop.
-    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) & ~execution_mask());
+    g = sk_bit_cast<F>(sk_bit_cast<I32>(g) & ~execution_mask());
     update_execution_mask();
 }
 
 STAGE_TAIL(reenable_loop_mask, I32* ptr) {
     // Set the loop-mask to the union of the current loop-mask with the mask at the pointer.
-    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) | ptr[0]);
+    g = sk_bit_cast<F>(sk_bit_cast<I32>(g) | ptr[0]);
     update_execution_mask();
 }
 
 STAGE_TAIL(merge_loop_mask, I32* ptr) {
     // Set the loop-mask to the intersection of the current loop-mask with the mask at the pointer.
     // (Note: this behavior subtly differs from merge_condition_mask!)
-    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) & ptr[0]);
+    g = sk_bit_cast<F>(sk_bit_cast<I32>(g) & ptr[0]);
     update_execution_mask();
 }
 
@@ -3377,7 +3377,7 @@ STAGE_TAIL(case_op, SkRasterPipeline_CaseOpCtx* ctx) {
     I32 caseMatches = cond_to_mask(*actualValue == ctx->expectedValue);
 
     // In lanes where we found a match, enable the loop mask...
-    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) | caseMatches);
+    g = sk_bit_cast<F>(sk_bit_cast<I32>(g) | caseMatches);
     update_execution_mask();
 
     // ... and clear the default-case mask.
@@ -3386,18 +3386,18 @@ STAGE_TAIL(case_op, SkRasterPipeline_CaseOpCtx* ctx) {
 }
 
 STAGE_TAIL(load_return_mask, F* ctx) {
-    db = sk_unaligned_load<F>(ctx);
+    b = sk_unaligned_load<F>(ctx);
     update_execution_mask();
 }
 
 STAGE_TAIL(store_return_mask, F* ctx) {
-    sk_unaligned_store(ctx, db);
+    sk_unaligned_store(ctx, b);
 }
 
 STAGE_TAIL(mask_off_return_mask, NoCtx) {
     // We encountered a return statement. If a lane was active, it should be masked off now, and
     // stay masked-off until the end of the function.
-    db = sk_bit_cast<F>(sk_bit_cast<I32>(db) & ~execution_mask());
+    b = sk_bit_cast<F>(sk_bit_cast<I32>(b) & ~execution_mask());
     update_execution_mask();
 }
 

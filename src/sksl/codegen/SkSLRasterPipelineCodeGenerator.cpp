@@ -2501,9 +2501,9 @@ bool Generator::pushChildCall(const ChildCall& c) {
     SkASSERT(childIdx != nullptr);
     SkASSERT(!c.arguments().empty());
 
-    // Save the dst.rgba fields; these hold our execution masks, and could potentially be
+    // Save the src.rgba fields; these hold our execution masks, and could potentially be
     // clobbered by the child effect.
-    fBuilder.push_dst_rgba();
+    fBuilder.push_src_rgba();
 
     // All child calls have at least one argument.
     const Expression* arg = c.arguments()[0].get();
@@ -2555,11 +2555,10 @@ bool Generator::pushChildCall(const ChildCall& c) {
         }
     }
 
-    // Restore dst.rgba so our execution masks are back to normal.
-    fBuilder.pop_dst_rgba();
-
-    // The child call has returned the result color via src.rgba; push it onto the stack.
-    fBuilder.push_src_rgba();
+    // The child call has returned the result color via src.rgba, and the SkRP execution mask is
+    // on top of the stack. Swapping the two puts the result color on top of the stack, and also
+    // restores our execution masks.
+    fBuilder.exchange_src();
     return true;
 }
 
@@ -3691,7 +3690,7 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
         return unsupported();
     }
 
-    // Move the result of main() from slots into RGBA. Allow dRGBA to remain in a trashed state.
+    // Move the result of main() from slots into RGBA.
     SkASSERT(mainResult->count == 4);
     if (this->needsFunctionResultSlots(fCurrentFunction)) {
         fBuilder.load_src(*mainResult);
