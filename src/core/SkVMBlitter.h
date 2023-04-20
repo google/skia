@@ -15,6 +15,8 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"
 
+#ifdef SK_ENABLE_SKVM
+
 class SkVMBlitter final : public SkBlitter {
 public:
     static SkVMBlitter* Make(const SkPixmap& dst,
@@ -110,4 +112,34 @@ private:
 
     friend class Viewer;
 };
+
+#else
+
+class SkVMBlitter final : public SkBlitter {
+public:
+    static SkVMBlitter* Make(const SkPixmap&,
+                             const SkPaint&,
+                             const SkMatrix&,
+                             SkArenaAlloc*,
+                             sk_sp<SkShader>) {
+        return nullptr;
+    }
+
+    static SkVMBlitter* Make(const SkPixmap&,
+                             const SkPaint&,
+                             const SkPixmap&,
+                             int,
+                             int,
+                             SkArenaAlloc*,
+                             sk_sp<SkShader>) {
+        return nullptr;
+    }
+
+    void blitH(int, int, int) override {}
+    void blitAntiH(int, int, const SkAlpha[], const int16_t[]) override {}
+
+    ~SkVMBlitter() override = default;
+};
+
+#endif  // SK_ENABLE_SKVM
 #endif  // SkVMBlitter_DEFINED

@@ -24,6 +24,8 @@
 
 #include <cinttypes>
 
+#ifdef SK_ENABLE_SKVM
+
 #define SK_BLITTER_TRACE_IS_SKVM
 #include "src/utils/SkBlitterTrace.h"
 
@@ -813,3 +815,5 @@ SkVMBlitter* SkVMBlitter::Make(const SkPixmap& device,
                                             &ok);
     return ok ? blitter : nullptr;
 }
+
+#endif  // SK_ENABLE_SKVM

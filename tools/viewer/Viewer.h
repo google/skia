@@ -275,10 +275,12 @@ private:
     };
     ShaderOptLevel fOptLevel = kShaderOptLevel_Source;
 
+#ifdef SK_ENABLE_SKVM
     SkVMBlitter::Key fHoveredKey;
     skvm::Program    fHoveredProgram;
 
     skia_private::THashMap<SkVMBlitter::Key, std::string> fDisassemblyCache;
+#endif
 };
 
 #endif
