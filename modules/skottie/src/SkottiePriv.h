@@ -173,8 +173,7 @@ public:
 
     bool dispatchColorProperty(const sk_sp<sksg::Color>&,
                                const skjson::ObjectValue* jcolor = nullptr) const;
-    bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&,
-                                 const skjson::ObjectValue* jopacity) const;
+    bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
     bool dispatchTextProperty(const sk_sp<TextAdapter>&,
                               const skjson::ObjectValue* jtext) const;
     bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;

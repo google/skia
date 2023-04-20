@@ -136,7 +136,6 @@ public:
     SlotManager();
 
     void setColorSlot(std::string, SkColor);
-    void setOpacitySlot(std::string, SkScalar);
     void setTextStringSlot(std::string, SkString);
     void setImageSlot(std::string, sk_sp<skresources::ImageAsset>);
 
