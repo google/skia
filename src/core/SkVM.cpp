@@ -30,6 +30,8 @@ using namespace skia_private;
 bool gSkVMAllowJIT{false};
 bool gSkVMJITViaDylib{false};
 
+#if defined(SK_ENABLE_SKVM)
+
 #if defined(SKVM_JIT)
     #if defined(SK_BUILD_FOR_WIN)
         #include "src/base/SkLeanWindows.h"
@@ -4075,3 +4077,5 @@ namespace skvm {
 #endif
 
 }  // namespace skvm
+
+#endif  // defined(SK_ENABLE_SKVM)

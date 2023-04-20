@@ -14,7 +14,9 @@
 
 namespace SkOpts {
     void Init_skx() {
+#if defined(SK_ENABLE_SKVM)
         interpret_skvm = SK_OPTS_NS::interpret_skvm;
+#endif
     }
 }  // namespace SkOpts
 

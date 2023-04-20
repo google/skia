@@ -8,6 +8,8 @@
 #ifndef SkVM_DEFINED
 #define SkVM_DEFINED
 
+#if defined(SK_ENABLE_SKVM)
+
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
@@ -1353,4 +1355,5 @@ namespace skvm {
 #undef SI
 }  // namespace skvm
 
-#endif//SkVM_DEFINED
+#endif  // defined(SK_ENABLE_SKVM)
+#endif  // SkVM_DEFINED

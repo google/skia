@@ -22,6 +22,8 @@
 #include <initializer_list>
 #include <vector>
 
+#if defined(SK_ENABLE_SKVM)
+
 template <typename Fn>
 static void test_jit_and_interpreter(const skvm::Builder& b, Fn&& test) {
     skvm::Program p = b.done();
@@ -2844,3 +2846,5 @@ DEF_TEST(SkVM_duplicates, reporter) {
         }
     }
 }
+
+#endif  // defined(SK_ENABLE_SKVM)

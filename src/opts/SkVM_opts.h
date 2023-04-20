@@ -4,6 +4,8 @@
 #ifndef SkVM_opts_DEFINED
 #define SkVM_opts_DEFINED
 
+#if defined(SK_ENABLE_SKVM)
+
 #include "src/base/SkVx.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
@@ -348,4 +350,5 @@ namespace SkVMInterpreterTypes {
 
 }  // namespace SK_OPTS_NS
 
-#endif//SkVM_opts_DEFINED
+#endif  // defined(SK_ENABLE_SKVM)
+#endif  // SkVM_opts_DEFINED
