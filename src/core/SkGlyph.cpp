@@ -475,42 +475,48 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
                 break;
             }
             case SkPath::kLine_Verb: {
-                addLine(topOffset);
-                addLine(bottomOffset);
-                addPts(2);
+                auto [lineTop, lineBottom] = std::minmax({pts[0].fY, pts[1].fY});
+
+                // The y-coordinates of the points intersect the top and bottom offsets.
+                if (topOffset <= lineBottom && lineTop <= bottomOffset) {
+                    addLine(topOffset);
+                    addLine(bottomOffset);
+                    addPts(2);
+                }
                 break;
             }
             case SkPath::kQuad_Verb: {
-                SkScalar quadTop = std::min(std::min(pts[0].fY, pts[1].fY), pts[2].fY);
-                if (bottomOffset < quadTop) { break; }
-                SkScalar quadBottom = std::max(std::max(pts[0].fY, pts[1].fY), pts[2].fY);
-                if (topOffset > quadBottom) { break; }
-                addQuad(topOffset);
-                addQuad(bottomOffset);
-                addPts(3);
+                auto [quadTop, quadBottom] = std::minmax({pts[0].fY, pts[1].fY, pts[2].fY});
+
+                // The y-coordinates of the points intersect the top and bottom offsets.
+                if (topOffset <= quadBottom && quadTop <= bottomOffset) {
+                    addQuad(topOffset);
+                    addQuad(bottomOffset);
+                    addPts(3);
+                }
                 break;
             }
             case SkPath::kConic_Verb: {
-                SkASSERT(0);  // no support for text composed of conics
+                SkDEBUGFAIL("There should be no conic primitives in glyph outlines.");
                 break;
             }
             case SkPath::kCubic_Verb: {
-                SkScalar quadTop =
-                        std::min(std::min(std::min(pts[0].fY, pts[1].fY), pts[2].fY), pts[3].fY);
-                if (bottomOffset < quadTop) { break; }
-                SkScalar quadBottom =
-                        std::max(std::max(std::max(pts[0].fY, pts[1].fY), pts[2].fY), pts[3].fY);
-                if (topOffset > quadBottom) { break; }
-                addCubic(topOffset);
-                addCubic(bottomOffset);
-                addPts(4);
+                auto [cubicTop, cubicBottom] =
+                        std::minmax({pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY});
+
+                // The y-coordinates of the points intersect the top and bottom offsets.
+                if (topOffset <= cubicBottom && cubicTop <= bottomOffset) {
+                    addCubic(topOffset);
+                    addCubic(bottomOffset);
+                    addPts(4);
+                }
                 break;
             }
             case SkPath::kClose_Verb: {
                 break;
             }
             default: {
-                SkASSERT(0);
+                SkDEBUGFAIL("Unknown path verb generating glyph underline.");
                 break;
             }
         }
