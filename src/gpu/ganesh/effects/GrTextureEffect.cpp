@@ -97,7 +97,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
     bool aniso = sampler.isAniso();
     SkASSERT(!aniso || caps.anisoSupport());
     if (aniso) {
-        bool anisoSubset = !proxy.backingStoreBoundsRect().contains(subset) &&
+        bool anisoSubset = !subset.contains(proxy.backingStoreBoundsRect()) &&
                            (!domain || !subset.contains(*domain));
         bool needsShaderWrap = !canDoWrapInHW(dim.width(),  sampler.wrapModeX()) ||
                                !canDoWrapInHW(dim.height(), sampler.wrapModeY());
