@@ -50,15 +50,31 @@ public:
      */
     virtual sk_sp<SkImage> getFrame(float t);
 
+    // Describes how the frame image is to be scaled to the animation-declared asset size.
+    enum class SizeFit {
+        // See SkMatrix::ScaleToFit
+        kFill   = SkMatrix::kFill_ScaleToFit,
+        kStart  = SkMatrix::kStart_ScaleToFit,
+        kCenter = SkMatrix::kCenter_ScaleToFit,
+        kEnd    = SkMatrix::kEnd_ScaleToFit,
+
+        // No scaling.
+        kNone,
+    };
+
     struct FrameData {
         // SkImage payload.
-        sk_sp<SkImage>       image;
+        sk_sp<SkImage>    image;
         // Resampling parameters.
-        SkSamplingOptions    sampling;
+        SkSamplingOptions sampling;
         // Additional image transform to be applied before AE scaling rules.
-        SkMatrix             matrix = SkMatrix::I();
-        // Scaling strategy for aspect ratio adjustments.
+        SkMatrix          matrix = SkMatrix::I();
+        // Strategy for image size -> AE asset size scaling.
+#ifdef SKOTTIE_LEGACY_ASSET_FIT
         SkMatrix::ScaleToFit scaling = SkMatrix::kCenter_ScaleToFit;
+#else
+        SizeFit           scaling = SizeFit::kCenter;
+#endif
     };
 
     /**
