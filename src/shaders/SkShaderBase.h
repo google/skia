@@ -400,6 +400,7 @@ public:
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
+#if defined(SK_ENABLE_SKVM)
     /**
      * Called at the root of a shader tree to build a VM that produces color. The device coords
      * should be initialized to the centers of device space pixels being shaded and the inverse of
@@ -427,6 +428,7 @@ public:
                                 const SkColorInfo& dst,
                                 skvm::Uniforms*,
                                 SkArenaAlloc*) const = 0;
+#endif  // defined(SK_ENABLE_SKVM)
 
 #if defined(SK_GRAPHITE)
     /**

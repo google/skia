@@ -319,7 +319,7 @@ public:
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
-
+#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord,
                         skvm::Coord,
@@ -328,9 +328,10 @@ public:
                         const SkColorInfo&,
                         skvm::Uniforms*,
                         SkArenaAlloc*) const override {
-        // TODO?
+        // Unimplemented
         return {};
     }
+#endif
 
 protected:
     void flatten(SkWriteBuffer&) const override;

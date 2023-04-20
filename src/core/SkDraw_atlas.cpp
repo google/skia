@@ -35,7 +35,6 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/core/SkVM.h"
 #include "src/core/SkVMBlitter.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/SkTransformShader.h"
@@ -45,10 +44,13 @@
 #include <utility>
 
 class SkBlitter;
-class SkColorInfo;
 class SkColorSpace;
 enum class SkBlendMode;
 
+#if defined(SK_ENABLE_SKVM)
+#include "src/core/SkVM.h"
+class SkColorInfo;
+#endif
 
 static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
                       const SkRect& r, SkBlitter* blitter, SkPath* scratchPath) {
@@ -81,6 +83,7 @@ class UpdatableColorShader : public SkShaderBase {
 public:
     explicit UpdatableColorShader(SkColorSpace* cs)
         : fSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType, cs, kUnpremul_SkAlphaType} {}
+#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder* builder,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -97,6 +100,7 @@ public:
 
         return {r, g, b, a};
     }
+#endif
 
     void updateColor(SkColor c) const {
         SkColor4f c4 = SkColor4f::FromColor(c);

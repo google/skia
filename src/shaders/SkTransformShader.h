@@ -20,6 +20,7 @@ class SkTransformShader : public SkShaderBase {
 public:
     explicit SkTransformShader(const SkShaderBase& shader, bool allowPerspective);
 
+#if defined(SK_ENABLE_SKVM)
     // Adds instructions to use the mapping stored in the uniforms represented by fMatrix. After
     // generating a new skvm::Coord, it passes the mapped coordinates to fShader's program
     // along with the identity matrix.
@@ -31,6 +32,7 @@ public:
                         const SkColorInfo& dst,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc* alloc) const override;
+#endif
 
     // Adds a pipestage to multiply the incoming coords in 'r' and 'g' by the matrix. The child
     // shader is called with no pending local matrix and the total transform as unknowable.

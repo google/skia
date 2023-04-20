@@ -101,6 +101,7 @@ bool SkLocalMatrixShader::appendStages(const SkStageRec& rec, const MatrixRec& m
     return as_SB(fWrappedShader)->appendStages(rec, mRec.concat(fLocalMatrix));
 }
 
+#if defined(SK_ENABLE_SKVM)
 skvm::Color SkLocalMatrixShader::program(skvm::Builder* p,
                                          skvm::Coord device,
                                          skvm::Coord local,
@@ -118,6 +119,7 @@ skvm::Color SkLocalMatrixShader::program(skvm::Builder* p,
                                           uniforms,
                                           alloc);
 }
+#endif
 
 sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
     if (localMatrix.isIdentity()) {
@@ -170,6 +172,7 @@ protected:
         return as_SB(fProxyShader)->appendRootStages(rec, fCTM);
     }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder* p,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -180,6 +183,7 @@ protected:
                         SkArenaAlloc* alloc) const override {
         return as_SB(fProxyShader)->rootProgram(p, device, paint, fCTM, dst, uniforms, alloc);
     }
+#endif
 
 private:
     SK_FLATTENABLE_HOOKS(SkCTMShader)
