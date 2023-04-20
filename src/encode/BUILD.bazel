@@ -66,7 +66,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "SkEncoder.cpp",
-        "SkImageEncoder.cpp",
         "SkICC.cpp",
     ] + select_multi(
         default_cases = {

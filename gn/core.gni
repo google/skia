@@ -65,7 +65,6 @@ skia_core_public = [
   "$_include/core/SkGraphics.h",
   "$_include/core/SkICC.h",
   "$_include/core/SkImage.h",
-  "$_include/core/SkImageEncoder.h",
   "$_include/core/SkImageFilter.h",
   "$_include/core/SkImageGenerator.h",
   "$_include/core/SkImageInfo.h",
@@ -756,7 +755,6 @@ skia_encode_srcs = [
   "$_src/encode/SkEncoder.cpp",
   "$_src/encode/SkICC.cpp",
   "$_src/encode/SkICCPriv.h",
-  "$_src/encode/SkImageEncoder.cpp",
   "$_src/encode/SkImageEncoderFns.h",
   "$_src/encode/SkImageEncoderPriv.h",
 ]

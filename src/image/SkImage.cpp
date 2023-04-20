@@ -197,37 +197,6 @@ sk_sp<SkShader> SkImage::makeRawShader(SkTileMode tmx, SkTileMode tmy,
                                   sampling, localMatrix);
 }
 
-#if !defined(SK_DISABLE_LEGACY_IMAGE_ENCODE_METHODS)
-#include "include/core/SkImageEncoder.h"
-#include "include/codec/SkEncodedImageFormat.h"
-sk_sp<SkData> SkImage::encodeToData(GrDirectContext* context, SkEncodedImageFormat type,
-                                    int quality) const {
-    SkBitmap bm;
-    if (as_IB(this)->getROPixels(context, &bm)) {
-        return SkEncodeBitmap(bm, type, quality);
-    }
-    return nullptr;
-}
-
-sk_sp<SkData> SkImage::encodeToData(GrDirectContext* context) const {
-    if (auto encoded = this->refEncodedData()) {
-        return encoded;
-    }
-
-    return this->encodeToData(context, SkEncodedImageFormat::kPNG, 100);
-}
-
-sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
-    auto dContext = as_IB(this)->directContext();
-    return this->encodeToData(dContext, type, quality);
-}
-
-sk_sp<SkData> SkImage::encodeToData() const {
-    auto dContext = as_IB(this)->directContext();
-    return this->encodeToData(dContext);
-}
-#endif
-
 sk_sp<SkData> SkImage::refEncodedData() const {
     return sk_sp<SkData>(as_IB(this)->onRefEncoded());
 }

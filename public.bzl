@@ -50,7 +50,6 @@ SKIA_PUBLIC_HDRS = [
     "include/core/SkFontTypes.h",
     "include/core/SkGraphics.h",
     "include/core/SkImage.h",
-    "include/core/SkImageEncoder.h",
     "include/core/SkImageFilter.h",
     "include/core/SkImageGenerator.h",
     "include/core/SkImageInfo.h",
@@ -1729,7 +1728,6 @@ ENCODE_SRCS = [
     "src/encode/SkEncoder.cpp",
     "src/encode/SkICCPriv.h",
     "src/encode/SkICC.cpp",
-    "src/encode/SkImageEncoder.cpp",
     "src/encode/SkImageEncoderFns.h",
     "src/encode/SkImageEncoderPriv.h",
 ]

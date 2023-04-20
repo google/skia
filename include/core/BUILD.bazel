@@ -56,7 +56,6 @@ skia_filegroup(
         "SkGraphics.h",
         "SkICC.h",  # Remove shim
         "SkImage.h",
-        "SkImageEncoder.h",
         "SkImageFilter.h",
         "SkImageGenerator.h",
         "SkImageInfo.h",
