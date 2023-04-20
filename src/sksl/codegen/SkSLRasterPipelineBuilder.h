@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SKSL_RASTERPIPELINEBUILDER
+#define SKSL_RASTERPIPELINEBUILDER
+
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
@@ -671,3 +674,5 @@ private:
 
 }  // namespace RP
 }  // namespace SkSL
+
+#endif  // SKSL_RASTERPIPELINEBUILDER
