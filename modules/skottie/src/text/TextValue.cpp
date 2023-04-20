@@ -64,6 +64,13 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         }
     }
 
+    static constexpr Shaper::Direction gDirectionMap[] = {
+        Shaper::Direction::kLTR,  // 'd': 0
+        Shaper::Direction::kRTL,  // 'd': 1
+    };
+    v->fDirection = gDirectionMap[std::min(ParseDefault<size_t>((*jtxt)["d"], 0),
+                                           std::size(gDirectionMap) - 1)];
+
     static constexpr Shaper::ResizePolicy gResizeMap[] = {
         Shaper::ResizePolicy::kNone,           // 'rs': 0
         Shaper::ResizePolicy::kScaleToFit,     // 'rs': 1
