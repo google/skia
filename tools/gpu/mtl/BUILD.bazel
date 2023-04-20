@@ -1,0 +1,21 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "MtlTestContext.h",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "MtlTestContext.mm",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)
