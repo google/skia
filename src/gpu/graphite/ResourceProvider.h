@@ -13,6 +13,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 struct SkSamplingOptions;
@@ -75,6 +76,8 @@ public:
 
     BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
     void deleteBackendTexture(BackendTexture&);
+
+    ProxyCache* proxyCache() { return fResourceCache->proxyCache(); }
 
 #if GRAPHITE_TEST_UTILS
     ResourceCache* resourceCache() { return fResourceCache.get(); }

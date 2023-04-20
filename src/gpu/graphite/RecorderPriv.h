@@ -31,7 +31,6 @@ public:
     const Caps* caps() const { return fRecorder->fSharedContext->caps(); }
 
     ResourceProvider* resourceProvider() { return fRecorder->fResourceProvider.get(); }
-    ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }
 
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRecorder->fRuntimeEffectDict.get();
@@ -61,7 +60,7 @@ public:
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {
         return fRecorder->fTextBlobCache.get();
     }
-    ProxyCache* proxyCache() { return this->resourceCache()->proxyCache(); }
+    ProxyCache* proxyCache() { return this->resourceProvider()->proxyCache(); }
 
     static sk_sp<TextureProxy> CreateCachedProxy(Recorder*,
                                                  const SkBitmap&,
@@ -70,6 +69,7 @@ public:
     uint32_t recorderID() const { return fRecorder->fRecorderID; }
 
 #if GRAPHITE_TEST_UTILS
+    ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }
     // used by the Context that created this Recorder to set a back pointer
     void setContext(Context*);
     Context* context() { return fRecorder->fContext; }
