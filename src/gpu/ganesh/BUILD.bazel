@@ -278,7 +278,20 @@ skia_filegroup(
             "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:srcs"],
             "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:srcs"],
             "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:srcs"],
-            # TODO(kjlubick) mtl and d3d backend
+            # TODO(kjlubick) d3d backend
+        },
+    ),
+    visibility = ["//src/gpu:__pkg__"],
+)
+
+skia_filegroup(
+    name = "objc_srcs",
+    srcs = select_multi(
+        {
+            "//src/gpu:metal_backend": [
+                "//src/gpu/ganesh/mtl:objc_srcs",
+                "//src/gpu/ganesh/surface:mtl_objc_srcs",
+            ],
         },
     ),
     visibility = ["//src/gpu:__pkg__"],
@@ -304,7 +317,8 @@ skia_filegroup(
             "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:private_hdrs"],
             "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:private_hdrs"],
             "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:private_hdrs"],
-            # TODO(kjlubick) mtl and d3d backend
+            "//src/gpu:metal_backend": ["//src/gpu/ganesh/mtl:private_hdrs"],
+            # TODO(kjlubick) d3d backend
         },
     ),
     visibility = ["//src/gpu:__pkg__"],

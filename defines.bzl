@@ -76,6 +76,10 @@ GPU_DEFINES = select_multi({
         "SK_GANESH",
         "VK_USE_PLATFORM_XCB_KHR",  # TODO(kjlubick) support dawn's dawn_enable_vulkan etc
     ],
+    "//src/gpu:metal_backend": [
+        "SK_METAL",
+        "SK_GANESH",
+    ],
 }) + select({
     "//src/gpu:gl_standard": [
         "SK_ASSUME_GL=1",

@@ -1,17 +1,29 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-# Not referenced by Bazel target.
-# for exporting to //gn/gpu.gni:skia_shared_mtl_sources.
+MTL_FILES = [
+    "MtlMemoryAllocatorImpl.h",
+    "MtlMemoryAllocatorImpl.mm",
+    "MtlUtils.mm",
+    "MtlUtilsPriv.h",
+]
+
+split_srcs_and_hdrs(
+    name = "mtl",
+    files = MTL_FILES,
+)
+
 skia_filegroup(
-    name = "shared_srcs",
-    srcs = [
-        "MtlMemoryAllocatorImpl.h",
-        "MtlMemoryAllocatorImpl.mm",
-        "MtlUtils.mm",
-        "MtlUtilsPriv.h",
-    ],
+    name = "shared_objc_srcs",
+    srcs = [":mtl_srcs"],
+    visibility = ["//src/gpu:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [":mtl_hdrs"],
+    visibility = ["//src/gpu:__pkg__"],
 )

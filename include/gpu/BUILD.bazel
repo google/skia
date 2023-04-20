@@ -39,7 +39,8 @@ skia_filegroup(
         {
             "//src/gpu:dawn_backend": ["//include/gpu/dawn:public_hdrs"],
             "//src/gpu:vulkan_backend": ["//include/gpu/vk:public_hdrs"],
-            # TODO(kjlubick) mtl and d3d backend
+            "//src/gpu:metal_backend": ["//include/gpu/mtl:public_hdrs"],
+            # TODO(kjlubick) d3d backend
         },
     ),
     visibility = ["//include:__pkg__"],

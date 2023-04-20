@@ -356,7 +356,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_gpu_metal_private",
 			Rules: []string{
-				"//src/gpu/ganesh/surface:mtl_srcs",
+				"//include/private/gpu/ganesh:mtl_private_hdrs",
+				"//src/gpu/ganesh/surface:mtl_objc_srcs",
 				"//src/gpu/ganesh/mtl:mtl_hdrs",
 				"//src/gpu/ganesh/mtl:mtl_srcs",
 			}},
@@ -403,7 +404,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_shared_mtl_sources",
 			Rules: []string{
 				"//include/gpu/mtl:shared_public_hdrs",
-				"//src/gpu/mtl:shared_srcs",
+				"//src/gpu/mtl:mtl_hdrs",
+				"//src/gpu/mtl:mtl_srcs",
 			}},
 		{Var: "skia_piet_gpu_sources",
 			Rules: []string{

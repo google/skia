@@ -45,6 +45,10 @@ skia_cc_library(
             "//tools/gpu/dawn:private_hdrs",
             "//tools/gpu/dawn:srcs",
         ],
+        "//src/gpu:metal_backend": [
+            "//tools/gpu/mtl:private_hdrs",
+            "//tools/gpu/mtl:srcs",
+        ],
         # TODO(kjlubick) Handle other backends
     }),
     hdrs = [

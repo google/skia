@@ -58,7 +58,7 @@ skia_objc_library(
         "RasterWindowContext.h",
     ] + select_multi(
         {
-            # TODO(kjlubick, jmbetancourt) Graphite and Metal backend
+            # TODO(kjlubick, jmbetancourt) Graphite backend
             "//src/gpu:dawn_backend": [
                 "DawnWindowContext.h",
                 "DawnWindowContext.cpp",
@@ -66,6 +66,10 @@ skia_objc_library(
             "//src/gpu:gl_backend": [
                 "GLWindowContext.cpp",
                 "GLWindowContext.h",
+            ],
+            "//src/gpu:metal_backend": [
+                "MetalWindowContext.h",
+                "MetalWindowContext.mm",
             ],
         },
     ) + select({

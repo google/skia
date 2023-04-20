@@ -153,7 +153,7 @@ def skia_filegroup(**kwargs):
     native.filegroup(**kwargs)
 
 def skia_objc_library(name, copts = DEFAULT_OBJC_COPTS, **kwargs):
-    """A wrapper around cc_library for Skia Objective C libraries.
+    """A wrapper around objc_library for Skia Objective C libraries.
 
     This lets us provide compiler flags (copts) consistently to the Skia build (e.g. //:skia_public)
     and builds which depend on those targets (e.g. things in //tools or //modules).

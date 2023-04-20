@@ -132,6 +132,9 @@ build:vulkan_ganesh --enable_gpu_test_utils --gpu_backend=vulkan_backend \
 build:dawn_ganesh --enable_gpu_test_utils --gpu_backend=dawn_backend \
                     --cc_output_directory_tag=dawn_ganesh
 
+build:metal_ganesh --enable_gpu_test_utils --gpu_backend=metal_backend \
+                    --cc_output_directory_tag=metal_ganesh
+
 # Short-hand aliases
 build:cpu --config=cpu_only
 build:gl --config=gl_ganesh

@@ -61,6 +61,15 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "objc_srcs",
+    srcs = select({
+        "//src/gpu:has_gpu_backend": ["//src/gpu:objc_srcs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//:__pkg__"],
+)
+
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "//src/base:private_hdrs",

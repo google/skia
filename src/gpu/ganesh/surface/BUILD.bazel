@@ -14,11 +14,11 @@ split_srcs_and_hdrs(
     files = SURFACE_FILES,
 )
 
-# Not referenced by Bazel target.
 # File group use to export to //gn/gpu.gni:skia_metal_sources.
 skia_filegroup(
-    name = "mtl_srcs",
+    name = "mtl_objc_srcs",
     srcs = ["SkSurface_GaneshMtl.mm"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
 skia_filegroup(

@@ -55,6 +55,7 @@ string_flag_with_values(
         "gl_backend",
         "vulkan_backend",
         "dawn_backend",
+        "metal_backend",
     ],
 )
 
@@ -73,6 +74,7 @@ selects.config_setting_group(
         ":gl_backend",
         ":dawn_backend",
         ":vulkan_backend",
+        ":metal_backend",
     ],
     visibility = ["//:__subpackages__"],
 )
@@ -114,6 +116,15 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "objc_srcs",
+    srcs = [
+        "//src/gpu/ganesh:objc_srcs",
+        "//src/gpu/mtl:shared_objc_srcs",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",
@@ -124,6 +135,7 @@ skia_filegroup(
         {
             "//src/gpu:dawn_backend": ["//src/gpu/dawn:private_hdrs"],
             "//src/gpu:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
+            "//src/gpu:metal_backend": ["//src/gpu/mtl:private_hdrs"],
         },
     ),
     visibility = ["//src:__pkg__"],
