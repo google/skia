@@ -27,7 +27,6 @@
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -35,10 +34,14 @@
 #include <cstddef>
 #include <utility>
 
-class SkArenaAlloc;
 class SkFlattenable;
 struct GrContextOptions;
 struct SkStageRec;
+
+#if defined(SK_ENABLE_SKVM)
+#include "src/core/SkVM.h"
+class SkArenaAlloc;
+#endif
 
 static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
     SkBinaryWriteBuffer wb;
@@ -149,6 +152,7 @@ DEF_TEST(WorkingFormatFilterFlags, r) {
 }
 
 struct FailureColorFilter final : public SkColorFilterBase {
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder*,
                           skvm::Color c,
                           const SkColorInfo&,
@@ -156,6 +160,7 @@ struct FailureColorFilter final : public SkColorFilterBase {
                           SkArenaAlloc*) const override {
         return {};
     }
+#endif
 
     bool appendStages(const SkStageRec&, bool) const override { return false; }
 

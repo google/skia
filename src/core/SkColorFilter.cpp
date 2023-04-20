@@ -73,7 +73,7 @@ GrFPResult SkColorFilterBase::asFragmentProcessor(std::unique_ptr<GrFragmentProc
     return GrFPFailure(std::move(inputFP));
 }
 #endif
-
+#if defined(SK_ENABLE_SKVM)
 skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
                                        const SkColorInfo& dst,
                                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -87,6 +87,7 @@ skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
     //SkDebugf("cannot program %s\n", this->getTypeName());
     return {};
 }
+#endif
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
     // This is mostly meaningless. We should phase-out this call entirely.
@@ -121,6 +122,7 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
         return dst;
     }
 
+#if defined(SK_ENABLE_SKVM)
     // This filter doesn't support SkRasterPipeline... try skvm.
     skvm::Builder b;
     skvm::Uniforms uni(b.uniform(), 4);
@@ -136,8 +138,9 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
         b.done("filterColor4f", allow_jit).eval(1, uni.buf.data(), &color);
         return color;
     }
+#endif
 
-    SkASSERT(false);
+    SkDEBUGFAIL("onFilterColor4f unimplemented for this filter");
     return SkPMColor4f{0,0,0,0};
 }
 
@@ -171,13 +174,14 @@ public:
                fOuter->appendStages(rec, innerIsOpaque);
     }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
                c = fInner->program(p, c, dst, uniforms, alloc);
         return c ? fOuter->program(p, c, dst, uniforms, alloc) : skvm::Color{};
     }
-
+#endif
 #if defined(SK_GANESH)
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext* context,
@@ -311,10 +315,12 @@ public:
         return true;
     }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
         return premul(fSteps.program(p, uniforms, unpremul(c)));
     }
+#endif
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
@@ -488,6 +494,7 @@ public:
         return true;
     }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& rawDst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
         sk_sp<SkColorSpace> dstCS = rawDst.refColorSpace();
@@ -504,6 +511,7 @@ public:
         return c ? SkColorSpaceXformSteps{working,dst}.program(p, uniforms, c)
                  : c;
     }
+#endif
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& origColor,
                                 SkColorSpace* rawDstCS) const override {

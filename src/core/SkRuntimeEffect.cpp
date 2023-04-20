@@ -934,6 +934,7 @@ static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children
 }
 #endif
 
+#if defined(SK_ENABLE_SKVM)
 class RuntimeEffectVMCallbacks : public SkSL::SkVMCallbacks {
 public:
     RuntimeEffectVMCallbacks(skvm::Builder* builder,
@@ -952,7 +953,6 @@ public:
             , fColorInfo(colorInfo) {}
 
     skvm::Color sampleShader(int ix, skvm::Coord coord) override {
-#if defined(SK_ENABLE_SKVM)
         // We haven't tracked device coords and the runtime effect could have arbitrarily
         // manipulated the passed coords. We should be in a state where any pending matrix was
         // already applied before the runtime effect's code could have manipulated the coords
@@ -969,7 +969,6 @@ public:
                                           fUniforms,
                                           fAlloc);
         }
-#endif
         return fInColor;
     }
 
@@ -1015,6 +1014,7 @@ public:
     const skvm::Color fInColor;
     const SkColorInfo& fColorInfo;
 };
+#endif  // defined(SK_ENABLE_SKVM)
 
 class SkRuntimeColorFilter : public SkColorFilterBase {
 public:
@@ -1090,10 +1090,10 @@ public:
         return false;
     }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           const SkColorInfo& colorInfo,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-#ifdef SK_ENABLE_SKVM
         SkASSERT(SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(),
                                               fEffect.get()));
 
@@ -1115,13 +1115,11 @@ public:
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p,/*debugTrace=*/nullptr,
                                    SkSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
                                    c, c, &callbacks);
-#else
-        return {};
-#endif
     }
+#endif
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
-#if !defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+#if defined(SK_ENABLE_SKVM)
         // Get the generic program for filtering a single color
         if (const SkFilterColorProgram* program = fEffect->getFilterColorProgram()) {
             // Get our specific uniform values
@@ -1472,10 +1470,10 @@ public:
         return false;
     }
 
+#ifdef SK_ENABLE_SKVM
     skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
                           SkArenaAlloc* alloc) const override {
-#ifdef SK_ENABLE_SKVM
         if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
             return {};
         }
@@ -1496,10 +1494,8 @@ public:
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p,/*debugTrace=*/nullptr,
                                    SkSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
                                    src, dst, &callbacks);
-#else
-        return {};
-#endif
     }
+#endif
 
 #if defined(SK_GANESH)
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(

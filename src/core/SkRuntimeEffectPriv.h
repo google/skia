@@ -50,10 +50,10 @@ public:
         if (!effect->allowColorFilter() || !effect->children().empty()) {
             return false;
         }
-#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
-        return true;
-#else
+#if defined(SK_ENABLE_SKVM)
         return effect->getFilterColorProgram();
+#else
+        return true;
 #endif
     }
 

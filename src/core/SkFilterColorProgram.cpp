@@ -17,7 +17,7 @@
 
 using namespace skia_private;
 
-#if defined(SK_ENABLE_SKSL) && !defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+#if defined(SK_ENABLE_SKSL) && defined(SK_ENABLE_SKVM)
 
 std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntimeEffect* effect) {
     // Our per-effect program technique is only possible (and necessary) for color filters
@@ -221,4 +221,4 @@ SkPMColor4f SkFilterColorProgram::eval(
     return result;
 }
 
-#endif  // defined(SK_ENABLE_SKSL) && !defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+#endif  // defined(SK_ENABLE_SKSL) && defined(SK_ENABLE_SKVM)

@@ -62,8 +62,10 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMode(SkColor*, SkBlendMode*) const override;
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder*, skvm::Color,
                           const SkColorInfo&, skvm::Uniforms*, SkArenaAlloc*) const override;
+#endif
 
     SkColor4f   fColor; // always stored in sRGB
     SkBlendMode fMode;
@@ -123,6 +125,7 @@ bool SkModeColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque)
     return true;
 }
 
+#if defined(SK_ENABLE_SKVM)
 skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
                                          const SkColorInfo& dstInfo,
                                          skvm::Uniforms* uniforms, SkArenaAlloc*) const {
@@ -132,6 +135,7 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
                 src = p->uniformColor({color.fR, color.fG, color.fB, color.fA}, uniforms);
     return p->blend(fMode, src,dst);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 #if defined(SK_GANESH)

@@ -62,9 +62,11 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMatrix(float matrix[20]) const override;
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder*, skvm::Color,
                           const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+#endif
 
     float  fMatrix[20];
     bool   fAlphaIsUnchanged;
@@ -117,7 +119,7 @@ bool SkColorFilter_Matrix::appendStages(const SkStageRec& rec, bool shaderIsOpaq
     return true;
 }
 
-
+#if defined(SK_ENABLE_SKVM)
 skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
                                             const SkColorInfo& /*dst*/,
                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
@@ -158,6 +160,7 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 
     return premul(clamp01(c));
 }
+#endif
 
 #if defined(SK_GANESH)
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
@@ -208,7 +211,6 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
 
     return GrFPSuccess(std::move(fp));
 }
-
 #endif // defined(SK_GANESH)
 
 #if defined(SK_GRAPHITE)

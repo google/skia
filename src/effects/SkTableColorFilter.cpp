@@ -68,7 +68,7 @@ namespace skgpu { class KeyBuilder; }
 class SkSurfaceProps;
 #endif
 
-#if defined(SK_ENABLE_SKSL)
+#if defined(SK_ENABLE_SKSL) && defined(SK_ENABLE_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -122,6 +122,7 @@ public:
         return true;
     }
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
@@ -139,6 +140,7 @@ public:
         c.b = apply_table_to_component(c.b, fBitmap.getAddr8(0,3));
         return premul(c);
     }
+#endif
 
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeByteArray(fBitmap.getAddr8(0,0), 4*256);

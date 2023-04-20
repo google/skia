@@ -14,7 +14,6 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
-#include "src/core/SkVM.h"
 
 #if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
@@ -28,8 +27,6 @@ class GrRecordingContext;
 class SkSurfaceProps;
 #endif
 
-class SkArenaAlloc;
-class SkColorInfo;
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -41,6 +38,12 @@ class SkWriteBuffer;
 namespace skgpu::graphite {
 class PipelineDataGatherer;
 }
+#endif
+
+#if defined(SK_ENABLE_SKVM)
+#include "src/core/SkVM.h"
+class SkArenaAlloc;
+class SkColorInfo;
 #endif
 
 /**
@@ -72,6 +75,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override {}
 
+#if defined(SK_ENABLE_SKVM)
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& dst, skvm::Uniforms*,
                           SkArenaAlloc*) const override {
         // x = 1 - x;
@@ -85,6 +89,7 @@ protected:
         x = c.a * x + 0.00030726194381713867f;
         return {x, x, x, x};
     }
+#endif
 
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
