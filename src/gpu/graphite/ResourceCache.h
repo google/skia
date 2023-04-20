@@ -14,6 +14,7 @@
 #include "src/base/SkTDPQueue.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTMultiMap.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include <vector>
@@ -52,6 +53,13 @@ public:
     // Resource should clean itself up if it is the last ref.
     bool returnResource(Resource*, LastRemovedRef);
 
+    // Purge resources not used since the passed point in time. Resources that have a gpu memory
+    // size of zero will not be purged.
+    // TODO: Should we add an optional flag to also allow purging of zero sized resources? Would we
+    // want to be able to differentiate between things like Pipelines (probably never want to purge)
+    // and things like descriptor sets.
+    void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);
+
     // Called by the ResourceProvider when it is dropping its ref to the ResourceCache. After this
     // is called no more Resources can be returned to the ResourceCache (besides those already in
     // the return queue). Also no new Resources can be retrieved from the ResourceCache.
@@ -73,6 +81,8 @@ public:
     size_t currentBudgetedBytes() const { return fBudgetedBytes; }
 
     Resource* topOfPurgeableQueue();
+
+    bool testingInPurgeableQueue(Resource* resource) { return this->inPurgeableQueue(resource); }
 #endif
 
     ProxyCache* proxyCache() { return fProxyCache.get(); }
@@ -97,6 +107,7 @@ private:
 
     bool overbudget() const { return fBudgetedBytes > fMaxBytes; }
     void purgeAsNeeded();
+    void purgeResource(Resource*);
 
 #ifdef SK_DEBUG
     bool isInCache(const Resource* r) const;

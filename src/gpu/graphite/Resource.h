@@ -140,6 +140,8 @@ private:
     DeleteASAP shouldDeleteASAP() const { return fDeleteASAP; }
     void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
 
+    // In the ResourceCache this is called whenever a Resource is moved into the purgeableQueue. It
+    // may also be called by the ProxyCache to track the time on Resources it is holding on to.
     void updateAccessTime() {
         fLastAccess = skgpu::StdSteadyClock::now();
     }

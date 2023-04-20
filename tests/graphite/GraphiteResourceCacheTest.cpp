@@ -24,6 +24,7 @@
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/image/SkImage_Base.h"
+#include "tools/Resources.h"
 
 namespace skgpu::graphite {
 
@@ -249,10 +250,11 @@ namespace {
 sk_sp<Resource> add_new_resource(skiatest::Reporter* reporter,
                                  const SharedContext* sharedContext,
                                  ResourceCache* resourceCache,
-                                 size_t gpuMemorySize) {
+                                 size_t gpuMemorySize,
+                                 skgpu::Budgeted budgeted = skgpu::Budgeted::kYes) {
     auto resource = TestResource::Make(sharedContext,
                                        Ownership::kOwned,
-                                       skgpu::Budgeted::kYes,
+                                       budgeted,
                                        Shareable::kNo,
                                        gpuMemorySize);
     if (!resource) {
@@ -489,6 +491,171 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteZeroSizedResourcesTest, reporter, con
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
     REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue()->gpuMemorySize() == 0);
+}
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedSinceResourcesTest, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
+    ResourceCache* resourceCache = resourceProvider->resourceCache();
+    const SharedContext* sharedContext = resourceProvider->sharedContext();
+
+    // Basic test where we purge 1 resource
+    auto beforeTime = skgpu::StdSteadyClock::now();
+
+    auto resourcePtr = add_new_purgeable_resource(reporter,
+                                                  sharedContext,
+                                                  resourceCache,
+                                                  /*gpuMemorySize=*/1);
+    if (!resourcePtr) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+
+    auto afterTime = skgpu::StdSteadyClock::now();
+
+    // purging beforeTime should not get rid of the resource
+    resourceCache->purgeResourcesNotUsedSince(beforeTime);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+
+    // purging at afterTime which is after resource became purgeable should purge it.
+    resourceCache->purgeResourcesNotUsedSince(afterTime);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+
+    // Test making 2 purgeable resources, but asking to purge on a time between the two.
+    Resource* resourcePtr1 = add_new_purgeable_resource(reporter,
+                                                       sharedContext,
+                                                       resourceCache,
+                                                       /*gpuMemorySize=*/1);
+
+    auto betweenTime = skgpu::StdSteadyClock::now();
+
+    Resource* resourcePtr2 = add_new_purgeable_resource(reporter,
+                                                        sharedContext,
+                                                        resourceCache,
+                                                        /*gpuMemorySize=*/1);
+
+    afterTime = skgpu::StdSteadyClock::now();
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr1));
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr2));
+
+    resourceCache->purgeResourcesNotUsedSince(betweenTime);
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr2));
+
+    resourceCache->purgeResourcesNotUsedSince(afterTime);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+
+    // purgeResourcesNotUsedSince should have no impact on non-purgeable resources
+    auto resource = add_new_resource(reporter,
+                                     sharedContext,
+                                     resourceCache,
+                                     /*gpuMemorySize=*/1);
+    if (!resource) {
+        return;
+    }
+    resourcePtr = resource.get();
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+
+    afterTime = skgpu::StdSteadyClock::now();
+    resourceCache->purgeResourcesNotUsedSince(afterTime);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, !resourceCache->testingInPurgeableQueue(resourcePtr));
+
+    resource.reset();
+    // purgeResourcesNotUsedSince should check the mailbox for the returned resource. Though the
+    // time is set before that happens so nothing should purge.
+    resourceCache->purgeResourcesNotUsedSince(skgpu::StdSteadyClock::now());
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr));
+
+    // Now it should be purged since it is already purgeable
+    resourceCache->purgeResourcesNotUsedSince(skgpu::StdSteadyClock::now());
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+}
+
+// This test is used to check the case where we call purgeNotUsedSince, which triggers us to return
+// resources from mailbox. Even though the returned resources aren't purged by the last used, we
+// still end up purging things to get under budget.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedOverBudgetTest, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
+    ResourceCache* resourceCache = resourceProvider->resourceCache();
+    const SharedContext* sharedContext = resourceProvider->sharedContext();
+
+    // set resourceCache budget to 10 for testing.
+    resourceCache->setMaxBudget(10);
+
+    // First make a purgeable resources
+    auto resourcePtr = add_new_purgeable_resource(reporter,
+                                                  sharedContext,
+                                                  resourceCache,
+                                                  /*gpuMemorySize=*/1);
+    if (!resourcePtr) {
+        return;
+    }
+
+    // Now create a bunch of non purgeable (yet) resources that are not budgeted (i.e. in real world
+    // they would be wrapped in an SkSurface or SkImage), but will cause us to go over our budget
+    // limit when they do return to cache.
+
+    auto resource1 = add_new_resource(reporter,
+                                      sharedContext,
+                                      resourceCache,
+                                      /*gpuMemorySize=*/15,
+                                      skgpu::Budgeted::kNo);
+
+    auto resource2 = add_new_resource(reporter,
+                                      sharedContext,
+                                      resourceCache,
+                                      /*gpuMemorySize=*/16,
+                                      skgpu::Budgeted::kNo);
+
+    auto resource3 = add_new_resource(reporter,
+                                      sharedContext,
+                                      resourceCache,
+                                      /*gpuMemorySize=*/3,
+                                      skgpu::Budgeted::kNo);
+
+    auto resource1Ptr = resource1.get();
+    auto resource2Ptr = resource2.get();
+    auto resource3Ptr = resource3.get();
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 4);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 1);
+
+    auto timeBeforeReturningToCache = skgpu::StdSteadyClock::now();
+
+    // Now reset all the non budgeted resources so they return to the cache and become budgeted.
+    // Returning to the cache will not immedidately trigger a purgeAsNeededCall.
+    resource1.reset();
+    resource2.reset();
+    resource3.reset();
+
+    resourceCache->forceProcessReturnedResources();
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 4);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 35);
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr));
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resource1Ptr));
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resource2Ptr));
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resource3Ptr));
+
+    // Now we call purgeNotUsedSince with timeBeforeReturnToCache. The original resource should get
+    // purged because it is older than this time. The three originally non budgeted resources are
+    // newer than this time so they won't be purged by the time on this call. However, since we are
+    // overbudget it should trigger us to purge the first two of these resources to get us back
+    // under.
+    resourceCache->purgeResourcesNotUsedSince(timeBeforeReturningToCache);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, resourceCache->currentBudgetedBytes() == 3);
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resource3Ptr));
 }
 
 }  // namespace skgpu::graphite

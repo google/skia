@@ -278,7 +278,13 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
     this->setResourceTimestamp(resource, this->getNextTimestamp());
 
     this->removeFromNonpurgeableArray(resource);
-    fPurgeableQueue.insert(resource);
+
+    if (resource->shouldDeleteASAP() == Resource::DeleteASAP::kYes) {
+        this->purgeResource(resource);
+    } else {
+        resource->updateAccessTime();
+        fPurgeableQueue.insert(resource);
+    }
     this->validate();
 }
 
@@ -317,6 +323,22 @@ bool ResourceCache::inPurgeableQueue(Resource* resource) const {
     return false;
 }
 
+void ResourceCache::purgeResource(Resource* resource) {
+    SkASSERT(resource->isPurgeable());
+
+    fResourceMap.remove(resource->key(), resource);
+
+    if (resource->shouldDeleteASAP() == Resource::DeleteASAP::kNo) {
+        SkASSERT(this->inPurgeableQueue(resource));
+        this->removeFromPurgeableQueue(resource);
+    } else {
+        SkASSERT(!this->isInCache(resource));
+    }
+
+    fBudgetedBytes -= resource->gpuMemorySize();
+    resource->unrefCache();
+}
+
 void ResourceCache::purgeAsNeeded() {
     ASSERT_SINGLE_OWNER
 
@@ -341,14 +363,53 @@ void ResourceCache::purgeAsNeeded() {
             break;
         }
 
-        fResourceMap.remove(resource->key(), resource);
-        this->removeFromPurgeableQueue(resource);
-        fBudgetedBytes -= resource->gpuMemorySize();
-
-        resource->unrefCache();
+        this->purgeResource(resource);
     }
 
     this->validate();
+}
+
+void ResourceCache::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
+    ASSERT_SINGLE_OWNER
+
+    fProxyCache->purgeProxiesNotUsedSince(purgeTime);
+    this->processReturnedResources();
+
+    // Early out if the very first item is too new to purge to avoid sorting the queue when
+    // nothing will be deleted.
+    if (fPurgeableQueue.count() && fPurgeableQueue.peek()->lastAccessTime() >= purgeTime) {
+        return;
+    }
+
+    // Sort the queue
+    fPurgeableQueue.sort();
+
+    // Make a list of the scratch resources to delete
+    SkTDArray<Resource*> nonZeroSizedResources;
+    for (int i = 0; i < fPurgeableQueue.count(); i++) {
+        Resource* resource = fPurgeableQueue.at(i);
+
+        const skgpu::StdSteadyClock::time_point resourceTime = resource->lastAccessTime();
+        if (resourceTime >= purgeTime) {
+            // scratch or not, all later iterations will be too recently used to purge.
+            break;
+        }
+        SkASSERT(resource->isPurgeable());
+        if (resource->gpuMemorySize() > 0) {
+            *nonZeroSizedResources.append() = resource;
+        }
+    }
+
+    // Delete the scratch resources. This must be done as a separate pass
+    // to avoid messing up the sorted order of the queue
+    for (int i = 0; i < nonZeroSizedResources.size(); i++) {
+        this->purgeResource(nonZeroSizedResources[i]);
+    }
+
+    // Since we called process returned resources at the start of this call, we could still end up
+    // over budget even after purging resources based on purgeTime. So we call purgeAsNeeded at the
+    // end here.
+    this->purgeAsNeeded();
 }
 
 uint32_t ResourceCache::getNextTimestamp() {

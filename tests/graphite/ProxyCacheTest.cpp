@@ -349,4 +349,63 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context) {
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
 }
 
+// Verify that the ProxyCache's purgeProxiesNotUsedSince behavior is working when triggered from
+// ResourceCache.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9, r, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceCache* resourceCache = recorder->priv().resourceCache();
+    ProxyCache* proxyCache = recorder->priv().proxyCache();
+
+    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    REPORTER_ASSERT(r, setup.valid());
+    if (!setup.valid()) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, setup.fProxy1->isInstantiated());
+    REPORTER_ASSERT(r, setup.fProxy2->isInstantiated());
+
+    if (!setup.fProxy1->texture() || !setup.fProxy2->texture()) {
+        return;
+    }
+
+    // Clear out resources used to setup bitmap proxies so we can track things easier.
+    resourceCache->setMaxBudget(0);
+    resourceCache->setMaxBudget(256 * (1 << 20));
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+    REPORTER_ASSERT(r, resourceCache->getResourceCount() == 2);
+
+    // Force a command buffer ref on the second proxy in the cache so it can't be purged immediately
+    setup.fProxy2->texture()->refCommandBuffer();
+
+    Resource* proxy2ResourcePtr = setup.fProxy2->texture();
+
+    setup.fProxy1.reset();
+    setup.fProxy2.reset();
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    auto timeAfterProxyCreation = skgpu::StdSteadyClock::now();
+
+    // This should trigger both proxies to be purged from the ProxyCache. The first proxy should
+    // immediately be purged from the ResourceCache as well since it has not other refs. The second
+    // proxy will not be purged from the ResourceCache since it still has a command buffer ref.
+    // However, that resource should have its deleteASAP flag set.
+    resourceCache->purgeResourcesNotUsedSince(timeAfterProxyCreation);
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+    REPORTER_ASSERT(r, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(r, resourceCache->topOfPurgeableQueue() == nullptr);
+    REPORTER_ASSERT(r, proxy2ResourcePtr->testingShouldDeleteASAP());
+
+    // Removing the command buffer ref and returning proxy2Resource to the cache should cause it to
+    // immediately get deleted without going in the purgeable queue.
+    proxy2ResourcePtr->unrefCommandBuffer();
+    resourceCache->forceProcessReturnedResources();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+    REPORTER_ASSERT(r, resourceCache->getResourceCount() == 0);
+    REPORTER_ASSERT(r, resourceCache->topOfPurgeableQueue() == nullptr);
+}
+
 }  // namespace skgpu::graphite
