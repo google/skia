@@ -64,7 +64,6 @@ private:
 
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -73,7 +72,6 @@ private:
                         const SkColorInfo& dst,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc*) const override;
-#endif
 
     SkColor fColor;
 };
@@ -102,7 +100,6 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -111,7 +108,6 @@ private:
                         const SkColorInfo& dst,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc*) const override;
-#endif
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;
@@ -189,7 +185,6 @@ bool SkColor4Shader::appendStages(const SkStageRec& rec, const MatrixRec&) const
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
 skvm::Color SkColorShader::program(skvm::Builder* p,
                                    skvm::Coord /*device*/,
                                    skvm::Coord /*local*/,
@@ -203,7 +198,6 @@ skvm::Color SkColorShader::program(skvm::Builder* p,
                               dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
     return p->uniformColor(color, uniforms);
 }
-
 skvm::Color SkColor4Shader::program(skvm::Builder* p,
                                     skvm::Coord /*device*/,
                                     skvm::Coord /*local*/,
@@ -217,7 +211,6 @@ skvm::Color SkColor4Shader::program(skvm::Builder* p,
                             dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
     return p->uniformColor(color, uniforms);
 }
-#endif  // defined(SK_ENABLE_SKVM)
 
 #if defined(SK_GANESH)
 

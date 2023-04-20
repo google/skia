@@ -48,8 +48,6 @@ protected:
     SkShader_Blend(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
-
-#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -58,7 +56,6 @@ protected:
                         const SkColorInfo& dst,
                         skvm::Uniforms*,
                         SkArenaAlloc*) const override;
-#endif  // defined(SK_ENABLE_SKVM)
 
 private:
     friend void ::SkRegisterComposeShaderFlattenable();
@@ -142,7 +139,6 @@ bool SkShader_Blend::appendStages(const SkStageRec& rec, const MatrixRec& mRec) 
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
 skvm::Color SkShader_Blend::program(skvm::Builder* p,
                                     skvm::Coord device,
                                     skvm::Coord local,
@@ -158,7 +154,6 @@ skvm::Color SkShader_Blend::program(skvm::Builder* p,
     }
     return {};
 }
-#endif
 
 #if defined(SK_GANESH)
 

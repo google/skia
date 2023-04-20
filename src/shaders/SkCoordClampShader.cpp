@@ -46,7 +46,6 @@ protected:
     SkShader_CoordClamp(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
-#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -55,7 +54,6 @@ protected:
                         const SkColorInfo& dst,
                         skvm::Uniforms*,
                         SkArenaAlloc*) const override;
-#endif
 
 private:
     friend void ::SkRegisterCoordClampShaderFlattenable();
@@ -93,7 +91,6 @@ bool SkShader_CoordClamp::appendStages(const SkStageRec& rec, const MatrixRec& m
     return as_SB(fShader)->appendStages(rec, *childMRec);
 }
 
-#if defined(SK_ENABLE_SKVM)
 skvm::Color SkShader_CoordClamp::program(skvm::Builder* p,
                                          skvm::Coord device,
                                          skvm::Coord local,
@@ -118,7 +115,6 @@ skvm::Color SkShader_CoordClamp::program(skvm::Builder* p,
 
     return as_SB(fShader)->program(p, device, local, paint, *childMRec, cinfo, uniforms, alloc);
 }
-#endif
 
 #if defined(SK_GANESH)
 std::unique_ptr<GrFragmentProcessor> SkShader_CoordClamp::asFragmentProcessor(

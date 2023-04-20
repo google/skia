@@ -78,7 +78,6 @@ private:
 
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -87,7 +86,6 @@ private:
                         const SkColorInfo& dst,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc*) const override;
-#endif  // defined(SK_ENABLE_SKVM)
 
     sk_sp<SkImage>          fImage;
     const SkSamplingOptions fSampling;

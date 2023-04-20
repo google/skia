@@ -854,7 +854,6 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
     return append_misc();
 }
 
-#if defined(SK_ENABLE_SKVM)
 skvm::Color SkImageShader::program(skvm::Builder* p,
                                    skvm::Coord device,
                                    skvm::Coord origLocal,
@@ -1143,4 +1142,3 @@ skvm::Color SkImageShader::program(skvm::Builder* p,
                 : SkColorSpaceXformSteps{cs, at, dst.colorSpace(), dst.alphaType()}.program(
                           p, uniforms, c);
 }
-#endif

@@ -68,7 +68,6 @@ bool SkColorFilterShader::appendStages(const SkStageRec& rec, const MatrixRec& m
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
 skvm::Color SkColorFilterShader::program(skvm::Builder* p,
                                          skvm::Coord device,
                                          skvm::Coord local,
@@ -94,7 +93,7 @@ skvm::Color SkColorFilterShader::program(skvm::Builder* p,
     // Finally run that through the color filter.
     return fFilter->program(p,c, dst, uniforms,alloc);
 }
-#endif
+
 #if defined(SK_GANESH)
 /////////////////////////////////////////////////////////////////////
 

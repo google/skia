@@ -258,7 +258,6 @@ bool SkShaderBase::appendStages(const SkStageRec& rec, const MatrixRec& mRec) co
     return false;
 }
 
-#if defined(SK_ENABLE_SKVM)
 skvm::Color SkShaderBase::rootProgram(skvm::Builder* p,
                                       skvm::Coord device,
                                       skvm::Color paint,
@@ -299,7 +298,6 @@ skvm::Color SkShaderBase::rootProgram(skvm::Builder* p,
     }
     return {};
 }
-#endif  // defined(SK_ENABLE_SKVM)
 
 // need a cheap way to invert the alpha channel of a shader (i.e. 1 - a)
 sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {

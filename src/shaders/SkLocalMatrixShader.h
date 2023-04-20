@@ -60,7 +60,6 @@ protected:
 
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -69,7 +68,6 @@ protected:
                         const SkColorInfo& dst,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc*) const override;
-#endif
 
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixShader)
