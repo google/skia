@@ -200,6 +200,7 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
     };
 }
 
+#if defined(SK_ENABLE_SKVM)
 skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* uniforms,
                                             skvm::Color c) const {
     if (flags.unpremul) {
@@ -225,3 +226,4 @@ skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* un
     }
     return c;
 }
+#endif  // defined(SK_ENABLE_SKVM)

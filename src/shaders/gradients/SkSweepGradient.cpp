@@ -40,9 +40,11 @@ protected:
 
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
-
+#if defined(SK_ENABLE_SKVM)
     skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
                          skvm::Coord coord, skvm::I32* mask) const final;
+#endif
+
 private:
     friend void ::SkRegisterSweepGradientShaderFlattenable();
     SK_FLATTENABLE_HOOKS(SkSweepGradient)
@@ -115,6 +117,7 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
     p->append_matrix(alloc, SkMatrix::Scale(fTScale, 1) * SkMatrix::Translate(fTBias, 0));
 }
 
+#if defined(SK_ENABLE_SKVM)
 skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
                                       skvm::Coord coord, skvm::I32* mask) const {
     skvm::F32 xabs = abs(coord.x),
@@ -143,6 +146,7 @@ skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms
     }
     return t;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////
 

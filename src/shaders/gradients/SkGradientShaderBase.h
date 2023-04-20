@@ -113,10 +113,11 @@ protected:
 
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
-
+#if defined(SK_ENABLE_SKVM)
     // Produce t from (x,y), modifying mask if it should be anything other than ~0.
     virtual skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
                                  skvm::Coord coord, skvm::I32* mask) const = 0;
+#endif
 
     const SkMatrix fPtsToUnit;
     SkTileMode     fTileMode;
