@@ -8,6 +8,8 @@
 #ifndef SKSL_VMGENERATOR
 #define SKSL_VMGENERATOR
 
+#if defined(SK_ENABLE_SKVM)
+
 #include "src/core/SkVM.h"
 
 #include <cstddef>
@@ -76,4 +78,5 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
 
 }  // namespace SkSL
 
-#endif
+#endif  // defined(SK_ENABLE_SKVM)
+#endif  // SKSL_VMGENERATOR

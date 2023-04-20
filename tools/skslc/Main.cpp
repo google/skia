@@ -642,9 +642,10 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toWGSL(program, out);
                 });
+#if defined(SK_ENABLE_SKVM)
     } else if (skstd::ends_with(outputPath, ".skvm")) {
         return compileProgramAsRuntimeShader(
-                [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
+                [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
                                                                debugTrace.get())) {
@@ -658,6 +659,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     builder.done().dump(redirect.get());
                     return true;
                 });
+#endif
     } else if (skstd::ends_with(outputPath, ".skrp")) {
         settings.fMaxVersionAllowed = SkSL::Version::k300;
         return compileProgramAsRuntimeShader(

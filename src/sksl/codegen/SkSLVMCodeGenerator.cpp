@@ -72,6 +72,8 @@
 #include <utility>
 #include <vector>
 
+#if defined(SK_ENABLE_SKVM)
+
 using namespace skia_private;
 
 namespace {
@@ -2301,3 +2303,5 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
 }
 
 }  // namespace SkSL
+
+#endif  // defined(SK_ENABLE_SKVM)

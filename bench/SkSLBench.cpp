@@ -62,9 +62,11 @@ enum class Output {
     kMetal,
     kSPIRV,
     kSkRP,
+#if defined(SK_ENABLE_SKVM)
     kSkVM,     // raw SkVM bytecode
     kSkVMOpt,  // optimized SkVM bytecode
     kSkVMJIT,  // optimized native assembly code
+#endif
 };
 
 class SkSLCompileBench : public Benchmark {
@@ -76,9 +78,11 @@ public:
             case Output::kMetal:   return "metal_";
             case Output::kSPIRV:   return "spirv_";
             case Output::kSkRP:    return "skrp_";
+#if defined(SK_ENABLE_SKVM)
             case Output::kSkVM:    return "skvm_";
             case Output::kSkVMOpt: return "skvm_opt_";
             case Output::kSkVMJIT: return "skvm_jit_";
+#endif
         }
         SkUNREACHABLE;
     }
@@ -146,13 +150,16 @@ protected:
                 case Output::kMetal:   SkAssertResult(fCompiler.toMetal(*program, &result)); break;
                 case Output::kSPIRV:   SkAssertResult(fCompiler.toSPIRV(*program, &result)); break;
                 case Output::kSkRP:    SkAssertResult(CompileToSkRP(*program)); break;
+#if defined(SK_ENABLE_SKVM)
                 case Output::kSkVM:
                 case Output::kSkVMOpt:
                 case Output::kSkVMJIT: SkAssertResult(CompileToSkVM(*program, fOutput)); break;
+#endif
             }
         }
     }
 
+#if defined(SK_ENABLE_SKVM)
     static bool CompileToSkVM(const SkSL::Program& program, Output mode) {
         const bool optimize = (mode >= Output::kSkVMOpt);
         const bool allowJIT = (mode >= Output::kSkVMJIT);
@@ -165,6 +172,7 @@ protected:
         }
         return true;
     }
+#endif
 
     static bool CompileToSkRP(const SkSL::Program& program) {
         const SkSL::FunctionDeclaration* main = program.getFunction("main");
@@ -209,17 +217,28 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define COMPILER_BENCH(name, text)                                                                 \
+#define COMPILER_BENCH_COMMON(name, text)                                                          \
 static constexpr char name ## _SRC[] = text;                                                       \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/false, Output::kNone);)    \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kNone);)    \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kGLSL);)    \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kMetal);)   \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSPIRV);)   \
-DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkRP);)    \
+DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkRP);)
+
+#if defined(SK_ENABLE_SKVM)
+
+#define COMPILER_BENCH(name, text)                                                                 \
+COMPILER_BENCH_COMMON(name, text)                                                                  \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkVM);)    \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkVMOpt);) \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSkVMJIT);)
+
+#else
+
+#define COMPILER_BENCH(name, text) COMPILER_BENCH_COMMON(name, text)
+
+#endif
 
 // This fragment shader is from the third tile on the top row of GM_gradients_2pt_conical_outside.
 // To get an ES2 compatible shader, nonconstantArrayIndexSupport in GrShaderCaps is forced off.
