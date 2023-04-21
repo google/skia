@@ -918,14 +918,10 @@ void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> components) {
         return;
     }
 
-    // This is a big swizzle. We use the `shuffle` op to handle these.
-    // Slot usage is packed into immA. The top 16 bits of immA count the consumed slots; the bottom
-    // 16 bits count the generated slots.
-    int slotUsage = consumedSlots << 16;
-    slotUsage |= numElements;
-
-    // Pack immB and immC with the shuffle list in packed-nybble form.
-    fInstructions.push_back({BuilderOp::shuffle, {}, slotUsage,
+    // This is a big swizzle. We use the `shuffle` op to handle these. immA counts the consumed
+    // slots. immB counts the generated slots. immC and immD hold packed-nybble shuffle values.
+    fInstructions.push_back({BuilderOp::shuffle, {},
+                             consumedSlots, numElements,
                              pack_nybbles(SkSpan(&elements[0], 8)),
                              pack_nybbles(SkSpan(&elements[8], 8))});
 }
@@ -1069,8 +1065,8 @@ static int stack_usage(const Instruction& inst) {
             return -5;  // consumes nine slots (N + I + eta) and emits a 4-slot vector (R)
 
         case BuilderOp::shuffle: {
-            int consumed = inst.fImmA >> 16;
-            int generated = inst.fImmA & 0xFFFF;
+            int consumed = inst.fImmA;
+            int generated = inst.fImmB;
             return generated - consumed;
         }
         case ALL_SINGLE_SLOT_UNARY_OP_CASES:
@@ -1632,15 +1628,15 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 break;
             }
             case BuilderOp::shuffle: {
-                int consumed = inst.fImmA >> 16;
-                int generated = inst.fImmA & 0xFFFF;
+                int consumed = inst.fImmA;
+                int generated = inst.fImmB;
 
                 auto* ctx = alloc->make<SkRasterPipeline_ShuffleCtx>();
                 ctx->ptr = tempStackPtr - (N * consumed);
                 ctx->count = generated;
                 // Unpack immB and immC from nybble form into the offset array.
-                unpack_nybbles_to_offsets(inst.fImmB, SkSpan(&ctx->offsets[0], 8));
-                unpack_nybbles_to_offsets(inst.fImmC, SkSpan(&ctx->offsets[8], 8));
+                unpack_nybbles_to_offsets(inst.fImmC, SkSpan(&ctx->offsets[0], 8));
+                unpack_nybbles_to_offsets(inst.fImmD, SkSpan(&ctx->offsets[8], 8));
                 pipeline->push_back({ProgramOp::shuffle, ctx});
                 break;
             }
