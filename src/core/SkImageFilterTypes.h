@@ -687,11 +687,6 @@ private:
     std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>
     resolve(LayerSpace<SkIRect> dstBounds) const;
 
-    // Update metadata to concat the given transform directly.
-    void concatTransform(const LayerSpace<SkMatrix>& transform,
-                         const SkSamplingOptions& newSampling,
-                         const LayerSpace<SkIRect>& outputBounds);
-
     // The effective image of a FilterResult is 'fImage' sampled by 'fSamplingOptions' and
     // respecting 'fTileMode' (on the SkSpecialImage's subset), transformed by 'fTransform', clipped
     // to 'fLayerBounds'.

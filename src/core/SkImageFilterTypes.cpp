@@ -354,37 +354,26 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
         // We'll have to resolve this FilterResult first before 'transform' and 'sampling' can be
         // correctly evaluated. 'nextSampling' will always be 'sampling'.
         transformed = this->resolve(fLayerBounds);
+        if (!transformed.fImage) {
+            // Resolve failed to create an image, so don't bother update metadata
+            return {};
+        }
     }
 
-    transformed.concatTransform(transform, nextSampling, ctx.desiredOutput());
-    if (transformed.layerBounds().isEmpty()) {
-        return {};
-    } else {
-        return transformed;
-    }
-}
-
-void FilterResult::concatTransform(const LayerSpace<SkMatrix>& transform,
-                                   const SkSamplingOptions& newSampling,
-                                   const LayerSpace<SkIRect>& desiredOutput) {
-    if (!fImage) {
-        // Under normal circumstances, concatTransform() will only be called when we have an image,
-        // but if resolve() fails to make a special surface, we may end up here at which point
-        // doing nothing further is appropriate.
-        return;
-    }
-    fSamplingOptions = newSampling;
-    fTransform.postConcat(transform);
+    transformed.fSamplingOptions = nextSampling;
+    transformed.fTransform.postConcat(transform);
     // Rebuild the layer bounds and then restrict to the current desired output. The original value
     // of fLayerBounds includes the image mapped by the original fTransform as well as any
     // accumulated soft crops from desired outputs of prior stages. To prevent discarding that info,
     // we map fLayerBounds by the additional transform, instead of re-mapping the image bounds.
-    fLayerBounds = transform.mapRect(fLayerBounds);
-    if (!fLayerBounds.intersect(desiredOutput)) {
+    transformed.fLayerBounds = transform.mapRect(transformed.fLayerBounds);
+    if (!transformed.fLayerBounds.intersect(ctx.desiredOutput())) {
         // The transformed output doesn't touch the desired, so it would just be transparent black.
         // TODO: This intersection only applies when the tile mode is kDecal.
-        fLayerBounds = LayerSpace<SkIRect>::Empty();
+        return {};
     }
+
+    return transformed;
 }
 
 std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
