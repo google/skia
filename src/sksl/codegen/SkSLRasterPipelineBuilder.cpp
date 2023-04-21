@@ -636,6 +636,22 @@ void Builder::pop_slots_unmasked(SlotRange dst) {
     }
 }
 
+void Builder::pop_src_rgba() {
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the previous op is exchanging src.rgba with the stack...
+        if (lastInstruction.fOp == BuilderOp::exchange_src) {
+            // ... both ops can be eliminated. It's just sliding the color back and forth.
+            fInstructions.pop_back();
+            this->discard_stack(4);
+            return;
+        }
+    }
+
+    fInstructions.push_back({BuilderOp::pop_src_rgba, {}});
+}
+
 void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
     // If the execution mask is known to be all-true, then we can ignore the write mask.
     if (!this->executionMaskWritesAreEnabled()) {

@@ -579,9 +579,7 @@ public:
         fInstructions.push_back({BuilderOp::pop_src_rg, {}});
     }
 
-    void pop_src_rgba() {
-        fInstructions.push_back({BuilderOp::pop_src_rgba, {}});
-    }
+    void pop_src_rgba();
 
     void pop_dst_rgba() {
         fInstructions.push_back({BuilderOp::pop_dst_rgba, {}});

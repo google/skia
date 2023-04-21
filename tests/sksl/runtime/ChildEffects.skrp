@@ -6,21 +6,15 @@
     6. copy_2_slots_unmasked          $12..13 = xy
     7. load_src_rg                    src.rg = $12..13
     8. invoke_shader                  invoke_shader 0
-    9. exchange_src                   swap(src.rgba, $8..11)
-   10. load_src                       src.rgba = $8..11
-   11. invoke_color_filter            invoke_color_filter 0x00000002
-   12. exchange_src                   swap(src.rgba, $4..7)
-   13. store_src                      $8..11 = src.rgba
-   14. store_src                      $12..15 = src.rgba
-   15. copy_2_slots_unmasked          $16..17 = xy
-   16. load_src_rg                    src.rg = $16..17
-   17. invoke_shader                  invoke_shader 0x00000001
-   18. exchange_src                   swap(src.rgba, $12..15)
-   19. load_src                       src.rgba = $12..15
-   20. invoke_color_filter            invoke_color_filter 0x00000003
-   21. exchange_src                   swap(src.rgba, $8..11)
-   22. load_dst                       dst.rgba = $8..11
-   23. load_src                       src.rgba = $4..7
-   24. invoke_blender                 invoke_blender 0x00000004
-   25. exchange_src                   swap(src.rgba, $0..3)
-   26. load_src                       src.rgba = $0..3
+    9. invoke_color_filter            invoke_color_filter 0x00000002
+   10. exchange_src                   swap(src.rgba, $4..7)
+   11. store_src                      $8..11 = src.rgba
+   12. store_src                      $12..15 = src.rgba
+   13. copy_2_slots_unmasked          $16..17 = xy
+   14. load_src_rg                    src.rg = $16..17
+   15. invoke_shader                  invoke_shader 0x00000001
+   16. invoke_color_filter            invoke_color_filter 0x00000003
+   17. exchange_src                   swap(src.rgba, $8..11)
+   18. load_dst                       dst.rgba = $8..11
+   19. load_src                       src.rgba = $4..7
+   20. invoke_blender                 invoke_blender 0x00000004
