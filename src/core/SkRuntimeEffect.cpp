@@ -239,24 +239,25 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
 [[maybe_unused]] static SkSpan<const float> uniforms_as_span(
         SkSpan<const SkRuntimeEffect::Uniform> uniforms,
         sk_sp<const SkData> originalData,
+        bool alwaysCopyIntoAlloc,
         const SkColorSpace* destColorSpace,
         SkArenaAlloc* alloc) {
     // Transform the uniforms into the destination colorspace.
     sk_sp<const SkData> transformedData = SkRuntimeEffectPriv::TransformUniforms(uniforms,
                                                                                  originalData,
                                                                                  destColorSpace);
-    // If we get the original uniforms back as-is, it's safe to return a pointer into existing data.
-    if (originalData == transformedData) {
-        return SkSpan{static_cast<const float*>(originalData->data()),
-                      originalData->size() / sizeof(float)};
+    if (alwaysCopyIntoAlloc || originalData != transformedData) {
+        // The transformed uniform data's lifetime is not long enough to reuse; instead, we copy the
+        // uniform data directly into the alloc.
+        int numBytes = transformedData->size();
+        int numFloats = numBytes / sizeof(float);
+        float* uniformsInAlloc = alloc->makeArrayDefault<float>(numFloats);
+        memcpy(uniformsInAlloc, transformedData->data(), numBytes);
+        return SkSpan{uniformsInAlloc, numFloats};
     }
-    // The transformed uniform data will go out of scope when this function returns, so we must copy
-    // it directly into the alloc.
-    int numBytes = transformedData->size();
-    int numFloats = numBytes / sizeof(float);
-    float* uniformsInAlloc = alloc->makeArrayDefault<float>(numFloats);
-    memcpy(uniformsInAlloc, transformedData->data(), numBytes);
-    return SkSpan{uniformsInAlloc, numFloats};
+    // It's safe to return a pointer into existing data.
+    return SkSpan{static_cast<const float*>(originalData->data()),
+                  originalData->size() / sizeof(float)};
 }
 
 class RuntimeEffectRPCallbacks : public SkSL::RP::Callbacks {
@@ -1078,6 +1079,7 @@ public:
         if (const SkSL::RP::Program* program = fEffect->getRPProgram(/*debugTrace=*/nullptr)) {
             SkSpan<const float> uniforms = uniforms_as_span(fEffect->uniforms(),
                                                             fUniforms,
+                                                            /*alwaysCopyIntoAlloc=*/false,
                                                             rec.fDstCS,
                                                             rec.fAlloc);
             SkShaderBase::MatrixRec matrix(SkMatrix::I());
@@ -1303,10 +1305,12 @@ public:
             if (!newMRec.has_value()) {
                 return false;
             }
-            SkSpan<const float> uniforms = uniforms_as_span(fEffect->uniforms(),
-                                                            this->uniformData(rec.fDstCS),
-                                                            rec.fDstCS,
-                                                            rec.fAlloc);
+            SkSpan<const float> uniforms =
+                    uniforms_as_span(fEffect->uniforms(),
+                                     this->uniformData(rec.fDstCS),
+                                     /*alwaysCopyIntoAlloc=*/fUniformData == nullptr,
+                                     rec.fDstCS,
+                                     rec.fAlloc);
             RuntimeEffectRPCallbacks callbacks(rec, *newMRec, fChildren, fEffect->fSampleUsages);
             bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks, uniforms);
             return success;
@@ -1378,6 +1382,7 @@ private:
             return fUniformData;
         }
 
+        // We want to invoke the uniforms-callback each time a paint occurs.
         SkASSERT(fUniformsCallback);
         sk_sp<const SkData> uniforms = fUniformsCallback({dstCS});
         SkASSERT(uniforms && uniforms->size() == fEffect->uniformSize());
@@ -1458,6 +1463,7 @@ public:
         if (const SkSL::RP::Program* program = fEffect->getRPProgram(/*debugTrace=*/nullptr)) {
             SkSpan<const float> uniforms = uniforms_as_span(fEffect->uniforms(),
                                                             fUniforms,
+                                                            /*alwaysCopyIntoAlloc=*/false,
                                                             rec.fDstCS,
                                                             rec.fAlloc);
             SkShaderBase::MatrixRec matrix(SkMatrix::I());
