@@ -338,10 +338,15 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             depthStencil.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
         }
         depthStencil.depthCompare = compare_op_to_dawn(depthStencilSettings.fDepthCompareOp);
-        depthStencil.stencilFront = stencil_face_to_dawn(depthStencilSettings.fFrontStencil);
-        depthStencil.stencilBack = stencil_face_to_dawn(depthStencilSettings.fBackStencil);
-        depthStencil.stencilReadMask = depthStencilSettings.fFrontStencil.fReadMask;
-        depthStencil.stencilWriteMask = depthStencilSettings.fFrontStencil.fWriteMask;
+
+        // Dawn validation fails if the stencil state is non-default and the
+        // format doesn't have the stencil aspect.
+        if (DawnFormatIsStencil(dsFormat) && depthStencilSettings.fStencilTestEnabled) {
+            depthStencil.stencilFront = stencil_face_to_dawn(depthStencilSettings.fFrontStencil);
+            depthStencil.stencilBack = stencil_face_to_dawn(depthStencilSettings.fBackStencil);
+            depthStencil.stencilReadMask = depthStencilSettings.fFrontStencil.fReadMask;
+            depthStencil.stencilWriteMask = depthStencilSettings.fFrontStencil.fWriteMask;
+        }
 
         descriptor.depthStencil = &depthStencil;
     }
