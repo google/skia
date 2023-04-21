@@ -15,7 +15,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeRange.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/core/SkXfermodePriv.h"
 #include "src/shaders/SkColorFilterShader.h"
 #include "src/shaders/SkShaderBase.h"
 

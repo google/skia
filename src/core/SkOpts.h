@@ -8,10 +8,10 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
 #include "src/core/SkRasterPipelineOpList.h"
-#include "src/core/SkXfermodePriv.h"
 
 /**
  * SkOpts (short for SkOptimizations) is a mechanism where we can ship with multiple implementations
@@ -74,10 +74,6 @@ namespace SkOpts {
     void Init();
 
     // Declare function pointers here...
-
-    // May return nullptr if we haven't specialized the given Mode.
-    extern SkXfermode* (*create_xfermode)(SkBlendMode);
-
     extern void (*blit_mask_d32_a8)(SkPMColor*, size_t, const SkAlpha*, size_t, SkColor, int, int);
     extern void (*blit_row_color32)(SkPMColor*, const SkPMColor*, int, SkPMColor);
     extern void (*blit_row_s32a_opaque)(SkPMColor*, const SkPMColor*, int, U8CPU);

@@ -13,11 +13,9 @@
 #include "src/opts/SkBitmapProcState_opts.h"
 #include "src/opts/SkBlitMask_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
-#include "src/opts/SkXfermode_opts.h"
 
 namespace SkOpts {
     void Init_ssse3() {
-        create_xfermode = ssse3::create_xfermode;
         blit_mask_d32_a8 = ssse3::blit_mask_d32_a8;
 
         RGBA_to_BGRA          = ssse3::RGBA_to_BGRA;

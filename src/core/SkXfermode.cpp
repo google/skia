@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkBlendMode.h"
-#include "src/core/SkXfermodePriv.h"
 
 #if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

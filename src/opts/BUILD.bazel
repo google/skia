@@ -39,7 +39,6 @@ skia_filegroup(
         "SkSwizzler_opts.h",
         "SkUtils_opts.h",
         "SkVM_opts.h",
-        "SkXfermode_opts.h",
     ],
     visibility = ["//src:__pkg__"],
 )

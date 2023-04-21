@@ -349,8 +349,6 @@ CORE_FILES = [
     "SkXfermode.cpp",
     "SkXfermodeInterpretation.cpp",
     "SkXfermodeInterpretation.h",
-    "SkXfermodePriv.h",
-    "SkXfermode_Raster.cpp",
     "SkYUVAInfo.cpp",
     "SkYUVAInfoLocation.h",
     "SkYUVAPixmaps.cpp",
