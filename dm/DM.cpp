@@ -1565,10 +1565,12 @@ int main(int argc, char** argv) {
 
     gSkForceRasterPipelineBlitter     = FLAGS_forceRasterPipelineHP || FLAGS_forceRasterPipeline;
     gForceHighPrecisionRasterPipeline = FLAGS_forceRasterPipelineHP;
+    gSkBlobAsSlugTesting              = FLAGS_blobAsSlugTesting;
+#if defined(SK_ENABLE_SKVM)
     gUseSkVMBlitter                   = FLAGS_skvm;
     gSkVMAllowJIT                     = FLAGS_jit;
     gSkVMJITViaDylib                  = FLAGS_dylib;
-    gSkBlobAsSlugTesting              = FLAGS_blobAsSlugTesting;
+#endif
 
     // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
     if (!FLAGS_writePath.isEmpty()) {

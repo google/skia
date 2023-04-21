@@ -391,10 +391,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #ifdef SK_BUILD_FOR_ANDROID
     SetResourcePath("/data/local/tmp/resources");
 #endif
-
+#if defined(SK_ENABLE_SKVM)
     gUseSkVMBlitter = FLAGS_skvm;
     gSkVMAllowJIT = FLAGS_jit;
     gSkVMJITViaDylib = FLAGS_dylib;
+#endif
 
     CommonFlags::SetDefaultFontMgr();
 
@@ -734,6 +735,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
+#if defined(SK_ENABLE_SKVM)
     fCommands.addCommand('!', "SkVM", "Toggle SkVM blitter", [this]() {
         gUseSkVMBlitter = !gUseSkVMBlitter;
         this->updateTitle();
@@ -744,6 +746,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
+#endif
 
     // set up slides
     this->initSlides();
@@ -1050,12 +1053,14 @@ void Viewer::updateTitle() {
     if (fDrawViaSerialize) {
         title.append(" <serialize>");
     }
+#if defined(SK_ENABLE_SKVM)
     if (gUseSkVMBlitter) {
         title.append(" <SkVMBlitter>");
     }
     if (!gSkVMAllowJIT) {
         title.append(" <SkVM interpreter>");
     }
+#endif
 
     SkPaintTitleUpdater paintTitle(&title);
     auto paintFlag = [this, &paintTitle](bool SkPaintFields::* flag,

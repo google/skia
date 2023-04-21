@@ -389,10 +389,11 @@ int main(int argc, char** argv) {
 #if defined(SK_ENABLE_SVG)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
-
+#if defined(SK_ENABLE_SKVM)
     gUseSkVMBlitter  = FLAGS_skvm;
     gSkVMAllowJIT    = FLAGS_jit;
     gSkVMJITViaDylib = FLAGS_dylib;
+#endif
 
     initializeEventTracingForTools();
     CommonFlags::SetDefaultFontMgr();
