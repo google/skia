@@ -182,7 +182,6 @@ const Caps::ColorTypeInfo* DawnCaps::getColorTypeInfo(SkColorType colorType,
         }
     }
 
-    SkASSERT(false);
     return nullptr;
 }
 
