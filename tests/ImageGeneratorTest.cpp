@@ -21,6 +21,7 @@
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -119,7 +120,7 @@ DEF_TEST(PictureImageGenerator, reporter) {
 
     auto colorspace = SkColorSpace::MakeSRGB();
     auto picture = make_picture();
-    auto gen = SkImageGenerator::MakeFromPicture(
+    auto gen = SkImageGenerators::MakeFromPicture(
             {100, 100}, picture, nullptr, nullptr, SkImages::BitDepth::kU8, colorspace);
 
     // worst case for all requests

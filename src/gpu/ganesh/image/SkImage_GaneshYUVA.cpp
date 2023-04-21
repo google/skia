@@ -184,7 +184,7 @@ sk_sp<SkImage> SkImage_GaneshYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> n
             new SkImage_GaneshYUVA(fContext, this, std::move(newCS), ColorSpaceMode::kReinterpret));
 }
 
-std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::onAsView(
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::asView(
         GrRecordingContext* rContext, GrMipmapped mipmapped, GrImageTexGenPolicy) const {
     if (!fContext->priv().matches(rContext)) {
         return {};
@@ -215,7 +215,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::onAsView(
     return {sfc->readSurfaceView(), sfc->colorInfo().colorType()};
 }
 
-std::unique_ptr<GrFragmentProcessor> SkImage_GaneshYUVA::onAsFragmentProcessor(
+std::unique_ptr<GrFragmentProcessor> SkImage_GaneshYUVA::asFragmentProcessor(
         GrRecordingContext* context,
         SkSamplingOptions sampling,
         const SkTileMode tileModes[2],

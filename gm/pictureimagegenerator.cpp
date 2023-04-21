@@ -33,6 +33,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -176,12 +177,12 @@ protected:
                 m.postTranslate(0, SkIntToScalar(configs[i].size.height()));
             }
             std::unique_ptr<SkImageGenerator> gen =
-                    SkImageGenerator::MakeFromPicture(configs[i].size,
-                                                      fPicture,
-                                                      &m,
-                                                      p.getAlpha() != 255 ? &p : nullptr,
-                                                      SkImages::BitDepth::kU8,
-                                                      srgbColorSpace);
+                    SkImageGenerators::MakeFromPicture(configs[i].size,
+                                                       fPicture,
+                                                       &m,
+                                                       p.getAlpha() != 255 ? &p : nullptr,
+                                                       SkImages::BitDepth::kU8,
+                                                       srgbColorSpace);
 
             SkImageInfo bmInfo = gen->getInfo().makeColorSpace(canvas->imageInfo().refColorSpace());
 

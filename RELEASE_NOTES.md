@@ -37,6 +37,11 @@ Milestone 114
     included in the build.
   * `SkImageEncoder` has been deprecated. Clients should use one of `SkPngEncoder::Encode`,
     `SkJpegEncoder::Encode` or `SkWebpEncoder::Encode` directly.
+  * `SkImageGenerator` has a new subclass `GrTextureGenerator` which can be used if clients want to
+    provide specialized ways of making Ganesh texture-backed Images.
+  * `SkImageGenerator::MakeFromPicture` has been removed from the public API. Clients should be
+    drawing the picture directly instead of turning it into an image first.
+
 
 * * *
 

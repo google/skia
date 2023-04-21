@@ -13,7 +13,6 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
@@ -28,6 +27,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTextureGenerator.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "include/private/SkColorData.h"
@@ -65,6 +65,7 @@
 #include <utility>
 
 class GrRenderTask;
+class SkImageGenerator;
 
 #if defined(SK_DIRECT3D)
 #include "include/gpu/d3d/GrD3DTypes.h"
@@ -209,10 +210,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
             if (!imageGen) {
                 return;
             }
+            auto textureGen = static_cast<GrTextureGenerator*>(imageGen.get());
 
             SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
-            GrSurfaceProxyView genView = imageGen->generateTexture(
+            GrSurfaceProxyView genView = textureGen->generateTexture(
                     dContext, imageInfo, requestMipmapped, GrImageTexGenPolicy::kDraw);
             GrSurfaceProxy* genProxy = genView.proxy();
 

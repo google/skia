@@ -367,7 +367,6 @@ using namespace skia_private;
 #include "docs/examples/Image_BorrowTextureFrom_2.cpp"
 #include "docs/examples/Image_CrossContextTextureFromPixmap.cpp"
 #include "docs/examples/Image_DeferredFromEncodedData.cpp"
-#include "docs/examples/Image_DeferredFromGenerator.cpp"
 #include "docs/examples/Image_DeferredFromPicture.cpp"
 #include "docs/examples/Image_Filter_Methods.cpp"
 #include "docs/examples/Image_FromBitmap.cpp"

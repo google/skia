@@ -14,17 +14,23 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/SkGr.h"
 
+#include <cstdint>
 #include <memory>
 #include <string_view>
 #include <tuple>
 
+class GrCaps;
 class GrFragmentProcessor;
 class GrRecordingContext;
 class SkImage;
+class SkImage_Lazy;
 class SkImage_Raster;
 class SkMatrix;
+enum SkAlphaType : int;
+enum SkColorType : int;
 enum class GrColorType;
 enum class SkTileMode;
+namespace skgpu { enum class Mipmapped : bool; }
 struct SkRect;
 
 namespace skgpu::ganesh {
@@ -59,6 +65,19 @@ GrSurfaceProxyView CopyView(GrRecordingContext*,
                             GrImageTexGenPolicy,
                             std::string_view label);
 
+// Returns the texture proxy. CachingHint refers to whether the generator's output should be
+// cached in CPU memory. We will always cache the generated texture on success.
+GrSurfaceProxyView LockTextureProxyView(GrRecordingContext*,
+                                        const SkImage_Lazy*,
+                                        GrImageTexGenPolicy,
+                                        skgpu::Mipmapped);
+
+// Returns the GrColorType to use with the GrTextureProxy returned from lockTextureProxy. This
+// may be different from the color type on the image in the case where we need up upload CPU
+// data to a texture but the GPU doesn't support the format of CPU data. In this case we convert
+// the data to RGBA_8888 unorm on the CPU then upload that.
+GrColorType ColorTypeOfLockTextureProxy(const GrCaps*, SkColorType);
+
 /**
  * Returns a GrFragmentProcessor that can be used with the passed GrRecordingContext to
  * draw the image. SkSamplingOptions indicates the filter and SkTileMode[] indicates the x and
@@ -84,5 +103,26 @@ inline std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingConte
                                                                 const SkRect* domain = nullptr) {
     return AsFragmentProcessor(ctx, img.get(), opt, tm, m, subset, domain);
 }
+
+std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(GrRecordingContext*,
+                                                                   GrSurfaceProxyView,
+                                                                   SkAlphaType,
+                                                                   SkSamplingOptions,
+                                                                   const SkTileMode[2],
+                                                                   const SkMatrix&,
+                                                                   const SkRect* subset,
+                                                                   const SkRect* domain);
+
+/**
+ * Returns input view if it is already mipmapped. Otherwise, attempts to make a mipmapped view
+ * with the same contents. If the mipmapped copy is successfully created it will be cached
+ * using the image unique ID. A subsequent call with the same unique ID will return the cached
+ * view if it has not been purged. The view is cached with a key domain specific to this
+ * function.
+ */
+GrSurfaceProxyView FindOrMakeCachedMipmappedView(GrRecordingContext*,
+                                                 GrSurfaceProxyView,
+                                                 uint32_t imageUniqueID);
+
 }  // namespace skgpu::ganesh
 #endif

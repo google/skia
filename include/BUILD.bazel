@@ -85,6 +85,7 @@ generate_cpp_files_for_headers(
         "include/encode/SkPngEncoder.h",
         "include/encode/SkWebpEncoder.h",
         "include/gpu/GrTypes.h",
+        "include/gpu/ganesh/GrTextureGenerator.h",
         "include/gpu/ganesh/SkImageGanesh.h",
         "include/private/SkIDChangeListener.h",
         "include/private/SkWeakRefCnt.h",

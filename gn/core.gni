@@ -594,6 +594,7 @@ skia_core_sources = [
   "$_src/core/SkYUVPlanesCache.cpp",
   "$_src/core/SkYUVPlanesCache.h",
   "$_src/image/SkImage.cpp",
+  "$_src/image/SkImageGeneratorPriv.h",
   "$_src/image/SkImage_Base.cpp",
   "$_src/image/SkImage_Base.h",
   "$_src/image/SkImage_Lazy.cpp",

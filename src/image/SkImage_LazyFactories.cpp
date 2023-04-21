@@ -13,6 +13,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 
+#include "src/image/SkImageGeneratorPriv.h"
+
 #include <optional>
 #include <utility>
 
@@ -48,7 +50,7 @@ sk_sp<SkImage> DeferredFromPicture(sk_sp<SkPicture> picture,
                                    BitDepth bitDepth,
                                    sk_sp<SkColorSpace> colorSpace,
                                    SkSurfaceProps props) {
-    return DeferredFromGenerator(SkImageGenerator::MakeFromPicture(
+    return DeferredFromGenerator(SkImageGenerators::MakeFromPicture(
             dimensions, std::move(picture), matrix, paint, bitDepth, std::move(colorSpace), props));
 }
 

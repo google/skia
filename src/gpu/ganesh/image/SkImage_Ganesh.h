@@ -99,6 +99,17 @@ public:
     // From SkImage_GaneshBase.h
     GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const override;
 
+    std::tuple<GrSurfaceProxyView, GrColorType> asView(GrRecordingContext*,
+                                                       skgpu::Mipmapped,
+                                                       GrImageTexGenPolicy) const override;
+
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             SkSamplingOptions,
+                                                             const SkTileMode[2],
+                                                             const SkMatrix&,
+                                                             const SkRect*,
+                                                             const SkRect*) const override;
+
     // If this is image is a cached SkSurface snapshot then this method is called by the SkSurface
     // before a write to check if the surface must make a copy to avoid modifying the image's
     // contents.
@@ -115,17 +126,6 @@ private:
                    sk_sp<GrRenderTask> copyTask,
                    int volatileSrcTargetCount,
                    SkColorInfo);
-
-    std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
-                                                         skgpu::Mipmapped,
-                                                         GrImageTexGenPolicy) const override;
-
-    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext*,
-                                                               SkSamplingOptions,
-                                                               const SkTileMode[2],
-                                                               const SkMatrix&,
-                                                               const SkRect*,
-                                                               const SkRect*) const override;
 
     GrSurfaceProxyView makeView(GrRecordingContext*) const;
 

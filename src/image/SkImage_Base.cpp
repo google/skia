@@ -14,31 +14,16 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkSamplingPriv.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 
 #if defined(SK_GANESH)
-#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
-#include "src/gpu/ResourceKey.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrSamplerState.h"
-#include "src/gpu/ganesh/GrSurfaceProxy.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/effects/GrBicubicEffect.h"
-#include "src/gpu/ganesh/effects/GrTextureEffect.h"
+
 #endif
 
 #if defined(SK_GRAPHITE)
@@ -48,7 +33,6 @@
 #endif
 
 #include <atomic>
-#include <utility>
 
 SkImage_Base::SkImage_Base(const SkImageInfo& info, uint32_t uniqueID)
         : SkImage(info, uniqueID), fAddedToRasterCache(false) {}
@@ -116,126 +100,6 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
     callback(context, nullptr);
 }
 
-#if defined(SK_GANESH)
-std::unique_ptr<GrFragmentProcessor> SkImage_Base::MakeFragmentProcessorFromView(
-        GrRecordingContext* rContext,
-        GrSurfaceProxyView view,
-        SkAlphaType at,
-        SkSamplingOptions sampling,
-        const SkTileMode tileModes[2],
-        const SkMatrix& m,
-        const SkRect* subset,
-        const SkRect* domain) {
-    if (!view) {
-        return nullptr;
-    }
-    const GrCaps& caps = *rContext->priv().caps();
-    auto wmx = SkTileModeToWrapMode(tileModes[0]);
-    auto wmy = SkTileModeToWrapMode(tileModes[1]);
-    if (sampling.useCubic) {
-        if (subset) {
-            if (domain) {
-                return GrBicubicEffect::MakeSubset(std::move(view),
-                                                   at,
-                                                   m,
-                                                   wmx,
-                                                   wmy,
-                                                   *subset,
-                                                   *domain,
-                                                   sampling.cubic,
-                                                   GrBicubicEffect::Direction::kXY,
-                                                   *rContext->priv().caps());
-            }
-            return GrBicubicEffect::MakeSubset(std::move(view),
-                                               at,
-                                               m,
-                                               wmx,
-                                               wmy,
-                                               *subset,
-                                               sampling.cubic,
-                                               GrBicubicEffect::Direction::kXY,
-                                               *rContext->priv().caps());
-        }
-        return GrBicubicEffect::Make(std::move(view),
-                                     at,
-                                     m,
-                                     wmx,
-                                     wmy,
-                                     sampling.cubic,
-                                     GrBicubicEffect::Direction::kXY,
-                                     *rContext->priv().caps());
-    }
-    if (sampling.isAniso()) {
-        if (!rContext->priv().caps()->anisoSupport()) {
-            // Fallback to linear
-            sampling = SkSamplingPriv::AnisoFallback(view.mipmapped() == GrMipmapped::kYes);
-        }
-    } else if (view.mipmapped() == GrMipmapped::kNo) {
-        sampling = SkSamplingOptions(sampling.filter);
-    }
-    GrSamplerState sampler;
-    if (sampling.isAniso()) {
-        sampler = GrSamplerState::Aniso(wmx, wmy, sampling.maxAniso, view.mipmapped());
-    } else {
-        sampler = GrSamplerState(wmx, wmy, sampling.filter, sampling.mipmap);
-    }
-    if (subset) {
-        if (domain) {
-            return GrTextureEffect::MakeSubset(std::move(view),
-                                               at,
-                                               m,
-                                               sampler,
-                                               *subset,
-                                               *domain,
-                                               caps);
-        }
-        return GrTextureEffect::MakeSubset(std::move(view),
-                                           at,
-                                           m,
-                                           sampler,
-                                           *subset,
-                                           caps);
-    } else {
-        return GrTextureEffect::Make(std::move(view), at, m, sampler, caps);
-    }
-}
-
-GrSurfaceProxyView SkImage_Base::FindOrMakeCachedMipmappedView(GrRecordingContext* rContext,
-                                                               GrSurfaceProxyView view,
-                                                               uint32_t imageUniqueID) {
-    SkASSERT(rContext);
-    SkASSERT(imageUniqueID != SK_InvalidUniqueID);
-
-    if (!view || view.proxy()->asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
-        return view;
-    }
-    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
-
-    skgpu::UniqueKey baseKey;
-    GrMakeKeyFromImageID(&baseKey, imageUniqueID, SkIRect::MakeSize(view.dimensions()));
-    SkASSERT(baseKey.isValid());
-    skgpu::UniqueKey mipmappedKey;
-    static const skgpu::UniqueKey::Domain kMipmappedDomain = skgpu::UniqueKey::GenerateDomain();
-    {  // No extra values beyond the domain are required. Must name the var to please
-       // clang-tidy.
-        skgpu::UniqueKey::Builder b(&mipmappedKey, baseKey, kMipmappedDomain, 0);
-    }
-    SkASSERT(mipmappedKey.isValid());
-    if (sk_sp<GrTextureProxy> cachedMippedView =
-                proxyProvider->findOrCreateProxyByUniqueKey(mipmappedKey)) {
-        return {std::move(cachedMippedView), view.origin(), view.swizzle()};
-    }
-
-    auto copy = GrCopyBaseMipMapToView(rContext, view);
-    if (!copy) {
-        return view;
-    }
-    // TODO: If we move listeners up from SkImage_Lazy to SkImage_Base then add one here.
-    proxyProvider->assignUniqueKeyToProxy(mipmappedKey, copy.asTextureProxy());
-    return copy;
-}
-
-#endif // defined(SK_GANESH)
 
 #if defined(SK_GRAPHITE)
 std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Base::asView(

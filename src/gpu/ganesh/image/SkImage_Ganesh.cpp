@@ -384,7 +384,7 @@ void SkImage_Ganesh::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorS
 
 void SkImage_Ganesh::generatingSurfaceIsDeleted() { fChooser.makeVolatileProxyStable(); }
 
-std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Ganesh::onAsView(
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Ganesh::asView(
         GrRecordingContext* recordingContext,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
@@ -402,12 +402,13 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Ganesh::onAsView(
     GrSurfaceProxyView view = this->makeView(recordingContext);
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
     if (mipmapped == GrMipmapped::kYes) {
-        view = FindOrMakeCachedMipmappedView(recordingContext, std::move(view), this->uniqueID());
+        view = skgpu::ganesh::FindOrMakeCachedMipmappedView(recordingContext, std::move(view),
+                                                            this->uniqueID());
     }
     return {std::move(view), ct};
 }
 
-std::unique_ptr<GrFragmentProcessor> SkImage_Ganesh::onAsFragmentProcessor(
+std::unique_ptr<GrFragmentProcessor> SkImage_Ganesh::asFragmentProcessor(
         GrRecordingContext* rContext,
         SkSamplingOptions sampling,
         const SkTileMode tileModes[2],
@@ -418,14 +419,15 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Ganesh::onAsFragmentProcessor(
         return {};
     }
     auto mm = sampling.mipmap == SkMipmapMode::kNone ? GrMipmapped::kNo : GrMipmapped::kYes;
-    return MakeFragmentProcessorFromView(rContext,
-                                         std::get<0>(skgpu::ganesh::AsView(rContext, this, mm)),
-                                         this->alphaType(),
-                                         sampling,
-                                         tileModes,
-                                         m,
-                                         subset,
-                                         domain);
+    return skgpu::ganesh::MakeFragmentProcessorFromView(
+            rContext,
+            std::get<0>(skgpu::ganesh::AsView(rContext, this, mm)),
+            this->alphaType(),
+            sampling,
+            tileModes,
+            m,
+            subset,
+            domain);
 }
 
 GrSurfaceProxyView SkImage_Ganesh::makeView(GrRecordingContext* rContext) const {

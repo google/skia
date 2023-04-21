@@ -139,6 +139,7 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/d3d/GrD3DTypes.h",
     "include/gpu/dawn/GrDawnTypes.h",
     "include/gpu/ganesh/SkImageGanesh.h",
+    "include/gpu/ganesh/GrTextureGenerator.h",
     "include/gpu/gl/egl/GrGLMakeEGLInterface.h",
     "include/gpu/gl/glx/GrGLMakeGLXInterface.h",
     "include/gpu/gl/GrGLAssembleHelpers.h",
@@ -219,6 +220,7 @@ SKIA_PUBLIC_HDRS = [
 
 # All platform-independent sources and private headers.
 BASE_SRCS_ALL = [
+    "include/android/SkImageAndroid.h",
     "include/core/SkOpenTypeSVGDecoder.h",
     "include/private/SkBitmaskEnum.h",
     "include/private/SkChecksum.h",
@@ -1093,6 +1095,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/gradients/GrGradientShader.h",
     "src/gpu/ganesh/image/GrImageUtils.cpp",
     "src/gpu/ganesh/image/GrImageUtils.h",
+    "src/gpu/ganesh/image/GrTextureGenerator.cpp",
     "src/gpu/ganesh/image/SkImage_Ganesh.cpp",
     "src/gpu/ganesh/image/SkImage_Ganesh.h",
     "src/gpu/ganesh/image/SkImage_GaneshBase.cpp",
@@ -1100,6 +1103,10 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/image/SkImage_GaneshFactories.cpp",
     "src/gpu/ganesh/image/SkImage_GaneshYUVA.cpp",
     "src/gpu/ganesh/image/SkImage_GaneshYUVA.h",
+    "src/gpu/ganesh/image/SkImage_LazyTexture.cpp",
+    "src/gpu/ganesh/image/SkImage_LazyTexture.h",
+    "src/gpu/ganesh/image/SkImage_RasterPinnable.cpp",
+    "src/gpu/ganesh/image/SkImage_RasterPinnable.h",
     "src/gpu/ganesh/mock/GrMockAttachment.h",
     "src/gpu/ganesh/mock/GrMockBuffer.h",
     "src/gpu/ganesh/mock/GrMockCaps.cpp",
@@ -1221,6 +1228,7 @@ BASE_SRCS_ALL = [
     "src/gpu/tessellate/Tessellation.h",
     "src/gpu/tessellate/WangsFormula.h",
     "src/image/SkImage.cpp",
+    "src/image/SkImageGeneratorPriv.h",
     "src/image/SkImage_Base.cpp",
     "src/image/SkImage_Base.h",
     "src/image/SkImage_Lazy.cpp",

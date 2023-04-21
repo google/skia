@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ganesh/image/SkImage_RasterPinnable.h"
+
 #include "include/android/SkImageAndroid.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkImage.h"
@@ -14,42 +16,17 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Raster.h"
 
-#include <cstdint>
 #include <memory>
 #include <tuple>
 
-struct PinnedData {
-    GrSurfaceProxyView fPinnedView;
-    int32_t fPinnedCount = 0;
-    uint32_t fPinnedUniqueID = SK_InvalidUniqueID;
-    uint32_t fPinnedContextID = SK_InvalidUniqueID;
-    GrColorType fPinnedColorType = GrColorType::kUnknown;
-};
-
-class SkImage_RasterPinnable final : public SkImage_Raster {
-public:
-    SkImage_RasterPinnable(const SkBitmap& bm)
-            : SkImage_Raster(bm, /*bitmapMayBeMutable = */ true) {}
-
-    std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
-                                                         GrMipmapped,
-                                                         GrImageTexGenPolicy) const override;
-
-    SkImage_Base::Type type() const override { return SkImage_Base::Type::kRasterPinnable; }
-
-    std::unique_ptr<PinnedData> fPinnedData;
-};
-
-std::tuple<GrSurfaceProxyView, GrColorType> SkImage_RasterPinnable::onAsView(
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_RasterPinnable::asView(
         GrRecordingContext* rContext, GrMipmapped mipmapped, GrImageTexGenPolicy policy) const {
     if (fPinnedData) {
         // We ignore the mipmap request here. If the pinned view isn't mipmapped then we will

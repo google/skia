@@ -9,10 +9,13 @@
 #define SkImage_GaneshBase_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/image/SkImage_Base.h"
 
+#include <memory>
+#include <tuple>
 #include <cstddef>
 #include <cstdint>
 
@@ -21,19 +24,25 @@ class GrBackendTexture;
 class GrCaps;
 class GrContextThreadSafeProxy;
 class GrDirectContext;
+class GrFragmentProcessor;
 class GrRecordingContext;
+class GrSurfaceProxyView;
 class GrTextureProxy;
 class SkBitmap;
 class SkColorSpace;
 class SkImage;
-enum class GrColorType;
-enum class GrSemaphoresSubmitted : bool;
+class SkMatrix;
 enum SkAlphaType : int;
 enum SkColorType : int;
+enum class GrColorType;
+enum class GrImageTexGenPolicy : int;
+enum class GrSemaphoresSubmitted : bool;
+enum class SkTileMode;
 struct GrFlushInfo;
-struct SkImageInfo;
 struct SkIRect;
 struct SkISize;
+struct SkImageInfo;
+struct SkRect;
 namespace skgpu {
 enum class Mipmapped : bool;
 class RefCntedCallback;
@@ -81,6 +90,17 @@ public:
             skgpu::Mipmapped,
             SkImages::PromiseImageTextureFulfillProc,
             sk_sp<skgpu::RefCntedCallback> releaseHelper);
+
+    virtual std::tuple<GrSurfaceProxyView, GrColorType> asView(GrRecordingContext*,
+                                                               skgpu::Mipmapped,
+                                                               GrImageTexGenPolicy) const = 0;
+
+    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                                     SkSamplingOptions,
+                                                                     const SkTileMode[2],
+                                                                     const SkMatrix&,
+                                                                     const SkRect*,
+                                                                     const SkRect*) const = 0;
 
 protected:
     SkImage_GaneshBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);

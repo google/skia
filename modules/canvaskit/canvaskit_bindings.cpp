@@ -75,6 +75,7 @@
 
 #ifdef ENABLE_GPU
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTextureGenerator.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #endif // ENABLE_GPU
@@ -846,10 +847,10 @@ void deleteJSTexture(SkImages::ReleaseContext rc) {
     delete ctx;
 }
 
-class WebGLTextureImageGenerator : public SkImageGenerator {
+class WebGLTextureImageGenerator : public GrTextureGenerator {
 public:
     WebGLTextureImageGenerator(SkImageInfo ii, JSObject callbackObj):
-            SkImageGenerator(ii),
+            GrTextureGenerator(ii),
             fCallback(callbackObj) {}
 
     ~WebGLTextureImageGenerator() override {
@@ -916,7 +917,7 @@ private:
 // surface/WebGLContext that the image is used on (we cannot share WebGLTextures across contexts).
 sk_sp<SkImage> MakeImageFromGenerator(SimpleImageInfo ii, JSObject callbackObj) {
     auto gen = std::make_unique<WebGLTextureImageGenerator>(toSkImageInfo(ii), callbackObj);
-    return SkImages::DeferredFromGenerator(std::move(gen));
+    return SkImages::DeferredFromTextureGenerator(std::move(gen));
 }
 #endif // CK_ENABLE_WEBGL
 
