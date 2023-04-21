@@ -8,8 +8,6 @@
 #ifndef SkVM_DEFINED
 #define SkVM_DEFINED
 
-#if defined(SK_ENABLE_SKVM)
-
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
@@ -21,6 +19,8 @@
 #include <vector>      // std::vector
 
 class SkWStream;
+
+#if defined(SK_ENABLE_SKVM)
 
 #if defined(SKVM_JIT_WHEN_POSSIBLE) && !defined(SK_BUILD_FOR_IOS)
     #if defined(__x86_64__) || defined(_M_X64)
