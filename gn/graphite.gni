@@ -193,10 +193,13 @@ skia_graphite_sources = [
   "$_src/text/AtlasManager.h",
 ]
 
-skia_graphite_dawn_sources = [
+skia_graphite_dawn_public = [
   "$_include/dawn/DawnBackendContext.h",
   "$_include/dawn/DawnTypes.h",
   "$_include/dawn/DawnUtils.h",
+]
+
+skia_graphite_dawn_sources = [
   "$_include_private/DawnTypesPriv.h",
   "$_src/dawn/DawnAsyncWait.cpp",
   "$_src/dawn/DawnAsyncWait.h",
@@ -223,10 +226,13 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnTypesPriv.cpp",
 ]
 
-skia_graphite_mtl_sources = [
+skia_graphite_mtl_public = [
   "$_include/mtl/MtlBackendContext.h",
   "$_include/mtl/MtlGraphiteTypes.h",
   "$_include/mtl/MtlGraphiteUtils.h",
+]
+
+skia_graphite_mtl_sources = [
   "$_include_private/MtlGraphiteTypesPriv.h",
   "$_src/mtl/MtlBlitCommandEncoder.h",
   "$_src/mtl/MtlBuffer.h",
@@ -256,9 +262,12 @@ skia_graphite_mtl_sources = [
   "$_src/mtl/MtlTexture.mm",
 ]
 
-skia_graphite_vk_sources = [
+skia_graphite_vk_public = [
   "$_include/vk/VulkanGraphiteTypes.h",
   "$_include/vk/VulkanGraphiteUtils.h",
+]
+
+skia_graphite_vk_sources = [
   "$_include_private/VulkanGraphiteTypesPriv.h",
   "$_src/vk/VulkanBuffer.cpp",
   "$_src/vk/VulkanBuffer.h",
