@@ -110,6 +110,9 @@ private:
     const VulkanSharedContext* fSharedContext;
     VulkanResourceProvider* fResourceProvider;
 
+    // begin() has been called, but not end()
+    bool fActive = false;
+
     // Stores a pointer to the current active render pass (i.e. begin has been called but not
     // end). A nullptr means there is no active render pass. The VulkanCommandBuffer does not own
     // the render pass.
@@ -125,9 +128,6 @@ private:
     VkPipelineStageFlags fSrcStageMask = 0;
     VkPipelineStageFlags fDstStageMask = 0;
 
-#ifdef SK_DEBUG
-    bool fActive = false;
-#endif
 };
 
 } // namespace skgpu::graphite

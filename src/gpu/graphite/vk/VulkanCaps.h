@@ -106,19 +106,16 @@ private:
 
     bool onIsTexturable(const TextureInfo&) const override { return false; }
 
-    bool supportsWritePixels(const TextureInfo&) const override { return false; }
-    bool supportsReadPixels(const TextureInfo&) const override { return false; }
+    bool supportsWritePixels(const TextureInfo&) const override;
+    bool supportsReadPixels(const TextureInfo&) const override;
 
     SkColorType supportedWritePixelsColorType(SkColorType dstColorType,
                                               const TextureInfo& dstTextureInfo,
-                                              SkColorType srcColorType) const override {
-        return kUnknown_SkColorType;
-    }
+                                              SkColorType srcColorType) const override;
     SkColorType supportedReadPixelsColorType(SkColorType srcColorType,
                                              const TextureInfo& srcTextureInfo,
-                                             SkColorType dstColorType) const override {
-        return kUnknown_SkColorType;
-    }
+                                             SkColorType dstColorType) const override;
+
     // Struct that determines and stores which sample count quantities a VkFormat supports.
     struct SupportedSampleCounts {
         void initSampleCounts(const skgpu::VulkanInterface*,

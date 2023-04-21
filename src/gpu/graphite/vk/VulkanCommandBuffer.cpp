@@ -83,7 +83,11 @@ VulkanCommandBuffer::VulkanCommandBuffer(VkCommandPool pool,
 }
 
 VulkanCommandBuffer::~VulkanCommandBuffer() {
-    SkASSERT(!fActive);
+    if (fActive) {
+        // Need to end command buffer before deleting it
+        VULKAN_CALL(fSharedContext->interface(), EndCommandBuffer(fPrimaryCommandBuffer));
+        fActive = false;
+    }
 
     if (VK_NULL_HANDLE != fSubmitFence) {
         VULKAN_CALL(fSharedContext->interface(), DestroyFence(fSharedContext->device(),
@@ -119,7 +123,7 @@ void VulkanCommandBuffer::begin() {
 
     VULKAN_CALL_ERRCHECK(fSharedContext->interface(), BeginCommandBuffer(fPrimaryCommandBuffer,
                                                                          &cmdBufferBeginInfo));
-    SkDEBUGCODE(fActive = true;)
+    fActive = true;
 }
 
 void VulkanCommandBuffer::end() {
@@ -129,7 +133,7 @@ void VulkanCommandBuffer::end() {
 
     VULKAN_CALL_ERRCHECK(fSharedContext->interface(), EndCommandBuffer(fPrimaryCommandBuffer));
 
-    SkDEBUGCODE(fActive = false;)
+    fActive = false;
 }
 
 static bool submit_to_queue(const VulkanInterface* interface,
@@ -258,7 +262,10 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc&,
                                           const Texture* depthStencilTexture,
                                           SkRect viewport,
                                           const DrawPassList& drawPasses) {
-    return false;
+    // TODO: fill this in
+
+    // return true despite doing nothing to allow dm to run
+    return true;
 }
 
 bool VulkanCommandBuffer::onAddComputePass(const DispatchGroupList&) { return false; }

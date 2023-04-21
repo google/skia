@@ -999,6 +999,106 @@ const Caps::ColorTypeInfo* VulkanCaps::getColorTypeInfo(SkColorType ct,
     return nullptr;
 }
 
+bool VulkanCaps::supportsWritePixels(const TextureInfo& texInfo) const {
+    VulkanTextureInfo vkInfo;
+    texInfo.getVulkanTextureInfo(&vkInfo);
+
+    // Can't write if it needs a YCbCr sampler
+    if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
+        return false;
+    }
+
+    if (vkInfo.fSampleCount > 1) {
+        return false;
+    }
+
+    if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool VulkanCaps::supportsReadPixels(const TextureInfo& texInfo) const {
+    if (texInfo.isProtected() == Protected::kYes) {
+        return false;
+    }
+
+    VulkanTextureInfo vkInfo;
+    texInfo.getVulkanTextureInfo(&vkInfo);
+
+    // Can't read if it needs a YCbCr sampler
+    if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
+        return false;
+    }
+
+    if (VkFormatIsCompressed(vkInfo.fFormat)) {
+        return false;
+    }
+
+    if (vkInfo.fSampleCount > 1) {
+        return false;
+    }
+
+    if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)) {
+        return false;
+    }
+
+    return true;
+}
+
+SkColorType VulkanCaps::supportedWritePixelsColorType(SkColorType dstColorType,
+                                                      const TextureInfo& dstTextureInfo,
+                                                      SkColorType srcColorType) const {
+    VulkanTextureInfo vkInfo;
+    dstTextureInfo.getVulkanTextureInfo(&vkInfo);
+
+    // Can't write to YCbCr formats
+    // TODO: Can't write to external formats, either
+    if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
+        return kUnknown_SkColorType;
+    }
+
+    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == dstColorType) {
+            return dstColorType;
+        }
+    }
+
+    return kUnknown_SkColorType;
+}
+
+SkColorType VulkanCaps::supportedReadPixelsColorType(SkColorType srcColorType,
+                                                     const TextureInfo& srcTextureInfo,
+                                                     SkColorType dstColorType) const {
+    VulkanTextureInfo vkInfo;
+    srcTextureInfo.getVulkanTextureInfo(&vkInfo);
+
+    // Can't read from YCbCr formats
+    // TODO: external formats?
+    if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
+        return kUnknown_SkColorType;
+    }
+
+    // TODO: handle compressed formats
+    if (VkFormatIsCompressed(vkInfo.fFormat)) {
+        SkASSERT(this->isTexturable(vkInfo));
+        return kUnknown_SkColorType;
+    }
+
+    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == srcColorType) {
+            return srcColorType;
+        }
+    }
+
+    return kUnknown_SkColorType;
+}
+
 UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                               const RenderPassDesc&) const {
     UniqueKey pipelineKey;
