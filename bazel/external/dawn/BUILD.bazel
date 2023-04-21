@@ -729,6 +729,8 @@ TINT_SRCS = [
     "src/tint/utils/string_stream.h",
     "src/tint/utils/traits.h",
     "src/tint/utils/transform.h",
+    "src/tint/utils/unicode.cc",
+    "src/tint/utils/unicode.h",
     "src/tint/utils/unique_allocator.h",
     "src/tint/utils/unique_vector.h",
     "src/tint/utils/vector.h",
@@ -772,10 +774,6 @@ TINT_SRCS = [
     "src/tint/inspector/resource_binding.h",
     "src/tint/inspector/scalar.cc",
     "src/tint/inspector/scalar.h",
-
-    # From dawn/src/tint/BUILD.gn:libtint_text_src
-    "src/tint/text/unicode.cc",
-    "src/tint/text/unicode.h",
 
     # From dawn/src/tint/BUILD.gn:libtint_transform_src
     "src/tint/transform/add_block_attribute.cc",
@@ -905,6 +903,7 @@ TINT_SRCS = [
     "src/tint/ast/diagnostic_attribute.h",
     "src/tint/ast/diagnostic_control.h",
     "src/tint/ast/diagnostic_directive.h",
+    "src/tint/ast/diagnostic_rule_name.h",
     "src/tint/ast/disable_validation_attribute.h",
     "src/tint/ast/discard_statement.h",
     "src/tint/ast/enable.h",
@@ -983,6 +982,7 @@ TINT_SRCS = [
     "src/tint/ast/diagnostic_attribute.cc",
     "src/tint/ast/diagnostic_control.cc",
     "src/tint/ast/diagnostic_directive.cc",
+    "src/tint/ast/diagnostic_rule_name.cc",
     "src/tint/ast/disable_validation_attribute.cc",
     "src/tint/ast/discard_statement.cc",
     "src/tint/ast/enable.cc",
