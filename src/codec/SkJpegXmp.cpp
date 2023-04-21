@@ -352,22 +352,76 @@ static bool get_attr_float(const SkDOM* dom,
 
 // Perform get_attr and parse the result as three comma-separated floats. Return the result as an
 // SkColor4f with the alpha component set to 1.
+static bool get_attr_float3_as_list(const SkDOM* dom,
+                                    const SkDOM::Node* node,
+                                    const std::string& prefix,
+                                    const std::string& key,
+                                    SkColor4f* outValue) {
+    const auto name = prefix + ":" + key;
+
+    // Fail if there are multiple children with childName.
+    if (dom->countChildren(node, name.c_str()) != 1) {
+        return false;
+    }
+    // Find the child.
+    const auto* child = dom->getFirstChild(node, name.c_str());
+    if (!child) {
+        return false;
+    }
+
+    // Search for the rdf:Seq child.
+    const auto* seq = dom->getFirstChild(child, "rdf:Seq");
+    if (!seq) {
+        return false;
+    }
+
+    size_t count = 0;
+    SkScalar values[3] = {0.f, 0.f, 0.f};
+    for (const auto* liNode = dom->getFirstChild(seq, "rdf:li"); liNode;
+         liNode = dom->getNextSibling(liNode, "rdf:li")) {
+        if (count > 2) {
+            SkCodecPrintf("Too many items in list.\n");
+            return false;
+        }
+        if (dom->countChildren(liNode) != 1) {
+            SkCodecPrintf("Item can only have one child.\n");
+            return false;
+        }
+        const auto* liTextNode = dom->getFirstChild(liNode);
+        if (dom->getType(liTextNode) != SkDOM::kText_Type) {
+            SkCodecPrintf("Item's only child must be text.\n");
+            return false;
+        }
+        const char* liText = dom->getName(liTextNode);
+        if (!liText) {
+            SkCodecPrintf("Failed to get item's text.\n");
+            return false;
+        }
+        if (!SkParse::FindScalar(liText, values + count)) {
+            SkCodecPrintf("Failed to parse item's text to float.\n");
+            return false;
+        }
+        count += 1;
+    }
+    if (count < 3) {
+        SkCodecPrintf("List didn't have enough items.\n");
+        return false;
+    }
+    *outValue = {values[0], values[1], values[2], 1.f};
+    return true;
+}
+
 static bool get_attr_float3(const SkDOM* dom,
                             const SkDOM::Node* node,
                             const std::string& prefix,
                             const std::string& key,
                             SkColor4f* outValue) {
-    const char* attr = get_attr(dom, node, prefix, key);
-    if (!attr) {
-        return false;
-    }
-    SkScalar values[3] = {0.f, 0.f, 0.f};
-    if (SkParse::FindScalars(attr, values, 3)) {
-        *outValue = {values[0], values[1], values[2], 1.f};
+    if (get_attr_float3_as_list(dom, node, prefix, key, outValue)) {
         return true;
     }
-    if (SkParse::FindScalars(attr, values, 1)) {
-        *outValue = {values[0], values[0], values[0], 1.f};
+    SkScalar value = -1.0;
+    if (get_attr_float(dom, node, prefix, key, &value)) {
+        *outValue = {value, value, value, 1.f};
         return true;
     }
     return false;
@@ -722,7 +776,7 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
                                         sk_float_exp(gainMapMax.fG * kLog2),
                                         sk_float_exp(gainMapMax.fB * kLog2),
                                         1.f};
-    outGainmapInfo->fGainmapGamma = gamma;
+    outGainmapInfo->fGainmapGamma = {1.f / gamma.fR, 1.f / gamma.fG, 1.f / gamma.fB, 1.f};
     outGainmapInfo->fEpsilonSdr = offsetSdr;
     outGainmapInfo->fEpsilonHdr = offsetHdr;
     outGainmapInfo->fDisplayRatioSdr = sk_float_exp(hdrCapacityMin * kLog2);
