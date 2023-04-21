@@ -9,7 +9,7 @@
 #include "include/ports/SkImageGeneratorCG.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/mac/SkCGUtils.h"
-#include "src/codec/SkPixmapUtils.h"
+#include "src/codec/SkPixmapUtilsPriv.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #ifdef SK_BUILD_FOR_MAC

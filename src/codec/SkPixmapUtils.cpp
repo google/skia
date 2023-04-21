@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/codec/SkPixmapUtils.h"
+#include "include/codec/SkPixmapUtils.h"
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkBitmap.h"
@@ -14,6 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
@@ -38,7 +39,9 @@ static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, SkEncoded
     return true;
 }
 
-bool SkPixmapUtils::Orient(const SkPixmap& dst, const SkPixmap& src, SkEncodedOrigin origin) {
+namespace SkPixmapUtils {
+
+bool Orient(const SkPixmap& dst, const SkPixmap& src, SkEncodedOrigin origin) {
     if (src.colorType() != dst.colorType()) {
         return false;
     }
@@ -64,6 +67,8 @@ bool SkPixmapUtils::Orient(const SkPixmap& dst, const SkPixmap& src, SkEncodedOr
     return draw_orientation(dst, src, origin);
 }
 
-SkImageInfo SkPixmapUtils::SwapWidthHeight(const SkImageInfo& info) {
+SkImageInfo SwapWidthHeight(const SkImageInfo& info) {
     return info.makeWH(info.height(), info.width());
+}
+
 }

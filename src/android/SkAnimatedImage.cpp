@@ -14,7 +14,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPixelRef.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkPixmapUtils.h"
+#include "src/codec/SkPixmapUtilsPriv.h"
 #include "src/core/SkImagePriv.h"
 
 #include <limits.h>
