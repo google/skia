@@ -144,8 +144,7 @@ public:
         //
         // 5) Run `make -C infra/bots train`
         //
-        // Contact the Infra Gardener (or directly ping rmistry@) if the above steps do not work
-        // for you.
+        // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
         kCurrent_Version = kShaderImageFilterSerializeShader
     };
