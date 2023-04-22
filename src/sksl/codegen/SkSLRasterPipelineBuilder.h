@@ -99,6 +99,7 @@ enum class BuilderOp {
     swizzle_copy_stack_to_slots,
     swizzle_copy_stack_to_slots_indirect,
     discard_stack,
+    pad_stack,
     select,
     push_condition_mask,
     pop_condition_mask,
@@ -468,7 +469,10 @@ public:
     void inverse_matrix(int32_t n);
 
     // Shrinks the temp stack, discarding values on top.
-    void discard_stack(int32_t count = 1);
+    void discard_stack(int32_t count);
+
+    // Grows the temp stack, leaving any preexisting values in place.
+    void pad_stack(int32_t count);
 
     // Copies vales from the temp stack into slots, and then shrinks the temp stack.
     void pop_slots(SlotRange dst);

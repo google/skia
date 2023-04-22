@@ -173,6 +173,12 @@ void Builder::inverse_matrix(int32_t n) {
     }
 }
 
+void Builder::pad_stack(int32_t count) {
+    if (count > 0) {
+        fInstructions.push_back({BuilderOp::pad_stack, {}, count});
+    }
+}
+
 void Builder::discard_stack(int32_t count) {
     // If we pushed something onto the stack and then immediately discarded part of it, we can
     // shrink or eliminate the push.
@@ -193,15 +199,17 @@ void Builder::discard_stack(int32_t count) {
             case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform:
             case BuilderOp::push_uniform_indirect:
-                // Our last op was a multi-slot push; cancel out one discard and eliminate the op
-                // if its count reached zero.
-                --count;
-                --lastInstruction.fImmA;
+            case BuilderOp::pad_stack: {
+                // Our last op was a multi-slot push; these cancel out. Eliminate the op if its
+                // count reached zero.
+                int cancelOut = std::min(count, lastInstruction.fImmA);
+                count                 -= cancelOut;
+                lastInstruction.fImmA -= cancelOut;
                 if (lastInstruction.fImmA == 0) {
                     fInstructions.pop_back();
                 }
                 continue;
-
+            }
             case BuilderOp::push_condition_mask:
             case BuilderOp::push_loop_mask:
             case BuilderOp::push_return_mask:
@@ -1020,6 +1028,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_clone:
         case BuilderOp::push_clone_from_stack:
         case BuilderOp::push_clone_indirect_from_stack:
+        case BuilderOp::pad_stack:
             return inst.fImmA;
 
         case BuilderOp::pop_condition_mask:
@@ -1902,6 +1911,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::case_op, ctx});
                 break;
             }
+            case BuilderOp::pad_stack:
             case BuilderOp::discard_stack:
                 break;
 
