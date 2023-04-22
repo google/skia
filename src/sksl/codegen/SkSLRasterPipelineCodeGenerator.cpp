@@ -2501,8 +2501,8 @@ bool Generator::pushChildCall(const ChildCall& c) {
     SkASSERT(childIdx != nullptr);
     SkASSERT(!c.arguments().empty());
 
-    // Save the src.rgba fields; these hold our execution masks, and could potentially be
-    // clobbered by the child effect.
+    // Save the src.rgba fields; these hold our execution masks, but are also used to pass colors
+    // and coordinates to the child effect.
     fBuilder.push_src_rgba();
 
     // All child calls have at least one argument.
@@ -2964,14 +2964,18 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
 
         case IntrinsicKind::k_fromLinearSrgb_IntrinsicKind:
         case IntrinsicKind::k_toLinearSrgb_IntrinsicKind: {
+            // Save the src.rgba fields; these hold our execution masks, but are also used to pass
+            // colors and coordinates to the color transform function.
+            fBuilder.push_src_rgba();
+
             // The argument must be a half3.
             SkASSERT(arg0.type().matches(*fContext.fTypes.fHalf3));
             if (!this->pushExpression(arg0)) {
                 return unsupported();
             }
-            // The intrinsics accept a three-component value; add alpha for the push/pop_src_rgba
+            // The intrinsics accept a three-component value; add alpha for the push/pop_src_rgba.
             fBuilder.push_constant_f(1.0f);
-            // Copy arguments from the stack into src
+            // Copy arguments from the stack into src.
             fBuilder.pop_src_rgba();
 
             if (intrinsic == IntrinsicKind::k_fromLinearSrgb_IntrinsicKind) {
@@ -2980,9 +2984,11 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
                 fBuilder.invoke_to_linear_srgb();
             }
 
-            // The xform has left the result color in src.rgba; push it onto the stack
-            fBuilder.push_src_rgba();
-            // The intrinsic returns a three-component value; discard alpha
+            // The xform has left the result color in src.rgba; exchange it with the execution masks
+            // on the top of the stack.
+            fBuilder.exchange_src();
+
+            // The intrinsic returns a three-component value; discard alpha.
             this->discardExpression(/*slots=*/1);
             return true;
         }
