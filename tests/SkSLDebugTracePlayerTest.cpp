@@ -8,7 +8,6 @@
 #include "include/core/SkRefCnt.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -16,7 +15,6 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
-#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"  // IWYU pragma: keep
 #include "src/sksl/tracing/SkSLDebugTracePlayer.h"
@@ -24,7 +22,6 @@
 #include "tests/Test.h"
 
 #include <cstddef>
-#include <initializer_list>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -37,7 +34,6 @@
 using LineNumberMap = SkSL::SkSLDebugTracePlayer::LineNumberMap;
 
 static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r,
-                                              bool useSkRP,
                                               std::string src) {
     auto debugTrace = sk_make_sp<SkSL::DebugTracePriv>();
 
@@ -51,41 +47,27 @@ static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r,
     REPORTER_ASSERT(r, program);
 
     if (program) {
-        if (useSkRP) {
-            const SkSL::FunctionDeclaration* main = program->getFunction("main");
-            REPORTER_ASSERT(r, main);
+        const SkSL::FunctionDeclaration* main = program->getFunction("main");
+        REPORTER_ASSERT(r, main);
 
-            if (main) {
-                // Compile our program.
-                SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
-                SkRasterPipeline pipeline(&alloc);
-                std::unique_ptr<SkSL::RP::Program> rasterProg = SkSL::MakeRasterPipelineProgram(
-                        *program, *main->definition(), debugTrace.get(), /*writeTraceOps=*/true);
-                REPORTER_ASSERT(r, rasterProg);
+        if (main) {
+            // Compile our program.
+            SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
+            SkRasterPipeline pipeline(&alloc);
+            std::unique_ptr<SkSL::RP::Program> rasterProg = SkSL::MakeRasterPipelineProgram(
+                    *program, *main->definition(), debugTrace.get(), /*writeTraceOps=*/true);
+            REPORTER_ASSERT(r, rasterProg);
 
-                if (rasterProg) {
-                    // Append the SkSL program to the raster pipeline, and run it at xy=(0.5, 0.5).
-                    static constexpr float kCoordinates[4] = {0.5f, 0.5f, 0.0f, 1.0f};
-                    pipeline.append_constant_color(&alloc, kCoordinates);
-                    rasterProg->appendStages(&pipeline,
-                                             &alloc,
-                                             /*callbacks=*/nullptr,
-                                             /*uniforms=*/{});
-                    pipeline.run(0, 0, 1, 1);
-                }
+            if (rasterProg) {
+                // Append the SkSL program to the raster pipeline, and run it at xy=(0.5, 0.5).
+                static constexpr float kCoordinates[4] = {0.5f, 0.5f, 0.0f, 1.0f};
+                pipeline.append_constant_color(&alloc, kCoordinates);
+                rasterProg->appendStages(&pipeline,
+                                         &alloc,
+                                         /*callbacks=*/nullptr,
+                                         /*uniforms=*/{});
+                pipeline.run(0, 0, 1, 1);
             }
-        } else {
-            skvm::Builder b;
-            SkSL::testingOnly_ProgramToSkVMShader(*program, &b, debugTrace.get());
-            skvm::Program p = b.done();
-            REPORTER_ASSERT(r, p.nargs() == 5);
-
-            // One arg for uniforms (just contains dy in these tests)
-            float uniform_dy = 0.0f;
-
-            // Four more args for the return color
-            float result[4];
-            p.eval(1, &uniform_dy, &result[0], &result[1], &result[2], &result[3]);
         }
     }
 
@@ -160,92 +142,84 @@ DEF_TEST(SkSLTracePlayerCanResetToNull, r) {
 }
 
 DEF_TEST(SkSLTracePlayerHelloWorld, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                       // Line 1
 half4 main(float2 xy) {   // Line 2
     return half4(2 + 2);  // Line 3
 }                         // Line 4
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
 
-        // We have not started tracing yet.
-        REPORTER_ASSERT(r, player.cursor() == 0);
-        REPORTER_ASSERT(r, player.getCurrentLine() == -1);
-        REPORTER_ASSERT(r, !player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCallStack().empty());
-        REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-        REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}}));
+    // We have not started tracing yet.
+    REPORTER_ASSERT(r, player.cursor() == 0);
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}}));
 
-        player.step();
+    player.step();
 
-        // We should now be inside main.
-        REPORTER_ASSERT(r, player.cursor() > 0);
-        REPORTER_ASSERT(r, !player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-        REPORTER_ASSERT(r, player.getLocalVariables(0).size() == 2);  // xy
+    // We should now be inside main.
+    REPORTER_ASSERT(r, player.cursor() > 0);
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLocalVariables(0).size() == 2);  // xy
 
-        player.step();
+    player.step();
 
-        // We have now completed the trace.
-        REPORTER_ASSERT(r, player.cursor() > 0);
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCurrentLine() == -1);
-        REPORTER_ASSERT(r, player.getCallStack().empty());
-        REPORTER_ASSERT(r,
-                        make_global_vars_string(*trace, player) ==
-                                "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
-                                "4, ##[main].result.w = 4");
-    }
+    // We have now completed the trace.
+    REPORTER_ASSERT(r, player.cursor() > 0);
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r,
+                    make_global_vars_string(*trace, player) ==
+                            "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
+                            "4, ##[main].result.w = 4");
 }
 
 DEF_TEST(SkSLTracePlayerReset, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                       // Line 1
 half4 main(float2 xy) {   // Line 2
     return half4(2 + 2);  // Line 3
 }                         // Line 4
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
 
-        // We have not started tracing yet.
-        REPORTER_ASSERT(r, player.cursor() == 0);
-        REPORTER_ASSERT(r, player.getCurrentLine() == -1);
-        REPORTER_ASSERT(r, !player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCallStack().empty());
-        REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    // We have not started tracing yet.
+    REPORTER_ASSERT(r, player.cursor() == 0);
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
 
-        player.step();
+    player.step();
 
-        // We should now be inside main.
-        REPORTER_ASSERT(r, player.cursor() > 0);
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-        REPORTER_ASSERT(r, player.getLocalVariables(0).size() == 2);  // xy
+    // We should now be inside main.
+    REPORTER_ASSERT(r, player.cursor() > 0);
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLocalVariables(0).size() == 2);  // xy
 
-        player.reset(trace);
+    player.reset(trace);
 
-        // We should be back to square one.
-        REPORTER_ASSERT(r, player.cursor() == 0);
-        REPORTER_ASSERT(r, player.getCurrentLine() == -1);
-        REPORTER_ASSERT(r, !player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCallStack().empty());
-        REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-    }
+    // We should be back to square one.
+    REPORTER_ASSERT(r, player.cursor() == 0);
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
 }
 
 DEF_TEST(SkSLTracePlayerFunctions, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                             // Line 1
 int fnB() {                     // Line 2
     return 2 + 2;               // Line 3
@@ -257,92 +231,85 @@ half4 main(float2 xy) {         // Line 8
     return half4(fnA());        // Line 9
 }                               // Line 10
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
 
-        // We have not started tracing yet.
-        REPORTER_ASSERT(r, player.cursor() == 0);
-        REPORTER_ASSERT(r, player.getCurrentLine() == -1);
-        REPORTER_ASSERT(r, !player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCallStack().empty());
-        REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-        REPORTER_ASSERT(r,
-                        player.getLineNumbersReached() == LineNumberMap({{3, 1}, {6, 1}, {9, 1}}));
+    // We have not started tracing yet.
+    REPORTER_ASSERT(r, player.cursor() == 0);
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {6, 1}, {9, 1}}));
 
-        player.step();
+    player.step();
 
-        // We should now be inside main.
-        REPORTER_ASSERT(r, !player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r, player.getGlobalVariables().empty());
-        REPORTER_ASSERT(r, player.getLocalVariables(0).size() == 2);  // xy
+    // We should now be inside main.
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLocalVariables(0).size() == 2);  // xy
 
-        player.stepOver();
+    player.stepOver();
 
-        // We should now have completed execution.
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-        REPORTER_ASSERT(r, player.getCurrentLine() == -1);
-        REPORTER_ASSERT(r, player.getCallStack().empty());
-        REPORTER_ASSERT(r,
-                        make_global_vars_string(*trace, player) ==
-                                "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
-                                "4, ##[main].result.w = 4");
+    // We should now have completed execution.
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r,
+                    make_global_vars_string(*trace, player) ==
+                            "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
+                            "4, ##[main].result.w = 4");
 
-        // Watch the stack grow and shrink as single-step.
-        player.reset(trace);
-        player.step();
+    // Watch the stack grow and shrink as single-step.
+    player.reset(trace);
+    player.step();
 
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
-        REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
-        player.step();
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
+    REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
+    player.step();
 
-        REPORTER_ASSERT(r,
-                        make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fnA()");
-        REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
-        REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(1) == 6);
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
-        REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
-        player.step();
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fnA()");
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(1) == 6);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
+    REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
+    player.step();
 
-        REPORTER_ASSERT(r,
-                        make_stack_string(*trace, player) ==
-                                "half4 main(float2 xy) -> int fnA() -> int fnB()");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
-        REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
-        REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
-        REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(1) == 6);
-        REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(2) == 3);
-        player.step();
+    REPORTER_ASSERT(
+            r,
+            make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fnA() -> int fnB()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
+    REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(0) == 9);
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(1) == 6);
+    REPORTER_ASSERT(r, player.getCurrentLineInStackFrame(2) == 3);
+    player.step();
 
-        REPORTER_ASSERT(r,
-                        make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fnA()");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##[fnB].result = 4");
-        REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
-        player.step();
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fnA()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##[fnB].result = 4");
+    REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
+    player.step();
 
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##[fnA].result = 4, xy.x = 0.5, xy.y = 0.5");
-        REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(
+            r,
+            make_local_vars_string(*trace, player) == "##[fnA].result = 4, xy.x = 0.5, xy.y = 0.5");
+    REPORTER_ASSERT(r, make_global_vars_string(*trace, player) == "");
 
-        player.step();
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-        REPORTER_ASSERT(r,
-                        make_global_vars_string(*trace, player) ==
-                                "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
-                                "4, ##[main].result.w = 4");
-    }
+    player.step();
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r,
+                    make_global_vars_string(*trace, player) ==
+                            "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
+                            "4, ##[main].result.w = 4");
 }
 
 DEF_TEST(SkSLTracePlayerVariables, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace =
-                make_trace(r,
-                           useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                   // Line 1
 float func() {                        // Line 2
     float x = 4, y = 5, z = 6;        // Line 3
@@ -357,97 +324,89 @@ half4 main(float2 xy) {               // Line 6
     return half4(a);                  // Line 12
 }                                     // Line 13
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
 
-        REPORTER_ASSERT(r,
-                        player.getLineNumbersReached() == LineNumberMap({{3, 1},
-                                                                         {4, 1},
-                                                                         {7, 1},
-                                                                         {8, 1},
-                                                                         {9, 1},
-                                                                         {10, 1},
-                                                                         {11, 1},
-                                                                         {12, 1}}));
-        player.step();
+    REPORTER_ASSERT(
+            r,
+            player.getLineNumbersReached() ==
+                    LineNumberMap(
+                            {{3, 1}, {4, 1}, {7, 1}, {8, 1}, {9, 1}, {10, 1}, {11, 1}, {12, 1}}));
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 7);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 8);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "##a = 123, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) == "##a = 123, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##b = true, a = 123, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##b = true, a = 123, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        REPORTER_ASSERT(
-                r, make_stack_string(*trace, player) == "half4 main(float2 xy) -> float func()");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r,
+                    make_stack_string(*trace, player) == "half4 main(float2 xy) -> float func()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        REPORTER_ASSERT(
-                r, make_stack_string(*trace, player) == "half4 main(float2 xy) -> float func()");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##z = 6, ##y = 5, ##x = 4");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r,
+                    make_stack_string(*trace, player) == "half4 main(float2 xy) -> float func()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##z = 6, ##y = 5, ##x = 4");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##[func].result = 6, b = true, a = 123, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##[func].result = 6, b = true, a = 123, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "b = true, a = 123, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(
+            r,
+            make_local_vars_string(*trace, player) == "b = true, a = 123, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 11);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##c.x = 0, ##c.y = 0.5, ##c.z = 1, ##c.w = -1, b = true, a = 123, "
-                                "xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 11);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##c.x = 0, ##c.y = 0.5, ##c.z = 1, ##c.w = -1, b = true, a = 123, "
+                            "xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 12);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##d[0][0] = 2, ##d[0][1] = 0, ##d[0][2] = 0, "
-                                "##d[1][0] = 0, ##d[1][1] = 2, ##d[1][2] = 0, "
-                                "##d[2][0] = 0, ##d[2][1] = 0, ##d[2][2] = 2, "
-                                "c.x = 0, c.y = 0.5, c.z = 1, c.w = -1, b = true, a = 123, "
-                                "xy.x = 0.5, xy.y = 0.5");
+    REPORTER_ASSERT(r, player.getCurrentLine() == 12);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##d[0][0] = 2, ##d[0][1] = 0, ##d[0][2] = 0, "
+                            "##d[1][0] = 0, ##d[1][1] = 2, ##d[1][2] = 0, "
+                            "##d[2][0] = 0, ##d[2][1] = 0, ##d[2][2] = 2, "
+                            "c.x = 0, c.y = 0.5, c.z = 1, c.w = -1, b = true, a = 123, "
+                            "xy.x = 0.5, xy.y = 0.5");
 
-        player.step();
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "");
-        REPORTER_ASSERT(r,
-                        make_global_vars_string(*trace, player) ==
-                                "##[main].result.x = 123, ##[main].result.y = 123, "
-                                "##[main].result.z = 123, ##[main].result.w = 123");
-    }
+    player.step();
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "");
+    REPORTER_ASSERT(r,
+                    make_global_vars_string(*trace, player) ==
+                            "##[main].result.x = 123, ##[main].result.y = 123, "
+                            "##[main].result.z = 123, ##[main].result.w = 123");
 }
 
 DEF_TEST(SkSLTracePlayerVariableGroups, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace =
-                make_trace(r,
-                           useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                   // Line 1
 struct S { int x, y, z; };            // Line 2
 half4 main(float2 xy) {               // Line 3
@@ -460,61 +419,58 @@ half4 main(float2 xy) {               // Line 3
     return half4(0);                  // Line 10
 }                                     // Line 11
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        player.step();
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##s.x = 0, ##s.y = 0, ##s.z = 0, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##s.x = 0, ##s.y = 0, ##s.z = 0, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 6);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##arr[0] = 0, ##arr[1] = 0, ##arr[2] = 0, s.x = 0, s.y = 0, s.z = "
-                                "0, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 6);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##arr[0] = 0, ##arr[1] = 0, ##arr[2] = 0, s.x = 0, s.y = 0, s.z = "
+                            "0, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 7);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "s.x = 0, ##s.y = 1, s.z = 0, arr[0] = 0, arr[1] = 0, arr[2] = 0, "
-                                "xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "s.x = 0, ##s.y = 1, s.z = 0, arr[0] = 0, arr[1] = 0, arr[2] = 0, "
+                            "xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 8);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "arr[0] = 0, ##arr[1] = 2, arr[2] = 0, s.x = 0, s.y = 1, s.z = 0, "
-                                "xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "arr[0] = 0, ##arr[1] = 2, arr[2] = 0, s.x = 0, s.y = 1, s.z = 0, "
+                            "xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##s.x = 3, s.y = 1, s.z = 0, arr[0] = 0, arr[1] = 2, arr[2] = 0, "
-                                "xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##s.x = 3, s.y = 1, s.z = 0, arr[0] = 0, arr[1] = 2, arr[2] = 0, "
+                            "xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "arr[0] = 0, arr[1] = 2, ##arr[2] = 4, s.x = 3, s.y = 1, s.z = 0, "
-                                "xy.x = 0.5, xy.y = 0.5");
-    }
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "arr[0] = 0, arr[1] = 2, ##arr[2] = 4, s.x = 3, s.y = 1, s.z = 0, "
+                            "xy.x = 0.5, xy.y = 0.5");
 }
 
 DEF_TEST(SkSLTracePlayerIfStatement, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                      // Line 1
 half4 main(float2 xy) {  // Line 2
     int val;             // Line 3
@@ -533,64 +489,59 @@ half4 main(float2 xy) {  // Line 2
     return half4(val);   // Line 16
 }                        // Line 17
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
 
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() ==
-                        LineNumberMap({{3, 1}, {4, 1}, {5, 1}, {6, 1}, {10, 1}, {14, 1}, {16, 1}}));
-        player.step();
+    REPORTER_ASSERT(
+            r,
+            player.getLineNumbersReached() ==
+                    LineNumberMap({{3, 1}, {4, 1}, {5, 1}, {6, 1}, {10, 1}, {14, 1}, {16, 1}}));
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "##val = 0, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) == "##val = 0, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "val = 0, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 0, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 6);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##temp = 1, val = 0, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 6);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##temp = 1, val = 0, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        // We skip over the false-branch.
-        REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "##val = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    // We skip over the false-branch.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) == "##val = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        // We skip over the true-branch.
-        REPORTER_ASSERT(r, player.getCurrentLine() == 14);
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "val = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    // We skip over the true-branch.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 14);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 16);
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "##val = 4, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 16);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) == "##val = 4, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-        REPORTER_ASSERT(r,
-                        make_global_vars_string(*trace, player) ==
-                                "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
-                                "4, ##[main].result.w = 4");
-    }
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r,
+                    make_global_vars_string(*trace, player) ==
+                            "##[main].result.x = 4, ##[main].result.y = 4, ##[main].result.z = "
+                            "4, ##[main].result.w = 4");
 }
 
 DEF_TEST(SkSLTracePlayerForLoop, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                // Line 1
 half4 main(float2 xy) {            // Line 2
     int val = 0;                   // Line 3
@@ -600,85 +551,73 @@ half4 main(float2 xy) {            // Line 2
     return half4(val);             // Line 7
 }                                  // Line 8
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
 
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 3}, {5, 2}, {7, 1}}));
-        player.step();
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 3}, {5, 2}, {7, 1}}));
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 3}, {5, 2}, {7, 1}}));
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 3}, {5, 2}, {7, 1}}));
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 2}, {5, 2}, {7, 1}}));
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "##val = 0, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 2}, {5, 2}, {7, 1}}));
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) == "##val = 0, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 2}, {5, 1}, {7, 1}}));
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##x = 1, val = 0, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 2}, {5, 1}, {7, 1}}));
+    REPORTER_ASSERT(
+            r,
+            make_local_vars_string(*trace, player) == "##x = 1, val = 0, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 1}, {5, 1}, {7, 1}}));
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##val = 1, x = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 1}, {5, 1}, {7, 1}}));
+    REPORTER_ASSERT(
+            r,
+            make_local_vars_string(*trace, player) == "##val = 1, x = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 1}, {5, 0}, {7, 1}}));
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##x = 2, val = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 1}, {5, 0}, {7, 1}}));
+    REPORTER_ASSERT(
+            r,
+            make_local_vars_string(*trace, player) == "##x = 2, val = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 0}, {5, 0}, {7, 1}}));
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##val = 2, x = 2, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 0}, {5, 0}, {7, 1}}));
+    REPORTER_ASSERT(
+            r,
+            make_local_vars_string(*trace, player) == "##val = 2, x = 2, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 7);
-        REPORTER_ASSERT(
-                r,
-                player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 0}, {5, 0}, {7, 0}}));
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "val = 2, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+    REPORTER_ASSERT(
+            r, player.getLineNumbersReached() == LineNumberMap({{3, 0}, {4, 0}, {5, 0}, {7, 0}}));
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "val = 2, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-        REPORTER_ASSERT(r,
-                        make_global_vars_string(*trace, player) ==
-                                "##[main].result.x = 2, ##[main].result.y = 2, ##[main].result.z = "
-                                "2, ##[main].result.w = 2");
-    }
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r,
+                    make_global_vars_string(*trace, player) ==
+                            "##[main].result.x = 2, ##[main].result.y = 2, ##[main].result.z = "
+                            "2, ##[main].result.w = 2");
 }
 
 DEF_TEST(SkSLTracePlayerStepOut, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                      // Line 1
 int fn() {               // Line 2
     int a = 11;          // Line 3
@@ -691,57 +630,51 @@ half4 main(float2 xy) {  // Line 9
     return half4(fn());  // Line 10
 }                        // Line 11
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        REPORTER_ASSERT(r,
-                        player.getLineNumbersReached() ==
-                                LineNumberMap({{3, 1}, {4, 1}, {5, 1}, {6, 1}, {7, 1}, {10, 1}}));
-        player.step();
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    REPORTER_ASSERT(r,
+                    player.getLineNumbersReached() ==
+                            LineNumberMap({{3, 1}, {4, 1}, {5, 1}, {6, 1}, {7, 1}, {10, 1}}));
+    player.step();
 
-        // We should now be inside main.
-        REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        player.step();
+    // We should now be inside main.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    player.step();
 
-        // We should now be inside fn.
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        REPORTER_ASSERT(r,
-                        make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fn()");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
-        player.step();
+    // We should now be inside fn.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fn()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        REPORTER_ASSERT(r,
-                        make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fn()");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##a = 11");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fn()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##a = 11");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-        REPORTER_ASSERT(r,
-                        make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fn()");
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##b = 22, a = 11");
-        player.stepOut();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy) -> int fn()");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##b = 22, a = 11");
+    player.stepOut();
 
-        // We should now be back inside main(), right where we left off.
-        REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-        REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##[fn].result = 44, xy.x = 0.5, xy.y = 0.5");
-        player.stepOut();
+    // We should now be back inside main(), right where we left off.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "half4 main(float2 xy)");
+    REPORTER_ASSERT(
+            r,
+            make_local_vars_string(*trace, player) == "##[fn].result = 44, xy.x = 0.5, xy.y = 0.5");
+    player.stepOut();
 
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-        REPORTER_ASSERT(r,
-                        make_global_vars_string(*trace, player) ==
-                                "##[main].result.x = 44, ##[main].result.y = 44, ##[main].result.z "
-                                "= 44, ##[main].result.w = 44");
-    }
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r,
+                    make_global_vars_string(*trace, player) ==
+                            "##[main].result.x = 44, ##[main].result.y = 44, ##[main].result.z "
+                            "= 44, ##[main].result.w = 44");
 }
 
 DEF_TEST(SkSLTracePlayerVariableScope, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 half4 main(float2 xy) {     // Line 2
     int a = 1;              // Line 3
@@ -764,86 +697,77 @@ half4 main(float2 xy) {     // Line 2
     return half4(0);        // Line 20
 }
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        REPORTER_ASSERT(r,
-                        player.getLineNumbersReached() == LineNumberMap({{3, 1},
-                                                                         {5, 1},
-                                                                         {7, 1},
-                                                                         {9, 1},
-                                                                         {11, 1},
-                                                                         {13, 1},
-                                                                         {15, 1},
-                                                                         {17, 1},
-                                                                         {19, 1},
-                                                                         {20, 1}}));
-        player.step();
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    REPORTER_ASSERT(r,
+                    player.getLineNumbersReached() == LineNumberMap({{3, 1},
+                                                                     {5, 1},
+                                                                     {7, 1},
+                                                                     {9, 1},
+                                                                     {11, 1},
+                                                                     {13, 1},
+                                                                     {15, 1},
+                                                                     {17, 1},
+                                                                     {19, 1},
+                                                                     {20, 1}}));
+    player.step();
 
-        // We should now be inside main.
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
-        player.step();
+    // We should now be inside main.
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##xy.x = 0.5, ##xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 5);
-        REPORTER_ASSERT(
-                r, make_local_vars_string(*trace, player) == "##a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 5);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 7);
-        REPORTER_ASSERT(
-                r,
-                make_local_vars_string(*trace, player) == "##b = 2, a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+    REPORTER_ASSERT(
+            r, make_local_vars_string(*trace, player) == "##b = 2, a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
-        REPORTER_ASSERT(
-                r,
-                make_local_vars_string(*trace, player) == "b = 2, a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    REPORTER_ASSERT(
+            r, make_local_vars_string(*trace, player) == "b = 2, a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 11);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) == "a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 11);
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 13);
-        REPORTER_ASSERT(
-                r,
-                make_local_vars_string(*trace, player) == "##e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 13);
+    REPORTER_ASSERT(
+            r, make_local_vars_string(*trace, player) == "##e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 15);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##f = 6, e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 15);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##f = 6, e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 17);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "f = 6, e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 17);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "f = 6, e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 19);
-        REPORTER_ASSERT(
-                r,
-                make_local_vars_string(*trace, player) == "e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 19);
+    REPORTER_ASSERT(
+            r, make_local_vars_string(*trace, player) == "e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 20);
-        REPORTER_ASSERT(r,
-                        make_local_vars_string(*trace, player) ==
-                                "##i = 9, e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 20);
+    REPORTER_ASSERT(r,
+                    make_local_vars_string(*trace, player) ==
+                            "##i = 9, e = 5, a = 1, xy.x = 0.5, xy.y = 0.5");
+    player.step();
 
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-    }
+    REPORTER_ASSERT(r, player.traceHasCompleted());
 }
 
 DEF_TEST(SkSLTracePlayerNestedBlocks, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 half4 main(float2 xy) {     // Line 2
     {{{{{{{                 // Line 3
@@ -852,24 +776,21 @@ half4 main(float2 xy) {     // Line 2
     return half4(0);        // Line 6
 }
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        player.step();
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 6);
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 6);
+    player.step();
 
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-    }
+    REPORTER_ASSERT(r, player.traceHasCompleted());
 }
 
 DEF_TEST(SkSLTracePlayerSwitchStatement, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 half4 main(float2 xy) {     // Line 2
     int x = 2;              // Line 3
@@ -885,33 +806,30 @@ half4 main(float2 xy) {     // Line 2
     return half4(x);        // Line 13
 }
 )");
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        player.step();
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 8);
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 10);
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 10);
+    player.step();
 
-        REPORTER_ASSERT(r, player.getCurrentLine() == 13);
-        player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 13);
+    player.step();
 
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-    }
+    REPORTER_ASSERT(r, player.traceHasCompleted());
 }
 
 DEF_TEST(SkSLTracePlayerBreakpoint, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                                // Line 1
 int counter = 0;                   // Line 2
 void func() {                      // Line 3
@@ -927,48 +845,45 @@ half4 main(float2 xy) {            // Line 6
     return half4(counter);         // Line 13
 }                                  // Line 14
 )");
-        // Run the simulation with a variety of breakpoints set.
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        player.setBreakpoints(std::unordered_set<int>{8, 13, 20});
-        player.run();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    // Run the simulation with a variety of breakpoints set.
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    player.setBreakpoints(std::unordered_set<int>{8, 13, 20});
+    player.run();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
 
-        player.run();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    player.run();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
 
-        player.setBreakpoints(std::unordered_set<int>{1, 4, 8});
-        player.run();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    player.setBreakpoints(std::unordered_set<int>{1, 4, 8});
+    player.run();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
 
-        player.run();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.run();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
 
-        player.setBreakpoints(std::unordered_set<int>{4, 12, 14});
-        player.run();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.setBreakpoints(std::unordered_set<int>{4, 12, 14});
+    player.run();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
 
-        player.run();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 12);
+    player.run();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 12);
 
-        player.run();
-        REPORTER_ASSERT(r, player.traceHasCompleted());
+    player.run();
+    REPORTER_ASSERT(r, player.traceHasCompleted());
 
-        // Run the simulation again with no breakpoints set. We should reach the end of the trace
-        // instantly.
-        player.reset(trace);
-        player.setBreakpoints(std::unordered_set<int>{});
-        REPORTER_ASSERT(r, !player.traceHasCompleted());
+    // Run the simulation again with no breakpoints set. We should reach the end of the trace
+    // instantly.
+    player.reset(trace);
+    player.setBreakpoints(std::unordered_set<int>{});
+    REPORTER_ASSERT(r, !player.traceHasCompleted());
 
-        player.run();
-        REPORTER_ASSERT(r, player.traceHasCompleted());
-    }
+    player.run();
+    REPORTER_ASSERT(r, player.traceHasCompleted());
 }
 
 DEF_TEST(SkSLTracePlayerStepOverWithBreakpoint, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 int counter = 0;            // Line 2
 void func() {               // Line 3
@@ -979,30 +894,27 @@ half4 main(float2 xy) {     // Line 6
     return half4(counter);  // Line 8
 }                           // Line 9
 )");
-        // Try stepping over with no breakpoint set; we will step over.
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        player.step();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+    // Try stepping over with no breakpoint set; we will step over.
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
 
-        player.stepOver();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 8);
+    player.stepOver();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 8);
 
-        // Try stepping over with a breakpoint set; we will stop at the breakpoint.
-        player.reset(trace);
-        player.setBreakpoints(std::unordered_set<int>{4});
-        player.step();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 7);
+    // Try stepping over with a breakpoint set; we will stop at the breakpoint.
+    player.reset(trace);
+    player.setBreakpoints(std::unordered_set<int>{4});
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 7);
 
-        player.stepOver();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
-    }
+    player.stepOver();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
 }
 
 DEF_TEST(SkSLTracePlayerStepOutWithBreakpoint, r) {
-    for (bool useSkRP : {false, true}) {
-        sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
-                                                       useSkRP,
+    sk_sp<SkSL::DebugTracePriv> trace = make_trace(r,
 R"(                         // Line 1
 int counter = 0;            // Line 2
 void func() {               // Line 3
@@ -1015,30 +927,29 @@ half4 main(float2 xy) {     // Line 8
     return half4(counter);  // Line 10
 }                           // Line 11
 )");
-        // Try stepping out with no breakpoint set; we will step out.
-        SkSL::SkSLDebugTracePlayer player;
-        player.reset(trace);
-        player.step();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    // Try stepping out with no breakpoint set; we will step out.
+    SkSL::SkSLDebugTracePlayer player;
+    player.reset(trace);
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
 
-        player.step();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
 
-        player.stepOut();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    player.stepOut();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
 
-        // Try stepping out with a breakpoint set; we will stop at the breakpoint.
-        player.reset(trace);
-        player.setBreakpoints(std::unordered_set<int>{6});
-        player.step();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 9);
+    // Try stepping out with a breakpoint set; we will stop at the breakpoint.
+    player.reset(trace);
+    player.setBreakpoints(std::unordered_set<int>{6});
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 9);
 
-        player.step();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 4);
+    player.step();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 4);
 
-        player.stepOut();
-        REPORTER_ASSERT(r, player.getCurrentLine() == 6);
-    }
+    player.stepOut();
+    REPORTER_ASSERT(r, player.getCurrentLine() == 6);
 }
 
 #endif  // SKSL_ENABLE_TRACING
