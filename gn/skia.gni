@@ -92,8 +92,6 @@ declare_args() {
     skia_ios_profile = "Google Development"
   }
 
-  skia_compare_vm_vs_rp = false
-
   # Temporary GN arg for flutter to control updating their unit tests synchronously with new alg.
   skia_use_legacy_layer_bounds = false
 

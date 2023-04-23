@@ -83,9 +83,6 @@ extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
 extern bool gSkVMJITViaDylib;
 
-#include "src/utils/SkBlitterTraceCommon.h"
-SK_BLITTER_TRACE_INIT
-
 #ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
 
@@ -394,9 +391,7 @@ static double time(int loops, Benchmark* bench, Target* target) {
     double start = now_ms();
     canvas = target->beginTiming(canvas);
 
-    SK_BLITTER_TRACE_LOCAL_SETUP;
     bench->draw(loops, canvas);
-    SK_BLITTER_TRACE_LOCAL_TEARDOWN;
 
     target->endTiming();
     double elapsed = now_ms() - start;
@@ -1593,7 +1588,6 @@ int main(int argc, char** argv) {
                          , sk_tools::getMaxResidentSetSizeMB()
                          , bench->getUniqueName()
                          , config);
-                SK_BLITTER_TRACE_PRINT;
                 SkDebugf("\n");
             } else if (FLAGS_quiet) {
                 const char* mark = " ";

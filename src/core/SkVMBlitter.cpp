@@ -26,9 +26,6 @@
 
 #ifdef SK_ENABLE_SKVM
 
-#define SK_BLITTER_TRACE_IS_SKVM
-#include "src/utils/SkBlitterTrace.h"
-
 namespace {
 
     // Uniforms set by the Blitter itself,
@@ -681,10 +678,8 @@ void SkVMBlitter::blitH(int x, int y, int w) {
     skvm::Program* blit_h = this->buildProgram(Coverage::Full);
     this->updateUniforms(x+w, y);
     if (const void* sprite = this->isSprite(x,y)) {
-        SK_BLITTER_TRACE_STEP(blitH1, true, /*scanlines=*/1, /*pixels=*/w);
         blit_h->eval(w, fUniforms.buf.data(), fDevice.addr(x,y), sprite);
     } else {
-        SK_BLITTER_TRACE_STEP(blitH2, true, /*scanlines=*/1, /*pixels=*/w);
         blit_h->eval(w, fUniforms.buf.data(), fDevice.addr(x,y));
     }
 }
@@ -693,9 +688,7 @@ void SkVMBlitter::blitAntiH(int x, int y, const SkAlpha cov[], const int16_t run
     skvm::Program* blit_anti_h = this->buildProgram(Coverage::UniformF);
     skvm::Program* blit_h = this->buildProgram(Coverage::Full);
 
-    SK_BLITTER_TRACE_STEP(blitAntiH, true, /*scanlines=*/1ul, /*pixels=*/0ul);
     for (int16_t run = *runs; run > 0; run = *runs) {
-        SK_BLITTER_TRACE_STEP_ACCUMULATE(blitAntiH, /*pixels=*/run);
         const SkAlpha coverage = *cov;
         if (coverage != 0x00) {
             this->updateUniforms(x+run, y);
@@ -745,11 +738,6 @@ void SkVMBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
     SkASSERT(program);
     if (program) {
-        SK_BLITTER_TRACE_STEP(blitMask,
-                           true,
-                           /*scanlines=*/clip.height(),
-                           /*pixels=*/clip.width() * clip.height());
-
         for (int y = clip.top(); y < clip.bottom(); y++) {
              int x = clip.left(),
                  w = clip.width();
