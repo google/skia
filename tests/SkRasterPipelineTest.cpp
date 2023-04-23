@@ -1288,8 +1288,8 @@ DEF_TEST(SkRasterPipeline_Swizzle, r) {
 
     struct TestPattern {
         SkRasterPipelineOp stage;
-        uint16_t swizzle[4];
-        uint16_t expectation[4];
+        uint8_t swizzle[4];
+        uint8_t expectation[4];
     };
     static const TestPattern kPatterns[] = {
         {SkRasterPipelineOp::swizzle_1, {3},          {3, 1, 2, 3}}, // (1,2,3,4).w    = (4)
@@ -1307,11 +1307,12 @@ DEF_TEST(SkRasterPipeline_Swizzle, r) {
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
         SkRasterPipeline_SwizzleCtx ctx;
-        ctx.ptr = slots;
+        ctx.dst = 0;
         for (size_t index = 0; index < std::size(ctx.offsets); ++index) {
             ctx.offsets[index] = pattern.swizzle[index] * N * sizeof(float);
         }
-        p.append(pattern.stage, &ctx);
+        p.append(SkRasterPipelineOp::set_base_pointer, &slots[0]);
+        p.append(pattern.stage, SkRPCtxUtils::Pack(ctx, &alloc));
         p.run(0,0,1,1);
 
         // Verify that the swizzle has been applied in each slot.

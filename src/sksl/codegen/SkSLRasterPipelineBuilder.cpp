@@ -824,7 +824,8 @@ static int pack_nybbles(SkSpan<const int8_t> components) {
     return packed;
 }
 
-static void unpack_nybbles_to_offsets(uint32_t components, SkSpan<uint16_t> offsets) {
+template <typename T>
+static void unpack_nybbles_to_offsets(uint32_t components, SkSpan<T> offsets) {
     // Unpack component nybbles into byte-offsets pointing at stack slots.
     for (size_t index = 0; index < offsets.size(); ++index) {
         offsets[index] = (components & 0xF) * SkOpts::raster_pipeline_highp_stride * sizeof(float);
@@ -1629,11 +1630,11 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::swizzle_2:
             case BuilderOp::swizzle_3:
             case BuilderOp::swizzle_4: {
-                auto* ctx = alloc->make<SkRasterPipeline_SwizzleCtx>();
-                ctx->ptr = tempStackPtr - (N * inst.fImmA);
+                SkRasterPipeline_SwizzleCtx ctx;
+                ctx.dst = OffsetFromBase(tempStackPtr - (N * inst.fImmA));
                 // Unpack component nybbles into byte-offsets pointing at stack slots.
-                unpack_nybbles_to_offsets(inst.fImmB, SkSpan(ctx->offsets));
-                pipeline->push_back({(ProgramOp)inst.fOp, ctx});
+                unpack_nybbles_to_offsets(inst.fImmB, SkSpan(ctx.offsets));
+                pipeline->push_back({(ProgramOp)inst.fOp, SkRPCtxUtils::Pack(ctx, alloc)});
                 break;
             }
             case BuilderOp::shuffle: {
@@ -2223,9 +2224,14 @@ void Program::dump(SkWStream* out) const {
             return "ExternalPtr(" + AsRange(0, numSlots) + ")";
         };
 
+        // Converts an RP offset to a pointer.
+        auto OffsetToPtr = [&](SkRPOffset offset) -> std::byte* {
+            return (std::byte*)slots.values.data() + offset;
+        };
+
         // Interprets a slab offset as a slot range.
         auto OffsetCtx = [&](SkRPOffset offset, int numSlots) -> std::string {
-            return PtrCtx((std::byte*)slots.values.data() + offset, numSlots);
+            return PtrCtx(OffsetToPtr(offset), numSlots);
         };
 
         // Interpret the context value as a pointer to two adjacent values.
@@ -2287,7 +2293,7 @@ void Program::dump(SkWStream* out) const {
         };
 
         // Stringize a span of swizzle offsets to the textual equivalent (`xyzw`).
-        auto SwizzleOffsetSpan = [&](SkSpan<const uint16_t> offsets) {
+        auto SwizzleOffsetSpan = [&](const auto offsets) {
             std::string src;
             for (uint16_t offset : offsets) {
                 if (offset == (0 * N * sizeof(float))) {
@@ -2308,7 +2314,7 @@ void Program::dump(SkWStream* out) const {
         // When we decode a swizzle, we don't know the slot width of the original value; that's not
         // preserved in the instruction encoding. (e.g., myFloat4.y would be indistinguishable from
         // myFloat2.y.) We do our best to make a readable dump using the data we have.
-        auto SwizzleWidth = [&](SkSpan<const uint16_t> offsets) {
+        auto SwizzleWidth = [&](const auto offsets) {
             size_t highestComponent = *std::max_element(offsets.begin(), offsets.end()) /
                                       (N * sizeof(float));
             size_t swizzleWidth = offsets.size();
@@ -2316,17 +2322,18 @@ void Program::dump(SkWStream* out) const {
         };
 
         // Stringize a swizzled pointer.
-        auto SwizzlePtr = [&](const float* ptr, SkSpan<const uint16_t> offsets) {
-            return "(" + PtrCtx(ptr, SwizzleWidth(offsets)) + ")." + SwizzleOffsetSpan(offsets);
+        auto SwizzlePtr = [&](const void* ptr, const auto offsets) {
+            return "(" + PtrCtx(ptr, SwizzleWidth(SkSpan(offsets))) + ")." +
+                   SwizzleOffsetSpan(SkSpan(offsets));
         };
 
         // Interpret the context value as a Swizzle structure.
         auto SwizzleCtx = [&](ProgramOp op, const void* v) -> std::tuple<std::string, std::string> {
-            const auto* ctx = static_cast<const SkRasterPipeline_SwizzleCtx*>(v);
+            auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_SwizzleCtx*)v);
             int destSlots = (int)op - (int)BuilderOp::swizzle_1 + 1;
-
-            return std::make_tuple(PtrCtx(ctx->ptr, destSlots),
-                                   SwizzlePtr(ctx->ptr, SkSpan(ctx->offsets, destSlots)));
+            return std::make_tuple(
+                    OffsetCtx(ctx.dst, destSlots),
+                    SwizzlePtr(OffsetToPtr(ctx.dst), SkSpan(ctx.offsets, destSlots)));
         };
 
         // Interpret the context value as a SwizzleCopy structure.

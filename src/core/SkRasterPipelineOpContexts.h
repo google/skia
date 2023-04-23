@@ -177,8 +177,12 @@ struct SkRasterPipeline_TernaryOpCtx {
 };
 
 struct SkRasterPipeline_SwizzleCtx {
-    float *ptr;
-    uint16_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
+    // If we are processing more than 16 pixels at a time, an 8-bit offset won't be sufficient and
+    // `offsets` will need to use uint16_t (or dial down the premultiplication).
+    static_assert(SkRasterPipeline_kMaxStride_highp <= 16);
+
+    SkRPOffset dst;
+    uint8_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
 };
 
 struct SkRasterPipeline_ShuffleCtx {

@@ -3588,18 +3588,18 @@ STAGE_TAIL(copy_4_slots_masked, SkRasterPipeline_BinaryOpCtx* packed) {
     copy_n_slots_masked_fn<4>(packed, base, execution_mask());
 }
 
-template <int LoopCount>
-SI void shuffle_fn(F* dst, uint16_t* offsets, int numSlots) {
+template <int LoopCount, typename OffsetType>
+SI void shuffle_fn(std::byte* ptr, OffsetType* offsets, int numSlots) {
     F scratch[16];
-    std::byte* src = (std::byte*)dst;
     for (int count = 0; count < LoopCount; ++count) {
-        scratch[count] = *(F*)(src + offsets[count]);
+        scratch[count] = *(F*)(ptr + offsets[count]);
     }
     // Surprisingly, this switch generates significantly better code than a memcpy (on x86-64) when
     // the number of slots is unknown at compile time, and generates roughly identical code when the
     // number of slots is hardcoded. Using a switch allows `scratch` to live in ymm0-ymm15 instead
     // of being written out to the stack and then read back in. Also, the intrinsic memcpy assumes
     // that `numSlots` could be arbitrarily large, and so it emits more code than we need.
+    F* dst = (F*)ptr;
     switch (numSlots) {
         case 16: dst[15] = scratch[15]; [[fallthrough]];
         case 15: dst[14] = scratch[14]; [[fallthrough]];
@@ -3620,20 +3620,26 @@ SI void shuffle_fn(F* dst, uint16_t* offsets, int numSlots) {
     }
 }
 
-STAGE_TAIL(swizzle_1, SkRasterPipeline_SwizzleCtx* ctx) {
-    shuffle_fn<1>((F*)ctx->ptr, ctx->offsets, 1);
+template <int N>
+SI void small_swizzle_fn(SkRasterPipeline_SwizzleCtx* packed, std::byte* base) {
+    auto ctx = SkRPCtxUtils::Unpack(packed);
+    shuffle_fn<N>(base + ctx.dst, ctx.offsets, N);
 }
-STAGE_TAIL(swizzle_2, SkRasterPipeline_SwizzleCtx* ctx) {
-    shuffle_fn<2>((F*)ctx->ptr, ctx->offsets, 2);
+
+STAGE_TAIL(swizzle_1, SkRasterPipeline_SwizzleCtx* packed) {
+    small_swizzle_fn<1>(packed, base);
 }
-STAGE_TAIL(swizzle_3, SkRasterPipeline_SwizzleCtx* ctx) {
-    shuffle_fn<3>((F*)ctx->ptr, ctx->offsets, 3);
+STAGE_TAIL(swizzle_2, SkRasterPipeline_SwizzleCtx* packed) {
+    small_swizzle_fn<2>(packed, base);
 }
-STAGE_TAIL(swizzle_4, SkRasterPipeline_SwizzleCtx* ctx) {
-    shuffle_fn<4>((F*)ctx->ptr, ctx->offsets, 4);
+STAGE_TAIL(swizzle_3, SkRasterPipeline_SwizzleCtx* packed) {
+    small_swizzle_fn<3>(packed, base);
+}
+STAGE_TAIL(swizzle_4, SkRasterPipeline_SwizzleCtx* packed) {
+    small_swizzle_fn<4>(packed, base);
 }
 STAGE_TAIL(shuffle, SkRasterPipeline_ShuffleCtx* ctx) {
-    shuffle_fn<16>((F*)ctx->ptr, ctx->offsets, ctx->count);
+    shuffle_fn<16>((std::byte*)ctx->ptr, ctx->offsets, ctx->count);
 }
 
 template <int NumSlots>
