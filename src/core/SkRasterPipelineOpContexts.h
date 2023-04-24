@@ -156,8 +156,8 @@ struct SkRasterPipeline_TablesCtx {
 using SkRPOffset = uint32_t;
 
 struct SkRasterPipeline_ConstantCtx {
-    SkRPOffset dst;
     float value;
+    SkRPOffset dst;
 };
 
 struct SkRasterPipeline_UniformCtx {
