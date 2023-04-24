@@ -18,7 +18,9 @@ import sys
 import traceback
 
 
+RELEASE_NOTES_DIR = 'relnotes'
 RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.md'
+RELEASE_NOTES_README = '//relnotes/README.md'
 
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
@@ -554,6 +556,7 @@ def CheckChangeOnUpload(input_api, output_api):
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage or Go installed.
   results.extend(_InfraTests(input_api, output_api))
+  results.extend(_CheckTopReleaseNotesChanged(input_api, output_api))
   results.extend(_CheckReleaseNotesForPublicAPI(input_api, output_api))
   # Only check public.bzl on upload because new files are likely to be a source
   # of false positives and we don't want to unnecessarily block commits.
@@ -600,7 +603,7 @@ class CodeReview(object):
 
 
 def _CheckReleaseNotesForPublicAPI(input_api, output_api):
-  """Checks to see if release notes file is updated with public API changes."""
+  """Checks to see if a release notes file is added or edited with public API changes."""
   results = []
   public_api_changed = False
   release_file_changed = False
@@ -610,16 +613,46 @@ def _CheckReleaseNotesForPublicAPI(input_api, output_api):
     # We only care about files that end in .h and are under the top-level
     # include dir, but not include/private.
     if (file_ext == '.h' and
-        file_path.split(os.path.sep)[0] == 'include' and
+        os.path.dirname(file_path) == 'include' and
         'private' not in file_path):
       public_api_changed = True
-    elif affected_file_path == RELEASE_NOTES_FILE_NAME:
+    elif os.path.dirname(file_path) == RELEASE_NOTES_DIR:
       release_file_changed = True
 
   if public_api_changed and not release_file_changed:
     results.append(output_api.PresubmitPromptWarning(
-        'If this change affects a client API, please add a summary line '
-        'to the %s file.' % RELEASE_NOTES_FILE_NAME))
+        'If this change affects a client API, please add a new summary '
+        'file in the %s directory. More information can be found in '
+        '%s.' % (RELEASE_NOTES_DIR, RELEASE_NOTES_README)))
+  return results
+
+
+def _CheckTopReleaseNotesChanged(input_api, output_api):
+  """Warns if the top level release notes file was changed.
+
+  The top level file is now auto-edited, and new release notes should
+  be added to the RELEASE_NOTES_DIR directory"""
+  results = []
+  top_relnotes_changed = False
+  release_file_changed = False
+  for affected_file in input_api.AffectedFiles():
+    affected_file_path = affected_file.LocalPath()
+    file_path, file_ext = os.path.splitext(affected_file_path)
+    if affected_file_path == RELEASE_NOTES_FILE_NAME:
+      top_relnotes_changed = True
+    elif os.path.dirname(file_path) == RELEASE_NOTES_DIR:
+      release_file_changed = True
+  # When relnotes_util is run it will modify RELEASE_NOTES_FILE_NAME
+  # and delete the individual note files in RELEASE_NOTES_DIR.
+  # So, if both paths are modified do not emit a warning.
+  if top_relnotes_changed and not release_file_changed:
+    results.append(output_api.PresubmitPromptWarning(
+        'Do not edit %s directly. %s is automatically edited during the '
+        'release process. Release notes should be added as new files in '
+        'the %s directory. More information can be found in %s.' % (RELEASE_NOTES_FILE_NAME,
+                                                                    RELEASE_NOTES_FILE_NAME,
+                                                                    RELEASE_NOTES_DIR,
+                                                                    RELEASE_NOTES_README)))
   return results
 
 
