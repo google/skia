@@ -108,8 +108,8 @@ See more examples in `example.html` and `node.example.js`.
 
 # Filing bugs
 
-Please file bugs at [skbug.com](skbug.com).
-It may be convenient to use [our online fiddle](jsfiddle.skia.org/canvaskit) to demonstrate any issues encountered.
+Please file bugs at [https://skbug.com](skbug.com).
+It may be convenient to use [our online fiddle](https://jsfiddle.skia.org/canvaskit) to demonstrate any issues encountered.
 
 See CONTRIBUTING.md for more information on sending pull requests.
 
