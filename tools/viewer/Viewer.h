@@ -11,22 +11,11 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkMatrix.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkPoint.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkSize.h"
-#include "include/core/SkString.h"
-#include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkScan.h"
-#include "src/core/SkTHash.h"
-#include "src/core/SkVM.h"
-#include "src/core/SkVMBlitter.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "tools/gpu/MemoryCache.h"
 #include "tools/sk_app/Application.h"
@@ -297,13 +286,6 @@ private:
         kShaderOptLevel_Inline,
     };
     ShaderOptLevel fOptLevel = kShaderOptLevel_Source;
-
-#ifdef SK_ENABLE_SKVM
-    SkVMBlitter::Key fHoveredKey;
-    skvm::Program    fHoveredProgram;
-
-    skia_private::THashMap<SkVMBlitter::Key, std::string> fDisassemblyCache;
-#endif
 };
 
 #endif
