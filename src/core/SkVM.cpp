@@ -28,7 +28,6 @@
 using namespace skia_private;
 
 bool gSkVMAllowJIT{false};
-bool gSkVMJITViaDylib{false};
 
 #if defined(SK_ENABLE_SKVM)
 
@@ -3987,38 +3986,6 @@ namespace skvm {
 
         // Remap as executable, and flush caches on platforms that need that.
         remap_as_executable(jit_entry, fImpl->jit_size);
-
-    #if !defined(SK_BUILD_FOR_WIN)
-        // For profiling and debugging, it's helpful to have this code loaded
-        // dynamically rather than just jumping info fImpl->jit_entry.
-        if (gSkVMJITViaDylib) {
-            // Dump the raw program binary.
-            SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
-            int fd = mkstemp(path.data());
-            ::write(fd, jit_entry, a.size());
-            close(fd);
-
-            this->dropJIT();  // (unmap and null out fImpl->jit_entry.)
-
-            // Convert it in-place to a dynamic library with a single symbol "skvm_jit":
-            SkString cmd = SkStringPrintf(
-                    "echo '.global _skvm_jit\n_skvm_jit: .incbin \"%s\"'"
-                    " | clang -x assembler -shared - -o %s",
-                    path.c_str(), path.c_str());
-        #if defined(__aarch64__)
-            cmd.append(" -arch arm64");
-        #endif
-            system(cmd.c_str());
-
-            // Load that dynamic library and look up skvm_jit().
-            fImpl->dylib = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
-            void* sym = nullptr;
-            for (const char* name : {"skvm_jit", "_skvm_jit"} ) {
-                if (!sym) { sym = dlsym(fImpl->dylib, name); }
-            }
-            fImpl->jit_entry.store(sym);
-        }
-    #endif
     }
 
     void Program::disassemble(SkWStream* o) const {

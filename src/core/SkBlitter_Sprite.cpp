@@ -16,7 +16,6 @@
 #include "src/core/SkSpriteBlitter.h"
 #include "src/core/SkVMBlitter.h"
 
-extern bool gUseSkVMBlitter;
 extern bool gSkForceRasterPipelineBlitter;
 
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
@@ -188,10 +187,6 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         (which does respect soft edges).
     */
     SkASSERT(alloc != nullptr);
-
-    if (gUseSkVMBlitter) {
-        return SkVMBlitter::Make(dst, paint, source,left,top, alloc, std::move(clipShader));
-    }
 
     // TODO: in principle SkRasterPipelineSpriteBlitter could be made to handle this.
     if (source.alphaType() == kUnpremul_SkAlphaType) {

@@ -353,8 +353,6 @@ static void fill_triangle(const VertState& state, SkBlitter* blitter, const SkRa
     }
 }
 
-extern bool gUseSkVMBlitter;
-
 void SkDraw::drawFixedVertices(const SkVertices* vertices,
                                sk_sp<SkBlender> blender,
                                const SkPaint& paint,
@@ -481,7 +479,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
         return true;
     };
 
-    if (gUseSkVMBlitter || !rpblit()) {
+    if (!rpblit()) {
         VertState state(vertexCount, indices, indexCount);
         VertState::Proc vertProc = state.chooseProc(info.mode());
 

@@ -77,8 +77,6 @@ static void load_color(SkRasterPipeline_UniformColorCtx* ctx, const float rgba[]
     ctx->rgba[3] = SkScalarRoundToInt(rgba[3]*255); ctx->a = rgba[3];
 }
 
-extern bool gUseSkVMBlitter;
-
 class UpdatableColorShader : public SkShaderBase {
 public:
     explicit UpdatableColorShader(SkColorSpace* cs)
@@ -204,7 +202,7 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
         return true;
     };
 
-    if (gUseSkVMBlitter || !rpblit()) {
+    if (!rpblit()) {
         UpdatableColorShader* colorShader = nullptr;
         sk_sp<SkShader> shader;
         if (colors) {
