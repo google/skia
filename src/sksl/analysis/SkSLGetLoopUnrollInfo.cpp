@@ -22,12 +22,15 @@
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <cmath>
 #include <memory>
 
 namespace SkSL {
+
+class Context;
 
 // Loops that run for 100000+ iterations will exceed our program size limit.
 static constexpr int kLoopTerminationLimit = 100000;
@@ -53,15 +56,18 @@ static int calculate_count(double start, double end, double delta, bool forwards
     return (int)count;
 }
 
-std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
-                                                            const ForLoopPositions& positions,
-                                                            const Statement* loopInitializer,
-                                                            const Expression* loopTest,
-                                                            const Expression* loopNext,
-                                                            const Statement* loopStatement,
-                                                            ErrorReporter* errorPtr) {
+std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(
+        const Context& context,
+        Position loopPos,
+        const ForLoopPositions& positions,
+        const Statement* loopInitializer,
+        std::unique_ptr<Expression>* loopTest,
+        const Expression* loopNext,
+        const Statement* loopStatement,
+        ErrorReporter* errorPtr) {
     NoOpErrorReporter unused;
     ErrorReporter& errors = errorPtr ? *errorPtr : unused;
+
     auto loopInfo = std::make_unique<LoopUnrollInfo>();
 
     //
@@ -105,22 +111,22 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     //
     // condition has the form: loop_index relational_operator constant_expression
     //
-    if (!loopTest) {
+    if (!loopTest || !*loopTest) {
         Position pos = positions.conditionPosition.valid() ? positions.conditionPosition : loopPos;
         errors.error(pos, "missing condition");
         return nullptr;
     }
-    if (!loopTest->is<BinaryExpression>()) {
-        errors.error(loopTest->fPosition, "invalid condition");
+    if (!loopTest->get()->is<BinaryExpression>()) {
+        errors.error(loopTest->get()->fPosition, "invalid condition");
         return nullptr;
     }
-    const BinaryExpression& cond = loopTest->as<BinaryExpression>();
-    if (!is_loop_index(cond.left())) {
-        errors.error(loopTest->fPosition, "expected loop index on left hand side of condition");
+    const BinaryExpression* cond = &loopTest->get()->as<BinaryExpression>();
+    if (!is_loop_index(cond->left())) {
+        errors.error(cond->fPosition, "expected loop index on left hand side of condition");
         return nullptr;
     }
     // relational_operator is one of: > >= < <= == or !=
-    switch (cond.getOperator().kind()) {
+    switch (cond->getOperator().kind()) {
         case Operator::Kind::GT:
         case Operator::Kind::GTEQ:
         case Operator::Kind::LT:
@@ -129,12 +135,12 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
         case Operator::Kind::NEQ:
             break;
         default:
-            errors.error(loopTest->fPosition, "invalid relational operator");
+            errors.error(cond->fPosition, "invalid relational operator");
             return nullptr;
     }
     double loopEnd = 0;
-    if (!ConstantFolder::GetConstantValue(*cond.right(), &loopEnd)) {
-        errors.error(loopTest->fPosition, "loop index must be compared with a constant expression");
+    if (!ConstantFolder::GetConstantValue(*cond->right(), &loopEnd)) {
+        errors.error(cond->fPosition, "loop index must be compared with a constant expression");
         return nullptr;
     }
 
@@ -218,7 +224,7 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     // Finally, compute the iteration count, based on the bounds, and the termination operator.
     loopInfo->fCount = 0;
 
-    switch (cond.getOperator().kind()) {
+    switch (cond->getOperator().kind()) {
         case Operator::Kind::LT:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
                                               /*forwards=*/true, /*inclusive=*/false);
@@ -246,6 +252,18 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
                 !std::isfinite(iterations)) {
                 // The loop doesn't reach the exact endpoint and so will never terminate.
                 loopInfo->fCount = kLoopTerminationLimit;
+            }
+            if (loopInfo->fIndex->type().componentType().isFloat()) {
+                // Rewrite `x != n` tests as `x < n` or `x > n` depending on the loop direction.
+                // Less-than and greater-than tests avoid infinite loops caused by rounding error.
+                Operator::Kind op = (loopInfo->fDelta > 0) ? Operator::Kind::LT
+                                                           : Operator::Kind::GT;
+                *loopTest = BinaryExpression::Make(context,
+                                                   cond->fPosition,
+                                                   cond->left()->clone(),
+                                                   op,
+                                                   cond->right()->clone());
+                cond = &loopTest->get()->as<BinaryExpression>();
             }
             break;
         }

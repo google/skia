@@ -207,11 +207,16 @@ void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
  * If the requirements are met, information about the loop's structure is returned.
  * If the requirements are not met, the problem is reported via `errors` (if not nullptr), and
  * null is returned.
+ * The loop test-expression may be altered by this check. For example, a loop like this:
+ *     for (float x = 1.0; x != 0.0; x -= 0.01) {...}
+ * appears to be ES2-safe, but due to floating-point rounding error, it may not actually terminate.
+ * We rewrite the test condition to `x > 0.0` in order to ensure loop termination.
  */
-std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(Position pos,
+std::unique_ptr<LoopUnrollInfo> GetLoopUnrollInfo(const Context& context,
+                                                  Position pos,
                                                   const ForLoopPositions& positions,
                                                   const Statement* loopInitializer,
-                                                  const Expression* loopTest,
+                                                  std::unique_ptr<Expression>* loopTestPtr,
                                                   const Expression* loopNext,
                                                   const Statement* loopStatement,
                                                   ErrorReporter* errors);

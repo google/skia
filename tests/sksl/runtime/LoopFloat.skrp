@@ -662,7 +662,7 @@
   662. trace_var                      TraceVar(i₉) when $13 is true
   663. copy_slot_unmasked             $4 = i₉
   664. copy_constant                  $5 = 0x40800000 (4.0)
-  665. cmpne_float                    $4 = notEqual($4, $5)
+  665. cmplt_float                    $4 = lessThan($4, $5)
   666. stack_rewind
   667. branch_if_no_active_lanes_eq   branch -20 (label 42 at #647) if no lanes of $4 == 0
   668. label                          label 0x00000029

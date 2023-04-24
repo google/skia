@@ -107,7 +107,7 @@ bool loop_operator_ne_0()
 {
 	;
 	float4 result = float4(9.0);
-	for (float i = 1.0;i != 4.0; ++i) 
+	for (float i = 1.0;i < 4.0; ++i) 
 	{
 		result = float4(result.yzw, i);
 	}

@@ -190,7 +190,7 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
             // Look up `sk_Caps.rewriteMatrixVectorMultiply`.
             auto caps = Setting::Make(context, pos, &ShaderCaps::fRewriteMatrixVectorMultiply);
 
-            // There are three possible outcomes from Setting::Convert:
+            // There are three possible outcomes from Setting::Make:
             // - If the ShaderCaps aren't known (fCaps in the Context is null), we will get back a
             //   Setting IRNode. In practice, this should happen when compiling a module.
             //   In this case, we generate a ternary expression which will be optimized away when

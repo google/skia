@@ -116,7 +116,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
     std::unique_ptr<LoopUnrollInfo> unrollInfo;
     if (context.fConfig->strictES2Mode()) {
         // In strict-ES2, loops must be unrollable or it's an error.
-        unrollInfo = Analysis::GetLoopUnrollInfo(pos, positions, initializer.get(), test.get(),
+        unrollInfo = Analysis::GetLoopUnrollInfo(context, pos, positions, initializer.get(), &test,
                                                  next.get(), statement.get(), context.fErrors);
         if (!unrollInfo) {
             return nullptr;
@@ -124,7 +124,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
     } else {
         // In ES3, loops don't have to be unrollable, but we can use the unroll information for
         // optimization purposes.
-        unrollInfo = Analysis::GetLoopUnrollInfo(pos, positions, initializer.get(), test.get(),
+        unrollInfo = Analysis::GetLoopUnrollInfo(context, pos, positions, initializer.get(), &test,
                                                  next.get(), statement.get(), /*errors=*/nullptr);
     }
 
