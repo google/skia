@@ -995,6 +995,18 @@ void Builder::matrix_resize(int origColumns, int origRows, int newColumns, int n
     this->swizzle(consumedSlots, SkSpan(elements, index));
 }
 
+void Builder::matrix_multiply(int leftColumns, int leftRows, int rightColumns, int rightRows) {
+    BuilderOp op;
+    switch (leftColumns) {
+        case 2:  op = BuilderOp::matrix_multiply_2; break;
+        case 3:  op = BuilderOp::matrix_multiply_3; break;
+        case 4:  op = BuilderOp::matrix_multiply_4; break;
+        default: SkDEBUGFAIL("unsupported matrix dimensions"); return;
+    }
+
+    fInstructions.push_back({op, {}, leftColumns, leftRows, rightColumns, rightRows});
+}
+
 std::unique_ptr<Program> Builder::finish(int numValueSlots,
                                          int numUniformSlots,
                                          DebugTracePriv* debugTrace) {
@@ -1073,6 +1085,12 @@ static int stack_usage(const Instruction& inst) {
 
         case BuilderOp::refract_4_floats:
             return -5;  // consumes nine slots (N + I + eta) and emits a 4-slot vector (R)
+
+        case BuilderOp::matrix_multiply_2:
+        case BuilderOp::matrix_multiply_3:
+        case BuilderOp::matrix_multiply_4:
+            // consumes the left- and right-matrices; emits result over existing padding slots
+            return -(inst.fImmA * inst.fImmB + inst.fImmC * inst.fImmD);
 
         case BuilderOp::shuffle: {
             int consumed = inst.fImmA;
@@ -1648,6 +1666,22 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 unpack_nybbles_to_offsets(inst.fImmC, SkSpan(&ctx->offsets[0], 8));
                 unpack_nybbles_to_offsets(inst.fImmD, SkSpan(&ctx->offsets[8], 8));
                 pipeline->push_back({ProgramOp::shuffle, ctx});
+                break;
+            }
+            case BuilderOp::matrix_multiply_2:
+            case BuilderOp::matrix_multiply_3:
+            case BuilderOp::matrix_multiply_4: {
+                int consumed = (inst.fImmB * inst.fImmC) +  // result
+                               (inst.fImmA * inst.fImmB) +  // left-matrix
+                               (inst.fImmC * inst.fImmD);   // right-matrix
+
+                SkRasterPipeline_MatrixMultiplyCtx ctx;
+                ctx.dst = OffsetFromBase(tempStackPtr - (N * consumed));
+                ctx.leftColumns  = inst.fImmA;
+                ctx.leftRows     = inst.fImmB;
+                ctx.rightColumns = inst.fImmC;
+                ctx.rightRows    = inst.fImmD;
+                pipeline->push_back({(ProgramOp)inst.fOp, SkRPCtxUtils::Pack(ctx, alloc)});
                 break;
             }
             case BuilderOp::exchange_src: {
@@ -2426,6 +2460,32 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = ShuffleCtx(stage.ctx);
                 break;
 
+            case POp::matrix_multiply_2:
+            case POp::matrix_multiply_3:
+            case POp::matrix_multiply_4: {
+                auto ctx =
+                        SkRPCtxUtils::Unpack((const SkRasterPipeline_MatrixMultiplyCtx*)stage.ctx);
+                int leftMatrix = ctx.leftColumns * ctx.leftRows;
+                int rightMatrix = ctx.rightColumns * ctx.rightRows;
+                int resultMatrix = ctx.rightColumns * ctx.leftRows;
+                SkRPOffset leftOffset =
+                        ctx.dst + (ctx.rightColumns * ctx.leftRows * sizeof(float) * N);
+                SkRPOffset rightOffset =
+                        leftOffset + (ctx.leftColumns * ctx.leftRows * sizeof(float) * N);
+                opArg1 = SkSL::String::printf("mat%dx%x(%s)",
+                                              ctx.rightColumns,
+                                              ctx.leftRows,
+                                              OffsetCtx(ctx.dst, resultMatrix).c_str());
+                opArg2 = SkSL::String::printf("mat%dx%x(%s)",
+                                              ctx.leftColumns,
+                                              ctx.leftRows,
+                                              OffsetCtx(leftOffset, leftMatrix).c_str());
+                opArg3 = SkSL::String::printf("mat%dx%x(%s)",
+                                              ctx.rightColumns,
+                                              ctx.rightRows,
+                                              OffsetCtx(rightOffset, rightMatrix).c_str());
+                break;
+            }
             case POp::load_condition_mask:
             case POp::store_condition_mask:
             case POp::load_loop_mask:
@@ -3064,6 +3124,12 @@ void Program::dump(SkWStream* out) const {
             case POp::div_4_floats: case POp::div_4_ints: case POp::div_4_uints:
             case POp::div_n_floats: case POp::div_n_ints: case POp::div_n_uints:
                 opText = opArg1 + " /= " + opArg2;
+                break;
+
+            case POp::matrix_multiply_2:
+            case POp::matrix_multiply_3:
+            case POp::matrix_multiply_4:
+                opText = opArg1 + " = " + opArg2 + " * " + opArg3;
                 break;
 
             case POp::mod_float:

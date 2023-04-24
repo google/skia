@@ -176,6 +176,11 @@ struct SkRasterPipeline_TernaryOpCtx {
     const float *src1;
 };
 
+struct SkRasterPipeline_MatrixMultiplyCtx {
+    SkRPOffset dst;
+    uint8_t leftColumns, leftRows, rightColumns, rightRows;
+};
+
 struct SkRasterPipeline_SwizzleCtx {
     // If we are processing more than 16 pixels at a time, an 8-bit offset won't be sufficient and
     // `offsets` will need to use uint16_t (or dial down the premultiplication).

@@ -144,6 +144,7 @@
     M(swizzle_copy_slot_masked)    M(swizzle_copy_2_slots_masked)                             \
     M(swizzle_copy_3_slots_masked) M(swizzle_copy_4_slots_masked)                             \
     M(swizzle_1) M(swizzle_2) M(swizzle_3) M(swizzle_4) M(shuffle)                            \
+    M(matrix_multiply_2) M(matrix_multiply_3) M(matrix_multiply_4)                            \
     M(add_n_floats)   M(add_float)   M(add_2_floats)   M(add_3_floats)   M(add_4_floats)      \
     M(add_n_ints)     M(add_int)     M(add_2_ints)     M(add_3_ints)     M(add_4_ints)        \
     M(sub_n_floats)   M(sub_float)   M(sub_2_floats)   M(sub_3_floats)   M(sub_4_floats)      \

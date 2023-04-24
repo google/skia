@@ -4126,6 +4126,67 @@ STAGE_TAIL(dot_4_floats, F* dst) {
                  dst[3] * dst[7])));
 }
 
+// MxM, VxM and MxV multiplication all use matrix_multiply. Vectors are treated like a matrix with a
+// single column or row.
+template <int N>
+SI void matrix_multiply(SkRasterPipeline_MatrixMultiplyCtx* packed, std::byte* base) {
+    auto ctx = SkRPCtxUtils::Unpack(packed);
+
+    int outColumns   = ctx.rightColumns,
+        outRows      = ctx.leftRows;
+
+    SkASSERT(outColumns >= 1);
+    SkASSERT(outRows    >= 1);
+    SkASSERT(outColumns <= 4);
+    SkASSERT(outRows    <= 4);
+
+    SkASSERT(ctx.leftColumns == ctx.rightRows);
+    SkASSERT(N == ctx.leftColumns);  // N should match the result width
+
+#if !defined(JUMPER_IS_SCALAR)
+    // This prevents Clang from generating early-out checks for zero-sized matrices.
+    __builtin_assume(outColumns >= 1);
+    __builtin_assume(outRows    >= 1);
+    __builtin_assume(outColumns <= 4);
+    __builtin_assume(outRows    <= 4);
+#endif
+
+    // Get pointers to the adjacent left- and right-matrices.
+    F* resultMtx  = (F*)(base + ctx.dst);
+    F* leftMtx    = &resultMtx[ctx.rightColumns * ctx.leftRows];
+    F* rightMtx   = &leftMtx[N * ctx.leftRows];
+
+    // Emit each matrix element.
+    for (int c = 0; c < outColumns; ++c) {
+        for (int r = 0; r < outRows; ++r) {
+            // Dot a vector from leftMtx[*][r] with rightMtx[c][*].
+            F* leftRow     = &leftMtx [r];
+            F* rightColumn = &rightMtx[c * N];
+
+            F element = *leftRow * *rightColumn;
+            for (int idx = 1; idx < N; ++idx) {
+                leftRow     += outRows;
+                rightColumn += 1;
+                element = mad(*leftRow, *rightColumn, element);
+            }
+
+            *resultMtx++ = element;
+        }
+    }
+}
+
+STAGE_TAIL(matrix_multiply_2, SkRasterPipeline_MatrixMultiplyCtx* packed) {
+    matrix_multiply<2>(packed, base);
+}
+
+STAGE_TAIL(matrix_multiply_3, SkRasterPipeline_MatrixMultiplyCtx* packed) {
+    matrix_multiply<3>(packed, base);
+}
+
+STAGE_TAIL(matrix_multiply_4, SkRasterPipeline_MatrixMultiplyCtx* packed) {
+    matrix_multiply<4>(packed, base);
+}
+
 // Refract always operates on 4-wide incident and normal vectors; for narrower inputs, the code
 // generator fills in the input columns with zero, and discards the extra output columns.
 STAGE_TAIL(refract_4_floats, F* dst) {

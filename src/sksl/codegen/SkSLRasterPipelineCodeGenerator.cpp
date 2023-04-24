@@ -2126,46 +2126,15 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
     SkASSERT(left.type().isMatrix() || left.type().isVector());
     SkASSERT(right.type().isMatrix() || right.type().isVector());
 
-    SkASSERT(leftColumns == rightRows);
-    int outColumns   = rightColumns,
-        outRows      = leftRows;
+    // Insert padding space on the stack to hold the result.
+    fBuilder.pad_stack(rightColumns * leftRows);
 
-    // Push the left matrix onto the adjacent-neighbor stack. We transpose it so that we can copy
-    // rows from it in a single op, instead of gathering one element at a time.
-    AutoStack matrixStack(this);
-    matrixStack.enter();
-    if (!this->pushLValueOrExpression(lvalue, left)) {
+    // Push the left and right matrices onto the stack.
+    if (!this->pushLValueOrExpression(lvalue, left) || !this->pushExpression(right)) {
         return unsupported();
     }
-    fBuilder.transpose(leftColumns, leftRows);
 
-    // Push the right matrix as well, then go back to the primary stack.
-    if (!this->pushExpression(right)) {
-        return unsupported();
-    }
-    matrixStack.exit();
-
-    // Calculate the offsets of the left- and right-matrix, relative to the stack-top.
-    int leftMtxBase  = left.type().slotCount() + right.type().slotCount();
-    int rightMtxBase = right.type().slotCount();
-
-    // Emit each matrix element.
-    for (int c = 0; c < outColumns; ++c) {
-        for (int r = 0; r < outRows; ++r) {
-            // Dot a vector from left[*][r] with right[c][*].
-            // (Because the left=matrix has been transposed, we actually pull left[r][*], which
-            // allows us to clone a column at once instead of cloning each slot individually.)
-            matrixStack.pushClone(SlotRange{r * leftColumns, leftColumns}, leftMtxBase);
-            matrixStack.pushClone(SlotRange{c * leftColumns, leftColumns}, rightMtxBase);
-            fBuilder.dot_floats(leftColumns);
-        }
-    }
-
-    // Dispose of the source matrices on the adjacent-neighbor stack.
-    matrixStack.enter();
-    this->discardExpression(left.type().slotCount());
-    this->discardExpression(right.type().slotCount());
-    matrixStack.exit();
+    fBuilder.matrix_multiply(leftColumns, leftRows, rightColumns, rightRows);
 
     // If this multiply was actually an assignment (via *=), write the result back to the lvalue.
     return lvalue ? this->store(*lvalue)

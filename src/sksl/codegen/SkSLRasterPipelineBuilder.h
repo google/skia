@@ -537,6 +537,9 @@ public:
     // Resizes a CxR matrix at the top of the stack to C'xR'.
     void matrix_resize(int origColumns, int origRows, int newColumns, int newRows);
 
+    // Multiplies a CxR matrix/vector against an adjacent CxR matrix/vector on the stack.
+    void matrix_multiply(int leftColumns, int leftRows, int rightColumns, int rightRows);
+
     void push_condition_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::push_condition_mask, {}});

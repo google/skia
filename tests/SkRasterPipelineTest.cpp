@@ -1444,6 +1444,160 @@ DEF_TEST(SkRasterPipeline_Shuffle, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_MatrixMultiply2x2, reporter) {
+    alignas(64) float slots[12 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    // Populate the left- and right-matrix data. Slots 0-3 hold the result and are left as-is.
+    std::iota(&slots[4 * N], &slots[12 * N], 1.0f);
+
+    // Perform a 2x2 matrix multiply.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    SkRasterPipeline_MatrixMultiplyCtx ctx;
+    ctx.dst = 0;
+    ctx.leftColumns = ctx.leftRows = ctx.rightColumns = ctx.rightRows = 2;
+    p.append(SkRasterPipelineOp::set_base_pointer, &slots[0]);
+    p.append(SkRasterPipelineOp::matrix_multiply_2, SkRPCtxUtils::Pack(ctx, &alloc));
+    p.run(0,0,1,1);
+
+    // Verify that the result slots hold a 2x2 matrix multiply.
+    const float* const destPtr[2][2] = {
+            {&slots[0 * N], &slots[1 * N]},
+            {&slots[2 * N], &slots[3 * N]},
+    };
+    const float* const leftMtx[2][2] = {
+            {&slots[4 * N], &slots[5 * N]},
+            {&slots[6 * N], &slots[7 * N]},
+    };
+    const float* const rightMtx[2][2] = {
+            {&slots[8 * N],  &slots[9 * N]},
+            {&slots[10 * N], &slots[11 * N]},
+    };
+
+    for (int c = 0; c < 2; ++c) {
+        for (int r = 0; r < 2; ++r) {
+            for (int lane = 0; lane < N; ++lane) {
+                // Dot a vector from leftMtx[*][r] with rightMtx[c][*].
+                float dot = 0;
+                for (int n = 0; n < 2; ++n) {
+                    dot += leftMtx[n][r][lane] * rightMtx[c][n][lane];
+                }
+                REPORTER_ASSERT(reporter, destPtr[c][r][lane] == dot);
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_MatrixMultiply3x3, reporter) {
+    alignas(64) float slots[27 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    // Populate the left- and right-matrix data. Slots 0-8 hold the result and are left as-is.
+    // To keep results in full-precision float range, we only set values between 0 and 25.
+    float value = 0.0f;
+    for (int idx = 9 * N; idx < 27 * N; ++idx) {
+        slots[idx] = value;
+        value = fmodf(value + 1.0f, 25.0f);
+    }
+
+    // Perform a 3x3 matrix multiply.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    SkRasterPipeline_MatrixMultiplyCtx ctx;
+    ctx.dst = 0;
+    ctx.leftColumns = ctx.leftRows = ctx.rightColumns = ctx.rightRows = 3;
+    p.append(SkRasterPipelineOp::set_base_pointer, &slots[0]);
+    p.append(SkRasterPipelineOp::matrix_multiply_3, SkRPCtxUtils::Pack(ctx, &alloc));
+    p.run(0,0,1,1);
+
+    // Verify that the result slots hold a 3x3 matrix multiply.
+    const float* const destPtr[3][3] = {
+            {&slots[0 * N], &slots[1 * N], &slots[2 * N]},
+            {&slots[3 * N], &slots[4 * N], &slots[5 * N]},
+            {&slots[6 * N], &slots[7 * N], &slots[8 * N]},
+    };
+    const float* const leftMtx[3][3] = {
+            {&slots[9 * N],  &slots[10 * N], &slots[11 * N]},
+            {&slots[12 * N], &slots[13 * N], &slots[14 * N]},
+            {&slots[15 * N], &slots[16 * N], &slots[17 * N]},
+    };
+    const float* const rightMtx[3][3] = {
+            {&slots[18 * N], &slots[19 * N], &slots[20 * N]},
+            {&slots[21 * N], &slots[22 * N], &slots[23 * N]},
+            {&slots[24 * N], &slots[25 * N], &slots[26 * N]},
+    };
+
+    for (int c = 0; c < 3; ++c) {
+        for (int r = 0; r < 3; ++r) {
+            for (int lane = 0; lane < N; ++lane) {
+                // Dot a vector from leftMtx[*][r] with rightMtx[c][*].
+                float dot = 0;
+                for (int n = 0; n < 3; ++n) {
+                    dot += leftMtx[n][r][lane] * rightMtx[c][n][lane];
+                }
+                REPORTER_ASSERT(reporter, destPtr[c][r][lane] == dot);
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_MatrixMultiply4x4, reporter) {
+    alignas(64) float slots[48 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    // Populate the left- and right-matrix data. Slots 0-8 hold the result and are left as-is.
+    // To keep results in full-precision float range, we only set values between 0 and 25.
+    float value = 0.0f;
+    for (int idx = 16 * N; idx < 48 * N; ++idx) {
+        slots[idx] = value;
+        value = fmodf(value + 1.0f, 25.0f);
+    }
+
+    // Perform a 4x4 matrix multiply.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    SkRasterPipeline_MatrixMultiplyCtx ctx;
+    ctx.dst = 0;
+    ctx.leftColumns = ctx.leftRows = ctx.rightColumns = ctx.rightRows = 4;
+    p.append(SkRasterPipelineOp::set_base_pointer, &slots[0]);
+    p.append(SkRasterPipelineOp::matrix_multiply_4, SkRPCtxUtils::Pack(ctx, &alloc));
+    p.run(0,0,1,1);
+
+    // Verify that the result slots hold a 4x4 matrix multiply.
+    const float* const destPtr[4][4] = {
+            {&slots[0 * N],  &slots[1 * N],  &slots[2 * N],  &slots[3 * N]},
+            {&slots[4 * N],  &slots[5 * N],  &slots[6 * N],  &slots[7 * N]},
+            {&slots[8 * N],  &slots[9 * N],  &slots[10 * N], &slots[11 * N]},
+            {&slots[12 * N], &slots[13 * N], &slots[14 * N], &slots[15 * N]},
+    };
+    const float* const leftMtx[4][4] = {
+            {&slots[16 * N], &slots[17 * N], &slots[18 * N], &slots[19 * N]},
+            {&slots[20 * N], &slots[21 * N], &slots[22 * N], &slots[23 * N]},
+            {&slots[24 * N], &slots[25 * N], &slots[26 * N], &slots[27 * N]},
+            {&slots[28 * N], &slots[29 * N], &slots[30 * N], &slots[31 * N]},
+    };
+    const float* const rightMtx[4][4] = {
+            {&slots[32 * N], &slots[33 * N], &slots[34 * N], &slots[35 * N]},
+            {&slots[36 * N], &slots[37 * N], &slots[38 * N], &slots[39 * N]},
+            {&slots[40 * N], &slots[41 * N], &slots[42 * N], &slots[43 * N]},
+            {&slots[44 * N], &slots[45 * N], &slots[46 * N], &slots[47 * N]},
+    };
+
+    for (int c = 0; c < 4; ++c) {
+        for (int r = 0; r < 4; ++r) {
+            for (int lane = 0; lane < N; ++lane) {
+                // Dot a vector from leftMtx[*][r] with rightMtx[c][*].
+                float dot = 0;
+                for (int n = 0; n < 4; ++n) {
+                    dot += leftMtx[n][r][lane] * rightMtx[c][n][lane];
+                }
+                REPORTER_ASSERT(reporter, destPtr[c][r][lane] == dot);
+            }
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_FloatArithmeticWithNSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
     alignas(64) float slots[10 * SkRasterPipeline_kMaxStride_highp];
