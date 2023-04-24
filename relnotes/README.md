@@ -24,5 +24,8 @@ followed.
 2. Do not use [headings](https://www.markdownguide.org/basic-syntax/#headings).
    Milestones in the top level release notes file (RELEASE_NOTES.md) use a
    single heading per milestone.
-3. Horizontal rules will automatically be inserted between milestones when the
+3. Do not use start your note with an
+   [asterisk](https://www.markdownguide.org/basic-syntax/#unordered-lists) or
+   other leading marks. These are automatically inserted by the script.
+4. Horizontal rules will automatically be inserted between milestones when the
    release notes are generated
