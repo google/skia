@@ -347,7 +347,12 @@ static GrBackendTexture make_vk_backend_texture(
     }
 
     VkFormat format;
-    SkAssertResult(backendFormat.asVkFormat(&format));
+    if (!backendFormat.asVkFormat(&format)) {
+        SkDebugf("asVkFormat failed (valid: %d, backend: %d)",
+                 backendFormat.isValid(),
+                 backendFormat.backend());
+        return GrBackendTexture();
+    }
 
     VkResult err;
 
@@ -361,6 +366,13 @@ static GrBackendTexture make_vk_backend_texture(
 
     err = VK_CALL(GetAndroidHardwareBufferProperties(device, hardwareBuffer, &hwbProps));
     if (VK_SUCCESS != err) {
+        return GrBackendTexture();
+    }
+
+    if (hwbFormatProps.format != format) {
+        SkDebugf("Queried format not consistent with expected format; got: %d, expected: %d",
+                 hwbFormatProps.format,
+                 format);
         return GrBackendTexture();
     }
 
@@ -389,7 +401,6 @@ static GrBackendTexture make_vk_backend_texture(
         SkASSERT(hwbFormatProps.externalFormat == ycbcrConversion->fExternalFormat);
         externalFormat.externalFormat = hwbFormatProps.externalFormat;
     }
-    SkASSERT(format == hwbFormatProps.format);
 
     const VkExternalMemoryImageCreateInfo externalMemoryImageInfo{
             VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO,                 // sType
