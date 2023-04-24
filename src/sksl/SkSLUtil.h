@@ -143,10 +143,6 @@ struct ShaderCaps {
     bool fRewriteMatrixComparisons = false;
     // Strips const from function parameters in the GLSL code generator. (skia:13858)
     bool fRemoveConstFromFunctionParameters = false;
-    // On Mali G series GPUs, applying transfer functions in the fragment shader with half-floats
-    // produces answers that are much less accurate than expected/required. This forces full floats
-    // for some intermediate values to get acceptable results.
-    bool fColorSpaceMathNeedsFloat = false;
     // On some Android devices colors aren't accurate enough for the double lookup in the
     // Perlin noise shader. This workaround aggressively snaps colors to multiples of 1/255.
     bool fPerlinNoiseRoundingFix = false;

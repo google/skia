@@ -60,7 +60,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
                        fNoDefaultPrecisionForExternalSamplers);
     writer->appendBool("Rewrite matrix-vector multiply", fRewriteMatrixVectorMultiply);
     writer->appendBool("Rewrite matrix equality comparisons", fRewriteMatrixComparisons);
-    writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
     writer->appendBool("Rounding fix required for Perlin noise", fPerlinNoiseRoundingFix);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
@@ -110,7 +109,6 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
         SkASSERT(!fRewriteMatrixVectorMultiply);
         SkASSERT(!fRewriteMatrixComparisons);
-        SkASSERT(!fColorSpaceMathNeedsFloat);
         SkASSERT(!fPerlinNoiseRoundingFix);
     }
     if (options.fReducedShaderVariations) {

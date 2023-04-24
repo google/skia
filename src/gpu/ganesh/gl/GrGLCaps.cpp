@@ -4097,13 +4097,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fMustObfuscateUniformColor = true;
     }
 
-    // On Mali G series GPUs, applying transfer functions in the fragment shader with half-floats
-    // produces answers that are much less accurate than expected/required. This forces full floats
-    // for some intermediate values to get acceptable results.
-    if (ctxInfo.renderer() == GrGLRenderer::kMaliG) {
-        fShaderCaps->fColorSpaceMathNeedsFloat = true;
-    }
-
 #if defined(SK_BUILD_FOR_ANDROID)
     // On the following GPUs, the Perlin noise code needs to aggressively snap to multiples
     // of 1/255 to avoid artifacts in the double table lookup:
