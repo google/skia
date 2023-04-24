@@ -707,13 +707,13 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		if val := b.parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
 			ignore := []string{
-				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "FailFlushTimeCallbacks",
-				"ReleaseAndAbandonGpuContext", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
-				"NoGPUThreads", "DDL1", "DDL3", "T8888",
-				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "ColorSpaces", "GL", "SkottieTracing", "SkottieWASM",
-				"GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
-				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2", "i5",
-				"OldestSupportedSkpVersion"}
+				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
+				"FailFlushTimeCallbacks", "ReleaseAndAbandonGpuContext", "FSAA", "FAAA", "FDAA",
+				"NativeFonts", "GDI", "NoGPUThreads", "DDL1", "DDL3", "T8888",
+				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "ColorSpaces", "GL",
+				"SkottieTracing", "SkottieWASM", "GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF",
+				"Puppeteer", "SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile",
+				"WebGL2", "i5", "OldestSupportedSkpVersion"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {

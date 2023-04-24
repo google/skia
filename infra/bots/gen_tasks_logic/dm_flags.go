@@ -185,10 +185,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		configs = append(configs, "8888")
 
-		if b.extraConfig("SkVM") {
-			args = append(args, "--skvm")
-		}
-
 		if b.extraConfig("BonusConfigs") {
 			configs = []string{
 				"r8", "565",

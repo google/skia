@@ -482,9 +482,6 @@ func main() {
 				run(gms, F{"ct": "8888", "gamut": "narrow", "tf": "2.2"})     // --config narrow
 				run(gms, F{"ct": "f16", "gamut": "rec2020", "tf": "rec2020"}) // --config erec2020
 
-				run(gms, F{"skvm": "true"})
-				run(gms, F{"skvm": "true", "ct": "f16"})
-
 				run(imgs, F{
 					"decodeToDst": "true",
 					"ct":          "f16",
