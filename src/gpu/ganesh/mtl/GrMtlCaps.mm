@@ -627,7 +627,7 @@ size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
             return i;
         }
     }
-    SK_ABORT("Invalid MTLPixelFormat");
+    SK_ABORT("Invalid MTLPixelFormat: %d", static_cast<int>(pixelFormat));
 }
 
 void GrMtlCaps::initFormatTable() {
