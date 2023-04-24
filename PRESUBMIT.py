@@ -613,7 +613,7 @@ def _CheckReleaseNotesForPublicAPI(input_api, output_api):
     # We only care about files that end in .h and are under the top-level
     # include dir, but not include/private.
     if (file_ext == '.h' and
-        os.path.dirname(file_path) == 'include' and
+        file_path.split(os.path.sep)[0] == 'include' and
         'private' not in file_path):
       public_api_changed = True
     elif os.path.dirname(file_path) == RELEASE_NOTES_DIR:
