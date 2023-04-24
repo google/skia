@@ -8,8 +8,18 @@
 #ifndef SKPSlide_DEFINED
 #define SKPSlide_DEFINED
 
-#include "include/core/SkPicture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "tools/viewer/Slide.h"
+
+#include <memory>
+
+class SkCanvas;
+class SkPicture;
+class SkStream;
+class SkString;
 
 class SKPSlide : public Slide {
 public:

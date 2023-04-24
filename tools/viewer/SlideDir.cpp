@@ -8,10 +8,18 @@
 #include "tools/viewer/SlideDir.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkCubicMap.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/SkBitmaskEnum.h"
 #include "include/private/base/SkTPin.h"
+#include "include/utils/SkTextUtils.h"
 #include "modules/sksg/include/SkSGDraw.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPlane.h"
@@ -20,10 +28,14 @@
 #include "modules/sksg/include/SkSGScene.h"
 #include "modules/sksg/include/SkSGText.h"
 #include "modules/sksg/include/SkSGTransform.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/ModifierKey.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <cmath>
 #include <utility>
+
+namespace sksg { class InvalidationController; }
 
 using namespace skia_private;
 

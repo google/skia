@@ -1,0 +1,28 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "gm_subset",
+    srcs = ["bitmaprect.cpp"],
+    visibility = ["//tools/viewer:__pkg__"],
+)
+
+skia_cc_library(
+    name = "gm",
+    testonly = True,
+    srcs = [
+        "gm.cpp",
+        "verifiers/gmverifier.cpp",
+        "verifiers/gmverifier.h",
+    ],
+    hdrs = ["gm.h"],
+    visibility = ["//tools/viewer:__pkg__"],
+    deps = [
+        "//:skia_internal",
+        "//tools:registry",
+        "//tools:tool_utils",
+    ],
+)

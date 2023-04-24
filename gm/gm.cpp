@@ -6,7 +6,8 @@
  */
 
 #include "gm/gm.h"
-#include "gm/verifiers/gmverifier.h"
+
+#include "gm/verifiers/gmverifier.h"  // IWYU pragma: keep
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -15,15 +16,16 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkShader.h"  // IWYU pragma: keep
 #include "include/core/SkTileMode.h"
-#include "include/core/SkTypeface.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/ToolUtils.h"
 
-#include <stdarg.h>
+#include <atomic>
+#include <cstdarg>
+#include <cstdint>
 
 using namespace skiagm;
 
@@ -185,6 +187,10 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
+
+std::unique_ptr<verifiers::VerifierList> GpuGM::getVerifiers() const {
+    return nullptr;
+}
 
 DrawResult GpuGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
     this->onDraw(rContext, canvas);

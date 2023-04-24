@@ -17,3 +17,16 @@ skia_filegroup(
         "//tools:__subpackages__",
     ],
 )
+
+skia_filegroup(
+    name = "common_flags",
+    testonly = True,
+    srcs = [
+        "CommonFlags.h",
+        "CommonFlagsFontMgr.cpp",
+        "CommonFlagsGpu.cpp",
+    ],
+    visibility = [
+        "//tools:__subpackages__",
+    ],
+)

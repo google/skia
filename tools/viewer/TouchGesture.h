@@ -9,6 +9,9 @@
 #define TouchGesture_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkTDArray.h"
 
 class TouchGesture {

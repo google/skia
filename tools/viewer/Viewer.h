@@ -8,26 +8,49 @@
 #ifndef Viewer_DEFINED
 #define Viewer_DEFINED
 
-#include "gm/gm.h"
-#include "include/core/SkExecutor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkScan.h"
+#include "src/core/SkTHash.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkVMBlitter.h"
-#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "tools/gpu/MemoryCache.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/CommandSet.h"
+#include "tools/sk_app/DisplayParams.h"
 #include "tools/sk_app/Window.h"
 #include "tools/viewer/AnimTimer.h"
 #include "tools/viewer/ImGuiLayer.h"
-#include "tools/viewer/Slide.h"
 #include "tools/viewer/StatsLayer.h"
 #include "tools/viewer/TouchGesture.h"
 
-class SkCanvas;
-class SkData;
+#include <cstdint>
+#include <atomic>
+#include <functional>
+#include <string>
+
+class SkImage;
+class SkSurface;
+class Slide;
+namespace skui {
+enum class InputState;
+enum class Key;
+enum class ModifierKey;
+}  // namespace skui
 
 class Viewer : public sk_app::Application, sk_app::Window::Layer {
 public:

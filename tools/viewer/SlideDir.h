@@ -8,21 +8,26 @@
 #ifndef SlideDir_DEFINED
 #define SlideDir_DEFINED
 
-#include "tools/viewer/Slide.h"
-
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "modules/sksg/include/SkSGGroup.h"
+#include "modules/sksg/include/SkSGScene.h"
+#include "tools/viewer/Slide.h"
 
 #include <memory>
 #include <vector>
 
+class SkCanvas;
 class SkString;
 
-namespace sksg {
-
-class Group;
-class Scene;
-
-}  // namespace sksg
+namespace skui {
+enum class InputState;
+enum class ModifierKey;
+}  // namespace skui
 
 class SlideDir final : public Slide {
 public:
@@ -55,7 +60,7 @@ private:
     std::unique_ptr<FocusController>   fFocusController;
     const int                          fColumns;
 
-    std::vector<Rec>                fRecs;
+    std::vector<Rec>                   fRecs;
     std::unique_ptr<sksg::Scene>       fScene;
     std::vector<sk_sp<Animator>>       fSceneAnimators;
     sk_sp<sksg::Group>                 fRoot;

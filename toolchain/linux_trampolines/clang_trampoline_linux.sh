@@ -17,6 +17,7 @@ if [[ "$@" != *DSKIA_ENFORCE_IWYU* || "$@" == *use-ld* ]]; then
 fi
 
 supported_files_or_dirs=(
+  "gm/"
   "include/private/base/"
   "modules/skunicode/"
   "src/base/"
@@ -32,6 +33,7 @@ supported_files_or_dirs=(
   "src/utils/"
   "tests/"
   "tools/debugger/"
+  "tools/viewer/"
   "src/core/SkBitmap.cpp"
   "src/core/SkBitmapCache.cpp"
   "src/core/SkCachedData.cpp"

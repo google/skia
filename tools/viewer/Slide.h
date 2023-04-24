@@ -12,7 +12,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "tools/Registry.h"
-#include "tools/sk_app/Window.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/ModifierKey.h"
 
 class SkCanvas;
 class SkMetaData;

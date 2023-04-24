@@ -7,19 +7,26 @@
 
 #include "tools/viewer/ImGuiLayer.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSwizzle.h"
 #include "include/core/SkTime.h"
 #include "include/core/SkVertices.h"
+#include "include/private/base/SkTDArray.h"
+#include "tools/sk_app/DisplayParams.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/Key.h"
 
-#include "imgui.h"
-
-#include <stdlib.h>
-#include <map>
+#include <cstdint>
 
 using namespace sk_app;
 

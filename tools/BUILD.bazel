@@ -12,14 +12,15 @@ skia_cc_library(
         "Resources.cpp",
         "ToolUtils.cpp",
         "ResourceFactory.h",
-        "Resources.h",
         "//tools/flags",
         # TODO(kjlubick, bungeman): We should split out the font stuff into its own set of files
         "//tools/fonts:test_font_manager_srcs",
-        "SkMetaData.h",
         "SkMetaData.cpp",
     ],
     hdrs = [
+        "DecodeFile.h",
+        "Resources.h",
+        "SkMetaData.h",
         "ToolUtils.h",
     ],
     textual_hdrs = [
@@ -34,7 +35,11 @@ skia_cc_library(
 skia_cc_library(
     name = "registry",
     hdrs = ["Registry.h"],
-    visibility = ["//tests:__subpackages__"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tests:__subpackages__",
+        "//tools/viewer:__pkg__",
+    ],
     deps = ["//:skia_internal"],
 )
 
@@ -74,10 +79,24 @@ skia_cc_library(
 )
 
 skia_cc_library(
+    name = "mskp_player",
+    srcs = ["MSKPPlayer.cpp"],
+    hdrs = ["MSKPPlayer.h"],
+    visibility = ["//tools/viewer:__pkg__"],
+    deps = [
+        ":sk_sharing_proc",
+        "//:skia_internal",
+    ],
+)
+
+skia_cc_library(
     name = "runtime_blend_utils",
     srcs = ["RuntimeBlendUtils.cpp"],
     hdrs = ["RuntimeBlendUtils.h"],
-    visibility = ["//tests:__pkg__"],
+    visibility = [
+        "//tests:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
     deps = ["//:skia_internal"],
 )
 

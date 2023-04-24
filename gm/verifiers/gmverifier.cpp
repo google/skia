@@ -5,15 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm/gm.h"
 #include "gm/verifiers/gmverifier.h"
+
+#include "gm/gm.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkSurface.h"
-#include "include/effects/SkImageFilters.h"
-#include "include/encode/SkPngEncoder.h"
-#include "src/utils/SkOSPath.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h" // IWYU pragma: keep
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkAssert.h"
+
+#include <utility>
 
 /** Checks the given VerifierResult. If it is not ok, returns it. */
 #define RETURN_NOT_OK(res)  if (!(res).ok()) return (res)

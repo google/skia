@@ -78,6 +78,13 @@ def git_repos_from_deps(ws = "@"):
     )
 
     new_git_repository(
+        name = "imgui",
+        build_file = ws + "//bazel/external/imgui:BUILD.bazel",
+        commit = "55d35d8387c15bf0cfd71861df67af8cfbda7456",
+        remote = "https://skia.googlesource.com/external/github.com/ocornut/imgui.git",
+    )
+
+    new_git_repository(
         name = "libavif",
         build_file = ws + "//bazel/external/libavif:BUILD.bazel",
         commit = "f49462dc93784bf34148715eee36ab6697ca0b35",

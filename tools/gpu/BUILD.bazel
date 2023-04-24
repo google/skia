@@ -57,6 +57,7 @@ skia_cc_library(
     visibility = [
         "//modules/skottie:__pkg__",
         "//tests:__pkg__",
+        "//tools/viewer:__pkg__",
     ],
     deps = ["//:skia_internal"] + select_multi({
         "//src/gpu:gl_backend": ["//tools/gpu/gl:deps"],

@@ -8,9 +8,18 @@
 #ifndef SkSLDebuggerSlide_DEFINED
 #define SkSLDebuggerSlide_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "src/sksl/tracing/SkSLDebugTracePlayer.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tools/viewer/Slide.h"
+
+class SkCanvas;
+
+namespace skui {
+enum class InputState;
+enum class ModifierKey;
+}  // namespace sk
 
 #ifdef SKSL_ENABLE_TRACING
 

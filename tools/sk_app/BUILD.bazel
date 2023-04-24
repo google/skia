@@ -12,6 +12,7 @@ skia_cc_library(
         "Window.cpp",
         "WindowContext.cpp",
         "RasterWindowContext.h",
+        "CommandSet.cpp",
     ] + select_multi(
         {
             "//src/gpu:dawn_backend": [
@@ -34,6 +35,7 @@ skia_cc_library(
     }),
     hdrs = [
         "Application.h",
+        "CommandSet.h",
         "DisplayParams.h",
         "Window.h",
         "WindowContext.h",

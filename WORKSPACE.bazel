@@ -372,6 +372,7 @@ load("//bazel:deps.bzl", "git_repos_from_deps")
 # @freetype - //bazel/external/freetype:BUILD.bazel
 # @harfbuzz - //bazel/external/harfbuzz:BUILD.bazel
 # @icu - //bazel/external/icu:BUILD.bazel
+# @imgui - //bazel/external/imgui:BUILD.bazel
 # @libavif - //bazel/external/libavif:BUILD.bazel
 # @libgav1 - //bazel/external/libgav1:BUILD.bazel
 # @libjpeg_turbo - //bazel/external/libjpeg_turbo:BUILD.bazel

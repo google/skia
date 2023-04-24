@@ -24,6 +24,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
 
+#include <vector>
+
 const int kWidth  = 1000;
 const int kHeight = 2000;
 const int kNumRows = 100;

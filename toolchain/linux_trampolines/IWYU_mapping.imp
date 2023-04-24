@@ -9,6 +9,7 @@
   { include: ["<__algorithm/fill.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/fill_n.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/find.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/find_if.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/is_sorted.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/lower_bound.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/max.h>", "private", "<algorithm>", "public"] },

@@ -91,6 +91,7 @@ skia_filegroup(
 selects.config_setting_group(
     name = "needs_json",
     match_any = [
+        "//src/gpu:enable_gpu_test_utils_true",
         "//src/sksl:enable_sksl_tracing_true",
     ],
 )

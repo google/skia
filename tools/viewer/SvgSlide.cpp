@@ -17,10 +17,11 @@
 #include "src/utils/SkOSPath.h"
 
 SvgSlide::SvgSlide(const SkString& name, const SkString& path)
-    : fPath(path)
-{
+    : fPath(path) {
     fName = name;
 }
+
+SvgSlide::~SvgSlide() = default;
 
 void SvgSlide::load(SkScalar w, SkScalar h) {
     auto stream = SkStream::MakeFromFile(fPath.c_str());

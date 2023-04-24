@@ -24,6 +24,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
 
+#include <vector>
+
 const int kCellSize = 50;
 const int kNumColumns = 2;
 const int kNumRows = 9;
