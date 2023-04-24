@@ -102,11 +102,7 @@ ImageAsset::FrameData ImageAsset::getFrameData(float t) {
         this->getFrame(t),
         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest),
         SkMatrix::I(),
-#ifdef SKOTTIE_LEGACY_ASSET_FIT
-        SkMatrix::kCenter_ScaleToFit,
-#else
         SizeFit::kCenter,
-#endif
     };
 }
 

@@ -70,11 +70,7 @@ public:
         // Additional image transform to be applied before AE scaling rules.
         SkMatrix          matrix = SkMatrix::I();
         // Strategy for image size -> AE asset size scaling.
-#ifdef SKOTTIE_LEGACY_ASSET_FIT
-        SkMatrix::ScaleToFit scaling = SkMatrix::kCenter_ScaleToFit;
-#else
         SizeFit           scaling = SizeFit::kCenter;
-#endif
     };
 
     /**
