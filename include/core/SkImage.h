@@ -1021,7 +1021,7 @@ public:
         example: https://fiddle.skia.org/c/@Image_isLazyGenerated_a
         example: https://fiddle.skia.org/c/@Image_isLazyGenerated_b
     */
-    bool isLazyGenerated() const;
+    virtual bool isLazyGenerated() const = 0;
 
     /** Creates SkImage in target SkColorSpace.
         Returns nullptr if SkImage could not be created.

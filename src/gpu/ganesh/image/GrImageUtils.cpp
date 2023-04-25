@@ -9,6 +9,8 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -16,6 +18,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
@@ -53,6 +56,7 @@
 #include "src/gpu/ganesh/image/SkImage_RasterPinnable.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Lazy.h"
+#include "src/image/SkImage_Picture.h"
 #include "src/image/SkImage_Raster.h"
 
 #include <string_view>
@@ -219,6 +223,41 @@ static GrSurfaceProxyView texture_proxy_view_from_planes(GrRecordingContext* ctx
     return sfc->readSurfaceView();
 }
 
+static GrSurfaceProxyView generate_picture_texture(GrRecordingContext* ctx,
+                                                   const SkImage_Picture* img,
+                                                   GrMipmapped mipmapped,
+                                                   GrImageTexGenPolicy texGenPolicy) {
+    SkASSERT(ctx);
+    SkASSERT(img);
+
+    auto sharedGenerator = img->generator();
+    SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
+
+    skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                       ? skgpu::Budgeted::kNo
+                                       : skgpu::Budgeted::kYes;
+    auto surface = SkSurface::MakeRenderTarget(ctx, budgeted, img->imageInfo(), 0,
+                                               kTopLeft_GrSurfaceOrigin,
+                                               img->props(), mipmapped == GrMipmapped::kYes);
+    if (!surface) {
+        return {};
+    }
+
+    surface->getCanvas()->clear(SkColors::kTransparent);
+    surface->getCanvas()->drawPicture(img->picture(), img->matrix(), img->paint());
+    sk_sp<SkImage> image(surface->makeImageSnapshot());
+    if (!image) {
+        return {};
+    }
+
+    auto [view, ct] = AsView(ctx, image, mipmapped);
+    SkASSERT(view);
+    SkASSERT(mipmapped == GrMipmapped::kNo ||
+             view.asTextureProxy()->mipmapped() == GrMipmapped::kYes);
+    return view;
+}
+
+
 // Returns the texture proxy. We will always cache the generated texture on success.
 // We have 4 ways to try to return a texture (in sorted order)
 //
@@ -292,7 +331,15 @@ GrSurfaceProxyView LockTextureProxyView(GrRecordingContext* rContext,
 
     // 2. Ask the generator to natively create one (if it knows how)
     {
-        if (img->generator()->isTextureGenerator()) {
+        if (img->type() == SkImage_Base::Type::kLazyPicture) {
+            if (auto view = generate_picture_texture(rContext,
+                                                     static_cast<const SkImage_Picture*>(img),
+                                                     mipmapped,
+                                                     texGenPolicy)) {
+                installKey(view);
+                return view;
+            }
+        } else if (img->generator()->isTextureGenerator()) {
             auto sharedGenerator = img->generator();
             SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
             auto textureGen = static_cast<GrTextureGenerator*>(sharedGenerator->fGenerator.get());

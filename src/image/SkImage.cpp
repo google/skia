@@ -312,10 +312,6 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext, const SkIma
     return result->asImage();
 }
 
-bool SkImage::isLazyGenerated() const {
-    return as_IB(this)->onIsLazyGenerated();
-}
-
 bool SkImage::isAlphaOnly() const { return SkColorTypeIsAlphaOnly(fInfo.colorType()); }
 
 sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target, GrDirectContext* direct) const {

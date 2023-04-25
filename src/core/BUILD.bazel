@@ -394,7 +394,6 @@ SKPICTURE_FILES = [
     "SkPictureData.h",
     "SkPictureFlat.cpp",
     "SkPictureFlat.h",
-    "SkPictureImageGenerator.cpp",
     "SkPicturePlayback.cpp",
     "SkPicturePlayback.h",
     "SkPictureRecord.cpp",

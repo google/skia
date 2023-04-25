@@ -129,6 +129,7 @@ public:
         kRaster,
         kRasterPinnable,
         kLazy,
+        kLazyPicture,
         kGanesh,
         kGaneshYUVA,
         kGraphite,
@@ -138,7 +139,9 @@ public:
     virtual Type type() const = 0;
 
     // True for picture-backed and codec-backed
-    bool onIsLazyGenerated() const { return this->type() == Type::kLazy; }
+    bool isLazyGenerated() const override {
+        return this->type() == Type::kLazy || this->type() == Type::kLazyPicture;
+    }
 
     bool isRasterBacked() const {
         return this->type() == Type::kRaster || this->type() == Type::kRasterPinnable;

@@ -83,7 +83,6 @@ public:
 
     // Be careful with this. You need to acquire the mutex, as the generator might be shared
     // among several images.
-    //std::unique_ptr<SkImageGenerator> generator() const;
     sk_sp<SharedGenerator> generator() const;
 protected:
     virtual bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const { return false; }
