@@ -64,15 +64,14 @@ trace_var                      TraceVar(sum) when $12 is true
 trace_scope                    TraceScope(-1) when $4 is true
 trace_line                     TraceLine(11) when $12 is true
 copy_slot_unmasked             $4 = i
-copy_constant                  $5 = 0x00000001 (1.401298e-45)
-sub_int                        $4 -= $5
+add_imm_int                    $4 += 0xFFFFFFFF
 copy_slot_unmasked             i = $4
 trace_var                      TraceVar(i) when $12 is true
 copy_constant                  $4 = 0
 copy_slot_unmasked             $5 = i
 cmple_int                      $4 = lessThanEqual($4, $5)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -23 (label 3 at #52) if no lanes of $4 == 0
+branch_if_no_active_lanes_eq   branch -22 (label 3 at #52) if no lanes of $4 == 0
 label                          label 0x00000002
 trace_scope                    TraceScope(-1) when $3 is true
 trace_line                     TraceLine(14) when $12 is true
@@ -105,8 +104,7 @@ trace_scope                    TraceScope(+1) when $5 is true
 trace_line                     TraceLine(21) when $12 is true
 copy_slot_unmasked             $6 = prod
 copy_slot_unmasked             $16 = i₁
-copy_constant                  $17 = 0x00000002 (2.802597e-45)
-cmplt_int                      $16 = lessThan($16, $17)
+cmplt_imm_int                  $16 = lessThan($16, 0x00000002)
 copy_slot_unmasked             $17 = i₁
 copy_constant                  $18 = 0
 mix_int                        $16 = mix($17, $18, $16)
@@ -117,15 +115,13 @@ trace_var                      TraceVar(prod) when $12 is true
 trace_scope                    TraceScope(-1) when $5 is true
 trace_line                     TraceLine(20) when $12 is true
 copy_slot_unmasked             $5 = i₁
-copy_constant                  $6 = 0x00000001 (1.401298e-45)
-add_int                        $5 += $6
+add_imm_int                    $5 += 0x00000001
 copy_slot_unmasked             i₁ = $5
 trace_var                      TraceVar(i₁) when $12 is true
 copy_slot_unmasked             $5 = i₁
-copy_constant                  $6 = 0x00000004 (5.605194e-45)
-cmplt_int                      $5 = lessThan($5, $6)
+cmplt_imm_int                  $5 = lessThan($5, 0x00000004)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -28 (label 6 at #100) if no lanes of $5 == 0
+branch_if_no_active_lanes_eq   branch -25 (label 6 at #99) if no lanes of $5 == 0
 label                          label 0x00000005
 trace_scope                    TraceScope(-1) when $4 is true
 trace_line                     TraceLine(23) when $12 is true
@@ -161,8 +157,7 @@ copy_constant                  $8 = 0
 copy_slot_unmasked             $9 = f
 cmplt_float                    $8 = lessThan($8, $9)
 copy_slot_unmasked             $9 = f
-copy_constant                  $10 = 0x41800000 (16.0)
-cmplt_float                    $9 = lessThan($9, $10)
+cmplt_imm_float                $9 = lessThan($9, 0x41800000 (16.0))
 bitwise_and_int                $8 &= $9
 merge_condition_mask           CondMask = $7 & $8
 copy_constant                  $9 = 0
@@ -182,15 +177,13 @@ load_condition_mask            CondMask = $7
 trace_scope                    TraceScope(-1) when $6 is true
 trace_line                     TraceLine(29) when $12 is true
 copy_slot_unmasked             $6 = f
-copy_constant                  $7 = 0x406CCCCD (3.7)
-add_float                      $6 += $7
+add_imm_float                  $6 += 0x406CCCCD (3.7)
 copy_slot_unmasked             f = $6
 trace_var                      TraceVar(f) when $12 is true
 copy_slot_unmasked             $6 = f
-copy_constant                  $7 = 0x41880000 (17.0)
-cmplt_float                    $6 = lessThan($6, $7)
+cmplt_imm_float                $6 = lessThan($6, 0x41880000 (17.0))
 stack_rewind
-branch_if_no_active_lanes_eq   branch -40 (label 10 at #153) if no lanes of $6 == 0
+branch_if_no_active_lanes_eq   branch -37 (label 10 at #149) if no lanes of $6 == 0
 label                          label 0x00000009
 trace_scope                    TraceScope(-1) when $5 is true
 trace_line                     TraceLine(34) when $12 is true

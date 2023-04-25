@@ -2,29 +2,27 @@ store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              expected, i = 0
 store_loop_mask                $0 = LoopMask
-jump                           jump +47 (label 1 at #52)
+jump                           jump +42 (label 1 at #47)
 label                          label 0x00000002
 copy_constant                  j = 0
 store_loop_mask                $1 = LoopMask
-jump                           jump +30 (label 4 at #39)
+jump                           jump +27 (label 4 at #36)
 label                          label 0x00000005
 copy_slot_unmasked             $2 = expected
-copy_constant                  $3 = 0x3F800000 (1.0)
-add_float                      $2 += $3
+add_imm_float                  $2 += 0x3F800000 (1.0)
 copy_slot_masked               expected = Mask($2)
 store_condition_mask           $2 = CondMask
 copy_slot_unmasked             $8 = i
-copy_constant                  $9 = 0x00000003 (4.203895e-45)
-mul_int                        $8 *= $9
-copy_slot_unmasked             $10 = j
-copy_slot_unmasked             $11 = $8
-add_int                        $10 += $11
-branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 6 at #26)
-copy_4_uniforms                $12..15 = testMatrix3x3(0..3)
-copy_4_uniforms                $16..19 = testMatrix3x3(4..7)
-copy_uniform                   $20 = testMatrix3x3(8)
+mul_imm_int                    $8 *= 0x00000003
+copy_slot_unmasked             $9 = j
+copy_slot_unmasked             $10 = $8
+add_int                        $9 += $10
+branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 6 at #24)
+copy_4_uniforms                $11..14 = testMatrix3x3(0..3)
+copy_4_uniforms                $15..18 = testMatrix3x3(4..7)
+copy_uniform                   $19 = testMatrix3x3(8)
 label                          label 0x00000006
-copy_from_indirect_unmasked    $3 = Indirect($12 + $10)
+copy_from_indirect_unmasked    $3 = Indirect($11 + $9)
 copy_slot_unmasked             $4 = expected
 cmpne_float                    $3 = notEqual($3, $4)
 merge_condition_mask           CondMask = $2 & $3
@@ -33,29 +31,25 @@ copy_4_slots_masked            [main].result = Mask($4..7)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $2
 copy_slot_unmasked             $2 = j
-copy_constant                  $3 = 0x00000001 (1.401298e-45)
-add_int                        $2 += $3
+add_imm_int                    $2 += 0x00000001
 copy_slot_masked               j = Mask($2)
 label                          label 0x00000004
 copy_slot_unmasked             $2 = j
-copy_constant                  $3 = 0x00000003 (4.203895e-45)
-cmplt_int                      $2 = lessThan($2, $3)
+cmplt_imm_int                  $2 = lessThan($2, 0x00000003)
 merge_loop_mask                LoopMask &= $2
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -35 (label 5 at #10)
+branch_if_any_lanes_active     branch_if_any_lanes_active -31 (label 5 at #10)
 label                          label 0x00000003
 load_loop_mask                 LoopMask = $1
 copy_slot_unmasked             $1 = i
-copy_constant                  $2 = 0x00000001 (1.401298e-45)
-add_int                        $1 += $2
+add_imm_int                    $1 += 0x00000001
 copy_slot_masked               i = Mask($1)
 label                          label 0x00000001
 copy_slot_unmasked             $1 = i
-copy_constant                  $2 = 0x00000003 (4.203895e-45)
-cmplt_int                      $1 = lessThan($1, $2)
+cmplt_imm_int                  $1 = lessThan($1, 0x00000003)
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -52 (label 2 at #6)
+branch_if_any_lanes_active     branch_if_any_lanes_active -46 (label 2 at #6)
 label                          label 0
 load_loop_mask                 LoopMask = $0
 copy_4_uniforms                $0..3 = colorGreen

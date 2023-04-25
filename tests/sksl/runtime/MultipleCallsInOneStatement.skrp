@@ -63,8 +63,7 @@ copy_slot_unmasked             ten = $1
 trace_var                      TraceVar(ten) when $13 is true
 trace_line                     TraceLine(12) when $13 is true
 copy_slot_unmasked             $1 = ten
-copy_constant                  $2 = 0x0000000A (1.401298e-44)
-cmpeq_int                      $1 = equal($1, $2)
+cmpeq_imm_int                  $1 = equal($1, 0x0000000A)
 swizzle_4                      $1..4 = ($1..4).xxxx
 copy_4_uniforms                $5..8 = colorRed
 copy_4_uniforms                $9..12 = colorGreen

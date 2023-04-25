@@ -2251,6 +2251,15 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
                 std::unique_ptr<LValue> lvRight = this->makeLValue(right, /*allowScratch=*/true);
                 return this->pushStructuredComparison(lvLeft.get(), op, lvRight.get(), left.type());
             }
+            [[fallthrough]];
+
+        // Rewrite commutative ops so that the literal is on the right-hand side. This gives the
+        // Builder more opportunities to use immediate-mode ops.
+        case OperatorKind::PLUS:
+        case OperatorKind::STAR:
+            if (left.is<Literal>() && !right.is<Literal>()) {
+                return this->pushBinaryExpression(right, op, left);
+            }
             break;
 
         // Emit comma expressions.

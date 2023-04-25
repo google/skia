@@ -12,11 +12,10 @@ store_condition_mask           $69 = CondMask
 store_condition_mask           $75 = CondMask
 store_condition_mask           $79 = CondMask
 copy_slot_unmasked             $80 = _0_x
-copy_constant                  $81 = 0xBF800000 (-1.0)
-cmpeq_float                    $80 = equal($80, $81)
+cmpeq_imm_float                $80 = equal($80, 0xBF800000 (-1.0))
 copy_constant                  $76 = 0
 merge_condition_mask           CondMask = $79 & $80
-branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 6 at #31)
+branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 6 at #29)
 copy_uniform                   $77 = colorWhite(0)
 cast_to_int_from_float         $77 = FloatToInt($77)
 copy_slot_unmasked             x = $77
@@ -24,15 +23,14 @@ copy_constant                  $77 = 0
 copy_slot_unmasked             $78 = x
 sub_int                        $77 -= $78
 copy_slot_masked               x = Mask($77)
-copy_constant                  $78 = 0xFFFFFFFF
-cmpeq_int                      $77 = equal($77, $78)
+cmpeq_imm_int                  $77 = equal($77, 0xFFFFFFFF)
 label                          label 0x00000007
 copy_slot_masked               $76 = Mask($77)
 label                          label 0x00000006
 load_condition_mask            CondMask = $79
 copy_constant                  $70 = 0
 merge_condition_mask           CondMask = $75 & $76
-branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 5 at #46)
+branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 5 at #44)
 copy_2_uniforms                x₁ = colorWhite(0..1)
 splat_2_constants              $71..72 = 0
 copy_2_slots_unmasked          $73..74 = x₁
@@ -47,7 +45,7 @@ label                          label 0x00000005
 load_condition_mask            CondMask = $75
 copy_constant                  $64 = 0
 merge_condition_mask           CondMask = $69 & $70
-branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 4 at #64)
+branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 4 at #62)
 copy_uniform                   $65 = colorWhite(0)
 cast_to_int_from_float         $65 = FloatToInt($65)
 copy_slot_unmasked             $66 = $65
@@ -65,7 +63,7 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $69
 copy_constant                  $54 = 0
 merge_condition_mask           CondMask = $63 & $64
-branch_if_no_lanes_active      branch_if_no_lanes_active +16 (label 3 at #84)
+branch_if_no_lanes_active      branch_if_no_lanes_active +16 (label 3 at #82)
 copy_constant                  negated(0) = 0xBF800000 (-1.0)
 copy_constant                  negated(1) = 0xC0000000 (-2.0)
 copy_constant                  negated(2) = 0xC0400000 (-3.0)
@@ -85,7 +83,7 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $63
 copy_constant                  $34 = 0
 merge_condition_mask           CondMask = $53 & $54
-branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 2 at #121)
+branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 2 at #119)
 copy_constant                  negated₁(0) = 0xBF800000 (-1.0)
 copy_constant                  negated₁(1) = 0xC0000000 (-2.0)
 copy_constant                  negated₁(2) = 0xC0400000 (-3.0)
@@ -122,7 +120,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $53
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $33 & $34
-branch_if_no_lanes_active      branch_if_no_lanes_active +46 (label 1 at #171)
+branch_if_no_lanes_active      branch_if_no_lanes_active +46 (label 1 at #169)
 copy_constant                  negated₂(0) = 0xBF800000 (-1.0)
 copy_constant                  negated₂(1) = 0xC0000000 (-2.0)
 copy_constant                  negated₂(2) = 0xC0400000 (-3.0)

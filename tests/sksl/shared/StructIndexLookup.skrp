@@ -45,11 +45,11 @@ copy_constant                  $2 = 0x44610000 (900.0)
 copy_3_slots_masked            data.outer[2].inner[2].values = Mask($0..2)
 splat_4_constants              expected, i = 0
 store_loop_mask                $0 = LoopMask
-jump                           jump +86 (label 1 at #134)
+jump                           jump +77 (label 1 at #125)
 label                          label 0x00000002
 copy_constant                  j = 0
 store_loop_mask                $1 = LoopMask
-jump                           jump +69 (label 4 at #121)
+jump                           jump +62 (label 4 at #114)
 label                          label 0x00000005
 copy_3_slots_unmasked          $2..4 = expected
 copy_constant                  $5 = 0x3F800000 (1.0)
@@ -59,14 +59,12 @@ add_3_floats                   $2..4 += $5..7
 copy_3_slots_masked            expected = Mask($2..4)
 store_condition_mask           $2 = CondMask
 copy_slot_unmasked             $9 = i
-copy_constant                  $10 = 0x00000009 (1.261169e-44)
-mul_int                        $9 *= $10
-copy_slot_unmasked             $11 = j
-copy_constant                  $12 = 0x00000003 (4.203895e-45)
-mul_int                        $11 *= $12
-copy_slot_unmasked             $12 = $9
-add_int                        $11 += $12
-copy_from_indirect_unmasked    $3..5 = Indirect(data.outer[0].inner[0].values + $11)
+mul_imm_int                    $9 *= 0x00000009
+copy_slot_unmasked             $10 = j
+mul_imm_int                    $10 *= 0x00000003
+copy_slot_unmasked             $11 = $9
+add_int                        $10 += $11
+copy_from_indirect_unmasked    $3..5 = Indirect(data.outer[0].inner[0].values + $10)
 copy_3_slots_unmasked          $6..8 = expected
 cmpne_3_floats                 $3..5 = notEqual($3..5, $6..8)
 bitwise_or_int                 $4 |= $5
@@ -78,21 +76,19 @@ mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $2
 copy_constant                  k = 0
 store_loop_mask                $2 = LoopMask
-jump                           jump +27 (label 7 at #108)
+jump                           jump +24 (label 7 at #103)
 label                          label 0x00000008
 store_condition_mask           $3 = CondMask
 copy_slot_unmasked             $9 = i
-copy_constant                  $10 = 0x00000009 (1.261169e-44)
-mul_int                        $9 *= $10
-copy_slot_unmasked             $11 = j
-copy_constant                  $12 = 0x00000003 (4.203895e-45)
-mul_int                        $11 *= $12
-copy_slot_unmasked             $12 = $9
-add_int                        $11 += $12
-copy_slot_unmasked             $13 = k
-copy_slot_unmasked             $14 = $11
-add_int                        $13 += $14
-copy_from_indirect_unmasked    $4 = Indirect(data.outer[0].inner[0].values(0) + $13)
+mul_imm_int                    $9 *= 0x00000009
+copy_slot_unmasked             $10 = j
+mul_imm_int                    $10 *= 0x00000003
+copy_slot_unmasked             $11 = $9
+add_int                        $10 += $11
+copy_slot_unmasked             $12 = k
+copy_slot_unmasked             $13 = $10
+add_int                        $12 += $13
+copy_from_indirect_unmasked    $4 = Indirect(data.outer[0].inner[0].values(0) + $12)
 copy_slot_unmasked             $9 = k
 copy_from_indirect_unmasked    $5 = Indirect(expected(0) + $9)
 cmpne_float                    $4 = notEqual($4, $5)
@@ -102,42 +98,36 @@ copy_4_slots_masked            [main].result = Mask($5..8)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $3
 copy_slot_unmasked             $3 = k
-copy_constant                  $4 = 0x00000001 (1.401298e-45)
-add_int                        $3 += $4
+add_imm_int                    $3 += 0x00000001
 copy_slot_masked               k = Mask($3)
 label                          label 0x00000007
 copy_slot_unmasked             $3 = k
-copy_constant                  $4 = 0x00000003 (4.203895e-45)
-cmplt_int                      $3 = lessThan($3, $4)
+cmplt_imm_int                  $3 = lessThan($3, 0x00000003)
 merge_loop_mask                LoopMask &= $3
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -32 (label 8 at #82)
+branch_if_any_lanes_active     branch_if_any_lanes_active -28 (label 8 at #80)
 label                          label 0x00000006
 load_loop_mask                 LoopMask = $2
 copy_slot_unmasked             $2 = j
-copy_constant                  $3 = 0x00000001 (1.401298e-45)
-add_int                        $2 += $3
+add_imm_int                    $2 += 0x00000001
 copy_slot_masked               j = Mask($2)
 label                          label 0x00000004
 copy_slot_unmasked             $2 = j
-copy_constant                  $3 = 0x00000003 (4.203895e-45)
-cmplt_int                      $2 = lessThan($2, $3)
+cmplt_imm_int                  $2 = lessThan($2, 0x00000003)
 merge_loop_mask                LoopMask &= $2
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -74 (label 5 at #53)
+branch_if_any_lanes_active     branch_if_any_lanes_active -66 (label 5 at #53)
 label                          label 0x00000003
 load_loop_mask                 LoopMask = $1
 copy_slot_unmasked             $1 = i
-copy_constant                  $2 = 0x00000001 (1.401298e-45)
-add_int                        $1 += $2
+add_imm_int                    $1 += 0x00000001
 copy_slot_masked               i = Mask($1)
 label                          label 0x00000001
 copy_slot_unmasked             $1 = i
-copy_constant                  $2 = 0x00000003 (4.203895e-45)
-cmplt_int                      $1 = lessThan($1, $2)
+cmplt_imm_int                  $1 = lessThan($1, 0x00000003)
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -91 (label 2 at #49)
+branch_if_any_lanes_active     branch_if_any_lanes_active -81 (label 2 at #49)
 label                          label 0
 load_loop_mask                 LoopMask = $0
 copy_4_uniforms                $0..3 = colorGreen

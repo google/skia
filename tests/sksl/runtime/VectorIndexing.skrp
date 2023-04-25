@@ -3,40 +3,35 @@ init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              _0_sum, _1_i = 0
 label                          label 0x00000001
 copy_slot_unmasked             $0 = _0_sum
-copy_slot_unmasked             $7 = _1_i
-copy_from_indirect_uniform_unm $1 = Indirect(u2(0) + $7)
+copy_slot_unmasked             $6 = _1_i
+copy_from_indirect_uniform_unm $1 = Indirect(u2(0) + $6)
 add_float                      $0 += $1
 copy_slot_unmasked             _0_sum = $0
 copy_slot_unmasked             $0 = _1_i
-copy_constant                  $1 = 0x00000001 (1.401298e-45)
-add_int                        $0 += $1
+add_imm_int                    $0 += 0x00000001
 copy_slot_unmasked             _1_i = $0
-copy_constant                  $1 = 0x00000004 (5.605194e-45)
-cmplt_int                      $0 = lessThan($0, $1)
+cmplt_imm_int                  $0 = lessThan($0, 0x00000004)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -13 (label 1 at #4) if no lanes of $0 == 0
+branch_if_no_active_lanes_eq   branch -11 (label 1 at #4) if no lanes of $0 == 0
 label                          label 0
 copy_constant                  _2_prod = 0x3F800000 (1.0)
 copy_constant                  _3_i = 0
 label                          label 0x00000003
 copy_slot_unmasked             $0 = _2_prod
+copy_slot_unmasked             $6 = _3_i
+cmplt_imm_int                  $6 = lessThan($6, 0x00000002)
 copy_slot_unmasked             $7 = _3_i
-copy_constant                  $8 = 0x00000002 (2.802597e-45)
-cmplt_int                      $7 = lessThan($7, $8)
-copy_slot_unmasked             $8 = _3_i
-copy_constant                  $9 = 0
-mix_int                        $7 = mix($8, $9, $7)
-copy_from_indirect_uniform_unm $1 = Indirect(u3(0) + $7)
+copy_constant                  $8 = 0
+mix_int                        $6 = mix($7, $8, $6)
+copy_from_indirect_uniform_unm $1 = Indirect(u3(0) + $6)
 mul_float                      $0 *= $1
 copy_slot_unmasked             _2_prod = $0
 copy_slot_unmasked             $0 = _3_i
-copy_constant                  $1 = 0x00000001 (1.401298e-45)
-add_int                        $0 += $1
+add_imm_int                    $0 += 0x00000001
 copy_slot_unmasked             _3_i = $0
-copy_constant                  $1 = 0x00000004 (5.605194e-45)
-cmplt_int                      $0 = lessThan($0, $1)
+cmplt_imm_int                  $0 = lessThan($0, 0x00000004)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -18 (label 3 at #21) if no lanes of $0 == 0
+branch_if_no_active_lanes_eq   branch -15 (label 3 at #19) if no lanes of $0 == 0
 label                          label 0x00000002
 copy_uniform                   $0 = u1(0)
 copy_slot_unmasked             $1 = _0_sum
@@ -44,23 +39,21 @@ copy_slot_unmasked             $2 = _2_prod
 store_return_mask              $3 = RetMask
 copy_constant                  i = 0x00000007 (9.809089e-45)
 store_loop_mask                $4 = LoopMask
-jump                           jump +10 (label 7 at #57)
+jump                           jump +9 (label 7 at #51)
 label                          label 0x00000008
-copy_slot_unmasked             $7 = i
-copy_from_indirect_uniform_unm $5 = Indirect(u4(0) + $7)
+copy_slot_unmasked             $6 = i
+copy_from_indirect_uniform_unm $5 = Indirect(u4(0) + $6)
 copy_slot_masked               [index_clamped_out_of_bounds].result = Mask($5)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 copy_slot_unmasked             $5 = i
-copy_constant                  $6 = 0x00000001 (1.401298e-45)
-add_int                        $5 += $6
+add_imm_int                    $5 += 0x00000001
 copy_slot_masked               i = Mask($5)
 label                          label 0x00000007
 copy_slot_unmasked             $5 = i
-copy_constant                  $6 = 0x00000008 (1.121039e-44)
-cmplt_int                      $5 = lessThan($5, $6)
+cmplt_imm_int                  $5 = lessThan($5, 0x00000008)
 merge_loop_mask                LoopMask &= $5
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -15 (label 8 at #48)
+branch_if_any_lanes_active     branch_if_any_lanes_active -13 (label 8 at #43)
 label                          label 0x00000006
 load_loop_mask                 LoopMask = $4
 load_return_mask               RetMask = $3

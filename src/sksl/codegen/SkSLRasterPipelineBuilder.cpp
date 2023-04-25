@@ -101,12 +101,59 @@ namespace RP {
     case BuilderOp::cmpne_n_floats:     \
     case BuilderOp::cmpne_n_ints
 
+#define ALL_IMMEDIATE_BINARY_OP_CASES   \
+         BuilderOp::add_imm_float:      \
+    case BuilderOp::add_imm_int:        \
+    case BuilderOp::mul_imm_float:      \
+    case BuilderOp::mul_imm_int:        \
+    case BuilderOp::cmple_imm_float:    \
+    case BuilderOp::cmple_imm_int:      \
+    case BuilderOp::cmple_imm_uint:     \
+    case BuilderOp::cmplt_imm_float:    \
+    case BuilderOp::cmplt_imm_int:      \
+    case BuilderOp::cmplt_imm_uint:     \
+    case BuilderOp::cmpeq_imm_float:    \
+    case BuilderOp::cmpeq_imm_int:      \
+    case BuilderOp::cmpne_imm_float:    \
+    case BuilderOp::cmpne_imm_int
+
 #define ALL_N_WAY_TERNARY_OP_CASES       \
          BuilderOp::smoothstep_n_floats
 
 #define ALL_MULTI_SLOT_TERNARY_OP_CASES \
          BuilderOp::mix_n_floats:       \
     case BuilderOp::mix_n_ints
+
+static BuilderOp convert_n_way_op_to_immediate(BuilderOp op, int32_t* constantValue) {
+    // This relies on the ordering of SkRP ops; the immediate-mode op must always come directly
+    // before the n-way op.
+    BuilderOp immOp = (BuilderOp)((int)op - 1);
+    switch (immOp) {
+        case ALL_IMMEDIATE_BINARY_OP_CASES:
+            return immOp;
+
+        default:
+            break;
+    }
+
+    // We also support immediate-mode subtraction; it's converted into addition of a negative value.
+    switch (op) {
+        case BuilderOp::sub_n_ints:
+            *constantValue *= -1;
+            return BuilderOp::add_imm_int;
+
+        case BuilderOp::sub_n_floats: {
+            // This inverts the sign bit.
+            *constantValue ^= 0x80000000;
+            return BuilderOp::add_imm_float;
+        }
+        default:
+            break;
+    }
+
+    // We don't have an immediate-mode version of this op.
+    return op;
+}
 
 void Builder::unary_op(BuilderOp op, int32_t slots) {
     switch (op) {
@@ -122,6 +169,23 @@ void Builder::unary_op(BuilderOp op, int32_t slots) {
 }
 
 void Builder::binary_op(BuilderOp op, int32_t slots) {
+    // If this is a single-slot operation...
+    if (slots == 1 && !fInstructions.empty()) {
+        // ... and we just pushed a constant onto the stack...
+        Instruction& lastInstruction = fInstructions.back();
+        if (lastInstruction.fOp == BuilderOp::push_constant) {
+            // ... and this op has an immediate-mode equivalent...
+            int32_t constantValue = lastInstruction.fImmB;
+            BuilderOp immOp = convert_n_way_op_to_immediate(op, &constantValue);
+            if (immOp != op) {
+                // ... discard the constant from the stack, and use an immediate-mode op.
+                this->discard_stack(1);
+                fInstructions.push_back({immOp, {}, constantValue});
+                return;
+            }
+        }
+    }
+
     switch (op) {
         case ALL_N_WAY_BINARY_OP_CASES:
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
@@ -1099,6 +1163,7 @@ static int stack_usage(const Instruction& inst) {
         }
         case ALL_SINGLE_SLOT_UNARY_OP_CASES:
         case ALL_MULTI_SLOT_UNARY_OP_CASES:
+        case ALL_IMMEDIATE_BINARY_OP_CASES:
         default:
             return 0;
     }
@@ -1566,6 +1631,15 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case ALL_MULTI_SLOT_UNARY_OP_CASES: {
                 float* dst = tempStackPtr - (inst.fImmA * N);
                 this->appendMultiSlotUnaryOp(pipeline, (ProgramOp)inst.fOp, dst, inst.fImmA);
+                break;
+            }
+            case ALL_IMMEDIATE_BINARY_OP_CASES: {
+                float* dst = tempStackPtr - (1 * N);
+
+                SkRasterPipeline_ConstantCtx ctx;
+                ctx.dst = OffsetFromBase(dst);
+                ctx.value = sk_bit_cast<float>(inst.fImmA);
+                pipeline->push_back({(ProgramOp)inst.fOp, SkRPCtxUtils::Pack(ctx, alloc)});
                 break;
             }
             case ALL_N_WAY_BINARY_OP_CASES: {
@@ -2399,10 +2473,12 @@ void Program::dump(SkWStream* out) const {
         };
 
         // Interpret the context value as a packed ConstantCtx structure.
-        auto ConstantCtx = [&](const void* v, int slots) -> std::tuple<std::string, std::string> {
+        auto ConstantCtx = [&](const void* v,
+                               int slots,
+                               bool showAsFloat = true) -> std::tuple<std::string, std::string> {
             auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_ConstantCtx*)v);
             return std::make_tuple(OffsetCtx(ctx.dst, slots),
-                                   Imm(ctx.value));
+                                   Imm(ctx.value, showAsFloat));
         };
 
         std::string opArg1, opArg2, opArg3, opSwizzle;
@@ -2562,7 +2638,24 @@ void Program::dump(SkWStream* out) const {
                 break;
 
             case POp::copy_constant:
+            case POp::add_imm_float:
+            case POp::mul_imm_float:
+            case POp::cmple_imm_float:
+            case POp::cmplt_imm_float:
+            case POp::cmpeq_imm_float:
+            case POp::cmpne_imm_float:
                 std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 1);
+                break;
+
+            case POp::add_imm_int:
+            case POp::mul_imm_int:
+            case POp::cmple_imm_int:
+            case POp::cmple_imm_uint:
+            case POp::cmplt_imm_int:
+            case POp::cmplt_imm_uint:
+            case POp::cmpeq_imm_int:
+            case POp::cmpne_imm_int:
+                std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 1, /*showAsFloat=*/false);
                 break;
 
             case POp::splat_2_constants:
@@ -3094,11 +3187,12 @@ void Program::dump(SkWStream* out) const {
                 opText = opArg1 + " = inverse(" + opArg1 + ")";
                 break;
 
-            case POp::add_float:    case POp::add_int:
-            case POp::add_2_floats: case POp::add_2_ints:
-            case POp::add_3_floats: case POp::add_3_ints:
-            case POp::add_4_floats: case POp::add_4_ints:
-            case POp::add_n_floats: case POp::add_n_ints:
+            case POp::add_float:     case POp::add_int:
+            case POp::add_2_floats:  case POp::add_2_ints:
+            case POp::add_3_floats:  case POp::add_3_ints:
+            case POp::add_4_floats:  case POp::add_4_ints:
+            case POp::add_n_floats:  case POp::add_n_ints:
+            case POp::add_imm_float: case POp::add_imm_int:
                 opText = opArg1 + " += " + opArg2;
                 break;
 
@@ -3110,11 +3204,12 @@ void Program::dump(SkWStream* out) const {
                 opText = opArg1 + " -= " + opArg2;
                 break;
 
-            case POp::mul_float:    case POp::mul_int:
-            case POp::mul_2_floats: case POp::mul_2_ints:
-            case POp::mul_3_floats: case POp::mul_3_ints:
-            case POp::mul_4_floats: case POp::mul_4_ints:
-            case POp::mul_n_floats: case POp::mul_n_ints:
+            case POp::mul_float:     case POp::mul_int:
+            case POp::mul_2_floats:  case POp::mul_2_ints:
+            case POp::mul_3_floats:  case POp::mul_3_ints:
+            case POp::mul_4_floats:  case POp::mul_4_ints:
+            case POp::mul_n_floats:  case POp::mul_n_ints:
+            case POp::mul_imm_float: case POp::mul_imm_int:
                 opText = opArg1 + " *= " + opArg2;
                 break;
 
@@ -3156,35 +3251,39 @@ void Program::dump(SkWStream* out) const {
                 opText = opArg1 + " = max(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case POp::cmplt_float:    case POp::cmplt_int:    case POp::cmplt_uint:
-            case POp::cmplt_2_floats: case POp::cmplt_2_ints: case POp::cmplt_2_uints:
-            case POp::cmplt_3_floats: case POp::cmplt_3_ints: case POp::cmplt_3_uints:
-            case POp::cmplt_4_floats: case POp::cmplt_4_ints: case POp::cmplt_4_uints:
-            case POp::cmplt_n_floats: case POp::cmplt_n_ints: case POp::cmplt_n_uints:
+            case POp::cmplt_float:     case POp::cmplt_int:     case POp::cmplt_uint:
+            case POp::cmplt_2_floats:  case POp::cmplt_2_ints:  case POp::cmplt_2_uints:
+            case POp::cmplt_3_floats:  case POp::cmplt_3_ints:  case POp::cmplt_3_uints:
+            case POp::cmplt_4_floats:  case POp::cmplt_4_ints:  case POp::cmplt_4_uints:
+            case POp::cmplt_n_floats:  case POp::cmplt_n_ints:  case POp::cmplt_n_uints:
+            case POp::cmplt_imm_float: case POp::cmplt_imm_int: case POp::cmplt_imm_uint:
                 opText = opArg1 + " = lessThan(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case POp::cmple_float:    case POp::cmple_int:    case POp::cmple_uint:
-            case POp::cmple_2_floats: case POp::cmple_2_ints: case POp::cmple_2_uints:
-            case POp::cmple_3_floats: case POp::cmple_3_ints: case POp::cmple_3_uints:
-            case POp::cmple_4_floats: case POp::cmple_4_ints: case POp::cmple_4_uints:
-            case POp::cmple_n_floats: case POp::cmple_n_ints: case POp::cmple_n_uints:
+            case POp::cmple_float:     case POp::cmple_int:     case POp::cmple_uint:
+            case POp::cmple_2_floats:  case POp::cmple_2_ints:  case POp::cmple_2_uints:
+            case POp::cmple_3_floats:  case POp::cmple_3_ints:  case POp::cmple_3_uints:
+            case POp::cmple_4_floats:  case POp::cmple_4_ints:  case POp::cmple_4_uints:
+            case POp::cmple_n_floats:  case POp::cmple_n_ints:  case POp::cmple_n_uints:
+            case POp::cmple_imm_float: case POp::cmple_imm_int: case POp::cmple_imm_uint:
                 opText = opArg1 + " = lessThanEqual(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case POp::cmpeq_float:    case POp::cmpeq_int:
-            case POp::cmpeq_2_floats: case POp::cmpeq_2_ints:
-            case POp::cmpeq_3_floats: case POp::cmpeq_3_ints:
-            case POp::cmpeq_4_floats: case POp::cmpeq_4_ints:
-            case POp::cmpeq_n_floats: case POp::cmpeq_n_ints:
+            case POp::cmpeq_float:     case POp::cmpeq_int:
+            case POp::cmpeq_2_floats:  case POp::cmpeq_2_ints:
+            case POp::cmpeq_3_floats:  case POp::cmpeq_3_ints:
+            case POp::cmpeq_4_floats:  case POp::cmpeq_4_ints:
+            case POp::cmpeq_n_floats:  case POp::cmpeq_n_ints:
+            case POp::cmpeq_imm_float: case POp::cmpeq_imm_int:
                 opText = opArg1 + " = equal(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case POp::cmpne_float:    case POp::cmpne_int:
-            case POp::cmpne_2_floats: case POp::cmpne_2_ints:
-            case POp::cmpne_3_floats: case POp::cmpne_3_ints:
-            case POp::cmpne_4_floats: case POp::cmpne_4_ints:
-            case POp::cmpne_n_floats: case POp::cmpne_n_ints:
+            case POp::cmpne_float:     case POp::cmpne_int:
+            case POp::cmpne_2_floats:  case POp::cmpne_2_ints:
+            case POp::cmpne_3_floats:  case POp::cmpne_3_ints:
+            case POp::cmpne_4_floats:  case POp::cmpne_4_ints:
+            case POp::cmpne_n_floats:  case POp::cmpne_n_ints:
+            case POp::cmpne_imm_float: case POp::cmpne_imm_int:
                 opText = opArg1 + " = notEqual(" + opArg1 + ", " + opArg2 + ")";
                 break;
 

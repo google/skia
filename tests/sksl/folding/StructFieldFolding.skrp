@@ -3,8 +3,7 @@ init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  _6_two = 0x00000002 (2.802597e-45)
 copy_slot_unmasked             _8_flatten1 = _6_two
 copy_slot_unmasked             $0 = _8_flatten1
-copy_constant                  $1 = 0x00000002 (2.802597e-45)
-cmpeq_int                      $0 = equal($0, $1)
+cmpeq_imm_int                  $0 = equal($0, 0x00000002)
 swizzle_4                      $0..3 = ($0..3).xxxx
 copy_4_uniforms                $4..7 = colorRed
 copy_4_uniforms                $8..11 = colorGreen

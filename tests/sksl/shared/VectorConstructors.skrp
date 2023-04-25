@@ -89,8 +89,7 @@ add_float                      $0 += $1
 copy_slot_unmasked             $1 = v18₁(0)
 cast_to_float_from_int         $1 = IntToFloat($1)
 add_float                      $0 += $1
-copy_constant                  $1 = 0x41900000 (18.0)
-cmpeq_float                    $0 = equal($0, $1)
+cmpeq_imm_float                $0 = equal($0, 0x41900000 (18.0))
 label                          label 0x00000001
 swizzle_4                      $0..3 = ($0..3).xxxx
 copy_4_uniforms                $4..7 = colorRed

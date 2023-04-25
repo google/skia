@@ -3954,6 +3954,15 @@ SI void apply_adjacent_binary_packed(SkRasterPipeline_BinaryOpCtx* packed, std::
     apply_adjacent_binary<T, ApplyFn>(dst, src);
 }
 
+template <typename V, typename S, void (*ApplyFn)(V*, V*)>
+SI void apply_binary_immediate(SkRasterPipeline_ConstantCtx* packed, std::byte* base) {
+    auto ctx = SkRPCtxUtils::Unpack(packed);
+    V* dst = (V*)(base + ctx.dst);         // get a pointer to the destination
+    S scalar = sk_bit_cast<S>(ctx.value);  // bit-pun the constant value as desired
+    V src = scalar;                        // broadcast the constant value into a vector
+    ApplyFn(dst, &src);                    // perform the operation
+}
+
 template <typename T>
 SI void add_fn(T* dst, T* src) {
     *dst += *src;
@@ -4099,6 +4108,30 @@ DECLARE_BINARY_FLOAT(cmpne)  DECLARE_BINARY_INT(cmpne)
 DECLARE_N_WAY_BINARY_FLOAT(atan2)
 DECLARE_N_WAY_BINARY_FLOAT(pow)
 
+// Some ops have an optimized version when the right-side is an immediate value.
+#define DECLARE_IMM_BINARY_FLOAT(name)                                   \
+    STAGE_TAIL(name##_imm_float, SkRasterPipeline_ConstantCtx* packed) { \
+        apply_binary_immediate<F, float, &name##_fn>(packed, base);      \
+    }
+#define DECLARE_IMM_BINARY_INT(name)                                     \
+    STAGE_TAIL(name##_imm_int, SkRasterPipeline_ConstantCtx* packed) {   \
+        apply_binary_immediate<I32, int32_t, &name##_fn>(packed, base);  \
+    }
+#define DECLARE_IMM_BINARY_UINT(name)                                    \
+    STAGE_TAIL(name##_imm_uint, SkRasterPipeline_ConstantCtx* packed) {  \
+        apply_binary_immediate<U32, uint32_t, &name##_fn>(packed, base); \
+    }
+
+DECLARE_IMM_BINARY_FLOAT(add)   DECLARE_IMM_BINARY_INT(add)
+DECLARE_IMM_BINARY_FLOAT(mul)   DECLARE_IMM_BINARY_INT(mul)
+DECLARE_IMM_BINARY_FLOAT(cmplt) DECLARE_IMM_BINARY_INT(cmplt) DECLARE_IMM_BINARY_UINT(cmplt)
+DECLARE_IMM_BINARY_FLOAT(cmple) DECLARE_IMM_BINARY_INT(cmple) DECLARE_IMM_BINARY_UINT(cmple)
+DECLARE_IMM_BINARY_FLOAT(cmpeq) DECLARE_IMM_BINARY_INT(cmpeq)
+DECLARE_IMM_BINARY_FLOAT(cmpne) DECLARE_IMM_BINARY_INT(cmpne)
+
+#undef DECLARE_IMM_BINARY_FLOAT
+#undef DECLARE_IMM_BINARY_INT
+#undef DECLARE_IMM_BINARY_UINT
 #undef DECLARE_BINARY_FLOAT
 #undef DECLARE_BINARY_INT
 #undef DECLARE_BINARY_UINT

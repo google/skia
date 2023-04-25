@@ -2,14 +2,13 @@ store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  index = 0
 store_loop_mask                $0 = LoopMask
-jump                           jump +19 (label 1 at #24)
+jump                           jump +17 (label 1 at #22)
 label                          label 0x00000002
 store_condition_mask           $1 = CondMask
 copy_slot_unmasked             $7 = index
 copy_from_indirect_uniform_unm $2 = Indirect(testArray[0] + $7)
 copy_slot_unmasked             $3 = index
-copy_constant                  $4 = 0x00000001 (1.401298e-45)
-add_int                        $3 += $4
+add_imm_int                    $3 += 0x00000001
 cast_to_float_from_int         $3 = IntToFloat($3)
 cmpne_float                    $2 = notEqual($2, $3)
 merge_condition_mask           CondMask = $1 & $2
@@ -18,16 +17,14 @@ copy_4_slots_masked            [main].result = Mask($3..6)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $1
 copy_slot_unmasked             $1 = index
-copy_constant                  $2 = 0x00000001 (1.401298e-45)
-add_int                        $1 += $2
+add_imm_int                    $1 += 0x00000001
 copy_slot_masked               index = Mask($1)
 label                          label 0x00000001
 copy_slot_unmasked             $1 = index
-copy_constant                  $2 = 0x00000005 (7.006492e-45)
-cmplt_int                      $1 = lessThan($1, $2)
+cmplt_imm_int                  $1 = lessThan($1, 0x00000005)
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -24 (label 2 at #6)
+branch_if_any_lanes_active     branch_if_any_lanes_active -21 (label 2 at #6)
 label                          label 0
 load_loop_mask                 LoopMask = $0
 copy_4_uniforms                $0..3 = colorGreen

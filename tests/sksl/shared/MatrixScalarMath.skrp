@@ -4,30 +4,23 @@ copy_constant                  minus = 0x00000002 (2.802597e-45)
 copy_constant                  star = 0x00000003 (4.203895e-45)
 copy_constant                  slash = 0x00000004 (5.605194e-45)
 copy_uniform                   f1 = colorGreen(1)
-copy_constant                  $0 = 0x40000000 (2.0)
-copy_uniform                   $1 = colorGreen(1)
-mul_float                      $0 *= $1
+copy_uniform                   $0 = colorGreen(1)
+mul_imm_float                  $0 *= 0x40000000 (2.0)
 copy_slot_unmasked             f2 = $0
-copy_constant                  $0 = 0x40400000 (3.0)
-copy_uniform                   $1 = colorGreen(1)
-mul_float                      $0 *= $1
+copy_uniform                   $0 = colorGreen(1)
+mul_imm_float                  $0 *= 0x40400000 (3.0)
 copy_slot_unmasked             f3 = $0
-copy_constant                  $0 = 0x40800000 (4.0)
-copy_uniform                   $1 = colorGreen(1)
-mul_float                      $0 *= $1
+copy_uniform                   $0 = colorGreen(1)
+mul_imm_float                  $0 *= 0x40800000 (4.0)
 copy_slot_unmasked             f4 = $0
 copy_slot_unmasked             $0 = f1
-copy_constant                  $1 = 0x3F800000 (1.0)
-add_float                      $0 += $1
+add_imm_float                  $0 += 0x3F800000 (1.0)
 copy_slot_unmasked             $1 = f2
-copy_constant                  $2 = 0x3F800000 (1.0)
-add_float                      $1 += $2
+add_imm_float                  $1 += 0x3F800000 (1.0)
 copy_slot_unmasked             $2 = f3
-copy_constant                  $3 = 0x3F800000 (1.0)
-add_float                      $2 += $3
+add_imm_float                  $2 += 0x3F800000 (1.0)
 copy_slot_unmasked             $3 = f4
-copy_constant                  $4 = 0x3F800000 (1.0)
-add_float                      $3 += $4
+add_imm_float                  $3 += 0x3F800000 (1.0)
 copy_4_slots_unmasked          _0_expected = $0..3
 copy_uniform                   _1_one = colorRed(0)
 copy_slot_unmasked             $0 = f1
@@ -71,21 +64,17 @@ cmpeq_float                    $53 = equal($53, $54)
 bitwise_and_int                $52 &= $53
 copy_constant                  $39 = 0
 merge_condition_mask           CondMask = $51 & $52
-branch_if_no_lanes_active      branch_if_no_lanes_active +93 (label 4 at #167)
+branch_if_no_lanes_active      branch_if_no_lanes_active +89 (label 4 at #156)
 copy_slot_unmasked             op = minus
 copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
 copy_slot_unmasked             $40 = f1
-copy_constant                  $41 = 0x3F800000 (1.0)
-sub_float                      $40 -= $41
+add_imm_float                  $40 += 0xBF800000 (-1.0)
 copy_slot_unmasked             $41 = f2
-copy_constant                  $42 = 0x3F800000 (1.0)
-sub_float                      $41 -= $42
+add_imm_float                  $41 += 0xBF800000 (-1.0)
 copy_slot_unmasked             $42 = f3
-copy_constant                  $43 = 0x3F800000 (1.0)
-sub_float                      $42 -= $43
+add_imm_float                  $42 += 0xBF800000 (-1.0)
 copy_slot_unmasked             $43 = f4
-copy_constant                  $44 = 0x3F800000 (1.0)
-sub_float                      $43 -= $44
+add_imm_float                  $43 += 0xBF800000 (-1.0)
 copy_4_slots_unmasked          expected = $40..43
 copy_uniform                   one = colorRed(0)
 copy_slot_unmasked             $40 = m11
@@ -106,39 +95,39 @@ copy_slot_unmasked             $41 = op
 store_loop_mask                $42 = LoopMask
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 case_op                        if ($41 == 0x00000001) { LoopMask = true; $42 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #116)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #105)
 copy_4_slots_unmasked          $43..46 = m2
 splat_4_constants              $47..50 = 0x3F800000 (1.0)
 add_4_floats                   $43..46 += $47..50
 copy_4_slots_masked            m2 = Mask($43..46)
-branch_if_all_lanes_active     branch_if_all_lanes_active +30 (label 6 at #144)
+branch_if_all_lanes_active     branch_if_all_lanes_active +30 (label 6 at #133)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000007
 case_op                        if ($41 == 0x00000002) { LoopMask = true; $42 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 8 at #125)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 8 at #114)
 copy_4_slots_unmasked          $43..46 = m2
 splat_4_constants              $47..50 = 0x3F800000 (1.0)
 sub_4_floats                   $43..46 -= $47..50
 copy_4_slots_masked            m2 = Mask($43..46)
-branch_if_all_lanes_active     branch_if_all_lanes_active +21 (label 6 at #144)
+branch_if_all_lanes_active     branch_if_all_lanes_active +21 (label 6 at #133)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000008
 case_op                        if ($41 == 0x00000003) { LoopMask = true; $42 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 9 at #134)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 9 at #123)
 copy_4_slots_unmasked          $43..46 = m2
 splat_4_constants              $47..50 = 0x40000000 (2.0)
 mul_4_floats                   $43..46 *= $47..50
 copy_4_slots_masked            m2 = Mask($43..46)
-branch_if_all_lanes_active     branch_if_all_lanes_active +12 (label 6 at #144)
+branch_if_all_lanes_active     branch_if_all_lanes_active +12 (label 6 at #133)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000009
 case_op                        if ($41 == 0x00000004) { LoopMask = true; $42 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 10 at #143)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 10 at #132)
 copy_4_slots_unmasked          $43..46 = m2
 splat_4_constants              $47..50 = 0x3F000000 (0.5)
 mul_4_floats                   $43..46 *= $47..50
 copy_4_slots_masked            m2 = Mask($43..46)
-branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 6 at #144)
+branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 6 at #133)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x0000000A
 label                          label 0x00000006
@@ -168,21 +157,17 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $51
 copy_constant                  $26 = 0
 merge_condition_mask           CondMask = $38 & $39
-branch_if_no_lanes_active      branch_if_no_lanes_active +93 (label 3 at #264)
+branch_if_no_lanes_active      branch_if_no_lanes_active +89 (label 3 at #249)
 copy_slot_unmasked             op = star
 copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
 copy_slot_unmasked             $27 = f1
-copy_constant                  $28 = 0x40000000 (2.0)
-mul_float                      $27 *= $28
+mul_imm_float                  $27 *= 0x40000000 (2.0)
 copy_slot_unmasked             $28 = f2
-copy_constant                  $29 = 0x40000000 (2.0)
-mul_float                      $28 *= $29
+mul_imm_float                  $28 *= 0x40000000 (2.0)
 copy_slot_unmasked             $29 = f3
-copy_constant                  $30 = 0x40000000 (2.0)
-mul_float                      $29 *= $30
+mul_imm_float                  $29 *= 0x40000000 (2.0)
 copy_slot_unmasked             $30 = f4
-copy_constant                  $31 = 0x40000000 (2.0)
-mul_float                      $30 *= $31
+mul_imm_float                  $30 *= 0x40000000 (2.0)
 copy_4_slots_unmasked          expected = $27..30
 copy_uniform                   one = colorRed(0)
 copy_slot_unmasked             $27 = m11
@@ -203,39 +188,39 @@ copy_slot_unmasked             $28 = op
 store_loop_mask                $29 = LoopMask
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 case_op                        if ($28 == 0x00000001) { LoopMask = true; $29 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 13 at #213)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 13 at #198)
 copy_4_slots_unmasked          $30..33 = m2
 splat_4_constants              $34..37 = 0x3F800000 (1.0)
 add_4_floats                   $30..33 += $34..37
 copy_4_slots_masked            m2 = Mask($30..33)
-branch_if_all_lanes_active     branch_if_all_lanes_active +30 (label 12 at #241)
+branch_if_all_lanes_active     branch_if_all_lanes_active +30 (label 12 at #226)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x0000000D
 case_op                        if ($28 == 0x00000002) { LoopMask = true; $29 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 14 at #222)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 14 at #207)
 copy_4_slots_unmasked          $30..33 = m2
 splat_4_constants              $34..37 = 0x3F800000 (1.0)
 sub_4_floats                   $30..33 -= $34..37
 copy_4_slots_masked            m2 = Mask($30..33)
-branch_if_all_lanes_active     branch_if_all_lanes_active +21 (label 12 at #241)
+branch_if_all_lanes_active     branch_if_all_lanes_active +21 (label 12 at #226)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x0000000E
 case_op                        if ($28 == 0x00000003) { LoopMask = true; $29 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 15 at #231)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 15 at #216)
 copy_4_slots_unmasked          $30..33 = m2
 splat_4_constants              $34..37 = 0x40000000 (2.0)
 mul_4_floats                   $30..33 *= $34..37
 copy_4_slots_masked            m2 = Mask($30..33)
-branch_if_all_lanes_active     branch_if_all_lanes_active +12 (label 12 at #241)
+branch_if_all_lanes_active     branch_if_all_lanes_active +12 (label 12 at #226)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x0000000F
 case_op                        if ($28 == 0x00000004) { LoopMask = true; $29 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 16 at #240)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 16 at #225)
 copy_4_slots_unmasked          $30..33 = m2
 splat_4_constants              $34..37 = 0x3F000000 (0.5)
 mul_4_floats                   $30..33 *= $34..37
 copy_4_slots_masked            m2 = Mask($30..33)
-branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 12 at #241)
+branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 12 at #226)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000010
 label                          label 0x0000000C
@@ -265,21 +250,17 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $38
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $25 & $26
-branch_if_no_lanes_active      branch_if_no_lanes_active +93 (label 2 at #361)
+branch_if_no_lanes_active      branch_if_no_lanes_active +89 (label 2 at #342)
 copy_slot_unmasked             op = slash
 copy_4_slots_unmasked          m11, m12, m21, m22 = f1, f2, f3, f4
 copy_slot_unmasked             $14 = f1
-copy_constant                  $15 = 0x3F000000 (0.5)
-mul_float                      $14 *= $15
+mul_imm_float                  $14 *= 0x3F000000 (0.5)
 copy_slot_unmasked             $15 = f2
-copy_constant                  $16 = 0x3F000000 (0.5)
-mul_float                      $15 *= $16
+mul_imm_float                  $15 *= 0x3F000000 (0.5)
 copy_slot_unmasked             $16 = f3
-copy_constant                  $17 = 0x3F000000 (0.5)
-mul_float                      $16 *= $17
+mul_imm_float                  $16 *= 0x3F000000 (0.5)
 copy_slot_unmasked             $17 = f4
-copy_constant                  $18 = 0x3F000000 (0.5)
-mul_float                      $17 *= $18
+mul_imm_float                  $17 *= 0x3F000000 (0.5)
 copy_4_slots_unmasked          expected = $14..17
 copy_uniform                   one = colorRed(0)
 copy_slot_unmasked             $14 = m11
@@ -300,39 +281,39 @@ copy_slot_unmasked             $15 = op
 store_loop_mask                $16 = LoopMask
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 case_op                        if ($15 == 0x00000001) { LoopMask = true; $16 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 19 at #310)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 19 at #291)
 copy_4_slots_unmasked          $17..20 = m2
 splat_4_constants              $21..24 = 0x3F800000 (1.0)
 add_4_floats                   $17..20 += $21..24
 copy_4_slots_masked            m2 = Mask($17..20)
-branch_if_all_lanes_active     branch_if_all_lanes_active +30 (label 18 at #338)
+branch_if_all_lanes_active     branch_if_all_lanes_active +30 (label 18 at #319)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000013
 case_op                        if ($15 == 0x00000002) { LoopMask = true; $16 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 20 at #319)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 20 at #300)
 copy_4_slots_unmasked          $17..20 = m2
 splat_4_constants              $21..24 = 0x3F800000 (1.0)
 sub_4_floats                   $17..20 -= $21..24
 copy_4_slots_masked            m2 = Mask($17..20)
-branch_if_all_lanes_active     branch_if_all_lanes_active +21 (label 18 at #338)
+branch_if_all_lanes_active     branch_if_all_lanes_active +21 (label 18 at #319)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000014
 case_op                        if ($15 == 0x00000003) { LoopMask = true; $16 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 21 at #328)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 21 at #309)
 copy_4_slots_unmasked          $17..20 = m2
 splat_4_constants              $21..24 = 0x40000000 (2.0)
 mul_4_floats                   $17..20 *= $21..24
 copy_4_slots_masked            m2 = Mask($17..20)
-branch_if_all_lanes_active     branch_if_all_lanes_active +12 (label 18 at #338)
+branch_if_all_lanes_active     branch_if_all_lanes_active +12 (label 18 at #319)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000015
 case_op                        if ($15 == 0x00000004) { LoopMask = true; $16 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 22 at #337)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 22 at #318)
 copy_4_slots_unmasked          $17..20 = m2
 splat_4_constants              $21..24 = 0x3F000000 (0.5)
 mul_4_floats                   $17..20 *= $21..24
 copy_4_slots_masked            m2 = Mask($17..20)
-branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 18 at #338)
+branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 18 at #319)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000016
 label                          label 0x00000012
@@ -362,10 +343,9 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $25
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +41 (label 1 at #406)
+branch_if_no_lanes_active      branch_if_no_lanes_active +40 (label 1 at #386)
 copy_uniform                   $1 = colorRed(0)
-copy_constant                  $2 = 0x41200000 (10.0)
-mul_float                      $1 *= $2
+mul_imm_float                  $1 *= 0x41200000 (10.0)
 copy_slot_unmasked             ten = $1
 copy_slot_unmasked             $2 = $1
 copy_slot_unmasked             $3 = ten

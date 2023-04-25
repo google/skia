@@ -4,36 +4,31 @@ splat_4_constants              x = 0x3F800000 (1.0)
 store_loop_mask                $0 = LoopMask
 label                          label 0x00000001
 copy_slot_unmasked             $1 = x(0)
-copy_constant                  $2 = 0x3E800000 (0.25)
-sub_float                      $1 -= $2
+add_imm_float                  $1 += 0xBE800000 (-0.25)
 copy_slot_masked               x(0) = Mask($1)
 store_condition_mask           $1 = CondMask
 copy_slot_unmasked             $2 = x(0)
-copy_constant                  $3 = 0
-cmple_float                    $2 = lessThanEqual($2, $3)
+cmple_imm_float                $2 = lessThanEqual($2, 0)
 merge_condition_mask           CondMask = $1 & $2
-branch_if_all_lanes_active     branch_if_all_lanes_active +9 (label 0 at #24)
+branch_if_all_lanes_active     branch_if_all_lanes_active +8 (label 0 at #21)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $1
 copy_slot_unmasked             $1 = x(3)
-copy_constant                  $2 = 0x3F800000 (1.0)
-cmpeq_float                    $1 = equal($1, $2)
+cmpeq_imm_float                $1 = equal($1, 0x3F800000 (1.0))
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -18 (label 1 at #5)
+branch_if_any_lanes_active     branch_if_any_lanes_active -15 (label 1 at #5)
 label                          label 0
 load_loop_mask                 LoopMask = $0
 store_loop_mask                $0 = LoopMask
 label                          label 0x00000003
 copy_constant                  $4 = 0
 copy_slot_unmasked             $1 = x(2)
-copy_constant                  $2 = 0x3E800000 (0.25)
-sub_float                      $1 -= $2
+add_imm_float                  $1 += 0xBE800000 (-0.25)
 copy_slot_masked               x(2) = Mask($1)
 store_condition_mask           $1 = CondMask
 copy_slot_unmasked             $2 = x(3)
-copy_constant                  $3 = 0x3F800000 (1.0)
-cmpeq_float                    $2 = equal($2, $3)
+cmpeq_imm_float                $2 = equal($2, 0x3F800000 (1.0))
 merge_condition_mask           CondMask = $1 & $2
 copy_constant                  $5 = 0xFFFFFFFF
 copy_slot_masked               $4 = Mask($5)
@@ -47,7 +42,7 @@ copy_slot_unmasked             $2 = x(2)
 cmplt_float                    $1 = lessThan($1, $2)
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -23 (label 3 at #27)
+branch_if_any_lanes_active     branch_if_any_lanes_active -21 (label 3 at #24)
 label                          label 0x00000002
 load_loop_mask                 LoopMask = $0
 copy_4_slots_unmasked          $0..3 = x

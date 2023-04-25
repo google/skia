@@ -1,11 +1,9 @@
 store_src                      hsl = src.rgba
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  $0 = 0x3F800000 (1.0)
-copy_constant                  $1 = 0x40000000 (2.0)
-copy_slot_unmasked             $2 = hsl(2)
-mul_float                      $1 *= $2
-copy_constant                  $2 = 0x3F800000 (1.0)
-sub_float                      $1 -= $2
+copy_slot_unmasked             $1 = hsl(2)
+mul_imm_float                  $1 *= 0x40000000 (2.0)
+add_imm_float                  $1 += 0xBF800000 (-1.0)
 abs_float                      $1 = abs($1)
 sub_float                      $0 -= $1
 copy_slot_unmasked             $1 = hsl(1)
