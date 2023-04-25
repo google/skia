@@ -165,6 +165,15 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_
     return {UniformWriter(ptr, requiredBytes), bindInfo};
 }
 
+std::tuple<void*, BindBufferInfo> DrawBufferManager::getUniformPointer(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    auto& info = fCurrentBuffers[kUniformBufferIndex];
+    return this->prepareMappedBindBuffer(&info, requiredBytes);
+}
+
 std::tuple<void*, BindBufferInfo> DrawBufferManager::getStoragePointer(size_t requiredBytes) {
     if (!requiredBytes) {
         return {};

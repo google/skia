@@ -123,6 +123,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
             fRenderers.push_back(&r);
         }
     }
+
+#ifdef SK_ENABLE_VELLO_SHADERS
+    fVelloRenderer = std::make_unique<VelloRenderer>(caps);
+#endif
 }
 
 const RenderStep* RendererProvider::lookup(uint32_t uniqueID) const {

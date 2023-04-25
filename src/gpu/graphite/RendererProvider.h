@@ -12,6 +12,10 @@
 #include "include/core/SkVertices.h"
 #include "src/gpu/graphite/Renderer.h"
 
+#ifdef SK_ENABLE_VELLO_SHADERS
+#include "src/gpu/graphite/compute/VelloRenderer.h"
+#endif
+
 #include <vector>
 
 namespace skgpu::graphite {
@@ -68,6 +72,10 @@ public:
 
     const RenderStep* lookup(uint32_t uniqueID) const;
 
+#ifdef SK_ENABLE_VELLO_SHADERS
+    const VelloRenderer* velloRenderer() const { return fVelloRenderer.get(); }
+#endif
+
 private:
     static constexpr int kPathTypeCount = 4;
     static constexpr int kVerticesCount = 8; // 2 modes * 2 color configs * 2 tex coord configs
@@ -100,6 +108,10 @@ private:
 
     // Aggregate of all enabled Renderers for convenient iteration when pre-compiling
     std::vector<const Renderer*> fRenderers;
+
+#ifdef SK_ENABLE_VELLO_SHADERS
+    std::unique_ptr<VelloRenderer> fVelloRenderer;
+#endif
 };
 
 }  // namespace skgpu::graphite

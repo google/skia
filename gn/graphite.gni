@@ -302,6 +302,8 @@ skia_graphite_vk_sources = [
 skia_graphite_vello_sources = [
   "$_src/compute/VelloComputeSteps.cpp",
   "$_src/compute/VelloComputeSteps.h",
+  "$_src/compute/VelloRenderer.cpp",
+  "$_src/compute/VelloRenderer.h",
 ]
 
 skia_graphite_precompile_public = []

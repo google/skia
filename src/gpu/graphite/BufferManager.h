@@ -43,7 +43,8 @@ public:
     std::tuple<UniformWriter, BindBufferInfo> getUniformWriter(size_t requiredBytes);
     std::tuple<UniformWriter, BindBufferInfo> getSsboWriter(size_t requiredBytes);
 
-    // Returns a pointer to a mapped storage buffer suballocation without a specific data writer.
+    // Return a pointer to a mapped storage buffer suballocation without a specific data writer.
+    std::tuple<void*, BindBufferInfo> getUniformPointer(size_t requiredBytes);
     std::tuple<void*, BindBufferInfo> getStoragePointer(size_t requiredBytes);
 
     // Utilities that return an unmapped buffer suballocation for a particular usage. These buffers

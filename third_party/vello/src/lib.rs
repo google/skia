@@ -178,6 +178,7 @@ mod ffi {
 
         type Encoding;
         fn new_encoding() -> Box<Encoding>;
+        fn is_empty(self: &Encoding) -> bool;
         fn fill(
             self: &mut Encoding,
             style: Fill,
