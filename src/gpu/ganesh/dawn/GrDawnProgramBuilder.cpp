@@ -48,7 +48,7 @@ static wgpu::BlendFactor to_dawn_blend_factor(skgpu::BlendCoeff coeff) {
         case skgpu::BlendCoeff::kS2A:
         case skgpu::BlendCoeff::kIS2A:
         default:
-            SkASSERT(!"unsupported blend coefficient");
+            SkDEBUGFAIL("unsupported blend coefficient");
             return wgpu::BlendFactor::One;
         }
 }
@@ -78,7 +78,7 @@ static wgpu::BlendOperation to_dawn_blend_operation(skgpu::BlendEquation equatio
     case skgpu::BlendEquation::kReverseSubtract:
         return wgpu::BlendOperation::ReverseSubtract;
     default:
-        SkASSERT(!"unsupported blend equation");
+        SkDEBUGFAIL("unsupported blend equation");
         return wgpu::BlendOperation::Add;
     }
 }
@@ -102,7 +102,7 @@ static wgpu::CompareFunction to_dawn_compare_function(GrStencilTest test) {
         case GrStencilTest::kNotEqual:
             return wgpu::CompareFunction::NotEqual;
         default:
-            SkASSERT(!"unsupported stencil test");
+            SkDEBUGFAIL("unsupported stencil test");
             return wgpu::CompareFunction::Always;
     }
 }
@@ -126,7 +126,7 @@ static wgpu::StencilOperation to_dawn_stencil_operation(GrStencilOp op) {
         case GrStencilOp::kDecWrap:
             return wgpu::StencilOperation::DecrementWrap;
         default:
-            SkASSERT(!"unsupported stencil function");
+            SkDEBUGFAIL("unsupported stencil function");
             return wgpu::StencilOperation::Keep;
     }
 }
@@ -167,7 +167,7 @@ static wgpu::VertexFormat to_dawn_vertex_format(GrVertexAttribType type) {
     case kUByte4_norm_GrVertexAttribType:
         return wgpu::VertexFormat::Unorm8x4;
     default:
-        SkASSERT(!"unsupported vertex format");
+        SkDEBUGFAIL("unsupported vertex format");
         return wgpu::VertexFormat::Float32x4;
     }
 }

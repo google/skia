@@ -22,7 +22,7 @@ namespace {
             case GrGpuBufferType::kXferGpuToCpu:
                 return wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
             default:
-                SkASSERT(!"buffer type not supported by Dawn");
+                SkDEBUGFAIL("buffer type not supported by Dawn");
                 return wgpu::BufferUsage::Vertex;
         }
     }
