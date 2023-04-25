@@ -127,6 +127,10 @@ PLATFORM_DEFINES = select({
         "SK_FORCE_AAA",
     ],
     "//conditions:default": [],
+}) + select({
+    "//bazel/platform:trivial_abi": ["SK_TRIVIAL_ABI=[[clang::trivial_abi]]"],
+    "//bazel/common_config_settings:cpu_wasm": ["SK_TRIVIAL_ABI=[[clang::trivial_abi]]"],
+    "//conditions:default": [],
 })
 
 # Skia's public headers can work with any version of a Vulkan header. When compiling Skia internals,

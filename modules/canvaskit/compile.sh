@@ -208,6 +208,7 @@ echo "Compiling"
   --args="is_debug=${IS_DEBUG} \
   is_official_build=${IS_OFFICIAL_BUILD} \
   is_component_build=false \
+  is_trivial_abi=true \
   werror=true \
   target_cpu=\"wasm\" \
   \
