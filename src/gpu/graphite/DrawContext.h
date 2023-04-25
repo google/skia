@@ -31,6 +31,7 @@ class Transform;
 
 class AtlasManager;
 class Caps;
+class DispatchGroup;
 class DrawPass;
 class Task;
 class TextureProxy;
@@ -109,6 +110,21 @@ public:
     // TODO: see if we can merge transfers into this
     sk_sp<Task> snapUploadTask(Recorder*);
 
+    // Moves all accummulated DispatchGroups into a ComputeTask and returns it. A DispatchGroup may
+    // be recorded internally as a dependency of a DrawPass (which may happen during a call to
+    // `snapDrawPass()`) or directly by the caller (e.g. as part of compute-based atlas render).
+    //
+    // The returned Task encapsulates all recorded dispatches and the caller is responsible for
+    // ensuring that the Task gets executed ahead of draws.
+    //
+    // Returns null if there are no pending dispatches to move into a task.
+    //
+    // TODO: implement DispatchGroup recording as part of snapDrawPass for geometry processing
+    // TBD: The current broad design requires that compute tasks are executed before draws. The
+    // current thinking around image filters that may operate on the result of a draw involves
+    // maintaining this order by adding a post-draw compute pass to a subsequent DrawContext. This
+    // design needs to get hashed out.
+    sk_sp<Task> snapComputeTask(Recorder*);
 
 private:
     DrawContext(sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
@@ -138,6 +154,9 @@ private:
     // Stores the most immediately recorded uploads into Textures. This list is mutable and
     // can be appended to, or have its commands rewritten if they are inlined into a parent DC.
     std::unique_ptr<UploadList> fPendingUploads;
+
+    // Stores all compute dispatches that have been recorded as a dependency of a draw.
+    skia_private::TArray<std::unique_ptr<DispatchGroup>> fDispatchGroups;
 };
 
 } // namespace skgpu::graphite

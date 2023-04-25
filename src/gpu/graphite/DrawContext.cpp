@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/ComputeTask.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawPass.h"
@@ -26,6 +27,7 @@
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/UploadTask.h"
+#include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
@@ -230,6 +232,13 @@ sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
     fPendingUploads = std::make_unique<UploadList>();
 
     return uploadTask;
+}
+
+sk_sp<Task> DrawContext::snapComputeTask(Recorder* recorder) {
+    if (fDispatchGroups.empty()) {
+        return nullptr;
+    }
+    return ComputeTask::Make(std::move(fDispatchGroups));
 }
 
 } // namespace skgpu::graphite

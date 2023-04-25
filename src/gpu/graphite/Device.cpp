@@ -1171,7 +1171,16 @@ void Device::flushPendingWorkToRecorder() {
     }
 
     fClip.recordDeferredClipDraws();
+
+    // Snap the render pass task before snapping the compute task because creating a DrawPass may
+    // record DispatchGroups that it depends on (e.g. to process geometry).
     auto drawTask = fDC->snapRenderPassTask(fRecorder);
+    auto computeTask = fDC->snapComputeTask(fRecorder);
+
+    // Execute the compute task before the draw task.
+    if (computeTask) {
+        fRecorder->priv().add(std::move(computeTask));
+    }
     if (drawTask) {
         fRecorder->priv().add(std::move(drawTask));
     }
