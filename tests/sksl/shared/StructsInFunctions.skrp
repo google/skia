@@ -15,12 +15,8 @@ add_float                      $0 += $1
 label                          label 0x00000001
 copy_slot_unmasked             x = $0
 copy_2_slots_unmasked          s.x₃, s.y₃ = s.x₁, s.y₁
-copy_slot_unmasked             $0 = s.x₃
-add_imm_float                  $0 += 0x3F800000 (1.0)
-copy_slot_unmasked             s.x₃ = $0
-copy_slot_unmasked             $0 = s.y₃
-add_imm_int                    $0 += 0x00000001
-copy_slot_unmasked             s.y₃ = $0
+add_imm_float                  s.x₃ += 0x3F800000 (1.0)
+add_imm_int                    s.y₃ += 0x00000001
 copy_2_slots_unmasked          $0..1 = s.x₃, s.y₃
 copy_2_slots_unmasked          s.x₁, s.y₁ = $0..1
 label                          label 0x00000002
@@ -44,12 +40,8 @@ copy_4_slots_unmasked          $0..3 = n1.a.x, n1.a.y, n1.b.x, n1.b.y
 copy_4_slots_unmasked          n2.a.x, n2.a.y, n2.b.x, n2.b.y = $0..3
 copy_4_slots_unmasked          n3.a.x, n3.a.y, n3.b.x, n3.b.y = $0..3
 copy_2_slots_unmasked          s.x₃, s.y₃ = n3.b.x, n3.b.y
-copy_slot_unmasked             $0 = s.x₃
-add_imm_float                  $0 += 0x3F800000 (1.0)
-copy_slot_unmasked             s.x₃ = $0
-copy_slot_unmasked             $0 = s.y₃
-add_imm_int                    $0 += 0x00000001
-copy_slot_unmasked             s.y₃ = $0
+add_imm_float                  s.x₃ += 0x3F800000 (1.0)
+add_imm_int                    s.y₃ += 0x00000001
 copy_2_slots_unmasked          $0..1 = s.x₃, s.y₃
 copy_2_slots_unmasked          n3.b.x, n3.b.y = $0..1
 label                          label 0x00000005
@@ -103,9 +95,9 @@ bitwise_and_int                $14 &= $15
 bitwise_and_int                $13 &= $14
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #123)
+branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #115)
 copy_slot_unmasked             $1 = s.x₁
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #115)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #107)
 splat_2_constants              s.x, s.y = 0
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_slot_masked               s.x = Mask($17)

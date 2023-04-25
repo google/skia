@@ -9,18 +9,14 @@ copy_slot_unmasked             $12 = _7_two
 add_imm_int                    $12 += 0xFFFFFFFF
 copy_slot_unmasked             _7_two = $12
 copy_constant                  value = 0x00000002 (2.802597e-45)
-copy_slot_unmasked             $13 = globalValue
-add_imm_int                    $13 += 0x00000001
-copy_slot_unmasked             globalValue = $13
+add_imm_int                    globalValue += 0x00000001
 copy_slot_unmasked             $13 = value
 label                          label 0
 copy_constant                  $14 = 0x00000003 (4.203895e-45)
 copy_slot_unmasked             $0 = $12
 copy_slot_unmasked             _11_noFlatten0 = $0
 copy_constant                  value = 0x00000001 (1.401298e-45)
-copy_slot_unmasked             $12 = globalValue
-add_imm_int                    $12 += 0x00000001
-copy_slot_unmasked             globalValue = $12
+add_imm_int                    globalValue += 0x00000001
 copy_slot_unmasked             $12 = value
 label                          label 0x00000001
 copy_constant                  $13 = 0x00000002 (2.802597e-45)

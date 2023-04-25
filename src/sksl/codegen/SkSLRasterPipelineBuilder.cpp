@@ -124,16 +124,19 @@ namespace RP {
          BuilderOp::mix_n_floats:       \
     case BuilderOp::mix_n_ints
 
+static bool is_immediate_op(BuilderOp op) {
+    switch (op) {
+        case ALL_IMMEDIATE_BINARY_OP_CASES: return true;
+        default:                            return false;
+    }
+}
+
 static BuilderOp convert_n_way_op_to_immediate(BuilderOp op, int32_t* constantValue) {
     // This relies on the ordering of SkRP ops; the immediate-mode op must always come directly
     // before the n-way op.
     BuilderOp immOp = (BuilderOp)((int)op - 1);
-    switch (immOp) {
-        case ALL_IMMEDIATE_BINARY_OP_CASES:
-            return immOp;
-
-        default:
-            break;
+    if (is_immediate_op(immOp)) {
+        return immOp;
     }
 
     // We also support immediate-mode subtraction; it's converted into addition of a negative value.
@@ -281,6 +284,35 @@ void Builder::discard_stack(int32_t count) {
                 --count;
                 fInstructions.pop_back();
                 continue;
+
+            case BuilderOp::copy_stack_to_slots_unmasked:
+                // If we detect a pattern of 'push, immediate-op, unmasked pop', then we can convert
+                // it into an immediate-op directly onto the value slots and take the stack entirely
+                // out of the equation.
+
+                // If this was a single-slot unmasked pop...
+                if (fInstructions.size() >= 3 && lastInstruction.fImmA == 1) {
+                    // ... and the previous instruction was an immediate-mode op...
+                    Instruction& immInstruction = fInstructions.end()[-2];
+                    if (is_immediate_op(immInstruction.fOp)) {
+                        // ... and the instruction prior to that was `push_slots`...
+                        Instruction& pushInstruction = fInstructions.end()[-3];
+                        if (pushInstruction.fOp == BuilderOp::push_slots) {
+                            // ... from the same slot...
+                            Slot pushedSlot = pushInstruction.fSlotA + pushInstruction.fImmA - 1;
+                            if (pushInstruction.fImmA >= 1 &&
+                                (pushedSlot == lastInstruction.fSlotA)) {
+                                // ... we can eliminate the push and pop, and perform the immediate
+                                // op in-place instead.
+                                immInstruction.fSlotA = lastInstruction.fSlotA;
+                                pushInstruction.fImmA--;   // shrink the push by one slot
+                                fInstructions.pop_back();  // eliminate the pop
+                                --count;                   // reduce the discard count by one
+                            }
+                        }
+                    }
+                }
+                break;
 
             default:
                 break;
@@ -1634,7 +1666,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 break;
             }
             case ALL_IMMEDIATE_BINARY_OP_CASES: {
-                float* dst = tempStackPtr - (1 * N);
+                float* dst = (inst.fSlotA == NA) ? tempStackPtr - (1 * N)
+                                                 : SlotA();
 
                 SkRasterPipeline_ConstantCtx ctx;
                 ctx.dst = OffsetFromBase(dst);

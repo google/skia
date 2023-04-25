@@ -7,18 +7,14 @@ copy_slot_unmasked             $12 = _0_val1
 add_imm_int                    $12 += 0xFFFFFFFF
 copy_slot_unmasked             _0_val1 = $12
 copy_constant                  value = 0x00000002 (2.802597e-45)
-copy_slot_unmasked             $13 = numSideEffects
-add_imm_int                    $13 += 0x00000001
-copy_slot_unmasked             numSideEffects = $13
+add_imm_int                    numSideEffects += 0x00000001
 copy_slot_unmasked             $13 = value
 label                          label 0
 copy_constant                  $14 = 0x00000003 (4.203895e-45)
 copy_slot_unmasked             $0 = $12
 copy_slot_unmasked             _2_noFlatten0 = $0
 copy_constant                  value = 0x00000001 (1.401298e-45)
-copy_slot_unmasked             $12 = numSideEffects
-add_imm_int                    $12 += 0x00000001
-copy_slot_unmasked             numSideEffects = $12
+add_imm_int                    numSideEffects += 0x00000001
 copy_slot_unmasked             $12 = value
 label                          label 0x00000001
 copy_constant                  $13 = 0x00000002 (2.802597e-45)
