@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UniformManager.h"
 
 namespace skgpu::graphite {
@@ -54,6 +55,9 @@ bool DispatchGroup::prepareResources(ResourceProvider* resourceProvider) {
 void DispatchGroup::addResourceRefs(CommandBuffer* commandBuffer) const {
     for (int i = 0; i < fPipelines.size(); ++i) {
         commandBuffer->trackResource(fPipelines[i]);
+    }
+    for (int i = 0; i < fTextures.size(); ++i) {
+        commandBuffer->trackResource(fTextures[i]->refTexture());
     }
 }
 
