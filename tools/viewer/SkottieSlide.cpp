@@ -268,7 +268,18 @@ public:
                 std::array<char, kBufferLen> s = {'\0'};
                 fColorSlots.push_back(std::make_pair(s, std::array{1.0f, 1.0f, 1.0f, 1.0f}));
             }
-
+            ImGui::Text("Opacity Slots");
+            for (size_t i = 0; i < fOpacitySlots.size(); i++) {
+                auto& oSlot = fOpacitySlots.at(i);
+                ImGui::PushID(i);
+                ImGui::InputText("OpacitySlotID", oSlot.first.data(), oSlot.first.size());
+                ImGui::InputFloat("Opacity", &(oSlot.second));
+                ImGui::PopID();
+            }
+            if(ImGui::Button("+ Opacity")) {
+                std::array<char, kBufferLen> s = {'\0'};
+                fOpacitySlots.push_back(std::make_pair(s, 0.0f));
+            }
             ImGui::Text("Text Slots");
             for (size_t i = 0; i < fTextStringSlots.size(); i++) {
                 auto& tSlot = fTextStringSlots.at(i);
@@ -316,6 +327,9 @@ public:
             fSlotManager->setColorSlot(s.first.data(), SkColor4f{s.second[0], s.second[1],
                                                        s.second[2], s.second[3]}.toSkColor());
         }
+        for(const auto& s : fOpacitySlots) {
+            fSlotManager->setOpacitySlot(s.first.data(), s.second);
+        }
         for(const auto& s : fTextStringSlots) {
             fSlotManager->setTextStringSlot(s.first.data(), SkString(s.second.data()));
         }
@@ -355,6 +369,7 @@ private:
     using GuiTextBuffer = std::array<char, kBufferLen>;
 
     std::vector<std::pair<GuiTextBuffer, std::array<float, 4>>>   fColorSlots;
+    std::vector<std::pair<GuiTextBuffer, float>>                  fOpacitySlots;
     std::vector<std::pair<GuiTextBuffer, GuiTextBuffer>>          fTextStringSlots;
     std::vector<std::pair<GuiTextBuffer, std::string>>            fImageSlots;
 

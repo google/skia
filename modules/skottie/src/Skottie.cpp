@@ -101,10 +101,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValu
         return nullptr;
 
     auto adapter = OpacityAdapter::Make(jobject, child_node, *this);
-    const auto dispatched = this->dispatchOpacityProperty(adapter->node());
-
     if (adapter->isStatic()) {
         adapter->seek(0);
+    }
+    const auto dispatched = this->dispatchOpacityProperty(adapter->node(), jobject["o"]);
+    if (adapter->isStatic()) {
         if (!dispatched && adapter->node()->getOpacity() >= 1) {
             // No obeservable effects - we can discard.
             return child_node;
@@ -217,11 +218,18 @@ bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c,
     return dispatched;
 }
 
-bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o) const {
+bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o,
+                                               const skjson::ObjectValue* jopacity) const {
     bool dispatched = false;
 
     if (fPropertyObserver) {
-        fPropertyObserver->onOpacityProperty(fPropertyObserverContext,
+        const char * node_name = fPropertyObserverContext;
+        if (jopacity) {
+            if (const skjson::StringValue* slotID = (*jopacity)["sid"]) {
+                node_name = slotID->begin();
+            }
+        }
+        fPropertyObserver->onOpacityProperty(node_name,
             [&]() {
                 dispatched = true;
                 return std::make_unique<OpacityPropertyHandle>(o);
