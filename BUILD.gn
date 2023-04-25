@@ -1170,6 +1170,12 @@ optional("gpu") {
   }
 }
 
+optional("vello") {
+  enabled = skia_enable_vello_shaders
+  public_defines = [ "SK_ENABLE_VELLO_SHADERS" ]
+  public_deps = [ "//third_party/vello:cpp" ]
+}
+
 optional("heif") {
   enabled = skia_use_libheif
   public_defines = [ "SK_HAS_HEIF_LIBRARY" ]
@@ -1264,9 +1270,16 @@ optional("graphite") {
   public_defines = []
 
   enabled = skia_enable_graphite
-  deps = [ ":gpu_shared" ]
+  deps = [
+    ":gpu_shared",
+    ":vello",
+  ]
   public = skia_graphite_public
   sources = skia_graphite_sources
+
+  if (skia_enable_vello_shaders) {
+    sources += skia_graphite_vello_sources
+  }
 
   if (skia_use_dawn) {
     public += skia_graphite_dawn_public
@@ -1487,6 +1500,7 @@ skia_component("skia") {
     ":skx",
     ":sse42",
     ":ssse3",
+    ":vello",
     ":webp_decode",
     ":wuffs",
     ":xml",

@@ -299,6 +299,11 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanTexture.h",
 ]
 
+skia_graphite_vello_sources = [
+  "$_src/compute/VelloComputeSteps.cpp",
+  "$_src/compute/VelloComputeSteps.h",
+]
+
 skia_graphite_precompile_public = []
 
 skia_graphite_precompile_sources = [
