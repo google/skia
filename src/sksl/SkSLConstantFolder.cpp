@@ -347,8 +347,7 @@ static bool contains_constant_zero(const Expression& expr) {
     return false;
 }
 
-// Returns true if the expression contains `value` in every slot.
-static bool is_constant_splat(const Expression& expr, double value) {
+bool ConstantFolder::IsConstantSplat(const Expression& expr, double value) {
     int numSlots = expr.type().slotCount();
     for (int index = 0; index < numSlots; ++index) {
         std::optional<double> slotVal = expr.getConstantValue(index);
@@ -383,7 +382,7 @@ static bool is_constant_diagonal(const Expression& expr, double value) {
 // Returns true if the expression is a scalar, vector, or diagonal matrix containing `value`.
 static bool is_constant_value(const Expression& expr, double value) {
     return expr.type().isMatrix() ? is_constant_diagonal(expr, value)
-                                  : is_constant_splat(expr, value);
+                                  : ConstantFolder::IsConstantSplat(expr, value);
 }
 
 // The expression represents the right-hand side of a division op. If the division can be
@@ -493,13 +492,15 @@ static std::unique_ptr<Expression> simplify_arithmetic(const Context& context,
                                                        const Type& resultType) {
     switch (op.kind()) {
         case Operator::Kind::PLUS:
-            if (!is_scalar_op_matrix(left, right) && is_constant_splat(right, 0.0)) {  // x + 0
+            if (!is_scalar_op_matrix(left, right) &&
+                ConstantFolder::IsConstantSplat(right, 0.0)) {  // x + 0
                 if (std::unique_ptr<Expression> expr = cast_expression(context, pos, left,
                                                                        resultType)) {
                     return expr;
                 }
             }
-            if (!is_matrix_op_scalar(left, right) && is_constant_splat(left, 0.0)) {   // 0 + x
+            if (!is_matrix_op_scalar(left, right) &&
+                ConstantFolder::IsConstantSplat(left, 0.0)) {  // 0 + x
                 if (std::unique_ptr<Expression> expr = cast_expression(context, pos, right,
                                                                        resultType)) {
                     return expr;
@@ -541,13 +542,15 @@ static std::unique_ptr<Expression> simplify_arithmetic(const Context& context,
             break;
 
         case Operator::Kind::MINUS:
-            if (!is_scalar_op_matrix(left, right) && is_constant_splat(right, 0.0)) {  // x - 0
+            if (!is_scalar_op_matrix(left, right) &&
+                ConstantFolder::IsConstantSplat(right, 0.0)) {  // x - 0
                 if (std::unique_ptr<Expression> expr = cast_expression(context, pos, left,
                                                                        resultType)) {
                     return expr;
                 }
             }
-            if (!is_matrix_op_scalar(left, right) && is_constant_splat(left, 0.0)) {   // 0 - x
+            if (!is_matrix_op_scalar(left, right) &&
+                ConstantFolder::IsConstantSplat(left, 0.0)) {  // 0 - x
                 if (std::unique_ptr<Expression> expr = negate_expression(context, pos, right,
                                                                          resultType)) {
                     return expr;
@@ -556,7 +559,8 @@ static std::unique_ptr<Expression> simplify_arithmetic(const Context& context,
             break;
 
         case Operator::Kind::SLASH:
-            if (!is_scalar_op_matrix(left, right) && is_constant_splat(right, 1.0)) {  // x / 1
+            if (!is_scalar_op_matrix(left, right) &&
+                ConstantFolder::IsConstantSplat(right, 1.0)) {  // x / 1
                 if (std::unique_ptr<Expression> expr = cast_expression(context, pos, left,
                                                                        resultType)) {
                     return expr;
@@ -572,7 +576,7 @@ static std::unique_ptr<Expression> simplify_arithmetic(const Context& context,
 
         case Operator::Kind::PLUSEQ:
         case Operator::Kind::MINUSEQ:
-            if (is_constant_splat(right, 0.0)) {  // x += 0, x -= 0
+            if (ConstantFolder::IsConstantSplat(right, 0.0)) {  // x += 0, x -= 0
                 if (std::unique_ptr<Expression> var = cast_expression(context, pos, left,
                                                                       resultType)) {
                     Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);
@@ -592,7 +596,7 @@ static std::unique_ptr<Expression> simplify_arithmetic(const Context& context,
             break;
 
         case Operator::Kind::SLASHEQ:
-            if (is_constant_splat(right, 1.0)) {  // x /= 1
+            if (ConstantFolder::IsConstantSplat(right, 1.0)) {  // x /= 1
                 if (std::unique_ptr<Expression> var = cast_expression(context, pos, left,
                                                                       resultType)) {
                     Analysis::UpdateVariableRefKind(var.get(), VariableRefKind::kRead);

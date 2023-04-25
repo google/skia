@@ -7,7 +7,7 @@ copy_constant                  _0_var = 0xFFFFFFFF
 store_condition_mask           $12 = CondMask
 store_condition_mask           $15 = CondMask
 store_condition_mask           $18 = CondMask
-copy_slot_unmasked             $20 = _0_var
+copy_constant                  $20 = 0xFFFFFFFF
 branch_if_no_active_lanes_eq   branch +6 (label 4 at #17) if no lanes of $20 == 0xFFFFFFFF
 branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 6 at #15)
 copy_slot_unmasked             $19 = glob

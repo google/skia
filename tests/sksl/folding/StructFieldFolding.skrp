@@ -1,7 +1,6 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  _6_two = 0x00000002 (2.802597e-45)
-copy_slot_unmasked             _8_flatten1 = _6_two
+splat_2_constants              _6_two, _8_flatten1 = 0x00000002 (2.802597e-45)
 copy_slot_unmasked             $0 = _8_flatten1
 cmpeq_imm_int                  $0 = equal($0, 0x00000002)
 swizzle_4                      $0..3 = ($0..3).xxxx

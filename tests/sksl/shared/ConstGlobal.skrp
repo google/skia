@@ -2,7 +2,8 @@ store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  SEVEN = 0x00000007 (9.809089e-45)
 copy_constant                  TEN = 0x0000000A (1.401298e-44)
-copy_2_slots_unmasked          seven, ten = SEVEN, TEN
+copy_constant                  seven = 0x00000007 (9.809089e-45)
+copy_constant                  ten = 0x0000000A (1.401298e-44)
 copy_slot_unmasked             $0 = seven
 cmpeq_imm_int                  $0 = equal($0, 0x00000007)
 copy_slot_unmasked             $1 = ten

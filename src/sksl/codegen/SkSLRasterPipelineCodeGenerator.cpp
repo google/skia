@@ -3579,8 +3579,18 @@ bool Generator::pushTernaryExpression(const Expression& test,
     return true;
 }
 
-bool Generator::pushVariableReference(const VariableReference& v) {
-    return this->pushVariableReferencePartial(v, SlotRange{0, (int)v.type().slotCount()});
+bool Generator::pushVariableReference(const VariableReference& var) {
+    // If we are pushing a constant-value variable, and it's a scalar or splat-vector, just push
+    // the value directly. This shouldn't consume extra ops, and literal values are more amenable to
+    // optimization.
+    if (var.type().isScalar() || var.type().isVector()) {
+        if (const Expression* expr = ConstantFolder::GetConstantValueOrNullForVariable(var)) {
+            if (ConstantFolder::IsConstantSplat(*expr, *expr->getConstantValue(0))) {
+                return this->pushExpression(*expr);
+            }
+        }
+    }
+    return this->pushVariableReferencePartial(var, SlotRange{0, (int)var.type().slotCount()});
 }
 
 bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRange subset) {
