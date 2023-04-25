@@ -1,5 +1,4 @@
 // Copyright 2021 Google LLC.
-#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
