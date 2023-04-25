@@ -188,3 +188,19 @@ DEF_TEST(SkRasterPipelineOpts_Log2, r) {
         REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
     }
 }
+
+DEF_TEST(SkRasterPipelineOpts_Pow2, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.001f;
+    for (float value : {-80, -5, -2, -1, 0, 1, 2, 3, 5}) {
+        F result = SK_OPTS_NS::approx_pow2(value);
+        F expected = std::pow(2.0, value);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+
+    F result = SK_OPTS_NS::approx_pow2(160);
+    REPORTER_ASSERT(r, SK_OPTS_NS::all(result == INFINITY));
+}
