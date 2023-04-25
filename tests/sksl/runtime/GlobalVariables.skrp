@@ -1,40 +1,40 @@
-    1. store_device_xy01              $3..6 = DeviceCoords.xy01
-    2. splat_2_constants              $5..6 = 0x3F000000 (0.5)
-    3. cmpeq_2_floats                 $3..4 = equal($3..4, $5..6)
-    4. bitwise_and_int                $3 &= $4
-    5. store_src_rg                   xy = src.rg
-    6. init_lane_masks                CondMask = LoopMask = RetMask = true
-    7. copy_constant                  gInitialized = 0xBF800000 (-1.0)
-    8. trace_var                      TraceVar(gInitialized) when $3 is true
-    9. copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
-   10. trace_var                      TraceVar(gInitializedFromOther) when $3 is true
-   11. copy_constant                  gUninitialized = 0
-   12. trace_var                      TraceVar(gUninitialized) when $3 is true
-   13. trace_enter                    TraceEnter(float4 main(float2 xy)) when $3 is true
-   14. trace_var                      TraceVar(xy) when $3 is true
-   15. copy_constant                  $0 = 0
-   16. copy_slot_unmasked             $1 = $3
-   17. copy_slot_masked               $0 = Mask($1)
-   18. trace_scope                    TraceScope(+1) when $0 is true
-   19. trace_line                     TraceLine(12) when $3 is true
-   20. trace_enter                    TraceEnter(void init_globals()) when $3 is true
-   21. copy_constant                  $1 = 0
-   22. copy_slot_unmasked             $2 = $3
-   23. copy_slot_masked               $1 = Mask($2)
-   24. trace_scope                    TraceScope(+1) when $1 is true
-   25. trace_line                     TraceLine(8) when $3 is true
-   26. copy_constant                  $2 = 0x3F800000 (1.0)
-   27. copy_slot_unmasked             gUninitialized = $2
-   28. trace_var                      TraceVar(gUninitialized) when $3 is true
-   29. trace_scope                    TraceScope(-1) when $1 is true
-   30. trace_exit                     TraceExit(void init_globals()) when $3 is true
-   31. label                          label 0
-   32. trace_line                     TraceLine(13) when $3 is true
-   33. copy_constant                  [main].result(0) = 0
-   34. copy_slot_unmasked             [main].result(1) = gInitializedFromOther
-   35. copy_constant                  [main].result(2) = 0
-   36. copy_slot_unmasked             [main].result(3) = gUninitialized
-   37. trace_var                      TraceVar([main].result) when $3 is true
-   38. trace_scope                    TraceScope(-1) when $0 is true
-   39. trace_exit                     TraceExit(float4 main(float2 xy)) when $3 is true
-   40. load_src                       src.rgba = [main].result
+store_device_xy01              $3..6 = DeviceCoords.xy01
+splat_2_constants              $5..6 = 0x3F000000 (0.5)
+cmpeq_2_floats                 $3..4 = equal($3..4, $5..6)
+bitwise_and_int                $3 &= $4
+store_src_rg                   xy = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  gInitialized = 0xBF800000 (-1.0)
+trace_var                      TraceVar(gInitialized) when $3 is true
+copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
+trace_var                      TraceVar(gInitializedFromOther) when $3 is true
+copy_constant                  gUninitialized = 0
+trace_var                      TraceVar(gUninitialized) when $3 is true
+trace_enter                    TraceEnter(float4 main(float2 xy)) when $3 is true
+trace_var                      TraceVar(xy) when $3 is true
+copy_constant                  $0 = 0
+copy_slot_unmasked             $1 = $3
+copy_slot_masked               $0 = Mask($1)
+trace_scope                    TraceScope(+1) when $0 is true
+trace_line                     TraceLine(12) when $3 is true
+trace_enter                    TraceEnter(void init_globals()) when $3 is true
+copy_constant                  $1 = 0
+copy_slot_unmasked             $2 = $3
+copy_slot_masked               $1 = Mask($2)
+trace_scope                    TraceScope(+1) when $1 is true
+trace_line                     TraceLine(8) when $3 is true
+copy_constant                  $2 = 0x3F800000 (1.0)
+copy_slot_unmasked             gUninitialized = $2
+trace_var                      TraceVar(gUninitialized) when $3 is true
+trace_scope                    TraceScope(-1) when $1 is true
+trace_exit                     TraceExit(void init_globals()) when $3 is true
+label                          label 0
+trace_line                     TraceLine(13) when $3 is true
+copy_constant                  [main].result(0) = 0
+copy_slot_unmasked             [main].result(1) = gInitializedFromOther
+copy_constant                  [main].result(2) = 0
+copy_slot_unmasked             [main].result(3) = gUninitialized
+trace_var                      TraceVar([main].result) when $3 is true
+trace_scope                    TraceScope(-1) when $0 is true
+trace_exit                     TraceExit(float4 main(float2 xy)) when $3 is true
+load_src                       src.rgba = [main].result

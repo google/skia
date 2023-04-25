@@ -1,25 +1,25 @@
-    1. store_src_rg                   coords = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  ok = 0
-    4. copy_constant                  $0 = 0xFFFFFFFF
-    5. copy_slot_unmasked             ok = $0
-    6. copy_4_uniforms                green = colorGreen
-    7. copy_4_uniforms                red = colorRed
-    8. copy_constant                  param = 0
-    9. copy_constant                  $0 = 0xFFFFFFFF
-   10. copy_slot_unmasked             x = $0
-   11. copy_constant                  $0 = 0
-   12. copy_slot_unmasked             $1 = x
-   13. copy_slot_unmasked             param = $1
-   14. label                          label 0
-   15. copy_constant                  call = 0xFFFFFFFF
-   16. copy_slot_unmasked             $0 = ok
-   17. copy_slot_unmasked             $1 = param
-   18. bitwise_and_int                $0 &= $1
-   19. copy_slot_unmasked             $1 = call
-   20. bitwise_and_int                $0 &= $1
-   21. swizzle_4                      $0..3 = ($0..3).xxxx
-   22. copy_4_slots_unmasked          $4..7 = red
-   23. copy_4_slots_unmasked          $8..11 = green
-   24. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   25. load_src                       src.rgba = $0..3
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  ok = 0
+copy_constant                  $0 = 0xFFFFFFFF
+copy_slot_unmasked             ok = $0
+copy_4_uniforms                green = colorGreen
+copy_4_uniforms                red = colorRed
+copy_constant                  param = 0
+copy_constant                  $0 = 0xFFFFFFFF
+copy_slot_unmasked             x = $0
+copy_constant                  $0 = 0
+copy_slot_unmasked             $1 = x
+copy_slot_unmasked             param = $1
+label                          label 0
+copy_constant                  call = 0xFFFFFFFF
+copy_slot_unmasked             $0 = ok
+copy_slot_unmasked             $1 = param
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             $1 = call
+bitwise_and_int                $0 &= $1
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_slots_unmasked          $4..7 = red
+copy_4_slots_unmasked          $8..11 = green
+mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+load_src                       src.rgba = $0..3

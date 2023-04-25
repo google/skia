@@ -1,17 +1,17 @@
-    1. store_src_rg                   coords = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. splat_2_constants              x, y = 0
-    4. copy_constant                  $0 = 0x3F800000 (1.0)
-    5. copy_slot_unmasked             y = $0
-    6. copy_slot_unmasked             x = $0
-    7. splat_3_constants              a, b, c = 0
-    8. copy_constant                  $0 = 0
-    9. copy_slot_unmasked             c = $0
-   10. copy_slot_unmasked             b = $0
-   11. copy_slot_unmasked             a = $0
-   12. copy_slot_unmasked             $1 = b
-   13. mul_float                      $0 *= $1
-   14. copy_slot_unmasked             $1 = x
-   15. copy_slot_unmasked             $2 = c
-   16. copy_slot_unmasked             $3 = y
-   17. load_src                       src.rgba = $0..3
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+splat_2_constants              x, y = 0
+copy_constant                  $0 = 0x3F800000 (1.0)
+copy_slot_unmasked             y = $0
+copy_slot_unmasked             x = $0
+splat_3_constants              a, b, c = 0
+copy_constant                  $0 = 0
+copy_slot_unmasked             c = $0
+copy_slot_unmasked             b = $0
+copy_slot_unmasked             a = $0
+copy_slot_unmasked             $1 = b
+mul_float                      $0 *= $1
+copy_slot_unmasked             $1 = x
+copy_slot_unmasked             $2 = c
+copy_slot_unmasked             $3 = y
+load_src                       src.rgba = $0..3

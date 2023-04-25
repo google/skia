@@ -1,48 +1,48 @@
-    1. store_src_rg                   v0..1 = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  expected1(0) = 0xC0400000 (-3.0)
-    4. copy_constant                  expected1(1) = 0x40C00000 (6.0)
-    5. copy_constant                  expected1(2) = 0xC0400000 (-3.0)
-    6. copy_constant                  expected2(0) = 0x40C00000 (6.0)
-    7. copy_constant                  expected2(1) = 0xC1400000 (-12.0)
-    8. copy_constant                  expected2(2) = 0x40C00000 (6.0)
-    9. copy_3_uniforms                $11..13 = testMatrix3x3(0..2)
-   10. copy_3_slots_unmasked          $4..6 = $11..13
-   11. swizzle_3                      $4..6 = ($4..6).yzx
-   12. swizzle_3                      $11..13 = ($11..13).zxy
-   13. copy_3_uniforms                $14..16 = testMatrix3x3(3..5)
-   14. copy_3_slots_unmasked          $7..9 = $14..16
-   15. swizzle_3                      $7..9 = ($7..9).zxy
-   16. mul_3_floats                   $4..6 *= $7..9
-   17. swizzle_3                      $14..16 = ($14..16).yzx
-   18. mul_3_floats                   $11..13 *= $14..16
-   19. copy_3_slots_unmasked          $7..9 = $11..13
-   20. sub_3_floats                   $4..6 -= $7..9
-   21. copy_3_slots_unmasked          $7..9 = expected1
-   22. cmpeq_3_floats                 $4..6 = equal($4..6, $7..9)
-   23. bitwise_and_int                $5 &= $6
-   24. bitwise_and_int                $4 &= $5
-   25. copy_3_uniforms                $11..13 = testMatrix3x3(6..8)
-   26. copy_3_slots_unmasked          $5..7 = $11..13
-   27. swizzle_3                      $5..7 = ($5..7).yzx
-   28. swizzle_3                      $11..13 = ($11..13).zxy
-   29. copy_3_uniforms                $14..16 = testMatrix3x3(0..2)
-   30. copy_3_slots_unmasked          $8..10 = $14..16
-   31. swizzle_3                      $8..10 = ($8..10).zxy
-   32. mul_3_floats                   $5..7 *= $8..10
-   33. swizzle_3                      $14..16 = ($14..16).yzx
-   34. mul_3_floats                   $11..13 *= $14..16
-   35. copy_3_slots_unmasked          $8..10 = $11..13
-   36. sub_3_floats                   $5..7 -= $8..10
-   37. copy_3_slots_unmasked          $8..10 = expected2
-   38. cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
-   39. bitwise_and_int                $6 &= $7
-   40. bitwise_and_int                $5 &= $6
-   41. bitwise_and_int                $4 &= $5
-   42. branch_if_no_active_lanes_eq   branch +3 (label 0 at #45) if no lanes of $4 == 0xFFFFFFFF
-   43. copy_4_uniforms                $0..3 = colorGreen
-   44. jump                           jump +3 (label 1 at #47)
-   45. label                          label 0
-   46. copy_4_uniforms                $0..3 = colorRed
-   47. label                          label 0x00000001
-   48. load_src                       src.rgba = $0..3
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  expected1(0) = 0xC0400000 (-3.0)
+copy_constant                  expected1(1) = 0x40C00000 (6.0)
+copy_constant                  expected1(2) = 0xC0400000 (-3.0)
+copy_constant                  expected2(0) = 0x40C00000 (6.0)
+copy_constant                  expected2(1) = 0xC1400000 (-12.0)
+copy_constant                  expected2(2) = 0x40C00000 (6.0)
+copy_3_uniforms                $11..13 = testMatrix3x3(0..2)
+copy_3_slots_unmasked          $4..6 = $11..13
+swizzle_3                      $4..6 = ($4..6).yzx
+swizzle_3                      $11..13 = ($11..13).zxy
+copy_3_uniforms                $14..16 = testMatrix3x3(3..5)
+copy_3_slots_unmasked          $7..9 = $14..16
+swizzle_3                      $7..9 = ($7..9).zxy
+mul_3_floats                   $4..6 *= $7..9
+swizzle_3                      $14..16 = ($14..16).yzx
+mul_3_floats                   $11..13 *= $14..16
+copy_3_slots_unmasked          $7..9 = $11..13
+sub_3_floats                   $4..6 -= $7..9
+copy_3_slots_unmasked          $7..9 = expected1
+cmpeq_3_floats                 $4..6 = equal($4..6, $7..9)
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_3_uniforms                $11..13 = testMatrix3x3(6..8)
+copy_3_slots_unmasked          $5..7 = $11..13
+swizzle_3                      $5..7 = ($5..7).yzx
+swizzle_3                      $11..13 = ($11..13).zxy
+copy_3_uniforms                $14..16 = testMatrix3x3(0..2)
+copy_3_slots_unmasked          $8..10 = $14..16
+swizzle_3                      $8..10 = ($8..10).zxy
+mul_3_floats                   $5..7 *= $8..10
+swizzle_3                      $14..16 = ($14..16).yzx
+mul_3_floats                   $11..13 *= $14..16
+copy_3_slots_unmasked          $8..10 = $11..13
+sub_3_floats                   $5..7 -= $8..10
+copy_3_slots_unmasked          $8..10 = expected2
+cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+bitwise_and_int                $6 &= $7
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+branch_if_no_active_lanes_eq   branch +3 (label 0 at #45) if no lanes of $4 == 0xFFFFFFFF
+copy_4_uniforms                $0..3 = colorGreen
+jump                           jump +3 (label 1 at #47)
+label                          label 0
+copy_4_uniforms                $0..3 = colorRed
+label                          label 0x00000001
+load_src                       src.rgba = $0..3

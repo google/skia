@@ -3237,13 +3237,11 @@ void Program::dump(SkWStream* out) const {
 
         opName = opName.substr(0, 30);
         if (!opText.empty()) {
-            out->writeText(SkSL::String::printf("% 5d. %-30.*s %s\n",
-                                                index + 1,
+            out->writeText(SkSL::String::printf("%-30.*s %s\n",
                                                 (int)opName.size(), opName.data(),
                                                 opText.c_str()).c_str());
         } else {
-            out->writeText(SkSL::String::printf("% 5d. %.*s\n",
-                                                index + 1,
+            out->writeText(SkSL::String::printf("%.*s\n",
                                                 (int)opName.size(), opName.data()).c_str());
         }
     }

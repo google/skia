@@ -1,11 +1,11 @@
-    1. store_src_rg                   coords = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. splat_4_constants              one = 0x3F800000 (1.0)
-    4. splat_4_constants              zero = 0
-    5. copy_4_uniforms                green = colorGreen
-    6. copy_4_slots_unmasked          $0..3 = green
-    7. copy_4_slots_unmasked          $4..7 = one
-    8. mul_4_floats                   $0..3 *= $4..7
-    9. copy_4_slots_unmasked          $4..7 = zero
-   10. add_4_floats                   $0..3 += $4..7
-   11. load_src                       src.rgba = $0..3
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+splat_4_constants              one = 0x3F800000 (1.0)
+splat_4_constants              zero = 0
+copy_4_uniforms                green = colorGreen
+copy_4_slots_unmasked          $0..3 = green
+copy_4_slots_unmasked          $4..7 = one
+mul_4_floats                   $0..3 *= $4..7
+copy_4_slots_unmasked          $4..7 = zero
+add_4_floats                   $0..3 += $4..7
+load_src                       src.rgba = $0..3

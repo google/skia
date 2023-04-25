@@ -1,75 +1,75 @@
-    1. store_src_rg                   coords = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. splat_4_constants              f[0], f[1], f[2], g[0] = 0
-    4. splat_4_constants              g[1], g[2], _3_b[0], _3_b[1] = 0
-    5. splat_4_constants              _4_c[0], _4_c[1], _5_d[0], _5_d[1] = 0
-    6. splat_4_constants              _6_e[0], _6_e[1], _7_f[0], _7_f[1] = 0
-    7. store_condition_mask           $12 = CondMask
-    8. store_condition_mask           $15 = CondMask
-    9. store_condition_mask           $18 = CondMask
-   10. store_condition_mask           $21 = CondMask
-   11. store_condition_mask           $24 = CondMask
-   12. branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 6 at #15)
-   13. copy_2_slots_unmasked          x[0], x[1] = _3_b[0], _3_b[1]
-   14. copy_constant                  $25 = 0xFFFFFFFF
-   15. label                          label 0x00000006
-   16. copy_constant                  $22 = 0
-   17. merge_condition_mask           CondMask = $24 & $25
-   18. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 5 at #23)
-   19. copy_2_slots_unmasked          x[0], x[1] = _4_c[0], _4_c[1]
-   20. copy_constant                  $23 = 0xFFFFFFFF
-   21. label                          label 0x00000007
-   22. copy_slot_masked               $22 = Mask($23)
-   23. label                          label 0x00000005
-   24. load_condition_mask            CondMask = $24
-   25. copy_constant                  $19 = 0
-   26. merge_condition_mask           CondMask = $21 & $22
-   27. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 4 at #32)
-   28. copy_2_slots_unmasked          x[0], x[1] = _5_d[0], _5_d[1]
-   29. copy_constant                  $20 = 0xFFFFFFFF
-   30. label                          label 0x00000008
-   31. copy_slot_masked               $19 = Mask($20)
-   32. label                          label 0x00000004
-   33. load_condition_mask            CondMask = $21
-   34. copy_constant                  $16 = 0
-   35. merge_condition_mask           CondMask = $18 & $19
-   36. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #41)
-   37. copy_2_slots_unmasked          x[0], x[1] = _6_e[0], _6_e[1]
-   38. copy_constant                  $17 = 0xFFFFFFFF
-   39. label                          label 0x00000009
-   40. copy_slot_masked               $16 = Mask($17)
-   41. label                          label 0x00000003
-   42. load_condition_mask            CondMask = $18
-   43. copy_constant                  $13 = 0
-   44. merge_condition_mask           CondMask = $15 & $16
-   45. branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 2 at #50)
-   46. copy_2_slots_unmasked          x[0], x[1] = _7_f[0], _7_f[1]
-   47. copy_constant                  $14 = 0xFFFFFFFF
-   48. label                          label 0x0000000A
-   49. copy_slot_masked               $13 = Mask($14)
-   50. label                          label 0x00000002
-   51. load_condition_mask            CondMask = $15
-   52. copy_constant                  $0 = 0
-   53. merge_condition_mask           CondMask = $12 & $13
-   54. branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 1 at #69)
-   55. copy_4_slots_unmasked          a[0], a[1], a[2], b[0] = f[0], f[1], f[2], g[0]
-   56. copy_2_slots_unmasked          b[1], b[2] = g[1], g[2]
-   57. copy_constant                  $15 = 0xFFFFFFFF
-   58. branch_if_no_active_lanes_eq   branch +6 (label 12 at #64) if no lanes of $15 == 0xFFFFFFFF
-   59. branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 14 at #62)
-   60. copy_3_slots_unmasked          x[0]₁, x[1]₁, x[2] = b[0], b[1], b[2]
-   61. copy_constant                  $1 = 0xFFFFFFFF
-   62. label                          label 0x0000000E
-   63. jump                           jump +3 (label 13 at #66)
-   64. label                          label 0x0000000C
-   65. copy_constant                  $1 = 0
-   66. label                          label 0x0000000D
-   67. label                          label 0x0000000B
-   68. copy_slot_masked               $0 = Mask($1)
-   69. label                          label 0x00000001
-   70. load_condition_mask            CondMask = $12
-   71. swizzle_4                      $0..3 = ($0..3).xxxx
-   72. copy_4_uniforms                $4..7 = colorRed
-   73. copy_4_uniforms                $8..11 = colorGreen
-   74. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   75. load_src                       src.rgba = $0..3
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+splat_4_constants              f[0], f[1], f[2], g[0] = 0
+splat_4_constants              g[1], g[2], _3_b[0], _3_b[1] = 0
+splat_4_constants              _4_c[0], _4_c[1], _5_d[0], _5_d[1] = 0
+splat_4_constants              _6_e[0], _6_e[1], _7_f[0], _7_f[1] = 0
+store_condition_mask           $12 = CondMask
+store_condition_mask           $15 = CondMask
+store_condition_mask           $18 = CondMask
+store_condition_mask           $21 = CondMask
+store_condition_mask           $24 = CondMask
+branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 6 at #15)
+copy_2_slots_unmasked          x[0], x[1] = _3_b[0], _3_b[1]
+copy_constant                  $25 = 0xFFFFFFFF
+label                          label 0x00000006
+copy_constant                  $22 = 0
+merge_condition_mask           CondMask = $24 & $25
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 5 at #23)
+copy_2_slots_unmasked          x[0], x[1] = _4_c[0], _4_c[1]
+copy_constant                  $23 = 0xFFFFFFFF
+label                          label 0x00000007
+copy_slot_masked               $22 = Mask($23)
+label                          label 0x00000005
+load_condition_mask            CondMask = $24
+copy_constant                  $19 = 0
+merge_condition_mask           CondMask = $21 & $22
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 4 at #32)
+copy_2_slots_unmasked          x[0], x[1] = _5_d[0], _5_d[1]
+copy_constant                  $20 = 0xFFFFFFFF
+label                          label 0x00000008
+copy_slot_masked               $19 = Mask($20)
+label                          label 0x00000004
+load_condition_mask            CondMask = $21
+copy_constant                  $16 = 0
+merge_condition_mask           CondMask = $18 & $19
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #41)
+copy_2_slots_unmasked          x[0], x[1] = _6_e[0], _6_e[1]
+copy_constant                  $17 = 0xFFFFFFFF
+label                          label 0x00000009
+copy_slot_masked               $16 = Mask($17)
+label                          label 0x00000003
+load_condition_mask            CondMask = $18
+copy_constant                  $13 = 0
+merge_condition_mask           CondMask = $15 & $16
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 2 at #50)
+copy_2_slots_unmasked          x[0], x[1] = _7_f[0], _7_f[1]
+copy_constant                  $14 = 0xFFFFFFFF
+label                          label 0x0000000A
+copy_slot_masked               $13 = Mask($14)
+label                          label 0x00000002
+load_condition_mask            CondMask = $15
+copy_constant                  $0 = 0
+merge_condition_mask           CondMask = $12 & $13
+branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 1 at #69)
+copy_4_slots_unmasked          a[0], a[1], a[2], b[0] = f[0], f[1], f[2], g[0]
+copy_2_slots_unmasked          b[1], b[2] = g[1], g[2]
+copy_constant                  $15 = 0xFFFFFFFF
+branch_if_no_active_lanes_eq   branch +6 (label 12 at #64) if no lanes of $15 == 0xFFFFFFFF
+branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 14 at #62)
+copy_3_slots_unmasked          x[0]₁, x[1]₁, x[2] = b[0], b[1], b[2]
+copy_constant                  $1 = 0xFFFFFFFF
+label                          label 0x0000000E
+jump                           jump +3 (label 13 at #66)
+label                          label 0x0000000C
+copy_constant                  $1 = 0
+label                          label 0x0000000D
+label                          label 0x0000000B
+copy_slot_masked               $0 = Mask($1)
+label                          label 0x00000001
+load_condition_mask            CondMask = $12
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_uniforms                $4..7 = colorRed
+copy_4_uniforms                $8..11 = colorGreen
+mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+load_src                       src.rgba = $0..3
