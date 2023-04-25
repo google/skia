@@ -38,7 +38,7 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
     GrResourceCache::ReturnResourceFromThread(std::move(fOriginalTexture), fOwningContextID);
 }
 
-std::unique_ptr<SkImageGenerator>
+std::unique_ptr<GrTextureGenerator>
 GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture,
                                      GrSurfaceOrigin origin,
                                      std::unique_ptr<GrSemaphore> semaphore,
@@ -53,7 +53,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture,
     }
 
     SkColorInfo info(colorType, alphaType, std::move(colorSpace));
-    return std::unique_ptr<SkImageGenerator>(new GrBackendTextureImageGenerator(
+    return std::unique_ptr<GrTextureGenerator>(new GrBackendTextureImageGenerator(
             info,
             std::move(texture),
             origin,

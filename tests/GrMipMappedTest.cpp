@@ -65,7 +65,6 @@
 #include <utility>
 
 class GrRenderTask;
-class SkImageGenerator;
 
 #if defined(SK_DIRECT3D)
 #include "include/gpu/d3d/GrD3DTypes.h"
@@ -203,14 +202,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                 return;
             }
 
-            std::unique_ptr<SkImageGenerator> imageGen = GrBackendTextureImageGenerator::Make(
+            std::unique_ptr<GrTextureGenerator> textureGen = GrBackendTextureImageGenerator::Make(
                     texture, kTopLeft_GrSurfaceOrigin, nullptr, kRGBA_8888_SkColorType,
                     kPremul_SkAlphaType, nullptr);
-            REPORTER_ASSERT(reporter, imageGen);
-            if (!imageGen) {
+            REPORTER_ASSERT(reporter, textureGen);
+            if (!textureGen) {
                 return;
             }
-            auto textureGen = static_cast<GrTextureGenerator*>(imageGen.get());
 
             SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
