@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkUtils.h"
 #include "tests/Test.h"
@@ -12,8 +13,11 @@
 #include <array>
 #include <cfloat>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <limits>
+
+
 
 DEF_TEST(DoubleNearlyZero, reporter) {
     REPORTER_ASSERT(reporter, sk_double_nearly_zero(0.));
@@ -51,7 +55,6 @@ DEF_TEST(DoubleNearlyEqualUlps, reporter) {
     REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(100.5, 100.5 - DBL_EPSILON));
     REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(100.5, 100.5 + DBL_EPSILON));
 
-
     // Our tolerance is tighter than FLT_EPSILON
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(1., 1. - FLT_EPSILON));
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(1., 1. + FLT_EPSILON));
@@ -63,8 +66,45 @@ DEF_TEST(DoubleNearlyEqualUlps, reporter) {
     REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(INFINITY, INFINITY));
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(INFINITY, 10));
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(10, INFINITY));
-
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(NAN, INFINITY));
+
+    REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(INFINITY, -INFINITY));
+    REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(-INFINITY, INFINITY));
+    REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(-INFINITY, -INFINITY));
+
+    // Test values upto the edge of infinity.
+    const double biggest = std::numeric_limits<double>::max();
+    auto almostBiggest = [&](int n) {
+        double almostBiggest = biggest;
+        for (int i = 0; i < n; ++i) {
+            almostBiggest = std::nextafter(almostBiggest, -INFINITY);
+        }
+        return almostBiggest;
+    };
+    const double nextBiggest = almostBiggest(1);
+    REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(biggest, nextBiggest));
+    REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(biggest, almostBiggest(15)));
+    REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(biggest, almostBiggest(20)));
+
+    // One ulp less would be infinity.
+    const uint64_t smallestNANPattern =
+            0b0'11111111111'0000000000000000000000000000000000000000000000000001;
+    double smallestNAN;
+    memcpy(&smallestNAN, &smallestNANPattern, sizeof(double));
+    SkASSERT(std::isnan(smallestNAN));
+    SkASSERT(biggest != nextBiggest);
+
+    // The following tests are *wrong*. All the following should return false.
+    REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(INFINITY, biggest));
+    REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(smallestNAN, biggest));
+    REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(smallestNAN, INFINITY));
+
+    // The following tests assert, but should work.
+    // const double smallest = std::numeric_limits<double>::denorm_min();
+    //REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(NAN, NAN));
+    //REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(smallest, -smallest));
+    //REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(8*smallest, -8*smallest));
+    //REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(10*smallest, -10*smallest));
 }
 
 DEF_TEST(BitCastDoubleRoundTrip, reporter) {
