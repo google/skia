@@ -60,17 +60,17 @@ static wgpu::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
     }
 }
 
-static wgpu::FilterMode to_dawn_mipmap_mode(GrSamplerState::MipmapMode mode) {
+static wgpu::MipmapFilterMode to_dawn_mipmap_mode(GrSamplerState::MipmapMode mode) {
     switch (mode) {
         case GrSamplerState::MipmapMode::kNone:
             // Fall-through (Dawn does not have an equivalent for "None")
         case GrSamplerState::MipmapMode::kNearest:
-            return wgpu::FilterMode::Nearest;
+            return wgpu::MipmapFilterMode::Nearest;
         case GrSamplerState::MipmapMode::kLinear:
-            return wgpu::FilterMode::Linear;
+            return wgpu::MipmapFilterMode::Linear;
         default:
             SkDEBUGFAIL("unsupported filter mode");
-            return wgpu::FilterMode::Nearest;
+            return wgpu::MipmapFilterMode::Nearest;
     }
 }
 
@@ -966,7 +966,8 @@ wgpu::Sampler GrDawnGpu::getOrCreateSampler(GrSamplerState samplerState) {
     desc.maxAnisotropy = samplerState.maxAniso();
     if (samplerState.isAniso()) {
         // WebGPU requires these to be linear when maxAnisotropy is > 1.
-        desc.magFilter = desc.minFilter = desc.mipmapFilter = wgpu::FilterMode::Linear;
+        desc.magFilter = desc.minFilter = wgpu::FilterMode::Linear;
+        desc.mipmapFilter = wgpu::MipmapFilterMode::Linear;
     } else {
         desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
         desc.mipmapFilter = to_dawn_mipmap_mode(samplerState.mipmapMode());

@@ -25,19 +25,18 @@ wgpu::FilterMode filter_mode_to_dawn_filter_mode(SkFilterMode mode) {
     SkUNREACHABLE;
 }
 
-wgpu::FilterMode mipmap_mode_to_dawn_filter_mode(SkMipmapMode mode) {
+wgpu::MipmapFilterMode mipmap_mode_to_dawn_filter_mode(SkMipmapMode mode) {
     switch (mode) {
         case SkMipmapMode::kNone:
             // Dawn doesn't have none filter mode.
-            return wgpu::FilterMode::Nearest;
+            return wgpu::MipmapFilterMode::Nearest;
         case SkMipmapMode::kNearest:
-            return wgpu::FilterMode::Nearest;
+            return wgpu::MipmapFilterMode::Nearest;
         case SkMipmapMode::kLinear:
-            return wgpu::FilterMode::Linear;
+            return wgpu::MipmapFilterMode::Linear;
     }
     SkUNREACHABLE;
 }
-
 }
 
 DawnSampler::DawnSampler(const DawnSharedContext* sharedContext,
