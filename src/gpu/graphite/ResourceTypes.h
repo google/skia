@@ -55,13 +55,19 @@ enum class Layout {
 };
 
 /**
- * When creating the memory for a resource should we use a memory type that prioritizes the
- * effeciency of GPU reads even if it involves extra work to write CPU data to it. For example, we
- * would want this for buffers that we cache to read the same data many times on the GPU.
+ * Indicates the intended access pattern over resource memory. This is used to select the most
+ * efficient memory type during resource creation based on the capabilities of the platform.
+ *
+ * This is only a hint and the actual memory type will be determined based on the resource type and
+ * backend capabilities.
  */
-enum class PrioritizeGpuReads : bool {
-    kNo = false,
-    kYes = true,
+enum class AccessPattern : int {
+    // GPU-only memory does not need to support reads/writes from the CPU. GPU-private memory will
+    // be preferred if the backend supports an efficient private memory type.
+    kGpuOnly,
+
+    // The resource needs to be CPU visible, e.g. for read-back or as a copy/upload source.
+    kHostVisible,
 };
 
 /**

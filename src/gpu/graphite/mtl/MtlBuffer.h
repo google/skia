@@ -19,10 +19,7 @@ class MtlSharedContext;
 
 class MtlBuffer : public Buffer {
 public:
-    static sk_sp<Buffer> Make(const MtlSharedContext*,
-                              size_t size,
-                              BufferType type,
-                              PrioritizeGpuReads);
+    static sk_sp<Buffer> Make(const MtlSharedContext*, size_t size, BufferType type, AccessPattern);
 
     id<MTLBuffer> mtlBuffer() const { return fBuffer.get(); }
 

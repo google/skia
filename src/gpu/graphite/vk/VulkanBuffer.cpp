@@ -16,7 +16,7 @@ namespace skgpu::graphite {
 sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
                                  size_t size,
                                  BufferType type,
-                                 PrioritizeGpuReads prioritizeGpuReads) {
+                                 AccessPattern accessPattern) {
     if (size <= 0) {
         return nullptr;
     }
@@ -27,7 +27,7 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     // memory has faster reads on the gpu than memory that is also mappable on the cpu. Protected
     // memory always uses mappable buffers.
     bool requiresMappable = sharedContext->isProtected() == Protected::kYes ||
-                            prioritizeGpuReads == PrioritizeGpuReads::kNo ||
+                            accessPattern == AccessPattern::kHostVisible ||
                             !sharedContext->vulkanCaps().gpuOnlyBuffersMorePerformant();
 
     using BufferUsage = skgpu::VulkanMemoryAllocator::BufferUsage;
@@ -144,26 +144,21 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     //     }
     // }
 
-    return sk_sp<Buffer>(new VulkanBuffer(sharedContext,
-                                          size,
-                                          type,
-                                          prioritizeGpuReads,
-                                          std::move(buffer),
-                                          alloc,
-                                          bufInfo.usage));
+    return sk_sp<Buffer>(new VulkanBuffer(
+            sharedContext, size, type, accessPattern, std::move(buffer), alloc, bufInfo.usage));
 }
 
 VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            size_t size,
                            BufferType type,
-                           PrioritizeGpuReads prioritizeGpuReads,
+                           AccessPattern accessPattern,
                            VkBuffer buffer,
                            const skgpu::VulkanAlloc& alloc,
                            const VkBufferUsageFlags usageFlags)
         : Buffer(sharedContext, size)
         , fBuffer(std::move(buffer))
         , fAlloc(alloc)
-        , fBufferUsageFlags (usageFlags)
+        , fBufferUsageFlags(usageFlags)
         // We assume a buffer is used for CPU reads only in the case of GPU->CPU transfer buffers.
         , fBufferUsedForCPURead(type == BufferType::kXferGpuToCpu) {}
 

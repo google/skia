@@ -199,8 +199,8 @@ sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions,
 
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,
                                                  BufferType type,
-                                                 PrioritizeGpuReads prioritizeGpuReads) {
-    return DawnBuffer::Make(this->dawnSharedContext(), size, type, prioritizeGpuReads);
+                                                 AccessPattern accessPattern) {
+    return DawnBuffer::Make(this->dawnSharedContext(), size, type, accessPattern);
 }
 
 sk_sp<Sampler> DawnResourceProvider::createSampler(const SkSamplingOptions& options,

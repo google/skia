@@ -219,8 +219,8 @@ sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& t
 
 sk_sp<Buffer> MtlResourceProvider::createBuffer(size_t size,
                                                 BufferType type,
-                                                PrioritizeGpuReads prioritizeGpuReads) {
-    return MtlBuffer::Make(this->mtlSharedContext(), size, type, prioritizeGpuReads);
+                                                AccessPattern accessPattern) {
+    return MtlBuffer::Make(this->mtlSharedContext(), size, type, accessPattern);
 }
 
 sk_sp<Sampler> MtlResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,

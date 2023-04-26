@@ -284,7 +284,7 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         info->fBuffer = fResourceProvider->findOrCreateBuffer(
                 bufferSize,
                 info->fType,
-                useTransferBuffer ? PrioritizeGpuReads::kYes : PrioritizeGpuReads::kNo);
+                useTransferBuffer ? AccessPattern::kGpuOnly : AccessPattern::kHostVisible);
         info->fOffset = 0;
         if (!info->fBuffer) {
             return {};
@@ -293,9 +293,7 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
 
     if (useTransferBuffer && !info->fTransferBuffer) {
         info->fTransferBuffer = fResourceProvider->findOrCreateBuffer(
-                info->fBuffer->size(),
-                BufferType::kXferCpuToGpu,
-                PrioritizeGpuReads::kNo);
+                info->fBuffer->size(), BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
         SkASSERT(info->fBuffer->size() == info->fTransferBuffer->size());
         SkASSERT(info->fOffset == 0);
         if (!info->fTransferBuffer) {
@@ -359,9 +357,7 @@ void* StaticBufferManager::prepareStaticData(BufferInfo* info,
     if (!fCurrentTransferBuffer) {
         size_t bufferSize = sufficient_block_size(size, kStaticTransferBufferSize);
         fCurrentTransferBuffer = fResourceProvider->findOrCreateBuffer(
-                bufferSize,
-                BufferType::kXferCpuToGpu,
-                PrioritizeGpuReads::kNo);
+                bufferSize, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
         fCurrentOffset = 0;
     }
 
@@ -385,9 +381,7 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
     }
 
     sk_sp<Buffer> staticBuffer = resourceProvider->findOrCreateBuffer(
-            fTotalRequiredBytes,
-            fBufferType,
-            PrioritizeGpuReads::kYes);
+            fTotalRequiredBytes, fBufferType, AccessPattern::kGpuOnly);
     if (!staticBuffer) {
         SKGPU_LOG_E("Failed to create static buffer for type %d of size %zu bytes.\n",
                     (int) fBufferType, fTotalRequiredBytes);

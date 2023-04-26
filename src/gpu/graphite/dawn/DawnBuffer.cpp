@@ -30,7 +30,7 @@ static const char* kBufferTypeNames[kBufferTypeCount] = {
 sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                                size_t size,
                                BufferType type,
-                               PrioritizeGpuReads prioritizeGpuReads) {
+                               AccessPattern) {
     if (size <= 0) {
         return nullptr;
     }

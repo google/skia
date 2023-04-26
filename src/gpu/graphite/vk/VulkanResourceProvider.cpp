@@ -57,8 +57,8 @@ sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size, const Texture
 
 sk_sp<Buffer> VulkanResourceProvider::createBuffer(size_t size,
                                                    BufferType type,
-                                                   PrioritizeGpuReads prioritizeGpuReads) {
-    return VulkanBuffer::Make(this->vulkanSharedContext(), size, type, prioritizeGpuReads);
+                                                   AccessPattern accessPattern) {
+    return VulkanBuffer::Make(this->vulkanSharedContext(), size, type, accessPattern);
 }
 
 sk_sp<Sampler> VulkanResourceProvider::createSampler(const SkSamplingOptions& samplingOptions,
