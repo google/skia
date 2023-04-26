@@ -313,6 +313,27 @@ sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
     return nullptr;
 }
 
+static skif::Context make_context(const SkIRect& out, const SkSpecialImage* src) {
+    skif::Mapping mapping{SkMatrix::I()};
+    skif::LayerSpace<SkIRect> desiredOutput{out};
+    skif::FilterResult source{sk_ref_sp(src)};
+    skif::ContextInfo ctxInfo = {skif::Mapping(SkMatrix::I()),
+                                 skif::LayerSpace<SkIRect>(out),
+                                 skif::FilterResult(sk_ref_sp(src)),
+                                 src->colorType(),
+                                 src->getColorSpace(),
+                                 src->props(),
+                                 /*cache=*/nullptr};
+    if (src->isTextureBacked()) {
+        return skif::Context::MakeGanesh(src->getContext(), kTestSurfaceOrigin, ctxInfo);
+    } else {
+        return skif::Context::MakeRaster(ctxInfo);
+    }
+}
+static skif::Context make_context(int outWidth, int outHeight, const SkSpecialImage* src) {
+    return make_context(SkIRect::MakeWH(outWidth, outHeight), src);
+}
+
 static sk_sp<SkImage> make_small_image() {
     auto surface(SkSurface::MakeRasterN32Premul(kBitmapSize, kBitmapSize));
     SkCanvas* canvas = surface->getCanvas();
@@ -530,8 +551,7 @@ static void test_cropRects(skiatest::Reporter* reporter, GrRecordingContext* rCo
     for (int i = 0; i < filters.count(); ++i) {
         SkImageFilter* filter = filters.getFilter(i);
         SkIPoint offset;
-        SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr,
-                                        kN32_SkColorType, nullptr, srcImg.get());
+        skif::Context ctx = make_context(100, 100, srcImg.get());
         sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
         REPORTER_ASSERT(reporter, resultImg, "%s", filters.getName(i));
         REPORTER_ASSERT(reporter, offset.fX == 20 && offset.fY == 30, "%s", filters.getName(i));
@@ -568,8 +588,7 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
                                           SkSurfaceProps()));
 
     SkIPoint offset;
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
-                                    kN32_SkColorType, nullptr, imgSrc.get());
+    skif::Context ctx = make_context(32, 32, imgSrc.get());
 
     sk_sp<SkSpecialImage> positiveResult1(
             as_IFB(positiveFilter)->filterImage(ctx).imageAndOffset(&offset));
@@ -581,8 +600,7 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
 
     SkMatrix negativeScale;
     negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
-    SkImageFilter_Base::Context negativeCTX(negativeScale, SkIRect::MakeWH(32, 32), nullptr,
-                                            kN32_SkColorType, nullptr, imgSrc.get());
+    skif::Context negativeCTX = ctx.withNewMapping(skif::Mapping(negativeScale));
 
     sk_sp<SkSpecialImage> negativeResult2(
             as_IFB(positiveFilter)->filterImage(negativeCTX).imageAndOffset(&offset));
@@ -664,8 +682,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
                                           SkSurfaceProps()));
 
     SkIPoint offset;
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
-                                    kN32_SkColorType, nullptr, imgSrc.get());
+    skif::Context ctx = make_context(32, 32, imgSrc.get());
 
     sk_sp<SkSpecialImage> normalResult(
             as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
@@ -674,8 +691,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     SkMatrix mirrorX;
     mirrorX.setTranslate(0, SkIntToScalar(32));
     mirrorX.preScale(SK_Scalar1, -SK_Scalar1);
-    SkImageFilter_Base::Context mirrorXCTX(mirrorX, SkIRect::MakeWH(32, 32), nullptr,
-                                           kN32_SkColorType, nullptr, imgSrc.get());
+    skif::Context mirrorXCTX = ctx.withNewMapping(skif::Mapping(mirrorX));
 
     sk_sp<SkSpecialImage> mirrorXResult(
             as_IFB(filter)->filterImage(mirrorXCTX).imageAndOffset(&offset));
@@ -684,8 +700,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     SkMatrix mirrorY;
     mirrorY.setTranslate(SkIntToScalar(32), 0);
     mirrorY.preScale(-SK_Scalar1, SK_Scalar1);
-    SkImageFilter_Base::Context mirrorYCTX(mirrorY, SkIRect::MakeWH(32, 32), nullptr,
-                                           kN32_SkColorType, nullptr, imgSrc.get());
+    skif::Context mirrorYCTX = ctx.withNewMapping(skif::Mapping(mirrorY));
 
     sk_sp<SkSpecialImage> mirrorYResult(
             as_IFB(filter)->filterImage(mirrorYCTX).imageAndOffset(&offset));
@@ -740,8 +755,8 @@ static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrDirectContext* 
     sk_sp<SkSpecialImage> image(surf->makeImageSnapshot());
 
     SkIPoint offset;
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
-                                    kN32_SkColorType, nullptr, image.get());
+    skif::Context ctx = make_context(32, 32, image.get());
+
 
     sk_sp<SkSpecialImage> result(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
     REPORTER_ASSERT(reporter, offset.fX == 5 && offset.fY == 0);
@@ -780,8 +795,8 @@ static void test_fail_affects_transparent_black(skiatest::Reporter* reporter,
                                                 GrDirectContext* dContext) {
     sk_sp<FailImageFilter> failFilter(new FailImageFilter());
     sk_sp<SkSpecialImage> source(create_empty_special_image(dContext, 5));
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 1, 1), nullptr,
-                                    kN32_SkColorType, nullptr, source.get());
+    skif::Context ctx = make_context(1, 1, source.get());
+
     sk_sp<SkColorFilter> green(SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrc));
     SkASSERT(as_CFB(green)->affectsTransparentBlack());
     sk_sp<SkImageFilter> greenFilter(SkImageFilters::ColorFilter(std::move(green),
@@ -1068,8 +1083,7 @@ static void test_imagefilter_merge_result_size(skiatest::Reporter* reporter,
 
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(rContext, 1));
 
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 100, 100), nullptr,
-                                    kN32_SkColorType, nullptr, srcImg.get());
+    skif::Context ctx = make_context(100, 100, srcImg.get());
     SkIPoint offset;
 
     sk_sp<SkSpecialImage> resultImg(as_IFB(merge)->filterImage(ctx).imageAndOffset(&offset));
@@ -1230,8 +1244,7 @@ static void test_big_kernel(skiatest::Reporter* reporter, GrRecordingContext* rC
     SkASSERT(srcImg);
 
     SkIPoint offset;
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr,
-                                    kN32_SkColorType, nullptr, srcImg.get());
+    skif::Context ctx = make_context(100, 100, srcImg.get());
     sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
     REPORTER_ASSERT(reporter, resultImg);
     REPORTER_ASSERT(reporter, SkToBool(rContext) == resultImg->isTextureBacked());
@@ -1308,8 +1321,7 @@ static void test_clipped_picture_imagefilter(skiatest::Reporter* reporter,
     sk_sp<SkImageFilter> imageFilter(SkImageFilters::Picture(picture));
 
     SkIPoint offset;
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(1, 1, 1, 1), nullptr,
-                                    kN32_SkColorType, nullptr, srcImg.get());
+    skif::Context ctx = make_context(SkIRect::MakeXYWH(1,1,1,1), srcImg.get());
 
     sk_sp<SkSpecialImage> resultImage(
             as_IFB(imageFilter)->filterImage(ctx).imageAndOffset(&offset));
@@ -1538,8 +1550,7 @@ static void test_composed_imagefilter_offset(skiatest::Reporter* reporter,
     sk_sp<SkImageFilter> composedFilter(SkImageFilters::Compose(std::move(blurFilter),
                                                                 std::move(offsetFilter)));
     SkIPoint offset;
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr,
-                                    kN32_SkColorType, nullptr, srcImg.get());
+    skif::Context ctx = make_context(100, 100, srcImg.get());
 
     sk_sp<SkSpecialImage> resultImg(
             as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(&offset));
@@ -1578,8 +1589,8 @@ static void test_composed_imagefilter_bounds(skiatest::Reporter* reporter,
                                                                 std::move(pictureFilter)));
 
     sk_sp<SkSpecialImage> sourceImage(create_empty_special_image(dContext, 100));
-    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr,
-                                    kN32_SkColorType, nullptr, sourceImage.get());
+    skif::Context ctx = make_context(100, 100, sourceImage.get());
+
     SkIPoint offset;
     sk_sp<SkSpecialImage> result(
             as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(&offset));

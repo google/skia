@@ -7,11 +7,9 @@
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -20,6 +18,7 @@
 
 #include <utility>
 
+class SkMatrix;
 class SkReadBuffer;
 
 namespace {
@@ -96,20 +95,12 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(const Context& ctx,
         return nullptr;
     }
 
-    // TODO (michaelludwig) - Once all filters are updated to process coordinate spaces more
-    // robustly, we can allow source images to have non-(0,0) origins, which will mean that the
-    // CTM/clipBounds modifications for the outerContext can go away.
-    SkMatrix outerMatrix(ctx.ctm());
-    outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
-    SkIRect clipBounds = ctx.clipBounds();
-    clipBounds.offset(-innerOffset.x(), -innerOffset.y());
     // NOTE: This is the only spot in image filtering where the source image of the context
     // is not constant for the entire DAG evaluation. Given that the inner and outer DAG branches
     // were already created, there's no alternative way for the leaf nodes of the outer DAG to
     // get the results of the inner DAG. Overriding the source image of the context has the correct
     // effect, but means that the source image is not fixed for the entire filter process.
-    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.colorType(), ctx.colorSpace(),
-                         inner.get());
+    Context outerContext = ctx.withNewSource(inner, skif::LayerSpace<SkIPoint>(innerOffset));
 
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> outer(this->filterInput(0, outerContext, &outerOffset));
@@ -117,6 +108,10 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(const Context& ctx,
         return nullptr;
     }
 
+    // TODO: Remove including innerOffset in this calculation once withNewSource() does not change
+    // the param-to-layer matrix. Once all filter implementations support non (0,0) source origins,
+    // Compose() will not change the param-to-layer mapping. Any impact from innerOffset will be
+    // automatically taken into account by the inner FilterResult's internal origin.
     *offset = innerOffset + outerOffset;
     return outer;
 }

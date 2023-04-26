@@ -229,8 +229,13 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
              context.source().layerBounds().right() == context.source().image()->width() &&
              context.source().layerBounds().bottom() == context.source().image()->height());
 
+    // TODO: Once all image filters operate on FilterResult, we should allow null source images.
+    // Right now image filter DAGs that do not read from a null child (e.g. no dynamic context)
+    // still require a source image that is nevertheless unused.
     skif::FilterResult result;
-    if (context.desiredOutput().isEmpty() || !context.isValid()) {
+    if (context.desiredOutput().isEmpty() ||
+        !context.source() ||
+        !context.mapping().layerMatrix().isFinite()) {
         return result;
     }
 

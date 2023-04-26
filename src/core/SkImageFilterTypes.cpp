@@ -10,6 +10,7 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkSpecialSurface.h"
 
 // This exists to cover up issues where infinite precision would produce integers but float
 // math produces values just larger/smaller than an int and roundOut/In on bounds would produce
@@ -92,6 +93,36 @@ namespace skif {
 SkIRect RoundOut(SkRect r) { return r.makeInset(kRoundEpsilon, kRoundEpsilon).roundOut(); }
 
 SkIRect RoundIn(SkRect r) { return r.makeOutset(kRoundEpsilon, kRoundEpsilon).roundIn(); }
+
+sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
+                                             const SkSurfaceProps* props) const {
+    if (!props) {
+        props = &fInfo.fSurfaceProps;
+    }
+
+    SkImageInfo imageInfo = SkImageInfo::Make(size,
+                                              fInfo.fColorType,
+                                              kPremul_SkAlphaType,
+                                              sk_ref_sp(fInfo.fColorSpace));
+
+#if defined(SK_GANESH)
+    if (fGaneshContext) {
+        // FIXME: Context should also store a surface origin that matches the source origin
+        return SkSpecialSurface::MakeRenderTarget(fGaneshContext,
+                                                  imageInfo,
+                                                  fInfo.fSurfaceProps,
+                                                  fGaneshOrigin);
+    } else
+#endif
+#if defined(SK_GRAPHITE)
+    if (fGraphiteRecorder) {
+        return SkSpecialSurface::MakeGraphite(fGraphiteRecorder, imageInfo, fInfo.fSurfaceProps);
+    } else
+#endif
+    {
+        return SkSpecialSurface::MakeRaster(imageInfo, fInfo.fSurfaceProps);
+    }
+}
 
 bool Mapping::decomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                            const skif::ParameterSpace<SkPoint>& representativePt) {

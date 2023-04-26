@@ -37,7 +37,11 @@ struct SkIRect;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 
-namespace skif { class Mapping; }
+namespace skif {
+class Context;
+struct ContextInfo;
+class Mapping;
+}
 namespace skgpu::ganesh {
 class Device;
 }
@@ -453,6 +457,9 @@ protected:
     // SkCanvas uses NoPixelsDevice when onCreateDevice fails; but then it needs to be able to
     // inspect a layer's device to know if calling drawDevice() later is allowed.
     virtual bool isNoPixelsDevice() const { return false; }
+
+    // Defaults to a CPU image filtering context.
+    virtual skif::Context createContext(const skif::ContextInfo&) const;
 
     // Returns whether or not localToDevice() has changed since the last call to this function.
     bool checkLocalToDeviceDirty() {
