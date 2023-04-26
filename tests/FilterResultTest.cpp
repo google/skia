@@ -114,11 +114,9 @@ public:
     // while evaluating a filter DAG, which is outside of skif::FilterResult's responsibilities.
     LayerSpace<SkIRect> requiredInput(const LayerSpace<SkIRect>& desiredOutput) const {
         if (auto* t = std::get_if<TransformParams>(&fAction)) {
-            LayerSpace<SkMatrix> inverse;
-            if (!t->fMatrix.invert(&inverse)) {
-                return LayerSpace<SkIRect>::Empty();
-            }
-            return inverse.mapRect(desiredOutput);
+            LayerSpace<SkIRect> out;
+            return t->fMatrix.inverseMapRect(desiredOutput, &out)
+                    ? out : LayerSpace<SkIRect>::Empty();
         } else if (auto* c = std::get_if<CropParams>(&fAction)) {
             LayerSpace<SkIRect> intersection = c->fRect;
             if (!intersection.intersect(desiredOutput)) {

@@ -155,11 +155,10 @@ skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetInputLayerBounds(
         VisitChildren recurse) const {
     // The required input for this filter to cover 'desiredOutput' is the smallest rectangle such
     // that after being transformed by the layer-space adjusted 'fTransform', it contains the output
-    skif::LayerSpace<SkMatrix> inverse;
-    if (!mapping.paramToLayer(fTransform).invert(&inverse)) {
+    skif::LayerSpace<SkIRect> requiredInput;
+    if (!mapping.paramToLayer(fTransform).inverseMapRect(desiredOutput, &requiredInput)) {
         return skif::LayerSpace<SkIRect>::Empty();
     }
-    skif::LayerSpace<SkIRect> requiredInput = inverse.mapRect(desiredOutput);
 
     // Additionally if there is any filtering beyond nearest neighbor, we request an extra buffer of
     // pixels so that the content is available to the bilerp/bicubic kernel.

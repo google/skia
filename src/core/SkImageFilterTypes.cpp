@@ -87,6 +87,42 @@ static SkIRect map_rect(const SkMatrix& matrix, const SkIRect& rect) {
     }
 }
 
+static bool inverse_map_rect(const SkMatrix& matrix, const SkRect& rect, SkRect* out) {
+    if (rect.isEmpty()) {
+        *out = SkRect::MakeEmpty();
+        return true;
+    }
+    return SkMatrixPriv::InverseMapRect(matrix, out, rect);
+}
+
+static bool inverse_map_rect(const SkMatrix& matrix, const SkIRect& rect, SkIRect* out) {
+    if (rect.isEmpty()) {
+        *out = SkIRect::MakeEmpty();
+        return true;
+    }
+    // This is a specialized inverse equivalent to the 1px precision preserving map_rect above.
+    if (matrix.isScaleTranslate()) {
+        double l = (rect.fLeft   - (double)matrix.getTranslateX()) / (double)matrix.getScaleX();
+        double r = (rect.fRight  - (double)matrix.getTranslateX()) / (double)matrix.getScaleX();
+        double t = (rect.fTop    - (double)matrix.getTranslateY()) / (double)matrix.getScaleY();
+        double b = (rect.fBottom - (double)matrix.getTranslateY()) / (double)matrix.getScaleY();
+
+        *out = {sk_double_saturate2int(sk_double_floor(std::min(l, r) + kRoundEpsilon)),
+                sk_double_saturate2int(sk_double_floor(std::min(t, b) + kRoundEpsilon)),
+                sk_double_saturate2int(sk_double_ceil(std::max(l, r)  - kRoundEpsilon)),
+                sk_double_saturate2int(sk_double_ceil(std::max(t, b)  - kRoundEpsilon))};
+        return true;
+    } else {
+        SkRect mapped;
+        if (inverse_map_rect(matrix, SkRect::Make(rect), &mapped)) {
+            *out = skif::RoundOut(mapped);
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 namespace skif {
 
 SkIRect RoundOut(SkRect r) { return r.makeInset(kRoundEpsilon, kRoundEpsilon).roundOut(); }
@@ -226,6 +262,28 @@ LayerSpace<SkIRect> LayerSpace<SkMatrix>::mapRect(const LayerSpace<SkIRect>& r) 
     return LayerSpace<SkIRect>(map_rect(fData, SkIRect(r)));
 }
 
+bool LayerSpace<SkMatrix>::inverseMapRect(const LayerSpace<SkRect>& r,
+                                          LayerSpace<SkRect>* out) const {
+    SkRect mapped;
+    if (inverse_map_rect(fData, SkRect(r), &mapped)) {
+        *out = LayerSpace<SkRect>(mapped);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool LayerSpace<SkMatrix>::inverseMapRect(const LayerSpace<SkIRect>& r,
+                                          LayerSpace<SkIRect>* out) const {
+    SkIRect mapped;
+    if (inverse_map_rect(fData, SkIRect(r), &mapped)) {
+        *out = LayerSpace<SkIRect>(mapped);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 sk_sp<SkSpecialImage> FilterResult::imageAndOffset(SkIPoint* offset) const {
     auto [image, origin] = this->resolve(fLayerBounds);
     *offset = SkIPoint(origin);
@@ -353,9 +411,13 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
     } else {
         // We'll have to resolve this FilterResult first before 'transform' and 'sampling' can be
         // correctly evaluated. 'nextSampling' will always be 'sampling'.
-        transformed = this->resolve(fLayerBounds);
+        LayerSpace<SkIRect> tightBounds;
+        if (transform.inverseMapRect(ctx.desiredOutput(), &tightBounds)) {
+            transformed = this->resolve(tightBounds);
+        }
+
         if (!transformed.fImage) {
-            // Resolve failed to create an image, so don't bother update metadata
+            // Transform not invertible or resolve failed to create an image
             return {};
         }
     }

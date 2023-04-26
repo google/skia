@@ -468,6 +468,11 @@ public:
         return fData.invert(&inverse->fData);
     }
 
+    // Transforms 'r' by the inverse of this matrix if it is invertible and stores it in 'out'.
+    // Returns false if not invertible, in which case 'out' is undefined.
+    bool inverseMapRect(const LayerSpace<SkRect>& r, LayerSpace<SkRect>* out) const;
+    bool inverseMapRect(const LayerSpace<SkIRect>& r, LayerSpace<SkIRect>* out) const;
+
     float rc(int row, int col) const { return fData.rc(row, col); }
     float get(int i) const { return fData.get(i); }
 
