@@ -22,15 +22,6 @@ public:
         if (fState->fPixmap.isOpaque() && (255 == this->getPaintAlpha())) {
             fFlags |= SkShaderBase::kOpaqueAlpha_Flag;
         }
-
-        auto only_scale_and_translate = [](const SkMatrix& matrix) {
-            unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
-            return (matrix.getType() & ~mask) == 0;
-        };
-
-        if (1 == fState->fPixmap.height() && only_scale_and_translate(this->getTotalInverse())) {
-            fFlags |= SkShaderBase::kConstInY32_Flag;
-        }
     }
 
     uint32_t getFlags() const override { return fFlags; }

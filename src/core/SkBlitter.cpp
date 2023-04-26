@@ -800,19 +800,13 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
                                  SkShaderBase::Context* shaderContext)
         : INHERITED(device)
-        , fShader(paint.getShader())
+        , fShader(paint.refShader())
         , fShaderContext(shaderContext) {
     SkASSERT(fShader);
     SkASSERT(fShaderContext);
-
-    fShader->ref();
-    fShaderFlags = fShaderContext->getFlags();
-    fConstInY = SkToBool(fShaderFlags & SkShaderBase::kConstInY32_Flag);
 }
 
-SkShaderBlitter::~SkShaderBlitter() {
-    fShader->unref();
-}
+SkShaderBlitter::~SkShaderBlitter() = default;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

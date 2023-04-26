@@ -115,17 +115,6 @@ public:
     enum Flags {
         //!< set if all of the colors will be opaque
         kOpaqueAlpha_Flag = 1 << 0,
-
-        /** set if the spans only vary in X (const in Y).
-            e.g. an Nx1 bitmap that is being tiled in Y, or a linear-gradient
-            that varies from left-to-right. This flag specifies this for
-            shadeSpan().
-         */
-        kConstInY32_Flag = 1 << 1,
-
-        /** hint for the blitter that 4f is the preferred shading mode.
-         */
-        kPrefers4f_Flag  = 1 << 2,
     };
 
     /**

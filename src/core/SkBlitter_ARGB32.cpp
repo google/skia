@@ -968,7 +968,6 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
 
     fShadeDirectlyIntoDevice =
             SkToBool(shaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag);
-    fConstInY = SkToBool(shaderContext->getFlags() & SkShaderBase::kConstInY32_Flag);
 }
 
 SkARGB32_Shader_Blitter::~SkARGB32_Shader_Blitter() {
@@ -997,27 +996,6 @@ void SkARGB32_Shader_Blitter::blitRect(int x, int y, int width, int height) {
     size_t     deviceRB = fDevice.rowBytes();
     auto*      shaderContext = fShaderContext;
     SkPMColor* span = fBuffer;
-
-    if (fConstInY) {
-        if (fShadeDirectlyIntoDevice) {
-            // shade the first row directly into the device
-            shaderContext->shadeSpan(x, y, device, width);
-            span = device;
-            while (--height > 0) {
-                device = (uint32_t*)((char*)device + deviceRB);
-                memcpy(device, span, width << 2);
-            }
-        } else {
-            shaderContext->shadeSpan(x, y, span, width);
-            SkBlitRow::Proc32 proc = fProc32;
-            do {
-                proc(device, span, width, 255);
-                y += 1;
-                device = (uint32_t*)((char*)device + deviceRB);
-            } while (--height > 0);
-        }
-        return;
-    }
 
     if (fShadeDirectlyIntoDevice) {
         do {
@@ -1255,32 +1233,6 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
 
     uint32_t* device = fDevice.writable_addr32(x, y);
     size_t    deviceRB = fDevice.rowBytes();
-
-    if (fConstInY) {
-        SkPMColor c;
-        fShaderContext->shadeSpan(x, y, &c, 1);
-
-        if (fShadeDirectlyIntoDevice) {
-            if (255 == alpha) {
-                do {
-                    *device = c;
-                    device = (uint32_t*)((char*)device + deviceRB);
-                } while (--height > 0);
-            } else {
-                do {
-                    *device = SkFourByteInterp(c, *device, alpha);
-                    device = (uint32_t*)((char*)device + deviceRB);
-                } while (--height > 0);
-            }
-        } else {
-            SkBlitRow::Proc32 proc = (255 == alpha) ? fProc32 : fProc32Blend;
-            do {
-                proc(device, &c, 1, alpha);
-                device = (uint32_t*)((char*)device + deviceRB);
-            } while (--height > 0);
-        }
-        return;
-    }
 
     if (fShadeDirectlyIntoDevice) {
         if (255 == alpha) {

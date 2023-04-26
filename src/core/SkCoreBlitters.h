@@ -40,10 +40,8 @@ public:
     ~SkShaderBlitter() override;
 
 protected:
-    uint32_t                fShaderFlags;
-    const SkShader*         fShader;
+    sk_sp<SkShader>         fShader;
     SkShaderBase::Context*  fShaderContext;
-    bool                    fConstInY;
 
 private:
     // illegal
