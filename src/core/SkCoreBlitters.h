@@ -60,7 +60,6 @@ public:
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
     void blitMask(const SkMask&, const SkIRect&) override;
-    const SkPixmap* justAnOpaqueColor(uint32_t*) override;
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
 

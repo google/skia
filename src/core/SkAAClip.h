@@ -100,7 +100,6 @@ public:
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
     void blitMask(const SkMask&, const SkIRect& clip) override;
-    const SkPixmap* justAnOpaqueColor(uint32_t* value) override;
 
 private:
     SkBlitter*      fBlitter;

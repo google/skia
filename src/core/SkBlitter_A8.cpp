@@ -89,10 +89,6 @@ void SkA8_Coverage_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     }
 }
 
-const SkPixmap* SkA8_Coverage_Blitter::justAnOpaqueColor(uint32_t*) {
-    return nullptr;
-}
-
 //////////////
 
 static inline uint8_t div255(unsigned prod) {
@@ -167,7 +163,6 @@ public:
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
     void blitMask(const SkMask&, const SkIRect&) override;
-    const SkPixmap* justAnOpaqueColor(uint32_t*) override;
 
 private:
     const SkPixmap  fDevice;
@@ -274,10 +269,6 @@ void SkA8_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         dst += dstRB;
         src += srcRB;
     }
-}
-
-const SkPixmap* SkA8_Blitter::justAnOpaqueColor(uint32_t*) {
-    return nullptr;
 }
 
 //////////////////

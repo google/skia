@@ -36,10 +36,6 @@ SkBlitter::~SkBlitter() {}
 
 bool SkBlitter::isNullBlitter() const { return false; }
 
-const SkPixmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
-    return nullptr;
-}
-
 /*
 void SkBlitter::blitH(int x, int y, int width) {
     SkDEBUGFAIL("unimplemented");
@@ -319,10 +315,6 @@ void SkNullBlitter::blitRect(int x, int y, int width, int height) {}
 
 void SkNullBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {}
 
-const SkPixmap* SkNullBlitter::justAnOpaqueColor(uint32_t* value) {
-    return nullptr;
-}
-
 bool SkNullBlitter::isNullBlitter() const { return true; }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -480,10 +472,6 @@ void SkRectClipBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     }
 }
 
-const SkPixmap* SkRectClipBlitter::justAnOpaqueColor(uint32_t* value) {
-    return fBlitter->justAnOpaqueColor(value);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkRgnClipBlitter::blitH(int x, int y, int width) {
@@ -614,10 +602,6 @@ void SkRgnClipBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         blitter->blitMask(mask, r);
         iter.next();
     }
-}
-
-const SkPixmap* SkRgnClipBlitter::justAnOpaqueColor(uint32_t* value) {
-    return fBlitter->justAnOpaqueColor(value);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -849,10 +833,6 @@ void SkRectClipCheckBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     SkASSERT(mask.fBounds.contains(clip));
     SkASSERT(fClipRect.contains(clip));
     fBlitter->blitMask(mask, clip);
-}
-
-const SkPixmap* SkRectClipCheckBlitter::justAnOpaqueColor(uint32_t* value) {
-    return fBlitter->justAnOpaqueColor(value);
 }
 
 void SkRectClipCheckBlitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {

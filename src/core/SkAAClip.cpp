@@ -747,10 +747,6 @@ public:
     void blitMask(const SkMask&, const SkIRect& clip) override
         { unexpected(); }
 
-    const SkPixmap* justAnOpaqueColor(uint32_t*) override {
-        return nullptr;
-    }
-
     void blitH(int x, int y, int width) override {
         this->recordMinY(y);
         this->checkForYGap(y);
@@ -1961,8 +1957,4 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
             src = (const void*)((const char*)src + srcRB);
         } while (++y < localStopY);
     } while (y < stopY);
-}
-
-const SkPixmap* SkAAClipBlitter::justAnOpaqueColor(uint32_t* value) {
-    return nullptr;
 }

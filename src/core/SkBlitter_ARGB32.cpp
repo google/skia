@@ -681,14 +681,6 @@ SkARGB32_Blitter::SkARGB32_Blitter(const SkPixmap& device, const SkPaint& paint)
     fPMColor = SkPackARGB32(fSrcA, fSrcR, fSrcG, fSrcB);
 }
 
-const SkPixmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
-    if (255 == fSrcA) {
-        *value = fPMColor;
-        return &fDevice;
-    }
-    return nullptr;
-}
-
 #if defined _WIN32  // disable warning : local variable used without having been initialized
 #pragma warning ( push )
 #pragma warning ( disable : 4701 )

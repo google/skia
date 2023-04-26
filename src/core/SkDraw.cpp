@@ -32,7 +32,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
-#include <cstdint>
 
 #if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
 #include "src/core/SkMaskFilterBase.h"
@@ -74,62 +73,6 @@ struct PtProcRec {
 private:
     SkAAClipBlitterWrapper fWrapper;
 };
-
-static void bw_pt_rect_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
-                                 int count, SkBlitter* blitter) {
-    SkASSERT(rec.fClip->isRect());
-    const SkIRect& r = rec.fClip->getBounds();
-
-    for (int i = 0; i < count; i++) {
-        int x = SkScalarFloorToInt(devPts[i].fX);
-        int y = SkScalarFloorToInt(devPts[i].fY);
-        if (r.contains(x, y)) {
-            blitter->blitH(x, y, 1);
-        }
-    }
-}
-
-static void bw_pt_rect_16_hair_proc(const PtProcRec& rec,
-                                    const SkPoint devPts[], int count,
-                                    SkBlitter* blitter) {
-    SkASSERT(rec.fRC->isRect());
-    const SkIRect& r = rec.fRC->getBounds();
-    uint32_t value;
-    const SkPixmap* dst = blitter->justAnOpaqueColor(&value);
-    SkASSERT(dst);
-
-    uint16_t* addr = dst->writable_addr16(0, 0);
-    size_t    rb = dst->rowBytes();
-
-    for (int i = 0; i < count; i++) {
-        int x = SkScalarFloorToInt(devPts[i].fX);
-        int y = SkScalarFloorToInt(devPts[i].fY);
-        if (r.contains(x, y)) {
-            ((uint16_t*)((char*)addr + y * rb))[x] = SkToU16(value);
-        }
-    }
-}
-
-static void bw_pt_rect_32_hair_proc(const PtProcRec& rec,
-                                    const SkPoint devPts[], int count,
-                                    SkBlitter* blitter) {
-    SkASSERT(rec.fRC->isRect());
-    const SkIRect& r = rec.fRC->getBounds();
-    uint32_t value;
-    const SkPixmap* dst = blitter->justAnOpaqueColor(&value);
-    SkASSERT(dst);
-
-    SkPMColor* addr = dst->writable_addr32(0, 0);
-    size_t     rb = dst->rowBytes();
-
-    for (int i = 0; i < count; i++) {
-        int x = SkScalarFloorToInt(devPts[i].fX);
-        int y = SkScalarFloorToInt(devPts[i].fY);
-        if (r.contains(x, y)) {
-            ((SkPMColor*)((char*)addr + y * rb))[x] = value;
-        }
-    }
-}
 
 static void bw_pt_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
                             int count, SkBlitter* blitter) {
@@ -276,22 +219,10 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
         }
     } else {    // BW
         if (fRadius <= 0.5f) {    // small radii and hairline
-            if (SkCanvas::kPoints_PointMode == fMode && fClip->isRect()) {
-                uint32_t value;
-                const SkPixmap* bm = blitter->justAnOpaqueColor(&value);
-                if (bm && kRGB_565_SkColorType == bm->colorType()) {
-                    proc = bw_pt_rect_16_hair_proc;
-                } else if (bm && kN32_SkColorType == bm->colorType()) {
-                    proc = bw_pt_rect_32_hair_proc;
-                } else {
-                    proc = bw_pt_rect_hair_proc;
-                }
-            } else {
-                static Proc gBWProcs[] = {
-                    bw_pt_hair_proc, bw_line_hair_proc, bw_poly_hair_proc
-                };
-                proc = gBWProcs[fMode];
-            }
+            static const Proc gBWProcs[] = {
+                bw_pt_hair_proc, bw_line_hair_proc, bw_poly_hair_proc
+            };
+            proc = gBWProcs[fMode];
         } else {
             proc = bw_square_proc;
         }
