@@ -31,8 +31,6 @@ To use CanvasKit in Node, it's similar to the browser:
         // Code goes here using CanvasKit
     });
 
-With node, you also need to supply the `--expose-wasm` flag.
-
 ## WebPack
 
 WebPack's support for WASM is still somewhat experimental, but CanvasKit can be
