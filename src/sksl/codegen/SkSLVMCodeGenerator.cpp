@@ -5,14 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+
+#if defined(SK_ENABLE_SKVM)
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
-#include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
@@ -71,8 +73,6 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-
-#if defined(SK_ENABLE_SKVM)
 
 using namespace skia_private;
 

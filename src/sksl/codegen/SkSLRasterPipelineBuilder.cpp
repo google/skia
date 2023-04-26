@@ -1422,12 +1422,13 @@ Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) const {
     return s;
 }
 
-#if !defined(SKSL_STANDALONE)
-
 bool Program::appendStages(SkRasterPipeline* pipeline,
                            SkArenaAlloc* alloc,
                            RP::Callbacks* callbacks,
                            SkSpan<const float> uniforms) const {
+#if defined(SKSL_STANDALONE)
+    return false;
+#else
     // Convert our Instruction list to an array of ProgramOps.
     TArray<Stage> stages;
     SlotData slotData = this->allocateSlotData(alloc);
@@ -1539,9 +1540,8 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
     }
 
     return true;
-}
-
 #endif
+}
 
 void Program::makeStages(TArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,

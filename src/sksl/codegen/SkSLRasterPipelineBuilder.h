@@ -164,12 +164,10 @@ public:
             DebugTracePriv* debugTrace);
     ~Program();
 
-#if !defined(SKSL_STANDALONE)
     bool appendStages(SkRasterPipeline* pipeline,
                       SkArenaAlloc* alloc,
                       Callbacks* callbacks,
                       SkSpan<const float> uniforms) const;
-#endif
 
     void dump(SkWStream* out) const;
 

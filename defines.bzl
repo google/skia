@@ -40,6 +40,8 @@ GENERAL_DEFINES = [
     "//src/sksl:enable_skslc_true": [
         "SKSL_STANDALONE",
         "SK_DISABLE_TRACING",
+        "SK_ENABLE_SKSL_IN_RASTER_PIPELINE",
+        "SK_ENABLE_SKVM",
         "SK_ENABLE_SPIRV_CROSS",
         "SK_ENABLE_SPIRV_VALIDATION",
         "SK_ENABLE_WGSL_VALIDATION",

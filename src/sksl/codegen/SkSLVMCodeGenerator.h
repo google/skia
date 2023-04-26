@@ -8,13 +8,14 @@
 #ifndef SKSL_VMGENERATOR
 #define SKSL_VMGENERATOR
 
-#include "src/core/SkVM.h"
+#include "include/core/SkTypes.h"
 
+#if defined(SK_ENABLE_SKVM)
+
+#include "src/core/SkVM.h"
 #include <cstddef>
 
 template <typename T> class SkSpan;
-
-#if defined(SK_ENABLE_SKVM)
 
 namespace SkSL {
 

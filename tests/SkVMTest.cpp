@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#if defined(SK_ENABLE_SKVM)
+
 #include "include/core/SkColorType.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkMSAN.h"
@@ -21,8 +24,6 @@
 #include <cstring>
 #include <initializer_list>
 #include <vector>
-
-#if defined(SK_ENABLE_SKVM)
 
 template <typename Fn>
 static void test_jit_and_interpreter(const skvm::Builder& b, Fn&& test) {

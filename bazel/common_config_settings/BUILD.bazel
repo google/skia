@@ -205,12 +205,12 @@ bool_flag(
 
 bool_flag(
     name = "enable_skvm",
-    default = True,
+    default = False,
 )
 
 bool_flag(
     name = "enable_sksl_in_raster_pipeline",
-    default = False,
+    default = True,
 )
 
 bool_flag(
