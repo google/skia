@@ -1,0 +1,24 @@
+struct A {
+    int4 big[25001]; // 100,004 slots
+};
+
+struct B {
+    int4 a[12500];   // 50,000 slots
+    int b[49999];    // 99,999 slots
+    int c;           // 100,000 slots
+};
+
+struct C {
+    int a[99999];    // 99,999 slots (safe)
+};
+
+struct D {
+    C a;   // 99,999 slots
+    int b; // 100,000 slots
+};
+
+/*%%*
+array size is too large
+struct is too large
+struct is too large
+*%%*/

@@ -7,10 +7,17 @@
 
 #include "src/sksl/ir/SkSLType.h"
 
+#include "include/private/SkSLLayout.h"
+#include "include/private/SkSLString.h"
 #include "include/private/SkStringView.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkSafeMath.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
@@ -567,6 +574,14 @@ std::unique_ptr<Type> Type::MakeScalarType(std::string_view name, const char* ab
 
 std::unique_ptr<Type> Type::MakeStructType(int line, std::string_view name,
                                            std::vector<Field> fields, bool interfaceBlock) {
+    size_t slots = 0;
+    for (const Field& field : fields) {
+        slots = SkSafeMath::Add(slots, field.fType->slotCount());
+        if (slots >= kVariableSlotLimit) {
+            ThreadContext::GetErrorReporter().error(line, "struct is too large");
+            break;
+        }
+    }
     return std::make_unique<StructType>(line, name, std::move(fields), interfaceBlock);
 }
 
@@ -992,7 +1007,7 @@ SKSL_INT Type::convertArraySize(const Context& context, std::unique_ptr<Expressi
         context.fErrors->error(size->fLine, "array size must be positive");
         return 0;
     }
-    if (!SkTFitsIn<int32_t>(count)) {
+    if (SkSafeMath::Mul(this->slotCount(), count) > kVariableSlotLimit) {
         context.fErrors->error(size->fLine, "array size is too large");
         return 0;
     }
