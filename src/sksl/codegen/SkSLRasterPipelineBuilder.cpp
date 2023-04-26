@@ -100,20 +100,21 @@ namespace RP {
     case BuilderOp::cmpne_n_floats:     \
     case BuilderOp::cmpne_n_ints
 
-#define ALL_IMMEDIATE_BINARY_OP_CASES   \
-         BuilderOp::add_imm_float:      \
-    case BuilderOp::add_imm_int:        \
-    case BuilderOp::mul_imm_float:      \
-    case BuilderOp::mul_imm_int:        \
-    case BuilderOp::cmple_imm_float:    \
-    case BuilderOp::cmple_imm_int:      \
-    case BuilderOp::cmple_imm_uint:     \
-    case BuilderOp::cmplt_imm_float:    \
-    case BuilderOp::cmplt_imm_int:      \
-    case BuilderOp::cmplt_imm_uint:     \
-    case BuilderOp::cmpeq_imm_float:    \
-    case BuilderOp::cmpeq_imm_int:      \
-    case BuilderOp::cmpne_imm_float:    \
+#define ALL_IMMEDIATE_BINARY_OP_CASES    \
+         BuilderOp::add_imm_float:       \
+    case BuilderOp::add_imm_int:         \
+    case BuilderOp::mul_imm_float:       \
+    case BuilderOp::mul_imm_int:         \
+    case BuilderOp::bitwise_xor_imm_int: \
+    case BuilderOp::cmple_imm_float:     \
+    case BuilderOp::cmple_imm_int:       \
+    case BuilderOp::cmple_imm_uint:      \
+    case BuilderOp::cmplt_imm_float:     \
+    case BuilderOp::cmplt_imm_int:       \
+    case BuilderOp::cmplt_imm_uint:      \
+    case BuilderOp::cmpeq_imm_float:     \
+    case BuilderOp::cmpeq_imm_int:       \
+    case BuilderOp::cmpne_imm_float:     \
     case BuilderOp::cmpne_imm_int
 
 #define ALL_N_WAY_TERNARY_OP_CASES       \
@@ -2677,6 +2678,7 @@ void Program::dump(SkWStream* out) const {
 
             case POp::add_imm_int:
             case POp::mul_imm_int:
+            case POp::bitwise_xor_imm_int:
             case POp::cmple_imm_int:
             case POp::cmple_imm_uint:
             case POp::cmplt_imm_int:
@@ -3048,6 +3050,7 @@ void Program::dump(SkWStream* out) const {
             case POp::bitwise_xor_3_ints:
             case POp::bitwise_xor_4_ints:
             case POp::bitwise_xor_n_ints:
+            case POp::bitwise_xor_imm_int:
                 opText = opArg1 + " ^= " + opArg2;
                 break;
 
