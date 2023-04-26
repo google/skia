@@ -94,15 +94,6 @@ Transform::Transform(const SkM44& m) : fM(m) {
     fType = get_matrix_info(m, &fInvM, &fScale);
 }
 
-const Transform& Transform::Identity() {
-    static const Transform kIdentity{SkM44()};
-    return kIdentity;
-}
-const Transform& Transform::Invalid() {
-    static const Transform kInvalid{SkM44(SkM44::kNaN_Constructor)};
-    return kInvalid;
-}
-
 bool Transform::operator==(const Transform& t) const {
     // Checking fM should be sufficient as all other values are computed from it.
     SkASSERT(fM != t.fM || (fInvM == t.fInvM && fType == t.fType && fScale == t.fScale));

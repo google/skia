@@ -81,7 +81,7 @@ bool oriented_bbox_intersection(const Rect& a, const Transform& aXform,
     return all(overlaps); // any non-overlapping interval would imply no intersection
 }
 
-static const Transform kIdentity{SkM44()};
+static constexpr Transform kIdentity = Transform::Identity();
 
 } // anonymous namespace
 

@@ -66,7 +66,10 @@ namespace skgpu::graphite {
 
 namespace {
 
-static const SkStrokeRec kFillStyle(SkStrokeRec::kFill_InitStyle);
+const SkStrokeRec& DefaultFillStyle() {
+    static const SkStrokeRec kFillStyle(SkStrokeRec::kFill_InitStyle);
+    return kFillStyle;
+}
 
 bool paint_depends_on_dst(SkColor4f color,
                           const SkShader* shader,
@@ -621,7 +624,10 @@ void Device::drawPaint(const SkPaint& paint) {
         return;
     }
     Rect localCoveringBounds = localToDevice.inverseMapRect(fClip.conservativeBounds());
-    this->drawGeometry(localToDevice, Geometry(Shape(localCoveringBounds)), paint, kFillStyle,
+    this->drawGeometry(localToDevice,
+                       Geometry(Shape(localCoveringBounds)),
+                       paint,
+                       DefaultFillStyle(),
                        DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
 }
 
@@ -633,13 +639,13 @@ void Device::drawRect(const SkRect& r, const SkPaint& paint) {
 void Device::drawVertices(const SkVertices* vertices, sk_sp<SkBlender> blender,
                           const SkPaint& paint, bool skipColorXform)  {
   // TODO - Add GPU handling of skipColorXform once Graphite has its color system more fleshed out.
-  this->drawGeometry(this->localToDeviceTransform(),
-                     Geometry(sk_ref_sp(vertices)),
-                     paint,
-                     kFillStyle,
-                     DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter,
-                     std::move(blender),
-                     skipColorXform);
+    this->drawGeometry(this->localToDeviceTransform(),
+                       Geometry(sk_ref_sp(vertices)),
+                       paint,
+                       DefaultFillStyle(),
+                       DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter,
+                       std::move(blender),
+                       skipColorXform);
 }
 
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
@@ -698,7 +704,10 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
 
     auto flags = SkEnumBitMask<EdgeAAQuad::Flags>(static_cast<EdgeAAQuad::Flags>(aaFlags));
     EdgeAAQuad quad = clip ? EdgeAAQuad(clip, flags) : EdgeAAQuad(rect, flags);
-    this->drawGeometry(this->localToDeviceTransform(), Geometry(quad), solidColorPaint, kFillStyle,
+    this->drawGeometry(this->localToDeviceTransform(),
+                       Geometry(quad),
+                       solidColorPaint,
+                       DefaultFillStyle(),
                        DrawFlags::kIgnoreMaskFilter | DrawFlags::kIgnorePathEffect);
 }
 
@@ -758,12 +767,18 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // submitted one at a time by SkiaRenderer (a nice client simplification). However, we
         // should explore the performance trade off with doing one bulk evaluation for the whole set
         if (set[i].fMatrixIndex < 0) {
-            this->drawGeometry(this->localToDeviceTransform(), Geometry(quad),
-                               paintWithShader, kFillStyle, DrawFlags::kIgnorePathEffect);
+            this->drawGeometry(this->localToDeviceTransform(),
+                               Geometry(quad),
+                               paintWithShader,
+                               DefaultFillStyle(),
+                               DrawFlags::kIgnorePathEffect);
         } else {
             SkM44 xtraTransform(preViewMatrices[set[i].fMatrixIndex]);
-            this->drawGeometry(this->localToDeviceTransform().concat(xtraTransform), Geometry(quad),
-                               paintWithShader, kFillStyle, DrawFlags::kIgnorePathEffect);
+            this->drawGeometry(this->localToDeviceTransform().concat(xtraTransform),
+                               Geometry(quad),
+                               paintWithShader,
+                               DefaultFillStyle(),
+                               DrawFlags::kIgnorePathEffect);
         }
 
         dstClipIndex += 4 * set[i].fHasClip;
@@ -815,10 +830,14 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                 subRunPaint.setAlphaf(paint.getAlphaf());
             }
             this->drawGeometry(localToDevice,
-                               Geometry(SubRunData(subRun, subRunStorage, bounds, subRunCursor,
-                                                   glyphsRegenerated, fRecorder)),
+                               Geometry(SubRunData(subRun,
+                                                   subRunStorage,
+                                                   bounds,
+                                                   subRunCursor,
+                                                   glyphsRegenerated,
+                                                   fRecorder)),
                                subRunPaint,
-                               kFillStyle,
+                               DefaultFillStyle(),
                                DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
         }
         subRunCursor += glyphsRegenerated;
@@ -1018,7 +1037,9 @@ void Device::drawClipShape(const Transform& localToDevice,
     // A clip draw's state is almost fully defined by the ClipStack. The only thing we need
     // to account for is selecting a Renderer and tracking the stencil buffer usage.
     Geometry geometry{shape};
-    const Renderer* renderer = this->chooseRenderer(geometry, clip, kFillStyle,
+    const Renderer* renderer = this->chooseRenderer(geometry,
+                                                    clip,
+                                                    DefaultFillStyle(),
                                                     /*requireMSAA=*/true);
     if (!renderer) {
         SKGPU_LOG_W("Skipping clip with no supported path renderer.");
@@ -1199,7 +1220,7 @@ void Device::drawSpecial(SkSpecialImage* special,
     this->drawGeometry(Transform(SkM44(localToDevice)),
                        Geometry(Shape(dst)),
                        paintWithShader,
-                       kFillStyle,
+                       DefaultFillStyle(),
                        DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
 }
 
