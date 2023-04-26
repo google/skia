@@ -1,40 +1,35 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_uniform                   _0_x = colorWhite(0)
-copy_constant                  $0 = 0
-copy_slot_unmasked             $1 = _0_x
-sub_float                      $0 -= $1
-copy_slot_unmasked             _0_x = $0
+bitwise_xor_imm_int            _0_x ^= 0x80000000
 store_condition_mask           $33 = CondMask
 store_condition_mask           $53 = CondMask
 store_condition_mask           $63 = CondMask
 store_condition_mask           $69 = CondMask
 store_condition_mask           $75 = CondMask
-store_condition_mask           $79 = CondMask
-copy_slot_unmasked             $80 = _0_x
-cmpeq_imm_float                $80 = equal($80, 0xBF800000 (-1.0))
+store_condition_mask           $78 = CondMask
+copy_slot_unmasked             $79 = _0_x
+cmpeq_imm_float                $79 = equal($79, 0xBF800000 (-1.0))
 copy_constant                  $76 = 0
-merge_condition_mask           CondMask = $79 & $80
-branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 6 at #29)
+merge_condition_mask           CondMask = $78 & $79
+branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 6 at #24)
 copy_uniform                   $77 = colorWhite(0)
 cast_to_int_from_float         $77 = FloatToInt($77)
 copy_slot_unmasked             x = $77
-copy_constant                  $77 = 0
-copy_slot_unmasked             $78 = x
-sub_int                        $77 -= $78
+mul_imm_int                    $77 *= 0xFFFFFFFF
 copy_slot_masked               x = Mask($77)
 cmpeq_imm_int                  $77 = equal($77, 0xFFFFFFFF)
 label                          label 0x00000007
 copy_slot_masked               $76 = Mask($77)
 label                          label 0x00000006
-load_condition_mask            CondMask = $79
+load_condition_mask            CondMask = $78
 copy_constant                  $70 = 0
 merge_condition_mask           CondMask = $75 & $76
-branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 5 at #44)
+branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 5 at #39)
 copy_2_uniforms                x₁ = colorWhite(0..1)
-splat_2_constants              $71..72 = 0
-copy_2_slots_unmasked          $73..74 = x₁
-sub_2_floats                   $71..72 -= $73..74
+copy_2_slots_unmasked          $71..72 = x₁
+splat_2_constants              $73..74 = 0x80000000 (-0.0)
+bitwise_xor_2_ints             $71..72 ^= $73..74
 copy_2_slots_masked            x₁ = Mask($71..72)
 splat_2_constants              $73..74 = 0xBF800000 (-1.0)
 cmpeq_2_floats                 $71..72 = equal($71..72, $73..74)
@@ -45,14 +40,13 @@ label                          label 0x00000005
 load_condition_mask            CondMask = $75
 copy_constant                  $64 = 0
 merge_condition_mask           CondMask = $69 & $70
-branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 4 at #62)
+branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 4 at #56)
 copy_uniform                   $65 = colorWhite(0)
 cast_to_int_from_float         $65 = FloatToInt($65)
 copy_slot_unmasked             $66 = $65
 copy_2_slots_unmasked          x₂ = $65..66
-splat_2_constants              $65..66 = 0
-copy_2_slots_unmasked          $67..68 = x₂
-sub_2_ints                     $65..66 -= $67..68
+splat_2_constants              $67..68 = 0xFFFFFFFF
+mul_2_ints                     $65..66 *= $67..68
 copy_2_slots_masked            x₂ = Mask($65..66)
 splat_2_constants              $67..68 = 0xFFFFFFFF
 cmpeq_2_ints                   $65..66 = equal($65..66, $67..68)
@@ -63,15 +57,15 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $69
 copy_constant                  $54 = 0
 merge_condition_mask           CondMask = $63 & $64
-branch_if_no_lanes_active      branch_if_no_lanes_active +16 (label 3 at #82)
+branch_if_no_lanes_active      branch_if_no_lanes_active +16 (label 3 at #76)
 copy_constant                  negated(0) = 0xBF800000 (-1.0)
 copy_constant                  negated(1) = 0xC0000000 (-2.0)
 copy_constant                  negated(2) = 0xC0400000 (-3.0)
 copy_constant                  negated(3) = 0xC0800000 (-4.0)
 copy_4_uniforms                x₃ = testMatrix2x2
-splat_4_constants              $55..58 = 0
-copy_4_slots_unmasked          $59..62 = x₃
-sub_4_floats                   $55..58 -= $59..62
+copy_4_slots_unmasked          $55..58 = x₃
+splat_4_constants              $59..62 = 0x80000000 (-0.0)
+bitwise_xor_4_ints             $55..58 ^= $59..62
 copy_4_slots_masked            x₃ = Mask($55..58)
 copy_4_slots_unmasked          $59..62 = negated
 cmpeq_4_floats                 $55..58 = equal($55..58, $59..62)
@@ -83,7 +77,7 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $63
 copy_constant                  $34 = 0
 merge_condition_mask           CondMask = $53 & $54
-branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 2 at #119)
+branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 2 at #113)
 copy_constant                  negated₁(0) = 0xBF800000 (-1.0)
 copy_constant                  negated₁(1) = 0xC0000000 (-2.0)
 copy_constant                  negated₁(2) = 0xC0400000 (-3.0)
@@ -96,13 +90,13 @@ copy_constant                  negated₁(8) = 0xC1100000 (-9.0)
 copy_4_uniforms                x₄(0..3) = testMatrix3x3(0..3)
 copy_4_uniforms                x₄(4..7) = testMatrix3x3(4..7)
 copy_uniform                   x₄(8) = testMatrix3x3(8)
-splat_4_constants              $35..38 = 0
-splat_4_constants              $39..42 = 0
-copy_constant                  $43 = 0
-copy_4_slots_unmasked          $44..47 = x₄(0..3)
-copy_4_slots_unmasked          $48..51 = x₄(4..7)
-copy_slot_unmasked             $52 = x₄(8)
-sub_n_floats                   $35..43 -= $44..52
+copy_4_slots_unmasked          $35..38 = x₄(0..3)
+copy_4_slots_unmasked          $39..42 = x₄(4..7)
+copy_slot_unmasked             $43 = x₄(8)
+splat_4_constants              $44..47 = 0x80000000 (-0.0)
+splat_4_constants              $48..51 = 0x80000000 (-0.0)
+copy_constant                  $52 = 0x80000000 (-0.0)
+bitwise_xor_n_ints             $35..43 ^= $44..52
 copy_4_slots_masked            x₄(0..3) = Mask($35..38)
 copy_4_slots_masked            x₄(4..7) = Mask($39..42)
 copy_slot_masked               x₄(8) = Mask($43)
@@ -120,7 +114,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $53
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $33 & $34
-branch_if_no_lanes_active      branch_if_no_lanes_active +46 (label 1 at #169)
+branch_if_no_lanes_active      branch_if_no_lanes_active +46 (label 1 at #163)
 copy_constant                  negated₂(0) = 0xBF800000 (-1.0)
 copy_constant                  negated₂(1) = 0xC0000000 (-2.0)
 copy_constant                  negated₂(2) = 0xC0400000 (-3.0)
@@ -141,15 +135,15 @@ copy_4_uniforms                x₅(0..3) = testMatrix4x4(0..3)
 copy_4_uniforms                x₅(4..7) = testMatrix4x4(4..7)
 copy_4_uniforms                x₅(8..11) = testMatrix4x4(8..11)
 copy_4_uniforms                x₅(12..15) = testMatrix4x4(12..15)
-splat_4_constants              $1..4 = 0
-splat_4_constants              $5..8 = 0
-splat_4_constants              $9..12 = 0
-splat_4_constants              $13..16 = 0
-copy_4_slots_unmasked          $17..20 = x₅(0..3)
-copy_4_slots_unmasked          $21..24 = x₅(4..7)
-copy_4_slots_unmasked          $25..28 = x₅(8..11)
-copy_4_slots_unmasked          $29..32 = x₅(12..15)
-sub_n_floats                   $1..16 -= $17..32
+copy_4_slots_unmasked          $1..4 = x₅(0..3)
+copy_4_slots_unmasked          $5..8 = x₅(4..7)
+copy_4_slots_unmasked          $9..12 = x₅(8..11)
+copy_4_slots_unmasked          $13..16 = x₅(12..15)
+splat_4_constants              $17..20 = 0x80000000 (-0.0)
+splat_4_constants              $21..24 = 0x80000000 (-0.0)
+splat_4_constants              $25..28 = 0x80000000 (-0.0)
+splat_4_constants              $29..32 = 0x80000000 (-0.0)
+bitwise_xor_n_ints             $1..16 ^= $17..32
 copy_4_slots_masked            x₅(0..3) = Mask($1..4)
 copy_4_slots_masked            x₅(4..7) = Mask($5..8)
 copy_4_slots_masked            x₅(8..11) = Mask($9..12)

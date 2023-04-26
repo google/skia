@@ -3367,23 +3367,30 @@ bool Generator::pushPrefixExpression(Operator op, const Expression& expr) {
             fBuilder.binary_op(BuilderOp::bitwise_xor_n_ints, expr.type().slotCount());
             return true;
 
-        case OperatorKind::MINUS:
-            // Handle negation as a componentwise `0 - expr`.
-            fBuilder.push_zeros(expr.type().slotCount());
+        case OperatorKind::MINUS: {
             if (!this->pushExpression(expr)) {
                 return unsupported();
             }
-            return this->binaryOp(expr.type(), kSubtractOps);
-
+            if (expr.type().componentType().isFloat()) {
+                // Handle float negation as an integer `x ^ 0x80000000`. This toggles the sign bit.
+                fBuilder.push_constant_u(0x80000000, expr.type().slotCount());
+                fBuilder.binary_op(BuilderOp::bitwise_xor_n_ints, expr.type().slotCount());
+            } else {
+                // Handle integer negation as a componentwise `expr * -1`.
+                fBuilder.push_constant_i(-1, expr.type().slotCount());
+                fBuilder.binary_op(BuilderOp::mul_n_ints, expr.type().slotCount());
+            }
+            return true;
+        }
         case OperatorKind::PLUSPLUS: {
             // Rewrite as `expr += 1`.
             Literal oneLiteral{Position{}, 1.0, &expr.type().componentType()};
             return this->pushBinaryExpression(expr, OperatorKind::PLUSEQ, oneLiteral);
         }
         case OperatorKind::MINUSMINUS: {
-            // Rewrite as `expr -= 1`.
-            Literal oneLiteral{Position{}, 1.0, &expr.type().componentType()};
-            return this->pushBinaryExpression(expr, OperatorKind::MINUSEQ, oneLiteral);
+            // Rewrite as `expr += -1`.
+            Literal minusOneLiteral{expr.fPosition, -1.0, &expr.type().componentType()};
+            return this->pushBinaryExpression(expr, OperatorKind::PLUSEQ, minusOneLiteral);
         }
         default:
             break;

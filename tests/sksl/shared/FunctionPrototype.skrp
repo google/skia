@@ -1,11 +1,10 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_4_constants              $0..3 = 0
-copy_4_uniforms                $4..7 = colorGreen
-sub_4_floats                   $0..3 -= $4..7
+copy_4_uniforms                $0..3 = colorGreen
+splat_4_constants              $4..7 = 0x80000000 (-0.0)
+bitwise_xor_4_ints             $0..3 ^= $4..7
 copy_4_slots_unmasked          x = $0..3
-splat_4_constants              $0..3 = 0
-copy_4_slots_unmasked          $4..7 = x
-sub_4_floats                   $0..3 -= $4..7
+splat_4_constants              $4..7 = 0x80000000 (-0.0)
+bitwise_xor_4_ints             $0..3 ^= $4..7
 label                          label 0
 load_src                       src.rgba = $0..3
