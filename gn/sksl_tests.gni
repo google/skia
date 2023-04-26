@@ -146,6 +146,7 @@ sksl_error_tests = [
   "/sksl/errors/PrivateTypes.rts",
   "/sksl/errors/PrivateVariables.rts",
   "/sksl/errors/ProgramTooLarge_Globals.rts",
+  "/sksl/errors/ProgramTooLarge_Parameters.rts",
   "/sksl/errors/ProgramTooLarge_Stack.rts",
   "/sksl/errors/PrototypeInFuncBody.rts",
   "/sksl/errors/RedeclareBasicType.rts",
