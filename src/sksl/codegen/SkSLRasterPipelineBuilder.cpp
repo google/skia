@@ -57,7 +57,6 @@ namespace RP {
 #define ALL_MULTI_SLOT_UNARY_OP_CASES        \
          BuilderOp::abs_float:               \
     case BuilderOp::abs_int:                 \
-    case BuilderOp::bitwise_not_int:         \
     case BuilderOp::cast_to_float_from_int:  \
     case BuilderOp::cast_to_float_from_uint: \
     case BuilderOp::cast_to_int_from_float:  \
@@ -2603,7 +2602,6 @@ void Program::dump(SkWStream* out) const {
             case POp::reenable_loop_mask:
             case POp::load_return_mask:
             case POp::store_return_mask:
-            case POp::bitwise_not_int:
             case POp::cast_to_float_from_int: case POp::cast_to_float_from_uint:
             case POp::cast_to_int_from_float: case POp::cast_to_uint_from_float:
             case POp::abs_float:              case POp::abs_int:
@@ -2624,7 +2622,6 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
-            case POp::bitwise_not_2_ints:
             case POp::load_src_rg:               case POp::store_src_rg:
             case POp::cast_to_float_from_2_ints: case POp::cast_to_float_from_2_uints:
             case POp::cast_to_int_from_2_floats: case POp::cast_to_uint_from_2_floats:
@@ -2635,7 +2632,6 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = PtrCtx(stage.ctx, 2);
                 break;
 
-            case POp::bitwise_not_3_ints:
             case POp::cast_to_float_from_3_ints: case POp::cast_to_float_from_3_uints:
             case POp::cast_to_int_from_3_floats: case POp::cast_to_uint_from_3_floats:
             case POp::abs_3_floats:              case POp::abs_3_ints:
@@ -2651,7 +2647,6 @@ void Program::dump(SkWStream* out) const {
             case POp::store_src:
             case POp::store_dst:
             case POp::store_device_xy01:
-            case POp::bitwise_not_4_ints:
             case POp::cast_to_float_from_4_ints: case POp::cast_to_float_from_4_uints:
             case POp::cast_to_int_from_4_floats: case POp::cast_to_uint_from_4_floats:
             case POp::abs_4_floats:              case POp::abs_4_ints:
@@ -3054,13 +3049,6 @@ void Program::dump(SkWStream* out) const {
             case POp::bitwise_xor_4_ints:
             case POp::bitwise_xor_n_ints:
                 opText = opArg1 + " ^= " + opArg2;
-                break;
-
-            case POp::bitwise_not_int:
-            case POp::bitwise_not_2_ints:
-            case POp::bitwise_not_3_ints:
-            case POp::bitwise_not_4_ints:
-                opText = opArg1 + " = ~" + opArg1;
                 break;
 
             case POp::cast_to_float_from_int:

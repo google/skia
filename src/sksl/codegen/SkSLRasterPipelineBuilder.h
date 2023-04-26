@@ -376,8 +376,8 @@ public:
         this->push_constant_i(sk_bit_cast<int32_t>(val), /*count=*/1);
     }
 
-    void push_constant_u(uint32_t val) {
-        this->push_constant_i(sk_bit_cast<int32_t>(val), /*count=*/1);
+    void push_constant_u(uint32_t val, int count = 1) {
+        this->push_constant_i(sk_bit_cast<int32_t>(val), count);
     }
 
     // Translates into copy_uniforms (from uniforms into temp stack) in Raster Pipeline.

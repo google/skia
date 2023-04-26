@@ -679,7 +679,6 @@ DEF_TEST(RasterPipelineBuilderUnaryOps, r) {
     builder.unary_op(BuilderOp::cast_to_float_from_uint, 2);
     builder.unary_op(BuilderOp::cast_to_int_from_float, 3);
     builder.unary_op(BuilderOp::cast_to_uint_from_float, 4);
-    builder.unary_op(BuilderOp::bitwise_not_int, 5);
     builder.unary_op(BuilderOp::cos_float, 4);
     builder.unary_op(BuilderOp::tan_float, 3);
     builder.unary_op(BuilderOp::sin_float, 2);
@@ -698,8 +697,6 @@ cast_to_float_from_int         $4 = IntToFloat($4)
 cast_to_float_from_2_uints     $3..4 = UintToFloat($3..4)
 cast_to_int_from_3_floats      $2..4 = FloatToInt($2..4)
 cast_to_uint_from_4_floats     $1..4 = FloatToUint($1..4)
-bitwise_not_4_ints             $0..3 = ~$0..3
-bitwise_not_int                $4 = ~$4
 cos_float                      $1 = cos($1)
 cos_float                      $2 = cos($2)
 cos_float                      $3 = cos($3)

@@ -115,7 +115,6 @@
     M(bitwise_or_int)  M(bitwise_or_2_ints)  M(bitwise_or_3_ints)  M(bitwise_or_4_ints)       \
     M(bitwise_xor_n_ints)                                                                     \
     M(bitwise_xor_int) M(bitwise_xor_2_ints) M(bitwise_xor_3_ints) M(bitwise_xor_4_ints)      \
-    M(bitwise_not_int) M(bitwise_not_2_ints) M(bitwise_not_3_ints) M(bitwise_not_4_ints)      \
     M(cast_to_float_from_int)     M(cast_to_float_from_2_ints)                                \
     M(cast_to_float_from_3_ints)  M(cast_to_float_from_4_ints)                                \
     M(cast_to_float_from_uint)    M(cast_to_float_from_2_uints)                               \

@@ -2157,11 +2157,6 @@ DEF_TEST(SkRasterPipeline_UnaryIntOps, r) {
     };
 
     static const UnaryOp kUnaryOps[] = {
-        {SkRasterPipelineOp::bitwise_not_int,    1, [](int a) { return ~a; }},
-        {SkRasterPipelineOp::bitwise_not_2_ints, 2, [](int a) { return ~a; }},
-        {SkRasterPipelineOp::bitwise_not_3_ints, 3, [](int a) { return ~a; }},
-        {SkRasterPipelineOp::bitwise_not_4_ints, 4, [](int a) { return ~a; }},
-
         {SkRasterPipelineOp::cast_to_float_from_int,    1, to_float},
         {SkRasterPipelineOp::cast_to_float_from_2_ints, 2, to_float},
         {SkRasterPipelineOp::cast_to_float_from_3_ints, 3, to_float},

@@ -3779,10 +3779,6 @@ SI void apply_adjacent_unary(T* dst, T* end) {
     } while (dst != end);
 }
 
-SI void bitwise_not_fn(I32* dst) {
-    *dst = ~*dst;
-}
-
 #if defined(JUMPER_IS_SCALAR)
 template <typename T>
 SI void cast_to_float_from_fn(T* dst) {
@@ -3842,7 +3838,6 @@ SI void invsqrt_fn(F* dst) {
     STAGE_TAIL(name##_3_uints, U32* dst) { apply_adjacent_unary<U32, &name##_fn>(dst, dst + 3); } \
     STAGE_TAIL(name##_4_uints, U32* dst) { apply_adjacent_unary<U32, &name##_fn>(dst, dst + 4); }
 
-DECLARE_UNARY_INT(bitwise_not)
 DECLARE_UNARY_INT(cast_to_float_from) DECLARE_UNARY_UINT(cast_to_float_from)
 DECLARE_UNARY_FLOAT(cast_to_int_from)
 DECLARE_UNARY_FLOAT(cast_to_uint_from)
