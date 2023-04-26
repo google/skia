@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
 #include "include/core/SkStream.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
@@ -16,7 +20,6 @@
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLString.h"
-#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
 #include "src/utils/SkBitSet.h"
@@ -38,8 +41,7 @@
 
 using namespace skia_private;
 
-namespace SkSL {
-namespace RP {
+namespace SkSL::RP {
 
 #define ALL_SINGLE_SLOT_UNARY_OP_CASES  \
          BuilderOp::acos_float:         \
@@ -3370,5 +3372,6 @@ void Program::dump(SkWStream* out) const {
     }
 }
 
-}  // namespace RP
-}  // namespace SkSL
+}  // namespace SkSL::RP
+
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE

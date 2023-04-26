@@ -8,6 +8,10 @@
 #ifndef SKSL_RASTERPIPELINEBUILDER
 #define SKSL_RASTERPIPELINEBUILDER
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
@@ -683,4 +687,13 @@ private:
 }  // namespace RP
 }  // namespace SkSL
 
+#else   // !defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+
+namespace SkSL::RP {
+
+class Program {};
+
+}  // namespace SkSL::RP
+
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 #endif  // SKSL_RASTERPIPELINEBUILDER

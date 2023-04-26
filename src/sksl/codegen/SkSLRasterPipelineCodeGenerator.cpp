@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
@@ -21,7 +25,6 @@
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
-#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -3730,3 +3733,5 @@ std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& prog
 }
 
 }  // namespace SkSL
+
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE

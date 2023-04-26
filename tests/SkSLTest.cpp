@@ -351,6 +351,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, int flags) {
     SkSL::dsl::End();
 }
 
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 static void report_rp_pass(skiatest::Reporter* r, const char* testFile, int flags) {
     if (!(flags & SkSLTestFlags::RP)) {
         ERRORF(r, "NEW: %s", testFile);
@@ -365,8 +366,10 @@ static void report_rp_fail(skiatest::Reporter* r,
         ERRORF(r, "%s: %s", testFile, reason);
     }
 }
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
 static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, int flags) {
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     SkString shaderString = load_source(r, testFile, "");
     if (shaderString.isEmpty()) {
         return;
@@ -468,6 +471,7 @@ static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, in
 
     // Success!
     report_rp_pass(r, testFile, flags);
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 }
 
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                         \

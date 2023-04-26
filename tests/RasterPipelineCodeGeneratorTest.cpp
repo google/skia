@@ -24,6 +24,8 @@
 #include <optional>
 #include <string>
 
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
 //#define DUMP_PROGRAMS 1
 #if defined(DUMP_PROGRAMS)
 #include "src/core/SkStreamPriv.h"
@@ -310,3 +312,5 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorComparisonIntrinsicTest, r) {
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
+
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE

@@ -3294,6 +3294,12 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+STAGE_TAIL(set_base_pointer, std::byte* p) {
+    base = p;
+}
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
 // All control flow stages used by SkSL maintain some state in the common registers:
 //   r: condition mask
 //   g: loop mask
@@ -3304,9 +3310,6 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
 #define update_execution_mask() a = sk_bit_cast<F>(sk_bit_cast<I32>(r) & \
                                                    sk_bit_cast<I32>(g) & \
                                                    sk_bit_cast<I32>(b))
-STAGE_TAIL(set_base_pointer, std::byte* p) {
-    base = p;
-}
 
 STAGE_TAIL(init_lane_masks, NoCtx) {
     uint32_t iota[] = {0,1,2,3,4,5,6,7};
@@ -4307,6 +4310,8 @@ DECLARE_TERNARY_INT(mix)
 #undef DECLARE_N_WAY_TERNARY_FLOAT
 #undef DECLARE_TERNARY_FLOAT
 #undef DECLARE_TERNARY_INT
+
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
 STAGE(gauss_a_to_rgba, NoCtx) {
     // x = 1 - x;

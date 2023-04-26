@@ -14,6 +14,8 @@
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"
 
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
 static sk_sp<SkData> get_program_dump(SkSL::RP::Program& program) {
     SkDynamicMemoryWStream stream;
     program.dump(&stream);
@@ -863,3 +865,5 @@ trace_exit                     TraceExit(FunctionC) when $0 is true
         }
     }
 }
+
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
