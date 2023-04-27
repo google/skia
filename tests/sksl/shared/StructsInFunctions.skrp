@@ -9,7 +9,6 @@ copy_2_slots_unmasked          $0..1 = s.x, s.y
 label                          label 0
 copy_2_slots_unmasked          s.x₁, s.y₁ = $0..1
 copy_2_slots_unmasked          s.x₂, s.y₂ = $0..1
-copy_2_slots_unmasked          $0..1 = s.x₂, s.y₂
 cast_to_float_from_int         $1 = IntToFloat($1)
 add_float                      $0 += $1
 label                          label 0x00000001
@@ -95,9 +94,9 @@ bitwise_and_int                $14 &= $15
 bitwise_and_int                $13 &= $14
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #115)
+branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #114)
 copy_slot_unmasked             $1 = s.x₁
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #107)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #106)
 splat_2_constants              s.x, s.y = 0
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_slot_masked               s.x = Mask($17)

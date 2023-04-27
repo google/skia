@@ -295,10 +295,10 @@ void Builder::discard_stack(int32_t count) {
                 // If this was a single-slot unmasked pop...
                 if (fInstructions.size() >= 3 && lastInstruction.fImmA == 1) {
                     // ... and the previous instruction was an immediate-mode op...
-                    Instruction& immInstruction = fInstructions.end()[-2];
+                    Instruction& immInstruction = fInstructions.fromBack(1);
                     if (is_immediate_op(immInstruction.fOp)) {
                         // ... and the instruction prior to that was `push_slots`...
-                        Instruction& pushInstruction = fInstructions.end()[-3];
+                        Instruction& pushInstruction = fInstructions.fromBack(2);
                         if (pushInstruction.fOp == BuilderOp::push_slots) {
                             // ... from the same slot...
                             Slot pushedSlot = pushInstruction.fSlotA + pushInstruction.fImmA - 1;
@@ -439,28 +439,37 @@ void Builder::push_slots(SlotRange src) {
         if (lastInstruction.fOp == BuilderOp::push_slots &&
             lastInstruction.fSlotA + lastInstruction.fImmA == src.index) {
             lastInstruction.fImmA += src.count;
-            return;
-        }
-
-        // If the previous instruction was discarding an equal number of slots...
-        if (lastInstruction.fOp == BuilderOp::discard_stack && lastInstruction.fImmA == src.count) {
-            // ... and the instruction before that was copying from the stack to the same slots...
-            Instruction& prevInstruction = fInstructions.fromBack(1);
-            if ((prevInstruction.fOp == BuilderOp::copy_stack_to_slots ||
-                 prevInstruction.fOp == BuilderOp::copy_stack_to_slots_unmasked) &&
-                prevInstruction.fSlotA == src.index &&
-                prevInstruction.fImmA == src.count) {
-                // ... we are emitting `copy stack to X, discard stack, copy X to stack`. This is a
-                // common pattern when multiple operations in a row affect the same variable. We can
-                // eliminate the discard and just leave X on the stack.
-                fInstructions.pop_back();
-                return;
-            }
+            src.count = 0;
         }
     }
 
     if (src.count > 0) {
         fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
+    }
+
+    // Look for a sequence of "copy stack to X, discard stack, copy X to stack". This is a common
+    // pattern when multiple operations in a row affect the same variable. When we see this, we can
+    // eliminate both the discard and the push.
+    if (fInstructions.size() >= 3 && fInstructions.back().fOp == BuilderOp::push_slots) {
+        int pushIndex = fInstructions.back().fSlotA;
+        int pushCount = fInstructions.back().fImmA;
+
+        const Instruction& discardInst     = fInstructions.fromBack(1);
+        const Instruction& copyToSlotsInst = fInstructions.fromBack(2);
+
+        // Look for a `discard_stack` matching our push count.
+        if (discardInst.fOp == BuilderOp::discard_stack && discardInst.fImmA == pushCount) {
+            // Look for a `copy_stack_to_slots` matching our push.
+            if ((copyToSlotsInst.fOp == BuilderOp::copy_stack_to_slots ||
+                 copyToSlotsInst.fOp == BuilderOp::copy_stack_to_slots_unmasked) &&
+                copyToSlotsInst.fSlotA == pushIndex &&
+                copyToSlotsInst.fImmA  == pushCount) {
+                // We found a matching sequence. Remove the discard and push.
+                fInstructions.pop_back();
+                fInstructions.pop_back();
+                return;
+            }
+        }
     }
 }
 
