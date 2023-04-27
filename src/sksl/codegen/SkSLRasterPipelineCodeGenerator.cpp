@@ -2261,11 +2261,15 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         // Builder more opportunities to use immediate-mode ops.
         case OperatorKind::PLUS:
         case OperatorKind::STAR:
-            if (left.is<Literal>() && !right.is<Literal>()) {
+        case OperatorKind::BITWISEXOR:
+        case OperatorKind::LOGICALXOR: {
+            double unused;
+            if (ConstantFolder::GetConstantValue(left, &unused) &&
+                !ConstantFolder::GetConstantValue(right, &unused)) {
                 return this->pushBinaryExpression(right, op, left);
             }
             break;
-
+        }
         // Emit comma expressions.
         case OperatorKind::COMMA:
             if (Analysis::HasSideEffects(left)) {
