@@ -52,8 +52,6 @@ using NoCtx = const void*;
     #define JUMPER_IS_SCALAR
 #elif defined(SK_ARM_HAS_NEON)
     #define JUMPER_IS_NEON
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
-    #define JUMPER_IS_SKX
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #define JUMPER_IS_HSW
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
@@ -371,7 +369,7 @@ namespace SK_OPTS_NS {
         }
     }
 
-#elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#elif defined(JUMPER_IS_HSW)
     // These are __m256 and __m256i, but friendlier and strongly-typed.
     template <typename T> using V = T __attribute__((ext_vector_type(8)));
     using F   = V<float   >;
@@ -1093,7 +1091,7 @@ SI F from_half(U16 h) {
     && !defined(SK_BUILD_FOR_GOOGLE3)  // Temporary workaround for some Google3 builds.
     return vcvt_f32_f16(h);
 
-#elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#elif defined(JUMPER_IS_HSW)
     return _mm256_cvtph_ps(h);
 
 #else
@@ -1114,7 +1112,7 @@ SI U16 to_half(F f) {
     && !defined(SK_BUILD_FOR_GOOGLE3)  // Temporary workaround for some Google3 builds.
     return vcvt_f16_f32(f);
 
-#elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#elif defined(JUMPER_IS_HSW)
     return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
 
 #else
@@ -2991,7 +2989,7 @@ STAGE(matrix_perspective, const float* m) {
 SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
                         F* r, F* g, F* b, F* a) {
     F fr, br, fg, bg, fb, bb, fa, ba;
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     if (c->stopCount <=8) {
         fr = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[0]), idx);
         br = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[0]), idx);
@@ -4454,7 +4452,7 @@ namespace lowp {
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     using U8  = uint8_t  __attribute__((ext_vector_type(16)));
     using U16 = uint16_t __attribute__((ext_vector_type(16)));
     using I16 =  int16_t __attribute__((ext_vector_type(16)));
@@ -4727,7 +4725,7 @@ SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
 // Use approximate instructions and one Newton-Raphson step to calculate 1/x.
 SI F rcp_precise(F x) {
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(SK_OPTS_NS::rcp_precise(lo), SK_OPTS_NS::rcp_precise(hi));
@@ -4744,7 +4742,7 @@ SI F rcp_precise(F x) {
 #endif
 }
 SI F sqrt_(F x) {
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_sqrt_ps(lo), _mm256_sqrt_ps(hi));
@@ -4779,7 +4777,7 @@ SI F floor_(F x) {
     float32x4_t lo,hi;
     split(x, &lo,&hi);
     return join<F>(vrndmq_f32(lo), vrndmq_f32(hi));
-#elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#elif defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_floor_ps(lo), _mm256_floor_ps(hi));
@@ -4799,7 +4797,7 @@ SI F floor_(F x) {
 // The result is a number on [-1, 1).
 // Note: on neon this is a saturating multiply while the others are not.
 SI I16 scaled_mult(I16 a, I16 b) {
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     return _mm256_mulhrs_epi16(a, b);
 #elif defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
     return _mm_mulhrs_epi16(a, b);
@@ -5050,7 +5048,7 @@ SI V load(const T* ptr, size_t tail) {
     V v = 0;
     switch (tail & (N-1)) {
         case  0: memcpy(&v, ptr, sizeof(v)); break;
-    #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+    #if defined(JUMPER_IS_HSW)
         case 15: v[14] = ptr[14]; [[fallthrough]];
         case 14: v[13] = ptr[13]; [[fallthrough]];
         case 13: v[12] = ptr[12]; [[fallthrough]];
@@ -5074,7 +5072,7 @@ template <typename V, typename T>
 SI void store(T* ptr, size_t tail, V v) {
     switch (tail & (N-1)) {
         case  0: memcpy(ptr, &v, sizeof(v)); break;
-    #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+    #if defined(JUMPER_IS_HSW)
         case 15: ptr[14] = v[14]; [[fallthrough]];
         case 14: ptr[13] = v[13]; [[fallthrough]];
         case 13: ptr[12] = v[12]; [[fallthrough]];
@@ -5094,7 +5092,7 @@ SI void store(T* ptr, size_t tail, V v) {
     }
 }
 
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     template <typename V, typename T>
     SI V gather(const T* ptr, U32 ix) {
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
@@ -5132,7 +5130,7 @@ SI void store(T* ptr, size_t tail, V v) {
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
 
 SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
     __m256i _01,_23;
     split(rgba, &_01, &_23);
@@ -5613,7 +5611,7 @@ SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
                         U16* r, U16* g, U16* b, U16* a) {
 
     F fr, fg, fb, fa, br, bg, bb, ba;
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+#if defined(JUMPER_IS_HSW)
     if (c->stopCount <=8) {
         __m256i lo, hi;
         split(idx, &lo, &hi);
