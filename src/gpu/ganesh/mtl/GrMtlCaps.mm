@@ -63,6 +63,9 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
 bool GrMtlCaps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
                                            GPUFamily* gpuFamily,
                                            int* group) {
+// MTLFeatureSet is deprecated for newer versions of the SDK
+#if GR_METAL_SDK_VERSION < 300
+
 #if defined(SK_BUILD_FOR_MAC)
     // Apple Silicon is only available in later OSes
     *gpuFamily = GPUFamily::kMac;
@@ -160,6 +163,8 @@ bool GrMtlCaps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
     }
     // We don't support earlier OSes
 #endif
+
+#endif // GR_METAL_SDK_VERSION < 300
 
     // No supported GPU families were found
     return false;

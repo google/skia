@@ -35,6 +35,9 @@ MtlCaps::MtlCaps(const id<MTLDevice> device, const ContextOptions& options)
 
 // translates from older MTLFeatureSet interface to MTLGPUFamily interface
 bool MtlCaps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
+// MTLFeatureSet is deprecated for newer versions of the SDK
+#if SKGPU_GRAPHITE_METAL_SDK_VERSION < 300
+
 #if defined(SK_BUILD_FOR_MAC)
     // Apple Silicon is only available in later OSes
     *gpuFamily = GPUFamily::kMac;
@@ -133,15 +136,17 @@ bool MtlCaps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFam
     // We don't support earlier OSes
 #endif
 
+#endif // SKGPU_GRAPHITE_METAL_SDK_VERSION < 300
+
     // No supported GPU families were found
     return false;
 }
 
 bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
-#if GR_METAL_SDK_VERSION >= 220
+#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 220
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         // Apple Silicon
-#if GR_METAL_SDK_VERSION >= 230
+#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
         if ([device supportsFamily:MTLGPUFamilyApple7]) {
             *gpuFamily = GPUFamily::kApple;
             *group = 7;

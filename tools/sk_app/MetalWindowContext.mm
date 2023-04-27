@@ -56,7 +56,7 @@ void MetalWindowContext::initializeContext() {
 
     fValid = this->onInitializeContext();
 
-#if GR_METAL_SDK_VERSION >= 230
+#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
     if (fDisplayParams.fEnableBinaryArchive) {
         if (@available(macOS 11.0, iOS 14.0, *)) {
             sk_cfp<MTLBinaryArchiveDescriptor*> desc([MTLBinaryArchiveDescriptor new]);
@@ -82,7 +82,7 @@ void MetalWindowContext::initializeContext() {
     GrMtlBackendContext backendContext = {};
     backendContext.fDevice.retain((GrMTLHandle)fDevice.get());
     backendContext.fQueue.retain((GrMTLHandle)fQueue.get());
-#if GR_METAL_SDK_VERSION >= 230
+#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, *)) {
         backendContext.fBinaryArchive.retain((__bridge GrMTLHandle)fPipelineArchive);
     }
@@ -107,7 +107,7 @@ void MetalWindowContext::destroyContext() {
     fMetalLayer = nil;
     fValid = false;
 
-#if GR_METAL_SDK_VERSION >= 230
+#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, *)) {
         [fPipelineArchive release];
     }
@@ -173,7 +173,7 @@ void MetalWindowContext::setDisplayParams(const DisplayParams& params) {
 void MetalWindowContext::activate(bool isActive) {
     // serialize pipeline archive
     if (!isActive) {
-#if GR_METAL_SDK_VERSION >= 230
+#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
         if (@available(macOS 11.0, iOS 14.0, *)) {
             if (fPipelineArchive) {
                 NSError* error;
