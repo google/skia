@@ -4,7 +4,7 @@ vars = {
   # Three lines of non-changing comments so that
   # the commit queue can handle CLs rolling different
   # dependencies without interference from each other.
-  'sk_tool_revision': 'git_revision:dec3646b8299d65ccc07975eafcc3f9b5c78fab1',
+  'sk_tool_revision': 'git_revision:dbcb144ecb6ff64a9063ea7d680fb4ee4489cd10',
 
   # ninja CIPD package version.
   # https://chrome-infra-packages.appspot.com/p/infra/3pp/tools/ninja
