@@ -595,6 +595,11 @@ public:
         }
     }
 
+    int stackID() {
+        SkASSERT(fContinueMaskStack.has_value());
+        return fContinueMaskStack->stackID();
+    }
+
 private:
     std::optional<AutoStack> fContinueMaskStack;
     Generator* fGenerator = nullptr;
@@ -1579,18 +1584,7 @@ bool Generator::writeBreakStatement(const BreakStatement&) {
 }
 
 bool Generator::writeContinueStatement(const ContinueStatement&) {
-    // This could be written as one hand-tuned RasterPipeline op, but for now, we reuse existing ops
-    // to assemble a continue op.
-
-    // Set any currently-executing lanes in the continue-mask to true via `select.`
-    fCurrentContinueMask->enter();
-    fBuilder.push_constant_i(~0);
-    fBuilder.select(/*slots=*/1);
-
-    // Disable any currently-executing lanes from the loop mask.
-    fBuilder.mask_off_loop_mask();
-    fCurrentContinueMask->exit();
-
+    fBuilder.continue_op(fCurrentContinueMask->stackID());
     return true;
 }
 

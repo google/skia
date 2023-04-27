@@ -2125,6 +2125,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::case_op, ctx});
                 break;
             }
+            case BuilderOp::continue_op:
+                pipeline->push_back({ProgramOp::continue_op, tempStackMap[inst.fImmA] - (1 * N)});
+                break;
+
             case BuilderOp::pad_stack:
             case BuilderOp::discard_stack:
                 break;
@@ -2675,6 +2679,7 @@ void Program::dump(SkWStream* out) const {
             case POp::reenable_loop_mask:
             case POp::load_return_mask:
             case POp::store_return_mask:
+            case POp::continue_op:
             case POp::cast_to_float_from_int: case POp::cast_to_float_from_uint:
             case POp::cast_to_int_from_float: case POp::cast_to_uint_from_float:
             case POp::abs_float:              case POp::abs_int:
@@ -3421,11 +3426,16 @@ void Program::dump(SkWStream* out) const {
                 opText = "label " + opArg1;
                 break;
 
-            case POp::case_op: {
+            case POp::case_op:
                 opText = "if (" + opArg1 + " == " + opArg3 +
                          ") { LoopMask = true; " + opArg2 + " = false; }";
                 break;
-            }
+
+            case POp::continue_op:
+                opText = opArg1 +
+                         " |= Mask(0xFFFFFFFF); LoopMask &= ~(CondMask & LoopMask & RetMask)";
+                break;
+
             default:
                 break;
         }

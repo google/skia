@@ -31,7 +31,7 @@ label                          label 0
 load_loop_mask                 LoopMask = $0
 copy_constant                  b = 0x40A00000 (5.0)
 store_loop_mask                $0 = LoopMask
-jump                           jump +19 (label 4 at #53)
+jump                           jump +17 (label 4 at #51)
 label                          label 0x00000005
 copy_constant                  $4 = 0
 copy_slot_unmasked             $1 = b
@@ -40,9 +40,7 @@ store_condition_mask           $1 = CondMask
 copy_slot_unmasked             $2 = x(3)
 cmpeq_imm_float                $2 = equal($2, 0x3F800000 (1.0))
 merge_condition_mask           CondMask = $1 & $2
-copy_constant                  $5 = 0xFFFFFFFF
-copy_slot_masked               $4 = Mask($5)
-mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+continue_op                    $4 |= Mask(0xFFFFFFFF); LoopMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $1
 copy_constant                  $1 = 0
 copy_slot_masked               x(1) = Mask($1)
@@ -56,7 +54,7 @@ copy_slot_unmasked             $2 = b
 cmple_float                    $1 = lessThanEqual($1, $2)
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -24 (label 5 at #35)
+branch_if_any_lanes_active     branch_if_any_lanes_active -22 (label 5 at #35)
 label                          label 0x00000003
 load_loop_mask                 LoopMask = $0
 copy_4_slots_unmasked          $0..3 = x

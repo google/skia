@@ -3385,6 +3385,15 @@ STAGE_TAIL(merge_loop_mask, I32* ptr) {
     update_execution_mask();
 }
 
+STAGE_TAIL(continue_op, I32* continueMask) {
+    // Set any currently-executing lanes in the continue-mask to true.
+    *continueMask |= execution_mask();
+
+    // Disable any currently-executing lanes from the loop mask. (Just like `mask_off_loop_mask`.)
+    g = sk_bit_cast<F>(sk_bit_cast<I32>(g) & ~execution_mask());
+    update_execution_mask();
+}
+
 STAGE_TAIL(case_op, SkRasterPipeline_CaseOpCtx* ctx) {
     // Check each lane to see if the case value matches the expectation.
     I32* actualValue = (I32*)ctx->ptr;
