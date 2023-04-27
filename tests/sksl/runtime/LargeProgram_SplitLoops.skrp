@@ -20,35 +20,31 @@ cmplt_imm_int                  $0 = lessThan($0, 0x0000000A)
 stack_rewind
 branch_if_no_active_lanes_eq   branch -6 (label 11 at #15) if no lanes of $0 == 0
 label                          label 0x0000000A
-copy_slot_unmasked             $0 = i₄
-copy_slot_unmasked             i₃ = $0
+copy_slot_unmasked             i₃ = i₄
 label                          label 0x00000009
 add_imm_int                    x₂ += 0x00000001
 copy_slot_unmasked             $0 = x₂
 cmplt_imm_int                  $0 = lessThan($0, 0x0000000A)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -18 (label 8 at #12) if no lanes of $0 == 0
+branch_if_no_active_lanes_eq   branch -17 (label 8 at #12) if no lanes of $0 == 0
 label                          label 0x00000007
-copy_slot_unmasked             $0 = i₃
-copy_slot_unmasked             i₂ = $0
+copy_slot_unmasked             i₂ = i₃
 label                          label 0x00000006
 add_imm_int                    x₁ += 0x00000001
 copy_slot_unmasked             $0 = x₁
 cmplt_imm_int                  $0 = lessThan($0, 0x0000000A)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -30 (label 5 at #9) if no lanes of $0 == 0
+branch_if_no_active_lanes_eq   branch -28 (label 5 at #9) if no lanes of $0 == 0
 label                          label 0x00000004
-copy_slot_unmasked             $0 = i₂
-copy_slot_unmasked             i₁ = $0
+copy_slot_unmasked             i₁ = i₂
 label                          label 0x00000003
 add_imm_int                    x += 0x00000001
 copy_slot_unmasked             $0 = x
 cmplt_imm_int                  $0 = lessThan($0, 0x0000000A)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -42 (label 2 at #6) if no lanes of $0 == 0
+branch_if_no_active_lanes_eq   branch -39 (label 2 at #6) if no lanes of $0 == 0
 label                          label 0x00000001
-copy_slot_unmasked             $0 = i₁
-copy_slot_unmasked             i = $0
+copy_slot_unmasked             i = i₁
 label                          label 0
 splat_4_constants              $0..3 = 0
 load_src                       src.rgba = $0..3

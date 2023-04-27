@@ -5,10 +5,9 @@ splat_4_constants              _1_mm = 0
 splat_2_constants              $0..1 = 0
 swizzle_4                      $0..3 = ($0..3).yxxy
 copy_4_slots_unmasked          _3_z = $0..3
-copy_4_uniforms                $0..3 = testMatrix2x2
-copy_4_slots_unmasked          _0_m = $0..3
-copy_4_uniforms                $0..3 = testMatrix2x2
-copy_4_slots_unmasked          _0_m = $0..3
+copy_4_uniforms                _0_m = testMatrix2x2
+copy_4_uniforms                _0_m = testMatrix2x2
+copy_4_slots_unmasked          $0..3 = _0_m
 splat_4_constants              $4..7 = 0x80000000 (-0.0)
 bitwise_xor_4_ints             $0..3 ^= $4..7
 copy_4_slots_unmasked          _0_m = $0..3
@@ -35,7 +34,7 @@ bitwise_and_int                $80 &= $81
 bitwise_and_int                $79 &= $80
 copy_constant                  $50 = 0
 merge_condition_mask           CondMask = $78 & $79
-branch_if_no_lanes_active      branch_if_no_lanes_active +68 (label 2 at #106)
+branch_if_no_lanes_active      branch_if_no_lanes_active +68 (label 2 at #105)
 splat_4_constants              m(0..3) = 0
 splat_4_constants              m(4..7) = 0
 splat_4_constants              m(8), mm(0..2) = 0
@@ -107,7 +106,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $78
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $49 & $50
-branch_if_no_lanes_active      branch_if_no_lanes_active +92 (label 1 at #202)
+branch_if_no_lanes_active      branch_if_no_lanes_active +92 (label 1 at #201)
 copy_4_uniforms                testMatrix4x4(0..3) = testInputs
 copy_4_uniforms                testMatrix4x4(4..7) = testInputs
 copy_4_uniforms                testMatrix4x4(8..11) = testInputs

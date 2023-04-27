@@ -3,12 +3,10 @@ init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_2_slots_unmasked          x = coords
 label                          label 0
 copy_2_slots_unmasked          x₁ = coords
-copy_2_slots_unmasked          $0..1 = x₁
-copy_2_slots_unmasked          coords = $0..1
+copy_2_slots_unmasked          coords = x₁
 label                          label 0x00000001
-splat_2_constants              $0..1 = 0
-copy_2_slots_unmasked          x₂ = $0..1
-copy_2_slots_unmasked          coords = $0..1
+splat_2_constants              x₂ = 0
+copy_2_slots_unmasked          coords = x₂
 label                          label 0x00000002
 copy_4_uniforms                $0..3 = colorGreen
 load_src                       src.rgba = $0..3

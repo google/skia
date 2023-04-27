@@ -3,17 +3,15 @@ init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              color = 0
 copy_uniform                   $0 = unknownInput
 cmpeq_imm_float                $0 = equal($0, 0x3F800000 (1.0))
-branch_if_no_active_lanes_eq   branch +3 (label 0 at #9) if no lanes of $0 == 0xFFFFFFFF
-copy_constant                  $1 = 0x3F800000 (1.0)
-copy_slot_unmasked             color(1) = $1
+branch_if_no_active_lanes_eq   branch +2 (label 0 at #8) if no lanes of $0 == 0xFFFFFFFF
+copy_constant                  color(1) = 0x3F800000 (1.0)
 label                          label 0
 copy_uniform                   $0 = unknownInput
 cmpeq_imm_float                $0 = equal($0, 0x40000000 (2.0))
-branch_if_no_active_lanes_eq   branch +2 (label 2 at #14) if no lanes of $0 == 0xFFFFFFFF
-jump                           jump +4 (label 3 at #17)
+branch_if_no_active_lanes_eq   branch +2 (label 2 at #13) if no lanes of $0 == 0xFFFFFFFF
+jump                           jump +3 (label 3 at #15)
 label                          label 0x00000002
-copy_constant                  $1 = 0x3F800000 (1.0)
-copy_slot_unmasked             color(3) = $1
+copy_constant                  color(3) = 0x3F800000 (1.0)
 label                          label 0x00000003
 copy_4_slots_unmasked          $0..3 = color
 load_src                       src.rgba = $0..3

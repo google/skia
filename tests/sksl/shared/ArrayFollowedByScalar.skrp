@@ -1,13 +1,9 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              rgb[0], rgb[1], rgb[2], a = 0
-copy_constant                  $0 = 0
-copy_slot_unmasked             rgb[0] = $0
-copy_constant                  $0 = 0x3F800000 (1.0)
-copy_slot_unmasked             rgb[1] = $0
-copy_constant                  $0 = 0
-copy_slot_unmasked             rgb[2] = $0
-copy_constant                  $0 = 0x3F800000 (1.0)
-copy_slot_unmasked             a = $0
+copy_constant                  rgb[0] = 0
+copy_constant                  rgb[1] = 0x3F800000 (1.0)
+copy_constant                  rgb[2] = 0
+copy_constant                  a = 0x3F800000 (1.0)
 copy_4_slots_unmasked          $0..3 = rgb[0], rgb[1], rgb[2], a
 load_src                       src.rgba = $0..3

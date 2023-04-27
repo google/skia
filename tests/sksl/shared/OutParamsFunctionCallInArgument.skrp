@@ -1,16 +1,15 @@
 store_src_rg                   c = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              testArray[0], testArray[1] = 0
-copy_uniform                   $12 = colorRed(0)
-copy_slot_unmasked             v = $12
+copy_uniform                   v = colorRed(0)
+copy_slot_unmasked             $12 = v
 cast_to_int_from_float         $12 = FloatToInt($12)
-copy_slot_unmasked             $13 = v
-copy_slot_unmasked             testArray[0] = $13
+copy_slot_unmasked             testArray[0] = v
 label                          label 0x00000001
 copy_from_indirect_unmasked    $0 = Indirect(testArray[0] + $12)
 copy_slot_unmasked             v₁ = $0
-copy_uniform                   $0 = colorGreen(1)
-copy_slot_unmasked             v₁ = $0
+copy_uniform                   v₁ = colorGreen(1)
+copy_slot_unmasked             $0 = v₁
 copy_to_indirect_masked        Indirect(testArray[0] + $12) = Mask($0)
 label                          label 0
 copy_slot_unmasked             $0 = testArray[0]

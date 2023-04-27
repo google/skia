@@ -3,8 +3,7 @@ init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  x = 0x41200000 (10.0)
 copy_slot_unmasked             x₁ = x
 splat_2_constants              y[0], y[1] = 0
-copy_slot_unmasked             $0 = x₁
-copy_slot_unmasked             y[0] = $0
+copy_slot_unmasked             y[0] = x₁
 copy_slot_unmasked             $0 = x₁
 mul_imm_float                  $0 *= 0x40000000 (2.0)
 copy_slot_unmasked             y[1] = $0

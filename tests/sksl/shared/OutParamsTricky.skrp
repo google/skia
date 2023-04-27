@@ -22,8 +22,7 @@ swizzle_copy_2_slots_masked    (color(0..2)).xz = Mask($2..3)
 label                          label 0x00000001
 copy_2_slots_unmasked          t = $0..1
 swizzle_copy_2_slots_masked    (color).yw = Mask($0..1)
-copy_4_slots_unmasked          $0..3 = color
-copy_4_slots_unmasked          result = $0..3
+copy_4_slots_unmasked          result = color
 label                          label 0
 copy_4_slots_unmasked          $0..3 = result
 copy_constant                  $4 = 0x40000000 (2.0)

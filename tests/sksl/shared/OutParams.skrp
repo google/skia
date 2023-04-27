@@ -1,9 +1,8 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  h = 0
-copy_uniform                   $0 = colorWhite(0)
-copy_slot_unmasked             v = $0
-copy_slot_unmasked             h = $0
+copy_uniform                   v = colorWhite(0)
+copy_slot_unmasked             h = v
 label                          label 0
 splat_2_constants              h2 = 0
 copy_uniform                   $0 = colorWhite(1)
@@ -23,9 +22,8 @@ swizzle_4                      $0..3 = ($0..3).xxxx
 copy_4_slots_unmasked          v₃ = $0..3
 copy_4_slots_unmasked          h4 = $0..3
 label                          label 0x00000003
-copy_uniform                   $0 = colorWhite(0)
-copy_slot_unmasked             v = $0
-copy_slot_unmasked             h3(1) = $0
+copy_uniform                   v = colorWhite(0)
+copy_slot_unmasked             h3(1) = v
 label                          label 0x00000004
 copy_uniform                   $0 = colorWhite(1)
 copy_slot_unmasked             $1 = $0
@@ -78,13 +76,11 @@ swizzle_3                      $0..2 = ($0..2).xxx
 copy_3_slots_unmasked          v₂ = $0..2
 copy_3_slots_unmasked          h3x3(3..5) = $0..2
 label                          label 0x0000000A
-copy_uniform                   $0 = colorWhite(0)
-copy_slot_unmasked             v = $0
-copy_slot_unmasked             h4x4(15) = $0
+copy_uniform                   v = colorWhite(0)
+copy_slot_unmasked             h4x4(15) = v
 label                          label 0x0000000B
-copy_uniform                   $0 = colorWhite(0)
-copy_slot_unmasked             v = $0
-copy_slot_unmasked             h2x2(0) = $0
+copy_uniform                   v = colorWhite(0)
+copy_slot_unmasked             h2x2(0) = v
 label                          label 0x0000000C
 copy_constant                  i = 0
 copy_uniform                   $0 = colorWhite(0)
@@ -125,9 +121,8 @@ copy_slot_unmasked             v₇ = $0
 copy_slot_unmasked             i2(1) = $0
 label                          label 0x00000012
 copy_constant                  f = 0
-copy_uniform                   $0 = colorWhite(0)
-copy_slot_unmasked             v₁₁ = $0
-copy_slot_unmasked             f = $0
+copy_uniform                   v₁₁ = colorWhite(0)
+copy_slot_unmasked             f = v₁₁
 label                          label 0x00000013
 splat_2_constants              f2 = 0
 copy_uniform                   $0 = colorWhite(1)
@@ -152,9 +147,8 @@ copy_slot_unmasked             $1 = $0
 copy_2_slots_unmasked          v₁₂ = $0..1
 copy_2_slots_unmasked          f3(0..1) = $0..1
 label                          label 0x00000017
-copy_uniform                   $0 = colorWhite(0)
-copy_slot_unmasked             v₁₁ = $0
-copy_slot_unmasked             f2(0) = $0
+copy_uniform                   v₁₁ = colorWhite(0)
+copy_slot_unmasked             f2(0) = v₁₁
 label                          label 0x00000018
 splat_4_constants              f2x2 = 0
 copy_constant                  $0 = 0
@@ -192,9 +186,8 @@ copy_4_slots_unmasked          f4x4(4..7) = $4..7
 copy_4_slots_unmasked          f4x4(8..11) = $8..11
 copy_4_slots_unmasked          f4x4(12..15) = $12..15
 label                          label 0x0000001B
-copy_uniform                   $0 = colorWhite(0)
-copy_slot_unmasked             v₁₁ = $0
-copy_slot_unmasked             f2x2(0) = $0
+copy_uniform                   v₁₁ = colorWhite(0)
+copy_slot_unmasked             f2x2(0) = v₁₁
 label                          label 0x0000001C
 copy_constant                  b = 0
 copy_uniform                   $0 = colorWhite(0)

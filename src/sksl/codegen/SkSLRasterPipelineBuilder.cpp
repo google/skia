@@ -248,6 +248,43 @@ void Builder::pad_stack(int32_t count) {
     }
 }
 
+bool Builder::simplifyImmediateUnmaskedOp() {
+    if (fInstructions.size() < 3) {
+        return false;
+    }
+
+    // If we detect a pattern of 'push, immediate-op, unmasked pop', then we can
+    // convert it into an immediate-op directly onto the value slots and take the
+    // stack entirely out of the equation.
+    Instruction& popInstruction  = fInstructions.back();
+    Instruction& immInstruction  = fInstructions.fromBack(1);
+    Instruction& pushInstruction = fInstructions.fromBack(2);
+
+    // If the last instruction is a single-slot, unmasked pop...
+    if (popInstruction.fOp == BuilderOp::copy_stack_to_slots_unmasked &&
+        popInstruction.fImmA == 1) {
+        // ... and the previous instruction was an immediate-mode op...
+        if (is_immediate_op(immInstruction.fOp)) {
+            // ... and the instruction prior to that was `push_slots`...
+            if (pushInstruction.fOp == BuilderOp::push_slots && pushInstruction.fImmA >= 1) {
+                // ... onto the same slot being popped...
+                Slot immSlot = popInstruction.fSlotA;
+                Slot pushSlot = pushInstruction.fSlotA + pushInstruction.fImmA - 1;
+                if (immSlot == pushSlot) {
+                    // ... we can shrink the push, eliminate the pop, and perform the immediate op
+                    // in-place instead.
+                    pushInstruction.fImmA--;
+                    immInstruction.fSlotA = immSlot;
+                    fInstructions.pop_back();
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 void Builder::discard_stack(int32_t count) {
     // If we pushed something onto the stack and then immediately discarded part of it, we can
     // shrink or eliminate the push.
@@ -287,35 +324,35 @@ void Builder::discard_stack(int32_t count) {
                 fInstructions.pop_back();
                 continue;
 
-            case BuilderOp::copy_stack_to_slots_unmasked:
-                // If we detect a pattern of 'push, immediate-op, unmasked pop', then we can convert
-                // it into an immediate-op directly onto the value slots and take the stack entirely
-                // out of the equation.
-
-                // If this was a single-slot unmasked pop...
-                if (fInstructions.size() >= 3 && lastInstruction.fImmA == 1) {
-                    // ... and the previous instruction was an immediate-mode op...
-                    Instruction& immInstruction = fInstructions.fromBack(1);
-                    if (is_immediate_op(immInstruction.fOp)) {
-                        // ... and the instruction prior to that was `push_slots`...
-                        Instruction& pushInstruction = fInstructions.fromBack(2);
-                        if (pushInstruction.fOp == BuilderOp::push_slots) {
-                            // ... from the same slot...
-                            Slot pushedSlot = pushInstruction.fSlotA + pushInstruction.fImmA - 1;
-                            if (pushInstruction.fImmA >= 1 &&
-                                (pushedSlot == lastInstruction.fSlotA)) {
-                                // ... we can eliminate the push and pop, and perform the immediate
-                                // op in-place instead.
-                                immInstruction.fSlotA = lastInstruction.fSlotA;
-                                pushInstruction.fImmA--;   // shrink the push by one slot
-                                fInstructions.pop_back();  // eliminate the pop
-                                --count;                   // reduce the discard count by one
-                            }
-                        }
+            case BuilderOp::copy_stack_to_slots_unmasked: {
+                // Look for a pattern of `push, immediate-ops, pop` and simplify it down to an
+                // immediate-op directly to the value slot.
+                if (count == 1) {
+                    if (this->simplifyImmediateUnmaskedOp()) {
+                        return;
                     }
                 }
-                break;
 
+                // A `copy_stack_to_slots_unmasked` op, followed immediately by a `discard_stack`
+                // op, is interpreted as an unmasked stack pop. We can simplify pops in a variety of
+                // ways. First, temporarily get rid of `copy_stack_to_slots_unmasked`.
+                SlotRange dst{lastInstruction.fSlotA, lastInstruction.fImmA};
+                fInstructions.pop_back();
+
+                // See if we can write this pop in a simpler way.
+                this->simplifyPopSlotsUnmasked(&dst);
+
+                // If simplification consumed the entire range, we're done!
+                if (dst.count == 0) {
+                    return;
+                }
+
+                // Simplification did not consume the entire range. We are still responsible for
+                // copying-back and discarding any remaining slots.
+                this->copy_stack_to_slots_unmasked(dst);
+                count = dst.count;
+                break;
+            }
             default:
                 break;
         }
@@ -739,16 +776,8 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
 
 void Builder::pop_slots_unmasked(SlotRange dst) {
     SkASSERT(dst.count >= 0);
-
-    // If we are popping immediately after a push, we can simplify the code by writing the pushed
-    // value directly to the destination range.
-    this->simplifyPopSlotsUnmasked(&dst);
-
-    // Pop from the stack normally.
-    if (dst.count > 0) {
-        this->copy_stack_to_slots_unmasked(dst);
-        this->discard_stack(dst.count);
-    }
+    this->copy_stack_to_slots_unmasked(dst);
+    this->discard_stack(dst.count);
 }
 
 void Builder::pop_src_rgba() {

@@ -1,25 +1,24 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  glob = 0
-copy_constant                  $0 = 0x00000002 (2.802597e-45)
-copy_slot_unmasked             glob = $0
+copy_constant                  glob = 0x00000002 (2.802597e-45)
 copy_constant                  _0_var = 0xFFFFFFFF
 store_condition_mask           $12 = CondMask
 store_condition_mask           $15 = CondMask
 store_condition_mask           $18 = CondMask
 copy_constant                  $20 = 0xFFFFFFFF
-branch_if_no_active_lanes_eq   branch +6 (label 4 at #17) if no lanes of $20 == 0xFFFFFFFF
-branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 6 at #15)
+branch_if_no_active_lanes_eq   branch +6 (label 4 at #16) if no lanes of $20 == 0xFFFFFFFF
+branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 6 at #14)
 copy_slot_unmasked             $19 = glob
 cmpeq_imm_int                  $19 = equal($19, 0x00000002)
 label                          label 0x00000006
-jump                           jump +3 (label 5 at #19)
+jump                           jump +3 (label 5 at #18)
 label                          label 0x00000004
 copy_constant                  $19 = 0
 label                          label 0x00000005
 copy_constant                  $16 = 0
 merge_condition_mask           CondMask = $18 & $19
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #27)
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #26)
 copy_constant                  S = 0xFFFFFFFF
 copy_slot_unmasked             $17 = S
 label                          label 0x00000007
@@ -28,7 +27,7 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $18
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 2 at #37)
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 2 at #36)
 copy_constant                  S.i = 0x00000001 (1.401298e-45)
 copy_slot_unmasked             $14 = S.i
 cmpeq_imm_int                  $14 = equal($14, 0x00000001)
@@ -38,7 +37,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $15
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 1 at #47)
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 1 at #46)
 copy_constant                  glob₁ = 0x00000001 (1.401298e-45)
 copy_slot_unmasked             $1 = glob₁
 cmpeq_imm_int                  $1 = equal($1, 0x00000001)

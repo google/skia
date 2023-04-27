@@ -1,10 +1,8 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              r, g = 0
-copy_constant                  $0 = 0
-copy_slot_unmasked             r = $0
-copy_constant                  $0 = 0x3F800000 (1.0)
-copy_slot_unmasked             g = $0
+copy_constant                  r = 0
+copy_constant                  g = 0x3F800000 (1.0)
 copy_2_slots_unmasked          $0..1 = r, g
 copy_constant                  $2 = 0
 copy_constant                  $3 = 0x3F800000 (1.0)

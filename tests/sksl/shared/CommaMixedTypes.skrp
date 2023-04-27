@@ -1,13 +1,6 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              result = 0
-copy_uniform                   $0 = colorGreen(0)
-copy_slot_unmasked             result(0) = $0
-copy_uniform                   $0 = colorGreen(1)
-copy_slot_unmasked             result(1) = $0
-copy_uniform                   $0 = colorGreen(2)
-copy_slot_unmasked             result(2) = $0
-copy_uniform                   $0 = colorGreen(3)
-copy_slot_unmasked             result(3) = $0
+copy_4_uniforms                result = colorGreen
 copy_4_slots_unmasked          $0..3 = result
 load_src                       src.rgba = $0..3
