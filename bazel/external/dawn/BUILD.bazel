@@ -744,6 +744,8 @@ TINT_SRCS = [
     "src/tint/program.h",
     "src/tint/program_builder.cc",
     "src/tint/program_builder.h",
+    "src/tint/resolver/builtin_structs.cc",
+    "src/tint/resolver/builtin_structs.h",
     "src/tint/resolver/const_eval.cc",
     "src/tint/resolver/const_eval.h",
     "src/tint/resolver/ctor_conv_intrinsic.cc",
