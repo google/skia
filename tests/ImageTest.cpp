@@ -230,7 +230,7 @@ static void test_encode(skiatest::Reporter* reporter, GrDirectContext* dContext,
 
     // Now see if we can instantiate an image from a subset of the surface/origEncoded
 
-    decoded = SkImages::DeferredFromEncodedData(origEncoded)->makeSubset(ir);
+    decoded = SkImages::DeferredFromEncodedData(origEncoded)->makeSubset(nullptr, ir);
     REPORTER_ASSERT(reporter, decoded);
     assert_equal(reporter, dContext, image, &ir, decoded.get());
 }
@@ -1000,7 +1000,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // 3) Create image, draw, free image, flush
         // ... and then repeat the last two patterns with drawing on a second* context:
         // 4) Create image, draw*, flush*, free image
-        // 5) Create image, draw*, free iamge, flush*
+        // 5) Create image, draw*, free image, flush*
 
         // Case #1: Create image, free image
         {
@@ -1089,7 +1089,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             GrRecordingContextPriv::AutoSuppressWarningMessages aswm(otherCtx);
 
             testContext->makeCurrent();
-            sk_sp<SkImage> refImg(imageMaker(dContext));
+            sk_sp <SkImage> refImg(imageMaker(dContext));
             GrSurfaceProxyView view, otherView, viewSecondRef;
 
             // Any context should be able to borrow the texture at this point
@@ -1663,7 +1663,7 @@ DEF_TEST(image_subset_encode_skbug_7752, reporter) {
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), img2.get()));
     };
     check_roundtrip(image); // should trivially pass
-    check_roundtrip(image->makeSubset({0, 0, W/2, H/2}));
-    check_roundtrip(image->makeSubset({W/2, H/2, W, H}));
+    check_roundtrip(image->makeSubset(nullptr, {0, 0, W/2, H/2}));
+    check_roundtrip(image->makeSubset(nullptr, {W/2, H/2, W, H}));
     check_roundtrip(image->makeColorSpace(SkColorSpace::MakeSRGBLinear()));
 }

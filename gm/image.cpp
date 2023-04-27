@@ -508,11 +508,11 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
 
 #if defined(SK_GRAPHITE)
     if (recorder) {
-        subset = img->makeSubset({100, 100, 200, 200}, recorder);
+        subset = img->makeSubset(recorder, {100, 100, 200, 200}, {});
     } else
 #endif
     {
-        subset = img->makeSubset({100, 100, 200, 200}, dContext);
+        subset = img->makeSubset(dContext, {100, 100, 200, 200});
     }
 
     canvas->drawImage(subset, 220, 10);

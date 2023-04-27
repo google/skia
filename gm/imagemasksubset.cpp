@@ -94,10 +94,10 @@ DEF_SIMPLE_GM(imagemasksubset, canvas, 480, 480) {
             sk_sp<SkImage> subset;
 
             if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
-                subset = image->makeSubset(kSubset, direct);
+                subset = image->makeSubset(direct, kSubset);
             } else {
 #if defined(SK_GRAPHITE)
-                subset = image->makeSubset(kSubset, canvas->recorder());
+                subset = image->makeSubset(canvas->recorder(), kSubset, {});
 #endif
             }
 

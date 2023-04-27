@@ -1134,7 +1134,7 @@ protected:
                     y += kTileWidthHeight + kPad;
 
                     SkIRect bounds = SkIRect::MakeWH(kTileWidthHeight / 2, kTileWidthHeight / 2);
-                    auto subset = yuv->makeSubset(bounds, dContext);
+                    auto subset = SkImages::SubsetTextureFrom(dContext, yuv.get(), bounds);
                     SkASSERT(subset);
                     canvas->drawImage(subset, x, y);
                     y += kTileWidthHeight + kPad;

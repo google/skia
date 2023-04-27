@@ -87,6 +87,24 @@ bool SkImage_Base::onAsLegacyBitmap(GrDirectContext* dContext, SkBitmap* bitmap)
     return true;
 }
 
+sk_sp<SkImage> SkImage_Base::makeSubset(GrDirectContext* direct, const SkIRect& subset) const {
+    if (subset.isEmpty()) {
+        return nullptr;
+    }
+
+    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+    if (!bounds.contains(subset)) {
+        return nullptr;
+    }
+
+    // optimization : return self if the subset == our bounds
+    if (bounds == subset) {
+        return sk_ref_sp(const_cast<SkImage_Base*>(this));
+    }
+
+    return as_IB(this)->onMakeSubset(direct, subset);
+}
+
 void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
                                                      sk_sp<SkColorSpace> dstColorSpace,
                                                      SkIRect srcRect,

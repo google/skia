@@ -317,16 +317,16 @@ protected:
                     auto textureGen = std::unique_ptr<GrTextureGenerator>(
                         static_cast<GrTextureGenerator*>(gen.release()));
                     fImageSubset = SkImages::DeferredFromTextureGenerator(std::move(textureGen))
-                            ->makeSubset(subset, dContext);
+                            ->makeSubset(dContext, subset);
                 } else {
                     fImageSubset = SkImages::DeferredFromGenerator(std::move(gen))
-                            ->makeSubset(subset, dContext);
+                            ->makeSubset(dContext, subset);
                 }
             } else {
 #if defined(SK_GRAPHITE)
                 auto recorder = canvas->recorder();
                 fImageSubset = SkImages::DeferredFromGenerator(std::move(gen))
-                                       ->makeSubset(subset, recorder);
+                                       ->makeSubset(recorder, subset, {});
 #endif
             }
             if (!fImageSubset) {

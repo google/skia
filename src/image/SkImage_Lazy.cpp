@@ -20,10 +20,6 @@
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkYUVPlanesCache.h"
 
-#if defined(SK_GANESH)
-#include "include/gpu/ganesh/SkImageGanesh.h"
-#endif
-
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/TextureUtils.h"
 #endif
@@ -190,30 +186,26 @@ bool SkImage_Lazy::isValid(GrRecordingContext* context) const {
     return generator->isValid(context);
 }
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext* direct) const {
-    // TODO: can we do this more efficiently, by telling the generator we want to
-    //       "realize" a subset?
 
-#if defined(SK_GANESH)
-    auto pixels = direct ? SkImages::TextureFromImage(direct, this) : this->makeRasterImage();
-#else
-    auto pixels = this->makeRasterImage();
-#endif
-    return pixels ? pixels->makeSubset(subset, direct) : nullptr;
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrDirectContext*, const SkIRect& subset) const {
+    // neither picture-backed nor codec-backed lazy images need the context to do readbacks.
+    // The subclass for cross-context images *does* use the direct context.
+    auto pixels = this->makeRasterImage(nullptr);
+    return pixels ? pixels->makeSubset(nullptr, subset) : nullptr;
 }
 
 #if defined(SK_GRAPHITE)
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset,
-                                          skgpu::graphite::Recorder* recorder,
-                                          RequiredImageProperties requiredProperties) const {
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(skgpu::graphite::Recorder*,
+                                          const SkIRect& subset,
+                                          RequiredImageProperties props) const {
     // TODO: can we do this more efficiently, by telling the generator we want to
     //       "realize" a subset?
-
-    sk_sp<SkImage> nonLazyImg = recorder ? this->makeTextureImage(recorder, requiredProperties)
-                                         : this->makeRasterImage();
-
-    return nonLazyImg ? nonLazyImg->makeSubset(subset, recorder, requiredProperties) : nullptr;
+    sk_sp<SkImage> nonLazyImg = this->makeRasterImage(nullptr);
+    if (!nonLazyImg) {
+        return nullptr;
+    }
+    return nonLazyImg->makeSubset(nullptr, subset, props);
 }
 
 #endif // SK_GRAPHITE

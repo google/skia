@@ -14,6 +14,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPromiseImageTexture.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -47,7 +48,6 @@
 
 class GrContextThreadSafeProxy;
 enum SkColorType : int;
-struct SkIRect;
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Log.h"
@@ -159,12 +159,34 @@ bool SkImage_GaneshBase::getROPixels(GrDirectContext* dContext,
     return true;
 }
 
-sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(const SkIRect& subset,
-                                                GrDirectContext* direct) const {
+sk_sp<SkImage> SkImage_GaneshBase::makeSubset(GrDirectContext* direct,
+                                              const SkIRect& subset) const {
     if (!fContext->priv().matches(direct)) {
         return nullptr;
     }
 
+    if (subset.isEmpty()) {
+        return nullptr;
+    }
+
+    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+    if (!bounds.contains(subset)) {
+        return nullptr;
+    }
+
+    // optimization : return self if the subset == our bounds
+    if (bounds == subset) {
+        return sk_ref_sp(const_cast<SkImage_GaneshBase*>(this));
+    }
+
+    return this->onMakeSubset(direct, subset);
+}
+
+sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(GrDirectContext* direct,
+                                                const SkIRect& subset) const {
+    if (!fContext->priv().matches(direct)) {
+        return nullptr;
+    }
     auto [view, ct] = skgpu::ganesh::AsView(direct, this, skgpu::Mipmapped::kNo);
     SkASSERT(view);
     SkASSERT(ct == SkColorTypeToGrColorType(this->colorType()));
@@ -195,8 +217,8 @@ sk_sp<SkImage> SkImage_GaneshBase::onMakeTextureImage(skgpu::graphite::Recorder*
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(const SkIRect&,
-                                                skgpu::graphite::Recorder*,
+sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(skgpu::graphite::Recorder*,
+                                                const SkIRect&,
                                                 RequiredImageProperties) const {
     SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
     return nullptr;
@@ -360,4 +382,17 @@ sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
 
     return GrProxyProvider::CreatePromiseProxy(
             tsp, std::move(callback), backendFormat, dimensions, mipmapped);
+}
+
+namespace SkImages {
+sk_sp<SkImage> SubsetTextureFrom(GrDirectContext* context,
+                                 const SkImage* img,
+                                 const SkIRect& subset) {
+    if (context == nullptr || img == nullptr) {
+        return nullptr;
+    }
+    auto subsetImg = img->makeSubset(context, subset);
+    return SkImages::TextureFromImage(context, subsetImg.get());
+}
+
 }

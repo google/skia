@@ -412,7 +412,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         SkIRect subset;
         this->readIRect(&subset);
         if (image) {
-            image = image->makeSubset(subset);
+            image = image->makeSubset(nullptr, subset);
         }
     }
 

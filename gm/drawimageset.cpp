@@ -92,7 +92,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
                 subset.fBottom = h;
                 set[y * m + x].fAAFlags |= SkCanvas::kBottom_QuadAAFlag;
             }
-            set[y * m + x].fImage = fullImage->makeSubset(subset);
+            set[y * m + x].fImage = fullImage->makeSubset(nullptr, subset);
             set[y * m + x].fSrcRect =
                     SkRect::MakeXYWH(x == 0 ? 0 : 1, y == 0 ? 0 : 1, tileW, tileH);
             set[y * m + x].fDstRect = SkRect::MakeXYWH(x * tileW, y * tileH, tileW, tileH);

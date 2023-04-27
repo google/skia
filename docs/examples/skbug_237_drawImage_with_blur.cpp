@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5.0f, false));
     canvas->clear(0xFF88FF88);
     canvas->scale(4, 4);
-    auto subset = image->makeSubset({16, 16, 48, 48});
+    auto subset = image->makeSubset(nullptr, {16, 16, 48, 48});
     canvas->drawImage(subset, 16, 16, SkSamplingOptions(), &paint);
 }
 }  // END FIDDLE

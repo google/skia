@@ -30,10 +30,11 @@
 
 enum class GrColorType;
 
-sk_sp<SkImage> SkImage_LazyTexture::onMakeSubset(const SkIRect& subset,
-                                                 GrDirectContext* direct) const {
-    auto pixels = direct ? SkImages::TextureFromImage(direct, this) : this->makeRasterImage();
-    return pixels ? pixels->makeSubset(subset, direct) : nullptr;
+sk_sp<SkImage> SkImage_LazyTexture::onMakeSubset(GrDirectContext* direct,
+                                                 const SkIRect& subset) const {
+    auto pixels = direct ? SkImages::TextureFromImage(direct, this) :
+                           this->makeRasterImage(nullptr);
+    return pixels ? pixels->makeSubset(direct, subset) : nullptr;
 }
 
 bool SkImage_LazyTexture::readPixelsProxy(GrDirectContext* ctx, const SkPixmap& pixmap) const {

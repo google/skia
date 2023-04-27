@@ -112,7 +112,7 @@ static SkBitmap copy_bitmap_subset(const SkBitmap& orig, const SkIRect& subset) 
     return bitmap;
 }
 
-sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
+sk_sp<SkImage> SkImage_Raster::onMakeSubset(GrDirectContext*, const SkIRect& subset) const {
     SkBitmap copy = copy_bitmap_subset(fBitmap, subset);
     if (copy.isNull()) {
         return nullptr;
@@ -139,8 +139,8 @@ static sk_sp<SkMipmap> copy_mipmaps(const SkBitmap& src, SkMipmap* srcMips) {
     return dst;
 }
 
-sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset,
-                                            skgpu::graphite::Recorder* recorder,
+sk_sp<SkImage> SkImage_Raster::onMakeSubset(skgpu::graphite::Recorder* recorder,
+                                            const SkIRect& subset,
                                             RequiredImageProperties requiredProperties) const {
     sk_sp<SkImage> img;
 
@@ -168,15 +168,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset,
         }
     }
 
-    if (!img) {
-        return nullptr;
-    }
-
-    if (recorder) {
-        return img->makeTextureImage(recorder, requiredProperties);
-    } else {
-        return img;
-    }
+    return img;
 }
 #endif // SK_GRAPHITE
 

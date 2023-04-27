@@ -203,32 +203,6 @@ sk_sp<SkData> SkImage::refEncodedData() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrDirectContext* direct) const {
-    if (subset.isEmpty()) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    if (!bounds.contains(subset)) {
-        return nullptr;
-    }
-
-#if defined(SK_GANESH)
-    auto myContext = as_IB(this)->context();
-    // This check is also performed in the subclass, but we do it here for the short-circuit below.
-    if (myContext && !myContext->priv().matches(direct)) {
-        return nullptr;
-    }
-#endif
-
-    // optimization : return self if the subset == our bounds
-    if (bounds == subset) {
-        return sk_ref_sp(const_cast<SkImage*>(this));
-    }
-
-    return as_IB(this)->onMakeSubset(subset, direct);
-}
-
 bool SkImage::readPixels(GrDirectContext* dContext, const SkPixmap& pmap, int srcX, int srcY,
                          CachingHint chint) const {
     return this->readPixels(dContext, pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX,
@@ -366,14 +340,14 @@ sk_sp<SkImage> SkImage::reinterpretColorSpace(sk_sp<SkColorSpace> target) const 
     return as_IB(this)->onReinterpretColorSpace(std::move(target));
 }
 
-sk_sp<SkImage> SkImage::makeNonTextureImage() const {
+sk_sp<SkImage> SkImage::makeNonTextureImage(GrDirectContext* dContext) const {
     if (!this->isTextureBacked()) {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
-    return this->makeRasterImage();
+    return this->makeRasterImage(dContext, kDisallow_CachingHint);
 }
 
-sk_sp<SkImage> SkImage::makeRasterImage(CachingHint chint) const {
+sk_sp<SkImage> SkImage::makeRasterImage(GrDirectContext* dContext, CachingHint chint) const {
     SkPixmap pm;
     if (this->peekPixels(&pm)) {
         return sk_ref_sp(const_cast<SkImage*>(this));
@@ -385,8 +359,10 @@ sk_sp<SkImage> SkImage::makeRasterImage(CachingHint chint) const {
         return nullptr;
     }
 
-    // Context TODO: Elevate GrDirectContext requirement to public API.
-    auto dContext = as_IB(this)->directContext();
+    if (!dContext) {
+        // Try to get the saved context if the client didn't pass it in (but they really should).
+        dContext = as_IB(this)->directContext();
+    }
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     pm = {fInfo.makeColorSpace(nullptr), data->writable_data(), fInfo.minRowBytes()};
     if (!this->readPixels(dContext, pm, 0, 0, chint)) {

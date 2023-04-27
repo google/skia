@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     if (!data) {
         data = SkPngEncoder::Encode(nullptr, image.get(), {});
     }
-    sk_sp<SkImage> eye = SkImages::DeferredFromEncodedData(data)->makeSubset(subset);
+    sk_sp<SkImage> eye = SkImages::DeferredFromEncodedData(data)->makeSubset(nullptr, subset);
     canvas->drawImage(eye, 0, 0);
 }
 }  // END FIDDLE

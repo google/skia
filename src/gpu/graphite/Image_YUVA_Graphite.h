@@ -39,7 +39,7 @@ private:
         return nullptr;
     }
     using Image_Base::onMakeSubset;
-    sk_sp<SkImage> onMakeSubset(const SkIRect&, Recorder*, RequiredImageProperties) const override {
+    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredImageProperties) const override {
         return nullptr;
     }
     using Image_Base::onMakeColorTypeAndColorSpace;

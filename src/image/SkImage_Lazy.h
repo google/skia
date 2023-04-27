@@ -60,10 +60,10 @@ public:
     bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
     sk_sp<SkData> onRefEncoded() const override;
-    sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
 #if defined(SK_GRAPHITE)
-    sk_sp<SkImage> onMakeSubset(const SkIRect&,
-                                skgpu::graphite::Recorder*,
+    sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
+                                const SkIRect&,
                                 RequiredImageProperties) const override;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                 sk_sp<SkColorSpace> targetCS,
@@ -110,6 +110,7 @@ private:
     mutable SkIDChangeListener::List fUniqueIDListeners;
 };
 
+// Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing one generator among N images
 class SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
 public:
     static sk_sp<SharedGenerator> Make(std::unique_ptr<SkImageGenerator> gen);

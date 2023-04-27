@@ -37,8 +37,8 @@ Image::Image(TextureProxyView view,
 
 Image::~Image() {}
 
-sk_sp<SkImage> Image::onMakeSubset(const SkIRect& subset,
-                                   Recorder* recorder,
+sk_sp<SkImage> Image::onMakeSubset(Recorder* recorder,
+                                   const SkIRect& subset,
                                    RequiredImageProperties requiredProps) const {
     const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
 

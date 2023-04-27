@@ -182,7 +182,7 @@ void draw_example(
         SkRect clippedContentBounds;
         if (clippedContentBounds.intersect(contentBounds, kExampleBounds)) {
             auto contentImage = ToolUtils::MakeTextureImage(
-                    canvas, image->makeSubset(clippedContentBounds.roundOut()));
+                    canvas, image->makeSubset(nullptr, clippedContentBounds.roundOut()));
             if (contentImage) {
                 SkPaint tiledPaint;
                 tiledPaint.setShader(contentImage->makeShader(

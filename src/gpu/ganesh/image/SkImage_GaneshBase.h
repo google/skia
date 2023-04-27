@@ -54,11 +54,12 @@ public:
 
     // From SkImage.h
     bool isValid(GrRecordingContext*) const final;
+    sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const final;
 
     // From SkImage_Base.h
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const final;
 
-    sk_sp<SkImage> onMakeSubset(const SkIRect& subset, GrDirectContext*) const final;
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect& subset) const final;
 
     bool onReadPixels(GrDirectContext* dContext,
                       const SkImageInfo& dstInfo,
@@ -110,8 +111,8 @@ protected:
 #if defined(SK_GRAPHITE)
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       RequiredImageProperties) const final;
-    sk_sp<SkImage> onMakeSubset(const SkIRect& subset,
-                                skgpu::graphite::Recorder*,
+    sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
+                                const SkIRect& subset,
                                 RequiredImageProperties) const final;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
                                                 sk_sp<SkColorSpace>,

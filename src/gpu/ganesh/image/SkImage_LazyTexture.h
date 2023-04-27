@@ -22,7 +22,7 @@ public:
 
     bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const override;
 
-    sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
 };
 
 #endif
