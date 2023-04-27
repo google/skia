@@ -54,7 +54,10 @@ layout (
 error: 1: only one backend qualifier can be used
 layout (
 ^^^^^^^^...
+error: 1: layout qualifier 'push_constant' is not permitted here
+layout (
+^^^^^^^^...
 error: 1: layout qualifier 'set' is not permitted here
 layout (
 ^^^^^^^^...
-19 errors
+20 errors

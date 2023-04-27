@@ -323,6 +323,13 @@ void VarDeclaration::ErrorCheck(const Context& context,
         // Disallow all layout flags except 'color' in runtime effects
         permittedLayoutFlags &= Layout::kColor_Flag;
     }
+
+    // The `push_constant` flag isn't allowed on in-variables, out-variables, bindings or sets.
+    if ((modifiers.fLayout.fFlags & (Layout::kSet_Flag | Layout::kBinding_Flag)) ||
+        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag))) {
+        permittedLayoutFlags &= ~Layout::kPushConstant_Flag;
+    }
+
     modifiers.checkPermitted(context, modifiersPosition, permitted, permittedLayoutFlags);
 }
 
