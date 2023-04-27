@@ -6,20 +6,42 @@
  */
 #include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkHalf.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+class GrCaps;
+struct GrShaderCaps;
 
 class GrMatrixConvolutionEffect::Impl : public ProgramImpl {
 public:

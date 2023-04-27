@@ -5,9 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrOvalEffect.h"
+
+#include <utility>
+
+enum class GrClipEdgeType;
 
 GrFPResult GrOvalEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP, GrClipEdgeType edgeType,
                               const SkRect& oval, const GrShaderCaps& caps) {

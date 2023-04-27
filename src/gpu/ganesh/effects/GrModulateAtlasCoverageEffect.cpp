@@ -7,9 +7,24 @@
 
 #include "src/gpu/ganesh/effects/GrModulateAtlasCoverageEffect.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkString.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrDynamicAtlas.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+#include <utility>
+
+class SkMatrix;
+struct GrShaderCaps;
 
 GrModulateAtlasCoverageEffect::GrModulateAtlasCoverageEffect(
         Flags flags,

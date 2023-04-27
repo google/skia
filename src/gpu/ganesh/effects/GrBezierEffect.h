@@ -8,12 +8,20 @@
 #ifndef GrBezierEffect_DEFINED
 #define GrBezierEffect_DEFINED
 
+#include "include/core/SkMatrix.h"
+#include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
-#include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+
+#include <cstdint>
+#include <memory>
+
+namespace skgpu { class KeyBuilder; }
 
 /**
  * Shader is based off of Loop-Blinn Quadratic GPU Rendering
@@ -55,8 +63,6 @@
  * only one geometry would need to be rendered. However no benches were run comparing
  * chopped first order and non chopped 2nd order.
  */
-class GrGLConicEffect;
-
 class GrConicEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
@@ -117,8 +123,6 @@ private:
  * Coverage for AA is min(0, 1-distance). 3rd & 4th cimponent unused.
  * Requires shader derivative instruction support.
  */
-class GrGLQuadEffect;
-
 class GrQuadEffect : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,

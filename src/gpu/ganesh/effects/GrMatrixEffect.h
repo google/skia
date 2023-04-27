@@ -8,10 +8,18 @@
 #ifndef GrMatrixEffect_DEFINED
 #define GrMatrixEffect_DEFINED
 
-#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkSLSampleUsage.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
+
+#include <memory>
+#include <utility>
+
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
 
 class GrMatrixEffect : public GrFragmentProcessor {
 public:

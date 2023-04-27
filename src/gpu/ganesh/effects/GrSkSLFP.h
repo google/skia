@@ -8,21 +8,35 @@
 #ifndef GrSkSLFP_DEFINED
 #define GrSkSLFP_DEFINED
 
-#include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/gpu/GrContextOptions.h"
-#include "src/base/SkVx.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "src/base/SkVx.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
-#include <atomic>
+#include <cstdint>
+#include <cstring>
+#include <memory>
+#include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
-struct GrShaderCaps;
+class SkColorSpace;
 class SkData;
-class SkRuntimeEffect;
+class SkM44;
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
+struct SkRect;
+struct SkV2;
+struct SkV4;
+
+template <typename T> struct GrFPUniformType;
 
 #ifdef SK_DEBUG
 // UNIFORM_TYPE allows C++ types to be mapped onto SkRuntimeEffect::Uniform::Type

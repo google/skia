@@ -8,14 +8,25 @@
 #ifndef GrMatrixConvolutionEffect_DEFINED
 #define GrMatrixConvolutionEffect_DEFINED
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 
 #include <array>
+#include <memory>
 #include <new>
+#include <tuple>
 
+class GrCaps;
+class GrRecordingContext;
 class GrSurfaceProxyView;
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
+struct SkIRect;
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:

@@ -7,12 +7,30 @@
 
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
-#include "src/core/SkMatrixPriv.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
-#include "src/sksl/SkSLUtil.h"
+#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+#include <algorithm>
+#include <utility>
+
+enum SkAlphaType : int;
+struct GrShaderCaps;
 
 using Wrap = GrSamplerState::WrapMode;
 using Filter = GrSamplerState::Filter;

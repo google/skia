@@ -7,6 +7,8 @@
 
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
+#include "include/core/SkM44.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrPipeline.h"

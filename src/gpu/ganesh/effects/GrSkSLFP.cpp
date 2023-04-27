@@ -7,29 +7,46 @@
 
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/effects/SkOverdrawColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/gpu/ganesh/GrContext_Base.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkFilterColorProgram.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSLTypeShared.h"
-#include "src/core/SkVM.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrBaseContextPriv.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
-#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVariable.h"
+
+#include <algorithm>
+
+namespace SkSL { class Context; }
+struct GrShaderCaps;
 
 class GrSkSLFP::Impl : public ProgramImpl {
 public:
@@ -495,9 +512,6 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP)
 
 #if GR_TEST_UTILS
-
-#include "include/effects/SkOverdrawColorFilter.h"
-#include "src/core/SkColorFilterBase.h"
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
     SkColor colors[SkOverdrawColorFilter::kNumColors];

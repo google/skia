@@ -10,16 +10,20 @@
 
 #if !defined(SK_DISABLE_SDF_TEXT)
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
-#include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 
-class GrGLDistanceFieldA8TextGeoProc;
-class GrGLDistanceFieldLCDTextGeoProc;
-class GrGLDistanceFieldPathGeoProc;
-class GrInvariantOutput;
+#include <cstdint>
+#include <memory>
+
 class GrSurfaceProxyView;
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
 
 enum GrDistanceFieldEffectFlags {
     kSimilarity_DistanceFieldEffectFlag   = 0x001, // ctm is similarity matrix

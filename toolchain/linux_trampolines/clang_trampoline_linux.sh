@@ -24,6 +24,7 @@ supported_files_or_dirs=(
   "src/codec/"
   "src/effects/"
   "src/encode/"
+  "src/gpu/ganesh/effects/"
   "src/gpu/ganesh/image/"
   "src/gpu/ganesh/surface/"
   "src/image/"

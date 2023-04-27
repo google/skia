@@ -7,13 +7,19 @@
 
 #include "src/gpu/ganesh/effects/GrBezierEffect.h"
 
+#include "include/core/SkColor.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrColor.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
+
+#include <iterator>
 
 class GrConicEffect::Impl : public ProgramImpl {
 public:

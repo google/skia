@@ -7,16 +7,33 @@
 
 #include "src/gpu/ganesh/effects/GrGaussianConvolutionFragmentProcessor.h"
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkGpuBlurUtils.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/SkSLGLSL.h"
+#include "src/sksl/SkSLString.h"
+
+#include <algorithm>
+#include <cstring>
+#include <string>
+#include <utility>
+
+enum SkAlphaType : int;
 
 // For brevity
 using UniformHandle = GrGLSLProgramDataManager::UniformHandle;

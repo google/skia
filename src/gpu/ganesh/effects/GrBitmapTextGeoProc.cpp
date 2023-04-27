@@ -7,16 +7,30 @@
 
 #include "src/gpu/ganesh/effects/GrBitmapTextGeoProc.h"
 
+#include "include/core/SkSamplingOptions.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/effects/GrAtlasedShaderHelpers.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
-#include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
+
+#include <algorithm>
+
+class GrGLSLVertexBuilder;
 
 using MaskFormat = skgpu::MaskFormat;
 

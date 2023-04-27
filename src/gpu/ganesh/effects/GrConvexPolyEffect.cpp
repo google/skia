@@ -7,12 +7,28 @@
 
 #include "src/gpu/ganesh/effects/GrConvexPolyEffect.h"
 
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkPathEnums.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <tuple>
+
+struct GrShaderCaps;
 
 //////////////////////////////////////////////////////////////////////////////
 

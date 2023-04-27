@@ -9,11 +9,19 @@
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
 #include "include/core/SkM44.h"
+#include "include/core/SkString.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 
+#include <memory>
+
 class GrSurfaceProxyView;
+enum SkAlphaType : int;
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
+struct SkIRect;
 
 /**
  * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width weights.

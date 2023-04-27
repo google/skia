@@ -7,17 +7,32 @@
 
 #include "src/gpu/ganesh/effects/GrRRectEffect.h"
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRandom.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkRRectPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/gpu/ganesh/effects/GrConvexPolyEffect.h"
 #include "src/gpu/ganesh/effects/GrOvalEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/shaders/SkShaderBase.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <tuple>
+#include <utility>
 
 // The effects defined here only handle rrect radii >= kRadiusMin.
 static const SkScalar kRadiusMin = SK_ScalarHalf;
