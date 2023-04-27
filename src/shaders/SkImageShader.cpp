@@ -202,8 +202,8 @@ bool SkImageShader::isOpaque() const {
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
     SkASSERT(!inv.hasPerspective());
 
-    // Scale+translate methods are always present, but affine might not be.
-    if (!SkOpts::S32_alpha_D32_filter_DXDY && !inv.isScaleTranslate()) {
+    // We only have methods for scale+translate
+    if (!inv.isScaleTranslate()) {
         return false;
     }
 

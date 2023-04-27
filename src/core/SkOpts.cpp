@@ -80,7 +80,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(hash_fn);
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
-    DEFINE_DEFAULT(S32_alpha_D32_filter_DXDY);
 
 #if defined(SK_ENABLE_SKVM)
     DEFINE_DEFAULT(interpret_skvm);
