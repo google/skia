@@ -315,10 +315,6 @@ sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
     return this->snapSpecial(SkIRect::MakeWH(this->width(), this->height()));
 }
 
-skif::Context SkBaseDevice::createContext(const skif::ContextInfo& ctxInfo) const {
-    return skif::Context::MakeRaster(ctxInfo);
-}
-
 void SkBaseDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& sampling,
                               const SkPaint& paint) {
     sk_sp<SkSpecialImage> deviceImage = device->snapSpecial();
@@ -345,13 +341,8 @@ void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping,
     // getImageFilterCache returns a bare image filter cache pointer that must be ref'ed until the
     // filter's filterImage(ctx) function returns.
     sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-    skif::Context ctx = this->createContext({mapping,
-                                             targetOutput,
-                                             skif::FilterResult(sk_ref_sp(src)),
-                                             colorType,
-                                             this->imageInfo().colorSpace(),
-                                             src->props(),
-                                             cache.get()});
+    skif::Context ctx(mapping, targetOutput, cache.get(), colorType, this->imageInfo().colorSpace(),
+                      skif::FilterResult(sk_ref_sp(src)));
 
     SkIPoint offset;
     sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);
