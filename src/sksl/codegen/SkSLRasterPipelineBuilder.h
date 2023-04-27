@@ -679,6 +679,7 @@ public:
 private:
     void simplifyPopSlotsUnmasked(SlotRange* dst);
     bool simplifyImmediateUnmaskedOp();
+    void simplifyOverwrittenRange(SlotRange dst);
 
     skia_private::TArray<Instruction> fInstructions;
     int fNumLabels = 0;

@@ -1,6 +1,5 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  ok = 0
 copy_constant                  ok = 0xFFFFFFFF
 copy_4_uniforms                green = colorGreen
 copy_4_uniforms                red = colorRed
