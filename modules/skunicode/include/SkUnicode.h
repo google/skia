@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkBitmaskEnum.h" // IWYU pragma: keep
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
 
 #include <cstddef>
@@ -166,11 +167,11 @@ class SKUNICODE_API SkUnicode {
             auto end = utf8.end();
             while (ptr < end) {
 
-                size_t index = ptr - utf8.begin();
+                size_t index = SkToSizeT(ptr - utf8.begin());
                 SkUnichar u = SkUTF::NextUTF8(&ptr, end);
 
                 // All UTF8 code units refer to the same codepoint
-                size_t next = ptr - utf8.begin();
+                size_t next = SkToSizeT(ptr - utf8.begin());
                 for (auto i = index; i < next; ++i) {
                     //fUTF16IndexForUTF8Index.emplace_back(fUTF8IndexForUTF16Index.size());
                     appender16(size8);

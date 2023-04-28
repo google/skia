@@ -10,6 +10,7 @@
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skunicode/include/SkUnicode.h"
 
 namespace skia {
 namespace textlayout {
@@ -54,6 +55,21 @@ public:
 
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     virtual std::unique_ptr<Paragraph> Build() = 0;
+
+    virtual SkSpan<char> getText() = 0;
+    virtual const ParagraphStyle& getParagraphStyle() const = 0;
+
+    // Mainly, support for "Client" unicode
+    virtual void setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) = 0;
+    virtual void setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16) = 0;
+
+    virtual void setGraphemeBreaksUtf8(std::vector<SkUnicode::Position> graphemesUtf8) = 0;
+    virtual void setGraphemeBreaksUtf16(std::vector<SkUnicode::Position> graphemesUtf16) = 0;
+
+    virtual void setLineBreaksUtf8(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8) = 0;
+    virtual void setLineBreaksUtf16(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16) = 0;
+
+    virtual void SetUnicode(std::unique_ptr<SkUnicode> unicode) = 0;
 
     // Resets this builder to its initial state, discarding any text, styles, placeholders that have
     // been added, but keeping the initial ParagraphStyle.
