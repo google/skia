@@ -15,6 +15,7 @@
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     #include <cutils/trace.h>
+    #include "src/core/SkTraceEventCommon.h" // for SkAndroidFrameworkTraceUtil
 #endif
 
 SkATrace::SkATrace() : fBeginSection(nullptr), fEndSection(nullptr), fIsEnabled(nullptr) {
