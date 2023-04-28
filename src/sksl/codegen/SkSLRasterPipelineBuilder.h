@@ -562,6 +562,11 @@ public:
         fInstructions.push_back({BuilderOp::merge_condition_mask, {}});
     }
 
+    void merge_inv_condition_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
+        fInstructions.push_back({BuilderOp::merge_inv_condition_mask, {}});
+    }
+
     void push_loop_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::push_loop_mask, {}});

@@ -1882,11 +1882,8 @@ bool Generator::writeIfStatement(const IfStatement& i) {
     }
 
     if (i.ifFalse()) {
-        // Negate the test-condition, then reapply it to the condition-mask.
-        // Then, run the if-false branch.
-        fBuilder.push_constant_u(~0);
-        fBuilder.binary_op(BuilderOp::bitwise_xor_n_ints, /*slots=*/1);
-        fBuilder.merge_condition_mask();
+        // Apply the inverse condition-mask. Then run the if-false branch.
+        fBuilder.merge_inv_condition_mask();
         if (!this->writeStatement(*i.ifFalse())) {
             return unsupported();
         }
@@ -3563,11 +3560,9 @@ bool Generator::pushTernaryExpression(const Expression& test,
             return unsupported();
         }
 
-        // Switch back to the test-expression stack temporarily, and negate the test condition.
+        // Switch back to the test-expression stack and apply the inverted test condition.
         testStack.enter();
-        fBuilder.push_constant_u(~0);
-        fBuilder.binary_op(BuilderOp::bitwise_xor_n_ints, /*slots=*/1);
-        fBuilder.merge_condition_mask();
+        fBuilder.merge_inv_condition_mask();
         testStack.exit();
 
         // Push the false-expression onto the primary stack, immediately after the true-expression.

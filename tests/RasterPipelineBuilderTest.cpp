@@ -101,6 +101,7 @@ DEF_TEST(RasterPipelineBuilderPushPopMaskRegisters, r) {
     builder.push_loop_mask();              // push into 1
     builder.push_return_mask();            // push into 2
     builder.merge_condition_mask();        // set the condition-mask to 1 & 2
+    builder.merge_inv_condition_mask();    // set the condition-mask to 1 & ~2
     builder.pop_condition_mask();          // pop from 2
     builder.merge_loop_mask();             // mask off the loop-mask against 1
     builder.push_condition_mask();         // push into 2
@@ -121,6 +122,7 @@ R"(store_condition_mask           $0 = CondMask
 store_loop_mask                $1 = LoopMask
 store_return_mask              $2 = RetMask
 merge_condition_mask           CondMask = $1 & $2
+merge_inv_condition_mask       CondMask = $1 & ~$2
 load_condition_mask            CondMask = $2
 merge_loop_mask                LoopMask &= $1
 store_condition_mask           $2 = CondMask

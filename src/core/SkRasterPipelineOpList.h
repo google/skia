@@ -58,10 +58,11 @@
 
 #define SK_RASTER_PIPELINE_OPS_SKSL(M)                                                        \
     M(init_lane_masks) M(store_device_xy01) M(exchange_src)                                   \
-    M(load_condition_mask) M(store_condition_mask) M(merge_condition_mask)                    \
-    M(load_loop_mask)      M(store_loop_mask)      M(mask_off_loop_mask)                      \
-    M(reenable_loop_mask)  M(merge_loop_mask)      M(case_op)   M(continue_op)                \
-    M(load_return_mask)    M(store_return_mask)    M(mask_off_return_mask)                    \
+    M(load_condition_mask)  M(store_condition_mask)                                           \
+    M(merge_condition_mask) M(merge_inv_condition_mask)                                       \
+    M(load_loop_mask)       M(store_loop_mask)      M(mask_off_loop_mask)                     \
+    M(reenable_loop_mask)   M(merge_loop_mask)      M(case_op)   M(continue_op)               \
+    M(load_return_mask)     M(store_return_mask)    M(mask_off_return_mask)                   \
     M(branch_if_all_lanes_active) M(branch_if_any_lanes_active) M(branch_if_no_lanes_active)  \
     M(branch_if_no_active_lanes_eq) M(jump)                                                   \
     M(bitwise_and_n_ints)                                                                     \

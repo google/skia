@@ -1965,9 +1965,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::load_condition_mask, src});
                 break;
             }
-            case BuilderOp::merge_condition_mask: {
+            case BuilderOp::merge_condition_mask:
+            case BuilderOp::merge_inv_condition_mask: {
                 float* ptr = tempStackPtr - (2 * N);
-                pipeline->push_back({ProgramOp::merge_condition_mask, ptr});
+                pipeline->push_back({(ProgramOp)inst.fOp, ptr});
                 break;
             }
             case BuilderOp::push_loop_mask: {
@@ -2838,6 +2839,7 @@ void Program::dump(SkWStream* out) const {
                 break;
             }
             case POp::merge_condition_mask:
+            case POp::merge_inv_condition_mask:
             case POp::add_float:   case POp::add_int:
             case POp::sub_float:   case POp::sub_int:
             case POp::mul_float:   case POp::mul_int:
@@ -3040,6 +3042,10 @@ void Program::dump(SkWStream* out) const {
 
             case POp::merge_condition_mask:
                 opText = "CondMask = " + opArg1 + " & " + opArg2;
+                break;
+
+            case POp::merge_inv_condition_mask:
+                opText = "CondMask = " + opArg1 + " & ~" + opArg2;
                 break;
 
             case POp::load_loop_mask:

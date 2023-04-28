@@ -3356,6 +3356,12 @@ STAGE_TAIL(merge_condition_mask, I32* ptr) {
     update_execution_mask();
 }
 
+STAGE_TAIL(merge_inv_condition_mask, I32* ptr) {
+    // Set the condition-mask to the intersection of the first mask and the inverse of the second.
+    r = sk_bit_cast<F>(ptr[0] & ~ptr[1]);
+    update_execution_mask();
+}
+
 STAGE_TAIL(load_loop_mask, F* ctx) {
     g = sk_unaligned_load<F>(ctx);
     update_execution_mask();
