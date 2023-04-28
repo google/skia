@@ -117,17 +117,6 @@ public:
 #endif
 
     /**
-     * Create a new surface with a backend that is compatible with this special image.
-     * TODO: switch this to makeSurface once we resolved the naming issue
-     * TODO (michaelludwig) - This is only used by SkTileImageFilter, which appears should be
-     * updated to work correctly with subsets and then makeTightSurface() can go away entirely.
-     */
-    sk_sp<SkSurface> makeTightSurface(SkColorType,
-                                      const SkColorSpace*,
-                                      const SkISize& size,
-                                      SkAlphaType = kPremul_SkAlphaType) const;
-
-    /**
      * Extract a subset of this special image and return it as a special image.
      * It may or may not point to the same backing memory. The input 'subset' is relative to the
      * special image's content rect.
@@ -228,11 +217,6 @@ protected:
     virtual sk_sp<SkShader> onAsShader(SkTileMode,
                                        const SkSamplingOptions&,
                                        const SkMatrix&) const = 0;
-
-    virtual sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType,
-                                                const SkColorSpace* colorSpace,
-                                                const SkISize& size,
-                                                SkAlphaType at) const = 0;
 
 #ifdef SK_DEBUG
     static bool RectFits(const SkIRect& rect, int width, int height);

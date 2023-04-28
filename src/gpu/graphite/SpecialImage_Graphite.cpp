@@ -103,21 +103,6 @@ public:
                                          sampling, &subsetOrigin);
     }
 
-    sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType,
-                                        const SkColorSpace* colorSpace,
-                                        const SkISize& size,
-                                        SkAlphaType at) const override {
-        // TODO (michaelludwig): Why does this ignore colorType but onMakeSurface doesn't ignore it?
-        //    Once makeTightSurface() goes away, should this type overriding behavior be moved into
-        //    onMakeSurface() or is this unnecessary?
-        colorType = colorSpace && colorSpace->gammaIsLinear() ? kRGBA_F16_SkColorType
-                                                              : kRGBA_8888_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-        // The user never gets a direct ref to this surface (nor its snapped image) so it must be
-        // budgeted
-        return Surface::MakeGraphite(fRecorder, info, skgpu::Budgeted::kYes);
-    }
-
 private:
     Recorder*        fRecorder;
     TextureProxyView fTextureProxyView;

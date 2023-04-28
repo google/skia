@@ -7,8 +7,8 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -17,7 +17,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
@@ -132,19 +131,21 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(const Context& ctx,
         return nullptr;
     }
 
-    // We create an SkImage here b.c. it needs to be a tight fit for the tiling
-    sk_sp<SkImage> subset;
+    sk_sp<SkSpecialImage> subset;
     if (inputBounds.contains(srcIRect)) {
-        subset = input->asImage(&srcIRect);
+        subset = input->makeSubset(srcIRect);
     } else {
-        sk_sp<SkSurface> surf(input->makeTightSurface(ctx.colorType(), ctx.colorSpace(),
-                                                      srcIRect.size()));
+        // The input image doesn't fully cover srcIRect so using it directly would not tile
+        // appropriately. Instead draw to a srcIRect sized surface so that any padded transparency
+        // is present for the correct tiling.
+        sk_sp<SkSpecialSurface> surf = ctx.makeSurface(srcIRect.size());
         if (!surf) {
             return nullptr;
         }
 
         SkCanvas* canvas = surf->getCanvas();
         SkASSERT(canvas);
+        canvas->clear(SK_ColorTRANSPARENT); // GPU surfaces are uninitialized
 
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
@@ -171,8 +172,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(const Context& ctx,
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setShader(subset->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                       SkSamplingOptions()));
+    paint.setShader(subset->asShader(SkTileMode::kRepeat, SkSamplingOptions(), SkMatrix::I()));
     canvas->translate(-dstRect.fLeft, -dstRect.fTop);
     canvas->drawRect(dstRect, paint);
     offset->fX = dstIRect.fLeft;

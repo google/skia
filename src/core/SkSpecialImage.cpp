@@ -48,13 +48,6 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fProps(props) {
 }
 
-sk_sp<SkSurface> SkSpecialImage::makeTightSurface(SkColorType colorType,
-                                                  const SkColorSpace* colorSpace,
-                                                  const SkISize& size,
-                                                  SkAlphaType at) const {
-    return this->onMakeTightSurface(colorType, colorSpace, size, at);
-}
-
 sk_sp<SkImage> SkSpecialImage::asImage(const SkIRect* subset) const {
     if (subset) {
         SkIRect absolute = subset->makeOffset(this->subset().topLeft());
@@ -206,14 +199,6 @@ public:
             return nullptr;
         }
         return subsetBM.asImage()->makeShader(tileMode, tileMode, sampling, lm);
-    }
-
-    sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType, const SkColorSpace* colorSpace,
-                                        const SkISize& size, SkAlphaType at) const override {
-        // Ignore the requested color type, the raster backend currently only supports N32
-        colorType = kN32_SkColorType;   // TODO: find ways to allow f16
-        SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-        return SkSurface::MakeRaster(info);
     }
 
 private:
@@ -383,18 +368,6 @@ public:
         // subset used to access the image.
         return SkImageShader::MakeSubset(
                 this->asImage(), subset, tileMode, tileMode, sampling, &subsetOrigin);
-    }
-
-    sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType, const SkColorSpace* colorSpace,
-                                        const SkISize& size, SkAlphaType at) const override {
-        // TODO (michaelludwig): Why does this ignore colorType but onMakeSurface doesn't ignore it?
-        //    Once makeTightSurface() goes away, should this type overriding behavior be moved into
-        //    onMakeSurface() or is this unnecessary?
-        colorType = colorSpace && colorSpace->gammaIsLinear()
-            ? kRGBA_F16_SkColorType : kRGBA_8888_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-        return SkSurface::MakeRenderTarget(
-                fContext, skgpu::Budgeted::kYes, info, 0, fView.origin(), nullptr);
     }
 
 private:
