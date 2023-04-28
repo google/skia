@@ -21,5 +21,52 @@
     "typescript": "4.7.4",
     "@definitelytyped/header-parser": "0.0.121",
     "@webgpu/types": "0.1.21"
+  },
+  "exports": {
+    ".": {
+      "require": "./bin/canvaskit.js",
+      "import": "./bin/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./full": {
+      "require": "./bin/full/canvaskit.js",
+      "import": "./bin/full/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./profiling": {
+      "require": "./bin/profiling/canvaskit.js",
+      "import": "./bin/profiling/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/canvaskit": {
+      "require": "./bin/canvaskit.js",
+      "import": "./bin/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/canvaskit.js": {
+      "require": "./bin/canvaskit.js",
+      "import": "./bin/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/full/canvaskit": {
+      "require": "./bin/full/canvaskit.js",
+      "import": "./bin/full/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/full/canvaskit.js": {
+      "require": "./bin/full/canvaskit.js",
+      "import": "./bin/full/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/profiling/canvaskit": {
+      "require": "./bin/profiling/canvaskit.js",
+      "import": "./bin/profiling/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/profiling/canvaskit.js": {
+      "require": "./bin/profiling/canvaskit.js",
+      "import": "./bin/profiling/canvaskit.js",
+      "types": "./types/index.d.ts"
+    }
   }
 }

@@ -24,7 +24,7 @@ As with all npm packages, there's a freely available CDN via unpkg.com:
 ## Node
 To use CanvasKit in Node, it's similar to the browser:
 
-    const CanvasKitInit = require('/node_modules/canvaskit-wasm/bin/canvaskit.js');
+    const CanvasKitInit = require('canvaskit-wasm/bin/canvaskit.js');
     CanvasKitInit({
         locateFile: (file) => __dirname + '/bin/'+file,
     }).then((CanvasKit) => {
@@ -65,6 +65,57 @@ Then, add the following configuration change to the node section of the config:
         fs: 'empty'
     };
 
+
+# Different canvaskit bundles
+
+`canvaskit-wasm` includes 3 types of bundles:
+
+* default `./bin/canvaskit.js` - Basic canvaskit functionality
+
+
+```javascript
+const InitCanvasKit = require('canvaskit-wasm/bin/canvaskit');
+```
+
+* full `./bin/full/canvaskit.js` - includes [Skottie](https://skia.org/docs/user/modules/skottie/) and other libraries
+
+```javascript
+const InitCanvasKit = require('canvaskit-wasm/bin/full/canvaskit');
+```
+
+* profiling `./bin/profiling/canvaskit.js` - the same as `full` but contains full names of wasm functions called internally
+
+```javascript
+const InitCanvasKit = require('canvaskit-wasm/bin/profiling/canvaskit');
+```
+
+# ES6 import and node entrypoints
+
+This package also exposes [entrypoints](https://nodejs.org/api/packages.html#package-entry-points)
+
+```javascript
+import InitCanvasKit from 'canvaskit-wasm'; // default
+```
+
+```javascript
+import InitCanvasKit from 'canvaskit-wasm/full';
+```
+
+```javascript
+import InitCanvasKit from 'canvaskit-wasm/profiling';
+```
+
+If you use [typescript](https://www.typescriptlang.org/)
+
+you need to enable [resolvePackageJsonExports](https://www.typescriptlang.org/tsconfig#resolvePackageJsonExports) in your `tsconfig.json`
+
+```json
+{
+    "compilerOptions": {
+        "resolvePackageJsonExports": true
+    }
+}
+```
 
 # Using the CanvasKit API
 
