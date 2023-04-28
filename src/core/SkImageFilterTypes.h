@@ -18,10 +18,13 @@
 #include "src/core/SkSpecialSurface.h"
 
 class GrRecordingContext;
+enum GrSurfaceOrigin : int;
 class SkImageFilter;
 class SkImageFilterCache;
 class SkSpecialSurface;
 class SkSurfaceProps;
+
+namespace skgpu::graphite { class Recorder; }
 
 // The skif (SKI[mage]F[ilter]) namespace contains types that are used for filter implementations.
 // The defined types come in two groups: users of internal Skia types, and templates to help with
@@ -713,28 +716,50 @@ private:
 // filter DAG. For now, this is just the color space (of the original requesting device). This is
 // used when constructing intermediate rendering surfaces, so that we ensure we land in a surface
 // that's similar/compatible to the final consumer of the DAG's output.
-class Context {
-public:
-    // Creates a context with the given layer matrix and destination clip, reading from 'source'
-    // with an origin of (0,0).
-    Context(const SkMatrix& layerMatrix, const SkIRect& clipBounds, SkImageFilterCache* cache,
-            SkColorType colorType, SkColorSpace* colorSpace, const SkSpecialImage* source)
-        : fMapping(layerMatrix)
-        , fDesiredOutput(clipBounds)
-        , fCache(cache)
-        , fColorType(colorType)
-        , fColorSpace(colorSpace)
-        , fSource(sk_ref_sp(source), LayerSpace<SkIPoint>({0, 0})) {}
+struct ContextInfo {
+    // Properties controlling the size and coordinate space of image filtering
+    Mapping             fMapping;
+    LayerSpace<SkIRect> fDesiredOutput;
+    // Can contain a null image if the image filter DAG has no late-bound null inputs.
+    FilterResult        fSource;
 
-    Context(const Mapping& mapping, const LayerSpace<SkIRect>& desiredOutput,
-            SkImageFilterCache* cache, SkColorType colorType, SkColorSpace* colorSpace,
-            const FilterResult& source)
-        : fMapping(mapping)
-        , fDesiredOutput(desiredOutput)
-        , fCache(cache)
-        , fColorType(colorType)
-        , fColorSpace(colorSpace)
-        , fSource(source) {}
+    // Properties controlling the pixel data during image filtering
+    SkColorType         fColorType;
+    // The pointed-to object is owned by the device controlling the filter process, and our lifetime
+    // is bounded by the device, so this can be a bare pointer.
+    SkColorSpace*       fColorSpace;
+    SkSurfaceProps      fSurfaceProps;
+
+    SkImageFilterCache* fCache;
+};
+
+class Context {
+    static constexpr GrSurfaceOrigin kUnusedOrigin = (GrSurfaceOrigin) 0;
+public:
+    static Context MakeRaster(const ContextInfo& info) {
+        // TODO (skbug:14286): Remove this forcing to 8888. Many legacy image filters only support
+        // N32 on CPU, but once they are implemented in terms of draws and SkSL they will support
+        // all color types, like the GPU backends.
+        ContextInfo n32 = info;
+        n32.fColorType = kN32_SkColorType;
+        return Context(n32, nullptr, kUnusedOrigin, nullptr);
+    }
+
+#if defined(SK_GANESH)
+    static Context MakeGanesh(GrRecordingContext* context,
+                              GrSurfaceOrigin origin,
+                              const ContextInfo& info) {
+        return Context(info, context, origin, nullptr);
+    }
+#endif
+
+#if defined(SK_GRAPHITE)
+    static Context MakeGraphite(skgpu::graphite::Recorder* recorder, const ContextInfo& info) {
+        return Context(info, nullptr, kUnusedOrigin, recorder);
+    }
+#endif
+
+    Context() = default; // unitialized to support assignment in branches for MakeX() above
 
     // The mapping that defines the transformation from local parameter space of the filters to the
     // layer space where the image filters are evaluated, as well as the remaining transformation
@@ -745,85 +770,113 @@ public:
     // the mapping will respect that return value, and the remaining matrix will be appropriately
     // set to transform the layer space to the final device space (applied by the SkCanvas when
     // filtering is finished).
-    const Mapping& mapping() const { return fMapping; }
+    const Mapping& mapping() const { return fInfo.fMapping; }
     // DEPRECATED: Use mapping() and its coordinate-space types instead
-    const SkMatrix& ctm() const { return fMapping.layerMatrix(); }
+    const SkMatrix& ctm() const { return fInfo.fMapping.layerMatrix(); }
     // The bounds, in the layer space, that the filtered image will be clipped to. The output
     // from filterImage() must cover these clip bounds, except in areas where it will just be
     // transparent black, in which case a smaller output image can be returned.
-    const LayerSpace<SkIRect>& desiredOutput() const { return fDesiredOutput; }
+    const LayerSpace<SkIRect>& desiredOutput() const { return fInfo.fDesiredOutput; }
     // DEPRECATED: Use desiredOutput() instead
-    const SkIRect& clipBounds() const { return static_cast<const SkIRect&>(fDesiredOutput); }
+    const SkIRect& clipBounds() const { return static_cast<const SkIRect&>(fInfo.fDesiredOutput); }
     // The cache to use when recursing through the filter DAG, in order to avoid repeated
     // calculations of the same image.
-    SkImageFilterCache* cache() const { return fCache; }
+    SkImageFilterCache* cache() const { return fInfo.fCache; }
     // The output device's color type, which can be used for intermediate images to be
     // compatible with the eventual target of the filtered result.
-    SkColorType colorType() const { return fColorType; }
+    SkColorType colorType() const { return fInfo.fColorType; }
 #if defined(SK_GANESH)
-    GrColorType grColorType() const { return SkColorTypeToGrColorType(fColorType); }
+    GrColorType grColorType() const { return SkColorTypeToGrColorType(fInfo.fColorType); }
 #endif
     // The output device's color space, so intermediate images can match, and so filtering can
     // be performed in the destination color space.
-    SkColorSpace* colorSpace() const { return fColorSpace; }
-    sk_sp<SkColorSpace> refColorSpace() const { return sk_ref_sp(fColorSpace); }
+    SkColorSpace* colorSpace() const { return fInfo.fColorSpace; }
+    sk_sp<SkColorSpace> refColorSpace() const { return sk_ref_sp(fInfo.fColorSpace); }
     // The default surface properties to use when making transient surfaces during filtering.
-    const SkSurfaceProps& surfaceProps() const { return fSource.image()->props(); }
+    const SkSurfaceProps& surfaceProps() const { return fInfo.fSurfaceProps; }
 
     // This is the image to use whenever an expected input filter has been set to null. In the
     // majority of cases, this is the original source image for the image filter DAG so it comes
     // from the SkDevice that holds either the saveLayer or the temporary rendered result. The
     // exception is composing two image filters (via SkImageFilters::Compose), which must use
     // the output of the inner DAG as the "source" for the outer DAG.
-    const FilterResult& source() const { return fSource; }
+    const FilterResult& source() const { return fInfo.fSource; }
     // DEPRECATED: Use source() instead to get both the image and its origin.
-    const SkSpecialImage* sourceImage() const { return fSource.image(); }
+    const SkSpecialImage* sourceImage() const { return fInfo.fSource.image(); }
 
     // True if image filtering should occur on the GPU if possible.
-    bool gpuBacked() const { return fSource.image()->isTextureBacked(); }
+    bool gpuBacked() const { return SkToBool(fGaneshContext); }
     // The recording context to use when computing the filter with the GPU.
-    GrRecordingContext* getContext() const { return fSource.image()->getContext(); }
-
-    /**
-     *  Since a context can be built directly, its constructor has no chance to "return null" if
-     *  it's given invalid or unsupported inputs. Call this to know of the the context can be
-     *  used.
-     *
-     *  The SkImageFilterCache Key, for example, requires a finite ctm (no infinities or NaN),
-     *  so that test is part of isValid.
-     */
-    bool isValid() const { return fSource.image() != nullptr && fMapping.layerMatrix().isFinite(); }
+    GrRecordingContext* getContext() const { return fGaneshContext; }
 
     // Create a surface of the given size, that matches the context's color type and color space
     // as closely as possible, and uses the same backend of the device that produced the source
     // image.
     sk_sp<SkSpecialSurface> makeSurface(const SkISize& size,
-                                        const SkSurfaceProps* props = nullptr) const {
-        if (!props) {
-             props = &this->surfaceProps();
-        }
-        return fSource.image()->makeSurface(fColorType, fColorSpace, size,
-                                            kPremul_SkAlphaType, *props);
-    }
+                                        const SkSurfaceProps* props = nullptr) const;
 
     // Create a new context that matches this context, but with an overridden layer space.
     Context withNewMapping(const Mapping& mapping) const {
-        return Context(mapping, fDesiredOutput, fCache, fColorType, fColorSpace, fSource);
+        ContextInfo info = fInfo;
+        info.fMapping = mapping;
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
     // Create a new context that matches this context, but with an overridden desired output rect.
     Context withNewDesiredOutput(const LayerSpace<SkIRect>& desiredOutput) const {
-        return Context(fMapping, desiredOutput, fCache, fColorType, fColorSpace, fSource);
+        ContextInfo info = fInfo;
+        info.fDesiredOutput = desiredOutput;
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
+    }
+    // Create a new context that matches this context, but with an overridden color space.
+    Context withNewColorSpace(SkColorSpace* cs) const {
+        ContextInfo info = fInfo;
+        info.fColorSpace = cs;
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
+    }
+
+    // Create a new context that matches this context, but with an overridden source.
+    // TODO: Have this take just a FilterResult when no origin manipulation is required.
+    Context withNewSource(sk_sp<SkSpecialImage> source, LayerSpace<SkIPoint> origin) const {
+        // TODO: Some legacy image filter implementations assume that the source FilterResult's
+        // origin/transform is at (0,0). To accommodate that, we push the typical origin transform
+        // into the param-to-layer matrix and adjust the desired output.
+        ContextInfo info = fInfo;
+        info.fMapping.applyOrigin(origin);
+        info.fDesiredOutput.offset(-origin);
+        info.fSource = FilterResult(std::move(source));
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
 
 private:
-    Mapping             fMapping;
-    LayerSpace<SkIRect> fDesiredOutput;
-    SkImageFilterCache* fCache;
-    SkColorType         fColorType;
-    // The pointed-to object is owned by the device controlling the filter process, and our lifetime
-    // is bounded by the device, so this can be a bare pointer.
-    SkColorSpace*       fColorSpace;
-    FilterResult        fSource;
+    Context(const ContextInfo& info,
+            GrRecordingContext* ganeshContext,
+            GrSurfaceOrigin ganeshOrigin,
+            skgpu::graphite::Recorder* graphiteRecorder)
+            : fInfo(info)
+            , fGaneshContext(ganeshContext)
+            , fGaneshOrigin(ganeshOrigin)
+            , fGraphiteRecorder(graphiteRecorder) {
+#if defined(SK_GANESH)
+        SkASSERT(!fInfo.fSource.image() ||
+                 SkToBool(ganeshContext) == fInfo.fSource.image()->isTextureBacked());
+#else
+        SkASSERT(!SkToBool(ganeshContext));
+#endif
+
+#if defined(SK_GRAPHITE)
+        SkASSERT(!fInfo.fSource.image() ||
+                 SkToBool(graphiteRecorder) == fInfo.fSource.image()->isGraphiteBacked());
+#else
+        SkASSERT(!SkToBool(graphiteRecorder));
+#endif
+    }
+
+    ContextInfo fInfo;
+
+    // Both will be null for CPU image filtering, or one will be non-null to select the GPU backend.
+    GrRecordingContext* fGaneshContext;
+    GrSurfaceOrigin fGaneshOrigin;
+    skgpu::graphite::Recorder* fGraphiteRecorder;
 };
 
 } // end namespace skif

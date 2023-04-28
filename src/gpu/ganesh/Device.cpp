@@ -52,6 +52,7 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawBase.h"
 #include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMaskFilterBase.h"
@@ -802,6 +803,10 @@ void Device::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool path
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fSurfaceDrawContext.get(), this->clip(),
                                          paint, this->asMatrixProvider(), shape);
+}
+
+skif::Context Device::createContext(const skif::ContextInfo& ctxInfo) const {
+    return skif::Context::MakeGanesh(fContext.get(), fSurfaceDrawContext->origin(), ctxInfo);
 }
 
 sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap& bitmap) {

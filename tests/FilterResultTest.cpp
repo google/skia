@@ -266,6 +266,29 @@ public:
         }
     }
 
+    skif::Context newContext(const FilterResult& source) const {
+        skif::ContextInfo ctxInfo = {skif::Mapping(SkMatrix::I()),
+                                     skif::LayerSpace<SkIRect>::Empty(),
+                                     source,
+                                     kRGBA_8888_SkColorType,
+                                     /*colorSpace=*/nullptr,
+                                     /*surfaceProps=*/{},
+                                     /*cache=*/nullptr};
+#if defined(SK_GANESH)
+        if (fDirectContext) {
+            return skif::Context::MakeGanesh(fDirectContext, kTopLeft_GrSurfaceOrigin, ctxInfo);
+        } else
+#endif
+#if defined(SK_GRAPHITE)
+        if (fRecorder) {
+            return skif::Context::MakeGraphite(fRecorder, ctxInfo);
+        } else
+#endif
+        {
+            return skif::Context::MakeRaster(ctxInfo);
+        }
+    }
+
     bool compareImages(SkSpecialImage* expectedImage,
                        SkIPoint expectedOrigin,
                        const FilterResult& actual) {
@@ -576,6 +599,7 @@ public:
             sourceSurface->getCanvas()->clear(fSourceColor);
             source = FilterResult(sourceSurface->makeImageSnapshot(), fSourceBounds.topLeft());
         }
+        Context baseContext = fRunner.newContext(source);
 
         // Applying modifiers to FilterResult might produce a new image, but hopefully it's
         // able to merge properties and even re-order operations to minimize the number of offscreen
@@ -591,13 +615,6 @@ public:
             expectedOrigin = LayerSpace<SkIPoint>({0, 0});
         }
         SkASSERT(expectedImage);
-
-        Context baseContext{Mapping(SkMatrix::I()),
-                            LayerSpace<SkIRect>::Empty(),
-                            /*cache=*/nullptr,
-                            expectedImage->colorType(),
-                            expectedImage->getColorSpace(),
-                            source};
 
         // Apply each action and validate, from first to last action
         for (int i = 0; i < (int) fActions.size(); ++i) {

@@ -33,6 +33,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
 
 #if defined(SK_GRAPHITE)
@@ -254,10 +255,28 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext, const SkIma
     // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
     // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
     // the clip bounds (since it is assumed to already be in image space).
-    SkImageFilter_Base::Context context(SkMatrix::Translate(-subset.x(), -subset.y()),
-                                        clipBounds.makeOffset(-subset.topLeft()),
-                                        cache.get(), fInfo.colorType(), fInfo.colorSpace(),
-                                        srcSpecialImage.get());
+    // TODO: Once all image filters support it, we can just use the subset's top left corner as
+    // the source FilterResult's origin.
+    skif::ContextInfo ctxInfo = {skif::Mapping(SkMatrix::Translate(-subset.x(), -subset.y())),
+                                 skif::LayerSpace<SkIRect>(clipBounds.makeOffset(-subset.topLeft())),
+                                 skif::FilterResult(srcSpecialImage),
+                                 fInfo.colorType(),
+                                 fInfo.colorSpace(),
+                                 /*fSurfaceProps=*/{},
+                                 cache.get()};
+
+    // TODO: Handle graphite as well once graphite evaluates image filters, but that may very well
+    // be a separate function that takes a Recorder in directly.
+    skif::Context context;
+#if defined(SK_GANESH)
+    if (rContext) {
+        auto view = srcSpecialImage->view(rContext);
+        context = skif::Context::MakeGanesh(rContext, view.origin(), ctxInfo);
+    } else
+#endif
+    {
+        context = skif::Context::MakeRaster(ctxInfo);
+    }
 
     sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context).imageAndOffset(offset);
     if (!result) {
@@ -386,4 +405,3 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
 sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
     return this->withMipmaps(nullptr);
 }
-
