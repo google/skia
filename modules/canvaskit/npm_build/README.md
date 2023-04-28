@@ -107,12 +107,12 @@ import InitCanvasKit from 'canvaskit-wasm/profiling';
 
 If you use [typescript](https://www.typescriptlang.org/)
 
-you need to add this setting to your tsconfig.json
+you need to enable [resolvePackageJsonExports](https://www.typescriptlang.org/tsconfig#resolvePackageJsonExports) in your `tsconfig.json`
 
 ```json
 {
     "compilerOptions": {
-        "compilerOptions": "nodenext",
+        "resolvePackageJsonExports": true
     }
 }
 ```
