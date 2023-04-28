@@ -6,8 +6,7 @@ bool test_matrix_op_matrix_half_b() {
     bool ok = true;
     {
         const mat3x2 splat_4 = mat3x2(4.0, 4.0, 4.0, 4.0, 4.0, 4.0);
-        mat3x2 m;
-        m = mat3x2(2.0);
+        mat3x2 m = mat3x2(2.0);
         m += splat_4;
         ok = ok && m == mat3x2(6.0, 4.0, 4.0, 6.0, 4.0, 4.0);
         m = mat3x2(2.0);
@@ -19,8 +18,7 @@ bool test_matrix_op_matrix_half_b() {
     }
     {
         const mat2x3 splat_4 = mat2x3(4.0, 4.0, 4.0, 4.0, 4.0, 4.0);
-        mat2x3 m;
-        m = splat_4;
+        mat2x3 m = splat_4;
         m += mat2x3(2.0);
         ok = ok && m == mat2x3(6.0, 4.0, 4.0, 4.0, 6.0, 4.0);
         m = splat_4;
@@ -56,8 +54,7 @@ vec4 main() {
     bool _0_ok = true;
     {
         const mat3x2 _1_splat_4 = mat3x2(4.0, 4.0, 4.0, 4.0, 4.0, 4.0);
-        mat3x2 _2_m;
-        _2_m = mat3x2(2.0);
+        mat3x2 _2_m = mat3x2(2.0);
         _2_m += _1_splat_4;
         _0_ok = _0_ok && _2_m == mat3x2(6.0, 4.0, 4.0, 6.0, 4.0, 4.0);
         _2_m = mat3x2(2.0);
@@ -69,8 +66,7 @@ vec4 main() {
     }
     {
         const mat2x3 _3_splat_4 = mat2x3(4.0, 4.0, 4.0, 4.0, 4.0, 4.0);
-        mat2x3 _4_m;
-        _4_m = _3_splat_4;
+        mat2x3 _4_m = _3_splat_4;
         _4_m += mat2x3(2.0);
         _0_ok = _0_ok && _4_m == mat2x3(6.0, 4.0, 4.0, 4.0, 6.0, 4.0);
         _4_m = _3_splat_4;

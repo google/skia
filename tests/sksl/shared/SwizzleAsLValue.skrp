@@ -1,6 +1,5 @@
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_4_constants              color = 0
 copy_4_uniforms                $0..3 = colorGreen
 splat_4_constants              $4..7 = 0x3F000000 (0.5)
 mul_4_floats                   $0..3 *= $4..7

@@ -13,8 +13,7 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 color;
-    color = float4(_uniforms.colorGreen) * 0.5;
+    float4 color = float4(_uniforms.colorGreen) * 0.5;
     color.w = 2.0;
     color.y = color.y * 4.0;
     color.yzw = color.yzw * float3(0.5);

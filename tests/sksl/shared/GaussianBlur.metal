@@ -44,8 +44,7 @@ half4 MatrixEffect_Stage1_c0_c0_h4h4f2(thread Globals& _globals, half4 _input, f
     float2 _2_subsetCoord;
     _2_subsetCoord.x = _1_inCoord.x;
     _2_subsetCoord.y = _1_inCoord.y;
-    float2 _3_clampedCoord;
-    _3_clampedCoord = _2_subsetCoord;
+    float2 _3_clampedCoord = _2_subsetCoord;
     half4 _4_textureColor = sample(_globals.uTextureSampler_0_Stage1, _3_clampedCoord * _globals._anonInterface0->unorm_Stage1_c0_c0_c0.zw);
     float _5_snappedX = floor(_1_inCoord.x + 0.001) + 0.5;
     if (_5_snappedX < _globals._anonInterface0->usubset_Stage1_c0_c0_c0.x || _5_snappedX > _globals._anonInterface0->usubset_Stage1_c0_c0_c0.z) {
@@ -64,9 +63,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> uTextureS
         outputColor_Stage0 = half4(1.0h);
         outputCoverage_Stage0 = half4(1.0h);
     }
-    half4 output_Stage1;
-    half4 _6_output;
-    _6_output = half4(0.0h);
+    half4 _6_output = half4(0.0h);
     float2 _7_coord = _in.vLocalCoord_Stage0 - float2(12.0h * _globals._anonInterface0->uIncrement_Stage1_c0);
     float2 _8_coordSampled = float2(0.0);
     _8_coordSampled = _7_coord;
@@ -145,7 +142,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> uTextureS
     _6_output += MatrixEffect_Stage1_c0_c0_h4h4f2(_globals, outputColor_Stage0, _8_coordSampled) * _globals._anonInterface0->uKernel_Stage1_c0[6].x;
     _7_coord += float2(_globals._anonInterface0->uIncrement_Stage1_c0);
     _6_output *= outputColor_Stage0;
-    output_Stage1 = _6_output;
+    half4 output_Stage1 = _6_output;
     {
         _out.sk_FragColor = output_Stage1 * outputCoverage_Stage0;
     }

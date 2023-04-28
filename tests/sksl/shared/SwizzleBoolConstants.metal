@@ -14,8 +14,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     bool4 v = bool4(bool(_uniforms.colorGreen.y));
-    bool4 result;
-    result = bool4(v.x, true, true, true);
+    bool4 result = bool4(v.x, true, true, true);
     result = bool4(v.xy, false, true);
     result = bool4(v.x, true, true, false);
     result = bool4(false, v.y, true, true);

@@ -3,8 +3,7 @@ out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
-    vec4 color;
-    color = colorGreen * 0.5;
+    vec4 color = colorGreen * 0.5;
     color.w = 2.0;
     color.y *= 4.0;
     color.yzw *= vec3(0.5);

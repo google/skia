@@ -14,16 +14,20 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLType.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -98,6 +102,11 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
             }
         }
 
+        ~Finalizer() override {
+            SkASSERT(fBreakableLevel == 0);
+            SkASSERT(fContinuableLevel == std::forward_list<int>{0});
+        }
+
         void addLocalVariable(const Variable* var, Position pos) {
             if (var->type().isOrContainsUnsizedArray()) {
                 fContext.fErrors->error(pos, "unsized arrays are not permitted here");
@@ -117,24 +126,90 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
             }
         }
 
-        ~Finalizer() override {
-            SkASSERT(fBreakableLevel == 0);
-            SkASSERT(fContinuableLevel == std::forward_list<int>{0});
+        void fuseVariableDeclarationsWithInitialization(std::unique_ptr<Statement>& stmt) {
+            switch (stmt->kind()) {
+                case Statement::Kind::kNop:
+                case Statement::Kind::kBlock:
+                    // Blocks and no-ops are inert; it is safe to fuse a variable declaration with
+                    // its initialization across a nop or an open-brace, so we don't null out
+                    // `fUninitializedVarDecl` here.
+                    break;
+
+                case Statement::Kind::kVarDeclaration:
+                    // Look for variable declarations without an initializer.
+                    if (VarDeclaration& decl = stmt->as<VarDeclaration>(); !decl.value()) {
+                        fUninitializedVarDecl = &decl;
+                        break;
+                    }
+                    [[fallthrough]];
+
+                default:
+                    // We found an intervening statement; it's not safe to fuse a declaration
+                    // with an initializer if we encounter any other code.
+                    fUninitializedVarDecl = nullptr;
+                    break;
+
+                case Statement::Kind::kExpression: {
+                    // We found an expression-statement. If there was a variable declaration
+                    // immediately above it, it might be possible to fuse them.
+                    if (fUninitializedVarDecl) {
+                        VarDeclaration* vardecl = fUninitializedVarDecl;
+                        fUninitializedVarDecl = nullptr;
+
+                        std::unique_ptr<Expression>& nextExpr = stmt->as<ExpressionStatement>()
+                                                                     .expression();
+                        // This statement must be a binary-expression...
+                        if (!nextExpr->is<BinaryExpression>()) {
+                            break;
+                        }
+                        // ... performing simple `var = expr` assignment...
+                        BinaryExpression& binaryExpr = nextExpr->as<BinaryExpression>();
+                        if (binaryExpr.getOperator().kind() != OperatorKind::EQ) {
+                            break;
+                        }
+                        // ... directly into the variable (not a field/swizzle)...
+                        Expression& leftExpr = *binaryExpr.left();
+                        if (!leftExpr.is<VariableReference>()) {
+                            break;
+                        }
+                        // ... and it must be the same variable as our vardecl.
+                        VariableReference& varRef = leftExpr.as<VariableReference>();
+                        if (varRef.variable() != vardecl->var()) {
+                            break;
+                        }
+                        // We found a match! Move the init-expression directly onto the vardecl, and
+                        // turn the assignment into a no-op.
+                        vardecl->value() = std::move(binaryExpr.right());
+
+                        // Turn the expression-statement into a no-op.
+                        stmt = Nop::Make();
+                    }
+                    break;
+                }
+            }
         }
 
         bool functionReturnsValue() const {
             return !fFunction.returnType().isVoid();
         }
 
-        bool visitExpression(Expression& expr) override {
+        bool visitExpressionPtr(std::unique_ptr<Expression>& expr) override {
             // We don't need to scan expressions.
             return false;
         }
 
-        bool visitStatement(Statement& stmt) override {
-            switch (stmt.kind()) {
+        bool visitStatementPtr(std::unique_ptr<Statement>& stmt) override {
+            // When the optimizer is on, we look for variable declarations that are immediately
+            // followed by an initialization expression, and fuse them into one statement.
+            // (e.g.: `int i; i = 1;` can become `int i = 1;`)
+            if (fContext.fConfig->fSettings.fOptimize) {
+                this->fuseVariableDeclarationsWithInitialization(stmt);
+            }
+
+            // Perform error checking.
+            switch (stmt->kind()) {
                 case Statement::Kind::kVarDeclaration:
-                    this->addLocalVariable(stmt.as<VarDeclaration>().var(), stmt.fPosition);
+                    this->addLocalVariable(stmt->as<VarDeclaration>().var(), stmt->fPosition);
                     break;
 
                 case Statement::Kind::kReturn: {
@@ -143,12 +218,12 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // issue, we can add normalization before each return statement.
                     if (ProgramConfig::IsVertex(fContext.fConfig->fKind) && fFunction.isMain()) {
                         fContext.fErrors->error(
-                                stmt.fPosition,
+                                stmt->fPosition,
                                 "early returns from vertex programs are not supported");
                     }
 
                     // Verify that the return statement matches the function's return type.
-                    ReturnStatement& returnStmt = stmt.as<ReturnStatement>();
+                    ReturnStatement& returnStmt = stmt->as<ReturnStatement>();
                     if (returnStmt.expression()) {
                         if (this->functionReturnsValue()) {
                             // Coerce return expression to the function's return type.
@@ -174,7 +249,7 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                 case Statement::Kind::kFor: {
                     ++fBreakableLevel;
                     ++fContinuableLevel.front();
-                    bool result = INHERITED::visitStatement(stmt);
+                    bool result = INHERITED::visitStatementPtr(stmt);
                     --fContinuableLevel.front();
                     --fBreakableLevel;
                     return result;
@@ -182,34 +257,36 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                 case Statement::Kind::kSwitch: {
                     ++fBreakableLevel;
                     fContinuableLevel.push_front(0);
-                    bool result = INHERITED::visitStatement(stmt);
+                    bool result = INHERITED::visitStatementPtr(stmt);
                     fContinuableLevel.pop_front();
                     --fBreakableLevel;
                     return result;
                 }
                 case Statement::Kind::kBreak:
                     if (fBreakableLevel == 0) {
-                        fContext.fErrors->error(stmt.fPosition,
+                        fContext.fErrors->error(stmt->fPosition,
                                                 "break statement must be inside a loop or switch");
                     }
                     break;
+
                 case Statement::Kind::kContinue:
                     if (fContinuableLevel.front() == 0) {
                         if (std::any_of(fContinuableLevel.begin(),
                                         fContinuableLevel.end(),
                                         [](int level) { return level > 0; })) {
-                            fContext.fErrors->error(stmt.fPosition,
+                            fContext.fErrors->error(stmt->fPosition,
                                                    "continue statement cannot be used in a switch");
                         } else {
-                            fContext.fErrors->error(stmt.fPosition,
+                            fContext.fErrors->error(stmt->fPosition,
                                                     "continue statement must be inside a loop");
                         }
                     }
                     break;
+
                 default:
                     break;
             }
-            return INHERITED::visitStatement(stmt);
+            return INHERITED::visitStatementPtr(stmt);
         }
 
     private:
@@ -222,11 +299,14 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         // how deeply nested we are in continuable constructs (for, do).
         // We keep a stack (via a forward_list) in order to disallow continue inside of switch.
         std::forward_list<int> fContinuableLevel{0};
+        // We track uninitialized variable declarations, and if they are immediately assigned-to,
+        // we can move the assignment directly into the decl.
+        VarDeclaration* fUninitializedVarDecl = nullptr;
 
         using INHERITED = ProgramWriter;
     };
 
-    Finalizer(context, function, pos).visitStatement(*body);
+    Finalizer(context, function, pos).visitStatementPtr(body);
     if (function.isMain() && ProgramConfig::IsVertex(context.fConfig->fKind)) {
         append_rtadjust_fixup_to_vertex_main(context, function, body->as<Block>());
     }

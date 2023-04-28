@@ -4,8 +4,7 @@ uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
     bvec4 v = bvec4(bool(colorGreen.y));
-    bvec4 result;
-    result = bvec4(v.x, true, true, true);
+    bvec4 result = bvec4(v.x, true, true, true);
     result = bvec4(v.xy, false, true);
     result = bvec4(v.x, true, true, false);
     result = bvec4(false, v.y, true, true);

@@ -16,12 +16,9 @@ void keepAlive_vf(inout float f) {
 void keepAlive_vi(inout int i) {
 }
 vec4 main() {
-    int i;
-    i = 0;
-    ivec4 i4;
-    i4 = ivec4(1, 2, 3, 4);
-    mat3 f3x3;
-    f3x3 = mat3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    int i = 0;
+    ivec4 i4 = ivec4(1, 2, 3, 4);
+    mat3 f3x3 = mat3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
     vec4 x;
     x.w = 0.0;
     x.yx = vec2(0.0);

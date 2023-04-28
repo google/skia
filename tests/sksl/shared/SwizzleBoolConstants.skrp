@@ -4,7 +4,6 @@ copy_uniform                   $0 = colorGreen(1)
 cmpne_imm_float                $0 = notEqual($0, 0)
 swizzle_4                      $0..3 = ($0..3).xxxx
 copy_4_slots_unmasked          v = $0..3
-splat_4_constants              result = 0
 copy_slot_unmasked             result(0) = v(0)
 splat_3_constants              result(1..3) = 0xFFFFFFFF
 copy_2_slots_unmasked          result(0..1) = v(0..1)
