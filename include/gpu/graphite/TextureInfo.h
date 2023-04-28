@@ -154,6 +154,7 @@ private:
 #ifdef SK_VULKAN
         VulkanTextureSpec fVkSpec;
 #endif
+        void* fEnsureUnionNonEmpty;
     };
 };
 

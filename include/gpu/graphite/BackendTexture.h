@@ -131,6 +131,7 @@ private:
 #ifdef SK_VULKAN
         VkImage fVkImage;
 #endif
+        void* fEnsureUnionNonEmpty;
     };
 };
 
