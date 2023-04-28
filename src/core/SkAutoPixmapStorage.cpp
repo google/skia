@@ -4,9 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkAutoPixmapStorage.h"
 
 #include "include/core/SkData.h"
-#include "src/core/SkAutoPixmapStorage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/base/SkAssert.h"
+
+#include <utility>
 
 SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(nullptr) {}
 

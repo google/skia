@@ -4,9 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkAlphaRuns.h"
 
-#include "include/private/base/SkTo.h"
-#include "src/core/SkAntiRun.h"
 #include "src/core/SkOpts.h"
 
 void SkAlphaRuns::reset(int width) {

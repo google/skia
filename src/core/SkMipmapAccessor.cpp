@@ -5,14 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkMipmapAccessor.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkMipmap.h"
-#include "src/core/SkMipmapAccessor.h"
 #include "src/image/SkImage_Base.h"
+
+class SkImage;
 
 // Try to load from the base image, or from the cache
 static sk_sp<const SkMipmap> try_load_mips(const SkImage_Base* image) {

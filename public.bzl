@@ -345,7 +345,7 @@ BASE_SRCS_ALL = [
     "src/core/SkAnalyticEdge.h",
     "src/core/SkAnnotation.cpp",
     "src/core/SkAnnotationKeys.h",
-    "src/core/SkAntiRun.h",
+    "src/core/SkAlphaRuns.h",
     "src/core/SkAutoBlitterChoose.h",
     "src/core/SkAutoPixmapStorage.cpp",
     "src/core/SkAutoPixmapStorage.h",

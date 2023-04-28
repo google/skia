@@ -7,8 +7,7 @@
 
 #include "src/core/SkATrace.h"
 
-#include "src/core/SkTraceEvent.h"
-#include "src/core/SkTraceEventCommon.h"
+#include "include/utils/SkTraceEventPhase.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
     #include <dlfcn.h>

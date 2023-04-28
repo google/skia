@@ -9,12 +9,19 @@
 #define SkMipmapAccessor_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkMipmap.h"
-#include <tuple>
 
+#include <utility>
+
+class SkArenaAlloc;
+class SkImage;
 class SkImage_Base;
+enum class SkMipmapMode;
 
 class SkMipmapAccessor : ::SkNoncopyable {
 public:

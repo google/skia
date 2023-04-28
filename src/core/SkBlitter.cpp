@@ -14,7 +14,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkAntiRun.h"
+#include "src/core/SkAlphaRuns.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"

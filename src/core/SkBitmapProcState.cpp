@@ -5,17 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPaint.h"
-#include "include/core/SkShader.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkBitmapProcState.h"
+
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTileMode.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTPin.h"
-#include "src/core/SkBitmapCache.h"
-#include "src/core/SkBitmapProcState.h"
-#include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapAccessor.h"
 #include "src/core/SkOpts.h"
-#include "src/core/SkResourceCache.h"
+
+#include <algorithm>
+#include <cstring>
+#include <tuple>
+
+class SkImage;
+class SkImage_Base;
 
 // One-stop-shop shader for,
 //   - nearest-neighbor sampling (_nofilter_),

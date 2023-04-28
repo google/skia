@@ -8,13 +8,17 @@
 #ifndef SkAAClip_DEFINED
 #define SkAAClip_DEFINED
 
-#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
+#include <cstdint>
 
 class SkPath;
 class SkRegion;
+enum class SkClipOp;
+struct SkMask;
 
 class SkAAClip {
 public:

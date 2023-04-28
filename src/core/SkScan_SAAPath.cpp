@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkAntiRun.h"
+#include "src/core/SkAlphaRuns.h"
 #include "src/core/SkBlitter.h"
 
 #if defined(SK_FORCE_AAA)

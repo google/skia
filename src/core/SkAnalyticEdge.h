@@ -8,10 +8,15 @@
 #ifndef SkAnalyticEdge_DEFINED
 #define SkAnalyticEdge_DEFINED
 
-#include "include/private/base/SkTo.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkSafe32.h"
 #include "src/core/SkEdge.h"
 
-#include <utility>
+#include <cstdint>
+
+struct SkPoint;
 
 struct SkAnalyticEdge {
     // Similar to SkEdge, the conic edges will be converted to quadratic edges

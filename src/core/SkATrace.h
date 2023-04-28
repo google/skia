@@ -10,6 +10,8 @@
 
 #include "include/utils/SkEventTracer.h"
 
+#include <cstdint>
+
 /**
  * This class is used to support ATrace in android apps. It hooks into the SkEventTracer system. It
  * currently supports the macros TRACE_EVENT*, TRACE_EVENT_INSTANT*, and TRACE_EVENT_BEGIN/END*.

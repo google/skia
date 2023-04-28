@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkAntiRun_DEFINED
-#define SkAntiRun_DEFINED
+#ifndef SkAlphaRuns_DEFINED
+#define SkAlphaRuns_DEFINED
 
+#include "include/core/SkColor.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkBlitter.h"
+
+#include <cstdint>
 
 /** Sparse array of run-length-encoded alpha (supersampling coverage) values.
     Sparseness allows us to independently compose several paths into the
