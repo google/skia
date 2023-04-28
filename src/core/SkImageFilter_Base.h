@@ -217,7 +217,7 @@ protected:
 
     // DEPRECRATED - Call the Context-only filterInput()
     sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const {
-        return this->filterInput(index, ctx).imageAndOffset(offset);
+        return this->filterInput(index, ctx).imageAndOffset(ctx, offset);
     }
 
     // Helper function to visit each of this filter's child filters and call their
@@ -314,14 +314,11 @@ protected:
                                             GrProtected isProtected = GrProtected::kNo);
 
     /**
-     *  Returns a version of the passed-in image (possibly the original), that is in a colorspace
-     *  with the same gamut as the one from the OutputProperties. This allows filters that do many
+     *  Returns a version of the passed-in image (possibly the original), that is in the Context's
+     *  colorspace and color type. This allows filters that do many
      *  texture samples to guarantee that any color space conversion has happened before running.
      */
-    static sk_sp<SkSpecialImage> ImageToColorSpace(SkSpecialImage* src,
-                                                   SkColorType colorType,
-                                                   SkColorSpace* colorSpace,
-                                                   const SkSurfaceProps&);
+    static sk_sp<SkSpecialImage> ImageToColorSpace(const skif::Context& ctx, SkSpecialImage* src);
 #endif
 
     // If 'srcBounds' will sample outside the border of 'originalSrcBounds' (i.e., the sample

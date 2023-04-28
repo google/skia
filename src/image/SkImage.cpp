@@ -278,7 +278,8 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext, const SkIma
         context = skif::Context::MakeRaster(ctxInfo);
     }
 
-    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context).imageAndOffset(offset);
+    sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context)
+                                                  .imageAndOffset(context, offset);
     if (!result) {
         return nullptr;
     }

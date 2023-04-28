@@ -48,14 +48,6 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fProps(props) {
 }
 
-sk_sp<SkSpecialSurface> SkSpecialImage::makeSurface(SkColorType colorType,
-                                                    const SkColorSpace* colorSpace,
-                                                    const SkISize& size,
-                                                    SkAlphaType at,
-                                                    const SkSurfaceProps& props) const {
-    return this->onMakeSurface(colorType, colorSpace, size, at, props);
-}
-
 sk_sp<SkSurface> SkSpecialImage::makeTightSurface(SkColorType colorType,
                                                   const SkColorSpace* colorSpace,
                                                   const SkISize& size,
@@ -184,15 +176,6 @@ public:
         return {};
     }
 #endif
-
-    sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType, const SkColorSpace* colorSpace,
-                                          const SkISize& size, SkAlphaType at,
-                                          const SkSurfaceProps& props) const override {
-        // Ignore the requested color type, the raster backend currently only supports N32
-        colorType = kN32_SkColorType;   // TODO: find ways to allow f16
-        SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-        return SkSpecialSurface::MakeRaster(info, props);
-    }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         // No need to extract subset, onGetROPixels handles that when needed
@@ -342,18 +325,6 @@ public:
         // so we never perform read-back.
         SkASSERT(false);
         return false;
-    }
-
-    sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType, const SkColorSpace* colorSpace,
-                                          const SkISize& size, SkAlphaType at,
-                                          const SkSurfaceProps& props) const override {
-        if (!fContext) {
-            return nullptr;
-        }
-
-        SkImageInfo ii = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-
-        return SkSpecialSurface::MakeRenderTarget(fContext, ii, props, fView.origin());
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {

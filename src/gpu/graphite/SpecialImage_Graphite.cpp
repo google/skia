@@ -68,18 +68,6 @@ public:
         return false;
     }
 
-    sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType,
-                                          const SkColorSpace* colorSpace,
-                                          const SkISize& size,
-                                          SkAlphaType at,
-                                          const SkSurfaceProps& props) const override {
-        SkASSERT(fRecorder);
-
-        SkImageInfo ii = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-
-        return SkSpecialSurface::MakeGraphite(fRecorder, ii, props);
-    }
-
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         return SkSpecialImage::MakeGraphite(fRecorder,
                                             subset,

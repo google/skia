@@ -552,7 +552,8 @@ static void test_cropRects(skiatest::Reporter* reporter, GrRecordingContext* rCo
         SkImageFilter* filter = filters.getFilter(i);
         SkIPoint offset;
         skif::Context ctx = make_context(100, 100, srcImg.get());
-        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
+        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx)
+                                                       .imageAndOffset(ctx, &offset));
         REPORTER_ASSERT(reporter, resultImg, "%s", filters.getName(i));
         REPORTER_ASSERT(reporter, offset.fX == 20 && offset.fY == 30, "%s", filters.getName(i));
     }
@@ -591,11 +592,11 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
     skif::Context ctx = make_context(32, 32, imgSrc.get());
 
     sk_sp<SkSpecialImage> positiveResult1(
-            as_IFB(positiveFilter)->filterImage(ctx).imageAndOffset(&offset));
+            as_IFB(positiveFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, positiveResult1);
 
     sk_sp<SkSpecialImage> negativeResult1(
-            as_IFB(negativeFilter)->filterImage(ctx).imageAndOffset(&offset));
+            as_IFB(negativeFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, negativeResult1);
 
     SkMatrix negativeScale;
@@ -603,11 +604,11 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
     skif::Context negativeCTX = ctx.withNewMapping(skif::Mapping(negativeScale));
 
     sk_sp<SkSpecialImage> negativeResult2(
-            as_IFB(positiveFilter)->filterImage(negativeCTX).imageAndOffset(&offset));
+            as_IFB(positiveFilter)->filterImage(negativeCTX).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, negativeResult2);
 
     sk_sp<SkSpecialImage> positiveResult2(
-            as_IFB(negativeFilter)->filterImage(negativeCTX).imageAndOffset(&offset));
+            as_IFB(negativeFilter)->filterImage(negativeCTX).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, positiveResult2);
 
 
@@ -685,7 +686,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     skif::Context ctx = make_context(32, 32, imgSrc.get());
 
     sk_sp<SkSpecialImage> normalResult(
-            as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
+            as_IFB(filter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, normalResult);
 
     SkMatrix mirrorX;
@@ -694,7 +695,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     skif::Context mirrorXCTX = ctx.withNewMapping(skif::Mapping(mirrorX));
 
     sk_sp<SkSpecialImage> mirrorXResult(
-            as_IFB(filter)->filterImage(mirrorXCTX).imageAndOffset(&offset));
+            as_IFB(filter)->filterImage(mirrorXCTX).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, mirrorXResult);
 
     SkMatrix mirrorY;
@@ -703,7 +704,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     skif::Context mirrorYCTX = ctx.withNewMapping(skif::Mapping(mirrorY));
 
     sk_sp<SkSpecialImage> mirrorYResult(
-            as_IFB(filter)->filterImage(mirrorYCTX).imageAndOffset(&offset));
+            as_IFB(filter)->filterImage(mirrorYCTX).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, mirrorYResult);
 
     SkBitmap normalResultBM, mirrorXResultBM, mirrorYResultBM;
@@ -758,7 +759,7 @@ static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrDirectContext* 
     skif::Context ctx = make_context(32, 32, image.get());
 
 
-    sk_sp<SkSpecialImage> result(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
+    sk_sp<SkSpecialImage> result(as_IFB(filter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, offset.fX == 5 && offset.fY == 0);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->width() == 5 && result->height() == 10);
@@ -802,7 +803,8 @@ static void test_fail_affects_transparent_black(skiatest::Reporter* reporter,
     sk_sp<SkImageFilter> greenFilter(SkImageFilters::ColorFilter(std::move(green),
                                                                  std::move(failFilter)));
     SkIPoint offset;
-    sk_sp<SkSpecialImage> result(as_IFB(greenFilter)->filterImage(ctx).imageAndOffset(&offset));
+    sk_sp<SkSpecialImage> result(as_IFB(greenFilter)->filterImage(ctx)
+                                                     .imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, nullptr != result.get());
     if (result) {
         SkBitmap resultBM;
@@ -1086,7 +1088,7 @@ static void test_imagefilter_merge_result_size(skiatest::Reporter* reporter,
     skif::Context ctx = make_context(100, 100, srcImg.get());
     SkIPoint offset;
 
-    sk_sp<SkSpecialImage> resultImg(as_IFB(merge)->filterImage(ctx).imageAndOffset(&offset));
+    sk_sp<SkSpecialImage> resultImg(as_IFB(merge)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
 
     REPORTER_ASSERT(reporter, resultImg->width() == 20 && resultImg->height() == 20);
@@ -1245,7 +1247,7 @@ static void test_big_kernel(skiatest::Reporter* reporter, GrRecordingContext* rC
 
     SkIPoint offset;
     skif::Context ctx = make_context(100, 100, srcImg.get());
-    sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
+    sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
     REPORTER_ASSERT(reporter, SkToBool(rContext) == resultImg->isTextureBacked());
     REPORTER_ASSERT(reporter, resultImg->width() == 100 && resultImg->height() == 100);
@@ -1324,7 +1326,7 @@ static void test_clipped_picture_imagefilter(skiatest::Reporter* reporter,
     skif::Context ctx = make_context(SkIRect::MakeXYWH(1,1,1,1), srcImg.get());
 
     sk_sp<SkSpecialImage> resultImage(
-            as_IFB(imageFilter)->filterImage(ctx).imageAndOffset(&offset));
+            as_IFB(imageFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, !resultImage);
 }
 
@@ -1553,7 +1555,7 @@ static void test_composed_imagefilter_offset(skiatest::Reporter* reporter,
     skif::Context ctx = make_context(100, 100, srcImg.get());
 
     sk_sp<SkSpecialImage> resultImg(
-            as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(&offset));
+            as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
     REPORTER_ASSERT(reporter, offset.fX == 1 && offset.fY == 0);
 }
@@ -1593,7 +1595,7 @@ static void test_composed_imagefilter_bounds(skiatest::Reporter* reporter,
 
     SkIPoint offset;
     sk_sp<SkSpecialImage> result(
-            as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(&offset));
+            as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, offset.isZero());
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->subset().size() == SkISize::Make(100, 100));

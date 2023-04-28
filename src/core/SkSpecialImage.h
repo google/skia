@@ -117,15 +117,6 @@ public:
 #endif
 
     /**
-     *  Create a new special surface with a backend that is compatible with this special image.
-     */
-    sk_sp<SkSpecialSurface> makeSurface(SkColorType,
-                                        const SkColorSpace*,
-                                        const SkISize& size,
-                                        SkAlphaType,
-                                        const SkSurfaceProps&) const;
-
-    /**
      * Create a new surface with a backend that is compatible with this special image.
      * TODO: switch this to makeSurface once we resolved the naming issue
      * TODO (michaelludwig) - This is only used by SkTileImageFilter, which appears should be
@@ -229,12 +220,6 @@ protected:
     // This subset is relative to the backing store's coordinate frame, it has already been mapped
     // from the content rect by the non-virtual makeSubset().
     virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
-
-    virtual sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType,
-                                                  const SkColorSpace* colorSpace,
-                                                  const SkISize& size,
-                                                  SkAlphaType at,
-                                                  const SkSurfaceProps&) const = 0;
 
     // This subset (when not null) is relative to the backing store's coordinate frame, it has
     // already been mapped from the content rect by the non-virtual asImage().

@@ -687,13 +687,13 @@ public:
     // SkImageFilter_Base::filterImage() have been updated to work in the new type system
     // (which comes later as SkDevice, SkCanvas, etc. need to be modified, and coordinate space
     // tagging needs to be added).
-    sk_sp<SkSpecialImage> imageAndOffset(SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> imageAndOffset(const Context& ctx, SkIPoint* offset) const;
 
 private:
     // Renders this FilterResult into a new, but visually equivalent, image that fills 'dstBounds',
     // has nearest-neighbor sampling, and a transform that just translates by 'dstBounds' TL corner.
     std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>
-    resolve(LayerSpace<SkIRect> dstBounds) const;
+    resolve(const Context& ctx, LayerSpace<SkIRect> dstBounds) const;
 
     // The effective image of a FilterResult is 'fImage' sampled by 'fSamplingOptions' and
     // respecting 'fTileMode' (on the SkSpecialImage's subset), transformed by 'fTransform', clipped

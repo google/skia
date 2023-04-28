@@ -24,6 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
@@ -100,9 +101,13 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
     //--------------
     // Test that draw restricts itself to the subset
-    sk_sp<SkSpecialSurface> surf(img->makeSurface(kN32_SkColorType, img->getColorSpace(),
-                                                  SkISize::Make(kFullSize, kFullSize),
-                                                  kPremul_SkAlphaType, SkSurfaceProps()));
+    SkImageInfo imageInfo = SkImageInfo::Make(SkISize::Make(kFullSize, kFullSize),
+                                              kN32_SkColorType,
+                                              kPremul_SkAlphaType,
+                                              sk_ref_sp(img->getColorSpace()));
+    sk_sp<SkSpecialSurface> surf = isGPUBacked
+            ? SkSpecialSurface::MakeRenderTarget(rContext, imageInfo, {}, kTopLeft_GrSurfaceOrigin)
+            : SkSpecialSurface::MakeRaster(imageInfo, {});
 
     SkCanvas* canvas = surf->getCanvas();
 
