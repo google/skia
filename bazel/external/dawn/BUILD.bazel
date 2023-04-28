@@ -1056,6 +1056,7 @@ TINT_SRCS = [
     "src/tint/builtin/extension.h",
     "src/tint/builtin/function.cc",
     "src/tint/builtin/function.h",
+    "src/tint/builtin/interpolation.h",
     "src/tint/builtin/interpolation_sampling.cc",
     "src/tint/builtin/interpolation_sampling.h",
     "src/tint/builtin/interpolation_type.cc",
