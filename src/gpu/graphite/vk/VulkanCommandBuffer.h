@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
+#include "src/gpu/graphite/DrawPass.h"
 
 namespace skgpu::graphite {
 
@@ -57,14 +58,51 @@ private:
     void begin();
     void end();
 
-    // TODO: The virtuals in this class have not yet been implemented as we still haven't
-    // implemented the objects they use.
     bool onAddRenderPass(const RenderPassDesc&,
+                        const Texture* colorTexture,
+                        const Texture* resolveTexture,
+                        const Texture* depthStencilTexture,
+                        SkRect viewport,
+                        const DrawPassList&) override;
+
+    bool beginRenderPass(const RenderPassDesc&,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
-                         const Texture* depthStencilTexture,
-                         SkRect viewport,
-                         const DrawPassList&) override;
+                         const Texture* depthStencilTexture);
+    void endRenderPass();
+
+    void addDrawPass(const DrawPass*);
+
+    // TODO: Populate the following methods to handle the possible commands in a draw pass.
+    void bindGraphicsPipeline(const GraphicsPipeline*);
+    void setBlendConstants(float* blendConstants);
+    void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
+    void bindDrawBuffers(const BindBufferInfo& vertices,
+                         const BindBufferInfo& instances,
+                         const BindBufferInfo& indices,
+                         const BindBufferInfo& indirect);
+    void bindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
+                           const Buffer* instanceBuffer, size_t instanceOffset);
+    void bindIndexBuffer(const Buffer* indexBuffer, size_t offset);
+    void bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset);
+    void bindTextureAndSamplers(const DrawPass&, const DrawPassCommands::BindTexturesAndSamplers&);
+    void setScissor(unsigned int left, unsigned int top,
+                    unsigned int width, unsigned int height);
+
+    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount);
+    void drawIndexed(PrimitiveType type, unsigned int baseIndex, unsigned int indexCount,
+                     unsigned int baseVertex);
+    void drawInstanced(PrimitiveType type,
+                       unsigned int baseVertex, unsigned int vertexCount,
+                       unsigned int baseInstance, unsigned int instanceCount);
+    void drawIndexedInstanced(PrimitiveType type, unsigned int baseIndex,
+                              unsigned int indexCount, unsigned int baseVertex,
+                              unsigned int baseInstance, unsigned int instanceCount);
+    void drawIndirect(PrimitiveType type);
+    void drawIndexedIndirect(PrimitiveType type);
+
+    // TODO: The virtuals in this class have not yet been implemented as we still haven't
+    // implemented the objects they use.
     bool onAddComputePass(const DispatchGroupList&) override;
 
     bool onCopyBufferToBuffer(const Buffer* srcBuffer,
