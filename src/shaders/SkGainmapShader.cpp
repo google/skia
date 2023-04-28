@@ -92,6 +92,27 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
         dstColorSpace = SkColorSpace::MakeSRGB();
     }
 
+    // Compute the sampling transformation matrices.
+    const SkMatrix baseRectToDstRect = SkMatrix::RectToRect(baseRect, dstRect);
+    const SkMatrix gainmapRectToDstRect = SkMatrix::RectToRect(gainmapRect, dstRect);
+
+    // Compute the weight parameter that will be used to blend between the images.
+    float W = 0.f;
+    if (dstHdrRatio > gainmapInfo.fDisplayRatioSdr) {
+        if (dstHdrRatio < gainmapInfo.fDisplayRatioHdr) {
+            W = (sk_float_log(dstHdrRatio) - sk_float_log(gainmapInfo.fDisplayRatioSdr)) /
+                (sk_float_log(gainmapInfo.fDisplayRatioHdr) -
+                 sk_float_log(gainmapInfo.fDisplayRatioSdr));
+        } else {
+            W = 1.f;
+        }
+    }
+
+    // Return the base image directly if the gainmap will not be applied at all.
+    if (W == 0.f) {
+        return baseImage->makeShader(baseSamplingOptions, &baseRectToDstRect);
+    }
+
     // Create a color filter to transform from the base image's color space to the color space in
     // which the gainmap is to be applied.
     auto colorXformSdrToGainmap =
@@ -103,12 +124,10 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
             SkColorFilterPriv::MakeColorSpaceXform(gainmapMathColorSpace, dstColorSpace);
 
     // The base image shader will convert into the color space in which the gainmap is applied.
-    const SkMatrix baseRectToDstRect = SkMatrix::RectToRect(baseRect, dstRect);
     auto baseImageShader = baseImage->makeRawShader(baseSamplingOptions, &baseRectToDstRect)
                                    ->makeWithColorFilter(colorXformSdrToGainmap);
 
     // The gainmap image shader will ignore any color space that the gainmap has.
-    const SkMatrix gainmapRectToDstRect = SkMatrix::RectToRect(gainmapRect, dstRect);
     auto gainmapImageShader =
             gainmapImage->makeRawShader(gainmapSamplingOptions, &gainmapRectToDstRect);
 
@@ -124,11 +143,6 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
                                      sk_float_log(gainmapInfo.fGainmapRatioMax.fG),
                                      sk_float_log(gainmapInfo.fGainmapRatioMax.fB),
                                      1.f});
-        const float Wunclamped =
-                (sk_float_log(dstHdrRatio) - sk_float_log(gainmapInfo.fDisplayRatioSdr)) /
-                (sk_float_log(gainmapInfo.fDisplayRatioHdr) -
-                 sk_float_log(gainmapInfo.fDisplayRatioSdr));
-        const float W = std::max(std::min(Wunclamped, 1.f), 0.f);
         const int noGamma =
             gainmapInfo.fGainmapGamma.fR == 1.f &&
             gainmapInfo.fGainmapGamma.fG == 1.f &&
