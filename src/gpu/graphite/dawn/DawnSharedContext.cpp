@@ -17,7 +17,7 @@ namespace {
 
 wgpu::ShaderModule CreateNoopFragment(const wgpu::Device& device) {
     wgpu::ShaderModuleWGSLDescriptor wgslDesc;
-    wgslDesc.source =
+    wgslDesc.code =
             "@fragment\n"
             "fn main() {}\n";
     wgpu::ShaderModuleDescriptor smDesc;
