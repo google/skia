@@ -48,6 +48,12 @@ public:
         kMetal_ContextType,              //! Metal
         kDirect3D_ContextType,           //! Direct3D 12
         kDawn_ContextType,               //! Dawn
+        kDawn_D3D11_ContextType,         //! Dawn on Direct3D11
+        kDawn_D3D12_ContextType,         //! Dawn on Direct3D12
+        kDawn_Metal_ContextType,         //! Dawn on Metal
+        kDawn_Vulkan_ContextType,        //! Dawn on Vulkan
+        kDawn_OpenGL_ContextType,        //! Dawn on Vulkan
+        kDawn_OpenGLES_ContextType,      //! Dawn on Vulkan
         kMock_ContextType,               //! Mock context that does not draw.
         kLastContextType = kMock_ContextType
     };
@@ -83,6 +89,12 @@ public:
             case kDirect3D_ContextType:
                 return GrBackendApi::kDirect3D;
             case kDawn_ContextType:
+            case kDawn_D3D11_ContextType:
+            case kDawn_D3D12_ContextType:
+            case kDawn_Metal_ContextType:
+            case kDawn_Vulkan_ContextType:
+            case kDawn_OpenGL_ContextType:
+            case kDawn_OpenGLES_ContextType:
                 return GrBackendApi::kDawn;
             case kMock_ContextType:
                 return GrBackendApi::kMock;
@@ -119,6 +131,18 @@ public:
                 return "Direct3D";
             case kDawn_ContextType:
                 return "Dawn";
+            case kDawn_D3D11_ContextType:
+                return "Dawn D3D11";
+            case kDawn_D3D12_ContextType:
+                return "Dawn D3D12";
+            case kDawn_Metal_ContextType:
+                return "Dawn Metal";
+            case kDawn_Vulkan_ContextType:
+                return "Dawn Vulkan";
+            case kDawn_OpenGL_ContextType:
+                return "Dawn OpenGL";
+            case kDawn_OpenGLES_ContextType:
+                return "Dawn OpenGLES";
             case kMock_ContextType:
                 return "Mock";
         }
