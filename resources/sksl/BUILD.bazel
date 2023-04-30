@@ -941,6 +941,7 @@ skia_filegroup(
         "shared/Ossfuzz37900.sksl",
         "shared/Ossfuzz41000.sksl",
         "shared/Ossfuzz50636.sksl",
+        "shared/Ossfuzz58483.sksl",
         "shared/OutParams.sksl",
         "shared/OutParamsAreDistinct.sksl",
         "shared/OutParamsAreDistinctFromGlobal.sksl",

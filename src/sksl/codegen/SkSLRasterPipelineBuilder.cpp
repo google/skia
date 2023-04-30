@@ -334,23 +334,26 @@ void Builder::discard_stack(int32_t count) {
                 }
 
                 // A `copy_stack_to_slots_unmasked` op, followed immediately by a `discard_stack`
-                // op, is interpreted as an unmasked stack pop. We can simplify pops in a variety of
-                // ways. First, temporarily get rid of `copy_stack_to_slots_unmasked`.
-                SlotRange dst{lastInstruction.fSlotA, lastInstruction.fImmA};
-                fInstructions.pop_back();
+                // op with an equal number of slots, is interpreted as an unmasked stack pop.
+                // We can simplify pops in a variety of ways. First, temporarily get rid of
+                // `copy_stack_to_slots_unmasked`.
+                if (count == lastInstruction.fImmA) {
+                    SlotRange dst{lastInstruction.fSlotA, lastInstruction.fImmA};
+                    fInstructions.pop_back();
 
-                // See if we can write this pop in a simpler way.
-                this->simplifyPopSlotsUnmasked(&dst);
+                    // See if we can write this pop in a simpler way.
+                    this->simplifyPopSlotsUnmasked(&dst);
 
-                // If simplification consumed the entire range, we're done!
-                if (dst.count == 0) {
-                    return;
+                    // If simplification consumed the entire range, we're done!
+                    if (dst.count == 0) {
+                        return;
+                    }
+
+                    // Simplification did not consume the entire range. We are still responsible for
+                    // copying-back and discarding any remaining slots.
+                    this->copy_stack_to_slots_unmasked(dst);
+                    count = dst.count;
                 }
-
-                // Simplification did not consume the entire range. We are still responsible for
-                // copying-back and discarding any remaining slots.
-                this->copy_stack_to_slots_unmasked(dst);
-                count = dst.count;
                 break;
             }
             default:

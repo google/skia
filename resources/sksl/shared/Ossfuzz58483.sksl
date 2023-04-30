@@ -1,0 +1,4 @@
+half4 main(float2 p) {
+    (p /= 3).x;
+    return half4(1);
+}
