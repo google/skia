@@ -2754,10 +2754,10 @@ if (skia_enable_tools) {
       ]
 
       deps = [
-        ":sk_app",
         ":skia",
         "experimental/sktext:sktext",
         "modules/skottie:skottie",
+        "tools/window:window",
       ]
     }
   }
