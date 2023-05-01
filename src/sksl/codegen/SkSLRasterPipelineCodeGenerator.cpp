@@ -2252,6 +2252,7 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         // Builder more opportunities to use immediate-mode ops.
         case OperatorKind::PLUS:
         case OperatorKind::STAR:
+        case OperatorKind::BITWISEAND:
         case OperatorKind::BITWISEXOR:
         case OperatorKind::LOGICALXOR: {
             double unused;

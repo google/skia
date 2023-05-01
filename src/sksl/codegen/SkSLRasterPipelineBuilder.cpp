@@ -107,6 +107,7 @@ namespace SkSL::RP {
     case BuilderOp::add_imm_int:         \
     case BuilderOp::mul_imm_float:       \
     case BuilderOp::mul_imm_int:         \
+    case BuilderOp::bitwise_and_imm_int: \
     case BuilderOp::bitwise_xor_imm_int: \
     case BuilderOp::cmple_imm_float:     \
     case BuilderOp::cmple_imm_int:       \
@@ -2728,6 +2729,7 @@ void Program::dump(SkWStream* out) const {
 
             case POp::add_imm_int:
             case POp::mul_imm_int:
+            case POp::bitwise_and_imm_int:
             case POp::bitwise_xor_imm_int:
             case POp::cmple_imm_int:
             case POp::cmple_imm_uint:
@@ -3089,6 +3091,7 @@ void Program::dump(SkWStream* out) const {
             case POp::bitwise_and_3_ints:
             case POp::bitwise_and_4_ints:
             case POp::bitwise_and_n_ints:
+            case POp::bitwise_and_imm_int:
                 opText = opArg1 + " &= " + opArg2;
                 break;
 
