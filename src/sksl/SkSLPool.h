@@ -8,12 +8,12 @@
 #ifndef SKSL_POOL
 #define SKSL_POOL
 
-#include "src/sksl/SkSLMemoryPool.h"
-
 #include <cstddef>
 #include <memory>
 
 namespace SkSL {
+
+class MemoryPool;
 
 /**
  * Efficiently allocates memory in an SkSL program. Optimized for allocate/release performance over
@@ -51,7 +51,7 @@ public:
     static bool IsAttached();
 
 private:
-    Pool() = default;  // use Create to make a pool
+    Pool();  // use Create to make a pool
     std::unique_ptr<SkSL::MemoryPool> fMemPool;
 };
 

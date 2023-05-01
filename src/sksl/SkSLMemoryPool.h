@@ -11,34 +11,26 @@
 #include <memory>
 
 #include "include/core/SkTypes.h"
+#include "src/base/SkArenaAlloc.h"
 
-#if defined(SK_GANESH)
-
-#include "src/gpu/ganesh/GrMemoryPool.h"
-
-namespace SkSL {
-using MemoryPool = ::GrMemoryPool;
-}
-
-#else
-
-// When Ganesh is disabled, GrMemoryPool is not linked in. We include a minimal class which mimics
-// the GrMemoryPool interface but simply redirects to the system allocator.
 namespace SkSL {
 
 class MemoryPool {
 public:
-    static std::unique_ptr<MemoryPool> Make(size_t, size_t) {
+    static std::unique_ptr<MemoryPool> Make() {
         return std::make_unique<MemoryPool>();
     }
-    void resetScratchSpace() {}
-    void reportLeaks() const {}
-    bool isEmpty() const { return true; }
-    void* allocate(size_t size) { return ::operator new(size); }
-    void release(void* p) { ::operator delete(p); }
+    void* allocate(size_t size) {
+        return fArena.makeBytesAlignedTo(size, sizeof(void*));
+    }
+    void release(void*) {
+        // SkArenaAlloc does not ever attempt to reclaim space.
+    }
+
+private:
+    SkSTArenaAlloc<65536> fArena{/*firstHeapAllocation=*/32768};
 };
 
 }  // namespace SkSL
 
-#endif // defined(SK_GANESH)
 #endif // SKSL_MEMORYPOOL
