@@ -12,8 +12,6 @@
 
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
 
-#include <optional>
-
 #include "webgpu/webgpu_cpp.h"
 #include "dawn/native/DawnNative.h"
 
@@ -23,7 +21,7 @@ class DawnTestContext : public GraphiteTestContext {
 public:
     ~DawnTestContext() override {}
 
-    static std::unique_ptr<GraphiteTestContext> Make(std::optional<wgpu::BackendType> backend);
+    static std::unique_ptr<GraphiteTestContext> Make();
 
     skgpu::BackendApi backend() override { return skgpu::BackendApi::kDawn; }
 

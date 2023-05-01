@@ -19,12 +19,12 @@
 
 namespace skiatest::graphite {
 
-std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::BackendType> backend) {
+std::unique_ptr<GraphiteTestContext> DawnTestContext::Make() {
     static std::unique_ptr<dawn::native::Instance> gInstance;
     static dawn::native::Adapter gAdapter;
     static SkOnce gOnce;
 
-    gOnce([&]{
+    gOnce([]{
         gInstance = std::make_unique<dawn::native::Instance>();
 
         gInstance->DiscoverDefaultAdapters();
@@ -46,21 +46,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
                        std::tuple(propB.adapterType, propB.backendType);
             });
 
-        for (auto adapter : adapters) {
-            wgpu::AdapterProperties props;
-            adapter.GetProperties(&props);
-            if (backend.has_value() && backend.value() == props.backendType) {
-                gAdapter = adapter;
-                break;
-            }
-            // Skip Dawn D3D11 backend for now.
-            if (backend == wgpu::BackendType::Null &&
-                props.backendType != wgpu::BackendType::D3D11) {
-                gAdapter = adapter;
-                break;
-            }
-        }
-        SkASSERT(gAdapter);
+        gAdapter = adapters.front();
 
 #if LOG_ADAPTER
         wgpu::AdapterProperties properties;
