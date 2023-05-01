@@ -12,19 +12,21 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkBitmapCache.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterTypes.h"
+#include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkSpecialImage.h"
 #include "src/image/SkRescaleAndReadPixels.h"
-
-#if defined(SK_GANESH)
-#include "include/gpu/GrRecordingContext.h"
-#include "include/private/gpu/ganesh/GrImageContext.h"
-
-#endif
 
 #if defined(SK_GRAPHITE)
 #include "src/core/SkColorSpacePriv.h"
@@ -33,6 +35,9 @@
 #endif
 
 #include <atomic>
+#include <utility>
+
+class SkImageFilter;
 
 SkImage_Base::SkImage_Base(const SkImageInfo& info, uint32_t uniqueID)
         : SkImage(info, uniqueID), fAddedToRasterCache(false) {}
@@ -105,6 +110,79 @@ sk_sp<SkImage> SkImage_Base::makeSubset(GrDirectContext* direct, const SkIRect& 
     return as_IB(this)->onMakeSubset(direct, subset);
 }
 
+sk_sp<SkImage> SkImage_Base::makeWithFilter(GrRecordingContext*,
+                                            const SkImageFilter* filter,
+                                            const SkIRect& subset,
+                                            const SkIRect& clipBounds,
+                                            SkIRect* outSubset,
+                                            SkIPoint* offset) const {
+    if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
+        return nullptr;
+    }
+
+    auto srcSpecialImage = SkSpecialImage::MakeFromImage(
+            nullptr, subset, sk_ref_sp(const_cast<SkImage_Base*>(this)), SkSurfaceProps());
+    if (!srcSpecialImage) {
+        return nullptr;
+    }
+
+    sk_sp<SkImageFilterCache> cache(
+            SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
+
+    // The filters operate in the local space of the src image, where (0,0) corresponds to the
+    // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
+    // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
+    // the clip bounds (since it is assumed to already be in image space).
+    // TODO: Once all image filters support it, we can just use the subset's top left corner as
+    // the source FilterResult's origin.
+    skif::ContextInfo ctxInfo = {
+            skif::Mapping(SkMatrix::Translate(-subset.x(), -subset.y())),
+            skif::LayerSpace<SkIRect>(clipBounds.makeOffset(-subset.topLeft())),
+            skif::FilterResult(srcSpecialImage),
+            fInfo.colorType(),
+            fInfo.colorSpace(),
+            /*fSurfaceProps=*/{},
+            cache.get()};
+    skif::Context context = skif::Context::MakeRaster(ctxInfo);
+
+    return this->filterSpecialImage(
+            context, as_IFB(filter), srcSpecialImage.get(), subset, clipBounds, outSubset, offset);
+}
+
+sk_sp<SkImage> SkImage_Base::filterSpecialImage(skif::Context context,
+                                                const SkImageFilter_Base* filter,
+                                                const SkSpecialImage* specialImage,
+                                                const SkIRect& subset,
+                                                const SkIRect& clipBounds,
+                                                SkIRect* outSubset,
+                                                SkIPoint* offset) const {
+    sk_sp<SkSpecialImage> result = filter->filterImage(context).imageAndOffset(context, offset);
+    if (!result) {
+        return nullptr;
+    }
+
+    // The output image and offset are relative to the subset rectangle, so the offset needs to
+    // be shifted to put it in the correct spot with respect to the original coordinate system
+    offset->fX += subset.x();
+    offset->fY += subset.y();
+
+    // Final clip against the exact clipBounds (the clip provided in the context gets adjusted
+    // to account for pixel-moving filters so doesn't always exactly match when finished). The
+    // clipBounds are translated into the clippedDstRect coordinate space, including the
+    // result->subset() ensures that the result's image pixel origin does not affect results.
+    SkIRect dstRect = result->subset();
+    SkIRect clippedDstRect = dstRect;
+    if (!clippedDstRect.intersect(clipBounds.makeOffset(result->subset().topLeft() - *offset))) {
+        return nullptr;
+    }
+
+    // Adjust the geometric offset if the top-left corner moved as well
+    offset->fX += (clippedDstRect.x() - dstRect.x());
+    offset->fY += (clippedDstRect.y() - dstRect.y());
+    *outSubset = clippedDstRect;
+    return result->asImage();
+}
+
 void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
                                                      sk_sp<SkColorSpace> dstColorSpace,
                                                      SkIRect srcRect,
@@ -118,6 +196,25 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
     callback(context, nullptr);
 }
 
+sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(GrDirectContext* dContext,
+                                                        SkColorType targetColorType,
+                                                        sk_sp<SkColorSpace> targetCS) const {
+    if (kUnknown_SkColorType == targetColorType || !targetCS) {
+        return nullptr;
+    }
+
+    SkColorType colorType = this->colorType();
+    SkColorSpace* colorSpace = this->colorSpace();
+    if (!colorSpace) {
+        colorSpace = sk_srgb_singleton();
+    }
+    if (colorType == targetColorType &&
+        (SkColorSpace::Equals(colorSpace, targetCS.get()) || this->isAlphaOnly())) {
+        return sk_ref_sp(const_cast<SkImage_Base*>(this));
+    }
+
+    return this->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetCS), dContext);
+}
 
 #if defined(SK_GRAPHITE)
 std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Base::asView(
@@ -195,11 +292,3 @@ sk_sp<SkImage> SkImage_Base::makeTextureImage(skgpu::graphite::Recorder* recorde
 }
 
 #endif // SK_GRAPHITE
-
-GrDirectContext* SkImage_Base::directContext() const {
-#if defined(SK_GANESH)
-    return GrAsDirectContext(this->context());
-#else
-    return nullptr;
-#endif
-}

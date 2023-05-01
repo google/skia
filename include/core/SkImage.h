@@ -1013,10 +1013,12 @@ public:
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
     */
-    sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
-                                  const SkImageFilter* filter, const SkIRect& subset,
-                                  const SkIRect& clipBounds, SkIRect* outSubset,
-                                  SkIPoint* offset) const;
+    virtual sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
+                                          const SkImageFilter* filter,
+                                          const SkIRect& subset,
+                                          const SkIRect& clipBounds,
+                                          SkIRect* outSubset,
+                                          SkIPoint* offset) const = 0;
 
     /** Deprecated.
      */
@@ -1057,14 +1059,18 @@ public:
         If this image is texture-backed, the context parameter is required and must match the
         context of the source image.
 
-        @param target  SkColorSpace describing color range of returned SkImage
         @param direct  The GrDirectContext in play, if it exists
+        @param target  SkColorSpace describing color range of returned SkImage
         @return        created SkImage in target SkColorSpace
 
         example: https://fiddle.skia.org/c/@Image_makeColorSpace
     */
+    sk_sp<SkImage> makeColorSpace(GrDirectContext* direct, sk_sp<SkColorSpace> target) const;
+
+#if !defined(SK_DISABLE_LEGACY_IMAGE_COLORSPACE_METHODS)
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
                                   GrDirectContext* direct = nullptr) const;
+#endif
 
     /** Experimental.
         Creates SkImage in target SkColorType and SkColorSpace.
@@ -1075,14 +1081,20 @@ public:
         If this image is texture-backed, the context parameter is required and must match the
         context of the source image.
 
+        @param direct           The GrDirectContext in play, if it exists
         @param targetColorType  SkColorType of returned SkImage
         @param targetColorSpace SkColorSpace of returned SkImage
-        @param direct           The GrDirectContext in play, if it exists
         @return                 created SkImage in target SkColorType and SkColorSpace
     */
+    virtual sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* direct,
+                                                      SkColorType targetColorType,
+                                                      sk_sp<SkColorSpace> targetCS) const = 0;
+
+#if !defined(SK_DISABLE_LEGACY_IMAGE_COLORSPACE_METHODS)
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetColorSpace,
                                               GrDirectContext* direct = nullptr) const;
+#endif
 
     /** Creates a new SkImage identical to this one, but with a different SkColorSpace.
         This does not convert the underlying pixel data, so the resulting image will draw

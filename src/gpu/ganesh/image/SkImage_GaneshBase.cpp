@@ -10,20 +10,29 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBitmapCache.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterTypes.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkSpecialImage.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -41,13 +50,14 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
+#include "src/image/SkImage_Base.h"
 
 #include <functional>
 #include <memory>
 #include <utility>
 
 class GrContextThreadSafeProxy;
-enum SkColorType : int;
+class SkImageFilter;
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Log.h"
@@ -268,6 +278,76 @@ bool SkImage_GaneshBase::isValid(GrRecordingContext* context) const {
         return false;
     }
     return true;
+}
+
+sk_sp<SkImage> SkImage_GaneshBase::makeColorTypeAndColorSpace(GrDirectContext* dContext,
+                                                              SkColorType targetColorType,
+                                                              sk_sp<SkColorSpace> targetCS) const {
+    if (kUnknown_SkColorType == targetColorType || !targetCS) {
+        return nullptr;
+    }
+
+    auto myContext = this->context();
+    // This check is also performed in the subclass, but we do it here for the short-circuit below.
+    if (!myContext || !myContext->priv().matches(dContext)) {
+        return nullptr;
+    }
+
+    SkColorType colorType = this->colorType();
+    SkColorSpace* colorSpace = this->colorSpace();
+    if (!colorSpace) {
+        colorSpace = sk_srgb_singleton();
+    }
+    if (colorType == targetColorType &&
+        (SkColorSpace::Equals(colorSpace, targetCS.get()) || this->isAlphaOnly())) {
+        return sk_ref_sp(const_cast<SkImage_GaneshBase*>(this));
+    }
+
+    return this->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetCS), dContext);
+}
+
+sk_sp<SkImage> SkImage_GaneshBase::makeWithFilter(GrRecordingContext* rContext,
+                                                  const SkImageFilter* filter,
+                                                  const SkIRect& subset,
+                                                  const SkIRect& clipBounds,
+                                                  SkIRect* outSubset,
+                                                  SkIPoint* offset) const {
+    if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
+        return nullptr;
+    }
+    auto myContext = this->context();
+    if (!myContext || !myContext->priv().matches(rContext)) {
+        return nullptr;
+    }
+    auto srcSpecialImage = SkSpecialImage::MakeFromImage(
+            rContext, subset, sk_ref_sp(const_cast<SkImage_GaneshBase*>(this)), SkSurfaceProps());
+    if (!srcSpecialImage) {
+        return nullptr;
+    }
+
+    sk_sp<SkImageFilterCache> cache(
+            SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
+
+    // The filters operate in the local space of the src image, where (0,0) corresponds to the
+    // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
+    // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
+    // the clip bounds (since it is assumed to already be in image space).
+    // TODO: Once all image filters support it, we can just use the subset's top left corner as
+    // the source FilterResult's origin.
+    skif::ContextInfo ctxInfo = {
+            skif::Mapping(SkMatrix::Translate(-subset.x(), -subset.y())),
+            skif::LayerSpace<SkIRect>(clipBounds.makeOffset(-subset.topLeft())),
+            skif::FilterResult(srcSpecialImage),
+            this->imageInfo().colorType(),
+            this->imageInfo().colorSpace(),
+            /*fSurfaceProps=*/{},
+            cache.get()};
+
+    auto view = srcSpecialImage->view(rContext);
+    skif::Context context = skif::Context::MakeGanesh(rContext, view.origin(), ctxInfo);
+
+    return this->filterSpecialImage(
+            context, as_IFB(filter), srcSpecialImage.get(), subset, clipBounds, outSubset, offset);
 }
 
 sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
