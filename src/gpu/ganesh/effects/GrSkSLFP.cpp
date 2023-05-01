@@ -43,6 +43,10 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#if defined(SK_ENABLE_SKVM)
+#include "src/core/SkFilterColorProgram.h"
+#endif
+
 #include <algorithm>
 
 namespace SkSL { class Context; }
