@@ -646,24 +646,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toWGSL(program, out);
                 });
-#if defined(SK_ENABLE_SKVM)
-    } else if (skstd::ends_with(outputPath, ".skvm")) {
-        return compileProgramAsRuntimeShader(
-                [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
-                    skvm::Builder builder{skvm::Features{}};
-                    if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
-                                                               debugTrace.get())) {
-                        return false;
-                    }
-
-                    std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
-                    if (debugTrace) {
-                        debugTrace->dump(redirect.get());
-                    }
-                    builder.done().dump(redirect.get());
-                    return true;
-                });
-#endif
 #if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
     } else if (skstd::ends_with(outputPath, ".skrp")) {
         settings.fMaxVersionAllowed = SkSL::Version::k300;
@@ -761,7 +743,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 });
     } else {
         printf("expected output path to end with one of: .glsl, .html, .metal, .hlsl, .wgsl, "
-               ".spirv, .asm.vert, .asm.frag, .skrp, .skvm, .stage (got '%s')\n",
+               ".spirv, .asm.vert, .asm.frag, .skrp, .stage (got '%s')\n",
                outputPath.c_str());
         return ResultCode::kConfigurationError;
     }

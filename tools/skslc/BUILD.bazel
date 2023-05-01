@@ -66,12 +66,6 @@ compile_sksl(
 )
 
 compile_sksl(
-    name = "skvm_tests",
-    inputs = "//resources/sksl:sksl_skvm_tests_sources",
-    lang = "skvm",
-)
-
-compile_sksl(
     name = "stage_tests",
     inputs = "//resources/sksl:sksl_stage_tests_sources",
     lang = "stage",

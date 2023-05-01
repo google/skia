@@ -1,6 +1,0 @@
-### Compilation failed:
-
-error: 1: name 'sk_Caps' is reserved
-bool b = sk_Caps.atan2ImplementedAsAtanYOverX;
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-1 error

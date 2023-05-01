@@ -83,10 +83,6 @@ for input in inputs:
         worklist.write(input + "\n")
         worklist.write(target + ".skrp\n")
         worklist.write(settings + "\n\n")
-    elif lang == "--skvm":
-        worklist.write(input + "\n")
-        worklist.write(target + ".skvm\n")
-        worklist.write(settings + "\n\n")
     elif lang == "--stage":
         worklist.write(input + "\n")
         worklist.write(target + ".stage\n")
@@ -97,7 +93,7 @@ for input in inputs:
         worklist.write(settings + "\n\n")
     else:
         sys.exit("### Expected one of: --glsl --metal --hlsl --spirv --skrp " +
-                 "--skvm --stage --wgsl, got " + lang)
+                 "--stage --wgsl, got " + lang)
 
     # Compile items one at a time.
     if not batchCompile:

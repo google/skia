@@ -1,6 +1,0 @@
-### Compilation failed:
-
-error: 2: unknown identifier 'sk_FragCoord'
-    return float4(sk_FragCoord);
-                  ^^^^^^^^^^^^
-1 error

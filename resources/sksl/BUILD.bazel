@@ -83,17 +83,6 @@ skia_filegroup(
     visibility = ["//tools/skslc:__pkg__"],
 )
 
-## Tests in sksl_skvm_tests_sources will be compiled with --settings on, and are expected to
-## generate a .skvm output file.
-skia_filegroup(
-    name = "sksl_skvm_tests_sources",
-    srcs = [
-        ":sksl_rte_error_tests",
-        ":sksl_rte_tests",
-    ],
-    visibility = ["//tools/skslc:__pkg__"],
-)
-
 ## Tests in sksl_stage_tests_sources will be compiled with --settings on, and are expected to
 ## generate a .stage output file.
 skia_filegroup(

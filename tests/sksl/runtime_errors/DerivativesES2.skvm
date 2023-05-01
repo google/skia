@@ -1,9 +1,0 @@
-### Compilation failed:
-
-error: 1: no match for dFdx(float2)
-float2 dx(float2 coords) { return dFdx(coords); }
-                                  ^^^^^^^^^^^^
-error: 2: no match for dFdy(float2)
-float2 dy(float2 coords) { return dFdy(coords); }
-                                  ^^^^^^^^^^^^
-2 errors
