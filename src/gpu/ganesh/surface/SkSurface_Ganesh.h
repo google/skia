@@ -51,7 +51,7 @@ public:
 
     SkImageInfo imageInfo() const override;
 
-    GrRecordingContext* onGetRecordingContext() override;
+    GrRecordingContext* onGetRecordingContext() const override;
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
     GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;

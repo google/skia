@@ -55,11 +55,11 @@ SkSurface_Base::~SkSurface_Base() {
 #endif
 }
 
-GrRecordingContext* SkSurface_Base::onGetRecordingContext() {
+GrRecordingContext* SkSurface_Base::onGetRecordingContext() const {
     return nullptr;
 }
 
-skgpu::graphite::Recorder* SkSurface_Base::onGetRecorder() {
+skgpu::graphite::Recorder* SkSurface_Base::onGetRecorder() const {
     return nullptr;
 }
 

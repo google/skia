@@ -47,8 +47,8 @@ public:
     SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
     ~SkSurface_Base() override;
 
-    virtual GrRecordingContext* onGetRecordingContext();
-    virtual skgpu::graphite::Recorder* onGetRecorder();
+    virtual GrRecordingContext* onGetRecordingContext() const;
+    virtual skgpu::graphite::Recorder* onGetRecorder() const;
 
 #if defined(SK_GANESH)
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);

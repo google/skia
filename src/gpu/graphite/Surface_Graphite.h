@@ -32,7 +32,7 @@ public:
 
     SkImageInfo imageInfo() const override;
 
-    Recorder* onGetRecorder() override;
+    Recorder* onGetRecorder() const override;
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;

@@ -74,7 +74,7 @@ SkSurface_Ganesh::SkSurface_Ganesh(sk_sp<skgpu::ganesh::Device> device)
 
 SkSurface_Ganesh::~SkSurface_Ganesh() {}
 
-GrRecordingContext* SkSurface_Ganesh::onGetRecordingContext() {
+GrRecordingContext* SkSurface_Ganesh::onGetRecordingContext() const {
     return fDevice->recordingContext();
 }
 

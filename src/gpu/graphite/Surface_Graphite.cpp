@@ -30,7 +30,7 @@ SkImageInfo Surface::imageInfo() const {
     return fDevice->imageInfo();
 }
 
-Recorder* Surface::onGetRecorder() {
+Recorder* Surface::onGetRecorder() const {
     return fDevice->recorder();
 }
 

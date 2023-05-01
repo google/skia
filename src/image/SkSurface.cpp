@@ -220,12 +220,12 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
     }
 }
 
-GrRecordingContext* SkSurface::recordingContext() {
-    return asSB(this)->onGetRecordingContext();
+GrRecordingContext* SkSurface::recordingContext() const {
+    return asConstSB(this)->onGetRecordingContext();
 }
 
-skgpu::graphite::Recorder* SkSurface::recorder() {
-    return asSB(this)->onGetRecorder();
+skgpu::graphite::Recorder* SkSurface::recorder() const {
+    return asConstSB(this)->onGetRecorder();
 }
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,

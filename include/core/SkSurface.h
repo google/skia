@@ -582,13 +582,13 @@ public:
 
         @return the recording context, if available; nullptr otherwise
      */
-    GrRecordingContext* recordingContext();
+    GrRecordingContext* recordingContext() const;
 
     /** Returns the recorder being used by the SkSurface.
 
         @return the recorder, if available; nullptr otherwise
      */
-    skgpu::graphite::Recorder* recorder();
+    skgpu::graphite::Recorder* recorder() const;
 
 #if defined(SK_GANESH)
     enum BackendHandleAccess {
@@ -596,21 +596,6 @@ public:
         kFlushWrite_BackendHandleAccess,   //!< back-end object is writable
         kDiscardWrite_BackendHandleAccess, //!< back-end object must be overwritten
     };
-
-    /** Deprecated.
-    */
-    static const BackendHandleAccess kFlushRead_TextureHandleAccess =
-            kFlushRead_BackendHandleAccess;
-
-    /** Deprecated.
-    */
-    static const BackendHandleAccess kFlushWrite_TextureHandleAccess =
-            kFlushWrite_BackendHandleAccess;
-
-    /** Deprecated.
-    */
-    static const BackendHandleAccess kDiscardWrite_TextureHandleAccess =
-            kDiscardWrite_BackendHandleAccess;
 
     /** Retrieves the back-end texture. If SkSurface has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
