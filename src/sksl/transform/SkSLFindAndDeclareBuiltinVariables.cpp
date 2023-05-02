@@ -146,8 +146,8 @@ void FindAndDeclareBuiltinVariables(Program& program) {
         if (var->isBuiltin()) {
             scanner.addDeclaringElement(var);
 
-            // Set the FlipRT program input if we find sk_FragCoord or sk_Clockwise.
             switch (var->modifiers().fLayout.fBuiltin) {
+                // Set the FlipRT program input if we find sk_FragCoord or sk_Clockwise.
                 case SK_FRAGCOORD_BUILTIN:
                     if (context.fCaps->fCanUseFragCoord) {
                         program.fInputs.fUseFlipRTUniform =
@@ -157,6 +157,12 @@ void FindAndDeclareBuiltinVariables(Program& program) {
 
                 case SK_CLOCKWISE_BUILTIN:
                     program.fInputs.fUseFlipRTUniform = !context.fConfig->fSettings.fForceNoRTFlip;
+                    break;
+
+                // Set the UseLastFragColor program input if we find sk_LastFragColor.
+                // Metal defines this as a program input, rather than a global variable.
+                case SK_LASTFRAGCOLOR_BUILTIN:
+                    program.fInputs.fUseLastFragColor = true;
                     break;
             }
         }

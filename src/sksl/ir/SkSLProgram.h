@@ -48,8 +48,10 @@ struct UniformInfo {
 struct Program {
     struct Inputs {
         bool fUseFlipRTUniform = false;
+        bool fUseLastFragColor = false;
         bool operator==(const Inputs& that) const {
-            return fUseFlipRTUniform == that.fUseFlipRTUniform;
+            return fUseFlipRTUniform == that.fUseFlipRTUniform &&
+                   fUseLastFragColor == that.fUseLastFragColor;
         }
         bool operator!=(const Inputs& that) const { return !(*this == that); }
     };
