@@ -46,11 +46,8 @@ static void draw_content(SkCanvas* canvas, float maxTextSize, int count) {
 DEF_SIMPLE_GM_BG(imagemagnifier, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
         SkPaint filterPaint;
         filterPaint.setImageFilter(
-            SkImageFilters::Magnifier(
-                SkRect::MakeXYWH(SkIntToScalar(100), SkIntToScalar(100),
-                                 SkIntToScalar(WIDTH / 2),
-                                 SkIntToScalar(HEIGHT / 2)),
-                100, nullptr));
+                SkImageFilters::Magnifier(SkRect::MakeWH(WIDTH, HEIGHT), 2.f, 100.f,
+                                          SkSamplingOptions{SkFilterMode::kLinear}, nullptr));
         canvas->saveLayer(nullptr, &filterPaint);
         draw_content(canvas, 300.f, 25);
         canvas->restore();
@@ -82,23 +79,16 @@ static sk_sp<SkImage> make_img() {
 }
 
 DEF_SIMPLE_GM_BG(imagemagnifier_cropped, canvas, WIDTH_HEIGHT, WIDTH_HEIGHT, SK_ColorBLACK) {
-
-    sk_sp<SkImage> image(make_img());
-
-    sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(std::move(image)));
-
-    SkRect srcRect = SkRect::MakeWH(SkIntToScalar(WIDTH_HEIGHT-32),
-                                    SkIntToScalar(WIDTH_HEIGHT-32));
-    srcRect.inset(64.0f, 64.0f);
-
-    constexpr SkScalar kInset = 64.0f;
+    sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(make_img()));
 
     // Crop out a 16 pixel ring around the result
     const SkIRect cropRect = SkIRect::MakeXYWH(16, 16, WIDTH_HEIGHT-32, WIDTH_HEIGHT-32);
 
     SkPaint filterPaint;
     filterPaint.setImageFilter(SkImageFilters::Magnifier(
-            srcRect, kInset, std::move(imageSource),  &cropRect));
+            SkRect::MakeWH(WIDTH_HEIGHT, WIDTH_HEIGHT),
+            WIDTH_HEIGHT / (WIDTH_HEIGHT - 96.f), 64.f, {},
+            std::move(imageSource),  &cropRect));
 
     canvas->saveLayer(nullptr, &filterPaint);
     canvas->restore();
