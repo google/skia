@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.1] - 2023-05-02
+
 ### Removed
  - Particles have been removed.
 
@@ -17,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added `CanvasKit.ParagraphBuilder.MakeFromFontCollection` to make a
    `ParagraphBuilder` that uses a given `FontCollection`.
  - `Paint.setDither` is exposed.
+ - Documentation has been improved.
 
 ### Changed
  - `Image.encodeToData` now makes use of the GPU context more consistently.
