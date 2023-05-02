@@ -32,7 +32,7 @@ TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
 #endif
 #ifdef SK_VULKAN
         case BackendApi::kVulkan:
-            // TODO: Actually fill this out
+            fVkSpec = that.fVkSpec;
             break;
 #endif
         default:

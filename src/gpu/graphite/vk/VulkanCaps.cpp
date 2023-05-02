@@ -43,6 +43,10 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
     // Graphite requires Vulkan version 1.1 or later, which has protected support.
     fProtectedSupport = true;
 
+    // We could actually query and get a max size for each config, however maxImageDimension2D will
+    // give the minimum max size across all configs. So for simplicity we will use that for now.
+    fMaxTextureSize = std::min(physDevProperties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
+
     fRequiredUniformBufferAlignment = 1;
     fRequiredStorageBufferAlignment = 1;
     fRequiredTransferBufferAlignment = 4;
