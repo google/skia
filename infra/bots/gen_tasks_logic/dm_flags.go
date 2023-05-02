@@ -325,14 +325,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if b.extraConfig("Dawn") {
 				configs = []string{"grdawn"}
 				// Could not readback from surface
-				// https://skbug/14105
+				// https://skbug.com/14105
 				skip(ALL, "gm", ALL, "tall_stretched_bitmaps")
 				// Shader doesn't compile
-				// https://skbug/14105
+				// https://skbug.com/14105
 				skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")
-				// Crashes
-				// https://skbug/14105
+				// Crashes and failures
+				// https://skbug.com/14105
 				skip(ALL, "test", ALL, "BackendTextureTest")
+				skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
 				skip(ALL, "test", ALL, "PaintParamsKeyTest")
 				if b.matchOs("Win") {
 					// Async read call failed
