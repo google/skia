@@ -6,11 +6,10 @@
     "cq_config": {}
   },
   {"name": "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64"},
-  {"name": "BazelBuild-example_hello_world_dawn-release-linux_x64",
-   "cq_config": {}
-   },
   {"name": "BazelBuild-example_hello_world_gl-release-linux_x64"},
-  {"name": "BazelBuild-example_hello_world_vulkan-release-linux_x64"},
+  {"name": "BazelBuild-example_hello_world_vulkan-release-linux_x64",
+      "cq_config": {}
+   },
   {"name": "BazelBuild-skia_public-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
@@ -24,7 +23,6 @@
     "cq_config": {}
   },
   {"name": "BazelBuild-tests-cpu_only-linux_x64"},
-  {"name": "BazelBuild-tests-dawn_ganesh-linux_x64"},
   {"name": "BazelBuild-tests-gl_ganesh-linux_x64"},
   {"name": "BazelBuild-tests-vulkan_ganesh-linux_x64"},
   {"name": "BazelTest-canvaskit_gold-ck_full_cpu_release_chrome-linux_x64",

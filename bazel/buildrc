@@ -96,7 +96,7 @@ build:ck_full_cpu_release_chrome --config=ck_full_cpu_release
 build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --compilation_mode=dbg --keep_going \
                    --with_gl_standard=gl_standard --gpu_backend=gl_backend \
-                   --gpu_backend=vulkan_backend --gpu_backend=dawn_backend \
+                   --gpu_backend=vulkan_backend \
                    --enable_gpu_test_utils --force_cpu_tests \
                    --include_fontmgr=custom_directory_fontmgr --include_fontmgr=custom_embedded_fontmgr \
                    --include_fontmgr=custom_empty_fontmgr --fontmgr_factory=custom_directory_fontmgr_factory \
