@@ -1,17 +1,16 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  _0_x = 0x3F800000 (1.0)
+bitwise_and_imm_int            _0_x &= 0x7FFFFFFF
 copy_slot_unmasked             $0 = _0_x
-abs_float                      $0 = abs($0)
-copy_slot_unmasked             _0_x = $0
 add_imm_float                  $0 += 0xC0000000 (-2.0)
-abs_float                      $0 = abs($0)
+bitwise_and_imm_int            $0 &= 0x7FFFFFFF
 copy_slot_unmasked             _0_x = $0
 copy_constant                  $1 = 0x40000000 (2.0)
 mul_float                      $0 *= $1
 copy_slot_unmasked             _0_x = $0
 copy_slot_unmasked             $1 = $0
-abs_float                      $1 = abs($1)
+bitwise_and_imm_int            $1 &= 0x7FFFFFFF
 div_float                      $0 /= $1
 copy_slot_unmasked             _0_x = $0
 copy_constant                  _1_x(0) = 0x3F800000 (1.0)

@@ -81,7 +81,6 @@
     M(cast_to_int_from_3_floats)  M(cast_to_int_from_4_floats)                                \
     M(cast_to_uint_from_float)    M(cast_to_uint_from_2_floats)                               \
     M(cast_to_uint_from_3_floats) M(cast_to_uint_from_4_floats)                               \
-    M(abs_float)        M(abs_2_floats)        M(abs_3_floats)        M(abs_4_floats)         \
     M(abs_int)          M(abs_2_ints)          M(abs_3_ints)          M(abs_4_ints)           \
     M(floor_float)      M(floor_2_floats)      M(floor_3_floats)      M(floor_4_floats)       \
     M(ceil_float)       M(ceil_2_floats)       M(ceil_3_floats)       M(ceil_4_floats)        \

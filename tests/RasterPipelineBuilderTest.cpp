@@ -686,10 +686,9 @@ DEF_TEST(RasterPipelineBuilderUnaryOps, r) {
     builder.unary_op(BuilderOp::tan_float, 3);
     builder.unary_op(BuilderOp::sin_float, 2);
     builder.unary_op(BuilderOp::sqrt_float, 1);
-    builder.unary_op(BuilderOp::abs_float, 2);
-    builder.unary_op(BuilderOp::abs_int, 3);
-    builder.unary_op(BuilderOp::floor_float, 4);
-    builder.unary_op(BuilderOp::ceil_float, 5);
+    builder.unary_op(BuilderOp::abs_int, 2);
+    builder.unary_op(BuilderOp::floor_float, 3);
+    builder.unary_op(BuilderOp::ceil_float, 4);
     builder.discard_stack(5);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
@@ -710,11 +709,9 @@ tan_float                      $4 = tan($4)
 sin_float                      $3 = sin($3)
 sin_float                      $4 = sin($4)
 sqrt_float                     $4 = sqrt($4)
-abs_2_floats                   $3..4 = abs($3..4)
-abs_3_ints                     $2..4 = abs($2..4)
-floor_4_floats                 $1..4 = floor($1..4)
-ceil_4_floats                  $0..3 = ceil($0..3)
-ceil_float                     $4 = ceil($4)
+abs_2_ints                     $3..4 = abs($3..4)
+floor_3_floats                 $2..4 = floor($2..4)
+ceil_4_floats                  $1..4 = ceil($1..4)
 )");
 }
 

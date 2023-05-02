@@ -306,7 +306,7 @@ trace_scope                    TraceScope(-1) when $74 is true
 trace_exit                     TraceExit(float float_loop()) when $13 is true
 copy_slot_unmasked             $74 = [float_loop].result
 label                          label 0x00000016
-abs_float                      $74 = abs($74)
+bitwise_and_imm_int            $74 &= 0x7FFFFFFF
 cmplt_imm_float                $74 = lessThan($74, 0x3CCCCCCD (0.025))
 copy_slot_masked               $73 = Mask($74)
 label                          label 0x00000007

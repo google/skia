@@ -379,6 +379,7 @@ public:
     [[nodiscard]] bool pushIntrinsic(BuilderOp builderOp,
                                      const Expression& arg0,
                                      const Expression& arg1);
+    [[nodiscard]] bool pushAbsFloatIntrinsic(int slots);
     [[nodiscard]] bool pushLengthIntrinsic(int slotCount);
     [[nodiscard]] bool pushVectorizedExpression(const Expression& expr, const Type& vectorType);
     [[nodiscard]] bool pushVariableReferencePartial(const VariableReference& v, SlotRange subset);
@@ -461,10 +462,6 @@ private:
     // beginning, and the total source length at the end, as sentinels.
     TArray<int> fLineOffsets;
 
-    static constexpr auto kAbsOps = TypedOps{BuilderOp::abs_float,
-                                             BuilderOp::abs_int,
-                                             BuilderOp::unsupported,
-                                             BuilderOp::unsupported};
     static constexpr auto kAddOps = TypedOps{BuilderOp::add_n_floats,
                                              BuilderOp::add_n_ints,
                                              BuilderOp::add_n_ints,
@@ -2714,15 +2711,21 @@ bool Generator::pushIntrinsic(const FunctionCall& c) {
 }
 
 bool Generator::pushLengthIntrinsic(int slotCount) {
-    if (slotCount > 1) {
-        // Implement `length(vec)` as `sqrt(dot(x, x))`.
-        fBuilder.push_clone(slotCount);
-        fBuilder.dot_floats(slotCount);
-        fBuilder.unary_op(BuilderOp::sqrt_float, 1);
-    } else {
+    if (slotCount == 1) {
         // `length(scalar)` is `sqrt(x^2)`, which is equivalent to `abs(x)`.
-        fBuilder.unary_op(BuilderOp::abs_float, 1);
+        return this->pushAbsFloatIntrinsic(/*slots=*/1);
     }
+    // Implement `length(vec)` as `sqrt(dot(x, x))`.
+    fBuilder.push_clone(slotCount);
+    fBuilder.dot_floats(slotCount);
+    fBuilder.unary_op(BuilderOp::sqrt_float, 1);
+    return true;
+}
+
+bool Generator::pushAbsFloatIntrinsic(int slots) {
+    // Perform abs(float) by masking off the sign bit.
+    fBuilder.push_constant_u(0x7FFFFFFF, slots);
+    fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, slots);
     return true;
 }
 
@@ -2755,7 +2758,15 @@ bool Generator::pushIntrinsic(BuilderOp builderOp, const Expression& arg0) {
 bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
     switch (intrinsic) {
         case IntrinsicKind::k_abs_IntrinsicKind:
-            return this->pushIntrinsic(kAbsOps, arg0);
+            if (arg0.type().componentType().isFloat()) {
+                // Perform abs(float) by masking off the sign bit.
+                if (!this->pushExpression(arg0)) {
+                    return unsupported();
+                }
+                return this->pushAbsFloatIntrinsic(arg0.type().slotCount());
+            }
+            // We have a dedicated op for abs(int).
+            return this->pushIntrinsic(BuilderOp::abs_int, arg0);
 
         case IntrinsicKind::k_any_IntrinsicKind:
             if (!this->pushExpression(arg0)) {
@@ -2866,8 +2877,8 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             } else {
                 // For single-slot normalization, we can simplify `sqrt(x * x)` into `abs(x)`.
                 fBuilder.push_clone(slotCount);
-                fBuilder.unary_op(BuilderOp::abs_float, 1);
-                return this->binaryOp(arg0.type(), kDivideOps);
+                return this->pushAbsFloatIntrinsic(/*slots=*/1) &&
+                       this->binaryOp(arg0.type(), kDivideOps);
             }
         }
         case IntrinsicKind::k_not_IntrinsicKind:

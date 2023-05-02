@@ -2224,11 +2224,6 @@ DEF_TEST(SkRasterPipeline_UnaryFloatOps, r) {
         {SkRasterPipelineOp::cast_to_uint_from_3_floats, 3, to_uint},
         {SkRasterPipelineOp::cast_to_uint_from_4_floats, 4, to_uint},
 
-        {SkRasterPipelineOp::abs_float,    1, [](float a) { return a < 0 ? -a : a; }},
-        {SkRasterPipelineOp::abs_2_floats, 2, [](float a) { return a < 0 ? -a : a; }},
-        {SkRasterPipelineOp::abs_3_floats, 3, [](float a) { return a < 0 ? -a : a; }},
-        {SkRasterPipelineOp::abs_4_floats, 4, [](float a) { return a < 0 ? -a : a; }},
-
         {SkRasterPipelineOp::floor_float,    1, [](float a) { return floorf(a); }},
         {SkRasterPipelineOp::floor_2_floats, 2, [](float a) { return floorf(a); }},
         {SkRasterPipelineOp::floor_3_floats, 3, [](float a) { return floorf(a); }},

@@ -343,7 +343,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $25
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +40 (label 1 at #386)
+branch_if_no_lanes_active      branch_if_no_lanes_active +42 (label 1 at #388)
 copy_uniform                   $1 = colorRed(0)
 mul_imm_float                  $1 *= 0x41200000 (10.0)
 copy_slot_unmasked             ten = $1
@@ -367,7 +367,8 @@ copy_4_slots_masked            mat = Mask($1..4)
 copy_4_slots_unmasked          $1..4 = div
 splat_4_constants              $5..8 = 0x41000000 (8.0)
 add_4_floats                   $1..4 += $5..8
-abs_4_floats                   $1..4 = abs($1..4)
+splat_4_constants              $5..8 = 0x7FFFFFFF
+bitwise_and_4_ints             $1..4 &= $5..8
 splat_4_constants              $5..8 = 0x3C23D70A (0.01)
 cmplt_4_floats                 $1..4 = lessThan($1..4, $5..8)
 bitwise_and_2_ints             $1..2 &= $3..4
@@ -375,7 +376,8 @@ bitwise_and_int                $1 &= $2
 copy_4_slots_unmasked          $2..5 = mat
 splat_4_constants              $6..9 = 0x41000000 (8.0)
 add_4_floats                   $2..5 += $6..9
-abs_4_floats                   $2..5 = abs($2..5)
+splat_4_constants              $6..9 = 0x7FFFFFFF
+bitwise_and_4_ints             $2..5 &= $6..9
 splat_4_constants              $6..9 = 0x3C23D70A (0.01)
 cmplt_4_floats                 $2..5 = lessThan($2..5, $6..9)
 bitwise_and_2_ints             $2..3 &= $4..5

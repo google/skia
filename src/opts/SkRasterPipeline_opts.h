@@ -3819,8 +3819,7 @@ SI void cast_to_uint_from_fn(F* dst) {
 }
 #endif
 
-template <typename T>
-SI void abs_fn(T* dst) {
+SI void abs_fn(I32* dst) {
     *dst = abs_(*dst);
 }
 
@@ -3857,10 +3856,10 @@ SI void invsqrt_fn(F* dst) {
 DECLARE_UNARY_INT(cast_to_float_from) DECLARE_UNARY_UINT(cast_to_float_from)
 DECLARE_UNARY_FLOAT(cast_to_int_from)
 DECLARE_UNARY_FLOAT(cast_to_uint_from)
-DECLARE_UNARY_FLOAT(abs) DECLARE_UNARY_INT(abs)
 DECLARE_UNARY_FLOAT(floor)
 DECLARE_UNARY_FLOAT(ceil)
 DECLARE_UNARY_FLOAT(invsqrt)
+DECLARE_UNARY_INT(abs)
 
 #undef DECLARE_UNARY_FLOAT
 #undef DECLARE_UNARY_INT
