@@ -12,36 +12,23 @@
 
 namespace skgpu::graphite {
 
-using SnippetRequirementFlags = SnippetRequirementFlags;
-
-PipelineDataGatherer::PipelineDataGatherer(Layout layout)
-        : fUniformManager(layout), fSnippetRequirementFlags(SnippetRequirementFlags::kNone) {}
+PipelineDataGatherer::PipelineDataGatherer(Layout layout) : fUniformManager(layout) {}
 
 void PipelineDataGatherer::resetWithNewLayout(Layout layout) {
     fUniformManager.resetWithNewLayout(layout);
     fTextureDataBlock.reset();
-    fSnippetRequirementFlags = SnippetRequirementFlags::kNone;
 }
 
 #ifdef SK_DEBUG
 void PipelineDataGatherer::checkReset() {
     SkASSERT(fTextureDataBlock.empty());
     SkDEBUGCODE(fUniformManager.checkReset());
-    SkASSERT(fSnippetRequirementFlags == SnippetRequirementFlags::kNone);
 }
 
 void PipelineDataGatherer::setExpectedUniforms(SkSpan<const Uniform> expectedUniforms) {
     fUniformManager.setExpectedUniforms(expectedUniforms);
 }
 #endif // SK_DEBUG
-
-void PipelineDataGatherer::addFlags(SkEnumBitMask<SnippetRequirementFlags> flags) {
-    fSnippetRequirementFlags |= flags;
-}
-
-bool PipelineDataGatherer::needsLocalCoords() const {
-    return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 UniformDataBlock* UniformDataBlock::Make(const UniformDataBlock& other, SkArenaAlloc* arena) {
