@@ -133,27 +133,30 @@ static bool is_immediate_op(BuilderOp op) {
     }
 }
 
-static BuilderOp convert_n_way_op_to_immediate(BuilderOp op, int32_t* constantValue) {
-    // This relies on the ordering of SkRP ops; the immediate-mode op must always come directly
-    // before the n-way op.
-    BuilderOp immOp = (BuilderOp)((int)op - 1);
-    if (is_immediate_op(immOp)) {
-        return immOp;
-    }
-
-    // We also support immediate-mode subtraction; it's converted into addition of a negative value.
-    switch (op) {
-        case BuilderOp::sub_n_ints:
-            *constantValue *= -1;
-            return BuilderOp::add_imm_int;
-
-        case BuilderOp::sub_n_floats: {
-            // This inverts the sign bit.
-            *constantValue ^= 0x80000000;
-            return BuilderOp::add_imm_float;
+static BuilderOp convert_n_way_op_to_immediate(BuilderOp op, int slots, int32_t* constantValue) {
+    // These immediate ops only support a single slot.
+    if (slots == 1) {
+        // This relies on the ordering of SkRP ops; the immediate-mode op must always come directly
+        // before the n-way op.
+        BuilderOp immOp = (BuilderOp)((int)op - 1);
+        if (is_immediate_op(immOp)) {
+            return immOp;
         }
-        default:
-            break;
+
+        // We also allow for immediate-mode subtraction, by adding a negative value.
+        switch (op) {
+            case BuilderOp::sub_n_ints:
+                *constantValue *= -1;
+                return BuilderOp::add_imm_int;
+
+            case BuilderOp::sub_n_floats: {
+                // This negates the floating-point value by inverting its sign bit.
+                *constantValue ^= 0x80000000;
+                return BuilderOp::add_imm_float;
+            }
+            default:
+                break;
+        }
     }
 
     // We don't have an immediate-mode version of this op.
@@ -174,18 +177,17 @@ void Builder::unary_op(BuilderOp op, int32_t slots) {
 }
 
 void Builder::binary_op(BuilderOp op, int32_t slots) {
-    // If this is a single-slot operation...
-    if (slots == 1 && !fInstructions.empty()) {
-        // ... and we just pushed a constant onto the stack...
+    if (!fInstructions.empty()) {
+        // If we just pushed or splatted a constant onto the stack...
         Instruction& lastInstruction = fInstructions.back();
-        if (lastInstruction.fOp == BuilderOp::push_constant) {
+        if (lastInstruction.fOp == BuilderOp::push_constant && lastInstruction.fImmA >= slots) {
             // ... and this op has an immediate-mode equivalent...
             int32_t constantValue = lastInstruction.fImmB;
-            BuilderOp immOp = convert_n_way_op_to_immediate(op, &constantValue);
+            BuilderOp immOp = convert_n_way_op_to_immediate(op, slots, &constantValue);
             if (immOp != op) {
-                // ... discard the constant from the stack, and use an immediate-mode op.
-                this->discard_stack(1);
-                fInstructions.push_back({immOp, {}, constantValue});
+                // ... discard the constants from the stack, and use an immediate-mode op.
+                this->discard_stack(slots);
+                fInstructions.push_back({immOp, {}, slots, constantValue});
                 return;
             }
         }
@@ -260,21 +262,21 @@ bool Builder::simplifyImmediateUnmaskedOp() {
     Instruction& immInstruction  = fInstructions.fromBack(1);
     Instruction& pushInstruction = fInstructions.fromBack(2);
 
-    // If the last instruction is a single-slot, unmasked pop...
-    if (popInstruction.fOp == BuilderOp::copy_stack_to_slots_unmasked &&
-        popInstruction.fImmA == 1) {
-        // ... and the previous instruction was an immediate-mode op...
-        if (is_immediate_op(immInstruction.fOp)) {
-            // ... and the instruction prior to that was `push_slots`...
-            if (pushInstruction.fOp == BuilderOp::push_slots && pushInstruction.fImmA >= 1) {
-                // ... onto the same slot being popped...
-                Slot immSlot = popInstruction.fSlotA;
-                Slot pushSlot = pushInstruction.fSlotA + pushInstruction.fImmA - 1;
+    // If the last instruction is an unmasked pop...
+    if (popInstruction.fOp == BuilderOp::copy_stack_to_slots_unmasked) {
+        // ... and the prior instruction was an immediate-mode op, with the same number of slots...
+        if (is_immediate_op(immInstruction.fOp) && immInstruction.fImmA == popInstruction.fImmA) {
+            // ... and the instruction prior to that was `push_slots` of at least that many slots...
+            if (pushInstruction.fOp == BuilderOp::push_slots &&
+                pushInstruction.fImmA >= popInstruction.fImmA) {
+                // ... onto the same slot range...
+                Slot immSlot = popInstruction.fSlotA + popInstruction.fImmA;
+                Slot pushSlot = pushInstruction.fSlotA + pushInstruction.fImmA;
                 if (immSlot == pushSlot) {
                     // ... we can shrink the push, eliminate the pop, and perform the immediate op
                     // in-place instead.
-                    pushInstruction.fImmA--;
-                    immInstruction.fSlotA = immSlot;
+                    pushInstruction.fImmA -= immInstruction.fImmA;
+                    immInstruction.fSlotA = immSlot - immInstruction.fImmA;
                     fInstructions.pop_back();
                     return true;
                 }
@@ -1722,12 +1724,12 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 break;
             }
             case ALL_IMMEDIATE_BINARY_OP_CASES: {
-                float* dst = (inst.fSlotA == NA) ? tempStackPtr - (1 * N)
+                float* dst = (inst.fSlotA == NA) ? tempStackPtr - (inst.fImmA * N)
                                                  : SlotA();
 
                 SkRasterPipeline_ConstantCtx ctx;
                 ctx.dst = OffsetFromBase(dst);
-                ctx.value = sk_bit_cast<float>(inst.fImmA);
+                ctx.value = sk_bit_cast<float>(inst.fImmB);
                 pipeline->push_back({(ProgramOp)inst.fOp, SkRPCtxUtils::Pack(ctx, alloc)});
                 break;
             }
