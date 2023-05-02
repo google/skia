@@ -8,9 +8,9 @@ skia_filegroup(
     name = "srcs",
     # TODO: break up into seperate targets
     srcs = [
-        "SkGLWindowContext_android.cpp",
-        "SkVulkanWindowContext_android.cpp",
-        "SkWindowContextFactory_android.h",
+        "GLWindowContext_android.cpp",
+        "VulkanWindowContext_android.cpp",
+        "WindowContextFactory_android.h",
     ],
     visibility = ["//tools/window:__pkg__"],
 )

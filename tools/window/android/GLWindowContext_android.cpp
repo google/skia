@@ -8,16 +8,16 @@
 #include <EGL/egl.h>
 #include <GLES/gl.h>
 #include "include/gpu/gl/GrGLInterface.h"
-#include "tools/window/SkGLWindowContext.h"
-#include "tools/window/android/SkWindowContextFactory_android.h"
+#include "tools/window/GLWindowContext.h"
+#include "tools/window/android/WindowContextFactory_android.h"
 
 namespace {
-class SkGLWindowContext_android : public SkGLWindowContext {
+class GLWindowContext_android : public skwindow::internal::GLWindowContext {
 public:
 
-    SkGLWindowContext_android(ANativeWindow*, const SkDisplayParams&);
+    GLWindowContext_android(ANativeWindow*, const skwindow::DisplayParams&);
 
-    ~SkGLWindowContext_android() override;
+    ~GLWindowContext_android() override;
 
     sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
@@ -32,11 +32,11 @@ private:
     // For setDisplayParams and resize which call onInitializeContext with null platformData
     ANativeWindow* fNativeWindow = nullptr;
 
-    using INHERITED = SkGLWindowContext;
+    using INHERITED = GLWindowContext;
 };
 
-SkGLWindowContext_android::SkGLWindowContext_android(ANativeWindow* window,
-                                                 const SkDisplayParams& params)
+GLWindowContext_android::GLWindowContext_android(ANativeWindow* window,
+                                                 const skwindow::DisplayParams& params)
     : INHERITED(params)
     , fDisplay(EGL_NO_DISPLAY)
     , fEGLContext(EGL_NO_CONTEXT)
@@ -48,11 +48,11 @@ SkGLWindowContext_android::SkGLWindowContext_android(ANativeWindow* window,
     this->initializeContext();
 }
 
-SkGLWindowContext_android::~SkGLWindowContext_android() {
+GLWindowContext_android::~GLWindowContext_android() {
     this->destroyContext();
 }
 
-sk_sp<const GrGLInterface> SkGLWindowContext_android::onInitializeContext() {
+sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     fWidth = ANativeWindow_getWidth(fNativeWindow);
     fHeight = ANativeWindow_getHeight(fNativeWindow);
 
@@ -100,7 +100,7 @@ sk_sp<const GrGLInterface> SkGLWindowContext_android::onInitializeContext() {
     SkASSERT(EGL_NO_SURFACE != fSurfaceAndroid);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurfaceAndroid, fSurfaceAndroid, fEGLContext));
-    // SkGLWindowContext::initializeContext will call GrGLMakeNativeInterface so we
+    // GLWindowContext::initializeContext will call GrGLMakeNativeInterface so we
     // won't call it here.
 
     glClearStencil(0);
@@ -117,7 +117,7 @@ sk_sp<const GrGLInterface> SkGLWindowContext_android::onInitializeContext() {
     return GrGLMakeNativeInterface();
 }
 
-void SkGLWindowContext_android::onDestroyContext() {
+void GLWindowContext_android::onDestroyContext() {
     if (!fDisplay || !fEGLContext || !fSurfaceAndroid) {
         return;
     }
@@ -128,7 +128,7 @@ void SkGLWindowContext_android::onDestroyContext() {
     fSurfaceAndroid = EGL_NO_SURFACE;
 }
 
-void SkGLWindowContext_android::onSwapBuffers() {
+void GLWindowContext_android::onSwapBuffers() {
     if (fDisplay && fEGLContext && fSurfaceAndroid) {
         eglSwapBuffers(fDisplay, fSurfaceAndroid);
     }
@@ -136,15 +136,15 @@ void SkGLWindowContext_android::onSwapBuffers() {
 
 }  // anonymous namespace
 
-namespace window_context_factory {
+namespace skwindow {
 
-std::unique_ptr<SkWindowContext> MakeGLForAndroid(ANativeWindow* window,
-                                                  const SkDisplayParams& params) {
-    std::unique_ptr<SkWindowContext> ctx(new SkGLWindowContext_android(window, params));
+std::unique_ptr<WindowContext> MakeGLForAndroid(ANativeWindow* window,
+                                                const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_android(window, params));
     if (!ctx->isValid()) {
         return nullptr;
     }
     return ctx;
 }
 
-}  // namespace window_context_factory
+}  // namespace skwindow

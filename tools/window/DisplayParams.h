@@ -4,16 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkDisplayParams_DEFINED
-#define SkDisplayParams_DEFINED
+#ifndef DisplayParams_DEFINED
+#define DisplayParams_DEFINED
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/gpu/GrContextOptions.h"
 
-struct SkDisplayParams {
-    SkDisplayParams()
+namespace skwindow {
+
+struct DisplayParams {
+    DisplayParams()
         : fColorType(kN32_SkColorType)
         , fColorSpace(nullptr)
         , fMSAASampleCount(1)
@@ -32,5 +34,7 @@ struct SkDisplayParams {
     bool                fDelayDrawableAcquisition;
     bool                fEnableBinaryArchive;
 };
+
+}  // namespace skwindow
 
 #endif

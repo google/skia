@@ -15,16 +15,18 @@
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "src/image/SkImage_Base.h"
-#include "tools/window/SkGLWindowContext.h"
+#include "tools/window/GLWindowContext.h"
 
-SkGLWindowContext::SkGLWindowContext(const SkDisplayParams& params)
-        : SkWindowContext(params)
+namespace skwindow::internal {
+
+GLWindowContext::GLWindowContext(const DisplayParams& params)
+        : WindowContext(params)
         , fBackendContext(nullptr)
         , fSurface(nullptr) {
     fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
 
-void SkGLWindowContext::initializeContext() {
+void GLWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
     fBackendContext = this->onInitializeContext();
@@ -37,7 +39,7 @@ void SkGLWindowContext::initializeContext() {
     }
 }
 
-void SkGLWindowContext::destroyContext() {
+void GLWindowContext::destroyContext() {
     fSurface.reset(nullptr);
 
     if (fContext) {
@@ -51,7 +53,7 @@ void SkGLWindowContext::destroyContext() {
     this->onDestroyContext();
 }
 
-sk_sp<SkSurface> SkGLWindowContext::getBackbufferSurface() {
+sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
     if (nullptr == fSurface) {
         if (fContext) {
             GrGLint buffer;
@@ -78,13 +80,15 @@ sk_sp<SkSurface> SkGLWindowContext::getBackbufferSurface() {
     return fSurface;
 }
 
-void SkGLWindowContext::resize(int w, int h) {
+void GLWindowContext::resize(int w, int h) {
     this->destroyContext();
     this->initializeContext();
 }
 
-void SkGLWindowContext::setDisplayParams(const SkDisplayParams& params) {
+void GLWindowContext::setDisplayParams(const DisplayParams& params) {
     fDisplayParams = params;
     this->destroyContext();
     this->initializeContext();
 }
+
+}  // namespace skwindow::internal

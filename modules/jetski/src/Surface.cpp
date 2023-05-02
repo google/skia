@@ -9,10 +9,10 @@
 #include <android/bitmap.h>
 #include <android/log.h>
 
-#include "tools/window/SkDisplayParams.h"
-#include "tools/window/android/SkWindowContextFactory_android.h"
+#include "tools/window/DisplayParams.h"
+#include "tools/window/android/WindowContextFactory_android.h"
 
-WindowSurface::WindowSurface(ANativeWindow* win, std::unique_ptr<SkWindowContext> wctx)
+WindowSurface::WindowSurface(ANativeWindow* win, std::unique_ptr<skwindow::WindowContext> wctx)
     : fWindow(win)
     , fWindowContext(std::move(wctx))
 {
@@ -166,8 +166,8 @@ static jlong Surface_CreateVK(JNIEnv* env, jobject, jobject jsurface) {
     }
 
     // TODO: match window params?
-    SkDisplayParams params;
-    auto winctx = window_context_factory::MakeVulkanForAndroid(win, params);
+    skwindow::DisplayParams params;
+    auto winctx = skwindow::MakeVulkanForAndroid(win, params);
     if (!winctx) {
         return 0;
     }
@@ -186,8 +186,8 @@ static jlong Surface_CreateGL(JNIEnv* env, jobject, jobject jsurface) {
     }
 
     // TODO: match window params?
-    SkDisplayParams params;
-    auto winctx = window_context_factory::MakeGLForAndroid(win, params);
+    skwindow::DisplayParams params;
+    auto winctx = skwindow::MakeGLForAndroid(win, params);
     if (!winctx) {
         return 0;
     }

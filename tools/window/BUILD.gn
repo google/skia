@@ -15,35 +15,34 @@ skia_component("window") {
   testonly = true  # For access to gpu_tool_utils. TODO: clean up
   public_configs = [ ":public_config" ]
   public = [
-    "SkDisplayParams.h",
-    "SkWindowContext.h",
+    "DisplayParams.h",
+    "WindowContext.h",
   ]
   sources = [
-    "SkDisplayParams.h",
-    "SkRasterWindowContext.h",
-    "SkWindowContext.cpp",
-    "SkWindowContext.h",
+    "DisplayParams.h",
+    "WindowContext.cpp",
+    "WindowContext.h",
   ]
   if (is_android) {
-    sources += [ "android/SkWindowContextFactory_android.h" ]
+    sources += [ "android/WindowContextFactory_android.h" ]
   }
 
   if (skia_use_gl) {
     sources += [
-      "SkGLWindowContext.cpp",
-      "SkGLWindowContext.h",
+      "GLWindowContext.cpp",
+      "GLWindowContext.h",
     ]
     if (is_android) {
-      sources += [ "android/SkGLWindowContext_android.cpp" ]
+      sources += [ "android/GLWindowContext_android.cpp" ]
     }
   }
   if (skia_use_vulkan) {
     sources += [
-      "SkVulkanWindowContext.cpp",
-      "SkVulkanWindowContext.h",
+      "VulkanWindowContext.cpp",
+      "VulkanWindowContext.h",
     ]
     if (is_android) {
-      sources += [ "android/SkVulkanWindowContext_android.cpp" ]
+      sources += [ "android/VulkanWindowContext_android.cpp" ]
     }
   }
   configs = [ "../../:skia_private" ]

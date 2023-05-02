@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "tools/window/android/SkWindowContextFactory_android.h"
+#include "tools/window/android/WindowContextFactory_android.h"
 
-#include "tools/window/SkVulkanWindowContext.h"
+#include "tools/window/VulkanWindowContext.h"
 
 #include "tools/gpu/vk/VkTestUtils.h"
 
-namespace window_context_factory {
+namespace skwindow {
 
-std::unique_ptr<SkWindowContext> MakeVulkanForAndroid(ANativeWindow* window,
-                                                    const SkDisplayParams& params) {
+std::unique_ptr<WindowContext> MakeVulkanForAndroid(ANativeWindow* window,
+                                                    const DisplayParams& params) {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
         return nullptr;
@@ -43,12 +43,12 @@ std::unique_ptr<SkWindowContext> MakeVulkanForAndroid(ANativeWindow* window,
 
     auto canPresent = [](VkInstance, VkPhysicalDevice, uint32_t) { return true; };
 
-    std::unique_ptr<SkWindowContext> ctx(
-            new SkVulkanWindowContext(params, createVkSurface, canPresent, instProc));
+    std::unique_ptr<WindowContext> ctx(
+            new internal::VulkanWindowContext(params, createVkSurface, canPresent, instProc));
     if (!ctx->isValid()) {
         return nullptr;
     }
     return ctx;
 }
 
-}  // namespace window_context_factory
+}  // namespace skwindow

@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkWindowContext_DEFINED
-#define SkWindowContext_DEFINED
+#ifndef WindowContext_DEFINED
+#define WindowContext_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/gpu/GrTypes.h"
-#include "tools/window/SkDisplayParams.h"
+#include "tools/window/DisplayParams.h"
 
 class GrDirectContext;
 class SkSurface;
@@ -21,11 +21,13 @@ class Recorder;
 }
 #endif
 
-class SkWindowContext {
-public:
-    SkWindowContext(const SkDisplayParams&);
+namespace skwindow {
 
-    virtual ~SkWindowContext();
+class WindowContext {
+public:
+    WindowContext(const DisplayParams&);
+
+    virtual ~WindowContext();
 
     virtual sk_sp<SkSurface> getBackbufferSurface() = 0;
 
@@ -37,8 +39,8 @@ public:
 
     virtual void activate(bool isActive) {}
 
-    const SkDisplayParams& getDisplayParams() { return fDisplayParams; }
-    virtual void setDisplayParams(const SkDisplayParams& params) = 0;
+    const DisplayParams& getDisplayParams() { return fDisplayParams; }
+    virtual void setDisplayParams(const DisplayParams& params) = 0;
 
     GrDirectContext* directContext() const { return fContext.get(); }
 #if defined(SK_GRAPHITE)
@@ -65,7 +67,7 @@ protected:
 
     int               fWidth;
     int               fHeight;
-    SkDisplayParams   fDisplayParams;
+    DisplayParams     fDisplayParams;
 
     // parameters obtained from the native window
     // Note that the platform .cpp file is responsible for
@@ -73,5 +75,7 @@ protected:
     int               fSampleCount = 1;
     int               fStencilBits = 0;
 };
+
+}  // namespace skwindow
 
 #endif

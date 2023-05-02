@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkVulkanWindowContext_DEFINED
-#define SkVulkanWindowContext_DEFINED
+#ifndef VulkanWindowContext_DEFINED
+#define VulkanWindowContext_DEFINED
 
 #include "include/core/SkTypes.h"
 
@@ -13,15 +13,17 @@
 
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "tools/gpu/vk/VkTestUtils.h"
-#include "tools/window/SkWindowContext.h"
+#include "tools/window/WindowContext.h"
 
 class GrRenderTarget;
 
 namespace skgpu { struct VulkanInterface; }
 
-class SkVulkanWindowContext : public SkWindowContext {
+namespace skwindow::internal {
+
+class VulkanWindowContext : public WindowContext {
 public:
-    ~SkVulkanWindowContext() override;
+    ~VulkanWindowContext() override;
 
     sk_sp<SkSurface> getBackbufferSurface() override;
 
@@ -31,7 +33,7 @@ public:
         this->createSwapchain(w, h, fDisplayParams);
     }
 
-    void setDisplayParams(const SkDisplayParams& params) override {
+    void setDisplayParams(const DisplayParams& params) override {
         this->destroyContext();
         fDisplayParams = params;
         this->initializeContext();
@@ -42,7 +44,7 @@ public:
     /** Platform specific function that determines whether presentation will succeed. */
     using CanPresentFn = sk_gpu_test::CanPresentFn;
 
-    SkVulkanWindowContext(const SkDisplayParams&, CreateVkSurfaceFn, CanPresentFn,
+    VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn,
                         PFN_vkGetInstanceProcAddr);
 
 private:
@@ -55,7 +57,7 @@ private:
     };
 
     BackbufferInfo* getAvailableBackbuffer();
-    bool createSwapchain(int width, int height, const SkDisplayParams& params);
+    bool createSwapchain(int width, int height, const DisplayParams& params);
     bool createBuffers(VkFormat format, VkImageUsageFlags, SkColorType colorType, VkSharingMode);
     void destroyBuffers();
     void onSwapBuffers() override;
@@ -107,6 +109,8 @@ private:
     BackbufferInfo*        fBackbuffers;
     uint32_t               fCurrentBackbufferIndex;
 };
+
+}  // namespace skwindow::internal
 
 #endif // SK_VULKAN
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/window/SkWindowContext.h"
+#include "tools/window/WindowContext.h"
 
 #include "include/gpu/GrDirectContext.h"
 #if defined(SK_GRAPHITE)
@@ -13,12 +13,14 @@
 #include "include/gpu/graphite/Recorder.h"
 #endif
 
-SkWindowContext::SkWindowContext(const SkDisplayParams& params)
+namespace skwindow {
+
+WindowContext::WindowContext(const DisplayParams& params)
         : fDisplayParams(params) {}
 
-SkWindowContext::~SkWindowContext() {}
+WindowContext::~WindowContext() {}
 
-void SkWindowContext::swapBuffers() {
+void WindowContext::swapBuffers() {
 #if defined(SK_GRAPHITE)
     if (fGraphiteContext) {
         SkASSERT(fGraphiteRecorder);
@@ -33,3 +35,5 @@ void SkWindowContext::swapBuffers() {
 #endif
     this->onSwapBuffers();
 }
+
+}  // namespace skwindow

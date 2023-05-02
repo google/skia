@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkGLWindowContext_DEFINED
-#define SkGLWindowContext_DEFINED
+#ifndef GLWindowContext_DEFINED
+#define GLWindowContext_DEFINED
 
 
 #include "include/gpu/gl/GrGLInterface.h"
@@ -13,9 +13,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 
-#include "tools/window/SkWindowContext.h"
+#include "tools/window/WindowContext.h"
 
-class SkGLWindowContext : public SkWindowContext {
+namespace skwindow::internal {
+
+class GLWindowContext : public WindowContext {
 public:
     sk_sp<SkSurface> getBackbufferSurface() override;
 
@@ -23,10 +25,10 @@ public:
 
     void resize(int w, int h) override;
 
-    void setDisplayParams(const SkDisplayParams& params) override;
+    void setDisplayParams(const DisplayParams& params) override;
 
 protected:
-    SkGLWindowContext(const SkDisplayParams&);
+    GLWindowContext(const DisplayParams&);
     // This should be called by subclass constructor. It is also called when window/display
     // parameters change. This will in turn call onInitializeContext().
     void initializeContext();
@@ -41,5 +43,7 @@ protected:
     sk_sp<const GrGLInterface> fBackendContext;
     sk_sp<SkSurface>           fSurface;
 };
+
+}  // namespace skwindow::internal
 
 #endif

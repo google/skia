@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/window/SkVulkanWindowContext.h"
+#include "tools/window/VulkanWindowContext.h"
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSemaphore.h"
@@ -29,11 +29,13 @@
 #define GET_DEV_PROC(F) f ## F = \
     (PFN_vk ## F) backendContext.fGetProc("vk" #F, VK_NULL_HANDLE, fDevice)
 
-SkVulkanWindowContext::SkVulkanWindowContext(const SkDisplayParams& params,
-                                             CreateVkSurfaceFn createVkSurface,
-                                             CanPresentFn canPresent,
-                                             PFN_vkGetInstanceProcAddr instProc)
-    : SkWindowContext(params)
+namespace skwindow::internal {
+
+VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
+                                         CreateVkSurfaceFn createVkSurface,
+                                         CanPresentFn canPresent,
+                                         PFN_vkGetInstanceProcAddr instProc)
+    : WindowContext(params)
     , fCreateVkSurfaceFn(createVkSurface)
     , fCanPresentFn(canPresent)
     , fSurface(VK_NULL_HANDLE)
@@ -46,7 +48,7 @@ SkVulkanWindowContext::SkVulkanWindowContext(const SkDisplayParams& params,
     this->initializeContext();
 }
 
-void SkVulkanWindowContext::initializeContext() {
+void VulkanWindowContext::initializeContext() {
     SkASSERT(!fContext);
     // any config code here (particularly for msaa)?
 
@@ -138,8 +140,8 @@ void SkVulkanWindowContext::initializeContext() {
     sk_gpu_test::FreeVulkanFeaturesStructs(&features);
 }
 
-bool SkVulkanWindowContext::createSwapchain(int width, int height,
-                                          const SkDisplayParams& params) {
+bool VulkanWindowContext::createSwapchain(int width, int height,
+                                          const DisplayParams& params) {
     // check for capabilities
     VkSurfaceCapabilitiesKHR caps;
     VkResult res = fGetPhysicalDeviceSurfaceCapabilitiesKHR(fPhysicalDevice, fSurface, &caps);
@@ -327,7 +329,7 @@ bool SkVulkanWindowContext::createSwapchain(int width, int height,
     return true;
 }
 
-bool SkVulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFlags usageFlags,
+bool VulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFlags usageFlags,
                                         SkColorType colorType,
                                         VkSharingMode sharingMode) {
     fGetSwapchainImagesKHR(fDevice, fSwapchain, &fImageCount, nullptr);
@@ -394,7 +396,7 @@ bool SkVulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFlags usa
     return true;
 }
 
-void SkVulkanWindowContext::destroyBuffers() {
+void VulkanWindowContext::destroyBuffers() {
 
     if (fBackbuffers) {
         for (uint32_t i = 0; i < fImageCount + 1; ++i) {
@@ -418,11 +420,11 @@ void SkVulkanWindowContext::destroyBuffers() {
     fImages = nullptr;
 }
 
-SkVulkanWindowContext::~SkVulkanWindowContext() {
+VulkanWindowContext::~VulkanWindowContext() {
     this->destroyContext();
 }
 
-void SkVulkanWindowContext::destroyContext() {
+void VulkanWindowContext::destroyContext() {
     if (this->isValid()) {
         fQueueWaitIdle(fPresentQueue);
         fDeviceWaitIdle(fDevice);
@@ -463,7 +465,7 @@ void SkVulkanWindowContext::destroyContext() {
     }
 }
 
-SkVulkanWindowContext::BackbufferInfo* SkVulkanWindowContext::getAvailableBackbuffer() {
+VulkanWindowContext::BackbufferInfo* VulkanWindowContext::getAvailableBackbuffer() {
     SkASSERT(fBackbuffers);
 
     ++fCurrentBackbufferIndex;
@@ -475,7 +477,7 @@ SkVulkanWindowContext::BackbufferInfo* SkVulkanWindowContext::getAvailableBackbu
     return backbuffer;
 }
 
-sk_sp<SkSurface> SkVulkanWindowContext::getBackbufferSurface() {
+sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
     BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
     SkASSERT(backbuffer);
 
@@ -529,7 +531,7 @@ sk_sp<SkSurface> SkVulkanWindowContext::getBackbufferSurface() {
     return sk_ref_sp(surface);
 }
 
-void SkVulkanWindowContext::onSwapBuffers() {
+void VulkanWindowContext::onSwapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
     SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
@@ -559,3 +561,5 @@ void SkVulkanWindowContext::onSwapBuffers() {
 
     fQueuePresentKHR(fPresentQueue, &presentInfo);
 }
+
+}  // namespace skwindow::internal
