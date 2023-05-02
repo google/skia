@@ -764,6 +764,21 @@ void Builder::pop_slots_unmasked(SlotRange dst) {
     this->discard_stack(dst.count);
 }
 
+void Builder::exchange_src() {
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the previous op is also an exchange-src...
+        if (lastInstruction.fOp == BuilderOp::exchange_src) {
+            // ... both ops can be eliminated. A double-swap is a no-op.
+            fInstructions.pop_back();
+            return;
+        }
+    }
+
+    fInstructions.push_back({BuilderOp::exchange_src, {}});
+}
+
 void Builder::pop_src_rgba() {
     if (!fInstructions.empty()) {
         Instruction& lastInstruction = fInstructions.back();
@@ -1189,9 +1204,6 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::pop_and_reenable_loop_mask:
         case BuilderOp::pop_return_mask:
             return -1;
-
-        case BuilderOp::pop_src_rg:
-            return -2;
 
         case BuilderOp::pop_src_rgba:
         case BuilderOp::pop_dst_rgba:
@@ -1853,11 +1865,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::push_device_xy01: {
                 float* dst = tempStackPtr;
                 pipeline->push_back({ProgramOp::store_device_xy01, dst});
-                break;
-            }
-            case BuilderOp::pop_src_rg: {
-                float* src = tempStackPtr - (2 * N);
-                pipeline->push_back({ProgramOp::load_src_rg, src});
                 break;
             }
             case BuilderOp::pop_src_rgba: {
@@ -2673,7 +2680,7 @@ void Program::dump(SkWStream* out) const {
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
-            case POp::load_src_rg:               case POp::store_src_rg:
+            case POp::store_src_rg:
             case POp::cast_to_float_from_2_ints: case POp::cast_to_float_from_2_uints:
             case POp::cast_to_int_from_2_floats: case POp::cast_to_uint_from_2_floats:
             case POp::abs_2_ints:
@@ -3071,10 +3078,6 @@ void Program::dump(SkWStream* out) const {
 
             case POp::store_device_xy01:
                 opText = opArg1 + " = DeviceCoords.xy01";
-                break;
-
-            case POp::load_src_rg:
-                opText = "src.rg = " + opArg1;
                 break;
 
             case POp::load_src:

@@ -161,24 +161,20 @@ DEF_TEST(RasterPipelineBuilderPushPopSrcDst, r) {
 
     builder.push_src_rgba();
     builder.push_dst_rgba();
-    builder.exchange_src();
-    builder.push_src_rgba();
     builder.pop_src_rgba();
+    builder.exchange_src();
+    builder.exchange_src();
+    builder.exchange_src();
     builder.pop_dst_rgba();
-    builder.pop_src_rg();
-    builder.pop_src_rg();
 
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
 R"(store_src                      $0..3 = src.rgba
 store_dst                      $4..7 = dst.rgba
-exchange_src                   swap(src.rgba, $4..7)
-store_src                      $8..11 = src.rgba
-load_src                       src.rgba = $8..11
-load_dst                       dst.rgba = $4..7
-load_src_rg                    src.rg = $2..3
-load_src_rg                    src.rg = $0..1
+load_src                       src.rgba = $4..7
+exchange_src                   swap(src.rgba, $0..3)
+load_dst                       dst.rgba = $0..3
 )");
 }
 

@@ -2476,10 +2476,6 @@ bool Generator::pushChildCall(const ChildCall& c) {
     SkASSERT(childIdx != nullptr);
     SkASSERT(!c.arguments().empty());
 
-    // Save the src.rgba fields; these hold our execution masks, but are also used to pass colors
-    // and coordinates to the child effect.
-    fBuilder.push_src_rgba();
-
     // All child calls have at least one argument.
     const Expression* arg = c.arguments()[0].get();
     if (!this->pushExpression(*arg)) {
@@ -2492,7 +2488,13 @@ bool Generator::pushChildCall(const ChildCall& c) {
             // The argument must be a float2.
             SkASSERT(c.arguments().size() == 1);
             SkASSERT(arg->type().matches(*fContext.fTypes.fFloat2));
-            fBuilder.pop_src_rg();
+
+            // `exchange_src` will use the top four values on the stack, but we don't care what goes
+            // into the blue/alpha components. We inject padding here to balance the stack.
+            fBuilder.pad_stack(2);
+
+            // Move the argument into src.rgba while also preserving the execution mask.
+            fBuilder.exchange_src();
             fBuilder.invoke_shader(*childIdx);
             break;
         }
@@ -2501,27 +2503,27 @@ bool Generator::pushChildCall(const ChildCall& c) {
             SkASSERT(c.arguments().size() == 1);
             SkASSERT(arg->type().matches(*fContext.fTypes.fHalf4) ||
                      arg->type().matches(*fContext.fTypes.fFloat4));
-            fBuilder.pop_src_rgba();
+
+            // Move the argument into src.rgba while also preserving the execution mask.
+            fBuilder.exchange_src();
             fBuilder.invoke_color_filter(*childIdx);
             break;
         }
         case Type::TypeKind::kBlender: {
-            // The first argument must be a half4/float4.
+            // Both arguments must be half4/float4.
             SkASSERT(c.arguments().size() == 2);
-            SkASSERT(arg->type().matches(*fContext.fTypes.fHalf4) ||
-                     arg->type().matches(*fContext.fTypes.fFloat4));
+            SkASSERT(c.arguments()[0]->type().matches(*fContext.fTypes.fHalf4) ||
+                     c.arguments()[0]->type().matches(*fContext.fTypes.fFloat4));
+            SkASSERT(c.arguments()[1]->type().matches(*fContext.fTypes.fHalf4) ||
+                     c.arguments()[1]->type().matches(*fContext.fTypes.fFloat4));
 
-            // The second argument must also be a half4/float4.
-            arg = c.arguments()[1].get();
-            SkASSERT(arg->type().matches(*fContext.fTypes.fHalf4) ||
-                     arg->type().matches(*fContext.fTypes.fFloat4));
-
-            if (!this->pushExpression(*arg)) {
+            // Move the second argument into dst.rgba, and the first argument into src.rgba, while
+            // simultaneously preserving the execution mask.
+            if (!this->pushExpression(*c.arguments()[1])) {
                 return unsupported();
             }
-
             fBuilder.pop_dst_rgba();
-            fBuilder.pop_src_rgba();
+            fBuilder.exchange_src();
             fBuilder.invoke_blender(*childIdx);
             break;
         }
@@ -2953,10 +2955,6 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
 
         case IntrinsicKind::k_fromLinearSrgb_IntrinsicKind:
         case IntrinsicKind::k_toLinearSrgb_IntrinsicKind: {
-            // Save the src.rgba fields; these hold our execution masks, but are also used to pass
-            // colors and coordinates to the color transform function.
-            fBuilder.push_src_rgba();
-
             // The argument must be a half3.
             SkASSERT(arg0.type().matches(*fContext.fTypes.fHalf3));
             if (!this->pushExpression(arg0)) {
@@ -2964,8 +2962,11 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             }
             // The intrinsics accept a three-component value; add alpha for the push/pop_src_rgba.
             fBuilder.push_constant_f(1.0f);
-            // Copy arguments from the stack into src.
-            fBuilder.pop_src_rgba();
+
+            // The src.rgba fields hold our execution masks, but are also used to pass colors and
+            // coordinates to the color transform function. This swap will move the color on the
+            // stack into src.rgba, and move the execution masks onto the stack instead.
+            fBuilder.exchange_src();
 
             if (intrinsic == IntrinsicKind::k_fromLinearSrgb_IntrinsicKind) {
                 fBuilder.invoke_from_linear_srgb();

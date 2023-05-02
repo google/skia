@@ -1,7 +1,6 @@
 store_src_rg                   p = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-store_src                      $0..3 = src.rgba
-copy_2_slots_unmasked          $4..5 = p
-swizzle_2                      $4..5 = ($4..5).yx
-load_src_rg                    src.rg = $4..5
+copy_2_slots_unmasked          $0..1 = p
+swizzle_2                      $0..1 = ($0..1).yx
+exchange_src                   swap(src.rgba, $0..3)
 invoke_shader                  invoke_shader 0

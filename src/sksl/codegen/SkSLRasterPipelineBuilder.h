@@ -115,7 +115,6 @@ enum class BuilderOp {
     push_src_rgba,
     push_dst_rgba,
     push_device_xy01,
-    pop_src_rg,
     pop_src_rgba,
     pop_dst_rgba,
     set_current_stack,
@@ -578,9 +577,7 @@ public:
     }
 
     // Exchanges src.rgba with the four values at the top of the stack.
-    void exchange_src() {
-        fInstructions.push_back({BuilderOp::exchange_src, {}});
-    }
+    void exchange_src();
 
     void push_src_rgba() {
         fInstructions.push_back({BuilderOp::push_src_rgba, {}});
@@ -592,10 +589,6 @@ public:
 
     void push_device_xy01() {
         fInstructions.push_back({BuilderOp::push_device_xy01, {}});
-    }
-
-    void pop_src_rg() {
-        fInstructions.push_back({BuilderOp::pop_src_rg, {}});
     }
 
     void pop_src_rgba();
