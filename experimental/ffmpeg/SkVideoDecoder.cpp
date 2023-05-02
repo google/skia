@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 
 static SkYUVColorSpace get_yuvspace(AVColorSpace space) {
     // this is pretty incomplete -- TODO: look to convert more AVColorSpaces
