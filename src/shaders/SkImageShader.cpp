@@ -415,35 +415,39 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
-    ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset,
-                                        ReadSwizzle::kRGBA);
-
     auto [ imageToDraw, newSampling ] = skgpu::graphite::GetGraphiteBacked(keyContext.recorder(),
                                                                            fImage.get(),
                                                                            fSampling);
-
-    if (imageToDraw) {
-        imgData.fSampling = newSampling;
-        skgpu::Mipmapped mipmapped = (newSampling.mipmap != SkMipmapMode::kNone)
-                                         ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-
-        auto [view, _] = as_IB(imageToDraw)->asView(keyContext.recorder(), mipmapped);
-        imgData.fTextureProxy = view.refProxy();
-        skgpu::Swizzle readSwizzle = view.swizzle();
-        // If the color type is alpha-only, propagate the alpha value to the other channels.
-        if (imageToDraw->isAlphaOnly()) {
-            readSwizzle = skgpu::Swizzle::Concat(readSwizzle, skgpu::Swizzle("aaaa"));
-        }
-        imgData.fReadSwizzle = swizzle_class_to_read_enum(readSwizzle);
+    if (!imageToDraw) {
+        constexpr SkPMColor4f kErrorColor = { 1, 0, 0, 1 };
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
+                                          kErrorColor);
+        builder->endBlock();
+        return;
     }
+    skgpu::Mipmapped mipmapped = (newSampling.mipmap != SkMipmapMode::kNone)
+                                     ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
+
+    auto [view, _] = as_IB(imageToDraw)->asView(keyContext.recorder(), mipmapped);
+
+    ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset,
+                                        ReadSwizzle::kRGBA);
+    imgData.fSampling = newSampling;
+    imgData.fTextureProxy = view.refProxy();
+    skgpu::Swizzle readSwizzle = view.swizzle();
+    // If the color type is alpha-only, propagate the alpha value to the other channels.
+    if (imageToDraw->isAlphaOnly()) {
+        readSwizzle = skgpu::Swizzle::Concat(readSwizzle, skgpu::Swizzle("aaaa"));
+    }
+    imgData.fReadSwizzle = swizzle_class_to_read_enum(readSwizzle);
 
     if (!fRaw) {
-        imgData.fSteps = SkColorSpaceXformSteps(fImage->colorSpace(),
-                                                fImage->alphaType(),
+        imgData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
+                                                imageToDraw->alphaType(),
                                                 keyContext.dstColorInfo().colorSpace(),
                                                 keyContext.dstColorInfo().alphaType());
 
-        if (fImage->isAlphaOnly()) {
+        if (imageToDraw->isAlphaOnly()) {
             SkSpan<const float> constants = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kDstIn);
             BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
 
