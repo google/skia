@@ -24,6 +24,9 @@ class SkNullSurface : public SkSurface_Base {
 public:
     SkNullSurface(int width, int height) : SkSurface_Base(width, height, nullptr) {}
 
+    // From SkSurface_Base.h
+    SkSurface_Base::Type type() const override { return SkSurface_Base::Type::kNull; }
+
 protected:
     SkCanvas* onNewCanvas() override {
         return new SkNoDrawCanvas(this->width(), this->height());

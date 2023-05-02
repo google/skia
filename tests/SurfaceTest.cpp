@@ -39,6 +39,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
@@ -341,10 +342,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu,
 
 static void test_backend_texture_access_copy_on_write(
     skiatest::Reporter* reporter, SkSurface* surface, SkSurface::BackendHandleAccess access) {
-    GrBackendTexture tex1 = surface->getBackendTexture(access);
+    GrBackendTexture tex1 = SkSurfaces::GetBackendTexture(surface, access);
     sk_sp<SkImage> snap1(surface->makeImageSnapshot());
 
-    GrBackendTexture tex2 = surface->getBackendTexture(access);
+    GrBackendTexture tex2 = SkSurfaces::GetBackendTexture(surface, access);
     sk_sp<SkImage> snap2(surface->makeImageSnapshot());
 
     // If the access mode triggers CoW, then the backend objects should reflect it.
@@ -353,10 +354,10 @@ static void test_backend_texture_access_copy_on_write(
 
 static void test_backend_rendertarget_access_copy_on_write(
     skiatest::Reporter* reporter, SkSurface* surface, SkSurface::BackendHandleAccess access) {
-    GrBackendRenderTarget rt1 = surface->getBackendRenderTarget(access);
+    GrBackendRenderTarget rt1 = SkSurfaces::GetBackendRenderTarget(surface, access);
     sk_sp<SkImage> snap1(surface->makeImageSnapshot());
 
-    GrBackendRenderTarget rt2 = surface->getBackendRenderTarget(access);
+    GrBackendRenderTarget rt2 = SkSurfaces::GetBackendRenderTarget(surface, access);
     sk_sp<SkImage> snap2(surface->makeImageSnapshot());
 
     // If the access mode triggers CoW, then the backend objects should reflect it.
@@ -368,10 +369,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBackendSurfaceAccessCopyOnWrite_Gp
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
-    const SkSurface::BackendHandleAccess accessModes[] = {
-        SkSurface::kFlushRead_BackendHandleAccess,
-        SkSurface::kFlushWrite_BackendHandleAccess,
-        SkSurface::kDiscardWrite_BackendHandleAccess,
+    const SkSurfaces::BackendHandleAccess accessModes[] = {
+            SkSurfaces::BackendHandleAccess::kFlushRead,
+            SkSurfaces::BackendHandleAccess::kFlushWrite,
+            SkSurfaces::BackendHandleAccess::kDiscardWrite,
     };
 
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
@@ -388,23 +389,23 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBackendSurfaceAccessCopyOnWrite_Gp
     }
 }
 
-template<typename Type, Type(SkSurface::*func)(SkSurface::BackendHandleAccess)>
+template <typename Type, Type (*func)(SkSurface*, SkSurface::BackendHandleAccess)>
 static void test_backend_unique_id(skiatest::Reporter* reporter, SkSurface* surface) {
     sk_sp<SkImage> image0(surface->makeImageSnapshot());
 
-    Type obj = (surface->*func)(SkSurface::kFlushRead_BackendHandleAccess);
+    Type obj = func(surface, SkSurfaces::BackendHandleAccess::kFlushRead);
     REPORTER_ASSERT(reporter, obj.isValid());
     sk_sp<SkImage> image1(surface->makeImageSnapshot());
     // just read access should not affect the snapshot
     REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
 
-    obj = (surface->*func)(SkSurface::kFlushWrite_BackendHandleAccess);
+    obj = func(surface, SkSurfaces::BackendHandleAccess::kFlushWrite);
     REPORTER_ASSERT(reporter, obj.isValid());
     sk_sp<SkImage> image2(surface->makeImageSnapshot());
     // expect a new image, since we claimed we would write
     REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
 
-    obj = (surface->*func)(SkSurface::kDiscardWrite_BackendHandleAccess);
+    obj = func(surface, SkSurfaces::BackendHandleAccess::kDiscardWrite);
     REPORTER_ASSERT(reporter, obj.isValid());
     sk_sp<SkImage> image3(surface->makeImageSnapshot());
     // expect a new(er) image, since we claimed we would write
@@ -420,13 +421,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu,
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         {
             auto surface(surface_func(ctxInfo.directContext(), kPremul_SkAlphaType, nullptr));
-            test_backend_unique_id<GrBackendTexture, &SkSurface::getBackendTexture>(reporter,
-                                                                                    surface.get());
+            test_backend_unique_id<GrBackendTexture, &SkSurfaces::GetBackendTexture>(reporter,
+                                                                                     surface.get());
         }
         {
             auto surface(surface_func(ctxInfo.directContext(), kPremul_SkAlphaType, nullptr));
-            test_backend_unique_id<GrBackendRenderTarget, &SkSurface::getBackendRenderTarget>(
-                                                                reporter, surface.get());
+            test_backend_unique_id<GrBackendRenderTarget, &SkSurfaces::GetBackendRenderTarget>(
+                    reporter, surface.get());
         }
     }
 }
@@ -460,20 +461,22 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBackendAccessAbandoned_Gpu,
         return;
     }
 
-    GrBackendRenderTarget beRT =
-            surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+    GrBackendRenderTarget beRT = SkSurfaces::GetBackendRenderTarget(
+            surface.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
     REPORTER_ASSERT(reporter, beRT.isValid());
-    GrBackendTexture beTex =
-            surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+    GrBackendTexture beTex = SkSurfaces::GetBackendTexture(
+            surface.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
     REPORTER_ASSERT(reporter, beTex.isValid());
 
     surface->flush();
     dContext->abandonContext();
 
     // After abandoning the context none of the backend surfaces should be valid.
-    beRT = surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+    beRT = SkSurfaces::GetBackendRenderTarget(surface.get(),
+                                              SkSurfaces::BackendHandleAccess::kFlushRead);
     REPORTER_ASSERT(reporter, !beRT.isValid());
-    beTex = surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+    beTex = SkSurfaces::GetBackendTexture(surface.get(),
+                                          SkSurfaces::BackendHandleAccess::kFlushRead);
     REPORTER_ASSERT(reporter, !beTex.isValid());
 }
 

@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "GrTextureGenerator.h",
         "SkImageGanesh.h",
+        "SkSurfaceGanesh.h",
     ],
     visibility = ["//include/gpu:__pkg__"],
 )

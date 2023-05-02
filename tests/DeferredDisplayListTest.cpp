@@ -30,6 +30,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -292,11 +293,12 @@ public:
             return nullptr;
         }
 
-        GrBackendTexture texture =
-                surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+        GrBackendTexture texture = SkSurfaces::GetBackendTexture(
+                surface.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
         if (texture.isValid()) {
             SkASSERT(c.isCompatible(texture));
         }
+
         SkASSERT(c.isValid());
         SkASSERT(surface->isCompatible(c));
         return surface;
@@ -823,7 +825,8 @@ static void test_make_render_target(skiatest::Reporter* reporter,
         }
 
         REPORTER_ASSERT(reporter, c.isValid());
-        GrBackendTexture backend = s->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+        GrBackendTexture backend =
+                SkSurfaces::GetBackendTexture(s.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
         if (backend.isValid()) {
             REPORTER_ASSERT(reporter, c.isCompatible(backend));
         }

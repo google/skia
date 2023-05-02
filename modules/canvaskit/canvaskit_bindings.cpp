@@ -77,6 +77,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTextureGenerator.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #endif // ENABLE_GPU
 
@@ -2210,7 +2211,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.getCanvas()->recordingContext() != nullptr;
         }))
         .function("sampleCnt", optional_override([](SkSurface& self)->int {
-            auto backendRT = self.getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+            auto backendRT = SkSurfaces::GetBackendRenderTarget(
+                    &self, SkSurfaces::BackendHandleAccess::kFlushRead);
             return (backendRT.isValid()) ? backendRT.sampleCnt() : 0;
         }))
         .function("_resetContext",optional_override([](SkSurface& self)->void {

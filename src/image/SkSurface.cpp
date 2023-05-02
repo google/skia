@@ -36,10 +36,6 @@ class SkSurfaceCharacterization;
 namespace skgpu { class MutableTextureState; }
 namespace skgpu { namespace graphite { class Recorder; } }
 
-#if defined(SK_GANESH)
-#include "include/gpu/GrBackendSurface.h"
-#endif
-
 SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
 
 SkSurfaceProps::SkSurfaceProps(uint32_t flags, SkPixelGeometry pg)
@@ -224,9 +220,7 @@ GrRecordingContext* SkSurface::recordingContext() const {
     return asConstSB(this)->onGetRecordingContext();
 }
 
-skgpu::graphite::Recorder* SkSurface::recorder() const {
-    return asConstSB(this)->onGetRecorder();
-}
+skgpu::graphite::Recorder* SkSurface::recorder() const { return asConstSB(this)->onGetRecorder(); }
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
                      bool deleteSemaphoresAfterWait) {
@@ -250,22 +244,6 @@ bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yO
 }
 
 #if defined(SK_GANESH)
-GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
-    return asSB(this)->onGetBackendTexture(access);
-}
-
-GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess access) {
-    return asSB(this)->onGetBackendRenderTarget(access);
-}
-
-bool SkSurface::replaceBackendTexture(const GrBackendTexture& backendTexture,
-                                      GrSurfaceOrigin origin, ContentChangeMode mode,
-                                      TextureReleaseProc textureReleaseProc,
-                                      ReleaseContext releaseContext) {
-    return asSB(this)->onReplaceBackendTexture(backendTexture, origin, mode, textureReleaseProc,
-                                               releaseContext);
-}
-
 void SkSurface::resolveMSAA() {
     asSB(this)->onResolveMSAA();
 }
@@ -296,5 +274,18 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext*,
                                              const SkSurfaceProps*,
                                              bool) {
     return nullptr;
+}
+#endif
+
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_METHODS) && defined(SK_GANESH)
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+
+GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess backendHandleAccess) {
+    return SkSurfaces::GetBackendTexture(this, backendHandleAccess);
+}
+
+GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess backendHandleAccess) {
+    return SkSurfaces::GetBackendRenderTarget(this, backendHandleAccess);
 }
 #endif

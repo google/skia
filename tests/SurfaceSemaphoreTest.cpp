@@ -25,6 +25,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -194,8 +195,8 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     }
     mainCtx->submit();
 
-    GrBackendTexture backendTexture = mainSurface->getBackendTexture(
-            SkSurface::BackendHandleAccess::kFlushRead_BackendHandleAccess);
+    GrBackendTexture backendTexture = SkSurfaces::GetBackendTexture(
+            mainSurface.get(), SkSurface::BackendHandleAccess::kFlushRead);
 
     draw_child(reporter, childInfo1, backendTexture, semaphores[0]);
 

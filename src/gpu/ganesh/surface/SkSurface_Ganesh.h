@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_GANESH)
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -49,17 +48,18 @@ public:
     SkSurface_Ganesh(sk_sp<skgpu::ganesh::Device>);
     ~SkSurface_Ganesh() override;
 
+    // From SkSurface.h
     SkImageInfo imageInfo() const override;
+    bool replaceBackendTexture(const GrBackendTexture&,
+                               GrSurfaceOrigin,
+                               ContentChangeMode,
+                               TextureReleaseProc,
+                               ReleaseContext) override;
+
+    // From SkSurface_Base.h
+    SkSurface_Base::Type type() const override { return SkSurface_Base::Type::kGanesh; }
 
     GrRecordingContext* onGetRecordingContext() const override;
-
-    GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
-    GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
-    bool onReplaceBackendTexture(const GrBackendTexture&,
-                                 GrSurfaceOrigin,
-                                 ContentChangeMode,
-                                 TextureReleaseProc,
-                                 ReleaseContext) override;
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
@@ -98,14 +98,15 @@ public:
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
     sk_sp<const SkCapabilities> onCapabilities() override;
+
     skgpu::ganesh::Device* getDevice();
+    GrBackendTexture getBackendTexture(BackendHandleAccess);
+    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess);
 
 private:
     sk_sp<skgpu::ganesh::Device> fDevice;
 
     using INHERITED = SkSurface_Base;
 };
-
-#endif  // defined(SK_GANESH)
 
 #endif  // SkSurface_Ganesh_DEFINED

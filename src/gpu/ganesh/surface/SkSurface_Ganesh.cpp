@@ -7,8 +7,6 @@
 
 #include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
 
-#if defined(SK_GANESH)
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
@@ -26,6 +24,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkDevice.h"
@@ -72,7 +71,11 @@ SkSurface_Ganesh::SkSurface_Ganesh(sk_sp<skgpu::ganesh::Device> device)
     SkASSERT(fDevice->targetProxy()->priv().isExact());
 }
 
-SkSurface_Ganesh::~SkSurface_Ganesh() {}
+SkSurface_Ganesh::~SkSurface_Ganesh() {
+    if (this->hasCachedImage()) {
+        as_IB(this->refCachedImage())->generatingSurfaceIsDeleted();
+    }
+}
 
 GrRecordingContext* SkSurface_Ganesh::onGetRecordingContext() const {
     return fDevice->recordingContext();
@@ -93,10 +96,10 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Ganesh* surface,
     }
 
     switch (access) {
-        case SkSurface::kFlushRead_BackendHandleAccess:
+        case SkSurfaces::BackendHandleAccess::kFlushRead:
             break;
-        case SkSurface::kFlushWrite_BackendHandleAccess:
-        case SkSurface::kDiscardWrite_BackendHandleAccess:
+        case SkSurfaces::BackendHandleAccess::kFlushWrite:
+        case SkSurfaces::BackendHandleAccess::kDiscardWrite:
             // for now we don't special-case on Discard, but we may in the future.
             surface->notifyContentWillChange(SkSurface::kRetain_ContentChangeMode);
             break;
@@ -108,7 +111,7 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Ganesh* surface,
     return surface->getDevice()->targetProxy()->peekRenderTarget();
 }
 
-GrBackendTexture SkSurface_Ganesh::onGetBackendTexture(BackendHandleAccess access) {
+GrBackendTexture SkSurface_Ganesh::getBackendTexture(BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
     if (!rt) {
         return GrBackendTexture();  // invalid
@@ -120,7 +123,7 @@ GrBackendTexture SkSurface_Ganesh::onGetBackendTexture(BackendHandleAccess acces
     return GrBackendTexture();  // invalid
 }
 
-GrBackendRenderTarget SkSurface_Ganesh::onGetBackendRenderTarget(BackendHandleAccess access) {
+GrBackendRenderTarget SkSurface_Ganesh::getBackendRenderTarget(BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
     if (!rt) {
         return GrBackendRenderTarget();  // invalid
@@ -614,11 +617,11 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
     return sk_make_sp<SkSurface_Ganesh>(std::move(device));
 }
 
-bool SkSurface_Ganesh::onReplaceBackendTexture(const GrBackendTexture& backendTexture,
-                                               GrSurfaceOrigin origin,
-                                               ContentChangeMode mode,
-                                               TextureReleaseProc releaseProc,
-                                               ReleaseContext releaseContext) {
+bool SkSurface_Ganesh::replaceBackendTexture(const GrBackendTexture& backendTexture,
+                                             GrSurfaceOrigin origin,
+                                             ContentChangeMode mode,
+                                             TextureReleaseProc releaseProc,
+                                             ReleaseContext releaseContext) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseProc, releaseContext);
 
     auto rContext = fDevice->recordingContext();
@@ -829,4 +832,27 @@ void SkSurface::flushAndSubmit(bool syncCpu) {
     }
 }
 
-#endif
+namespace SkSurfaces {
+GrBackendTexture GetBackendTexture(SkSurface* surface, BackendHandleAccess access) {
+    if (surface == nullptr) {
+        return GrBackendTexture();
+    }
+    auto sb = asSB(surface);
+    if (!sb->isGaneshBacked()) {
+        return GrBackendTexture();
+    }
+    return static_cast<SkSurface_Ganesh*>(surface)->getBackendTexture(access);
+}
+
+GrBackendRenderTarget GetBackendRenderTarget(SkSurface* surface, BackendHandleAccess access) {
+    if (surface == nullptr) {
+        return GrBackendRenderTarget();
+    }
+    auto sb = asSB(surface);
+    if (!sb->isGaneshBacked()) {
+        return GrBackendRenderTarget();
+    }
+    return static_cast<SkSurface_Ganesh*>(surface)->getBackendRenderTarget(access);
+}
+
+}  // namespace SkSurfaces

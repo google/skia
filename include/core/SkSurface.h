@@ -74,6 +74,9 @@ class Recorder;
     surface->getCanvas() to use that canvas (but don't delete it, it is owned by the surface).
     SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
     of the requested dimensions are zero, then nullptr will be returned.
+
+    Clients should *not* subclass SkSurface as there is a lot of internal machinery that is
+    not publicly accessible.
 */
 class SK_API SkSurface : public SkRefCnt {
 public:
@@ -590,33 +593,24 @@ public:
      */
     skgpu::graphite::Recorder* recorder() const;
 
-#if defined(SK_GANESH)
-    enum BackendHandleAccess {
-        kFlushRead_BackendHandleAccess,    //!< back-end object is readable
-        kFlushWrite_BackendHandleAccess,   //!< back-end object is writable
-        kDiscardWrite_BackendHandleAccess, //!< back-end object must be overwritten
+    enum class BackendHandleAccess {
+        kFlushRead,     //!< back-end object is readable
+        kFlushWrite,    //!< back-end object is writable
+        kDiscardWrite,  //!< back-end object must be overwritten
+
+        // Legacy names, remove when clients are migrated
+        kFlushRead_BackendHandleAccess = kFlushRead,
+        kFlushWrite_BackendHandleAccess = kFlushWrite,
+        kDiscardWrite_BackendHandleAccess = kDiscardWrite,
     };
 
-    /** Retrieves the back-end texture. If SkSurface has no back-end texture, an invalid
-        object is returned. Call GrBackendTexture::isValid to determine if the result
-        is valid.
-
-        The returned GrBackendTexture should be discarded if the SkSurface is drawn to or deleted.
-
-        @return                     GPU texture reference; invalid on failure
-    */
-    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
-
-    /** Retrieves the back-end render target. If SkSurface has no back-end render target, an invalid
-        object is returned. Call GrBackendRenderTarget::isValid to determine if the result
-        is valid.
-
-        The returned GrBackendRenderTarget should be discarded if the SkSurface is drawn to
-        or deleted.
-
-        @return                     GPU render target reference; invalid on failure
-    */
-    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
+    // Legacy names, remove when clients are migrated
+    static constexpr BackendHandleAccess kFlushRead_BackendHandleAccess =
+            BackendHandleAccess::kFlushRead;
+    static constexpr BackendHandleAccess kFlushWrite_BackendHandleAccess =
+            BackendHandleAccess::kFlushWrite;
+    static constexpr BackendHandleAccess kDiscardWrite_BackendHandleAccess =
+            BackendHandleAccess::kDiscardWrite;
 
     /** If the surface was made via MakeFromBackendTexture then it's backing texture may be
         substituted with a different texture. The contents of the previous backing texture are
@@ -633,12 +627,11 @@ public:
         @param textureReleaseProc  function called when texture can be released
         @param releaseContext      state passed to textureReleaseProc
      */
-    bool replaceBackendTexture(const GrBackendTexture& backendTexture,
-                               GrSurfaceOrigin origin,
-                               ContentChangeMode mode = kRetain_ContentChangeMode,
-                               TextureReleaseProc textureReleaseProc = nullptr,
-                               ReleaseContext releaseContext = nullptr);
-#endif
+    virtual bool replaceBackendTexture(const GrBackendTexture& backendTexture,
+                                       GrSurfaceOrigin origin,
+                                       ContentChangeMode mode = kRetain_ContentChangeMode,
+                                       TextureReleaseProc textureReleaseProc = nullptr,
+                                       ReleaseContext releaseContext = nullptr) = 0;
 
     /** Returns SkCanvas that draws into SkSurface. Subsequent calls return the same SkCanvas.
         SkCanvas returned is managed and owned by SkSurface, and is deleted when SkSurface
@@ -1179,6 +1172,12 @@ private:
     uint32_t             fGenerationID;
 
     using INHERITED = SkRefCnt;
+
+public:
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_METHODS) && defined(SK_GANESH)
+    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
+    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
+#endif
 };
 
 #endif
