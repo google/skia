@@ -437,8 +437,8 @@ struct GrTriangulator::Edge {
         // longer on the ideal line.
         return (p == fTop->fPoint || p == fBottom->fPoint) ? 0.0 : fLine.dist(p);
     }
-    bool isRightOf(Vertex* v) const { return this->dist(v->fPoint) < 0.0; }
-    bool isLeftOf(Vertex* v) const { return this->dist(v->fPoint) > 0.0; }
+    bool isRightOf(const Vertex& v) const { return this->dist(v.fPoint) < 0.0; }
+    bool isLeftOf(const Vertex& v) const { return this->dist(v.fPoint) > 0.0; }
     void recompute() { fLine = Line(fTop, fBottom); }
     void insertAbove(Vertex*, const Comparator&);
     void insertBelow(Vertex*, const Comparator&);

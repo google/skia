@@ -655,7 +655,7 @@ void GrTriangulator::FindEnclosingEdges(Vertex* v, EdgeList* edges, Edge** left,
     Edge* next = nullptr;
     Edge* prev;
     for (prev = edges->fTail; prev != nullptr; prev = prev->fLeft) {
-        if (prev->isLeftOf(v)) {
+        if (prev->isLeftOf(*v)) {
             break;
         }
         next = prev;
@@ -673,7 +673,7 @@ void GrTriangulator::Edge::insertAbove(Vertex* v, const Comparator& c) {
     Edge* prev = nullptr;
     Edge* next;
     for (next = v->fFirstEdgeAbove; next; next = next->fNextEdgeAbove) {
-        if (next->isRightOf(fTop)) {
+        if (next->isRightOf(*fTop)) {
             break;
         }
         prev = next;
@@ -691,7 +691,7 @@ void GrTriangulator::Edge::insertBelow(Vertex* v, const Comparator& c) {
     Edge* prev = nullptr;
     Edge* next;
     for (next = v->fFirstEdgeBelow; next; next = next->fNextEdgeBelow) {
-        if (next->isRightOf(fBottom)) {
+        if (next->isRightOf(*fBottom)) {
             break;
         }
         prev = next;
@@ -738,8 +738,8 @@ static void rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, const C
             leftEdge = e;
             Vertex* top = e->fTop;
             if (c.sweep_lt(top->fPoint, dst->fPoint) &&
-                ((top->fLeftEnclosingEdge && !top->fLeftEnclosingEdge->isLeftOf(e->fTop)) ||
-                 (top->fRightEnclosingEdge && !top->fRightEnclosingEdge->isRightOf(e->fTop)))) {
+                ((top->fLeftEnclosingEdge && !top->fLeftEnclosingEdge->isLeftOf(*e->fTop)) ||
+                 (top->fRightEnclosingEdge && !top->fRightEnclosingEdge->isRightOf(*e->fTop)))) {
                 dst = top;
             }
         }
@@ -757,29 +757,30 @@ static void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** curr
     if (edge->fLeft) {
         Vertex* leftTop = edge->fLeft->fTop;
         Vertex* leftBottom = edge->fLeft->fBottom;
-        if (c.sweep_lt(leftTop->fPoint, top->fPoint) && !edge->fLeft->isLeftOf(top)) {
+        if (c.sweep_lt(leftTop->fPoint, top->fPoint) && !edge->fLeft->isLeftOf(*top)) {
             rewind(activeEdges, current, leftTop, c);
-        } else if (c.sweep_lt(top->fPoint, leftTop->fPoint) && !edge->isRightOf(leftTop)) {
+        } else if (c.sweep_lt(top->fPoint, leftTop->fPoint) && !edge->isRightOf(*leftTop)) {
             rewind(activeEdges, current, top, c);
         } else if (c.sweep_lt(bottom->fPoint, leftBottom->fPoint) &&
-                   !edge->fLeft->isLeftOf(bottom)) {
+                   !edge->fLeft->isLeftOf(*bottom)) {
             rewind(activeEdges, current, leftTop, c);
-        } else if (c.sweep_lt(leftBottom->fPoint, bottom->fPoint) && !edge->isRightOf(leftBottom)) {
+        } else if (c.sweep_lt(leftBottom->fPoint, bottom->fPoint) &&
+                   !edge->isRightOf(*leftBottom)) {
             rewind(activeEdges, current, top, c);
         }
     }
     if (edge->fRight) {
         Vertex* rightTop = edge->fRight->fTop;
         Vertex* rightBottom = edge->fRight->fBottom;
-        if (c.sweep_lt(rightTop->fPoint, top->fPoint) && !edge->fRight->isRightOf(top)) {
+        if (c.sweep_lt(rightTop->fPoint, top->fPoint) && !edge->fRight->isRightOf(*top)) {
             rewind(activeEdges, current, rightTop, c);
-        } else if (c.sweep_lt(top->fPoint, rightTop->fPoint) && !edge->isLeftOf(rightTop)) {
+        } else if (c.sweep_lt(top->fPoint, rightTop->fPoint) && !edge->isLeftOf(*rightTop)) {
             rewind(activeEdges, current, top, c);
         } else if (c.sweep_lt(bottom->fPoint, rightBottom->fPoint) &&
-                   !edge->fRight->isRightOf(bottom)) {
+                   !edge->fRight->isRightOf(*bottom)) {
             rewind(activeEdges, current, rightTop, c);
         } else if (c.sweep_lt(rightBottom->fPoint, bottom->fPoint) &&
-                   !edge->isLeftOf(rightBottom)) {
+                   !edge->isLeftOf(*rightBottom)) {
             rewind(activeEdges, current, top, c);
         }
     }
@@ -860,7 +861,7 @@ static bool top_collinear(Edge* left, Edge* right) {
         return false;
     }
     return left->fTop->fPoint == right->fTop->fPoint ||
-           !left->isLeftOf(right->fTop) || !right->isRightOf(left->fTop);
+           !left->isLeftOf(*right->fTop) || !right->isRightOf(*left->fTop);
 }
 
 static bool bottom_collinear(Edge* left, Edge* right) {
@@ -868,7 +869,7 @@ static bool bottom_collinear(Edge* left, Edge* right) {
         return false;
     }
     return left->fBottom->fPoint == right->fBottom->fPoint ||
-           !left->isLeftOf(right->fBottom) || !right->isRightOf(left->fBottom);
+           !left->isLeftOf(*right->fBottom) || !right->isRightOf(*left->fBottom);
 }
 
 void GrTriangulator::mergeCollinearEdges(Edge* edge, EdgeList* activeEdges, Vertex** current,
@@ -949,23 +950,23 @@ bool GrTriangulator::intersectEdgePair(Edge* left, Edge* right, EdgeList* active
     Edge* split = nullptr;
     Vertex* splitAt = nullptr;
     if (c.sweep_lt(left->fTop->fPoint, right->fTop->fPoint)) {
-        if (!left->isLeftOf(right->fTop)) {
+        if (!left->isLeftOf(*right->fTop)) {
             split = left;
             splitAt = right->fTop;
         }
     } else {
-        if (!right->isRightOf(left->fTop)) {
+        if (!right->isRightOf(*left->fTop)) {
             split = right;
             splitAt = left->fTop;
         }
     }
     if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
-        if (!left->isLeftOf(right->fBottom)) {
+        if (!left->isLeftOf(*right->fBottom)) {
             split = left;
             splitAt = right->fBottom;
         }
     } else {
-        if (!right->isRightOf(left->fBottom)) {
+        if (!right->isRightOf(*left->fBottom)) {
             split = right;
             splitAt = left->fBottom;
         }
@@ -1291,20 +1292,20 @@ static void validate_edge_pair(Edge* left, Edge* right, const Comparator& c) {
         return;
     }
     if (left->fTop == right->fTop) {
-        SkASSERT(left->isLeftOf(right->fBottom));
-        SkASSERT(right->isRightOf(left->fBottom));
+        SkASSERT(left->isLeftOf(*right->fBottom));
+        SkASSERT(right->isRightOf(*left->fBottom));
     } else if (c.sweep_lt(left->fTop->fPoint, right->fTop->fPoint)) {
-        SkASSERT(left->isLeftOf(right->fTop));
+        SkASSERT(left->isLeftOf(*right->fTop));
     } else {
-        SkASSERT(right->isRightOf(left->fTop));
+        SkASSERT(right->isRightOf(*left->fTop));
     }
     if (left->fBottom == right->fBottom) {
-        SkASSERT(left->isLeftOf(right->fTop));
-        SkASSERT(right->isRightOf(left->fTop));
+        SkASSERT(left->isLeftOf(*right->fTop));
+        SkASSERT(right->isRightOf(*left->fTop));
     } else if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
-        SkASSERT(left->isLeftOf(right->fBottom));
+        SkASSERT(left->isLeftOf(*right->fBottom));
     } else {
-        SkASSERT(right->isRightOf(left->fBottom));
+        SkASSERT(right->isRightOf(*left->fBottom));
     }
 }
 
