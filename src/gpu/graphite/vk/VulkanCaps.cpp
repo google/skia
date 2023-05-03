@@ -642,9 +642,8 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
         auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
             info.init(interface, physDev, properties, format);
-            SkDEBUGCODE(info.fIsWrappedOnly = true;)
         }
-         if (info.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
+        if (info.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
@@ -656,6 +655,7 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
             }
+            SkDEBUGCODE(info.fIsWrappedOnly = true;)
         }
     }
     // Format: VK_FORMAT_G8_B8R8_2PLANE_420_UNORM
@@ -664,9 +664,8 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
         auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
             info.init(interface, physDev, properties, format);
-            SkDEBUGCODE(info.fIsWrappedOnly = true;)
         }
-         if (info.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
+        if (info.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
@@ -678,6 +677,7 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
             }
+            SkDEBUGCODE(info.fIsWrappedOnly = true;)
         }
     }
     // Format: VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK

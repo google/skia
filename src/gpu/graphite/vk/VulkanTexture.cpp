@@ -23,12 +23,18 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
                                 const TextureInfo& info,
                                 CreatedImageInfo* outInfo) {
     SkASSERT(outInfo);
+    const VulkanCaps& caps = sharedContext->vulkanCaps();
+
     if (dimensions.isEmpty()) {
         SKGPU_LOG_E("Tried to create VkImage with empty dimensions.");
         return false;
     }
+    if (dimensions.width() > caps.maxTextureSize() ||
+        dimensions.height() > caps.maxTextureSize()) {
+        SKGPU_LOG_E("Tried to create VkImage with too large a size.");
+        return false;
+    }
 
-    const VulkanCaps& caps = sharedContext->vulkanCaps();
     if (info.isProtected() == Protected::kYes && !caps.protectedSupport()) {
         SKGPU_LOG_E("Tried to create protected VkImage when protected not supported.");
         return false;
@@ -294,8 +300,8 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
 
 void VulkanTexture::freeGpuData() {
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
-    skgpu::VulkanMemory::FreeImageMemory(sharedContext->memoryAllocator(), fMemoryAlloc);
     VULKAN_CALL(sharedContext->interface(), DestroyImage(sharedContext->device(), fImage, nullptr));
+    skgpu::VulkanMemory::FreeImageMemory(sharedContext->memoryAllocator(), fMemoryAlloc);
 }
 
 VkImageLayout VulkanTexture::currentLayout() const {
