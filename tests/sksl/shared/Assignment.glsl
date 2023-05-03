@@ -45,6 +45,8 @@ vec4 main() {
     s.af[0] = 2.0;
     s.h4 = vec4(1.0);
     s.ah4[0] = vec4(2.0);
+    float repeat;
+    repeat = (repeat = 1.0);
     keepAlive_vf(af4[0].x);
     keepAlive_vh(ah3x3[0][0].x);
     keepAlive_vi(i);
@@ -55,5 +57,6 @@ vec4 main() {
     keepAlive_vf(s.f);
     keepAlive_vh(l);
     keepAlive_vf(f3x3[0].x);
+    keepAlive_vf(repeat);
     return colorGreen;
 }

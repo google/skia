@@ -177,6 +177,11 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                         if (varRef.variable() != vardecl->var()) {
                             break;
                         }
+                        // The init-expression must not reference the variable.
+                        // `int x; x = x = 0;` is legal SkSL, but `int x = x = 0;` is not.
+                        if (Analysis::ContainsVariable(*binaryExpr.right(), *varRef.variable())) {
+                            break;
+                        }
                         // We found a match! Move the init-expression directly onto the vardecl, and
                         // turn the assignment into a no-op.
                         vardecl->value() = std::move(binaryExpr.right());

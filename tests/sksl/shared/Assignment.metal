@@ -79,6 +79,12 @@ void _skOutParamHelper9_keepAlive_vf(thread float3x3& f3x3) {
     keepAlive_vf(_var0);
     f3x3[0].x = _var0;
 }
+void keepAlive_vf(thread float& f);
+void _skOutParamHelper10_keepAlive_vf(thread float& repeat) {
+    float _var0 = repeat;
+    keepAlive_vf(_var0);
+    repeat = _var0;
+}
 void keepAlive_vh(thread half& h) {
 }
 void keepAlive_vf(thread float& f) {
@@ -119,6 +125,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     s.af[0] = 2.0;
     s.h4 = half4(1.0h);
     s.ah4[0] = half4(2.0h);
+    float repeat;
+    repeat = (repeat = 1.0);
     _skOutParamHelper0_keepAlive_vf(af4);
     _skOutParamHelper1_keepAlive_vh(ah3x3);
     _skOutParamHelper2_keepAlive_vi(i);
@@ -129,6 +137,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _skOutParamHelper7_keepAlive_vf(s);
     _skOutParamHelper8_keepAlive_vh(l);
     _skOutParamHelper9_keepAlive_vf(f3x3);
+    _skOutParamHelper10_keepAlive_vf(repeat);
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 }

@@ -381,6 +381,27 @@ bool Analysis::ContainsRTAdjust(const Expression& expr) {
     return visitor.visitExpression(expr);
 }
 
+bool Analysis::ContainsVariable(const Expression& expr, const Variable& var) {
+    class ContainsVariableVisitor : public ProgramVisitor {
+    public:
+        ContainsVariableVisitor(const Variable* v) : fVariable(v) {}
+
+        bool visitExpression(const Expression& expr) override {
+            if (expr.is<VariableReference>() &&
+                expr.as<VariableReference>().variable() == fVariable) {
+                return true;
+            }
+            return INHERITED::visitExpression(expr);
+        }
+
+        using INHERITED = ProgramVisitor;
+        const Variable* fVariable;
+    };
+
+    ContainsVariableVisitor visitor{&var};
+    return visitor.visitExpression(expr);
+}
+
 bool Analysis::IsCompileTimeConstant(const Expression& expr) {
     class IsCompileTimeConstantVisitor : public ProgramVisitor {
     public:

@@ -75,6 +75,10 @@ copy_constant                  s.f = 0x3F800000 (1.0)
 copy_constant                  s.af[0] = 0x40000000 (2.0)
 splat_4_constants              s.h4 = 0x3F800000 (1.0)
 splat_4_constants              s.ah4[0] = 0x40000000 (2.0)
+copy_constant                  repeat = 0
+copy_constant                  $0 = 0x3F800000 (1.0)
+copy_slot_unmasked             repeat = $0
+copy_slot_unmasked             repeat = $0
 copy_slot_unmasked             f = af4[0](0)
 copy_slot_unmasked             af4[0](0) = f
 label                          label 0
@@ -105,5 +109,8 @@ label                          label 0x00000008
 copy_slot_unmasked             f = f3x3(0)
 copy_slot_unmasked             f3x3(0) = f
 label                          label 0x00000009
+copy_slot_unmasked             f = repeat
+copy_slot_unmasked             repeat = f
+label                          label 0x0000000A
 copy_4_uniforms                $0..3 = colorGreen
 load_src                       src.rgba = $0..3
