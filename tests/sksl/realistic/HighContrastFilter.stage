@@ -1,0 +1,35 @@
+uniform half grayscale;
+uniform half invertStyle;
+uniform half contrast;
+half4 main(half4 inColor)
+{
+	half3 c = _inColor.xyz;
+	if (grayscale == 1.0) 
+	{
+		c = half3(dot(half3(0.2126, 0.7152, 0.0722), c));
+	}
+	if (invertStyle == 1.0) 
+	{
+		c = 1.0 - c;
+	}
+	else if (invertStyle == 2.0) 
+	{
+		half _0_mx = max(max(c.x, c.y), c.z);
+		half _1_mn = min(min(c.x, c.y), c.z);
+		half _2_d = _0_mx - _1_mn;
+		half _3_invd = 1.0 / _2_d;
+		half _4_g_lt_b = half(c.y < c.z ? 6.0 : 0.0);
+		half _5_h = 0.166666672 * (_0_mx == _1_mn ? 0.0 : (c.x >= c.y && c.x >= c.z ? _3_invd * (c.y - c.z) + _4_g_lt_b : (c.y >= c.z ? _3_invd * (c.z - c.x) + 2.0 : _3_invd * (c.x - c.y) + 4.0)));
+		half _6_sum = _0_mx + _1_mn;
+		half _7_l = _6_sum * 0.5;
+		half _8_s = _0_mx == _1_mn ? 0.0 : _2_d / (_7_l > 0.5 ? 2.0 - _6_sum : _6_sum);
+		c = half3(_5_h, _8_s, _7_l);
+		c.z = 1.0 - c.z;
+		half _9_C = (1.0 - abs(2.0 * c.z - 1.0)) * c.y;
+		half3 _10_p = c.xxx + half3(0.0, 0.6666667, 0.333333343);
+		half3 _11_q = saturate(abs(fract(_10_p) * 6.0 - 3.0) - 1.0);
+		c = (_11_q - 0.5) * _9_C + c.z;
+	}
+	c = mix(half3(0.5), c, contrast);
+	return half4(half4(saturate(c), _inColor.w));
+}

@@ -1,0 +1,16 @@
+uniform float3 iResolution;
+uniform float iTime;
+half4 main(float2 fragcoord)
+{
+	float3 d = 0.5 - float3(_coords, 1.0) / iResolution.y;
+	float3 p = float3(0.0);
+	for (int i = 0;i < 32; i++) 
+	{
+		float3 _0_p = p;
+		_0_p.z -= iTime * 10.0;
+		float _1_a = _0_p.z * 0.1;
+		_0_p.xy *= float2x2(cos(_1_a), sin(_1_a), -sin(_1_a), cos(_1_a));
+		p += (0.1 - length(cos(_0_p.xy) + sin(_0_p.yz))) * d;
+	}
+	return half4(half4(float4((sin(p) + float3(2.0, 5.0, 9.0)) / length(p), 1.0)));
+}

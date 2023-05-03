@@ -657,6 +657,9 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_rte_tests",
     srcs = [
+        "realistic/BlueNeurons.rts",
+        "realistic/HSLColorFilter.rtcf",
+        "realistic/HighContrastFilter.rtcf",
         "runtime/AllowNarrowingConversions.rts",
         "runtime/ArrayIndexing.rts",
         "runtime/ArrayNarrowingConversions.rts",
@@ -669,7 +672,6 @@ skia_filegroup(
         "runtime/DivideByZero.rts",
         "runtime/GLSLTypeNames.rts",
         "runtime/GlobalVariables.rts",
-        "runtime/HSLColorFilter.rtcf",
         "runtime/LargeProgram_BlocklessLoops.rts",
         "runtime/LargeProgram_FlatLoop.rts",
         "runtime/LargeProgram_Functions.rts",
@@ -834,6 +836,7 @@ skia_filegroup(
         "intrinsics/Trunc.sksl",
         "intrinsics/UintBitsToFloat.sksl",
         "intrinsics/Unpack.sksl",
+        "realistic/GaussianBlur.sksl",
         "shared/ArrayCast.sksl",
         "shared/ArrayComparison.sksl",
         "shared/ArrayConstructors.sksl",
@@ -881,7 +884,6 @@ skia_filegroup(
         "shared/FunctionPrototype.sksl",
         "shared/FunctionReturnTypeMatch.sksl",
         "shared/Functions.sksl",
-        "shared/GaussianBlur.sksl",
         "shared/GeometricIntrinsics.sksl",
         "shared/HelloWorld.sksl",
         "shared/Hex.sksl",
