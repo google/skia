@@ -151,7 +151,7 @@ void GrAATriangulator::removeNonBoundaryEdges(const VertexList& mesh) const {
         }
         Edge* leftEnclosingEdge;
         Edge* rightEnclosingEdge;
-        FindEnclosingEdges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+        FindEnclosingEdges(*v, activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
         bool prevFilled = leftEnclosingEdge && this->applyFillType(leftEnclosingEdge->fWinding);
         for (Edge* e = v->fFirstEdgeAbove; e;) {
             Edge* next = e->fNextEdgeAbove;
@@ -321,7 +321,7 @@ bool GrAATriangulator::collapseOverlapRegions(VertexList* mesh, const Comparator
         }
         Edge* leftEnclosingEdge;
         Edge* rightEnclosingEdge;
-        FindEnclosingEdges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+        FindEnclosingEdges(*v, activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
         for (Edge* e = v->fLastEdgeAbove; e && e != leftEnclosingEdge;) {
             Edge* prev = e->fPrevEdgeAbove ? e->fPrevEdgeAbove : leftEnclosingEdge;
             activeEdges.remove(e);

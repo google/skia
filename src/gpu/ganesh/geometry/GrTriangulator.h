@@ -164,7 +164,8 @@ protected:
     Edge* makeConnectingEdge(Vertex* prev, Vertex* next, EdgeType, const Comparator&,
                              int windingScale = 1);
     void mergeVertices(Vertex* src, Vertex* dst, VertexList* mesh, const Comparator&) const;
-    static void FindEnclosingEdges(Vertex* v, EdgeList* edges, Edge** left, Edge** right);
+    static void FindEnclosingEdges(const Vertex& v, const EdgeList& edges,
+                                   Edge** left, Edge** right);
     void mergeCollinearEdges(Edge* edge, EdgeList* activeEdges, Vertex** current,
                              const Comparator&) const;
     bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,

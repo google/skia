@@ -646,16 +646,18 @@ void EdgeList::insert(Edge* edge, Edge* prev) {
     this->insert(edge, prev, next);
 }
 
-void GrTriangulator::FindEnclosingEdges(Vertex* v, EdgeList* edges, Edge** left, Edge** right) {
-    if (v->fFirstEdgeAbove && v->fLastEdgeAbove) {
-        *left = v->fFirstEdgeAbove->fLeft;
-        *right = v->fLastEdgeAbove->fRight;
+void GrTriangulator::FindEnclosingEdges(const Vertex& v,
+                                        const EdgeList& edges,
+                                        Edge** left, Edge**right) {
+    if (v.fFirstEdgeAbove && v.fLastEdgeAbove) {
+        *left = v.fFirstEdgeAbove->fLeft;
+        *right = v.fLastEdgeAbove->fRight;
         return;
     }
     Edge* next = nullptr;
     Edge* prev;
-    for (prev = edges->fTail; prev != nullptr; prev = prev->fLeft) {
-        if (prev->isLeftOf(*v)) {
+    for (prev = edges.fTail; prev != nullptr; prev = prev->fLeft) {
+        if (prev->isLeftOf(v)) {
             break;
         }
         next = prev;
@@ -1350,7 +1352,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
             TESS_LOG("\nvertex %g: (%g,%g), alpha %d\n",
                      v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
             restartChecks = false;
-            FindEnclosingEdges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+            FindEnclosingEdges(*v, activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
             v->fLeftEnclosingEdge = leftEnclosingEdge;
             v->fRightEnclosingEdge = rightEnclosingEdge;
             if (v->fFirstEdgeBelow) {
@@ -1404,7 +1406,7 @@ std::tuple<Poly*, bool> GrTriangulator::tessellate(const VertexList& vertices, c
 #endif
         Edge* leftEnclosingEdge;
         Edge* rightEnclosingEdge;
-        FindEnclosingEdges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+        FindEnclosingEdges(*v, activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
         Poly* leftPoly;
         Poly* rightPoly;
         if (v->fFirstEdgeAbove) {
