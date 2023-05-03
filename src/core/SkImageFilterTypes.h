@@ -412,6 +412,9 @@ public:
     LayerSpace<SkPoint> topLeft() const {
         return LayerSpace<SkPoint>(SkPoint::Make(fData.fLeft, fData.fTop));
     }
+    LayerSpace<SkPoint> center() const {
+        return LayerSpace<SkPoint>(fData.center());
+    }
     LayerSpace<SkSize> size() const {
         return LayerSpace<SkSize>(SkSize::Make(fData.width(), fData.height()));
     }
@@ -424,6 +427,11 @@ public:
     void join(const LayerSpace<SkRect>& r) { fData.join(r.fData); }
     void offset(const LayerSpace<Vector>& v) { fData.offset(SkVector(v)); }
     void outset(const LayerSpace<SkSize>& delta) { fData.outset(delta.width(), delta.height()); }
+
+    LayerSpace<SkPoint> clamp(LayerSpace<SkPoint> pt) const {
+        return LayerSpace<SkPoint>(SkPoint::Make(SkTPin(pt.x(), fData.fLeft, fData.fRight),
+                                                 SkTPin(pt.y(), fData.fTop, fData.fBottom)));
+    }
 
 private:
     SkRect fData;

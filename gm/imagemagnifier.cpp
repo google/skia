@@ -149,49 +149,31 @@ protected:
         // The available content for backdrops, which clips the widgetBounds as it animates.
         constexpr SkRect kOutBounds = {0.f, 0.f, 256.f, 256.f};
 
-        // The legacy Magnifier filter only accepted the srcRect that was to be
-        // magnified, and inferred magnification by filling the desired output
-        // of the image filter. Besides violating the image filter contract for
-        // naive users of magnifier, Chromium's use was carefully controlled
-        // such that the output size was always the widget's size and srcRect
-        // was derived from zoom amount.
-        // The inputs to Magnifier are calculated based on Chromium's logic from:
-        // https://docs.google.com/document/d/1pwARyNTMWYf0N2FW3aoX0E3C_8cha56M6iJ3_OmQbGQ/edit?usp=sharing&resourcekey=0-c51EedcRMdxuw03qDZtw4A
-        // https://source.chromium.org/chromium/chromium/src/+/main:components/viz/service/display/skia_renderer.cc;drc=48340c1e35efad5fb0253025dcc36b3a9573e258;l=2900
+        // The filter responds to any crop (explicit or from missing backdrop content). Compute
+        // the corresponding clipped bounds and source bounds for visualization purposes.
+        SkPoint zoomCenter = widgetBounds.center();
         SkRect clippedWidget = widgetBounds;
         SkAssertResult(clippedWidget.intersect(kOutBounds));
-        SkVector offset = {(widgetBounds.fRight  - clippedWidget.fRight) +
-                           (widgetBounds.fLeft   - clippedWidget.fLeft),
-                           (widgetBounds.fTop    - clippedWidget.fTop) +
-                           (widgetBounds.fBottom - clippedWidget.fBottom)};
+        zoomCenter = {SkTPin(zoomCenter.fX, clippedWidget.fLeft, clippedWidget.fRight),
+                      SkTPin(zoomCenter.fY, clippedWidget.fTop, clippedWidget.fBottom)};
+        zoomCenter = zoomCenter * (1.f - 1.f / kZoomAmount);
+        SkRect srcRect = {clippedWidget.fLeft   / kZoomAmount + zoomCenter.fX,
+                          clippedWidget.fTop    / kZoomAmount + zoomCenter.fY,
+                          clippedWidget.fRight  / kZoomAmount + zoomCenter.fX,
+                          clippedWidget.fBottom / kZoomAmount + zoomCenter.fY};
 
-        // and https://source.chromium.org/chromium/chromium/src/+/main:cc/paint/render_surface_filters.cc;drc=48340c1e35efad5fb0253025dcc36b3a9573e258;l=220
-        // NOTE: Assuming widgetBounds does not span both edges of outBounds and has a top-left
-        // corner of (0,0), this is equivalent to unclippedCenter = widgetBounds.center(), which
-        // appears to be the intent. The original Chromium logic is preserved.
-        SkPoint unclippedCenter = {(clippedWidget.width()  + offset.fX) / 2.f,
-                                   (clippedWidget.height() + offset.fY) / 2.f};
-
-        SkPoint zoomCenter = {SkTPin(unclippedCenter.x(), 0.f, clippedWidget.width()),
-                              SkTPin(unclippedCenter.y(), 0.f, clippedWidget.height())};
-
-        SkRect srcRect = SkRect::MakeXYWH(zoomCenter.fX - zoomCenter.fX / kZoomAmount,
-                                          zoomCenter.fY - zoomCenter.fY / kZoomAmount,
-                                          clippedWidget.width() / kZoomAmount,
-                                          clippedWidget.height() / kZoomAmount);
-
+        // Internally, the magnifier filter performs equivalent calculations but responds to the
+        // canvas matrix and available input automatically.
         sk_sp<SkImageFilter> magnifier =
-                SkImageFilters::Magnifier(srcRect, kInset, nullptr, kOutBounds);
+                SkImageFilters::Magnifier(widgetBounds, kZoomAmount, kInset,
+                                          SkSamplingOptions{SkFilterMode::kLinear},
+                                          nullptr, kOutBounds);
 
         // Draw once as a backdrop filter
         canvas->save();
             canvas->clipRect(kOutBounds);
             draw_content(canvas, 32.f, 350);
-
-            canvas->save();
-                canvas->clipRect(clippedWidget);
-                canvas->saveLayer({nullptr, nullptr, magnifier.get(), 0});
-                canvas->restore();
+            canvas->saveLayer({nullptr, nullptr, magnifier.get(), 0});
             canvas->restore();
 
             drawBorder(widgetBounds, SK_ColorBLACK, 6.f);
@@ -203,13 +185,10 @@ protected:
             canvas->translate(256.f, 0.f);
             canvas->clipRect(kOutBounds);
 
-            canvas->save();
-                SkPaint paint;
-                paint.setImageFilter(magnifier);
-                canvas->clipRect(clippedWidget);
-                canvas->saveLayer(nullptr, &paint);
-                    draw_content(canvas, 32.f, 350);
-                canvas->restore();
+            SkPaint paint;
+            paint.setImageFilter(magnifier);
+            canvas->saveLayer(nullptr, &paint);
+                draw_content(canvas, 32.f, 350);
             canvas->restore();
 
             drawBorder(widgetBounds, SK_ColorBLACK, 6.f);
@@ -223,13 +202,7 @@ protected:
             draw_content(canvas, 32.f, 350);
 
             drawBorder(widgetBounds, SK_ColorBLACK, 6.f);
-
-            // NOTE: To make srcRect appear in the right spot we add the widget's top-left corner
-            // but the legacy implementation expected coordinates relative to the underlying
-            // SkDevice in order to work correctly. We also apply the zoom-adjusted inset.
-            srcRect.offset(clippedWidget.fLeft, clippedWidget.fTop);
-            srcRect.inset(kInset / kZoomAmount, kInset / kZoomAmount);
-            drawBorder(srcRect, SK_ColorBLUE, 3.f);
+            drawBorder(srcRect, SK_ColorBLUE, 3.f, kInset / kZoomAmount);
         canvas->restore();
     }
 

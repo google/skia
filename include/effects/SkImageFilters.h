@@ -232,12 +232,32 @@ public:
 
     /**
      *  Create a filter that mimics a zoom/magnifying lens effect.
+     *  DEPRECATED: This factory does not accept enough parameters to fully specify the zoom effect,
+                    and derives the zoom based on the internal allocation size of a saveLayer. This
+                    makes its behavior brittle and respond poorly to SkCanvas transforms.
      *  @param srcRect
      *  @param inset
      *  @param input    The input filter that is magnified, if null the source bitmap is used.
      *  @param cropRect Optional rectangle that crops the input and output.
      */
     static sk_sp<SkImageFilter> Magnifier(const SkRect& srcRect, SkScalar inset,
+                                          sk_sp<SkImageFilter> input,
+                                          const CropRect& cropRect = {});
+
+    /**
+     *  Create a filter that fills 'lensBounds' with a magnification of the input.
+     *
+     *  @param lensBounds The outer bounds of the magnifier effect
+     *  @param zoomAmount The amount of magnification applied to the input image
+     *  @param inset      The size or width of the fish-eye distortion around the magnified content
+     *  @param sampling   The SkSamplingOptions applied to the input image when magnified
+     *  @param input      The input filter that is magnified; if null the source bitmap is used
+     *  @param cropRect   Optional rectangle that crops the input and output.
+     */
+    static sk_sp<SkImageFilter> Magnifier(const SkRect& lensBounds,
+                                          SkScalar zoomAmount,
+                                          SkScalar inset,
+                                          const SkSamplingOptions& sampling,
                                           sk_sp<SkImageFilter> input,
                                           const CropRect& cropRect = {});
 

@@ -106,6 +106,7 @@ public:
     // V92: Added anisotropic filtering to SkSamplingOptions
     // V94: Removed local matrices from SkShaderBase. Local matrices always use SkLocalMatrixShader.
     // V95: SkImageFilters::Shader only saves SkShader, not a full SkPaint
+    // V96: SkImageFilters::Magnifier updated with more complete parameters
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -122,6 +123,7 @@ public:
         kBlend4fColorFilter                 = 93,
         kNoShaderLocalMatrix                = 94,
         kShaderImageFilterSerializeShader   = 95,
+        kRevampMagnifierFilter              = 96,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -146,7 +148,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kShaderImageFilterSerializeShader
+        kCurrent_Version = kRevampMagnifierFilter
     };
 };
 
