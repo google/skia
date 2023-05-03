@@ -11,13 +11,16 @@
 #include "include/core/SkRefCnt.h" // IWYU pragma: keep
 
 #include <memory>
+#include <optional>
 
 class SkColorSpace;
+class SkData;
 class SkImageGenerator;
 class SkMatrix;
 class SkPaint;
 class SkPicture;
 class SkSurfaceProps;
+enum SkAlphaType : int;
 namespace SkImages { enum class BitDepth; }
 struct SkISize;
 
@@ -32,7 +35,7 @@ std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&,
                                                   const SkMatrix*,
                                                   const SkPaint*,
                                                   SkImages::BitDepth,
-                                                  sk_sp <SkColorSpace>,
+                                                  sk_sp<SkColorSpace>,
                                                   SkSurfaceProps props);
 
 std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&,
@@ -41,6 +44,22 @@ std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&,
                                                   const SkPaint*,
                                                   SkImages::BitDepth,
                                                   sk_sp<SkColorSpace>);
+
+/**
+ *  If the default image decoder system can interpret the specified (encoded) data, then
+ *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
+ *  the caller is still responsible for managing their ownership of the data.
+ *  By default, images will be converted to premultiplied pixels. The alpha type can be
+ *  overridden by specifying kPremul_SkAlphaType or kUnpremul_SkAlphaType. Specifying
+ *  kOpaque_SkAlphaType is not supported, and will return NULL.
+ */
+std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData>,
+                                                  std::optional<SkAlphaType> = std::nullopt);
+
+// This is our default impl, which may be different on different platforms.
+// It is called from MakeFromEncoded() after it has checked for any runtime factory.
+// The SkData will never be NULL, as that will have been checked by MakeFromEncoded.
+std::unique_ptr<SkImageGenerator> MakeFromEncodedImpl(sk_sp<SkData>, std::optional<SkAlphaType>);
 }
 
 #endif

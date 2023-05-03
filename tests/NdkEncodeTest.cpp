@@ -14,6 +14,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
 #include "include/private/base/SkMalloc.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -77,7 +78,7 @@ DEF_TEST(NdkEncode, r) {
                 ERRORF(r, "Failed to encode %s to %s\n", ToolUtils::colortype_name(ct), rec.name);
                 continue;
             }
-            auto gen = SkImageGenerator::MakeFromEncoded(std::move(encoded));
+            auto gen = SkImageGenerators::MakeFromEncoded(std::move(encoded));
             if (!gen) {
                 ERRORF(r, "Failed to decode from %s as %s\n", ToolUtils::colortype_name(ct),
                        rec.name);
@@ -308,7 +309,7 @@ DEF_TEST(NdkEncode_ColorSpace, r) {
             for (const auto& rec : gRecs) {
                 auto encoded = encode_ndk(bm.pixmap(), rec.format, rec.quality);
                 REPORTER_ASSERT(r, encoded);
-                auto gen = SkImageGenerator::MakeFromEncoded(std::move(encoded));
+                auto gen = SkImageGenerators::MakeFromEncoded(std::move(encoded));
                 REPORTER_ASSERT(r, gen);
 
                 auto  expected = colorSpace.cs ? colorSpace.cs : SkColorSpace::MakeSRGB();

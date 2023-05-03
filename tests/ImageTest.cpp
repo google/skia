@@ -64,6 +64,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkImageShader.h"
 #include "tests/CtsEnforcement.h"
@@ -1436,10 +1437,10 @@ DEF_TEST(image_from_encoded_alphatype_override, reporter) {
     REPORTER_ASSERT(reporter, SkImages::DeferredFromEncodedData(data, kUnpremul_SkAlphaType));
     REPORTER_ASSERT(reporter, !SkImages::DeferredFromEncodedData(data, kOpaque_SkAlphaType));
 
-    // Same tests as above, but using SkImageGenerator::MakeFromEncoded
-    REPORTER_ASSERT(reporter, SkImageGenerator::MakeFromEncoded(data, kPremul_SkAlphaType));
-    REPORTER_ASSERT(reporter, SkImageGenerator::MakeFromEncoded(data, kUnpremul_SkAlphaType));
-    REPORTER_ASSERT(reporter, !SkImageGenerator::MakeFromEncoded(data, kOpaque_SkAlphaType));
+    // Same tests as above, but using SkImageGenerators::MakeFromEncoded
+    REPORTER_ASSERT(reporter, SkImageGenerators::MakeFromEncoded(data, kPremul_SkAlphaType));
+    REPORTER_ASSERT(reporter, SkImageGenerators::MakeFromEncoded(data, kUnpremul_SkAlphaType));
+    REPORTER_ASSERT(reporter, !SkImageGenerators::MakeFromEncoded(data, kOpaque_SkAlphaType));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "tools/Resources.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
@@ -13,9 +15,9 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkOSFile.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/ResourceFactory.h"
-#include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
 
 static DEFINE_string2(resourcePath, i, "resources",
@@ -32,7 +34,7 @@ void SetResourcePath(const char* resource) {
 }
 
 bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst) {
-    std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::MakeFromEncoded(std::move(data)));
+    std::unique_ptr<SkImageGenerator> gen(SkImageGenerators::MakeFromEncoded(std::move(data)));
     return gen && dst->tryAllocPixels(gen->getInfo()) &&
         gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes());
 }
