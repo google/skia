@@ -1372,7 +1372,7 @@ class Zalgo {
     private:
     std::u16string COMBINING_DOWN = u"\u0316\u0317\u0318\u0319\u031c\u031d\u031e\u031f\u0320\u0324\u0325\u0326\u0329\u032a\u032b\u032c\u032d\u032e\u032f\u0330\u0331\u0332\u0333\u0339\u033a\u033b\u033c\u0345\u0347\u0348\u0349\u034d\u034e\u0353\u0354\u0355\u0356\u0359\u035a\u0323";
     std::u16string COMBINING_UP = u"\u030d\u030e\u0304\u0305\u033f\u0311\u0306\u0310\u0352\u0357\u0351\u0307\u0308\u030a\u0342\u0343\u0344\u034a\u034b\u034c\u0303\u0302\u030c\u0350\u0300\u0301\u030b\u030f\u0312\u0313\u0314\u033d\u0309\u0363\u0364\u0365\u0366\u0367\u0368\u0369\u036a\u036b\u036c\u036d\u036e\u035b\u0346\u031a";
-    std::u16string COMBINING_MIDDLE = u"\u0315\u031b\u0340\u0341\u0358\u0321\u0322\u0327\u0328\u0334\u0335\u0336\u034f\u035c\u035d\u035e\u035f\u0360\u0362\u0338\u0337\u0361\u0363";
+    std::u16string COMBINING_MIDDLE = u"\u0315\u031b\u0340\u0341\u0358\u0321\u0322\u0327\u0328\u0334\u0335\u0336\u034f\u035c\u035d\u035e\u035f\u0360\u0362\u0338\u0337\u0361\u0489";
 
     std::u16string randomMarks(std::u16string& combiningMarks) {
         std::u16string result;
@@ -1508,7 +1508,7 @@ public:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        std::u16string text = u"\u0068\u0301\u0350\u0312\u0357\u030C\u0369\u0305\u036C\u0304\u0310\u033F\u0366\u0350\u0343\u0364\u0369\u0311\u0309\u030E\u0365\u031B\u0340\u0337\u0335\u035E\u0334\u0328\u0360\u0360\u0315\u035F\u0340\u0340\u0362\u0360\u0322\u031B\u031B\u0337\u0340\u031E\u031F\u032A\u0331\u0345\u032F\u0332\u032E\u0333\u0353\u0320\u0345\u031C\u031F\u033C\u0325\u0355\u032C\u0325\u033Aa\u0307\u0312\u034B\u0308\u0312\u0346\u0313\u0346\u0304\u0307\u0344\u0305\u0342\u0368\u0346\u036A\u035B\u030F\u0365\u0307\u0340\u0328\u0322\u0361\u0363\u034F\u0328\u0334\u035F\u0335\u0362\u0363\u0360\u0358\u035E\u0360\u035D\u0341\u0337\u0337\u032E\u0326\u032D\u0359\u0318\u033C\u032F\u0333\u035A\u034D\u0319\u031C\u0353\u033C\u0345\u0359\u0331\u033B\u0331\u033C";
+        std::u16string text = u"\u0068\u0301\u0350\u0312\u0357\u030C\u0369\u0305\u036C\u0304\u0310\u033F\u0366\u0350\u0343\u0364\u0369\u0311\u0309\u030E\u0365\u031B\u0340\u0337\u0335\u035E\u0334\u0328\u0360\u0360\u0315\u035F\u0340\u0340\u0362\u0360\u0322\u031B\u031B\u0337\u0340\u031E\u031F\u032A\u0331\u0345\u032F\u0332\u032E\u0333\u0353\u0320\u0345\u031C\u031F\u033C\u0325\u0355\u032C\u0325\u033Aa\u0307\u0312\u034B\u0308\u0312\u0346\u0313\u0346\u0304\u0307\u0344\u0305\u0342\u0368\u0346\u036A\u035B\u030F\u0365\u0307\u0340\u0328\u0322\u0361\u0489\u034F\u0328\u0334\u035F\u0335\u0362\u0489\u0360\u0358\u035E\u0360\u035D\u0341\u0337\u0337\u032E\u0326\u032D\u0359\u0318\u033C\u032F\u0333\u035A\u034D\u0319\u031C\u0353\u033C\u0345\u0359\u0331\u033B\u0331\u033C";
         ParagraphStyle paragraph_style;
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
@@ -4046,42 +4046,142 @@ public:
     }
 };
 
-class ParagraphSlideEllipsisCases : public ParagraphSlide_Base {
+class ParagraphSlideGetPath : public ParagraphSlide_Base {
 public:
-    ParagraphSlideEllipsisCases() { fName = "ParagraphSlideEllipsisCases"; }
+    ParagraphSlideGetPath() { fName = "ParagraphSlideGetPath"; }
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
-        text_style.setFontSize(100);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(50);
         text_style.setColor(SK_ColorBLACK);
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
         paragraph_style.setTextAlign(TextAlign::kStart);
-        paragraph_style.setEllipsis(u"\u2026");
-        auto draw = [&](std::u16string text) {
-            paragraph_style.setMaxLines(1);
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-            builder.pushStyle(text_style);
-            builder.addText(text);
-            auto paragraph = builder.Build();
-            paragraph->layout(this->size().width());
-            paragraph->paint(canvas, 0, 0);
-            canvas->translate(0, paragraph->getHeight() + 10);
-        };
 
-        draw(u"你abcdefsdasdsasas");
-        draw(u"한111111111111111111");
-        draw(u"abcdefsdasds1112222");
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText("Multi lined sticky notes drawn as paths");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->size().width());
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        SkPath fullPath;
+        SkScalar height = 0;
+        for (auto& line : impl->lines()) {
+            line.ensureTextBlobCachePopulated();
+            for (auto& rec : line.fTextBlobCache) {
+                auto paths = Paragraph::GetPath(rec.fBlob.get());
+                paths.offset(0, height);
+                fullPath.addPath(paths);
+                height += line.height();
+            }
+        }
+        SkRect rect = SkRect::MakeXYWH(100, 100 + paragraph->getHeight(), this->size().width(), paragraph->getHeight());
+        SkPaint paint;
+        paint.setShader(setgrad(rect, SK_ColorBLUE, SK_ColorLTGRAY));
+        canvas->drawPath(fullPath, paint);
     }
 };
 
-class ParagraphSlideLast : public ParagraphSlide_Base {
+class ParagraphSlideExperiment : public ParagraphSlide_Base {
 public:
-    ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
+    ParagraphSlideExperiment() { fName = "ParagraphSlideExperiment"; }
+    void draw(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->disableFontFallback();
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(50);
+        text_style.setColor(SK_ColorBLACK);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+        paragraph_style.setTextAlign(TextAlign::kStart);
+
+        {
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText("Sticky notes\non multple lines\nwith bounds around glyphs");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->size().width());
+            paragraph->paint(canvas, 0, 0);
+            paragraph->extendedVisit([&](int, const skia::textlayout::Paragraph::ExtendedVisitorInfo* info) {
+                if (!info) {
+                    return;
+                }
+                SkPaint paint;
+                paint.setStyle(SkPaint::kStroke_Style);
+                paint.setAntiAlias(true);
+                paint.setStrokeWidth(1);
+                for (auto i = 0; i < info->count; ++i) {
+                    paint.setColor(SK_ColorDKGRAY);
+                    SkRect rect(info->bounds[i]);
+                    rect.offset(info->positions[i]);
+                    rect.offset(info->origin);
+                    canvas->drawRect(rect, paint);
+                }
+            });
+            canvas->translate(0, paragraph->getHeight() + 20);
+        }
+
+        {
+          ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+          builder.pushStyle(text_style);
+          builder.addText("Sticky notes with glyphs changing position");
+          auto paragraph = builder.Build();
+          paragraph->layout(this->size().width());
+          paragraph->paint(canvas, 0, 0);
+          paragraph->extendedVisit([&](int, const skia::textlayout::Paragraph::ExtendedVisitorInfo* info) {
+              if (!info) {
+                  return;
+              }
+              SkScalar offset = 0;
+              for (auto i = 0; i < info->count; ++i) {
+                  info->positions[i].fY += offset;
+                  if (i % 3 == 0) {
+                      offset = 20;
+                  } else if (i % 3 == 1) {
+                      offset = -20;
+                  } else {
+                      offset = 0;
+                  }
+              }
+          });
+          paragraph->paint(canvas, 0, 0);
+          canvas->translate(0, paragraph->getHeight() + 40);
+        }
+
+        {
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText("Multi 😀 lined sticky notes drawn as paths");
+            auto paragraph = builder.Build();
+            paragraph->layout(300);
+            SkPaint paint;
+            std::vector<LineMetrics> metrics;
+            paragraph->getLineMetrics(metrics);
+            SkScalar height = 0;
+            for (size_t lineNum = 0; lineNum < paragraph->lineNumber(); ++lineNum) {
+                SkPath paths;
+                paragraph->getPath(lineNum, &paths);
+                auto& line = metrics[lineNum];
+                SkRect rect = SkRect::MakeXYWH(line.fLeft, height, line.fWidth, line.fHeight);
+                height += line.fHeight;
+                paint.setShader(setgrad(rect, SK_ColorBLUE, SK_ColorLTGRAY));
+                canvas->drawPath(paths, paint);
+            }
+        }
+    }
+};
+
+class ParagraphSlideGlyphs : public ParagraphSlide_Base {
+public:
+    ParagraphSlideGlyphs() { fName = "ParagraphSlideGlyphs"; }
     void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
@@ -4122,6 +4222,40 @@ public:
         draw(text3, TextDirection::kLtr);
     }
 };
+
+class ParagraphSlideLast : public ParagraphSlide_Base {
+public:
+    ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
+    void draw(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+        text_style.setFontSize(100);
+        text_style.setColor(SK_ColorBLACK);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+        paragraph_style.setTextAlign(TextAlign::kStart);
+        paragraph_style.setEllipsis(u"\u2026");
+        auto draw = [&](std::u16string text) {
+            paragraph_style.setMaxLines(1);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(this->size().width());
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(0, paragraph->getHeight() + 10);
+        };
+
+        draw(u"你abcdefsdasdsasas");
+        draw(u"한111111111111111111");
+        draw(u"abcdefsdasds1112222");
+    }
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -4196,5 +4330,7 @@ DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic1();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Zalgo();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic2();)
 DEF_SLIDE(return new ParagraphSlideMixedTextDirection();)
-DEF_SLIDE(return new ParagraphSlideEllipsisCases();)
+DEF_SLIDE(return new ParagraphSlideGetPath();)
+DEF_SLIDE(return new ParagraphSlideExperiment();)
+DEF_SLIDE(return new ParagraphSlideGlyphs();)
 DEF_SLIDE(return new ParagraphSlideLast();)

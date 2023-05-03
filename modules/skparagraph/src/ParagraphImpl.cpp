@@ -1,8 +1,8 @@
 // Copyright 2019 Google LLC.
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
@@ -20,6 +20,8 @@
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/base/SkUTF.h"
+#include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTextBlobPriv.h"
 #include <math.h>
 #include <algorithm>
 #include <utility>
@@ -1269,6 +1271,181 @@ std::vector<Paragraph::FontInfo> ParagraphImpl::getFonts() const {
         results.emplace_back(run.font(), run.textRange());
     }
     return results;
+}
+
+void ParagraphImpl::extendedVisit(const ExtendedVisitor& visitor) {
+    int lineNumber = 0;
+    for (auto& line : fLines) {
+        line.iterateThroughVisualRuns(
+            false,
+            [&](const Run* run,
+                SkScalar runOffsetInLine,
+                TextRange textRange,
+                SkScalar* runWidthInLine) {
+                *runWidthInLine = line.iterateThroughSingleRunByStyles(
+                TextLine::TextAdjustment::GlyphCluster,
+                run,
+                runOffsetInLine,
+                textRange,
+                StyleType::kNone,
+                [&](TextRange textRange,
+                    const TextStyle& style,
+                    const TextLine::ClipContext& context) {
+                    SkScalar correctedBaseline = SkScalarFloorToScalar(
+                        line.baseline() + style.getBaselineShift() + 0.5);
+                    SkPoint offset =
+                        SkPoint::Make(line.offset().fX + context.fTextShift,
+                                      line.offset().fY + correctedBaseline);
+                    SkRect rect = context.clip.makeOffset(line.offset());
+                    AutoSTArray<16, SkRect> glyphBounds;
+                    glyphBounds.reset(SkToInt(run->size()));
+                    run->font().getBounds(run->glyphs().data(),
+                                          SkToInt(run->size()),
+                                          glyphBounds.data(),
+                                          nullptr);
+                    STArray<128, uint32_t> clusterStorage;
+                    const uint32_t* clusterPtr = run->clusterIndexes().data();
+                    if (run->fClusterStart > 0) {
+                        clusterStorage.reset(context.size);
+                        for (size_t i = 0; i < context.size; ++i) {
+                          clusterStorage[i] =
+                              run->fClusterStart + run->fClusterIndexes[i];
+                        }
+                        clusterPtr = &clusterStorage[0];
+                    }
+                    const Paragraph::ExtendedVisitorInfo info = {
+                        run->font(),
+                        offset,
+                        SkSize::Make(rect.width(), rect.height()),
+                        SkToS16(context.size),
+                        &run->glyphs()[context.pos],
+                        &run->fPositions[context.pos],
+                        &glyphBounds[context.pos],
+                        clusterPtr,
+                        0,  // flags
+                    };
+                    visitor(lineNumber, &info);
+                });
+            return true;
+            });
+        visitor(lineNumber, nullptr);   // signal end of line
+        lineNumber += 1;
+    }
+}
+
+int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
+    int notConverted = 0;
+    auto& line = fLines[lineNumber];
+    line.iterateThroughVisualRuns(
+              false,
+              [&](const Run* run,
+                  SkScalar runOffsetInLine,
+                  TextRange textRange,
+                  SkScalar* runWidthInLine) {
+          *runWidthInLine = line.iterateThroughSingleRunByStyles(
+          TextLine::TextAdjustment::GlyphCluster,
+          run,
+          runOffsetInLine,
+          textRange,
+          StyleType::kNone,
+          [&](TextRange textRange,
+              const TextStyle& style,
+              const TextLine::ClipContext& context) {
+              const SkFont& font = run->font();
+              SkScalar correctedBaseline = SkScalarFloorToScalar(
+                line.baseline() + style.getBaselineShift() + 0.5);
+              SkPoint offset =
+                  SkPoint::Make(line.offset().fX + context.fTextShift,
+                                line.offset().fY + correctedBaseline);
+              SkRect rect = context.clip.makeOffset(offset);
+              struct Rec {
+                  SkPath* fPath;
+                  SkPoint fOffset;
+                  const SkPoint* fPos;
+                  int fNotConverted;
+              } rec =
+                  {dest, SkPoint::Make(rect.left(), rect.top()),
+                   &run->positions()[context.pos], 0};
+              font.getPaths(&run->glyphs()[context.pos], context.size,
+                    [](const SkPath* path, const SkMatrix& mx, void* ctx) {
+                        Rec* rec = reinterpret_cast<Rec*>(ctx);
+                        if (path) {
+                            SkMatrix total = mx;
+                            total.postTranslate(rec->fPos->fX + rec->fOffset.fX,
+                                                rec->fPos->fY + rec->fOffset.fY);
+                            rec->fPath->addPath(*path, total);
+                        } else {
+                            rec->fNotConverted++;
+                        }
+                        rec->fPos += 1; // move to the next glyph's position
+                    }, &rec);
+              notConverted += rec.fNotConverted;
+          });
+        return true;
+    });
+
+    return notConverted;
+}
+
+SkPath Paragraph::GetPath(SkTextBlob* textBlob) {
+    SkPath path;
+    SkTextBlobRunIterator iter(textBlob);
+    while (!iter.done()) {
+        SkFont font = iter.font();
+        struct Rec { SkPath* fDst; SkPoint fOffset; const SkPoint* fPos; } rec =
+            {&path, {textBlob->bounds().left(), textBlob->bounds().top()},
+             iter.points()};
+        font.getPaths(iter.glyphs(), iter.glyphCount(),
+            [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+                Rec* rec = (Rec*)ctx;
+                if (src) {
+                    SkMatrix tmp(mx);
+                    tmp.postTranslate(rec->fPos->fX - rec->fOffset.fX,
+                                      rec->fPos->fY - rec->fOffset.fY);
+                    rec->fDst->addPath(*src, tmp);
+                }
+                rec->fPos += 1;
+            },
+            &rec);
+        iter.next();
+    }
+    return path;
+}
+
+bool ParagraphImpl::containsEmoji(SkTextBlob* textBlob) {
+    bool result = false;
+    SkTextBlobRunIterator iter(textBlob);
+    while (!iter.done() && !result) {
+        // Walk through all the text by codepoints
+        this->getUnicode()->forEachCodepoint(iter.text(), iter.textSize(),
+           [&](SkUnichar unichar, int32_t start, int32_t end, int32_t count) {
+                if (this->getUnicode()->SkUnicode::isEmoji(unichar)) {
+                    result = true;
+                }
+            });
+        iter.next();
+    }
+    return result;
+}
+
+bool ParagraphImpl::containsColorFontOrBitmap(SkTextBlob* textBlob) {
+    SkTextBlobRunIterator iter(textBlob);
+    while (!iter.done()) {
+        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(iter.font());
+        SkBulkGlyphMetricsAndPaths paths{strikeSpec};
+        auto span = SkSpan<const SkGlyphID>((const SkGlyphID*) iter.glyphs(),
+                                             iter.glyphCount());
+        for (const SkGlyph* glyph : paths.glyphs(span)) {
+            if (glyph == nullptr) {
+                // Bitmap
+                return true;
+            } else if (glyph->isColor()) {
+                return true;
+            }
+        }
+        iter.next();
+    }
+    return false;
 }
 
 }  // namespace textlayout
