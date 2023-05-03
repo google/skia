@@ -133,22 +133,31 @@ private:
 class SlotManager final : public SkRefCnt {
 
 public:
-    SlotManager();
+    SlotManager(const SkString);
 
     void setColorSlot(std::string, SkColor);
     void setOpacitySlot(std::string, SkScalar);
     void setTextStringSlot(std::string, SkString);
     void setImageSlot(std::string, sk_sp<skresources::ImageAsset>);
 
-    sk_sp<skresources::ResourceProvider> getResourceProvider();
-    sk_sp<skottie::PropertyObserver>     getPropertyObserver();
+    struct SlotInfo {
+        std::string slotID;
+        int type;
+    };
+
+    const std::vector<SlotInfo>&         getSlotInfo() const { return fSlotInfos; }
+    sk_sp<skresources::ResourceProvider> getResourceProvider() const;
+    sk_sp<skottie::PropertyObserver>     getPropertyObserver() const;
 
 private:
     class SlottableResourceProvider;
     class SlottablePropertyObserver;
 
+    std::vector<SlotInfo>            fSlotInfos;
     sk_sp<SlottableResourceProvider> fResourceProvider;
     sk_sp<SlottablePropertyObserver> fPropertyObserver;
+
+    void parseSlotIDsFromFileName(SkString path);
 };
 
 } // namespace skottie_utils

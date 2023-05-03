@@ -247,8 +247,8 @@ private:
 // Holds a pointer to a slot manager and the list of slots for the UI widget to track
 class SkottieSlide::SlotManagerWrapper {
 public:
-    SlotManagerWrapper(sk_sp<skresources::ResourceProvider> rp, SkottieSlide* ss)
-        : fSlotManager(sk_make_sp<skottie_utils::SlotManager>())
+    SlotManagerWrapper(sk_sp<skresources::ResourceProvider> rp, SkString path, SkottieSlide* ss)
+        : fSlotManager(sk_make_sp<skottie_utils::SlotManager>(path))
         , fResourceProvider(std::move(rp))
         , fSkottieSlide(ss)
     {}
@@ -260,38 +260,25 @@ public:
             for (size_t i = 0; i < fColorSlots.size(); i++) {
                 auto& cSlot = fColorSlots.at(i);
                 ImGui::PushID(i);
-                ImGui::InputText("ColorSlotID", cSlot.first.data(), cSlot.first.size());
+                ImGui::Text("%s", cSlot.first.c_str());
                 ImGui::ColorEdit4("Color", cSlot.second.data());
                 ImGui::PopID();
-            }
-            if(ImGui::Button("+ Color")) {
-                std::array<char, kBufferLen> s = {'\0'};
-                fColorSlots.push_back(std::make_pair(s, std::array{1.0f, 1.0f, 1.0f, 1.0f}));
             }
             ImGui::Text("Opacity Slots");
             for (size_t i = 0; i < fOpacitySlots.size(); i++) {
                 auto& oSlot = fOpacitySlots.at(i);
                 ImGui::PushID(i);
-                ImGui::InputText("OpacitySlotID", oSlot.first.data(), oSlot.first.size());
+                ImGui::Text("%s", oSlot.first.c_str());
                 ImGui::InputFloat("Opacity", &(oSlot.second));
                 ImGui::PopID();
-            }
-            if(ImGui::Button("+ Opacity")) {
-                std::array<char, kBufferLen> s = {'\0'};
-                fOpacitySlots.push_back(std::make_pair(s, 0.0f));
             }
             ImGui::Text("Text Slots");
             for (size_t i = 0; i < fTextStringSlots.size(); i++) {
                 auto& tSlot = fTextStringSlots.at(i);
                 ImGui::PushID(i);
-                ImGui::InputText("TextSlotID", tSlot.first.data(), tSlot.first.size());
+                ImGui::Text("%s", tSlot.first.c_str());
                 ImGui::InputText("Text", tSlot.second.data(), tSlot.second.size());
                 ImGui::PopID();
-            }
-            if (ImGui::Button("+ Text")) {
-                std::array<char, kBufferLen> s = {'\0'};
-                std::array<char, kBufferLen> t = {'\0'};
-                fTextStringSlots.push_back(std::make_pair(s, t));
             }
 
             ImGui::Text("Image Slots");
@@ -350,6 +337,29 @@ public:
         }
     }
 
+    void initializeSlotManagerUI() {
+        // only initialize if slots are unpopulated
+        if (fColorSlots.empty() && fOpacitySlots.empty() && fTextStringSlots.empty()) {
+            auto slotInfos = fSlotManager->getSlotInfo();
+            for (const skottie_utils::SlotManager::SlotInfo &slotInfo : slotInfos) {
+                switch (slotInfo.type) {
+                case 1: // color
+                    addColorSlot(slotInfo.slotID);
+                    break;
+                case 4: // opacity
+                    addOpacitySlot(slotInfo.slotID);
+                    break;
+                case 99: // text
+                    addTextSlot(slotInfo.slotID);
+                    break;
+                default:
+                    SkDebugf("Unknown slot type: %s: %d\n", slotInfo.slotID.c_str(), slotInfo.type);
+                    break;
+                }
+            }
+        }
+    }
+
     sk_sp<skresources::ResourceProvider> getResourceProvider() {
         return fSlotManager->getResourceProvider();
     }
@@ -368,10 +378,23 @@ private:
 
     using GuiTextBuffer = std::array<char, kBufferLen>;
 
-    std::vector<std::pair<GuiTextBuffer, std::array<float, 4>>>   fColorSlots;
-    std::vector<std::pair<GuiTextBuffer, float>>                  fOpacitySlots;
-    std::vector<std::pair<GuiTextBuffer, GuiTextBuffer>>          fTextStringSlots;
-    std::vector<std::pair<GuiTextBuffer, std::string>>            fImageSlots;
+    void addColorSlot(std::string slotID) {
+        fColorSlots.push_back(std::make_pair(slotID, std::array{1.0f, 1.0f, 1.0f, 1.0f}));
+    }
+
+    void addOpacitySlot(std::string slotID) {
+        fOpacitySlots.push_back(std::make_pair(slotID, 100.0f));
+    }
+
+    void addTextSlot(std::string slotID) {
+        std::array<char, kBufferLen> textSource = {'\0'};
+        fTextStringSlots.push_back(std::make_pair(slotID, textSource));
+    }
+
+    std::vector<std::pair<std::string, std::array<float, 4>>> fColorSlots;
+    std::vector<std::pair<std::string, float>>                fOpacitySlots;
+    std::vector<std::pair<std::string, GuiTextBuffer>>        fTextStringSlots;
+    std::vector<std::pair<GuiTextBuffer, std::string>>        fImageSlots;
 
 };
 
@@ -472,9 +495,8 @@ void SkottieSlide::init() {
     auto text_tracker = sk_make_sp<TextTracker>(fTransformTracker);
 
     if (!fSlotManagerWrapper) {
-        fSlotManagerWrapper = std::make_unique<SlotManagerWrapper>(resource_provider, this);
+        fSlotManagerWrapper = std::make_unique<SlotManagerWrapper>(resource_provider, fPath, this);
     }
-    fSlotManagerWrapper->prepareImageAssetList(GetResourcePath("skottie/images").c_str());
 
     builder.setLogger(logger)
            .setPrecompInterceptor(std::move(precomp_interceptor));
@@ -489,6 +511,9 @@ void SkottieSlide::init() {
     fAnimation = builder.makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
     fTimeBase       = 0; // force a time reset
+
+    fSlotManagerWrapper->prepareImageAssetList(GetResourcePath("skottie/images").c_str());
+    fSlotManagerWrapper->initializeSlotManagerUI();
 
     if (fAnimation) {
         fAnimation->seek(0);

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "modules/skottie/src/SkottieJson.h"
+
 #include "modules/skottie/utils/SkottieUtils.h"
 
 namespace skottie_utils {
@@ -324,12 +326,30 @@ private:
     friend class SlotManager;
 };
 
-SlotManager::SlotManager() {
+SlotManager::SlotManager(const SkString path) {
+    parseSlotIDsFromFileName(path);
     fResourceProvider = sk_make_sp<SlottableResourceProvider>();
     fPropertyObserver = sk_make_sp<SlottablePropertyObserver>();
 }
 
-// TODO: consider having a generic setSlotMethod that is overloaded by PropertyValue type
+// TODO: replace with parse from SkData (grab SkData from filename instead)
+void SlotManager::parseSlotIDsFromFileName(SkString path) {
+    if (const auto data = SkData::MakeFromFileName(path.c_str())) {
+        const skjson::DOM dom(static_cast<const char*>(data->data()), data->size());
+        if (dom.root().is<skjson::ObjectValue>()) {
+            const auto& json = dom.root().as<skjson::ObjectValue>();
+            if (const skjson::ObjectValue* jslots = json["slots"]) {
+                for (const auto& member : *jslots) {
+                    auto slotID = member.fKey.begin();
+                    const skjson::ObjectValue* jslot = member.fValue;
+                    int type = skottie::ParseDefault<int>((*jslot)["t"], -1);
+                    fSlotInfos.push_back({slotID, type});
+                }
+            }
+        }
+    }
+}
+
 void SlotManager::setColorSlot(std::string slotID, SkColor color) {
     fPropertyObserver->fColorMap[slotID] = color;
 }
@@ -346,11 +366,11 @@ void SlotManager::setImageSlot(std::string slotID, sk_sp<skresources::ImageAsset
     fResourceProvider->fImageAssetMap[slotID] = std::move(img);
 }
 
-sk_sp<skresources::ResourceProvider> SlotManager::getResourceProvider() {
+sk_sp<skresources::ResourceProvider> SlotManager::getResourceProvider() const {
     return fResourceProvider;
 }
 
-sk_sp<skottie::PropertyObserver> SlotManager::getPropertyObserver() {
+sk_sp<skottie::PropertyObserver> SlotManager::getPropertyObserver() const {
     return fPropertyObserver;
 }
 
