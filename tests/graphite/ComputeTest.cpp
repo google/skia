@@ -1550,8 +1550,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal, reporter, c
                     }
                 }
             )";
-            return {SkSpan(reinterpret_cast<const uint8_t*>(kSource.data()), kSource.length()),
-                    "atomicCount"};
+            return {kSource, "atomicCount"};
         }
 
         size_t calculateBufferSize(const DrawParams&,
@@ -1681,8 +1680,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal, reporter, 
                     }
                 }
             )";
-            return {SkSpan(reinterpret_cast<const uint8_t*>(kSource.data()), kSource.length()),
-                    "atomicCount"};
+            return {kSource, "atomicCount"};
         }
 
         size_t calculateBufferSize(const DrawParams&,

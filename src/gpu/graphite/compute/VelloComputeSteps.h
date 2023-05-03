@@ -172,8 +172,7 @@ std::string_view VelloStageName(vello_cpp::ShaderStage);
 WorkgroupSize VelloStageLocalSize(vello_cpp::ShaderStage);
 skia_private::TArray<ComputeStep::WorkgroupBufferDesc> VelloWorkgroupBuffers(
         vello_cpp::ShaderStage);
-SkSpan<const uint8_t> VelloNativeShaderSource(vello_cpp::ShaderStage,
-                                              ComputeStep::NativeShaderFormat);
+std::string_view VelloNativeShaderSource(vello_cpp::ShaderStage, ComputeStep::NativeShaderFormat);
 
 template <vello_cpp::ShaderStage S>
 class VelloStep : public ComputeStep {

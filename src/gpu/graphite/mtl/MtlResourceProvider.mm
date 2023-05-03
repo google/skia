@@ -178,11 +178,11 @@ sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
     if (pipelineDesc.computeStep()->supportsNativeShader()) {
         auto nativeShader = pipelineDesc.computeStep()->nativeShaderSource(
                 ComputeStep::NativeShaderFormat::kMSL);
-        library =
-                MtlCompileShaderLibrary(this->mtlSharedContext(),
-                                        {reinterpret_cast<const char*>(nativeShader.fSource.data()),
-                                         nativeShader.fSource.size()},
-                                        errorHandler);
+        library = MtlCompileShaderLibrary(
+                this->mtlSharedContext(), nativeShader.fSource, errorHandler);
+        if (library == nil) {
+            return nullptr;
+        }
         entryPointName = std::move(nativeShader.fEntryPoint);
     } else {
         std::string msl;

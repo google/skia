@@ -7,7 +7,7 @@ use crate::ffi;
 use {
     peniko::{kurbo::Affine, Brush, Color, Mix},
     std::pin::Pin,
-    vello_encoding::{Encoding as VelloEncoding, RenderConfig, Resolver, Transform},
+    vello_encoding::{Encoding as VelloEncoding, RenderConfig, Transform},
 };
 
 pub(crate) struct Encoding {
@@ -87,8 +87,7 @@ impl Encoding {
         background: &ffi::Color,
     ) -> Box<RenderConfiguration> {
         let mut packed_scene = Vec::new();
-        let mut resolver = Resolver::new();
-        let (layout, _ramps, _images) = resolver.resolve(&self.encoding, &mut packed_scene);
+        let layout = vello_encoding::resolve_solid_paths_only(&self.encoding, &mut packed_scene);
         let config = RenderConfig::new(&layout, width, height, &background.into());
         Box::new(RenderConfiguration {
             packed_scene,

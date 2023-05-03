@@ -157,7 +157,7 @@ public:
         kMSL,
     };
     struct NativeShaderSource {
-        SkSpan<const uint8_t> fSource;
+        std::string_view fSource;
         std::string fEntryPoint;
     };
     virtual NativeShaderSource nativeShaderSource(NativeShaderFormat) const;

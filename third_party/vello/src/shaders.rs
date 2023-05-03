@@ -6,75 +6,91 @@
 use crate::ffi;
 use vello_shaders::{BindType, WorkgroupBufferInfo};
 
-pub(crate) struct Shaders(&'static vello_shaders::Shaders<'static>);
+pub(crate) struct Shader(&'static vello_shaders::ComputeShader<'static>);
 
-macro_rules! match_stage_field {
-    ($shaders:ident, $stage:ident, $field:tt) => {
-        match $stage {
-            ffi::ShaderStage::Backdrop => &$shaders.0.backdrop.$field,
-            ffi::ShaderStage::BackdropDyn => &$shaders.0.backdrop_dyn.$field,
-            ffi::ShaderStage::BboxClear => &$shaders.0.bbox_clear.$field,
-            ffi::ShaderStage::Binning => &$shaders.0.binning.$field,
-            ffi::ShaderStage::ClipLeaf => &$shaders.0.clip_leaf.$field,
-            ffi::ShaderStage::ClipReduce => &$shaders.0.clip_reduce.$field,
-            ffi::ShaderStage::Coarse => &$shaders.0.coarse.$field,
-            ffi::ShaderStage::DrawLeaf => &$shaders.0.draw_leaf.$field,
-            ffi::ShaderStage::DrawReduce => &$shaders.0.draw_reduce.$field,
-            ffi::ShaderStage::Fine => &$shaders.0.fine.$field,
-            ffi::ShaderStage::PathCoarse => &$shaders.0.path_coarse.$field,
-            ffi::ShaderStage::PathCoarseFull => &$shaders.0.path_coarse_full.$field,
-            ffi::ShaderStage::Pathseg => &$shaders.0.pathseg.$field,
-            ffi::ShaderStage::PathtagReduce => &$shaders.0.pathtag_reduce.$field,
-            ffi::ShaderStage::PathtagReduce2 => &$shaders.0.pathtag_reduce2.$field,
-            ffi::ShaderStage::PathtagScan1 => &$shaders.0.pathtag_scan1.$field,
-            ffi::ShaderStage::PathtagScanLarge => &$shaders.0.pathtag_scan_large.$field,
-            ffi::ShaderStage::PathtagScanSmall => &$shaders.0.pathtag_scan_small.$field,
-            ffi::ShaderStage::TileAlloc => &$shaders.0.tile_alloc.$field,
-            _ => unreachable!(),
-        }
-    };
-}
-
-impl Shaders {
-    pub fn name(&self, stage: ffi::ShaderStage) -> &str {
-        match_stage_field!(self, stage, name)
+impl Shader {
+    pub fn name(&self) -> &str {
+        &self.0.name
     }
 
-    pub fn code(&self, stage: ffi::ShaderStage) -> &[u8] {
-        match_stage_field!(self, stage, code)
+    pub fn workgroup_size(&self) -> ffi::WorkgroupSize {
+        self.0.workgroup_size.into()
     }
 
-    pub fn workgroup_size(&self, stage: ffi::ShaderStage) -> ffi::WorkgroupSize {
-        match_stage_field!(self, stage, workgroup_size).into()
-    }
-
-    pub fn bindings(&self, stage: ffi::ShaderStage) -> Vec<ffi::BindType> {
-        match_stage_field!(self, stage, bindings)
+    pub fn bindings(&self) -> Vec<ffi::BindType> {
+        self.0.bindings
             .iter()
             .map(|t| t.into())
             .collect()
     }
 
-    pub fn workgroup_buffers(
-        self: &Shaders,
-        stage: ffi::ShaderStage,
-    ) -> Vec<ffi::WorkgroupBufferInfo> {
-        match_stage_field!(self, stage, workgroup_buffers)
+    pub fn workgroup_buffers(&self) -> Vec<ffi::WorkgroupBufferInfo> {
+        self.0.workgroup_buffers
             .iter()
             .map(|t| t.into())
             .collect()
     }
+
+    #[cfg(feature = "wgsl")]
+    pub fn wgsl(&self) -> &str {
+        &self.0.wgsl
+    }
+
+    #[cfg(feature = "msl")]
+    pub fn msl(&self) -> &str {
+        &self.0.msl
+    }
 }
 
-const WGSL_SHADERS: Shaders = Shaders(&vello_shaders::wgsl::SHADERS);
-const MSL_SHADERS: Shaders = Shaders(&vello_shaders::msl::SHADERS);
-
-pub(crate) fn wgsl() -> &'static Shaders {
-    &WGSL_SHADERS
+macro_rules! decl_shader {
+    ($name:ident, $field:tt) => {
+        const $name: Shader = Shader(&vello_shaders::SHADERS.$field);
+    }
 }
 
-pub(crate) fn msl() -> &'static Shaders {
-    &MSL_SHADERS
+decl_shader!(BACKDROP, backdrop);
+decl_shader!(BACKDROP_DYN, backdrop_dyn);
+decl_shader!(BBOX_CLEAR, bbox_clear);
+decl_shader!(BINNING, binning);
+decl_shader!(CLIP_LEAF, clip_leaf);
+decl_shader!(CLIP_REDUCE, clip_reduce);
+decl_shader!(COARSE, coarse);
+decl_shader!(DRAW_LEAF, draw_leaf);
+decl_shader!(DRAW_REDUCE, draw_reduce);
+decl_shader!(FINE, fine);
+decl_shader!(PATH_COARSE, path_coarse);
+decl_shader!(PATH_COARSE_FULL, path_coarse_full);
+decl_shader!(PATHSEG, pathseg);
+decl_shader!(PATHTAG_REDUCE, pathtag_reduce);
+decl_shader!(PATHTAG_REDUCE2, pathtag_reduce2);
+decl_shader!(PATHTAG_SCAN1, pathtag_scan1);
+decl_shader!(PATHTAG_SCAN_LARGE, pathtag_scan_large);
+decl_shader!(PATHTAG_SCAN_SMALL, pathtag_scan_small);
+decl_shader!(TILE_ALLOC, tile_alloc);
+
+pub(crate) fn shader(stage: ffi::ShaderStage) -> &'static Shader {
+    match stage {
+        ffi::ShaderStage::Backdrop => &BACKDROP,
+        ffi::ShaderStage::BackdropDyn => &BACKDROP_DYN,
+        ffi::ShaderStage::BboxClear => &BBOX_CLEAR,
+        ffi::ShaderStage::Binning => &BINNING,
+        ffi::ShaderStage::ClipLeaf => &CLIP_LEAF,
+        ffi::ShaderStage::ClipReduce => &CLIP_REDUCE,
+        ffi::ShaderStage::Coarse => &COARSE,
+        ffi::ShaderStage::DrawLeaf => &DRAW_LEAF,
+        ffi::ShaderStage::DrawReduce => &DRAW_REDUCE,
+        ffi::ShaderStage::Fine => &FINE,
+        ffi::ShaderStage::PathCoarse => &PATH_COARSE,
+        ffi::ShaderStage::PathCoarseFull => &PATH_COARSE_FULL,
+        ffi::ShaderStage::Pathseg => &PATHSEG,
+        ffi::ShaderStage::PathtagReduce => &PATHTAG_REDUCE,
+        ffi::ShaderStage::PathtagReduce2 => &PATHTAG_REDUCE2,
+        ffi::ShaderStage::PathtagScan1 => &PATHTAG_SCAN1,
+        ffi::ShaderStage::PathtagScanLarge => &PATHTAG_SCAN_LARGE,
+        ffi::ShaderStage::PathtagScanSmall => &PATHTAG_SCAN_SMALL,
+        ffi::ShaderStage::TileAlloc => &TILE_ALLOC,
+        _ => unreachable!(),
+    }
 }
 
 impl From<&BindType> for ffi::BindType {
@@ -98,8 +114,8 @@ impl From<&WorkgroupBufferInfo> for ffi::WorkgroupBufferInfo {
     }
 }
 
-impl From<&[u32; 3]> for ffi::WorkgroupSize {
-    fn from(src: &[u32; 3]) -> Self {
+impl From<[u32; 3]> for ffi::WorkgroupSize {
+    fn from(src: [u32; 3]) -> Self {
         Self {
             x: src[0],
             y: src[1],

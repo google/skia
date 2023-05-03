@@ -10,18 +10,18 @@
 namespace skgpu::graphite {
 
 std::string_view VelloStageName(vello_cpp::ShaderStage stage) {
-    auto name = vello_cpp::wgsl().name(stage);
+    auto name = vello_cpp::shader(stage).name();
     return {name.data(), name.length()};
 }
 
 WorkgroupSize VelloStageLocalSize(vello_cpp::ShaderStage stage) {
-    auto wgSize = vello_cpp::wgsl().workgroup_size(stage);
+    auto wgSize = vello_cpp::shader(stage).workgroup_size();
     return WorkgroupSize(wgSize.x, wgSize.y, wgSize.z);
 }
 
 skia_private::TArray<ComputeStep::WorkgroupBufferDesc> VelloWorkgroupBuffers(
         vello_cpp::ShaderStage stage) {
-    auto wgBuffers = vello_cpp::wgsl().workgroup_buffers(stage);
+    auto wgBuffers = vello_cpp::shader(stage).workgroup_buffers();
     skia_private::TArray<ComputeStep::WorkgroupBufferDesc> result;
     if (!wgBuffers.empty()) {
         result.reserve(wgBuffers.size());
@@ -32,21 +32,28 @@ skia_private::TArray<ComputeStep::WorkgroupBufferDesc> VelloWorkgroupBuffers(
     return result;
 }
 
-SkSpan<const uint8_t> VelloNativeShaderSource(vello_cpp::ShaderStage stage,
-                                              ComputeStep::NativeShaderFormat format) {
+std::string_view VelloNativeShaderSource(vello_cpp::ShaderStage stage,
+                                         ComputeStep::NativeShaderFormat format) {
     using NativeFormat = ComputeStep::NativeShaderFormat;
 
-    ::rust::Slice<std::uint8_t const> bytes;
+    const auto& shader = vello_cpp::shader(stage);
+    ::rust::Str source;
     switch (format) {
+#ifdef SK_DAWN
         case NativeFormat::kWGSL:
-            bytes = vello_cpp::wgsl().code(stage);
+            source = shader.wgsl();
             break;
+#endif
+#ifdef SK_METAL
         case NativeFormat::kMSL:
-            bytes = vello_cpp::msl().code(stage);
+            source = shader.msl();
             break;
+#endif
+        default:
+            return std::string_view();
     }
 
-    return {bytes.data(), bytes.size()};
+    return {source.data(), source.length()};
 }
 
 // PathtagReduce
