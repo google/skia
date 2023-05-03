@@ -108,6 +108,8 @@ namespace SkSL::RP {
     case BuilderOp::mul_imm_int:         \
     case BuilderOp::bitwise_and_imm_int: \
     case BuilderOp::bitwise_xor_imm_int: \
+    case BuilderOp::min_imm_float:       \
+    case BuilderOp::max_imm_float:       \
     case BuilderOp::cmple_imm_float:     \
     case BuilderOp::cmple_imm_int:       \
     case BuilderOp::cmple_imm_uint:      \
@@ -2771,6 +2773,8 @@ void Program::dump(SkWStream* out) const {
             case POp::cmplt_imm_float:
             case POp::cmpeq_imm_float:
             case POp::cmpne_imm_float:
+            case POp::min_imm_float:
+            case POp::max_imm_float:
                 std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 1);
                 break;
 
@@ -3366,19 +3370,21 @@ void Program::dump(SkWStream* out) const {
                 opText = opArg1 + " = mod(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case POp::min_float:    case POp::min_int:    case POp::min_uint:
-            case POp::min_2_floats: case POp::min_2_ints: case POp::min_2_uints:
-            case POp::min_3_floats: case POp::min_3_ints: case POp::min_3_uints:
-            case POp::min_4_floats: case POp::min_4_ints: case POp::min_4_uints:
-            case POp::min_n_floats: case POp::min_n_ints: case POp::min_n_uints:
+            case POp::min_float:        case POp::min_int:          case POp::min_uint:
+            case POp::min_2_floats:     case POp::min_2_ints:       case POp::min_2_uints:
+            case POp::min_3_floats:     case POp::min_3_ints:       case POp::min_3_uints:
+            case POp::min_4_floats:     case POp::min_4_ints:       case POp::min_4_uints:
+            case POp::min_n_floats:     case POp::min_n_ints:       case POp::min_n_uints:
+            case POp::min_imm_float:
                 opText = opArg1 + " = min(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case POp::max_float:    case POp::max_int:    case POp::max_uint:
-            case POp::max_2_floats: case POp::max_2_ints: case POp::max_2_uints:
-            case POp::max_3_floats: case POp::max_3_ints: case POp::max_3_uints:
-            case POp::max_4_floats: case POp::max_4_ints: case POp::max_4_uints:
-            case POp::max_n_floats: case POp::max_n_ints: case POp::max_n_uints:
+            case POp::max_float:        case POp::max_int:          case POp::max_uint:
+            case POp::max_2_floats:     case POp::max_2_ints:       case POp::max_2_uints:
+            case POp::max_3_floats:     case POp::max_3_ints:       case POp::max_3_uints:
+            case POp::max_4_floats:     case POp::max_4_ints:       case POp::max_4_uints:
+            case POp::max_n_floats:     case POp::max_n_ints:       case POp::max_n_uints:
+            case POp::max_imm_float:
                 opText = opArg1 + " = max(" + opArg1 + ", " + opArg2 + ")";
                 break;
 

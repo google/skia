@@ -4156,7 +4156,6 @@ DECLARE_N_WAY_BINARY_FLOAT(pow)
     STAGE_TAIL(name##_imm_4_ints, SkRasterPipeline_ConstantCtx* packed) {  \
         apply_binary_immediate<4, I32, int32_t, &name##_fn>(packed, base); \
     }
-
 #define DECLARE_IMM_BINARY_UINT(name)                                       \
     STAGE_TAIL(name##_imm_uint, SkRasterPipeline_ConstantCtx* packed) {     \
         apply_binary_immediate<1, U32, uint32_t, &name##_fn>(packed, base); \
@@ -4165,12 +4164,15 @@ DECLARE_N_WAY_BINARY_FLOAT(pow)
 DECLARE_IMM_BINARY_FLOAT(add)   DECLARE_IMM_BINARY_INT(add)
 DECLARE_IMM_BINARY_FLOAT(mul)   DECLARE_IMM_BINARY_INT(mul)
                                 DECLARE_MULTI_IMM_BINARY_INT(bitwise_and)
+                                DECLARE_IMM_BINARY_FLOAT(max)
+                                DECLARE_IMM_BINARY_FLOAT(min)
                                 DECLARE_IMM_BINARY_INT(bitwise_xor)
 DECLARE_IMM_BINARY_FLOAT(cmplt) DECLARE_IMM_BINARY_INT(cmplt) DECLARE_IMM_BINARY_UINT(cmplt)
 DECLARE_IMM_BINARY_FLOAT(cmple) DECLARE_IMM_BINARY_INT(cmple) DECLARE_IMM_BINARY_UINT(cmple)
 DECLARE_IMM_BINARY_FLOAT(cmpeq) DECLARE_IMM_BINARY_INT(cmpeq)
 DECLARE_IMM_BINARY_FLOAT(cmpne) DECLARE_IMM_BINARY_INT(cmpne)
 
+#undef DECLARE_MULTI_IMM_BINARY_INT
 #undef DECLARE_IMM_BINARY_FLOAT
 #undef DECLARE_IMM_BINARY_INT
 #undef DECLARE_IMM_BINARY_UINT

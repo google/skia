@@ -11,8 +11,7 @@ label                          label 0
 copy_4_slots_unmasked          a = $0..3
 splat_4_constants              color = 0x3F800000 (1.0)
 copy_4_slots_unmasked          $0..3 = color
-copy_constant                  $4 = 0x38D1B717 (0.0001)
-max_float                      $3 = max($3, $4)
+max_imm_float                  $3 = max($3, 0x38D1B717 (0.0001))
 swizzle_3                      $3..5 = ($3..5).xxx
 div_3_floats                   $0..2 /= $3..5
 copy_slot_unmasked             $3 = color(3)
