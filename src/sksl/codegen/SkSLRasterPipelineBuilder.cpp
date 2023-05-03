@@ -119,6 +119,9 @@ namespace SkSL::RP {
     case BuilderOp::cmpne_imm_float:     \
     case BuilderOp::cmpne_imm_int
 
+#define ALL_IMMEDIATE_MULTI_SLOT_BINARY_OP_CASES \
+         BuilderOp::bitwise_and_imm_int
+
 #define ALL_N_WAY_TERNARY_OP_CASES       \
          BuilderOp::smoothstep_n_floats
 
@@ -133,12 +136,26 @@ static bool is_immediate_op(BuilderOp op) {
     }
 }
 
+static bool is_multi_slot_immediate_op(BuilderOp op) {
+    switch (op) {
+        case ALL_IMMEDIATE_MULTI_SLOT_BINARY_OP_CASES: return true;
+        default:                                       return false;
+    }
+}
+
 static BuilderOp convert_n_way_op_to_immediate(BuilderOp op, int slots, int32_t* constantValue) {
-    // These immediate ops only support a single slot.
+    // We rely on the exact ordering of SkRP ops here; the immediate-mode op must always come
+    // directly before the n-way op. (If we have more than one, the increasing-slot variations
+    // continue backwards from there.)
+    BuilderOp immOp = (BuilderOp)((int)op - 1);
+
+    // Some immediate ops support multiple slots.
+    if (is_multi_slot_immediate_op(immOp)) {
+        return immOp;
+    }
+
+    // Most immediate ops only support a single slot.
     if (slots == 1) {
-        // This relies on the ordering of SkRP ops; the immediate-mode op must always come directly
-        // before the n-way op.
-        BuilderOp immOp = (BuilderOp)((int)op - 1);
         if (is_immediate_op(immOp)) {
             return immOp;
         }
@@ -266,19 +283,22 @@ bool Builder::simplifyImmediateUnmaskedOp() {
     if (popInstruction.fOp == BuilderOp::copy_stack_to_slots_unmasked) {
         // ... and the prior instruction was an immediate-mode op, with the same number of slots...
         if (is_immediate_op(immInstruction.fOp) && immInstruction.fImmA == popInstruction.fImmA) {
-            // ... and the instruction prior to that was `push_slots` of at least that many slots...
-            if (pushInstruction.fOp == BuilderOp::push_slots &&
-                pushInstruction.fImmA >= popInstruction.fImmA) {
-                // ... onto the same slot range...
-                Slot immSlot = popInstruction.fSlotA + popInstruction.fImmA;
-                Slot pushSlot = pushInstruction.fSlotA + pushInstruction.fImmA;
-                if (immSlot == pushSlot) {
-                    // ... we can shrink the push, eliminate the pop, and perform the immediate op
-                    // in-place instead.
-                    pushInstruction.fImmA -= immInstruction.fImmA;
-                    immInstruction.fSlotA = immSlot - immInstruction.fImmA;
-                    fInstructions.pop_back();
-                    return true;
+            // ... and we support multiple-slot immediates (if this op calls for it)...
+            if (immInstruction.fImmA == 1 || is_multi_slot_immediate_op(immInstruction.fOp)) {
+                // ... and the prior instruction was `push_slots` of at least that many slots...
+                if (pushInstruction.fOp == BuilderOp::push_slots &&
+                    pushInstruction.fImmA >= popInstruction.fImmA) {
+                    // ... onto the same slot range...
+                    Slot immSlot = popInstruction.fSlotA + popInstruction.fImmA;
+                    Slot pushSlot = pushInstruction.fSlotA + pushInstruction.fImmA;
+                    if (immSlot == pushSlot) {
+                        // ... we can shrink the push, eliminate the pop, and perform the immediate
+                        // op in-place instead.
+                        pushInstruction.fImmA -= immInstruction.fImmA;
+                        immInstruction.fSlotA = immSlot - immInstruction.fImmA;
+                        fInstructions.pop_back();
+                        return true;
+                    }
                 }
             }
         }
@@ -1377,15 +1397,35 @@ void Program::appendSingleSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp stage,
 void Program::appendMultiSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp baseStage,
                                      float* dst, int numSlots) const {
     SkASSERT(numSlots >= 0);
-    while (numSlots > 4) {
-        this->appendMultiSlotUnaryOp(pipeline, baseStage, dst, /*numSlots=*/4);
+    while (numSlots > 0) {
+        int currentSlots = std::min(numSlots, 4);
+        auto stage = (ProgramOp)((int)baseStage + currentSlots - 1);
+        pipeline->push_back({stage, dst});
+
         dst += 4 * SkOpts::raster_pipeline_highp_stride;
         numSlots -= 4;
     }
+}
 
-    SkASSERT(numSlots <= 4);
-    auto stage = (ProgramOp)((int)baseStage + numSlots - 1);
-    pipeline->push_back({stage, dst});
+void Program::appendImmediateBinaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
+                                      ProgramOp baseStage,
+                                      SkRPOffset dst, float value, int numSlots) const {
+    SkASSERT(is_immediate_op((BuilderOp)baseStage));
+    SkASSERT(numSlots == 1 || is_multi_slot_immediate_op((BuilderOp)baseStage));
+
+    SkRasterPipeline_ConstantCtx ctx;
+    ctx.dst = dst;
+    ctx.value = value;
+
+    SkASSERT(numSlots >= 0);
+    while (numSlots > 0) {
+        int currentSlots = std::min(numSlots, 4);
+        auto stage = (ProgramOp)((int)baseStage - (currentSlots - 1));
+        pipeline->push_back({stage, SkRPCtxUtils::Pack(ctx, alloc)});
+
+        ctx.dst += 4 * SkOpts::raster_pipeline_highp_stride * sizeof(float);
+        numSlots -= 4;
+    }
 }
 
 void Program::appendAdjacentNWayBinaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
@@ -1727,10 +1767,9 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 float* dst = (inst.fSlotA == NA) ? tempStackPtr - (inst.fImmA * N)
                                                  : SlotA();
 
-                SkRasterPipeline_ConstantCtx ctx;
-                ctx.dst = OffsetFromBase(dst);
-                ctx.value = sk_bit_cast<float>(inst.fImmB);
-                pipeline->push_back({(ProgramOp)inst.fOp, SkRPCtxUtils::Pack(ctx, alloc)});
+                this->appendImmediateBinaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
+                                              OffsetFromBase(dst), sk_bit_cast<float>(inst.fImmB),
+                                              inst.fImmA);
                 break;
             }
             case ALL_N_WAY_BINARY_OP_CASES: {
@@ -2749,14 +2788,17 @@ void Program::dump(SkWStream* out) const {
                 break;
 
             case POp::splat_2_constants:
+            case POp::bitwise_and_imm_2_ints:
                 std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 2);
                 break;
 
             case POp::splat_3_constants:
+            case POp::bitwise_and_imm_3_ints:
                 std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 3);
                 break;
 
             case POp::splat_4_constants:
+            case POp::bitwise_and_imm_4_ints:
                 std::tie(opArg1, opArg2) = ConstantCtx(stage.ctx, 4);
                 break;
 
@@ -3096,6 +3138,9 @@ void Program::dump(SkWStream* out) const {
             case POp::bitwise_and_4_ints:
             case POp::bitwise_and_n_ints:
             case POp::bitwise_and_imm_int:
+            case POp::bitwise_and_imm_2_ints:
+            case POp::bitwise_and_imm_3_ints:
+            case POp::bitwise_and_imm_4_ints:
                 opText = opArg1 + " &= " + opArg2;
                 break;
 

@@ -1,8 +1,7 @@
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                $0..3 = testInputs
-splat_4_constants              $4..7 = 0x7FFFFFFF
-bitwise_and_4_ints             $0..3 &= $4..7
+bitwise_and_imm_4_ints         $0..3 &= 0x7FFFFFFF
 splat_4_constants              $4..7 = 0x42C80000 (100.0)
 mul_4_floats                   $0..3 *= $4..7
 cast_to_uint_from_4_floats     $0..3 = FloatToUint($0..3)

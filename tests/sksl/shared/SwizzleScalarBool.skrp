@@ -19,6 +19,5 @@ copy_slot_unmasked             b4(1) = b
 copy_constant                  b4(2) = 0
 copy_slot_unmasked             b4(3) = b
 copy_4_slots_unmasked          $0..3 = b4
-splat_4_constants              $4..7 = 0x3F800000 (1.0)
-bitwise_and_4_ints             $0..3 &= $4..7
+bitwise_and_imm_4_ints         $0..3 &= 0x3F800000 (1.0)
 load_src                       src.rgba = $0..3

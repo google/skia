@@ -221,12 +221,23 @@ private:
                                  float* dst, int numSlots) const;
 
     // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
-    // an single-slot "apply_op" stage, which must be immediately followed by specializations for
+    // a single-slot "apply_op" stage, which must be immediately followed by specializations for
     // 2-4 slots. For instance, {`ceil_float`, `ceil_2_floats`, `ceil_3_floats`, `ceil_4_floats`}
     // must be contiguous ops in the stage list, listed in that order; pass `ceil_float` and we
     // pick the appropriate op based on `numSlots`.
     void appendMultiSlotUnaryOp(skia_private::TArray<Stage>* pipeline, ProgramOp baseStage,
                                 float* dst, int numSlots) const;
+
+    // Appends an immediate-mode binary operation to the pipeline. `baseStage` must refer to
+    // a single-slot, immediate-mode "apply-imm" stage, which must be immediately preceded by
+    // specializations for 2-4 slots if numSlots is greater than 1. For instance, {`add_imm_4_ints`,
+    // `add_imm_3_ints`, `add_imm_2_ints`, `add_imm_int`} must be contiguous ops in the stage list,
+    // listed in that order; pass `add_imm_int` and we pick the appropriate op based on `numSlots`.
+    // Some immediate-mode binary ops are single-slot only in the interest of code size; in this
+    // case, the multi-slot ops can be absent, but numSlots must be 1.
+    void appendImmediateBinaryOp(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
+                                 ProgramOp baseStage,
+                                 SkRPOffset dst, float value, int numSlots) const;
 
     // Appends a two-input math operation to the pipeline. `src` must be _immediately_ after `dst`
     // in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage. A BinaryOpCtx

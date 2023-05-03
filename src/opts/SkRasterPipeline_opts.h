@@ -3977,13 +3977,16 @@ SI void apply_adjacent_binary_packed(SkRasterPipeline_BinaryOpCtx* packed, std::
     apply_adjacent_binary<T, ApplyFn>(dst, src);
 }
 
-template <typename V, typename S, void (*ApplyFn)(V*, V*)>
+template <int N, typename V, typename S, void (*ApplyFn)(V*, V*)>
 SI void apply_binary_immediate(SkRasterPipeline_ConstantCtx* packed, std::byte* base) {
     auto ctx = SkRPCtxUtils::Unpack(packed);
     V* dst = (V*)(base + ctx.dst);         // get a pointer to the destination
     S scalar = sk_bit_cast<S>(ctx.value);  // bit-pun the constant value as desired
     V src = scalar;                        // broadcast the constant value into a vector
-    ApplyFn(dst, &src);                    // perform the operation
+    for (int index = 0; index < N; ++index) {
+        ApplyFn(dst, &src);                // perform the operation
+        dst += 1;
+    }
 }
 
 template <typename T>
@@ -4134,20 +4137,34 @@ DECLARE_N_WAY_BINARY_FLOAT(pow)
 // Some ops have an optimized version when the right-side is an immediate value.
 #define DECLARE_IMM_BINARY_FLOAT(name)                                   \
     STAGE_TAIL(name##_imm_float, SkRasterPipeline_ConstantCtx* packed) { \
-        apply_binary_immediate<F, float, &name##_fn>(packed, base);      \
+        apply_binary_immediate<1, F, float, &name##_fn>(packed, base);   \
     }
-#define DECLARE_IMM_BINARY_INT(name)                                     \
-    STAGE_TAIL(name##_imm_int, SkRasterPipeline_ConstantCtx* packed) {   \
-        apply_binary_immediate<I32, int32_t, &name##_fn>(packed, base);  \
+#define DECLARE_IMM_BINARY_INT(name)                                       \
+    STAGE_TAIL(name##_imm_int, SkRasterPipeline_ConstantCtx* packed) {     \
+        apply_binary_immediate<1, I32, int32_t, &name##_fn>(packed, base); \
     }
-#define DECLARE_IMM_BINARY_UINT(name)                                    \
-    STAGE_TAIL(name##_imm_uint, SkRasterPipeline_ConstantCtx* packed) {  \
-        apply_binary_immediate<U32, uint32_t, &name##_fn>(packed, base); \
+#define DECLARE_MULTI_IMM_BINARY_INT(name)                                 \
+    STAGE_TAIL(name##_imm_int, SkRasterPipeline_ConstantCtx* packed) {     \
+        apply_binary_immediate<1, I32, int32_t, &name##_fn>(packed, base); \
+    }                                                                      \
+    STAGE_TAIL(name##_imm_2_ints, SkRasterPipeline_ConstantCtx* packed) {  \
+        apply_binary_immediate<2, I32, int32_t, &name##_fn>(packed, base); \
+    }                                                                      \
+    STAGE_TAIL(name##_imm_3_ints, SkRasterPipeline_ConstantCtx* packed) {  \
+        apply_binary_immediate<3, I32, int32_t, &name##_fn>(packed, base); \
+    }                                                                      \
+    STAGE_TAIL(name##_imm_4_ints, SkRasterPipeline_ConstantCtx* packed) {  \
+        apply_binary_immediate<4, I32, int32_t, &name##_fn>(packed, base); \
+    }
+
+#define DECLARE_IMM_BINARY_UINT(name)                                       \
+    STAGE_TAIL(name##_imm_uint, SkRasterPipeline_ConstantCtx* packed) {     \
+        apply_binary_immediate<1, U32, uint32_t, &name##_fn>(packed, base); \
     }
 
 DECLARE_IMM_BINARY_FLOAT(add)   DECLARE_IMM_BINARY_INT(add)
 DECLARE_IMM_BINARY_FLOAT(mul)   DECLARE_IMM_BINARY_INT(mul)
-                                DECLARE_IMM_BINARY_INT(bitwise_and)
+                                DECLARE_MULTI_IMM_BINARY_INT(bitwise_and)
                                 DECLARE_IMM_BINARY_INT(bitwise_xor)
 DECLARE_IMM_BINARY_FLOAT(cmplt) DECLARE_IMM_BINARY_INT(cmplt) DECLARE_IMM_BINARY_UINT(cmplt)
 DECLARE_IMM_BINARY_FLOAT(cmple) DECLARE_IMM_BINARY_INT(cmple) DECLARE_IMM_BINARY_UINT(cmple)
