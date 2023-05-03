@@ -2960,8 +2960,9 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             if (!this->pushExpression(arg0)) {
                 return unsupported();
             }
-            // The intrinsics accept a three-component value; add alpha for the push/pop_src_rgba.
-            fBuilder.push_constant_f(1.0f);
+            // The intrinsics accept a three-component value; add a fourth padding element (which
+            // will be ignored) to balance out push/pop_src_rgba.
+            fBuilder.pad_stack(1);
 
             // The src.rgba fields hold our execution masks, but are also used to pass colors and
             // coordinates to the color transform function. This swap will move the color on the
