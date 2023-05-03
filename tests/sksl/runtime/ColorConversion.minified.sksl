@@ -1,0 +1,1 @@
+uniform shader child;half4 main(float2 a){half4 b=child.eval(a);b.xyz=toLinearSrgb(b.xyz);b.zx=b.xz*.75;return half4(fromLinearSrgb(b.xyz),b.w);}

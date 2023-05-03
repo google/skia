@@ -842,6 +842,7 @@ sksl_rte_tests = [
   "runtime/ArrayNarrowingConversions.rts",
   "runtime/Blend.rtb",
   "runtime/ChildEffects.rts",
+  "runtime/ColorConversion.rts",
   "runtime/Commutative.rts",
   "runtime/ConstPreservation.rts",
   "runtime/ConversionConstructors.rts",

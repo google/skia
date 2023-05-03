@@ -1,0 +1,11 @@
+uniform shader child;
+
+half4 main(float2 xy) {
+    half4 color = child.eval(xy);
+    color.rgb = toLinearSrgb(color.rgb);
+
+    // Alter the color so that the back-and-forth conversions are meaningful.
+    color.br = color.rb * 0.75;
+
+    return half4(fromLinearSrgb(color.rgb), color.a);
+}
