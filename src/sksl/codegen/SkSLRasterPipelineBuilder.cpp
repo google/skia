@@ -1582,7 +1582,7 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                 if (!callbacks) {
                     return false;
                 }
-                callbacks->toLinearSrgb();
+                callbacks->toLinearSrgb(stage.ctx);
                 // A ColorSpaceXform shouldn't ever alter the base pointer, so we don't need to call
                 // resetBasePointer here.
                 break;
@@ -1591,7 +1591,7 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
                 if (!callbacks) {
                     return false;
                 }
-                callbacks->fromLinearSrgb();
+                callbacks->fromLinearSrgb(stage.ctx);
                 // A ColorSpaceXform shouldn't ever alter the base pointer, so we don't need to call
                 // resetBasePointer here.
                 break;
@@ -2168,7 +2168,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
             case BuilderOp::invoke_to_linear_srgb:
             case BuilderOp::invoke_from_linear_srgb:
-                pipeline->push_back({(ProgramOp)inst.fOp, nullptr});
+                pipeline->push_back({(ProgramOp)inst.fOp, tempStackMap[inst.fImmA] - (4 * N)});
                 break;
 
             case BuilderOp::trace_line: {
@@ -2748,6 +2748,8 @@ void Program::dump(SkWStream* out) const {
             case POp::store_src:
             case POp::store_dst:
             case POp::store_device_xy01:
+            case POp::invoke_to_linear_srgb:
+            case POp::invoke_from_linear_srgb:
             case POp::cast_to_float_from_4_ints: case POp::cast_to_float_from_4_uints:
             case POp::cast_to_int_from_4_floats: case POp::cast_to_uint_from_4_floats:
             case POp::abs_4_ints:
@@ -3447,11 +3449,11 @@ void Program::dump(SkWStream* out) const {
                 break;
 
             case POp::invoke_to_linear_srgb:
-                opText = "src.rgba = toLinearSrgb(src.rgba)";
+                opText = opArg1 + " = toLinearSrgb(" + opArg1 + ")";
                 break;
 
             case POp::invoke_from_linear_srgb:
-                opText = "src.rgba = fromLinearSrgb(src.rgba)";
+                opText = opArg1 + " = fromLinearSrgb(" + opArg1 + ")";
                 break;
 
             case POp::branch_if_no_active_lanes_eq:

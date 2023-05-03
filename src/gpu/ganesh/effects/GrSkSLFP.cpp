@@ -473,8 +473,8 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
            SkDEBUGFAIL("constant-output-for-constant-input unsupported when child shaders present");
            return false;
         }
-        void toLinearSrgb() override { /* identity color conversion */ }
-        void fromLinearSrgb() override { /* identity color conversion */ }
+        void toLinearSrgb(const void* color) override { /* identity color conversion */ }
+        void fromLinearSrgb(const void* color) override { /* identity color conversion */ }
     };
 
     if (const SkSL::RP::Program* program = fEffect->getRPProgram(/*debugTrace=*/nullptr)) {

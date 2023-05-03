@@ -2954,35 +2954,19 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             return true;
 
         case IntrinsicKind::k_fromLinearSrgb_IntrinsicKind:
-        case IntrinsicKind::k_toLinearSrgb_IntrinsicKind: {
+        case IntrinsicKind::k_toLinearSrgb_IntrinsicKind:
             // The argument must be a half3.
             SkASSERT(arg0.type().matches(*fContext.fTypes.fHalf3));
             if (!this->pushExpression(arg0)) {
                 return unsupported();
             }
-            // The intrinsics accept a three-component value; add a fourth padding element (which
-            // will be ignored) to balance out push/pop_src_rgba.
-            fBuilder.pad_stack(1);
-
-            // The src.rgba fields hold our execution masks, but are also used to pass colors and
-            // coordinates to the color transform function. This swap will move the color on the
-            // stack into src.rgba, and move the execution masks onto the stack instead.
-            fBuilder.exchange_src();
 
             if (intrinsic == IntrinsicKind::k_fromLinearSrgb_IntrinsicKind) {
                 fBuilder.invoke_from_linear_srgb();
             } else {
                 fBuilder.invoke_to_linear_srgb();
             }
-
-            // The xform has left the result color in src.rgba; exchange it with the execution masks
-            // on the top of the stack.
-            fBuilder.exchange_src();
-
-            // The intrinsic returns a three-component value; discard alpha.
-            this->discardExpression(/*slots=*/1);
             return true;
-        }
 
         default:
             break;

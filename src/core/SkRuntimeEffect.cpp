@@ -302,25 +302,39 @@ public:
 
     // TODO: If an effect calls these intrinsics more than once, we could cache and re-use the steps
     // object(s), rather than re-creating them in the arena repeatedly.
-    void toLinearSrgb() override {
-        if (!fStage.fDstCS) {
-            // These intrinsics do nothing when color management is disabled
-            return;
+    void toLinearSrgb(const void* color) override {
+        if (fStage.fDstCS) {
+            SkColorSpaceXformSteps xform{fStage.fDstCS,              kUnpremul_SkAlphaType,
+                                         sk_srgb_linear_singleton(), kUnpremul_SkAlphaType};
+            if (xform.flags.mask()) {
+                // We have a non-identity colorspace transform; apply it.
+                this->applyColorSpaceXform(xform, color);
+            }
         }
-        fStage.fAlloc
-                ->make<SkColorSpaceXformSteps>(fStage.fDstCS,              kUnpremul_SkAlphaType,
-                                               sk_srgb_linear_singleton(), kUnpremul_SkAlphaType)
-                ->apply(fStage.fPipeline);
     }
-    void fromLinearSrgb() override {
-        if (!fStage.fDstCS) {
-            // These intrinsics do nothing when color management is disabled
-            return;
+
+    void fromLinearSrgb(const void* color) override {
+        if (fStage.fDstCS) {
+            SkColorSpaceXformSteps xform{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
+                                         fStage.fDstCS,              kUnpremul_SkAlphaType};
+            if (xform.flags.mask()) {
+                // We have a non-identity colorspace transform; apply it.
+                this->applyColorSpaceXform(xform, color);
+            }
         }
-        fStage.fAlloc
-                ->make<SkColorSpaceXformSteps>(sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
-                                               fStage.fDstCS,              kUnpremul_SkAlphaType)
-                ->apply(fStage.fPipeline);
+    }
+
+private:
+    void applyColorSpaceXform(const SkColorSpaceXformSteps& tempXform, const void* color) {
+        // Copy the transform steps into our alloc.
+        SkColorSpaceXformSteps* xform = fStage.fAlloc->make<SkColorSpaceXformSteps>(tempXform);
+
+        // Put the color into src.rgba (and temporarily stash the execution mask there instead).
+        fStage.fPipeline->append(SkRasterPipelineOp::exchange_src, color);
+        // Add the color space transform to our raster pipeline.
+        xform->apply(fStage.fPipeline);
+        // Restore the execution mask, and move the color back into program data.
+        fStage.fPipeline->append(SkRasterPipelineOp::exchange_src, color);
     }
 
     const SkStageRec& fStage;

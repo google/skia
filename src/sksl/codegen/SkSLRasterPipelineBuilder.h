@@ -154,8 +154,8 @@ public:
     virtual bool appendColorFilter(int index) = 0;
     virtual bool appendBlender(int index) = 0;
 
-    virtual void toLinearSrgb() = 0;
-    virtual void fromLinearSrgb() = 0;
+    virtual void toLinearSrgb(const void* color) = 0;
+    virtual void fromLinearSrgb(const void* color) = 0;
 };
 
 class Program {
@@ -654,11 +654,19 @@ public:
     }
 
     void invoke_to_linear_srgb() {
+        // The intrinsics accept a three-component value; add a fourth padding element (which
+        // will be ignored) since our RP ops deal in RGBA colors.
+        this->pad_stack(1);
         fInstructions.push_back({BuilderOp::invoke_to_linear_srgb, {}});
+        this->discard_stack(1);
     }
 
     void invoke_from_linear_srgb() {
+        // The intrinsics accept a three-component value; add a fourth padding element (which
+        // will be ignored) since our RP ops deal in RGBA colors.
+        this->pad_stack(1);
         fInstructions.push_back({BuilderOp::invoke_from_linear_srgb, {}});
+        this->discard_stack(1);
     }
 
     // Writes the current line number to the debug trace.
