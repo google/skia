@@ -344,12 +344,14 @@ DEF_TEST(SkRasterPipeline_CaseOp, reporter) {
     }
 
     SkRasterPipeline_CaseOpCtx ctx;
-    ctx.ptr = caseOpData;
+    ctx.offset = 0;
     ctx.expectedValue = 2;
 
-    SkRasterPipeline_<256> p;
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
     p.append(SkRasterPipelineOp::load_src, initial);
-    p.append(SkRasterPipelineOp::case_op, &ctx);
+    p.append(SkRasterPipelineOp::set_base_pointer, &caseOpData[0]);
+    p.append(SkRasterPipelineOp::case_op, SkRPCtxUtils::Pack(ctx, &alloc));
     p.append(SkRasterPipelineOp::store_src, src);
     p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
 

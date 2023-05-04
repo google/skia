@@ -3400,10 +3400,12 @@ STAGE_TAIL(continue_op, I32* continueMask) {
     update_execution_mask();
 }
 
-STAGE_TAIL(case_op, SkRasterPipeline_CaseOpCtx* ctx) {
+STAGE_TAIL(case_op, SkRasterPipeline_CaseOpCtx* packed) {
+    auto ctx = SkRPCtxUtils::Unpack(packed);
+
     // Check each lane to see if the case value matches the expectation.
-    I32* actualValue = (I32*)ctx->ptr;
-    I32 caseMatches = cond_to_mask(*actualValue == ctx->expectedValue);
+    I32* actualValue = (I32*)(base + ctx.offset);
+    I32 caseMatches = cond_to_mask(*actualValue == ctx.expectedValue);
 
     // In lanes where we found a match, enable the loop mask...
     g = sk_bit_cast<F>(sk_bit_cast<I32>(g) | caseMatches);

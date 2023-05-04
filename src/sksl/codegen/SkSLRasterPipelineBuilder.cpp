@@ -2142,10 +2142,10 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 break;
             }
             case BuilderOp::case_op: {
-                auto* ctx = alloc->make<SkRasterPipeline_CaseOpCtx>();
-                ctx->ptr = reinterpret_cast<int*>(tempStackPtr - 2 * N);
-                ctx->expectedValue = inst.fImmA;
-                pipeline->push_back({ProgramOp::case_op, ctx});
+                SkRasterPipeline_CaseOpCtx ctx;
+                ctx.expectedValue = inst.fImmA;
+                ctx.offset = OffsetFromBase(tempStackPtr - (2 * N));
+                pipeline->push_back({ProgramOp::case_op, SkRPCtxUtils::Pack(ctx, alloc)});
                 break;
             }
             case BuilderOp::continue_op:
@@ -2624,10 +2624,10 @@ void Program::dump(SkWStream* out) const {
                 break;
 
             case POp::case_op: {
-                const auto* ctx = static_cast<SkRasterPipeline_CaseOpCtx*>(stage.ctx);
-                opArg1 = PtrCtx(ctx->ptr, 1);
-                opArg2 = PtrCtx(ctx->ptr + N, 1);
-                opArg3 = Imm(sk_bit_cast<float>(ctx->expectedValue), /*showAsFloat=*/false);
+                auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_CaseOpCtx*)stage.ctx);
+                opArg1 = OffsetCtx(ctx.offset, 1);
+                opArg2 = OffsetCtx(ctx.offset + sizeof(int32_t) * N, 1);
+                opArg3 = Imm(sk_bit_cast<float>(ctx.expectedValue), /*showAsFloat=*/false);
                 break;
             }
             case POp::swizzle_1:
