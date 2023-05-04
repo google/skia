@@ -1166,7 +1166,7 @@ void ParagraphImpl::visit(const Visitor& visitor) {
 int ParagraphImpl::getLineNumberAt(TextIndex codeUnitIndex) const {
     for (auto i = 0; i < fLines.size(); ++i) {
         auto& line = fLines[i];
-        if (line.text().contains({codeUnitIndex, codeUnitIndex})) {
+        if (line.text().contains({codeUnitIndex, codeUnitIndex + 1})) {
             return i;
         }
     }
