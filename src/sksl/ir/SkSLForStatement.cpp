@@ -89,8 +89,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
                                                  std::unique_ptr<Statement> initializer,
                                                  std::unique_ptr<Expression> test,
                                                  std::unique_ptr<Expression> next,
-                                                 std::unique_ptr<Statement> statement,
-                                                 std::shared_ptr<SymbolTable> symbolTable) {
+                                                 std::unique_ptr<Statement> statement) {
     bool isSimpleInitializer = is_simple_initializer(initializer.get());
     bool isVardeclBlockInitializer =
             !isSimpleInitializer && is_vardecl_block_initializer(initializer.get());
@@ -145,24 +144,24 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
                                            std::move(test), std::move(next), std::move(statement),
                                            std::move(unrollInfo), /*symbolTable=*/nullptr));
         return Block::Make(pos, std::move(scope), Block::Kind::kBracedScope,
-                           std::move(symbolTable));
+                           context.fSymbolTable);
     }
 
     return ForStatement::Make(context, pos, positions, std::move(initializer), std::move(test),
                               std::move(next), std::move(statement), std::move(unrollInfo),
-                              std::move(symbolTable));
+                              context.fSymbolTable);
 }
 
-std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context, Position pos,
+std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context,
+                                                      Position pos,
                                                       std::unique_ptr<Expression> test,
-                                                      std::unique_ptr<Statement> statement,
-                                                      std::shared_ptr<SymbolTable> symbolTable) {
+                                                      std::unique_ptr<Statement> statement) {
     if (context.fConfig->strictES2Mode()) {
         context.fErrors->error(pos, "while loops are not supported");
         return nullptr;
     }
     return ForStatement::Convert(context, pos, ForLoopPositions(), /*initializer=*/nullptr,
-            std::move(test), /*next=*/nullptr, std::move(statement), std::move(symbolTable));
+                                 std::move(test), /*next=*/nullptr, std::move(statement));
 }
 
 std::unique_ptr<Statement> ForStatement::Make(const Context& context,

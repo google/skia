@@ -2557,7 +2557,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             // Use sk_RTAdjust to compute the flipped coordinate
             using namespace dsl;
             const char* DEVICE_COORDS_NAME = "$device_FragCoords";
-            SymbolTable& symbols = *ThreadContext::SymbolTable();
+            SymbolTable& symbols = *fProgram.fSymbols;
             // Use a uniform to flip the Y coordinate. The new expression will be written in
             // terms of $device_FragCoords, which is a fake variable that means "access the
             // underlying fragcoords directly without flipping it".
@@ -2597,7 +2597,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             this->addRTFlipUniform(ref.fPosition);
             using namespace dsl;
             const char* DEVICE_CLOCKWISE_NAME = "$device_Clockwise";
-            SymbolTable& symbols = *ThreadContext::SymbolTable();
+            SymbolTable& symbols = *fProgram.fSymbols;
             // Use a uniform to flip the Y coordinate. The new expression will be written in
             // terms of $device_Clockwise, which is a fake variable that means "access the
             // underlying FrontFacing directly".

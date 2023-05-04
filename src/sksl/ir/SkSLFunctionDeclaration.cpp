@@ -372,7 +372,6 @@ static bool parameters_match(const std::vector<std::unique_ptr<Variable>>& param
  * (or null if none) on success, returns false on error.
  */
 static bool find_existing_declaration(const Context& context,
-                                      SymbolTable& symbols,
                                       Position pos,
                                       const Modifiers* modifiers,
                                       std::string_view name,
@@ -396,7 +395,7 @@ static bool find_existing_declaration(const Context& context,
     };
 
     ErrorReporter& errors = *context.fErrors;
-    Symbol* entry = symbols.findMutable(name);
+    Symbol* entry = context.fSymbolTable->findMutable(name);
     *outExistingDecl = nullptr;
     if (entry) {
         if (!entry->is<FunctionDeclaration>()) {
@@ -457,7 +456,6 @@ FunctionDeclaration::FunctionDeclaration(Position pos,
 }
 
 FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
-                                                  SymbolTable& symbols,
                                                   Position pos,
                                                   Position modifiersPosition,
                                                   const Modifiers* modifiers,
@@ -472,14 +470,14 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
         !check_return_type(context, returnTypePos, *returnType) ||
         !check_parameters(context, parameters, isMain) ||
         (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||
-        !find_existing_declaration(context, symbols, pos, modifiers, name, parameters,
+        !find_existing_declaration(context, pos, modifiers, name, parameters,
                                    returnTypePos, returnType, &decl)) {
         return nullptr;
     }
     std::vector<Variable*> finalParameters;
     finalParameters.reserve(parameters.size());
     for (std::unique_ptr<Variable>& param : parameters) {
-        finalParameters.push_back(symbols.takeOwnershipOfSymbol(std::move(param)));
+        finalParameters.push_back(context.fSymbolTable->takeOwnershipOfSymbol(std::move(param)));
     }
     if (decl) {
         return decl;
@@ -490,7 +488,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
                                                         std::move(finalParameters),
                                                         returnType,
                                                         context.fConfig->fIsBuiltinCode);
-    return symbols.add(std::move(result));
+    return context.fSymbolTable->add(std::move(result));
 }
 
 std::string FunctionDeclaration::mangledName() const {

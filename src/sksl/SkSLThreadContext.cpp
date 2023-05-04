@@ -49,7 +49,7 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler,
 }
 
 ThreadContext::~ThreadContext() {
-    if (SymbolTable()) {
+    if (fCompiler->fContext->fSymbolTable) {
         fCompiler->fContext->fSymbolTable = nullptr;
         fProgramElements.clear();
     } else {
@@ -66,10 +66,9 @@ ThreadContext::~ThreadContext() {
 
 void ThreadContext::setupSymbolTable() {
     SkSL::Context& context = *fCompiler->fContext;
-    SymbolTable::Push(&fCompiler->fContext->fSymbolTable, context.fConfig->fIsBuiltinCode);
+    SymbolTable::Push(&context.fSymbolTable, context.fConfig->fIsBuiltinCode);
 
-    SkSL::SymbolTable& symbolTable = *fCompiler->fContext->fSymbolTable;
-    symbolTable.markModuleBoundary();
+    context.fSymbolTable->markModuleBoundary();
 }
 
 SkSL::Context& ThreadContext::Context() {
@@ -78,10 +77,6 @@ SkSL::Context& ThreadContext::Context() {
 
 const SkSL::ProgramSettings& ThreadContext::Settings() {
     return Context().fConfig->fSettings;
-}
-
-std::shared_ptr<SkSL::SymbolTable>& ThreadContext::SymbolTable() {
-    return Context().fSymbolTable;
 }
 
 const SkSL::Modifiers* ThreadContext::Modifiers(const SkSL::Modifiers& modifiers) {

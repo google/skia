@@ -110,7 +110,7 @@ public:
             pool->detachFromThread();
         }
         SkASSERT(instance.fProgramElements.empty());
-        SkASSERT(!ThreadContext::SymbolTable());
+        SkASSERT(!compiler.fContext->fSymbolTable);
         return success ? std::move(result) : nullptr;
     }
 
@@ -180,8 +180,7 @@ public:
                                                   initializer.releaseIfPossible(),
                                                   test.releaseIfPossible(),
                                                   next.releaseIfPossible(),
-                                                  stmt.release(),
-                                                  ThreadContext::SymbolTable()), pos);
+                                                  stmt.release()), pos);
     }
 
     static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
@@ -207,8 +206,8 @@ public:
         DSLGlobalVar var(modifiers, varType, varName, DSLExpression(), pos);
         if (SkSL::Variable* skslVar = DSLWriter::Var(var)) {
             // Add an InterfaceBlock program element to the program.
-            if (std::unique_ptr<SkSL::InterfaceBlock> intf = SkSL::InterfaceBlock::Convert(
-                        ThreadContext::Context(), pos, skslVar, ThreadContext::SymbolTable())) {
+            if (std::unique_ptr<SkSL::InterfaceBlock> intf =
+                        SkSL::InterfaceBlock::Convert(ThreadContext::Context(), pos, skslVar)) {
                 ThreadContext::ProgramElements().push_back(std::move(intf));
                 // Return a VariableReference to the global variable tied to the interface block.
                 return DSLExpression(var);
@@ -288,15 +287,13 @@ public:
         return DSLStatement(SwitchStatement::Convert(ThreadContext::Context(), pos,
                                                      value.release(),
                                                      std::move(values),
-                                                     std::move(caseBlocks),
-                                                     ThreadContext::SymbolTable()), pos);
+                                                     std::move(caseBlocks)), pos);
     }
 
     static DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {
         return DSLStatement(ForStatement::ConvertWhile(ThreadContext::Context(), pos,
                                                        test.release(),
-                                                       stmt.release(),
-                                                       ThreadContext::SymbolTable()), pos);
+                                                       stmt.release()), pos);
     }
 };
 

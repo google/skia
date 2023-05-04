@@ -45,8 +45,7 @@ static std::optional<int> find_rt_adjust_index(SkSpan<const Type::Field> fields)
 
 std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
                                                         Position pos,
-                                                        Variable* variable,
-                                                        std::shared_ptr<SymbolTable> symbols) {
+                                                        Variable* variable) {
     if (SkSL::ProgramKind kind = context.fConfig->fKind; !ProgramConfig::IsFragment(kind) &&
                                                          !ProgramConfig::IsVertex(kind) &&
                                                          !ProgramConfig::IsCompute(kind)) {
@@ -67,14 +66,13 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
             return nullptr;
         }
     }
-    return InterfaceBlock::Make(context, pos, variable, rtAdjustIndex, symbols);
+    return InterfaceBlock::Make(context, pos, variable, rtAdjustIndex);
 }
 
 std::unique_ptr<InterfaceBlock> InterfaceBlock::Make(const Context& context,
                                                      Position pos,
                                                      Variable* variable,
-                                                     std::optional<int> rtAdjustIndex,
-                                                     std::shared_ptr<SymbolTable> symbols) {
+                                                     std::optional<int> rtAdjustIndex) {
     SkASSERT(ProgramConfig::IsFragment(context.fConfig->fKind) ||
              ProgramConfig::IsVertex(context.fConfig->fKind) ||
              ProgramConfig::IsCompute(context.fConfig->fKind));
@@ -95,14 +93,15 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Make(const Context& context,
     if (variable->name().empty()) {
         // This interface block is anonymous. Add each field to the top-level symbol table.
         for (size_t i = 0; i < fields.size(); ++i) {
-            symbols->add(std::make_unique<SkSL::Field>(fields[i].fPosition, variable, i));
+            context.fSymbolTable->add(std::make_unique<SkSL::Field>(fields[i].fPosition,
+                                                                    variable, i));
         }
     } else {
         // Add the global variable to the top-level symbol table.
-        symbols->addWithoutOwnership(variable);
+        context.fSymbolTable->addWithoutOwnership(variable);
     }
 
-    return std::make_unique<SkSL::InterfaceBlock>(pos, variable, symbols);
+    return std::make_unique<SkSL::InterfaceBlock>(pos, variable, context.fSymbolTable);
 }
 
 std::unique_ptr<ProgramElement> InterfaceBlock::clone() const {

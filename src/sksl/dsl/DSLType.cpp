@@ -52,7 +52,7 @@ static const SkSL::Type* verify_type(const Context& context,
 static const SkSL::Type* find_type(const Context& context,
                                    Position pos,
                                    std::string_view name) {
-    const Symbol* symbol = ThreadContext::SymbolTable()->find(name);
+    const Symbol* symbol = context.fSymbolTable->find(name);
     if (!symbol) {
         context.fErrors->error(pos, String::printf("no symbol named '%.*s'",
                                                    (int)name.length(), name.data()));
@@ -73,8 +73,7 @@ static const SkSL::Type* find_type(const Context& context,
                                    Position modifiersPos,
                                    Modifiers* modifiers) {
     const Type* type = find_type(context, overallPos, name);
-    return type->applyQualifiers(context, modifiers, ThreadContext::SymbolTable().get(),
-                                 modifiersPos);
+    return type->applyQualifiers(context, modifiers, modifiersPos);
 }
 
 static const SkSL::Type* get_type_from_type_constant(TypeConstant tc) {
@@ -273,20 +272,20 @@ DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
 }
 
 DSLType Array(const DSLType& base, int count, Position pos) {
-    count = base.skslType().convertArraySize(ThreadContext::Context(), pos,
-                                             DSLExpression(count, pos).release());
+    SkSL::Context& context = ThreadContext::Context();
+    count = base.skslType().convertArraySize(context, pos, DSLExpression(count, pos).release());
     if (!count) {
         return DSLType(kPoison_Type);
     }
-    return DSLType(ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(), count), pos);
+    return DSLType(context.fSymbolTable->addArrayDimension(&base.skslType(), count), pos);
 }
 
 DSLType UnsizedArray(const DSLType& base, Position pos) {
-    if (!base.skslType().checkIfUsableInArray(ThreadContext::Context(), pos)) {
+    SkSL::Context& context = ThreadContext::Context();
+    if (!base.skslType().checkIfUsableInArray(context, pos)) {
         return DSLType(kPoison_Type);
     }
-    return ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(),
-                                                           SkSL::Type::kUnsizedArray);
+    return context.fSymbolTable->addArrayDimension(&base.skslType(), SkSL::Type::kUnsizedArray);
 }
 
 DSLType StructType(std::string_view name,
@@ -299,9 +298,10 @@ DSLType StructType(std::string_view name,
         skslFields.emplace_back(field.fPosition, field.fModifiers.fModifiers, field.fName,
                                 &field.fType.skslType());
     }
-    std::unique_ptr<Type> newType = Type::MakeStructType(ThreadContext::Context(), pos, name,
+    SkSL::Context& context = ThreadContext::Context();
+    std::unique_ptr<Type> newType = Type::MakeStructType(context, pos, name,
                                                          std::move(skslFields), interfaceBlock);
-    return DSLType(ThreadContext::SymbolTable()->add(std::move(newType)), pos);
+    return DSLType(context.fSymbolTable->add(std::move(newType)), pos);
 }
 
 DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {

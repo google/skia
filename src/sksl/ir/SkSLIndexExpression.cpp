@@ -20,12 +20,13 @@
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 
 #include <cstdint>
 #include <optional>
+#include <type_traits>
 
 namespace SkSL {
 
@@ -39,7 +40,7 @@ static bool index_out_of_range(const Context& context, Position pos, SKSL_INT in
         }
     }
     context.fErrors->error(pos, "index " + std::to_string(index) + " out of range for '" +
-            base.type().displayName() + "'");
+                                base.type().displayName() + "'");
     return true;
 }
 
@@ -65,7 +66,6 @@ const Type& IndexExpression::IndexType(const Context& context, const Type& type)
 }
 
 std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
-                                                     SymbolTable& symbolTable,
                                                      Position pos,
                                                      std::unique_ptr<Expression> base,
                                                      std::unique_ptr<Expression> index) {
@@ -76,8 +76,8 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
         if (!arraySize) {
             return nullptr;
         }
-        return TypeReference::Convert(context, pos,
-                                      symbolTable.addArrayDimension(&baseType, arraySize));
+        return TypeReference::Convert(
+                context, pos, context.fSymbolTable->addArrayDimension(&baseType, arraySize));
     }
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
     const Type& baseType = base->type();

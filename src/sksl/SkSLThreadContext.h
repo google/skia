@@ -26,7 +26,6 @@ class Compiler;
 class ModifiersPool;
 class Pool;
 class ProgramElement;
-class SymbolTable;
 class Variable;
 enum class ProgramKind : int8_t;
 struct Modifiers;
@@ -85,11 +84,6 @@ public:
     static std::vector<const ProgramElement*>& SharedElements() {
         return Instance().fSharedElements;
     }
-
-    /**
-     * Returns the current SymbolTable.
-     */
-    static std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
 
     /**
      * Returns the current memory pool.

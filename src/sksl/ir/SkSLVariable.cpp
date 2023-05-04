@@ -143,7 +143,7 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
         if (!arraySizeValue) {
             return nullptr;
         }
-        type = ThreadContext::SymbolTable()->addArrayDimension(type, arraySizeValue);
+        type = context.fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
     if (type->componentType().isInterfaceBlock()) {
         return std::make_unique<InterfaceBlockVariable>(pos,

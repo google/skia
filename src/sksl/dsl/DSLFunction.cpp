@@ -66,7 +66,6 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
     }
     SkASSERT(paramVars.size() == params.size());
     fDecl = SkSL::FunctionDeclaration::Convert(context,
-                                               *ThreadContext::SymbolTable(),
                                                pos,
                                                modifiers.fPosition,
                                                context.fModifiersPool->add(modifiers.fModifiers),

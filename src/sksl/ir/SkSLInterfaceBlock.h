@@ -59,8 +59,7 @@ public:
     // (if it is named) or each of the interface block fields (if it is anonymous).
     static std::unique_ptr<InterfaceBlock> Convert(const Context& context,
                                                    Position pos,
-                                                   Variable* variable,
-                                                   std::shared_ptr<SymbolTable> symbols);
+                                                   Variable* variable);
 
     // Returns an InterfaceBlock; errors are reported via SkASSERT.
     // The caller is responsible for adding the InterfaceBlock to the program elements.
@@ -71,8 +70,7 @@ public:
     static std::unique_ptr<InterfaceBlock> Make(const Context& context,
                                                 Position pos,
                                                 Variable* variable,
-                                                std::optional<int> rtAdjustIndex,
-                                                std::shared_ptr<SymbolTable> symbols);
+                                                std::optional<int> rtAdjustIndex);
 
     Variable* var() const {
         return fVariable;

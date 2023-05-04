@@ -22,7 +22,7 @@
 #include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLSymbol.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 
 #include <cstddef>
 
@@ -30,14 +30,13 @@ namespace SkSL {
 
 std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
                                                  Position pos,
-                                                 SymbolTable& symbolTable,
                                                  std::unique_ptr<Expression> base,
                                                  std::string_view field) {
     const Type& baseType = base->type();
     if (baseType.isEffectChild()) {
         // Turn the field name into a free function name, prefixed with '$':
         std::string methodName = "$" + std::string(field);
-        const Symbol* result = symbolTable.find(methodName);
+        const Symbol* result = context.fSymbolTable->find(methodName);
         if (result && result->is<FunctionDeclaration>()) {
             return std::make_unique<MethodReference>(context, pos, std::move(base),
                                                      &result->as<FunctionDeclaration>());

@@ -539,10 +539,7 @@ public:
      *  - Modifier `readonly` + Type `texture2D`: Type `readonlyTexture2D`
      * Generates an error if the qualifiers don't make sense (`highp bool`, `writeonly MyStruct`)
      */
-    const Type* applyQualifiers(const Context& context,
-                                Modifiers* modifiers,
-                                SymbolTable* symbols,
-                                Position pos) const;
+    const Type* applyQualifiers(const Context& context, Modifiers* modifiers, Position pos) const;
 
     /**
      * Coerces the passed-in expression to this type. If the types are incompatible, reports an
@@ -580,12 +577,10 @@ protected:
 
     const Type* applyPrecisionQualifiers(const Context& context,
                                          Modifiers* modifiers,
-                                         SymbolTable* symbols,
                                          Position pos) const;
 
     const Type* applyAccessQualifiers(const Context& context,
                                       Modifiers* modifiers,
-                                      SymbolTable* symbols,
                                       Position pos) const;
 
 private:

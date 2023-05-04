@@ -24,7 +24,6 @@
 namespace SkSL {
 
 class Context;
-class SymbolTable;
 enum class OperatorPrecedence : uint8_t;
 
 enum class FieldAccessOwnerKind : int8_t {
@@ -53,7 +52,6 @@ public:
     // Returns a field-access expression; reports errors via the ErrorReporter.
     static std::unique_ptr<Expression> Convert(const Context& context,
                                                Position pos,
-                                               SymbolTable& symbolTable,
                                                std::unique_ptr<Expression> base,
                                                std::string_view field);
 

@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLModifiers.h"
@@ -19,9 +20,10 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbol.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <type_traits>
 #include <utility>
 
 namespace SkSL {
@@ -111,8 +113,8 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
     : INHERITED(SkSL::VariableStorage::kGlobal, kVoid_Type, name, DSLExpression(),
                 Position(), Position()) {
     fName = name;
-    SkSL::SymbolTable* symbolTable = ThreadContext::SymbolTable().get();
-    SkSL::Symbol* result = symbolTable->findMutable(fName);
+    SkSL::Context& context = ThreadContext::Context();
+    SkSL::Symbol* result = context.fSymbolTable->findMutable(fName);
     SkASSERTF(result, "could not find '%.*s' in symbol table", (int)fName.length(), fName.data());
     fVar = &result->as<SkSL::Variable>();
     fInitialized = true;
@@ -128,8 +130,8 @@ std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(std::string_view meth
         ThreadContext::ReportError("type does not support method calls", pos);
         return nullptr;
     }
-    return FieldAccess::Convert(ThreadContext::Context(), pos, *ThreadContext::SymbolTable(),
-            DSLExpression(*this, pos).release(), methodName);
+    return FieldAccess::Convert(ThreadContext::Context(), pos, DSLExpression(*this, pos).release(),
+                                methodName);
 }
 
 DSLExpression DSLGlobalVar::eval(ExpressionArray args, Position pos) {

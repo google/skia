@@ -765,17 +765,15 @@ CoercionCost Type::coercionCost(const Type& other) const {
 
 const Type* Type::applyQualifiers(const Context& context,
                                   Modifiers* modifiers,
-                                  SymbolTable* symbols,
                                   Position pos) const {
     const Type* type;
-    type = this->applyPrecisionQualifiers(context, modifiers, symbols, pos);
-    type = type->applyAccessQualifiers(context, modifiers, symbols, pos);
+    type = this->applyPrecisionQualifiers(context, modifiers, pos);
+    type = type->applyAccessQualifiers(context, modifiers, pos);
     return type;
 }
 
 const Type* Type::applyPrecisionQualifiers(const Context& context,
                                            Modifiers* modifiers,
-                                           SymbolTable* symbols,
                                            Position pos) const {
     int precisionQualifiers = modifiers->fFlags & (Modifiers::kHighp_Flag |
                                                    Modifiers::kMediump_Flag |
@@ -833,7 +831,7 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
         if (mediumpType) {
             // Convert the mediump component type into the final vector/matrix/array type as needed.
             return this->isArray()
-                           ? symbols->addArrayDimension(mediumpType, this->columns())
+                           ? context.fSymbolTable->addArrayDimension(mediumpType, this->columns())
                            : &mediumpType->toCompound(context, this->columns(), this->rows());
         }
     }
@@ -845,7 +843,6 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
 
 const Type* Type::applyAccessQualifiers(const Context& context,
                                         Modifiers* modifiers,
-                                        SymbolTable* symbols,
                                         Position pos) const {
     int accessQualifiers = modifiers->fFlags & (Modifiers::kReadOnly_Flag |
                                                 Modifiers::kWriteOnly_Flag);
