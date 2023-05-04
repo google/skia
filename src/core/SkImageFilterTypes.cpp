@@ -633,11 +633,21 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
 
     canvas->concat(SkMatrix(fTransform)); // src's origin is embedded in fTransform
 
+    // If we are an integer translate, the default bilinear sampling *should* be equivalent to
+    // nearest-neighbor. Going through the direct image-drawing path tends to detect this
+    // and reduce sampling automatically. When we have to use an image shader, this isn't
+    // detected and some GPUs' linear filtering doesn't exactly match nearest-neighbor and can
+    // lead to leaks beyond the image's subset. Detect and reduce sampling explicitly.
+    SkSamplingOptions sampling = fSamplingOptions;
+    if (sampling == kDefaultSampling && is_nearly_integer_translation(fTransform)) {
+        sampling = {};
+    }
+
     if (fills_layer_bounds(fColorFilter.get())) {
-        paint.setShader(fImage->asShader(SkTileMode::kDecal, fSamplingOptions, SkMatrix::I()));
+        paint.setShader(fImage->asShader(SkTileMode::kDecal, sampling, SkMatrix::I()));
         canvas->drawPaint(paint);
     } else {
-        fImage->draw(canvas, 0.f, 0.f, fSamplingOptions, &paint);
+        fImage->draw(canvas, 0.f, 0.f, sampling, &paint);
     }
     return {surface->makeImageSnapshot(), dstBounds.topLeft()};
 }
