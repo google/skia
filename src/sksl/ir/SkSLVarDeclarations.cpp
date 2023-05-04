@@ -393,8 +393,7 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
 
 std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
                                                    std::unique_ptr<Variable> var,
-                                                   std::unique_ptr<Expression> value,
-                                                   bool addToSymbolTable) {
+                                                   std::unique_ptr<Expression> value) {
     if (!ErrorCheckAndCoerce(context, *var, value)) {
         return nullptr;
     }
@@ -435,11 +434,7 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
         }
     }
 
-    if (addToSymbolTable) {
-        symbols->add(std::move(var));
-    } else {
-        symbols->takeOwnershipOfSymbol(std::move(var));
-    }
+    symbols->takeOwnershipOfSymbol(std::move(var));
     return varDecl;
 }
 

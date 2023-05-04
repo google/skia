@@ -62,8 +62,9 @@ public:
             const Modifiers& modifiers, const Type* type, Variable::Storage storage);
 
     // Does proper error checking and type coercion; reports errors via ErrorReporter.
-    static std::unique_ptr<Statement> Convert(const Context& context, std::unique_ptr<Variable> var,
-            std::unique_ptr<Expression> value, bool addToSymbolTable = true);
+    static std::unique_ptr<Statement> Convert(const Context& context,
+                                              std::unique_ptr<Variable> var,
+                                              std::unique_ptr<Expression> value);
 
     // Reports errors via ASSERT.
     static std::unique_ptr<Statement> Make(const Context& context,
