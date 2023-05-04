@@ -171,9 +171,8 @@ struct SkRasterPipeline_BinaryOpCtx {
 };
 
 struct SkRasterPipeline_TernaryOpCtx {
-    float *dst;
-    const float *src0;
-    const float *src1;
+    SkRPOffset dst;
+    SkRPOffset delta;
 };
 
 struct SkRasterPipeline_MatrixMultiplyCtx {

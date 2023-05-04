@@ -262,17 +262,17 @@ private:
     // must refer to an unbounded "apply_to_n_slots" stage, which must be immediately followed by
     // specializations for 1-4 slots.
     void appendAdjacentMultiSlotTernaryOp(skia_private::TArray<Stage>* pipeline,
-                                          SkArenaAlloc* alloc,
-                                          ProgramOp stage, float* dst,
-                                          const float* src0, const float* src1, int numSlots) const;
+                                          SkArenaAlloc* alloc, ProgramOp baseStage,
+                                          std::byte* basePtr, SkRPOffset dst, SkRPOffset src0,
+                                          SkRPOffset src1, int numSlots) const;
 
     // Appends a math operation having three inputs (dst, src0, src1) and one output (dst) to the
     // pipeline. The three inputs must be _immediately_ adjacent in memory. `baseStage` must refer
     // to an unbounded "apply_to_n_slots" stage. A TernaryOpCtx will be used to pass pointers to the
     // destination and sources; the delta between the each pointer implicitly gives the slot count.
     void appendAdjacentNWayTernaryOp(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                     ProgramOp stage, float* dst,
-                                     const float* src0, const float* src1, int numSlots) const;
+                                     ProgramOp stage, std::byte* basePtr, SkRPOffset dst,
+                                     SkRPOffset src0, SkRPOffset src1, int numSlots) const;
 
     // Appends a stack_rewind op on platforms where it is needed (when SK_HAS_MUSTTAIL is not set).
     void appendStackRewind(skia_private::TArray<Stage>* pipeline) const;

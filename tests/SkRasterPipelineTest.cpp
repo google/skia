@@ -2309,11 +2309,10 @@ DEF_TEST(SkRasterPipeline_MixTest, r) {
                 p->append(SkRasterPipelineOp::mix_4_floats, slots);
             }},
         {5, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
-                auto* ctx = alloc->make<SkRasterPipeline_TernaryOpCtx>();
-                ctx->dst = &slots[0];
-                ctx->src0 = &slots[5 * N];
-                ctx->src1 = &slots[10 * N];
-                p->append(SkRasterPipelineOp::mix_n_floats, ctx);
+                SkRasterPipeline_TernaryOpCtx ctx;
+                ctx.dst = 0;
+                ctx.delta = 5 * N * sizeof(float);
+                p->append(SkRasterPipelineOp::mix_n_floats, SkRPCtxUtils::Pack(ctx, alloc));
             }},
     };
 
@@ -2333,6 +2332,7 @@ DEF_TEST(SkRasterPipeline_MixTest, r) {
         // Run the mix op over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
+        p.append(SkRasterPipelineOp::set_base_pointer, &slots[0]);
         op.append(&p, &alloc);
         p.run(0,0,1,1);
 

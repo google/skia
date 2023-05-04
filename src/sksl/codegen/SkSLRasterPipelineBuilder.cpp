@@ -1463,37 +1463,38 @@ void Program::appendAdjacentMultiSlotBinaryOp(TArray<Stage>* pipeline, SkArenaAl
 }
 
 void Program::appendAdjacentNWayTernaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                          ProgramOp stage, float* dst, const float* src0,
-                                          const float* src1, int numSlots) const {
+                                          ProgramOp stage, std::byte* basePtr, SkRPOffset dst,
+                                          SkRPOffset src0, SkRPOffset src1, int numSlots) const {
     // The float pointers must all be immediately adjacent to each other.
     SkASSERT(numSlots >= 0);
-    SkASSERT((dst  + SkOpts::raster_pipeline_highp_stride * numSlots) == src0);
-    SkASSERT((src0 + SkOpts::raster_pipeline_highp_stride * numSlots) == src1);
+    SkASSERT((dst  + SkOpts::raster_pipeline_highp_stride * numSlots * sizeof(float)) == src0);
+    SkASSERT((src0 + SkOpts::raster_pipeline_highp_stride * numSlots * sizeof(float)) == src1);
 
     if (numSlots > 0) {
-        auto ctx = alloc->make<SkRasterPipeline_TernaryOpCtx>();
-        ctx->dst = dst;
-        ctx->src0 = src0;
-        ctx->src1 = src1;
-        pipeline->push_back({stage, ctx});
+        SkRasterPipeline_TernaryOpCtx ctx;
+        ctx.dst = dst;
+        ctx.delta = src0 - dst;
+        pipeline->push_back({stage, SkRPCtxUtils::Pack(ctx, alloc)});
     }
 }
 
 void Program::appendAdjacentMultiSlotTernaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                               ProgramOp baseStage, float* dst, const float* src0,
-                                               const float* src1, int numSlots) const {
+                                               ProgramOp baseStage, std::byte* basePtr,
+                                               SkRPOffset dst, SkRPOffset src0, SkRPOffset src1,
+                                               int numSlots) const {
     // The float pointers must all be immediately adjacent to each other.
     SkASSERT(numSlots >= 0);
-    SkASSERT((dst  + SkOpts::raster_pipeline_highp_stride * numSlots) == src0);
-    SkASSERT((src0 + SkOpts::raster_pipeline_highp_stride * numSlots) == src1);
+    SkASSERT((dst  + SkOpts::raster_pipeline_highp_stride * numSlots * sizeof(float)) == src0);
+    SkASSERT((src0 + SkOpts::raster_pipeline_highp_stride * numSlots * sizeof(float)) == src1);
 
     if (numSlots > 4) {
-        this->appendAdjacentNWayTernaryOp(pipeline, alloc, baseStage, dst, src0, src1, numSlots);
+        this->appendAdjacentNWayTernaryOp(pipeline, alloc, baseStage, basePtr,
+                                          dst, src0, src1, numSlots);
         return;
     }
     if (numSlots > 0) {
         auto specializedStage = (ProgramOp)((int)baseStage + numSlots);
-        pipeline->push_back({specializedStage, dst});
+        pipeline->push_back({specializedStage, basePtr + dst});
     }
 }
 
@@ -1796,16 +1797,22 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 float* src1 = tempStackPtr - (inst.fImmA * N);
                 float* src0 = tempStackPtr - (inst.fImmA * 2 * N);
                 float* dst  = tempStackPtr - (inst.fImmA * 3 * N);
-                this->appendAdjacentNWayTernaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
-                                                  dst, src0, src1, inst.fImmA);
+                this->appendAdjacentNWayTernaryOp(pipeline, alloc, (ProgramOp)inst.fOp, basePtr,
+                                                  OffsetFromBase(dst),
+                                                  OffsetFromBase(src0),
+                                                  OffsetFromBase(src1),
+                                                  inst.fImmA);
                 break;
             }
             case ALL_MULTI_SLOT_TERNARY_OP_CASES: {
                 float* src1 = tempStackPtr - (inst.fImmA * N);
                 float* src0 = tempStackPtr - (inst.fImmA * 2 * N);
                 float* dst  = tempStackPtr - (inst.fImmA * 3 * N);
-                this->appendAdjacentMultiSlotTernaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
-                                                       dst, src0, src1, inst.fImmA);
+                this->appendAdjacentMultiSlotTernaryOp(pipeline, alloc,(ProgramOp)inst.fOp, basePtr,
+                                                       OffsetFromBase(dst),
+                                                       OffsetFromBase(src0),
+                                                       OffsetFromBase(src1),
+                                                       inst.fImmA);
                 break;
             }
             case BuilderOp::select: {
@@ -2497,6 +2504,12 @@ void Program::dump(SkWStream* out) const {
                                    PtrCtx(ctxAsSlot + (2 * N * numSlots), numSlots));
         };
 
+        // Interprets a slab offset as three adjacent slot ranges.
+        auto Adjacent3OffsetCtx = [&](SkRPOffset offset, int numSlots) ->
+                                     std::tuple<std::string, std::string, std::string> {
+            return Adjacent3PtrCtx((std::byte*)slots.values.data() + offset, numSlots);
+        };
+
         // Interpret the context value as a BinaryOp structure for copy_n_slots (numSlots is
         // dictated by the op itself).
         auto BinaryOpCtx = [&](const void* v,
@@ -2523,13 +2536,12 @@ void Program::dump(SkWStream* out) const {
             return AdjacentOffsetCtx(ctx.dst, numSlots);
         };
 
-        // Interpret the context value as a TernaryOp structure (numSlots is inferred from the
-        // distance between pointers).
+        // Interpret the context value as a TernaryOp structure (numSlots is inferred from `delta`).
         auto AdjacentTernaryOpCtx = [&](const void* v) ->
                                        std::tuple<std::string, std::string, std::string> {
-            const auto* ctx = static_cast<const SkRasterPipeline_TernaryOpCtx*>(v);
-            int numSlots = (ctx->src0 - ctx->dst) / N;
-            return Adjacent3PtrCtx(ctx->dst, numSlots);
+            auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_TernaryOpCtx*)v);
+            int numSlots = ctx.delta / (sizeof(float) * N);
+            return Adjacent3OffsetCtx(ctx.dst, numSlots);
         };
 
         // Stringize a span of swizzle offsets to the textual equivalent (`xyzw`).

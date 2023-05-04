@@ -3974,9 +3974,9 @@ SI void apply_adjacent_binary(T* dst, T* src) {
 template <typename T, void (*ApplyFn)(T*, T*)>
 SI void apply_adjacent_binary_packed(SkRasterPipeline_BinaryOpCtx* packed, std::byte* base) {
     auto ctx = SkRPCtxUtils::Unpack(packed);
-    T* dst = (T*)(base + ctx.dst);
-    T* src = (T*)(base + ctx.src);
-    apply_adjacent_binary<T, ApplyFn>(dst, src);
+    std::byte* dst = base + ctx.dst;
+    std::byte* src = base + ctx.src;
+    apply_adjacent_binary<T, ApplyFn>((T*)dst, (T*)src);
 }
 
 template <int N, typename V, typename S, void (*ApplyFn)(V*, V*)>
@@ -4292,13 +4292,26 @@ STAGE_TAIL(refract_4_floats, F* dst) {
 // Ternary operations work like binary ops (see immediately above) but take two source inputs.
 template <typename T, void (*ApplyFn)(T*, T*, T*)>
 SI void apply_adjacent_ternary(T* dst, T* src0, T* src1) {
-    T* end = src0;
-    do {
+    int count = src0 - dst;
+#if !defined(JUMPER_IS_SCALAR)
+    __builtin_assume(count >= 1);
+#endif
+
+    for (int index = 0; index < count; ++index) {
         ApplyFn(dst, src0, src1);
         dst += 1;
         src0 += 1;
         src1 += 1;
-    } while (dst != end);
+    }
+}
+
+template <typename T, void (*ApplyFn)(T*, T*, T*)>
+SI void apply_adjacent_ternary_packed(SkRasterPipeline_TernaryOpCtx* packed, std::byte* base) {
+    auto ctx = SkRPCtxUtils::Unpack(packed);
+    std::byte* dst  = base + ctx.dst;
+    std::byte* src0 = dst  + ctx.delta;
+    std::byte* src1 = src0 + ctx.delta;
+    apply_adjacent_ternary<T, ApplyFn>((T*)dst, (T*)src0, (T*)src1);
 }
 
 SI void mix_fn(F* a, F* x, F* y) {
@@ -4316,9 +4329,9 @@ SI void smoothstep_fn(F* edge0, F* edge1, F* x) {
     *edge0 = t * t * (3.0 - 2.0 * t);
 }
 
-#define DECLARE_N_WAY_TERNARY_FLOAT(name)                                                  \
-    STAGE_TAIL(name##_n_floats, SkRasterPipeline_TernaryOpCtx* ctx) {                      \
-        apply_adjacent_ternary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src0, (F*)ctx->src1); \
+#define DECLARE_N_WAY_TERNARY_FLOAT(name)                                \
+    STAGE_TAIL(name##_n_floats, SkRasterPipeline_TernaryOpCtx* packed) { \
+        apply_adjacent_ternary_packed<F, &name##_fn>(packed, base);      \
     }
 
 #define DECLARE_TERNARY_FLOAT(name)                                                           \
@@ -4328,13 +4341,13 @@ SI void smoothstep_fn(F* edge0, F* edge1, F* x) {
     STAGE_TAIL(name##_4_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p+4, p+8); } \
     DECLARE_N_WAY_TERNARY_FLOAT(name)
 
-#define DECLARE_TERNARY_INT(name)                                                                  \
-    STAGE_TAIL(name##_int, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+1, p+2); }       \
-    STAGE_TAIL(name##_2_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+2, p+4); }    \
-    STAGE_TAIL(name##_3_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+3, p+6); }    \
-    STAGE_TAIL(name##_4_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+4, p+8); }    \
-    STAGE_TAIL(name##_n_ints, SkRasterPipeline_TernaryOpCtx* ctx) {                                \
-        apply_adjacent_ternary<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src0, (I32*)ctx->src1); \
+#define DECLARE_TERNARY_INT(name)                                                               \
+    STAGE_TAIL(name##_int, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+1, p+2); }    \
+    STAGE_TAIL(name##_2_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+2, p+4); } \
+    STAGE_TAIL(name##_3_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+3, p+6); } \
+    STAGE_TAIL(name##_4_ints, I32* p) { apply_adjacent_ternary<I32, &name##_fn>(p, p+4, p+8); } \
+    STAGE_TAIL(name##_n_ints, SkRasterPipeline_TernaryOpCtx* packed) {                          \
+        apply_adjacent_ternary_packed<I32, &name##_fn>(packed, base);                           \
     }
 
 DECLARE_N_WAY_TERNARY_FLOAT(smoothstep)
