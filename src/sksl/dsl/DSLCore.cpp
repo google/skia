@@ -40,6 +40,7 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+#include <type_traits>
 #include <vector>
 
 using namespace skia_private;
@@ -93,7 +94,7 @@ public:
                                                       std::move(instance.fProgramElements),
                                                       std::move(instance.fSharedElements),
                                                       std::move(instance.fModifiersPool),
-                                                      std::move(compiler.fSymbolTable),
+                                                      std::move(compiler.fContext->fSymbolTable),
                                                       std::move(instance.fPool),
                                                       instance.fInputs);
         bool success = false;

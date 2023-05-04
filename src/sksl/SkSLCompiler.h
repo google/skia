@@ -173,7 +173,7 @@ public:
     }
 
     std::shared_ptr<SymbolTable>& symbolTable() {
-        return fSymbolTable;
+        return fContext->fSymbolTable;
     }
 
     std::unique_ptr<Module> compileModule(ProgramKind kind,
@@ -223,10 +223,6 @@ private:
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
     const ShaderCaps* fCaps;
-
-    // This is the current symbol table of the code we are processing, and therefore changes during
-    // compilation
-    std::shared_ptr<SymbolTable> fSymbolTable;
 
     std::string fErrorText;
 

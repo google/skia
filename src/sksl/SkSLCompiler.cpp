@@ -247,7 +247,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
 }
 
 std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {
-    const Symbol* result = fSymbolTable->find(name);
+    const Symbol* result = this->symbolTable()->find(name);
     if (!result) {
         this->errorReporter().error(pos, "unknown identifier '" + std::string(name) + "'");
         return nullptr;
@@ -403,7 +403,7 @@ bool Compiler::runInliner(Inliner* inliner,
 #ifdef SK_ENABLE_OPTIMIZE_SIZE
     return true;
 #else
-    // The program's SymbolTable was taken out of fSymbolTable when the program was bundled, but
+    // The program's SymbolTable was taken out of the context when the program was bundled, but
     // the inliner relies (indirectly) on having a valid SymbolTable.
     // In particular, inlining can turn a non-optimizable expression like `normalize(myVec)` into
     // `normalize(vec2(7))`, which is now optimizable. The optimizer can use DSL to simplify this
@@ -411,12 +411,12 @@ bool Compiler::runInliner(Inliner* inliner,
     // convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol table to
     // find the declaration of `length`. To allow this chain of events to succeed, we re-insert the
     // program's symbol table temporarily.
-    SkASSERT(!fSymbolTable);
-    fSymbolTable = symbols;
+    SkASSERT(!fContext->fSymbolTable);
+    fContext->fSymbolTable = symbols;
 
     bool result = inliner->analyze(elements, symbols, usage);
 
-    fSymbolTable = nullptr;
+    fContext->fSymbolTable = nullptr;
     return result;
 #endif
 }
@@ -497,7 +497,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     settings.fUseMemoryPool = false;
     dsl::Start(this, program.fConfig->fKind, settings);
     dsl::SetErrorReporter(&fErrorReporter);
-    fSymbolTable = program.fSymbols;
+    fContext->fSymbolTable = program.fSymbols;
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     SPIRVCodeGenerator cg(fContext.get(), &program, &buffer);
