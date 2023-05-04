@@ -77,6 +77,37 @@ void SolidColorShaderBlock::BeginBlock(const KeyContext& keyContext,
 
 namespace {
 
+void add_dst_read_uniform_data(const ShaderCodeDictionary* dict,
+                               PipelineDataGatherer* gatherer,
+                               sk_sp<TextureProxy> dstTexture) {
+    static const SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
+    gatherer->add(SkSamplingOptions(), kTileModes, dstTexture);
+
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDstRead)
+
+    SkV4 coords{0.0f,
+                0.0f,
+                1.0f / dstTexture->dimensions().width(),
+                1.0f / dstTexture->dimensions().height()};
+    gatherer->write(coords);
+}
+
+} // anonymous namespace
+
+void DstReadBlock::BeginBlock(const KeyContext& keyContext,
+                              PaintParamsKeyBuilder* builder,
+                              PipelineDataGatherer* gatherer,
+                              sk_sp<TextureProxy> dstTexture) {
+    if (gatherer) {
+        add_dst_read_uniform_data(keyContext.dict(), gatherer, std::move(dstTexture));
+    }
+    builder->beginBlock(BuiltInCodeSnippetID::kDstRead);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+namespace {
+
 void add_gradient_preamble(const GradientShaderBlocks::GradientData& gradData,
                            PipelineDataGatherer* gatherer) {
     constexpr int kInternalStopLimit = GradientShaderBlocks::GradientData::kNumInternalStorageStops;
@@ -88,7 +119,6 @@ void add_gradient_preamble(const GradientShaderBlocks::GradientData& gradData,
         gatherer->writeArray({gradData.fOffsets, stops});
     }
 }
-
 
 // All the gradients share a common postamble of:
 //   numStops - for texture-based gradients
@@ -577,6 +607,16 @@ void CoeffBlenderBlock::BeginBlock(const KeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
+void DstColorBlock::BeginBlock(const KeyContext& keyContext,
+                               PaintParamsKeyBuilder* builder,
+                               PipelineDataGatherer* gatherer) {
+    if (gatherer) {
+        VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kDstColor)
+    }
+
+    builder->beginBlock(BuiltInCodeSnippetID::kDstColor);
+}
+
 void PrimitiveColorBlock::BeginBlock(const KeyContext& keyContext,
                                      PaintParamsKeyBuilder* builder,
                                      PipelineDataGatherer* gatherer) {
@@ -715,9 +755,7 @@ void AddDstBlendBlock(const KeyContext& keyContext,
     PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
     // dst -- surface color
-    // TODO(b/238757201): Use the surface color as the destination by replacing
-    // SolidColorShaderBlock with a DstColorBlock
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 1, 1, 1});
+    DstColorBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
     // blender -- shader based blending
     as_BB(blender)->addToKey(keyContext, builder, gatherer);

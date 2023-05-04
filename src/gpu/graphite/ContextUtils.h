@@ -12,8 +12,11 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 
+#include <optional>
+
 class SkColorInfo;
 class SkM44;
+class SkPaint;
 
 namespace skgpu {
 class Swizzle;
@@ -22,6 +25,7 @@ class Swizzle;
 namespace skgpu::graphite {
 
 class DrawParams;
+enum class DstReadRequirement;
 class GraphicsPipelineDesc;
 class PaintParams;
 class PipelineDataGatherer;
@@ -47,6 +51,7 @@ ExtractPaintData(Recorder*,
                  const Layout layout,
                  const SkM44& local2Dev,
                  const PaintParams&,
+                 sk_sp<TextureProxy> dstTexture,
                  const SkColorInfo& targetColorInfo);
 
 std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepData(
@@ -56,6 +61,8 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
         const Layout layout,
         const RenderStep* step,
         const DrawParams& params);
+
+DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>);
 
 std::string GetSkSLVS(const ResourceBindingRequirements&,
                       const RenderStep* step,

@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
+#include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawWriter.h"
@@ -398,6 +399,32 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+sk_sp<TextureProxy> add_copy_target_task(Recorder* recorder,
+                                         sk_sp<TextureProxy> target,
+                                         const SkImageInfo& targetInfo) {
+    SkASSERT(recorder->priv().caps()->isTexturable(target->textureInfo()));
+    SkIRect dstSrcRect = SkIRect::MakeSize(targetInfo.dimensions());
+    sk_sp<TextureProxy> copy = TextureProxy::Make(recorder->priv().caps(),
+                                                  dstSrcRect.size(),
+                                                  targetInfo.colorType(),
+                                                  Mipmapped::kNo,
+                                                  target->textureInfo().isProtected(),
+                                                  Renderable::kNo,
+                                                  skgpu::Budgeted::kYes);
+    if (!copy) {
+        return nullptr;
+    }
+
+    sk_sp<CopyTextureToTextureTask> copyTask = CopyTextureToTextureTask::Make(
+            std::move(target), dstSrcRect, copy, /*dstOffset=*/{0, 0});
+    if (!copyTask) {
+        return nullptr;
+    }
+
+    recorder->priv().add(std::move(copyTask));
+    return copy;
+}
+
 DrawPass::DrawPass(sk_sp<TextureProxy> target,
                    std::pair<LoadOp, StoreOp> ops,
                    std::array<float, 4> clearColor)
@@ -433,7 +460,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     // The DrawList is converted directly into the DrawPass' data structures, but once the DrawPass
     // is returned from Make(), it is considered immutable.
-    std::unique_ptr<DrawPass> drawPass(new DrawPass(std::move(target), ops, clearColor));
+    std::unique_ptr<DrawPass> drawPass(new DrawPass(target, ops, clearColor));
 
     Rect passBounds = Rect::InfiniteInverted();
 
@@ -464,6 +491,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // shading and geometry uniforms below.
     PipelineDataGatherer gatherer(shadingUniformLayout);
 
+    // Copy of destination, if needed.
+    sk_sp<TextureProxy> dst;
+
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount());
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
@@ -474,6 +504,16 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const UniformDataBlock* shadingUniforms = nullptr;
         const TextureDataBlock* paintTextures = nullptr;
         if (draw.fPaintParams.has_value()) {
+            TextureProxy* curDst = nullptr;
+            if (draw.fPaintParams->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+                // TODO(b/274811856) Only copy a subset of the render target that we need for draws
+                // needing a dst copy, and pass in uniforms to offset the dst sample coords.
+                if (!dst) {
+                    dst = add_copy_target_task(recorder, target, targetInfo);
+                    SkASSERT(dst);
+                }
+                curDst = dst.get();
+            }
             std::tie(shaderID, shadingUniforms, paintTextures) =
                     ExtractPaintData(recorder,
                                      &gatherer,
@@ -481,6 +521,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                      shadingUniformLayout,
                                      draw.fDrawParams.transform(),
                                      draw.fPaintParams.value(),
+                                     curDst ? sk_ref_sp(curDst) : nullptr,
                                      targetInfo.colorInfo());
         } // else depth-only
 

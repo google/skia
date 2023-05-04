@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/DrawList.h"
@@ -977,10 +978,22 @@ void Device::drawGeometry(const Transform& localToDevice,
         primitiveBlender = SkBlender::Mode(SkBlendMode::kSrcOver);
     }
 
+    // Figure out what dst color requirements we have, if any.
+    DstReadRequirement dstReadReq = DstReadRequirement::kNone;
+    const SkBlenderBase* blender = as_BB(paint.getBlender());
+    if (blender) {
+        dstReadReq = GetDstReadRequirement(recorder()->priv().caps(), blender->asBlendMode());
+    }
+
+    // If this paint needs to copy the dst surface for reading, flush pending work.
+    if (dstReadReq == DstReadRequirement::kTextureCopy) {
+        this->flushPendingWorkToRecorder();
+    }
+
     // If a draw is not opaque, it must be drawn after the most recent draw it intersects with in
     // order to blend correctly. We always query the most recent draw (even when opaque) because it
     // also lets Device easily track whether or not there are any overlapping draws.
-    PaintParams shading{paint, std::move(primitiveBlender), skipColorXform};
+    PaintParams shading{paint, std::move(primitiveBlender), dstReadReq, skipColorXform};
     const bool dependsOnDst = renderer->emitsCoverage() || paint_depends_on_dst(shading);
     CompressedPaintersOrder prevDraw =
             fColorDepthBoundsManager->getMostRecentDraw(clip.drawBounds());

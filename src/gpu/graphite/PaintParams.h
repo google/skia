@@ -10,6 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "src/gpu/graphite/Caps.h"
 
 class SkColorInfo;
 class SkShader;
@@ -19,6 +20,7 @@ namespace skgpu::graphite {
 class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
+class TextureProxy;
 
 // TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
 // back to Device when the command is recorded (similar to SkPaint -> GrPaint), and then
@@ -33,10 +35,12 @@ public:
                 sk_sp<SkShader>,
                 sk_sp<SkColorFilter>,
                 sk_sp<SkBlender> primitiveBlender,
+                DstReadRequirement dstReadReq,
                 bool skipColorXform,
                 bool dither);
     explicit PaintParams(const SkPaint&,
                          sk_sp<SkBlender> primitiveBlender,
+                         DstReadRequirement dstReadReq,
                          bool skipColorXform);
 
     PaintParams(const PaintParams&);
@@ -59,15 +63,14 @@ public:
     SkBlender* primitiveBlender() const { return fPrimitiveBlender.get(); }
     sk_sp<SkBlender> refPrimitiveBlender() const;
 
+    DstReadRequirement dstReadRequirement() const { return fDstReadReq; }
     bool skipColorXform() const { return fSkipColorXform; }
     bool dither() const { return fDither; }
 
     /** Converts an SkColor4f to the destination color space. */
     static SkColor4f Color4fPrepForDst(SkColor4f srgb, const SkColorInfo& dstColorInfo);
 
-    void toKey(const KeyContext&,
-               PaintParamsKeyBuilder*,
-               PipelineDataGatherer*) const;
+    void toKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
 
 private:
     SkColor4f            fColor;
@@ -78,6 +81,7 @@ private:
     // In the case where there is primitive blending, the primitive color is the source color and
     // the dest is the paint's color (or the paint's shader's computed color).
     sk_sp<SkBlender>     fPrimitiveBlender;
+    DstReadRequirement   fDstReadReq;
     bool                 fSkipColorXform;
     bool                 fDither;
 

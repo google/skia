@@ -463,6 +463,49 @@ std::string GenerateDefaultPreamble(const ShaderInfo& shaderInfo,
 }
 
 //--------------------------------------------------------------------------------------------------
+static constexpr Uniform kDstReadUniforms[] = {
+        { "dstTextureCoords", SkSLType::kFloat4 },
+};
+
+static constexpr TextureAndSampler kDstReadTexturesAndSamplers[] = {
+        {"dstSampler"},
+};
+
+// Call a function from the preamble which initializes the dst color and passes through the prior
+// stage output without modification.
+std::string GenerateDstReadExpression(const ShaderInfo& shaderInfo,
+                                      const ShaderNode* node,
+                                      const ShaderSnippet::Args& args) {
+    const ShaderSnippet* entry = node->entry();
+    std::string sampler =
+            get_mangled_sampler_name(entry->fTexturesAndSamplers[0], node->keyIndex());
+    std::string coords =
+            get_mangled_uniform_name(shaderInfo, entry->fUniforms[0], node->keyIndex());
+    std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, node->keyIndex());
+
+    return SkSL::String::printf("%s(%s, %s, %s)",
+                                helperFnName.c_str(),
+                                args.fPriorStageOutput.data(),
+                                coords.c_str(),
+                                sampler.c_str());
+}
+
+// Emit a surfaceColor global, and a function that passes through a half4 value and initializes
+// surfaceColor as a side effect.
+std::string GenerateDstReadPreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
+    std::string helperFnName =
+            get_mangled_name(node->entry()->fStaticFunctionName, node->keyIndex());
+
+    return SkSL::String::printf(
+            "half4 surfaceColor;"
+            "half4 %s(half4 priorStageOutput, float4 coords, sampler2D dstSampler) {"
+                "surfaceColor = sample(dstSampler, (sk_FragCoord.xy - coords.xy) * coords.zw);"
+                "return priorStageOutput;"
+            "}",
+            helperFnName.c_str());
+}
+
+//--------------------------------------------------------------------------------------------------
 static constexpr int kFourStopGradient = 4;
 static constexpr int kEightStopGradient = 8;
 
@@ -1027,6 +1070,12 @@ std::string GenerateFixedFunctionBlenderExpression(const ShaderInfo&,
 
 //--------------------------------------------------------------------------------------------------
 
+std::string GenerateDstColorExpression(const ShaderInfo&,
+                                       const ShaderNode* node,
+                                       const ShaderSnippet::Args& args) {
+    return "surfaceColor";
+}
+
 std::string GeneratePrimitiveColorExpression(const ShaderInfo&,
                                              const ShaderNode* node,
                                              const ShaderSnippet::Args&) {
@@ -1487,6 +1536,16 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren
     };
 
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstColor] = {
+            "DstColor",
+            { },          // no uniforms
+            SnippetRequirementFlags::kNone,
+            { },          // no samplers
+            "dst color",  // no static sksl
+            GenerateDstColorExpression,
+            GenerateDefaultPreamble,
+            kNoChildren
+    };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {
             "PrimitiveColor",
             { },                // no uniforms
@@ -1495,6 +1554,17 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             "primitive color",  // no static sksl
             GeneratePrimitiveColorExpression,
             GenerateDefaultPreamble,
+            kNoChildren
+    };
+
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstRead] = {
+            "DstRead",
+            SkSpan(kDstReadUniforms),
+            SnippetRequirementFlags::kNone,
+            SkSpan(kDstReadTexturesAndSamplers),
+            "InitSurfaceColor",
+            GenerateDstReadExpression,
+            GenerateDstReadPreamble,
             kNoChildren
     };
 

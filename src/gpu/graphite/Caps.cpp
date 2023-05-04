@@ -8,10 +8,12 @@
 #include "src/gpu/graphite/Caps.h"
 
 #include "include/core/SkCapabilities.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::graphite {
@@ -78,6 +80,11 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) co
     }
 
     return colorTypeInfo->fWriteSwizzle;
+}
+
+DstReadRequirement Caps::getDstReadRequirement() const {
+    // TODO(b/238757201): Currently this only supports dst reads by texture copy.
+    return DstReadRequirement::kTextureCopy;
 }
 
 sktext::gpu::SDFTControl Caps::getSDFTControl(bool useSDFTForSmallText) const {

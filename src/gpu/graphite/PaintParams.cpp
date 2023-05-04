@@ -51,6 +51,7 @@ PaintParams::PaintParams(const SkColor4f& color,
                          sk_sp<SkShader> shader,
                          sk_sp<SkColorFilter> colorFilter,
                          sk_sp<SkBlender> primitiveBlender,
+                         DstReadRequirement dstReadReq,
                          bool skipColorXform,
                          bool dither)
         : fColor(color)
@@ -58,17 +59,20 @@ PaintParams::PaintParams(const SkColor4f& color,
         , fShader(std::move(shader))
         , fColorFilter(std::move(colorFilter))
         , fPrimitiveBlender(std::move(primitiveBlender))
+        , fDstReadReq(dstReadReq)
         , fSkipColorXform(skipColorXform)
         , fDither(dither) {}
 
 PaintParams::PaintParams(const SkPaint& paint,
                          sk_sp<SkBlender> primitiveBlender,
+                         DstReadRequirement dstReadReq,
                          bool skipColorXform)
         : fColor(paint.getColor4f())
         , fFinalBlender(paint.refBlender())
         , fShader(paint.refShader())
         , fColorFilter(paint.refColorFilter())
         , fPrimitiveBlender(std::move(primitiveBlender))
+        , fDstReadReq(dstReadReq)
         , fSkipColorXform(skipColorXform)
         , fDither(paint.isDither()) {}
 
@@ -102,10 +106,17 @@ SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& 
 void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
-
     // TODO: figure out how we can omit this block when the Paint's color isn't used.
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, keyContext.paintColor());
     builder->endBlock();
+
+    bool needsDstSample = fDstReadReq == DstReadRequirement::kTextureCopy ||
+                          fDstReadReq == DstReadRequirement::kTextureSample;
+    SkASSERT(needsDstSample == SkToBool(keyContext.dstTexture()));
+    if (needsDstSample) {
+        DstReadBlock::BeginBlock(keyContext, builder, gatherer, keyContext.dstTexture());
+        builder->endBlock();
+    }
 
     if (fShader) {
         as_SB(fShader)->addToKey(keyContext, builder, gatherer);

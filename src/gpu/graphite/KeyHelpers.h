@@ -57,6 +57,13 @@ struct PriorOutputBlock {
                            PipelineDataGatherer*);
 };
 
+struct DstReadBlock {
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*,
+                           sk_sp<TextureProxy> dst);
+};
+
 struct SolidColorShaderBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
@@ -240,6 +247,10 @@ struct CoeffBlenderBlock {
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            SkSpan<const float> coeffs);
+};
+
+struct DstColorBlock {
+    static void BeginBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*);
 };
 
 struct PrimitiveColorBlock {

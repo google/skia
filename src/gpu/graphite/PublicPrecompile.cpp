@@ -78,7 +78,7 @@ void Precompile(Context* context, const PaintOptions& options, DrawTypeFlags dra
     auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
 
     SkColorInfo ci(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    KeyContext keyContext(dict, rtEffectDict.get(), ci);
+    KeyContext keyContext(caps, dict, rtEffectDict.get(), ci, /* dstTexture= */ nullptr);
 
     // TODO: we need iterate over a broader set of TextureInfos here. Perhaps, allow the client
     // to pass in colorType, mipmapping and protection.
