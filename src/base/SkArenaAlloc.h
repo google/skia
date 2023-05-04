@@ -155,6 +155,19 @@ public:
     }
 
     template <typename T>
+    T* make() {
+        if constexpr (std::is_standard_layout<T>::value && std::is_trivial<T>::value) {
+            // Just allocate some aligned bytes. This generates smaller code.
+            return (T*)this->makeBytesAlignedTo(sizeof(T), alignof(T));
+        } else {
+            // This isn't a POD type, so construct the object properly.
+            return this->make([&](void* objStart) {
+                return new(objStart) T();
+            });
+        }
+    }
+
+    template <typename T>
     T* makeArrayDefault(size_t count) {
         T* array = this->allocUninitializedArray<T>(count);
         for (size_t i = 0; i < count; i++) {
@@ -183,7 +196,7 @@ public:
         return array;
     }
 
-    // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
+    // Only use makeBytesAlignedTo if none of the typed variants are practical to use.
     void* makeBytesAlignedTo(size_t size, size_t align) {
         AssertRelease(SkTFitsIn<uint32_t>(size));
         auto objStart = this->allocObject(SkToU32(size), SkToU32(align));
