@@ -544,6 +544,7 @@ skia_filegroup(
         "inliner/InlinerManglesNames.sksl",
         "inliner/InlinerUsesTempVarForMultipleReturns.sksl",
         "inliner/InlinerUsesTempVarForReturnsInsideBlockWithVar.sksl",
+        "inliner/IntrinsicNameCollision.sksl",
         "inliner/NoInline.sksl",
         "inliner/Ossfuzz37994.sksl",
         "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl",
