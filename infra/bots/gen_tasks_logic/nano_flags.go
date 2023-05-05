@@ -280,6 +280,10 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	if b.model("NUC7i5BNK") {
 		args = append(args, "--gpuResourceCacheLimit", "16777216")
 	}
+	if (!b.isLinux() && b.extraConfig("Vulkan") && b.gpu("QuadroP400")) {
+		// skia:14302 (desk_carsvg.skp hangs indefinitely on Windows QuadroP400 vkdmsaa configs)
+		match = append(match, "~desk_carsvg.skp")
+	}
 
 	if b.extraConfig("DMSAAStats") {
 		// Render tiled, single-frame skps with an extremely tall canvas that hopefully allows for
