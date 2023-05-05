@@ -553,7 +553,6 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithModifiedArgument,               
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithNestedBigCalls,                         "inliner/InlineWithNestedBigCalls.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithUnmodifiedArgument,                     "inliner/InlineWithUnmodifiedArgument.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithUnnecessaryBlocks,                      "inliner/InlineWithUnnecessaryBlocks.sksl")
-SKSL_TEST(RP + VM + GPU, kNextRelease,IntrinsicNameCollision,                           "inliner/IntrinsicNameCollision.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, NoInline,                                         "inliner/NoInline.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitEvaluationsCannotInlineRightHandSide, "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      StaticSwitchInline,                               "inliner/StaticSwitch.sksl")
