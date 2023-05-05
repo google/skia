@@ -38,6 +38,171 @@ static bool is_valid_sample_size(int sampleSize) {
     return sampleSize > 0;
 }
 
+static bool cicp_get_primaries(uint8_t primaries, skcms_Matrix3x3* sk_primaries) {
+    // Rec. ITU-T H.273, Table 2.
+    switch (primaries) {
+        case 0:
+            // Reserved.
+            break;
+        case 1:
+            *sk_primaries = SkNamedGamut::kSRGB;
+            return true;
+        case 2:
+            // Unspecified.
+            break;
+        case 3:
+            // Reserved.
+            break;
+        case 4:
+            return skcms_PrimariesToXYZD50(
+                    0.67f, 0.33f, 0.21f, 0.71f, 0.14f, 0.08f, 0.31f, 0.316f, sk_primaries);
+        case 5:
+            return skcms_PrimariesToXYZD50(
+                    0.64f, 0.33f, 0.29f, 0.60f, 0.15f, 0.06f, 0.3127f, 0.3290f, sk_primaries);
+        case 6:
+            return skcms_PrimariesToXYZD50(
+                    0.630f, 0.340f, 0.310f, 0.595f, 0.155f, 0.070f, 0.3127f, 0.3290f, sk_primaries);
+        case 7:
+            return skcms_PrimariesToXYZD50(
+                    0.630f, 0.340f, 0.310f, 0.595f, 0.155f, 0.070f, 0.3127f, 0.3290f, sk_primaries);
+        case 8:
+            return skcms_PrimariesToXYZD50(
+                    0.681f, 0.319f, 0.243f, 0.692f, 0.145f, 0.049f, 0.310f, 0.316f, sk_primaries);
+        case 9:
+            *sk_primaries = SkNamedGamut::kRec2020;
+            return true;
+        case 10:
+            return skcms_PrimariesToXYZD50(
+                    1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f / 3.f, 1.f / 3.f, sk_primaries);
+        case 11:
+            return skcms_PrimariesToXYZD50(
+                    0.680f, 0.320f, 0.265f, 0.690f, 0.150f, 0.060f, 0.314f, 0.351f, sk_primaries);
+        case 12:
+            return skcms_PrimariesToXYZD50(
+                    0.680f, 0.320f, 0.265f, 0.690f, 0.150f, 0.060f, 0.3127f, 0.3290f, sk_primaries);
+        case 22:
+            return skcms_PrimariesToXYZD50(
+                    0.630f, 0.340f, 0.295f, 0.605f, 0.155f, 0.077f, 0.3127f, 0.3290f, sk_primaries);
+        default:
+            // Reserved.
+            break;
+    }
+    *sk_primaries = SkNamedGamut::kSRGB;
+    return false;
+}
+
+static bool cicp_get_transfer_fn(uint8_t transfer_characteristics, skcms_TransferFunction* trfn) {
+    // Rec. ITU-T H.273, Table 3.
+    switch (transfer_characteristics) {
+        case 0:
+            // Reserved.
+            break;
+        case 1:
+            *trfn = SkNamedTransferFn::kRec2020;
+            return true;
+        case 2:
+            // Unspecified.
+            break;
+        case 3:
+            // Reserved.
+            break;
+        case 4:
+            *trfn = {2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            return true;
+        case 5:
+            *trfn = {2.8f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            return true;
+        case 6:
+            *trfn = SkNamedTransferFn::kRec2020;
+            return true;
+        case 7:
+            *trfn = {2.222222222222f,
+                     0.899626676224f,
+                     0.100373323776f,
+                     0.25f,
+                     0.091286342118f,
+                     0.f,
+                     0.f};
+            return true;
+        case 8:
+            *trfn = SkNamedTransferFn::kLinear;
+            return true;
+        case 9:
+            // Logarithmic transfer characteristic (100:1 range).
+            // Not supported by skcms
+            break;
+        case 10:
+            // Logarithmic transfer characteristic (100 * Sqrt( 10 ) : 1 range).
+            // Not supported by skcms
+            break;
+        case 11:
+            *trfn = SkNamedTransferFn::kSRGB;
+            break;
+        case 12:
+            // Rec. ITU-R BT.1361-0 extended colour gamut system (historical).
+            // Same as kRec709 on positive values, differs on negative values.
+            // Not supported by skcms
+            break;
+        case 13:
+            *trfn = SkNamedTransferFn::kSRGB;
+            return true;
+        case 14:
+            *trfn = SkNamedTransferFn::kRec2020;
+            return true;
+        case 15:
+            *trfn = SkNamedTransferFn::kRec2020;
+            return true;
+        case 16:
+            // Android expects PQ to match 203 nits to SDR white
+            *trfn = {-2.f,
+                     -1.55522297832f,
+                     1.86045365631f,
+                     32 / 2523.0f,
+                     2413 / 128.0f,
+                     -2392 / 128.0f,
+                     8192 / 1305.0f};
+            return true;
+        case 17:
+            *trfn = {2.6f, 1.034080527699f, 0.f, 0.f, 0.f, 0.f, 0.f};
+            return true;
+        case 18:
+            // Android expects HLG to match 203 nits to SDR white
+            if (skcms_TransferFunction_makeScaledHLGish(trfn,
+                                                        0.314509843f,
+                                                        2.f,
+                                                        2.f,
+                                                        1.f / 0.17883277f,
+                                                        0.28466892f,
+                                                        0.55991073f)) {
+                return true;
+            }
+            break;
+        default:
+            // 19-255 Reserved.
+            break;
+    }
+
+    *trfn = SkNamedTransferFn::kSRGB;
+    return false;
+}
+
+static sk_sp<SkColorSpace> cicp_get_sk_color_space(uint8_t color_primaries,
+                                                   uint8_t transfer_characteristics,
+                                                   uint8_t matrix_coefficients,
+                                                   uint8_t full_range_flag) {
+    if (matrix_coefficients != 0) return nullptr;
+
+    if (full_range_flag != 1) return nullptr;
+
+    skcms_TransferFunction trfn;
+    if (!cicp_get_transfer_fn(transfer_characteristics, &trfn)) return nullptr;
+
+    skcms_Matrix3x3 primaries;
+    if (!cicp_get_primaries(color_primaries, &primaries)) return nullptr;
+
+    return SkColorSpace::MakeRGB(trfn, primaries);
+}
+
 SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
     : fInfo(codec->getInfo())
     , fCodec(codec)
@@ -161,6 +326,17 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
 
             const skcms_ICCProfile* encodedProfile = fCodec->getEncodedInfo().profile();
             if (encodedProfile) {
+                // Prefer CICP information if it exists.
+                if (encodedProfile->has_CICP) {
+                    const auto cicpColorSpace =
+                            cicp_get_sk_color_space(encodedProfile->CICP.color_primaries,
+                                                    encodedProfile->CICP.transfer_characteristics,
+                                                    encodedProfile->CICP.matrix_coefficients,
+                                                    encodedProfile->CICP.video_full_range_flag);
+                    if (cicpColorSpace) {
+                        return cicpColorSpace;
+                    }
+                }
                 if (auto encodedSpace = SkColorSpace::Make(*encodedProfile)) {
                     // Leave the pixels in the encoded color space.  Color space conversion
                     // will be handled after decode time.
