@@ -200,3 +200,75 @@ DEF_TEST(AndroidCodec_P3, r) {
     }};
     REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
 }
+
+DEF_TEST(AndroidCodec_HLG, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* path = "images/red-hlg-profile.png";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing file %s", path);
+        return;
+    }
+
+    auto codec = SkAndroidCodec::MakeFromCodec(SkCodec::MakeFromData(std::move(data)));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec from %s", path);
+        return;
+    }
+
+    auto info = codec->getInfo();
+    auto cs = codec->computeOutputColorSpace(info.colorType(), nullptr);
+    if (!cs) {
+        ERRORF(r, "%s should have a color space", path);
+        return;
+    }
+
+    skcms_TransferFunction tf;
+    cs->transferFn(&tf);
+    REPORTER_ASSERT(r, skcms_TransferFunction_isHLGish(&tf));
+
+    skcms_Matrix3x3 matrix;
+    cs->toXYZD50(&matrix);
+
+    static constexpr skcms_Matrix3x3 kExpected = SkNamedGamut::kRec2020;
+    REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
+}
+
+DEF_TEST(AndroidCodec_PQ, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* path = "images/red-pq-profile.png";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing file %s", path);
+        return;
+    }
+
+    auto codec = SkAndroidCodec::MakeFromCodec(SkCodec::MakeFromData(std::move(data)));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec from %s", path);
+        return;
+    }
+
+    auto info = codec->getInfo();
+    auto cs = codec->computeOutputColorSpace(info.colorType(), nullptr);
+    if (!cs) {
+        ERRORF(r, "%s should have a color space", path);
+        return;
+    }
+
+    skcms_TransferFunction tf;
+    cs->transferFn(&tf);
+    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&tf));
+
+    skcms_Matrix3x3 matrix;
+    cs->toXYZD50(&matrix);
+
+    static constexpr skcms_Matrix3x3 kExpected = SkNamedGamut::kRec2020;
+    REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
+}
