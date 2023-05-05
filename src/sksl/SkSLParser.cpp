@@ -21,11 +21,19 @@
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
+#include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLBreakStatement.h"
+#include "src/sksl/ir/SkSLContinueStatement.h"
+#include "src/sksl/ir/SkSLDiscardStatement.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -1210,8 +1218,11 @@ DSLStatement Parser::ifStatement() {
         }
     }
     Position pos = this->rangeFrom(start);
-    return If(std::move(test), std::move(ifTrue),
-              ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
+    return DSLStatement(IfStatement::Convert(ThreadContext::Context(),
+                                             pos,
+                                             test.release(),
+                                             ifTrue.release(),
+                                             ifFalse.releaseIfPossible()), pos);
 }
 
 /* DO statement WHILE LPAREN expression RPAREN SEMICOLON */
@@ -1240,7 +1251,9 @@ DSLStatement Parser::doStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return {};
     }
-    return Do(std::move(statement), std::move(test), this->rangeFrom(start));
+    Position pos = this->rangeFrom(start);
+    return DSLStatement(DoStatement::Convert(ThreadContext::Context(), pos,
+                                             statement.release(), test.release()), pos);
 }
 
 /* WHILE LPAREN expression RPAREN STATEMENT */
@@ -1263,7 +1276,10 @@ DSLStatement Parser::whileStatement() {
     if (!statement.hasValue()) {
         return {};
     }
-    return While(std::move(test), std::move(statement), this->rangeFrom(start));
+    Position pos = this->rangeFrom(start);
+    return DSLStatement(ForStatement::ConvertWhile(ThreadContext::Context(), pos,
+                                                   test.release(),
+                                                   statement.release()), pos);
 }
 
 /* CASE expression COLON statement* */
@@ -1311,18 +1327,22 @@ DSLStatement Parser::switchStatement() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return {};
     }
-    TArray<DSLCase> cases;
+
+    ExpressionArray values;
+    StatementArray caseBlocks;
     while (this->peek().fKind == Token::Kind::TK_CASE) {
         std::optional<DSLCase> c = this->switchCase();
         if (!c) {
             return {};
         }
-        cases.push_back(std::move(*c));
+        values.push_back(c->fValue.releaseIfPossible());
+        caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c->fStatements),
+                                               Block::Kind::kUnbracedBlock));
     }
     // Requiring default: to be last (in defiance of C and GLSL) was a deliberate decision. Other
     // parts of the compiler may rely upon this assumption.
     if (this->peek().fKind == Token::Kind::TK_DEFAULT) {
-        TArray<DSLStatement> statements;
+        StatementArray statements;
         Token defaultStart;
         SkAssertResult(this->expect(Token::Kind::TK_DEFAULT, "'default'", &defaultStart));
         if (!this->expect(Token::Kind::TK_COLON, "':'")) {
@@ -1333,15 +1353,20 @@ DSLStatement Parser::switchStatement() {
             if (!s.hasValue()) {
                 return {};
             }
-            statements.push_back(std::move(s));
+            statements.push_back(s.release());
         }
-        cases.push_back(DSLCase(DSLExpression(), std::move(statements), this->position(start)));
+        values.push_back(nullptr);
+        caseBlocks.push_back(SkSL::Block::Make(this->position(defaultStart), std::move(statements),
+                                               Block::Kind::kUnbracedBlock));
     }
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return {};
     }
     Position pos = this->rangeFrom(start);
-    return Switch(std::move(value), std::move(cases), pos);
+    return DSLStatement(SwitchStatement::Convert(ThreadContext::Context(), pos,
+                                                 value.release(),
+                                                 std::move(values),
+                                                 std::move(caseBlocks)), pos);
 }
 
 static Position range_of_at_least_one_char(int start, int end) {
@@ -1432,8 +1457,9 @@ DSLStatement Parser::returnStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return {};
     }
-    return Return(expression.hasValue() ? std::move(expression) : DSLExpression(),
-            this->rangeFrom(start));
+    // We do not check for errors, or coerce the value to the correct type, until the return
+    // statement is actually added to a function. (This is done in FunctionDefinition::Convert.)
+    return ReturnStatement::Make(this->rangeFrom(start), expression.releaseIfPossible());
 }
 
 /* BREAK SEMICOLON */
@@ -1445,7 +1471,7 @@ DSLStatement Parser::breakStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return {};
     }
-    return Break(this->position(start));
+    return SkSL::BreakStatement::Make(this->position(start));
 }
 
 /* CONTINUE SEMICOLON */
@@ -1457,7 +1483,7 @@ DSLStatement Parser::continueStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return {};
     }
-    return Continue(this->position(start));
+    return SkSL::ContinueStatement::Make(this->position(start));
 }
 
 /* DISCARD SEMICOLON */
@@ -1469,7 +1495,8 @@ DSLStatement Parser::discardStatement() {
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return {};
     }
-    return Discard(this->position(start));
+    Position pos = this->position(start);
+    return DSLStatement(SkSL::DiscardStatement::Convert(ThreadContext::Context(), pos), pos);
 }
 
 /* LBRACE statement* RBRACE */

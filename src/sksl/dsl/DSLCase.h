@@ -18,6 +18,8 @@
 
 namespace SkSL {
 
+class Parser;
+
 namespace dsl {
 
 class DSLCase {
@@ -50,6 +52,7 @@ private:
     Position fPosition;
 
     friend class DSLCore;
+    friend class ::SkSL::Parser;
 
     template<class... Cases>
     friend DSLStatement Switch(DSLExpression value, Cases... cases);
