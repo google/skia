@@ -107,7 +107,7 @@ std::unique_ptr<Statement> VarDeclaration::clone() const {
     // this leaves a sharp  edge in place - destroying the original could cause a use-after-free in
     // some circumstances - we also disable cloning altogether unless the
     // fAllowVarDeclarationCloneForTesting ProgramSetting is enabled.
-    if (ThreadContext::Settings().fAllowVarDeclarationCloneForTesting) {
+    if (ThreadContext::GetProgramConfig()->fSettings.fAllowVarDeclarationCloneForTesting) {
         return std::make_unique<VarDeclaration>(this->var(),
                                                 &this->baseType(),
                                                 fArraySize,

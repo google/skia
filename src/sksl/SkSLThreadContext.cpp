@@ -75,10 +75,6 @@ SkSL::Context& ThreadContext::Context() {
     return Compiler().context();
 }
 
-const SkSL::ProgramSettings& ThreadContext::Settings() {
-    return Context().fConfig->fSettings;
-}
-
 const SkSL::Modifiers* ThreadContext::Modifiers(const SkSL::Modifiers& modifiers) {
     return Context().fModifiersPool->add(modifiers);
 }
@@ -102,10 +98,6 @@ void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, Posi
 }
 
 thread_local ThreadContext* instance = nullptr;
-
-bool ThreadContext::IsActive() {
-    return instance != nullptr;
-}
 
 ThreadContext& ThreadContext::Instance() {
     SkASSERTF(instance, "dsl::Start() has not been called");

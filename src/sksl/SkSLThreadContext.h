@@ -50,11 +50,6 @@ public:
     ~ThreadContext();
 
     /**
-     * Returns true if the DSL has been started.
-     */
-    static bool IsActive();
-
-    /**
      * Returns the Compiler used by DSL operations in the current thread.
      */
     static SkSL::Compiler& Compiler() { return *Instance().fCompiler; }
@@ -63,16 +58,6 @@ public:
      * Returns the Context used by DSL operations in the current thread.
      */
     static SkSL::Context& Context();
-
-    /**
-     * Returns the Settings used by DSL operations in the current thread.
-     */
-    static const SkSL::ProgramSettings& Settings();
-
-    /**
-     * Returns the Program::Inputs used by the current thread.
-     */
-    static SkSL::Program::Inputs& Inputs() { return Instance().fInputs; }
 
     /**
      * Returns the collection to which DSL program elements in this thread should be appended.
@@ -84,16 +69,6 @@ public:
     static std::vector<const ProgramElement*>& SharedElements() {
         return Instance().fSharedElements;
     }
-
-    /**
-     * Returns the current memory pool.
-     */
-    static std::unique_ptr<Pool>& MemoryPool() { return Instance().fPool; }
-
-    /**
-     * Returns the current modifiers pool.
-     */
-    static std::unique_ptr<ModifiersPool>& GetModifiersPool() { return Instance().fModifiersPool; }
 
     /**
      * Returns the current ProgramConfig.
