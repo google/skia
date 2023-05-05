@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -80,16 +81,8 @@ void Variable::setGlobalVarDeclaration(GlobalVarDeclaration* global) {
     fDeclaringElement = global;
 }
 
-std::string Variable::mangledName() const {
-    // Only private variables need to use name mangling.
-    std::string_view name = this->name();
-    if (!skstd::starts_with(name, '$')) {
-        return std::string(name);
-    }
-
-    // The $ prefix will fail to compile in GLSL, so replace it with `sk_Priv`.
-    name.remove_prefix(1);
-    return "sk_Priv" + std::string(name);
+std::string_view Variable::mangledName() const {
+    return fMangledName ? *fMangledName : this->name();
 }
 
 std::unique_ptr<Variable> Variable::Convert(const Context& context,
@@ -135,6 +128,21 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
                                          bool isArray,
                                          std::unique_ptr<Expression> arraySize,
                                          Variable::Storage storage) {
+    // Invent a mangled name for the variable, if it needs one.
+    const std::string* mangledName = nullptr;
+    if (skstd::starts_with(name, '$')) {
+        // The $ prefix will fail to compile in GLSL, so replace it with `sk_Priv`.
+        mangledName = context.fSymbolTable->takeOwnershipOfString("sk_Priv" +
+                                                                  std::string(name.substr(1)));
+    } else if (FindIntrinsicKind(name) != kNotIntrinsic) {
+        // Having a variable name overlap an intrinsic name will prevent us from calling the
+        // intrinsic, but it's not illegal for user names to shadow a global symbol.
+        // Mangle the name to avoid a possible collision.
+        mangledName = context.fSymbolTable->takeOwnershipOfString(
+                Mangler{}.uniqueName(name, context.fSymbolTable.get()));
+    }
+
+    // Apply the array-size to the base type.
     const Type* type = baseType;
     int arraySizeValue = 0;
     if (isArray) {
@@ -145,11 +153,13 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
         }
         type = context.fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
+
     if (type->componentType().isInterfaceBlock()) {
         return std::make_unique<InterfaceBlockVariable>(pos,
                                                         modifiersPos,
                                                         context.fModifiersPool->add(modifiers),
                                                         name,
+                                                        mangledName,
                                                         type,
                                                         context.fConfig->fIsBuiltinCode,
                                                         storage);
@@ -158,6 +168,7 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
                                           modifiersPos,
                                           context.fModifiersPool->add(modifiers),
                                           name,
+                                          mangledName,
                                           type,
                                           context.fConfig->fIsBuiltinCode,
                                           storage);
@@ -192,6 +203,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
                                           /*modifiersPosition=*/Position(),
                                           context.fModifiersPool->add(Modifiers{}),
                                           name->c_str(),
+                                          /*mangledName=*/nullptr,
                                           type,
                                           symbolTable->isBuiltin(),
                                           Variable::Storage::kLocal);
