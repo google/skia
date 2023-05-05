@@ -22,6 +22,7 @@
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -1401,16 +1402,17 @@ dsl::DSLStatement Parser::forStatement() {
     if (!statement.hasValue()) {
         return {};
     }
-    return For(initializer.hasValue() ? std::move(initializer) : DSLStatement(),
-               test.hasValue() ? std::move(test) : DSLExpression(),
-               next.hasValue() ? std::move(next) : DSLExpression(),
-               std::move(statement),
-               this->rangeFrom(start),
-               ForLoopPositions{
-                    range_of_at_least_one_char(lparen.fOffset + 1, firstSemicolonOffset),
-                    range_of_at_least_one_char(firstSemicolonOffset + 1, secondSemicolon.fOffset),
-                    range_of_at_least_one_char(secondSemicolon.fOffset + 1, rparen.fOffset)
-               });
+    Position pos = this->rangeFrom(start);
+    ForLoopPositions loopPositions{
+            range_of_at_least_one_char(lparen.fOffset + 1, firstSemicolonOffset),
+            range_of_at_least_one_char(firstSemicolonOffset + 1, secondSemicolon.fOffset),
+            range_of_at_least_one_char(secondSemicolon.fOffset + 1, rparen.fOffset),
+    };
+    return DSLStatement(ForStatement::Convert(ThreadContext::Context(), pos, loopPositions,
+                                              initializer.releaseIfPossible(),
+                                              test.releaseIfPossible(),
+                                              next.releaseIfPossible(),
+                                              statement.release()), pos);
 }
 
 /* RETURN expression? SEMICOLON */

@@ -8,15 +8,18 @@
 #ifndef SKSL_DSL_EXPRESSION
 #define SKSL_DSL_EXPRESSION
 
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 
 #if defined(__has_cpp_attribute) && __has_cpp_attribute(clang::reinitializes)
 #define SK_CLANG_REINITIALIZES [[clang::reinitializes]]
@@ -26,7 +29,6 @@
 
 namespace SkSL {
 
-class Expression;
 class ExpressionArray;
 
 namespace dsl {
@@ -173,14 +175,19 @@ public:
      * Invalidates this object and returns the SkSL expression it represents. It is an error to call
      * this on an invalid DSLExpression.
      */
-    std::unique_ptr<SkSL::Expression> release();
+    std::unique_ptr<SkSL::Expression> release() {
+        SkASSERT(this->hasValue());
+        return std::move(fExpression);
+    }
 
-private:
     /**
      * Calls release if this expression has a value, otherwise returns null.
      */
-    std::unique_ptr<SkSL::Expression> releaseIfPossible();
+    std::unique_ptr<SkSL::Expression> releaseIfPossible() {
+        return std::move(fExpression);
+    }
 
+private:
     std::unique_ptr<SkSL::Expression> fExpression;
 
     friend DSLExpression SampleChild(int index, DSLExpression coords);

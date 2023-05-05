@@ -95,15 +95,6 @@ void DSLExpression::swap(DSLExpression& other) {
     std::swap(fExpression, other.fExpression);
 }
 
-std::unique_ptr<SkSL::Expression> DSLExpression::release() {
-    SkASSERT(this->hasValue());
-    return std::move(fExpression);
-}
-
-std::unique_ptr<SkSL::Expression> DSLExpression::releaseIfPossible() {
-    return std::move(fExpression);
-}
-
 DSLType DSLExpression::type() const {
     if (!this->hasValue()) {
         return kVoid_Type;

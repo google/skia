@@ -61,11 +61,11 @@ public:
         return std::move(fStatement);
     }
 
-private:
     std::unique_ptr<SkSL::Statement> releaseIfPossible() {
         return std::move(fStatement);
     }
 
+private:
     std::unique_ptr<SkSL::Statement> fStatement;
 
     friend class DSLCore;
