@@ -33,6 +33,7 @@
 namespace SkSL {
 
 class Compiler;
+class Expression;
 class SymbolTable;
 enum class ProgramKind : int8_t;
 struct Module;
@@ -40,7 +41,6 @@ struct Program;
 
 namespace dsl {
 class DSLBlock;
-class DSLCase;
 class DSLGlobalVar;
 class DSLParameter;
 class DSLVarBase;
@@ -211,7 +211,11 @@ private:
 
     dsl::DSLStatement forStatement();
 
-    std::optional<dsl::DSLCase> switchCase();
+    bool switchCaseBody(ExpressionArray* values,
+                        StatementArray* caseBlocks,
+                        std::unique_ptr<Expression> value);
+
+    bool switchCase(ExpressionArray* values, StatementArray* caseBlocks);
 
     dsl::DSLStatement switchStatement();
 

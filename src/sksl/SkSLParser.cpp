@@ -16,7 +16,6 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLBlock.h"
-#include "src/sksl/dsl/DSLCase.h"
 #include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -1282,30 +1281,40 @@ DSLStatement Parser::whileStatement() {
                                                    statement.release()), pos);
 }
 
-/* CASE expression COLON statement* */
-std::optional<DSLCase> Parser::switchCase() {
-    Token start;
-    if (!this->expect(Token::Kind::TK_CASE, "'case'", &start)) {
-        return {};
-    }
-    DSLExpression value = this->expression();
-    if (!value.hasValue()) {
-        return {};
-    }
+/* COLON statement* */
+bool Parser::switchCaseBody(ExpressionArray* values,
+                            StatementArray* caseBlocks,
+                            std::unique_ptr<Expression> caseValue) {
     if (!this->expect(Token::Kind::TK_COLON, "':'")) {
-        return {};
+        return false;
     }
-    TArray<DSLStatement> statements;
+    StatementArray statements;
     while (this->peek().fKind != Token::Kind::TK_RBRACE &&
            this->peek().fKind != Token::Kind::TK_CASE &&
            this->peek().fKind != Token::Kind::TK_DEFAULT) {
         DSLStatement s = this->statement();
         if (!s.hasValue()) {
-            return {};
+            return false;
         }
-        statements.push_back(std::move(s));
+        statements.push_back(s.release());
     }
-    return DSLCase(std::move(value), std::move(statements));
+    values->push_back(std::move(caseValue));
+    caseBlocks->push_back(SkSL::Block::Make(Position(), std::move(statements),
+                                            Block::Kind::kUnbracedBlock));
+    return true;
+}
+
+/* CASE expression COLON statement* */
+bool Parser::switchCase(ExpressionArray* values, StatementArray* caseBlocks) {
+    Token start;
+    if (!this->expect(Token::Kind::TK_CASE, "'case'", &start)) {
+        return false;
+    }
+    DSLExpression caseValue = this->expression();
+    if (!caseValue.hasValue()) {
+        return false;
+    }
+    return this->switchCaseBody(values, caseBlocks, caseValue.release());
 }
 
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
@@ -1331,33 +1340,16 @@ DSLStatement Parser::switchStatement() {
     ExpressionArray values;
     StatementArray caseBlocks;
     while (this->peek().fKind == Token::Kind::TK_CASE) {
-        std::optional<DSLCase> c = this->switchCase();
-        if (!c) {
+        if (!this->switchCase(&values, &caseBlocks)) {
             return {};
         }
-        values.push_back(c->fValue.releaseIfPossible());
-        caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c->fStatements),
-                                               Block::Kind::kUnbracedBlock));
     }
-    // Requiring default: to be last (in defiance of C and GLSL) was a deliberate decision. Other
-    // parts of the compiler may rely upon this assumption.
-    if (this->peek().fKind == Token::Kind::TK_DEFAULT) {
-        StatementArray statements;
-        Token defaultStart;
-        SkAssertResult(this->expect(Token::Kind::TK_DEFAULT, "'default'", &defaultStart));
-        if (!this->expect(Token::Kind::TK_COLON, "':'")) {
+    // Requiring `default:` to be last (in defiance of C and GLSL) was a deliberate decision. Other
+    // parts of the compiler are allowed to rely upon this assumption.
+    if (this->checkNext(Token::Kind::TK_DEFAULT)) {
+        if (!this->switchCaseBody(&values, &caseBlocks, /*value=*/nullptr)) {
             return {};
         }
-        while (this->peek().fKind != Token::Kind::TK_RBRACE) {
-            DSLStatement s = this->statement();
-            if (!s.hasValue()) {
-                return {};
-            }
-            statements.push_back(s.release());
-        }
-        values.push_back(nullptr);
-        caseBlocks.push_back(SkSL::Block::Make(this->position(defaultStart), std::move(statements),
-                                               Block::Kind::kUnbracedBlock));
     }
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return {};
