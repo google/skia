@@ -810,10 +810,7 @@ $pure half4 noise_helper(half2 noiseVec,
 
     // Adjust frequencies if we're stitching tiles
     if (bool(stitching)) {
-        if (floorVal.x >= stitchData.x) { floorVal.x -= stitchData.x; };
-        if (floorVal.y >= stitchData.y) { floorVal.y -= stitchData.y; };
-        if (floorVal.z >= stitchData.x) { floorVal.z -= stitchData.x; };
-        if (floorVal.w >= stitchData.y) { floorVal.w -= stitchData.y; };
+        floorVal -= step(stitchData.xyxy, floorVal) * stitchData.xyxy;
     }
 
     half sampleX = sample(permutationSampler, half2(floorVal.x/kBlockSize, 0.5)).r;

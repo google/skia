@@ -743,10 +743,7 @@ SkString GrPerlinNoise2Effect::Impl::emitHelper(EmitArgs& args) {
     // Adjust frequencies if we're stitching tiles
     if (pne.stitchTiles()) {
         noiseCode.append(
-            "if (floorVal.x >= stitchData.x) { floorVal.x -= stitchData.x; };"
-            "if (floorVal.y >= stitchData.y) { floorVal.y -= stitchData.y; };"
-            "if (floorVal.z >= stitchData.x) { floorVal.z -= stitchData.x; };"
-            "if (floorVal.w >= stitchData.y) { floorVal.w -= stitchData.y; };"
+            "floorVal -= step(stitchData.xyxy, floorVal) * stitchData.xyxy;"
         );
     }
 
