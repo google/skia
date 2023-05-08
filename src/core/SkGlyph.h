@@ -504,7 +504,7 @@ public:
 
     // Make sure that the intercept information is on the glyph and return it, or return it if it
     // already exists.
-    // * bounds - either end of the gap for the character.
+    // * bounds - [0] - top of underline; [1] - bottom of underline.
     // * scale, xPos - information about how wide the gap is.
     // * array - accumulated gaps for many characters if not null.
     // * count - the number of gaps.
@@ -524,7 +524,7 @@ public:
     // Read the image data, store it in the alloc, and add it to the glyph.
     size_t addImageFromBuffer(SkReadBuffer&, SkArenaAlloc*);
 
-    // Flatten just the the path data.
+    // Flatten just the path data.
     void flattenPath(SkWriteBuffer&) const;
 
     // Read the path data, create the glyph's path data in the alloc, and add it to the glyph.

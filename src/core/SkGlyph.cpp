@@ -424,6 +424,7 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
     // Left and Right of an ever expanding gap around the path.
     SkScalar left  = SK_ScalarMax,
              right = SK_ScalarMin;
+
     auto expandGap = [&left, &right](SkScalar v) {
         left  = std::min(left, v);
         right = std::max(right, v);
@@ -541,11 +542,11 @@ void SkGlyph::ensureIntercepts(const SkScalar* bounds, SkScalar scale, SkScalar 
 
     const SkGlyph::Intercept* match =
             [this](const SkScalar bounds[2]) -> const SkGlyph::Intercept* {
-                if (!fPathData) {
+                if (fPathData == nullptr) {
                     return nullptr;
                 }
                 const SkGlyph::Intercept* intercept = fPathData->fIntercept;
-                while (intercept) {
+                while (intercept != nullptr) {
                     if (bounds[0] == intercept->fBounds[0] && bounds[1] == intercept->fBounds[1]) {
                         return intercept;
                     }
@@ -554,7 +555,7 @@ void SkGlyph::ensureIntercepts(const SkScalar* bounds, SkScalar scale, SkScalar 
                 return nullptr;
             }(bounds);
 
-    if (match) {
+    if (match != nullptr) {
         if (match->fInterval[0] < match->fInterval[1]) {
             offsetResults(match, array, count);
         }
