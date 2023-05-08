@@ -10,6 +10,8 @@
 
 #include "include/core/SkScalar.h"
 
+template <typename T> class SkNoDestructor;
+
 namespace sktext::gpu {
 
 // Distance field text needs this table to compute a value for use in the fragment shader.
@@ -31,6 +33,8 @@ private:
 
     SkScalar* fTable;
     SkScalar* fGammaCorrectTable;
+
+    friend class SkNoDestructor<DistanceFieldAdjustTable>;
 };
 
 }  // namespace sktext::gpu

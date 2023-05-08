@@ -12,6 +12,7 @@
 #include "include/private/base/SkTDArray.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkNoDestructor.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -369,15 +370,15 @@ sk_sp<SkFlattenable> ColorSpaceXformColorFilter::CreateProc(SkReadBuffer& buffer
 }
 
 sk_sp<SkColorFilter> SkColorFilters::LinearToSRGBGamma() {
-    static SkColorFilter* gSingleton = new ColorSpaceXformColorFilter(
-            SkColorSpace::MakeSRGBLinear(), SkColorSpace::MakeSRGB());
-    return sk_ref_sp(gSingleton);
+    static SkNoDestructor<ColorSpaceXformColorFilter> gSingleton(SkColorSpace::MakeSRGBLinear(),
+                                                                 SkColorSpace::MakeSRGB());
+    return sk_ref_sp(gSingleton.get());
 }
 
 sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
-    static SkColorFilter* gSingleton = new ColorSpaceXformColorFilter(
-            SkColorSpace::MakeSRGB(), SkColorSpace::MakeSRGBLinear());
-    return sk_ref_sp(gSingleton);
+    static SkNoDestructor<ColorSpaceXformColorFilter> gSingleton(SkColorSpace::MakeSRGB(),
+                                                                 SkColorSpace::MakeSRGBLinear());
+    return sk_ref_sp(gSingleton.get());
 }
 
 sk_sp<SkColorFilter> SkColorFilterPriv::MakeColorSpaceXform(sk_sp<SkColorSpace> src,

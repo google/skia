@@ -13,6 +13,7 @@
 #include "include/private/base/SkOnce.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "src/base/SkEndian.h"
+#include "src/base/SkNoDestructor.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
@@ -165,7 +166,7 @@ namespace {
     };
 
     std::vector<DecoderProc>* decoders() {
-        static auto* decoders = new std::vector<DecoderProc> {
+        static SkNoDestructor<std::vector<DecoderProc>> decoders{{
             { SkEmptyTypeface::FactoryId, SkEmptyTypeface::MakeFromStream },
             { SkCustomTypefaceBuilder::FactoryId, SkCustomTypefaceBuilder::MakeFromStream },
 #ifdef SK_TYPEFACE_FACTORY_CORETEXT
@@ -177,8 +178,8 @@ namespace {
 #ifdef SK_TYPEFACE_FACTORY_FREETYPE
             { SkTypeface_FreeType::FactoryId, SkTypeface_FreeType::MakeFromStream },
 #endif
-        };
-        return decoders;
+        }};
+        return decoders.get();
     }
 
 }  // namespace
