@@ -51,3 +51,11 @@ skia_filegroup(
     ] + ICU_BIDI_SRCS,
     visibility = ["//modules/skunicode:__pkg__"],
 )
+
+skia_filegroup(
+    name = "libgrapheme_srcs",
+    srcs = [
+        "SkUnicode_libgrapheme.cpp",
+    ] + ICU_BIDI_SRCS,
+    visibility = ["//modules/skunicode:__pkg__"],
+)

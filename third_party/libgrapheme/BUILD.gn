@@ -1,0 +1,137 @@
+# Copyright 2022 Google LLC
+#
+# Use of this source code is governed by a ISC-License license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+declare_args() {
+  UNICODE_VERSION = "15.0.0"
+}
+
+config("c99") {
+  cflags_c = []
+  if (is_win) {
+    cflags_c += [ "-std:c11" ]
+  } else {
+    cflags_c += [ "-std=c99" ]
+  }
+}
+
+copy("copy_unicode_data") {
+  unicode_tools_dir = "../../third_party/externals/unicodetools/unicodetools/data/ucd/$UNICODE_VERSION"
+  external_data_dir = "../../third_party/externals/libgrapheme/data/"
+  sources = [
+    "$unicode_tools_dir/BidiBrackets.txt",
+    "$unicode_tools_dir/BidiCharacterTest.txt",
+    "$unicode_tools_dir/BidiMirroring.txt",
+    "$unicode_tools_dir/BidiTest.txt",
+    "$unicode_tools_dir/DerivedCoreProperties.txt",
+    "$unicode_tools_dir/EastAsianWidth.txt",
+    "$unicode_tools_dir/LineBreak.txt",
+    "$unicode_tools_dir/SpecialCasing.txt",
+    "$unicode_tools_dir/UnicodeData.txt",
+    "$unicode_tools_dir/auxiliary/GraphemeBreakProperty.txt",
+    "$unicode_tools_dir/auxiliary/GraphemeBreakTest.txt",
+    "$unicode_tools_dir/auxiliary/LineBreakTest.txt",
+    "$unicode_tools_dir/auxiliary/SentenceBreakProperty.txt",
+    "$unicode_tools_dir/auxiliary/SentenceBreakTest.txt",
+    "$unicode_tools_dir/auxiliary/WordBreakProperty.txt",
+    "$unicode_tools_dir/auxiliary/WordBreakTest.txt",
+    "$unicode_tools_dir/emoji/emoji-data.txt",
+    "$unicode_tools_dir/extracted/DerivedBidiClass.txt",
+  ]
+  output_dir = rebase_path(external_data_dir, root_out_dir)
+  outputs = [ "$root_out_dir/$output_dir/{{source_file_part}}" ]
+}
+
+template("compile_tool") {
+  executable(target_name) {
+    deps = [ ":copy_unicode_data" ]
+    forward_variables_from(invoker, "*", [ "deps" ])
+    if (defined(invoker.deps)) {
+      deps += invoker.deps
+    }
+    configs += [ ":c99" ]
+    lib_dirs = [ "../../third_party/externals/libgrapheme/gen" ]
+    sources += [ "../../third_party/externals/libgrapheme/gen/util.c" ]
+  }
+}
+
+compile_tool("bidirectional") {
+  sources = [ "../../third_party/externals/libgrapheme/gen/bidirectional.c" ]
+}
+
+compile_tool("case") {
+  sources = [ "../../third_party/externals/libgrapheme/gen/case.c" ]
+}
+
+compile_tool("character") {
+  sources = [ "../../third_party/externals/libgrapheme/gen/character.c" ]
+}
+
+compile_tool("line") {
+  sources = [ "../../third_party/externals/libgrapheme/gen/line.c" ]
+}
+
+compile_tool("sentence") {
+  sources = [ "../../third_party/externals/libgrapheme/gen/sentence.c" ]
+}
+
+compile_tool("word") {
+  sources = [ "../../third_party/externals/libgrapheme/gen/word.c" ]
+}
+
+# Run an executable that will produce a header
+action_foreach("generate_headers") {
+  script = "generate_headers.py"
+  root_dir = rebase_path(root_out_dir, "")
+  args = [
+    "$root_dir/{{source_name_part}}",
+    "../../third_party/externals/libgrapheme/gen/{{source_name_part}}.h",
+    "../../third_party/externals/libgrapheme/",
+  ]
+  _src = "../externals/libgrapheme/gen"
+  sources = [
+    "$_src/bidirectional.c",
+    "$_src/case.c",
+    "$_src/character.c",
+    "$_src/line.c",
+    "$_src/sentence.c",
+    "$_src/word.c",
+  ]
+  output_dir = rebase_path(_src, root_out_dir)
+  outputs = [ "$root_out_dir/$output_dir/{{source_name_part}}.h" ]
+  deps = [
+    ":bidirectional",
+    ":case",
+    ":character",
+    ":line",
+    ":sentence",
+    ":word",
+  ]
+}
+
+source_set("headers") {
+  sources = get_target_outputs(":generate_headers")
+}
+
+third_party("libgrapheme") {
+  public_include_dirs = [ "../externals/libgrapheme" ]
+  _src = "../externals/libgrapheme/src"
+
+  configs = [ ":c99" ]
+
+  sources = [
+    "$_src/bidirectional.c",
+    "$_src/case.c",
+    "$_src/character.c",
+    "$_src/line.c",
+    "$_src/sentence.c",
+    "$_src/utf8.c",
+    "$_src/util.c",
+    "$_src/word.c",
+  ]
+
+  deps = [ ":headers" ]
+}
