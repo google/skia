@@ -9,8 +9,8 @@
 #define skgpu_graphite_GlobalCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkSpinlock.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
 

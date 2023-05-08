@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSpinlock.h"
+#include "src/base/SkSpinlock.h"
+
+#include "include/private/base/SkFeatures.h"
 #include "include/private/base/SkThreadAnnotations.h"
 
 #if 0

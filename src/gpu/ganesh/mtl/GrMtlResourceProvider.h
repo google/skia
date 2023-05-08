@@ -8,8 +8,8 @@
 #ifndef GrMtlResourceProvider_DEFINED
 #define GrMtlResourceProvider_DEFINED
 
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkSpinlock.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"

@@ -9,9 +9,9 @@
 #define SkStrikeCache_DEFINED
 
 #include "include/core/SkDrawable.h"
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkLoadUserConfig.h" // IWYU pragma: keep
 #include "include/private/base/SkMutex.h"
+#include "src/base/SkSpinlock.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/text/StrikeForGPU.h"

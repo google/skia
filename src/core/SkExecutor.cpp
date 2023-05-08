@@ -6,10 +6,10 @@
  */
 
 #include "include/core/SkExecutor.h"
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkSemaphore.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkSpinlock.h"
 #include <deque>
 #include <thread>
 

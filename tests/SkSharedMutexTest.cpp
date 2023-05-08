@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkSharedMutex.h"
+#include "src/base/SkSharedMutex.h"
 #include "src/core/SkTaskGroup.h"
 #include "tests/Test.h"
 

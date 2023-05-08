@@ -9,8 +9,8 @@
 #define GrThreadSafeCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkSpinlock.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkSpinlock.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"

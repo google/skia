@@ -9,8 +9,8 @@
 #define sktext_gpu_TextBlobRedrawCoordinator_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkSpinlock.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTextBlobPriv.h"

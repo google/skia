@@ -14,9 +14,9 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkSharedMutex.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkSharedMutex.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 struct SkAdvancedTypefaceMetrics;

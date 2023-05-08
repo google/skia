@@ -10,12 +10,12 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkThreadAnnotations.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkSpinlock.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/Blend.h"
