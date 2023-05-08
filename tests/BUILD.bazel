@@ -475,15 +475,6 @@ skia_cc_library(
     deps = [":tests_base"],
 )
 
-skia_cc_library(
-    name = "dsl_only_test_base",
-    testonly = True,
-    srcs = [
-        "SkSLDSLUtil.cpp",
-    ],
-    deps = [":tests_base"],
-)
-
 # These macros generates one test target per file listed in the passed in list. The test target
 # has the name of the file, with the .cpp extension removed.
 skia_cpu_tests(
@@ -549,13 +540,6 @@ skia_ganesh_tests(
     },
     harness = ":tests_base",
     tests = DEBUGGER_TESTS,
-)
-
-skia_ganesh_tests(
-    name = "dsl_only_tests",
-    harness = ":dsl_only_test_base",
-    resources = ["//resources"],
-    tests = ["SkSLDSLOnlyTest.cpp"],
 )
 
 skia_ganesh_tests(

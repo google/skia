@@ -20,7 +20,6 @@
 #include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLLayout.h"
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLStatement.h"
@@ -31,7 +30,6 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "tests/Test.h"
@@ -146,7 +144,6 @@ static std::string stringize(DSLStatement& stmt)          { return stmt.release(
 static std::string stringize(DSLExpression& expr)         { return expr.release()->description(); }
 static std::string stringize(DSLBlock& blck)              { return blck.release()->description(); }
 static std::string stringize(SkSL::IRNode& node)          { return node.description(); }
-static std::string stringize(SkSL::Program& program)      { return program.description(); }
 
 template <typename T>
 static void expect_equal(skiatest::Reporter* r, int lineNumber, T& input, const char* expected) {
@@ -1294,52 +1291,10 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     Var a(kInt_Type, "a", 1), b(kInt_Type, "b", 2);
     EXPECT_EQUAL(Block(Declare(a), Declare(b), a.assign(b)), "{ int a = 1; int b = 2; a = b; }");
 
-    EXPECT_EQUAL((If(a > 0, --a), ++b), "if (a > 0) --a; ++b;");
-
     TArray<DSLStatement> statements;
     statements.push_back(a.assign(0));
     statements.push_back(++a);
     EXPECT_EQUAL(Block(std::move(statements)), "{ a = 0; ++a; }");
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var i(kInt_Type, "i", 0);
-    DSLFunction(kVoid_Type, "success").define(
-        For(Declare(i), i < 10, ++i, Block(
-            If(i > 5, Break())
-        ))
-    );
-    REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-    EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                 "void success() { for (int i = 0; i < 10; ++i) { if (i > 5) break; } }");
-
-    {
-        ExpectError error(r, "break statement must be inside a loop or switch");
-        DSLFunction(kVoid_Type, "fail").define(
-            Break()
-        );
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var i(kInt_Type, "i", 0);
-    DSLFunction(kVoid_Type, "success").define(
-        For(Declare(i), i < 10, ++i, Block(
-            If(i < 5, Continue())
-        ))
-    );
-    REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-    EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                 "void success() { for (int i = 0; i < 10; ++i) { if (i < 5) continue; } }");
-
-    {
-        ExpectError error(r, "continue statement must be inside a loop");
-        DSLFunction(kVoid_Type, "fail").define(
-            Continue()
-        );
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
@@ -1407,159 +1362,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1], "uniform float2 y;");
 }
 
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDiscard, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var x(kFloat_Type, "x", 1);
-    EXPECT_EQUAL(If(Sqrt(x) > 0, Discard()), "if (sqrt(x) > 0.0) discard;");
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Statement x = Do(Block(), true);
-    EXPECT_EQUAL(x, "do {} while (true);");
-
-    Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
-    Statement y = Do(Block(a++, --b), a != b);
-    EXPECT_EQUAL(y, "do { a++; --b; } while (a != b);");
-
-    {
-        ExpectError error(r, "expected 'bool', but found 'int'");
-        Do(Block(), 7).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    EXPECT_EQUAL(For(Statement(), Expression(), Expression(), Block()),
-                "for (;;) {}");
-
-    Var i(kInt_Type, "i", 0);
-    EXPECT_EQUAL(For(Declare(i), i < 10, ++i, i += 5),
-                "for (int i = 0; i < 10; ++i) i += 5;");
-
-    Var j(kInt_Type, "j", 0);
-    Var k(kInt_Type, "k", 10);
-    EXPECT_EQUAL(For((Declare(j), Declare(k)), j < k, ++j, Block()), R"(
-                 {
-                     int j = 0;
-                     int k = 10;
-                     for (; j < k; ++j) {}
-                 }
-    )");
-
-    {
-        ExpectError error(r, "expected 'bool', but found 'int'");
-        For(i.assign(0), i + 10, ++i, i += 5).release();
-    }
-
-    {
-        ExpectError error(r, "invalid for loop initializer");
-        For(If(i == 0, i.assign(1)), i < 10, ++i, i += 5).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    {
-        DSLWriter::Reset();
-        DSLParameter x(kFloat_Type, "x");
-        DSLFunction sqr(kFloat_Type, "sqr", x);
-        sqr.define(
-            Return(x * x)
-        );
-        DSLVar a(kFloat2_Type, "a");
-        EXPECT_EQUAL(sqr(a.x()), "sqr(a.x)");
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                "float sqr(float x) { return x * x; }");
-    }
-
-    {
-        DSLWriter::Reset();
-        DSLParameter x(kFloat2_Type, "x");
-        DSLParameter y(kFloat2_Type, "y");
-        DSLFunction squareSum(
-                DSLModifiers(SkSL::Modifiers::kInline_Flag), kFloat2_Type, "SquareSum", x, y);
-        squareSum.define(
-            Return(x * x + y * y)
-        );
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                "inline float2 SquareSum(float2 x, float2 y) { return x * x + y * y; }");
-        EXPECT_EQUAL(squareSum(Float2(1.0f, 2.0f), Float2(3.0f, 4.0f)),
-                     "SquareSum(float2(1.0, 2.0), float2(3.0, 4.0))");
-    }
-
-    {
-        DSLWriter::Reset();
-        DSLParameter x(kFloat_Type, "x");
-        DSLParameter y(kFloat_Type, "y");
-        DSLFunction pair(kFloat2_Type, "pair", x, y);
-        pair.define(
-            Return(Float2(x, y))
-        );
-        Var varArg1(kFloat_Type, "varArg1");
-        Var varArg2(kFloat_Type, "varArg2");
-        EXPECT_EQUAL(pair(varArg1, varArg2), "pair(varArg1, varArg2)");
-    }
-
-    {
-        ExpectError error(r, "expected 'float', but found 'bool'");
-        DSLWriter::Reset();
-        DSLFunction(kFloat_Type, "broken").define(
-            Return(true)
-        );
-    }
-
-    {
-        ExpectError error(r, "expected function to return 'float'");
-        DSLWriter::Reset();
-        DSLFunction(kFloat_Type, "broken").define(
-            Return()
-        );
-    }
-
-    {
-        ExpectError error(r, "function 'broken' can exit without returning a value");
-        DSLWriter::Reset();
-        Var x(kFloat_Type, "x", 0);
-        DSLFunction(kFloat_Type, "broken").define(
-            Declare(x),
-            If(x == 1, Return(x))
-        );
-    }
-
-    {
-        ExpectError error(r, "may not return a value from a void function");
-        DSLWriter::Reset();
-        DSLFunction(kVoid_Type, "broken").define(
-            Return(0)
-        );
-    }
-
-    {
-        ExpectError error(r, "function 'broken' can exit without returning a value");
-        DSLWriter::Reset();
-        DSLFunction(kFloat_Type, "broken").define(
-        );
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
-    Statement x = If(a > b, a -= b);
-    EXPECT_EQUAL(x, "if (a > b) a -= b;");
-
-    Statement y = If(a > b, a -= b, b -= a);
-    EXPECT_EQUAL(y, "if (a > b) a -= b; else b -= a;");
-
-    {
-        ExpectError error(r, "expected 'bool', but found 'float'");
-        If(a + b, a -= b).release();
-    }
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     DSLExpression intf = InterfaceBlock(kUniform_Modifier, "InterfaceBlock1",
@@ -1592,16 +1394,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 4);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock4 { layout(builtin=123) float sk_Widget; } intf;");
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    Statement x = Return();
-    EXPECT_EQUAL(x, "return;");
-
-    Statement y = Return(true);
-    EXPECT_EQUAL(y, "return true;");
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
@@ -1665,21 +1457,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLVarSwap, r, ctxInfo) {
 
     EXPECT_EQUAL(Statement(Block(Declare(a), a.assign(123))),
                 "{ int a; a = 123; }");
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Statement x = While(true, Block());
-    EXPECT_EQUAL(x, "for (; true;) {}");
-
-    Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
-    Statement y = While(a != b, Block(a++, --b));
-    EXPECT_EQUAL(y, "for (; a != b;) { a++; --b; }");
-
-    {
-        ExpectError error(r, "expected 'bool', but found 'int'");
-        While(7, Block()).release();
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
@@ -1898,38 +1675,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     }
 }
 
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    DSLType simpleStruct = Struct("SimpleStruct",
-        Field(kFloat_Type, "x"),
-        Field(kBool_Type, "b"),
-        Field(Array(kFloat_Type, 3), "a")
-    );
-    DSLVar result(simpleStruct, "result");
-    DSLFunction(simpleStruct, "returnStruct").define(
-        Declare(result),
-        result.field("x").assign(123),
-        result.field("b").assign(result.field("x") > 0),
-        result.field("a")[0].assign(result.field("x")),
-        Return(result)
-    );
-    REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-    EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                 "struct SimpleStruct { float x; bool b; float[3] a; };");
-    EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1],
-                 "SimpleStruct returnStruct() { SimpleStruct result; result.x = 123.0;"
-                 "result.b = result.x > 0.0; result.a[0] = result.x; return result; }");
-
-    Struct("NestedStruct",
-        Field(kInt_Type, "x"),
-        Field(simpleStruct, "simple")
-    );
-    REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 3);
-    EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[2],
-                 "struct NestedStruct { int x; SimpleStruct simple; };");
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
     {
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
@@ -1959,97 +1704,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
                        {Field(kInt_Type, "unused1"), Field(kFloat4_Type, "sk_RTAdjust")});
         InterfaceBlock(kUniform_Modifier, "uniforms2",
                        {Field(kInt_Type, "unused2"), Field(kFloat4_Type, "sk_RTAdjust")});
-    }
-}
-
-#ifndef SK_ENABLE_OPTIMIZE_SIZE
-// The inliner doesn't exist in a size-optimized build.
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    DSLParameter x(kFloat_Type, "x");
-    DSLFunction sqr(kFloat_Type, "sqr", x);
-    sqr.define(
-        Return(x * x)
-    );
-    DSLFunction(kHalf4_Type, "main").define(
-        Return(Half4(sqr(3)))
-    );
-    const char* source = "source test";
-    std::unique_ptr<SkSL::Program> program = ReleaseProgram(std::make_unique<std::string>(source));
-    EXPECT_EQUAL(*program,
-                 "layout(builtin = 17) in bool sk_Clockwise;"
-                 "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
-                 "half4 main() {"
-                     ";"
-                     "return half4(half(9.0));"
-                 "}");
-    REPORTER_ASSERT(r, *program->fSource == source);
-}
-#endif
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    {
-        DSLParameter x(kFloat_Type, "x");
-        DSLFunction sqr(kFloat_Type, "sqr", x);
-        sqr.prototype();
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                     "float sqr(float x);");
-        sqr.define(
-            Return(x * x)
-        );
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1],
-                     "float sqr(float x) { return x * x; }");
-    }
-
-    {
-        DSLWriter::Reset();
-        DSLParameter x(kInOut_Modifier, kFloat_Type, "x");
-        DSLFunction sqr(kVoid_Type, "sqr", x);
-        sqr.prototype();
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                     "void sqr(inout float x);");
-        sqr.define(
-            x *= x
-        );
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1],
-                     "void sqr(inout float x) { x *= x; }");
-    }
-
-    {
-        DSLWriter::Reset();
-        DSLParameter x(kFloat_Type, "x");
-        DSLFunction sqr(DSLModifiers(SkSL::Modifiers::kNoInline_Flag), kFloat_Type, "sqr", x);
-        sqr.prototype();
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "noinline float sqr(float x);");
-        DSLFunction(kVoid_Type, "main").define(sqr(5));
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "noinline float sqr(float x);");
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1], "void main() { sqr(5.0); }");
-        sqr.define(
-            Return(x * x)
-        );
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 3);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[2],
-                "noinline float sqr(float x) { return x * x; }");
-
-        const char* source = "source test";
-        std::unique_ptr<SkSL::Program> p = ReleaseProgram(std::make_unique<std::string>(source));
-
-        EXPECT_EQUAL(*p,
-            "layout (builtin = 17) in bool sk_Clockwise;"
-            "noinline float sqr(float x);"
-            "void main() {"
-            "  sqr(5.0);"
-            "}"
-            "noinline float sqr(float x) {"
-            "  return x * x;"
-            "}");
     }
 }
 

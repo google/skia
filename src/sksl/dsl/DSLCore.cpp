@@ -20,20 +20,13 @@
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBlock.h"
-#include "src/sksl/ir/SkSLBreakStatement.h"
-#include "src/sksl/ir/SkSLContinueStatement.h"
-#include "src/sksl/ir/SkSLDiscardStatement.h"
-#include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExtension.h"
-#include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
-#include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
@@ -125,14 +118,6 @@ public:
                 std::move(argArray)));
     }
 
-    static DSLStatement Break(Position pos) {
-        return SkSL::BreakStatement::Make(pos);
-    }
-
-    static DSLStatement Continue(Position pos) {
-        return SkSL::ContinueStatement::Make(pos);
-    }
-
     static void Declare(const DSLModifiers& modifiers) {
         ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::ModifiersDeclaration>(
                 ThreadContext::Modifiers(modifiers.fModifiers)));
@@ -164,34 +149,6 @@ public:
         }
     }
 
-    static DSLStatement Discard(Position pos) {
-        return DSLStatement(SkSL::DiscardStatement::Convert(ThreadContext::Context(), pos), pos);
-    }
-
-    static DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
-        return DSLStatement(DoStatement::Convert(ThreadContext::Context(), pos, stmt.release(),
-                                                 test.release()), pos);
-    }
-
-    static DSLStatement For(DSLStatement initializer, DSLExpression test,
-                                    DSLExpression next, DSLStatement stmt, Position pos,
-                                    const ForLoopPositions& forLoopPositions) {
-        return DSLStatement(ForStatement::Convert(ThreadContext::Context(), pos, forLoopPositions,
-                                                  initializer.releaseIfPossible(),
-                                                  test.releaseIfPossible(),
-                                                  next.releaseIfPossible(),
-                                                  stmt.release()), pos);
-    }
-
-    static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
-                           Position pos) {
-        return DSLStatement(IfStatement::Convert(ThreadContext::Context(),
-                                                 pos,
-                                                 test.release(),
-                                                 ifTrue.release(),
-                                                 ifFalse.releaseIfPossible()), pos);
-    }
-
     static DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
                                         TArray<DSLField> fields, std::string_view varName,
                                         int arraySize, Position pos) {
@@ -216,14 +173,6 @@ public:
 
         // The InterfaceBlock couldn't be created; return poison.
         return DSLExpression(nullptr);
-    }
-
-    static DSLStatement Return(DSLExpression value, Position pos) {
-        // Note that because Return is called before the function in which it resides exists, at
-        // this point we do not know the function's return type. We therefore do not check for
-        // errors, or coerce the value to the correct type, until the return statement is actually
-        // added to a function. (This is done in FunctionDefinition::Convert.)
-        return SkSL::ReturnStatement::Make(pos, value.releaseIfPossible());
     }
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,
@@ -273,12 +222,6 @@ public:
         SkASSERT(!result || result->fPosition == pos);
         return DSLExpression(std::move(result), pos);
     }
-
-    static DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {
-        return DSLStatement(ForStatement::ConvertWhile(ThreadContext::Context(), pos,
-                                                       test.release(),
-                                                       stmt.release()), pos);
-    }
 };
 
 std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source) {
@@ -287,14 +230,6 @@ std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> sourc
 
 void AddExtension(std::string_view name, Position pos) {
     ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos, name));
-}
-
-DSLStatement Break(Position pos) {
-    return DSLCore::Break(pos);
-}
-
-DSLStatement Continue(Position pos) {
-    return DSLCore::Continue(pos);
 }
 
 void Declare(const DSLModifiers& modifiers, Position pos) {
@@ -336,41 +271,15 @@ void Declare(TArray<DSLGlobalVar>& vars, Position pos) {
     DSLCore::Declare(vars, pos);
 }
 
-DSLStatement Discard(Position pos) {
-    return DSLCore::Discard(pos);
-}
-
-DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
-    return DSLCore::Do(std::move(stmt), std::move(test), pos);
-}
-
-DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
-                 DSLStatement stmt, Position pos, ForLoopPositions forLoopPositions) {
-    return DSLCore::For(std::move(initializer), std::move(test), std::move(next),
-                        std::move(stmt), pos, forLoopPositions);
-}
-
-DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, Position pos) {
-    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), pos);
-}
-
 DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
                              TArray<DSLField> fields, std::string_view varName, int arraySize,
                              Position pos) {
     return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
 }
 
-DSLStatement Return(DSLExpression expr, Position pos) {
-    return DSLCore::Return(std::move(expr), pos);
-}
-
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position pos) {
     return DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse), pos);
-}
-
-DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {
-    return DSLCore::While(std::move(test), std::move(stmt), pos);
 }
 
 DSLExpression Abs(DSLExpression x, Position pos) {
