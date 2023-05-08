@@ -307,6 +307,7 @@ BASE_SRCS_ALL = [
     "src/base/SkMalloc.cpp",
     "src/base/SkMathPriv.cpp",
     "src/base/SkMathPriv.h",
+    "src/base/SkNoDestructor.h",
     "src/base/SkQuads.cpp",
     "src/base/SkQuads.h",
     "src/base/SkRandom.h",
