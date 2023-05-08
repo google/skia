@@ -35,6 +35,8 @@ skia_filegroup(
     srcs = select({
         "//bazel/common_config_settings:use_fontations_true": [
             "SkTypeface_fontations.cpp",
+            "//src/ports/fontations:fontations_c_side",
+            "//src/ports/fontations:fontations_ffi/filegroup",
         ],
         "//conditions:default": [],
     }),
@@ -342,6 +344,9 @@ skia_cc_deps(
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:use_fontations_true": [
+            "//src/ports/fontations:bridge_rust_side",
+            "//src/ports/fontations:fontations_ffi/include",
+            "//src/ports/fontations:path_bridge_include",
         ],
         "//conditions:default": [],
     }),

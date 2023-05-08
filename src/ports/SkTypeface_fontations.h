@@ -12,15 +12,20 @@
 #include "include/core/SkTypeface.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkScalerContext.h"
+#include "src/ports/fontations/gen/src/ffi.rs.h"
+
+#include <memory>
+
+class SkStreamAsset;
 
 /** SkTypeface implementation based on Google Fonts Fontations Rust libraries. */
 class SkTypeface_Fontations : public SkTypeface {
 public:
-    static sk_sp<SkTypeface> Make() { return sk_sp<SkTypeface>(new SkTypeface_Fontations); }
-    SkTypeface_Fontations() : SkTypeface(SkFontStyle(), true) {}
+    SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data);
+
+    const fontations_ffi::BridgeFontRef& getBridgeFontRef() { return *fBridgeFontRef; }
 
 protected:
-
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         return sk_ref_sp(this);
@@ -33,7 +38,7 @@ protected:
     }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override {}
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
-    int onCountGlyphs() const override { return 1; }
+    int onCountGlyphs() const override;
     void getPostScriptGlyphNames(SkString*) const override {}
     void getGlyphToUnicodeMap(SkUnichar*) const override {}
     int onGetUPEM() const override;
@@ -57,6 +62,12 @@ protected:
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override { return 0; }
+
+private:
+    sk_sp<SkData> fFontData;
+    // fBridgeFontRef accesses the data in fFontData. fFontData needs to be kept around for the
+    // lifetime of fBridgeFontRef to safely request parsed data.
+    rust::Box<::fontations_ffi::BridgeFontRef> fBridgeFontRef;
 };
 
 #endif  // SkTypeface_Fontations_DEFINED

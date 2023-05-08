@@ -6,7 +6,10 @@ exports_files_legacy()
 
 filegroup(
     name = "gm_subset",
-    srcs = ["bitmaprect.cpp"],
+    srcs = [
+        "bitmaprect.cpp",
+        "fontations.cpp",
+    ],
     visibility = ["//tools/viewer:__pkg__"],
 )
 
