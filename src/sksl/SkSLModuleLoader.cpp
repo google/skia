@@ -432,12 +432,13 @@ void ModuleLoader::Impl::makeRootSymbolTable() {
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
     rootModule->fSymbols->add(std::make_unique<Variable>(/*pos=*/Position(),
-                                                          /*modifiersPosition=*/Position(),
-                                                          fCoreModifiers.add(Modifiers{}),
-                                                          "sk_Caps",
-                                                          fBuiltinTypes.fSkCaps.get(),
-                                                          /*builtin=*/false,
-                                                          Variable::Storage::kGlobal));
+                                                         /*modifiersPosition=*/Position(),
+                                                         fCoreModifiers.add(Modifiers{}),
+                                                         "sk_Caps",
+                                                         /*mangledName=*/nullptr,
+                                                         fBuiltinTypes.fSkCaps.get(),
+                                                         /*builtin=*/false,
+                                                         Variable::Storage::kGlobal));
     fRootModule = std::move(rootModule);
 }
 

@@ -50,24 +50,29 @@ public:
     inline static constexpr Kind kIRNodeKind = Kind::kVariable;
 
     Variable(Position pos, Position modifiersPosition, const Modifiers* modifiers,
-            std::string_view name, const Type* type, bool builtin, Storage storage)
-    : INHERITED(pos, kIRNodeKind, name, type)
-    , fModifiersPosition(modifiersPosition)
-    , fModifiers(modifiers)
-    , fStorage(storage)
-    , fBuiltin(builtin) {}
+             std::string_view name, const std::string* mangledName, const Type* type,
+             bool builtin, Storage storage)
+            : INHERITED(pos, kIRNodeKind, name, type)
+            , fMangledName(mangledName)
+            , fModifiersPosition(modifiersPosition)
+            , fModifiers(modifiers)
+            , fStorage(storage)
+            , fBuiltin(builtin) {}
 
     ~Variable() override;
 
     static std::unique_ptr<Variable> Convert(const Context& context, Position pos,
-            Position modifiersPos, const Modifiers& modifiers, const Type* baseType,
-            Position namePos, std::string_view name, bool isArray,
-            std::unique_ptr<Expression> arraySize, Variable::Storage storage);
+                                             Position modifiersPos, const Modifiers& modifiers,
+                                             const Type* baseType, Position namePos,
+                                             std::string_view name, bool isArray,
+                                             std::unique_ptr<Expression> arraySize,
+                                             Variable::Storage storage);
 
     static std::unique_ptr<Variable> Make(const Context& context, Position pos,
-            Position modifiersPos, const Modifiers& modifiers, const Type* baseType,
-            std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,
-            Variable::Storage storage);
+                                          Position modifiersPos, const Modifiers& modifiers,
+                                          const Type* baseType, std::string_view name,
+                                          bool isArray, std::unique_ptr<Expression> arraySize,
+                                          Variable::Storage storage);
 
     /**
      * Creates a local scratch variable and the associated VarDeclaration statement.
@@ -133,13 +138,15 @@ public:
                std::string(this->name());
     }
 
-    std::string mangledName() const;
+    std::string_view mangledName() const;
 
 private:
+    // When non-null, `fMangledName` is owned by the SymbolTable.
+    const std::string* fMangledName = nullptr;
     IRNode* fDeclaringElement = nullptr;
-    // We don't store the position in the Modifiers object itself because they are pooled
+    // We don't store the position in the Modifiers object itself because they are pooled.
     Position fModifiersPosition;
-    const Modifiers* fModifiers;
+    const Modifiers* fModifiers = nullptr;
     VariableStorage fStorage;
     bool fBuiltin;
 

@@ -553,6 +553,8 @@ SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithModifiedArgument,               
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithNestedBigCalls,                         "inliner/InlineWithNestedBigCalls.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithUnmodifiedArgument,                     "inliner/InlineWithUnmodifiedArgument.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithUnnecessaryBlocks,                      "inliner/InlineWithUnnecessaryBlocks.sksl")
+// TODO(tint:1932): GPU is disabled for now; test exposes a bug in the Tint SPIR-V Reader
+SKSL_TEST(RP + VM,       kNextRelease,IntrinsicNameCollision,                           "inliner/IntrinsicNameCollision.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, NoInline,                                         "inliner/NoInline.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitEvaluationsCannotInlineRightHandSide, "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      StaticSwitchInline,                               "inliner/StaticSwitch.sksl")

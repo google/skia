@@ -34,9 +34,9 @@ kernel void computeMain(uint3 sk_GlobalInvocationID [[thread_position_in_grid]],
     _threadgroups.shared_data[id * 2u + 1u] = _globals._anonInterface0->in_data[id * 2u + 1u];
     threadgroup_barrier(mem_flags::mem_threadgroup);
     const uint steps = 10u;
-    for (uint step = 0u;step < steps; step++) {
-        mask = (1u << step) - 1u;
-        rd_id = ((id >> step) << step + 1u) + mask;
+    for (uint _0_step = 0u;_0_step < steps; _0_step++) {
+        mask = (1u << _0_step) - 1u;
+        rd_id = ((id >> _0_step) << _0_step + 1u) + mask;
         wr_id = (rd_id + 1u) + (id & mask);
         store_vIf(_threadgroups, wr_id, _threadgroups.shared_data[wr_id] + _threadgroups.shared_data[rd_id]);
         threadgroup_barrier(mem_flags::mem_threadgroup);
