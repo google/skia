@@ -221,7 +221,8 @@ sk_sp<PrecompileShader> PrecompileShaders::Blend(
         } else if (b->asBlendMode().has_value()) {
             SkBlendMode bm = b->asBlendMode().value();
 
-            if (bm <= SkBlendMode::kLastCoeffMode) {
+            SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(bm);
+            if (!coeffs.empty()) {
                 needsPorterDuffBased = true;
             } else {
                 needsBlendModeBased = true;
