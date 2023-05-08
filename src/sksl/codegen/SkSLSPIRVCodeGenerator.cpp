@@ -28,7 +28,6 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
-#include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
@@ -2608,7 +2607,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 AutoAttachPoolToThread attach(fProgram.fPool.get());
                 Modifiers modifiers;
                 modifiers.fLayout.fBuiltin = DEVICE_CLOCKWISE_BUILTIN;
-                auto clockwiseVar = std::make_unique<Variable>(/*pos=*/Position(),
+                auto clockwiseVar = std::make_unique<Variable>(
+                        /*pos=*/Position(),
                         /*modifiersPosition=*/Position(),
                         fContext.fModifiersPool->add(modifiers),
                         DEVICE_CLOCKWISE_NAME,
@@ -2622,9 +2622,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             DSLGlobalVar deviceClockwise(DEVICE_CLOCKWISE_NAME);
             // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia,
             // we use the default convention of "counter-clockwise face is front".
-            return this->writeExpression(*dsl::Bool(Select(rtFlip.y() > 0,
-                                                           !deviceClockwise,
-                                                           deviceClockwise)).release(),
+            return this->writeExpression(*(LogicalXor(rtFlip.y() > 0, deviceClockwise).release()),
                                          out);
         }
         default: {
