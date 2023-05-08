@@ -104,10 +104,7 @@ skia_filegroup(
 skia_cc_deps(
     name = "deps",
     linkopts = select({
-        "@platforms//os:android": [
-            "-landroid",
-            "-lGLESv2",
-        ],
+        "@platforms//os:android": ["-lGLESv2"],
         "@platforms//os:linux": ["-lGL"],
         # TODO(kjlubick) need OpenGL32.lib for non-arm windows
         "//conditions:default": [],

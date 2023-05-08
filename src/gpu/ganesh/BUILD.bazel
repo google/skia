@@ -261,17 +261,17 @@ split_srcs_and_hdrs(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":core_srcs",
         ":core_skslc_srcs",
+        ":core_srcs",
         "//src/gpu/ganesh/effects:srcs",
         "//src/gpu/ganesh/geometry:srcs",
         "//src/gpu/ganesh/glsl:srcs",
         "//src/gpu/ganesh/gradients:srcs",
         "//src/gpu/ganesh/image:srcs",
         "//src/gpu/ganesh/mock:srcs",  # TODO(kjlubick, egdaniel) should this be test only?
+        "//src/gpu/ganesh/ops:srcs",
         "//src/gpu/ganesh/surface:srcs",
         "//src/gpu/ganesh/tessellate:srcs",
-        "//src/gpu/ganesh/ops:srcs",
         "//src/gpu/ganesh/text:srcs",
     ] + select_multi(
         {
