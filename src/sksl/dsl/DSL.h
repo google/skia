@@ -8,7 +8,6 @@
 #ifndef SKSL_DSL
 #define SKSL_DSL
 
-#include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLFunction.h"
@@ -18,7 +17,6 @@ namespace SkSL {
 
 namespace dsl {
 
-using Block = DSLBlock;
 using Expression = DSLExpression;
 using Field = DSLField;
 using Function = DSLFunction;

@@ -90,8 +90,9 @@ void DSLFunction::prototype() {
             fDecl->fPosition, fDecl, ThreadContext::IsModule()));
 }
 
-void DSLFunction::define(DSLBlock block, Position pos) {
-    std::unique_ptr<SkSL::Block> body = block.release();
+void DSLFunction::define(DSLStatement block, Position pos) {
+    std::unique_ptr<SkSL::Statement> body = block.release();
+    SkASSERT(body->is<Block>());
     body->fPosition = pos;
     if (!fDecl) {
         // We failed to create the declaration; error should already have been reported.

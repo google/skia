@@ -40,7 +40,6 @@ struct Module;
 struct Program;
 
 namespace dsl {
-class DSLBlock;
 class DSLGlobalVar;
 class DSLParameter;
 class DSLVarBase;
@@ -227,7 +226,7 @@ private:
 
     dsl::DSLStatement discardStatement();
 
-    std::optional<dsl::DSLBlock> block();
+    std::optional<dsl::DSLStatement> block();
 
     dsl::DSLStatement expressionStatement();
 

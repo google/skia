@@ -10,7 +10,6 @@
 #include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -22,9 +21,6 @@ namespace SkSL {
 namespace dsl {
 
 DSLStatement::DSLStatement() {}
-
-DSLStatement::DSLStatement(DSLBlock block)
-    : fStatement(block.release()) {}
 
 DSLStatement::DSLStatement(DSLExpression expr) {
     std::unique_ptr<SkSL::Expression> skslExpr = expr.release();

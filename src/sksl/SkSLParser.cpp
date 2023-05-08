@@ -15,7 +15,6 @@
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -33,11 +32,13 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -524,7 +525,7 @@ bool Parser::functionDeclarationEnd(Position start,
             }
         }
         Token bodyStart = this->peek();
-        std::optional<DSLBlock> body = this->block();
+        std::optional<DSLStatement> body = this->block();
         if (!body) {
             return false;
         }
@@ -1053,12 +1054,12 @@ DSLStatement Parser::statement() {
         case Token::Kind::TK_DISCARD:
             return this->discardStatement();
         case Token::Kind::TK_LBRACE: {
-            std::optional<DSLBlock> result = this->block();
-            return result ? DSLStatement(std::move(*result)) : DSLStatement();
+            std::optional<DSLStatement> result = this->block();
+            return result ? std::move(*result) : DSLStatement();
         }
         case Token::Kind::TK_SEMICOLON:
             this->nextToken();
-            return DSLBlock();
+            return DSLStatement(Nop::Make());
         case Token::Kind::TK_HIGHP:
         case Token::Kind::TK_MEDIUMP:
         case Token::Kind::TK_LOWP:
@@ -1498,7 +1499,7 @@ DSLStatement Parser::discardStatement() {
 }
 
 /* LBRACE statement* RBRACE */
-std::optional<DSLBlock> Parser::block() {
+std::optional<DSLStatement> Parser::block() {
     AutoDepth depth(this);
     Token start;
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'", &start)) {
@@ -1511,12 +1512,17 @@ std::optional<DSLBlock> Parser::block() {
     StatementArray statements;
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::Kind::TK_RBRACE:
+            case Token::Kind::TK_RBRACE: {
                 this->nextToken();
-                return DSLBlock(std::move(statements), this->symbolTable(), this->rangeFrom(start));
-            case Token::Kind::TK_END_OF_FILE:
+                Position pos = this->rangeFrom(start);
+                return DSLStatement(SkSL::Block::MakeBlock(pos, std::move(statements),
+                                                           Block::Kind::kBracedScope,
+                                                           this->symbolTable()), pos);
+            }
+            case Token::Kind::TK_END_OF_FILE: {
                 this->error(this->peek(), "expected '}', but found end of file");
                 return std::nullopt;
+            }
             default: {
                 DSLStatement statement = this->statement();
                 if (fEncounteredFatalError) {

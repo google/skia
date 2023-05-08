@@ -12,7 +12,6 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLPosition.h"
-#include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLStatement.h"
@@ -57,13 +56,7 @@ public:
 
     virtual ~DSLFunction() = default;
 
-    template<class... Stmt>
-    void define(Stmt... stmts) {
-        DSLBlock block = DSLBlock(DSLStatement(std::move(stmts))...);
-        this->define(std::move(block));
-    }
-
-    void define(DSLBlock block, Position pos = {});
+    void define(DSLStatement block, Position pos = {});
 
     void prototype();
 

@@ -8,8 +8,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "DSL.h",
-        "DSLBlock.cpp",
-        "DSLBlock.h",
         "DSLCore.cpp",
         "DSLCore.h",
         "DSLExpression.cpp",

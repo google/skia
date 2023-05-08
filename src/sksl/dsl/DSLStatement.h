@@ -21,7 +21,6 @@ class Expression;
 
 namespace dsl {
 
-class DSLBlock;
 class DSLExpression;
 
 class DSLStatement {
@@ -29,8 +28,6 @@ public:
     DSLStatement();
 
     DSLStatement(DSLExpression expr);
-
-    DSLStatement(DSLBlock block);
 
     DSLStatement(DSLStatement&&) = default;
 

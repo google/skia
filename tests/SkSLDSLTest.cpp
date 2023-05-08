@@ -17,7 +17,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSL.h"
-#include "src/sksl/dsl/DSLBlock.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLLayout.h"
@@ -26,7 +25,6 @@
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
-#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLModifiers.h"
@@ -142,7 +140,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
 
 static std::string stringize(DSLStatement& stmt)          { return stmt.release()->description(); }
 static std::string stringize(DSLExpression& expr)         { return expr.release()->description(); }
-static std::string stringize(DSLBlock& blck)              { return blck.release()->description(); }
 static std::string stringize(SkSL::IRNode& node)          { return node.description(); }
 
 template <typename T>
@@ -1285,18 +1282,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     }
 }
 
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    EXPECT_EQUAL(Block(), "{ }");
-    Var a(kInt_Type, "a", 1), b(kInt_Type, "b", 2);
-    EXPECT_EQUAL(Block(Declare(a), Declare(b), a.assign(b)), "{ int a = 1; int b = 2; a = b; }");
-
-    TArray<DSLStatement> statements;
-    statements.push_back(a.assign(0));
-    statements.push_back(++a);
-    EXPECT_EQUAL(Block(std::move(statements)), "{ a = 0; ++a; }");
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
@@ -1443,20 +1428,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
                 "float4(a.xyz, 1.0)");
     EXPECT_EQUAL(Swizzle(a, B, G, R, ONE).r(),
                 "a.z");
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLVarSwap, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    // We should be able to convert `a` into a proper var by swapping it, even from within a scope.
-    Var a;
-    if (true)
-    {
-        Var(kInt_Type, "a").swap(a);
-    }
-
-    EXPECT_EQUAL(Statement(Block(Declare(a), a.assign(123))),
-                "{ int a; a = 123; }");
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
