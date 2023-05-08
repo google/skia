@@ -10,8 +10,6 @@ skia_filegroup(
         "DSL.h",
         "DSLBlock.cpp",
         "DSLBlock.h",
-        "DSLCase.cpp",
-        "DSLCase.h",
         "DSLCore.cpp",
         "DSLCore.h",
         "DSLExpression.cpp",

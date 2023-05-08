@@ -35,12 +35,12 @@
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStatement.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 using namespace skia_private;
@@ -274,22 +274,6 @@ public:
         return DSLExpression(std::move(result), pos);
     }
 
-    static DSLStatement Switch(DSLExpression value, TArray<DSLCase> cases, Position pos) {
-        ExpressionArray values;
-        values.reserve_back(cases.size());
-        StatementArray caseBlocks;
-        caseBlocks.reserve_back(cases.size());
-        for (DSLCase& c : cases) {
-            values.push_back(c.fValue.releaseIfPossible());
-            caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c.fStatements),
-                                                   Block::Kind::kUnbracedBlock));
-        }
-        return DSLStatement(SwitchStatement::Convert(ThreadContext::Context(), pos,
-                                                     value.release(),
-                                                     std::move(values),
-                                                     std::move(caseBlocks)), pos);
-    }
-
     static DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {
         return DSLStatement(ForStatement::ConvertWhile(ThreadContext::Context(), pos,
                                                        test.release(),
@@ -383,10 +367,6 @@ DSLStatement Return(DSLExpression expr, Position pos) {
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position pos) {
     return DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse), pos);
-}
-
-DSLStatement Switch(DSLExpression value, TArray<DSLCase> cases, Position pos) {
-    return DSLCore::Switch(std::move(value), std::move(cases), pos);
 }
 
 DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {

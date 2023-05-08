@@ -10,9 +10,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
-#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramKind.h"
-#include "src/sksl/dsl/DSLCase.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLVar.h"  // IWYU pragma: keep
@@ -20,12 +18,13 @@
 #include <memory>
 #include <string>
 #include <string_view>
-#include <utility>
 
 namespace SkSL {
 
 class Compiler;
 class ErrorReporter;
+struct ForLoopPositions;
+class Position;
 struct Program;
 struct ProgramSettings;
 
@@ -114,14 +113,6 @@ void Declare(DSLGlobalVar& var, Position pos = {});
 void Declare(skia_private::TArray<DSLGlobalVar>& vars, Position pos = {});
 
 /**
- * default: statements
- */
-template<class... Statements>
-DSLCase Default(Statements... statements) {
-    return DSLCase(DSLExpression(), std::move(statements)...);
-}
-
-/**
  * discard;
  */
 DSLStatement Discard(Position pos = {});
@@ -158,20 +149,6 @@ DSLStatement Return(DSLExpression value = DSLExpression(),
  */
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position  = {});
-
-// Internal use only
-DSLStatement Switch(DSLExpression value, skia_private::TArray<DSLCase> cases, Position pos = {});
-
-/**
- * switch (value) { cases }
- */
-template<class... Cases>
-DSLStatement Switch(DSLExpression value, Cases... cases) {
-    skia_private::TArray<DSLCase> caseArray;
-    caseArray.reserve_back(sizeof...(cases));
-    (caseArray.push_back(std::move(cases)), ...);
-    return Switch(std::move(value), std::move(caseArray), Position{});
-}
 
 /**
  * while (test) stmt;

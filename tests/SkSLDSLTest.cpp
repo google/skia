@@ -1621,52 +1621,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
     }
 }
 
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    Var a(kFloat_Type, "a"), b(kInt_Type, "b");
-
-    TArray<DSLStatement> caseStatements;
-    caseStatements.push_back(a.assign(1));
-    caseStatements.push_back(Continue());
-    Statement x = Switch(b,
-        Case(0, a.assign(0), Break()),
-        Case(1, std::move(caseStatements)),
-        Case(2, a.assign(2)  /*Fallthrough*/),
-        Default(Discard())
-    );
-    EXPECT_EQUAL(x, R"(
-        switch (b) {
-            case 0: a = 0.0; break;
-            case 1: a = 1.0; continue;
-            case 2: a = 2.0;
-            default: discard;
-        }
-    )");
-
-    EXPECT_EQUAL(Switch(b),
-                "switch (b) {}");
-
-    EXPECT_EQUAL(Switch(b, Default(), Case(0), Case(1)),
-                "switch (b) { default: ; case 0: ; case 1: ; }");
-
-    {
-        ExpectError error(r, "duplicate case value '0'");
-        DSLStatement(Switch(0, Case(0), Case(0))).release();
-    }
-
-    {
-        ExpectError error(r, "duplicate default case");
-        DSLStatement(Switch(0, Default(a.assign(0)), Default(a.assign(1)))).release();
-    }
-
-    {
-        ExpectError error(r, "case value must be a constant integer");
-        Var c(kInt_Type, "c");
-        DSLStatement(Switch(0, Case(c))).release();
-    }
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat4_Type, "a");
