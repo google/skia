@@ -1280,6 +1280,8 @@ TINT_SRCS = [
     "src/tint/writer/spirv/generator_impl.h",
     "src/tint/writer/spirv/instruction.cc",
     "src/tint/writer/spirv/instruction.h",
+    "src/tint/writer/spirv/module.cc",
+    "src/tint/writer/spirv/module.h",
     "src/tint/writer/spirv/operand.cc",
     "src/tint/writer/spirv/operand.h",
     "src/tint/writer/spirv/scalar_constant.h",
