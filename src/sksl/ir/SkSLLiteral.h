@@ -52,8 +52,7 @@ public:
     }
 
     // Makes a literal of $intLiteral type.
-    static std::unique_ptr<Literal> MakeInt(const Context& context, Position pos,
-            SKSL_INT value) {
+    static std::unique_ptr<Literal> MakeInt(const Context& context, Position pos, SKSL_INT value) {
         return std::make_unique<Literal>(pos, value, context.fTypes.fIntLiteral.get());
     }
 

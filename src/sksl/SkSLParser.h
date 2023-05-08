@@ -233,7 +233,7 @@ private:
 
     using BinaryParseFn = dsl::DSLExpression (Parser::*)();
     bool SK_WARN_UNUSED_RESULT operatorRight(AutoDepth& depth, Operator::Kind op,
-                                             BinaryParseFn rightFn, dsl::DSLExpression& result);
+                                             BinaryParseFn rightFn, dsl::DSLExpression& expr);
 
     dsl::DSLExpression expression();
 

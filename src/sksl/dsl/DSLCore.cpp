@@ -269,7 +269,7 @@ public:
     static DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
             Position pos) {
         auto result = TernaryExpression::Convert(ThreadContext::Context(), pos, test.release(),
-                                          ifTrue.release(), ifFalse.release());
+                                                 ifTrue.release(), ifFalse.release());
         SkASSERT(!result || result->fPosition == pos);
         return DSLExpression(std::move(result), pos);
     }
