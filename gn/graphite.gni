@@ -284,6 +284,8 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanGraphiteTypes.cpp",
   "$_src/vk/VulkanGraphiteUtils.cpp",
   "$_src/vk/VulkanGraphiteUtilsPriv.h",
+  "$_src/vk/VulkanImageView.cpp",
+  "$_src/vk/VulkanImageView.h",
   "$_src/vk/VulkanQueueManager.cpp",
   "$_src/vk/VulkanQueueManager.h",
   "$_src/vk/VulkanResourceProvider.cpp",
