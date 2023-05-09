@@ -9,7 +9,6 @@
 
 #include "include/core/SkSpan.h"
 #include "include/sksl/SkSLVersion.h"
-#include "src/base/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
@@ -903,7 +902,7 @@ DSLLayout Parser::layout() {
     };
 
     using LayoutMap = THashMap<std::string_view, LayoutToken>;
-    static SkNoDestructor<LayoutMap> sLayoutTokens(LayoutMap{
+    static LayoutMap* sLayoutTokens = new LayoutMap{
             {"location",                    LayoutToken::LOCATION},
             {"offset",                      LayoutToken::OFFSET},
             {"binding",                     LayoutToken::BINDING},
@@ -921,7 +920,7 @@ DSLLayout Parser::layout() {
             {"metal",                       LayoutToken::METAL},
             {"gl",                          LayoutToken::GL},
             {"wgsl",                        LayoutToken::WGSL},
-    });
+    };
 
     DSLLayout result;
     if (this->checkNext(Token::Kind::TK_LAYOUT)) {

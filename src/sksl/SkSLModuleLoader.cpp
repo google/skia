@@ -8,7 +8,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMutex.h"
-#include "src/base/SkNoDestructor.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLModifiersPool.h"
@@ -170,7 +169,7 @@ struct ModuleLoader::Impl {
 };
 
 ModuleLoader ModuleLoader::Get() {
-    static SkNoDestructor<ModuleLoader::Impl> sModuleLoaderImpl;
+    static ModuleLoader::Impl* sModuleLoaderImpl = new ModuleLoader::Impl;
     return ModuleLoader(*sModuleLoaderImpl);
 }
 

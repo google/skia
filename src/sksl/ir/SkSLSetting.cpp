@@ -8,7 +8,6 @@
 #include "src/sksl/ir/SkSLSetting.h"
 
 #include "include/core/SkTypes.h"
-#include "src/base/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
@@ -28,7 +27,7 @@ using CapsLookupTable = THashMap<std::string_view, Setting::CapsPtr>;
 
 static const CapsLookupTable& caps_lookup_table() {
     // Create a lookup table that converts strings into the equivalent ShaderCaps member-pointers.
-    static SkNoDestructor<CapsLookupTable> sCapsLookupTable(CapsLookupTable{
+    static CapsLookupTable* sCapsLookupTable = new CapsLookupTable({
         CapsLookupTable::Pair("mustDoOpBetweenFloorAndAbs",
                               &ShaderCaps::fMustDoOpBetweenFloorAndAbs),
         CapsLookupTable::Pair("mustGuardDivisionEvenAfterExplicitZeroCheck",
