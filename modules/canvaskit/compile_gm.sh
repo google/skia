@@ -79,7 +79,7 @@ echo "Compiling bitcode"
   --args="skia_emsdk_dir=\"${EMSDK}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-sMAIN_MODULE=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_FORCE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
@@ -137,7 +137,7 @@ echo "Generating final wasm"
 # Defines for the emscripten compilation step, which builds the tests
 # Aim to match the defines that would be set by gn for the skia compilation step.
 SKIA_DEFINES="
--DSK_DISABLE_AAA \
+-DSK_FORCE_AAA \
 -DSK_FORCE_8_BYTE_ALIGNMENT \
 -DSK_HAS_WUFFS_LIBRARY \
 -DSK_HAS_HEIF_LIBRARY \
