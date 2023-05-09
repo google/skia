@@ -751,6 +751,8 @@ BASE_SRCS_ALL = [
     "src/gpu/AtlasTypes.h",
     "src/gpu/Blend.cpp",
     "src/gpu/Blend.h",
+    "src/gpu/BlendFormula.cpp",
+    "src/gpu/BlendFormula.h",
     "src/gpu/BufferWriter.h",
     "src/gpu/DitherUtils.cpp",
     "src/gpu/DitherUtils.h",
