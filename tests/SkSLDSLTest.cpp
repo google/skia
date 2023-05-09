@@ -161,14 +161,6 @@ static void expect_equal(skiatest::Reporter* r, int lineNumber, T&& dsl, const c
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
     {
-        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-        EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))), "true");
-
-        Var x(kInt_Type, "x");
-        EXPECT_EQUAL(Declare(x), "int x;");
-    }
-
-    {
         SkSL::ProgramSettings settings = default_settings();
         settings.fAllowNarrowingConversions = true;
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), settings,
@@ -647,7 +639,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     EXPECT_EQUAL(h42[0][1], "h42[0].y");
     EXPECT_EQUAL(f43 * Float4(0), "float3(0.0)");
     EXPECT_EQUAL(h23 * 2, "h23 * 2.0");
-    EXPECT_EQUAL(Inverse(f44), "inverse(f44)");
 
     {
         ExpectError error(r, "invalid arguments to 'float3x3' constructor (expected 9 scalars, but "
@@ -674,11 +665,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     {
         ExpectError error(r, "type mismatch: '=' cannot operate on 'half2x2', 'float2x2'");
         DSLExpression(h22.assign(f22)).release();
-    }
-
-    {
-        ExpectError error(r, "no match for inverse(float4x3)");
-        DSLExpression(Inverse(f43)).release();
     }
 }
 
@@ -1450,67 +1436,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
     {
         ExpectError error(r, "index -1 out of range for 'int[5]'");
         a[-1].release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    // There is a Fract type on Mac which can conflict with our Fract builtin
-    using SkSL::dsl::Fract;
-    Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b"), c(kHalf4_Type, "c");
-    Var h3(kHalf3_Type, "h3");
-    Var b4(kBool4_Type, "b4");
-    EXPECT_EQUAL(Abs(a),                 "abs(a)");
-    EXPECT_EQUAL(All(b4),                "all(b4)");
-    EXPECT_EQUAL(Any(b4),                "any(b4)");
-    EXPECT_EQUAL(Atan(a),                "atan(a)");
-    EXPECT_EQUAL(Atan(a, b),             "atan(a, b)");
-    EXPECT_EQUAL(Ceil(a),                "ceil(a)");
-    EXPECT_EQUAL(Clamp(a, 0, 1),         "clamp(a, 0.0, 1.0)");
-    EXPECT_EQUAL(Cos(a),                 "cos(a)");
-    EXPECT_EQUAL(Cross(h3, h3),          "cross(h3, h3)");
-    EXPECT_EQUAL(Degrees(a),             "degrees(a)");
-    EXPECT_EQUAL(Distance(a, b),         "distance(a, b)");
-    EXPECT_EQUAL(Dot(a, b),              "dot(a, b)");
-    EXPECT_EQUAL(Equal(a, b),            "equal(a, b)");
-    EXPECT_EQUAL(Exp(a),                 "exp(a)");
-    EXPECT_EQUAL(Exp2(a),                "exp2(a)");
-    EXPECT_EQUAL(Faceforward(a, b, c),   "faceforward(a, b, c)");
-    EXPECT_EQUAL(Floor(a),               "floor(a)");
-    EXPECT_EQUAL(Fract(a),               "fract(a)");
-    EXPECT_EQUAL(GreaterThan(a, b),      "greaterThan(a, b)");
-    EXPECT_EQUAL(GreaterThanEqual(a, b), "greaterThanEqual(a, b)");
-    EXPECT_EQUAL(Inversesqrt(a),         "inversesqrt(a)");
-    EXPECT_EQUAL(LessThan(a, b),         "lessThan(a, b)");
-    EXPECT_EQUAL(LessThanEqual(a, b),    "lessThanEqual(a, b)");
-    EXPECT_EQUAL(Length(a),              "length(a)");
-    EXPECT_EQUAL(Log(a),                 "log(a)");
-    EXPECT_EQUAL(Log2(a),                "log2(a)");
-    EXPECT_EQUAL(Max(a, b),              "max(a, b)");
-    EXPECT_EQUAL(Min(a, b),              "min(a, b)");
-    EXPECT_EQUAL(Mix(a, b, c),           "mix(a, b, c)");
-    EXPECT_EQUAL(Mod(a, b),              "mod(a, b)");
-    EXPECT_EQUAL(Normalize(a),           "normalize(a)");
-    EXPECT_EQUAL(NotEqual(a, b),         "notEqual(a, b)");
-    EXPECT_EQUAL(Pow(a, b),              "pow(a, b)");
-    EXPECT_EQUAL(Radians(a),             "radians(a)");
-    EXPECT_EQUAL(Reflect(a, b),          "reflect(a, b)");
-    EXPECT_EQUAL(Refract(a, b, 1),       "refract(a, b, 1.0)");
-    EXPECT_EQUAL(Round(a),               "round(a)");
-    EXPECT_EQUAL(Saturate(a),            "saturate(a)");
-    EXPECT_EQUAL(Sign(a),                "sign(a)");
-    EXPECT_EQUAL(Sin(a),                 "sin(a)");
-    EXPECT_EQUAL(Smoothstep(a, b, c),    "smoothstep(a, b, c)");
-    EXPECT_EQUAL(Sqrt(a),                "sqrt(a)");
-    EXPECT_EQUAL(Step(a, b),             "step(a, b)");
-    EXPECT_EQUAL(Tan(a),                 "tan(a)");
-    EXPECT_EQUAL(Unpremul(a),            "unpremul(a)");
-
-    // these calls all go through the normal channels, so it ought to be sufficient to prove that
-    // one of them reports errors correctly
-    {
-        ExpectError error(r, "no match for ceil(bool)");
-        Ceil(a == b).release();
     }
 }
 
