@@ -218,6 +218,7 @@ skia_core_sources = [
   "$_src/base/SkMalloc.cpp",
   "$_src/base/SkMathPriv.cpp",
   "$_src/base/SkMathPriv.h",
+  "$_src/base/SkNoDestructor.h",
   "$_src/base/SkQuads.cpp",
   "$_src/base/SkQuads.h",
   "$_src/base/SkRandom.h",

@@ -16,6 +16,7 @@ IWYU_HDRS = [
     "SkEndian.h",
     "SkLeanWindows.h",
     "SkMSAN.h",
+    "SkNoDestructor.h",
     "SkRandom.h",
     "SkRectMemcpy.h",
     "SkScopeExit.h",
