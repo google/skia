@@ -25,26 +25,12 @@ static SkIRect safeRoundOut(const SkRect& src) {
     return dst;
 }
 
-SkGraphics::PathAnalyticAADeciderProc gAnalyticAADeciderProc = nullptr;
-
-void SkGraphics::SetPathAnalyticAADecider(SkGraphics::PathAnalyticAADeciderProc decider) {
-    gAnalyticAADeciderProc = decider;
-}
-
-void SkGraphics::SetForceAnalyticAA(bool force) {
-    gSkForceAnalyticAA = force;
-}
-
 static bool ShouldUseAAA(const SkPath& path) {
 #if defined(SK_DISABLE_AAA)
     return false;
 #elif defined(SK_FORCE_AAA)
     return true;
 #else
-    if (gAnalyticAADeciderProc) {
-        return gAnalyticAADeciderProc(path);
-    }
-
     if (gSkForceAnalyticAA) {
         return true;
     }
