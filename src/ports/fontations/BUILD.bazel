@@ -1,6 +1,7 @@
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
+    "skia_cc_deps",
     "skia_cc_library",
     "skia_filegroup",
 )
@@ -14,14 +15,12 @@ exports_files_legacy()
 rust_cxx_bridge(
     name = "fontations_ffi",
     src = "src/ffi.rs",
-    visibility = ["//src/ports:__pkg__"],
     deps = [":path_bridge_include"],
 )
 
 rust_static_library(
     name = "bridge_rust_side",
     srcs = ["src/ffi.rs"],
-    visibility = ["//src/ports:__pkg__"],
     deps = [
         "@cxx",
         "@fontations//:font-types",
@@ -35,7 +34,6 @@ skia_cc_library(
     hdrs = [
         "src/skpath_bridge.h",
     ],
-    visibility = ["//src/ports:__pkg__"],
 )
 
 skia_filegroup(
@@ -43,5 +41,23 @@ skia_filegroup(
     srcs = [
         "src/skpath_bridge.cpp",
     ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "fontations_c_side.cpp",
+        ":fontations_ffi/filegroup",
+    ],
     visibility = ["//src/ports:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//src/ports:__pkg__"],
+    deps = [
+        ":bridge_rust_side",
+        ":fontations_ffi/include",
+        ":path_bridge_include",
+    ],
 )
