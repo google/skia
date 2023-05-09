@@ -80,6 +80,10 @@ void SkGraphics::PurgeFontCache() {
     SkTypefaceCache::PurgeAll();
 }
 
+void SkGraphics::PurgePinnedFontCache() {
+    SkStrikeCache::GlobalStrikeCache()->purgePinned();
+}
+
 static SkGraphics::OpenTypeSVGDecoderFactory gSVGDecoderFactory = nullptr;
 
 SkGraphics::OpenTypeSVGDecoderFactory

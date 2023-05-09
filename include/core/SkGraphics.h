@@ -75,6 +75,13 @@ public:
     static void PurgeFontCache();
 
     /**
+     *  If the strike cache is above the cache limit, attempt to purge strikes
+     *  with pinners. This should be called after clients release locks on
+     *  pinned strikes.
+     */
+    static void PurgePinnedFontCache();
+
+    /**
      *  This function returns the memory used for temporary images and other resources.
      */
     static size_t GetResourceCacheTotalBytesUsed();
