@@ -630,6 +630,9 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface,
     size_t tightRowBytes = bpp * rect.width();
 
     const void* mappedMemory = transferBuffer->map();
+    if (!mappedMemory) {
+        return false;
+    }
 
     SkRectMemcpy(buffer,
                  rowBytes,
