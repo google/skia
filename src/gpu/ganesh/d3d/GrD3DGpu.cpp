@@ -1186,7 +1186,9 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
 
     // TODO: use linear vs. srgb shader based on texture format
     sk_sp<GrD3DPipeline> pipeline = this->resourceProvider().findOrCreateMipmapPipeline();
-    SkASSERT(pipeline);
+    if (!pipeline) {
+        return false;
+    }
     this->currentCommandList()->setPipelineState(std::move(pipeline));
 
     // set sampler

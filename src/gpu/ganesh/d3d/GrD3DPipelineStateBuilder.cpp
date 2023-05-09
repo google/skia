@@ -641,6 +641,9 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
             std::move(shaders[kFragment_GrShaderType]),
             rt->dxgiFormat(), rt->stencilDxgiFormat(), rt->sampleQualityPattern());
     sk_sp<GrD3DPipeline> pipeline = GrD3DPipeline::Make(std::move(pipelineState));
+    if (!pipeline) {
+        return nullptr;
+    }
 
     return std::unique_ptr<GrD3DPipelineState>(
             new GrD3DPipelineState(std::move(pipeline),
