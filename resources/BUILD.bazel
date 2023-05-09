@@ -229,6 +229,8 @@ skia_filegroup(
         "images/randPixelsAnim.gif",
         "images/randPixelsAnim2.gif",
         "images/randPixelsOffset.gif",
+        "images/red-hlg-profile.png",
+        "images/red-pq-profile.png",
         "images/required.gif",
         "images/required.webp",
         "images/rle.bmp",
