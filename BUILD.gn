@@ -3017,6 +3017,7 @@ if (skia_enable_tools) {
         "tools/viewer/ManyRectsSlide.cpp",
         "tools/viewer/MaterialShadowsSlide.cpp",
         "tools/viewer/MegaStrokeSlide.cpp",
+        "tools/viewer/MeshSlide.cpp",
         "tools/viewer/MixerSlide.cpp",
         "tools/viewer/PatchSlide.cpp",
         "tools/viewer/PathClipSlide.cpp",
