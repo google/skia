@@ -28,6 +28,7 @@
 #include "include/core/SkTypes.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 
 #include <utility>
 
@@ -48,7 +49,7 @@ typedef sk_sp<SkImage> (*ImageMakerProc)(GrRecordingContext*, SkPicture*, const 
 static sk_sp<SkImage> make_raster(GrRecordingContext*,
                                   SkPicture* pic,
                                   const SkImageInfo& info) {
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
     return surface->makeImageSnapshot();
@@ -60,7 +61,7 @@ static sk_sp<SkImage> make_texture(GrRecordingContext* ctx,
     if (!ctx) {
         return nullptr;
     }
-    auto surface(SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info));
+    auto surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
     if (!surface) {
         return nullptr;
     }
@@ -219,7 +220,7 @@ DEF_SIMPLE_GM(textureimage_and_shader, canvas, 100, 50) {
         image = canvas->getSurface()->makeImageSnapshot();
         canvas->clear(SK_ColorRED);
     } else {
-        auto greenSurface = SkSurface::MakeRasterN32Premul(50, 50);
+        auto greenSurface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(50, 50));
         greenSurface->getCanvas()->clear(SK_ColorGREEN);
         image = greenSurface->makeImageSnapshot();
     }
@@ -229,7 +230,7 @@ DEF_SIMPLE_GM(textureimage_and_shader, canvas, 100, 50) {
     // surface, to ensure that we get automatic read-back. If all goes well, we will get a pure
     // green result. If either draw fails, we'll get red (most likely).
 
-    auto surface = SkSurface::MakeRasterN32Premul(50, 50);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(50, 50));
 
     // First, use drawImage:
     surface->getCanvas()->clear(SK_ColorRED);

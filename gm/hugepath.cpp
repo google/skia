@@ -44,7 +44,7 @@ DEF_SIMPLE_GM(path_huge_aa, canvas, 200, 200) {
     auto proc = [](SkCanvas* canvas, int w, int h) {
         SkAutoCanvasRestore acr(canvas, true);
 
-        auto surf = SkSurface::MakeRasterN32Premul(w, h);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h));
         auto can = surf->getCanvas();
 
         SkPaint paint;

@@ -13,6 +13,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/ToolUtils.h"
 #include "tools/debugger/DrawCommand.h"
@@ -151,7 +152,7 @@ SkSurface* Request::createCPUSurface() {
                     : SkColorSpace::MakeSRGB();
     SkImageInfo info = SkImageInfo::Make(bounds.size(), cap.fColorType, kPremul_SkAlphaType,
                                          cap.fSRGB ? colorSpace : nullptr);
-    return SkSurface::MakeRaster(info).release();
+    return SkSurfaces::Raster(info).release();
 }
 
 SkSurface* Request::createGPUSurface() {
@@ -163,7 +164,7 @@ SkSurface* Request::createGPUSurface() {
                     : SkColorSpace::MakeSRGB();
     SkImageInfo info = SkImageInfo::Make(bounds.size(), cap.fColorType, kPremul_SkAlphaType,
                                          cap.fSRGB ? colorSpace : nullptr);
-    SkSurface* surface = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, info).release();
+    SkSurface* surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, info).release();
     return surface;
 }
 

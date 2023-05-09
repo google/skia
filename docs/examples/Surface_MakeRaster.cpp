@@ -6,7 +6,7 @@ REG_FIDDLE(Surface_MakeRaster, 256, 256, true, 0) {
 void draw(SkCanvas* ) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);
     const size_t rowBytes = 64;
-    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info, rowBytes, nullptr));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(info, rowBytes, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
     SkPixmap pixmap;

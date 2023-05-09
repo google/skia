@@ -4,12 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "tools/sk_app/DawnWindowContext.h"
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/base/SkAutoMalloc.h"
-#include "tools/sk_app/DawnWindowContext.h"
 
 #include "dawn/dawn_proc.h"
 
@@ -86,12 +87,12 @@ sk_sp<SkSurface> DawnWindowContext::getBackbufferSurface() {
     rtInfo.fLevelCount = 1; // FIXME
     GrBackendRenderTarget backendRenderTarget(fWidth, fHeight, fDisplayParams.fMSAASampleCount, 8,
                                               rtInfo);
-    fSurface = SkSurface::MakeFromBackendRenderTarget(fContext.get(),
-                                                      backendRenderTarget,
-                                                      this->getRTOrigin(),
-                                                      fDisplayParams.fColorType,
-                                                      fDisplayParams.fColorSpace,
-                                                      &fDisplayParams.fSurfaceProps);
+    fSurface = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
+                                                   backendRenderTarget,
+                                                   this->getRTOrigin(),
+                                                   fDisplayParams.fColorType,
+                                                   fDisplayParams.fColorSpace,
+                                                   &fDisplayParams.fSurfaceProps);
     return fSurface;
 }
 

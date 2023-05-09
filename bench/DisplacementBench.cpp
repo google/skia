@@ -33,7 +33,7 @@ protected:
     void makeBitmap() {
         const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
         const int h = this->isSmall() ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE;
-        auto surf = SkSurface::MakeRasterN32Premul(w, h);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h));
         SkPaint paint;
         paint.setColor(0xFF884422);
 
@@ -46,7 +46,7 @@ protected:
     void makeCheckerboard() {
         const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
         const int h = this->isSmall() ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE;
-        auto surface(SkSurface::MakeRasterN32Premul(w, h));
+        auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h)));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(0x00000000);
         SkPaint darkPaint;

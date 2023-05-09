@@ -18,6 +18,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -359,7 +360,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest,
 static void draw(GrRecordingContext* rContext) {
     SkImageInfo ii = SkImageInfo::Make(1024, 1024, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(
             rContext, skgpu::Budgeted::kYes, ii, 1, kTopLeft_GrSurfaceOrigin, nullptr);
 
     SkCanvas* c = s->getCanvas();

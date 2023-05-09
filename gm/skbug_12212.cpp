@@ -13,16 +13,17 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 
 DEF_SIMPLE_GM_BG(skbug_12212, canvas, 400, 400, SK_ColorCYAN) {
     // Create an Alpha_8 surface to draw into (strangely, with RGB pixel geometry).
     auto imageInfo = SkImageInfo::Make(/*width=*/400, /*height=*/400, kAlpha_8_SkColorType,
                                        kPremul_SkAlphaType);
     SkSurfaceProps props(/*flags=*/0, kRGB_H_SkPixelGeometry);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
             canvas->recordingContext(), skgpu::Budgeted::kNo, imageInfo, /*sampleCount=*/0, &props);
     if (!surface) {
-        surface = SkSurface::MakeRaster(imageInfo, &props);
+        surface = SkSurfaces::Raster(imageInfo, &props);
     }
 
     // Draw text into the surface using LCD antialiasing.

@@ -148,7 +148,7 @@ template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
         proc(doc->beginPage(SkIntToScalar(w), SkIntToScalar(h)));
     }
 
-    proc(SkSurface::MakeRasterN32Premul(w, h, nullptr)->getCanvas());
+    proc(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h), nullptr)->getCanvas());
 }
 
 const SkIRect gBaseRestrictedR = { 0, 0, 10, 10 };
@@ -601,7 +601,7 @@ static void test_cliptype(SkCanvas* canvas, skiatest::Reporter* r) {
 
 DEF_TEST(CanvasClipType, r) {
     // test rasterclip backend
-    test_cliptype(SkSurface::MakeRasterN32Premul(10, 10)->getCanvas(), r);
+    test_cliptype(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10))->getCanvas(), r);
 
 #ifdef SK_SUPPORT_PDF
     // test clipstack backend
@@ -738,7 +738,7 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
     auto do_test = [&](int saveCount, int restoreCount) {
         SkASSERT(restoreCount <= saveCount);
 
-        auto surf = SkSurface::MakeRasterDirect(pm);
+        auto surf = SkSurfaces::WrapPixels(pm);
         auto canvas = surf->getCanvas();
 
         canvas->clear(SK_ColorRED);

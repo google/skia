@@ -28,6 +28,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/GrTextureGenerator.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -236,9 +237,13 @@ static GrSurfaceProxyView generate_picture_texture(GrRecordingContext* ctx,
     skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                        ? skgpu::Budgeted::kNo
                                        : skgpu::Budgeted::kYes;
-    auto surface = SkSurface::MakeRenderTarget(ctx, budgeted, img->imageInfo(), 0,
-                                               kTopLeft_GrSurfaceOrigin,
-                                               img->props(), mipmapped == GrMipmapped::kYes);
+    auto surface = SkSurfaces::RenderTarget(ctx,
+                                            budgeted,
+                                            img->imageInfo(),
+                                            0,
+                                            kTopLeft_GrSurfaceOrigin,
+                                            img->props(),
+                                            mipmapped == GrMipmapped::kYes);
     if (!surface) {
         return {};
     }

@@ -22,6 +22,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -236,9 +237,8 @@ Java_org_skia_skottie_SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
 
-    sk_sp<SkSurface> renderTarget(SkSurface::MakeFromBackendRenderTarget(
-            dContext, backendRT, kBottomLeft_GrSurfaceOrigin, colorType,
-            nullptr, &props));
+    sk_sp<SkSurface> renderTarget(SkSurfaces::WrapBackendRenderTarget(
+            dContext, backendRT, kBottomLeft_GrSurfaceOrigin, colorType, nullptr, &props));
 
     auto canvas = renderTarget->getCanvas();
     canvas->clear(backgroundColor);

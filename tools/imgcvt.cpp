@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
     }
 
     { // transform with writePixels()
-        sk_sp<SkSurface> surface = SkSurface::MakeRaster(pixmap.info().makeColorSpace(dst_cs));
+        sk_sp<SkSurface> surface = SkSurfaces::Raster(pixmap.info().makeColorSpace(dst_cs));
         if (!surface) {
             SkDebugf("couldn't create a surface\n");
             return 1;
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     }
 
     { // transform by drawing
-        sk_sp<SkSurface> surface = SkSurface::MakeRaster(pixmap.info().makeColorSpace(dst_cs));
+        sk_sp<SkSurface> surface = SkSurfaces::Raster(pixmap.info().makeColorSpace(dst_cs));
         if (!surface) {
             SkDebugf("couldn't create a surface\n");
             return 1;

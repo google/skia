@@ -8,6 +8,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
@@ -155,7 +156,7 @@ DEF_TEST(Vertices_clipping, reporter) {
     // A very large triangle has to be geometrically clipped (since its "fast" clipping is
     // normally done in after building SkFixed coordinates). Check that we handle this.
     // (and don't assert).
-    auto surf = SkSurface::MakeRasterN32Premul(3, 3);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(3, 3));
 
     SkPoint pts[] = { { -10, 1 }, { -10, 2 }, { 1e9f, 1.5f } };
     fill_triangle(surf->getCanvas(), pts, SK_ColorBLACK);

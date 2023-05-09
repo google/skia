@@ -24,6 +24,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "tests/CtsEnforcement.h"
@@ -52,7 +53,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest,
     const SkImageInfo ii = SkImageInfo::Make(1024, 600, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, ii));
+    sk_sp<SkSurface> dst(SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, ii));
     if (!dst) {
         ERRORF(reporter, "Could not create surfaces for repeated clipped blur test.");
         return;
@@ -86,7 +87,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest,
         SkImageInfo screenII = SkImageInfo::Make(1024, 600, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
 
-        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
+        sk_sp<SkSurface> s = SkSurfaces::RenderTarget(
                 dContext, skgpu::Budgeted::kYes, screenII, 1, kTopLeft_GrSurfaceOrigin, nullptr);
         SkCanvas* c = s->getCanvas();
 

@@ -116,7 +116,7 @@ DEF_TEST(DashPath_bug4871, r) {
 
 // Verify that long lines with many dashes don't cause overflows/OOMs.
 DEF_TEST(DashPathEffectTest_asPoints_limit, r) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(256, 256)));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(256, 256)));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint p;

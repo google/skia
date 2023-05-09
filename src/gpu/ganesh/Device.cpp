@@ -41,6 +41,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAssert.h"
@@ -1346,9 +1347,12 @@ sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& info, const SkSurfacePro
     ASSERT_SINGLE_OWNER
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const skgpu::Budgeted kBudgeted = skgpu::Budgeted::kNo;
-    return SkSurface::MakeRenderTarget(fContext.get(), kBudgeted, info,
-                                       fSurfaceDrawContext->numSamples(),
-                                       fSurfaceDrawContext->origin(), &props);
+    return SkSurfaces::RenderTarget(fContext.get(),
+                                    kBudgeted,
+                                    info,
+                                    fSurfaceDrawContext->numSamples(),
+                                    fSurfaceDrawContext->origin(),
+                                    &props);
 }
 
 SkImageFilterCache* Device::getImageFilterCache() {

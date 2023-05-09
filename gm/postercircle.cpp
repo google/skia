@@ -51,7 +51,8 @@ protected:
         font.setEmbolden(true);
         font.setSize(24.f);
 
-        sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(kPosterSize, kPosterSize);
+        sk_sp<SkSurface> surface =
+                SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kPosterSize, kPosterSize));
         for (int i = 0; i < kNumAngles; ++i) {
             SkCanvas* canvas = surface->getCanvas();
 

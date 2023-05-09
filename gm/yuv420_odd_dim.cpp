@@ -78,7 +78,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim, canvas, errMsg,
         }
         auto info = canvas->imageInfo().makeColorType(ct);
         info = info.makeAlphaType(kPremul_SkAlphaType);
-        surface = SkSurface::MakeRaster(info);
+        surface = SkSurfaces::Raster(info);
     }
     surface->getCanvas()->drawImage(image, 0, 0);
     canvas->scale(kScale, kScale);

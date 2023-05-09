@@ -107,8 +107,8 @@ sk_sp<SkImage> DebugLayerManager::getLayerAsImage(const int nodeId, const int fr
   // the color type and alpha type are chosen here to match wasm-skp-debugger/cpu.js which was
   // chosen to match the capabilities of HTML canvas, which this ultimately has to be drawn into.
   // TODO(nifong): introduce a method of letting the user choose the backend for this.
-  auto surface = SkSurface::MakeRaster(SkImageInfo::Make(drawEvent.layerBounds,
-    kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr));
+  auto surface = SkSurfaces::Raster(SkImageInfo::Make(
+          drawEvent.layerBounds, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr));
   // draw everything from the last full redraw up to the current frame.
   // other frames drawn are partial, meaning they were clipped to not completely cover the layer.
   // count back up with i

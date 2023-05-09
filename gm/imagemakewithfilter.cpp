@@ -210,7 +210,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         SkImageInfo info = SkImageInfo::MakeN32(100, 100, kUnpremul_SkAlphaType);
-        auto surface = SkSurface::MakeRaster(info, nullptr);
+        auto surface = SkSurfaces::Raster(info, nullptr);
 
         sk_sp<SkImage> colorImage = GetResourceAsImage("images/mandrill_128.png");
         // Resize to 100x100

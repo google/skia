@@ -20,7 +20,7 @@
 // This tests using clip shader and then changing the canvas matrix before drawing. It also verifies
 // that we don't incorrectly disable linear filtering of a clip image shader.
 DEF_SIMPLE_GM(clipshadermatrix, canvas, 145, 128) {
-    auto clipSurface = SkSurface::MakeRaster(SkImageInfo::MakeA8({70, 60}));
+    auto clipSurface = SkSurfaces::Raster(SkImageInfo::MakeA8({70, 60}));
     // Hard edged oval clip
     clipSurface->getCanvas()->drawOval(SkRect::MakeXYWH(0, 10, 64, 44), SkPaint{});
     auto clipShader = clipSurface->makeImageSnapshot()->makeShader(

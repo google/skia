@@ -96,7 +96,7 @@ static sk_sp<SkShader> make_shader(sk_sp<SkImage> img, SkISize size) {
 static sk_sp<SkShader> make_threshold(SkISize size) {
     auto info = SkImageInfo::Make(size.width(), size.height(), kAlpha_8_SkColorType,
                                   kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRaster(info);
+    auto surf = SkSurfaces::Raster(info);
     auto canvas = surf->getCanvas();
 
     const SkScalar rad = 50;
@@ -665,7 +665,7 @@ public:
                     256, 64, kN32_SkColorType, kPremul_SkAlphaType, sk_ref_sp(cs));
             auto surface = canvas->makeSurface(info);
             if (!surface) {
-                surface = SkSurface::MakeRaster(info);
+                surface = SkSurfaces::Raster(info);
             }
 
             surface->getCanvas()->drawRect({0, 0, 256, 64}, paint);
@@ -691,7 +691,7 @@ DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(1);
 
-    auto surf = SkSurface::MakeRasterN32Premul(100,100);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     surf->getCanvas()->drawLine(0, 0, 100, 100, p);
     auto shader = surf->makeImageSnapshot()->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
 
@@ -719,7 +719,7 @@ static sk_sp<SkShader> normal_map_shader() {
 static sk_sp<SkImage> normal_map_image() {
     // Above, baked into an image:
     auto info = SkImageInfo::Make(256, 256, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRaster(info);
+    auto surface = SkSurfaces::Raster(info);
     SkPaint p;
     p.setShader(normal_map_shader());
     surface->getCanvas()->drawPaint(p);
@@ -820,7 +820,7 @@ DEF_SIMPLE_GM(raw_image_shader_normals_rt, canvas, 768, 512) {
                                       SkColorSpace::MakeSRGB()->makeColorSpin());
     auto surface = canvas->makeSurface(surfInfo);
     if (!surface) {
-        surface = SkSurface::MakeRaster(surfInfo);
+        surface = SkSurfaces::Raster(surfInfo);
     }
 
     auto draw_shader = [](int x, int y, sk_sp<SkShader> shader, SkCanvas* canvas) {
@@ -870,7 +870,7 @@ DEF_SIMPLE_GM(lit_shader_linear_rt, canvas, 512, 256) {
                                       SkColorSpace::MakeSRGB());
     auto surface = canvas->makeSurface(surfInfo);
     if (!surface) {
-        surface = SkSurface::MakeRaster(surfInfo);
+        surface = SkSurfaces::Raster(surfInfo);
     }
 
     auto draw_shader = [](int x, int y, sk_sp<SkShader> shader, SkCanvas* canvas) {
@@ -1069,7 +1069,7 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
                 SkImageInfo::Make(50, 50, kN32_SkColorType, kPremul_SkAlphaType, spin);
         auto surface = canvas->makeSurface(spinInfo);
         if (!surface) {
-            surface = SkSurface::MakeRaster(spinInfo);
+            surface = SkSurfaces::Raster(spinInfo);
         }
 
         SkPaint paint;

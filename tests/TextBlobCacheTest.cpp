@@ -32,6 +32,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -101,7 +102,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
                                          kPremul_SkAlphaType);
-    auto surface(SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info, 0, &props));
+    auto surface(SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info, 0, &props));
     REPORTER_ASSERT(reporter, surface);
     if (!surface) {
         return;
@@ -303,7 +304,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ct
     auto dContext = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    auto surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
 
     auto blob = make_large_blob();
     int y = 40;
@@ -328,7 +329,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(direct, skgpu::Budgeted::kNo, info);
+    auto surface = SkSurfaces::RenderTarget(direct, skgpu::Budgeted::kNo, info);
 
     auto blob = make_blob();
 
@@ -387,7 +388,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll,
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(direct, skgpu::Budgeted::kNo, info);
+    auto surface = SkSurfaces::RenderTarget(direct, skgpu::Budgeted::kNo, info);
 
     auto movingBlob = make_blob();
 

@@ -31,6 +31,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
@@ -174,7 +175,7 @@ public:
                GrThreadSafeCache::IsNewerBetter isNewerBetter = default_is_newer_better)
             : fDContext(dContext)
             , fIsNewerBetter(isNewerBetter) {
-        fDst = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
+        fDst = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
         SkAssertResult(fDst);
 
         SkSurfaceCharacterization characterization;
@@ -428,7 +429,7 @@ public:
 
     bool checkImage(skiatest::Reporter* reporter, sk_sp<SkDeferredDisplayList> ddl) {
         sk_sp<SkSurface> tmp =
-                SkSurface::MakeRenderTarget(fDContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
+                SkSurfaces::RenderTarget(fDContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
         if (!tmp) {
             return false;
         }

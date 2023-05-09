@@ -27,6 +27,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "tools/ToolUtils.h"
@@ -68,7 +69,7 @@ protected:
         inputCanvas->getProps(&inputProps);
         SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | inputProps.flags(),
                              inputProps.pixelGeometry());
-        auto surface(SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props));
+        auto surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props));
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getLocalToDeviceAs3x3());

@@ -33,6 +33,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRectMemcpy.h"
@@ -238,7 +239,7 @@ SkPixmap make_pixmap_have_valid_alpha_type(SkPixmap pm) {
 static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaque) {
     SkAutoPixmapStorage result;
     result.alloc(info);
-    auto surface = SkSurface::MakeRasterDirect(make_pixmap_have_valid_alpha_type(result));
+    auto surface = SkSurfaces::WrapPixels(make_pixmap_have_valid_alpha_type(result));
     if (!surface) {
         return result;
     }
@@ -572,7 +573,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ReadPixels_InvalidRowBytes_Gpu,
                                  ctxInfo,
                                  CtsEnforcement::kApiLevel_T) {
     auto srcII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, srcII);
+    auto surf = SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, srcII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
         auto colorType = static_cast<SkColorType>(ct);
         size_t bpp = SkColorTypeBytesPerPixel(colorType);
@@ -591,7 +592,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(WritePixels_InvalidRowBytes_Gpu,
                                  ctxInfo,
                                  CtsEnforcement::kApiLevel_T) {
     auto dstII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, dstII);
+    auto surf = SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, dstII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
         auto colorType = static_cast<SkColorType>(ct);
         size_t bpp = SkColorTypeBytesPerPixel(colorType);
@@ -662,12 +663,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto factory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
-                    auto surf = SkSurface::MakeRenderTarget(context,
-                                                            skgpu::Budgeted::kYes,
-                                                            src.info(),
-                                                            1,
-                                                            origin,
-                                                            nullptr);
+                    auto surf = SkSurfaces::RenderTarget(
+                            context, skgpu::Budgeted::kYes, src.info(), 1, origin, nullptr);
                     if (surf) {
                         surf->writePixels(src, 0, 0);
                     }
@@ -795,8 +792,7 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                 if (!direct->priv().caps()->transferFromSurfaceToBufferSupport()) {
                     continue;
                 }
-                auto surf = SkSurface::MakeRenderTarget(direct, skgpu::Budgeted::kYes, ii, 1,
-                                                        nullptr);
+                auto surf = SkSurfaces::RenderTarget(direct, skgpu::Budgeted::kYes, ii, 1, nullptr);
                 if (!surf) {
                     continue;
                 }

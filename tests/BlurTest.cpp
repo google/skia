@@ -29,6 +29,7 @@
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkMathPriv.h"
@@ -423,7 +424,7 @@ DEF_TEST(BlurAsABlur, reporter) {
 // SkBlurMask::BoxBlur wasn't being checked in SkBlurMaskFilter.cpp::GrRRectBlurEffect::Create
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo, CtsEnforcement::kNever) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
+    auto surface(SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);
@@ -506,14 +507,14 @@ DEF_TEST(EmbossPerlinCrash, reporter) {
     p.setMaskFilter(SkEmbossMaskFilter::Make(1, light));
     p.setShader(SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f));
 
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     surface->getCanvas()->drawPaint(p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_TEST(BlurZeroSigma, reporter) {
-    auto surf = SkSurface::MakeRasterN32Premul(20, 20);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(20, 20));
     SkPaint paint;
     paint.setAntiAlias(true);
 
@@ -552,7 +553,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest,
 
     SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, ii));
+    sk_sp<SkSurface> dst(SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, ii));
     if (!dst) {
         ERRORF(reporter, "Could not create surface for test.");
         return;

@@ -97,7 +97,7 @@ static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
     const SkMatrix mat = SkMatrix::RectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize));
 
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kLabelSize, kLabelSize);
-    sk_sp<SkSurface> surf = SkSurface::MakeRaster(ii);
+    sk_sp<SkSurface> surf = SkSurfaces::Raster(ii);
 
     SkCanvas* canvas = surf->getCanvas();
 

@@ -53,8 +53,7 @@ void RasterWindowContext_xlib::setDisplayParams(const DisplayParams& params) {
 void RasterWindowContext_xlib::resize(int  w, int h) {
     SkImageInfo info = SkImageInfo::Make(w, h, fDisplayParams.fColorType, kPremul_SkAlphaType,
                                          fDisplayParams.fColorSpace);
-    fBackbufferSurface = SkSurface::MakeRaster(info, &fDisplayParams.fSurfaceProps);
-
+    fBackbufferSurface = SkSurfaces::Raster(info, &fDisplayParams.fSurfaceProps);
 }
 
 sk_sp<SkSurface> RasterWindowContext_xlib::getBackbufferSurface() { return fBackbufferSurface; }

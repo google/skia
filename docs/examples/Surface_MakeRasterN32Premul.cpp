@@ -4,7 +4,7 @@
 // HASH=b932a2bd68455fb0af2e7a1ed19e36b3
 REG_FIDDLE(Surface_MakeRasterN32Premul, 256, 256, true, 0) {
 void draw(SkCanvas* ) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(3, 3));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(3, 3)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
     SkPixmap pixmap;

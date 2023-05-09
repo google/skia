@@ -28,7 +28,7 @@
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_img(int w, int h) {
-    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32(w, h, kOpaque_SkAlphaType));
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32(w, h, kOpaque_SkAlphaType));
     auto canvas = surf->getCanvas();
 
     SkScalar wScalar = SkIntToScalar(w);

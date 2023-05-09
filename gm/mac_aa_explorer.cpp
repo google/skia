@@ -79,7 +79,7 @@ static void test_mac_fonts(SkCanvas* canvas, SkScalar size, SkScalar xpos) {
 
     for (SkColorType ct : {kRGBA_8888_SkColorType, kGray_8_SkColorType, kAlpha_8_SkColorType}) {
         SkImageInfo ii = SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType);
-        auto surf = SkSurface::MakeRaster(ii);
+        auto surf = SkSurfaces::Raster(ii);
         SkPixmap pm;
         surf->peekPixels(&pm);
         CGContextRef ctx = make_cg_ctx(pm);

@@ -184,7 +184,7 @@ DEF_TEST(SVGDevice_whitespace_pos, reporter) {
 
 void SetImageShader(SkPaint* paint, int imageWidth, int imageHeight, SkTileMode xTile,
                     SkTileMode yTile) {
-    auto surface = SkSurface::MakeRasterN32Premul(imageWidth, imageHeight);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(imageWidth, imageHeight));
     paint->setShader(surface->makeImageSnapshot()->makeShader(xTile, yTile, SkSamplingOptions()));
 }
 

@@ -72,9 +72,8 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, const SkSamplingOptions& s
                                                  &scale,
                                                  clampAsIfUnpremul);
 
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterDirect(dst.info(),
-                                                           dst.writable_addr(),
-                                                           dst.rowBytes());
+    sk_sp<SkSurface> surface =
+            SkSurfaces::WrapPixels(dst.info(), dst.writable_addr(), dst.rowBytes());
     if (!shader || !surface) {
         return false;
     }

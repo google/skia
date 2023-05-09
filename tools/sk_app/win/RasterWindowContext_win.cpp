@@ -67,7 +67,7 @@ void RasterWindowContext_win::resize(int w, int h) {
 
     SkImageInfo info = SkImageInfo::Make(w, h, fDisplayParams.fColorType, kPremul_SkAlphaType,
                                          fDisplayParams.fColorSpace);
-    fBackbufferSurface = SkSurface::MakeRasterDirect(info, pixels, sizeof(uint32_t) * w);
+    fBackbufferSurface = SkSurfaces::WrapPixels(info, pixels, sizeof(uint32_t) * w);
 }
 
 sk_sp<SkSurface> RasterWindowContext_win::getBackbufferSurface() { return fBackbufferSurface; }

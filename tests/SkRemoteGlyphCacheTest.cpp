@@ -32,6 +32,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
@@ -201,7 +202,7 @@ static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
 sk_sp<SkSurface> MakeSurface(int width, int height, GrRecordingContext* rContext) {
     const SkImageInfo info =
             SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
-    return SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info);
+    return SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kNo, info);
 }
 
 SkSurfaceProps FindSurfaceProps(GrRecordingContext* rContext) {

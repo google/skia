@@ -164,7 +164,7 @@ DEF_TEST(Encode_JPG, r) {
                      kRGBA_F16_SkColorType }) {
         for (auto at : { kPremul_SkAlphaType, kUnpremul_SkAlphaType, kOpaque_SkAlphaType }) {
             auto info = SkImageInfo::Make(image->width(), image->height(), ct, at);
-            auto surface = SkSurface::MakeRaster(info);
+            auto surface = SkSurfaces::Raster(info);
             auto canvas = surface->getCanvas();
             canvas->drawImage(image, 0, 0);
 

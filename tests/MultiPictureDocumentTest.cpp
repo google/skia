@@ -110,7 +110,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
     static const int HEIGHT = 256;
 
     // Make an image to be used in a later step.
-    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100)));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image);
@@ -129,7 +129,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
         draw_advanced(pictureCanvas, i, image, sub);
         multipic->endPage();
         // Also draw the picture to an image for later comparison
-        auto surf = SkSurface::MakeRaster(info);
+        auto surf = SkSurfaces::Raster(info);
         draw_advanced(surf->getCanvas(), i, image, sub);
         expectedImages.push_back(surf->makeImageSnapshot());
     }
@@ -169,7 +169,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
         REPORTER_ASSERT(reporter, bounds.height() == HEIGHT,
             "Page height: expected (%d) got (%d)", HEIGHT, (int)bounds.height());
 
-        auto surf = SkSurface::MakeRaster(info);
+        auto surf = SkSurfaces::Raster(info);
         surf->getCanvas()->drawPicture(frame.fPicture);
         auto img = surf->makeImageSnapshot();
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), expectedImages[i].get()));
@@ -367,7 +367,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
     draw_basic(pictureCanvas, 0, image);
     multipic->endPage();
     // Also draw the picture to an image for later comparison
-    auto surf = SkSurface::MakeRaster(info);
+    auto surf = SkSurfaces::Raster(info);
     draw_basic(surf->getCanvas(), 0, image);
     expectedImages.push_back(surf->makeImageSnapshot());
 
@@ -410,7 +410,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
     REPORTER_ASSERT(reporter, bounds.height() == HEIGHT,
         "Page height: expected (%d) got (%d)", HEIGHT, (int)bounds.height());
 
-    auto surf2 = SkSurface::MakeRaster(info);
+    auto surf2 = SkSurfaces::Raster(info);
     surf2->getCanvas()->drawPicture(frames[0].fPicture);
     auto img = surf2->makeImageSnapshot();
     REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), expectedImages[0].get()));

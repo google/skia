@@ -88,7 +88,7 @@ protected:
         }
 
         {
-            sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(16, 16));
+            sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(16, 16)));
             SkCanvas* surfaceCanvas = surface->getCanvas();
             surfaceCanvas->clear(0x000000);
             {

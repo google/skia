@@ -22,6 +22,12 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "android_srcs",
+    srcs = ["SkSurface_AndroidFactories.cpp"],
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [":surface_srcs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],

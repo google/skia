@@ -7,7 +7,7 @@ REG_FIDDLE(Surface_draw_2, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(16);
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRasterN32Premul(64, 64);
+    sk_sp<SkSurface> gpuSurface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64));
     SkSurfaceCharacterization characterization;
     if (!gpuSurface->characterize(&characterization)) {
          canvas->drawString("characterization unsupported", 20, 40, paint);

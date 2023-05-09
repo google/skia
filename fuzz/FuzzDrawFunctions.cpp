@@ -98,7 +98,7 @@ static void init_surface(Fuzz* fuzz, sk_sp<SkSurface>* s) {
     uint8_t x, y;
     fuzz->nextRange(&x, 1, kMaxX);
     fuzz->nextRange(&y, 1, kMaxY);
-    *s = SkSurface::MakeRasterN32Premul(x, y);
+    *s = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(x, y));
 
     if (!*s) {
         // Was possibly too big for the memory constrained fuzzing environments

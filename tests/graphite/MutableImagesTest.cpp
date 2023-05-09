@@ -15,6 +15,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -106,7 +107,7 @@ public:
         SkImageInfo ii = SkImageInfo::Make(kSurfaceSize,
                                            kRGBA_8888_SkColorType,
                                            kPremul_SkAlphaType);
-        fImgDrawSurface = SkSurface::MakeGraphite(fRecorder, ii, Mipmapped::kNo);
+        fImgDrawSurface = SkSurfaces::RenderTarget(fRecorder, ii, Mipmapped::kNo);
         REPORTER_ASSERT(fReporter, fImgDrawSurface);
 
         fImgDrawRecording = MakeRedrawRecording(fRecorder, fImgDrawSurface.get(), imageToDraw);
@@ -421,8 +422,8 @@ public:
     std::unique_ptr<Recording> init(const Caps* /* caps */) override {
         SkImageInfo ii = SkImageInfo::Make(kImageSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-        fMutatingSurface = SkSurface::MakeGraphite(fRecorder, ii,
-                                                   fWithMips ? Mipmapped::kYes : Mipmapped::kNo);
+        fMutatingSurface = SkSurfaces::RenderTarget(
+                fRecorder, ii, fWithMips ? Mipmapped::kYes : Mipmapped::kNo);
         REPORTER_ASSERT(fReporter, fMutatingSurface);
 
         fMutatingSurface->getCanvas()->clear(kInitialColor);

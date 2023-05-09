@@ -25,7 +25,7 @@ public:
     RasterTileBench() : fName("rastertile") {
         int W = 2014 * 20;
         int H = 20;
-        fSurf = SkSurface::MakeRasterN32Premul(W, H);
+        fSurf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(W, H));
 
         fPath.moveTo(0, 0);
         fPath.cubicTo(20, 10, 10, 15, 30, 5);

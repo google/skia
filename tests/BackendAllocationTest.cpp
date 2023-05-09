@@ -16,7 +16,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkString.h"
-#include "include/core/SkSurface.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
@@ -25,6 +24,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -89,6 +89,7 @@
 #endif
 
 class SkImage;
+class SkSurface;
 
 using sk_gpu_test::ManagedBackendTexture;
 
@@ -135,12 +136,13 @@ void test_wrapping(GrDirectContext* dContext,
     }
 
     if (GrRenderable::kYes == renderable && dContext->colorTypeSupportedAsSurface(skColorType)) {
-        sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(dContext,
-                                                                  mbet->texture(),
-                                                                  kTopLeft_GrSurfaceOrigin,
-                                                                  0,
-                                                                  skColorType,
-                                                                  nullptr, nullptr);
+        sk_sp<SkSurface> surf = SkSurfaces::WrapBackendTexture(dContext,
+                                                               mbet->texture(),
+                                                               kTopLeft_GrSurfaceOrigin,
+                                                               0,
+                                                               skColorType,
+                                                               nullptr,
+                                                               nullptr);
         if (!surf) {
             ERRORF(reporter, "Couldn't make SkSurface from backendTexture for %s\n",
                    ToolUtils::colortype_name(skColorType));

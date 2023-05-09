@@ -46,6 +46,7 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
@@ -1681,16 +1682,16 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
         if (!rContext->priv().caps()->mipmapSupport()) {
             mipmapped = false;
         }
-        surface = SkSurface::MakeRenderTarget(rContext,
-                                              skgpu::Budgeted::kYes,
-                                              resultInfo,
-                                              1,
-                                              kTopLeft_GrSurfaceOrigin,
-                                              nullptr,
-                                              mipmapped);
+        surface = SkSurfaces::RenderTarget(rContext,
+                                           skgpu::Budgeted::kYes,
+                                           resultInfo,
+                                           1,
+                                           kTopLeft_GrSurfaceOrigin,
+                                           nullptr,
+                                           mipmapped);
 #endif
     } else {
-        surface = SkSurface::MakeRaster(resultInfo);
+        surface = SkSurfaces::Raster(resultInfo);
     }
     if (!surface) {
         return nullptr;

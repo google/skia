@@ -24,6 +24,7 @@ static DEFINE_double(frame, 1.0,
 
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
@@ -270,7 +271,7 @@ int main(int argc, char** argv) {
     SkImageInfo info = SkImageInfo::Make(options.size.width(), options.size.height(), colorType,
                                          kPremul_SkAlphaType, colorSpace);
     if (options.raster) {
-        auto rasterSurface = SkSurface::MakeRaster(info);
+        auto rasterSurface = SkSurfaces::Raster(info);
         srand(0);
         draw(prepare_canvas(rasterSurface->getCanvas()));
         rasterData = encode_snapshot(nullptr, rasterSurface);
@@ -287,7 +288,7 @@ int main(int argc, char** argv) {
                 exit(1);
             }
 
-            auto surface = SkSurface::MakeRenderTarget(direct.get(), skgpu::Budgeted::kNo, info);
+            auto surface = SkSurfaces::RenderTarget(direct.get(), skgpu::Budgeted::kNo, info);
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);
                 exit(1);

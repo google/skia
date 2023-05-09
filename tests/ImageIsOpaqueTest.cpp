@@ -17,6 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -35,11 +36,11 @@ static void check_isopaque(skiatest::Reporter* reporter, const sk_sp<SkSurface>&
 
 DEF_TEST(ImageIsOpaqueTest, reporter) {
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
-    auto surfaceTransparent(SkSurface::MakeRaster(infoTransparent));
+    auto surfaceTransparent(SkSurfaces::Raster(infoTransparent));
     check_isopaque(reporter, surfaceTransparent, false);
 
     SkImageInfo infoOpaque = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
-    auto surfaceOpaque(SkSurface::MakeRaster(infoOpaque));
+    auto surfaceOpaque(SkSurfaces::Raster(infoOpaque));
     check_isopaque(reporter, surfaceOpaque, true);
 }
 
@@ -50,11 +51,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu,
     auto context = ctxInfo.directContext();
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
     auto surfaceTransparent(
-            SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, infoTransparent));
+            SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, infoTransparent));
     check_isopaque(reporter, surfaceTransparent, false);
 
     SkImageInfo infoOpaque = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
-    auto surfaceOpaque(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, infoOpaque));
+    auto surfaceOpaque(SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, infoOpaque));
 
     check_isopaque(reporter, surfaceOpaque, true);
 }

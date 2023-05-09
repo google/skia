@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/shaders/SkImageShader.h"
 #include "tools/ToolUtils.h"
@@ -35,7 +36,7 @@ void test_draw(skiatest::Reporter* reporter,
                SkSamplingOptions samplingOptions,
                std::vector<Expectation> expectations) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
-    sk_sp<SkSurface> surface = SkSurface::MakeGraphite(
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
             recorder.get(),
             SkImageInfo::Make(canvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     SkCanvas* canvas = surface->getCanvas();

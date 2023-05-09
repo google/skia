@@ -28,7 +28,7 @@
 #include <iterator>
 
 static sk_sp<SkImage> make_image(SkCanvas* destCanvas) {
-    auto surf = SkSurface::MakeRasterN32Premul(64, 64);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64));
     auto tmpCanvas = surf->getCanvas();
 
     tmpCanvas->drawColor(SK_ColorRED);

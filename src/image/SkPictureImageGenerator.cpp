@@ -94,6 +94,7 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 
 #if defined(SK_GRAPHITE)
 #include "include/core/SkSurface.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Log.h"
 
 sk_sp<SkImage> SkPictureImageGenerator::onMakeTextureImage(skgpu::graphite::Recorder* recorder,
@@ -101,7 +102,7 @@ sk_sp<SkImage> SkPictureImageGenerator::onMakeTextureImage(skgpu::graphite::Reco
                                                            skgpu::Mipmapped mipmapped) {
     using namespace skgpu::graphite;
 
-    sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder, info, mipmapped);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder, info, mipmapped);
     if (!surface) {
         SKGPU_LOG_E("Failed to create Surface");
         return nullptr;

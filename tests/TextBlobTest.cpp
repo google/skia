@@ -12,6 +12,7 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -380,8 +381,9 @@ static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, S
 }
 
 static sk_sp<SkImage> render(const SkTextBlob* blob) {
-    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->bounds().width()),
-                                               SkScalarRoundToInt(blob->bounds().height()));
+    auto surf = SkSurfaces::Raster(
+            SkImageInfo::MakeN32Premul(SkScalarRoundToInt(blob->bounds().width()),
+                                       SkScalarRoundToInt(blob->bounds().height())));
     if (!surf) {
         return nullptr; // bounds are empty?
     }

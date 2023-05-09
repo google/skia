@@ -169,7 +169,7 @@ SkBitmap create_checkerboard_bitmap(int w, int h, SkColor c1, SkColor c2, int ch
 }
 
 sk_sp<SkImage> create_checkerboard_image(int w, int h, SkColor c1, SkColor c2, int checkSize) {
-    auto surf = SkSurface::MakeRasterN32Premul(w, h);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h));
     ToolUtils::draw_checkerboard(surf->getCanvas(), c1, c2, checkSize);
     return surf->makeImageSnapshot();
 }
@@ -523,7 +523,7 @@ sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
                              const SkSurfaceProps* props) {
     auto surf = canvas->makeSurface(info, props);
     if (!surf) {
-        surf = SkSurface::MakeRaster(info, props);
+        surf = SkSurfaces::Raster(info, props);
     }
     return surf;
 }

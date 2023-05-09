@@ -22,7 +22,7 @@
 #include <utility>
 
 static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, SkEncodedOrigin origin) {
-    auto surf = SkSurface::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes());
+    auto surf = SkSurfaces::WrapPixels(dst.info(), dst.writable_addr(), dst.rowBytes());
     if (!surf) {
         return false;
     }

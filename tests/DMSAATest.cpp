@@ -32,6 +32,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBlendModePriv.h"
@@ -308,13 +309,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
     // a dmsaa surface it forces us to use the FillRRectOp instead of the normal FillQuad path. It
     // is unclear why, but using the FillRRectOp is required to repro the bug.
     {
-        auto surface = SkSurface::MakeFromBackendTexture(context,
-                                                         texture1,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         1,
-                                                         kRGBA_8888_SkColorType,
-                                                         nullptr,
-                                                         &kDMSAAProps);
+        auto surface = SkSurfaces::WrapBackendTexture(context,
+                                                      texture1,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      1,
+                                                      kRGBA_8888_SkColorType,
+                                                      nullptr,
+                                                      &kDMSAAProps);
 
         surface->getCanvas()->drawImageRect(sourceImage,
                                             srcRect,
@@ -330,13 +331,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
     // trigger use to disable blending. However, when the bug is present the driver still seems to
     // try and use a "src2" blend value and ends up just writing the original dst color of yellow.
     {
-        auto surface = SkSurface::MakeFromBackendTexture(context,
-                                                         texture2,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         1,
-                                                         kRGBA_8888_SkColorType,
-                                                         nullptr,
-                                                         &kBasicProps);
+        auto surface = SkSurfaces::WrapBackendTexture(context,
+                                                      texture2,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      1,
+                                                      kRGBA_8888_SkColorType,
+                                                      nullptr,
+                                                      &kBasicProps);
 
         surface->getCanvas()->drawImageRect(sourceImage,
                                             srcRect,

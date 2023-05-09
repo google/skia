@@ -19,6 +19,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/CtsEnforcement.h"
@@ -61,7 +62,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest,
 
     SkImageInfo info =
             SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->clear(SK_ColorGREEN);
@@ -191,16 +192,15 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FinishedAsyncProcWhenAbandonedTest,
         return;
     }
 
-    auto surface = SkSurface::MakeFromBackendTexture(
-            dContext,
-            mbet->texture(),
-            kTopLeft_GrSurfaceOrigin,
-            /*sample count*/ 1,
-            kRGBA_8888_SkColorType,
-            /*color space*/ nullptr,
-            /*surface props*/ nullptr,
-            sk_gpu_test::ManagedBackendTexture::ReleaseProc,
-            mbet->releaseContext(nullptr, nullptr));
+    auto surface = SkSurfaces::WrapBackendTexture(dContext,
+                                                  mbet->texture(),
+                                                  kTopLeft_GrSurfaceOrigin,
+                                                  /*sample count*/ 1,
+                                                  kRGBA_8888_SkColorType,
+                                                  /*color space*/ nullptr,
+                                                  /*surface props*/ nullptr,
+                                                  sk_gpu_test::ManagedBackendTexture::ReleaseProc,
+                                                  mbet->releaseContext(nullptr, nullptr));
 
     if (!surface) {
         return;

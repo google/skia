@@ -71,8 +71,8 @@ int main(int argc, char** argv) {
             continue;
         }
         static constexpr SkColor kBackground = SK_ColorWHITE;
-        sk_sp<SkSurface> surf = SkSurface::MakeRasterN32Premul(iBounds.width() + 16,
-                                                               iBounds.height() + 16);
+        sk_sp<SkSurface> surf = SkSurfaces::Raster(
+                SkImageInfo::MakeN32Premul(iBounds.width() + 16, iBounds.height() + 16));
         SkCanvas* canvas = surf->getCanvas();
         canvas->translate(8.0f - iBounds.x(), 8.0f - iBounds.y());
         canvas->clear(kBackground);

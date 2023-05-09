@@ -40,6 +40,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkDebug.h"
@@ -136,7 +137,7 @@ static void draw_image_test_pattern(SkCanvas* canvas) {
 }
 static sk_sp<SkImage> create_image() {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -159,7 +160,7 @@ static sk_sp<SkImage> create_data_image() {
 }
 static sk_sp<SkImage> create_image_large(int maxTextureSize) {
     const SkImageInfo info = SkImageInfo::MakeN32(maxTextureSize + 1, 32, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     surface->getCanvas()->clear(SK_ColorWHITE);
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
@@ -209,8 +210,8 @@ static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext,
                                        bool withMips = false,
                                        skgpu::Budgeted budgeted = skgpu::Budgeted::kYes) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(rContext, budgeted, info, 0,
-                                               kBottomLeft_GrSurfaceOrigin, nullptr, withMips);
+    auto surface = SkSurfaces::RenderTarget(
+            rContext, budgeted, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr, withMips);
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -282,7 +283,7 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
 
 // Test that image encoding failures do not break picture serialization/deserialization.
 DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100)));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image);
@@ -319,7 +320,7 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
     const SkPMColor red   = SkPackARGB32(0xFF, 0xFF, 0, 0);
     const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     surface->getCanvas()->clear(0xFF00FF00);
 
     SkPMColor pixels[4];
@@ -405,7 +406,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_Ganesh2Cpu,
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
     const auto desc = SkBitmapCacheDesc::Make(image.get());
 
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
 
     // now we can test drawing a gpu-backed image into a cpu-backed surface
 
@@ -665,7 +666,7 @@ DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLe
         }
 
         sk_sp<SkImage> img;
-        auto gsurf = SkSurface::MakeRenderTarget(
+        auto gsurf = SkSurfaces::RenderTarget(
                 factory->get(type),
                 skgpu::Budgeted::kYes,
                 SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
@@ -677,7 +678,7 @@ DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLe
         img = gsurf->makeImageSnapshot();
         gsurf.reset();
 
-        auto rsurf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(100, 100));
+        auto rsurf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
 
         REPORTER_ASSERT(reporter, img->isValid(factory->get(type)));
         REPORTER_ASSERT(reporter, img->isValid(rsurf->getCanvas()->recordingContext()));
@@ -1010,10 +1011,9 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         }
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-        sk_sp<SkSurface> surface =
-                SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+        sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
         if (!surface) {
-            ERRORF(reporter, "SkSurface::MakeRenderTarget failed for %s.", testName);
+            ERRORF(reporter, "SkSurfaces::RenderTarget failed for %s.", testName);
             continue;
         }
 
@@ -1051,7 +1051,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             continue;
         }
 
-        surface = SkSurface::MakeRenderTarget(otherCtx, skgpu::Budgeted::kNo, info);
+        surface = SkSurfaces::RenderTarget(otherCtx, skgpu::Budgeted::kNo, info);
         canvas = surface->getCanvas();
 
         // Case #4: Create image, draw*, flush*, free image
@@ -1321,12 +1321,12 @@ DEF_TEST(Image_ColorSpace, r) {
     image = bitmap.asImage();
     REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
 
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(
-            SkImageInfo::MakeN32Premul(SkISize::Make(10, 10)));
+    sk_sp<SkSurface> surface =
+            SkSurfaces::Raster(SkImageInfo::MakeN32Premul(SkISize::Make(10, 10)));
     image = surface->makeImageSnapshot();
     REPORTER_ASSERT(r, nullptr == image->colorSpace());
 
-    surface = SkSurface::MakeRaster(info);
+    surface = SkSurfaces::Raster(info);
     image = surface->makeImageSnapshot();
     REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
 }
@@ -1482,7 +1482,7 @@ DEF_TEST(ImageScalePixels, reporter) {
 
     // Test raster image
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(info);
     surface->getCanvas()->clear(red);
     sk_sp<SkImage> rasterImage = surface->makeImageSnapshot();
     test_scale_pixels(reporter, rasterImage.get(), pmRed);
@@ -1502,7 +1502,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu,
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(16, 16);
     sk_sp<SkSurface> surface =
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
+            SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
     surface->getCanvas()->clear(red);
     sk_sp<SkImage> gpuImage = surface->makeImageSnapshot();
     test_scale_pixels(reporter, gpuImage.get(), pmRed);
@@ -1513,7 +1513,7 @@ static sk_sp<SkImage> any_image_will_do() {
 }
 
 DEF_TEST(Image_nonfinite_dst, reporter) {
-    auto surf = SkSurface::MakeRasterN32Premul(10, 10);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10));
     auto img = any_image_will_do();
 
     for (SkScalar bad : { SK_ScalarInfinity, SK_ScalarNaN}) {
@@ -1551,7 +1551,7 @@ static sk_sp<SkImage> make_yuva_image(GrDirectContext* dContext) {
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto s = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kYes, ii, 1, nullptr);
+    auto s = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, ii, 1, nullptr);
 
     s->getCanvas()->clear(SK_ColorRED);
     auto i0 = s->makeImageSnapshot();

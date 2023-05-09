@@ -11,6 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
@@ -221,7 +222,7 @@ public:
     }
 #else
     static std::unique_ptr<FrameGenerator> Make(FrameSink* sink, const SkMatrix& matrix) {
-        auto surface = SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height);
+        auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height));
         if (!surface) {
             SkDebugf("Could not allocate a %d x %d surface.\n", FLAGS_width, FLAGS_height);
             return nullptr;
@@ -324,8 +325,7 @@ private:
     {
         fCtx = fFactory.getContextInfo(sk_gpu_test::GrContextFactory::kGL_ContextType)
                            .directContext();
-        fSurface =
-                SkSurface::MakeRenderTarget(fCtx,
+        fSurface = SkSurfaces::RenderTarget(fCtx,
                                             skgpu::Budgeted::kNo,
                                             SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height),
                                             0,

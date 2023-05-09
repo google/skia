@@ -85,7 +85,8 @@ private:
 
     static sk_sp<SkShader> make_shader(const SkMatrix& lm, const SkMatrix& outer_lm) {
         static constexpr SkISize kTileSize = { 30, 30 };
-        auto surface = SkSurface::MakeRasterN32Premul(kTileSize.width(), kTileSize.height());
+        auto surface = SkSurfaces::Raster(
+                SkImageInfo::MakeN32Premul(kTileSize.width(), kTileSize.height()));
 
         SkPaint p;
         p.setColor(0xffffff00);

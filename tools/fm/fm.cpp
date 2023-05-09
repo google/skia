@@ -11,6 +11,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
@@ -254,7 +255,7 @@ static void init_cpu_test(Source* source, const skiatest::Test& test) {
 
 static sk_sp<SkImage> draw_with_cpu(std::function<bool(SkCanvas*)> draw,
                                     SkImageInfo info) {
-    if (sk_sp<SkSurface> surface = SkSurface::MakeRaster(info)) {
+    if (sk_sp<SkSurface> surface = SkSurfaces::Raster(info)) {
         if (draw(surface->getCanvas())) {
             return surface->makeImageSnapshot();
         }
@@ -319,7 +320,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
 
     switch (surfaceType) {
         case SurfaceType::kDefault:
-            surface = SkSurface::MakeRenderTarget(
+            surface = SkSurfaces::RenderTarget(
                     context, skgpu::Budgeted::kNo, info, FLAGS_samples, &props);
             break;
 

@@ -13,6 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Log.h"
@@ -99,7 +100,7 @@ sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType targetCT,
 
     SkImageInfo ii = SkImageInfo::Make(this->dimensions(), targetCT, at, std::move(targetCS));
 
-    sk_sp<SkSurface> s = SkSurface::MakeGraphite(recorder, ii, requiredProps.fMipmapped);
+    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(recorder, ii, requiredProps.fMipmapped);
     if (!s) {
         return nullptr;
     }

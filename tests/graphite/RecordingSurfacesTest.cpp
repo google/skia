@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 
 namespace skgpu::graphite {
@@ -36,7 +37,7 @@ void run_test(skiatest::Reporter* reporter,
             surfaceSize, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
 
     std::unique_ptr<Recorder> surfaceRecorder = context->makeRecorder();
-    sk_sp<SkSurface> surface = SkSurface::MakeGraphite(surfaceRecorder.get(), surfaceImageInfo);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(surfaceRecorder.get(), surfaceImageInfo);
     Surface* graphiteSurface = static_cast<Surface*>(surface.get());
     const TextureInfo& textureInfo = graphiteSurface->backingTextureProxy()->textureInfo();
 

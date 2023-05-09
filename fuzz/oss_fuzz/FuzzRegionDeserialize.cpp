@@ -25,7 +25,7 @@ bool FuzzRegionDeserialize(sk_sp<SkData> bytes) {
     } else {
         region.contains(1,1);
     }
-    auto s = SkSurface::MakeRasterN32Premul(128, 128);
+    auto s = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(128, 128));
     if (!s) {
         // May return nullptr in memory-constrained fuzzing environments
         return false;

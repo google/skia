@@ -3,7 +3,7 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE_SRGB(50_percent_srgb, 256, 256, false, 0, 0, false) {
 static sk_sp<SkShader> make() {
-    auto surf = SkSurface::MakeRasterN32Premul(2, 2);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(2, 2));
     surf->getCanvas()->drawColor(SK_ColorWHITE);
     surf->getCanvas()->drawRect({0, 0, 1, 1}, SkPaint());
     surf->getCanvas()->drawRect({1, 1, 2, 2}, SkPaint());

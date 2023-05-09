@@ -38,7 +38,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
                              SkCanvas::ImageSetEntry set[], const SkColor bgColor=SK_ColorLTGRAY) {
     const int w = tileW * m;
     const int h = tileH * n;
-    auto surf = SkSurface::MakeRaster(
+    auto surf = SkSurfaces::Raster(
             SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     surf->getCanvas()->clear(bgColor);
 

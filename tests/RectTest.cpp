@@ -386,7 +386,7 @@ DEF_TEST(big_tiled_rect_crbug_927075, reporter) {
         const int h = 1;
         const auto info = SkImageInfo::MakeN32Premul(w, h);
 
-        auto surf = SkSurface::MakeRaster(info);
+        auto surf = SkSurfaces::Raster(info);
         auto canvas = surf->getCanvas();
 
         const SkRect r = { 257, 213, 67109120, 214 };

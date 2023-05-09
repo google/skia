@@ -20,7 +20,7 @@
 DEF_SIMPLE_GM(crbug_905548, canvas, 100, 200) {
     auto surface = canvas->makeSurface(SkImageInfo::MakeN32Premul(100, 100));
     if (!surface) {
-        surface = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(100, 100));
+        surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     }
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawCircle(50, 50, 45, SkPaint());

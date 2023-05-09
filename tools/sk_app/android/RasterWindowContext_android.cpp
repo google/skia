@@ -78,8 +78,8 @@ sk_sp<SkSurface> RasterWindowContext_android::getBackbufferSurface() {
                                              fDisplayParams.fColorType,
                                              kPremul_SkAlphaType,
                                              fDisplayParams.fColorSpace);
-        fBackbufferSurface = SkSurface::MakeRasterDirect(
-                info, fBuffer.bits, fBuffer.stride * bytePerPixel, nullptr);
+        fBackbufferSurface =
+                SkSurfaces::WrapPixels(info, fBuffer.bits, fBuffer.stride * bytePerPixel, nullptr);
     }
     return fBackbufferSurface;
 }

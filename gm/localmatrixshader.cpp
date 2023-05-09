@@ -28,7 +28,7 @@
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     static constexpr SkScalar kSize = 50;
     SkImageInfo info = SkImageInfo::MakeN32Premul(kSize, kSize);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
 
     SkPaint p;
     p.setAntiAlias(true);

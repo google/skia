@@ -619,8 +619,8 @@ public:
 
     /**
      * Creates a GrBackendRenderTarget that can be wrapped using
-     * SkSurface::MakeFromBackendRenderTarget. Ideally this is a non-textureable allocation to
-     * differentiate from testing with SkSurface::MakeFromBackendTexture. When sampleCnt > 1 this
+     * SkSurfaces::WrapBackendRenderTarget. Ideally this is a non-textureable allocation to
+     * differentiate from testing with SkSurfaces::WrapBackendTexture. When sampleCnt > 1 this
      * is used to test client wrapped allocations with MSAA where Skia does not allocate a separate
      * buffer for resolving. If the color is non-null the backing store should be cleared to the
      * passed in color.

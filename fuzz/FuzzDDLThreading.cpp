@@ -17,6 +17,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkDeque.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTemplates.h"
@@ -133,7 +134,7 @@ DDLFuzzer::DDLFuzzer(Fuzz* fuzz, ContextType contextType) : fFuzz(fuzz) {
     SkISize canvasSize = kPromiseImageSize;
     canvasSize.fWidth *= kPromiseImagesPerDDL;
     SkImageInfo ii = SkImageInfo::Make(canvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    fSurface = SkSurface::MakeRenderTarget(fContext, skgpu::Budgeted::kNo, ii);
+    fSurface = SkSurfaces::RenderTarget(fContext, skgpu::Budgeted::kNo, ii);
     if (!fSurface || !fSurface->characterize(&fSurfaceCharacterization)) {
         return;
     }

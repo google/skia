@@ -24,6 +24,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -103,7 +104,7 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
     GrGLTextureParameters::NonsamplerState invalidNSState;
     invalidNSState.invalidate();
 
-    auto surf = SkSurface::MakeRenderTarget(
+    auto surf = SkSurfaces::RenderTarget(
             dContext,
             skgpu::Budgeted::kYes,
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType),

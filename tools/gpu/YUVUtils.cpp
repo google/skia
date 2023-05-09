@@ -16,6 +16,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrYUVABackendTextures.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/core/SkYUVMath.h"
@@ -164,9 +165,9 @@ MakeYUVAPlanesAsA8(SkImage* src,
         SkImageInfo info = SkImageInfo::MakeA8(dims[i]);
         sk_sp<SkSurface> surf;
         if (rContext) {
-            surf = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, info, 1, nullptr);
+            surf = SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kYes, info, 1, nullptr);
         } else {
-            surf = SkSurface::MakeRaster(info);
+            surf = SkSurfaces::Raster(info);
         }
         if (!surf) {
             return {};

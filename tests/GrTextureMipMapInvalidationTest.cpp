@@ -23,6 +23,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -66,14 +67,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);
     for (auto allocateMips : {false, true}) {
-        auto surf1 = SkSurface::MakeRenderTarget(context,
-                                                 skgpu::Budgeted::kYes,
-                                                 info,
-                                                 0,
-                                                 kBottomLeft_GrSurfaceOrigin,
-                                                 nullptr,
-                                                 allocateMips);
-        auto surf2 = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, info);
+        auto surf1 = SkSurfaces::RenderTarget(context,
+                                              skgpu::Budgeted::kYes,
+                                              info,
+                                              0,
+                                              kBottomLeft_GrSurfaceOrigin,
+                                              nullptr,
+                                              allocateMips);
+        auto surf2 = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization
         surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
         surf1->flushAndSubmit();
@@ -109,7 +110,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
         return;
     }
     static constexpr auto kCreateWithMipMaps = true;
-    auto surf = SkSurface::MakeRenderTarget(
+    auto surf = SkSurfaces::RenderTarget(
             dContext,
             skgpu::Budgeted::kYes,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
@@ -144,7 +145,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
                                       nullptr);
     const auto singlePixelInfo =
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    surf = SkSurface::MakeRenderTarget(
+    surf = SkSurfaces::RenderTarget(
             dContext, skgpu::Budgeted::kYes, singlePixelInfo, 1, kTopLeft_GrSurfaceOrigin, nullptr);
 
     surf->getCanvas()->drawImageRect(img, SkRect::MakeWH(1, 1),

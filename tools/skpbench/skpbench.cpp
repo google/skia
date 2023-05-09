@@ -16,6 +16,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -599,8 +600,8 @@ int main(int argc, char** argv) {
     SkImageInfo info = SkImageInfo::Make(
             width, height, config->getColorType(), config->getAlphaType(), config->refColorSpace());
     SkSurfaceProps props(config->getSurfaceFlags(), kRGB_H_SkPixelGeometry);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
-            ctx, skgpu::Budgeted::kNo, info, config->getSamples(), &props);
+    sk_sp<SkSurface> surface =
+            SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, config->getSamples(), &props);
     if (!surface) {
         exitf(ExitErr::kUnavailable, "failed to create %ix%i render target for config %s",
                                      width, height, config->getTag().c_str());

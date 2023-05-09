@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 
 namespace skiagm {
 
@@ -70,7 +71,7 @@ protected:
         constexpr int kInnerOffset = 10;
 
         auto info = SkImageInfo::MakeN32(kImageSize, kImageSize, kOpaque_SkAlphaType);
-        auto surf = SkSurface::MakeRaster(info);
+        auto surf = SkSurfaces::Raster(info);
         auto canvas = surf->getCanvas();
 
         canvas->clear(SK_ColorWHITE);
@@ -190,13 +191,13 @@ protected:
         // texture.
         sk_sp<SkSurface> surface;
         if (auto rc = canvas->recordingContext()) {
-            surface = SkSurface::MakeRenderTarget(rc,
-                                                  skgpu::Budgeted::kYes,
-                                                  ii,
-                                                  1,
-                                                  kTopLeft_GrSurfaceOrigin,
-                                                  /*surfaceProps=*/nullptr,
-                                                  /*shouldCreateWithMips=*/true);
+            surface = SkSurfaces::RenderTarget(rc,
+                                               skgpu::Budgeted::kYes,
+                                               ii,
+                                               1,
+                                               kTopLeft_GrSurfaceOrigin,
+                                               /*surfaceProps=*/nullptr,
+                                               /*shouldCreateWithMips=*/true);
             if (!surface) {
                 // We could be in an abandoned context situation.
                 return;
@@ -204,7 +205,7 @@ protected:
         } else {
             surface = canvas->makeSurface(ii);
             if (!surface) {  // could be a recording canvas.
-                surface = SkSurface::MakeRaster(ii);
+                surface = SkSurfaces::Raster(ii);
             }
         }
 

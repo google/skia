@@ -16,6 +16,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/FenceSync.h"
@@ -44,7 +45,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FlushSubmittedProcTest,
     auto ctx = ctxInfo.directContext();
 
     SkImageInfo info = SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->clear(SK_ColorGREEN);

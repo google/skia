@@ -11,6 +11,7 @@
 #include "include/core/SkDataTable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
@@ -35,7 +36,7 @@
 
 static sk_sp<SkImage> picture_to_image(sk_sp<SkPicture> pic) {
     SkIRect r = pic->cullRect().round();
-    auto surf = SkSurface::MakeRasterN32Premul(r.width(), r.height());
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(r.width(), r.height()));
     surf->getCanvas()->drawPicture(pic);
     return surf->makeImageSnapshot();
 }

@@ -62,7 +62,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
     SkIRect bounds;
     r.roundOut(&bounds);
 
-    auto surf = SkSurface::MakeRasterN32Premul(bounds.width(), bounds.height());
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()));
     draw_path(surf->getCanvas(), r, nullptr);
 
     paint.setImageFilter(std::move(imf));
@@ -83,7 +83,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(400, 960); }
 
     void make_checkerboard() {
-        auto surf = SkSurface::MakeRasterN32Premul(80, 80);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(80, 80));
         auto canvas = surf->getCanvas();
         SkPaint darkPaint;
         darkPaint.setColor(0xFF404040);

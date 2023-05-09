@@ -29,6 +29,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/GrTextureGenerator.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -117,7 +118,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
             sk_sp<GrTextureProxy> proxy;
             sk_sp<SkImage> image;
             if (renderable == GrRenderable::kYes) {
-                sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(
+                sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(
                         dContext,
                         mbet->texture(),
                         kTopLeft_GrSurfaceOrigin,
@@ -358,13 +359,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest,
                                                                  /* sample count */ 1,
                                                                  mipmapped);
             } else {
-                surface = SkSurface::MakeRenderTarget(dContext,
-                                                      skgpu::Budgeted::kYes,
-                                                      info,
-                                                      /* sample count */ 1,
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      nullptr,
-                                                      willUseMips);
+                surface = SkSurfaces::RenderTarget(dContext,
+                                                   skgpu::Budgeted::kYes,
+                                                   info,
+                                                   /* sample count */ 1,
+                                                   kTopLeft_GrSurfaceOrigin,
+                                                   nullptr,
+                                                   willUseMips);
             }
             REPORTER_ASSERT(reporter, surface);
             auto device = ((SkSurface_Ganesh*)surface.get())->getDevice();
@@ -401,7 +402,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest,
 
     // Make surface to draw into
     SkImageInfo info = SkImageInfo::MakeN32(16, 16, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
 
     // Make 1x1 raster bitmap
     SkBitmap bmp;

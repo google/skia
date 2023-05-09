@@ -850,7 +850,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
                 continue;
             }
             SkImageInfo image_info = SkImageInfo::MakeN32Premul(ibounds.width(), ibounds.height());
-            sk_sp<SkSurface> surface(SkSurface::MakeRaster(image_info));
+            sk_sp<SkSurface> surface(SkSurfaces::Raster(image_info));
             SkASSERT(surface);
             SkCanvas* canvas = surface->getCanvas();
             canvas->clear(0);
@@ -1072,7 +1072,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
                 continue;
             }
             SkImageInfo image_info = SkImageInfo::MakeN32Premul(ibounds.width(), ibounds.height());
-            sk_sp<SkSurface> surface(SkSurface::MakeRaster(image_info));
+            sk_sp<SkSurface> surface(SkSurfaces::Raster(image_info));
             SkASSERT(surface);
             SkCanvas* canvas = surface->getCanvas();
             canvas->clear(0);

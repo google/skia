@@ -27,6 +27,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -179,7 +180,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTest,
                                                        &promiseChecker));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->drawImage(refImg, 0, 0);
@@ -269,7 +270,7 @@ DEF_GANESH_TEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
-            sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
+            sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
             SkCanvas* canvas = surface->getCanvas();
 
             PromiseTextureChecker promiseChecker(mbet->texture(), reporter, false);
@@ -320,7 +321,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
 
     SkImageInfo info =
             SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
@@ -426,7 +427,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
                                                        &counts));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
     // Draw the image a few different ways.
     canvas->drawImage(refImg, 0, 0);

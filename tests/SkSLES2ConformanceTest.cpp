@@ -27,6 +27,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/CtsEnforcement.h"
@@ -108,7 +109,7 @@ static void iterate_dir(const char* directory, const std::function<void(const ch
 
 DEF_TEST(SkSL_ES2Conformance_Pass_CPU, r) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
 
     iterate_dir("sksl/es2_conformance/pass/", [&](const char* path) {
         test_expect_pass(r, surface.get(), path);
@@ -121,7 +122,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkSL_ES2Conformance_Pass_GPU,
                                        CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     sk_sp<SkSurface> surface(
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
+            SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     iterate_dir("sksl/es2_conformance/pass/", [&](const char* path) {
         test_expect_pass(r, surface.get(), path);
     });

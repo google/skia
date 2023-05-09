@@ -287,7 +287,7 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     SkSize scale = {SkIntToScalar(size.width()) / shaderRect.width(),
                     SkIntToScalar(size.height()) / shaderRect.height()};
 
-    auto surface = SkSurface::MakeRasterN32Premul(size.width(), size.height());
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(size.width(), size.height()));
     SkASSERT(surface);
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);

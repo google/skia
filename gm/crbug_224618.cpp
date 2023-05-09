@@ -41,7 +41,7 @@ protected:
                 {200.f, 200.f}, 25.f, kColors, nullptr, 2, SkTileMode::kMirror,
                 SkGradientShader::kInterpolateColorsInPremul_Flag, nullptr);
 
-        sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(400, 400);
+        sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(400, 400));
 
         SkPaint bgPaint;
         bgPaint.setShader(gradient);

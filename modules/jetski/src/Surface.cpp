@@ -92,7 +92,7 @@ public:
             return;
         }
 
-        fSurface = SkSurface::MakeRasterDirect(info, pixels, bm_info.stride);
+        fSurface = SkSurfaces::WrapPixels(info, pixels, bm_info.stride);
         if (!fSurface) {
             AndroidBitmap_unlockPixels(env, bitmap);
             return;

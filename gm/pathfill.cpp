@@ -630,7 +630,7 @@ DEF_SIMPLE_GM(bug7792, canvas, 800, 800) {
 
 DEF_SIMPLE_GM(path_stroke_clip_crbug1070835, canvas, 25, 50) {
     SkCanvas* orig = canvas;
-    auto surf = SkSurface::MakeRasterN32Premul(25, 25);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(25, 25));
     canvas = surf->getCanvas();
 
     SkPaint p;

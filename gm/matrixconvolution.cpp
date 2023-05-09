@@ -52,7 +52,7 @@ protected:
 
     void makeBitmap() {
         // Draw our bitmap in N32, so legacy devices get "premul" values they understand
-        auto surf = SkSurface::MakeRasterN32Premul(80, 80);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(80, 80));
         SkPaint paint;
         paint.setColor(0xFFFFFFFF);
         SkPoint pts[2] = { {0, 0},

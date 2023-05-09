@@ -52,7 +52,7 @@ protected:
             SK_ColorWHITE,   SK_ColorGRAY,
         };
 
-        auto surface(SkSurface::MakeRasterN32Premul(kImageSize, kImageSize));
+        auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kImageSize, kImageSize)));
         SkCanvas* canvas = surface->getCanvas();
 
         int curColor = 0;

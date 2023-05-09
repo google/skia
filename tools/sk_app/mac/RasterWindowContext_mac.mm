@@ -144,7 +144,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     // make the offscreen image
     SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
                                          kPremul_SkAlphaType, fDisplayParams.fColorSpace);
-    fBackbufferSurface = SkSurface::MakeRaster(info);
+    fBackbufferSurface = SkSurfaces::Raster(info);
     return GrGLMakeNativeInterface();
 }
 

@@ -42,6 +42,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkColorFilterBase.h"
@@ -335,7 +336,7 @@ static skif::Context make_context(int outWidth, int outHeight, const SkSpecialIm
 }
 
 static sk_sp<SkImage> make_small_image() {
-    auto surface(SkSurface::MakeRasterN32Premul(kBitmapSize, kBitmapSize));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kBitmapSize, kBitmapSize)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0x00000000);
     SkPaint darkPaint;
@@ -409,10 +410,10 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrRecordingContext* 
 static sk_sp<SkSurface> create_surface(GrRecordingContext* rContext, int width, int height) {
     const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
     if (rContext) {
-        return SkSurface::MakeRenderTarget(
+        return SkSurfaces::RenderTarget(
                 rContext, skgpu::Budgeted::kNo, info, 0, kTestSurfaceOrigin, nullptr);
     } else {
-        return SkSurface::MakeRaster(info);
+        return SkSurfaces::Raster(info);
     }
 }
 
@@ -1538,7 +1539,8 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
 }
 
 DEF_TEST(XfermodeImageFilterCroppedInput, reporter) {
-    test_xfermode_cropped_input(SkSurface::MakeRasterN32Premul(100, 100).get(), reporter);
+    test_xfermode_cropped_input(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100)).get(),
+                                reporter);
 }
 
 static void test_composed_imagefilter_offset(skiatest::Reporter* reporter,
@@ -1679,7 +1681,7 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
 
 // Verify that SkImageSource survives serialization
 DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(10, 10));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10)));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     sk_sp<SkImageFilter> filter(SkImageFilters::Image(std::move(image)));
@@ -1753,7 +1755,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
 }
 
 DEF_TEST(ImageFilterBlurLargeImage, reporter) {
-    auto surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(100, 100)));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
 
@@ -1847,7 +1849,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surf(SkSurfaces::RenderTarget(
             ctxInfo.directContext(), skgpu::Budgeted::kNo, SkImageInfo::MakeN32Premul(100, 100)));
 
     SkCanvas* canvas = surf->getCanvas();
@@ -1859,7 +1861,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surf(SkSurfaces::RenderTarget(
             ctxInfo.directContext(),
             skgpu::Budgeted::kNo,
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
@@ -1871,7 +1873,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu,
                                  reporter,
                                  ctxInfo,
                                  CtsEnforcement::kNever) {
-    auto surface(SkSurface::MakeRenderTarget(
+    auto surface(SkSurfaces::RenderTarget(
             ctxInfo.directContext(),
             skgpu::Budgeted::kYes,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
@@ -2184,7 +2186,7 @@ DEF_TEST(PictureImageSourceBounds, reporter) {
 
 DEF_TEST(DropShadowImageFilter_Huge, reporter) {
     // Successful if it doesn't crash or trigger ASAN. (crbug.com/1264705)
-    auto surf = SkSurface::MakeRasterN32Premul(300, 150);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(300, 150));
 
     SkPaint paint;
     paint.setImageFilter(SkImageFilters::DropShadowOnly(

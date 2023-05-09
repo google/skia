@@ -27,6 +27,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
@@ -134,7 +135,7 @@ protected:
         auto resultInfo = SkImageInfo::Make(fLazyYUVImage->dimensions(),
                                             kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType);
-        auto resultSurface = SkSurface::MakeRenderTarget(
+        auto resultSurface = SkSurfaces::RenderTarget(
                 dContext, skgpu::Budgeted::kYes, resultInfo, 1, kTopLeft_GrSurfaceOrigin, nullptr);
         if (!resultSurface) {
             return nullptr;

@@ -394,7 +394,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
 
 DEF_TEST(ReadPixels, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     test_readpixels(reporter, surface, info);
 }
 
@@ -538,7 +538,7 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
 
 DEF_TEST(ReadPixels_InvalidRowBytes, reporter) {
     auto srcII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRaster(srcII);
+    auto surf = SkSurfaces::Raster(srcII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
         auto colorType = static_cast<SkColorType>(ct);
         size_t bpp = SkColorTypeBytesPerPixel(colorType);

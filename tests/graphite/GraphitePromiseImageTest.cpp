@@ -13,6 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/RecordingPriv.h"
@@ -229,7 +230,7 @@ void setup_test_context(Context* context,
                                                         PromiseTextureChecker::TextureRelease,
                                                         &testCtx->fPromiseChecker);
 
-    testCtx->fSurface = SkSurface::MakeGraphite(testCtx->fRecorder.get(), ii);
+    testCtx->fSurface = SkSurfaces::RenderTarget(testCtx->fRecorder.get(), ii);
 }
 
 } // anonymous namespace

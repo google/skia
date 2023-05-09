@@ -99,6 +99,7 @@ skia_gpu_public = [
 #  //src/gpu/ganesh/ops:ops_srcs
 #  //src/gpu/ganesh/surface:surface_srcs
 #  //src/gpu/ganesh/surface:surface_srcs
+#  //src/gpu/ganesh/surface:android_srcs
 #  //src/gpu/ganesh/tessellate:tessellate_hdrs
 #  //src/gpu/ganesh/tessellate:tessellate_srcs
 #  //src/gpu/ganesh/text:private_hdrs
@@ -539,6 +540,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/ops/TextureOp.h",
   "$_src/gpu/ganesh/ops/TriangulatingPathRenderer.cpp",
   "$_src/gpu/ganesh/ops/TriangulatingPathRenderer.h",
+  "$_src/gpu/ganesh/surface/SkSurface_AndroidFactories.cpp",
   "$_src/gpu/ganesh/surface/SkSurface_Ganesh.cpp",
   "$_src/gpu/ganesh/tessellate/GrPathTessellationShader.cpp",
   "$_src/gpu/ganesh/tessellate/GrPathTessellationShader.h",

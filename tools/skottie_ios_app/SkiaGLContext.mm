@@ -8,6 +8,7 @@
 #include "include/core/SkTime.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -32,7 +33,7 @@ static sk_sp<SkSurface> make_gl_surface(GrDirectContext* dContext, int width, in
     }
     GLint fboid = 0;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboid);
-    return SkSurface::MakeFromBackendRenderTarget(
+    return SkSurfaces::WrapBackendRenderTarget(
             dContext,
             GrBackendRenderTarget(width,
                                   height,

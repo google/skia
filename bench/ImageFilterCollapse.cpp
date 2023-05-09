@@ -50,7 +50,7 @@ private:
     void makeBitmap() {
         int W = 400;
         int H = 400;
-        auto surf = SkSurface::MakeRasterN32Premul(W, H);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(W, H));
 
         SkPaint paint;
         SkPoint pts[] = { {0, 0}, {SkIntToScalar(W), SkIntToScalar(H)} };

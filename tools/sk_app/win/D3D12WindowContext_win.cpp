@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "tools/sk_app/WindowContext.h"
-#include "tools/sk_app/win/WindowContextFactory_win.h"
-
-#include "tools/gpu/d3d/D3DTestUtils.h"
-
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "tools/gpu/d3d/D3DTestUtils.h"
+#include "tools/sk_app/WindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -153,14 +152,21 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
         info.fResource = fBuffers[i];
         if (fSampleCount > 1) {
             GrBackendTexture backendTexture(width, height, info);
-            fSurfaces[i] = SkSurface::MakeFromBackendTexture(
-                fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
-                kRGBA_8888_SkColorType, fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
+            fSurfaces[i] = SkSurfaces::WrapBackendTexture(fContext.get(),
+                                                          backendTexture,
+                                                          kTopLeft_GrSurfaceOrigin,
+                                                          fSampleCount,
+                                                          kRGBA_8888_SkColorType,
+                                                          fDisplayParams.fColorSpace,
+                                                          &fDisplayParams.fSurfaceProps);
         } else {
             GrBackendRenderTarget backendRT(width, height, info);
-            fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(
-                fContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
+            fSurfaces[i] = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
+                                                               backendRT,
+                                                               kTopLeft_GrSurfaceOrigin,
+                                                               kRGBA_8888_SkColorType,
+                                                               fDisplayParams.fColorSpace,
+                                                               &fDisplayParams.fSurfaceProps);
         }
     }
 }

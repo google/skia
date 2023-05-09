@@ -17,6 +17,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/base/SkRectMemcpy.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -184,7 +185,7 @@ SkPixmap make_pixmap_have_valid_alpha_type(SkPixmap pm) {
 static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaque) {
     SkAutoPixmapStorage result;
     result.alloc(info);
-    auto surface = SkSurface::MakeRasterDirect(make_pixmap_have_valid_alpha_type(result));
+    auto surface = SkSurfaces::WrapPixels(make_pixmap_have_valid_alpha_type(result));
     if (!surface) {
         return result;
     }
@@ -625,24 +626,23 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
     rules.fAllowUnpremulSrc = true;
     rules.fUncontainedRectSucceeds = false;
 
-    auto factory = std::function<GraphiteSrcFactory<Surface>>([&](
-            skgpu::graphite::Recorder* recorder,
-            const SkPixmap& src) {
-        Surface surface = SkSurface::MakeGraphite(recorder,
-                                                  src.info(),
-                                                  Mipmapped::kNo,
-                                                  /*surfaceProps=*/nullptr);
-        if (surface) {
-            surface->writePixels(src, 0, 0);
+    auto factory = std::function<GraphiteSrcFactory<Surface>>(
+            [&](skgpu::graphite::Recorder* recorder, const SkPixmap& src) {
+                Surface surface = SkSurfaces::RenderTarget(recorder,
+                                                           src.info(),
+                                                           Mipmapped::kNo,
+                                                           /*surfaceProps=*/nullptr);
+                if (surface) {
+                    surface->writePixels(src, 0, 0);
 
-            std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
-            skgpu::graphite::InsertRecordingInfo recordingInfo;
-            recordingInfo.fRecording = recording.get();
-            context->insertRecording(recordingInfo);
-        }
+                    std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+                    skgpu::graphite::InsertRecordingInfo recordingInfo;
+                    recordingInfo.fRecording = recording.get();
+                    context->insertRecording(recordingInfo);
+                }
 
-        return surface;
-    });
+                return surface;
+            });
     graphite_read_pixels_test_driver(reporter, context, rules, factory, reader, {});
 
     // It's possible that we've created an Image using the factory, but then don't try to do

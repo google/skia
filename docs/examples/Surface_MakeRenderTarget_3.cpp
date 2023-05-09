@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
          return;
     }
     SkImageInfo info = SkImageInfo::MakeN32(256, 64, kOpaque_SkAlphaType);
-    auto gpuSurface(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, info));
+    auto gpuSurface(SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, info));
     auto surfaceCanvas = gpuSurface->getCanvas();
     surfaceCanvas->clear(SK_ColorWHITE);
     surfaceCanvas->drawString("GPU rocks!", 20, 40, font, paint);

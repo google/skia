@@ -31,8 +31,8 @@ void drawStamp(SkCanvas* canvas, int size) {
 }
 
 sk_sp<SkImage> stampImage(int size) {
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(
-            SkImageInfo::Make(size, size, colorType, kPremul_SkAlphaType));
+    sk_sp<SkSurface> surface =
+            SkSurfaces::Raster(SkImageInfo::Make(size, size, colorType, kPremul_SkAlphaType));
     drawStamp(surface->getCanvas(), size);
     return surface->makeImageSnapshot();
 }

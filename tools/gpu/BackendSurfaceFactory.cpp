@@ -9,6 +9,7 @@
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "tools/gpu/ManagedBackendTexture.h"
@@ -35,15 +36,15 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
     if (!mbet) {
         return nullptr;
     }
-    return SkSurface::MakeFromBackendTexture(dContext,
-                                             mbet->texture(),
-                                             origin,
-                                             sampleCnt,
-                                             ii.colorType(),
-                                             ii.refColorSpace(),
-                                             props,
-                                             ManagedBackendTexture::ReleaseProc,
-                                             mbet->releaseContext());
+    return SkSurfaces::WrapBackendTexture(dContext,
+                                          mbet->texture(),
+                                          origin,
+                                          sampleCnt,
+                                          ii.colorType(),
+                                          ii.refColorSpace(),
+                                          props,
+                                          ManagedBackendTexture::ReleaseProc,
+                                          mbet->releaseContext());
 }
 
 sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
@@ -88,7 +89,7 @@ sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext* dContext,
         delete rc;
     };
 
-    return SkSurface::MakeFromBackendRenderTarget(
+    return SkSurfaces::WrapBackendRenderTarget(
             dContext, bert, origin, ii.colorType(), ii.refColorSpace(), props, proc, rc);
 }
 

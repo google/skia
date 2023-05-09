@@ -5,7 +5,7 @@
 REG_FIDDLE(Surface_props, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* names[] = { "Unknown", "RGB_H", "BGR_H", "RGB_V", "BGR_V" };
-    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));
+    sk_sp<SkSurface> surf(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64)));
     SkDebugf("surf.props(): k%s_SkPixelGeometry\n", names[surf->props().pixelGeometry()]);
 }
 }  // END FIDDLE

@@ -31,6 +31,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkTArray.h"
@@ -73,6 +74,7 @@ struct SkIPoint;
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 
 struct GraphiteInfo {
@@ -431,12 +433,12 @@ static sk_sp<SkSurface> make_surface(GrRecordingContext* grContext,
     sk_sp<SkSurface> surface;
     if (graphite) {
 #if defined(SK_GRAPHITE)
-        surface = SkSurface::MakeGraphite(graphite->recorder, info);
+        surface = SkSurfaces::RenderTarget(graphite->recorder, info);
 #endif
     } else if (grContext) {
-        surface = SkSurface::MakeRenderTarget(grContext, skgpu::Budgeted::kNo, info);
+        surface = SkSurfaces::RenderTarget(grContext, skgpu::Budgeted::kNo, info);
     } else {
-        surface = SkSurface::MakeRaster(info);
+        surface = SkSurfaces::Raster(info);
     }
     SkASSERT(surface);
     return surface;
@@ -831,7 +833,7 @@ static void test_RuntimeEffectObeysCapabilities(skiatest::Reporter* r, SkSurface
 
 DEF_TEST(SkRuntimeEffectObeysCapabilities_CPU, r) {
     SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(info);
     REPORTER_ASSERT(r, surface);
     test_RuntimeEffectObeysCapabilities(r, surface.get());
 }
@@ -842,7 +844,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectObeysCapabilities_GPU,
                                        CtsEnforcement::kApiLevel_T) {
     SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surface =
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
+            SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
     REPORTER_ASSERT(r, surface);
     test_RuntimeEffectObeysCapabilities(r, surface.get());
 }

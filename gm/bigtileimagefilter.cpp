@@ -23,7 +23,7 @@
 #include <utility>
 
 static sk_sp<SkImage> create_circle_texture(int size, SkColor color) {
-    auto surface(SkSurface::MakeRasterN32Premul(size, size));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(size, size)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0xFF000000);
 

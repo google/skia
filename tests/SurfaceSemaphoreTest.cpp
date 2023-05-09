@@ -104,7 +104,7 @@ void draw_child(skiatest::Reporter* reporter,
                                                   kPremul_SkAlphaType);
 
     auto childDContext = childInfo.directContext();
-    sk_sp<SkSurface> childSurface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> childSurface(SkSurfaces::RenderTarget(
             childDContext, skgpu::Budgeted::kNo, childII, 0, kTopLeft_GrSurfaceOrigin, nullptr));
 
     sk_sp<SkImage> childImage = SkImages::BorrowTextureFrom(childDContext,
@@ -151,7 +151,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     const SkImageInfo ii = SkImageInfo::Make(MAIN_W, MAIN_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> mainSurface(SkSurfaces::RenderTarget(
             mainCtx, skgpu::Budgeted::kNo, ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* mainCanvas = mainSurface->getCanvas();
     auto blueSurface = mainSurface->makeSurface(ii);
@@ -267,7 +267,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest,
     const SkImageInfo ii = SkImageInfo::Make(MAIN_W, MAIN_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> mainSurface(SkSurfaces::RenderTarget(
             ctx, skgpu::Budgeted::kNo, ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
 
     // Flush surface once without semaphores to make sure there is no peneding IO for it.

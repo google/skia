@@ -8,7 +8,7 @@ void draw(SkCanvas* ) {
     const size_t size = info.computeMinByteSize();
     AutoTMalloc<SkPMColor> storage(size);
     SkPMColor* pixels = storage.get();
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterDirect(info, pixels, info.minRowBytes()));
+    sk_sp<SkSurface> surface(SkSurfaces::WrapPixels(info, pixels, info.minRowBytes()));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
     SkPMColor pmWhite = pixels[0];

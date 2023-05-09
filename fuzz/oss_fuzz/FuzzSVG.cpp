@@ -23,7 +23,7 @@ void FuzzSVG(sk_sp<SkData> bytes) {
         return;
     }
 
-    auto s = SkSurface::MakeRasterN32Premul(128, 128);
+    auto s = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(128, 128));
     if (!s) {
         return;
     }

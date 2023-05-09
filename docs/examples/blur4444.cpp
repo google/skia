@@ -22,9 +22,9 @@ void draw(SkCanvas* canvas) {
     sk_sp<SkSurface> surf;
     auto ii = SkImageInfo::Make(650, 480, kARGB_4444_SkColorType, kPremul_SkAlphaType);
     if (canvas->recordingContext() && !forceRaster) {
-        surf = SkSurface::MakeRenderTarget(canvas->recordingContext(), skgpu::Budgeted::kNo, ii);
+        surf = SkSurfaces::RenderTarget(canvas->recordingContext(), skgpu::Budgeted::kNo, ii);
     } else {
-        surf = SkSurface::MakeRaster(ii);
+        surf = SkSurfaces::Raster(ii);
     }
     if (!surf) {
         return;

@@ -34,7 +34,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     SkPMColor pixel[1];
     output.installPixels(SkImageInfo::MakeN32Premul(1, 1), pixel, 4);
 
-    auto surf = SkSurface::MakeRasterN32Premul(300, 33300);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(300, 33300));
     SkCanvas* canvas = surf->getCanvas();
 
     SkRect r = { 0, 33000, 300, 33300 };
@@ -110,7 +110,7 @@ static void test_crbug131181() {
     moveToH(&path, &data[0]);
     cubicToH(&path, &data[2]);
 
-    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(640, 480)));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -192,7 +192,7 @@ static void test_inversepathwithclip() {
 
     SkPaint paint;
 
-    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(640, 480)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->save();
     canvas->clipRect(SkRect::MakeWH(19, 11));
@@ -231,7 +231,7 @@ static void test_bug533() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(640, 480)));
     surface->getCanvas()->drawPath(path, paint);
 }
 
@@ -273,7 +273,7 @@ static void test_bigcubic() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(640, 480)));
     surface->getCanvas()->drawPath(path, paint);
 }
 
@@ -301,7 +301,7 @@ static void test_halfway() {
     m.postTranslate(0.001f, 0.001f);
     path.transform(m, &p2);
 
-    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(640, 480)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->translate(-16366, -1383);
     canvas->drawPath(p2, paint);
@@ -322,7 +322,7 @@ static void test_halfway() {
 static void test_giantaa() {
     const int W = 400;
     const int H = 400;
-    auto surface(SkSurface::MakeRasterN32Premul(33000, 10));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(33000, 10)));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -376,7 +376,7 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
 // http://crbug.com/472147
 // This is a simplified version from the bug. RRect radii not properly scaled.
 static void test_crbug_472147_simple(skiatest::Reporter* reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(1000, 1000));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1000, 1000)));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint p;
     SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);
@@ -391,7 +391,7 @@ static void test_crbug_472147_simple(skiatest::Reporter* reporter) {
 // http://crbug.com/472147
 // RRect radii not properly scaled.
 static void test_crbug_472147_actual(skiatest::Reporter* reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(1000, 1000));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1000, 1000)));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint p;
     SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);

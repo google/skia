@@ -29,6 +29,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
@@ -49,9 +50,9 @@ static sk_sp<SkSurface> make_surface(GrRecordingContext* ctx,
                                      SkPixelGeometry geo) {
     SkSurfaceProps props(0, geo);
     if (ctx) {
-        return SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
+        return SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
     } else {
-        return SkSurface::MakeRaster(info, &props);
+        return SkSurfaces::Raster(info, &props);
     }
 }
 
@@ -306,7 +307,7 @@ DEF_SIMPLE_GM(snap_with_mips, canvas, 80, 75) {
                                 ct,
                                 kPremul_SkAlphaType,
                                 canvas->imageInfo().refColorSpace());
-    auto surface = SkSurface::MakeRaster(ii);
+    auto surface = SkSurfaces::Raster(ii);
 
     auto nextImage = [&](SkColor color) {
         surface->getCanvas()->clear(color);

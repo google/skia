@@ -32,7 +32,7 @@ static const SkColor kOverdrawColors[6] = {
 DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
     // Set up the overdraw canvas.
     SkImageInfo offscreenInfo = SkImageInfo::MakeA8(WIDTH, HEIGHT);
-    sk_sp<SkSurface> offscreen = SkSurface::MakeRaster(offscreenInfo);
+    sk_sp<SkSurface> offscreen = SkSurfaces::Raster(offscreenInfo);
     auto c = offscreen->getCanvas();
 
     SkOverdrawCanvas overdrawCanvas(c);
@@ -57,7 +57,7 @@ DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
 }
 
 static sk_sp<SkImage> overdraw_text_grid(bool useCTM) {
-    auto surface = SkSurface::MakeRaster(SkImageInfo::MakeA8(256, 512));
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeA8(256, 512));
     auto canvas = SkOverdrawCanvas(surface->getCanvas());
 
     SkPaint paint;

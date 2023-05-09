@@ -21,6 +21,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -594,7 +595,7 @@ void check_draw(skiatest::Reporter* reporter,
                                            kRGBA_8888_SkColorType,
                                            kPremul_SkAlphaType);
 
-        sk_sp<SkSurface> surf = SkSurface::MakeGraphite(recorder, ii);
+        sk_sp<SkSurface> surf = SkSurfaces::RenderTarget(recorder, ii);
         SkCanvas* canvas = surf->getCanvas();
 
         switch (dt) {

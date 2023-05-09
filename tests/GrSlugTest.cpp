@@ -17,6 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/chromium/Slug.h"
 #include "tests/CtsEnforcement.h"
@@ -34,7 +35,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrSlug_empty,
                                        CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    auto surface(SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info));
+    auto surface(SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info));
     auto canvas = surface->getCanvas();
 
     static const char* kText = " ";

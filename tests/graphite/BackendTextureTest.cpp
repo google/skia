@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -104,22 +105,22 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context)
     auto texture = recorder->createBackendTexture(kSize, info);
     REPORTER_ASSERT(reporter, texture.isValid());
 
-    sk_sp<SkSurface> surface = SkSurface::MakeGraphiteFromBackendTexture(recorder.get(),
-                                                                         texture,
-                                                                         kRGBA_8888_SkColorType,
-                                                                         /*colorSpace=*/nullptr,
-                                                                         /*props=*/nullptr);
+    sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(recorder.get(),
+                                                              texture,
+                                                              kRGBA_8888_SkColorType,
+                                                              /*colorSpace=*/nullptr,
+                                                              /*props=*/nullptr);
     REPORTER_ASSERT(reporter, surface);
 
     surface.reset();
 
     // We should fail when trying to wrap the same texture in a surface with a non-compatible
     // color type.
-    surface = SkSurface::MakeGraphiteFromBackendTexture(recorder.get(),
-                                                        texture,
-                                                        kAlpha_8_SkColorType,
-                                                        /*colorSpace=*/nullptr,
-                                                        /*props=*/nullptr);
+    surface = SkSurfaces::WrapBackendTexture(recorder.get(),
+                                             texture,
+                                             kAlpha_8_SkColorType,
+                                             /*colorSpace=*/nullptr,
+                                             /*props=*/nullptr);
     REPORTER_ASSERT(reporter, !surface);
 
     recorder->deleteBackendTexture(texture);
@@ -132,11 +133,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context)
     texture = recorder->createBackendTexture(kSize, info);
     REPORTER_ASSERT(reporter, texture.isValid());
 
-    surface = SkSurface::MakeGraphiteFromBackendTexture(recorder.get(),
-                                                        texture,
-                                                        kRGBA_8888_SkColorType,
-                                                        /*colorSpace=*/nullptr,
-                                                        /*props=*/nullptr);
+    surface = SkSurfaces::WrapBackendTexture(recorder.get(),
+                                             texture,
+                                             kRGBA_8888_SkColorType,
+                                             /*colorSpace=*/nullptr,
+                                             /*props=*/nullptr);
 
     REPORTER_ASSERT(reporter, !surface);
     recorder->deleteBackendTexture(texture);

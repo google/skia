@@ -375,8 +375,8 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_alpha_type, canvas, errorMsg, 512,
 
     auto pmII = upmII.makeAlphaType(kPremul_SkAlphaType);
 
-    auto upmSurf = SkSurface::MakeRaster(upmII);
-    auto pmSurf  = SkSurface::MakeRaster( pmII);
+    auto upmSurf = SkSurfaces::Raster(upmII);
+    auto pmSurf = SkSurfaces::Raster(pmII);
 
     SkColor4f colors[] = {
             {.3f, .3f, .3f, .3f},

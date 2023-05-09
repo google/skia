@@ -28,6 +28,7 @@
 #include "include/gpu/GrBackendDrawableInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -171,7 +172,7 @@ public:
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
         // buffers and the imported secondary command buffer.
         sk_sp<SkSurface> surf =
-                SkSurface::MakeRenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
+                SkSurfaces::RenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
         surf->getCanvas()->clear(SK_ColorRED);
 
         SkRect dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
@@ -244,7 +245,7 @@ void draw_drawable_test(skiatest::Reporter* reporter,
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(
             dContext, skgpu::Budgeted::kNo, ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);

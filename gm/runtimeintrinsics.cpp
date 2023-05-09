@@ -67,7 +67,7 @@ static SkBitmap draw_shader(SkCanvas* canvas, sk_sp<SkShader> shader,
     SkImageInfo info = SkImageInfo::MakeN32Premul({kBoxSize, kBoxSize});
     auto surface = canvas->makeSurface(info);
     if (allowRasterFallback && !surface) {
-        surface = SkSurface::MakeRaster(info);
+        surface = SkSurfaces::Raster(info);
     }
 
     if (surface) {

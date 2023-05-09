@@ -79,7 +79,7 @@ public:
             return surface;
         }
         // serialize-8888 returns null from makeSurface; fallback to a raster surface.
-        return SkSurface::MakeRaster(info);
+        return SkSurfaces::Raster(info);
     }
 
     void draw(SkCanvas* canvas, sk_sp<SkImage> input, int blurRadius) {

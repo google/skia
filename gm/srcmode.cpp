@@ -124,7 +124,7 @@ class SrcModeGM : public skiagm::GM {
         sk_sp<SkSurface> surface = canvas->makeSurface(info);
         if (nullptr == surface) {
             // picture canvas will return null, so fall-back to raster
-            surface = SkSurface::MakeRaster(info);
+            surface = SkSurfaces::Raster(info);
         }
         return surface;
     }

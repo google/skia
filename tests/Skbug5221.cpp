@@ -16,6 +16,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -28,12 +29,12 @@ static void test(SkCanvas* canvas) {
 }
 
 DEF_TEST(skbug5221, r) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(256, 256)));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(256, 256)));
     test(surface->getCanvas());
 }
 
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(skbug5221_GPU, r, contextInfo, CtsEnforcement::kNever) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(
             contextInfo.directContext(),
             skgpu::Budgeted::kYes,
             SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));

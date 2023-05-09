@@ -499,7 +499,7 @@ DEF_TEST(Skottie_Image_Loading, reporter) {
         sk_sp<SkImage> getFrame(float t) override {
             fRequestedFrames.push_back(t);
 
-            return SkSurface::MakeRasterN32Premul(10, 10)->makeImageSnapshot();
+            return SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10))->makeImageSnapshot();
         }
 
         const bool fMultiFrame;

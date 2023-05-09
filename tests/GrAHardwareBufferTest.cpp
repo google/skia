@@ -12,12 +12,14 @@
 #if defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
 #include "include/android/SkImageAndroid.h"
+#include "include/android/SkSurfaceAndroid.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -181,8 +183,7 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
 
     SkImageInfo imageInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                               kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface =
-            SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, imageInfo);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, imageInfo);
     REPORTER_ASSERT(reporter, surface);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -260,8 +261,8 @@ static void surface_draw_test_helper(skiatest::Reporter* reporter,
         return;
     }
 
-    sk_sp<SkSurface> surface = SkSurface::MakeFromAHardwareBuffer(context, buffer, surfaceOrigin,
-                                                                  nullptr, nullptr);
+    sk_sp<SkSurface> surface =
+            SkSurfaces::WrapAndroidHardwareBuffer(context, buffer, surfaceOrigin, nullptr, nullptr);
     if (!surface) {
         ERRORF(reporter, "Failed to make SkSurface.");
         cleanup_resources(buffer);

@@ -8,6 +8,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
@@ -171,7 +172,7 @@ DEF_TEST(ClipCubic, reporter) {
 }
 
 DEF_TEST(test_fuzz_crbug_698714, reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(500, 500)));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -209,7 +210,7 @@ DEF_TEST(test_fuzz_crbug_698714, reporter) {
 }
 
 DEF_TEST(cubic_scan_error_crbug_844457_and_845489, reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100)));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint p;
 

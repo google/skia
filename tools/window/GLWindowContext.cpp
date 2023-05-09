@@ -5,17 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "tools/window/GLWindowContext.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/base/SkMathPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "src/image/SkImage_Base.h"
-#include "tools/window/GLWindowContext.h"
 
 namespace skwindow::internal {
 
@@ -69,11 +70,12 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
                                             fStencilBits,
                                             fbInfo);
 
-            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
-                                                              kBottomLeft_GrSurfaceOrigin,
-                                                              kRGBA_8888_SkColorType,
-                                                              fDisplayParams.fColorSpace,
-                                                              &fDisplayParams.fSurfaceProps);
+            fSurface = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
+                                                           backendRT,
+                                                           kBottomLeft_GrSurfaceOrigin,
+                                                           kRGBA_8888_SkColorType,
+                                                           fDisplayParams.fColorSpace,
+                                                           &fDisplayParams.fSurfaceProps);
         }
     }
 

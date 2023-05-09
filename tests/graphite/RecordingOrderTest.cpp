@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "tests/TestUtils.h"
@@ -36,7 +37,7 @@ bool run_test(skiatest::Reporter* reporter,
     SkAssertResult(result0.peekPixels(&pm0));
     SkAssertResult(result1.peekPixels(&pm1));
 
-    sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder, ii);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder, ii);
     if (!surface) {
         ERRORF(reporter, "Surface creation failed");
         return false;

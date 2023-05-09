@@ -42,7 +42,7 @@ static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     SkScalar y = SkIntToScalar(height / 2);
     SkScalar radius = std::min(x, y) * 0.8f;
 
-    auto surface(SkSurface::MakeRasterN32Premul(width, height));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height)));
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->clear(0x00000000);

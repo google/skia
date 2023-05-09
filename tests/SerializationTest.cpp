@@ -623,8 +623,8 @@ static void draw_something(SkCanvas* canvas) {
 }
 
 static sk_sp<SkImage> render(const SkPicture& p) {
-    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(p.cullRect().width()),
-                                               SkScalarRoundToInt(p.cullRect().height()));
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(
+            SkScalarRoundToInt(p.cullRect().width()), SkScalarRoundToInt(p.cullRect().height())));
     if (!surf) {
         return nullptr; // bounds are empty?
     }

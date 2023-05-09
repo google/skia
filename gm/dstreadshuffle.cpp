@@ -183,7 +183,7 @@ protected:
                                          canvas->imageInfo().alphaType(),
                                          canvas->imageInfo().refColorSpace());
             }
-            surf = SkSurface::MakeRaster(info);
+            surf = SkSurfaces::Raster(info);
             SkASSERT(surf);
         }
         canvas->scale(5.f, 5.f);

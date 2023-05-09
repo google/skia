@@ -37,7 +37,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        auto surf = SkSurface::MakeRasterN32Premul(135, 135);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(135, 135));
 
         SkFont  font(ToolUtils::create_portable_typeface(), 64.0f);
         SkPaint paint;

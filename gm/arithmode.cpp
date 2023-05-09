@@ -31,7 +31,7 @@
 #include <utility>
 
 static sk_sp<SkImage> make_src(int w, int h) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(w, h));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h)));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
@@ -47,7 +47,7 @@ static sk_sp<SkImage> make_src(int w, int h) {
 }
 
 static sk_sp<SkImage> make_dst(int w, int h) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(w, h));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h)));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;

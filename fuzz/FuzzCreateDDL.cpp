@@ -12,6 +12,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -175,8 +176,8 @@ static sk_sp<SkSurface> make_surface(Fuzz* fuzz, GrDirectContext* dContext, cons
     skgpu::Budgeted budgeted;
     fuzz->nextEnum(&budgeted, skgpu::Budgeted::kYes);
     SkSurfaceProps surfaceProps = gen_fuzzed_surface_props(fuzz);
-    auto surface = SkSurface::MakeRenderTarget(dContext, budgeted, ii, kSampleCount, origin,
-                                               &surfaceProps);
+    auto surface =
+            SkSurfaces::RenderTarget(dContext, budgeted, ii, kSampleCount, origin, &surfaceProps);
     return surface;
 }
 

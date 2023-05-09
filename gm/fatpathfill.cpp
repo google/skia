@@ -22,7 +22,7 @@
 #define REPEAT_LOOP 5
 
 static sk_sp<SkSurface> new_surface(int width, int height) {
-    return SkSurface::MakeRasterN32Premul(width, height);
+    return SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height));
 }
 
 static void draw_pixel_centers(SkCanvas* canvas) {

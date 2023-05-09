@@ -20,6 +20,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "tests/CtsEnforcement.h"
@@ -51,13 +52,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(OpsTaskFlushCount,
 
     SkImageInfo imageInfo = SkImageInfo::Make(1000, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surface1 =
-            SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, imageInfo);
+    sk_sp<SkSurface> surface1 = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, imageInfo);
     if (!surface1) {
         return;
     }
-    sk_sp<SkSurface> surface2 =
-            SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, imageInfo);
+    sk_sp<SkSurface> surface2 = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, imageInfo);
     if (!surface2) {
         return;
     }

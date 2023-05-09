@@ -19,7 +19,7 @@ static sk_sp<SkShader> make_bitmap_shader() {
     p.setColor(SK_ColorBLACK);
     p.setAntiAlias(true);
 
-    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     surface->getCanvas()->drawCircle(50, 50, 50, p);
 
     return surface->makeImageSnapshot()->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,

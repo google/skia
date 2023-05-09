@@ -20,6 +20,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "modules/canvaskit/WasmCommon.h"
@@ -124,7 +125,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     auto colorType = SkColorType::kN32_SkColorType;
     SkISize size = gm->getISize();
     SkImageInfo info = SkImageInfo::Make(size, colorType, alphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(
             ctx.get(), skgpu::Budgeted::kYes, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr, true));
     if (!surface) {
         SkDebugf("Could not make surface\n");

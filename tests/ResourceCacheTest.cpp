@@ -24,6 +24,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
@@ -73,7 +74,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache,
                                        CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);
-    auto surface(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, info));
+    auto surface(SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
     const SkIRect size = SkIRect::MakeWH(gWidth, gHeight);
@@ -1888,8 +1889,8 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(OverbudgetFlush, reporter, ctxInfo) {
     };
 
     auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf1 = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, info, 1, nullptr);
-    auto surf2 = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, info, 1, nullptr);
+    auto surf1 = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, info, 1, nullptr);
+    auto surf2 = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, info, 1, nullptr);
 
     drawToSurf(surf1.get());
     drawToSurf(surf2.get());

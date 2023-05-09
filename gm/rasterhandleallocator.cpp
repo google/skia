@@ -61,7 +61,7 @@ public:
     SkiaAllocator() {}
 
     bool allocHandle(const SkImageInfo& info, Rec* rec) override {
-        sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+        sk_sp<SkSurface> surface = SkSurfaces::Raster(info);
         if (!surface) {
             return false;
         }

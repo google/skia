@@ -991,7 +991,7 @@ void SkPDFDevice::drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemor
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
-    return SkSurface::MakeRaster(info, &props);
+    return SkSurfaces::Raster(info, &props);
 }
 
 static std::vector<SkPDFIndirectReference> sort(const THashSet<SkPDFIndirectReference>& src) {
@@ -1434,8 +1434,7 @@ static SkSize rect_to_size(const SkRect& r) { return {r.width(), r.height()}; }
 
 static sk_sp<SkImage> color_filter(const SkImage* image,
                                    SkColorFilter* colorFilter) {
-    auto surface =
-        SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(image->dimensions()));
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(image->dimensions()));
     SkASSERT(surface);
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);
@@ -1505,7 +1504,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     if (imageSubset.image()->isAlphaOnly() && paint->getColorFilter()) {
         // must blend alpha image and shader before applying colorfilter.
         auto surface =
-            SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(imageSubset.image()->dimensions()));
+                SkSurfaces::Raster(SkImageInfo::MakeN32Premul(imageSubset.image()->dimensions()));
         SkCanvas* canvas = surface->getCanvas();
         SkPaint tmpPaint;
         // In the case of alpha images with shaders, the shader's coordinate
@@ -1614,7 +1613,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
         SkISize wh = rect_to_size(physicalBounds).toCeil();
 
-        auto surface = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(wh));
+        auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(wh));
         if (!surface) {
             return;
         }

@@ -22,7 +22,7 @@ DEF_SIMPLE_GM(bicubic, canvas, 300, 320) {
     };
 
     auto make_img = []() {
-        auto surf = SkSurface::MakeRasterN32Premul(7, 7);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(7, 7));
         surf->getCanvas()->drawColor(SK_ColorBLACK);
 
         SkPaint paint;

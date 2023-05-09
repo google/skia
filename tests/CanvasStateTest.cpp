@@ -155,9 +155,8 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
     for (size_t i = 0; i < std::size(colorTypes); ++i) {
         sk_sp<SkImage> images[2];
         for (int j = 0; j < 2; ++j) {
-            auto surf = SkSurface::MakeRaster(SkImageInfo::Make(WIDTH, HEIGHT,
-                                                                colorTypes[i],
-                                                                kPremul_SkAlphaType));
+            auto surf = SkSurfaces::Raster(
+                    SkImageInfo::Make(WIDTH, HEIGHT, colorTypes[i], kPremul_SkAlphaType));
             SkCanvas* canvas = surf->getCanvas();
 
             canvas->drawColor(SK_ColorRED);
@@ -249,7 +248,7 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
 
     sk_sp<SkImage> images[2];
     for (int i = 0; i < 2; ++i) {
-        auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(WIDTH, HEIGHT));
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(WIDTH, HEIGHT));
         SkCanvas* canvas = surf->getCanvas();
 
         canvas->drawColor(SK_ColorRED);

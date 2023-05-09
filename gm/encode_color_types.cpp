@@ -52,8 +52,8 @@ static sk_sp<SkImage> make_image(SkColorType colorType, SkAlphaType alphaType) {
         return nullptr;
     }
 
-    auto surface = SkSurface::MakeRaster(SkImageInfo::Make(image->width(), image->height(),
-            colorType, alphaType, image->refColorSpace()));
+    auto surface = SkSurfaces::Raster(SkImageInfo::Make(
+            image->width(), image->height(), colorType, alphaType, image->refColorSpace()));
     surface->getCanvas()->drawImage(image, 0, 0);
     return surface->makeImageSnapshot();
 }

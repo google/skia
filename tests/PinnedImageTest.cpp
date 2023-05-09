@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/SkGr.h"
@@ -68,7 +69,7 @@ static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContex
     sk_sp<SkImage> img = SkImages::PinnableRasterFromBitmap(bm);
     REPORTER_ASSERT(reporter, img, "PinnableImageFromBitmap returned null");
 
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, ii);
+    sk_sp<SkSurface> gpuSurface = SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kYes, ii);
     SkCanvas* canvas = gpuSurface->getCanvas();
 
     // w/o pinning - the gpu draw always reflects the current state of the underlying bitmap

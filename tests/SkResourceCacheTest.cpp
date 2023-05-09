@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRefCnt.h"
@@ -155,7 +156,7 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
 
 static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& transform,
                                  sk_sp<SkImage> (*buildImage)()) {
-    auto surface(SkSurface::MakeRasterN32Premul(10, 10));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10)));
     SkCanvas* canvas = surface->getCanvas();
 
     // SkBitmapCache is global, so other threads could be evicting our bitmaps.  Loop a few times
@@ -201,7 +202,7 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
 
     for (size_t i = 0; i < std::size(xforms); ++i) {
         test_discarded_image(reporter, xforms[i], []() {
-            auto surface(SkSurface::MakeRasterN32Premul(10, 10));
+            auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10)));
             surface->getCanvas()->clear(SK_ColorCYAN);
             return surface->makeImageSnapshot();
         });
