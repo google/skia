@@ -42,6 +42,11 @@ public:
                                             const Type& type,
                                             ExpressionArray args);
 
+    static std::unique_ptr<Expression> MakeFromConstants(const Context& context,
+                                                         Position pos,
+                                                         const Type& type,
+                                                         const double values[]);
+
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<ConstructorCompound>(pos, this->type(), this->arguments().clone());
     }

@@ -147,21 +147,20 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                 const Type& vecType = scalarType.toCompound(context, vecWidth, /*rows=*/1);
                 indexValue *= vecWidth;
 
-                ExpressionArray ctorArgs;
-                ctorArgs.reserve_back(vecWidth);
+                double ctorArgs[4];
+                bool allConstant = true;
                 for (int slot = 0; slot < vecWidth; ++slot) {
                     std::optional<double> slotVal = baseExpr->getConstantValue(indexValue + slot);
                     if (slotVal.has_value()) {
-                        ctorArgs.push_back(Literal::Make(baseExpr->fPosition, *slotVal,
-                                &scalarType));
+                        ctorArgs[slot] = *slotVal;
                     } else {
-                        ctorArgs.clear();
+                        allConstant = false;
                         break;
                     }
                 }
 
-                if (!ctorArgs.empty()) {
-                    return ConstructorCompound::Make(context, pos, vecType, std::move(ctorArgs));
+                if (allConstant) {
+                    return ConstructorCompound::MakeFromConstants(context, pos, vecType, ctorArgs);
                 }
             }
         }

@@ -77,19 +77,6 @@ void type_check_expression<bool>(const Expression& expr) {
     SkASSERT(expr.type().componentType().isBoolean());
 }
 
-static std::unique_ptr<Expression> assemble_compound(const Context& context,
-                                                     Position pos,
-                                                     const Type& returnType,
-                                                     const double value[]) {
-    int numSlots = returnType.slotCount();
-    ExpressionArray array;
-    array.reserve_back(numSlots);
-    for (int index = 0; index < numSlots; ++index) {
-        array.push_back(Literal::Make(pos, value[index], &returnType.componentType()));
-    }
-    return ConstructorCompound::Make(context, pos, returnType, std::move(array));
-}
-
 using CoalesceFn = double (*)(double, double, double);
 using FinalizeFn = double (*)(double);
 
@@ -210,7 +197,7 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     }
 
     const Type& bvecType = context.fTypes.fBool->toCompound(context, type.columns(), /*rows=*/1);
-    return assemble_compound(context, left->fPosition, bvecType, array);
+    return ConstructorCompound::MakeFromConstants(context, left->fPosition, bvecType, array);
 }
 
 using EvaluateFn = double (*)(double, double, double);
@@ -269,7 +256,7 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
         }
     }
 
-    return assemble_compound(context, arg0->fPosition, returnType, array);
+    return ConstructorCompound::MakeFromConstants(context, arg0->fPosition, returnType, array);
 }
 
 template <typename T>
@@ -602,7 +589,7 @@ std::unique_ptr<Expression> evaluate_refract(const Context& context,
     double kValue = KExpr->as<Literal>().value();
     if (kValue < 0) {
         constexpr double kZero[4] = {};
-        return assemble_compound(context, Position{}, I->type(), kZero);
+        return ConstructorCompound::MakeFromConstants(context, I->fPosition, I->type(), kZero);
     }
 
     // When K ≥ 0, Refract(I, N, Eta) = (I * Eta) - N * (Eta * Dot(N,I) + Sqrt(K))
@@ -821,7 +808,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             };
             const double packed = ((Pack(0) << 0)  & 0x0000FFFF) |
                                   ((Pack(1) << 16) & 0xFFFF0000);
-            return assemble_compound(context, Position{}, *context.fTypes.fUInt, &packed);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fUInt, &packed);
         }
         case k_packSnorm2x16_IntrinsicKind: {
             auto Pack = [&](int n) -> unsigned int {
@@ -830,7 +818,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             };
             const double packed = ((Pack(0) << 0)  & 0x0000FFFF) |
                                   ((Pack(1) << 16) & 0xFFFF0000);
-            return assemble_compound(context, Position{}, *context.fTypes.fUInt, &packed);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fUInt, &packed);
         }
         case k_packHalf2x16_IntrinsicKind: {
             auto Pack = [&](int n) -> unsigned int {
@@ -838,7 +827,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             };
             const double packed = ((Pack(0) << 0)  & 0x0000FFFF) |
                                   ((Pack(1) << 16) & 0xFFFF0000);
-            return assemble_compound(context, Position{}, *context.fTypes.fUInt, &packed);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fUInt, &packed);
         }
         case k_unpackUnorm2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
@@ -846,7 +836,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             uint16_t b = ((x >> 16) & 0x0000FFFF);
             const double unpacked[2] = {double(a) / 65535.0,
                                         double(b) / 65535.0};
-            return assemble_compound(context, Position{}, *context.fTypes.fFloat2, unpacked);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fFloat2, unpacked);
         }
         case k_unpackSnorm2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
@@ -854,7 +845,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             int16_t b = ((x >> 16) & 0x0000FFFF);
             const double unpacked[2] = {Intrinsics::evaluate_clamp(double(a) / 32767.0, -1.0, 1.0),
                                         Intrinsics::evaluate_clamp(double(b) / 32767.0, -1.0, 1.0)};
-            return assemble_compound(context, Position{}, *context.fTypes.fFloat2, unpacked);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fFloat2, unpacked);
         }
         case k_unpackHalf2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
@@ -862,7 +854,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             uint16_t b = ((x >> 16) & 0x0000FFFF);
             const double unpacked[2] = {SkHalfToFloat(a),
                                         SkHalfToFloat(b)};
-            return assemble_compound(context, Position{}, *context.fTypes.fFloat2, unpacked);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fFloat2, unpacked);
         }
         // 8.5 : Geometric Functions
         case k_length_IntrinsicKind:
@@ -882,7 +875,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             double vec[3] = {X(1) * Y(2) - Y(1) * X(2),
                              X(2) * Y(0) - Y(2) * X(0),
                              X(0) * Y(1) - Y(0) * X(1)};
-            return assemble_compound(context, arguments[0]->fPosition, returnType, vec);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          returnType, vec);
         }
         case k_normalize_IntrinsicKind:
             return Intrinsics::evaluate_normalize(context, arguments);
@@ -908,7 +902,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     mat[index++] = Get(0, (returnType.columns() * r) + c);
                 }
             }
-            return assemble_compound(context, arguments[0]->fPosition, returnType, mat);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          returnType, mat);
         }
         case k_outerProduct_IntrinsicKind: {
             double mat[16];
@@ -918,7 +913,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     mat[index++] = Get(0, r) * Get(1, c);
                 }
             }
-            return assemble_compound(context, arguments[0]->fPosition, returnType, mat);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          returnType, mat);
         }
         case k_determinant_IntrinsicKind: {
             float mat[16];
@@ -966,7 +962,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
             double dmat[16];
             std::copy(mat, mat + std::size(mat), dmat);
-            return assemble_compound(context, arguments[0]->fPosition, returnType, dmat);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                         returnType, dmat);
         }
         // 8.7 : Vector Relational Functions
         case k_lessThan_IntrinsicKind:
