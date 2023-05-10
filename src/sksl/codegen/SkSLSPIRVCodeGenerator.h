@@ -294,6 +294,10 @@ private:
 
     SpvId writeFieldAccess(const FieldAccess& f, OutputStream& out);
 
+    SpvId writeSwizzle(const Expression& baseExpr,
+                       const ComponentArray& components,
+                       OutputStream& out);
+
     SpvId writeSwizzle(const Swizzle& swizzle, OutputStream& out);
 
     /**
@@ -515,6 +519,8 @@ private:
     void writeUniformBuffer(std::shared_ptr<SymbolTable> topLevelSymbolTable);
 
     void addRTFlipUniform(Position pos);
+
+    std::unique_ptr<Expression> identifier(std::string_view name);
 
     std::tuple<const Variable*, const Variable*> synthesizeTextureAndSampler(
             const Variable& combinedSampler);

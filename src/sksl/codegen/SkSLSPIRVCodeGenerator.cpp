@@ -56,6 +56,7 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -1564,13 +1565,15 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeWord(fn, out);
             if (!fProgram.fConfig->fSettings.fForceNoRTFlip) {
                 this->addRTFlipUniform(c.fPosition);
-                using namespace dsl;
-                DSLExpression rtFlip(
-                        ThreadContext::Compiler().convertIdentifier(Position(), SKSL_RTFLIP_NAME));
-                SpvId rtFlipY = this->vectorize(*rtFlip.y().release(), callType.columns(), out);
+                ComponentArray componentArray;
+                for (int index = 0; index < callType.columns(); ++index) {
+                    componentArray.push_back(SwizzleComponent::Y);
+                }
+                SpvId rtFlipY = this->writeSwizzle(*this->identifier(SKSL_RTFLIP_NAME),
+                                                   componentArray, out);
                 SpvId flipped = this->nextId(&callType);
-                this->writeInstruction(
-                        SpvOpFMul, this->getType(callType), flipped, result, rtFlipY, out);
+                this->writeInstruction(SpvOpFMul, this->getType(callType), flipped, result,
+                                       rtFlipY, out);
                 result = flipped;
             }
             break;
@@ -2521,6 +2524,12 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
     }
 }
 
+std::unique_ptr<Expression> SPIRVCodeGenerator::identifier(std::string_view name) {
+    std::unique_ptr<Expression> expr = ThreadContext::Compiler().convertIdentifier(Position(),name);
+    return expr ? std::move(expr)
+                : Poison::Make(Position(), fContext);
+}
+
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
     const Variable* variable = ref.variable();
     switch (variable->modifiers().fLayout.fBuiltin) {
@@ -2682,23 +2691,30 @@ SpvId SPIRVCodeGenerator::writeFieldAccess(const FieldAccess& f, OutputStream& o
     return getLValue(f, out)->load(out);
 }
 
-SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out) {
-    SpvId base = this->writeExpression(*swizzle.base(), out);
-    size_t count = swizzle.components().size();
+SpvId SPIRVCodeGenerator::writeSwizzle(const Expression& baseExpr,
+                                       const ComponentArray& components,
+                                       OutputStream& out) {
+    size_t count = components.size();
+    const Type& type = baseExpr.type().componentType().toCompound(fContext, count, /*rows=*/1);
+    SpvId base = this->writeExpression(baseExpr, out);
     if (count == 1) {
-        return this->writeOpCompositeExtract(swizzle.type(), base, swizzle.components()[0], out);
+        return this->writeOpCompositeExtract(type, base, components[0], out);
     }
 
-    SpvId result = this->nextId(&swizzle.type());
+    SpvId result = this->nextId(&type);
     this->writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) count, out);
-    this->writeWord(this->getType(swizzle.type()), out);
+    this->writeWord(this->getType(type), out);
     this->writeWord(result, out);
     this->writeWord(base, out);
     this->writeWord(base, out);
-    for (int component : swizzle.components()) {
+    for (int component : components) {
         this->writeWord(component, out);
     }
     return result;
+}
+
+SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out) {
+    return this->writeSwizzle(*swizzle.base(), swizzle.components(), out);
 }
 
 SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
@@ -4050,7 +4066,9 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
                     main.parameters()[0]->type().description() + "' to main()");
             return {};
         }
-        args.push_back(dsl::Float2(0).release());
+        double kZero[2] = {0.0, 0.0};
+        args.push_back(ConstructorCompound::MakeFromConstants(fContext, Position{},
+                                                              *fContext.fTypes.fFloat2, kZero));
     }
     auto callMainFn = std::make_unique<FunctionCall>(Position(), &main.returnType(), &main,
                                                      std::move(args));

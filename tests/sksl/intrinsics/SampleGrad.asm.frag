@@ -65,9 +65,8 @@ OpFunctionEnd
 %32 = OpDPdy %v2float %33
 %39 = OpAccessChain %_ptr_Uniform_v2float %34 %int_0
 %41 = OpLoad %v2float %39
-%42 = OpCompositeExtract %float %41 1
-%43 = OpCompositeConstruct %v2float %42 %42
-%44 = OpFMul %v2float %32 %43
-%27 = OpImageSampleExplicitLod %v4float %28 %29 Grad %30 %44
+%42 = OpVectorShuffle %v2float %41 %41 1 1
+%43 = OpFMul %v2float %32 %42
+%27 = OpImageSampleExplicitLod %v4float %28 %29 Grad %30 %43
 OpReturnValue %27
 OpFunctionEnd
