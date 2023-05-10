@@ -403,7 +403,7 @@ protected:
      *  This means the drawable may refer to the scaler context and associated font data.
      *
      *  The drawable does not need to be flattenable (e.g. implement getFactory and getTypeName).
-     *  Any necessary serialization will be done with newPictureSnapshot.
+     *  Any necessary serialization will be done with makePictureSnapshot.
      */
     virtual sk_sp<SkDrawable> generateDrawable(const SkGlyph&); // TODO: = 0
 

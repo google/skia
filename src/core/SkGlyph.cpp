@@ -60,7 +60,7 @@ void SkPictureBackedGlyphDrawable::FlattenDrawable(SkWriteBuffer& buffer, SkDraw
         return;
     }
 
-    sk_sp<SkPicture> picture{drawable->newPictureSnapshot()};
+    sk_sp<SkPicture> picture = drawable->makePictureSnapshot();
     sk_sp<SkData> data = picture->serialize();
 
     // If the picture is too big, or there is no picture, then drop by sending an empty byte array.

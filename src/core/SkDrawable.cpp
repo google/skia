@@ -58,8 +58,12 @@ void SkDrawable::draw(SkCanvas* canvas, SkScalar x, SkScalar y) {
     this->draw(canvas, &matrix);
 }
 
+sk_sp<SkPicture> SkDrawable::makePictureSnapshot() {
+    return this->onMakePictureSnapshot();
+}
+
 SkPicture* SkDrawable::newPictureSnapshot() {
-    return this->onNewPictureSnapshot();
+    return this->makePictureSnapshot().release();
 }
 
 uint32_t SkDrawable::getGenerationID() {
@@ -86,7 +90,7 @@ void SkDrawable::notifyDrawingChanged() {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-SkPicture* SkDrawable::onNewPictureSnapshot() {
+sk_sp<SkPicture> SkDrawable::onMakePictureSnapshot() {
     SkPictureRecorder recorder;
 
     const SkRect bounds = this->getBounds();
@@ -95,5 +99,5 @@ SkPicture* SkDrawable::onNewPictureSnapshot() {
     if ((false)) {
         draw_bbox(canvas, bounds);
     }
-    return recorder.finishRecordingAsPicture().release();
+    return recorder.finishRecordingAsPicture();
 }

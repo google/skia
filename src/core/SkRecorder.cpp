@@ -69,7 +69,7 @@ SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
     }
     AutoTMalloc<const SkPicture*> pics(count);
     for (int i = 0; i < count; ++i) {
-        pics[i] = fArray[i]->newPictureSnapshot();
+        pics[i] = fArray[i]->makePictureSnapshot().release();
     }
     return new SkBigPicture::SnapshotArray(pics.release(), count);
 }

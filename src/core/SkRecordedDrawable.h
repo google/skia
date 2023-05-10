@@ -29,7 +29,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override;
 
-    SkPicture* onNewPictureSnapshot() override;
+    sk_sp<SkPicture> onMakePictureSnapshot() override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkRecordedDrawable)

@@ -86,7 +86,7 @@ public:
      *  Unlike finishRecordingAsPicture(), which returns an immutable picture, the returned drawable
      *  may contain live references to other drawables (if they were added to the recording canvas)
      *  and therefore this drawable will reflect the current state of those nested drawables anytime
-     *  it is drawn or a new picture is snapped from it (by calling drawable->newPictureSnapshot()).
+     *  it is drawn or a new picture is snapped from it (by calling drawable->makePictureSnapshot()).
      */
     sk_sp<SkDrawable> finishRecordingAsDrawable();
 

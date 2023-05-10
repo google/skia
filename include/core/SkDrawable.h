@@ -93,6 +93,16 @@ public:
         return this->onSnapGpuDrawHandler(backendApi, matrix, clipBounds, bufferInfo);
     }
 
+    /**
+     * Returns an SkPicture with the contents of this SkDrawable.
+     */
+    sk_sp<SkPicture> makePictureSnapshot();
+
+    /**
+     * Returns an SkPicture with the contents of this SkDrawable.
+     *
+     * DEPRECATED: Replace usage with makePictureSnapshot()
+     */
     SkPicture* newPictureSnapshot();
 
     /**
@@ -166,7 +176,7 @@ protected:
      *  of their drawable. Note: this picture must draw the same as what would be drawn from
      *  onDraw().
      */
-    virtual SkPicture* onNewPictureSnapshot();
+    virtual sk_sp<SkPicture> onMakePictureSnapshot();
 
 private:
     int32_t fGenerationID;
