@@ -2072,7 +2072,7 @@ int MetalCodeGenerator::getUniformSet(const Modifiers& m) {
 }
 
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    fRTFlipName = fProgram.fInputs.fUseFlipRTUniform
+    fRTFlipName = fProgram.fInterface.fUseFlipRTUniform
                           ? "_globals._anonInterface0->" SKSL_RTFLIP_NAME
                           : "";
     const char* separator = "";
@@ -2192,7 +2192,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             }
         }
         if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-            if (fProgram.fInputs.fUseFlipRTUniform && fInterfaceBlockNameMap.empty()) {
+            if (fProgram.fInterface.fUseFlipRTUniform && fInterfaceBlockNameMap.empty()) {
                 this->write(separator);
                 this->write("constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
                 fRTFlipName = "_anonInterface0." SKSL_RTFLIP_NAME;
@@ -2201,7 +2201,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             this->write(separator);
             this->write("bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
-            if (fProgram.fInputs.fUseLastFragColor) {
+            if (fProgram.fInterface.fUseLastFragColor) {
                 if (fContext.fCaps->fFBFetchSupport) {
                     this->write(", half4 " + std::string(fContext.fCaps->fFBFetchColorName) +
                                 " [[color(0)]]\n");
@@ -2360,7 +2360,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(" {");
     fIndentation++;
     this->writeFields(structType->fields(), structType->fPosition, &intf);
-    if (fProgram.fInputs.fUseFlipRTUniform) {
+    if (fProgram.fInterface.fUseFlipRTUniform) {
         this->writeLine("float2 " SKSL_RTFLIP_NAME ";");
     }
     fIndentation--;
@@ -2824,7 +2824,7 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
             wroteInterfaceBlock = true;
         }
     }
-    if (!wroteInterfaceBlock && fProgram.fInputs.fUseFlipRTUniform) {
+    if (!wroteInterfaceBlock && fProgram.fInterface.fUseFlipRTUniform) {
         this->writeLine("struct sksl_synthetic_uniforms {");
         this->writeLine("    float2 " SKSL_RTFLIP_NAME ";");
         this->writeLine("};");

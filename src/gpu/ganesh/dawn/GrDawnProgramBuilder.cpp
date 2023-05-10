@@ -266,12 +266,12 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 
     builder.finalizeShaders();
 
-    SkSL::Program::Inputs vertInputs, fragInputs;
+    SkSL::Program::Interface vertInterface, fragInterface;
     bool flipY = programInfo.origin() != kTopLeft_GrSurfaceOrigin;
     auto vsModule = builder.createShaderModule(builder.fVS, SkSL::ProgramKind::kVertex, flipY,
-                                               &vertInputs);
+                                               &vertInterface);
     auto fsModule = builder.createShaderModule(builder.fFS, SkSL::ProgramKind::kFragment, flipY,
-                                               &fragInputs);
+                                               &fragInterface);
     GrSPIRVUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
     uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
     sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
@@ -422,7 +422,7 @@ GrDawnProgramBuilder::GrDawnProgramBuilder(GrDawnGpu* gpu,
 wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBuilder& builder,
                                                             SkSL::ProgramKind kind,
                                                             bool flipY,
-                                                            SkSL::Program::Inputs* inputs) {
+                                                            SkSL::Program::Interface* interface) {
     wgpu::Device device = fGpu->device();
     SkString source(builder.fCompilerString.c_str());
 
@@ -434,8 +434,8 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     std::string spirvSource = fGpu->SkSLToSPIRV(source.c_str(),
                                                 kind,
                                                 fUniformHandler.getRTFlipOffset(),
-                                                inputs);
-    if (inputs->fUseFlipRTUniform) {
+                                                interface);
+    if (interface->fUseFlipRTUniform) {
         this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }
 

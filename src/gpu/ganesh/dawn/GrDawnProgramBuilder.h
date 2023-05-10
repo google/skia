@@ -77,8 +77,10 @@ private:
     GrDawnProgramBuilder(GrDawnGpu*,
                          const GrProgramInfo&,
                          GrProgramDesc*);
-    wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::ProgramKind,
-                                          bool flipY, SkSL::Program::Inputs* inputs);
+    wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&,
+                                          SkSL::ProgramKind,
+                                          bool flipY,
+                                          SkSL::Program::Interface*);
     GrDawnGpu*             fGpu;
     GrSPIRVVaryingHandler   fVaryingHandler;
     GrSPIRVUniformHandler   fUniformHandler;

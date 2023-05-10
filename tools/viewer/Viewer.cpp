@@ -2585,7 +2585,7 @@ void Viewer::drawImGui() {
                         SkReadBuffer reader(data->data(), data->size());
                         entry.fShaderType = GrPersistentCacheUtils::GetType(&reader);
                         GrPersistentCacheUtils::UnpackCachedShaders(&reader, entry.fShader,
-                                                                    entry.fInputs,
+                                                                    entry.fInterfaces,
                                                                     kGrShaderTypeCount);
                     };
                     fCachedShaders.clear();
@@ -2734,7 +2734,7 @@ void Viewer::drawImGui() {
 
                         auto data = GrPersistentCacheUtils::PackCachedShaders(entry.fShaderType,
                                                                               entry.fShader,
-                                                                              entry.fInputs,
+                                                                              entry.fInterfaces,
                                                                               kGrShaderTypeCount);
                         fPersistentCache.store(*entry.fKey, *data, entry.fKeyDescription);
 

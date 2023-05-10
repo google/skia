@@ -38,7 +38,7 @@ bool SkSLToSPIRV(SkSL::Compiler*,
                  SkSL::ProgramKind kind,
                  const SkSL::ProgramSettings& settings,
                  std::string* spirv,
-                 SkSL::Program::Inputs* outInputs,
+                 SkSL::Program::Interface* outInterface,
                  ShaderErrorHandler* errorHandler);
 
 wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,

@@ -54,7 +54,7 @@ private:
     gr_cp<ID3DBlob> compileD3DProgram(SkSL::ProgramKind kind,
                                       const std::string& sksl,
                                       const SkSL::ProgramSettings& settings,
-                                      SkSL::Program::Inputs* outInputs,
+                                      SkSL::Program::Interface* outInterface,
                                       std::string* outHLSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }

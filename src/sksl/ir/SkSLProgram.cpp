@@ -29,7 +29,7 @@ Program::Program(std::unique_ptr<std::string> source,
                  std::unique_ptr<ModifiersPool> modifiers,
                  std::shared_ptr<SymbolTable> symbols,
                  std::unique_ptr<Pool> pool,
-                 Inputs inputs)
+                 Interface interface)
         : fSource(std::move(source))
         , fConfig(std::move(config))
         , fContext(context)
@@ -38,7 +38,7 @@ Program::Program(std::unique_ptr<std::string> source,
         , fPool(std::move(pool))
         , fOwnedElements(std::move(elements))
         , fSharedElements(std::move(sharedElements))
-        , fInputs(inputs) {
+        , fInterface(interface) {
     fUsage = Analysis::GetUsage(*this);
 }
 

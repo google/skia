@@ -167,7 +167,7 @@ bool SkSLToMSL(SkSL::Compiler* compiler,
                SkSL::ProgramKind programKind,
                const SkSL::ProgramSettings& settings,
                std::string* msl,
-               SkSL::Program::Inputs* outInputs,
+               SkSL::Program::Interface* outInterface,
                ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
     std::string src = SkShaderUtils::PrettyPrint(sksl);
@@ -194,7 +194,7 @@ bool SkSLToMSL(SkSL::Compiler* compiler,
         }
     }
 
-    *outInputs = program->fInputs;
+    *outInterface = program->fInterface;
     return true;
 }
 

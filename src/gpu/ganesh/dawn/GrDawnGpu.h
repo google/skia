@@ -105,7 +105,7 @@ public:
     std::string SkSLToSPIRV(const char* shaderString,
                             SkSL::ProgramKind,
                             uint32_t rtFlipOffset,
-                            SkSL::Program::Inputs*);
+                            SkSL::Program::Interface*);
     wgpu::ShaderModule createShaderModule(const std::string& spirvSource);
 
 private:

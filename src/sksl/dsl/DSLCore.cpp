@@ -87,7 +87,7 @@ public:
                                                       std::move(instance.fModifiersPool),
                                                       std::move(compiler.fContext->fSymbolTable),
                                                       std::move(instance.fPool),
-                                                      instance.fInputs);
+                                                      instance.fInterface);
         bool success = false;
         if (!compiler.finalize(*result)) {
             // Do not return programs that failed to compile.

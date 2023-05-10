@@ -42,7 +42,7 @@ bool SkSLToMSL(SkSL::Compiler*,
                SkSL::ProgramKind kind,
                const SkSL::ProgramSettings& settings,
                std::string* msl,
-               SkSL::Program::Inputs* outInputs,
+               SkSL::Program::Interface* outInterface,
                ShaderErrorHandler* errorHandler);
 
 #ifdef SK_BUILD_FOR_IOS

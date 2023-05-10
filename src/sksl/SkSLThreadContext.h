@@ -136,7 +136,7 @@ private:
     ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
     RTAdjustData fRTAdjust;
-    Program::Inputs fInputs;
+    Program::Interface fInterface;
 
     friend class dsl::DSLCore;
 };

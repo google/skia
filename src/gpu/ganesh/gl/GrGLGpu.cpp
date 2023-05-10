@@ -3291,7 +3291,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
                                                   glsl[kVertex_GrShaderType],
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(program->fInputs == SkSL::Program::Inputs());
+    SkASSERT(program->fInterface == SkSL::Program::Interface());
     if (!vshader) {
         // Just delete the program, no shaders to delete
         cleanup_program(this, &fCopyPrograms[progIdx].fProgram, nullptr, nullptr);
@@ -3306,7 +3306,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
                                                   glsl[kFragment_GrShaderType],
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(program->fInputs == SkSL::Program::Inputs());
+    SkASSERT(program->fInterface == SkSL::Program::Interface());
     if (!fshader) {
         // Delete the program and previously compiled vertex shader
         cleanup_program(this, &fCopyPrograms[progIdx].fProgram, &vshader, nullptr);
@@ -3470,7 +3470,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
                                                   glsl[kVertex_GrShaderType],
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(program->fInputs == SkSL::Program::Inputs());
+    SkASSERT(program->fInterface == SkSL::Program::Interface());
     if (!vshader) {
         cleanup_program(this, &fMipmapPrograms[progIdx].fProgram, nullptr, nullptr);
         return false;
@@ -3484,7 +3484,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
                                                   glsl[kFragment_GrShaderType],
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(program->fInputs == SkSL::Program::Inputs());
+    SkASSERT(program->fInterface == SkSL::Program::Interface());
     if (!fshader) {
         cleanup_program(this, &fMipmapPrograms[progIdx].fProgram, &vshader, nullptr);
         return false;

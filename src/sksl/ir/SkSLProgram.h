@@ -46,14 +46,15 @@ struct UniformInfo {
  * Represents a fully-digested program, ready for code generation.
  */
 struct Program {
-    struct Inputs {
+    // A program's inputs and outputs.
+    struct Interface {
         bool fUseFlipRTUniform = false;
         bool fUseLastFragColor = false;
-        bool operator==(const Inputs& that) const {
+        bool operator==(const Interface& that) const {
             return fUseFlipRTUniform == that.fUseFlipRTUniform &&
                    fUseLastFragColor == that.fUseLastFragColor;
         }
-        bool operator!=(const Inputs& that) const { return !(*this == that); }
+        bool operator!=(const Interface& that) const { return !(*this == that); }
     };
 
     Program(std::unique_ptr<std::string> source,
@@ -64,7 +65,7 @@ struct Program {
             std::unique_ptr<ModifiersPool> modifiers,
             std::shared_ptr<SymbolTable> symbols,
             std::unique_ptr<Pool> pool,
-            Inputs inputs);
+            Interface);
 
     ~Program();
 
@@ -159,7 +160,7 @@ struct Program {
     // Contains *only* elements owned by a built-in module that are included in this program.
     // Use elements() to iterate over the combined set of owned + shared elements.
     std::vector<const ProgramElement*> fSharedElements;
-    Inputs fInputs;
+    Interface fInterface;
 };
 
 }  // namespace SkSL

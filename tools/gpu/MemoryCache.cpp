@@ -92,14 +92,14 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
             md5.appendf("%02x", digest.data[i]);
         }
 
-        SkSL::Program::Inputs inputsIgnored[kGrShaderTypeCount];
+        SkSL::Program::Interface interfacesIgnored[kGrShaderTypeCount];
         std::string shaders[kGrShaderTypeCount];
         const SkData* data = it->second.fData.get();
         const SkString& description = it->second.fDescription;
         SkReadBuffer reader(data->data(), data->size());
         GrPersistentCacheUtils::GetType(&reader); // Shader type tag
         GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders,
-                                                    inputsIgnored, kGrShaderTypeCount);
+                                                    interfacesIgnored, kGrShaderTypeCount);
 
         // Even with the SPIR-V switches, it seems like we must use .spv, or malisc tries to
         // run glslang on the input.

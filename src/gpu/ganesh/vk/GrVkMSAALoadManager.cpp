@@ -56,22 +56,22 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     SkSL::ProgramSettings settings;
     std::string spirv;
-    SkSL::Program::Inputs inputs;
+    SkSL::Program::Interface interface;
     if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,
                                  &fVertShaderModule, &fShaderStageInfo[0], settings, &spirv,
-                                 &inputs)) {
+                                 &interface)) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs == SkSL::Program::Inputs());
+    SkASSERT(interface == SkSL::Program::Interface());
 
     if (!GrCompileVkShaderModule(gpu, fragShaderText, VK_SHADER_STAGE_FRAGMENT_BIT,
                                  &fFragShaderModule, &fShaderStageInfo[1], settings, &spirv,
-                                 &inputs)) {
+                                 &interface)) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs == SkSL::Program::Inputs());
+    SkASSERT(interface == SkSL::Program::Interface());
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
 

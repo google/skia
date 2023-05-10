@@ -54,7 +54,8 @@ private:
     int loadShadersFromCache(SkReadBuffer* cached, VkShaderModule outShaderModules[],
                              VkPipelineShaderStageCreateInfo* outStageInfo);
 
-    void storeShadersInCache(const std::string shaders[], const SkSL::Program::Inputs inputs[],
+    void storeShadersInCache(const std::string shaders[],
+                             const SkSL::Program::Interface[],
                              bool isSkSL);
 
     bool createVkShaderModule(VkShaderStageFlagBits stage,
@@ -63,14 +64,14 @@ private:
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::ProgramSettings& settings,
                               std::string* outSPIRV,
-                              SkSL::Program::Inputs* outInputs);
+                              SkSL::Program::Interface* outInterface);
 
     bool installVkShaderModule(VkShaderStageFlagBits stage,
                                const GrGLSLShaderBuilder& builder,
                                VkShaderModule* shaderModule,
                                VkPipelineShaderStageCreateInfo* stageInfo,
                                std::string spirv,
-                               SkSL::Program::Inputs inputs);
+                               SkSL::Program::Interface);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }

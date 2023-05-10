@@ -297,7 +297,7 @@ std::optional<WGSLCodeGenerator::Builtin> builtin_from_sksl_name(int builtin) {
             // TODO(skia:13092): While `front_facing` is the corresponding built-in, it does not
             // imply a particular winding order. We correctly compute the face orientation based
             // on how Skia configured the render pipeline for all references to this built-in
-            // variable (see `SkSL::Program::Inputs::fUseFlipRTUniform`).
+            // variable (see `SkSL::Program::Interface::fUseFlipRTUniform`).
             return {Builtin::kFrontFacing};
         default:
             break;

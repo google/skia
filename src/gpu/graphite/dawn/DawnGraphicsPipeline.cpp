@@ -220,7 +220,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                                        const RenderPassDesc& renderPassDesc) {
     const auto& device = sharedContext->device();
 
-    SkSL::Program::Inputs vsInputs, fsInputs;
+    SkSL::Program::Interface vsInterface, fsInterface;
     SkSL::ProgramSettings settings;
 
     settings.fForceNoRTFlip = true;
@@ -258,7 +258,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                          SkSL::ProgramKind::kGraphiteFragment,
                          settings,
                          &fsSPIRV,
-                         &fsInputs,
+                         &fsInterface,
                          errorHandler)) {
             return {};
         }
@@ -278,7 +278,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                      SkSL::ProgramKind::kGraphiteVertex,
                      settings,
                      &vsSPIRV,
-                     &vsInputs,
+                     &vsInterface,
                      errorHandler)) {
         return {};
     }

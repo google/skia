@@ -145,8 +145,8 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
     SkASSERT(fInstanceStride == geomProc.instanceStride());
 }
 
-void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
-    if (inputs.fUseFlipRTUniform) {
+void GrGLProgramBuilder::addInputVars(const SkSL::Program::Interface& interface) {
+    if (interface.fUseFlipRTUniform) {
         this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }
 }
@@ -155,8 +155,10 @@ static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 static constexpr SkFourByteTag kGLSL_Tag = SkSetFourByteTag('G', 'L', 'S', 'L');
 static constexpr SkFourByteTag kGLPB_Tag = SkSetFourByteTag('G', 'L', 'P', 'B');
 
-void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                                            const std::string shaders[], bool isSkSL,
+void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Interface& interface,
+                                            GrGLuint programID,
+                                            const std::string shaders[],
+                                            bool isSkSL,
                                             SkSL::ProgramSettings* settings) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;
@@ -172,7 +174,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
             writer.writeInt(GrPersistentCacheUtils::GetCurrentVersion());
             writer.writeUInt(kGLPB_Tag);
 
-            writer.writePad32(&inputs, sizeof(inputs));
+            writer.writePad32(&interface, sizeof(interface));
 
             SkAutoSMalloc<2048> binary(length);
             GrGLenum binaryFormat;
@@ -198,7 +200,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         }
 
         auto data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kGLSL_Tag,
-                                                              shaders, &inputs, 1, &meta);
+                                                              shaders, &interface, 1, &meta);
         this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data, description);
     }
 }
@@ -233,7 +235,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     settings.fSharpenTextures = true;
     settings.fFragColorIsInOut = this->fragColorIsInOut();
 
-    SkSL::Program::Inputs inputs;
+    SkSL::Program::Interface interface;
     SkTDArray<GrGLuint> shadersToDelete;
 
     bool cached = fCached.get() != nullptr;
@@ -247,7 +249,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     if (precompiledProgram) {
         // This is very similar to when we get program binaries. We even set that flag, as it's
         // used to prevent other compile work later, and to force re-querying uniform locations.
-        this->addInputVars(precompiledProgram->fInputs);
+        this->addInputVars(precompiledProgram->fInterface);
         this->computeCountsAndStrides(programID, geomProc, false);
         usedProgramBinaries = true;
     } else if (cached) {
@@ -263,7 +265,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                     cached = false;
                     break;
                 }
-                reader.readPad32(&inputs, sizeof(inputs));
+                reader.readPad32(&interface, sizeof(interface));
                 GrGLenum binaryFormat = reader.readUInt();
                 GrGLsizei length      = reader.readInt();
                 const void* binary = reader.skip(length);
@@ -282,7 +284,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 cached = GrGLCheckLinkStatus(fGpu, programID,
                                              /*errorHandler=*/nullptr, nullptr, nullptr);
                 if (cached) {
-                    this->addInputVars(inputs);
+                    this->addInputVars(interface);
                     this->computeCountsAndStrides(programID, geomProc, false);
                 }
                 usedProgramBinaries = cached;
@@ -291,12 +293,13 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
             case kGLSL_Tag:
                 // Source cache hit, we don't need to compile the SkSL->GLSL
-                GrPersistentCacheUtils::UnpackCachedShaders(&reader, glsl, &inputs, 1);
+                GrPersistentCacheUtils::UnpackCachedShaders(&reader, glsl, &interface, 1);
                 break;
 
             case kSKSL_Tag:
                 // SkSL cache hit, this should only happen in tools overriding the generated SkSL
-                if (GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, &inputs, 1)) {
+                if (GrPersistentCacheUtils::UnpackCachedShaders(
+                            &reader, cached_sksl, &interface, 1)) {
                     for (int i = 0; i < kGrShaderTypeCount; ++i) {
                         sksl[i] = &cached_sksl[i];
                     }
@@ -334,10 +337,10 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 cleanup_program(fGpu, programID, shadersToDelete);
                 return nullptr;
             }
-            inputs = fs->fInputs;
+            interface = fs->fInterface;
         }
 
-        this->addInputVars(inputs);
+        this->addInputVars(interface);
         if (!this->compileAndAttachShaders(glsl[kFragment_GrShaderType], programID,
                                            GR_GL_FRAGMENT_SHADER, &shadersToDelete, errorHandler)) {
             cleanup_program(fGpu, programID, shadersToDelete);
@@ -395,7 +398,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             }
             isSkSL = true;
         }
-        this->storeShaderInCache(inputs, programID, glsl, isSkSL, &settings);
+        this->storeShaderInCache(interface, programID, glsl, isSkSL, &settings);
     }
     return this->createProgram(programID);
 }
@@ -456,8 +459,8 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     meta.fSettings = &settings;
 
     std::string shaders[kGrShaderTypeCount];
-    SkSL::Program::Inputs inputs;
-    if (!GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders, &inputs, 1, &meta)) {
+    SkSL::Program::Interface interface;
+    if (!GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders, &interface, 1, &meta)) {
         return false;
     }
 
@@ -526,6 +529,6 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     cleanup_shaders(glGpu, shadersToDelete);
 
     precompiledProgram->fProgramID = programID;
-    precompiledProgram->fInputs = inputs;
+    precompiledProgram->fInterface = interface;
     return true;
 }

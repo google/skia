@@ -1004,7 +1004,7 @@ void GrDawnGpu::flushCopyEncoder() {
 std::string GrDawnGpu::SkSLToSPIRV(const char* shaderString,
                                    SkSL::ProgramKind kind,
                                    uint32_t rtFlipOffset,
-                                   SkSL::Program::Inputs* inputs) {
+                                   SkSL::Program::Interface* interface) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::ProgramSettings settings;
     settings.fRTFlipOffset = rtFlipOffset;
@@ -1018,8 +1018,8 @@ std::string GrDawnGpu::SkSLToSPIRV(const char* shaderString,
         errorHandler->compileError(shaderString, this->shaderCompiler()->errorText().c_str());
         return "";
     }
-    if (inputs) {
-        *inputs = program->fInputs;
+    if (interface) {
+        *interface = program->fInterface;
     }
     std::string code;
     if (!this->shaderCompiler()->toSPIRV(*program, &code)) {
