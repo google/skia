@@ -50,9 +50,11 @@ struct Program {
     struct Interface {
         bool fUseFlipRTUniform = false;
         bool fUseLastFragColor = false;
+        bool fOutputSecondaryColor = false;
         bool operator==(const Interface& that) const {
             return fUseFlipRTUniform == that.fUseFlipRTUniform &&
-                   fUseLastFragColor == that.fUseLastFragColor;
+                   fUseLastFragColor == that.fUseLastFragColor &&
+                   fOutputSecondaryColor == that.fOutputSecondaryColor;
         }
         bool operator!=(const Interface& that) const { return !(*this == that); }
     };

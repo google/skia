@@ -165,6 +165,11 @@ void FindAndDeclareBuiltinVariables(Program& program) {
                 case SK_LASTFRAGCOLOR_BUILTIN:
                     program.fInterface.fUseLastFragColor = true;
                     break;
+
+                // Set secondary color output if we find sk_SecondaryFragColor.
+                case SK_SECONDARYFRAGCOLOR_BUILTIN:
+                    program.fInterface.fOutputSecondaryColor = true;
+                    break;
             }
         }
     }

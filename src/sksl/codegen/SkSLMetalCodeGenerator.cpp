@@ -1505,6 +1505,13 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("_out.sk_FragColor");
             break;
+        case SK_SECONDARYFRAGCOLOR_BUILTIN:
+            if (fContext.fCaps->fDualSourceBlendingSupport) {
+                this->write("_out.sk_SecondaryFragColor");
+            } else {
+                fContext.fErrors->error(ref.fPosition, "dual-src blending not supported");
+            }
+            break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
             break;
@@ -2771,6 +2778,13 @@ void MetalCodeGenerator::writeOutputStruct() {
         this->write("    float4 sk_Position [[position]];\n");
     } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
         this->write("    half4 sk_FragColor [[color(0)]];\n");
+        if (fProgram.fInterface.fOutputSecondaryColor) {
+            if (fContext.fCaps->fDualSourceBlendingSupport) {
+                this->write("    half4 sk_SecondaryFragColor [[color(0), index(1)]];\n");
+            } else {
+                fContext.fErrors->error({}, "dual-src blending not supported");
+            }
+        }
     }
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {

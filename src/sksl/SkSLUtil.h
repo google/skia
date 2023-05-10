@@ -81,6 +81,7 @@ struct ShaderCaps {
 
     SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k330;
 
+    bool fDualSourceBlendingSupport = false;
     bool fShaderDerivativeSupport = false;
     /** Enables sampleGrad and sampleLod functions that don't rely on implicit derivatives */
     bool fExplicitTextureLodSupport = false;
