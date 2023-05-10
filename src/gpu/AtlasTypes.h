@@ -229,8 +229,6 @@ private:
  *
  * In fact PlotLocator is a portion of a glyph image location in the atlas fully specified by:
  *    format/atlasGeneration/page/plot/plotGeneration/rect
- *
- * TODO: Remove the small path renderer's use of the PlotLocator for eviction.
  */
 class PlotLocator {
 public:
