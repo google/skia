@@ -218,7 +218,7 @@ BackendTexture DawnResourceProvider::onCreateBackendTexture(SkISize dimensions,
         return {};
     }
 
-    return BackendTexture(texture.Release());
+    return BackendTexture(texture.MoveToCHandle());
 }
 
 void DawnResourceProvider::onDeleteBackendTexture(BackendTexture& texture) {
