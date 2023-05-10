@@ -69,6 +69,7 @@ IR_FILES = [
     "SkSLMethodReference.h",
     "SkSLModifiers.cpp",
     "SkSLModifiers.h",
+    "SkSLModifiersDeclaration.cpp",
     "SkSLModifiersDeclaration.h",
     "SkSLNop.h",
     "SkSLPoison.h",

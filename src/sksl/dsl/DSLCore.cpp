@@ -15,7 +15,6 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -24,7 +23,6 @@
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
@@ -116,11 +114,6 @@ public:
         return DSLExpression(SkSL::FunctionCall::Convert(ThreadContext::Context(), pos,
                 ThreadContext::Compiler().convertIdentifier(Position(), name),
                 std::move(argArray)));
-    }
-
-    static void Declare(const DSLModifiers& modifiers) {
-        ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::ModifiersDeclaration>(
-                ThreadContext::Modifiers(modifiers.fModifiers)));
     }
 
     static DSLStatement Declare(DSLVar& var, Position pos) {
@@ -230,17 +223,6 @@ std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> sourc
 
 void AddExtension(std::string_view name, Position pos) {
     ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos, name));
-}
-
-void Declare(const DSLModifiers& modifiers, Position pos) {
-    SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
-    if (!ProgramConfig::IsFragment(kind) &&
-        !ProgramConfig::IsVertex(kind)) {
-        ThreadContext::ReportError("layout qualifiers are not allowed in this kind of program",
-                                   pos);
-        return;
-    }
-    DSLCore::Declare(modifiers);
 }
 
 // Logically, we'd want the variable's initial value to appear on here in Declare, since that

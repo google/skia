@@ -201,6 +201,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLMethodReference.h",
   "$_src/sksl/ir/SkSLModifiers.cpp",
   "$_src/sksl/ir/SkSLModifiers.h",
+  "$_src/sksl/ir/SkSLModifiersDeclaration.cpp",
   "$_src/sksl/ir/SkSLModifiersDeclaration.h",
   "$_src/sksl/ir/SkSLNop.h",
   "$_src/sksl/ir/SkSLPoison.h",

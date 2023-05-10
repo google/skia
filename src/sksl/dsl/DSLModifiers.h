@@ -9,6 +9,7 @@
 #define SKSL_DSL_MODIFIERS
 
 #include "include/core/SkSpan.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
@@ -49,6 +50,10 @@ public:
 
     DSLLayout layout() const {
         return DSLLayout(fModifiers.fLayout);
+    }
+
+    const SkSL::Modifiers* pool() const {
+        return ThreadContext::Modifiers(fModifiers);
     }
 
 private:

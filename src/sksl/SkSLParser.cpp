@@ -33,6 +33,7 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -439,6 +440,19 @@ void Parser::directive(bool allowVersion) {
     }
 }
 
+bool Parser::modifiersDeclarationEnd(Position pos, const dsl::DSLModifiers& mods) {
+    std::unique_ptr<ModifiersDeclaration> decl = ModifiersDeclaration::Convert(
+            ThreadContext::Context(),
+            pos,
+            mods.pool());
+
+    if (!decl) {
+        return false;
+    }
+    ThreadContext::ProgramElements().push_back(std::move(decl));
+    return true;
+}
+
 /* modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter (COMMA parameter)* RPAREN
    (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
 bool Parser::declaration() {
@@ -457,8 +471,7 @@ bool Parser::declaration() {
     }
     if (lookahead.fKind == Token::Kind::TK_SEMICOLON) {
         this->nextToken();
-        Declare(modifiers, this->position(start));
-        return true;
+        return this->modifiersDeclarationEnd(this->position(start), modifiers);
     }
     if (lookahead.fKind == Token::Kind::TK_STRUCT) {
         this->structVarDeclaration(this->position(start), modifiers);

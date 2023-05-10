@@ -77,11 +77,6 @@ void SetErrorReporter(ErrorReporter* errorReporter);
 void AddExtension(std::string_view name, Position pos = {});
 
 /**
- * Adds a modifiers declaration to the current program.
- */
-void Declare(const DSLModifiers& modifiers, Position pos = {});
-
-/**
  * Creates a local variable declaration statement.
  */
 DSLStatement Declare(DSLVar& var, Position pos = {});
