@@ -46,7 +46,7 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        "fontations_c_side.cpp",
+        ":fontations_c_side",
         ":fontations_ffi/filegroup",
     ],
     visibility = ["//src/ports:__pkg__"],
