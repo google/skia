@@ -10,11 +10,16 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkReadBuffer.h"
@@ -23,6 +28,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <iterator>
 #include <optional>
 
@@ -324,7 +330,6 @@ DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
 }
 
 DEF_TEST(SkPictureBackedGlyphDrawable_Basic, reporter) {
-    SkArenaAlloc alloc{256};
     class TestDrawable final : public SkDrawable {
     public:
         TestDrawable(SkRect rect) : fRect(rect) {}
@@ -369,3 +374,64 @@ DEF_TEST(SkPictureBackedGlyphDrawable_Basic, reporter) {
     REPORTER_ASSERT(reporter, !badReadBuffer.isValid());
 }
 
+static sk_sp<SkDrawable> make_sksl_drawable() {
+    SkRect rect = SkRect::MakeWH(50, 50);
+
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(rect);
+
+    const sk_sp<SkRuntimeEffect> effect =
+            SkRuntimeEffect::MakeForShader(
+                    SkString("half4 main(float2 xy) { return half4(0, 1, 0, 1); }"))
+                    .effect;
+    SkASSERT(effect);
+
+    SkPaint paint;
+    paint.setShader(effect->makeShader(/*uniforms=*/nullptr, /*children=*/{}));
+    // See note in make_nested_sksl_drawable: We include enough ops that this drawable will be
+    // preserved as a sub-picture when we wrap it in a second layer.
+    for (int i = 0; i < kMaxPictureOpsToUnrollInsteadOfRef + 1; ++i) {
+        canvas->drawRect(rect, paint);
+    }
+
+    return recorder.finishRecordingAsDrawable();
+}
+
+static sk_sp<SkDrawable> make_nested_sksl_drawable() {
+    SkRect rect = SkRect::MakeWH(50, 50);
+
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(rect);
+
+    auto sksl_drawable = make_sksl_drawable();
+    sk_sp<SkPicture> sksl_picture{sksl_drawable->newPictureSnapshot()};
+
+    // We need to ensure that the op count of our picture is larger than this threshold, so we
+    // actually get a nested (embedded) picture, rather than just playing the ops back.
+    SkASSERT(sksl_picture->approximateOpCount() > kMaxPictureOpsToUnrollInsteadOfRef);
+    canvas->drawPicture(sksl_picture);
+
+    return recorder.finishRecordingAsDrawable();
+}
+
+DEF_TEST(SkPictureBackedGlyphDrawable_SkSL, reporter) {
+    for (const sk_sp<SkDrawable>& drawable : {make_sksl_drawable(), make_nested_sksl_drawable()}) {
+        for (bool allowSkSL : {true, false}) {
+            REPORTER_ASSERT(reporter, drawable);
+
+            SkBinaryWriteBuffer writeBuffer;
+            SkPictureBackedGlyphDrawable::FlattenDrawable(writeBuffer, drawable.get());
+
+            sk_sp<SkData> data = writeBuffer.snapshotAsData();
+
+            SkReadBuffer readBuffer{data->data(), data->size()};
+            readBuffer.setAllowSkSL(allowSkSL);
+
+            sk_sp<SkPictureBackedGlyphDrawable> dstDrawable =
+                    SkPictureBackedGlyphDrawable::MakeFromBuffer(readBuffer);
+
+            REPORTER_ASSERT(reporter, readBuffer.isValid() == allowSkSL);
+            REPORTER_ASSERT(reporter, !!dstDrawable == allowSkSL);
+        }
+    }
+}

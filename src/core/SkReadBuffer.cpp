@@ -85,6 +85,7 @@ const void* SkReadBuffer::skip(size_t count, size_t size) {
 
 void SkReadBuffer::setDeserialProcs(const SkDeserialProcs& procs) {
     fProcs = procs;
+    this->setAllowSkSL(procs.fAllowSkSL);
 }
 
 bool SkReadBuffer::readBool() {

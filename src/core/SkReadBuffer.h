@@ -188,6 +188,9 @@ public:
     void setDeserialProcs(const SkDeserialProcs& procs);
     const SkDeserialProcs& getDeserialProcs() const { return fProcs; }
 
+    bool allowSkSL() const { return fAllowSkSL; }
+    void setAllowSkSL(bool allow) { fAllowSkSL = allow; }
+
     /**
      *  If isValid is false, sets the buffer to be "invalid". Returns true if the buffer
      *  is still valid.
@@ -258,6 +261,7 @@ private:
         return SkIsAlign4((uintptr_t)ptr);
     }
 
+    bool fAllowSkSL = true;
     bool fError = false;
 };
 

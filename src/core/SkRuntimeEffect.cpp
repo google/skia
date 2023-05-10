@@ -1195,6 +1195,10 @@ private:
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
+    if (!buffer.validate(buffer.allowSkSL())) {
+        return nullptr;
+    }
+
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
@@ -1415,6 +1419,10 @@ private:
 };
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
+    if (!buffer.validate(buffer.allowSkSL())) {
+        return nullptr;
+    }
+
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
@@ -1585,6 +1593,10 @@ private:
 };
 
 sk_sp<SkFlattenable> SkRuntimeBlender::CreateProc(SkReadBuffer& buffer) {
+    if (!buffer.validate(buffer.allowSkSL())) {
+        return nullptr;
+    }
+
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
