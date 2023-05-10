@@ -187,6 +187,8 @@ public:
     }
 
     int32_t unresolvedGlyphs() override;
+    std::unordered_set<SkUnichar> unresolvedCodepoints() override;
+    void addUnresolvedCodepoints(TextRange textRange);
 
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }
@@ -272,6 +274,7 @@ private:
     skia_private::TArray<size_t, true> fUTF16IndexForUTF8Index;
     SkOnce fillUTF16MappingOnce;
     size_t fUnresolvedGlyphs;
+    std::unordered_set<SkUnichar> fUnresolvedCodepoints;
 
     skia_private::TArray<TextLine, false> fLines;   // kFormatted   (cached: width, max lines, ellipsis, text align)
     sk_sp<SkPicture> fPicture;          // kRecorded    (cached: text styles)

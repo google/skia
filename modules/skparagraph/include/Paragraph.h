@@ -6,6 +6,7 @@
 #include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include <unordered_set>
 
 class SkCanvas;
 
@@ -69,6 +70,7 @@ public:
     // This function will return the number of unresolved glyphs or
     // -1 if not applicable (has not been shaped yet - valid case)
     virtual int32_t unresolvedGlyphs() = 0;
+    virtual std::unordered_set<SkUnichar> unresolvedCodepoints() = 0;
 
     // Experimental API that allows fast way to update some of "immutable" paragraph attributes
     // but not the text itself

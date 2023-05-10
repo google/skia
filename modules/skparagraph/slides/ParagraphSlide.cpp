@@ -4084,56 +4084,34 @@ public:
     ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
     void draw(SkCanvas* canvas) override {
 
-        std::u16string text(u"Lorem 😂😂 ipsum");
-                    //"\U0001f602\U0001f602\U0001f602\U0001f602\U0001f602\U0001f602\U0001f602";
-
         canvas->drawColor(SK_ColorWHITE);
-        auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        fontCollection->enableFontFallback();
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false);
+        fontCollection->disableFontFallback();
+
+        fontCollection->addFontFromFile("abc/abc.ttf", "abc");
+        fontCollection->addFontFromFile("abc/abc+grave.ttf", "abc+grave");
+        fontCollection->addFontFromFile("abc/abc+agrave.ttf", "abc+agrave");
+
         TextStyle text_style;
         text_style.setFontSize(40);
         text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("abc")});
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         builder.pushStyle(text_style);
-        builder.addText(text);
+        builder.addText("a\u0300bcàbc");
         auto paragraph = builder.Build();
         paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
         if (this->isVerbose()) {
-            SkPaint cursor;
-            cursor.setColor(SK_ColorRED);
-            cursor.setStyle(SkPaint::kStroke_Style);
-            cursor.setAntiAlias(true);
-            cursor.setStrokeWidth(1);
-
-            auto y = paragraph->getHeight()/2;
-            auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-            auto& line = impl->lines()[0];
-            auto x = 0.0f;
-            line.iterateThroughClustersInGlyphsOrder(false, false, [&](const Cluster* cluster, bool ghost) {
-                auto result = paragraph->getGlyphPositionAtCoordinate(x, y);
-                SkDebugf("getGlyphPositionAtCoordinate(%f, %f) = %d (%s)\n",
-                         x, y, result.position,
-                         result.affinity == Affinity::kUpstream ? "upstream" : "downstream");
-                canvas->drawLine(x, 0, x, paragraph->getHeight(), cursor);
-                x += cluster->width();
-                return true;
-            });
-
-            auto result = paragraph->getGlyphPositionAtCoordinate(x, y);
-            SkDebugf("getGlyphPositionAtCoordinate(%f, %f) = %d (%s)\n",
-                     x, y, result.position,
-                     result.affinity == Affinity::kUpstream ? "upstream" : "downstream");
-            canvas->drawLine(x, 0, x, paragraph->getHeight(), cursor);
-
-            SkString text8("Lorem 😂😂 ipsum");
-            for (size_t i = 0ul; i < text8.size(); ++i) {
-                auto lineIndex = paragraph->getLineNumberAt(i);
-                SkDebugf("getLineNumberAt(%zu) = %d\n", i, lineIndex);
+            SkDebugf("Unresolved glyphs: %d\n", paragraph->unresolvedGlyphs());
+            SkDebugf("Unresolved codepoints:");
+            auto codepoints = paragraph->unresolvedCodepoints();
+            for (auto cp : codepoints) {
+                SkDebugf("%ul ", cp);
             }
+            SkDebugf("\n");
         }
     }
 };

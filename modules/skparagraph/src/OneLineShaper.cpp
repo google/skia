@@ -160,6 +160,7 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
         }
         fResolvedBlocks.emplace_back(unresolved);
         fUnresolvedGlyphs += unresolved.fGlyphs.width();
+        fParagraph->addUnresolvedCodepoints(unresolved.fText);
     }
 
     // Sort all pieces by text
