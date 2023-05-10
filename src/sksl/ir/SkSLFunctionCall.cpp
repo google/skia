@@ -413,7 +413,7 @@ double evaluate_inversesqrt(double a, double, double) {
 double evaluate_add(double a, double b, double)        { return a + b; }
 double evaluate_sub(double a, double b, double)        { return a - b; }
 double evaluate_mul(double a, double b, double)        { return a * b; }
-double evaluate_div(double a, double b, double)        { return a / b; }
+double evaluate_div(double a, double b, double)        { return sk_ieee_double_divide(a, b); }
 double evaluate_abs(double a, double, double)          { return std::abs(a); }
 double evaluate_sign(double a, double, double)         { return (a > 0) - (a < 0); }
 double evaluate_opposite_sign(double a,double, double) { return (a < 0) - (a > 0); }
