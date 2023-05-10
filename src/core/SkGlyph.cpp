@@ -34,6 +34,59 @@ using namespace skia_private;
 using namespace skglyph;
 using namespace sktext;
 
+// -- SkPictureBackedGlyphDrawable -----------------------------------------------------------------
+sk_sp<SkPictureBackedGlyphDrawable>
+SkPictureBackedGlyphDrawable::MakeFromBuffer(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isValid());
+
+    sk_sp<SkData> pictureData = buffer.readByteArrayAsData();
+
+    // Return nullptr if invalid or there an empty drawable, which is represented by nullptr.
+    if (!buffer.isValid() || pictureData->size() == 0) {
+        return nullptr;
+    }
+
+    sk_sp<SkPicture> picture = SkPicture::MakeFromData(pictureData.get());
+    if (!buffer.validate(picture != nullptr)) {
+        return nullptr;
+    }
+
+    return sk_make_sp<SkPictureBackedGlyphDrawable>(std::move(picture));
+}
+
+void SkPictureBackedGlyphDrawable::FlattenDrawable(SkWriteBuffer& buffer, SkDrawable* drawable) {
+    if (drawable == nullptr) {
+        buffer.writeByteArray(nullptr, 0);
+        return;
+    }
+
+    sk_sp<SkPicture> picture{drawable->newPictureSnapshot()};
+    sk_sp<SkData> data = picture->serialize();
+
+    // If the picture is too big, or there is no picture, then drop by sending an empty byte array.
+    if (!SkTFitsIn<uint32_t>(data->size()) || data->size() == 0) {
+        buffer.writeByteArray(nullptr, 0);
+        return;
+    }
+
+    buffer.writeByteArray(data->data(), data->size());
+}
+
+SkPictureBackedGlyphDrawable::SkPictureBackedGlyphDrawable(sk_sp<SkPicture> picture)
+        : fPicture(std::move(picture)) {}
+
+SkRect SkPictureBackedGlyphDrawable::onGetBounds() {
+    return fPicture->cullRect();
+}
+
+size_t SkPictureBackedGlyphDrawable::onApproximateBytesUsed() {
+    return sizeof(SkPictureBackedGlyphDrawable) + fPicture->approximateBytesUsed();
+}
+
+void SkPictureBackedGlyphDrawable::onDraw(SkCanvas* canvas) {
+    canvas->drawPicture(fPicture);
+}
+
 //-- SkGlyph ---------------------------------------------------------------------------------------
 std::optional<SkGlyph> SkGlyph::MakeFromBuffer(SkReadBuffer& buffer) {
     SkASSERT(buffer.isValid());
@@ -362,60 +415,26 @@ void SkGlyph::flattenDrawable(SkWriteBuffer& buffer) const {
     SkASSERT(this->setDrawableHasBeenCalled());
 
     if (this->isEmpty() || this->drawable() == nullptr) {
-        buffer.writeByteArray(nullptr, 0);
+        SkPictureBackedGlyphDrawable::FlattenDrawable(buffer, nullptr);
         return;
     }
 
-    sk_sp<SkPicture> picture{this->drawable()->newPictureSnapshot()};
-    sk_sp<SkData> data = picture->serialize();
-
-    // If the picture is too big, or there is no picture, then drop by sending an empty byte array.
-    if (!SkTFitsIn<uint32_t>(data->size()) || data->size() == 0) {
-        buffer.writeByteArray(nullptr, 0);
-        return;
-    }
-
-    buffer.writeByteArray(data->data(), data->size());
+    SkPictureBackedGlyphDrawable::FlattenDrawable(buffer, this->drawable());
 }
 
 size_t SkGlyph::addDrawableFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
     SkASSERT(buffer.isValid());
 
-    // Class to turn the drawable into a picture to serialize.
-    class PictureBackedGlyphDrawable final : public SkDrawable {
-    public:
-        PictureBackedGlyphDrawable(sk_sp<SkPicture> self) : fSelf(std::move(self)) {}
-    private:
-        sk_sp<SkPicture> fSelf;
-        SkRect onGetBounds() override { return fSelf->cullRect();  }
-        size_t onApproximateBytesUsed() override {
-            return sizeof(PictureBackedGlyphDrawable) + fSelf->approximateBytesUsed();
-        }
-        void onDraw(SkCanvas* canvas) override { canvas->drawPicture(fSelf); }
-    };
-
-    size_t memoryIncrease = 0;
-
-    sk_sp<SkData> pictureData = buffer.readByteArrayAsData();
+    sk_sp<SkDrawable> drawable = SkPictureBackedGlyphDrawable::MakeFromBuffer(buffer);
     if (!buffer.isValid()) {
         return 0;
     }
 
-    // If the picture is too big, or there is no picture is indicated by an empty byte array.
-    if (pictureData->size() > 0) {
-        sk_sp<SkPicture> picture = SkPicture::MakeFromData(pictureData.get());
-        if (!buffer.validate(picture != nullptr)) {
-            return 0;
-        }
-        sk_sp<SkDrawable> drawable = sk_make_sp<PictureBackedGlyphDrawable>(std::move(picture));
-        if (this->setDrawable(alloc, std::move(drawable))) {
-            memoryIncrease += this->drawable()->approximateBytesUsed();
-        }
-    } else {
-        this->setDrawable(alloc, sk_sp<SkDrawable>(nullptr));
+    if (this->setDrawable(alloc, std::move(drawable))) {
+        return this->drawable()->approximateBytesUsed();
     }
 
-    return memoryIncrease;
+    return 0;
 }
 
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(

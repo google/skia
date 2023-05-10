@@ -10,6 +10,7 @@
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -31,6 +32,7 @@
 #include <optional>
 
 class SkArenaAlloc;
+class SkCanvas;
 class SkGlyph;
 class SkReadBuffer;
 class SkScalerContext;
@@ -393,6 +395,19 @@ private:
     };
     int16_t fLeft, fTop;
     uint16_t fWidth, fHeight;
+};
+
+class SkPictureBackedGlyphDrawable final : public SkDrawable {
+public:
+    static sk_sp<SkPictureBackedGlyphDrawable>MakeFromBuffer(SkReadBuffer& buffer);
+    static void FlattenDrawable(SkWriteBuffer& buffer, SkDrawable* drawable);
+    SkPictureBackedGlyphDrawable(sk_sp<SkPicture> self);
+
+private:
+    sk_sp<SkPicture> fPicture;
+    SkRect onGetBounds() override;
+    size_t onApproximateBytesUsed() override;
+    void onDraw(SkCanvas* canvas) override;
 };
 
 class SkGlyph {
