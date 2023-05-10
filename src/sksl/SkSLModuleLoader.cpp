@@ -436,7 +436,6 @@ void ModuleLoader::Impl::makeRootSymbolTable() {
                                                          /*modifiersPosition=*/Position(),
                                                          fCoreModifiers.add(Modifiers{}),
                                                          "sk_Caps",
-                                                         /*mangledName=*/nullptr,
                                                          fBuiltinTypes.fSkCaps.get(),
                                                          /*builtin=*/false,
                                                          Variable::Storage::kGlobal));

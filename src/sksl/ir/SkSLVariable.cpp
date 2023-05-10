@@ -35,7 +35,7 @@ Variable::~Variable() {
     }
 }
 
-InterfaceBlockVariable::~InterfaceBlockVariable() {
+ExtendedVariable::~ExtendedVariable() {
     // Unhook this Variable from its associated InterfaceBlock, since we're being deleted.
     if (fInterfaceBlockElement) {
         fInterfaceBlockElement->detachDeadVariable();
@@ -81,8 +81,8 @@ void Variable::setGlobalVarDeclaration(GlobalVarDeclaration* global) {
     fDeclaringElement = global;
 }
 
-std::string_view Variable::mangledName() const {
-    return fMangledName ? *fMangledName : this->name();
+std::string_view ExtendedVariable::mangledName() const {
+    return fMangledName.empty() ? this->name() : fMangledName;
 }
 
 std::unique_ptr<Variable> Variable::Convert(const Context& context,
@@ -129,17 +129,15 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
                                          std::unique_ptr<Expression> arraySize,
                                          Variable::Storage storage) {
     // Invent a mangled name for the variable, if it needs one.
-    const std::string* mangledName = nullptr;
+    std::string mangledName;
     if (skstd::starts_with(name, '$')) {
         // The $ prefix will fail to compile in GLSL, so replace it with `sk_Priv`.
-        mangledName = context.fSymbolTable->takeOwnershipOfString("sk_Priv" +
-                                                                  std::string(name.substr(1)));
+        mangledName = "sk_Priv" + std::string(name.substr(1));
     } else if (FindIntrinsicKind(name) != kNotIntrinsic) {
         // Having a variable name overlap an intrinsic name will prevent us from calling the
         // intrinsic, but it's not illegal for user names to shadow a global symbol.
         // Mangle the name to avoid a possible collision.
-        mangledName = context.fSymbolTable->takeOwnershipOfString(
-                Mangler{}.uniqueName(name, context.fSymbolTable.get()));
+        mangledName = Mangler{}.uniqueName(name, context.fSymbolTable.get());
     }
 
     // Apply the array-size to the base type.
@@ -154,21 +152,20 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
         type = context.fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
 
-    if (type->componentType().isInterfaceBlock()) {
-        return std::make_unique<InterfaceBlockVariable>(pos,
-                                                        modifiersPos,
-                                                        context.fModifiersPool->add(modifiers),
-                                                        name,
-                                                        mangledName,
-                                                        type,
-                                                        context.fConfig->fIsBuiltinCode,
-                                                        storage);
+    if (type->componentType().isInterfaceBlock() || !mangledName.empty()) {
+        return std::make_unique<ExtendedVariable>(pos,
+                                                  modifiersPos,
+                                                  context.fModifiersPool->add(modifiers),
+                                                  name,
+                                                  type,
+                                                  context.fConfig->fIsBuiltinCode,
+                                                  storage,
+                                                  std::move(mangledName));
     } else {
         return std::make_unique<Variable>(pos,
                                           modifiersPos,
                                           context.fModifiersPool->add(modifiers),
                                           name,
-                                          mangledName,
                                           type,
                                           context.fConfig->fIsBuiltinCode,
                                           storage);
@@ -203,7 +200,6 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
                                           /*modifiersPosition=*/Position(),
                                           context.fModifiersPool->add(Modifiers{}),
                                           name->c_str(),
-                                          /*mangledName=*/nullptr,
                                           type,
                                           symbolTable->isBuiltin(),
                                           Variable::Storage::kLocal);

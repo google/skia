@@ -2570,7 +2570,6 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                             /*modifiersPosition=*/Position(),
                                                             fContext.fModifiersPool->add(modifiers),
                                                             DEVICE_COORDS_NAME,
-                                                            /*mangledName=*/nullptr,
                                                             fContext.fTypes.fFloat4.get(),
                                                             /*builtin=*/true,
                                                             Variable::Storage::kGlobal);
@@ -2612,7 +2611,6 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                         /*modifiersPosition=*/Position(),
                         fContext.fModifiersPool->add(modifiers),
                         DEVICE_CLOCKWISE_NAME,
-                        /*mangledName=*/nullptr,
                         fContext.fTypes.fBool.get(),
                         /*builtin=*/true,
                         Variable::Storage::kGlobal);
@@ -3559,15 +3557,15 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                          type.name(),
                                          std::move(fields),
                                          /*interfaceBlock=*/true));
-            InterfaceBlockVariable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
-                    std::make_unique<InterfaceBlockVariable>(intfVar.fPosition,
-                                                             intfVar.modifiersPosition(),
-                                                             &intfVar.modifiers(),
-                                                             intfVar.name(),
-                                                             /*mangledName=*/nullptr,
-                                                             rtFlipStructType,
-                                                             intfVar.isBuiltin(),
-                                                             intfVar.storage()));
+            ExtendedVariable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
+                    std::make_unique<ExtendedVariable>(intfVar.fPosition,
+                                                       intfVar.modifiersPosition(),
+                                                       &intfVar.modifiers(),
+                                                       intfVar.name(),
+                                                       rtFlipStructType,
+                                                       intfVar.isBuiltin(),
+                                                       intfVar.storage(),
+                                                       /*mangledName=*/""));
             fSPIRVBonusVariables.add(modifiedVar);
             InterfaceBlock modifiedCopy(intf.fPosition, modifiedVar, intf.typeOwner());
             result = this->writeInterfaceBlock(modifiedCopy, /*appendRTFlip=*/false);
@@ -4119,15 +4117,15 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     layout.fSet     = fProgram.fConfig->fSettings.fDefaultUniformSet;
     Modifiers modifiers{layout, Modifiers::kUniform_Flag};
 
-    fUniformBuffer.fInnerVariable = std::make_unique<InterfaceBlockVariable>(
+    fUniformBuffer.fInnerVariable = std::make_unique<ExtendedVariable>(
             /*pos=*/Position(),
             /*modifiersPosition=*/Position(),
             fContext.fModifiersPool->add(modifiers),
             kUniformBufferName,
-            /*mangledName=*/nullptr,
             fUniformBuffer.fStruct.get(),
             /*builtin=*/false,
-            Variable::Storage::kGlobal);
+            Variable::Storage::kGlobal,
+            /*mangledName=*/"");
 
     // Create an interface block object for this global variable.
     fUniformBuffer.fInterfaceBlock =
@@ -4194,15 +4192,15 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                             Modifiers::kUniform_Flag);
         modsPtr = fContext.fModifiersPool->add(modifiers);
     }
-    InterfaceBlockVariable* intfVar = fSynthetics.takeOwnershipOfSymbol(
-            std::make_unique<InterfaceBlockVariable>(/*pos=*/Position(),
-                                                     /*modifiersPosition=*/Position(),
-                                                     modsPtr,
-                                                     name,
-                                                     /*mangledName=*/nullptr,
-                                                     intfStruct,
-                                                     /*builtin=*/false,
-                                                     Variable::Storage::kGlobal));
+    ExtendedVariable* intfVar = fSynthetics.takeOwnershipOfSymbol(
+            std::make_unique<ExtendedVariable>(/*pos=*/Position(),
+                                               /*modifiersPosition=*/Position(),
+                                               modsPtr,
+                                               name,
+                                               intfStruct,
+                                               /*builtin=*/false,
+                                               Variable::Storage::kGlobal,
+                                               /*mangledName=*/""));
     fSPIRVBonusVariables.add(intfVar);
     {
         AutoAttachPoolToThread attach(fProgram.fPool.get());
@@ -4228,7 +4226,6 @@ std::tuple<const Variable*, const Variable*> SPIRVCodeGenerator::synthesizeTextu
                                               /*modifierPosition=*/Position(),
                                               fContext.fModifiersPool->add(texModifiers),
                                               data->fTextureName,
-                                              /*mangledName=*/nullptr,
                                               &combinedSampler.type().textureType(),
                                               /*builtin=*/false,
                                               Variable::Storage::kGlobal);
@@ -4240,7 +4237,6 @@ std::tuple<const Variable*, const Variable*> SPIRVCodeGenerator::synthesizeTextu
                                               /*modifierPosition=*/Position(),
                                               fContext.fModifiersPool->add(samplerModifiers),
                                               data->fSamplerName,
-                                              /*mangledName=*/nullptr,
                                               fContext.fTypes.fSampler.get(),
                                               /*builtin=*/false,
                                               Variable::Storage::kGlobal);

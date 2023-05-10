@@ -451,7 +451,6 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                                                variable->modifiersPosition(),
                                                variableModifiers(*variable, initialValue.get()),
                                                name->c_str(),
-                                               /*mangledName=*/nullptr,
                                                variable->type().clone(symbolTableForStatement),
                                                isBuiltinCode,
                                                variable->storage());
