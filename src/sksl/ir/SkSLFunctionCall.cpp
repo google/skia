@@ -108,7 +108,7 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     //     scalar = finalize(scalar);
     //
     // If an argument is null, zero is passed to the coalesce function. If the arguments are a mix
-    // of scalars and vectors, the scalars is interpreted as a vector containing the same value for
+    // of scalars and vectors, the scalars are interpreted as a vector containing the same value for
     // every component.
 
     Position pos = arg0->fPosition;
@@ -527,9 +527,11 @@ std::unique_ptr<Expression> evaluate_faceforward(const Context& context,
     // faceforward(N,I,NRef): N * -sign(dot(I, NRef))
     const IntrinsicArguments dotArgs = {I, NRef, nullptr};
     std::unique_ptr<Expression> dotExpr = Intrinsics::evaluate_dot(dotArgs);
+    if (!dotExpr) { return nullptr; }
 
     const IntrinsicArguments signArgs = {dotExpr.get(), nullptr, nullptr};
     std::unique_ptr<Expression> signExpr = Intrinsics::evaluate_opposite_sign(context, signArgs);
+    if (!signExpr) { return nullptr; }
 
     const IntrinsicArguments mulArgs = {N, signExpr.get(), nullptr};
     return Intrinsics::evaluate_mul(context, mulArgs);
@@ -543,12 +545,15 @@ std::unique_ptr<Expression> evaluate_reflect(const Context& context,
     // reflect(I,N): temp = (N * dot(N, I)); reflect = I - (temp + temp)
     const IntrinsicArguments dotArgs = {N, I, nullptr};
     std::unique_ptr<Expression> dotExpr = Intrinsics::evaluate_dot(dotArgs);
+    if (!dotExpr) { return nullptr; }
 
     const IntrinsicArguments mulArgs = {N, dotExpr.get(), nullptr};
     std::unique_ptr<Expression> mulExpr = Intrinsics::evaluate_mul(context, mulArgs);
+    if (!mulExpr) { return nullptr; }
 
     const IntrinsicArguments addArgs = {mulExpr.get(), mulExpr.get(), nullptr};
     std::unique_ptr<Expression> addExpr = Intrinsics::evaluate_add(context, addArgs);
+    if (!addExpr) { return nullptr; }
 
     const IntrinsicArguments subArgs = {I, addExpr.get(), nullptr};
     return Intrinsics::evaluate_sub(context, subArgs);
@@ -565,32 +570,33 @@ std::unique_ptr<Expression> evaluate_refract(const Context& context,
     // DotNI = Dot(N, I)
     const IntrinsicArguments DotNIArgs = {N, I, nullptr};
     std::unique_ptr<Expression> DotNIExpr = Intrinsics::evaluate_dot(DotNIArgs);
+    if (!DotNIExpr) { return nullptr; }
 
     // DotNI2 = DotNI * DotNI
     const IntrinsicArguments DotNI2Args = {DotNIExpr.get(), DotNIExpr.get(), nullptr};
     std::unique_ptr<Expression> DotNI2Expr = Intrinsics::evaluate_mul(context, DotNI2Args);
+    if (!DotNI2Expr) { return nullptr; }
 
     // OneMinusDot = 1 - DotNI2
     Literal oneLiteral{Position{}, 1.0, &DotNI2Expr->type()};
     const IntrinsicArguments OneMinusDotArgs = {&oneLiteral, DotNI2Expr.get(), nullptr};
     std::unique_ptr<Expression> OneMinusDotExpr= Intrinsics::evaluate_sub(context, OneMinusDotArgs);
+    if (!OneMinusDotExpr) { return nullptr; }
 
     // Eta2 = Eta * Eta
     const IntrinsicArguments Eta2Args = {Eta, Eta, nullptr};
     std::unique_ptr<Expression> Eta2Expr = Intrinsics::evaluate_mul(context, Eta2Args);
+    if (!Eta2Expr) { return nullptr; }
 
     // Eta2xDot = Eta2 * OneMinusDot
     const IntrinsicArguments Eta2xDotArgs = {Eta2Expr.get(), OneMinusDotExpr.get(), nullptr};
     std::unique_ptr<Expression> Eta2xDotExpr = Intrinsics::evaluate_mul(context, Eta2xDotArgs);
+    if (!Eta2xDotExpr) { return nullptr; }
 
     // K = 1.0 - Eta2xDot
     const IntrinsicArguments KArgs = {&oneLiteral, Eta2xDotExpr.get(), nullptr};
     std::unique_ptr<Expression> KExpr = Intrinsics::evaluate_sub(context, KArgs);
-
-    // If we hit a nan/inf, leave the refract expression as-is.
-    if (!KExpr->is<Literal>()) {
-        return nullptr;
-    }
+    if (!KExpr || !KExpr->is<Literal>()) { return nullptr; }
 
     // When K < 0, Refract(I, N, Eta) = vec(0)
     double kValue = KExpr->as<Literal>().value();
@@ -604,19 +610,23 @@ std::unique_ptr<Expression> evaluate_refract(const Context& context,
     // EtaDot = Eta * DotNI
     const IntrinsicArguments EtaDotArgs = {Eta, DotNIExpr.get(), nullptr};
     std::unique_ptr<Expression> EtaDotExpr = Intrinsics::evaluate_mul(context, EtaDotArgs);
+    if (!EtaDotExpr) { return nullptr; }
 
     // EtaDotSqrt = EtaDot + Sqrt(K)
     Literal sqrtKLiteral{Position{}, std::sqrt(kValue), &Eta->type()};
     const IntrinsicArguments EtaDotSqrtArgs = {EtaDotExpr.get(), &sqrtKLiteral, nullptr};
     std::unique_ptr<Expression> EtaDotSqrtExpr = Intrinsics::evaluate_add(context, EtaDotSqrtArgs);
+    if (!EtaDotSqrtExpr) { return nullptr; }
 
     // NxEDS = N * EtaDotSqrt
     const IntrinsicArguments NxEDSArgs = {N, EtaDotSqrtExpr.get(), nullptr};
     std::unique_ptr<Expression> NxEDSExpr = Intrinsics::evaluate_mul(context, NxEDSArgs);
+    if (!NxEDSExpr) { return nullptr; }
 
     // IEta = I * Eta
     const IntrinsicArguments IEtaArgs = {I, Eta, nullptr};
     std::unique_ptr<Expression> IEtaExpr = Intrinsics::evaluate_mul(context, IEtaArgs);
+    if (!IEtaExpr) { return nullptr; }
 
     // Refract = IEta - NxEDS
     const IntrinsicArguments RefractArgs = {IEtaExpr.get(), NxEDSExpr.get(), nullptr};
