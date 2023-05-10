@@ -6,9 +6,10 @@ use cxx;
 use font_types::{GlyphId, Pen};
 use read_fonts::{FileRef, FontRef, ReadError, TableProvider};
 use skrifa::{
-    meta::metrics::{GlyphMetrics, Metrics},
+    instance::{LocationRef, Size},
+    metrics::{GlyphMetrics, Metrics},
     scale::Context,
-    MetadataProvider, NormalizedCoords, Size,
+    MetadataProvider,
 };
 
 use crate::ffi::SkPathWrapper;
@@ -83,7 +84,7 @@ fn get_path(
 
 fn advance_width_or_zero(font_ref: &BridgeFontRef, size: f32, glyph_id: u16) -> f32 {
     font_ref.0.as_ref().map_or(0.0, |f| {
-        GlyphMetrics::new(f, Size::new(size), NormalizedCoords::default())
+        GlyphMetrics::new(f, Size::new(size), LocationRef::default())
             .advance_width(GlyphId::new(glyph_id))
             .unwrap_or(0.0)
     })
@@ -115,7 +116,7 @@ fn convert_metrics(skrifa_metrics: &Metrics) -> ffi::Metrics {
 
 fn get_skia_metrics(font_ref: &BridgeFontRef, size: f32) -> ffi::Metrics {
     font_ref.0.as_ref().map_or(ffi::Metrics::default(), |f| {
-        let fontations_metrics = Metrics::new(f, Size::new(size), NormalizedCoords::default());
+        let fontations_metrics = Metrics::new(f, Size::new(size), LocationRef::default());
         convert_metrics(&fontations_metrics)
     })
 }

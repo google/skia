@@ -7,9 +7,9 @@ edition = "2021"
 version = "0.1.0"
 
 [dependencies]
-read-fonts = "0.1.4"
-font-types = "0.1.4"
-skrifa = "0.0.1"
+read-fonts = "0.2.0"
+font-types = "0.1.5"
+skrifa = "0.1.0"
 
 [[bin]]
 name = "ports_test_bin"
