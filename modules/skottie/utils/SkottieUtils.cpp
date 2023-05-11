@@ -285,7 +285,7 @@ class SlotManager::SlottableResourceProvider final : public skresources::Resourc
 public:
     SlottableResourceProvider(std::vector<SlotInfo> slotInfos) {
         for (const auto &s : slotInfos) {
-            if (s.type == 50) {
+            if (s.type == SlotType::kImage) {
                 fImageAssetMap[s.slotID] = sk_make_sp<ImageAssetProxy>();
             }
         }
