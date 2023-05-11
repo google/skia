@@ -8,7 +8,7 @@
 #include "src/sksl/dsl/DSLExpression.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLType.h"
@@ -17,12 +17,8 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPoison.h"
-#include "src/sksl/ir/SkSLPostfixExpression.h"
-#include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <utility>
@@ -30,7 +26,6 @@
 using namespace skia_private;
 
 namespace SkSL {
-
 namespace dsl {
 
 DSLExpression::DSLExpression() {}
@@ -127,104 +122,5 @@ DSLExpression DSLExpression::assign(DSLExpression right) {
                                                    SkSL::Operator::Kind::EQ, right.release()));
 }
 
-DSLExpression DSLExpression::operator[](DSLExpression right) {
-    Position pos = this->position().rangeThrough(right.position());
-    return DSLExpression(IndexExpression::Convert(ThreadContext::Context(), pos,
-                                                  this->release(), right.release()));
-}
-
-DSLExpression DSLExpression::operator()(TArray<DSLExpression> args, Position pos) {
-    ExpressionArray converted;
-    converted.reserve_back(args.size());
-    for (DSLExpression& arg : args) {
-        converted.push_back(arg.release());
-    }
-    return (*this)(std::move(converted), pos);
-}
-
-DSLExpression DSLExpression::operator()(ExpressionArray args, Position pos) {
-    return DSLExpression(SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, this->release(),
-                                                     std::move(args)), pos);
-}
-
-#define OP(op, token)                                                        \
-DSLExpression operator op(DSLExpression left, DSLExpression right) {         \
-    return DSLExpression(BinaryExpression::Convert(ThreadContext::Context(), \
-                                                   Position(),               \
-                                                   left.release(),           \
-                                                   Operator::Kind::token,    \
-                                                   right.release()));        \
-}
-
-#define PREFIXOP(op, token)                                                  \
-DSLExpression operator op(DSLExpression expr) {                              \
-    return DSLExpression(PrefixExpression::Convert(ThreadContext::Context(), \
-                                                   Position(),               \
-                                                   Operator::Kind::token,    \
-                                                   expr.release()));         \
-}
-
-#define POSTFIXOP(op, token)                                                  \
-DSLExpression operator op(DSLExpression expr, int) {                          \
-    return DSLExpression(PostfixExpression::Convert(ThreadContext::Context(), \
-                                                    Position(),               \
-                                                    expr.release(),           \
-                                                    Operator::Kind::token));  \
-}
-
-OP(+, PLUS)
-OP(+=, PLUSEQ)
-OP(-, MINUS)
-OP(-=, MINUSEQ)
-OP(*, STAR)
-OP(*=, STAREQ)
-OP(/, SLASH)
-OP(/=, SLASHEQ)
-OP(%, PERCENT)
-OP(%=, PERCENTEQ)
-OP(<<, SHL)
-OP(<<=, SHLEQ)
-OP(>>, SHR)
-OP(>>=, SHREQ)
-OP(&&, LOGICALAND)
-OP(||, LOGICALOR)
-OP(&, BITWISEAND)
-OP(&=, BITWISEANDEQ)
-OP(|, BITWISEOR)
-OP(|=, BITWISEOREQ)
-OP(^, BITWISEXOR)
-OP(^=, BITWISEXOREQ)
-DSLExpression LogicalXor(DSLExpression left, DSLExpression right) {
-    return DSLExpression(BinaryExpression::Convert(ThreadContext::Context(),
-                                                   Position(),
-                                                   left.release(),
-                                                   SkSL::Operator::Kind::LOGICALXOR,
-                                                   right.release()));
-}
-OP(==, EQEQ)
-OP(!=, NEQ)
-OP(>, GT)
-OP(<, LT)
-OP(>=, GTEQ)
-OP(<=, LTEQ)
-
-PREFIXOP(+, PLUS)
-PREFIXOP(-, MINUS)
-PREFIXOP(!, LOGICALNOT)
-PREFIXOP(~, BITWISENOT)
-PREFIXOP(++, PLUSPLUS)
-POSTFIXOP(++, PLUSPLUS)
-PREFIXOP(--, MINUSMINUS)
-POSTFIXOP(--, MINUSMINUS)
-
-DSLExpression operator,(DSLExpression left, DSLExpression right) {
-    return DSLExpression(BinaryExpression::Convert(ThreadContext::Context(),
-                                                   Position(),
-                                                   left.release(),
-                                                   SkSL::Operator::Kind::COMMA,
-                                                   right.release()));
-}
-
 } // namespace dsl
-
 } // namespace SkSL

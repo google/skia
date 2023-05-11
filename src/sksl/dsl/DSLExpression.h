@@ -9,7 +9,6 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
@@ -27,9 +26,6 @@
 #endif
 
 namespace SkSL {
-
-class ExpressionArray;
-
 namespace dsl {
 
 class DSLType;
@@ -110,15 +106,6 @@ public:
     DSLExpression field(std::string_view name, Position pos = {});
 
     /**
-     * Creates an SkSL array index expression.
-     */
-    DSLExpression operator[](DSLExpression index);
-
-    DSLExpression operator()(skia_private::TArray<DSLExpression, true> args, Position pos = {});
-
-    DSLExpression operator()(ExpressionArray args, Position pos = {});
-
-    /**
      * Returns true if this object contains an expression. DSLExpressions which were created with
      * the empty constructor or which have already been release()ed do not have a value.
      * DSLExpressions created with errors are still considered to have a value (but contain poison).
@@ -153,51 +140,10 @@ public:
 private:
     std::unique_ptr<SkSL::Expression> fExpression;
 
-    friend DSLExpression SampleChild(int index, DSLExpression coords);
-
     friend class DSLCore;
     friend class DSLVarBase;
     friend class DSLWriter;
 };
-
-DSLExpression operator+(DSLExpression left, DSLExpression right);
-DSLExpression operator+(DSLExpression expr);
-DSLExpression operator+=(DSLExpression left, DSLExpression right);
-DSLExpression operator-(DSLExpression left, DSLExpression right);
-DSLExpression operator-(DSLExpression expr);
-DSLExpression operator-=(DSLExpression left, DSLExpression right);
-DSLExpression operator*(DSLExpression left, DSLExpression right);
-DSLExpression operator*=(DSLExpression left, DSLExpression right);
-DSLExpression operator/(DSLExpression left, DSLExpression right);
-DSLExpression operator/=(DSLExpression left, DSLExpression right);
-DSLExpression operator%(DSLExpression left, DSLExpression right);
-DSLExpression operator%=(DSLExpression left, DSLExpression right);
-DSLExpression operator<<(DSLExpression left, DSLExpression right);
-DSLExpression operator<<=(DSLExpression left, DSLExpression right);
-DSLExpression operator>>(DSLExpression left, DSLExpression right);
-DSLExpression operator>>=(DSLExpression left, DSLExpression right);
-DSLExpression operator&&(DSLExpression left, DSLExpression right);
-DSLExpression operator||(DSLExpression left, DSLExpression right);
-DSLExpression operator&(DSLExpression left, DSLExpression right);
-DSLExpression operator&=(DSLExpression left, DSLExpression right);
-DSLExpression operator|(DSLExpression left, DSLExpression right);
-DSLExpression operator|=(DSLExpression left, DSLExpression right);
-DSLExpression operator^(DSLExpression left, DSLExpression right);
-DSLExpression operator^=(DSLExpression left, DSLExpression right);
-DSLExpression LogicalXor(DSLExpression left, DSLExpression right);
-DSLExpression operator,(DSLExpression left, DSLExpression right);
-DSLExpression operator==(DSLExpression left, DSLExpression right);
-DSLExpression operator!=(DSLExpression left, DSLExpression right);
-DSLExpression operator>(DSLExpression left, DSLExpression right);
-DSLExpression operator<(DSLExpression left, DSLExpression right);
-DSLExpression operator>=(DSLExpression left, DSLExpression right);
-DSLExpression operator<=(DSLExpression left, DSLExpression right);
-DSLExpression operator!(DSLExpression expr);
-DSLExpression operator~(DSLExpression expr);
-DSLExpression operator++(DSLExpression expr);
-DSLExpression operator++(DSLExpression expr, int);
-DSLExpression operator--(DSLExpression expr);
-DSLExpression operator--(DSLExpression expr, int);
 
 } // namespace dsl
 
