@@ -294,7 +294,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock1 { float a; int b; };");
-    EXPECT_EQUAL(intf.field("a"), "a");
 
     DSLExpression intf2 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock2",
                                          {Field(kFloat2_Type, "x"), Field(kHalf2x2_Type, "y")},
@@ -302,7 +301,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock2 { float2 x; half2x2 y; } blockVar;");
-    EXPECT_EQUAL(intf2.field("x"), "blockVar.x");
 
     DSLExpression intf3 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock3",
                                          {Field(kFloat_Type, "z")},

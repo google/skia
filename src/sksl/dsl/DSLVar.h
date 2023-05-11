@@ -50,10 +50,6 @@ public:
         return fStorage;
     }
 
-    DSLExpression field(std::string_view name) {
-        return DSLExpression(*this).field(name);
-    }
-
 protected:
     /**
      * Creates an empty, unpopulated var. Can be replaced with a real var later via `swap`.

@@ -27,6 +27,7 @@
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
@@ -1936,7 +1937,9 @@ DSLExpression Parser::swizzle(Position pos,
                               Position maskPos) {
     SkASSERT(swizzleMask.length() > 0);
     if (!base.type().isVector() && !base.type().isScalar()) {
-        return base.field(swizzleMask, pos);
+        return DSLExpression(
+                FieldAccess::Convert(ThreadContext::Context(), pos, base.release(), swizzleMask),
+                pos);
     }
     int length = swizzleMask.length();
     SkSL::ComponentArray components;

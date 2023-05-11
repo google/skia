@@ -16,7 +16,6 @@
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -109,11 +108,6 @@ Position DSLExpression::position() const {
 void DSLExpression::setPosition(Position pos) {
     SkASSERT(this->hasValue());
     fExpression->fPosition = pos;
-}
-
-DSLExpression DSLExpression::field(std::string_view name, Position pos) {
-    return DSLExpression(FieldAccess::Convert(ThreadContext::Context(), pos, this->release(), name),
-                         pos);
 }
 
 DSLExpression DSLExpression::assign(DSLExpression right) {

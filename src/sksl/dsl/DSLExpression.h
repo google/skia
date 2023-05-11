@@ -15,7 +15,6 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -99,11 +98,6 @@ public:
      * Performs assignment, like the '=' operator.
      */
     DSLExpression assign(DSLExpression other);
-
-    /**
-     * Creates an SkSL struct field access expression.
-     */
-    DSLExpression field(std::string_view name, Position pos = {});
 
     /**
      * Returns true if this object contains an expression. DSLExpressions which were created with
