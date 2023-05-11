@@ -54,6 +54,11 @@ public:
     static bool SK_WARN_UNUSED_RESULT InverseMapRect(const SkMatrix& mx,
                                                      SkRect* dst, const SkRect& src) {
         if (mx.isScaleTranslate()) {
+            // A scale-translate matrix with a 0 scale factor is not invertible.
+            if (mx.getScaleX() == 0.f || mx.getScaleY() == 0.f) {
+                return false;
+            }
+
             const SkScalar tx = mx.getTranslateX();
             const SkScalar ty = mx.getTranslateY();
             // mx maps coordinates as ((sx*x + tx), (sy*y + ty)) so the inverse is

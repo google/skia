@@ -135,6 +135,10 @@ static bool inverse_map_rect(const SkMatrix& matrix, const SkIRect& rect, SkIRec
     }
     // This is a specialized inverse equivalent to the 1px precision preserving map_rect above.
     if (matrix.isScaleTranslate()) {
+        // A scale-translate matrix with a 0 scale factor is not invertible.
+        if (matrix.getScaleX() == 0.f || matrix.getScaleY() == 0.f) {
+            return false;
+        }
         double l = (rect.fLeft   - (double)matrix.getTranslateX()) / (double)matrix.getScaleX();
         double r = (rect.fRight  - (double)matrix.getTranslateX()) / (double)matrix.getScaleX();
         double t = (rect.fTop    - (double)matrix.getTranslateY()) / (double)matrix.getScaleY();
