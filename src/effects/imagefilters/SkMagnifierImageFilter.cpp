@@ -42,6 +42,7 @@
 #ifdef SK_ENABLE_SKSL
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #endif
@@ -263,21 +264,28 @@ static sk_sp<SkShader> make_magnifier_shader(
         "}"
     );
 
-    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
-    SkMatrix zoomXform = SkMatrix::RectToRect(SkRect(lensBounds), SkRect(srcRect));
+    // TODO: FilterResult or FilterBuilder should hide the details of turning a FilterResult into
+    // an SkShader (and possibly wrap binding the input for an SkRuntimeEffect, too).
+    SkIPoint inputOrigin;
+    sk_sp<SkSpecialImage> inputImage = input.imageAndOffset(context, &inputOrigin);
+    if (!inputImage) {
+        return nullptr;
+    }
+    sk_sp<SkShader> inputShader = inputImage->asShader(
+            SkTileMode::kDecal, sampling, SkMatrix::Translate(inputOrigin.fX, inputOrigin.fY));
+    if (!inputShader) {
+        return nullptr;
+    }
 
+    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
+    builder.child("src") = std::move(inputShader);
+
+    SkMatrix zoomXform = SkMatrix::RectToRect(SkRect(lensBounds), SkRect(srcRect));
     builder.uniform("lensBounds") = SkRect(lensBounds);
     builder.uniform("zoomXform") = SkV4{zoomXform.getTranslateX(), zoomXform.getTranslateY(),
                                         zoomXform.getScaleX(),     zoomXform.getScaleY()};
     builder.uniform("invInset") = SkV2{1.f / inset.width(),
                                        1.f / inset.height()};
-
-    // TODO: FilterResult or FilterBuilder should hide the details of turning a FilterResult into
-    // an SkShader (and possibly wrap binding the input for an SkRuntimeEffect, too).
-    SkIPoint inputOrigin;
-    sk_sp<SkSpecialImage> inputImage = input.imageAndOffset(context, &inputOrigin);
-    builder.child("src") = inputImage->asShader(sampling)->makeWithLocalMatrix(
-            SkMatrix::Translate(inputOrigin.fX, inputOrigin.fY));
 
     return builder.makeShader();
 #else
