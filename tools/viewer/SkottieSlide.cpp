@@ -247,10 +247,9 @@ private:
 // Holds a pointer to a slot manager and the list of slots for the UI widget to track
 class SkottieSlide::SlotManagerWrapper {
 public:
-    SlotManagerWrapper(sk_sp<skresources::ResourceProvider> rp, SkString path, SkottieSlide* ss)
+    SlotManagerWrapper(sk_sp<skresources::ResourceProvider> rp, SkString path)
         : fSlotManager(sk_make_sp<skottie_utils::SlotManager>(path))
         , fResourceProvider(std::move(rp))
-        , fSkottieSlide(ss)
     {}
 
 
@@ -326,7 +325,6 @@ public:
                 fSlotManager->setImageSlot(s.first.data(), img);
             }
         }
-        fSkottieSlide->init();
     }
 
     void prepareImageAssetList(const char* dirname) {
@@ -373,8 +371,6 @@ private:
     const sk_sp<skottie_utils::SlotManager> fSlotManager;
     const sk_sp<skresources::ResourceProvider> fResourceProvider;
     std::vector<SkString> fResList;
-
-    SkottieSlide* fSkottieSlide;
 
     using GuiTextBuffer = std::array<char, kBufferLen>;
 
@@ -495,7 +491,7 @@ void SkottieSlide::init() {
     auto text_tracker = sk_make_sp<TextTracker>(fTransformTracker);
 
     if (!fSlotManagerWrapper) {
-        fSlotManagerWrapper = std::make_unique<SlotManagerWrapper>(resource_provider, fPath, this);
+        fSlotManagerWrapper = std::make_unique<SlotManagerWrapper>(resource_provider, fPath);
     }
 
     builder.setLogger(logger)

@@ -283,14 +283,32 @@ private:
  */
 class SlotManager::SlottablePropertyObserver final : public skottie::PropertyObserver {
 public:
-    SlottablePropertyObserver() {}
+    SlottablePropertyObserver(std::vector<SlotInfo> slotInfos) {
+        for (const auto &s : slotInfos) {
+            switch (s.type) {
+            case 1: // color
+                fColorMap[s.slotID] = std::vector<std::unique_ptr<skottie::ColorPropertyHandle>>();
+                break;
+            case 4: // opacity
+                fOpacityMap[s.slotID] =
+                    std::vector<std::unique_ptr<skottie::OpacityPropertyHandle>>();
+                break;
+            case 99: // text
+                fTextMap[s.slotID] = std::vector<std::unique_ptr<skottie::TextPropertyHandle>>();
+                break;
+            default:
+                SkDebugf("Unsupported slot type: %s: %d\n", s.slotID.c_str(), s.type);
+                break;
+            }
+        }
+    }
 
     void onColorProperty(const char node_name[],
                          const LazyHandle<skottie::ColorPropertyHandle>& c) override {
         if (node_name) {
             const auto it = fColorMap.find(node_name);
             if (it != fColorMap.end()) {
-                c()->set(it->second);
+                fColorMap[node_name].push_back(c());
             }
         }
     }
@@ -300,7 +318,7 @@ public:
         if (node_name) {
             const auto it = fOpacityMap.find(node_name);
             if (it != fOpacityMap.end()) {
-                o()->set(it->second);
+                fOpacityMap[node_name].push_back(o());
             }
         }
     }
@@ -309,9 +327,7 @@ public:
                         const LazyHandle<skottie::TextPropertyHandle>& t) override {
         const auto it = fTextMap.find(node_name);
         if (it != fTextMap.end()) {
-            auto value = t()->get();
-            value.fText = it->second;
-            t()->set(value);
+            fTextMap[node_name].push_back(t());
         }
     }
 
@@ -319,9 +335,12 @@ public:
 private:
     using SlotID = std::string;
 
-    std::unordered_map<SlotID, skottie::ColorPropertyValue> fColorMap;
-    std::unordered_map<SlotID, SkScalar>                    fOpacityMap;
-    std::unordered_map<SlotID, SkString>                    fTextMap;
+    std::unordered_map<SlotID, std::vector<std::unique_ptr<skottie::ColorPropertyHandle>>>
+        fColorMap;
+    std::unordered_map<SlotID, std::vector<std::unique_ptr<skottie::OpacityPropertyHandle>>>
+        fOpacityMap;
+    std::unordered_map<SlotID, std::vector<std::unique_ptr<skottie::TextPropertyHandle>>>
+        fTextMap;
 
     friend class SlotManager;
 };
@@ -329,7 +348,7 @@ private:
 SlotManager::SlotManager(const SkString path) {
     parseSlotIDsFromFileName(path);
     fResourceProvider = sk_make_sp<SlottableResourceProvider>();
-    fPropertyObserver = sk_make_sp<SlottablePropertyObserver>();
+    fPropertyObserver = sk_make_sp<SlottablePropertyObserver>(fSlotInfos);
 }
 
 // TODO: replace with parse from SkData (grab SkData from filename instead)
@@ -351,15 +370,32 @@ void SlotManager::parseSlotIDsFromFileName(SkString path) {
 }
 
 void SlotManager::setColorSlot(std::string slotID, SkColor color) {
-    fPropertyObserver->fColorMap[slotID] = color;
+    const auto it = fPropertyObserver->fColorMap.find(slotID);
+    if (it != fPropertyObserver->fColorMap.end()) {
+        for (auto& handle : fPropertyObserver->fColorMap[slotID]) {
+            handle->set(color);
+        }
+    }
 }
 
 void SlotManager::setOpacitySlot(std::string slotID, SkScalar opacity) {
-    fPropertyObserver->fOpacityMap[slotID] = opacity;
+    const auto it = fPropertyObserver->fOpacityMap.find(slotID);
+    if (it != fPropertyObserver->fOpacityMap.end()) {
+        for (auto& handle : fPropertyObserver->fOpacityMap[slotID]) {
+            handle->set(opacity);
+        }
+    }
 }
 
 void SlotManager::setTextStringSlot(std::string slotID, SkString text) {
-    fPropertyObserver->fTextMap[slotID] = std::move(text);
+    const auto it = fPropertyObserver->fTextMap.find(slotID);
+    if (it != fPropertyObserver->fTextMap.end()) {
+        for (auto& handle : fPropertyObserver->fTextMap[slotID]) {
+            auto tVal = handle->get();
+            tVal.fText = text;
+            handle->set(tVal);
+        }
+    }
 }
 
 void SlotManager::setImageSlot(std::string slotID, sk_sp<skresources::ImageAsset> img) {
