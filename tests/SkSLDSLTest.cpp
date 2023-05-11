@@ -155,18 +155,6 @@ static void expect_equal(skiatest::Reporter* r, int lineNumber, T&& dsl, const c
 
 #define EXPECT_EQUAL(a, b)  expect_equal(r, __LINE__, (a), (b))
 
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
-    {
-        SkSL::ProgramSettings settings = default_settings();
-        settings.fAllowNarrowingConversions = true;
-        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), settings,
-                               SkSL::ProgramKind::kFragment);
-        Var x(kHalf_Type, "x");
-        Var y(kFloat_Type, "y");
-        EXPECT_EQUAL(x.assign(y), "x = half(y)");
-    }
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     REPORTER_ASSERT(r,  DSLType(kBool_Type).isBoolean());
@@ -803,29 +791,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
     {
         ExpectError error(r, "expected 'bool', but found 'int'");
         Select(a, 1, -1).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var a(Array(kInt_Type, 5), "a"), b(kInt_Type, "b");
-
-    EXPECT_EQUAL(a[0], "a[0]");
-    EXPECT_EQUAL(a[b], "a[b]");
-
-    {
-        ExpectError error(r, "expected 'int', but found 'bool'");
-        a[true].release();
-    }
-
-    {
-        ExpectError error(r, "expected array, but found 'int'");
-        b[0].release();
-    }
-
-    {
-        ExpectError error(r, "index -1 out of range for 'int[5]'");
-        a[-1].release();
     }
 }
 

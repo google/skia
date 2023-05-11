@@ -8,16 +8,11 @@
 #include "src/sksl/dsl/DSLVar.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLType.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
@@ -27,7 +22,6 @@
 #include <utility>
 
 namespace SkSL {
-
 namespace dsl {
 
 /**
@@ -61,16 +55,6 @@ void DSLVarBase::swap(DSLVarBase& other) {
     std::swap(fInitialValue.fExpression, other.fInitialValue.fExpression);
     std::swap(fInitialized, other.fInitialized);
     std::swap(fPosition, other.fPosition);
-}
-
-DSLExpression DSLVarBase::operator[](DSLExpression&& index) {
-    return DSLExpression(*this)[std::move(index)];
-}
-
-DSLExpression DSLVarBase::assignExpression(DSLExpression expr) {
-    return DSLExpression(BinaryExpression::Convert(ThreadContext::Context(), Position(),
-            DSLExpression(*this, Position()).release(), SkSL::Operator::Kind::EQ,
-            expr.release()));
 }
 
 /**
@@ -124,38 +108,6 @@ void DSLGlobalVar::swap(DSLGlobalVar& other) {
     INHERITED::swap(other);
 }
 
-std::unique_ptr<SkSL::Expression> DSLGlobalVar::methodCall(std::string_view methodName,
-                                                           Position pos) {
-    if (!this->fType.isEffectChild()) {
-        ThreadContext::ReportError("type does not support method calls", pos);
-        return nullptr;
-    }
-    return FieldAccess::Convert(ThreadContext::Context(), pos, DSLExpression(*this, pos).release(),
-                                methodName);
-}
-
-DSLExpression DSLGlobalVar::eval(ExpressionArray args, Position pos) {
-    auto method = this->methodCall("eval", pos);
-    return DSLExpression(
-            method ? SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, std::move(method),
-                                                 std::move(args))
-                   : nullptr,
-            pos);
-}
-
-DSLExpression DSLGlobalVar::eval(DSLExpression x, Position pos) {
-    ExpressionArray converted;
-    converted.push_back(x.release());
-    return this->eval(std::move(converted), pos);
-}
-
-DSLExpression DSLGlobalVar::eval(DSLExpression x, DSLExpression y, Position pos) {
-    ExpressionArray converted;
-    converted.push_back(x.release());
-    converted.push_back(y.release());
-    return this->eval(std::move(converted), pos);
-}
-
 /**
  * DSLParameter
  */
@@ -175,5 +127,4 @@ void DSLParameter::swap(DSLParameter& other) {
 }
 
 } // namespace dsl
-
 } // namespace SkSL

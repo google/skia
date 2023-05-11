@@ -17,12 +17,9 @@
 #include <cstdint>
 #include <memory>
 #include <string_view>
-#include <utility>
 
 namespace SkSL {
 
-class Expression;
-class ExpressionArray;
 class Variable;
 enum class VariableStorage : int8_t;
 
@@ -57,35 +54,11 @@ public:
         return DSLExpression(*this).field(name);
     }
 
-    DSLExpression operator[](DSLExpression&& index);
-
-    DSLExpression operator++() {
-        return ++DSLExpression(*this);
-    }
-
-    DSLExpression operator++(int) {
-        return DSLExpression(*this)++;
-    }
-
-    DSLExpression operator--() {
-        return --DSLExpression(*this);
-    }
-
-    DSLExpression operator--(int) {
-        return DSLExpression(*this)--;
-    }
-
-    template <class T> DSLExpression assign(T&& param) {
-        return this->assignExpression(DSLExpression(std::forward<T>(param)));
-    }
-
 protected:
     /**
      * Creates an empty, unpopulated var. Can be replaced with a real var later via `swap`.
      */
     DSLVarBase(VariableStorage storage) : fType(kVoid_Type), fStorage(storage) {}
-
-    DSLExpression assignExpression(DSLExpression other);
 
     void swap(DSLVarBase& other);
 
@@ -150,24 +123,7 @@ public:
 
     void swap(DSLGlobalVar& other);
 
-    /**
-     * Implements the following method calls:
-     *     half4 shader::eval(float2 coords);
-     *     half4 colorFilter::eval(half4 input);
-     */
-    DSLExpression eval(DSLExpression x, Position pos = {});
-
-    /**
-     * Implements the following method call:
-     *     half4 blender::eval(half4 src, half4 dst);
-     */
-    DSLExpression eval(DSLExpression x, DSLExpression y, Position pos = {});
-
 private:
-    DSLExpression eval(ExpressionArray args, Position pos);
-
-    std::unique_ptr<SkSL::Expression> methodCall(std::string_view methodName, Position pos);
-
     using INHERITED = DSLVarBase;
 };
 
