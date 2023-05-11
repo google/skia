@@ -975,9 +975,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
 //
 // Assumes that 'filter', and thus its inputs, will remain owned by the caller. Modifies 'paint'
 // to have the updated color filter and returns the image filter to evaluate on restore.
-// TODO(michaelludwig): skbug.com/12083, once this guard goes away, the coversDevice arg can go away
-static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, SkPaint* paint,
-                                                  bool* coversDevice=nullptr) {
+static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, SkPaint* paint) {
     SkASSERT(paint);
     SkColorFilter* cf;
     if (filter && filter->isColorFilterNode(&cf)) {
@@ -992,23 +990,10 @@ static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, S
             paint->setAlphaf(1.f);
         }
 
-        // Check if the once-wrapped color filter affects transparent black *before* we combine
-        // it with any original color filter on the paint.
-        if (coversDevice) {
-#if defined(SK_LEGACY_LAYER_BOUNDS_EXPANSION)
-            *coversDevice = as_CFB(inner)->affectsTransparentBlack();
-#else
-            *coversDevice = false;
-#endif
-        }
-
         paint->setColorFilter(SkColorFilters::Compose(paint->refColorFilter(), std::move(inner)));
         SkASSERT(filter->countInputs() == 1);
         return filter->getInput(0);
     } else {
-        if (coversDevice) {
-            *coversDevice = false;
-        }
         return filter;
     }
 }
@@ -1016,12 +1001,8 @@ static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, S
 // If there is a backdrop filter, or if the restore paint has a color filter or blend mode that
 // affects transparent black, then the new layer must be sized such that it covers the entire device
 // clip bounds of the prior device (otherwise edges of the temporary layer would be visible).
-// See skbug.com/8783
 static bool must_cover_prior_device(const SkImageFilter* backdrop,
                                     const SkPaint& restorePaint) {
-#if defined(SK_LEGACY_LAYER_BOUNDS_EXPANSION)
-    return SkToBool(backdrop);
-#else
     const SkColorFilter* cf = restorePaint.getColorFilter();
     if (backdrop || (cf && as_CFB(cf)->affectsTransparentBlack())) {
         // Backdrop image filters always affect the entire (clip-limited) layer. A color filter
@@ -1047,7 +1028,6 @@ static bool must_cover_prior_device(const SkImageFilter* backdrop,
         // Blenders that aren't blend modes are assumed to modify transparent black.
         return true;
     }
-#endif
 }
 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
@@ -1072,14 +1052,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     // bilerp also smoothed cropped edges. See skbug.com/11252
     restorePaint.setAntiAlias(true);
 
-    bool optimizedCFAffectsTransparent;
     const SkImageFilter* filter = optimize_layer_filter(
-            rec.fPaint ? rec.fPaint->getImageFilter() : nullptr, &restorePaint,
-            &optimizedCFAffectsTransparent);
-
-#if !defined(SK_LEGACY_LAYER_BOUNDS_EXPANSION)
-    SkASSERT(!optimizedCFAffectsTransparent); // shouldn't be needed by new code
-#endif
+            rec.fPaint ? rec.fPaint->getImageFilter() : nullptr, &restorePaint);
 
     // Size the new layer relative to the prior device, which may already be aligned for filters.
     SkBaseDevice* priorDevice = this->topDevice();
@@ -1089,7 +1063,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             filter, priorDevice->localToDevice(),
             skif::DeviceSpace<SkIRect>(priorDevice->devClipBounds()),
             skif::ParameterSpace<SkRect>::Optional(rec.fBounds),
-            must_cover_prior_device(rec.fBackdrop, restorePaint) || optimizedCFAffectsTransparent);
+            must_cover_prior_device(rec.fBackdrop, restorePaint));
 
     auto abortLayer = [this]() {
         // The filtered content would not draw anything, or the new device space has an invalid
