@@ -188,10 +188,11 @@ private:
     int numCombinations() const;
     // 'desiredCombination' must be less than the result of the numCombinations call
     void createKey(const KeyContext&, int desiredCombination,
-                   PaintParamsKeyBuilder*, bool addPrimitiveBlender) const;
+                   PaintParamsKeyBuilder*, bool addPrimitiveBlender, bool hasCoverage) const;
     void buildCombinations(
         const KeyContext&,
         bool addPrimitiveBlender,
+        bool hasCoverage,
         const std::function<void(UniquePaintParamsID)>& processCombination) const;
 
     std::vector<sk_sp<PrecompileShader>> fShaderOptions;

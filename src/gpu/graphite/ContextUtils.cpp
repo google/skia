@@ -9,6 +9,7 @@
 
 #include <string>
 #include "src/core/SkBlenderBase.h"
+#include "src/gpu/BlendFormula.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -77,10 +78,18 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
     return { uniforms, textures };
 }
 
-DstReadRequirement GetDstReadRequirement(const Caps* caps, std::optional<SkBlendMode> blendMode) {
+DstReadRequirement GetDstReadRequirement(const Caps* caps,
+                                         std::optional<SkBlendMode> blendMode,
+                                         bool hasCoverage) {
     // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
     // do a dst read.
     if (!blendMode || *blendMode > SkBlendMode::kLastCoeffMode) {
+        return caps->getDstReadRequirement();
+    }
+
+    BlendFormula blendFormula = skgpu::GetBlendFormula(false, hasCoverage, *blendMode);
+    if (blendFormula.hasSecondaryOutput()) {
+        // TODO: support dual src blending when available
         return caps->getDstReadRequirement();
     }
     return DstReadRequirement::kNone;

@@ -34,6 +34,7 @@ void empty_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
+                                          /* hasCoverage= */ false,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -53,6 +54,7 @@ void no_shader_option_test(const KeyContext& keyContext, skiatest::Reporter* rep
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
+                                          /* hasCoverage= */ false,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -70,6 +72,7 @@ void no_blend_mode_option_test(const KeyContext& keyContext, skiatest::Reporter*
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
+                                          /* hasCoverage= */ false,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -135,6 +138,7 @@ void big_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
+                                          /* hasCoverage= */ false,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -270,6 +274,7 @@ void runtime_effect_test(const KeyContext& keyContext, skiatest::Reporter* repor
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
+                                          /* hasCoverage= */ false,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });

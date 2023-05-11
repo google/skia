@@ -16,6 +16,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/gpu/BlendFormula.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -165,10 +166,11 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
             SkASSERT(!fixedFuncBlendFound);
             SkDEBUGCODE(fixedFuncBlendFound = true;)
 
-            int coeffBlendMode = root->codeSnippetId() - kFixedFunctionBlendModeIDOffset;
-            SkASSERT(coeffBlendMode >= 0 &&
-                     static_cast<SkBlendMode>(coeffBlendMode) <= SkBlendMode::kLastCoeffMode);
-            fBlendInfo = gBlendTable[coeffBlendMode];
+            fBlendMode = static_cast<SkBlendMode>(root->codeSnippetId() -
+                                                  kFixedFunctionBlendModeIDOffset);
+            SkASSERT(static_cast<int>(fBlendMode) >= 0 &&
+                     fBlendMode <= SkBlendMode::kLastCoeffMode);
+            fBlendInfo = gBlendTable[static_cast<int>(fBlendMode)];
         }
     }
 }
@@ -187,7 +189,7 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
                                const RenderStep* step,
                                const bool useStorageBuffers,
                                int* numTexturesAndSamplersUsed,
-                               Swizzle writeSwizzle) const {
+                               Swizzle writeSwizzle) {
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
     std::string preamble = EmitVaryings(step,
                                         /*direction=*/"in",
@@ -262,13 +264,67 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
                                                         args.fPriorStageOutput.c_str(),
                                                         writeSwizzle.asString().c_str());
     }
+
+    const char* outColor = args.fPriorStageOutput.c_str();
     if (step->emitsCoverage()) {
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
-        SkSL::String::appendf(&mainBody, "sk_FragColor = %s * outputCoverage;",
-                              args.fPriorStageOutput.c_str());
+
+        bool needsSurfaceColorForCoverage = this->needsSurfaceColor();
+        BlendFormula coverageBlendFormula =
+                skgpu::GetBlendFormula(false, step->emitsCoverage(), fBlendMode);
+        if (coverageBlendFormula.hasSecondaryOutput()) {
+            // TODO: support dual src blending when available
+            needsSurfaceColorForCoverage = true;
+        }
+
+        if (needsSurfaceColorForCoverage) {
+            // Use originally-specified BlendInfo and blend with dst manually.
+            SkSL::String::appendf(
+                    &mainBody,
+                    "sk_FragColor = %s * outputCoverage + surfaceColor * (1.0 - outputCoverage);",
+                    outColor);
+
+        } else {
+            fBlendInfo = {coverageBlendFormula.equation(),
+                          coverageBlendFormula.srcCoeff(),
+                          coverageBlendFormula.dstCoeff(),
+                          SK_PMColor4fTRANSPARENT,
+                          coverageBlendFormula.modifiesDst()};
+
+            // TODO: account for secondary output
+            switch (coverageBlendFormula.primaryOutput()) {
+                case BlendFormula::kNone_OutputType:
+                    SkSL::String::appendf(&mainBody, "sk_FragColor = half4(0.0);");
+                    break;
+                case BlendFormula::kCoverage_OutputType:
+                    SkSL::String::appendf(&mainBody, "sk_FragColor = outputCoverage;");
+                    break;
+                case BlendFormula::kModulate_OutputType:
+                    SkSL::String::appendf(
+                            &mainBody, "sk_FragColor = %s * outputCoverage;", outColor);
+                    break;
+                case BlendFormula::kSAModulate_OutputType:
+                    SkSL::String::appendf(
+                            &mainBody, "sk_FragColor = %s.a * outputCoverage;", outColor);
+                    break;
+                case BlendFormula::kISAModulate_OutputType:
+                    SkSL::String::appendf(
+                            &mainBody, "sk_FragColor = (1.0 - %s.a) * outputCoverage;", outColor);
+                    break;
+                case BlendFormula::kISCModulate_OutputType:
+                    SkSL::String::appendf(&mainBody,
+                                          "sk_FragColor = (half4(1.0) - %s) * outputCoverage;",
+                                          outColor);
+                    break;
+                default:
+                    SkUNREACHABLE;
+                    break;
+            }
+        }
+
     } else {
-        SkSL::String::appendf(&mainBody, "sk_FragColor = %s;", args.fPriorStageOutput.c_str());
+        SkSL::String::appendf(&mainBody, "sk_FragColor = %s;", outColor);
     }
     mainBody += "}\n";
 
@@ -1585,7 +1641,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstColor] = {
             "DstColor",
             { },          // no uniforms
-            SnippetRequirementFlags::kNone,
+            SnippetRequirementFlags::kSurfaceColor,
             { },          // no samplers
             "dst color",  // no static sksl
             GenerateDstColorExpression,

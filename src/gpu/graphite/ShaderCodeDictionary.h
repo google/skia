@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_ShaderCodeDictionary_DEFINED
 #define skgpu_graphite_ShaderCodeDictionary_DEFINED
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMacros.h"
@@ -60,6 +61,7 @@ enum class SnippetRequirementFlags : uint32_t {
     kLocalCoords = 0x1,
     kPriorStageOutput = 0x2,  // AKA the "input" color, or the "src" argument for a blender
     kBlenderDstColor = 0x4,  // The "dst" argument for a blender
+    kSurfaceColor = 0x8,
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
@@ -178,7 +180,9 @@ public:
     bool needsLocalCoords() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
     }
-
+    bool needsSurfaceColor() const {
+        return fSnippetRequirementFlags & SnippetRequirementFlags::kSurfaceColor;
+    }
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRuntimeEffectDictionary;
     }
@@ -190,7 +194,7 @@ public:
                        const RenderStep* step,
                        const bool useStorageBuffers,
                        int* numTexturesAndSamplersUsed,
-                       Swizzle writeSwizzle) const;
+                       Swizzle writeSwizzle);
 
 private:
     // All shader nodes and arrays of children pointers are held in this arena
@@ -205,6 +209,7 @@ private:
     // TODO: There should really only be one root node representing the final blend, which has a
     // child defining how the src color is calculated.
     SkSpan<const ShaderNode*> fRootNodes;
+    SkBlendMode fBlendMode = SkBlendMode::kClear;
     skgpu::BlendInfo fBlendInfo;
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
 };

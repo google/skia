@@ -983,7 +983,8 @@ void Device::drawGeometry(const Transform& localToDevice,
     DstReadRequirement dstReadReq = DstReadRequirement::kNone;
     const SkBlenderBase* blender = as_BB(paint.getBlender());
     if (blender) {
-        dstReadReq = GetDstReadRequirement(recorder()->priv().caps(), blender->asBlendMode());
+        dstReadReq = GetDstReadRequirement(
+                recorder()->priv().caps(), blender->asBlendMode(), renderer->emitsCoverage());
     }
 
     // If this paint needs to copy the dst surface for reading, flush pending work.

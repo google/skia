@@ -62,7 +62,7 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
         const RenderStep* step,
         const DrawParams& params);
 
-DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>);
+DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, bool hasCoverage);
 
 std::string GetSkSLVS(const ResourceBindingRequirements&,
                       const RenderStep* step,
