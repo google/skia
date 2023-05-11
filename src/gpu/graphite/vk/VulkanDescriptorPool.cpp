@@ -13,26 +13,6 @@
 
 namespace skgpu::graphite {
 
-namespace { // anonymous namespace
-static VkDescriptorType ds_type_enum_to_vk_ds(DescriptorType type) {
-    switch (type) {
-        case DescriptorType::kUniformBuffer:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case DescriptorType::kTextureSampler:
-            return VK_DESCRIPTOR_TYPE_SAMPLER;
-        case DescriptorType::kTexture:
-            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-        case DescriptorType::kCombinedTextureSampler:
-            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        case DescriptorType::kStorageBuffer:
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        case DescriptorType::kInputAttachment:
-            return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-    }
-    SkUNREACHABLE;
-}
-} // anonymous namespace
-
 sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(
         const VulkanSharedContext* context,
         SkSpan<DescTypeAndCount> requestedDescCounts) {
@@ -42,7 +22,13 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(
     }
 
     // For each requested descriptor type and count, create a VkDescriptorPoolSize struct which
-    // specifies the descriptor type and quantity for pool creation.
+    // specifies the descriptor type and quantity for pool creation. Multiple pool size structures
+    // may contain the same descriptor type - the pool will be created with enough storage for the
+    // total number of descriptors of each type. Source:
+    // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#VkDescriptorPoolSize
+    // Note: The kMaxNumDescriptors limit could be evaded since we do not currently track and check
+    // the cumulative quantities of each type of descriptor, but this is an internal call and it is
+    // highly unexpected for us to exceed this limit in practice.
     skia_private::STArray<kDescriptorTypeCount, VkDescriptorPoolSize> poolSizes;
     for (size_t i = 0; i < requestedDescCounts.size(); i++) {
         SkASSERT(requestedDescCounts[i].count > 0);
@@ -55,7 +41,7 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(
         VkDescriptorPoolSize* poolSize = &poolSizes.at(i);
         memset(poolSize, 0, sizeof(VkDescriptorPoolSize));
         // Map each DescriptorSetType to the appropriate backend VkDescriptorType
-        poolSize->type = ds_type_enum_to_vk_ds(requestedDescCounts[i].type);
+        poolSize->type = VulkanDescriptorSet::DsTypeEnumToVkDs(requestedDescCounts[i].type);
         // Create a pool large enough to accommodate the maximum possible number of descriptor sets
         poolSize->descriptorCount = requestedDescCounts[i].count * kMaxNumSets;
     }
