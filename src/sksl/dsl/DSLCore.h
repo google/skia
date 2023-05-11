@@ -11,7 +11,6 @@
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLVar.h"  // IWYU pragma: keep
 
 #include <memory>
@@ -68,11 +67,6 @@ void SetErrorReporter(ErrorReporter* errorReporter);
  * #extension <name> : enable
  */
 void AddExtension(std::string_view name, Position pos = {});
-
-/**
- * Creates a local variable declaration statement.
- */
-DSLStatement Declare(DSLVar& var, Position pos = {});
 
 /**
  * Declares a global variable.

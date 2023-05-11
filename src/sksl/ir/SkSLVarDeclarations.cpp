@@ -333,10 +333,11 @@ void VarDeclaration::ErrorCheck(const Context& context,
     modifiers.checkPermitted(context, modifiersPosition, permitted, permittedLayoutFlags);
 }
 
-bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable& var,
-        std::unique_ptr<Expression>& value) {
+bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
+                                         const Variable& var,
+                                         std::unique_ptr<Expression>& value) {
     ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.modifiers(), &var.type(),
-            var.storage());
+               var.storage());
     if (value) {
         if (var.type().isOpaque()) {
             context.fErrors->error(value->fPosition, "opaque type '" + var.type().displayName() +

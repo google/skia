@@ -25,7 +25,7 @@ class Type;
 namespace dsl {
 
 class DSLField;
-class DSLVarBase;
+struct DSLVarBase;
 
 class DSLType {
 public:
@@ -140,7 +140,6 @@ private:
     friend DSLType UnsizedArray(const DSLType& base, Position pos);
     friend class DSLCore;
     friend class DSLFunction;
-    friend class DSLVarBase;
     friend class DSLWriter;
     friend class SkSL::Compiler;
 };

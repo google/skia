@@ -28,7 +28,7 @@ namespace SkSL {
 namespace dsl {
 
 class DSLType;
-class DSLVarBase;
+struct DSLVarBase;
 
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.
@@ -135,7 +135,6 @@ private:
     std::unique_ptr<SkSL::Expression> fExpression;
 
     friend class DSLCore;
-    friend class DSLVarBase;
     friend class DSLWriter;
 };
 

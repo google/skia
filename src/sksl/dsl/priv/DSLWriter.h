@@ -19,10 +19,10 @@ class Statement;
 
 namespace dsl {
 
-class DSLParameter;
+struct DSLParameter;
 class DSLStatement;
-class DSLVarBase;
-class DSLVar;
+struct DSLVarBase;
+struct DSLVar;
 
 /**
  * Various utility methods needed by DSL code.

@@ -13,50 +13,31 @@
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 #include <cstdint>
 #include <memory>
 #include <string_view>
 
 namespace SkSL {
-
-class Variable;
-enum class VariableStorage : int8_t;
-
 namespace dsl {
 
-class DSLVarBase {
-public:
-    /**
-     * Constructs a new variable with the specified type and name.
-     */
-    DSLVarBase(VariableStorage storage, DSLType type, std::string_view name,
-               DSLExpression initialValue, Position pos, Position namePos);
-
-    DSLVarBase(VariableStorage storage, const DSLModifiers& modifiers, DSLType type,
-               std::string_view name, DSLExpression initialValue, Position pos, Position namePos);
-
-    DSLVarBase(DSLVarBase&&) = default;
-
-    std::string_view name() const {
-        return fName;
-    }
-
-    const DSLModifiers& modifiers() const {
-        return fModifiers;
-    }
-
-    VariableStorage storage() const {
-        return fStorage;
-    }
-
-protected:
-    /**
-     * Creates an empty, unpopulated var. Can be replaced with a real var later via `swap`.
-     */
-    DSLVarBase(VariableStorage storage) : fType(DSLType::Void()), fStorage(storage) {}
-
-    void swap(DSLVarBase& other);
+struct DSLVarBase {
+    /** Holds the data needed to declare a new variable with the specified type and name. */
+    DSLVarBase(VariableStorage storage,
+               const DSLModifiers& modifiers,
+               DSLType type,
+               std::string_view name,
+               DSLExpression initialValue,
+               Position pos,
+               Position namePos)
+            : fModifiers(std::move(modifiers))
+            , fType(std::move(type))
+            , fNamePosition(namePos)
+            , fName(name)
+            , fInitialValue(std::move(initialValue))
+            , fPosition(pos)
+            , fStorage(storage) {}
 
     DSLModifiers fModifiers;
     // We only need to keep track of the type here so that we can create the SkSL::Variable. For
@@ -72,80 +53,71 @@ protected:
     Position fPosition;
     VariableStorage fStorage;
     bool fInitialized = false;
-
-    friend class DSLCore;
-    friend class DSLFunction;
-    friend class DSLWriter;
 };
 
 /**
  * A local variable.
  */
-class DSLVar : public DSLVarBase {
-public:
-    DSLVar();
-
-    DSLVar(DSLType type, std::string_view name, DSLExpression initialValue = DSLExpression(),
-           Position pos = {}, Position namePos = {});
-
-    DSLVar(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-           DSLExpression initialValue = DSLExpression(), Position pos = {}, Position namePos = {});
+struct DSLVar : public DSLVarBase {
+    DSLVar(const DSLModifiers& modifiers,
+           DSLType type,
+           std::string_view name,
+           DSLExpression initialValue = DSLExpression(),
+           Position pos = {},
+           Position namePos = {})
+            : DSLVarBase(SkSL::VariableStorage::kLocal,
+                         modifiers,
+                         type,
+                         name,
+                         std::move(initialValue),
+                         pos,
+                         namePos) {}
 
     DSLVar(DSLVar&&) = default;
-
-    void swap(DSLVar& other);
-
-private:
-    using INHERITED = DSLVarBase;
 };
 
 /**
  * A global variable.
  */
-class DSLGlobalVar : public DSLVarBase {
-public:
-    DSLGlobalVar();
-
-    DSLGlobalVar(DSLType type, std::string_view name, DSLExpression initialValue = DSLExpression(),
-                 Position pos = {}, Position namePos = {});
-
-    DSLGlobalVar(const DSLModifiers& modifiers, DSLType type, std::string_view name,
+struct DSLGlobalVar : public DSLVarBase {
+    DSLGlobalVar(const DSLModifiers& modifiers,
+                 DSLType type,
+                 std::string_view name,
                  DSLExpression initialValue = DSLExpression(),
-                 Position pos = {}, Position namePos = {});
-
-    DSLGlobalVar(const char* name);
+                 Position pos = {},
+                 Position namePos = {})
+            : DSLVarBase(SkSL::VariableStorage::kGlobal,
+                         modifiers,
+                         type,
+                         name,
+                         std::move(initialValue),
+                         pos,
+                         namePos) {}
 
     DSLGlobalVar(DSLGlobalVar&&) = default;
-
-    void swap(DSLGlobalVar& other);
-
-private:
-    using INHERITED = DSLVarBase;
 };
 
 /**
  * A function parameter.
  */
-class DSLParameter : public DSLVarBase {
-public:
-    DSLParameter();
-
-    DSLParameter(DSLType type, std::string_view name, Position pos = {}, Position namePos = {});
-
-    DSLParameter(const DSLModifiers& modifiers, DSLType type, std::string_view name,
-                 Position pos = {}, Position namePos = {});
+struct DSLParameter : public DSLVarBase {
+    DSLParameter(const DSLModifiers& modifiers,
+                 DSLType type,
+                 std::string_view name,
+                 Position pos = {},
+                 Position namePos = {})
+            : DSLVarBase(SkSL::VariableStorage::kParameter,
+                         modifiers,
+                         type,
+                         name,
+                         DSLExpression(),
+                         pos,
+                         namePos) {}
 
     DSLParameter(DSLParameter&&) = default;
-
-    void swap(DSLParameter& other);
-
-private:
-    using INHERITED = DSLVarBase;
 };
 
 } // namespace dsl
-
 } // namespace SkSL
-
 
 #endif

@@ -21,7 +21,6 @@ skia_filegroup(
         "DSLStatement.h",
         "DSLType.cpp",
         "DSLType.h",
-        "DSLVar.cpp",
         "DSLVar.h",
         "//src/sksl/dsl/priv:srcs",
     ],

@@ -40,9 +40,9 @@ struct Module;
 struct Program;
 
 namespace dsl {
-class DSLGlobalVar;
-class DSLParameter;
-class DSLVarBase;
+struct DSLGlobalVar;
+struct DSLParameter;
+struct DSLVarBase;
 }
 
 /**

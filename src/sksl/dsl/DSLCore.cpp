@@ -100,10 +100,6 @@ public:
         return success ? std::move(result) : nullptr;
     }
 
-    static DSLStatement Declare(DSLVar& var, Position pos) {
-        return DSLWriter::Declaration(var);
-    }
-
     static void Declare(DSLGlobalVar& var, Position pos) {
         std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
         if (stmt && !stmt->isEmpty()) {
@@ -159,10 +155,6 @@ void AddExtension(std::string_view name, Position pos) {
 //
 // So, we put the initial value onto the Var itself instead of the Declare to guarantee that it is
 // always executed in the correct order.
-DSLStatement Declare(DSLVar& var, Position pos) {
-    return DSLCore::Declare(var, pos);
-}
-
 void Declare(DSLGlobalVar& var, Position pos) {
     DSLCore::Declare(var, pos);
 }

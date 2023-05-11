@@ -535,7 +535,7 @@ bool Parser::functionDeclarationEnd(Position start,
     if (hasFunctionBody) {
         AutoSymbolTable symbols(this);
         for (DSLParameter* var : parameterPointers) {
-            if (!var->name().empty()) {
+            if (!var->fName.empty()) {
                 this->addToSymbolTable(*var);
             }
         }
@@ -676,7 +676,7 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
     }
     DSLVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
                  this->position(name));
-    DSLStatement result = Declare(first);
+    DSLStatement result = DSLWriter::Declaration(first);
     this->addToSymbolTable(first);
 
     while (this->checkNext(Token::Kind::TK_COMMA)) {
