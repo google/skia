@@ -1248,11 +1248,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(OverdrawSurface_Gpu,
 }
 
 DEF_TEST(Surface_null, r) {
-    REPORTER_ASSERT(r, SkSurface::MakeNull(0, 0) == nullptr);
+    REPORTER_ASSERT(r, SkSurfaces::Null(0, 0) == nullptr);
 
     const int w = 37;
     const int h = 1000;
-    auto surf = SkSurface::MakeNull(w, h);
+    auto surf = SkSurfaces::Null(w, h);
     auto canvas = surf->getCanvas();
 
     canvas->drawPaint(SkPaint());   // should not crash, but don't expect anything to draw

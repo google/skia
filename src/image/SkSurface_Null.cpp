@@ -47,9 +47,19 @@ protected:
     }
 };
 
-sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
+namespace SkSurfaces {
+
+sk_sp<SkSurface> Null(int width, int height) {
     if (width < 1 || height < 1) {
         return nullptr;
     }
     return sk_sp<SkSurface>(new SkNullSurface(width, height));
 }
+
+}
+
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FACTORIES)
+sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
+    return SkSurfaces::Null(width, height);
+}
+#endif

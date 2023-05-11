@@ -102,7 +102,7 @@ static void init_surface(Fuzz* fuzz, sk_sp<SkSurface>* s) {
 
     if (!*s) {
         // Was possibly too big for the memory constrained fuzzing environments
-        *s = SkSurface::MakeNull(x, y);
+        *s = SkSurfaces::Null(x, y);
     }
 }
 

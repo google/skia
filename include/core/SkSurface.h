@@ -66,6 +66,18 @@ class Recorder;
 }
 
 namespace SkSurfaces {
+
+/** Returns SkSurface without backing pixels. Drawing to SkCanvas returned from SkSurface
+    has no effect. Calling makeImageSnapshot() on returned SkSurface returns nullptr.
+
+    @param width   one or greater
+    @param height  one or greater
+    @return        SkSurface if width and height are positive; otherwise, nullptr
+
+    example: https://fiddle.skia.org/c/@Surface_MakeNull
+*/
+SK_API sk_sp<SkSurface> Null(int width, int height);
+
 /** Allocates raster SkSurface. SkCanvas returned by SkSurface draws directly into those allocated
     pixels, which are zeroed before use. Pixel memory size is imageInfo.height() times
     imageInfo.minRowBytes() or rowBytes, if provided and non-zero.
@@ -179,17 +191,6 @@ public:
                                  false otherwise
     */
     bool isCompatible(const SkSurfaceCharacterization& characterization) const;
-
-    /** Returns SkSurface without backing pixels. Drawing to SkCanvas returned from SkSurface
-        has no effect. Calling makeImageSnapshot() on returned SkSurface returns nullptr.
-
-        @param width   one or greater
-        @param height  one or greater
-        @return        SkSurface if width and height are positive; otherwise, nullptr
-
-        example: https://fiddle.skia.org/c/@Surface_MakeNull
-    */
-    static sk_sp<SkSurface> MakeNull(int width, int height);
 
     /** Returns pixel count in each row; may be zero or greater.
 
@@ -840,6 +841,7 @@ public:
 #if !defined(SK_DISABLE_LEGACY_SKSURFACE_FACTORIES)
     using RenderTargetReleaseProc = void (*)(ReleaseContext);
 
+    static sk_sp<SkSurface> MakeNull(int width, int height);
     static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo,
                                              void* pixels,
                                              size_t rowBytes,

@@ -9,6 +9,7 @@ specific factories in include/gpu/ganesh/mtl/SkSurfaceMetal.h.
   * SkSurface::MakeFromMTKView -> SkSurfaces::WrapMTKView
   * SkSurface::MakeGraphite -> SkSurfaces::RenderTarget
   * SkSurface::MakeGraphiteFromBackendTexture -> SkSurfaces::WrapBackendTexture
+  * SkSurface::MakeNull -> SkSurfaces::Null
   * SkSurface::MakeRaster -> SkSurfaces::Raster
   * SkSurface::MakeRasterDirect -> SkSurfaces::WrapPixels
   * SkSurface::MakeRasterDirectReleaseProc -> SkSurfaces::WrapPixels
