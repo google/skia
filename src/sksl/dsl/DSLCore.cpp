@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include <type_traits>
@@ -108,10 +109,10 @@ public:
     }
 
     static DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
-                                        TArray<DSLField> fields, std::string_view varName,
+                                        TArray<Field> fields, std::string_view varName,
                                         int arraySize, Position pos) {
         // Build a struct type corresponding to the passed-in fields and array size.
-        DSLType varType = StructType(typeName, fields, /*interfaceBlock=*/true, pos);
+        DSLType varType = StructType(typeName, std::move(fields), /*interfaceBlock=*/true, pos);
         if (arraySize > 0) {
             varType = Array(varType, arraySize);
         }
@@ -155,8 +156,8 @@ void Declare(DSLGlobalVar& var, Position pos) {
 }
 
 DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
-                             TArray<DSLField> fields, std::string_view varName, int arraySize,
-                             Position pos) {
+                             TArray<Field> fields, std::string_view varName,
+                             int arraySize, Position pos) {
     return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
 }
 

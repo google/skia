@@ -47,6 +47,7 @@
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
 #include <algorithm>
@@ -780,7 +781,7 @@ DSLType Parser::structDeclaration() {
     if (!depth.increase()) {
         return DSLType(nullptr);
     }
-    TArray<DSLField> fields;
+    TArray<SkSL::Field> fields;
     THashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token fieldStart = this->peek();
@@ -811,10 +812,10 @@ DSLType Parser::structDeclaration() {
 
             std::string_view nameText = this->text(memberName);
             if (!fieldNames.contains(nameText)) {
-                fields.push_back(DSLField(modifiers,
-                                          std::move(actualType),
-                                          nameText,
-                                          this->rangeFrom(fieldStart)));
+                fields.push_back(SkSL::Field(this->rangeFrom(fieldStart),
+                                             modifiers.fModifiers,
+                                             nameText,
+                                             &actualType.skslType()));
                 fieldNames.add(nameText);
             } else {
                 this->error(memberName, "field '" + std::string(nameText) +
@@ -830,7 +831,7 @@ DSLType Parser::structDeclaration() {
         this->error(this->rangeFrom(start), "struct '" + std::string(this->text(name)) +
                 "' must contain at least one field");
     }
-    return dsl::Struct(this->text(name), SkSpan(fields), this->rangeFrom(start));
+    return dsl::Struct(this->text(name), std::move(fields), this->rangeFrom(start));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -1147,7 +1148,7 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         return false;
     }
     this->nextToken();
-    TArray<DSLField> fields;
+    TArray<SkSL::Field> fields;
     THashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Position fieldPos = this->position(this->peek());
@@ -1183,10 +1184,10 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
 
             std::string_view nameText = this->text(fieldName);
             if (!fieldNames.contains(nameText)) {
-                fields.push_back(DSLField(fieldModifiers,
-                                          std::move(actualType),
-                                          nameText,
-                                          this->rangeFrom(fieldPos)));
+                fields.push_back(SkSL::Field(this->rangeFrom(fieldPos),
+                                             fieldModifiers.fModifiers,
+                                             nameText,
+                                             &actualType.skslType()));
                 fieldNames.add(nameText);
             } else {
                 this->error(fieldName, "field '" + std::string(nameText) +
@@ -1196,8 +1197,9 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         } while (this->checkNext(Token::Kind::TK_COMMA));
     }
     if (fields.empty()) {
-        this->error(this->rangeFrom(typeName), "interface block '" +
-                std::string(this->text(typeName)) + "' must contain at least one member");
+        this->error(this->rangeFrom(typeName),
+                    "interface block '" + std::string(this->text(typeName)) +
+                    "' must contain at least one member");
     }
     std::string_view instanceName;
     Token instanceNameToken;

@@ -11,9 +11,11 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSymbol.h"
@@ -23,6 +25,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+using namespace skia_private;
 
 namespace SkSL {
 
@@ -169,23 +173,17 @@ DSLType UnsizedArray(const DSLType& base, Position pos) {
 }
 
 DSLType StructType(std::string_view name,
-                   SkSpan<DSLField> fields,
+                   TArray<Field> fields,
                    bool interfaceBlock,
                    Position pos) {
-    std::vector<SkSL::Field> skslFields;
-    skslFields.reserve(fields.size());
-    for (const DSLField& field : fields) {
-        skslFields.emplace_back(field.fPosition, field.fModifiers.fModifiers, field.fName,
-                                &field.fType.skslType());
-    }
     SkSL::Context& context = ThreadContext::Context();
-    std::unique_ptr<Type> newType = Type::MakeStructType(context, pos, name,
-                                                         std::move(skslFields), interfaceBlock);
+    std::unique_ptr<Type> newType = Type::MakeStructType(context, pos, name, std::move(fields),
+                                                         interfaceBlock);
     return DSLType(context.fSymbolTable->add(std::move(newType)), pos);
 }
 
-DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
-    DSLType result = StructType(name, fields, /*interfaceBlock=*/false, pos);
+DSLType Struct(std::string_view name, TArray<Field> fields, Position pos) {
+    DSLType result = StructType(name, std::move(fields), /*interfaceBlock=*/false, pos);
     ThreadContext::ProgramElements().push_back(
             std::make_unique<SkSL::StructDefinition>(pos, result.skslType()));
     return result;

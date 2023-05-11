@@ -10,9 +10,8 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "src/sksl/SkSLPosition.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLModifiers.h"
 
 #include <string_view>
 #include <utility>
@@ -20,11 +19,13 @@
 namespace SkSL {
 
 class Compiler;
+struct Field;
+class Position;
 class Type;
 
 namespace dsl {
 
-class DSLField;
+class DSLModifiers;
 struct DSLVarBase;
 
 class DSLType {
@@ -123,18 +124,18 @@ public:
 
     static DSLExpression Construct(DSLType type, SkSpan<DSLExpression> argArray);
 
-private:
     const SkSL::Type& skslType() const {
         SkASSERT(fSkSLType);
         return *fSkSLType;
     }
 
+private:
     const SkSL::Type* fSkSLType = nullptr;
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
-    friend DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos);
+    friend DSLType Struct(std::string_view name, SkSpan<Field> fields, Position pos);
     friend DSLType StructType(std::string_view name,
-                              SkSpan<DSLField> fields,
+                              skia_private::TArray<Field> fields,
                               bool interfaceBlock,
                               Position pos);
     friend DSLType UnsizedArray(const DSLType& base, Position pos);
@@ -148,42 +149,10 @@ DSLType Array(const DSLType& base, int count, Position pos = {});
 
 DSLType UnsizedArray(const DSLType& base, Position pos = {});
 
-class DSLField {
-public:
-    DSLField(const DSLType type, std::string_view name,
-             Position pos = {})
-        : DSLField(DSLModifiers(), type, name, pos) {}
-
-    DSLField(const DSLModifiers& modifiers, const DSLType type, std::string_view name,
-             Position pos = {})
-        : fModifiers(modifiers)
-        , fType(type)
-        , fName(name)
-        , fPosition(pos) {}
-
-private:
-    DSLModifiers fModifiers;
-    const DSLType fType;
-    std::string_view fName;
-    Position fPosition;
-
-    friend class DSLCore;
-    friend DSLType StructType(std::string_view name,
-                              SkSpan<DSLField> fields,
-                              bool interfaceBlock,
-                              Position pos);
-};
-
 /**
  * Creates a StructDefinition at the top level and returns the associated type.
  */
-DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos = {});
-
-template<typename... Field>
-DSLType Struct(std::string_view name, Field... fields) {
-    DSLField fieldTypes[] = {std::move(fields)...};
-    return Struct(name, SkSpan(fieldTypes), Position());
-}
+DSLType Struct(std::string_view name, skia_private::TArray<Field> fields, Position pos = {});
 
 /**
  * Creates a struct type and adds it to the current symbol table. Does _not_ create a ProgramElement
@@ -191,7 +160,7 @@ DSLType Struct(std::string_view name, Field... fields) {
  * (Use Struct or InterfaceBlock to add a top-level program element.)
  */
 DSLType StructType(std::string_view name,
-                   SkSpan<DSLField> fields,
+                   skia_private::TArray<Field> fields,
                    bool interfaceBlock,
                    Position pos);
 

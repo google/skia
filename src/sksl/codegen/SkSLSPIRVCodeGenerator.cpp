@@ -72,7 +72,6 @@
 #include "src/utils/SkBitSet.h"
 
 #include <cstring>
-#include <iterator>
 #include <set>
 #include <string>
 #include <utility>
@@ -3564,7 +3563,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         // entirely new block when the variable is referenced. And we can't modify the existing
         // block, so we instead create a modified copy of it and write that.
         SkSpan<const Field> fieldSpan = type.fields();
-        std::vector fields(fieldSpan.begin(), fieldSpan.end());
+        TArray<Field> fields(fieldSpan.data(), fieldSpan.size());
         fields.emplace_back(Position(),
                             Modifiers(Layout(/*flags=*/0,
                                              /*location=*/-1,
@@ -4126,7 +4125,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
 
     // Convert the list of top-level uniforms into a matching struct named _UniformBuffer, and build
     // a lookup table of variables to UniformBuffer field indices.
-    std::vector<Field> fields;
+    TArray<Field> fields;
     fields.reserve(fTopLevelUniforms.size());
     for (const VarDeclaration* topLevelUniform : fTopLevelUniforms) {
         const Variable* var = topLevelUniform->var();
@@ -4176,7 +4175,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
     // Flip variable hasn't been written yet. This means we don't have an existing
     // interface block, so we're free to just synthesize one.
     fWroteRTFlip = true;
-    std::vector<Field> fields;
+    TArray<Field> fields;
     if (fProgram.fConfig->fSettings.fRTFlipOffset < 0) {
         fContext.fErrors->error(pos, "RTFlipOffset is negative");
     }
@@ -4193,8 +4192,8 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
     std::string_view name = "sksl_synthetic_uniforms";
-    const Type* intfStruct = fSynthetics.takeOwnershipOfSymbol(
-            Type::MakeStructType(fContext, Position(), name, fields, /*interfaceBlock=*/true));
+    const Type* intfStruct = fSynthetics.takeOwnershipOfSymbol(Type::MakeStructType(
+            fContext, Position(), name, std::move(fields), /*interfaceBlock=*/true));
     bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
     int binding = -1, set = -1;
     if (!usePushConstants) {

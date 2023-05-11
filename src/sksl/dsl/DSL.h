@@ -18,7 +18,6 @@ namespace SkSL {
 namespace dsl {
 
 using Expression = DSLExpression;
-using Field = DSLField;
 using Function = DSLFunction;
 using GlobalVar = DSLGlobalVar;
 using Layout = DSLLayout;

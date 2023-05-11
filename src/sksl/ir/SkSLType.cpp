@@ -24,11 +24,12 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <iterator>
 #include <limits>
 #include <optional>
 #include <string_view>
 #include <utility>
+
+using namespace skia_private;
 
 namespace SkSL {
 
@@ -508,7 +509,7 @@ class StructType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kStruct;
 
-    StructType(Position pos, std::string_view name, std::vector<Field> fields, bool interfaceBlock)
+    StructType(Position pos, std::string_view name, TArray<Field> fields, bool interfaceBlock)
             : INHERITED(std::move(name), "S", kTypeKind, pos)
             , fFields(std::move(fields))
             , fInterfaceBlock(interfaceBlock) {}
@@ -542,7 +543,7 @@ public:
 private:
     using INHERITED = Type;
 
-    std::vector<Field> fFields;
+    TArray<Field> fFields;
     bool fInterfaceBlock;
 };
 
@@ -663,7 +664,7 @@ static bool is_too_deeply_nested(const Type* t, int limit) {
 std::unique_ptr<Type> Type::MakeStructType(const Context& context,
                                            Position pos,
                                            std::string_view name,
-                                           std::vector<Field> fields,
+                                           TArray<Field> fields,
                                            bool interfaceBlock) {
     size_t slots = 0;
     for (const Field& field : fields) {
@@ -1036,7 +1037,7 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
             return symbolTable->add(
                     std::make_unique<StructType>(this->fPosition,
                                                  *name,
-                                                 std::vector(fieldSpan.begin(), fieldSpan.end()),
+                                                 TArray<Field>(fieldSpan.data(), fieldSpan.size()),
                                                  this->isInterfaceBlock()));
         }
         default:

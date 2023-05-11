@@ -11,6 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLModifiers.h"
@@ -24,7 +25,6 @@
 #include <string>
 #include <string_view>
 #include <tuple>
-#include <vector>
 
 namespace SkSL {
 
@@ -180,7 +180,7 @@ public:
     static std::unique_ptr<Type> MakeStructType(const Context& context,
                                                 Position pos,
                                                 std::string_view name,
-                                                std::vector<Field> fields,
+                                                skia_private::TArray<Field> fields,
                                                 bool interfaceBlock = false);
 
     /** Create a texture type. */

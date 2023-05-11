@@ -15,9 +15,10 @@
 
 namespace SkSL {
 
+class Parser;
+
 namespace dsl {
 
-class DSLField;
 class DSLType;
 
 enum Modifier {
@@ -61,13 +62,13 @@ private:
     Position fPosition;
 
     friend DSLType StructType(std::string_view name,
-                              SkSpan<DSLField> fields,
+                              skia_private::TArray<SkSL::Field> fields,
                               bool interfaceBlock,
                               Position pos);
-    friend class DSLCore;
     friend class DSLFunction;
     friend class DSLType;
     friend class DSLWriter;
+    friend class ::SkSL::Parser;
 };
 
 } // namespace dsl
