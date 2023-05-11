@@ -75,29 +75,13 @@ void AddExtension(std::string_view name, Position pos = {});
 DSLStatement Declare(DSLVar& var, Position pos = {});
 
 /**
- * Creates a local variable declaration statement containing multiple variables.
- */
-DSLStatement Declare(skia_private::TArray<DSLVar>& vars, Position pos = {});
-
-/**
  * Declares a global variable.
  */
 void Declare(DSLGlobalVar& var, Position pos = {});
 
-/**
- * Declares a set of global variables.
- */
-void Declare(skia_private::TArray<DSLGlobalVar>& vars, Position pos = {});
-
 DSLExpression InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
                              skia_private::TArray<DSLField> fields, std::string_view varName = "",
                              int arraySize = 0, Position pos = {});
-
-/**
- * test ? ifTrue : ifFalse
- */
-DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
-                     Position  = {});
 
 } // namespace dsl
 
