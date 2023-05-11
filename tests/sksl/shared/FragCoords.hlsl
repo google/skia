@@ -19,7 +19,7 @@ struct SPIRV_Cross_Output
 
 float4 main(float2 _23)
 {
-    return float4(float4(gl_FragCoord.x, _25_u_skRTFlip.x + (_25_u_skRTFlip.y * gl_FragCoord.y), gl_FragCoord.z, gl_FragCoord.w).yx, 1.0f, 1.0f);
+    return float4(float4(gl_FragCoord.x, _25_u_skRTFlip.x + (_25_u_skRTFlip.y * gl_FragCoord.y), gl_FragCoord.zw).yx, 1.0f, 1.0f);
 }
 
 void frag_main()

@@ -29,7 +29,6 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -2556,22 +2555,17 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         }
         case SK_FRAGCOORD_BUILTIN: {
             if (fProgram.fConfig->fSettings.fForceNoRTFlip) {
-                dsl::DSLGlobalVar fragCoord("sk_FragCoord");
-                return this->getLValue(*dsl::DSLExpression(fragCoord).release(), out)->load(out);
+                return this->getLValue(*this->identifier("sk_FragCoord"), out)->load(out);
             }
 
             // Handle inserting use of uniform to flip y when referencing sk_FragCoord.
             this->addRTFlipUniform(ref.fPosition);
             // Use sk_RTAdjust to compute the flipped coordinate
-            using namespace dsl;
-            const char* DEVICE_COORDS_NAME = "$device_FragCoords";
-            SymbolTable& symbols = *fProgram.fSymbols;
             // Use a uniform to flip the Y coordinate. The new expression will be written in
             // terms of $device_FragCoords, which is a fake variable that means "access the
             // underlying fragcoords directly without flipping it".
-            DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(Position(),
-                    SKSL_RTFLIP_NAME));
-            if (!symbols.find(DEVICE_COORDS_NAME)) {
+            static constexpr char DEVICE_COORDS_NAME[] = "$device_FragCoords";
+            if (!fProgram.fSymbols->find(DEVICE_COORDS_NAME)) {
                 AutoAttachPoolToThread attach(fProgram.fPool.get());
                 Modifiers modifiers;
                 modifiers.fLayout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
@@ -2583,17 +2577,32 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                             /*builtin=*/true,
                                                             Variable::Storage::kGlobal);
                 fSPIRVBonusVariables.add(coordsVar.get());
-                symbols.add(std::move(coordsVar));
+                fProgram.fSymbols->add(std::move(coordsVar));
             }
-            DSLGlobalVar deviceCoord(DEVICE_COORDS_NAME);
-            std::unique_ptr<Expression> rtFlipSkSLExpr = rtFlip.release();
-            DSLExpression x = DSLExpression(rtFlipSkSLExpr->clone()).x();
-            DSLExpression y = DSLExpression(std::move(rtFlipSkSLExpr)).y();
-            return this->writeExpression(*dsl::Float4(deviceCoord.x(),
-                                                      std::move(x) + std::move(y) * deviceCoord.y(),
-                                                      deviceCoord.z(),
-                                                      deviceCoord.w()).release(),
-                                         out);
+            std::unique_ptr<Expression> deviceCoord = this->identifier(DEVICE_COORDS_NAME);
+            std::unique_ptr<Expression> rtFlipSkSLExpr = this->identifier(SKSL_RTFLIP_NAME);
+            SpvId rtFlipX = this->writeSwizzle(*rtFlipSkSLExpr, {SwizzleComponent::X}, out);
+            SpvId rtFlipY = this->writeSwizzle(*rtFlipSkSLExpr, {SwizzleComponent::Y}, out);
+            SpvId deviceCoordX  = this->writeSwizzle(*deviceCoord, {SwizzleComponent::X}, out);
+            SpvId deviceCoordY  = this->writeSwizzle(*deviceCoord, {SwizzleComponent::Y}, out);
+            SpvId deviceCoordZW = this->writeSwizzle(*deviceCoord, {SwizzleComponent::Z,
+                                                                    SwizzleComponent::W}, out);
+            // Compute `flippedY = u_RTFlip.y * $device_FragCoords.y`.
+            SpvId flippedY = this->writeBinaryExpression(
+                                     *fContext.fTypes.fFloat, rtFlipY, OperatorKind::STAR,
+                                     *fContext.fTypes.fFloat, deviceCoordY,
+                                     *fContext.fTypes.fFloat, out);
+
+            // Compute `flippedY = u_RTFlip.x + flippedY`.
+            flippedY = this->writeBinaryExpression(
+                               *fContext.fTypes.fFloat, rtFlipX, OperatorKind::PLUS,
+                               *fContext.fTypes.fFloat, flippedY,
+                               *fContext.fTypes.fFloat, out);
+
+            // Return `float4(deviceCoord.x, flippedY, deviceCoord.zw)`.
+            return this->writeOpCompositeConstruct(*fContext.fTypes.fFloat4,
+                                                   {deviceCoordX, flippedY, deviceCoordZW},
+                                                   out);
         }
         case SK_CLOCKWISE_BUILTIN: {
             if (fProgram.fConfig->fSettings.fForceNoRTFlip) {

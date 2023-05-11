@@ -53,26 +53,24 @@ OpFunctionEnd
 %main = OpFunction %v4float None %22
 %23 = OpFunctionParameter %_ptr_Function_v2float
 %24 = OpLabel
-%28 = OpLoad %v4float %sk_FragCoord
-%29 = OpCompositeExtract %float %28 0
-%32 = OpAccessChain %_ptr_Uniform_v2float %25 %int_0
-%34 = OpLoad %v2float %32
-%35 = OpCompositeExtract %float %34 0
-%36 = OpAccessChain %_ptr_Uniform_v2float %25 %int_0
-%37 = OpLoad %v2float %36
-%38 = OpCompositeExtract %float %37 1
+%30 = OpAccessChain %_ptr_Uniform_v2float %25 %int_0
+%32 = OpLoad %v2float %30
+%33 = OpCompositeExtract %float %32 0
+%34 = OpAccessChain %_ptr_Uniform_v2float %25 %int_0
+%35 = OpLoad %v2float %34
+%36 = OpCompositeExtract %float %35 1
+%37 = OpLoad %v4float %sk_FragCoord
+%38 = OpCompositeExtract %float %37 0
 %39 = OpLoad %v4float %sk_FragCoord
 %40 = OpCompositeExtract %float %39 1
-%41 = OpFMul %float %38 %40
-%42 = OpFAdd %float %35 %41
-%43 = OpLoad %v4float %sk_FragCoord
-%44 = OpCompositeExtract %float %43 2
-%45 = OpLoad %v4float %sk_FragCoord
-%46 = OpCompositeExtract %float %45 3
-%47 = OpCompositeConstruct %v4float %29 %42 %44 %46
-%48 = OpVectorShuffle %v2float %47 %47 1 0
-%49 = OpCompositeExtract %float %48 0
-%50 = OpCompositeExtract %float %48 1
-%52 = OpCompositeConstruct %v4float %49 %50 %float_1 %float_1
-OpReturnValue %52
+%41 = OpLoad %v4float %sk_FragCoord
+%42 = OpVectorShuffle %v2float %41 %41 2 3
+%43 = OpFMul %float %36 %40
+%44 = OpFAdd %float %33 %43
+%45 = OpCompositeConstruct %v4float %38 %44 %42
+%46 = OpVectorShuffle %v2float %45 %45 1 0
+%47 = OpCompositeExtract %float %46 0
+%48 = OpCompositeExtract %float %46 1
+%50 = OpCompositeConstruct %v4float %47 %48 %float_1 %float_1
+OpReturnValue %50
 OpFunctionEnd

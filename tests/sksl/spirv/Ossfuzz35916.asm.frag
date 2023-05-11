@@ -46,24 +46,22 @@ OpDecorate %22 DescriptorSet 0
 %19 = OpLoad %float %15
 %21 = OpFSub %float %19 %float_1
 OpStore %15 %21
-%26 = OpLoad %v4float %sk_FragCoord
-%27 = OpCompositeExtract %float %26 0
-%28 = OpAccessChain %_ptr_Uniform_v2float %22 %int_0
-%30 = OpLoad %v2float %28
-%31 = OpCompositeExtract %float %30 0
-%32 = OpAccessChain %_ptr_Uniform_v2float %22 %int_0
-%33 = OpLoad %v2float %32
-%34 = OpCompositeExtract %float %33 1
+%26 = OpAccessChain %_ptr_Uniform_v2float %22 %int_0
+%28 = OpLoad %v2float %26
+%29 = OpCompositeExtract %float %28 0
+%30 = OpAccessChain %_ptr_Uniform_v2float %22 %int_0
+%31 = OpLoad %v2float %30
+%32 = OpCompositeExtract %float %31 1
+%33 = OpLoad %v4float %sk_FragCoord
+%34 = OpCompositeExtract %float %33 0
 %35 = OpLoad %v4float %sk_FragCoord
 %36 = OpCompositeExtract %float %35 1
-%37 = OpFMul %float %34 %36
-%38 = OpFAdd %float %31 %37
-%39 = OpLoad %v4float %sk_FragCoord
-%40 = OpCompositeExtract %float %39 2
-%41 = OpLoad %v4float %sk_FragCoord
-%42 = OpCompositeExtract %float %41 3
-%43 = OpCompositeConstruct %v4float %27 %38 %40 %42
-%44 = OpCompositeConstruct %v4float %19 %19 %19 %19
-%45 = OpFAdd %v4float %44 %43
+%37 = OpLoad %v4float %sk_FragCoord
+%38 = OpVectorShuffle %v2float %37 %37 2 3
+%39 = OpFMul %float %32 %36
+%40 = OpFAdd %float %29 %39
+%41 = OpCompositeConstruct %v4float %34 %40 %38
+%42 = OpCompositeConstruct %v4float %19 %19 %19 %19
+%43 = OpFAdd %v4float %42 %41
 OpReturn
 OpFunctionEnd
