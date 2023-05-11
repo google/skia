@@ -28,7 +28,8 @@ namespace sk_gpu_test {
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
                                        const SkPixmap&,
                                        GrRenderable,
-                                       GrSurfaceOrigin);
+                                       GrSurfaceOrigin,
+                                       GrProtected = GrProtected::kNo);
 
 /** Creates an image of with a solid color. */
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
@@ -36,6 +37,7 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
                                        SkColor4f,
                                        skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                        GrRenderable = GrRenderable::kNo,
-                                       GrSurfaceOrigin = GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin);
+                                       GrSurfaceOrigin = GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                       GrProtected isProtected = GrProtected::kNo);
 
 }  // namespace sk_gpu_test

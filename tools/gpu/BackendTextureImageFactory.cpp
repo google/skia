@@ -20,12 +20,13 @@ namespace sk_gpu_test {
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                        const SkPixmap& pixmap,
                                        GrRenderable renderable,
-                                       GrSurfaceOrigin origin) {
+                                       GrSurfaceOrigin origin,
+                                       GrProtected isProtected) {
     auto mbet = ManagedBackendTexture::MakeWithData(dContext,
                                                     pixmap,
                                                     origin,
                                                     renderable,
-                                                    GrProtected::kNo);
+                                                    isProtected);
     if (!mbet) {
         return nullptr;
     }
@@ -44,7 +45,8 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                        SkColor4f color,
                                        GrMipmapped mipmapped,
                                        GrRenderable renderable,
-                                       GrSurfaceOrigin origin) {
+                                       GrSurfaceOrigin origin,
+                                       GrProtected isProtected) {
     if (info.alphaType() == kOpaque_SkAlphaType) {
         color = color.makeOpaque();
     } else if (info.alphaType() == kPremul_SkAlphaType) {
@@ -58,7 +60,7 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                                     color,
                                                     mipmapped,
                                                     renderable,
-                                                    GrProtected::kNo);
+                                                    isProtected);
     if (!mbet) {
         return nullptr;
     }

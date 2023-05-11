@@ -810,6 +810,10 @@ bool GrBackendTexture::isProtected() const {
         return fVkInfo.isProtected();
     }
 #endif
+    if (this->backend() == GrBackendApi::kMock) {
+        return fMockInfo.isProtected();
+    }
+
     return false;
 }
 
@@ -1278,14 +1282,19 @@ void GrBackendRenderTarget::setMutableState(const skgpu::MutableTextureState& st
 }
 
 bool GrBackendRenderTarget::isProtected() const {
-    if (!this->isValid() || this->backend() != GrBackendApi::kVulkan) {
+    if (!this->isValid()) {
         return false;
     }
 #ifdef SK_VULKAN
-    return fVkInfo.isProtected();
-#else
-    return false;
+    if (this->backend() == GrBackendApi::kVulkan) {
+        return fVkInfo.isProtected();
+    }
 #endif
+    if (this->backend() == GrBackendApi::kMock) {
+        return fMockInfo.isProtected();
+    }
+
+    return false;
 }
 
 #if GR_TEST_UTILS

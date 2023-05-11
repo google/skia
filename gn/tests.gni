@@ -195,6 +195,7 @@ tests_sources = [
   "$_tests/PreChopPathCurvesTest.cpp",
   "$_tests/PremulAlphaRoundTripTest.cpp",
   "$_tests/PromiseImageTest.cpp",
+  "$_tests/ProtectedTest.cpp",
   "$_tests/ProxyConversionTest.cpp",
   "$_tests/ProxyRefTest.cpp",
   "$_tests/ProxyTest.cpp",
