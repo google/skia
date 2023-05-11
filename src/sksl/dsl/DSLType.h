@@ -14,7 +14,6 @@
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLModifiers.h"
 
-#include <cstdint>
 #include <string_view>
 #include <utility>
 
@@ -28,72 +27,17 @@ namespace dsl {
 class DSLField;
 class DSLVarBase;
 
-enum TypeConstant : uint8_t {
-    kBool_Type,
-    kBool2_Type,
-    kBool3_Type,
-    kBool4_Type,
-    kHalf_Type,
-    kHalf2_Type,
-    kHalf3_Type,
-    kHalf4_Type,
-    kHalf2x2_Type,
-    kHalf3x2_Type,
-    kHalf4x2_Type,
-    kHalf2x3_Type,
-    kHalf3x3_Type,
-    kHalf4x3_Type,
-    kHalf2x4_Type,
-    kHalf3x4_Type,
-    kHalf4x4_Type,
-    kFloat_Type,
-    kFloat2_Type,
-    kFloat3_Type,
-    kFloat4_Type,
-    kFragmentProcessor_Type,
-    kFloat2x2_Type,
-    kFloat3x2_Type,
-    kFloat4x2_Type,
-    kFloat2x3_Type,
-    kFloat3x3_Type,
-    kFloat4x3_Type,
-    kFloat2x4_Type,
-    kFloat3x4_Type,
-    kFloat4x4_Type,
-    kInt_Type,
-    kInt2_Type,
-    kInt3_Type,
-    kInt4_Type,
-    kShader_Type,
-    kShort_Type,
-    kShort2_Type,
-    kShort3_Type,
-    kShort4_Type,
-    kUInt_Type,
-    kUInt2_Type,
-    kUInt3_Type,
-    kUInt4_Type,
-    kUShort_Type,
-    kUShort2_Type,
-    kUShort3_Type,
-    kUShort4_Type,
-    kVoid_Type,
-    kPoison_Type,
-};
-
 class DSLType {
 public:
-    DSLType(TypeConstant tc, Position pos = {});
-
     DSLType(const SkSL::Type* type, Position pos = {});
 
     DSLType(std::string_view name, Position pos = {});
 
-    DSLType(std::string_view name,
-            DSLModifiers* modifiers,
-            Position pos = {});
+    DSLType(std::string_view name, DSLModifiers* modifiers, Position pos = {});
 
     static DSLType Invalid();
+    static DSLType Poison();
+    static DSLType Void();
 
     /**
      * Returns true if the SkSL type is non-null.

@@ -54,7 +54,7 @@ protected:
     /**
      * Creates an empty, unpopulated var. Can be replaced with a real var later via `swap`.
      */
-    DSLVarBase(VariableStorage storage) : fType(kVoid_Type), fStorage(storage) {}
+    DSLVarBase(VariableStorage storage) : fType(DSLType::Void()), fStorage(storage) {}
 
     void swap(DSLVarBase& other);
 

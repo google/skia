@@ -156,7 +156,7 @@ private:
     struct VarDeclarationsPrefix {
         Position fPosition;
         dsl::DSLModifiers fModifiers;
-        dsl::DSLType fType = dsl::DSLType(dsl::kVoid_Type);
+        dsl::DSLType fType = dsl::DSLType::Void();
         Token fName;
     };
 

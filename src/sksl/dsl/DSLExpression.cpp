@@ -90,7 +90,7 @@ void DSLExpression::swap(DSLExpression& other) {
 
 DSLType DSLExpression::type() const {
     if (!this->hasValue()) {
-        return kVoid_Type;
+        return DSLType::Void();
     }
     return &fExpression->type();
 }

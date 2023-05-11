@@ -74,118 +74,6 @@ static const SkSL::Type* find_type(const Context& context,
     return type->applyQualifiers(context, modifiers, modifiersPos);
 }
 
-static const SkSL::Type* get_type_from_type_constant(TypeConstant tc) {
-    const Context& context = ThreadContext::Context();
-    switch (tc) {
-        case kBool_Type:
-            return context.fTypes.fBool.get();
-        case kBool2_Type:
-            return context.fTypes.fBool2.get();
-        case kBool3_Type:
-            return context.fTypes.fBool3.get();
-        case kBool4_Type:
-            return context.fTypes.fBool4.get();
-        case kHalf_Type:
-            return context.fTypes.fHalf.get();
-        case kHalf2_Type:
-            return context.fTypes.fHalf2.get();
-        case kHalf3_Type:
-            return context.fTypes.fHalf3.get();
-        case kHalf4_Type:
-            return context.fTypes.fHalf4.get();
-        case kHalf2x2_Type:
-            return context.fTypes.fHalf2x2.get();
-        case kHalf3x2_Type:
-            return context.fTypes.fHalf3x2.get();
-        case kHalf4x2_Type:
-            return context.fTypes.fHalf4x2.get();
-        case kHalf2x3_Type:
-            return context.fTypes.fHalf2x3.get();
-        case kHalf3x3_Type:
-            return context.fTypes.fHalf3x3.get();
-        case kHalf4x3_Type:
-            return context.fTypes.fHalf4x3.get();
-        case kHalf2x4_Type:
-            return context.fTypes.fHalf2x4.get();
-        case kHalf3x4_Type:
-            return context.fTypes.fHalf3x4.get();
-        case kHalf4x4_Type:
-            return context.fTypes.fHalf4x4.get();
-        case kFloat_Type:
-            return context.fTypes.fFloat.get();
-        case kFloat2_Type:
-            return context.fTypes.fFloat2.get();
-        case kFloat3_Type:
-            return context.fTypes.fFloat3.get();
-        case kFloat4_Type:
-            return context.fTypes.fFloat4.get();
-        case kFloat2x2_Type:
-            return context.fTypes.fFloat2x2.get();
-        case kFloat3x2_Type:
-            return context.fTypes.fFloat3x2.get();
-        case kFloat4x2_Type:
-            return context.fTypes.fFloat4x2.get();
-        case kFloat2x3_Type:
-            return context.fTypes.fFloat2x3.get();
-        case kFloat3x3_Type:
-            return context.fTypes.fFloat3x3.get();
-        case kFloat4x3_Type:
-            return context.fTypes.fFloat4x3.get();
-        case kFloat2x4_Type:
-            return context.fTypes.fFloat2x4.get();
-        case kFloat3x4_Type:
-            return context.fTypes.fFloat3x4.get();
-        case kFloat4x4_Type:
-            return context.fTypes.fFloat4x4.get();
-        case kInt_Type:
-            return context.fTypes.fInt.get();
-        case kInt2_Type:
-            return context.fTypes.fInt2.get();
-        case kInt3_Type:
-            return context.fTypes.fInt3.get();
-        case kInt4_Type:
-            return context.fTypes.fInt4.get();
-        case kShader_Type:
-            return context.fTypes.fShader.get();
-        case kShort_Type:
-            return context.fTypes.fShort.get();
-        case kShort2_Type:
-            return context.fTypes.fShort2.get();
-        case kShort3_Type:
-            return context.fTypes.fShort3.get();
-        case kShort4_Type:
-            return context.fTypes.fShort4.get();
-        case kUInt_Type:
-            return context.fTypes.fUInt.get();
-        case kUInt2_Type:
-            return context.fTypes.fUInt2.get();
-        case kUInt3_Type:
-            return context.fTypes.fUInt3.get();
-        case kUInt4_Type:
-            return context.fTypes.fUInt4.get();
-        case kUShort_Type:
-            return context.fTypes.fUShort.get();
-        case kUShort2_Type:
-            return context.fTypes.fUShort2.get();
-        case kUShort3_Type:
-            return context.fTypes.fUShort3.get();
-        case kUShort4_Type:
-            return context.fTypes.fUShort4.get();
-        case kVoid_Type:
-            return context.fTypes.fVoid.get();
-        case kPoison_Type:
-            return context.fTypes.fPoison.get();
-        default:
-            SkUNREACHABLE;
-    }
-}
-
-DSLType::DSLType(TypeConstant tc, Position pos)
-        : fSkSLType(verify_type(ThreadContext::Context(),
-                                get_type_from_type_constant(tc),
-                                /*allowGenericTypes=*/false,
-                                pos)) {}
-
 DSLType::DSLType(std::string_view name, Position pos)
         : fSkSLType(find_type(ThreadContext::Context(), pos, name)) {}
 
@@ -201,6 +89,14 @@ DSLType::DSLType(const SkSL::Type* type, Position pos)
 
 DSLType DSLType::Invalid() {
     return DSLType(ThreadContext::Context().fTypes.fInvalid.get(), Position());
+}
+
+DSLType DSLType::Poison() {
+    return DSLType(ThreadContext::Context().fTypes.fPoison.get(), Position());
+}
+
+DSLType DSLType::Void() {
+    return DSLType(ThreadContext::Context().fTypes.fVoid.get(), Position());
 }
 
 bool DSLType::isBoolean() const {
@@ -259,7 +155,7 @@ DSLType Array(const DSLType& base, int count, Position pos) {
     SkSL::Context& context = ThreadContext::Context();
     count = base.skslType().convertArraySize(context, pos, DSLExpression(count, pos).release());
     if (!count) {
-        return DSLType(kPoison_Type);
+        return DSLType::Poison();
     }
     return DSLType(context.fSymbolTable->addArrayDimension(&base.skslType(), count), pos);
 }
@@ -267,7 +163,7 @@ DSLType Array(const DSLType& base, int count, Position pos) {
 DSLType UnsizedArray(const DSLType& base, Position pos) {
     SkSL::Context& context = ThreadContext::Context();
     if (!base.skslType().checkIfUsableInArray(context, pos)) {
-        return DSLType(kPoison_Type);
+        return DSLType::Poison();
     }
     return context.fSymbolTable->addArrayDimension(&base.skslType(), SkSL::Type::kUnsizedArray);
 }

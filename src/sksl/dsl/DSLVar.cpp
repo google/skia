@@ -94,7 +94,7 @@ DSLGlobalVar::DSLGlobalVar(const DSLModifiers& modifiers, DSLType type, std::str
                     pos, namePos) {}
 
 DSLGlobalVar::DSLGlobalVar(const char* name)
-    : INHERITED(SkSL::VariableStorage::kGlobal, kVoid_Type, name, DSLExpression(),
+    : INHERITED(SkSL::VariableStorage::kGlobal, DSLType::Void(), name, DSLExpression(),
                 Position(), Position()) {
     fName = name;
     SkSL::Context& context = ThreadContext::Context();
