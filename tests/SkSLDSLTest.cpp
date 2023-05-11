@@ -33,9 +33,6 @@
 #include "tests/Test.h"
 
 #include <ctype.h>
-#include <cstdint>
-#include <cstdlib>
-#include <limits>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -171,313 +168,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
     }
 }
 
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Expression e1 = Float(std::numeric_limits<float>::max());
-
-    // We can't use stof here, because old versions of libc++ can throw out_of_range on edge case
-    // inputs like these. (This causes test failure on old Android devices.)
-    REPORTER_ASSERT(r, std::strtof(e1.release()->description().c_str(), nullptr) ==
-                       std::numeric_limits<float>::max());
-
-    Expression e2 = Float(std::numeric_limits<float>::min());
-    REPORTER_ASSERT(r, std::strtof(e2.release()->description().c_str(), nullptr) ==
-                       std::numeric_limits<float>::min());
-
-    EXPECT_EQUAL(Float2(0),
-                "float2(0.0)");
-    EXPECT_EQUAL(Float2(-0.5, 1),
-                "float2(-0.5, 1.0)");
-    EXPECT_EQUAL(Float3(0.75),
-                "float3(0.75)");
-    EXPECT_EQUAL(Float3(Float2(0, 1), -2),
-                "float3(0.0, 1.0, -2.0)");
-    EXPECT_EQUAL(Float3(0, 1, 2),
-                "float3(0.0, 1.0, 2.0)");
-    EXPECT_EQUAL(Float4(0),
-                "float4(0.0)");
-    EXPECT_EQUAL(Float4(Float2(0, 1), Float2(2, 3)),
-                "float4(0.0, 1.0, 2.0, 3.0)");
-    EXPECT_EQUAL(Float4(0, 1, Float2(2, 3)),
-                "float4(0.0, 1.0, 2.0, 3.0)");
-    EXPECT_EQUAL(Float4(0, 1, 2, 3),
-                "float4(0.0, 1.0, 2.0, 3.0)");
-
-    DSLVar x(kFloat_Type, "x");
-    EXPECT_EQUAL(x.assign(1.0), "x = 1.0");
-    EXPECT_EQUAL(x.assign(1.0f), "x = 1.0");
-
-    DSLVar y(kFloat2_Type, "y");
-    EXPECT_EQUAL(y.x().assign(1.0), "y.x = 1.0");
-    EXPECT_EQUAL(y.x().assign(1.0f), "y.x = 1.0");
-
-    {
-        ExpectError error(r, "value is out of range for type 'float': inf");
-        Float(std::numeric_limits<float>::infinity()).release();
-    }
-
-    {
-        ExpectError error(r, "value is out of range for type 'float': nan");
-        Float(std::numeric_limits<float>::quiet_NaN()).release();
-    }
-
-    {
-        ExpectError error(r, "'float4' is not a valid parameter to 'float2' constructor; use '.xy' "
-                             "instead");
-        Float2(Float4(1)).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'float4' constructor (expected 4 scalars, but "
-                             "found 3)");
-        Float4(Float3(1)).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLHalf, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    // We can't use stof here, because old versions of libc++ can throw out_of_range on edge case
-    // inputs like these. (This causes test failure on old Android devices.)
-    Expression e1 = Half(std::numeric_limits<float>::max());
-    REPORTER_ASSERT(r, std::strtof(e1.release()->description().c_str(), nullptr) ==
-                       std::numeric_limits<float>::max());
-
-    Expression e2 = Half(std::numeric_limits<float>::min());
-    REPORTER_ASSERT(r, std::strtof(e2.release()->description().c_str(), nullptr) ==
-                       std::numeric_limits<float>::min());
-
-    EXPECT_EQUAL(Half2(0),
-                "half2(0.0)");
-    EXPECT_EQUAL(Half2(-0.5, 1),
-                "half2(-0.5, 1.0)");
-    EXPECT_EQUAL(Half3(0.75),
-                "half3(0.75)");
-    EXPECT_EQUAL(Half3(Half2(0, 1), -2),
-                "half3(0.0, 1.0, -2.0)");
-    EXPECT_EQUAL(Half3(0, 1, 2),
-                "half3(0.0, 1.0, 2.0)");
-    EXPECT_EQUAL(Half4(0),
-                "half4(0.0)");
-    EXPECT_EQUAL(Half4(Half2(0, 1), Half2(2, 3)),
-                "half4(0.0, 1.0, 2.0, 3.0)");
-    EXPECT_EQUAL(Half4(0, 1, Half2(2, 3)),
-                "half4(0.0, 1.0, 2.0, 3.0)");
-    EXPECT_EQUAL(Half4(0, 1, 2, 3),
-                "half4(0.0, 1.0, 2.0, 3.0)");
-
-    {
-        ExpectError error(r, "value is out of range for type 'half': inf");
-        Half(std::numeric_limits<float>::infinity()).release();
-    }
-
-    {
-        ExpectError error(r, "value is out of range for type 'half': nan");
-        Half(std::numeric_limits<float>::quiet_NaN()).release();
-    }
-
-    {
-        ExpectError error(r, "'half4' is not a valid parameter to 'half2' constructor; use '.xy' "
-                             "instead");
-        Half2(Half4(1)).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'half4' constructor (expected 4 scalars, but "
-                             "found 3)");
-        Half4(Half3(1)).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInt, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    EXPECT_EQUAL(Int(std::numeric_limits<int32_t>::max()),
-                "2147483647");
-    EXPECT_EQUAL(Int2(std::numeric_limits<int32_t>::min()),
-                "int2(-2147483648)");
-    EXPECT_EQUAL(Int2(0, 1),
-                "int2(0, 1)");
-    EXPECT_EQUAL(Int3(0),
-                "int3(0)");
-    EXPECT_EQUAL(Int3(Int2(0, 1), -2),
-                "int3(0, 1, -2)");
-    EXPECT_EQUAL(Int3(0, 1, 2),
-                "int3(0, 1, 2)");
-    EXPECT_EQUAL(Int4(0),
-                "int4(0)");
-    EXPECT_EQUAL(Int4(Int2(0, 1), Int2(2, 3)),
-                "int4(0, 1, 2, 3)");
-    EXPECT_EQUAL(Int4(0, 1, Int2(2, 3)),
-                "int4(0, 1, 2, 3)");
-    EXPECT_EQUAL(Int4(0, 1, 2, 3),
-                "int4(0, 1, 2, 3)");
-
-    {
-        ExpectError error(r, "'int4' is not a valid parameter to 'int2' constructor; use '.xy' "
-                             "instead");
-        Int2(Int4(1)).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'int4' constructor (expected 4 scalars, but "
-                             "found 3)");
-        Int4(Int3(1)).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLUInt, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    EXPECT_EQUAL(UInt(std::numeric_limits<uint32_t>::max()),
-                "4294967295");
-    EXPECT_EQUAL(UInt2(std::numeric_limits<uint32_t>::min()),
-                "uint2(0)");
-    EXPECT_EQUAL(UInt2(0, 1),
-                "uint2(0, 1)");
-    EXPECT_EQUAL(UInt3(0),
-                "uint3(0)");
-    EXPECT_EQUAL(UInt3(0, 1, 2),
-                "uint3(0, 1, 2)");
-    EXPECT_EQUAL(UInt4(0),
-                "uint4(0)");
-    EXPECT_EQUAL(UInt4(UInt2(0, 1), UInt2(2, 3)),
-                "uint4(0, 1, 2, 3)");
-    EXPECT_EQUAL(UInt4(0, 1, UInt2(2, 3)),
-                "uint4(0, 1, 2, 3)");
-    EXPECT_EQUAL(UInt4(0, 1, 2, 3),
-                "uint4(0, 1, 2, 3)");
-
-    {
-        ExpectError error(r, "value is out of range for type 'uint': -2");
-        UInt3(UInt2(0, 1), -2).release();
-    }
-
-    {
-        ExpectError error(r, "'uint4' is not a valid parameter to 'uint2' constructor; use '.xy' "
-                             "instead");
-        UInt2(UInt4(1)).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'uint4' constructor (expected 4 scalars, but "
-                             "found 3)");
-        UInt4(UInt3(1)).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    EXPECT_EQUAL(Short(std::numeric_limits<int16_t>::max()),
-                "32767");
-    EXPECT_EQUAL(Short2(std::numeric_limits<int16_t>::min()),
-                "short2(-32768)");
-    EXPECT_EQUAL(Short2(0, 1),
-                "short2(0, 1)");
-    EXPECT_EQUAL(Short3(0),
-                "short3(0)");
-    EXPECT_EQUAL(Short3(Short2(0, 1), -2),
-                "short3(0, 1, -2)");
-    EXPECT_EQUAL(Short3(0, 1, 2),
-                "short3(0, 1, 2)");
-    EXPECT_EQUAL(Short4(0),
-                "short4(0)");
-    EXPECT_EQUAL(Short4(Short2(0, 1), Short2(2, 3)),
-                "short4(0, 1, 2, 3)");
-    EXPECT_EQUAL(Short4(0, 1, Short2(2, 3)),
-                "short4(0, 1, 2, 3)");
-    EXPECT_EQUAL(Short4(0, 1, 2, 3),
-                "short4(0, 1, 2, 3)");
-
-    {
-        ExpectError error(r, "'short4' is not a valid parameter to 'short2' constructor; use '.xy' "
-                             "instead");
-        Short2(Short4(1)).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'short4' constructor (expected 4 scalars, but "
-                             "found 3)");
-        Short4(Short3(1)).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLUShort, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    EXPECT_EQUAL(UShort(std::numeric_limits<uint16_t>::max()),
-                "65535");
-    EXPECT_EQUAL(UShort2(std::numeric_limits<uint16_t>::min()),
-                "ushort2(0)");
-    EXPECT_EQUAL(UShort2(0, 1),
-                "ushort2(0, 1)");
-    EXPECT_EQUAL(UShort3(0),
-                "ushort3(0)");
-    EXPECT_EQUAL(UShort3(0, 1, 2),
-                "ushort3(0, 1, 2)");
-    EXPECT_EQUAL(UShort4(0),
-                "ushort4(0)");
-    EXPECT_EQUAL(UShort4(UShort2(0, 1), UShort2(2, 3)),
-                "ushort4(0, 1, 2, 3)");
-    EXPECT_EQUAL(UShort4(0, 1, UShort2(2, 3)),
-                "ushort4(0, 1, 2, 3)");
-    EXPECT_EQUAL(UShort4(0, 1, 2, 3),
-                "ushort4(0, 1, 2, 3)");
-
-    {
-        ExpectError error(r, "value is out of range for type 'ushort': -2");
-        UShort3(UShort2(0, 1), -2).release();
-    }
-
-    {
-        ExpectError error(r, "'ushort4' is not a valid parameter to 'ushort2' constructor; use "
-                             "'.xy' instead");
-        UShort2(UShort4(1)).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'ushort4' constructor (expected 4 scalars, but "
-                             "found 3)");
-        UShort4(UShort3(1)).release();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-
-    EXPECT_EQUAL(Bool2(false),
-                "bool2(false)");
-    EXPECT_EQUAL(Bool2(false, true),
-                "bool2(false, true)");
-    EXPECT_EQUAL(Bool3(false),
-                "bool3(false)");
-    EXPECT_EQUAL(Bool3(Bool2(false, true), false),
-                "bool3(false, true, false)");
-    EXPECT_EQUAL(Bool3(false, true, false),
-                "bool3(false, true, false)");
-    EXPECT_EQUAL(Bool4(false),
-                "bool4(false)");
-    EXPECT_EQUAL(Bool4(Bool2(false, true), Bool2(false, true)),
-                "bool4(false, true, false, true)");
-    EXPECT_EQUAL(Bool4(false, true, Bool2(false, true)),
-                "bool4(false, true, false, true)");
-    EXPECT_EQUAL(Bool4(false, true, false, true),
-                "bool4(false, true, false, true)");
-
-    {
-        ExpectError error(r, "'bool4' is not a valid parameter to 'bool2' constructor; use '.xy' "
-                             "instead");
-        Bool2(Bool4(true)).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'bool4' constructor (expected 4 scalars, but "
-                             "found 3)");
-        Bool4(Bool3(true)).release();
-    }
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     REPORTER_ASSERT(r,  DSLType(kBool_Type).isBoolean());
@@ -580,94 +270,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     }
 }
 
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var f22(kFloat2x2_Type, "f22");
-    EXPECT_EQUAL(f22.assign(Float2x2(1)), "f22 = float2x2(1.0)");
-    Var f32(kFloat3x2_Type, "f32");
-    EXPECT_EQUAL(f32.assign(Float3x2(1, 2, 3, 4, 5, 6)),
-                 "f32 = float3x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)");
-    Var f42(kFloat4x2_Type, "f42");
-    EXPECT_EQUAL(f42.assign(Float4x2(Float4(1, 2, 3, 4), 5, 6, 7, 8)),
-                 "f42 = float4x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)");
-    Var f23(kFloat2x3_Type, "f23");
-    EXPECT_EQUAL(f23.assign(Float2x3(1, Float2(2, 3), 4, Float2(5, 6))),
-                 "f23 = float2x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)");
-    Var f33(kFloat3x3_Type, "f33");
-    EXPECT_EQUAL(f33.assign(Float3x3(Float3(1, 2, 3), 4, Float2(5, 6), 7, 8, 9)),
-                 "f33 = float3x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)");
-    Var f43(kFloat4x3_Type, "f43");
-    EXPECT_EQUAL(f43.assign(Float4x3(Float4(1, 2, 3, 4), Float4(5, 6, 7, 8), Float4(9, 10, 11,12))),
-                 "f43 = float4x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0)");
-    Var f24(kFloat2x4_Type, "f24");
-    EXPECT_EQUAL(f24.assign(Float2x4(1, 2, 3, 4, 5, 6, 7, 8)),
-                 "f24 = float2x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)");
-    Var f34(kFloat3x4_Type, "f34");
-    EXPECT_EQUAL(f34.assign(Float3x4(1, 2, 3, 4, 5, 6, 7, 8, 9, Float3(10, 11, 12))),
-                 "f34 = float3x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0)");
-    Var f44(kFloat4x4_Type, "f44");
-    EXPECT_EQUAL(f44.assign(Float4x4(1)), "f44 = float4x4(1.0)");
-
-    Var h22(kHalf2x2_Type, "h22");
-    EXPECT_EQUAL(h22.assign(Half2x2(1)), "h22 = half2x2(1.0)");
-    Var h32(kHalf3x2_Type, "h32");
-    EXPECT_EQUAL(h32.assign(Half3x2(1, 2, 3, 4, 5, 6)),
-                 "h32 = half3x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)");
-    Var h42(kHalf4x2_Type, "h42");
-    EXPECT_EQUAL(h42.assign(Half4x2(Half4(1, 2, 3, 4), 5, 6, 7, 8)),
-                 "h42 = half4x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)");
-    Var h23(kHalf2x3_Type, "h23");
-    EXPECT_EQUAL(h23.assign(Half2x3(1, Half2(2, 3), 4, Half2(5, 6))),
-                 "h23 = half2x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)");
-    Var h33(kHalf3x3_Type, "h33");
-    EXPECT_EQUAL(h33.assign(Half3x3(Half3(1, 2, 3), 4, Half2(5, 6), 7, 8, 9)),
-                 "h33 = half3x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)");
-    Var h43(kHalf4x3_Type, "h43");
-    EXPECT_EQUAL(h43.assign(Half4x3(Half4(1, 2, 3, 4), Half4(5, 6, 7, 8), Half4(9, 10, 11, 12))),
-                 "h43 = half4x3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0)");
-    Var h24(kHalf2x4_Type, "h24");
-    EXPECT_EQUAL(h24.assign(Half2x4(1, 2, 3, 4, 5, 6, 7, 8)),
-                 "h24 = half2x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)");
-    Var h34(kHalf3x4_Type, "h34");
-    EXPECT_EQUAL(h34.assign(Half3x4(1, 2, 3, 4, 5, 6, 7, 8, 9, Half3(10, 11, 12))),
-                 "h34 = half3x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0)");
-    Var h44(kHalf4x4_Type, "h44");
-    EXPECT_EQUAL(h44.assign(Half4x4(1)), "h44 = half4x4(1.0)");
-
-    EXPECT_EQUAL(f22 * 2, "f22 * 2.0");
-    EXPECT_EQUAL(f22 == Float2x2(1), "f22 == float2x2(1.0)");
-    EXPECT_EQUAL(h42[0][1], "h42[0].y");
-    EXPECT_EQUAL(f43 * Float4(0), "float3(0.0)");
-    EXPECT_EQUAL(h23 * 2, "h23 * 2.0");
-
-    {
-        ExpectError error(r, "invalid arguments to 'float3x3' constructor (expected 9 scalars, but "
-                             "found 2)");
-        DSLExpression(Float3x3(Float2(1))).release();
-    }
-
-    {
-        ExpectError error(r, "invalid arguments to 'half2x2' constructor (expected 4 scalars, but "
-                             "found 5)");
-        DSLExpression(Half2x2(1, 2, 3, 4, 5)).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '*' cannot operate on 'float4x3', 'float3'");
-        DSLExpression(f43 * Float3(1)).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '=' cannot operate on 'float4x3', 'float3x3'");
-        DSLExpression(f43.assign(f33)).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '=' cannot operate on 'half2x2', 'float2x2'");
-        DSLExpression(h22.assign(f22)).release();
-    }
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
@@ -684,16 +286,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
                  "a");
     EXPECT_EQUAL(+(a + b),
                   "a + b");
-
-    {
-        ExpectError error(r, "type mismatch: '+' cannot operate on 'bool2', 'float'");
-        DSLExpression((Bool2(true) + a)).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '+=' cannot operate on 'float', 'bool2'");
-        DSLExpression((a += Bool2(true))).release();
-    }
 
     {
         ExpectError error(r, "cannot assign to this expression");
@@ -725,16 +317,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
                 "-(a - b)");
 
     {
-        ExpectError error(r, "type mismatch: '-' cannot operate on 'bool2', 'int'");
-        DSLExpression(Bool2(true) - a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '-=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a -= Bool2(true)).release();
-    }
-
-    {
         ExpectError error(r, "cannot assign to this expression");
         DSLExpression(1.0 -= a).release();
     }
@@ -760,16 +342,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
                 "a *= b + 1.0");
 
     {
-        ExpectError error(r, "type mismatch: '*' cannot operate on 'bool2', 'float'");
-        DSLExpression(Bool2(true) * a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '*=' cannot operate on 'float', 'bool2'");
-        DSLExpression(a *= Bool2(true)).release();
-    }
-
-    {
         ExpectError error(r, "cannot assign to this expression");
         DSLExpression(1.0 *= a).release();
     }
@@ -791,16 +363,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
                 "a /= b + 1.0");
 
     {
-        ExpectError error(r, "type mismatch: '/' cannot operate on 'bool2', 'float'");
-        DSLExpression(Bool2(true) / a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '/=' cannot operate on 'float', 'bool2'");
-        DSLExpression(a /= Bool2(true)).release();
-    }
-
-    {
         ExpectError error(r, "cannot assign to this expression");
         DSLExpression(1.0 /= a).release();
     }
@@ -808,12 +370,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
     {
         ExpectError error(r, "division by zero");
         DSLExpression(a /= 0).release();
-    }
-
-    {
-        Var c(kFloat2_Type, "c");
-        ExpectError error(r, "division by zero");
-        DSLExpression(c /= Float2(Float(0), 1)).release();
     }
 }
 
@@ -833,16 +389,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
     EXPECT_EQUAL(e4, "a %= b + 1");
 
     {
-        ExpectError error(r, "type mismatch: '%' cannot operate on 'bool2', 'int'");
-        DSLExpression(Bool2(true) % a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '%=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a %= Bool2(true)).release();
-    }
-
-    {
         ExpectError error(r, "cannot assign to this expression");
         DSLExpression(1 %= a).release();
     }
@@ -850,12 +396,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
     {
         ExpectError error(r, "division by zero");
         DSLExpression(a %= 0).release();
-    }
-
-    {
-        Var c(kInt2_Type, "c");
-        ExpectError error(r, "division by zero");
-        DSLExpression(c %= Int2(Int(0), 1)).release();
     }
 }
 
@@ -873,16 +413,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
 
     Expression e4 = a <<= b + 1;
     EXPECT_EQUAL(e4, "a <<= b + 1");
-
-    {
-        ExpectError error(r, "type mismatch: '<<' cannot operate on 'bool2', 'int'");
-        DSLExpression(Bool2(true) << a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '<<=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a <<= Bool2(true)).release();
-    }
 
     {
         ExpectError error(r, "cannot assign to this expression");
@@ -906,16 +436,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
     EXPECT_EQUAL(e4, "a >>= b + 1");
 
     {
-        ExpectError error(r, "type mismatch: '>>' cannot operate on 'bool2', 'int'");
-        DSLExpression(Bool2(true) >> a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '>>=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a >>= Bool2(true)).release();
-    }
-
-    {
         ExpectError error(r, "cannot assign to this expression");
         DSLExpression(1 >>= a).release();
     }
@@ -935,16 +455,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
 
     Expression e4 = a &= b + 1;
     EXPECT_EQUAL(e4, "a &= b + 1");
-
-    {
-        ExpectError error(r, "type mismatch: '&' cannot operate on 'bool2', 'int'");
-        DSLExpression(Bool2(true) & a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '&=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a &= Bool2(true)).release();
-    }
 
     {
         ExpectError error(r, "cannot assign to this expression");
@@ -968,16 +478,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
     EXPECT_EQUAL(e4, "a |= b + 1");
 
     {
-        ExpectError error(r, "type mismatch: '|' cannot operate on 'bool2', 'int'");
-        DSLExpression(Bool2(true) | a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '|=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a |= Bool2(true)).release();
-    }
-
-    {
         ExpectError error(r, "cannot assign to this expression");
         DSLExpression(1 |= a).release();
     }
@@ -997,16 +497,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
 
     Expression e4 = a ^= b + 1;
     EXPECT_EQUAL(e4, "a ^= b + 1");
-
-    {
-        ExpectError error(r, "type mismatch: '^' cannot operate on 'bool2', 'int'");
-        DSLExpression(Bool2(true) ^ a).release();
-    }
-
-    {
-        ExpectError error(r, "type mismatch: '^=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a ^= Bool2(true)).release();
-    }
 
     {
         ExpectError error(r, "cannot assign to this expression");
@@ -1067,9 +557,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLComma, r, ctxInfo) {
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = (a += b, b);
     EXPECT_EQUAL(e1, "(a += b, b)");
-
-    Expression e2 = (a += b, b += b, Int2(a));
-    EXPECT_EQUAL(e2, "((a += b, b += b), int2(a))");
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
@@ -1080,11 +567,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
 
     Expression e2 = a == 5;
     EXPECT_EQUAL(e2, "a == 5");
-
-    {
-        ExpectError error(r, "type mismatch: '==' cannot operate on 'int', 'bool2'");
-        DSLExpression(a == Bool2(true)).release();
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
@@ -1095,11 +577,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
 
     Expression e2 = a != 5;
     EXPECT_EQUAL(e2, "a != 5");
-
-    {
-        ExpectError error(r, "type mismatch: '!=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a != Bool2(true)).release();
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
@@ -1110,11 +587,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
 
     Expression e2 = a > 5;
     EXPECT_EQUAL(e2, "a > 5");
-
-    {
-        ExpectError error(r, "type mismatch: '>' cannot operate on 'int', 'bool2'");
-        DSLExpression(a > Bool2(true)).release();
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
@@ -1125,11 +597,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
 
     Expression e2 = a >= 5;
     EXPECT_EQUAL(e2, "a >= 5");
-
-    {
-        ExpectError error(r, "type mismatch: '>=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a >= Bool2(true)).release();
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
@@ -1140,11 +607,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
 
     Expression e2 = a < 5;
     EXPECT_EQUAL(e2, "a < 5");
-
-    {
-        ExpectError error(r, "type mismatch: '<' cannot operate on 'int', 'bool2'");
-        DSLExpression(a < Bool2(true)).release();
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
@@ -1155,11 +617,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
 
     Expression e2 = a <= 5;
     EXPECT_EQUAL(e2, "a <= 5");
-
-    {
-        ExpectError error(r, "type mismatch: '<=' cannot operate on 'int', 'bool2'");
-        DSLExpression(a <= Bool2(true)).release();
-    }
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLogicalNot, r, ctxInfo) {
@@ -1271,40 +728,11 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
-        Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
-        EXPECT_EQUAL(Declare(a), "half4 a;");
-        EXPECT_EQUAL(Declare(b), "half4 b = half4(1.0);");
-    }
-
-    {
         DSLWriter::Reset();
         TArray<Var> vars;
         vars.push_back(Var(kBool_Type, "a", true));
         vars.push_back(Var(kFloat_Type, "b"));
         EXPECT_EQUAL(Declare(vars), "bool a = true; float b;");
-    }
-
-    {
-        DSLWriter::Reset();
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().empty());
-        GlobalVar a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
-        Declare(a);
-        Declare(b);
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "half4 a;");
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1], "half4 b = half4(1.0);");
-    }
-
-    {
-        DSLWriter::Reset();
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().empty());
-        TArray<GlobalVar> vars;
-        vars.push_back(GlobalVar(kHalf4_Type, "a"));
-        vars.push_back(GlobalVar(kHalf4_Type, "b", Half4(1)));
-        Declare(vars);
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "half4 a;");
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1], "half4 b = half4(1.0);");
     }
 
     {
@@ -1376,11 +804,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
     {
         ExpectError error(r, "expected 'bool', but found 'int'");
         Select(a, 1, -1).release();
-    }
-
-    {
-        ExpectError error(r, "ternary operator result mismatch: 'float2', 'float3'");
-        Select(a > 0, Float2(1), Float3(1)).release();
     }
 }
 
@@ -1550,24 +973,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
     {
         ExpectError error(r, "layout qualifier 'color' appears more than once");
         DSLLayout().color().color();
-    }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
-                           SkSL::ProgramKind::kRuntimeShader);
-    DSLGlobalVar shader(kUniform_Modifier, kShader_Type, "child");
-    DSLGlobalVar notShader(kUniform_Modifier, kFloat_Type, "x");
-    EXPECT_EQUAL(shader.eval(Float2(0, 0)), "child.eval(float2(0.0))");
-
-    {
-        ExpectError error(r, "no match for shader::eval(half4)");
-        shader.eval(Half4(1)).release();
-    }
-
-    {
-        ExpectError error(r, "type does not support method calls");
-        notShader.eval(Half4(1)).release();
     }
 }
 

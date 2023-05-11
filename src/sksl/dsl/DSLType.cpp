@@ -8,14 +8,12 @@
 #include "src/sksl/dsl/DSLType.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSymbol.h"
@@ -255,20 +253,6 @@ bool DSLType::isInterfaceBlock() const {
 
 bool DSLType::isEffectChild() const {
     return this->skslType().isEffectChild();
-}
-
-DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
-    SkSL::ExpressionArray skslArgs;
-    skslArgs.reserve_back(argArray.size());
-
-    for (DSLExpression& arg : argArray) {
-        if (!arg.hasValue()) {
-            return DSLExpression();
-        }
-        skslArgs.push_back(arg.release());
-    }
-    return DSLExpression(SkSL::Constructor::Convert(ThreadContext::Context(), Position(),
-                                                    type.skslType(), std::move(skslArgs)));
 }
 
 DSLType Array(const DSLType& base, int count, Position pos) {

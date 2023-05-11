@@ -201,44 +201,6 @@ private:
     friend class SkSL::Compiler;
 };
 
-#define TYPE(T)                                                                                    \
-    template<typename... Args>                                                                     \
-    DSLExpression T(Args&&... args) {                                                              \
-        return DSLType::Construct(k ## T ## _Type, std::forward<Args>(args)...);                   \
-    }
-
-#define VECTOR_TYPE(T)                                                                             \
-    TYPE(T)                                                                                        \
-    TYPE(T ## 2)                                                                                   \
-    TYPE(T ## 3)                                                                                   \
-    TYPE(T ## 4)
-
-#define MATRIX_TYPE(T)                                                                             \
-    TYPE(T ## 2x2)                                                                                 \
-    TYPE(T ## 3x2)                                                                                 \
-    TYPE(T ## 4x2)                                                                                 \
-    TYPE(T ## 2x3)                                                                                 \
-    TYPE(T ## 3x3)                                                                                 \
-    TYPE(T ## 4x3)                                                                                 \
-    TYPE(T ## 2x4)                                                                                 \
-    TYPE(T ## 3x4)                                                                                 \
-    TYPE(T ## 4x4)
-
-VECTOR_TYPE(Bool)
-VECTOR_TYPE(Float)
-VECTOR_TYPE(Half)
-VECTOR_TYPE(Int)
-VECTOR_TYPE(UInt)
-VECTOR_TYPE(Short)
-VECTOR_TYPE(UShort)
-
-MATRIX_TYPE(Float)
-MATRIX_TYPE(Half)
-
-#undef TYPE
-#undef VECTOR_TYPE
-#undef MATRIX_TYPE
-
 DSLType Array(const DSLType& base, int count, Position pos = {});
 
 DSLType UnsizedArray(const DSLType& base, Position pos = {});
