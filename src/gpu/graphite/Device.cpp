@@ -73,10 +73,7 @@ const SkStrokeRec& DefaultFillStyle() {
     return kFillStyle;
 }
 
-bool paint_depends_on_dst(SkColor4f color,
-                          const SkShader* shader,
-                          const SkColorFilter* colorFilter,
-                          const SkBlender* blender) {
+bool blender_depends_on_dst(const SkBlender* blender, bool srcIsTransparent) {
     std::optional<SkBlendMode> bm = blender ? as_BB(blender)->asBlendMode() : SkBlendMode::kSrcOver;
     if (!bm.has_value()) {
         return true;
@@ -86,25 +83,44 @@ bool paint_depends_on_dst(SkColor4f color,
         return false;
     }
     if (bm.value() == SkBlendMode::kSrcOver) {
-        // src-over does not depend on dst if src is opaque (a = 1)
-        return !color.isOpaque() ||
-               (shader && !shader->isOpaque()) ||
-               (colorFilter && !colorFilter->isAlphaUnchanged());
+        // src-over depends on dst if src is transparent (a != 1)
+        return srcIsTransparent;
     }
     // TODO: Are their other modes that don't depend on dst that can be trivially detected?
     return true;
 }
 
+bool paint_depends_on_dst(SkColor4f color,
+                          const SkShader* shader,
+                          const SkColorFilter* colorFilter,
+                          const SkBlender* finalBlender,
+                          const SkBlender* primitiveBlender) {
+    const bool srcIsTransparent = !color.isOpaque() || (shader && !shader->isOpaque()) ||
+                                  (colorFilter && !colorFilter->isAlphaUnchanged());
+
+    if (primitiveBlender && blender_depends_on_dst(primitiveBlender, srcIsTransparent)) {
+        return true;
+    }
+
+    return blender_depends_on_dst(finalBlender, srcIsTransparent);
+}
+
 bool paint_depends_on_dst(const PaintParams& paintParams) {
-    return paint_depends_on_dst(paintParams.color(), paintParams.shader(),
-                                paintParams.colorFilter(), paintParams.finalBlender());
+    return paint_depends_on_dst(paintParams.color(),
+                                paintParams.shader(),
+                                paintParams.colorFilter(),
+                                paintParams.finalBlender(),
+                                paintParams.primitiveBlender());
 }
 
 bool paint_depends_on_dst(const SkPaint& paint) {
     // CAUTION: getMaskFilter is intentionally ignored here.
     SkASSERT(!paint.getImageFilter());  // no paints in SkDevice should have an image filter
-    return paint_depends_on_dst(paint.getColor4f(), paint.getShader(),
-                                paint.getColorFilter(), paint.getBlender());
+    return paint_depends_on_dst(paint.getColor4f(),
+                                paint.getShader(),
+                                paint.getColorFilter(),
+                                paint.getBlender(),
+                                /*primitiveBlender=*/nullptr);
 }
 
 /** If the paint can be reduced to a solid flood-fill, determine the correct color to fill with. */
