@@ -27,6 +27,7 @@
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
@@ -377,6 +378,60 @@ void Parser::declarations() {
     }
 }
 
+/* DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER NEWLINE */
+void Parser::extensionDirective(Position start) {
+    Token name;
+    if (!this->expectIdentifier(&name)) {
+        return;
+    }
+    if (!this->expect(Token::Kind::TK_COLON, "':'")) {
+        return;
+    }
+    Token behavior;
+    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &behavior)) {
+        return;
+    }
+    // We expect a newline immediately after `#extension name : behavior`.
+    if (this->expectNewline()) {
+        std::unique_ptr<SkSL::Extension> ext = Extension::Convert(ThreadContext::Context(),
+                                                                  this->rangeFrom(start),
+                                                                  this->text(name),
+                                                                  this->text(behavior));
+        if (ext) {
+            ThreadContext::ProgramElements().push_back(std::move(ext));
+        }
+    } else {
+        this->error(start, "invalid #extension directive");
+    }
+}
+
+/* DIRECTIVE(#version) INTLITERAL NEWLINE */
+void Parser::versionDirective(Position start, bool allowVersion) {
+    if (!allowVersion) {
+        this->error(start, "#version directive must appear before anything else");
+        return;
+    }
+    SKSL_INT version;
+    if (!this->intLiteral(&version)) {
+        return;
+    }
+    switch (version) {
+        case 100:
+            ThreadContext::GetProgramConfig()->fRequiredSkSLVersion = Version::k100;
+            break;
+        case 300:
+            ThreadContext::GetProgramConfig()->fRequiredSkSLVersion = Version::k300;
+            break;
+        default:
+            this->error(start, "unsupported version number");
+            return;
+    }
+    // We expect a newline after a #version directive.
+    if (!this->expectNewline()) {
+        this->error(start, "invalid #version directive");
+    }
+}
+
 /* DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER NEWLINE |
    DIRECTIVE(#version) INTLITERAL NEWLINE */
 void Parser::directive(bool allowVersion) {
@@ -385,60 +440,13 @@ void Parser::directive(bool allowVersion) {
         return;
     }
     std::string_view text = this->text(start);
-    const bool allowExtensions = !ProgramConfig::IsRuntimeEffect(fKind);
-    if (text == "#extension" && allowExtensions) {
-        Token name;
-        if (!this->expectIdentifier(&name)) {
-            return;
-        }
-        if (!this->expect(Token::Kind::TK_COLON, "':'")) {
-            return;
-        }
-        Token behavior;
-        if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &behavior)) {
-            return;
-        }
-        std::string_view behaviorText = this->text(behavior);
-        if (behaviorText != "disable") {
-            if (behaviorText == "require" || behaviorText == "enable" || behaviorText == "warn") {
-                // We don't currently do anything different between require, enable, and warn
-                dsl::AddExtension(this->text(name));
-            } else {
-                this->error(behavior, "expected 'require', 'enable', 'warn', or 'disable'");
-            }
-        }
-
-        // We expect a newline after an #extension directive.
-        if (!this->expectNewline()) {
-            this->error(start, "invalid #extension directive");
-        }
-    } else if (text == "#version") {
-        if (!allowVersion) {
-            this->error(start, "#version directive must appear before anything else");
-            return;
-        }
-        SKSL_INT version;
-        if (!this->intLiteral(&version)) {
-            return;
-        }
-        switch (version) {
-            case 100:
-                ThreadContext::GetProgramConfig()->fRequiredSkSLVersion = Version::k100;
-                break;
-            case 300:
-                ThreadContext::GetProgramConfig()->fRequiredSkSLVersion = Version::k300;
-                break;
-            default:
-                this->error(start, "unsupported version number");
-                return;
-        }
-        // We expect a newline after a #version directive.
-        if (!this->expectNewline()) {
-            this->error(start, "invalid #version directive");
-        }
-    } else {
-        this->error(start, "unsupported directive '" + std::string(this->text(start)) + "'");
+    if (text == "#extension") {
+        return this->extensionDirective(this->position(start));
     }
+    if (text == "#version") {
+        return this->versionDirective(this->position(start), allowVersion);
+    }
+    this->error(start, "unsupported directive '" + std::string(this->text(start)) + "'");
 }
 
 bool Parser::modifiersDeclarationEnd(Position pos, const dsl::DSLModifiers& mods) {

@@ -41,6 +41,7 @@ IR_FILES = [
     "SkSLExpression.h",
     "SkSLExpressionStatement.cpp",
     "SkSLExpressionStatement.h",
+    "SkSLExtension.cpp",
     "SkSLExtension.h",
     "SkSLField.h",
     "SkSLFieldAccess.cpp",

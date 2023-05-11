@@ -146,6 +146,10 @@ private:
 
     void directive(bool allowVersion);
 
+    void extensionDirective(Position start);
+
+    void versionDirective(Position start, bool allowVersion);
+
     bool declaration();
 
     bool functionDeclarationEnd(Position start,

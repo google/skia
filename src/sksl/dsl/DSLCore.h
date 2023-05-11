@@ -64,11 +64,6 @@ ErrorReporter& GetErrorReporter();
 void SetErrorReporter(ErrorReporter* errorReporter);
 
 /**
- * #extension <name> : enable
- */
-void AddExtension(std::string_view name, Position pos = {});
-
-/**
  * Declares a global variable.
  */
 void Declare(DSLGlobalVar& var, Position pos = {});

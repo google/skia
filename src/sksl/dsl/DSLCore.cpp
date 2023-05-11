@@ -18,7 +18,6 @@
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -137,10 +136,6 @@ public:
 
 std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source) {
     return DSLCore::ReleaseProgram(std::move(source));
-}
-
-void AddExtension(std::string_view name, Position pos) {
-    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::Extension>(pos, name));
 }
 
 // Logically, we'd want the variable's initial value to appear on here in Declare, since that

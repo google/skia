@@ -172,6 +172,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLExpression.h",
   "$_src/sksl/ir/SkSLExpressionStatement.cpp",
   "$_src/sksl/ir/SkSLExpressionStatement.h",
+  "$_src/sksl/ir/SkSLExtension.cpp",
   "$_src/sksl/ir/SkSLExtension.h",
   "$_src/sksl/ir/SkSLField.h",
   "$_src/sksl/ir/SkSLFieldAccess.cpp",

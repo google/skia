@@ -1560,6 +1560,7 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLExpression.h",
     "src/sksl/ir/SkSLExpressionStatement.cpp",
     "src/sksl/ir/SkSLExpressionStatement.h",
+    "src/sksl/ir/SkSLExtension.cpp",
     "src/sksl/ir/SkSLExtension.h",
     "src/sksl/ir/SkSLField.h",
     "src/sksl/ir/SkSLFieldAccess.cpp",
