@@ -83,7 +83,8 @@ private:
 const AnimationBuilder::FootageAssetInfo*
 AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& defaultJImage) const {
     const skjson::ObjectValue* jimage = &defaultJImage;
-    if (const skjson::StringValue* slotID = defaultJImage["sid"] ) {
+    const skjson::StringValue* slotID = defaultJImage["sid"];
+    if (slotID) {
         if (!(this->fSlotsRoot)) {
             this->log(Logger::Level::kWarning, nullptr,
                          "Slotid found but no slots were found in the json. Using default asset.");
@@ -110,7 +111,14 @@ AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& defaultJImage) con
         return cached_info;
     }
 
-    auto asset = fResourceProvider->loadImageAsset(path->begin(), name->begin(), id->begin());
+    // If a slotID is present, we lose asset_id info during the load call. If this is an issue, we
+    // will extend the base ResourceProvider and provide a new loadImageAsset call that passes all
+    // four arguments (path, name, id, slotID)
+    auto asset = fResourceProvider->loadImageAsset(path->begin(),
+                                               name->begin(),
+                                               slotID
+                                                   ? slotID->begin()
+                                                   : id->begin());
     if (!asset) {
         this->log(Logger::Level::kError, nullptr, "Could not load image asset: %s/%s (id: '%s').",
                   path->begin(), name->begin(), id->begin());

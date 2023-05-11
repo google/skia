@@ -126,6 +126,16 @@ private:
     const SkString                             fPrefix;
 };
 
+enum SlotType {
+    // properties
+    kColor   = 1,
+    kOpacity = 4,
+    // assets
+    kImage   = 50,
+    // text
+    kText    = 99,
+};
+
 /**
  * Helper class to wrap a Skottie focused implementation of ResourceProvider and PropertyObserver
  * to help manage 'slots' (properties and assets intended by the author to be swapped).
