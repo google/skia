@@ -53,38 +53,6 @@ public:
         return fStorage;
     }
 
-    DSLExpression x() {
-        return DSLExpression(*this).x();
-    }
-
-    DSLExpression y() {
-        return DSLExpression(*this).y();
-    }
-
-    DSLExpression z() {
-        return DSLExpression(*this).z();
-    }
-
-    DSLExpression w() {
-        return DSLExpression(*this).w();
-    }
-
-    DSLExpression r() {
-        return DSLExpression(*this).r();
-    }
-
-    DSLExpression g() {
-        return DSLExpression(*this).g();
-    }
-
-    DSLExpression b() {
-        return DSLExpression(*this).b();
-    }
-
-    DSLExpression a() {
-        return DSLExpression(*this).a();
-    }
-
     DSLExpression field(std::string_view name) {
         return DSLExpression(*this).field(name);
     }

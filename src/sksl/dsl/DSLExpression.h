@@ -104,22 +104,6 @@ public:
      */
     DSLExpression assign(DSLExpression other);
 
-    DSLExpression x(Position pos = {});
-
-    DSLExpression y(Position pos = {});
-
-    DSLExpression z(Position pos = {});
-
-    DSLExpression w(Position pos = {});
-
-    DSLExpression r(Position pos = {});
-
-    DSLExpression g(Position pos = {});
-
-    DSLExpression b(Position pos = {});
-
-    DSLExpression a(Position pos = {});
-
     /**
      * Creates an SkSL struct field access expression.
      */

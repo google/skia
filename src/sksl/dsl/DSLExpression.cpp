@@ -11,7 +11,6 @@
 #include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -115,38 +114,6 @@ Position DSLExpression::position() const {
 void DSLExpression::setPosition(Position pos) {
     SkASSERT(this->hasValue());
     fExpression->fPosition = pos;
-}
-
-DSLExpression DSLExpression::x(Position pos) {
-    return Swizzle(std::move(*this), X, pos);
-}
-
-DSLExpression DSLExpression::y(Position pos) {
-    return Swizzle(std::move(*this), Y, pos);
-}
-
-DSLExpression DSLExpression::z(Position pos) {
-    return Swizzle(std::move(*this), Z, pos);
-}
-
-DSLExpression DSLExpression::w(Position pos) {
-    return Swizzle(std::move(*this), W, pos);
-}
-
-DSLExpression DSLExpression::r(Position pos) {
-    return Swizzle(std::move(*this), R, pos);
-}
-
-DSLExpression DSLExpression::g(Position pos) {
-    return Swizzle(std::move(*this), G, pos);
-}
-
-DSLExpression DSLExpression::b(Position pos) {
-    return Swizzle(std::move(*this), B, pos);
-}
-
-DSLExpression DSLExpression::a(Position pos) {
-    return Swizzle(std::move(*this), A, pos);
 }
 
 DSLExpression DSLExpression::field(std::string_view name, Position pos) {

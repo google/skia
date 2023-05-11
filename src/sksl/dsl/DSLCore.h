@@ -8,7 +8,6 @@
 #ifndef SKSL_DSL_CORE
 #define SKSL_DSL_CORE
 
-#include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/dsl/DSLExpression.h"
@@ -31,12 +30,6 @@ namespace dsl {
 
 class DSLField;
 class DSLModifiers;
-
-// When users import the DSL namespace via `using namespace SkSL::dsl`, we want the SwizzleComponent
-// Type enum to come into scope as well, so `Swizzle(var, X, Y, ONE)` can work as expected.
-// `namespace SkSL::SwizzleComponent` contains only an `enum Type`; this `using namespace` directive
-// shouldn't pollute the SkSL::dsl namespace with anything else.
-using namespace SkSL::SwizzleComponent;
 
 /**
  * Starts DSL output on the current thread using the specified compiler. This must be called
@@ -105,35 +98,6 @@ DSLExpression InterfaceBlock(const DSLModifiers& modifiers,  std::string_view ty
  */
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position  = {});
-
-/**
- * expression.xyz1
- */
-DSLExpression Swizzle(DSLExpression base,
-                      SkSL::SwizzleComponent::Type a,
-                      Position pos = {},
-                      Position maskPos = {});
-
-DSLExpression Swizzle(DSLExpression base,
-                      SkSL::SwizzleComponent::Type a,
-                      SkSL::SwizzleComponent::Type b,
-                      Position pos = {},
-                      Position maskPos = {});
-
-DSLExpression Swizzle(DSLExpression base,
-                      SkSL::SwizzleComponent::Type a,
-                      SkSL::SwizzleComponent::Type b,
-                      SkSL::SwizzleComponent::Type c,
-                      Position pos = {},
-                      Position maskPos = {});
-
-DSLExpression Swizzle(DSLExpression base,
-                      SkSL::SwizzleComponent::Type a,
-                      SkSL::SwizzleComponent::Type b,
-                      SkSL::SwizzleComponent::Type c,
-                      SkSL::SwizzleComponent::Type d,
-                      Position pos = {},
-                      Position maskPos = {});
 
 } // namespace dsl
 

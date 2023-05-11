@@ -6,7 +6,6 @@
  */
 
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -805,38 +804,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
         ExpectError error(r, "expected 'bool', but found 'int'");
         Select(a, 1, -1).release();
     }
-}
-
-DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var a(kFloat4_Type, "a");
-
-    EXPECT_EQUAL(a.x(),
-                "a.x");
-    EXPECT_EQUAL(a.y(),
-                "a.y");
-    EXPECT_EQUAL(a.z(),
-                "a.z");
-    EXPECT_EQUAL(a.w(),
-                "a.w");
-    EXPECT_EQUAL(a.r(),
-                "a.x");
-    EXPECT_EQUAL(a.g(),
-                "a.y");
-    EXPECT_EQUAL(a.b(),
-                "a.z");
-    EXPECT_EQUAL(a.a(),
-                "a.w");
-    EXPECT_EQUAL(Swizzle(a, R),
-                "a.x");
-    EXPECT_EQUAL(Swizzle(a, ZERO, G),
-                "float2(0.0, a.y)");
-    EXPECT_EQUAL(Swizzle(a, B, G, G),
-                "a.zyy");
-    EXPECT_EQUAL(Swizzle(a, R, G, B, ONE),
-                "float4(a.xyz, 1.0)");
-    EXPECT_EQUAL(Swizzle(a, B, G, R, ONE).r(),
-                "a.z");
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
