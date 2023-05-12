@@ -15,6 +15,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixelRef.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -103,25 +104,37 @@ protected:
     SkISize onISize() override { return SkISize::Make(768, 512); }
 
     bool onAnimate(double nanos) override {
-        fX = TimeUtils::SineWave(nanos, 10.f, 0.f, -64.f, 128.f);
-        fY = TimeUtils::SineWave(nanos, 10.f, 3.f, -64.f, 128.f);
+        fX = TimeUtils::SineWave(nanos, 10.f, 0.f, -200.f, 200.f);
+        fY = TimeUtils::SineWave(nanos, 10.f, 3.f, -200.f, 200.f);
         return true;
     }
 
     void onDraw(SkCanvas* canvas) override {
+        this->drawRow(canvas, 16.f); // fish eye distortion
+        canvas->translate(0.f, 256.f);
+        this->drawRow(canvas, 0.f);  // no distortion, just zoom
+    }
+
+private:
+
+    void drawRow(SkCanvas* canvas, float inset) {
         // Draw the magnifier two ways: backdrop filtered and then through a saveLayer with a
         // regular filter. Lastly draw the un-filtered input. Relevant bounds are displayed on
         // top of the rendering:
         //  - black = the lens bounding box
         //  - red   = the clipped inset lens bounds
         //  - blue  = the source of the undistorted magnified content
-        auto drawBorder = [canvas](SkRect rect, SkColor color, float width, float inset = 0.f) {
-            rect.inset(inset, inset);
+        auto drawBorder = [canvas](SkRect rect, SkColor color,
+                                   float width, float borderInset = 0.f) {
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(width);
             paint.setColor(color);
-            canvas->drawRect(rect, paint);
+            paint.setAntiAlias(true);
+
+            // This draws the original rect (unrounded) when borderInset = 0
+            rect.inset(borderInset, borderInset);
+            canvas->drawRRect(SkRRect::MakeRectXY(rect, borderInset, borderInset), paint);
         };
 
         // Logically there is a 'widgetBounds' that is the region of pixels to
@@ -133,7 +146,6 @@ protected:
         SkRect widgetBounds = {16.f, 24.f, 220.f, 248.f};
         widgetBounds.offset(fX, fY); // animating helps highlight magnifier behavior
 
-        constexpr float kInset = 16.f;
         constexpr float kZoomAmount = 2.5f;
 
         // The available content for backdrops, which clips the widgetBounds as it animates.
@@ -155,7 +167,7 @@ protected:
         // Internally, the magnifier filter performs equivalent calculations but responds to the
         // canvas matrix and available input automatically.
         sk_sp<SkImageFilter> magnifier =
-                SkImageFilters::Magnifier(widgetBounds, kZoomAmount, kInset,
+                SkImageFilters::Magnifier(widgetBounds, kZoomAmount, inset,
                                           SkSamplingOptions{SkFilterMode::kLinear},
                                           nullptr, kOutBounds);
 
@@ -166,8 +178,10 @@ protected:
             canvas->saveLayer({nullptr, nullptr, magnifier.get(), 0});
             canvas->restore();
 
-            drawBorder(widgetBounds, SK_ColorBLACK, 6.f);
-            drawBorder(clippedWidget, SK_ColorRED, 3.f, kInset);
+            drawBorder(widgetBounds, SK_ColorBLACK, 2.f);
+            if (inset > 0.f) {
+                drawBorder(clippedWidget, SK_ColorRED, 2.f, inset);
+            }
         canvas->restore();
 
         // Draw once as a regular filter
@@ -181,8 +195,10 @@ protected:
                 draw_content(canvas, 32.f, 350);
             canvas->restore();
 
-            drawBorder(widgetBounds, SK_ColorBLACK, 6.f);
-            drawBorder(clippedWidget, SK_ColorRED, 3.f, kInset);
+            drawBorder(widgetBounds, SK_ColorBLACK, 2.f);
+            if (inset > 0.f) {
+                drawBorder(clippedWidget, SK_ColorRED, 2.f, inset);
+            }
         canvas->restore();
 
         // Draw once unfiltered
@@ -191,8 +207,8 @@ protected:
             canvas->clipRect(kOutBounds);
             draw_content(canvas, 32.f, 350);
 
-            drawBorder(widgetBounds, SK_ColorBLACK, 6.f);
-            drawBorder(srcRect, SK_ColorBLUE, 3.f, kInset / kZoomAmount);
+            drawBorder(widgetBounds, SK_ColorBLACK, 2.f);
+            drawBorder(srcRect, SK_ColorBLUE, 2.f, inset / kZoomAmount);
         canvas->restore();
     }
 

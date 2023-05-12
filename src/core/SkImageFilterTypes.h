@@ -450,6 +450,11 @@ public:
     explicit LayerSpace(SkMatrix&& m) : fData(std::move(m)) {}
     explicit operator const SkMatrix&() const { return fData; }
 
+    static LayerSpace<SkMatrix> RectToRect(const LayerSpace<SkRect>& from,
+                                           const LayerSpace<SkRect>& to) {
+        return LayerSpace<SkMatrix>(SkMatrix::RectToRect(SkRect(from), SkRect(to)));
+    }
+
     // Parrot a limited selection of the SkMatrix API while preserving coordinate space.
     LayerSpace<SkRect> mapRect(const LayerSpace<SkRect>& r) const;
 

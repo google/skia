@@ -226,6 +226,7 @@ void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_ENABLE_SKSL
 static sk_sp<SkShader> make_magnifier_shader(
         const skif::Context& context,
         const skif::FilterResult& input,
@@ -233,7 +234,6 @@ static sk_sp<SkShader> make_magnifier_shader(
         const skif::LayerSpace<SkRect>& lensBounds,
         const skif::LayerSpace<SkRect>& srcRect,
         const skif::LayerSpace<SkSize>& inset) {
-#ifdef SK_ENABLE_SKSL
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform shader src;"
         "uniform float4 lensBounds;"
@@ -280,21 +280,17 @@ static sk_sp<SkShader> make_magnifier_shader(
     SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
     builder.child("src") = std::move(inputShader);
 
-    SkMatrix zoomXform = SkMatrix::RectToRect(SkRect(lensBounds), SkRect(srcRect));
+    SkASSERT(inset.width() > 0.f && inset.height() > 0.f);
+    auto zoomXform = skif::LayerSpace<SkMatrix>::RectToRect(lensBounds, srcRect);
     builder.uniform("lensBounds") = SkRect(lensBounds);
-    builder.uniform("zoomXform") = SkV4{zoomXform.getTranslateX(), zoomXform.getTranslateY(),
-                                        zoomXform.getScaleX(),     zoomXform.getScaleY()};
+    builder.uniform("zoomXform") = SkV4{/*Tx*/zoomXform.rc(0, 2), /*Ty*/zoomXform.rc(1, 2),
+                                        /*Sx*/zoomXform.rc(0, 0), /*Sy*/zoomXform.rc(1, 1)};
     builder.uniform("invInset") = SkV2{1.f / inset.width(),
                                        1.f / inset.height()};
 
     return builder.makeShader();
-#else
-    // TODO (michaelludwig): Once the legacy magnifier is deleted, this SK_ENABLE_SKSL guard can
-    // be moved to surround the entire implementation. Since sksl is required for this filter, the
-    // Magnifier factory can be stubbed out easily at that point to return the input image filter.
-    return nullptr;
-#endif // SK_ENABLE_SKSL
 }
+#endif // SK_ENABLE_SKSL
 
 #if defined(SK_GANESH)
 static std::unique_ptr<GrFragmentProcessor> make_magnifier_fp(
@@ -521,9 +517,23 @@ skif::FilterResult SkMagnifierImageFilter::onFilterImage(const skif::Context& co
             lensBounds.right() * invZoom + zoomCenter.x()*(1.f - invZoom),
             lensBounds.bottom()* invZoom + zoomCenter.y()*(1.f - invZoom)}};
 
+    // When there is no SkSL support, or there's a 0 inset, the magnifier is equivalent to a
+    // rect->rect transform and crop.
+#ifdef SK_ENABLE_SKSL
     skif::LayerSpace<SkSize> inset = context.mapping().paramToLayer(
             skif::ParameterSpace<SkSize>({fInset, fInset}));
+    if (inset.width() <= 0.f || inset.height() <= 0.f)
+#endif
+    {
+        // NOTE: We crop back down to srcRect because we requested an unclipped lensBounds from the
+        // child filter. Since srcRect is dependent on the clipped lensBounds from what the child
+        // actually produced, we can't just request an unclipped srcRect initially.
+        auto zoomXform = skif::LayerSpace<SkMatrix>::RectToRect(srcRect, lensBounds);
+        return childOutput.applyCrop(context, srcRect.roundOut())
+                          .applyTransform(context, zoomXform, fSampling);
+    }
 
+#ifdef SK_ENABLE_SKSL
     // TODO: FilterResult will eventually have a builder API to hide a lot of this boilerplate,
     // since it will likely be the same for many other image filter implementations. The magnifier
     // filter is just the first port to FilterResult that doesn't rely on applying meta transforms.
@@ -543,6 +553,7 @@ skif::FilterResult SkMagnifierImageFilter::onFilterImage(const skif::Context& co
     canvas->drawPaint(paint);
 
     return {surf->makeImageSnapshot(), outputBounds.topLeft()};
+#endif
 }
 
 skif::LayerSpace<SkIRect> SkMagnifierImageFilter::onGetInputLayerBounds(
