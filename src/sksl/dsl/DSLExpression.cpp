@@ -16,7 +16,6 @@
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
@@ -41,31 +40,6 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression, Posit
               pos.startOffset(), pos.endOffset(),
               this->position().startOffset(), this->position().endOffset());
 }
-
-DSLExpression::DSLExpression(float value, Position pos)
-    : fExpression(SkSL::Literal::MakeFloat(ThreadContext::Context(),
-                                           pos,
-                                           value)) {}
-
-DSLExpression::DSLExpression(int value, Position pos)
-    : fExpression(SkSL::Literal::MakeInt(ThreadContext::Context(),
-                                         pos,
-                                         value)) {}
-
-DSLExpression::DSLExpression(int64_t value, Position pos)
-    : fExpression(SkSL::Literal::MakeInt(ThreadContext::Context(),
-                                         pos,
-                                         value)) {}
-
-DSLExpression::DSLExpression(unsigned int value, Position pos)
-    : fExpression(SkSL::Literal::MakeInt(ThreadContext::Context(),
-                                         pos,
-                                         value)) {}
-
-DSLExpression::DSLExpression(bool value, Position pos)
-    : fExpression(SkSL::Literal::MakeBool(ThreadContext::Context(),
-                                          pos,
-                                          value)) {}
 
 DSLExpression::DSLExpression(DSLVarBase& var, Position pos)
     : fExpression(std::make_unique<SkSL::VariableReference>(

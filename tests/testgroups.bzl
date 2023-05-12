@@ -294,7 +294,6 @@ GANESH_TESTS = [
     # "SkRemoteGlyphCacheTest.cpp",  # TODO(b/277938020): Linux - Fails with SkRefCnt error.
     # "SkRuntimeEffectTest.cpp",  # TODO(b/277938020): Linux - Fails at a test assertion.
     "SkSLCross.cpp",
-    "SkSLDSLTest.cpp",
     "SkSLES2ConformanceTest.cpp",
     # "SkSLTest.cpp",  # TODO(b/27793802): Pixel 5 - Fails at a test assertion.
     "Skbug12214.cpp",

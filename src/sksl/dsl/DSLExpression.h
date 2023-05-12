@@ -12,7 +12,6 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -40,37 +39,6 @@ public:
     DSLExpression(DSLExpression&&);
 
     DSLExpression();
-
-    /**
-     * Creates an expression representing a literal float.
-     */
-    DSLExpression(float value, Position pos = {});
-
-    /**
-     * Creates an expression representing a literal float.
-     */
-    DSLExpression(double value, Position pos = {})
-        : DSLExpression((float) value) {}
-
-    /**
-     * Creates an expression representing a literal int.
-     */
-    DSLExpression(int value, Position pos = {});
-
-    /**
-     * Creates an expression representing a literal int.
-     */
-    DSLExpression(int64_t value, Position pos = {});
-
-    /**
-     * Creates an expression representing a literal uint.
-     */
-    DSLExpression(unsigned int value, Position pos = {});
-
-    /**
-     * Creates an expression representing a literal bool.
-     */
-    DSLExpression(bool value, Position pos = {});
 
     /**
      * Creates an expression representing a variable reference.
