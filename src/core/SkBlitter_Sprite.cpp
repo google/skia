@@ -5,16 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkBlitter.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkSpriteBlitter.h"
 #include "src/core/SkVMBlitter.h"
+
+#include <cstdint>
+#include <cstring>
+#include <optional>
+#include <utility>
+
+struct SkIRect;
+struct SkMask;
 
 extern bool gSkForceRasterPipelineBlitter;
 

@@ -8,9 +8,18 @@
 #ifndef SkBlendModeBlender_DEFINED
 #define SkBlendModeBlender_DEFINED
 
+#include "include/core/SkFlattenable.h"
 #include "src/core/SkBlenderBase.h"
 
 #include <memory>
+#include <optional>
+
+class GrFragmentProcessor;
+class SkReadBuffer;
+class SkWriteBuffer;
+enum class SkBlendMode;
+struct GrFPArgs;
+struct SkStageRec;
 
 class SkBlendModeBlender : public SkBlenderBase {
 public:

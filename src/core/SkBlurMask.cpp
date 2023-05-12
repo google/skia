@@ -7,14 +7,22 @@
 
 #include "src/core/SkBlurMask.h"
 
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/private/base/SkMath.h"
+#include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "src/base/SkEndian.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkMaskBlurFilter.h"
+
+#include <cmath>
+#include <cstring>
+
+class SkRRect;
 
 using namespace skia_private;
 

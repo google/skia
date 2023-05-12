@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBBHFactory.h"
 #include "src/core/SkBigPicture.h"
+
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
-#include "src/core/SkTraceEvent.h"
+#include "src/core/SkRecords.h"
+
+#include <utility>
 
 SkBigPicture::SkBigPicture(const SkRect& cull,
                            sk_sp<SkRecord> record,

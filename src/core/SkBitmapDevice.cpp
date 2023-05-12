@@ -7,26 +7,42 @@
 
 #include "src/core/SkBitmapDevice.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBlender.h"
-#include "include/core/SkImageFilter.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkRasterHandleAllocator.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkVertices.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTileMode.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImageFilterCache.h"
-#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkStrikeCache.h"
 #include "src/image/SkImage_Base.h"
 #include "src/text/GlyphRun.h"
+
+#include <utility>
+
+class SkVertices;
 
 struct Bounder {
     SkRect  fBounds;

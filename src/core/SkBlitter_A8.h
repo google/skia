@@ -8,15 +8,20 @@
 #ifndef SkBlitter_A8_DEFINED
 #define SkBlitter_A8_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkBlitter.h"
 
-class SkPaint;
-class SkMatrix;
+#include <cstdint>
+
 class SkArenaAlloc;
+class SkMatrix;
+class SkPaint;
 class SkShader;
 class SkSurfaceProps;
+struct SkIRect;
+struct SkMask;
 
 class SkA8_Coverage_Blitter : public SkBlitter {
 public:

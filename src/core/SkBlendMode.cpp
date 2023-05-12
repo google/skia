@@ -5,10 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkBlendModePriv.h"
+#include "include/core/SkBlendMode.h"
 
+#include "include/private/SkColorData.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
     // The most important things we do here are:

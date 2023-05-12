@@ -17,6 +17,7 @@
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkQuadClipper.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"

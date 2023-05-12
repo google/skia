@@ -55,7 +55,7 @@ CORE_FILES = [
     "SkBlendModeBlender.h",
     "SkBlendModePriv.h",
     "SkBlenderBase.h",
-    "SkBlitBWMaskTemplate.h",
+    "SkBlitBWMaskTemplate.h",  # TODO(kjlubick) should this be a textual header?
     "SkBlitRow.h",
     "SkBlitRow_D32.cpp",
     "SkBlitter.cpp",

@@ -5,11 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkShader.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkBlitRow.h"
 #include "src/core/SkCoreBlitters.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkOpts.h"
+#include "src/shaders/SkShaderBase.h"
+
+#include <cstddef>
+#include <cstdint>
 
 static inline int upscale_31_to_32(int value) {
     SkASSERT((unsigned)value <= 31);

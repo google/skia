@@ -8,10 +8,16 @@
 #ifndef SkBlurMask_DEFINED
 #define SkBlurMask_DEFINED
 
-#include "include/core/SkBlurTypes.h"
-#include "include/core/SkRRect.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkMask.h"
+
+#include <cstdint>
+
+class SkRRect;
+enum SkBlurStyle : int;
+struct SkIPoint;
+struct SkRect;
 
 class SkBlurMask {
 public:

@@ -8,10 +8,13 @@
 #ifndef SkBBHFactory_DEFINED
 #define SkBBHFactory_DEFINED
 
-#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+
+#include <cstddef>
 #include <vector>
+
+struct SkRect;
 
 class SkBBoxHierarchy : public SkRefCnt {
 public:

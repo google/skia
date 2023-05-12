@@ -5,10 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPaint.h"
-#include "include/core/SkTypes.h"
-#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlitter_A8.h"
+
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h" // IWYU pragma: keep
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkMask.h"
+
+#include <cstring>
+#include <optional>
 
 SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkPixmap& device, const SkPaint& paint)
     : fDevice(device)

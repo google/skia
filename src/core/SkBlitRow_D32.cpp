@@ -5,9 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkOpts.h"
+
+#include <cstring>
+#include <iterator>
 
 // Everyone agrees memcpy() is the best way to do this.
 static void blit_row_s32_opaque(SkPMColor* dst,
@@ -25,6 +32,7 @@ static void blit_row_s32_opaque(SkPMColor* dst,
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <emmintrin.h>
+    #include <xmmintrin.h>
 
     static inline __m128i SkPMLerp_SSE2(const __m128i& src,
                                         const __m128i& dst,

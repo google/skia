@@ -7,25 +7,37 @@
 
 #include "src/core/SkBlitter.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkString.h"
-#include "include/private/SkColorData.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkAlphaRuns.h"
+#include "src/core/SkBlitter_A8.h"
+#include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkPaintPriv.h"
-#include "src/core/SkReadBuffer.h"
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkVMBlitter.h"
-#include "src/core/SkWriteBuffer.h"
 #include "src/core/SkXfermodeInterpretation.h"
 #include "src/shaders/SkShaderBase.h"
+
+#include <cstddef>
+#include <functional>
+#include <optional>
 
 using namespace skia_private;
 
@@ -627,8 +639,6 @@ SkBlitter* SkBlitterClipper::apply(SkBlitter* blitter, const SkRegion* clip,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "src/core/SkCoreBlitters.h"
 
 bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
                                  const SkPaint& paint,

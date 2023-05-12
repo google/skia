@@ -10,16 +10,21 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/shaders/SkShaderBase.h"
+
+#include <cstddef>
+#include <cstdint>
 
 class SkArenaAlloc;
 class SkMatrix;
-class SkMatrixProvider;
 class SkPaint;
 class SkPixmap;
+class SkShader;
 class SkSurfaceProps;
 struct SkMask;
 

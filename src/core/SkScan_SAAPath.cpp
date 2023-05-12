@@ -13,6 +13,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkAlphaRuns.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkMask.h"
 
 #if defined(SK_FORCE_AAA)
 
