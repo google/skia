@@ -9,50 +9,30 @@
 #define SKSL_DSL_FUNCTION
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLDefines.h"
-#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLStatement.h"
-#include "src/sksl/dsl/DSLVar.h"
 
 #include <string_view>
-#include <utility>
 
 namespace SkSL {
 
+class ExpressionArray;
 class FunctionDeclaration;
 
 namespace dsl {
 
 class DSLType;
+class DSLModifiers;
+struct DSLParameter;
 
 class DSLFunction {
 public:
-    template<class... Parameters>
-    DSLFunction(const DSLType& returnType, std::string_view name, Parameters&... parameters)
-        : DSLFunction(DSLModifiers(), returnType, name, parameters...) {}
-
-    template<class... Parameters>
-    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, std::string_view name,
-                Parameters&... parameters) {
-        skia_private::TArray<DSLParameter*> parameterArray;
-        parameterArray.reserve_back(sizeof...(parameters));
-        (parameterArray.push_back(&parameters), ...);
-
-        // We can't have a default parameter and a template parameter pack at the same time, so
-        // unfortunately we can't capture position from this overload.
-        this->init(modifiers, returnType, name, parameterArray, Position());
-    }
-
     DSLFunction(std::string_view name, const DSLModifiers& modifiers, const DSLType& returnType,
-                SkSpan<DSLParameter*> parameters, Position pos = {}) {
-        this->init(modifiers, returnType, name, parameters, pos);
-    }
+                SkSpan<DSLParameter*> parameters, Position pos = {});
 
     DSLFunction(SkSL::FunctionDeclaration* decl)
-        : fDecl(decl) {}
+            : fDecl(decl) {}
 
     virtual ~DSLFunction() = default;
 
@@ -63,36 +43,9 @@ public:
     /**
      * Invokes the function with the given arguments.
      */
-    template<class... Args>
-    DSLExpression operator()(Args&&... args) {
-        ExpressionArray argArray;
-        argArray.reserve_back(sizeof...(args));
-        this->collectArgs(argArray, std::forward<Args>(args)...);
-        return this->call(std::move(argArray));
-    }
-
-    /**
-     * Invokes the function with the given arguments.
-     */
-    DSLExpression call(SkSpan<DSLExpression> args, Position pos = {});
-
     DSLExpression call(ExpressionArray args, Position pos = {});
 
 private:
-    void collectArgs(ExpressionArray& args) {}
-
-    template<class... RemainingArgs>
-    void collectArgs(ExpressionArray& args, DSLVar& var, RemainingArgs&&... remaining) {
-        args.push_back(DSLExpression(var).release());
-        collectArgs(args, std::forward<RemainingArgs>(remaining)...);
-    }
-
-    template<class... RemainingArgs>
-    void collectArgs(ExpressionArray& args, DSLExpression expr, RemainingArgs&&... remaining) {
-        args.push_back(expr.release());
-        collectArgs(args, std::forward<RemainingArgs>(remaining)...);
-    }
-
     void init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
               SkSpan<DSLParameter*> params, Position pos);
 

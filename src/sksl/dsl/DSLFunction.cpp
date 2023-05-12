@@ -8,12 +8,14 @@
 #include "src/sksl/dsl/DSLFunction.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -31,11 +33,18 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
-namespace SkSL {
+namespace SkSL::dsl {
 
-namespace dsl {
+DSLFunction::DSLFunction(std::string_view name,
+                         const DSLModifiers& modifiers,
+                         const DSLType& returnType,
+                         SkSpan<DSLParameter*> parameters,
+                         Position pos) {
+    this->init(modifiers, returnType, name, parameters, pos);
+}
 
 static bool is_intrinsic_in_module(const Context& context, std::string_view name) {
     return context.fConfig->fIsBuiltinCode && SkSL::FindIntrinsicKind(name) != kNotIntrinsic;
@@ -126,21 +135,10 @@ void DSLFunction::define(DSLStatement block, Position pos) {
     ThreadContext::ProgramElements().push_back(std::move(function));
 }
 
-DSLExpression DSLFunction::call(SkSpan<DSLExpression> args, Position pos) {
-    ExpressionArray released;
-    released.reserve_back(args.size());
-    for (DSLExpression& arg : args) {
-        released.push_back(arg.release());
-    }
-    return this->call(std::move(released));
-}
-
 DSLExpression DSLFunction::call(ExpressionArray args, Position pos) {
     std::unique_ptr<SkSL::Expression> result =
             SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, *fDecl, std::move(args));
     return DSLExpression(std::move(result), pos);
 }
 
-} // namespace dsl
-
-} // namespace SkSL
+}  // namespace SkSL::dsl
