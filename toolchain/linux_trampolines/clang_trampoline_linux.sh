@@ -8,6 +8,13 @@ export LD_LIBRARY_PATH="external/clang_linux_amd64/usr/lib/x86_64-linux-gnu"
 
 set -euo pipefail
 
+if [[ "$@" == *DSKIA_SKIP_LINKING* ]]; then
+  # The output executable binary file is listed as the second argument to this script, and we must
+  # make sure it exists or Bazel will fail a validation step.
+  touch $2
+  exit 0
+fi
+
 # We only want to run include-what-you-use if DSKIA_ENFORCE_IWYU is in the arguments
 # passed in (i.e. the "skia_enforce_iwyu" feature is enabled) and we are not linking
 # (as detected by the presence of -fuse-ld).
@@ -142,8 +149,6 @@ if [[ -z $opt_in ]]; then
   external/clang_linux_amd64/bin/clang $@
   exit 0
 else
-  # Now try to compile with Clang, and then verify with IWYU
-  external/clang_linux_amd64/bin/clang $@
   # IWYU always [1] returns a non-zero code because it doesn't produce the .o file (that's why
   # we ran Clang first). As such, we do not want bash to fail after running IWYU.
   # [1] Until v0.18 at least
@@ -164,6 +169,13 @@ else
       -Xiwyu --mapping_file=$MAPPING_FILE 2>/dev/null
   # IWYU returns 0 if everything looks good. It returns some other non-zero exit code otherwise.
   if [ $? -eq 0 ]; then
+    # The expected .d file is the third argument. Bazel expects this file to be created, even
+    # if it is empty. We don't really need to create this file or compile the target since
+    # we will be skipping linking anyway and not using the output for real.
+    touch $3
+    # The expected .o file is the last argument passed into clang. Make sure this file exists
+    # or Bazel validation will fail
+    touch ${!#}
     exit 0 # keep the build going
   else
     # Run IWYU again, but this time display the output. Then return non-zero to fail the build.
