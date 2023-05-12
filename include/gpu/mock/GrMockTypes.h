@@ -23,7 +23,7 @@ struct GrMockTextureInfo {
     GrMockTextureInfo(GrColorType colorType,
                       SkTextureCompressionType compressionType,
                       int id,
-                      skgpu::Protected isProtected)
+                      skgpu::Protected isProtected = skgpu::Protected::kNo)
             : fColorType(colorType)
             , fCompressionType(compressionType)
             , fID(id)
@@ -67,7 +67,9 @@ struct GrMockRenderTargetInfo {
             : fColorType(GrColorType::kUnknown)
             , fID(0) {}
 
-    GrMockRenderTargetInfo(GrColorType colorType, int id, skgpu::Protected isProtected)
+    GrMockRenderTargetInfo(GrColorType colorType,
+                           int id,
+                           skgpu::Protected isProtected = skgpu::Protected::kNo)
             : fColorType(colorType)
             , fID(id)
             , fProtected(isProtected) {
