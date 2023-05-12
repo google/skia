@@ -50,6 +50,8 @@ enum class Mipmapped : bool;
 class RefCntedCallback;
 }  // namespace skgpu
 
+namespace skgpu { namespace graphite { class Recorder; } }
+
 class SkImage_GaneshBase : public SkImage_Base {
 public:
     // From SkImage.h
@@ -120,18 +122,14 @@ protected:
 
     sk_sp<GrImageContext> fContext;
 
-#if defined(SK_GRAPHITE)
-    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
-                                      RequiredImageProperties) const final;
     sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
                                 const SkIRect& subset,
-                                RequiredImageProperties) const final;
+                                RequiredProperties) const final;
     using SkImage_Base::onMakeColorTypeAndColorSpace;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                sk_sp<SkColorSpace>,
-                                                skgpu::graphite::Recorder*,
-                                                RequiredImageProperties) const final;
-#endif
+    sk_sp<SkImage> makeColorTypeAndColorSpace(skgpu::graphite::Recorder*,
+                                              SkColorType,
+                                              sk_sp<SkColorSpace>,
+                                              RequiredProperties) const final;
 };
 
 #endif

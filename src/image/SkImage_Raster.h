@@ -31,16 +31,7 @@ enum SkColorType : int;
 struct SkIRect;
 struct SkImageInfo;
 
-#if defined(SK_GRAPHITE)
-#include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/gpu/graphite/Recorder.h"
-#include "src/gpu/graphite/Buffer.h"
-#include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/TextureUtils.h"
-#include "src/gpu/graphite/UploadTask.h"
-#endif
+namespace skgpu { namespace graphite { class Recorder; } }
 
 class SkImage_Raster : public SkImage_Base {
 public:
@@ -60,11 +51,9 @@ public:
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-#if defined(SK_GRAPHITE)
     sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
                                 const SkIRect&,
-                                RequiredImageProperties) const override;
-#endif
+                                RequiredProperties) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -110,15 +99,6 @@ public:
 
 private:
     SkBitmap fBitmap;
-
-#if defined(SK_GRAPHITE)
-    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
-                                      RequiredImageProperties) const override;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType targetCT,
-                                                sk_sp<SkColorSpace> targetCS,
-                                                skgpu::graphite::Recorder*,
-                                                RequiredImageProperties) const override;
-#endif
 };
 
 sk_sp<SkImage> MakeRasterCopyPriv(const SkPixmap& pmap, uint32_t id);

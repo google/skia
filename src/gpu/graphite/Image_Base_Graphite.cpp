@@ -48,33 +48,3 @@ void Image_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace
 }
 
 } // namespace skgpu::graphite
-
-using namespace skgpu::graphite;
-
-sk_sp<SkImage> SkImage::makeSubset(skgpu::graphite::Recorder* recorder,
-                                   const SkIRect& subset,
-                                   RequiredImageProperties requiredProps) const {
-    if (subset.isEmpty()) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    if (!bounds.contains(subset)) {
-        return nullptr;
-    }
-
-    return as_IB(this)->onMakeSubset(recorder, subset, requiredProps);
-}
-
-namespace SkImages {
-sk_sp<SkImage> SubsetTextureFrom(skgpu::graphite::Recorder* recorder,
-                                 const SkImage* img,
-                                 const SkIRect& subset,
-                                 SkImage::RequiredImageProperties props) {
-    if (!recorder || !img) {
-        return nullptr;
-    }
-    auto subsetImg = img->makeSubset(recorder, subset, props);
-    return subsetImg->makeTextureImage(recorder, props);
-}
-} // namespace SkImages

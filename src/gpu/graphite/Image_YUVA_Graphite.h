@@ -35,18 +35,18 @@ public:
     }
 
 private:
-    sk_sp<SkImage> onMakeTextureImage(Recorder*, RequiredImageProperties) const override {
+    sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const override {
         return nullptr;
     }
     using Image_Base::onMakeSubset;
-    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredImageProperties) const override {
+    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredProperties) const override {
         return nullptr;
     }
     using Image_Base::onMakeColorTypeAndColorSpace;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType targetCT,
-                                                sk_sp<SkColorSpace> targetCS,
-                                                Recorder*,
-                                                RequiredImageProperties) const override {
+    sk_sp<SkImage> makeColorTypeAndColorSpace(Recorder*,
+                                              SkColorType targetCT,
+                                              sk_sp<SkColorSpace> targetCS,
+                                              RequiredProperties) const override {
         return nullptr;
     }
 

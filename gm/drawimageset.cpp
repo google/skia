@@ -318,12 +318,12 @@ private:
 #if defined(SK_GRAPHITE)
                     if (recorder) {
                         fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
-                                kAlpha_8_SkColorType, alphaSpace, recorder);
+                                recorder, kAlpha_8_SkColorType, alphaSpace, {});
                     } else
 #endif
                     {
                         fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
-                                kAlpha_8_SkColorType, alphaSpace, direct);
+                                direct, kAlpha_8_SkColorType, alphaSpace);
                     }
                 }
             }

@@ -25,6 +25,7 @@
 #include "src/shaders/SkTransformShader.h"
 
 #if defined(SK_GRAPHITE)
+#include "src/gpu/Blend.h"
 #include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -408,8 +409,6 @@ SkImageShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) 
 
 #if defined(SK_GRAPHITE)
 
-#include "src/gpu/Blend.h"
-
 void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
@@ -428,7 +427,7 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
     skgpu::Mipmapped mipmapped = (newSampling.mipmap != SkMipmapMode::kNone)
                                      ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
 
-    auto [view, _] = as_IB(imageToDraw)->asView(keyContext.recorder(), mipmapped);
+    auto [view, _] = skgpu::graphite::AsView(keyContext.recorder(), imageToDraw.get(), mipmapped);
 
     ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset,
                                         ReadSwizzle::kRGBA);

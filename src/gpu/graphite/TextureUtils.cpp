@@ -133,15 +133,14 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
                               const SkBitmap& bitmap,
                               sk_sp<SkMipmap> mipmaps,
                               skgpu::Budgeted budgeted,
-                              SkImage::RequiredImageProperties requiredProps) {
-    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, std::move(mipmaps),
-                                            requiredProps.fMipmapped, budgeted);
+                              SkImage::RequiredProperties requiredProps) {
+    auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
+    auto [view, ct] = MakeBitmapProxyView(recorder, bitmap, std::move(mipmaps), mm, budgeted);
     if (!view) {
         return nullptr;
     }
 
-    SkASSERT(requiredProps.fMipmapped == skgpu::Mipmapped::kNo ||
-             view.proxy()->mipmapped() == skgpu::Mipmapped::kYes);
+    SkASSERT(!requiredProps.fMipmapped || view.proxy()->mipmapped() == skgpu::Mipmapped::kYes);
     return sk_make_sp<skgpu::graphite::Image>(std::move(view),
                                               colorInfo.makeColorType(ct));
 }

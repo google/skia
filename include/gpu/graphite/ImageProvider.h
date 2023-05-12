@@ -55,7 +55,7 @@ public:
     // which could then be cached.
     virtual sk_sp<SkImage> findOrCreate(Recorder* recorder,
                                         const SkImage* image,
-                                        SkImage::RequiredImageProperties) = 0;
+                                        SkImage::RequiredProperties) = 0;
 };
 
 } // namespace skgpu::graphite

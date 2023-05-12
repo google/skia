@@ -18,14 +18,6 @@
 #include <cstddef>
 #include <cstdint>
 
-#if defined(SK_GRAPHITE)
-namespace skgpu {
-namespace graphite {
-class TextureProxyView;
-}
-}
-#endif
-
 class GrDirectContext;
 class GrImageContext;
 class GrRecordingContext;
@@ -50,15 +42,28 @@ namespace skif {
 class Context;
 }
 
+namespace skgpu { namespace graphite { class Recorder; } }
+
 class SkImage_Base : public SkImage {
 public:
     ~SkImage_Base() override;
 
     // From SkImage.h
+    sk_sp<SkImage> makeColorSpace(GrDirectContext*, sk_sp<SkColorSpace>) const override;
+    sk_sp<SkImage> makeColorSpace(skgpu::graphite::Recorder*,
+                                  sk_sp<SkColorSpace>,
+                                  RequiredProperties) const override;
     sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* dContext,
                                               SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetCS) const override;
+    sk_sp<SkImage> makeColorTypeAndColorSpace(skgpu::graphite::Recorder*,
+                                              SkColorType,
+                                              sk_sp<SkColorSpace>,
+                                              RequiredProperties) const override;
     sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const override;
+    sk_sp<SkImage> makeSubset(skgpu::graphite::Recorder*,
+                              const SkIRect&,
+                              RequiredProperties) const override;
     sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
                                   const SkImageFilter* filter,
                                   const SkIRect& subset,
@@ -66,10 +71,6 @@ public:
                                   SkIRect* outSubset,
                                   SkIPoint* offset) const override;
     size_t textureSize() const override { return 0; }
-#if defined(SK_GRAPHITE)
-    sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
-                                    RequiredImageProperties) const override;
-#endif
 
     // Methods that we want to use elsewhere in Skia, but not be a part of the public API.
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
@@ -121,17 +122,6 @@ public:
     // If this image is the current cached image snapshot of a surface then this is called when the
     // surface is destroyed to indicate no further writes may happen to surface backing store.
     virtual void generatingSurfaceIsDeleted() {}
-
-#if defined(SK_GRAPHITE)
-    // Returns a TextureProxyView representation of the image, if possible. This also returns
-    // a color type. This may be different than the image's color type when the image is not
-    // texture-backed and the capabilities of the GPU require a data type conversion to put
-    // the data in a texture.
-    std::tuple<skgpu::graphite::TextureProxyView, SkColorType> asView(
-            skgpu::graphite::Recorder*,
-            skgpu::Mipmapped) const;
-
-#endif
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
@@ -200,17 +190,9 @@ public:
         return nullptr;
     }
 
-#if defined(SK_GRAPHITE)
-    virtual sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
-                                              RequiredImageProperties) const = 0;
     virtual sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
                                         const SkIRect&,
-                                        RequiredImageProperties) const = 0;
-    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                        sk_sp<SkColorSpace>,
-                                                        skgpu::graphite::Recorder*,
-                                                        RequiredImageProperties) const = 0;
-#endif
+                                        RequiredProperties) const = 0;
 
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);

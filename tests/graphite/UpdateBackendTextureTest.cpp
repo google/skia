@@ -10,6 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -90,11 +91,11 @@ sk_sp<SkImage> wrap_backend_texture(skiatest::Reporter* reporter,
                                     const skgpu::graphite::BackendTexture& backendTex,
                                     SkColorType ct,
                                     bool withMips) {
-    sk_sp<SkImage> image = SkImage::MakeGraphiteFromBackendTexture(recorder,
-                                                                   backendTex,
-                                                                   ct,
-                                                                   kPremul_SkAlphaType,
-                                                                   /* colorSpace= */ nullptr);
+    sk_sp<SkImage> image = SkImages::AdoptTextureFrom(recorder,
+                                                      backendTex,
+                                                      ct,
+                                                      kPremul_SkAlphaType,
+                                                      /* colorSpace= */ nullptr);
     REPORTER_ASSERT(reporter, image);
     REPORTER_ASSERT(reporter, image->hasMipmaps() == withMips);
 

@@ -20,6 +20,7 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/base/SkRandom.h"
@@ -209,7 +210,7 @@ sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
     sk_sp<SkImage> img = bitmap.asImage();
 
     // TODO: fuzz mipmappedness
-    return img->makeTextureImage(recorder, { skgpu::Mipmapped::kNo });
+    return SkImages::TextureFromImage(recorder, img, {false});
 }
 
 //--------------------------------------------------------------------------------------------------

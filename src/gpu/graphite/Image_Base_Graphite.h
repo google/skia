@@ -61,6 +61,8 @@ public:
                                            ReadPixelsCallback,
                                            ReadPixelsContext) const override;
 
+    virtual sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const = 0;
+
 protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID)
         : SkImage_Base(info, uniqueID) {}

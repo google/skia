@@ -20,11 +20,6 @@
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkImageShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/Image_Graphite.h"
-#include "src/gpu/graphite/Log.h"
-#endif
-
 #include <utility>
 
 class SkShader;
@@ -208,10 +203,6 @@ bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode ) const {
 }
 
 bool SkImage::isAlphaOnly() const { return SkColorTypeIsAlphaOnly(fInfo.colorType()); }
-
-sk_sp<SkImage> SkImage::makeColorSpace(GrDirectContext* direct, sk_sp<SkColorSpace> target) const {
-    return this->makeColorTypeAndColorSpace(direct, this->colorType(), std::move(target));
-}
 
 sk_sp<SkImage> SkImage::reinterpretColorSpace(sk_sp<SkColorSpace> target) const {
     if (!target) {

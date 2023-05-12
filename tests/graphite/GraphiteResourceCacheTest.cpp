@@ -12,11 +12,13 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/graphite/Device.h"
+#include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceCache.h"
@@ -168,14 +170,14 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     sk_sp<SkImage> image = SkImages::RasterFromData(info, std::move(data), info.minRowBytes());
     REPORTER_ASSERT(reporter, image);
 
-    sk_sp<SkImage> imageGpu = image->makeTextureImage(recorder.get());
+    sk_sp<SkImage> imageGpu = SkImages::TextureFromImage(recorder.get(), image, {});
     REPORTER_ASSERT(reporter, imageGpu);
 
     TextureProxy* imageProxy = nullptr;
     {
         // We don't want the view holding a ref to the Proxy or else we can't send things back to
         // the cache.
-        auto [view, colorType] = as_IB(imageGpu.get())->asView(recorder.get(), Mipmapped::kNo);
+        auto [view, _] = skgpu::graphite::AsView(recorder.get(), imageGpu.get(), Mipmapped::kNo);
         REPORTER_ASSERT(reporter, view);
         imageProxy = view.proxy();
     }

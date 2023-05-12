@@ -7,16 +7,16 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkSurface.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkSurface.h"
 
 using namespace skgpu;
 using namespace skgpu::graphite;
@@ -169,11 +169,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
             BackendTexture texture = recorder->createBackendTexture(kSize, info);
             REPORTER_ASSERT(reporter, texture.isValid());
 
-            sk_sp<SkImage> image = SkImage::MakeGraphiteFromBackendTexture(recorder.get(),
-                                                                           texture,
-                                                                           kRGBA_8888_SkColorType,
-                                                                           kPremul_SkAlphaType,
-                                                                           /*colorSpace=*/ nullptr);
+            sk_sp<SkImage> image = SkImages::AdoptTextureFrom(recorder.get(),
+                                                              texture,
+                                                              kRGBA_8888_SkColorType,
+                                                              kPremul_SkAlphaType,
+                                                              /*colorSpace=*/nullptr);
             REPORTER_ASSERT(reporter, image);
             REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
 
@@ -181,11 +181,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
 
             // We should fail when trying to wrap the same texture in an image with a non-compatible
             // color type.
-            image = SkImage::MakeGraphiteFromBackendTexture(recorder.get(),
-                                                            texture,
-                                                            kAlpha_8_SkColorType,
-                                                            kPremul_SkAlphaType,
-                                                            /* colorSpace= */ nullptr);
+            image = SkImages::AdoptTextureFrom(recorder.get(),
+                                               texture,
+                                               kAlpha_8_SkColorType,
+                                               kPremul_SkAlphaType,
+                                               /* colorSpace= */ nullptr);
             REPORTER_ASSERT(reporter, !image);
 
             recorder->deleteBackendTexture(texture);

@@ -31,7 +31,7 @@ sk_sp<SkImage> MakeFromBitmap(Recorder*,
                               const SkBitmap&,
                               sk_sp<SkMipmap>,
                               skgpu::Budgeted,
-                              SkImage::RequiredImageProperties);
+                              SkImage::RequiredProperties);
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureUtils_DEFINED

@@ -28,12 +28,6 @@ public:
 protected:
     bool onGetPixels(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&) override;
 
-#if defined(SK_GRAPHITE)
-    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
-                                      const SkImageInfo&,
-                                      skgpu::Mipmapped) override;
-#endif
-
 private:
     sk_sp<SkPicture> fPicture;
     SkMatrix         fMatrix;

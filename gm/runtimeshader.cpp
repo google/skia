@@ -1086,7 +1086,7 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
         auto image = surface->makeImageSnapshot();
 #if defined(SK_GRAPHITE)
         if (auto recorder = canvas->recorder()) {
-            image = image->makeColorSpace(SkColorSpace::MakeSRGB(), recorder);
+            image = image->makeColorSpace(recorder, SkColorSpace::MakeSRGB(), {});
         } else
 #endif
         {

@@ -10,13 +10,15 @@
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkSamplingPriv.h"
+#include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/image/SkImage_Base.h"
 
 namespace {
 
 bool valid_client_provided_image(const SkImage* clientProvided,
                                  const SkImage* original,
-                                 SkImage::RequiredImageProperties requiredProps) {
+                                 SkImage::RequiredProperties requiredProps) {
     if (!clientProvided ||
         !as_IB(clientProvided)->isGraphiteBacked() ||
         original->dimensions() != clientProvided->dimensions() ||
@@ -60,9 +62,11 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorde
         }
     } else {
         auto clientImageProvider = recorder->clientImageProvider();
-        result = clientImageProvider->findOrCreate(recorder, imageIn, { mipmapped });
+        result = clientImageProvider->findOrCreate(
+                recorder, imageIn, {mipmapped == skgpu::Mipmapped::kYes});
 
-        if (!valid_client_provided_image(result.get(), imageIn, { mipmapped })) {
+        if (!valid_client_provided_image(
+                    result.get(), imageIn, {mipmapped == skgpu::Mipmapped::kYes})) {
             // The client did not fulfill the ImageProvider contract so drop the image.
             result = nullptr;
         }
@@ -73,6 +77,37 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorde
     }
 
     return { result, sampling };
+}
+
+std::tuple<skgpu::graphite::TextureProxyView, SkColorType> AsView(Recorder* recorder,
+                                                                  const SkImage* image,
+                                                                  skgpu::Mipmapped mipmapped) {
+    if (!recorder || !image) {
+        return {};
+    }
+
+    if (!as_IB(image)->isGraphiteBacked()) {
+        return {};
+    }
+    // TODO(b/238756380): YUVA not supported yet
+    if (as_IB(image)->isYUVA()) {
+        return {};
+    }
+
+    auto gi = reinterpret_cast<const skgpu::graphite::Image*>(image);
+
+    if (gi->dimensions().area() <= 1) {
+        mipmapped = skgpu::Mipmapped::kNo;
+    }
+
+    if (mipmapped == skgpu::Mipmapped::kYes &&
+        gi->textureProxyView().proxy()->mipmapped() != skgpu::Mipmapped::kYes) {
+        SKGPU_LOG_W("Graphite does not auto-generate mipmap levels");
+        return {};
+    }
+
+    SkColorType ct = gi->colorType();
+    return {gi->textureProxyView(), ct};
 }
 
 } // namespace skgpu::graphite
