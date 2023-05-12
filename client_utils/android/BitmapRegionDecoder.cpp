@@ -82,8 +82,6 @@ bool BitmapRegionDecoder::decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator
     if (fCodec->getInfo().colorType() == kGray_8_SkColorType) {
         dstColorType = kGray_8_SkColorType;
     }
-    dstColorType = fCodec->computeOutputColorType(dstColorType);
-    dstColorSpace = fCodec->computeOutputColorSpace(dstColorType, dstColorSpace);
 
     // Create the image info for the decode
     SkAlphaType dstAlphaType = fCodec->computeOutputAlphaType(requireUnpremul);
