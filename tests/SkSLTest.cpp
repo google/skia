@@ -68,32 +68,30 @@ static constexpr int kWidth = 2;
 static constexpr int kHeight = 2;
 
 namespace SkSLTestFlags {
-    /** VM tests must pass on the SkVM backend. */
-    static constexpr int VM      = 1 << 0;
-
-    /** RP tests must pass on SkRasterPipeline backend. */
-    static constexpr int RP      = 1 << 1;
-
-    /** GPU tests must pass on all GPU backends. */
-    static constexpr int GPU     = 1 << 2;
-
-    /** GPU_ES3 tests must pass on ES3-compatible GPUs when "enforce ES2 restrictions" is off. */
-    static constexpr int GPU_ES3 = 1 << 4;
+    /** `CPU` tests must pass when painted to a CPU-backed surface via SkRuntimeEffect. */
+    static constexpr int CPU     = 1 << 0;
 
     /**
-     * UsesNaN tests rely on NaN values, so they are only expected to pass on GPUs that generate
+     * `ES3` tests must pass when executed directly on the CPU via the SkRasterPipeline backend.
+     * They aren't compatible with SkRuntimeEffect, since they use non-ES2 features.
+     */
+    static constexpr int ES3     = 1 << 1;
+
+    /** `GPU` tests must pass when painted to a GPU-backed surface via SkRuntimeEffect. */
+    static constexpr int GPU     = 1 << 2;
+
+    /** `GPU_ES3` tests must pass on ES3-compatible GPUs when "enforce ES2 restrictions" is off. */
+    static constexpr int GPU_ES3 = 1 << 3;
+
+    /**
+     * `UsesNaN` tests rely on NaN values, so they are only expected to pass on GPUs that generate
      * them (which is not a requirement, even with ES3).
      */
-    static constexpr int UsesNaN = 1 << 8;
+    static constexpr int UsesNaN = 1 << 4;
 }
 
-static constexpr bool is_skvm(int flags) {
-#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
-    // We aren't using SkVM to execute our SkSL, so there's nothing to test.
-    return false;
-#else
-    return flags & SkSLTestFlags::VM;
-#endif
+static constexpr bool is_cpu(int flags) {
+    return flags & SkSLTestFlags::CPU;
 }
 
 static constexpr bool is_gpu(int flags) {
@@ -101,7 +99,7 @@ static constexpr bool is_gpu(int flags) {
 }
 
 static constexpr bool is_strict_es2(int flags) {
-    return !(flags & (SkSLTestFlags::GPU_ES3 | SkSLTestFlags::RP));
+    return !(flags & (SkSLTestFlags::GPU_ES3 | SkSLTestFlags::ES3));
 }
 
 struct UniformData {
@@ -285,8 +283,8 @@ static void test_permutations(skiatest::Reporter* r,
     test_one_permutation(r, surface, testFile, " (Unoptimized)", options);
 }
 
-static void test_skvm(skiatest::Reporter* r, const char* testFile, int flags) {
-    SkASSERT(flags & SkSLTestFlags::VM);
+static void test_cpu(skiatest::Reporter* r, const char* testFile, int flags) {
+    SkASSERT(flags & SkSLTestFlags::CPU);
 
     // Create a raster-backed surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
@@ -354,7 +352,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, int flags) {
 
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 static void report_rp_pass(skiatest::Reporter* r, const char* testFile, int flags) {
-    if (!(flags & SkSLTestFlags::RP)) {
+    if (!(flags & (SkSLTestFlags::CPU | SkSLTestFlags::ES3))) {
         ERRORF(r, "NEW: %s", testFile);
     }
 }
@@ -363,7 +361,7 @@ static void report_rp_fail(skiatest::Reporter* r,
                            const char* testFile,
                            int flags,
                            const char* reason) {
-    if (flags & SkSLTestFlags::RP) {
+    if (flags & (SkSLTestFlags::CPU | SkSLTestFlags::ES3)) {
         ERRORF(r, "%s: %s", testFile, reason);
     }
 }
@@ -475,14 +473,14 @@ static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, in
 #endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 }
 
-#define SKSL_TEST(flags, ctsEnforcement, name, path)                                         \
-    DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_skvm(flags)) { test_skvm(r, path, flags); } \
-    DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(                                      \
-            SkSL##name##_GPU, r, ctxInfo, is_gpu(flags), ctsEnforcement) {                   \
-        test_gpu(r, ctxInfo.directContext(), path, flags);                                   \
-    }                                                                                        \
-    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                          \
-    DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }
+#define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
+    DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) { test_cpu(r, path, flags); } \
+    DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }                 \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(                                    \
+            SkSL##name##_GPU, r, ctxInfo, is_gpu(flags), ctsEnforcement) {                 \
+        test_gpu(r, ctxInfo.directContext(), path, flags);                                 \
+    }                                                                                      \
+    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }
 
 /**
  * Test flags:
@@ -505,240 +503,240 @@ constexpr auto kApiLevel_U = CtsEnforcement::kApiLevel_U;
 constexpr auto kNever = CtsEnforcement::kNever;
 [[maybe_unused]] constexpr auto kNextRelease = CtsEnforcement::kNextRelease;
 
-SKSL_TEST(RP + GPU_ES3,  kApiLevel_T, ArrayFolding,                    "folding/ArrayFolding.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, ArraySizeFolding,                "folding/ArraySizeFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, AssignmentOps,                   "folding/AssignmentOps.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, BoolFolding,                     "folding/BoolFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, CastFolding,                     "folding/CastFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntFoldingES2,                   "folding/IntFoldingES2.rts")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntFoldingES3,                   "folding/IntFoldingES3.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, FloatFolding,                    "folding/FloatFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixFoldingES2,                "folding/MatrixFoldingES2.rts")
-SKSL_TEST(RP + GPU_ES3,  kNever,      MatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixNoOpFolding,               "folding/MatrixNoOpFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixScalarNoOpFolding,         "folding/MatrixScalarNoOpFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixVectorNoOpFolding,         "folding/MatrixVectorNoOpFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, Negation,                        "folding/Negation.rts")
+SKSL_TEST(ES3 + GPU_ES3, kApiLevel_T, ArrayFolding,                    "folding/ArrayFolding.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ArraySizeFolding,                "folding/ArraySizeFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, AssignmentOps,                   "folding/AssignmentOps.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, BoolFolding,                     "folding/BoolFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, CastFolding,                     "folding/CastFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntFoldingES2,                   "folding/IntFoldingES2.rts")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntFoldingES3,                   "folding/IntFoldingES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, FloatFolding,                    "folding/FloatFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MatrixFoldingES2,                "folding/MatrixFoldingES2.rts")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      MatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MatrixNoOpFolding,               "folding/MatrixNoOpFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MatrixScalarNoOpFolding,         "folding/MatrixScalarNoOpFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MatrixVectorNoOpFolding,         "folding/MatrixVectorNoOpFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Negation,                        "folding/Negation.rts")
 // TODO(skia:13035): This test fails on Nvidia GPUs on OpenGL but passes Vulkan. Re-enable the test
 // on Vulkan when granular GPU backend selection is supported.
-SKSL_TEST(RP + VM,       kApiLevel_T, PreserveSideEffects,             "folding/PreserveSideEffects.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, SelfAssignment,                  "folding/SelfAssignment.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructFieldFolding,              "folding/StructFieldFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructFieldNoFolding,            "folding/StructFieldNoFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, SwitchCaseFolding,               "folding/SwitchCaseFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, SwizzleFolding,                  "folding/SwizzleFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryFolding,                  "folding/TernaryFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, VectorScalarFolding,             "folding/VectorScalarFolding.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, VectorVectorFolding,             "folding/VectorVectorFolding.rts")
+SKSL_TEST(CPU,           kApiLevel_T, PreserveSideEffects,             "folding/PreserveSideEffects.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SelfAssignment,                  "folding/SelfAssignment.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, StructFieldFolding,              "folding/StructFieldFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, StructFieldNoFolding,            "folding/StructFieldNoFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwitchCaseFolding,               "folding/SwitchCaseFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleFolding,                  "folding/SwizzleFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, TernaryFolding,                  "folding/TernaryFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, VectorScalarFolding,             "folding/VectorScalarFolding.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, VectorVectorFolding,             "folding/VectorVectorFolding.rts")
 
-SKSL_TEST(RP + GPU_ES3,  kNever,      DoWhileBodyMustBeInlinedIntoAScope,               "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      DoWhileTestCannotBeInlined,                       "inliner/DoWhileTestCannotBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, ForBodyMustBeInlinedIntoAScope,                   "inliner/ForBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      ForInitializerExpressionsCanBeInlined,            "inliner/ForInitializerExpressionsCanBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, ForWithoutReturnInsideCanBeInlined,               "inliner/ForWithoutReturnInsideCanBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, ForWithReturnInsideCannotBeInlined,               "inliner/ForWithReturnInsideCannotBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IfBodyMustBeInlinedIntoAScope,                    "inliner/IfBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IfElseBodyMustBeInlinedIntoAScope,                "inliner/IfElseBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IfElseChainWithReturnsCanBeInlined,               "inliner/IfElseChainWithReturnsCanBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IfTestCanBeInlined,                               "inliner/IfTestCanBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IfWithReturnsCanBeInlined,                        "inliner/IfWithReturnsCanBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineKeywordOverridesThreshold,                  "inliner/InlineKeywordOverridesThreshold.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlinerAvoidsVariableNameOverlap,                 "inliner/InlinerAvoidsVariableNameOverlap.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlinerElidesTempVarForReturnsInsideBlock,        "inliner/InlinerElidesTempVarForReturnsInsideBlock.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlinerUsesTempVarForMultipleReturns,             "inliner/InlinerUsesTempVarForMultipleReturns.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlinerUsesTempVarForReturnsInsideBlockWithVar,   "inliner/InlinerUsesTempVarForReturnsInsideBlockWithVar.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineThreshold,                                  "inliner/InlineThreshold.sksl")
-SKSL_TEST(RP + GPU_ES3,  kApiLevel_T, InlineUnscopedVariable,                           "inliner/InlineUnscopedVariable.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithModifiedArgument,                       "inliner/InlineWithModifiedArgument.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithNestedBigCalls,                         "inliner/InlineWithNestedBigCalls.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithUnmodifiedArgument,                     "inliner/InlineWithUnmodifiedArgument.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, InlineWithUnnecessaryBlocks,                      "inliner/InlineWithUnnecessaryBlocks.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      DoWhileBodyMustBeInlinedIntoAScope,               "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      DoWhileTestCannotBeInlined,                       "inliner/DoWhileTestCannotBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ForBodyMustBeInlinedIntoAScope,                   "inliner/ForBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ForInitializerExpressionsCanBeInlined,            "inliner/ForInitializerExpressionsCanBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ForWithoutReturnInsideCanBeInlined,               "inliner/ForWithoutReturnInsideCanBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ForWithReturnInsideCannotBeInlined,               "inliner/ForWithReturnInsideCannotBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IfBodyMustBeInlinedIntoAScope,                    "inliner/IfBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IfElseBodyMustBeInlinedIntoAScope,                "inliner/IfElseBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IfElseChainWithReturnsCanBeInlined,               "inliner/IfElseChainWithReturnsCanBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IfTestCanBeInlined,                               "inliner/IfTestCanBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IfWithReturnsCanBeInlined,                        "inliner/IfWithReturnsCanBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlineKeywordOverridesThreshold,                  "inliner/InlineKeywordOverridesThreshold.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlinerAvoidsVariableNameOverlap,                 "inliner/InlinerAvoidsVariableNameOverlap.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlinerElidesTempVarForReturnsInsideBlock,        "inliner/InlinerElidesTempVarForReturnsInsideBlock.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlinerUsesTempVarForMultipleReturns,             "inliner/InlinerUsesTempVarForMultipleReturns.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlinerUsesTempVarForReturnsInsideBlockWithVar,   "inliner/InlinerUsesTempVarForReturnsInsideBlockWithVar.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlineThreshold,                                  "inliner/InlineThreshold.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kApiLevel_T, InlineUnscopedVariable,                           "inliner/InlineUnscopedVariable.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlineWithModifiedArgument,                       "inliner/InlineWithModifiedArgument.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlineWithNestedBigCalls,                         "inliner/InlineWithNestedBigCalls.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlineWithUnmodifiedArgument,                     "inliner/InlineWithUnmodifiedArgument.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InlineWithUnnecessaryBlocks,                      "inliner/InlineWithUnnecessaryBlocks.sksl")
 // TODO(tint:1932): GPU is disabled for now; test exposes a bug in the Tint SPIR-V Reader
-SKSL_TEST(RP + VM,       kNextRelease,IntrinsicNameCollision,                           "inliner/IntrinsicNameCollision.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, NoInline,                                         "inliner/NoInline.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, ShortCircuitEvaluationsCannotInlineRightHandSide, "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      StaticSwitchInline,                               "inliner/StaticSwitch.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, StructsCanBeInlinedSafely,                        "inliner/StructsCanBeInlinedSafely.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, SwizzleCanBeInlinedDirectly,                      "inliner/SwizzleCanBeInlinedDirectly.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryResultsCannotBeInlined,                    "inliner/TernaryResultsCannotBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, TernaryTestCanBeInlined,                          "inliner/TernaryTestCanBeInlined.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, TrivialArgumentsInlineDirectly,                   "inliner/TrivialArgumentsInlineDirectly.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      TrivialArgumentsInlineDirectlyES3,                "inliner/TrivialArgumentsInlineDirectlyES3.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      WhileBodyMustBeInlinedIntoAScope,                 "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      WhileTestCannotBeInlined,                         "inliner/WhileTestCannotBeInlined.sksl")
+SKSL_TEST(CPU,           kNextRelease,IntrinsicNameCollision,                           "inliner/IntrinsicNameCollision.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, NoInline,                                         "inliner/NoInline.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ShortCircuitEvaluationsCannotInlineRightHandSide, "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      StaticSwitchInline,                               "inliner/StaticSwitch.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, StructsCanBeInlinedSafely,                        "inliner/StructsCanBeInlinedSafely.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleCanBeInlinedDirectly,                      "inliner/SwizzleCanBeInlinedDirectly.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, TernaryResultsCannotBeInlined,                    "inliner/TernaryResultsCannotBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, TernaryTestCanBeInlined,                          "inliner/TernaryTestCanBeInlined.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, TrivialArgumentsInlineDirectly,                   "inliner/TrivialArgumentsInlineDirectly.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      TrivialArgumentsInlineDirectlyES3,                "inliner/TrivialArgumentsInlineDirectlyES3.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      WhileBodyMustBeInlinedIntoAScope,                 "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      WhileTestCannotBeInlined,                         "inliner/WhileTestCannotBeInlined.sksl")
 
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicAny,                    "intrinsics/Any.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicAll,                    "intrinsics/All.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicCeil,                   "intrinsics/Ceil.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicClampInt,               "intrinsics/ClampInt.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicClampUInt,              "intrinsics/ClampUInt.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicCross,                  "intrinsics/Cross.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicDegrees,                "intrinsics/Degrees.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicAny,                    "intrinsics/Any.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicAll,                    "intrinsics/All.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicCeil,                   "intrinsics/Ceil.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicClampInt,               "intrinsics/ClampInt.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicClampUInt,              "intrinsics/ClampUInt.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicCross,                  "intrinsics/Cross.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicDegrees,                "intrinsics/Degrees.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicDeterminant,            "intrinsics/Determinant.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicDFdx,                   "intrinsics/DFdx.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicDFdy,                   "intrinsics/DFdy.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicDot,                    "intrinsics/Dot.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicFract,                  "intrinsics/Fract.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicFloatBitsToInt,         "intrinsics/FloatBitsToInt.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicFloatBitsToUint,        "intrinsics/FloatBitsToUint.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicFloor,                  "intrinsics/Floor.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicDot,                    "intrinsics/Dot.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicFract,                  "intrinsics/Fract.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicFloatBitsToInt,         "intrinsics/FloatBitsToInt.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicFloatBitsToUint,        "intrinsics/FloatBitsToUint.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicFloor,                  "intrinsics/Floor.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicFwidth,                 "intrinsics/Fwidth.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicIntBitsToFloat,         "intrinsics/IntBitsToFloat.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicIntBitsToFloat,         "intrinsics/IntBitsToFloat.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicIsInf,                  "intrinsics/IsInf.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicLength,                 "intrinsics/Length.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicMatrixCompMultES3,      "intrinsics/MatrixCompMultES3.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicMaxInt,                 "intrinsics/MaxInt.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicMaxUint,                "intrinsics/MaxUint.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicMinInt,                 "intrinsics/MinInt.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicMinUint,                "intrinsics/MinUint.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicMixFloatES2,            "intrinsics/MixFloatES2.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicMixFloatES3,            "intrinsics/MixFloatES3.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicLength,                 "intrinsics/Length.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicMatrixCompMultES3,      "intrinsics/MatrixCompMultES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicMaxInt,                 "intrinsics/MaxInt.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicMaxUint,                "intrinsics/MaxUint.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicMinInt,                 "intrinsics/MinInt.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicMinUint,                "intrinsics/MinUint.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicMixFloatES2,            "intrinsics/MixFloatES2.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicMixFloatES3,            "intrinsics/MixFloatES3.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicModf,                   "intrinsics/Modf.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicNot,                    "intrinsics/Not.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicNot,                    "intrinsics/Not.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicOuterProduct,           "intrinsics/OuterProduct.sksl")
 // Fails on Mac OpenGL + Radeon 5300M (skia:12434)
 // SKSL_TEST(GPU_ES3,    kNever,      IntrinsicPackUnorm2x16,          "intrinsics/PackUnorm2x16.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicRadians,                "intrinsics/Radians.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicRadians,                "intrinsics/Radians.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicRound,                  "intrinsics/Round.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicRoundEven,              "intrinsics/RoundEven.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicSaturate,               "intrinsics/Saturate.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicSignInt,                "intrinsics/SignInt.sksl")
-SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicSqrt,                   "intrinsics/Sqrt.sksl")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicStep,                   "intrinsics/Step.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicTrunc,                  "intrinsics/Trunc.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicTranspose,              "intrinsics/Transpose.sksl")
-SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicUintBitsToFloat,        "intrinsics/UintBitsToFloat.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicSaturate,               "intrinsics/Saturate.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicSignInt,                "intrinsics/SignInt.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      IntrinsicSqrt,                   "intrinsics/Sqrt.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, IntrinsicStep,                   "intrinsics/Step.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicTrunc,                  "intrinsics/Trunc.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicTranspose,              "intrinsics/Transpose.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      IntrinsicUintBitsToFloat,        "intrinsics/UintBitsToFloat.sksl")
 
-SKSL_TEST(RP + GPU_ES3,  kNever,      ArrayNarrowingConversions,       "runtime/ArrayNarrowingConversions.rts")
-SKSL_TEST(RP + GPU_ES3,  kNever,      Commutative,                     "runtime/Commutative.rts")
-SKSL_TEST(RP,            kNever,      DivideByZero,                    "runtime/DivideByZero.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, LoopFloat,                       "runtime/LoopFloat.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, LoopInt,                         "runtime/LoopInt.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, Ossfuzz52603,                    "runtime/Ossfuzz52603.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, QualifierOrder,                  "runtime/QualifierOrder.rts")
-SKSL_TEST(RP + VM + GPU, kApiLevel_T, PrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ArrayNarrowingConversions,       "runtime/ArrayNarrowingConversions.rts")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      Commutative,                     "runtime/Commutative.rts")
+SKSL_TEST(CPU,           kNever,      DivideByZero,                    "runtime/DivideByZero.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, LoopFloat,                       "runtime/LoopFloat.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, LoopInt,                         "runtime/LoopInt.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Ossfuzz52603,                    "runtime/Ossfuzz52603.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, QualifierOrder,                  "runtime/QualifierOrder.rts")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, PrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
 
-SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Arrays,  "runtime/RecursiveComparison_Arrays.rts")
-SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")
-SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Types,   "runtime/RecursiveComparison_Types.rts")
-SKSL_TEST(RP + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Vectors, "runtime/RecursiveComparison_Vectors.rts")
+SKSL_TEST(ES3 + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Arrays,  "runtime/RecursiveComparison_Arrays.rts")
+SKSL_TEST(ES3 + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")
+SKSL_TEST(ES3 + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Types,   "runtime/RecursiveComparison_Types.rts")
+SKSL_TEST(ES3 + GPU_ES3 + UsesNaN, kNever, RecursiveComparison_Vectors, "runtime/RecursiveComparison_Vectors.rts")
 
-SKSL_TEST(RP + GPU_ES3,      kNever,      ArrayCast,                       "shared/ArrayCast.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ArrayComparison,                 "shared/ArrayComparison.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ArrayConstructors,               "shared/ArrayConstructors.sksl")
-SKSL_TEST(RP + VM + GPU_ES3, kNever,      ArrayFollowedByScalar,           "shared/ArrayFollowedByScalar.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ArrayTypes,                      "shared/ArrayTypes.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Assignment,                      "shared/Assignment.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CommaSideEffects,                "shared/CommaSideEffects.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CompileTimeConstantVariables,    "shared/CompileTimeConstantVariables.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ConstantCompositeAccessViaConstantIndex, "shared/ConstantCompositeAccessViaConstantIndex.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ConstantCompositeAccessViaDynamicIndex,  "shared/ConstantCompositeAccessViaDynamicIndex.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ConstantIf,                      "shared/ConstantIf.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ConstArray,                      "shared/ConstArray.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ConstVariableComparison,         "shared/ConstVariableComparison.sksl")
-SKSL_TEST(RP + VM + GPU,     kNever,      DeadGlobals,                     "shared/DeadGlobals.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      DeadLoopVariable,                "shared/DeadLoopVariable.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DeadIfStatement,                 "shared/DeadIfStatement.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DeadReturn,                      "shared/DeadReturn.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ArrayCast,                       "shared/ArrayCast.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ArrayComparison,                 "shared/ArrayComparison.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ArrayConstructors,               "shared/ArrayConstructors.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,ArrayFollowedByScalar,           "shared/ArrayFollowedByScalar.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ArrayTypes,                      "shared/ArrayTypes.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Assignment,                      "shared/Assignment.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, CastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, CommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, CommaSideEffects,                "shared/CommaSideEffects.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, CompileTimeConstantVariables,    "shared/CompileTimeConstantVariables.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ConstantCompositeAccessViaConstantIndex, "shared/ConstantCompositeAccessViaConstantIndex.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ConstantCompositeAccessViaDynamicIndex,  "shared/ConstantCompositeAccessViaDynamicIndex.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ConstantIf,                      "shared/ConstantIf.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ConstArray,                      "shared/ConstArray.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ConstVariableComparison,         "shared/ConstVariableComparison.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      DeadGlobals,                     "shared/DeadGlobals.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      DeadLoopVariable,                "shared/DeadLoopVariable.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, DeadIfStatement,                 "shared/DeadIfStatement.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, DeadReturn,                      "shared/DeadReturn.sksl")
 // TODO(skia:12012): some Radeons crash when compiling this code; disable them.
-SKSL_TEST(RP /* +GPU_ES3 */, kNever,      SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DeadStripFunctions,              "shared/DeadStripFunctions.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DependentInitializers,           "shared/DependentInitializers.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, DoubleNegation,                  "shared/DoubleNegation.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      DoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, EmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      EmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionAnonymousParameters,     "shared/FunctionAnonymousParameters.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionReturnTypeMatch,         "shared/FunctionReturnTypeMatch.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Functions,                       "shared/Functions.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionPrototype,               "shared/FunctionPrototype.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, GeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, HelloWorld,                      "shared/HelloWorld.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Hex,                             "shared/Hex.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      HexUnsigned,                     "shared/HexUnsigned.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, InoutParameters,                 "shared/InoutParameters.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, InoutParamsAreDistinct,          "shared/InoutParamsAreDistinct.sksl")
-SKSL_TEST(RP + GPU_ES3,      kApiLevel_T, IntegerDivisionES3,              "shared/IntegerDivisionES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_U, LogicalAndShortCircuit,          "shared/LogicalAndShortCircuit.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_U, LogicalOrShortCircuit,           "shared/LogicalOrShortCircuit.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Matrices,                        "shared/Matrices.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
+SKSL_TEST(ES3/* + GPU_ES3*/,kNever,   DeadReturnES3,                   "shared/DeadReturnES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, DeadStripFunctions,              "shared/DeadStripFunctions.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, DependentInitializers,           "shared/DependentInitializers.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, DoubleNegation,                  "shared/DoubleNegation.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      DoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, EmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      EmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, FunctionAnonymousParameters,     "shared/FunctionAnonymousParameters.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, FunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, FunctionReturnTypeMatch,         "shared/FunctionReturnTypeMatch.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Functions,                       "shared/Functions.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, FunctionPrototype,               "shared/FunctionPrototype.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, GeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, HelloWorld,                      "shared/HelloWorld.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Hex,                             "shared/Hex.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      HexUnsigned,                     "shared/HexUnsigned.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InoutParameters,                 "shared/InoutParameters.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, InoutParamsAreDistinct,          "shared/InoutParamsAreDistinct.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kApiLevel_T, IntegerDivisionES3,              "shared/IntegerDivisionES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_U, LogicalAndShortCircuit,          "shared/LogicalAndShortCircuit.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_U, LogicalOrShortCircuit,           "shared/LogicalOrShortCircuit.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Matrices,                        "shared/Matrices.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
 // TODO(skia:12443) The MatrixConstructors tests actually don't work on MANY devices. The GLSL SkQP
 // suite does a terrible job of enforcing this rule. We still test the ES2 variant on CPU.
-SKSL_TEST(RP + VM,           kNever,      MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
-SKSL_TEST(RP,                kNever,      MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MatrixEquality,                  "shared/MatrixEquality.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,MatrixIndexLookup,               "shared/MatrixIndexLookup.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,MatrixIndexStore,                "shared/MatrixIndexStore.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_U, MatrixOpEqualsES2,               "shared/MatrixOpEqualsES2.sksl")
-SKSL_TEST(RP + GPU_ES3,      kApiLevel_U, MatrixOpEqualsES3,               "shared/MatrixOpEqualsES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MatrixScalarMath,                "shared/MatrixScalarMath.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,MatrixSwizzleStore,              "shared/MatrixSwizzleStore.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MultipleAssignments,             "shared/MultipleAssignments.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, NumberCasts,                     "shared/NumberCasts.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, OperatorsES2,                    "shared/OperatorsES2.sksl")
-SKSL_TEST(GPU_ES3,           kNever,      OperatorsES3,                    "shared/OperatorsES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Ossfuzz36852,                    "shared/Ossfuzz36852.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, OutParams,                       "shared/OutParams.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, OutParamsAreDistinct,            "shared/OutParamsAreDistinct.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, OutParamsAreDistinctFromGlobal,  "shared/OutParamsAreDistinctFromGlobal.sksl")
-SKSL_TEST(RP,                kNever,      OutParamsFunctionCallInArgument, "shared/OutParamsFunctionCallInArgument.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, OutParamsTricky,                 "shared/OutParamsTricky.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ResizeMatrix,                    "shared/ResizeMatrix.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ReturnsValueOnEveryPathES2,      "shared/ReturnsValueOnEveryPathES2.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ReturnsValueOnEveryPathES3,      "shared/ReturnsValueOnEveryPathES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      ScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, ScopedSymbol,                    "shared/ScopedSymbol.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StackingVectorCasts,             "shared/StackingVectorCasts.sksl")
-SKSL_TEST(RP + VM + GPU_ES3, kNever,      StaticSwitch,                    "shared/StaticSwitch.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,StructIndexLookup,               "shared/StructIndexLookup.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,StructIndexStore,                "shared/StructIndexStore.sksl")
+SKSL_TEST(CPU,           kNever,      MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
+SKSL_TEST(ES3,           kNever,      MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MatrixEquality,                  "shared/MatrixEquality.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,MatrixIndexLookup,               "shared/MatrixIndexLookup.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,MatrixIndexStore,                "shared/MatrixIndexStore.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_U, MatrixOpEqualsES2,               "shared/MatrixOpEqualsES2.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kApiLevel_U, MatrixOpEqualsES3,               "shared/MatrixOpEqualsES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MatrixScalarMath,                "shared/MatrixScalarMath.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,MatrixSwizzleStore,              "shared/MatrixSwizzleStore.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, MultipleAssignments,             "shared/MultipleAssignments.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, NumberCasts,                     "shared/NumberCasts.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, OperatorsES2,                    "shared/OperatorsES2.sksl")
+SKSL_TEST(GPU_ES3,       kNever,      OperatorsES3,                    "shared/OperatorsES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Ossfuzz36852,                    "shared/Ossfuzz36852.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, OutParams,                       "shared/OutParams.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, OutParamsAreDistinct,            "shared/OutParamsAreDistinct.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, OutParamsAreDistinctFromGlobal,  "shared/OutParamsAreDistinctFromGlobal.sksl")
+SKSL_TEST(ES3,           kNever,      OutParamsFunctionCallInArgument, "shared/OutParamsFunctionCallInArgument.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, OutParamsTricky,                 "shared/OutParamsTricky.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ResizeMatrix,                    "shared/ResizeMatrix.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ReturnsValueOnEveryPathES2,      "shared/ReturnsValueOnEveryPathES2.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ReturnsValueOnEveryPathES3,      "shared/ReturnsValueOnEveryPathES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      ScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, ScopedSymbol,                    "shared/ScopedSymbol.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, StackingVectorCasts,             "shared/StackingVectorCasts.sksl")
+SKSL_TEST(CPU + GPU_ES3, kNever,      StaticSwitch,                    "shared/StaticSwitch.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,StructIndexLookup,               "shared/StructIndexLookup.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,StructIndexStore,                "shared/StructIndexStore.sksl")
 // TODO(skia:13920): StructComparison currently exposes a bug in SPIR-V codegen.
-// SKSL_TEST(RP /* +GPU_ES3 */, kNever,      StructComparison,                "shared/StructComparison.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, StructsInFunctions,              "shared/StructsInFunctions.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, Switch,                          "shared/Switch.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwitchDefaultOnly,               "shared/SwitchDefaultOnly.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwitchWithFallthrough,           "shared/SwitchWithFallthrough.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwitchWithLoops,                 "shared/SwitchWithLoops.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      SwitchWithLoopsES3,              "shared/SwitchWithLoopsES3.sksl")
-SKSL_TEST(RP + VM + GPU,     kNever,      SwizzleAsLValue,                 "shared/SwizzleAsLValue.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      SwizzleByIndex,                  "shared/SwizzleByIndex.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleConstants,                "shared/SwizzleConstants.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,SwizzleIndexLookup,              "shared/SwizzleIndexLookup.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,SwizzleIndexStore,               "shared/SwizzleIndexStore.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleLTRB,                     "shared/SwizzleLTRB.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleOpt,                      "shared/SwizzleOpt.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleScalar,                   "shared/SwizzleScalar.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleScalarBool,               "shared/SwizzleScalarBool.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleScalarInt,                "shared/SwizzleScalarInt.sksl")
-SKSL_TEST(RP + VM + GPU,     kNextRelease,TemporaryIndexLookup,            "shared/TemporaryIndexLookup.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, TernaryAsLValueEntirelyFoldable, "shared/TernaryAsLValueEntirelyFoldable.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, TernaryAsLValueFoldableTest,     "shared/TernaryAsLValueFoldableTest.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, TernaryExpression,               "shared/TernaryExpression.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_U, TernarySideEffects,              "shared/TernarySideEffects.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, UnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, UniformArray,                    "shared/UniformArray.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, UniformMatrixResize,             "shared/UniformMatrixResize.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, UnusedVariables,                 "shared/UnusedVariables.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, VectorConstructors,              "shared/VectorConstructors.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, VectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
-SKSL_TEST(RP + VM + GPU,     kApiLevel_T, VectorScalarMath,                "shared/VectorScalarMath.sksl")
-SKSL_TEST(RP + GPU_ES3,      kNever,      WhileLoopControlFlow,            "shared/WhileLoopControlFlow.sksl")
+SKSL_TEST(ES3,           kNextRelease,StructComparison,                "shared/StructComparison.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, StructsInFunctions,              "shared/StructsInFunctions.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, Switch,                          "shared/Switch.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwitchDefaultOnly,               "shared/SwitchDefaultOnly.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwitchWithFallthrough,           "shared/SwitchWithFallthrough.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwitchWithLoops,                 "shared/SwitchWithLoops.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      SwitchWithLoopsES3,              "shared/SwitchWithLoopsES3.sksl")
+SKSL_TEST(CPU + GPU,     kNever,      SwizzleAsLValue,                 "shared/SwizzleAsLValue.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      SwizzleByIndex,                  "shared/SwizzleByIndex.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleConstants,                "shared/SwizzleConstants.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,SwizzleIndexLookup,              "shared/SwizzleIndexLookup.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,SwizzleIndexStore,               "shared/SwizzleIndexStore.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleLTRB,                     "shared/SwizzleLTRB.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleOpt,                      "shared/SwizzleOpt.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleScalar,                   "shared/SwizzleScalar.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleScalarBool,               "shared/SwizzleScalarBool.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, SwizzleScalarInt,                "shared/SwizzleScalarInt.sksl")
+SKSL_TEST(CPU + GPU,     kNextRelease,TemporaryIndexLookup,            "shared/TemporaryIndexLookup.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, TernaryAsLValueEntirelyFoldable, "shared/TernaryAsLValueEntirelyFoldable.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, TernaryAsLValueFoldableTest,     "shared/TernaryAsLValueFoldableTest.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, TernaryExpression,               "shared/TernaryExpression.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_U, TernarySideEffects,              "shared/TernarySideEffects.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, UnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, UniformArray,                    "shared/UniformArray.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, UniformMatrixResize,             "shared/UniformMatrixResize.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, UnusedVariables,                 "shared/UnusedVariables.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, VectorConstructors,              "shared/VectorConstructors.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, VectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
+SKSL_TEST(CPU + GPU,     kApiLevel_T, VectorScalarMath,                "shared/VectorScalarMath.sksl")
+SKSL_TEST(ES3 + GPU_ES3, kNever,      WhileLoopControlFlow,            "shared/WhileLoopControlFlow.sksl")
