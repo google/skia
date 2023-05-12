@@ -738,7 +738,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels,
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             auto factory = std::function<GpuSrcFactory<Image>>([&](const SkPixmap& src) {
                 return sk_gpu_test::MakeBackendTextureImage(ctxInfo.directContext(), src,
-                                                            renderable, origin);
+                                                            renderable, origin,
+                                                            GrProtected::kNo);
             });
             auto label = SkStringPrintf("Renderable: %d, Origin: %d", (int)renderable, origin);
             gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);

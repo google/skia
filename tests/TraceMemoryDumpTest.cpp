@@ -113,6 +113,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture,
     desc.fID = 7;  // Arbitrary, we don't actually use the texture.
     desc.fFormat = GrGLFormat::kRGBA8;
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
+    desc.fIsProtected = skgpu::Protected::kNo;
     desc.fSize = SkISize::Make(64, 64);
 
     auto texture = sk_make_sp<GrGLTexture>(gpu,
@@ -137,6 +138,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture,
     desc.fFormat = GrGLFormat::kRGBA8;
     desc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     desc.fSize = SkISize::Make(64, 64);
+    desc.fIsProtected = skgpu::Protected::kNo;
 
     auto params = sk_make_sp<GrGLTextureParameters>();
 
@@ -173,6 +175,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget,
                                                                1,
                                                                rtIDs,
                                                                0,
+                                                               skgpu::Protected::kNo,
                                                                /*label=*/{});
 
     ValidateMemoryDumps(reporter, dContext, 2, rt->gpuMemorySize(), true /* isOwned */);
@@ -200,6 +203,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarge
                                                                4,
                                                                rtIDs,
                                                                0,
+                                                               skgpu::Protected::kNo,
                                                                /*label=*/{});
 
     ValidateMemoryDumps(reporter, dContext, 2, rt->gpuMemorySize(), false /* isOwned */);
@@ -220,6 +224,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTextureRender
     texDesc.fID = 17;
     texDesc.fFormat = GrGLFormat::kRGBA8;
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+    texDesc.fIsProtected = skgpu::Protected::kNo;
 
     GrGLRenderTarget::IDs rtIDs;
     rtIDs.fMultisampleFBOID = 12;

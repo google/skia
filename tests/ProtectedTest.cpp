@@ -29,8 +29,7 @@ namespace {
 bool context_supports_protected(GrDirectContext* dContext) {
     [[maybe_unused]] const GrCaps* caps = dContext->priv().caps();
 
-    // TODO: reenable once OpenGL supports protected content
-#if 0 // SK_GL
+#ifdef SK_GL
     if (dContext->backend() == GrBackendApi::kOpenGL) {
         const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
         return glCaps->supportsProtected();

@@ -287,6 +287,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
                 GrGLFramebufferInfo fboInfo;
                 fboInfo.fFBOID = 0;
                 fboInfo.fFormat = GrGLFormatToEnum(beFormat.asGLFormat());
+                fboInfo.fProtected = skgpu::Protected::kNo;
                 SkASSERT(fboInfo.fFormat);
                 static constexpr int kStencilBits = 8;
                 GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,

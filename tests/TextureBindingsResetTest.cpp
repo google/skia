@@ -158,6 +158,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
         infoExternal.fTarget = GR_GL_TEXTURE_EXTERNAL;
         infoExternal.fFormat = info2D.fFormat;
         REPORTER_ASSERT(reporter, infoExternal.fID);
+        infoExternal.fProtected = info2D.fProtected;
         GrBackendTexture backendTexture(10, 10, GrMipmapped::kNo, infoExternal);
         // Above texture creation will have messed with GL state and bindings.
         resetBindings();

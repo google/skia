@@ -243,6 +243,7 @@ public:
             GrGLFramebufferInfo fboInfo;
             fboInfo.fFBOID = 0;
             fboInfo.fFormat = GR_GL_RGBA8;
+            fboInfo.fProtected = skgpu::Protected::kNo;
             static constexpr int kStencilBits = 8;
             GrBackendRenderTarget backendRT(fWidth, fHeight, 1, kStencilBits, fboInfo);
 

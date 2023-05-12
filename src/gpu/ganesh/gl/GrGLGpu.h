@@ -317,6 +317,7 @@ private:
                                        SkTextureCompressionType compression,
                                        GrGLFormat,
                                        GrMipmapped,
+                                       GrProtected,
                                        GrGLTextureParameters::SamplerOverriddenState*);
 
     bool onReadPixels(GrSurface*,

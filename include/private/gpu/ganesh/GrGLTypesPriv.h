@@ -87,6 +87,8 @@ public:
     void cleanup();
     void assign(const GrGLBackendTextureInfo&, bool thisIsValid);
 
+    bool isProtected() const { return fInfo.isProtected(); }
+
 private:
     GrGLTextureInfo fInfo;
     GrGLTextureParameters* fParams;

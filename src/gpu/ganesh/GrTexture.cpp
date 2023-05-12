@@ -43,7 +43,7 @@ GrTexture::GrTexture(GrGpu* gpu,
                      GrTextureType textureType,
                      GrMipmapStatus mipmapStatus,
                      std::string_view label)
-        : INHERITED(gpu, dimensions, isProtected, label)
+        : GrSurface(gpu, dimensions, isProtected, label)
         , fTextureType(textureType)
         , fMipmapStatus(mipmapStatus) {
     if (fMipmapStatus == GrMipmapStatus::kNotAllocated) {

@@ -776,7 +776,8 @@ bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
         // If that code ever goes away (or ideally becomes backend-agnostic), this can go away.
         *outInfo = GrGLTextureInfo{ GR_GL_TEXTURE_2D,
                                     static_cast<GrGLuint>(fMockInfo.id()),
-                                    GR_GL_RGBA8 };
+                                    GR_GL_RGBA8,
+                                    GrProtected(fMockInfo.isProtected()) };
         return true;
     }
     return false;
@@ -805,6 +806,11 @@ bool GrBackendTexture::isProtected() const {
     if (!this->isValid()) {
         return false;
     }
+#ifdef SK_GL
+    if (this->backend() == GrBackendApi::kOpenGL) {
+        return fGLInfo.isProtected();
+    }
+#endif
 #ifdef SK_VULKAN
     if (this->backend() == GrBackendApi::kVulkan) {
         return fVkInfo.isProtected();
@@ -1285,6 +1291,11 @@ bool GrBackendRenderTarget::isProtected() const {
     if (!this->isValid()) {
         return false;
     }
+#ifdef SK_GL
+    if (this->backend() == GrBackendApi::kOpenGL) {
+        return fGLInfo.isProtected();
+    }
+#endif
 #ifdef SK_VULKAN
     if (this->backend() == GrBackendApi::kVulkan) {
         return fVkInfo.isProtected();

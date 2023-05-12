@@ -25,6 +25,7 @@ public:
         GrGLuint fID                        = 0;
         GrGLFormat fFormat                  = GrGLFormat::kUnknown;
         GrBackendObjectOwnership fOwnership = GrBackendObjectOwnership::kOwned;
+        skgpu::Protected fIsProtected       = skgpu::Protected::kNo;
     };
 
     static GrTextureType TextureTypeFromTarget(GrGLenum textureTarget);

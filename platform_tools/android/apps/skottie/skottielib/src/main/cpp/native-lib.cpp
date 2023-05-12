@@ -233,6 +233,7 @@ Java_org_skia_skottie_SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
         fboInfo.fFormat = GL_RGBA8;
         colorType = kN32_SkColorType;
     }
+    fboInfo.fProtected = skgpu::Protected::kNo;
     GrBackendRenderTarget backendRT(width, height, 0, STENCIL_BUFFER_SIZE, fboInfo);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);

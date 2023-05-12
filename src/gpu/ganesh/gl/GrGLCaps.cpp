@@ -4618,6 +4618,9 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 
 GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
         const GrSurface* surface) const {
+    if (surface->isProtected()) {
+        return SurfaceReadPixelsSupport::kUnsupported;
+    }
     if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
         // We don't support reading pixels directly from EXTERNAL textures as it would require
         // binding the texture to a FBO. For now we also disallow reading back directly

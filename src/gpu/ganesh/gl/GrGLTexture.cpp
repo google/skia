@@ -50,10 +50,10 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu,
                          const Desc& desc,
                          GrMipmapStatus mipmapStatus,
                          std::string_view label)
-        : GrSurface(gpu, desc.fSize, GrProtected::kNo, label)
-        , INHERITED(gpu,
+        : GrSurface(gpu, desc.fSize, desc.fIsProtected, label)
+        , GrTexture(gpu,
                     desc.fSize,
-                    GrProtected::kNo,
+                    desc.fIsProtected,
                     TextureTypeFromTarget(desc.fTarget),
                     mipmapStatus,
                     label)
@@ -68,10 +68,10 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu,
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const Desc& desc, GrMipmapStatus mipmapStatus,
                          sk_sp<GrGLTextureParameters> parameters, GrWrapCacheable cacheable,
                          GrIOType ioType, std::string_view label)
-        : GrSurface(gpu, desc.fSize, GrProtected::kNo, label)
-        , INHERITED(gpu,
+        : GrSurface(gpu, desc.fSize, desc.fIsProtected, label)
+        , GrTexture(gpu,
                     desc.fSize,
-                    GrProtected::kNo,
+                    desc.fIsProtected,
                     TextureTypeFromTarget(desc.fTarget),
                     mipmapStatus,
                     label)
@@ -89,10 +89,10 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu,
                          sk_sp<GrGLTextureParameters> parameters,
                          GrMipmapStatus mipmapStatus,
                          std::string_view label)
-        : GrSurface(gpu, desc.fSize, GrProtected::kNo, label)
-        , INHERITED(gpu,
+        : GrSurface(gpu, desc.fSize, desc.fIsProtected, label)
+        , GrTexture(gpu,
                     desc.fSize,
-                    GrProtected::kNo,
+                    desc.fIsProtected,
                     TextureTypeFromTarget(desc.fTarget),
                     mipmapStatus,
                     label) {
@@ -134,6 +134,8 @@ GrBackendTexture GrGLTexture::getBackendTexture() const {
     info.fTarget = target_from_texture_type(this->textureType());
     info.fID = fID;
     info.fFormat = GrGLFormatToEnum(fFormat);
+    info.fProtected = skgpu::Protected(this->isProtected());
+
     return GrBackendTexture(this->width(), this->height(), this->mipmapped(), info, fParameters);
 }
 
