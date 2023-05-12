@@ -168,6 +168,34 @@ struct ImageShaderBlock {
                            const ImageData*);
 };
 
+struct YUVImageShaderBlock {
+    struct ImageData {
+        ImageData(const SkSamplingOptions& sampling,
+                  SkTileMode tileModeX,
+                  SkTileMode tileModeY,
+                  SkRect subset);
+
+        SkSamplingOptions fSampling;
+        SkTileMode fTileModes[2];
+        SkRect fSubset;
+        SkColor4f fChannelSelect[4];
+        SkM44 fYUVtoRGBTransform;
+
+        SkColorSpaceXformSteps fSteps;
+
+        // TODO: Currently these are only filled in when we're generating the key from an actual
+        // SkImageShader. In the pre-compile case we will need to create Graphite promise
+        // images which hold the appropriate data.
+        sk_sp<TextureProxy> fTextureProxies[4];
+    };
+
+    // The gatherer and imageData should be null or non-null together
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*,
+                           const ImageData*);
+};
+
 struct CoordClampShaderBlock {
     struct CoordClampData {
         CoordClampData(SkRect subset) : fSubset(subset) {}

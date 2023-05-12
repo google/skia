@@ -38,6 +38,7 @@ enum class BuiltInCodeSnippetID : int32_t {
 
     kLocalMatrixShader,
     kImageShader,
+    kYUVImageShader,
     kCoordClampShader,
     kDitherShader,
     kPerlinNoiseShader,
