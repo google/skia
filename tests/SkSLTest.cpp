@@ -708,7 +708,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, Ossfuzz36852,                    "shared/O
 SKSL_TEST(CPU | GPU,     kApiLevel_T, OutParams,                       "shared/OutParams.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, OutParamsAreDistinct,            "shared/OutParamsAreDistinct.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, OutParamsAreDistinctFromGlobal,  "shared/OutParamsAreDistinctFromGlobal.sksl")
-SKSL_TEST(ES3,           kNever,      OutParamsFunctionCallInArgument, "shared/OutParamsFunctionCallInArgument.sksl")
+SKSL_TEST(ES3 | GPU_ES3, kNever,      OutParamsFunctionCallInArgument, "shared/OutParamsFunctionCallInArgument.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, OutParamsTricky,                 "shared/OutParamsTricky.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, ResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      ResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")
