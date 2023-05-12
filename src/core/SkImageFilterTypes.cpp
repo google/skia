@@ -15,6 +15,10 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialSurface.h"
 
+namespace skif {
+
+namespace {
+
 // This exists to cover up issues where infinite precision would produce integers but float
 // math produces values just larger/smaller than an int and roundOut/In on bounds would produce
 // nearly a full pixel error. One such case is crbug.com/1313579 where the caller has produced
@@ -24,79 +28,23 @@ static constexpr float kRoundEpsilon = 1e-3f;
 
 // Both [I]Vectors and Sk[I]Sizes are transformed as non-positioned values, i.e. go through
 // mapVectors() not mapPoints().
-static SkIVector map_as_vector(int32_t x, int32_t y, const SkMatrix& matrix) {
+SkIVector map_as_vector(int32_t x, int32_t y, const SkMatrix& matrix) {
     SkVector v = SkVector::Make(SkIntToScalar(x), SkIntToScalar(y));
     matrix.mapVectors(&v, 1);
     return SkIVector::Make(SkScalarRoundToInt(v.fX), SkScalarRoundToInt(v.fY));
 }
 
-static SkVector map_as_vector(SkScalar x, SkScalar y, const SkMatrix& matrix) {
+SkVector map_as_vector(SkScalar x, SkScalar y, const SkMatrix& matrix) {
     SkVector v = SkVector::Make(x, y);
     matrix.mapVectors(&v, 1);
     return v;
 }
 
-static bool fills_layer_bounds(const SkColorFilter* colorFilter) {
-    return colorFilter && as_CFB(colorFilter)->affectsTransparentBlack();
+SkRect map_rect(const SkMatrix& matrix, const SkRect& rect) {
+    return rect.isEmpty() ? SkRect::MakeEmpty() : matrix.mapRect(rect);
 }
 
-// If m is epsilon within the form [1 0 tx], this returns true and sets out to [tx, ty]
-//                                 [0 1 ty]
-//                                 [0 0 1 ]
-// TODO: Use this in decomposeCTM() (and possibly extend it to support is_nearly_scale_translate)
-// to be a little more forgiving on matrix types during layer configuration.
-static bool is_nearly_integer_translation(const skif::LayerSpace<SkMatrix>& m,
-                                          skif::LayerSpace<SkIPoint>* out=nullptr) {
-    float tx = SkScalarRoundToScalar(sk_ieee_float_divide(m.rc(0,2), m.rc(2,2)));
-    float ty = SkScalarRoundToScalar(sk_ieee_float_divide(m.rc(1,2), m.rc(2,2)));
-    SkMatrix expected = SkMatrix::MakeAll(1.f, 0.f, tx,
-                                          0.f, 1.f, ty,
-                                          0.f, 0.f, 1.f);
-    for (int i = 0; i < 9; ++i) {
-        if (!SkScalarNearlyEqual(expected.get(i), m.get(i), kRoundEpsilon)) {
-            return false;
-        }
-    }
-
-    if (out) {
-        *out = skif::LayerSpace<SkIPoint>({(int) tx, (int) ty});
-    }
-    return true;
-}
-
-// Assumes 'image' is decal-tiled, so everything outside the image bounds but inside dstBounds is
-// transparent black, in which case the returned special image may be smaller than dstBounds.
-static std::pair<sk_sp<SkSpecialImage>, skif::LayerSpace<SkIPoint>> extract_subset(
-        const SkSpecialImage* image,
-        skif::LayerSpace<SkIPoint> origin,
-        skif::LayerSpace<SkIRect> dstBounds) {
-    skif::LayerSpace<SkIRect> imageBounds(SkIRect::MakeXYWH(origin.x(), origin.y(),
-                                          image->width(), image->height()));
-    if (!imageBounds.intersect(dstBounds)) {
-        return {nullptr, {}};
-    }
-
-    // Offset the image subset directly to avoid issues negating (origin). With the prior
-    // intersection (bounds - origin) will be >= 0, but (bounds + (-origin)) may not, (e.g.
-    // origin is INT_MIN).
-    SkIRect subset = { imageBounds.left() - origin.x(),
-                       imageBounds.top() - origin.y(),
-                       imageBounds.right() - origin.x(),
-                       imageBounds.bottom() - origin.y() };
-    SkASSERT(subset.fLeft >= 0 && subset.fTop >= 0 &&
-             subset.fRight <= image->width() && subset.fBottom <= image->height());
-
-    return {image->makeSubset(subset), imageBounds.topLeft()};
-}
-
-static SkRect map_rect(const SkMatrix& matrix, const SkRect& rect) {
-    if (rect.isEmpty()) {
-        return SkRect::MakeEmpty();
-    }
-    return matrix.mapRect(rect);
-}
-
-static SkIRect map_rect(const SkMatrix& matrix, const SkIRect& rect) {
+SkIRect map_rect(const SkMatrix& matrix, const SkIRect& rect) {
     if (rect.isEmpty()) {
         return SkIRect::MakeEmpty();
     }
@@ -120,7 +68,7 @@ static SkIRect map_rect(const SkMatrix& matrix, const SkIRect& rect) {
     }
 }
 
-static bool inverse_map_rect(const SkMatrix& matrix, const SkRect& rect, SkRect* out) {
+bool inverse_map_rect(const SkMatrix& matrix, const SkRect& rect, SkRect* out) {
     if (rect.isEmpty()) {
         *out = SkRect::MakeEmpty();
         return true;
@@ -128,7 +76,7 @@ static bool inverse_map_rect(const SkMatrix& matrix, const SkRect& rect, SkRect*
     return SkMatrixPriv::InverseMapRect(matrix, out, rect);
 }
 
-static bool inverse_map_rect(const SkMatrix& matrix, const SkIRect& rect, SkIRect* out) {
+bool inverse_map_rect(const SkMatrix& matrix, const SkIRect& rect, SkIRect* out) {
     if (rect.isEmpty()) {
         *out = SkIRect::MakeEmpty();
         return true;
@@ -160,7 +108,62 @@ static bool inverse_map_rect(const SkMatrix& matrix, const SkIRect& rect, SkIRec
     }
 }
 
-namespace skif {
+// If m is epsilon within the form [1 0 tx], this returns true and sets out to [tx, ty]
+//                                 [0 1 ty]
+//                                 [0 0 1 ]
+// TODO: Use this in decomposeCTM() (and possibly extend it to support is_nearly_scale_translate)
+// to be a little more forgiving on matrix types during layer configuration.
+bool is_nearly_integer_translation(const LayerSpace<SkMatrix>& m,
+                                   LayerSpace<SkIPoint>* out=nullptr) {
+    float tx = SkScalarRoundToScalar(sk_ieee_float_divide(m.rc(0,2), m.rc(2,2)));
+    float ty = SkScalarRoundToScalar(sk_ieee_float_divide(m.rc(1,2), m.rc(2,2)));
+    SkMatrix expected = SkMatrix::MakeAll(1.f, 0.f, tx,
+                                          0.f, 1.f, ty,
+                                          0.f, 0.f, 1.f);
+    for (int i = 0; i < 9; ++i) {
+        if (!SkScalarNearlyEqual(expected.get(i), m.get(i), kRoundEpsilon)) {
+            return false;
+        }
+    }
+
+    if (out) {
+        *out = LayerSpace<SkIPoint>({(int) tx, (int) ty});
+    }
+    return true;
+}
+
+// Assumes 'image' is decal-tiled, so everything outside the image bounds but inside dstBounds is
+// transparent black, in which case the returned special image may be smaller than dstBounds.
+std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> extract_subset(
+        const SkSpecialImage* image,
+        LayerSpace<SkIPoint> origin,
+        const LayerSpace<SkIRect>& dstBounds) {
+    LayerSpace<SkIRect> imageBounds(SkIRect::MakeXYWH(origin.x(), origin.y(),
+                                    image->width(), image->height()));
+    if (!imageBounds.intersect(dstBounds)) {
+        return {nullptr, {}};
+    }
+
+    // Offset the image subset directly to avoid issues negating (origin). With the prior
+    // intersection (bounds - origin) will be >= 0, but (bounds + (-origin)) may not, (e.g.
+    // origin is INT_MIN).
+    SkIRect subset = { imageBounds.left() - origin.x(),
+                       imageBounds.top() - origin.y(),
+                       imageBounds.right() - origin.x(),
+                       imageBounds.bottom() - origin.y() };
+    SkASSERT(subset.fLeft >= 0 && subset.fTop >= 0 &&
+             subset.fRight <= image->width() && subset.fBottom <= image->height());
+
+    return {image->makeSubset(subset), imageBounds.topLeft()};
+}
+
+bool fills_layer_bounds(const SkColorFilter* colorFilter) {
+    return colorFilter && as_CFB(colorFilter)->affectsTransparentBlack();
+}
+
+} // anonymous namespace
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkIRect RoundOut(SkRect r) { return r.makeInset(kRoundEpsilon, kRoundEpsilon).roundOut(); }
 
@@ -195,6 +198,9 @@ sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
         return SkSpecialSurface::MakeRaster(imageInfo, *props);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Mapping
 
 bool Mapping::decomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                            const skif::ParameterSpace<SkPoint>& representativePt) {
@@ -321,6 +327,9 @@ SkMatrix Mapping::map<SkMatrix>(const SkMatrix& m, const SkMatrix& matrix) {
     return inv;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// LayerSpace<T>
+
 LayerSpace<SkRect> LayerSpace<SkMatrix>::mapRect(const LayerSpace<SkRect>& r) const {
     return LayerSpace<SkRect>(map_rect(fData, SkRect(r)));
 }
@@ -350,6 +359,9 @@ bool LayerSpace<SkMatrix>::inverseMapRect(const LayerSpace<SkIRect>& r,
         return false;
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// FilterResult
 
 sk_sp<SkSpecialImage> FilterResult::imageAndOffset(const Context& ctx, SkIPoint* offset) const {
     auto [image, origin] = this->resolve(ctx, fLayerBounds);
