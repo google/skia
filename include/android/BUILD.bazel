@@ -9,7 +9,9 @@ skia_filegroup(
     srcs = [
         "SkAndroidFrameworkUtils.h",
         "SkAnimatedImage.h",
-        "SkImageAndroid.h",
-    ],
+    ] + select({
+        "//src/gpu:has_gpu_backend": ["SkImageAndroid.h"],
+        "//conditions:default": [],
+    }),
     visibility = ["//include:__pkg__"],
 )

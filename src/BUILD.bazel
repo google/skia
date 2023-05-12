@@ -6,10 +6,19 @@ load(
     "skia_cc_library",
     "skia_filegroup",
 )
+load("//bazel:flags.bzl", "selects")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+selects.config_setting_group(
+    name = "android_with_gpu_backend",
+    match_all = [
+        "@platforms//os:android",
+        "//src/gpu:has_gpu_backend",
+    ],
+)
 
 skia_filegroup(
     name = "srcs",
@@ -54,7 +63,7 @@ skia_filegroup(
         ],
         "//conditions:default": [],
     }) + select({
-        "@platforms//os:android": ["//src/image:android_srcs"],
+        ":android_with_gpu_backend": ["//src/image:android_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
