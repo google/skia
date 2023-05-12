@@ -568,14 +568,19 @@ public:
      * Verifies that the expression is a valid constant array size for this type. Returns the array
      * size, or reports errors and returns zero if the expression isn't a valid literal value.
      */
-    SKSL_INT convertArraySize(const Context& context, Position arrayPos,
-            std::unique_ptr<Expression> size) const;
+    SKSL_INT convertArraySize(const Context& context,
+                              Position arrayPos,
+                              std::unique_ptr<Expression> size) const;
+
+    SKSL_INT convertArraySize(const Context& context,
+                              Position arrayPos,
+                              Position sizePos,
+                              SKSL_INT size) const;
 
 protected:
-    Type(std::string_view name, const char* abbrev, TypeKind kind,
-            Position pos = Position())
-        : INHERITED(pos, kIRNodeKind, name)
-        , fTypeKind(kind) {
+    Type(std::string_view name, const char* abbrev, TypeKind kind, Position pos = Position())
+            : INHERITED(pos, kIRNodeKind, name)
+            , fTypeKind(kind) {
         SkASSERT(strlen(abbrev) <= kMaxAbbrevLength);
         strcpy(fAbbreviatedName, abbrev);
     }

@@ -157,7 +157,7 @@ bool DSLType::isEffectChild() const {
 
 DSLType Array(const DSLType& base, int count, Position pos) {
     SkSL::Context& context = ThreadContext::Context();
-    count = base.skslType().convertArraySize(context, pos, DSLExpression(count, pos).release());
+    count = base.skslType().convertArraySize(context, pos, pos, count);
     if (!count) {
         return DSLType::Poison();
     }

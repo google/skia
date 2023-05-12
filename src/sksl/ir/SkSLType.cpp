@@ -1190,28 +1190,36 @@ SKSL_INT Type::convertArraySize(const Context& context,
     if (!size) {
         return 0;
     }
-    if (!this->checkIfUsableInArray(context, arrayPos)) {
-        return 0;
-    }
     SKSL_INT count;
     if (!ConstantFolder::GetConstantInt(*size, &count)) {
         context.fErrors->error(size->fPosition, "array size must be an integer");
         return 0;
     }
-    if (count <= 0) {
-        context.fErrors->error(size->fPosition, "array size must be positive");
+    return this->convertArraySize(context, arrayPos, size->fPosition, count);
+}
+
+SKSL_INT Type::convertArraySize(const Context& context,
+                                Position arrayPos,
+                                Position sizePos,
+                                SKSL_INT size) const {
+    if (!this->checkIfUsableInArray(context, arrayPos)) {
+        // `checkIfUsableInArray` will generate an error for us.
+        return 0;
+    }
+    if (size <= 0) {
+        context.fErrors->error(sizePos, "array size must be positive");
         return 0;
     }
     // We can't get a meaningful slot count if the interior type contains an unsized array; we'll
     // assert if we try. Unsized arrays should only occur in a handful of limited cases (e.g. an
     // interface block with a trailing buffer), and will never be valid in a runtime effect.
     if (!this->isOrContainsUnsizedArray()) {
-        if (SkSafeMath::Mul(this->slotCount(), count) > kVariableSlotLimit) {
-            context.fErrors->error(size->fPosition, "array size is too large");
+        if (SkSafeMath::Mul(this->slotCount(), size) > kVariableSlotLimit) {
+            context.fErrors->error(sizePos, "array size is too large");
             return 0;
         }
     }
-    return static_cast<int>(count);
+    return size;
 }
 
 std::string Field::description() const {
