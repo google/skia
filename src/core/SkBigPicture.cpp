@@ -38,20 +38,6 @@ void SkBigPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
                  callback);
 }
 
-void SkBigPicture::partialPlayback(SkCanvas* canvas,
-                                   int start,
-                                   int stop,
-                                   const SkM44& initialCTM) const {
-    SkASSERT(canvas);
-    SkRecordPartialDraw(*fRecord,
-                        canvas,
-                        this->drawablePicts(),
-                        this->drawableCount(),
-                        start,
-                        stop,
-                        initialCTM);
-}
-
 struct NestedApproxOpCounter {
     int fCount = 0;
 

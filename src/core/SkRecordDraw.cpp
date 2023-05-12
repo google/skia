@@ -59,19 +59,6 @@ void SkRecordDraw(const SkRecord& record,
     }
 }
 
-void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
-                         SkPicture const* const drawablePicts[], int drawableCount,
-                         int start, int stop,
-                         const SkM44& initialCTM) {
-    SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
-
-    stop = std::min(stop, record.count());
-    SkRecords::Draw draw(canvas, drawablePicts, nullptr, drawableCount, &initialCTM);
-    for (int i = start; i < stop; i++) {
-        record.visit(i, draw);
-    }
-}
-
 namespace SkRecords {
 
 // NoOps draw nothing.

@@ -162,31 +162,6 @@ DEF_TEST(RecordDraw_BasicBounds, r) {
 }
 #endif
 
-// Base test to ensure start/stop range is respected
-DEF_TEST(RecordDraw_PartialStartStop, r) {
-    static const int kWidth = 10, kHeight = 10;
-
-    SkRect r1 = { 0, 0, kWidth,   kHeight };
-    SkRect r2 = { 0, 0, kWidth,   kHeight/2 };
-    SkRect r3 = { 0, 0, kWidth/2, kHeight };
-    SkPaint p;
-
-    SkRecord record;
-    SkRecorder recorder(&record, kWidth, kHeight);
-    recorder.drawRect(r1, p);
-    recorder.drawRect(r2, p);
-    recorder.drawRect(r3, p);
-
-    SkRecord rerecord;
-    SkRecorder canvas(&rerecord, kWidth, kHeight);
-    SkRecordPartialDraw(record, &canvas, nullptr, 0, 1, 2, SkM44()); // replay just drawRect of r2
-
-    REPORTER_ASSERT(r, 1 == count_instances_of_type<SkRecords::DrawRect>(rerecord));
-    int index = find_first_instances_of_type<SkRecords::DrawRect>(rerecord);
-    const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, index);
-    REPORTER_ASSERT(r, drawRect->rect == r2);
-}
-
 // A regression test for crbug.com/415468 and https://bug.skia.org/2957 .
 //
 // This also now serves as a regression test for crbug.com/418417.  We used to adjust the

@@ -51,11 +51,6 @@ public:
     size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
 
-// Used by GrLayerHoister
-    void partialPlayback(SkCanvas*,
-                         int start,
-                         int stop,
-                         const SkM44& initialCTM) const;
 // Used by GrRecordReplaceDraw
     const SkBBoxHierarchy* bbh() const { return fBBH.get(); }
     const SkRecord*     record() const { return fRecord.get(); }

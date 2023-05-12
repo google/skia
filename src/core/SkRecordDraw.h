@@ -21,25 +21,10 @@ class SkLayerInfo;
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&,
                         SkRect bounds[], SkBBoxHierarchy::Metadata[]);
 
-// SkRecordFillBounds(), and gathers information about saveLayers and stores it for later
-// use (e.g., layer hoisting). The gathered information is sufficient to determine
-// where each saveLayer will land and which ops in the picture it represents.
-void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord&, SkRect bounds[],
-                           const SkBigPicture::SnapshotArray*, SkLayerInfo* data);
-
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
 void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePicts[],
                   SkDrawable* const drawables[], int drawableCount,
                   const SkBBoxHierarchy*, SkPicture::AbortCallback*);
-
-// Draw a portion of an SkRecord into an SkCanvas.
-// When drawing a portion of an SkRecord the CTM on the passed in canvas must be
-// the composition of the replay matrix with the record-time CTM (for the portion
-// of the record that is being replayed). For setMatrix calls to behave correctly
-// the initialCTM parameter must set to just the replay matrix.
-void SkRecordPartialDraw(const SkRecord&, SkCanvas*,
-                         SkPicture const* const drawablePicts[], int drawableCount,
-                         int start, int stop, const SkM44& initialCTM);
 
 namespace SkRecords {
 
