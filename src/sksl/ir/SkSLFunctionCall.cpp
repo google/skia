@@ -500,6 +500,7 @@ std::unique_ptr<Expression> evaluate_normalize(const Context& context,
                                                const IntrinsicArguments& arguments) {
     // normalize(v): v / length(v)
     std::unique_ptr<Expression> length = Intrinsics::evaluate_length(arguments);
+    if (!length) { return nullptr; }
 
     const IntrinsicArguments divArgs = {arguments[0], length.get(), nullptr};
     return Intrinsics::evaluate_div(context, divArgs);
