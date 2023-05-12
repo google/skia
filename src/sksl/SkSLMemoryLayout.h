@@ -189,7 +189,7 @@ public:
 
             case Type::TypeKind::kStruct:
                 return std::all_of(
-                        type.fields().begin(), type.fields().end(), [this](const Type::Field& f) {
+                        type.fields().begin(), type.fields().end(), [this](const Field& f) {
                             return this->isSupported(*f.fType);
                         });
 

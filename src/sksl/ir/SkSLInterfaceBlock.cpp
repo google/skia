@@ -13,7 +13,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/ir/SkSLField.h"
+#include "src/sksl/ir/SkSLFieldSymbol.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -32,9 +32,9 @@ InterfaceBlock::~InterfaceBlock() {
     }
 }
 
-static std::optional<int> find_rt_adjust_index(SkSpan<const Type::Field> fields) {
+static std::optional<int> find_rt_adjust_index(SkSpan<const Field> fields) {
     for (size_t index = 0; index < fields.size(); ++index) {
-        const SkSL::Type::Field& f = fields[index];
+        const SkSL::Field& f = fields[index];
         if (f.fName == SkSL::Compiler::RTADJUST_NAME) {
             return index;
         }
@@ -57,10 +57,10 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
         return nullptr;
     }
     // Find sk_RTAdjust and error out if it's not of type `float4`.
-    SkSpan<const Type::Field> fields = variable->type().componentType().fields();
+    SkSpan<const Field> fields = variable->type().componentType().fields();
     std::optional<int> rtAdjustIndex = find_rt_adjust_index(fields);
     if (rtAdjustIndex.has_value()) {
-        const Type::Field& rtAdjustField = fields[*rtAdjustIndex];
+        const Field& rtAdjustField = fields[*rtAdjustIndex];
         if (!rtAdjustField.fType->matches(*context.fTypes.fFloat4)) {
             context.fErrors->error(rtAdjustField.fPosition, "sk_RTAdjust must have type 'float4'");
             return nullptr;
@@ -78,10 +78,10 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Make(const Context& context,
              ProgramConfig::IsCompute(context.fConfig->fKind));
 
     SkASSERT(variable->type().componentType().isInterfaceBlock());
-    SkSpan<const Type::Field> fields = variable->type().componentType().fields();
+    SkSpan<const Field> fields = variable->type().componentType().fields();
 
     if (rtAdjustIndex.has_value()) {
-        [[maybe_unused]] const Type::Field& rtAdjustField = fields[*rtAdjustIndex];
+        [[maybe_unused]] const Field& rtAdjustField = fields[*rtAdjustIndex];
         SkASSERT(rtAdjustField.fName == SkSL::Compiler::RTADJUST_NAME);
         SkASSERT(rtAdjustField.fType->matches(*context.fTypes.fFloat4));
 
@@ -93,8 +93,8 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Make(const Context& context,
     if (variable->name().empty()) {
         // This interface block is anonymous. Add each field to the top-level symbol table.
         for (size_t i = 0; i < fields.size(); ++i) {
-            context.fSymbolTable->add(std::make_unique<SkSL::Field>(fields[i].fPosition,
-                                                                    variable, i));
+            context.fSymbolTable->add(std::make_unique<SkSL::FieldSymbol>(fields[i].fPosition,
+                                                                          variable, i));
         }
     } else {
         // Add the global variable to the top-level symbol table.

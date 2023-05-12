@@ -20,15 +20,15 @@ namespace SkSL {
  * whenever a bare reference to an identifier should refer to a struct field; in GLSL, this is the
  * result of declaring anonymous interface blocks.
  */
-class Field final : public Symbol {
+class FieldSymbol final : public Symbol {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kField;
 
-    Field(Position pos, const Variable* owner, int fieldIndex)
-        : INHERITED(pos, kIRNodeKind, owner->type().fields()[fieldIndex].fName,
-                    owner->type().fields()[fieldIndex].fType)
-        , fOwner(owner)
-        , fFieldIndex(fieldIndex) {}
+    FieldSymbol(Position pos, const Variable* owner, int fieldIndex)
+            : INHERITED(pos, kIRNodeKind, owner->type().fields()[fieldIndex].fName,
+                        owner->type().fields()[fieldIndex].fType)
+            , fOwner(owner)
+            , fFieldIndex(fieldIndex) {}
 
     int fieldIndex() const {
         return fFieldIndex;

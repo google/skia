@@ -917,7 +917,7 @@ void WGSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
 }
 
 void WGSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
-    const Type::Field* field = &f.base()->type().fields()[f.fieldIndex()];
+    const Field* field = &f.base()->type().fields()[f.fieldIndex()];
     if (FieldAccess::OwnerKind::kDefault == f.ownerKind()) {
         this->writeExpression(*f.base(), Precedence::kPostfix);
         this->write(".");
@@ -1624,12 +1624,12 @@ void WGSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     this->writeLine("};");
 }
 
-void WGSLCodeGenerator::writeFields(SkSpan<const Type::Field> fields,
+void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields,
                                     Position parentPos,
                                     const MemoryLayout*) {
     // TODO(skia:13092): Check alignment against `layout` constraints, if present. A layout
     // constraint will be specified for interface blocks and for structs that appear in a block.
-    for (const Type::Field& field : fields) {
+    for (const Field& field : fields) {
         const Type* fieldType = field.fType;
         this->writeVariableDecl(*fieldType, field.fName, Delimiter::kComma);
     }

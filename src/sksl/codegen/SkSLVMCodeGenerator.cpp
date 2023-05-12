@@ -619,7 +619,7 @@ void SkVMGenerator::addDebugSlotInfoForGroup(const std::string& varName, const T
             break;
         }
         case Type::TypeKind::kStruct: {
-            for (const Type::Field& field : type.fields()) {
+            for (const Field& field : type.fields()) {
                 this->addDebugSlotInfoForGroup(varName + "." + std::string(field.fName),
                                                *field.fType, line, groupIndex, fnReturnValue);
             }
@@ -741,8 +741,8 @@ void SkVMGenerator::recursiveBinaryCompare(
             SkASSERT(rType.typeKind() == Type::TypeKind::kStruct);
             // Go through all the fields
             for (size_t f = 0; f < lType.fields().size(); ++f) {
-                const Type::Field& lField = lType.fields()[f];
-                const Type::Field& rField = rType.fields()[f];
+                const Field& lField = lType.fields()[f];
+                const Field& rField = rType.fields()[f];
                 this->recursiveBinaryCompare(lVal,
                                              *lField.fType,
                                              rVal,

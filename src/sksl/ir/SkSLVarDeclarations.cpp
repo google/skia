@@ -74,7 +74,7 @@ static bool check_valid_uniform_type(Position pos,
     // In non-RTE SkSL we allow structs and interface blocks to be uniforms but we must make sure
     // their fields are allowed.
     if (t->isStruct()) {
-        for (const Type::Field& field : t->fields()) {
+        for (const Field& field : t->fields()) {
             if (!check_valid_uniform_type(
                         field.fPosition, field.fType, context, /*topLevel=*/false)) {
                 // Emit a "caused by" line only for the top-level uniform type and not for any

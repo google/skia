@@ -14,7 +14,6 @@
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
-#include "src/sksl/ir/SkSLType.h"
 
 #include <cstdint>
 #include <initializer_list>
@@ -34,6 +33,7 @@ class DoStatement;
 class Expression;
 class ExpressionStatement;
 class Extension;
+struct Field;
 class FieldAccess;
 class ForStatement;
 class FunctionCall;
@@ -56,6 +56,7 @@ class StructDefinition;
 class SwitchStatement;
 class Swizzle;
 class TernaryExpression;
+class Type;
 class VarDeclaration;
 class Variable;
 class VariableReference;
@@ -117,7 +118,7 @@ protected:
 
     void writeConstantVariables();
 
-    void writeFields(SkSpan<const Type::Field> fields,
+    void writeFields(SkSpan<const Field> fields,
                      Position pos,
                      const InterfaceBlock* parentIntf = nullptr);
 
@@ -295,7 +296,7 @@ protected:
     int getUniformSet(const Modifiers& m);
 
     skia_private::THashSet<std::string_view> fReservedWords;
-    skia_private::THashMap<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
+    skia_private::THashMap<const Field*, const InterfaceBlock*> fInterfaceBlockMap;
     skia_private::THashMap<const InterfaceBlock*, std::string_view> fInterfaceBlockNameMap;
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;

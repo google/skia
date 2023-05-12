@@ -62,6 +62,7 @@
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -1584,7 +1585,7 @@ void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 }
 
 void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
-    const Type::Field* field = &f.base()->type().fields()[f.fieldIndex()];
+    const Field* field = &f.base()->type().fields()[f.fieldIndex()];
     if (FieldAccess::OwnerKind::kDefault == f.ownerKind()) {
         this->writeExpression(*f.base(), Precedence::kPostfix);
         this->write(".");
@@ -1748,7 +1749,7 @@ void MetalCodeGenerator::writeStructEqualityHelpers(const Type& type) {
     if (!fHelpers.contains(key)) {
         fHelpers.add(key);
         // If one of the struct's fields needs a helper as well, we need to emit that one first.
-        for (const Type::Field& field : type.fields()) {
+        for (const Field& field : type.fields()) {
             this->writeEqualityHelpers(*field.fType, *field.fType);
         }
 
@@ -1770,7 +1771,7 @@ thread bool operator!=(thread const %s& left, thread const %s& right);
                 this->typeName(type).c_str());
 
         const char* separator = "";
-        for (const Type::Field& field : type.fields()) {
+        for (const Field& field : type.fields()) {
             if (field.fType->isArray()) {
                 fExtraFunctions.printf(
                         "%s(make_array_ref(left.%.*s) == make_array_ref(right.%.*s))",
@@ -2388,12 +2389,12 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(";");
 }
 
-void MetalCodeGenerator::writeFields(SkSpan<const Type::Field> fields,
+void MetalCodeGenerator::writeFields(SkSpan<const Field> fields,
                                      Position parentPos,
                                      const InterfaceBlock* parentIntf) {
     MemoryLayout memoryLayout(MemoryLayout::Standard::kMetal);
     int currentOffset = 0;
-    for (const Type::Field& field : fields) {
+    for (const Field& field : fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
         if (!memoryLayout.isSupported(*fieldType)) {

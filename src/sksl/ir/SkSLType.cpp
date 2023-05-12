@@ -650,7 +650,7 @@ static bool is_too_deeply_nested(const Type* t, int limit) {
     }
 
     if (t->isStruct()) {
-        for (const Type::Field& f : t->fields()) {
+        for (const Field& f : t->fields()) {
             if (is_too_deeply_nested(f.fType, limit - 1)) {
                 return true;
             }
@@ -1077,7 +1077,7 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
 
 static bool is_or_contains_array(const Type* type, bool onlyMatchUnsizedArrays) {
     if (type->isStruct()) {
-        for (const Type::Field& f : type->fields()) {
+        for (const Field& f : type->fields()) {
             if (is_or_contains_array(f.fType, onlyMatchUnsizedArrays)) {
                 return true;
             }
@@ -1213,7 +1213,7 @@ SKSL_INT Type::convertArraySize(const Context& context,
     return static_cast<int>(count);
 }
 
-std::string Type::Field::description() const {
+std::string Field::description() const {
     return fModifiers.description() + fType->displayName() + " " + std::string(fName) + ";";
 }
 

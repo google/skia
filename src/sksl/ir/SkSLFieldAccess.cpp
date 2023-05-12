@@ -46,7 +46,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
         return nullptr;
     }
     if (baseType.isStruct()) {
-        SkSpan<const Type::Field> fields = baseType.fields();
+        SkSpan<const Field> fields = baseType.fields();
         for (size_t i = 0; i < fields.size(); i++) {
             if (fields[i].fName == field) {
                 return FieldAccess::Make(context, pos, std::move(base), (int)i);
@@ -103,7 +103,7 @@ std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
 }
 
 size_t FieldAccess::initialSlot() const {
-    SkSpan<const Type::Field> fields = this->base()->type().fields();
+    SkSpan<const Field> fields = this->base()->type().fields();
     const int fieldIndex = this->fieldIndex();
 
     size_t slot = 0;

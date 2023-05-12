@@ -320,7 +320,7 @@ int check_for_passthrough_local_coords_and_dead_varyings(const SkSL::Program& fs
                 // and mark the returned field as used.
                 return false;
             }
-            const Type::Field& field = fVaryings->type().fields()[fa.fieldIndex()];
+            const Field& field = fVaryings->type().fields()[fa.fieldIndex()];
             if (!field.fType->matches(*fContext.fTypes.fFloat2)) {
                 this->passthroughFailed();
                 return ProgramVisitor::visitStatement(s);

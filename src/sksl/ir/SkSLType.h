@@ -31,6 +31,7 @@ namespace SkSL {
 class Context;
 class Expression;
 class SymbolTable;
+class Type;
 
 struct CoercionCost {
     static CoercionCost Free()              { return {    0,    0, false }; }
@@ -66,6 +67,24 @@ struct CoercionCost {
 };
 
 /**
+ * Represents a single field in a struct type.
+ */
+struct Field {
+    Field(Position pos, Modifiers modifiers, std::string_view name, const Type* type)
+            : fPosition(pos)
+            , fModifiers(modifiers)
+            , fName(name)
+            , fType(type) {}
+
+    std::string description() const;
+
+    Position fPosition;
+    Modifiers fModifiers;
+    std::string_view fName;
+    const Type* fType;
+};
+
+/**
  * Represents a type, such as int or float4.
  */
 class Type : public Symbol {
@@ -74,20 +93,6 @@ public:
     inline static constexpr int kMaxAbbrevLength = 3;
     // Represents unspecified array dimensions, as in `int[]`.
     inline static constexpr int kUnsizedArray = -1;
-    struct Field {
-        Field(Position pos, Modifiers modifiers, std::string_view name, const Type* type)
-                : fPosition(pos)
-                , fModifiers(modifiers)
-                , fName(name)
-                , fType(type) {}
-
-        std::string description() const;
-
-        Position fPosition;
-        Modifiers fModifiers;
-        std::string_view fName;
-        const Type* fType;
-    };
 
     enum class TypeKind : int8_t {
         kArray,

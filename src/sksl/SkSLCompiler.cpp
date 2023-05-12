@@ -24,8 +24,8 @@
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFieldSymbol.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -263,7 +263,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
             return VariableReference::Make(pos, var, VariableReference::RefKind::kRead);
         }
         case Symbol::Kind::kField: {
-            const Field* field = &result->as<Field>();
+            const FieldSymbol* field = &result->as<FieldSymbol>();
             auto base = VariableReference::Make(pos, &field->owner(),
                                                 VariableReference::RefKind::kRead);
             return FieldAccess::Make(*fContext, pos, std::move(base), field->fieldIndex(),

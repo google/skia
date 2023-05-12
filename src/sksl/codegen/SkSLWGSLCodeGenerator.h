@@ -14,7 +14,6 @@
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
-#include "src/sksl/ir/SkSLType.h"
 
 #include <cstdint>
 #include <initializer_list>
@@ -37,6 +36,7 @@ class ConstructorDiagonalMatrix;
 class ConstructorMatrixResize;
 class Expression;
 class ExpressionStatement;
+struct Field;
 class FieldAccess;
 class FunctionCall;
 class FunctionDeclaration;
@@ -55,6 +55,7 @@ class Statement;
 class StructDefinition;
 class Swizzle;
 class TernaryExpression;
+class Type;
 class VarDeclaration;
 class Variable;
 class VariableReference;
@@ -225,7 +226,7 @@ private:
     // space layout constraints
     // (https://www.w3.org/TR/WGSL/#address-space-layout-constraints) if a `layout` is
     // provided. A struct that does not need to be host-shareable does not require a `layout`.
-    void writeFields(SkSpan<const Type::Field> fields,
+    void writeFields(SkSpan<const Field> fields,
                      Position parentPos,
                      const MemoryLayout* layout = nullptr);
 

@@ -1035,7 +1035,7 @@ void SlotManager::addSlotDebugInfoForGroup(const std::string& varName,
             break;
         }
         case Type::TypeKind::kStruct: {
-            for (const Type::Field& field : type.fields()) {
+            for (const Field& field : type.fields()) {
                 this->addSlotDebugInfoForGroup(varName + "." + std::string(field.fName),
                                                *field.fType, pos, groupIndex,
                                                isFunctionReturnValue);
@@ -2157,7 +2157,7 @@ bool Generator::pushStructuredComparison(LValue* left,
                                          const Type& type) {
     if (type.isStruct()) {
         // Compare every field in the struct.
-        SkSpan<const Type::Field> fields = type.fields();
+        SkSpan<const Field> fields = type.fields();
         int currentSlot = 0;
         for (size_t index = 0; index < fields.size(); ++index) {
             const Type& fieldType = *fields[index].fType;

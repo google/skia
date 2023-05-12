@@ -172,7 +172,7 @@ DSLType StructType(std::string_view name,
                    SkSpan<DSLField> fields,
                    bool interfaceBlock,
                    Position pos) {
-    std::vector<SkSL::Type::Field> skslFields;
+    std::vector<SkSL::Field> skslFields;
     skslFields.reserve(fields.size());
     for (const DSLField& field : fields) {
         skslFields.emplace_back(field.fPosition, field.fModifiers.fModifiers, field.fName,
