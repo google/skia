@@ -20,11 +20,11 @@
  *       kC = 4,
  *   };
  *
- *   MAKE_MASK_OPS(MyFlags)
+ *   SK_MAKE_BITMASK_OPS(MyFlags)
  *
  *   ...
  *
- *       Mask<MyFlags> flags = MyFlags::kA | MyFlags::kB;
+ *       SkEnumBitMask<MyFlags> flags = MyFlags::kA | MyFlags::kB;
  *
  *       if (flags & MyFlags::kB) {}
  *
