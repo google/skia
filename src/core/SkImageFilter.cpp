@@ -224,17 +224,20 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
     // (originally passed separately) has an origin of (0, 0). SkComposeImageFilter makes an effort
     // to ensure that remains the case. Once everyone uses the new type systems for bounds, non
     // (0, 0) source origins will be easy to support.
-    SkASSERT(context.source().layerBounds().left() == 0 &&
-             context.source().layerBounds().top() == 0 &&
-             context.source().layerBounds().right() == context.source().image()->width() &&
-             context.source().layerBounds().bottom() == context.source().image()->height());
+    SkASSERT((!context.source().image() && context.source().layerBounds().isEmpty()) ||
+             (context.source().image() &&
+              context.source().layerBounds().left() == 0 &&
+              context.source().layerBounds().top() == 0 &&
+              context.source().layerBounds().right() == context.source().image()->width() &&
+              context.source().layerBounds().bottom() == context.source().image()->height()));
 
     // TODO: Once all image filters operate on FilterResult, we should allow null source images.
-    // Right now image filter DAGs that do not read from a null child (e.g. no dynamic context)
-    // still require a source image that is nevertheless unused.
+    // Some filters that use a source input will produce non-transparent black values even if the
+    // input is fully transparent (null). For now, at least allow filters that do not use the source
+    // at all to still produce an output image.
     skif::FilterResult result;
     if (context.desiredOutput().isEmpty() ||
-        !context.source() ||
+        (fUsesSrcInput && !context.source()) ||
         !context.mapping().layerMatrix().isFinite()) {
         return result;
     }

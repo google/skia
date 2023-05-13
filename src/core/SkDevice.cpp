@@ -350,7 +350,7 @@ void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping,
                                              skif::FilterResult(sk_ref_sp(src)),
                                              colorType,
                                              this->imageInfo().colorSpace(),
-                                             src->props(),
+                                             src ? src->props() : this->surfaceProps(),
                                              cache.get()});
 
     SkIPoint offset;

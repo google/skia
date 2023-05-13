@@ -1100,6 +1100,27 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     };
 
     if (layerBounds.isEmpty()) {
+        // The image filter graph does not require any input, so we don't need to actually render
+        // a new layer for the source image. This could be because the image filter itself will not
+        // produce output, or that the filter DAG has no references to the dynamic source image.
+        // In this case it still has an output that we need to render, but do so now since there is
+        // no new layer pushed on the stack and the paired restore() will be a no-op.
+        if (filter) {
+            skif::ParameterSpace<SkRect> emptyInput{SkRect::MakeEmpty()};
+            skif::DeviceSpace<SkIRect> output =
+                    as_IFB(filter)->getOutputBounds(newLayerMapping, emptyInput);
+            if (SkIRect::Intersects(SkIRect(output), priorDevice->devClipBounds())) {
+                priorDevice->drawFilteredImage(newLayerMapping,
+                                               /*src=*/nullptr,
+                                               image_filter_color_type(priorDevice->imageInfo()),
+                                               filter,
+                                               /*sampling=*/{},
+                                               restorePaint);
+            }
+        }
+
+        // Regardless of if we drew the "restored" image filter or not, mark the layer as empty
+        // until the restore() since we don't care about any of its content.
         abortLayer();
         return;
     }
