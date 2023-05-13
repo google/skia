@@ -134,10 +134,6 @@ private:
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
     friend DSLType Struct(std::string_view name, SkSpan<Field> fields, Position pos);
-    friend DSLType StructType(std::string_view name,
-                              skia_private::TArray<Field> fields,
-                              bool interfaceBlock,
-                              Position pos);
     friend DSLType UnsizedArray(const DSLType& base, Position pos);
     friend class DSLCore;
     friend class DSLFunction;
@@ -153,16 +149,6 @@ DSLType UnsizedArray(const DSLType& base, Position pos = {});
  * Creates a StructDefinition at the top level and returns the associated type.
  */
 DSLType Struct(std::string_view name, skia_private::TArray<Field> fields, Position pos = {});
-
-/**
- * Creates a struct type and adds it to the current symbol table. Does _not_ create a ProgramElement
- * at the top level, so the type will exist, but won't be represented anywhere in the output.
- * (Use Struct or InterfaceBlock to add a top-level program element.)
- */
-DSLType StructType(std::string_view name,
-                   skia_private::TArray<Field> fields,
-                   bool interfaceBlock,
-                   Position pos);
 
 } // namespace dsl
 

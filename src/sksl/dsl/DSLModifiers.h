@@ -61,10 +61,6 @@ private:
     SkSL::Modifiers fModifiers;
     Position fPosition;
 
-    friend DSLType StructType(std::string_view name,
-                              skia_private::TArray<SkSL::Field> fields,
-                              bool interfaceBlock,
-                              Position pos);
     friend class DSLFunction;
     friend class DSLType;
     friend class DSLWriter;

@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLModifiersPool.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLPosition.h"
@@ -22,6 +23,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -112,18 +114,22 @@ public:
                                         TArray<Field> fields, std::string_view varName,
                                         int arraySize, Position pos) {
         // Build a struct type corresponding to the passed-in fields and array size.
-        DSLType varType = StructType(typeName, std::move(fields), /*interfaceBlock=*/true, pos);
+        const Context& context = ThreadContext::Context();
+        std::unique_ptr<Type> ownedType = Type::MakeStructType(context, pos, typeName,
+                                                               std::move(fields),
+                                                               /*interfaceBlock=*/true);
+        const SkSL::Type* type = context.fSymbolTable->add(std::move(ownedType));
         if (arraySize > 0) {
-            varType = Array(varType, arraySize);
+            type = &Array(type, arraySize).skslType();
         }
 
         // Create a global variable to attach our interface block to. (The variable doesn't actually
         // get a program element, though; the interface block does instead.)
-        DSLGlobalVar var(modifiers, varType, varName, DSLExpression(), pos);
+        DSLGlobalVar var(modifiers, type, varName, DSLExpression(), pos);
         if (SkSL::Variable* skslVar = DSLWriter::Var(var)) {
             // Add an InterfaceBlock program element to the program.
             if (std::unique_ptr<SkSL::InterfaceBlock> intf =
-                        SkSL::InterfaceBlock::Convert(ThreadContext::Context(), pos, skslVar)) {
+                        SkSL::InterfaceBlock::Convert(context, pos, skslVar)) {
                 ThreadContext::ProgramElements().push_back(std::move(intf));
                 // Return a VariableReference to the global variable tied to the interface block.
                 return DSLExpression(var);

@@ -172,21 +172,13 @@ DSLType UnsizedArray(const DSLType& base, Position pos) {
     return context.fSymbolTable->addArrayDimension(&base.skslType(), SkSL::Type::kUnsizedArray);
 }
 
-DSLType StructType(std::string_view name,
-                   TArray<Field> fields,
-                   bool interfaceBlock,
-                   Position pos) {
-    SkSL::Context& context = ThreadContext::Context();
-    std::unique_ptr<Type> newType = Type::MakeStructType(context, pos, name, std::move(fields),
-                                                         interfaceBlock);
-    return DSLType(context.fSymbolTable->add(std::move(newType)), pos);
-}
-
 DSLType Struct(std::string_view name, TArray<Field> fields, Position pos) {
-    DSLType result = StructType(name, std::move(fields), /*interfaceBlock=*/false, pos);
-    ThreadContext::ProgramElements().push_back(
-            std::make_unique<SkSL::StructDefinition>(pos, result.skslType()));
-    return result;
+    SkSL::Context& context = ThreadContext::Context();
+    std::unique_ptr<Type> ownedType = Type::MakeStructType(context, pos, name, std::move(fields),
+                                                           /*interfaceBlock=*/false);
+    const SkSL::Type* type = context.fSymbolTable->add(std::move(ownedType));
+    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(pos,*type));
+    return type;
 }
 
 } // namespace dsl
