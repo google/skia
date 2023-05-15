@@ -2397,8 +2397,8 @@ def go_repositories():
     go_repository(
         name = "com_google_cloud_go_bigquery",
         importpath = "cloud.google.com/go/bigquery",
-        sum = "h1:PQcPefKFdaIzjQFbiyOgAqyx8q5djaE7x9Sqe712DPA=",
-        version = "v1.8.0",
+        sum = "h1:oq1PIpl9u1thzdsX0K9w5H8OlqH5gRu3zGc7FCk19IY=",
+        version = "v1.17.0",
     )
     go_repository(
         name = "com_google_cloud_go_bigtable",
@@ -3038,8 +3038,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:DKP2cWbYZclFxxf5dWbpC6Dj7OoDtEo60d2XsKdeRkM=",
-        version = "v0.0.0-20230511165132-0d899fb75655",
+        sum = "h1:cpVn8s6FZczZU5W3FjJ9Wp+M8qIlnWKrdDgUfv69kFU=",
+        version = "v0.0.0-20230514184519-cbe6e1312c42",
     )
     go_repository(
         name = "org_uber_go_atomic",
