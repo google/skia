@@ -2403,10 +2403,6 @@ namespace baseline {
     #define N 8
     template <typename T> using V = Vec<N,T>;
     using Color = float;
-#elif defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && defined(SKCMS_OPT_INTO_NEON_FP16)
-    #define N 8
-    template <typename T> using V = Vec<N,T>;
-    using Color = _Float16;
 #else
     #define N 4
     template <typename T> using V = Vec<N,T>;
