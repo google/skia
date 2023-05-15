@@ -619,11 +619,8 @@ bool Parser::parseArrayDimensions(Position pos, DSLType* type) {
 
 bool Parser::parseInitializer(Position pos, DSLExpression* initializer) {
     if (this->checkNext(Token::Kind::TK_EQ)) {
-        DSLExpression value = this->assignmentExpression();
-        if (!value.hasValue()) {
-            return false;
-        }
-        initializer->swap(value);
+        *initializer = this->assignmentExpression();
+        return initializer->hasValue();
     }
     return true;
 }
@@ -1363,11 +1360,10 @@ dsl::DSLStatement Parser::forStatement() {
     }
     dsl::DSLExpression test;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
-        dsl::DSLExpression testValue = this->expression();
-        if (!testValue.hasValue()) {
+        test = this->expression();
+        if (!test.hasValue()) {
             return {};
         }
-        test.swap(testValue);
     }
     Token secondSemicolon;
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'", &secondSemicolon)) {
@@ -1375,11 +1371,10 @@ dsl::DSLStatement Parser::forStatement() {
     }
     dsl::DSLExpression next;
     if (this->peek().fKind != Token::Kind::TK_RPAREN) {
-        dsl::DSLExpression nextValue = this->expression();
-        if (!nextValue.hasValue()) {
+        next = this->expression();
+        if (!next.hasValue()) {
             return {};
         }
-        next.swap(nextValue);
     }
     Token rparen;
     if (!this->expect(Token::Kind::TK_RPAREN, "')'", &rparen)) {
@@ -1410,11 +1405,10 @@ DSLStatement Parser::returnStatement() {
     }
     DSLExpression expression;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
-        DSLExpression next = this->expression();
-        if (!next.hasValue()) {
+        expression = this->expression();
+        if (!expression.hasValue()) {
             return {};
         }
-        expression.swap(next);
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
         return {};
@@ -1525,10 +1519,8 @@ bool Parser::operatorRight(Parser::AutoDepth& depth,
         return false;
     }
     Position pos = expr.position().rangeThrough(right.position());
-    auto computed = DSLExpression(BinaryExpression::Convert(ThreadContext::Context(), pos,
-                                                            expr.release(), op, right.release()),
-                                  pos);
-    expr.swap(computed);
+    expr = DSLExpression(BinaryExpression::Convert(ThreadContext::Context(), pos,
+                                                   expr.release(), op, right.release()), pos);
     return true;
 }
 
@@ -1866,11 +1858,10 @@ DSLExpression Parser::postfixExpression() {
                 if (!depth.increase()) {
                     return {};
                 }
-                DSLExpression next = this->suffix(std::move(result));
-                if (!next.hasValue()) {
+                result = this->suffix(std::move(result));
+                if (!result.hasValue()) {
                     return {};
                 }
-                result.swap(next);
                 break;
             }
             default:

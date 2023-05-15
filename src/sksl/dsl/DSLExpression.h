@@ -17,14 +17,7 @@
 #include <type_traits>
 #include <utility>
 
-#if defined(__has_cpp_attribute) && __has_cpp_attribute(clang::reinitializes)
-#define SK_CLANG_REINITIALIZES [[clang::reinitializes]]
-#else
-#define SK_CLANG_REINITIALIZES
-#endif
-
-namespace SkSL {
-namespace dsl {
+namespace SkSL::dsl {
 
 class DSLType;
 struct DSLVarBase;
@@ -34,25 +27,23 @@ struct DSLVarBase;
  */
 class DSLExpression {
 public:
+    DSLExpression() = default;
+    ~DSLExpression() = default;
+
+    DSLExpression(DSLExpression&&) = default;
+    DSLExpression& operator=(DSLExpression&&) = default;
+
     DSLExpression(const DSLExpression&) = delete;
+    DSLExpression& operator=(const DSLExpression&) = delete;
 
-    DSLExpression(DSLExpression&&);
-
-    DSLExpression();
-
-    /**
-     * Creates an expression representing a variable reference.
-     */
+    // Creates an expression representing a variable reference.
     DSLExpression(DSLVarBase& var, Position pos = {});
-
     DSLExpression(DSLVarBase&& var, Position pos = {});
 
-    // If expression is null, returns Poison
+    // If expression is null, returns Poison.
     explicit DSLExpression(std::unique_ptr<SkSL::Expression> expression, Position pos = {});
 
     static DSLExpression Poison(Position pos = {});
-
-    ~DSLExpression();
 
     DSLType type() const;
 
@@ -61,11 +52,6 @@ public:
     Position position() const;
 
     void setPosition(Position pos);
-
-    /**
-     * Performs assignment, like the '=' operator.
-     */
-    DSLExpression assign(DSLExpression other);
 
     /**
      * Returns true if this object contains an expression. DSLExpressions which were created with
@@ -80,8 +66,6 @@ public:
      * Returns true if this object contains an expression which is not poison.
      */
     bool isValid() const;
-
-    SK_CLANG_REINITIALIZES void swap(DSLExpression& other);
 
     /**
      * Invalidates this object and returns the SkSL expression it represents. It is an error to call
@@ -101,14 +85,9 @@ public:
 
 private:
     std::unique_ptr<SkSL::Expression> fExpression;
-
-    friend class DSLCore;
-    friend class DSLWriter;
 };
 
-} // namespace dsl
-
-} // namespace SkSL
+}  // namespace SkSL::dsl
 
 template <typename T> struct sk_is_trivially_relocatable;
 

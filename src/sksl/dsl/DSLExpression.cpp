@@ -9,12 +9,10 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -26,14 +24,9 @@ using namespace skia_private;
 namespace SkSL {
 namespace dsl {
 
-DSLExpression::DSLExpression() {}
-
-DSLExpression::DSLExpression(DSLExpression&& other)
-    : fExpression(std::move(other.fExpression)) {}
-
 DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression, Position pos)
-    : fExpression(expression ? std::move(expression)
-                             : SkSL::Poison::Make(pos, ThreadContext::Context())) {
+        : fExpression(expression ? std::move(expression)
+                                 : SkSL::Poison::Make(pos, ThreadContext::Context())) {
     // If a position was passed in, it must match the expression's position.
     SkASSERTF(!pos.valid() || this->position() == pos,
               "expected expression position (%d-%d), but received (%d-%d)",
@@ -42,13 +35,11 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression, Posit
 }
 
 DSLExpression::DSLExpression(DSLVarBase& var, Position pos)
-    : fExpression(std::make_unique<SkSL::VariableReference>(
+        : fExpression(std::make_unique<SkSL::VariableReference>(
                   pos, DSLWriter::Var(var), SkSL::VariableReference::RefKind::kRead)) {}
 
 DSLExpression::DSLExpression(DSLVarBase&& var, Position pos)
-    : DSLExpression(var) {}
-
-DSLExpression::~DSLExpression() {}
+        : DSLExpression(var) {}
 
 DSLExpression DSLExpression::Poison(Position pos) {
     return DSLExpression(SkSL::Poison::Make(pos, ThreadContext::Context()));
@@ -56,10 +47,6 @@ DSLExpression DSLExpression::Poison(Position pos) {
 
 bool DSLExpression::isValid() const {
     return this->hasValue() && !fExpression->is<SkSL::Poison>();
-}
-
-void DSLExpression::swap(DSLExpression& other) {
-    std::swap(fExpression, other.fExpression);
 }
 
 DSLType DSLExpression::type() const {
@@ -82,12 +69,6 @@ Position DSLExpression::position() const {
 void DSLExpression::setPosition(Position pos) {
     SkASSERT(this->hasValue());
     fExpression->fPosition = pos;
-}
-
-DSLExpression DSLExpression::assign(DSLExpression right) {
-    Position pos = this->position().rangeThrough(right.position());
-    return DSLExpression(BinaryExpression::Convert(ThreadContext::Context(), pos, this->release(),
-                                                   SkSL::Operator::Kind::EQ, right.release()));
 }
 
 } // namespace dsl
