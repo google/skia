@@ -33,6 +33,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
@@ -904,113 +905,78 @@ std::string_view Parser::layoutIdentifier() {
 }
 
 /* LAYOUT LPAREN IDENTIFIER (EQ INT_LITERAL)? (COMMA IDENTIFIER (EQ INT_LITERAL)?)* RPAREN */
-DSLLayout Parser::layout() {
-    enum class LayoutToken {
-        LOCATION,
-        OFFSET,
-        BINDING,
-        TEXTURE,
-        SAMPLER,
-        INDEX,
-        SET,
-        BUILTIN,
-        INPUT_ATTACHMENT_INDEX,
-        ORIGIN_UPPER_LEFT,
-        BLEND_SUPPORT_ALL_EQUATIONS,
-        PUSH_CONSTANT,
-        COLOR,
-        SPIRV,
-        METAL,
-        GL,
-        WGSL
-    };
-
-    using LayoutMap = THashMap<std::string_view, LayoutToken>;
+SkSL::Layout Parser::layout() {
+    using LayoutMap = THashMap<std::string_view, SkSL::Layout::Flag>;
     static SkNoDestructor<LayoutMap> sLayoutTokens(LayoutMap{
-            {"location",                    LayoutToken::LOCATION},
-            {"offset",                      LayoutToken::OFFSET},
-            {"binding",                     LayoutToken::BINDING},
-            {"texture",                     LayoutToken::TEXTURE},
-            {"sampler",                     LayoutToken::SAMPLER},
-            {"index",                       LayoutToken::INDEX},
-            {"set",                         LayoutToken::SET},
-            {"builtin",                     LayoutToken::BUILTIN},
-            {"input_attachment_index",      LayoutToken::INPUT_ATTACHMENT_INDEX},
-            {"origin_upper_left",           LayoutToken::ORIGIN_UPPER_LEFT},
-            {"blend_support_all_equations", LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS},
-            {"push_constant",               LayoutToken::PUSH_CONSTANT},
-            {"color",                       LayoutToken::COLOR},
-            {"spirv",                       LayoutToken::SPIRV},
-            {"metal",                       LayoutToken::METAL},
-            {"gl",                          LayoutToken::GL},
-            {"wgsl",                        LayoutToken::WGSL},
+            {"location",                    SkSL::Layout::kLocation_Flag},
+            {"offset",                      SkSL::Layout::kOffset_Flag},
+            {"binding",                     SkSL::Layout::kBinding_Flag},
+            {"texture",                     SkSL::Layout::kTexture_Flag},
+            {"sampler",                     SkSL::Layout::kSampler_Flag},
+            {"index",                       SkSL::Layout::kIndex_Flag},
+            {"set",                         SkSL::Layout::kSet_Flag},
+            {"builtin",                     SkSL::Layout::kBuiltin_Flag},
+            {"input_attachment_index",      SkSL::Layout::kInputAttachmentIndex_Flag},
+            {"origin_upper_left",           SkSL::Layout::kOriginUpperLeft_Flag},
+            {"blend_support_all_equations", SkSL::Layout::kBlendSupportAllEquations_Flag},
+            {"push_constant",               SkSL::Layout::kPushConstant_Flag},
+            {"color",                       SkSL::Layout::kColor_Flag},
+            {"spirv",                       SkSL::Layout::kSPIRV_Flag},
+            {"metal",                       SkSL::Layout::kMetal_Flag},
+            {"gl",                          SkSL::Layout::kGL_Flag},
+            {"wgsl",                        SkSL::Layout::kWGSL_Flag},
     });
 
-    DSLLayout result;
-    if (this->checkNext(Token::Kind::TK_LAYOUT)) {
-        if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-            return result;
-        }
+    Layout result;
+    if (this->checkNext(Token::Kind::TK_LAYOUT) &&
+        this->expect(Token::Kind::TK_LPAREN, "'('")) {
+
         for (;;) {
             Token t = this->nextToken();
-            std::string text(this->text(t));
-            LayoutToken* found = sLayoutTokens->find(text);
-            if (found != nullptr) {
+            std::string_view text = this->text(t);
+            SkSL::Layout::Flag* found = sLayoutTokens->find(text);
+
+            if (!found) {
+                this->error(t, "'" + std::string(text) + "' is not a valid layout qualifier");
+            } else {
+                if (result.fFlags & *found) {
+                    this->error(t, "layout qualifier '" + std::string(text) +
+                                   "' appears more than once");
+                }
+
+                result.fFlags |= *found;
+
                 switch (*found) {
-                    case LayoutToken::SPIRV:
-                        result.spirv(this->position(t));
+                    case SkSL::Layout::kLocation_Flag:
+                        result.fLocation = this->layoutInt();
                         break;
-                    case LayoutToken::METAL:
-                        result.metal(this->position(t));
+                    case SkSL::Layout::kOffset_Flag:
+                        result.fOffset = this->layoutInt();
                         break;
-                    case LayoutToken::GL:
-                        result.gl(this->position(t));
+                    case SkSL::Layout::kBinding_Flag:
+                        result.fBinding = this->layoutInt();
                         break;
-                    case LayoutToken::WGSL:
-                        result.wgsl(this->position(t));
+                    case SkSL::Layout::kIndex_Flag:
+                        result.fIndex = this->layoutInt();
                         break;
-                    case LayoutToken::ORIGIN_UPPER_LEFT:
-                        result.originUpperLeft(this->position(t));
+                    case SkSL::Layout::kSet_Flag:
+                        result.fSet = this->layoutInt();
                         break;
-                    case LayoutToken::PUSH_CONSTANT:
-                        result.pushConstant(this->position(t));
+                    case SkSL::Layout::kTexture_Flag:
+                        result.fTexture = this->layoutInt();
                         break;
-                    case LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS:
-                        result.blendSupportAllEquations(this->position(t));
+                    case SkSL::Layout::kSampler_Flag:
+                        result.fSampler = this->layoutInt();
                         break;
-                    case LayoutToken::COLOR:
-                        result.color(this->position(t));
+                    case SkSL::Layout::kBuiltin_Flag:
+                        result.fBuiltin = this->layoutInt();
                         break;
-                    case LayoutToken::LOCATION:
-                        result.location(this->layoutInt(), this->position(t));
+                    case SkSL::Layout::kInputAttachmentIndex_Flag:
+                        result.fInputAttachmentIndex = this->layoutInt();
                         break;
-                    case LayoutToken::OFFSET:
-                        result.offset(this->layoutInt(), this->position(t));
-                        break;
-                    case LayoutToken::BINDING:
-                        result.binding(this->layoutInt(), this->position(t));
-                        break;
-                    case LayoutToken::INDEX:
-                        result.index(this->layoutInt(), this->position(t));
-                        break;
-                    case LayoutToken::SET:
-                        result.set(this->layoutInt(), this->position(t));
-                        break;
-                    case LayoutToken::TEXTURE:
-                        result.texture(this->layoutInt(), this->position(t));
-                        break;
-                    case LayoutToken::SAMPLER:
-                        result.sampler(this->layoutInt(), this->position(t));
-                        break;
-                    case LayoutToken::BUILTIN:
-                        result.builtin(this->layoutInt(), this->position(t));
-                        break;
-                    case LayoutToken::INPUT_ATTACHMENT_INDEX:
-                        result.inputAttachmentIndex(this->layoutInt(), this->position(t));
+                    default:
                         break;
                 }
-            } else {
-                this->error(t, "'" + text + "' is not a valid layout qualifier");
             }
             if (this->checkNext(Token::Kind::TK_RPAREN)) {
                 break;
@@ -1027,7 +993,7 @@ DSLLayout Parser::layout() {
             VARYING | INLINE | WORKGROUP | READONLY | WRITEONLY | BUFFER)* */
 DSLModifiers Parser::modifiers() {
     int start = this->peek().fOffset;
-    DSLLayout layout = this->layout();
+    SkSL::Layout layout = this->layout();
     Token raw = this->nextRawToken();
     int end = raw.fOffset;
     if (!is_whitespace(raw.fKind)) {

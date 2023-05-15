@@ -1513,8 +1513,6 @@ BASE_SRCS_ALL = [
     "src/sksl/dsl/DSLExpression.h",
     "src/sksl/dsl/DSLFunction.cpp",
     "src/sksl/dsl/DSLFunction.h",
-    "src/sksl/dsl/DSLLayout.cpp",
-    "src/sksl/dsl/DSLLayout.h",
     "src/sksl/dsl/DSLModifiers.h",
     "src/sksl/dsl/DSLStatement.cpp",
     "src/sksl/dsl/DSLStatement.h",

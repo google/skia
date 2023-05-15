@@ -20,7 +20,6 @@ namespace dsl {
 using Expression = DSLExpression;
 using Function = DSLFunction;
 using GlobalVar = DSLGlobalVar;
-using Layout = DSLLayout;
 using Modifiers = DSLModifiers;
 using Parameter = DSLParameter;
 using Statement = DSLStatement;

@@ -10,7 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLLayout.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
 namespace SkSL {
@@ -35,10 +35,10 @@ enum Modifier {
 class DSLModifiers {
 public:
     DSLModifiers(int flags = 0, Position pos = {})
-        : DSLModifiers(DSLLayout(), flags, pos) {}
+        : DSLModifiers(SkSL::Layout(), flags, pos) {}
 
-    DSLModifiers(DSLLayout layout, int flags = 0, Position pos = {})
-        : fModifiers(layout.fSkSLLayout, flags)
+    DSLModifiers(SkSL::Layout layout, int flags = 0, Position pos = {})
+        : fModifiers(layout, flags)
         , fPosition(pos) {}
 
     int& flags() {
@@ -49,8 +49,8 @@ public:
         return fModifiers.fFlags;
     }
 
-    DSLLayout layout() const {
-        return DSLLayout(fModifiers.fLayout);
+    const SkSL::Layout& layout() const {
+        return fModifiers.fLayout;
     }
 
     const SkSL::Modifiers* pool() const {

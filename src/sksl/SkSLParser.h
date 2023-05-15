@@ -18,10 +18,10 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLLayout.h"
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLType.h"
+#include "src/sksl/ir/SkSLLayout.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -198,7 +198,7 @@ private:
 
     std::string_view layoutIdentifier();
 
-    dsl::DSLLayout layout();
+    SkSL::Layout layout();
 
     dsl::DSLModifiers modifiers();
 

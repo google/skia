@@ -14,8 +14,6 @@ skia_filegroup(
         "DSLExpression.h",
         "DSLFunction.cpp",
         "DSLFunction.h",
-        "DSLLayout.cpp",
-        "DSLLayout.h",
         "DSLModifiers.h",
         "DSLStatement.cpp",
         "DSLStatement.h",

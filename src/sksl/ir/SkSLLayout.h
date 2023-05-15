@@ -47,14 +47,14 @@ struct Layout {
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex)
-    : fFlags(flags)
-    , fLocation(location)
-    , fOffset(offset)
-    , fBinding(binding)
-    , fIndex(index)
-    , fSet(set)
-    , fBuiltin(builtin)
-    , fInputAttachmentIndex(inputAttachmentIndex) {}
+            : fFlags(flags)
+            , fLocation(location)
+            , fOffset(offset)
+            , fBinding(binding)
+            , fIndex(index)
+            , fSet(set)
+            , fBuiltin(builtin)
+            , fInputAttachmentIndex(inputAttachmentIndex) {}
 
     Layout() = default;
 
