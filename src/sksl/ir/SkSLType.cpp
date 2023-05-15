@@ -9,6 +9,7 @@
 
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkSafeMath.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -666,29 +667,49 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
                                            std::string_view name,
                                            TArray<Field> fields,
                                            bool interfaceBlock) {
+    const char* const structOrIB  = interfaceBlock ? "interface block" : "struct";
+    const char* const aStructOrIB = interfaceBlock ? "an interface block" : "a struct";
+
+    if (fields.empty()) {
+        context.fErrors->error(pos, std::string(structOrIB) + " '" + std::string(name) +
+                                    "' must contain at least one field");
+    }
     size_t slots = 0;
+
+    THashSet<std::string_view> fieldNames;
     for (const Field& field : fields) {
+        // Add this field name to our set; if the set doesn't grow, we found a duplicate.
+        int numFieldNames = fieldNames.count();
+        fieldNames.add(field.fName);
+        if (fieldNames.count() == numFieldNames) {
+            context.fErrors->error(field.fPosition, "field '" + std::string(field.fName) +
+                                                    "' was already defined in the same " +
+                                                    std::string(structOrIB) + " ('" +
+                                                    std::string(name) + "')");
+        }
         if (field.fModifiers.fFlags != Modifiers::kNo_Flag) {
             std::string desc = field.fModifiers.description();
             desc.pop_back();  // remove trailing space
-            context.fErrors->error(field.fPosition,
-                                   "modifier '" + desc + "' is not permitted on a struct field");
+            context.fErrors->error(field.fPosition, "modifier '" + desc + "' is not permitted on " +
+                                                    std::string(aStructOrIB) + " field");
         }
         if (field.fModifiers.fLayout.fFlags & Layout::kBinding_Flag) {
-            context.fErrors->error(field.fPosition,
-                                   "layout qualifier 'binding' is not permitted on a struct field");
+            context.fErrors->error(field.fPosition, "layout qualifier 'binding' is not permitted "
+                                                    "on " + std::string(aStructOrIB) + " field");
         }
         if (field.fModifiers.fLayout.fFlags & Layout::kSet_Flag) {
-            context.fErrors->error(field.fPosition,
-                                   "layout qualifier 'set' is not permitted on a struct field");
+            context.fErrors->error(field.fPosition, "layout qualifier 'set' is not permitted on " +
+                                                    std::string(aStructOrIB) + " field");
         }
 
         if (field.fType->isVoid()) {
-            context.fErrors->error(field.fPosition, "type 'void' is not permitted in a struct");
+            context.fErrors->error(field.fPosition, "type 'void' is not permitted in " +
+                                                    std::string(aStructOrIB));
         }
         if (field.fType->isOpaque() && !field.fType->isAtomic()) {
             context.fErrors->error(field.fPosition, "opaque type '" + field.fType->displayName() +
-                                                    "' is not permitted in a struct");
+                                                    "' is not permitted in " +
+                                                    std::string(aStructOrIB));
         }
         if (field.fType->isOrContainsUnsizedArray()) {
             if (!interfaceBlock) {
@@ -701,14 +722,15 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
                 // ... see if this field causes us to exceed the size limit.
                 slots = SkSafeMath::Add(slots, field.fType->slotCount());
                 if (slots >= kVariableSlotLimit) {
-                    context.fErrors->error(pos, "struct is too large");
+                    context.fErrors->error(pos, std::string(structOrIB) + " is too large");
                 }
             }
         }
     }
     for (const Field& field : fields) {
         if (is_too_deeply_nested(field.fType, kMaxStructDepth)) {
-            context.fErrors->error(pos, "struct '" + std::string(name) + "' is too deeply nested");
+            context.fErrors->error(pos, std::string(structOrIB) + " '" + std::string(name) +
+                                        "' is too deeply nested");
             break;
         }
     }

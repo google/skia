@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 8: modifier 'workgroup' is not permitted on a struct field
+error: 8: modifier 'workgroup' is not permitted on an interface block field
    workgroup float bar;
    ^^^^^^^^^^^^^^^^^^^^
 error: 11: 'workgroup' is not permitted here

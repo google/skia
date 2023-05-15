@@ -416,11 +416,11 @@ DEF_TEST(SkSLMemoryLayoutWGSLUniformTest, r) {
                         context.fTypes.fFloat.get());
     fields.emplace_back(SkSL::Position(),
                         SkSL::Modifiers(),
-                        std::string_view("v"),
+                        std::string_view("w"),
                         context.fTypes.fFloat2.get());
     fields.emplace_back(SkSL::Position(),
                         SkSL::Modifiers(),
-                        std::string_view("w"),
+                        std::string_view("x"),
                         context.fTypes.fFloat.get());
     std::unique_ptr<SkSL::Type> structA = SkSL::Type::MakeStructType(
             context, SkSL::Position(), std::string_view("A"), std::move(fields));
@@ -669,11 +669,11 @@ DEF_TEST(SkSLMemoryLayoutWGSLStorageTest, r) {
                         context.fTypes.fFloat.get());
     fields.emplace_back(SkSL::Position(),
                         SkSL::Modifiers(),
-                        std::string_view("v"),
+                        std::string_view("w"),
                         context.fTypes.fFloat2.get());
     fields.emplace_back(SkSL::Position(),
                         SkSL::Modifiers(),
-                        std::string_view("w"),
+                        std::string_view("x"),
                         context.fTypes.fFloat.get());
     std::unique_ptr<SkSL::Type> structA = SkSL::Type::MakeStructType(
             context, SkSL::Position(), std::string_view("A"), std::move(fields));

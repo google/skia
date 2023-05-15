@@ -1,5 +1,5 @@
 Bad { sampler x; };
 
 /*%%*
-opaque type 'sampler' is not permitted in a struct
+opaque type 'sampler' is not permitted in an interface block
 *%%*/

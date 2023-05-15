@@ -6,6 +6,6 @@ t {
 };
 
 /*%%*
-layout qualifier 'binding' is not permitted on a struct field
-layout qualifier 'set' is not permitted on a struct field
+layout qualifier 'binding' is not permitted on an interface block field
+layout qualifier 'set' is not permitted on an interface block field
 *%%*/

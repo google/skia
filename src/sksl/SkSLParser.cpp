@@ -783,7 +783,6 @@ DSLType Parser::structDeclaration() {
         return DSLType(nullptr);
     }
     TArray<SkSL::Field> fields;
-    THashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token fieldStart = this->peek();
         DSLModifiers modifiers = this->modifiers();
@@ -808,29 +807,18 @@ DSLType Parser::structDeclaration() {
                     return DSLType(nullptr);
                 }
                 actualType = dsl::Array(actualType, size,
-                        this->rangeFrom(this->position(fieldStart)));
+                                        this->rangeFrom(this->position(fieldStart)));
             }
 
-            std::string_view nameText = this->text(memberName);
-            if (!fieldNames.contains(nameText)) {
-                fields.push_back(SkSL::Field(this->rangeFrom(fieldStart),
-                                             modifiers.fModifiers,
-                                             nameText,
-                                             &actualType.skslType()));
-                fieldNames.add(nameText);
-            } else {
-                this->error(memberName, "field '" + std::string(nameText) +
-                                        "' was already defined in the same struct ('" +
-                                        std::string(this->text(name)) + "')");
-            }
+            fields.push_back(SkSL::Field(this->rangeFrom(fieldStart),
+                                         modifiers.fModifiers,
+                                         this->text(memberName),
+                                         &actualType.skslType()));
         } while (this->checkNext(Token::Kind::TK_COMMA));
+
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
             return DSLType(nullptr);
         }
-    }
-    if (fields.empty()) {
-        this->error(this->rangeFrom(start), "struct '" + std::string(this->text(name)) +
-                "' must contain at least one field");
     }
     return dsl::Struct(this->text(name), std::move(fields), this->rangeFrom(start));
 }
@@ -1115,7 +1103,6 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     }
     this->nextToken();
     TArray<SkSL::Field> fields;
-    THashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Position fieldPos = this->position(this->peek());
         DSLModifiers fieldModifiers = this->modifiers();
@@ -1148,24 +1135,11 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
                 return false;
             }
 
-            std::string_view nameText = this->text(fieldName);
-            if (!fieldNames.contains(nameText)) {
-                fields.push_back(SkSL::Field(this->rangeFrom(fieldPos),
-                                             fieldModifiers.fModifiers,
-                                             nameText,
-                                             &actualType.skslType()));
-                fieldNames.add(nameText);
-            } else {
-                this->error(fieldName, "field '" + std::string(nameText) +
-                                       "' was already defined in the same interface block ('" +
-                                       std::string(this->text(typeName)) +  "')");
-            }
+            fields.push_back(SkSL::Field(this->rangeFrom(fieldPos),
+                                         fieldModifiers.fModifiers,
+                                         this->text(fieldName),
+                                         &actualType.skslType()));
         } while (this->checkNext(Token::Kind::TK_COMMA));
-    }
-    if (fields.empty()) {
-        this->error(this->rangeFrom(typeName),
-                    "interface block '" + std::string(this->text(typeName)) +
-                    "' must contain at least one member");
     }
     std::string_view instanceName;
     Token instanceNameToken;
@@ -1179,10 +1153,8 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
             this->expect(Token::Kind::TK_RBRACKET, "']'");
         }
     }
-    if (!fields.empty()) {
-        dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
-                            size, this->position(typeName));
-    }
+    dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
+                        size, this->position(typeName));
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
     return true;
 }
