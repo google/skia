@@ -23,7 +23,7 @@ class FunctionDeclaration;
 namespace dsl {
 
 class DSLType;
-class DSLModifiers;
+struct DSLModifiers;
 struct DSLParameter;
 
 class DSLFunction {

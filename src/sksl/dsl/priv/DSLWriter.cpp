@@ -14,7 +14,6 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
@@ -51,8 +50,8 @@ SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
         }
         std::unique_ptr<SkSL::Variable> skslvar = SkSL::Variable::Convert(ThreadContext::Context(),
                                                                           var.fPosition,
-                                                                          var.fModifiers.fPosition,
-                                                                          var.fModifiers.fModifiers,
+                                                                          var.fModifiersPos,
+                                                                          var.fModifiers,
                                                                           &var.fType.skslType(),
                                                                           var.fNamePosition,
                                                                           var.fName,
@@ -79,8 +78,8 @@ std::unique_ptr<SkSL::Variable> DSLWriter::CreateParameterVar(DSLParameter& var)
     // breaking things. DSLFunction is responsible for reporting errors for invalid parameters.
     return SkSL::Variable::Convert(ThreadContext::Context(),
                                    var.fPosition,
-                                   var.fModifiers.fPosition,
-                                   var.fModifiers.fModifiers,
+                                   var.fModifiersPos,
+                                   var.fModifiers,
                                    &var.fType.skslType(),
                                    var.fNamePosition,
                                    var.fName,

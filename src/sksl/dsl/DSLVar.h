@@ -31,7 +31,8 @@ struct DSLVarBase {
                DSLExpression initialValue,
                Position pos,
                Position namePos)
-            : fModifiers(std::move(modifiers))
+            : fModifiersPos(modifiers.fPosition)
+            , fModifiers(modifiers.fModifiers)
             , fType(std::move(type))
             , fNamePosition(namePos)
             , fName(name)
@@ -39,7 +40,8 @@ struct DSLVarBase {
             , fPosition(pos)
             , fStorage(storage) {}
 
-    DSLModifiers fModifiers;
+    Position fModifiersPos;
+    SkSL::Modifiers fModifiers;
     // We only need to keep track of the type here so that we can create the SkSL::Variable. For
     // predefined variables this field is unnecessary, so we don't bother tracking it and just set
     // it to kVoid; in other words, you shouldn't generally be relying on this field to be correct.

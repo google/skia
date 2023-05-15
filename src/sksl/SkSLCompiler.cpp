@@ -21,7 +21,6 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/dsl/DSLCore.h"
-#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -271,8 +270,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
         }
         case Symbol::Kind::kType: {
             // go through DSLType so we report errors on private types
-            dsl::DSLModifiers modifiers;
-            dsl::DSLType dslType(result->name(), &modifiers, pos);
+            dsl::DSLType dslType(result->name(), pos);
             return TypeReference::Convert(*fContext, pos, &dslType.skslType());
         }
         default:

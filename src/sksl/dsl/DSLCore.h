@@ -28,7 +28,7 @@ struct ProgramSettings;
 
 namespace dsl {
 
-class DSLModifiers;
+struct DSLModifiers;
 
 /**
  * Starts DSL output on the current thread using the specified compiler. This must be called
@@ -68,7 +68,7 @@ void SetErrorReporter(ErrorReporter* errorReporter);
  */
 void Declare(DSLGlobalVar& var, Position pos = {});
 
-DSLExpression InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
+DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
                              skia_private::TArray<Field> fields, std::string_view varName = "",
                              int arraySize = 0, Position pos = {});
 

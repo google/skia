@@ -451,11 +451,11 @@ void Parser::directive(bool allowVersion) {
     this->error(start, "unsupported directive '" + std::string(this->text(start)) + "'");
 }
 
-bool Parser::modifiersDeclarationEnd(Position pos, const dsl::DSLModifiers& mods) {
+bool Parser::modifiersDeclarationEnd(const dsl::DSLModifiers& mods) {
     std::unique_ptr<ModifiersDeclaration> decl = ModifiersDeclaration::Convert(
             ThreadContext::Context(),
-            pos,
-            mods.pool());
+            mods.fPosition,
+            ThreadContext::Modifiers(mods.fModifiers));
 
     if (!decl) {
         return false;
@@ -482,7 +482,7 @@ bool Parser::declaration() {
     }
     if (lookahead.fKind == Token::Kind::TK_SEMICOLON) {
         this->nextToken();
-        return this->modifiersDeclarationEnd(this->position(start), modifiers);
+        return this->modifiersDeclarationEnd(modifiers);
     }
     if (lookahead.fKind == Token::Kind::TK_STRUCT) {
         this->structVarDeclaration(this->position(start), modifiers);
@@ -998,7 +998,7 @@ DSLModifiers Parser::modifiers() {
         flags |= tokenFlag;
         end = this->position(modifier).endOffset();
     }
-    return DSLModifiers(std::move(layout), flags, Position::Range(start, end));
+    return DSLModifiers{Modifiers(layout, flags), Position::Range(start, end)};
 }
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
@@ -1056,7 +1056,8 @@ DSLType Parser::type(DSLModifiers* modifiers) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
         return DSLType::Invalid();
     }
-    DSLType result(this->text(type), modifiers, this->position(type));
+    DSLType result(this->text(type), this->position(type),
+                   &modifiers->fModifiers, modifiers->fPosition);
     if (result.isInterfaceBlock()) {
         // SkSL puts interface blocks into the symbol table, but they aren't general-purpose types;
         // you can't use them to declare a variable type or a function return type.

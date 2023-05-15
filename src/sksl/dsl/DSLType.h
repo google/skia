@@ -20,12 +20,12 @@ namespace SkSL {
 
 class Compiler;
 struct Field;
+struct Modifiers;
 class Position;
 class Type;
 
 namespace dsl {
 
-class DSLModifiers;
 struct DSLVarBase;
 
 class DSLType {
@@ -34,7 +34,8 @@ public:
 
     DSLType(std::string_view name, Position pos = {});
 
-    DSLType(std::string_view name, DSLModifiers* modifiers, Position pos = {});
+    DSLType(std::string_view name, Position overallPos,
+            SkSL::Modifiers* modifiers, Position modifiersPos);
 
     static DSLType Invalid();
     static DSLType Poison();

@@ -15,7 +15,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSymbol.h"
@@ -51,9 +50,7 @@ static const SkSL::Type* verify_type(const Context& context,
     return type;
 }
 
-static const SkSL::Type* find_type(const Context& context,
-                                   Position pos,
-                                   std::string_view name) {
+static const SkSL::Type* find_type(const Context& context, std::string_view name, Position pos) {
     const Symbol* symbol = context.fSymbolTable->find(name);
     if (!symbol) {
         context.fErrors->error(pos, String::printf("no symbol named '%.*s'",
@@ -70,23 +67,26 @@ static const SkSL::Type* find_type(const Context& context,
 }
 
 static const SkSL::Type* find_type(const Context& context,
-                                   Position overallPos,
                                    std::string_view name,
-                                   Position modifiersPos,
-                                   Modifiers* modifiers) {
-    const Type* type = find_type(context, overallPos, name);
+                                   Position overallPos,
+                                   Modifiers* modifiers,
+                                   Position modifiersPos) {
+    const Type* type = find_type(context, name, overallPos);
     return type->applyQualifiers(context, modifiers, modifiersPos);
 }
 
 DSLType::DSLType(std::string_view name, Position pos)
-        : fSkSLType(find_type(ThreadContext::Context(), pos, name)) {}
+        : fSkSLType(find_type(ThreadContext::Context(), name, pos)) {}
 
-DSLType::DSLType(std::string_view name, DSLModifiers* modifiers, Position pos)
+DSLType::DSLType(std::string_view name,
+                 Position overallPos,
+                 SkSL::Modifiers* modifiers,
+                 Position modifiersPos)
         : fSkSLType(find_type(ThreadContext::Context(),
-                              pos,
                               name,
-                              modifiers->fPosition,
-                              &modifiers->fModifiers)) {}
+                              overallPos,
+                              modifiers,
+                              modifiersPos)) {}
 
 DSLType::DSLType(const SkSL::Type* type, Position pos)
         : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowGenericTypes=*/true, pos)) {}

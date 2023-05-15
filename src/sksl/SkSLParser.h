@@ -190,7 +190,7 @@ private:
     dsl::DSLStatement localVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
                                              dsl::DSLType baseType, Token name);
 
-    bool modifiersDeclarationEnd(Position pos, const dsl::DSLModifiers& mods);
+    bool modifiersDeclarationEnd(const dsl::DSLModifiers& mods);
 
     std::optional<dsl::DSLParameter> parameter(size_t paramIndex);
 
