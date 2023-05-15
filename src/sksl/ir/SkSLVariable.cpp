@@ -23,7 +23,6 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
-#include <type_traits>
 #include <utility>
 
 namespace SkSL {
@@ -89,11 +88,9 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
                                             Position pos,
                                             Position modifiersPos,
                                             const Modifiers& modifiers,
-                                            const Type* baseType,
+                                            const Type* type,
                                             Position namePos,
                                             std::string_view name,
-                                            bool isArray,
-                                            std::unique_ptr<Expression> arraySize,
                                             Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
@@ -101,7 +98,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
         context.fErrors->error(modifiersPos,
                                "out location=0, index=0 is reserved for sk_FragColor");
     }
-    if (baseType->isUnsizedArray() && storage != Variable::Storage::kInterfaceBlock) {
+    if (type->isUnsizedArray() && storage != Variable::Storage::kInterfaceBlock) {
         context.fErrors->error(pos, "unsized arrays are not permitted here");
     }
     if (ProgramConfig::IsCompute(ThreadContext::Context().fConfig->fKind) &&
@@ -115,18 +112,15 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
         }
     }
 
-    return Make(context, pos, modifiersPos, modifiers, baseType, name, isArray,
-                std::move(arraySize), storage);
+    return Make(context, pos, modifiersPos, modifiers, type, name, storage);
 }
 
 std::unique_ptr<Variable> Variable::Make(const Context& context,
                                          Position pos,
                                          Position modifiersPos,
                                          const Modifiers& modifiers,
-                                         const Type* baseType,
+                                         const Type* type,
                                          std::string_view name,
-                                         bool isArray,
-                                         std::unique_ptr<Expression> arraySize,
                                          Variable::Storage storage) {
     // Invent a mangled name for the variable, if it needs one.
     std::string mangledName;
@@ -138,18 +132,6 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
         // intrinsic, but it's not illegal for user names to shadow a global symbol.
         // Mangle the name to avoid a possible collision.
         mangledName = Mangler{}.uniqueName(name, context.fSymbolTable.get());
-    }
-
-    // Apply the array-size to the base type.
-    const Type* type = baseType;
-    int arraySizeValue = 0;
-    if (isArray) {
-        SkASSERT(arraySize);
-        arraySizeValue = type->convertArraySize(context, pos, std::move(arraySize));
-        if (!arraySizeValue) {
-            return nullptr;
-        }
-        type = context.fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
 
     if (type->componentType().isInterfaceBlock() || !mangledName.empty()) {
