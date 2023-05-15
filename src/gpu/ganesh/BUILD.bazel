@@ -278,6 +278,7 @@ skia_filegroup(
             "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:srcs"],
             "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:srcs"],
             "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:srcs"],
+            "@platforms//os:android": ["//src/gpu/ganesh/surface:android_srcs"],
             # TODO(kjlubick) d3d backend
         },
     ),
