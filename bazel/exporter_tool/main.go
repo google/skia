@@ -53,6 +53,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/base:private_hdrs",
 				"//src/base:skslc_srcs",
 				"//src/base:srcs",
+				"//src/cityhash:private_hdrs",
+				"//src/cityhash:srcs",
 				"//src/core:core_hdrs",
 				"//src/core:core_skslc_hdrs",
 				"//src/core:core_skslc_srcs",
