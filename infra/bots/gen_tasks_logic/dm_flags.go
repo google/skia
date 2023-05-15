@@ -1079,6 +1079,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLOutParams_GPU")         // skia:11919
 		skip(ALL, "tests", ALL, "SkSLOutParamsTricky_GPU")   // skia:11919
 		skip(ALL, "tests", ALL, "SkSLOutParamsNoInline_GPU") // skia:11919
+		skip(ALL, "tests", ALL, "SkSLOutParamsFunctionCallInArgument")
 	}
 
 	if (b.matchGpu("Adreno3") || b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
