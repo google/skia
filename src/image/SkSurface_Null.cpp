@@ -32,7 +32,7 @@ protected:
         return new SkNoDrawCanvas(this->width(), this->height());
     }
     sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) override {
-        return MakeNull(info.width(), info.height());
+        return SkSurfaces::Null(info.width(), info.height());
     }
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subsetOrNull) override { return nullptr; }
     void onWritePixels(const SkPixmap&, int x, int y) override {}
