@@ -15,6 +15,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Image.h"
+#include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/YUVABackendTextures.h"
 #include "include/private/base/SkMutex.h"
@@ -159,7 +160,7 @@ static sk_sp<SkImage> generate_picture_texture(skgpu::graphite::Recorder* record
     SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
 
     auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder, info, mm);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder, info, mm);
     if (!surface) {
         SKGPU_LOG_E("Failed to create Surface");
         return nullptr;
