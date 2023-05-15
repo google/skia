@@ -38,6 +38,21 @@ int SkTypeface_Fontations::onGetUPEM() const {
     return fontations_ffi::units_per_em_or_zero(*fBridgeFontRef);
 }
 
+void SkTypeface_Fontations::onGetFamilyName(SkString* familyName) const {
+    rust::String readFamilyName = fontations_ffi::family_name(*fBridgeFontRef);
+    *familyName = SkString(readFamilyName.data(), readFamilyName.size());
+}
+
+bool SkTypeface_Fontations::onGetPostScriptName(SkString* postscriptName) const {
+    rust::String readPsName;
+    if (fontations_ffi::postscript_name(*fBridgeFontRef, readPsName)) {
+        *postscriptName = SkString(readPsName.data(), readPsName.size());
+        return true;
+    }
+
+    return false;
+}
+
 void SkTypeface_Fontations::onCharsToGlyphs(const SkUnichar* chars,
                                             int count,
                                             SkGlyphID glyphs[]) const {
@@ -53,6 +68,30 @@ int SkTypeface_Fontations::onCountGlyphs() const {
 
 void SkTypeface_Fontations::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkFontHinting::kNone);
+}
+
+class SkrifaLocalizedStrings : public SkTypeface::LocalizedStrings {
+public:
+    SkrifaLocalizedStrings(
+            rust::Box<::fontations_ffi::BridgeLocalizedStrings> bridge_localized_strings)
+            : fBridgeLocalizedStrings(std::move(bridge_localized_strings)) {}
+    bool next(SkTypeface::LocalizedString* localized_string) override {
+        fontations_ffi::BridgeLocalizedName localizedName;
+        if (!fontations_ffi::localized_name_next(*fBridgeLocalizedStrings, localizedName)) {
+            return false;
+        }
+        localized_string->fString = SkString(localizedName.string.data(), localizedName.string.size());
+        localized_string->fLanguage =
+                SkString(localizedName.language.data(), localizedName.language.size());
+        return true;
+    }
+
+private:
+    rust::Box<::fontations_ffi::BridgeLocalizedStrings> fBridgeLocalizedStrings;
+};
+
+SkTypeface::LocalizedStrings* SkTypeface_Fontations::onCreateFamilyNameIterator() const {
+    return new SkrifaLocalizedStrings(fontations_ffi::get_localized_strings(*fBridgeFontRef));
 }
 
 class SkFontationsScalerContext : public SkScalerContext {

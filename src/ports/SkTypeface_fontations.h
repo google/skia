@@ -42,15 +42,9 @@ protected:
     void getPostScriptGlyphNames(SkString*) const override {}
     void getGlyphToUnicodeMap(SkUnichar*) const override {}
     int onGetUPEM() const override;
-    class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
-    public:
-        bool next(SkTypeface::LocalizedString*) override { return false; }
-    };
-    void onGetFamilyName(SkString* familyName) const override { familyName->reset(); }
-    bool onGetPostScriptName(SkString*) const override { return false; }
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
-        return new EmptyLocalizedStrings;
-    }
+    void onGetFamilyName(SkString* familyName) const override;
+    bool onGetPostScriptName(SkString*) const override;
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     bool onGlyphMaskNeedsCurrentColor() const override { return false; }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override {

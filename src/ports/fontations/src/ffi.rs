@@ -1,7 +1,6 @@
 // Copyright 2023 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
-use std::pin::Pin;
 use cxx;
 use font_types::{GlyphId, Pen};
 use read_fonts::{FileRef, FontRef, ReadError, TableProvider};
@@ -9,8 +8,10 @@ use skrifa::{
     instance::{LocationRef, Size},
     metrics::{GlyphMetrics, Metrics},
     scale::Context,
+    string::{LocalizedStrings, StringId},
     MetadataProvider,
 };
+use std::pin::Pin;
 
 use crate::ffi::SkPathWrapper;
 
@@ -34,9 +35,9 @@ struct PathWrapperPen<'a> {
     path_wrapper: Pin<&'a mut ffi::SkPathWrapper>,
 }
 
-// We need to wrap ffi::SkPathWrapper in PathWrapperPen and forward the path recording
-// calls to the path wrapper as we can't define trait implementations inside the
-// cxx::bridge section.
+// We need to wrap ffi::SkPathWrapper in PathWrapperPen and forward the path
+// recording calls to the path wrapper as we can't define trait implementations
+// inside the cxx::bridge section.
 impl<'a> Pen for PathWrapperPen<'a> {
     fn move_to(&mut self, x: f32, y: f32) {
         self.path_wrapper.as_mut().move_to(x, -y);
@@ -121,6 +122,58 @@ fn get_skia_metrics(font_ref: &BridgeFontRef, size: f32) -> ffi::Metrics {
     })
 }
 
+fn get_localized_strings<'a>(font_ref: &'a BridgeFontRef<'a>) -> Box<BridgeLocalizedStrings<'a>> {
+    Box::new(BridgeLocalizedStrings {
+        localized_strings: match font_ref.0.as_ref() {
+            Some(font_ref) => font_ref.localized_strings(StringId::FAMILY_NAME),
+            _ => LocalizedStrings::default(),
+        },
+    })
+}
+
+use crate::ffi::BridgeLocalizedName;
+
+fn localized_name_next(
+    bridge_localized_strings: &mut BridgeLocalizedStrings,
+    out_localized_name: &mut BridgeLocalizedName,
+) -> bool {
+    match bridge_localized_strings.localized_strings.next() {
+        Some(localized_string) => {
+            out_localized_name.string = localized_string.to_string();
+            out_localized_name.language = localized_string
+                .language()
+                .map(|l| l.to_string())
+                .unwrap_or_default();
+            true
+        }
+        _ => false,
+    }
+}
+
+fn english_or_first_font_name(font_ref: &BridgeFontRef, name_id: StringId) -> Option<String> {
+    font_ref.0.as_ref().and_then(|font_ref| {
+        font_ref
+            .localized_strings(name_id)
+            .english_or_first()
+            .map(|localized_string| localized_string.to_string())
+    })
+}
+
+fn family_name(font_ref: &BridgeFontRef) -> String {
+    english_or_first_font_name(font_ref, StringId::FAMILY_NAME).unwrap_or_default()
+}
+
+fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool {
+    let postscript_name = english_or_first_font_name(font_ref, StringId::POSTSCRIPT_NAME);
+    match postscript_name {
+        Some(name) => {
+            *out_string = name;
+            true
+        }
+        _ => false,
+    }
+}
+
 fn make_font_ref_internal<'a>(font_data: &'a [u8], index: u32) -> Result<FontRef<'a>, ReadError> {
     match FileRef::new(font_data) {
         Ok(file_ref) => match file_ref {
@@ -136,6 +189,11 @@ fn make_font_ref<'a>(font_data: &'a [u8], index: u32) -> Box<BridgeFontRef<'a>> 
 }
 
 struct BridgeFontRef<'a>(Option<FontRef<'a>>);
+
+struct BridgeLocalizedStrings<'a> {
+    #[allow(dead_code)]
+    localized_strings: LocalizedStrings<'a>,
+}
 
 #[cxx::bridge(namespace = "fontations_ffi")]
 mod ffi {
@@ -155,6 +213,11 @@ mod ffi {
         cap_height: f32,
     }
 
+    struct BridgeLocalizedName {
+        string: String,
+        language: String,
+    }
+
     extern "Rust" {
 
         type BridgeFontRef<'a>;
@@ -171,6 +234,17 @@ mod ffi {
         fn units_per_em_or_zero(font_ref: &BridgeFontRef) -> u16;
         fn get_skia_metrics(font_ref: &BridgeFontRef, size: f32) -> Metrics;
         fn num_glyphs(font_ref: &BridgeFontRef) -> u16;
+        fn family_name(font_ref: &BridgeFontRef) -> String;
+        fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool;
+
+        type BridgeLocalizedStrings<'a>;
+        unsafe fn get_localized_strings<'a>(
+            font_ref: &'a BridgeFontRef<'a>,
+        ) -> Box<BridgeLocalizedStrings<'a>>;
+        fn localized_name_next(
+            bridge_localized_strings: &mut BridgeLocalizedStrings,
+            out_localized_name: &mut BridgeLocalizedName,
+        ) -> bool;
 
     }
 
