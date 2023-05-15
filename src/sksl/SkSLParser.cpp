@@ -44,6 +44,7 @@
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -817,7 +818,18 @@ DSLType Parser::structDeclaration() {
             return DSLType(nullptr);
         }
     }
-    return dsl::Struct(this->text(name), std::move(fields), this->rangeFrom(start));
+    std::unique_ptr<SkSL::StructDefinition> def = StructDefinition::Convert(
+                ThreadContext::Context(),
+                this->rangeFrom(start),
+                this->text(name),
+                std::move(fields));
+    if (!def) {
+        return DSLType(nullptr);
+    }
+
+    DSLType result(&def->type());
+    ThreadContext::ProgramElements().push_back(std::move(def));
+    return result;
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */

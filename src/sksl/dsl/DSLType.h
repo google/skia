@@ -8,25 +8,18 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
-#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTArray.h"
-#include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/SkSLPosition.h"  // IWYU pragma: keep
 
 #include <string_view>
-#include <utility>
 
 namespace SkSL {
 
 class Compiler;
-struct Field;
-struct Modifiers;
-class Position;
 class Type;
+struct Modifiers;
 
 namespace dsl {
-
-struct DSLVarBase;
 
 class DSLType {
 public:
@@ -111,20 +104,6 @@ public:
      */
     bool isEffectChild() const;
 
-    template<typename... Args>
-    static DSLExpression Construct(DSLType type, DSLVarBase& var, Args&&... args) {
-        DSLExpression argArray[] = {var, args...};
-        return Construct(type, SkSpan(argArray));
-    }
-
-    template<typename... Args>
-    static DSLExpression Construct(DSLType type, DSLExpression expr, Args&&... args) {
-        DSLExpression argArray[] = {std::move(expr), std::move(args)...};
-        return Construct(type, SkSpan(argArray));
-    }
-
-    static DSLExpression Construct(DSLType type, SkSpan<DSLExpression> argArray);
-
     const SkSL::Type& skslType() const {
         SkASSERT(fSkSLType);
         return *fSkSLType;
@@ -134,7 +113,6 @@ private:
     const SkSL::Type* fSkSLType = nullptr;
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
-    friend DSLType Struct(std::string_view name, SkSpan<Field> fields, Position pos);
     friend DSLType UnsizedArray(const DSLType& base, Position pos);
     friend class DSLCore;
     friend class DSLFunction;
@@ -145,11 +123,6 @@ private:
 DSLType Array(const DSLType& base, int count, Position pos = {});
 
 DSLType UnsizedArray(const DSLType& base, Position pos = {});
-
-/**
- * Creates a StructDefinition at the top level and returns the associated type.
- */
-DSLType Struct(std::string_view name, skia_private::TArray<Field> fields, Position pos = {});
 
 } // namespace dsl
 

@@ -85,6 +85,7 @@ IR_FILES = [
     "SkSLSetting.cpp",
     "SkSLSetting.h",
     "SkSLStatement.h",
+    "SkSLStructDefinition.cpp",
     "SkSLStructDefinition.h",
     "SkSLSwitchCase.h",
     "SkSLSwitchStatement.cpp",

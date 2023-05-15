@@ -1602,6 +1602,7 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLSetting.cpp",
     "src/sksl/ir/SkSLSetting.h",
     "src/sksl/ir/SkSLStatement.h",
+    "src/sksl/ir/SkSLStructDefinition.cpp",
     "src/sksl/ir/SkSLStructDefinition.h",
     "src/sksl/ir/SkSLSwitchCase.h",
     "src/sksl/ir/SkSLSwitchStatement.cpp",
