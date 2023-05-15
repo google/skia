@@ -239,7 +239,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     // Some steps just render depth buffer but not color buffer, so the fragment
     // shader is null.
-    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps()->resourceBindingRequirements(),
+    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
                                               sharedContext->shaderCodeDictionary(),
                                               runtimeDict,
                                               step,

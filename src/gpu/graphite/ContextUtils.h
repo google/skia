@@ -69,7 +69,7 @@ std::string GetSkSLVS(const ResourceBindingRequirements&,
                       bool defineShadingSsboIndexVarying,
                       bool defineLocalCoordsVarying);
 
-FragSkSLInfo GetSkSLFS(const ResourceBindingRequirements&,
+FragSkSLInfo GetSkSLFS(const Caps* caps,
                        const ShaderCodeDictionary*,
                        const RuntimeEffectDictionary*,
                        const RenderStep* renderStep,

@@ -119,7 +119,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     bool useShadingSsboIndex =
             fSharedContext->caps()->storageBufferPreferred() && step->performsShading();
 
-    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(fSharedContext->caps()->resourceBindingRequirements(),
+    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(fSharedContext->caps(),
                                               fSharedContext->shaderCodeDictionary(),
                                               runtimeDict,
                                               step,

@@ -24,6 +24,7 @@
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/sksl/SkSLString.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -175,6 +176,37 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
     }
 }
 
+void append_color_output(std::string* mainBody,
+                         BlendFormula::OutputType outputType,
+                         const char* outColor,
+                         const char* inColor) {
+    switch (outputType) {
+        case BlendFormula::kNone_OutputType:
+            SkSL::String::appendf(mainBody, "%s = half4(0.0);", outColor);
+            break;
+        case BlendFormula::kCoverage_OutputType:
+            SkSL::String::appendf(mainBody, "%s = outputCoverage;", outColor);
+            break;
+        case BlendFormula::kModulate_OutputType:
+            SkSL::String::appendf(mainBody, "%s = %s * outputCoverage;", outColor, inColor);
+            break;
+        case BlendFormula::kSAModulate_OutputType:
+            SkSL::String::appendf(mainBody, "%s = %s.a * outputCoverage;", outColor, inColor);
+            break;
+        case BlendFormula::kISAModulate_OutputType:
+            SkSL::String::appendf(
+                    mainBody, "%s = (1.0 - %s.a) * outputCoverage;", outColor, inColor);
+            break;
+        case BlendFormula::kISCModulate_OutputType:
+            SkSL::String::appendf(
+                    mainBody, "%s = (half4(1.0) - %s) * outputCoverage;", outColor, inColor);
+            break;
+        default:
+            SkUNREACHABLE;
+            break;
+    }
+}
+
 // The current, incomplete, model for shader construction is:
 //   - Static code snippets (which can have an arbitrary signature) live in the Graphite
 //     pre-compiled module, which is located at `src/sksl/sksl_graphite_frag.sksl`.
@@ -185,7 +217,7 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
 //   - The result of the final code snippet is then copied into "sk_FragColor".
 //   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
 //   in the Graphite pre-compiled module.
-std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
+std::string ShaderInfo::toSkSL(const Caps* caps,
                                const RenderStep* step,
                                const bool useStorageBuffers,
                                int* numTexturesAndSamplersUsed,
@@ -200,6 +232,7 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
     // TODO: replace hard-coded bufferIDs with the backend's step and paint uniform-buffer indices.
     // TODO: The use of these indices is Metal-specific. We should replace these functions with
     // API-independent ones.
+    const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
     if (step->numUniforms() > 0) {
         preamble += EmitRenderStepUniforms(
                 /*bufferID=*/1, "Step", bindingReqs.fUniformBufferLayout, step->uniforms());
@@ -270,14 +303,12 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
 
-        bool needsSurfaceColorForCoverage = this->needsSurfaceColor();
         BlendFormula coverageBlendFormula =
                 skgpu::GetBlendFormula(false, step->emitsCoverage(), fBlendMode);
-        if (coverageBlendFormula.hasSecondaryOutput()) {
-            // TODO: support dual src blending when available
-            needsSurfaceColorForCoverage = true;
-        }
 
+        const bool needsSurfaceColorForCoverage =
+                this->needsSurfaceColor() || (coverageBlendFormula.hasSecondaryOutput() &&
+                                              !caps->shaderCaps()->fDualSourceBlendingSupport);
         if (needsSurfaceColorForCoverage) {
             // Use originally-specified BlendInfo and blend with dst manually.
             SkSL::String::appendf(
@@ -292,34 +323,13 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
                           SK_PMColor4fTRANSPARENT,
                           coverageBlendFormula.modifiesDst()};
 
-            // TODO: account for secondary output
-            switch (coverageBlendFormula.primaryOutput()) {
-                case BlendFormula::kNone_OutputType:
-                    SkSL::String::appendf(&mainBody, "sk_FragColor = half4(0.0);");
-                    break;
-                case BlendFormula::kCoverage_OutputType:
-                    SkSL::String::appendf(&mainBody, "sk_FragColor = outputCoverage;");
-                    break;
-                case BlendFormula::kModulate_OutputType:
-                    SkSL::String::appendf(
-                            &mainBody, "sk_FragColor = %s * outputCoverage;", outColor);
-                    break;
-                case BlendFormula::kSAModulate_OutputType:
-                    SkSL::String::appendf(
-                            &mainBody, "sk_FragColor = %s.a * outputCoverage;", outColor);
-                    break;
-                case BlendFormula::kISAModulate_OutputType:
-                    SkSL::String::appendf(
-                            &mainBody, "sk_FragColor = (1.0 - %s.a) * outputCoverage;", outColor);
-                    break;
-                case BlendFormula::kISCModulate_OutputType:
-                    SkSL::String::appendf(&mainBody,
-                                          "sk_FragColor = (half4(1.0) - %s) * outputCoverage;",
-                                          outColor);
-                    break;
-                default:
-                    SkUNREACHABLE;
-                    break;
+            append_color_output(
+                    &mainBody, coverageBlendFormula.primaryOutput(), "sk_FragColor", outColor);
+            if (coverageBlendFormula.hasSecondaryOutput()) {
+                append_color_output(&mainBody,
+                                    coverageBlendFormula.secondaryOutput(),
+                                    "sk_SecondaryFragColor",
+                                    outColor);
             }
         }
 
