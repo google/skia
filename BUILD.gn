@@ -1497,6 +1497,7 @@ skia_component("skia") {
     ":wuffs",
     ":xml",
     "modules/skcms",
+    "//third_party/cityhash",
   ]
 
   public = skia_core_public
