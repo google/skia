@@ -281,14 +281,12 @@ void MtlCaps::initShaderCaps() {
     shaderCaps->fShaderDerivativeSupport = true;
     shaderCaps->fInfinitySupport = true;
 
-    // TODO(skia:8270): Re-enable this once bug 8270 is fixed
-#if 0
-    if (this->isApple()) {
-        shaderCaps->fFBFetchSupport = true;
-        shaderCaps->fFBFetchNeedsCustomOutput = true; // ??
-        shaderCaps->fFBFetchColorName = ""; // Somehow add [[color(0)]] to arguments to frag shader
+    if (@available(macOS 11.0, *)) {
+        if (this->isApple()) {
+            shaderCaps->fFBFetchSupport = true;
+            shaderCaps->fFBFetchColorName = "sk_LastFragColor";
+        }
     }
-#endif
 
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fNonsquareMatrixSupport = true;
