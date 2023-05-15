@@ -141,8 +141,12 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     bool needsDstSample = dstReadReq == DstReadRequirement::kTextureCopy ||
                           dstReadReq == DstReadRequirement::kTextureSample;
     if (needsDstSample) {
-        DstReadBlock::BeginBlock(
+        DstReadSampleBlock::BeginBlock(
                 keyContext, keyBuilder, /* gatherer= */ nullptr, /* dstTexture= */ nullptr);
+        keyBuilder->endBlock();
+
+    } else if (dstReadReq == DstReadRequirement::kFramebufferFetch) {
+        DstReadFetchBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
         keyBuilder->endBlock();
     }
 

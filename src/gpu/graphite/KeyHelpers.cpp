@@ -77,13 +77,13 @@ void SolidColorShaderBlock::BeginBlock(const KeyContext& keyContext,
 
 namespace {
 
-void add_dst_read_uniform_data(const ShaderCodeDictionary* dict,
-                               PipelineDataGatherer* gatherer,
-                               sk_sp<TextureProxy> dstTexture) {
+void add_dst_read_sample_uniform_data(const ShaderCodeDictionary* dict,
+                                       PipelineDataGatherer* gatherer,
+                                       sk_sp<TextureProxy> dstTexture) {
     static const SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
     gatherer->add(SkSamplingOptions(), kTileModes, dstTexture);
 
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDstRead)
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDstReadSample)
 
     SkV4 coords{0.0f,
                 0.0f,
@@ -94,14 +94,23 @@ void add_dst_read_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void DstReadBlock::BeginBlock(const KeyContext& keyContext,
-                              PaintParamsKeyBuilder* builder,
-                              PipelineDataGatherer* gatherer,
-                              sk_sp<TextureProxy> dstTexture) {
+void DstReadSampleBlock::BeginBlock(const KeyContext& keyContext,
+                                    PaintParamsKeyBuilder* builder,
+                                    PipelineDataGatherer* gatherer,
+                                    sk_sp<TextureProxy> dstTexture) {
     if (gatherer) {
-        add_dst_read_uniform_data(keyContext.dict(), gatherer, std::move(dstTexture));
+        add_dst_read_sample_uniform_data(keyContext.dict(), gatherer, std::move(dstTexture));
     }
-    builder->beginBlock(BuiltInCodeSnippetID::kDstRead);
+    builder->beginBlock(BuiltInCodeSnippetID::kDstReadSample);
+}
+
+void DstReadFetchBlock::BeginBlock(const KeyContext& keyContext,
+                                   PaintParamsKeyBuilder* builder,
+                                   PipelineDataGatherer* gatherer) {
+    if (gatherer) {
+        VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kDstReadFetch)
+    }
+    builder->beginBlock(BuiltInCodeSnippetID::kDstReadFetch);
 }
 
 //--------------------------------------------------------------------------------------------------

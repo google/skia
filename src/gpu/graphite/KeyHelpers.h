@@ -58,11 +58,17 @@ struct PriorOutputBlock {
                            PipelineDataGatherer*);
 };
 
-struct DstReadBlock {
+struct DstReadSampleBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            sk_sp<TextureProxy> dst);
+};
+
+struct DstReadFetchBlock {
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*);
 };
 
 struct SolidColorShaderBlock {

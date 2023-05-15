@@ -83,8 +83,12 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) co
 }
 
 DstReadRequirement Caps::getDstReadRequirement() const {
-    // TODO(b/238757201): Currently this only supports dst reads by texture copy.
-    return DstReadRequirement::kTextureCopy;
+    // TODO(b/238757201): Currently this only supports dst reads by FB fetch and texture copy.
+    if (this->shaderCaps()->fFBFetchSupport) {
+        return DstReadRequirement::kFramebufferFetch;
+    } else {
+        return DstReadRequirement::kTextureCopy;
+    }
 }
 
 sktext::gpu::SDFTControl Caps::getSDFTControl(bool useSDFTForSmallText) const {
