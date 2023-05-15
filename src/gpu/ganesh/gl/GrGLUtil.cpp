@@ -178,6 +178,9 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     if (1 == n && lastDigit >= 0 && lastDigit <= 9) {
         return GrGLRenderer::kPowerVR54x;
     }
+    if (strstr(rendererString, "PowerVR B-Series")) {
+        return GrGLRenderer::kPowerVRBSeries;
+    }
     // certain iOS devices also use PowerVR54x GPUs
     static const char kAppleA4Str[] = "Apple A4";
     static const char kAppleA5Str[] = "Apple A5";

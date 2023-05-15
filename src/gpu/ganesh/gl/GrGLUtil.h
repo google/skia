@@ -151,6 +151,7 @@ enum class GrGLRenderer {
     kTegra,        // Tegra with the same architecture as NVIDIA desktop GPUs (K1+).
 
     kPowerVR54x,
+    kPowerVRBSeries,
     kPowerVRRogue,
 
     kAdreno3xx,
