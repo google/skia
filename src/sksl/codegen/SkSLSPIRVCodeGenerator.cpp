@@ -4105,7 +4105,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
             std::make_unique<FunctionDeclaration>(Position(),
                                                   &adapter.fModifiers,
                                                   "_entrypoint",
-                                                  /*parameters=*/std::vector<Variable*>{},
+                                                  /*parameters=*/TArray<Variable*>{},
                                                   /*returnType=*/fContext.fTypes.fVoid.get(),
                                                   /*builtin=*/false);
     // Define it.

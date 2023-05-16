@@ -8,6 +8,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
@@ -28,7 +29,8 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <memory>
-#include <vector>
+
+using namespace skia_private;
 
 namespace SkSL {
 namespace {
@@ -39,7 +41,7 @@ public:
 
     bool visitProgramElement(const ProgramElement& pe) override {
         const FunctionDeclaration& decl = pe.as<FunctionDefinition>().declaration();
-        const std::vector<Variable*>& parameters = decl.parameters();
+        SkSpan<Variable* const> parameters = decl.parameters();
 
         // We expect a color filter to have a single half4 input.
         if (parameters.size() != 1 ||

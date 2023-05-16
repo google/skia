@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "src/base/SkSafeMath.h"
@@ -42,7 +43,6 @@
 #include <forward_list>
 #include <string_view>
 #include <type_traits>
-#include <vector>
 
 namespace SkSL {
 

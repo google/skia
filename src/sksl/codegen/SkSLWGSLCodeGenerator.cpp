@@ -7,13 +7,6 @@
 
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 
-#include <algorithm>
-#include <cstddef>
-#include <memory>
-#include <optional>
-#include <string>
-#include <vector>
-
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkBitmaskEnum.h"
@@ -65,6 +58,12 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <optional>
+#include <string>
 
 using namespace skia_private;
 
@@ -959,7 +958,7 @@ void WGSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
     // First detect which arguments are passed to out-parameters.
     const ExpressionArray& args = c.arguments();
-    const std::vector<Variable*>& params = func.parameters();
+    SkSpan<Variable* const> params = func.parameters();
     SkASSERT(SkToSizeT(args.size()) == params.size());
 
     bool foundOutParam = false;

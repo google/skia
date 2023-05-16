@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLAnalysis.h"

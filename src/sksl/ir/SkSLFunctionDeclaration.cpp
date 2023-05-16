@@ -32,6 +32,8 @@
 #include <cstddef>
 #include <utility>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 static bool check_modifiers(const Context& context,
@@ -70,7 +72,7 @@ static bool check_return_type(const Context& context, Position pos, const Type& 
 }
 
 static bool check_parameters(const Context& context,
-                             std::vector<std::unique_ptr<Variable>>& parameters,
+                             TArray<std::unique_ptr<Variable>>& parameters,
                              bool isMain) {
     auto typeIsValidForColor = [&](const Type& type) {
         return type.matches(*context.fTypes.fHalf4) || type.matches(*context.fTypes.fFloat4);
@@ -147,7 +149,7 @@ static bool check_parameters(const Context& context,
 }
 
 static bool check_main_signature(const Context& context, Position pos, const Type& returnType,
-                                 std::vector<std::unique_ptr<Variable>>& parameters) {
+                                 TArray<std::unique_ptr<Variable>>& parameters) {
     ErrorReporter& errors = *context.fErrors;
     ProgramKind kind = context.fConfig->fKind;
 
@@ -319,8 +321,8 @@ static bool type_generically_matches(const Type& concreteType, const Type& maybe
  * (otherParams). Returns true if they match, even if the parameters in `otherParams` contain
  * generic types.
  */
-static bool parameters_match(const std::vector<std::unique_ptr<Variable>>& params,
-                             const std::vector<Variable*>& otherParams) {
+static bool parameters_match(SkSpan<const std::unique_ptr<Variable>> params,
+                             SkSpan<Variable* const> otherParams) {
     // If the param lists are different lengths, they're definitely not a match.
     if (params.size() != otherParams.size()) {
         return false;
@@ -375,12 +377,12 @@ static bool find_existing_declaration(const Context& context,
                                       Position pos,
                                       const Modifiers* modifiers,
                                       std::string_view name,
-                                      std::vector<std::unique_ptr<Variable>>& parameters,
+                                      TArray<std::unique_ptr<Variable>>& parameters,
                                       Position returnTypePos,
                                       const Type* returnType,
                                       FunctionDeclaration** outExistingDecl) {
     auto invalidDeclDescription = [&]() -> std::string {
-        std::vector<Variable*> paramPtrs;
+        TArray<Variable*> paramPtrs;
         paramPtrs.reserve(parameters.size());
         for (std::unique_ptr<Variable>& param : parameters) {
             paramPtrs.push_back(param.get());
@@ -414,7 +416,7 @@ static bool find_existing_declaration(const Context& context,
                              other->description() + "' differ only in return type");
                 return false;
             }
-            for (size_t i = 0; i < parameters.size(); i++) {
+            for (int i = 0; i < parameters.size(); i++) {
                 if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
                     errors.error(parameters[i]->fPosition,
                                  "modifiers on parameter " + std::to_string(i + 1) +
@@ -440,7 +442,7 @@ static bool find_existing_declaration(const Context& context,
 FunctionDeclaration::FunctionDeclaration(Position pos,
                                          const Modifiers* modifiers,
                                          std::string_view name,
-                                         std::vector<Variable*> parameters,
+                                         TArray<Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
         : INHERITED(pos, kIRNodeKind, name, /*type=*/nullptr)
@@ -460,7 +462,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
                                                   Position modifiersPosition,
                                                   const Modifiers* modifiers,
                                                   std::string_view name,
-                                                  std::vector<std::unique_ptr<Variable>> parameters,
+                                                  TArray<std::unique_ptr<Variable>> parameters,
                                                   Position returnTypePos,
                                                   const Type* returnType) {
     bool isMain = (name == "main");
@@ -474,7 +476,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
                                    returnTypePos, returnType, &decl)) {
         return nullptr;
     }
-    std::vector<Variable*> finalParameters;
+    TArray<Variable*> finalParameters;
     finalParameters.reserve(parameters.size());
     for (std::unique_ptr<Variable>& param : parameters) {
         finalParameters.push_back(context.fSymbolTable->takeOwnershipOfSymbol(std::move(param)));
@@ -538,8 +540,8 @@ bool FunctionDeclaration::matches(const FunctionDeclaration& f) const {
     if (this->name() != f.name()) {
         return false;
     }
-    const std::vector<Variable*>& parameters = this->parameters();
-    const std::vector<Variable*>& otherParameters = f.parameters();
+    SkSpan<Variable* const> parameters = this->parameters();
+    SkSpan<Variable* const> otherParameters = f.parameters();
     if (parameters.size() != otherParameters.size()) {
         return false;
     }
@@ -554,7 +556,7 @@ bool FunctionDeclaration::matches(const FunctionDeclaration& f) const {
 bool FunctionDeclaration::determineFinalTypes(const ExpressionArray& arguments,
                                               ParamTypes* outParameterTypes,
                                               const Type** outReturnType) const {
-    const std::vector<Variable*>& parameters = this->parameters();
+    SkSpan<Variable* const> parameters = this->parameters();
     SkASSERT(SkToSizeT(arguments.size()) == parameters.size());
 
     outParameterTypes->reserve_back(arguments.size());

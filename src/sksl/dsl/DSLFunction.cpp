@@ -9,6 +9,8 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLModifiersPool.h"
@@ -36,6 +38,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 namespace SkSL::dsl {
 
 DSLFunction::DSLFunction(std::string_view name,
@@ -62,7 +66,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
         modifiers.fModifiers.fFlags |= Modifiers::kNoInline_Flag;
     }
 
-    std::vector<std::unique_ptr<Variable>> paramVars;
+    TArray<std::unique_ptr<Variable>> paramVars;
     paramVars.reserve(params.size());
     for (DSLParameter* param : params) {
         SkASSERT(!param->fInitialValue.hasValue());
@@ -73,7 +77,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
         }
         paramVars.push_back(std::move(paramVar));
     }
-    SkASSERT(paramVars.size() == params.size());
+    SkASSERT(SkToSizeT(paramVars.size()) == params.size());
     fDecl = SkSL::FunctionDeclaration::Convert(context,
                                                pos,
                                                modifiers.fPosition,
