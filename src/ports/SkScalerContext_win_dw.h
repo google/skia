@@ -77,18 +77,15 @@ private:
         return static_cast<DWriteFontTypeface*>(this->getTypeface());
     }
 
-    bool isColorGlyph(const SkGlyph&);
     bool getColorGlyphRun(const SkGlyph&, IDWriteColorGlyphRunEnumerator**);
     bool generateColorMetrics(SkGlyph*);
     bool generateColorGlyphImage(const SkGlyph&);
     bool drawColorGlyphImage(const SkGlyph&, SkCanvas&);
 
-    bool isSVGGlyph(const SkGlyph&);
     bool generateSVGMetrics(SkGlyph*);
     bool generateSVGGlyphImage(const SkGlyph&);
     bool drawSVGGlyphImage(const SkGlyph&, SkCanvas&);
 
-    bool isPngGlyph(const SkGlyph&);
     bool generatePngMetrics(SkGlyph*);
     bool generatePngGlyphImage(const SkGlyph&);
     bool drawPngGlyphImage(const SkGlyph&, SkCanvas&);

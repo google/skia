@@ -552,40 +552,6 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
     return S_OK;
 }
 
-bool SkScalerContext_DW::isColorGlyph(const SkGlyph& glyph) {
-    // One would think that with newer DirectWrite that this could be like isPngGlyph
-    // except test for DWRITE_GLYPH_IMAGE_FORMATS_COLR, but that doesn't seem to work.
-
-    SkTScopedComPtr<IDWriteColorGlyphRunEnumerator> colorLayer;
-    return getColorGlyphRun(glyph, &colorLayer);
-}
-
-bool SkScalerContext_DW::isPngGlyph(const SkGlyph& glyph) {
-    if (!this->getDWriteTypeface()->fDWriteFontFace4) {
-        return false;
-    }
-
-    DWRITE_GLYPH_IMAGE_FORMATS f;
-    IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
-    HRBM(fontFace4->GetGlyphImageFormats(glyph.getGlyphID(), 0, UINT32_MAX, &f),
-         "Cannot get glyph image formats.");
-    return f & DWRITE_GLYPH_IMAGE_FORMATS_PNG;
-}
-
-bool SkScalerContext_DW::isSVGGlyph(const SkGlyph& glyph) {
-    if (!SkGraphics::GetOpenTypeSVGDecoderFactory() ||
-        !this->getDWriteTypeface()->fDWriteFontFace4)
-    {
-        return false;
-    }
-
-    DWRITE_GLYPH_IMAGE_FORMATS f;
-    IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
-    HRBM(fontFace4->GetGlyphImageFormats(glyph.getGlyphID(), 0, UINT32_MAX, &f),
-         "Cannot get glyph image formats.");
-    return f & DWRITE_GLYPH_IMAGE_FORMATS_SVG;
-}
-
 bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
                                           IDWriteColorGlyphRunEnumerator** colorGlyph)
 {
@@ -709,10 +675,18 @@ static void ReleaseProc(const void* ptr, void* context) {
 }
 
 bool SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
-    SkASSERT(isPngGlyph(*glyph));
-    SkASSERT(this->getDWriteTypeface()->fDWriteFontFace4);
-
     IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
+    if (!fontFace4) {
+        return false;
+    }
+
+    DWRITE_GLYPH_IMAGE_FORMATS imageFormats;
+    HRBM(fontFace4->GetGlyphImageFormats(glyph->getGlyphID(), 0, UINT32_MAX, &imageFormats),
+         "Cannot get glyph image formats.");
+    if (!(imageFormats & DWRITE_GLYPH_IMAGE_FORMATS_PNG)) {
+        return false;
+    }
+
     DWRITE_GLYPH_IMAGE_DATA glyphData;
     void* glyphDataContext;
     HRBM(fontFace4->GetGlyphImageData(glyph->getGlyphID(),
@@ -788,21 +762,21 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
 
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
     if (typeface->fIsColorFont) {
-        if (isColorGlyph(*glyph) && generateColorMetrics(glyph)) {
+        if (generateColorMetrics(glyph)) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
             glyph->fScalerContextBits |= ScalerContextBits::COLR;
             glyph->setPath(alloc, nullptr, false);
             return;
         }
 
-        if (isSVGGlyph(*glyph) && generateSVGMetrics(glyph)) {
+        if (generateSVGMetrics(glyph)) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
             glyph->fScalerContextBits |= ScalerContextBits::SVG;
             glyph->setPath(alloc, nullptr, false);
             return;
         }
 
-        if (isPngGlyph(*glyph) && generatePngMetrics(glyph)) {
+        if (generatePngMetrics(glyph)) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
             glyph->fScalerContextBits |= ScalerContextBits::PNG;
             glyph->setPath(alloc, nullptr, false);
@@ -1201,7 +1175,6 @@ bool SkScalerContext_DW::drawColorGlyphImage(const SkGlyph& glyph, SkCanvas& can
 }
 
 bool SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
-    SkASSERT(isColorGlyph(glyph));
     SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
 
     SkBitmap dstBitmap;
@@ -1223,16 +1196,24 @@ bool SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
 }
 
 bool SkScalerContext_DW::drawSVGGlyphImage(const SkGlyph& glyph, SkCanvas& canvas) {
-    SkASSERT(isSVGGlyph(glyph));
-    SkASSERT(this->getDWriteTypeface()->fDWriteFontFace4);
+    DWriteFontTypeface* typeface = this->getDWriteTypeface();
+    IDWriteFontFace4* fontFace4 = typeface->fDWriteFontFace4.get();
+    if (!fontFace4) {
+        return false;
+    }
+
+    DWRITE_GLYPH_IMAGE_FORMATS imageFormats;
+    HRBM(fontFace4->GetGlyphImageFormats(glyph.getGlyphID(), 0, UINT32_MAX, &imageFormats),
+         "Cannot get glyph image formats.");
+    if (!(imageFormats & DWRITE_GLYPH_IMAGE_FORMATS_SVG)) {
+        return false;
+    }
 
     SkGraphics::OpenTypeSVGDecoderFactory svgFactory = SkGraphics::GetOpenTypeSVGDecoderFactory();
     if (!svgFactory) {
         return false;
     }
 
-    DWriteFontTypeface* typeface = this->getDWriteTypeface();
-    IDWriteFontFace4* fontFace4 = typeface->fDWriteFontFace4.get();
     DWRITE_GLYPH_IMAGE_DATA glyphData;
     void* glyphDataContext;
     HRBM(fontFace4->GetGlyphImageData(glyph.getGlyphID(),
@@ -1266,14 +1247,13 @@ bool SkScalerContext_DW::drawSVGGlyphImage(const SkGlyph& glyph, SkCanvas& canva
 }
 
 bool SkScalerContext_DW::generateSVGGlyphImage(const SkGlyph& glyph) {
-    SkASSERT(isSVGGlyph(glyph));
     SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
 
     SkBitmap dstBitmap;
     // TODO: mark this as sRGB when the blits will be sRGB.
     dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
-        kN32_SkColorType, kPremul_SkAlphaType),
-        glyph.rowBytes());
+                                        kN32_SkColorType, kPremul_SkAlphaType),
+                      glyph.rowBytes());
     dstBitmap.setPixels(glyph.fImage);
 
     SkCanvas canvas(dstBitmap);
@@ -1289,6 +1269,10 @@ bool SkScalerContext_DW::generateSVGGlyphImage(const SkGlyph& glyph) {
 
 bool SkScalerContext_DW::drawPngGlyphImage(const SkGlyph& glyph, SkCanvas& canvas) {
     IDWriteFontFace4* fontFace4 = this->getDWriteTypeface()->fDWriteFontFace4.get();
+    if (!fontFace4) {
+        return false;
+    }
+
     DWRITE_GLYPH_IMAGE_DATA glyphData;
     void* glyphDataContext;
     HRBM(fontFace4->GetGlyphImageData(glyph.getGlyphID(),
@@ -1320,14 +1304,12 @@ bool SkScalerContext_DW::drawPngGlyphImage(const SkGlyph& glyph, SkCanvas& canva
 }
 
 bool SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
-    SkASSERT(isPngGlyph(glyph));
     SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
-    SkASSERT(this->getDWriteTypeface()->fDWriteFontFace4);
 
     SkBitmap dstBitmap;
     dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
                                         kN32_SkColorType, kPremul_SkAlphaType),
-                                        glyph.rowBytes());
+                      glyph.rowBytes());
     dstBitmap.setPixels(glyph.fImage);
 
     SkCanvas canvas(dstBitmap);
