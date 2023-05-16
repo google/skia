@@ -48,6 +48,7 @@
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -2019,26 +2020,28 @@ static void test_arithmetic_combinations(skiatest::Reporter* reporter, float v) 
     SkIRect intersection = bgRect;
     intersection.intersect(fgRect);
 
+    // Test with crop. When k4 is non-zero, the result is expected to be cropRect
+    // regardless of inputs because the filter affects the whole crop area. When there is no crop
+    // rect, it should report an effectively infinite output.
+    static const SkIRect kInf = SkRectPriv::MakeILarge();
     test_arithmetic_bounds(reporter, 0, 0, 0, 0, background, foreground, nullptr,
                            SkIRect::MakeEmpty());
-    test_arithmetic_bounds(reporter, 0, 0, 0, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, 0, 0, 0, v, background, foreground, nullptr, kInf);
     test_arithmetic_bounds(reporter, 0, 0, v, 0, background, foreground, nullptr, bgRect);
-    test_arithmetic_bounds(reporter, 0, 0, v, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, 0, 0, v, v, background, foreground, nullptr, kInf);
     test_arithmetic_bounds(reporter, 0, v, 0, 0, background, foreground, nullptr, fgRect);
-    test_arithmetic_bounds(reporter, 0, v, 0, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, 0, v, 0, v, background, foreground, nullptr, kInf);
     test_arithmetic_bounds(reporter, 0, v, v, 0, background, foreground, nullptr, unionRect);
-    test_arithmetic_bounds(reporter, 0, v, v, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, 0, v, v, v, background, foreground, nullptr, kInf);
     test_arithmetic_bounds(reporter, v, 0, 0, 0, background, foreground, nullptr, intersection);
-    test_arithmetic_bounds(reporter, v, 0, 0, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, v, 0, 0, v, background, foreground, nullptr, kInf);
     test_arithmetic_bounds(reporter, v, 0, v, 0, background, foreground, nullptr, bgRect);
-    test_arithmetic_bounds(reporter, v, 0, v, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, v, 0, v, v, background, foreground, nullptr, kInf);
     test_arithmetic_bounds(reporter, v, v, 0, 0, background, foreground, nullptr, fgRect);
-    test_arithmetic_bounds(reporter, v, v, 0, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, v, v, 0, v, background, foreground, nullptr, kInf);
     test_arithmetic_bounds(reporter, v, v, v, 0, background, foreground, nullptr, unionRect);
-    test_arithmetic_bounds(reporter, v, v, v, v, background, foreground, nullptr, unionRect);
+    test_arithmetic_bounds(reporter, v, v, v, v, background, foreground, nullptr, kInf);
 
-    // Test with crop. When k4 is non-zero, the result is expected to be cropRect
-    // regardless of inputs because the filter affects the whole crop area.
     SkIRect cropRect = SkIRect::MakeXYWH(-111, -222, 333, 444);
     test_arithmetic_bounds(reporter, 0, 0, 0, 0, background, foreground, &cropRect,
                            SkIRect::MakeEmpty());

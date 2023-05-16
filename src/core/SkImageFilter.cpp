@@ -15,6 +15,7 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLocalMatrixImageFilter.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkValidationUtils.h"
@@ -78,12 +79,7 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     } else {
         SkASSERT(!inputRect);
         skif::LayerSpace<SkIRect> content(src);
-        skif::LayerSpace<SkIRect> output = as_IFB(this)->onGetOutputLayerBounds(mapping, content);
-        // Manually apply the crop rect for now, until cropping is performed by a dedicated SkIF.
-        SkIRect dst;
-        as_IFB(this)->getCropRect().applyTo(
-                SkIRect(output), ctm, as_IFB(this)->onAffectsTransparentBlack(), &dst);
-        return dst;
+        return SkIRect(as_IFB(this)->onGetOutputLayerBounds(mapping, content));
     }
 }
 
@@ -314,15 +310,8 @@ skif::DeviceSpace<SkIRect> SkImageFilter_Base::getOutputBounds(
     // Determine the filter DAGs output bounds in layer space
     skif::LayerSpace<SkIRect> filterOutput = this->onGetOutputLayerBounds(
             mapping, layerContent.roundOut());
-    // FIXME (michaelludwig) - To be removed once cropping is isolated, but remain consistent with
-    // old filterBounds(kForward) behavior.
-    SkIRect dst;
-    as_IFB(this)->getCropRect().applyTo(
-            SkIRect(filterOutput), mapping.layerMatrix(),
-            as_IFB(this)->onAffectsTransparentBlack(), &dst);
-
     // Map all the way to device space
-    return mapping.layerToDevice(skif::LayerSpace<SkIRect>(dst));
+    return mapping.layerToDevice(filterOutput);
 }
 
 // TODO (michaelludwig) - Default to using the old onFilterImage, as filters are updated one by one.
@@ -563,12 +552,25 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetInputLayerBounds(
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
         const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const {
-    // Call old functions for now; eventually this will be a pure virtual
-    SkIRect aggregate = this->onFilterBounds(SkIRect(contentBounds), mapping.layerMatrix(),
-                                             kForward_MapDirection, nullptr);
-    SkIRect output = this->onFilterNodeBounds(aggregate, mapping.layerMatrix(),
-                                              kForward_MapDirection, nullptr);
-    return skif::LayerSpace<SkIRect>(output);
+    // Call old functions for now; eventually this will be a pure virtual. The old functions for
+    // filters that affected transparent black were often not overridden, in which case they would
+    // just return 'contentBounds' instead of being infinite. They also assumed the base class
+    // handled all cropping. New filter implementations rely on SkCropImageFilter and do not use
+    // the built-in CropRect so their isCropRectSet() always returns false.
+    SkIRect output;
+    if (this->onAffectsTransparentBlack()) {
+        output = SkRectPriv::MakeILarge();
+    } else {
+        SkIRect aggregate = this->onFilterBounds(SkIRect(contentBounds), mapping.layerMatrix(),
+                                                kForward_MapDirection, nullptr);
+        output = this->onFilterNodeBounds(aggregate, mapping.layerMatrix(),
+                                          kForward_MapDirection, nullptr);
+    }
+
+    SkIRect dst;
+    as_IFB(this)->getCropRect().applyTo(
+            output, mapping.layerMatrix(), this->onAffectsTransparentBlack(), &dst);
+    return skif::LayerSpace<SkIRect>(dst);
 }
 
 // TODO (michaelludwig): Remove filterInput() use as cleanup continues. IMO it's automatic calls
