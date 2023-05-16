@@ -331,9 +331,11 @@ public:
                                        const CropRect& cropRect = {});
 
     /**
-     *  Create a filter that produces the SkPicture as its output, drawn into targetRect. Note that
-     *  the targetRect is not the same as the SkIRect cropRect that many filters accept. Returns
-     *  null if 'pic' is null.
+     *  Create a filter that produces the SkPicture as its output, clipped to both 'targetRect' and
+     *  the picture's internal cull rect.
+     *
+     *  If 'pic' is null, the returned image filter produces transparent black.
+     *
      *  @param pic        The picture that is drawn for the filter output.
      *  @param targetRect The drawing region for the picture.
      */

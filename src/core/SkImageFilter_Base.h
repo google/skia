@@ -216,9 +216,7 @@ protected:
                                        MapDirection, const SkIRect* inputRect) const;
 
     // DEPRECRATED - Call the Context-only filterInput()
-    sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const {
-        return this->filterInput(index, ctx).imageAndOffset(ctx, offset);
-    }
+    sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const;
 
     // Helper function to visit each of this filter's child filters and call their
     // onGetInputLayerBounds with the provided 'desiredOutput' and 'contentBounds'. Automatically

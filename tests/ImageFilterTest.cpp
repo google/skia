@@ -2152,17 +2152,17 @@ DEF_TEST(PictureImageSourceBounds, reporter) {
                                                            SkImageFilter::kForward_MapDirection,
                                                            nullptr));
     REPORTER_ASSERT(reporter,
-                    input == source1->filterBounds(input, SkMatrix::I(),
-                                                   SkImageFilter::kReverse_MapDirection, &input));
+                    source1->filterBounds(input, SkMatrix::I(),
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
     SkMatrix scale(SkMatrix::Scale(2, 2));
     SkIRect scaledPictureBounds = SkIRect::MakeWH(128, 128);
     REPORTER_ASSERT(reporter,
                     scaledPictureBounds == source1->filterBounds(input, scale,
                                                                  SkImageFilter::kForward_MapDirection,
                                                                  nullptr));
-    REPORTER_ASSERT(reporter, input == source1->filterBounds(input, scale,
-                                                             SkImageFilter::kReverse_MapDirection,
-                                                             &input));
+    REPORTER_ASSERT(reporter,
+                    source1->filterBounds(input, scale,
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
 
     // Specified target rect.
     SkRect targetRect(SkRect::MakeXYWH(9.5, 9.5, 31, 21));
@@ -2172,16 +2172,16 @@ DEF_TEST(PictureImageSourceBounds, reporter) {
                                                                    SkImageFilter::kForward_MapDirection,
                                                                    nullptr));
     REPORTER_ASSERT(reporter,
-                    input == source2->filterBounds(input, SkMatrix::I(),
-                                                   SkImageFilter::kReverse_MapDirection, &input));
+                    source2->filterBounds(input, SkMatrix::I(),
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
     scale.mapRect(&targetRect);
     REPORTER_ASSERT(reporter,
                     targetRect.roundOut() == source2->filterBounds(input, scale,
                                                                    SkImageFilter::kForward_MapDirection,
                                                                    nullptr));
-    REPORTER_ASSERT(reporter, input == source2->filterBounds(input, scale,
-                                                             SkImageFilter::kReverse_MapDirection,
-                                                             &input));
+    REPORTER_ASSERT(reporter,
+                    source2->filterBounds(input, scale,
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
 }
 
 DEF_TEST(DropShadowImageFilter_Huge, reporter) {

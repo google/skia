@@ -7,6 +7,7 @@
 
 #include "src/core/SkImageFilterTypes.h"
 
+#include "include/core/SkPicture.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "src/core/SkColorFilterBase.h"
@@ -58,7 +59,6 @@ SkIRect map_rect(const SkMatrix& matrix, const SkIRect& rect) {
         double r = (double)matrix.getScaleX()*rect.fRight  + (double)matrix.getTranslateX();
         double t = (double)matrix.getScaleY()*rect.fTop    + (double)matrix.getTranslateY();
         double b = (double)matrix.getScaleY()*rect.fBottom + (double)matrix.getTranslateY();
-
         return {sk_double_saturate2int(sk_double_floor(std::min(l, r) + kRoundEpsilon)),
                 sk_double_saturate2int(sk_double_floor(std::min(t, b) + kRoundEpsilon)),
                 sk_double_saturate2int(sk_double_ceil(std::max(l, r)  - kRoundEpsilon)),
@@ -160,6 +160,62 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> extract_subset(
 bool fills_layer_bounds(const SkColorFilter* colorFilter) {
     return colorFilter && as_CFB(colorFilter)->affectsTransparentBlack();
 }
+
+// AutoSurface manages an SkSpecialSurface and canvas state to draw to a layer-space bounding box,
+// and then snap it into a FilterResult. It provides operators to be used directly as a canvas,
+// assuming surface creation succeeded. Usage:
+//
+//     AutoSurface surface{ctx, dstBounds, renderInParameterSpace}; // if true, concats layer matrix
+//     if (surface) {
+//         surface->drawFoo(...);
+//     }
+//     return surface.snap(); // Automatically handles failed allocations
+class AutoSurface {
+public:
+    AutoSurface(const Context& ctx,
+                const LayerSpace<SkIRect>& dstBounds,
+                bool renderInParameterSpace,
+                const SkSurfaceProps* props = nullptr)
+            : fSurface(nullptr)
+            , fDstBounds(dstBounds) {
+        if (!fDstBounds.intersect(ctx.desiredOutput())) {
+            return;
+        }
+        fSurface = ctx.makeSurface(SkISize(fDstBounds.size()), props);
+        if (!fSurface) {
+            return;
+        }
+
+        // Configure the canvas
+        SkCanvas* canvas = fSurface->getCanvas();
+        // skbug.com/5075: GPU-backed special surfaces don't reset their contents.
+        canvas->clear(SK_ColorTRANSPARENT);
+        canvas->translate(-fDstBounds.left(), -fDstBounds.top()); // dst's origin adjustment
+
+        if (renderInParameterSpace) {
+            canvas->concat(ctx.mapping().layerMatrix());
+        }
+    }
+
+    explicit operator bool() const { return SkToBool(fSurface); }
+
+    SkCanvas* canvas() { SkASSERT(fSurface); return fSurface->getCanvas(); }
+    SkCanvas* operator->() { SkASSERT(fSurface); return fSurface->getCanvas(); }
+
+    // NOTE: This pair is equivalent to a FilterResult but we keep it this way for use by resolve(),
+    // which wants them separate while the legacy imageAndOffset() function is around.
+    std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> snap() {
+        if (fSurface) {
+            return {fSurface->makeImageSnapshot(), fDstBounds.topLeft()};
+        } else {
+            return {nullptr, {}};
+        }
+    }
+
+private:
+    sk_sp<SkSpecialSurface> fSurface;
+    LayerSpace<SkIRect> fDstBounds;
+};
 
 } // anonymous namespace
 
@@ -630,17 +686,17 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
 
     // Don't use context properties to avoid DMSAA on internal stages of filter evaluation.
     SkSurfaceProps props = {};
-    sk_sp<SkSpecialSurface> surface = ctx.makeSurface(SkISize(dstBounds.size()), &props);
-    if (!surface) {
-        return {nullptr, {}};
+    AutoSurface surface{ctx, dstBounds, /*renderInParameterSpace=*/false, &props};
+    if (surface) {
+        this->draw(surface.canvas());
     }
+    return surface.snap();
+}
 
-    // Since dstBounds has been intersected with fLayerBounds already, there is no need to
-    // explicitly clip the surface's canvas.
-    SkCanvas* canvas = surface->getCanvas();
-    // skbug.com/5075: GPU-backed special surfaces don't reset their contents.
-    canvas->clear(SK_ColorTRANSPARENT);
-    canvas->translate(-dstBounds.left(), -dstBounds.top()); // dst's origin adjustment
+void FilterResult::draw(SkCanvas* canvas) const {
+    // When this is called by resolve(), the surface and canvas matrix are such that this clip is
+    // trivially a no-op, but including the clip means draw() works correctly in other scenarios.
+    canvas->clipIRect(SkIRect(fLayerBounds));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -665,7 +721,28 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
     } else {
         fImage->draw(canvas, 0.f, 0.f, sampling, &paint);
     }
-    return {surface->makeImageSnapshot(), dstBounds.topLeft()};
+}
+
+FilterResult FilterResult::MakeFromPicture(const Context& ctx,
+                                           sk_sp<SkPicture> pic,
+                                           ParameterSpace<SkRect> cullRect) {
+    if (!pic) {
+        return {};
+    }
+
+    // Given the standard usage of the picture image filter (i.e., to render content at a fixed
+    // resolution that, most likely, differs from the screen's) disable LCD text by removing any
+    // knowledge of the pixel geometry.
+    // TODO: Should we just generally do this for layers with image filters? Or can we preserve it
+    // for layers that are still axis-aligned?
+    SkSurfaceProps props = ctx.surfaceProps().cloneWithPixelGeometry(kUnknown_SkPixelGeometry);
+    const LayerSpace<SkIRect> dstBounds = ctx.mapping().paramToLayer(cullRect).roundOut();
+    AutoSurface surface{ctx, dstBounds, /*renderInParameterSpace=*/true, &props};
+    if (surface) {
+        surface->clipRect(SkRect(cullRect));
+        surface->drawPicture(std::move(pic));
+    }
+    return surface.snap();
 }
 
 } // end namespace skif

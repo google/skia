@@ -571,6 +571,10 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
     return skif::LayerSpace<SkIRect>(output);
 }
 
+// TODO (michaelludwig): Remove filterInput() use as cleanup continues. IMO it's automatic calls
+// to mapContext() and onGetInputLayerBounds() obfuscates how the bounds request flows through
+// the DAG. Particularly once dry-runs are possible, the only place that needs to calculate the
+// required input / new context's desired output is in each filter's onFilterImage() impl.
 skif::FilterResult SkImageFilter_Base::filterInput(int index, const skif::Context& ctx) const {
     const SkImageFilter* input = this->getInput(index);
     if (!input) {
@@ -582,6 +586,24 @@ skif::FilterResult SkImageFilter_Base::filterInput(int index, const skif::Contex
     SkASSERT(!result.image() || ctx.gpuBacked() == result.image()->isTextureBacked());
 
     return result;
+}
+
+sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index,
+                                                      const skif::Context& ctx,
+                                                      SkIPoint* offset) const {
+    // The deprecated version needs to use the mapped context for the call to imageAndOffset().
+    skif::Context inputCtx = this->mapContext(ctx);
+
+    const SkImageFilter* input = this->getInput(index);
+    if (!input) {
+        // Null image filters late bind to the source image
+        return ctx.source().imageAndOffset(inputCtx, offset);
+    }
+
+    skif::FilterResult result = as_IFB(input)->filterImage(inputCtx);
+    SkASSERT(!result.image() || ctx.gpuBacked() == result.image()->isTextureBacked());
+
+    return result.imageAndOffset(inputCtx, offset);
 }
 
 SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) const {
