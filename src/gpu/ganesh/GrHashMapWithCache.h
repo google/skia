@@ -8,8 +8,8 @@
 #ifndef GrHashMapWithCache_DEFINED
 #define GrHashMapWithCache_DEFINED
 
-#include "include/private/SkChecksum.h"
 #include "include/private/base/SkNoncopyable.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 
 // Cheaper than SkGoodHash and good enough for UniqueID tables.

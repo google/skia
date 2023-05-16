@@ -147,7 +147,6 @@ skia_core_public = [
 #  //src/text:text_srcs
 skia_core_sources = [
   "$_include/private/SkBitmaskEnum.h",
-  "$_include/private/SkChecksum.h",
   "$_include/private/SkColorData.h",
   "$_include/private/SkEncodedInfo.h",
   "$_include/private/SkGainmapInfo.h",
@@ -295,6 +294,7 @@ skia_core_sources = [
   "$_src/core/SkCanvasPriv.h",
   "$_src/core/SkCanvas_Raster.cpp",
   "$_src/core/SkCapabilities.cpp",
+  "$_src/core/SkChecksum.h",
   "$_src/core/SkChromeRemoteGlyphCache.cpp",
   "$_src/core/SkClipStack.cpp",
   "$_src/core/SkClipStack.h",

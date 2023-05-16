@@ -20,7 +20,6 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkBitmaskEnum.h",
-        "SkChecksum.h",
         "SkColorData.h",
         "SkEncodedInfo.h",
         "SkGainmapInfo.h",

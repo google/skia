@@ -74,6 +74,7 @@ CORE_FILES = [
     "SkCanvasPriv.h",
     "SkCanvas_Raster.cpp",
     "SkCapabilities.cpp",
+    "SkChecksum.h",
     "SkChromeRemoteGlyphCache.cpp",
     "SkClipStack.cpp",
     "SkClipStack.h",

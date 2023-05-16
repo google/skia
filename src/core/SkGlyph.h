@@ -17,11 +17,11 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkChecksum.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkMask.h"
 
 #include <algorithm>

@@ -10,7 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
-#include "include/private/SkChecksum.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkPtrRecorder.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTDynamicHash.h"

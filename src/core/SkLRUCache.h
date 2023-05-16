@@ -8,8 +8,8 @@
 #ifndef SkLRUCache_DEFINED
 #define SkLRUCache_DEFINED
 
-#include "include/private/SkChecksum.h"
 #include "src/base/SkTInternalLList.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 
 /**

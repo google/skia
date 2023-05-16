@@ -7,7 +7,7 @@
 
 #include "include/gpu/graphite/Recording.h"
 
-#include "include/private/SkChecksum.h"
+#include "src/core/SkChecksum.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
