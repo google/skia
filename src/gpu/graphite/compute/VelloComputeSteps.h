@@ -12,8 +12,8 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
+#include "third_party/vello/cpp/vello.h"
 
-#include <vello_cpp/vello_cpp.h>
 #include <string_view>
 
 namespace skgpu::graphite {

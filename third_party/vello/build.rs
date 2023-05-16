@@ -6,7 +6,7 @@
 fn main() {
     cxx_build::bridge("src/lib.rs")
         .flag_if_supported("-std=c++17")
-        .include("include/")
+        .include("../../")
         .compile("vello_cpp");
     println!("cargo:rerun-if-changed=src/");
     println!("cargo:rerun-if-changed=include/");

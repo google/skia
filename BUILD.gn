@@ -1165,7 +1165,7 @@ optional("gpu") {
 optional("vello") {
   enabled = skia_enable_vello_shaders
   public_defines = [ "SK_ENABLE_VELLO_SHADERS" ]
-  public_deps = [ "//third_party/vello:cpp" ]
+  public_deps = [ "//third_party/vello" ]
 }
 
 optional("heif") {

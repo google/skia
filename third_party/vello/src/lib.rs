@@ -215,7 +215,7 @@ mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("vello_cpp/path_iterator.h");
+        include!("third_party/vello/cpp/path_iterator.h");
 
         type PathIterator;
         unsafe fn next_element(self: Pin<&mut PathIterator>, out_elem: *mut PathElement) -> bool;

@@ -334,6 +334,27 @@ load("@fontations//:defs.bzl", fontations_crates = "crate_repositories")
 
 fontations_crates()
 
+# Skia uses crates from the vello repository that are under development and have not been published
+# to crates.io. Normally we could fetch them directly from the git mirror in the Cargo.lock file as
+# Bazel supports compiling them without any custom build rules. However, since Bazel's repository
+# rules don't play well with the vello_shader crate's build script, we compile the vello
+# crates from source using the rules defined in bazel/external/vello/BUILD.bazel and the
+# new_git_repository rule.
+#
+# vello_deps contains the dependencies of the two crates we build out of the vello repo (namely
+# vello_shaders and vello_encoding).
+#
+# See comments in bazel/external/vello/BUILD.bazel for more information.
+crates_repository(
+    name = "vello_deps",
+    cargo_lockfile = "//bazel/external/vello:Cargo.lock",
+    manifests = ["//bazel/external/vello:Cargo.toml"],
+)
+
+load("@vello_deps//:defs.bzl", vello_deps = "crate_repositories")
+
+vello_deps()
+
 ###############################################################
 
 # Bazel will look for env variables ANDROID_HOME and ANDROID_NDK_HOME.
@@ -383,6 +404,7 @@ load("//bazel:deps.bzl", "git_repos_from_deps")
 # @perfetto - //bazel/external/perfetto:BUILD.bazel
 # @piex - //bazel/external/piex:BUILD.bazel
 # @spirv_cross - //bazel/external/spirv_cross:BUILD.bazel
+# @vello - //bazel/external/vello:BUILD.bazel
 # @vulkan_headers - //bazel/external/vulkan_headers:BUILD.bazel
 # @vulkan_tools - //bazel/external/vulkan_tools:BUILD.bazel
 # @vulkanmemoryallocator - //bazel/external/vulkanmemoryallocator:BUILD.bazel

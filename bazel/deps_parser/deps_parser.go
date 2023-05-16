@@ -46,6 +46,7 @@ var deps = map[string]depConfig{
 	"spirv-cross":           {bazelNameOverride: "spirv_cross", needsBazelFile: true},
 	"perfetto":              {needsBazelFile: true},
 	"piex":                  {needsBazelFile: true},
+	"vello":                 {needsBazelFile: true},
 	"vulkan-headers":        {bazelNameOverride: "vulkan_headers", needsBazelFile: true},
 	"vulkan-tools":          {bazelNameOverride: "vulkan_tools", needsBazelFile: true},
 	"vulkanmemoryallocator": {needsBazelFile: true},

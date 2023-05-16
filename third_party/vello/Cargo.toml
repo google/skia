@@ -1,3 +1,6 @@
+# This is the canonical cargo manifest definition for the vello_cpp crate. This file should be kept
+# in sync with the BUILD.bazel file.
+
 [package]
 name = "vello_cpp"
 version = "0.0.1"

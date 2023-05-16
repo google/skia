@@ -8,14 +8,11 @@ cxxbridge executable. This is based off of the example provided in [2].
 [2] https://github.com/dtolnay/cxx/blob/e7576dc938f60512edfd1f7525e649b959b9dee6/tools/bazel/rust_cxx_bridge.bzl
 """
 
-load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load(
-    "//bazel:skia_rules.bzl",
-    "skia_filegroup",
-)
+load("//bazel:run_cxxbridge_cmd.bzl", "run_cxxbridge_cmd")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
-def rust_cxx_bridge(name, src, deps = [], visibility = []):
+def rust_cxx_bridge(name, src, deps = [], visibility = [], crate_features = []):
     """Creates rules for CXX C++/Rust bridging.
 
     Takes a Rust source file to generate binding code from a section that is marked with `#[cxx::bridge]`.
@@ -25,10 +22,12 @@ def rust_cxx_bridge(name, src, deps = [], visibility = []):
       src: Source file that contains CXX bridge definitions.
       deps: Rules this rule depends on.
       visibility: Visibility of the generated sub-rules.
+      crate_features: Feature flags to enable for codegen. See https://doc.rust-lang.org/cargo/reference/features.html.
     """
     out_h = "gen/%s.h" % src
     out_cc = "gen/%s.cc" % src
-    run_binary(
+
+    run_cxxbridge_cmd(
         name = "%s/generated" % name,
         srcs = [src],
         outs = [out_h, out_cc],
@@ -39,7 +38,7 @@ def rust_cxx_bridge(name, src, deps = [], visibility = []):
             "-o",
             "$(location %s)" % out_cc,
         ],
-        tool = "@cxxbridge_cmd//:cxxbridge",
+        crate_features = crate_features,
     )
 
     skia_filegroup(

@@ -12,8 +12,8 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/compute/VelloComputeSteps.h"
+#include "third_party/vello/cpp/vello.h"
 
-#include <vello_cpp/vello_cpp.h>
 #include <memory>
 
 namespace skgpu::graphite {
