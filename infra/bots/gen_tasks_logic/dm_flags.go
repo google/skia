@@ -163,6 +163,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		threadLimit = MAIN_THREAD_ONLY
 	}
 
+	if b.model("GalaxyS9", "GalaxyS20", "Pixel6", "Pixel7") {
+		// Only these four devices/gpus (MaliG72, MaliG77, MaliG78, MaliG720) seem
+		// to have functional EXT_protected_content implementations (please see
+		// skbug.com/14298#c6 for more details).
+		args = append(args, "--createProtected")
+	}
+
 	// Avoid issues with dynamically exceeding resource cache limits.
 	if b.matchExtraConfig("DISCARDABLE") {
 		threadLimit = MAIN_THREAD_ONLY

@@ -45,6 +45,8 @@ extern "C" {
 }
 #endif
 
+bool gCreateProtectedContext = false;
+
 namespace sk_gpu_test {
 GrContextFactory::GrContextFactory() { }
 
