@@ -20,7 +20,6 @@
 namespace SkSL::dsl {
 
 class DSLType;
-struct DSLVarBase;
 
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.
@@ -35,10 +34,6 @@ public:
 
     DSLExpression(const DSLExpression&) = delete;
     DSLExpression& operator=(const DSLExpression&) = delete;
-
-    // Creates an expression representing a variable reference.
-    DSLExpression(DSLVarBase& var, Position pos = {});
-    DSLExpression(DSLVarBase&& var, Position pos = {});
 
     // If expression is null, returns Poison.
     explicit DSLExpression(std::unique_ptr<SkSL::Expression> expression, Position pos = {});

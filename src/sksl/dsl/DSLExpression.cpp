@@ -11,11 +11,8 @@
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLType.h"
-#include "src/sksl/dsl/DSLVar.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLPoison.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <utility>
 
@@ -33,13 +30,6 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression, Posit
               pos.startOffset(), pos.endOffset(),
               this->position().startOffset(), this->position().endOffset());
 }
-
-DSLExpression::DSLExpression(DSLVarBase& var, Position pos)
-        : fExpression(std::make_unique<SkSL::VariableReference>(
-                  pos, DSLWriter::Var(var), SkSL::VariableReference::RefKind::kRead)) {}
-
-DSLExpression::DSLExpression(DSLVarBase&& var, Position pos)
-        : DSLExpression(var) {}
 
 DSLExpression DSLExpression::Poison(Position pos) {
     return DSLExpression(SkSL::Poison::Make(pos, ThreadContext::Context()));
