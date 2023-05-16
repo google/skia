@@ -11,10 +11,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 
+// TODO(kjlubick) fix client users and then make this a forward declare
+#include "include/core/SkRect.h"  // IWYU pragma: keep
+
 #include <cstddef>
 #include <vector>
-
-struct SkRect;
 
 class SkBBoxHierarchy : public SkRefCnt {
 public:
