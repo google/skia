@@ -22,9 +22,11 @@
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEndian.h"
+#include "src/base/SkScopeExit.h"
 #include "src/base/SkSharedMutex.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyph.h"
@@ -427,6 +429,1029 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
 SkScalerContext_DW::~SkScalerContext_DW() {
 }
 
+#if DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
+
+namespace {
+SkColor4f sk_color_from(DWRITE_COLOR_F const& color) {
+    // DWRITE_COLOR_F and SkColor4f are laid out the same and this should be a no-op.
+    return SkColor4f{ color.r, color.g, color.b, color.a };
+}
+DWRITE_COLOR_F dw_color_from(SkColor4f const& color) {
+    // DWRITE_COLOR_F and SkColor4f are laid out the same and this should be a no-op.
+    return DWRITE_COLOR_F{ color.fR, color.fG, color.fB, color.fA };
+}
+
+SkPoint sk_point_from(D2D_POINT_2F const& point) {
+    // D2D_POINT_2F and SkPoint are both y-down and laid out the same and this should be a no-op.
+    return SkPoint{ point.x, point.y };
+}
+
+SkRect sk_rect_from(D2D_RECT_F const& rect) {
+    // D2D_RECT_F and SkRect are both y-down and laid the same so this should be a no-op.
+    return SkRect{ rect.left, rect.top, rect.right, rect.bottom };
+}
+constexpr bool D2D_RECT_F_is_empty(const D2D_RECT_F& r) {
+    return r.right <= r.left || r.bottom <= r.top;
+}
+
+SkMatrix sk_matrix_from(DWRITE_MATRIX const& m) {
+    // DWRITE_MATRIX and SkMatrix are y-down. However DWRITE_MATRIX is affine only.
+    return SkMatrix::MakeAll(
+        m.m11, m.m21, m.dx,
+        m.m12, m.m22, m.dy,
+        0, 0, 1);
+}
+
+SkTileMode sk_tile_mode_from(D2D1_EXTEND_MODE extendMode) {
+    switch (extendMode) {
+    case D2D1_EXTEND_MODE_CLAMP:
+        return SkTileMode::kClamp;
+    case D2D1_EXTEND_MODE_WRAP:
+        return SkTileMode::kRepeat;
+    case D2D1_EXTEND_MODE_MIRROR:
+        return SkTileMode::kMirror;
+    default:
+        return SkTileMode::kClamp;
+    }
+}
+
+SkBlendMode sk_blend_mode_from(DWRITE_COLOR_COMPOSITE_MODE compositeMode) {
+    switch (compositeMode) {
+    case DWRITE_COLOR_COMPOSITE_CLEAR:
+        return SkBlendMode::kClear;
+    case DWRITE_COLOR_COMPOSITE_SRC:
+        return SkBlendMode::kSrc;
+    case DWRITE_COLOR_COMPOSITE_DEST:
+        return SkBlendMode::kDst;
+    case DWRITE_COLOR_COMPOSITE_SRC_OVER:
+        return SkBlendMode::kSrcOver;
+    case DWRITE_COLOR_COMPOSITE_DEST_OVER:
+        return SkBlendMode::kDstOver;
+    case DWRITE_COLOR_COMPOSITE_SRC_IN:
+        return SkBlendMode::kSrcIn;
+    case DWRITE_COLOR_COMPOSITE_DEST_IN:
+        return SkBlendMode::kDstIn;
+    case DWRITE_COLOR_COMPOSITE_SRC_OUT:
+        return SkBlendMode::kSrcOut;
+    case DWRITE_COLOR_COMPOSITE_DEST_OUT:
+        return SkBlendMode::kDstOut;
+    case DWRITE_COLOR_COMPOSITE_SRC_ATOP:
+        return SkBlendMode::kSrcATop;
+    case DWRITE_COLOR_COMPOSITE_DEST_ATOP:
+        return SkBlendMode::kDstATop;
+    case DWRITE_COLOR_COMPOSITE_XOR:
+        return SkBlendMode::kXor;
+    case DWRITE_COLOR_COMPOSITE_PLUS:
+        return SkBlendMode::kPlus;
+
+    case DWRITE_COLOR_COMPOSITE_SCREEN:
+        return SkBlendMode::kScreen;
+    case DWRITE_COLOR_COMPOSITE_OVERLAY:
+        return SkBlendMode::kOverlay;
+    case DWRITE_COLOR_COMPOSITE_DARKEN:
+        return SkBlendMode::kDarken;
+    case DWRITE_COLOR_COMPOSITE_LIGHTEN:
+        return SkBlendMode::kLighten;
+    case DWRITE_COLOR_COMPOSITE_COLOR_DODGE:
+        return SkBlendMode::kColorDodge;
+    case DWRITE_COLOR_COMPOSITE_COLOR_BURN:
+        return SkBlendMode::kColorBurn;
+    case DWRITE_COLOR_COMPOSITE_HARD_LIGHT:
+        return SkBlendMode::kHardLight;
+    case DWRITE_COLOR_COMPOSITE_SOFT_LIGHT:
+        return SkBlendMode::kSoftLight;
+    case DWRITE_COLOR_COMPOSITE_DIFFERENCE:
+        return SkBlendMode::kDifference;
+    case DWRITE_COLOR_COMPOSITE_EXCLUSION:
+        return SkBlendMode::kExclusion;
+    case DWRITE_COLOR_COMPOSITE_MULTIPLY:
+        return SkBlendMode::kMultiply;
+
+    case DWRITE_COLOR_COMPOSITE_HSL_HUE:
+        return SkBlendMode::kHue;
+    case DWRITE_COLOR_COMPOSITE_HSL_SATURATION:
+        return SkBlendMode::kSaturation;
+    case DWRITE_COLOR_COMPOSITE_HSL_COLOR:
+        return SkBlendMode::kColor;
+    case DWRITE_COLOR_COMPOSITE_HSL_LUMINOSITY:
+        return SkBlendMode::kLuminosity;
+    default:
+        return SkBlendMode::kDst;
+    }
+}
+
+inline SkPoint SkVectorProjection(SkPoint a, SkPoint b) {
+    SkScalar length = b.length();
+    if (!length) {
+        return SkPoint();
+    }
+    SkPoint bNormalized = b;
+    bNormalized.normalize();
+    bNormalized.scale(SkPoint::DotProduct(a, b) / length);
+    return bNormalized;
+}
+
+// This linear interpolation is used for calculating a truncated color line in special edge cases.
+// This interpolation needs to be kept in sync with what the gradient shader would normally do when
+// truncating and drawing color lines. When drawing into N32 surfaces, this is expected to be true.
+// If that changes, or if we support other color spaces in CPAL tables at some point, this needs to
+// be looked at.
+D2D1_COLOR_F lerpSkColor(D2D1_COLOR_F c0, D2D1_COLOR_F c1, float t) {
+    // Due to the floating point calculation in the caller, when interpolating between very narrow
+    // stops, we may get values outside the interpolation range, guard against these.
+    if (t < 0) {
+        return c0;
+    }
+    if (t > 1) {
+        return c1;
+    }
+    const auto c0_4f = skvx::float4(c0.r, c0.g, c0.b, c0.a),
+               c1_4f = skvx::float4(c1.r, c1.g, c1.b, c1.a),
+                c_4f = c0_4f + (c1_4f - c0_4f) * t;
+    D2D1_COLOR_F r;
+    c_4f.store(&r);
+    return r;
+}
+
+enum TruncateStops {
+    TruncateStart,
+    TruncateEnd,
+};
+// Truncate a vector of color stops at a previously computed stop position and insert at that
+// position the color interpolated between the surrounding stops.
+void truncateToStopInterpolating(SkScalar zeroRadiusStop,
+                                 std::vector<D2D1_GRADIENT_STOP>& stops,
+                                 TruncateStops truncateStops) {
+    if (stops.size() <= 1u ||
+        zeroRadiusStop < stops.front().position || stops.back().position < zeroRadiusStop) {
+        return;
+    }
+
+    auto lcmp = [](D2D1_GRADIENT_STOP const& stop, SkScalar position) {
+        return stop.position < position;
+    };
+    auto ucmp = [](SkScalar position, D2D1_GRADIENT_STOP const& stop) {
+        return position < stop.position;
+    };
+    size_t afterIndex = (truncateStops == TruncateStart)
+        ? std::lower_bound(stops.begin(), stops.end(), zeroRadiusStop, lcmp) - stops.begin()
+        : std::upper_bound(stops.begin(), stops.end(), zeroRadiusStop, ucmp) - stops.begin();
+
+    const float t = (zeroRadiusStop - stops[afterIndex - 1].position) /
+        (stops[afterIndex].position - stops[afterIndex - 1].position);
+    D2D1_COLOR_F lerpColor = lerpSkColor(stops[afterIndex - 1].color, stops[afterIndex].color, t);
+
+    if (truncateStops == TruncateStart) {
+        stops.erase(stops.begin(), stops.begin() + afterIndex);
+        stops.insert(stops.begin(), { 0, lerpColor });
+    } else {
+        stops.erase(stops.begin() + afterIndex, stops.end());
+        stops.insert(stops.end(), { 1, lerpColor });
+    }
+}
+} // namespace
+
+bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
+                                          IDWritePaintReader& reader,
+                                          DWRITE_PAINT_ELEMENT const & element)
+{
+    // Helper to draw the specified number of children.
+    auto drawChildren = [&](uint32_t childCount) -> bool {
+        if (childCount != 0) {
+            DWRITE_PAINT_ELEMENT childElement;
+            HRB(reader.MoveToFirstChild(&childElement));
+            this->drawColorV1Paint(canvas, reader, childElement);
+
+            for (uint32_t i = 1; i < childCount; i++) {
+                HRB(reader.MoveToNextSibling(&childElement));
+                this->drawColorV1Paint(canvas, reader, childElement);
+            }
+
+            HRB(reader.MoveToParent());
+        }
+        return true;
+    };
+
+    SkAutoCanvasRestore restoreCanvas(&canvas, true);
+    switch (element.paintType) {
+    case DWRITE_PAINT_TYPE_NONE:
+        return true;
+
+    case DWRITE_PAINT_TYPE_LAYERS: {
+        // A layers paint element has a variable number of children.
+        return drawChildren(element.paint.layers.childCount);
+    }
+
+    case DWRITE_PAINT_TYPE_SOLID_GLYPH: {
+        // A solid glyph paint element has no children.
+        // glyphIndex, color.value, color.paletteEntryIndex, color.alpha, color.colorAttributes
+        auto const& solidGlyph = element.paint.solidGlyph;
+
+        SkPath path;
+        SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
+        HRBM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
+             "Could not create geometry to path converter.");
+        UINT16 glyphId = SkTo<UINT16>(solidGlyph.glyphIndex);
+        {
+            Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
+            HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+                     SkScalarToFloat(fTextSizeRender),
+                     &glyphId,
+                     nullptr, //advances
+                     nullptr, //offsets
+                     1, //num glyphs
+                     FALSE, //sideways
+                     FALSE, //rtl
+                     geometryToPath.get()),
+                 "Could not create glyph outline.");
+        }
+
+        path.transform(SkMatrix::Scale(1.0f / fTextSizeRender, 1.0f / fTextSizeRender));
+        SkPaint skPaint;
+        skPaint.setColor4f(sk_color_from(solidGlyph.color.value));
+        skPaint.setAntiAlias(fRenderingMode != DWRITE_RENDERING_MODE_ALIASED);
+        canvas.drawPath(path, skPaint);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_SOLID: {
+        // A solid paint element has no children.
+        // value, paletteEntryIndex, alphaMultiplier, colorAttributes
+        SkPaint skPaint;
+        skPaint.setColor4f(sk_color_from(element.paint.solid.value));
+        canvas.drawPaint(skPaint);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_LINEAR_GRADIENT: {
+        auto const& linearGradient = element.paint.linearGradient;
+        // A linear gradient paint element has no children.
+        // x0, y0, x1, y1, x2, y2, extendMode, gradientStopCount, [colorStops]
+
+        if (linearGradient.gradientStopCount == 0) {
+            return true;
+        }
+        std::vector<D2D1_GRADIENT_STOP> stops;
+        stops.resize(linearGradient.gradientStopCount);
+
+        // If success stops will be ordered.
+        HRBM(reader.GetGradientStops(0, stops.size(), stops.data()),
+             "Could not get linear gradient stops.");
+        SkPaint skPaint;
+        if (stops.size() == 1) {
+            skPaint.setColor4f(sk_color_from(stops[0].color));
+            canvas.drawPaint(skPaint);
+            return true;
+        }
+        SkPoint linePositions[2] = { {linearGradient.x0, linearGradient.y0},
+                                     {linearGradient.x1, linearGradient.y1} };
+        SkPoint p0 = linePositions[0];
+        SkPoint p1 = linePositions[1];
+        SkPoint p2 = SkPoint::Make(linearGradient.x2, linearGradient.y2);
+
+        // If p0p1 or p0p2 are degenerate probably nothing should be drawn.
+        // If p0p1 and p0p2 are parallel then one side is the first color and the other side is
+        // the last color, depending on the direction.
+        // For now, just use the first color.
+        if (p1 == p0 || p2 == p0 || !SkPoint::CrossProduct(p1 - p0, p2 - p0)) {
+            skPaint.setColor4f(sk_color_from(stops[0].color));
+            canvas.drawPaint(skPaint);
+            return true;
+        }
+
+        // Follow implementation note in nanoemoji:
+        // https://github.com/googlefonts/nanoemoji/blob/0ac6e7bb4d8202db692574d8530a9b643f1b3b3c/src/nanoemoji/svg.py#L188
+        // to compute a new gradient end point P3 as the orthogonal
+        // projection of the vector from p0 to p1 onto a line perpendicular
+        // to line p0p2 and passing through p0.
+        SkVector perpendicularToP2P0 = (p2 - p0);
+        perpendicularToP2P0 = SkPoint::Make( perpendicularToP2P0.y(),
+                                            -perpendicularToP2P0.x());
+        SkVector p3 = p0 + SkVectorProjection((p1 - p0), perpendicularToP2P0);
+        linePositions[1] = p3;
+
+        // Project/scale points according to stop extrema along p0p3 line,
+        // p3 being the result of the projection above, then scale stops to
+        // to [0, 1] range so that repeat modes work.  The Skia linear
+        // gradient shader performs the repeat modes over the 0 to 1 range,
+        // that's why we need to scale the stops to within that range.
+        SkTileMode tileMode = sk_tile_mode_from(SkTo<D2D1_EXTEND_MODE>(linearGradient.extendMode));
+        SkScalar colorStopRange = stops.back().position - stops.front().position;
+        // If the color stops are all at the same offset position, repeat and reflect modes
+        // become meaningless.
+        if (colorStopRange == 0.f) {
+            if (tileMode != SkTileMode::kClamp) {
+                //skPaint.setColor(SK_ColorTRANSPARENT);
+                return true;
+            } else {
+                // Insert duplicated fake color stop in pad case at +1.0f to enable the projection
+                // of circles for an originally 0-length color stop range. Adding this stop will
+                // paint the equivalent gradient, because: All font specified color stops are in the
+                // same spot, mode is pad, so everything before this spot is painted with the first
+                // color, everything after this spot is painted with the last color. Not adding this
+                // stop will skip the projection and result in specifying non-normalized color stops
+                // to the shader.
+                stops.push_back({ stops.back().position + 1.0f, stops.back().color });
+                colorStopRange = 1.0f;
+            }
+        }
+        SkASSERT(colorStopRange != 0.f);
+
+        // If the colorStopRange is 0 at this point, the default behavior of the shader is to
+        // clamp to 1 color stops that are above 1, clamp to 0 for color stops that are below 0,
+        // and repeat the outer color stops at 0 and 1 if the color stops are inside the
+        // range. That will result in the correct rendering.
+        if ((colorStopRange != 1 || stops.front().position != 0.f)) {
+            SkVector p0p3 = p3 - p0;
+            SkVector p0Offset = p0p3;
+            p0Offset.scale(stops.front().position);
+            SkVector p1Offset = p0p3;
+            p1Offset.scale(stops.back().position);
+
+            linePositions[0] = p0 + p0Offset;
+            linePositions[1] = p0 + p1Offset;
+
+            SkScalar scaleFactor = 1 / colorStopRange;
+            SkScalar startOffset = stops.front().position;
+            for (D2D1_GRADIENT_STOP& stop : stops) {
+                stop.position = (stop.position - startOffset) * scaleFactor;
+            }
+        }
+
+        std::unique_ptr<SkColor[]> skColors(new SkColor[stops.size()]);
+        std::unique_ptr<SkScalar[]> skStops(new SkScalar[stops.size()]);
+        for (size_t i = 0; i < stops.size(); ++i) {
+            skColors[i] = sk_color_from(stops[i].color).toSkColor();
+            skStops[i] = stops[i].position;
+        }
+
+        sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
+            linePositions,
+            skColors.get(), skStops.get(), stops.size(), tileMode));
+        SkASSERT(shader);
+        // An opaque color is needed to ensure the gradient is not modulated by alpha.
+        skPaint.setColor(SK_ColorBLACK);
+        skPaint.setShader(shader);
+        canvas.drawPaint(skPaint);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_RADIAL_GRADIENT: {
+        auto const& radialGradient = element.paint.radialGradient;
+        // A radial gradient paint element has no children.
+        // x0, y0, radius0, x1, y1, radius1, extendMode, gradientStopCount, [colorsStops]
+
+        SkPoint start = SkPoint::Make(radialGradient.x0, radialGradient.y0);
+        SkScalar startRadius = radialGradient.radius0;
+        SkPoint end = SkPoint::Make(radialGradient.x1, radialGradient.y1);
+        SkScalar endRadius = radialGradient.radius1;
+
+        if (radialGradient.gradientStopCount == 0) {
+            return true;
+        }
+        std::vector<D2D1_GRADIENT_STOP> stops;
+        stops.resize(radialGradient.gradientStopCount);
+
+        // If success stops will be ordered.
+        HRBM(reader.GetGradientStops(0, stops.size(), stops.data()),
+             "Could not get radial gradient stops.");
+        SkPaint skPaint;
+        if (stops.size() == 1) {
+            skPaint.setColor4f(sk_color_from(stops[0].color));
+            canvas.drawPaint(skPaint);
+            return true;
+        }
+
+        SkScalar colorStopRange = stops.back().position - stops.front().position;
+        SkTileMode tileMode = sk_tile_mode_from(SkTo<D2D1_EXTEND_MODE>(radialGradient.extendMode));
+
+        if (colorStopRange == 0.f) {
+            if (tileMode != SkTileMode::kClamp) {
+                //skPaint.setColor(SK_ColorTRANSPARENT);
+                return true;
+            } else {
+                // Insert duplicated fake color stop in pad case at +1.0f to enable the projection
+                // of circles for an originally 0-length color stop range. Adding this stop will
+                // paint the equivalent gradient, because: All font specified color stops are in the
+                // same spot, mode is pad, so everything before this spot is painted with the first
+                // color, everything after this spot is painted with the last color. Not adding this
+                // stop will skip the projection and result in specifying non-normalized color stops
+                // to the shader.
+                stops.push_back({ stops.back().position + 1.0f, stops.back().color });
+                colorStopRange = 1.0f;
+            }
+        }
+        SkASSERT(colorStopRange != 0.f);
+
+        // If the colorStopRange is 0 at this point, the default behavior of the shader is to
+        // clamp to 1 color stops that are above 1, clamp to 0 for color stops that are below 0,
+        // and repeat the outer color stops at 0 and 1 if the color stops are inside the
+        // range. That will result in the correct rendering.
+        if (colorStopRange != 1 || stops.front().position != 0.f) {
+            // For the Skia two-point caonical shader to understand the
+            // COLRv1 color stops we need to scale stops to 0 to 1 range and
+            // interpolate new centers and radii. Otherwise the shader
+            // clamps stops outside the range to 0 and 1 (larger interval)
+            // or repeats the outer stops at 0 and 1 if the (smaller
+            // interval).
+            SkVector startToEnd = end - start;
+            SkScalar radiusDiff = endRadius - startRadius;
+            SkScalar scaleFactor = 1 / colorStopRange;
+            SkScalar stopsStartOffset = stops.front().position;
+
+            SkVector startOffset = startToEnd;
+            startOffset.scale(stops.front().position);
+            SkVector endOffset = startToEnd;
+            endOffset.scale(stops.back().position);
+
+            // The order of the following computations is important in order to avoid
+            // overwriting start or startRadius before the second reassignment.
+            end = start + endOffset;
+            start = start + startOffset;
+            endRadius = startRadius + radiusDiff * stops.back().position;
+            startRadius = startRadius + radiusDiff * stops.front().position;
+
+            for (auto& stop : stops) {
+                stop.position = (stop.position - stopsStartOffset) * scaleFactor;
+            }
+        }
+
+        // For negative radii, interpolation is needed to prepare parameters suitable
+        // for invoking the shader. Implementation below as resolution discussed in
+        // https://github.com/googlefonts/colr-gradients-spec/issues/367.
+        // Truncate to manually interpolated color for tile mode clamp, otherwise
+        // calculate positive projected circles.
+        if (startRadius < 0 || endRadius < 0) {
+            if (startRadius == endRadius && startRadius < 0) {
+                //skPaint.setColor(SK_ColorTRANSPARENT);
+                return true;
+            }
+
+            if (tileMode == SkTileMode::kClamp) {
+                SkVector startToEnd = end - start;
+                SkScalar radiusDiff = endRadius - startRadius;
+                SkScalar zeroRadiusStop = 0.f;
+                TruncateStops truncateSide = TruncateStart;
+                if (startRadius < 0) {
+                    truncateSide = TruncateStart;
+
+                    // Compute color stop position where radius is = 0.  After the scaling
+                    // of stop positions to the normal 0,1 range that we have done above,
+                    // the size of the radius as a function of the color stops is: r(x) = r0
+                    // + x*(r1-r0) Solving this function for r(x) = 0, we get: x = -r0 /
+                    // (r1-r0)
+                    zeroRadiusStop = -startRadius / (endRadius - startRadius);
+                    startRadius = 0.f;
+                    SkVector startEndDiff = end - start;
+                    startEndDiff.scale(zeroRadiusStop);
+                    start = start + startEndDiff;
+                }
+
+                if (endRadius < 0) {
+                    truncateSide = TruncateEnd;
+                    zeroRadiusStop = -startRadius / (endRadius - startRadius);
+                    endRadius = 0.f;
+                    SkVector startEndDiff = end - start;
+                    startEndDiff.scale(1 - zeroRadiusStop);
+                    end = end - startEndDiff;
+                }
+
+                if (!(startRadius == 0 && endRadius == 0)) {
+                    truncateToStopInterpolating(zeroRadiusStop, stops, truncateSide);
+                } else {
+                    // If both radii have become negative and where clamped to 0, we need to
+                    // produce a single color cone, otherwise the shader colors the whole
+                    // plane in a single color when two radii are specified as 0.
+                    if (radiusDiff > 0) {
+                        end = start + startToEnd;
+                        endRadius = radiusDiff;
+                        stops.erase(stops.begin(), stops.end() - 1);
+                    } else {
+                        start -= startToEnd;
+                        startRadius = -radiusDiff;
+                        stops.erase(stops.begin() + 1, stops.end());
+                    }
+                }
+            } else {
+                if (startRadius < 0 || endRadius < 0) {
+                    auto roundIntegerMultiple = [](SkScalar factorZeroCrossing,
+                        SkTileMode tileMode) {
+                            int roundedMultiple = factorZeroCrossing > 0
+                                ? ceilf(factorZeroCrossing)
+                                : floorf(factorZeroCrossing) - 1;
+                            if (tileMode == SkTileMode::kMirror && roundedMultiple % 2 != 0) {
+                                roundedMultiple += roundedMultiple < 0 ? -1 : 1;
+                            }
+                            return roundedMultiple;
+                    };
+
+                    SkVector startToEnd = end - start;
+                    SkScalar radiusDiff = endRadius - startRadius;
+                    SkScalar factorZeroCrossing = (startRadius / (startRadius - endRadius));
+                    bool inRange = 0.f <= factorZeroCrossing && factorZeroCrossing <= 1.0f;
+                    SkScalar direction = inRange && radiusDiff < 0 ? -1.0f : 1.0f;
+                    SkScalar circleProjectionFactor =
+                        roundIntegerMultiple(factorZeroCrossing * direction, tileMode);
+                    startToEnd.scale(circleProjectionFactor);
+                    startRadius += circleProjectionFactor * radiusDiff;
+                    endRadius += circleProjectionFactor * radiusDiff;
+                    start += startToEnd;
+                    end += startToEnd;
+                }
+            }
+        }
+
+        std::unique_ptr<SkColor[]> skColors(new SkColor[stops.size()]);
+        std::unique_ptr<SkScalar[]> skStops(new SkScalar[stops.size()]);
+        for (size_t i = 0; i < stops.size(); ++i) {
+            skColors[i] = sk_color_from(stops[i].color).toSkColor();
+            skStops[i] = stops[i].position;
+        }
+
+        // An opaque color is needed to ensure the gradient is not modulated by alpha.
+        skPaint.setColor(SK_ColorBLACK);
+        skPaint.setShader(SkGradientShader::MakeTwoPointConical(
+            start, startRadius, end, endRadius,
+            skColors.get(), skStops.get(), stops.size(), tileMode));
+        canvas.drawPaint(skPaint);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_SWEEP_GRADIENT: {
+        auto const& sweepGradient = element.paint.sweepGradient;
+        // A sweep gradient paint element has no children.
+        // centerX, centerY, startAngle, endAngle, extendMode, gradientStopCount, [colorStops]
+
+        if (sweepGradient.gradientStopCount == 0) {
+            return true;
+        }
+        std::vector<D2D1_GRADIENT_STOP> stops;
+        stops.resize(sweepGradient.gradientStopCount);
+
+        // If success stops will be ordered.
+        HRBM(reader.GetGradientStops(0, stops.size(), stops.data()),
+             "Could not get sweep gradient stops");
+        SkPaint skPaint;
+        if (stops.size() == 1) {
+            skPaint.setColor4f(sk_color_from(stops[0].color));
+            canvas.drawPaint(skPaint);
+            return true;
+        }
+
+        SkPoint center = SkPoint::Make(sweepGradient.centerX, sweepGradient.centerY);
+
+        SkScalar startAngle = sweepGradient.startAngle;
+        SkScalar endAngle = sweepGradient.endAngle;
+        // OpenType 1.9.1 adds a shift to the angle to ease specification of a 0 to 360
+        // degree sweep. This appears to already be applied by DW.
+        //startAngle += 180.0f;
+        //endAngle += 180.0f;
+
+        // An opaque color is needed to ensure the gradient is not modulated by alpha.
+        skPaint.setColor(SK_ColorBLACK);
+
+        // New (Var)SweepGradient implementation compliant with OpenType 1.9.1 from here.
+
+        // The shader expects stops from 0 to 1, so we need to account for
+        // minimum and maximum stop positions being different from 0 and
+        // 1. We do that by scaling minimum and maximum stop positions to
+        // the 0 to 1 interval and scaling the angles inverse proportionally.
+
+        // 1) Scale angles to their equivalent positions if stops were from 0 to 1.
+
+        SkScalar sectorAngle = endAngle - startAngle;
+        SkTileMode tileMode = sk_tile_mode_from(SkTo<D2D1_EXTEND_MODE>(sweepGradient.extendMode));
+        if (sectorAngle == 0 && tileMode != SkTileMode::kClamp) {
+            // "If the ColorLine's extend mode is reflect or repeat and start and end angle
+            // are equal, nothing is drawn.".
+            //skPaint.setColor(SK_ColorTRANSPARENT);
+            return true;
+        }
+
+        SkScalar startAngleScaled = startAngle + sectorAngle * stops.front().position;
+        SkScalar endAngleScaled = startAngle + sectorAngle * stops.back().position;
+
+        // 2) Scale stops accordingly to 0 to 1 range.
+
+        float colorStopRange = stops.back().position - stops.front().position;
+        bool colorStopInserted = false;
+        if (colorStopRange == 0.f) {
+            if (tileMode != SkTileMode::kClamp) {
+                //skPaint.setColor(SK_ColorTRANSPARENT);
+                return true;
+            } else {
+                // Insert duplicated fake color stop in pad case at +1.0f to feed the shader correct
+                // values and enable painting a pad sweep gradient with two colors. Adding this stop
+                // will paint the equivalent gradient, because: All font specified color stops are
+                // in the same spot, mode is pad, so everything before this spot is painted with the
+                // first color, everything after this spot is painted with the last color. Not
+                // adding this stop will skip the projection and result in specifying non-normalized
+                // color stops to the shader.
+                stops.push_back({ stops.back().position + 1.0f, stops.back().color });
+                colorStopRange = 1.0f;
+                colorStopInserted = true;
+            }
+        }
+
+        SkScalar scaleFactor = 1 / colorStopRange;
+        SkScalar startOffset = stops.front().position;
+
+        for (D2D1_GRADIENT_STOP& stop : stops) {
+            stop.position = (stop.position - startOffset) * scaleFactor;
+        }
+
+        /* https://docs.microsoft.com/en-us/typography/opentype/spec/colr#sweep-gradients
+        * "The angles are expressed in counter-clockwise degrees from
+        * the direction of the positive x-axis on the design
+        * grid. [...]  The color line progresses from the start angle
+        * to the end angle in the counter-clockwise direction;" -
+        * Convert angles and stops from counter-clockwise to clockwise
+        * for the shader if the gradient is not already reversed due to
+        * start angle being larger than end angle. */
+        startAngleScaled = 360.f - startAngleScaled;
+        endAngleScaled = 360.f - endAngleScaled;
+        if (startAngleScaled > endAngleScaled ||
+            (startAngleScaled == endAngleScaled && !colorStopInserted)) {
+            std::swap(startAngleScaled, endAngleScaled);
+            std::reverse(stops.begin(), stops.end());
+            for (auto& stop : stops) {
+                stop.position = 1.0f - stop.position;
+            }
+        }
+
+        std::unique_ptr<SkColor[]> skColors(new SkColor[stops.size()]);
+        std::unique_ptr<SkScalar[]> skStops(new SkScalar[stops.size()]);
+        for (size_t i = 0; i < stops.size(); ++i) {
+            skColors[i] = sk_color_from(stops[i].color).toSkColor();
+            skStops[i] = stops[i].position;
+        }
+
+        skPaint.setShader(SkGradientShader::MakeSweep(
+            center.x(), center.y(),
+            skColors.get(), skStops.get(), stops.size(), tileMode,
+            startAngleScaled, endAngleScaled,
+            0, nullptr));
+        canvas.drawPaint(skPaint);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_GLYPH: {
+        // A glyph paint element has one child, which is the fill for the glyph shape glyphIndex.
+        SkPath path;
+        SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
+        HRBM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
+             "Could not create geometry to path converter.");
+        UINT16 glyphId = SkTo<UINT16>(element.paint.glyph.glyphIndex);
+        {
+            Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
+            HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+                     SkScalarToFloat(fTextSizeRender),
+                     &glyphId,
+                     nullptr, //advances
+                     nullptr, //offsets
+                     1, //num glyphs
+                     FALSE, //sideways
+                     FALSE, //rtl
+                     geometryToPath.get()),
+                 "Could not create glyph outline.");
+        }
+
+        path.transform(SkMatrix::Scale(1.0f / fTextSizeRender, 1.0f / fTextSizeRender));
+        canvas.clipPath(path, fRenderingMode != DWRITE_RENDERING_MODE_ALIASED);
+
+        drawChildren(1);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_COLOR_GLYPH: {
+        auto const& colorGlyph = element.paint.colorGlyph;
+        // A color glyph paint element has one child, the root of the paint tree for glyphIndex.
+        // glyphIndex, clipBox
+        if (D2D_RECT_F_is_empty(colorGlyph.clipBox)) {
+            // Does not have a clip box
+        } else {
+            SkRect r = sk_rect_from(colorGlyph.clipBox);
+            canvas.clipRect(r, fRenderingMode != DWRITE_RENDERING_MODE_ALIASED);
+        }
+
+        drawChildren(1);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_TRANSFORM: {
+        // A transform paint element always has one child, the transformed content.
+        canvas.concat(sk_matrix_from(element.paint.transform));
+        drawChildren(1);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_COMPOSITE: {
+        // A composite paint element has two children, the source and destination of the operation.
+
+        SkPaint blendModePaint;
+        blendModePaint.setBlendMode(sk_blend_mode_from(element.paint.composite.mode));
+
+        SkAutoCanvasRestore acr(&canvas, false);
+
+        // Need to visit the second child first and do savelayers, so manually handle children.
+        DWRITE_PAINT_ELEMENT sourceElement;
+        DWRITE_PAINT_ELEMENT backdropElement;
+
+        HRBM(reader.MoveToFirstChild(&sourceElement), "Could not move to child.");
+        HRBM(reader.MoveToNextSibling(&backdropElement), "Could not move to sibiling.");
+        canvas.saveLayer(nullptr, nullptr);
+        this->drawColorV1Paint(canvas, reader, backdropElement);
+
+        HRBM(reader.MoveToParent(), "Could not move to parent.");
+        HRBM(reader.MoveToFirstChild(&sourceElement), "Could not move to child.");
+        canvas.saveLayer(nullptr, &blendModePaint);
+        this->drawColorV1Paint(canvas, reader, sourceElement);
+
+        HRBM(reader.MoveToParent(), "Could not move to parent.");
+
+        return true;
+    }
+
+    default:
+        return false;
+    }
+}
+
+bool SkScalerContext_DW::drawColorV1Image(const SkGlyph& glyph, SkCanvas& canvas) {
+    DWriteFontTypeface* typeface = this->getDWriteTypeface();
+    IDWriteFontFace7* fontFace = typeface->fDWriteFontFace7/*.get()*/;
+    if (!fontFace) {
+        return false;
+    }
+    UINT32 glyphIndex = glyph.getGlyphID();
+
+    SkTScopedComPtr<IDWritePaintReader> paintReader;
+    HRBM(fontFace->CreatePaintReader(DWRITE_GLYPH_IMAGE_FORMATS_COLR_PAINT_TREE,
+                                     DWRITE_PAINT_FEATURE_LEVEL_COLR_V1,
+                                     &paintReader),
+         "Could not create paint reader.");
+
+    DWRITE_PAINT_ELEMENT paintElement;
+    D2D_RECT_F clipBox;
+    DWRITE_PAINT_ATTRIBUTES attributes;
+    HRBM(paintReader->SetCurrentGlyph(glyphIndex, &paintElement, &clipBox, &attributes),
+         "Could not set current glyph.");
+
+    if (paintElement.paintType == DWRITE_PAINT_TYPE_NONE) {
+        // Does not have paint layers, try another format.
+        return false;
+    }
+
+    // All coordinates (including top level clip) are reported in "em"s (1 == em).
+    // Size up all em units to the current size and transform.
+    // Get glyph paths at render size, divide out the render size to get em units.
+
+    SkMatrix matrix = fSkXform;
+    SkScalar scale = fTextSizeRender;
+    matrix.preScale(scale, scale);
+    if (this->isSubpixel()) {
+        matrix.postTranslate(SkFixedToScalar(glyph.getSubXFixed()),
+                             SkFixedToScalar(glyph.getSubYFixed()));
+    }
+    canvas.concat(matrix);
+
+    if (D2D_RECT_F_is_empty(clipBox)) {
+        // Does not have a clip box
+    } else {
+        canvas.clipRect(sk_rect_from(clipBox));
+    }
+
+    // The DirectWrite interface returns resolved colors if these are provided.
+    // Indexes and alphas are reported but there is no reason to duplicate the color calculation.
+    paintReader->SetTextColor(dw_color_from(SkColor4f::FromColor(fRec.fForegroundColor)));
+    paintReader->SetCustomColorPalette(typeface->fDWPalette.get(), typeface->fPaletteEntryCount);
+
+    return this->drawColorV1Paint(canvas, *paintReader, paintElement);
+}
+
+bool SkScalerContext_DW::generateColorV1Image(const SkGlyph& glyph) {
+    SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
+
+    SkBitmap dstBitmap;
+    // TODO: mark this as sRGB when the blits will be sRGB.
+    dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+                      kN32_SkColorType, kPremul_SkAlphaType),
+                      glyph.rowBytes());
+    dstBitmap.setPixels(glyph.fImage);
+
+    SkCanvas canvas(dstBitmap);
+    if constexpr (kSkShowTextBlitCoverage) {
+        canvas.clear(0x33FF0000);
+    } else {
+        canvas.clear(SK_ColorTRANSPARENT);
+    }
+    canvas.translate(-SkIntToScalar(glyph.fLeft), -SkIntToScalar(glyph.fTop));
+
+    return this->drawColorV1Image(glyph, canvas);
+}
+
+bool SkScalerContext_DW::generateColorV1PaintBounds(
+    SkMatrix* ctm, SkRect* bounds,
+    IDWritePaintReader& reader, DWRITE_PAINT_ELEMENT const & element)
+{
+    // Helper to iterate over the specified number of children.
+    auto boundChildren = [&](UINT32 childCount) -> bool {
+        if (childCount == 0) {
+            return true;
+        }
+        DWRITE_PAINT_ELEMENT childElement;
+        HRB(reader.MoveToFirstChild(&childElement));
+        this->generateColorV1PaintBounds(ctm, bounds, reader, childElement);
+
+        for (uint32_t i = 1; i < childCount; ++i) {
+            HRB(reader.MoveToNextSibling(&childElement));
+            this->generateColorV1PaintBounds(ctm, bounds, reader, childElement);
+        }
+
+        HRB(reader.MoveToParent());
+        return true;
+    };
+
+    SkMatrix restoreMatrix = *ctm;
+    SK_AT_SCOPE_EXIT(*ctm = restoreMatrix);
+
+    switch (element.paintType) {
+    case DWRITE_PAINT_TYPE_NONE:
+        return false;
+
+    case DWRITE_PAINT_TYPE_LAYERS: {
+        // A layers paint element has a variable number of children.
+        return boundChildren(element.paint.layers.childCount);
+    }
+
+    case DWRITE_PAINT_TYPE_SOLID_GLYPH: {
+        // A solid glyph paint element has no children.
+        // glyphIndex, color.value, color.paletteEntryIndex, color.alpha, color.colorAttributes
+
+        SkPath path;
+        SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
+        HRBM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
+            "Could not create geometry to path converter.");
+        UINT16 glyphId = SkTo<UINT16>(element.paint.solidGlyph.glyphIndex);
+        {
+            Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
+            HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+                    SkScalarToFloat(fTextSizeRender),
+                    &glyphId,
+                    nullptr, //advances
+                    nullptr, //offsets
+                    1, //num glyphs
+                    FALSE, //sideways
+                    FALSE, //rtl
+                    geometryToPath.get()),
+                "Could not create glyph outline.");
+        }
+
+        SkMatrix t = *ctm;
+        t.preConcat(SkMatrix::Scale(1.0f / fTextSizeRender, 1.0f / fTextSizeRender));
+        path.transform(t);
+        bounds->join(path.getBounds());
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_SOLID: {
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_LINEAR_GRADIENT: {
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_RADIAL_GRADIENT: {
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_SWEEP_GRADIENT: {
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_GLYPH: {
+        // A glyph paint element has one child, which is the fill for the glyph shape glyphIndex.
+        SkPath path;
+        SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
+        HRBM(SkDWriteGeometrySink::Create(&path, &geometryToPath),
+             "Could not create geometry to path converter.");
+        UINT16 glyphId = SkTo<UINT16>(element.paint.glyph.glyphIndex);
+        {
+            Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
+            HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+                     SkScalarToFloat(fTextSizeRender),
+                     &glyphId,
+                     nullptr, //advances
+                     nullptr, //offsets
+                     1, //num glyphs
+                     FALSE, //sideways
+                     FALSE, //rtl
+                     geometryToPath.get()),
+                 "Could not create glyph outline.");
+        }
+
+        SkMatrix t = *ctm;
+        t.preConcat(SkMatrix::Scale(1.0f / fTextSizeRender, 1.0f / fTextSizeRender));
+        path.transform(t);
+        bounds->join(path.getBounds());
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_COLOR_GLYPH: {
+        // A color glyph paint element has one child, which is the root
+        // of the paint tree for the glyph specified by glyphIndex.
+        auto const& colorGlyph = element.paint.colorGlyph;
+        if (D2D_RECT_F_is_empty(colorGlyph.clipBox)) {
+            // Does not have a clip box
+            return boundChildren(1);
+        }
+        SkRect r = sk_rect_from(colorGlyph.clipBox);
+        ctm->mapRect(r);
+        bounds->join(r);
+        return true;
+    }
+
+    case DWRITE_PAINT_TYPE_TRANSFORM: {
+        // A transform paint element always has one child, which is the transformed content.
+        ctm->preConcat(sk_matrix_from(element.paint.transform));
+        return boundChildren(1);
+    }
+
+    case DWRITE_PAINT_TYPE_COMPOSITE: {
+        // A composite paint element has two children, the source and destination of the operation.
+        return boundChildren(2);
+    }
+
+    default:
+        return false;
+    }
+}
+
+bool SkScalerContext_DW::generateColorV1Metrics(SkGlyph* glyph) {
+    DWriteFontTypeface* typeface = this->getDWriteTypeface();
+    IDWriteFontFace7* fontFace = typeface->fDWriteFontFace7/*.get()*/;
+    if (!fontFace) {
+        return false;
+    }
+    UINT32 glyphIndex = glyph->getGlyphID();
+
+    SkTScopedComPtr<IDWritePaintReader> paintReader;
+    HRESULT hr;
+    // No message on failure here, since this will fail if the font has no color glyphs.
+    hr = fontFace->CreatePaintReader(DWRITE_GLYPH_IMAGE_FORMATS_COLR_PAINT_TREE,
+                                     DWRITE_PAINT_FEATURE_LEVEL_COLR_V1,
+                                     &paintReader);
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    DWRITE_PAINT_ELEMENT paintElement;
+    D2D_RECT_F clipBox;
+    DWRITE_PAINT_ATTRIBUTES attributes;
+    // If the glyph is not color this will succeed but return paintType NONE.
+    HRBM(paintReader->SetCurrentGlyph(glyphIndex, &paintElement, &clipBox, &attributes),
+         "Could not set the current glyph.");
+
+    if (paintElement.paintType == DWRITE_PAINT_TYPE_NONE) {
+        // Does not have paint layers, try another format.
+        return false;
+    }
+
+    // All coordinates (including top level clip) are reported in "em"s (1 == em).
+    // Size up all em units to the current size and transform.
+
+    SkMatrix matrix = fSkXform;
+    SkScalar scale = fTextSizeRender;
+    matrix.preScale(scale, scale);
+    if (this->isSubpixel()) {
+        matrix.postTranslate(SkFixedToScalar(glyph->getSubXFixed()),
+                             SkFixedToScalar(glyph->getSubYFixed()));
+    }
+
+    SkRect r;
+    if (D2D_RECT_F_is_empty(clipBox)) {
+        // Does not have a clip box.
+        r = SkRect::MakeEmpty();
+        if (!this->generateColorV1PaintBounds(&matrix, &r, *paintReader, paintElement)) {
+            return false;
+        }
+    } else {
+        r = sk_rect_from(clipBox);
+        matrix.mapRect(&r);
+    }
+    SetGlyphBounds(glyph, r);
+    return true;
+}
+
+#else  // DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
+
+bool SkScalerContext_DW::generateColorV1Metrics(SkGlyph*) { return false; }
+bool SkScalerContext_DW::generateColorV1Image(const SkGlyph&) { return false; }
+bool SkScalerContext_DW::drawColorV1Image(const SkGlyph&, SkCanvas&) { return false; }
+
+#endif  // DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
+
 bool SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;
@@ -758,6 +1783,13 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
 
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
     if (typeface->fIsColorFont) {
+        if (generateColorV1Metrics(glyph)) {
+            glyph->fMaskFormat = SkMask::kARGB32_Format;
+            glyph->fScalerContextBits |= ScalerContextBits::COLRv1;
+            glyph->setPath(alloc, nullptr, false);
+            return;
+        }
+
         if (generateColorMetrics(glyph)) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
             glyph->fScalerContextBits |= ScalerContextBits::COLR;
@@ -1370,6 +2402,8 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
         format == ScalerContextBits::DW_1)
     {
         this->generateDWImage(glyph);
+    } else if (format == ScalerContextBits::COLRv1) {
+        this->generateColorV1Image(glyph);
     } else if (format == ScalerContextBits::COLR) {
         this->generateColorImage(glyph);
     } else if (format == ScalerContextBits::SVG) {
@@ -1443,6 +2477,13 @@ sk_sp<SkDrawable> SkScalerContext_DW::generateDrawable(const SkGlyph& glyph) {
             }
         }
     };
+    struct COLRv1GlyphDrawable : public GlyphDrawable {
+        using GlyphDrawable::GlyphDrawable;
+        void onDraw(SkCanvas* canvas) override {
+            this->maybeShowTextBlitCoverage(canvas);
+            fSelf->drawColorV1Image(fGlyph, *canvas);
+        }
+    };
     struct COLRGlyphDrawable : public GlyphDrawable {
         using GlyphDrawable::GlyphDrawable;
         void onDraw(SkCanvas* canvas) override {
@@ -1458,6 +2499,9 @@ sk_sp<SkDrawable> SkScalerContext_DW::generateDrawable(const SkGlyph& glyph) {
         }
     };
     ScalerContextBits::value_type format = glyph.fScalerContextBits;
+    if (format == ScalerContextBits::COLRv1) {
+        return sk_sp<SkDrawable>(new COLRv1GlyphDrawable(this, glyph));
+    }
     if (format == ScalerContextBits::COLR) {
         return sk_sp<SkDrawable>(new COLRGlyphDrawable(this, glyph));
     }

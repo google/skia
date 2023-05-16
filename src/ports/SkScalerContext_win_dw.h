@@ -16,9 +16,13 @@
 
 #include <dwrite.h>
 #include <dwrite_2.h>
+#include <dwrite_3.h>
 
 class SkGlyph;
 class SkDescriptor;
+
+interface IDWritePaintReader;
+struct DWRITE_PAINT_ELEMENT;
 
 class SkScalerContext_DW : public SkScalerContext {
 public:
@@ -38,13 +42,14 @@ protected:
 private:
     struct ScalerContextBits {
         using value_type = decltype(SkGlyph::fScalerContextBits);
-        static const constexpr value_type NONE = 0;
-        static const constexpr value_type DW   = 1;
-        static const constexpr value_type DW_1 = 2;
-        static const constexpr value_type PNG  = 3;
-        static const constexpr value_type SVG  = 4;
-        static const constexpr value_type COLR = 5;
-        static const constexpr value_type PATH = 6;
+        static const constexpr value_type NONE   = 0;
+        static const constexpr value_type DW     = 1;
+        static const constexpr value_type DW_1   = 2;
+        static const constexpr value_type PNG    = 3;
+        static const constexpr value_type SVG    = 4;
+        static const constexpr value_type COLR   = 5;
+        static const constexpr value_type COLRv1 = 6;
+        static const constexpr value_type PATH   = 7;
     };
 
     static void BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph);
@@ -66,6 +71,12 @@ private:
     DWriteFontTypeface* getDWriteTypeface() {
         return static_cast<DWriteFontTypeface*>(this->getTypeface());
     }
+
+    bool generateColorV1PaintBounds(SkMatrix*, SkRect*, IDWritePaintReader&, DWRITE_PAINT_ELEMENT const &);
+    bool generateColorV1Metrics(SkGlyph*);
+    bool generateColorV1Image(const SkGlyph&);
+    bool drawColorV1Paint(SkCanvas&, IDWritePaintReader&, DWRITE_PAINT_ELEMENT const &);
+    bool drawColorV1Image(const SkGlyph&, SkCanvas&);
 
     bool getColorGlyphRun(const SkGlyph&, IDWriteColorGlyphRunEnumerator**);
     bool generateColorMetrics(SkGlyph*);

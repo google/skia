@@ -62,11 +62,13 @@ HRESULT DWriteFontTypeface::initializePalette() {
         "Could not retrieve palette entries.");
 
     fPalette.reset(new SkColor[dwPaletteEntryCount]);
+    fDWPalette.reset(new DWRITE_COLOR_F[dwPaletteEntryCount]);
     for (UINT32 i = 0; i < dwPaletteEntryCount; ++i) {
         fPalette[i] = SkColorSetARGB(sk_float_round2int(dwPaletteEntry[i].a * 255),
                                      sk_float_round2int(dwPaletteEntry[i].r * 255),
                                      sk_float_round2int(dwPaletteEntry[i].g * 255),
                                      sk_float_round2int(dwPaletteEntry[i].b * 255));
+        fDWPalette[i] = dwPaletteEntry[i];
     }
 
     for (int i = 0; i < fRequestedPalette.overrideCount; ++i) {
@@ -75,6 +77,12 @@ HRESULT DWriteFontTypeface::initializePalette() {
             SkTo<UINT32>(paletteOverride.index) < dwPaletteEntryCount)
         {
             fPalette[paletteOverride.index] = paletteOverride.color;
+            fDWPalette[paletteOverride.index] = DWRITE_COLOR_F{
+                {(FLOAT)SkColorGetR(paletteOverride.color)},
+                {(FLOAT)SkColorGetG(paletteOverride.color)},
+                {(FLOAT)SkColorGetB(paletteOverride.color)},
+                {(FLOAT)SkColorGetA(paletteOverride.color)},
+            };
         }
     }
     fPaletteEntryCount = dwPaletteEntryCount;
@@ -116,6 +124,11 @@ DWriteFontTypeface::DWriteFontTypeface(const SkFontStyle& style,
     if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace4))) {
         SkASSERT_RELEASE(nullptr == fDWriteFontFace4.get());
     }
+#if DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
+    if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace7))) {
+        SkASSERT_RELEASE(nullptr == fDWriteFontFace7/*.get()*/);
+    }
+#endif
     if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
         SkASSERT_RELEASE(nullptr == fFactory2.get());
     }
@@ -128,7 +141,13 @@ DWriteFontTypeface::DWriteFontTypeface(const SkFontStyle& style,
     this->initializePalette();
 }
 
-DWriteFontTypeface::~DWriteFontTypeface() = default;
+DWriteFontTypeface::~DWriteFontTypeface() {
+#if DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
+    if (fDWriteFontFace7) {
+        fDWriteFontFace7->Release();
+    }
+#endif
+}
 
 DWriteFontTypeface::Loaders::~Loaders() {
     // Don't return if any fail, just keep going to free up as much as possible.
