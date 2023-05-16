@@ -104,10 +104,10 @@ std::unique_ptr<Statement> VarDeclaration::clone() const {
     // the moment. We instead just keep track of whether a VarDeclaration is a clone so we can
     // handle its cleanup properly. This allows clone() to work in the simple case that a
     // VarDeclaration's clone does not outlive the original, which is adequate for testing. Since
-    // this leaves a sharp  edge in place - destroying the original could cause a use-after-free in
+    // this leaves a sharp edge in place - destroying the original could cause a use-after-free in
     // some circumstances - we also disable cloning altogether unless the
     // fAllowVarDeclarationCloneForTesting ProgramSetting is enabled.
-    if (ThreadContext::GetProgramConfig()->fSettings.fAllowVarDeclarationCloneForTesting) {
+    if (ThreadContext::Context().fConfig->fSettings.fAllowVarDeclarationCloneForTesting) {
         return std::make_unique<VarDeclaration>(this->var(),
                                                 &this->baseType(),
                                                 fArraySize,

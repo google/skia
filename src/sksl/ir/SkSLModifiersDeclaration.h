@@ -35,11 +35,11 @@ public:
 
     static std::unique_ptr<ModifiersDeclaration> Convert(const Context& context,
                                                          Position pos,
-                                                         const Modifiers* fModifiers);
+                                                         const Modifiers& modifiers);
 
     static std::unique_ptr<ModifiersDeclaration> Make(const Context& context,
                                                       Position pos,
-                                                      const Modifiers* fModifiers);
+                                                      const Modifiers& modifiers);
 
     const Modifiers& modifiers() const {
         return *fModifiers;

@@ -13,6 +13,7 @@
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
@@ -397,7 +398,7 @@ void Parser::extensionDirective(Position start) {
     }
     // We expect a newline immediately after `#extension name : behavior`.
     if (this->expectNewline()) {
-        std::unique_ptr<SkSL::Extension> ext = Extension::Convert(ThreadContext::Context(),
+        std::unique_ptr<SkSL::Extension> ext = Extension::Convert(fCompiler.context(),
                                                                   this->rangeFrom(start),
                                                                   this->text(name),
                                                                   this->text(behavior));
@@ -421,10 +422,10 @@ void Parser::versionDirective(Position start, bool allowVersion) {
     }
     switch (version) {
         case 100:
-            ThreadContext::GetProgramConfig()->fRequiredSkSLVersion = Version::k100;
+            fCompiler.context().fConfig->fRequiredSkSLVersion = Version::k100;
             break;
         case 300:
-            ThreadContext::GetProgramConfig()->fRequiredSkSLVersion = Version::k300;
+            fCompiler.context().fConfig->fRequiredSkSLVersion = Version::k300;
             break;
         default:
             this->error(start, "unsupported version number");
@@ -454,11 +455,9 @@ void Parser::directive(bool allowVersion) {
 }
 
 bool Parser::modifiersDeclarationEnd(const dsl::DSLModifiers& mods) {
-    std::unique_ptr<ModifiersDeclaration> decl = ModifiersDeclaration::Convert(
-            ThreadContext::Context(),
-            mods.fPosition,
-            ThreadContext::Modifiers(mods.fModifiers));
-
+    std::unique_ptr<ModifiersDeclaration> decl = ModifiersDeclaration::Convert(fCompiler.context(),
+                                                                               mods.fPosition,
+                                                                               mods.fModifiers);
     if (!decl) {
         return false;
     }
@@ -819,11 +818,10 @@ DSLType Parser::structDeclaration() {
             return DSLType(nullptr);
         }
     }
-    std::unique_ptr<SkSL::StructDefinition> def = StructDefinition::Convert(
-                ThreadContext::Context(),
-                this->rangeFrom(start),
-                this->text(name),
-                std::move(fields));
+    std::unique_ptr<SkSL::StructDefinition> def = StructDefinition::Convert(fCompiler.context(),
+                                                                            this->rangeFrom(start),
+                                                                            this->text(name),
+                                                                            std::move(fields));
     if (!def) {
         return DSLType(nullptr);
     }
@@ -1166,7 +1164,7 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
 
-    if (std::unique_ptr<SkSL::InterfaceBlock> ib = InterfaceBlock::Convert(ThreadContext::Context(),
+    if (std::unique_ptr<SkSL::InterfaceBlock> ib = InterfaceBlock::Convert(fCompiler.context(),
                                                                            this->position(typeName),
                                                                            modifiers.fModifiers,
                                                                            modifiers.fPosition,
@@ -1208,7 +1206,7 @@ DSLStatement Parser::ifStatement() {
         }
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(IfStatement::Convert(ThreadContext::Context(),
+    return DSLStatement(IfStatement::Convert(fCompiler.context(),
                                              pos,
                                              test.release(),
                                              ifTrue.release(),
@@ -1242,7 +1240,7 @@ DSLStatement Parser::doStatement() {
         return {};
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(DoStatement::Convert(ThreadContext::Context(), pos,
+    return DSLStatement(DoStatement::Convert(fCompiler.context(), pos,
                                              statement.release(), test.release()), pos);
 }
 
@@ -1267,7 +1265,7 @@ DSLStatement Parser::whileStatement() {
         return {};
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(ForStatement::ConvertWhile(ThreadContext::Context(), pos,
+    return DSLStatement(ForStatement::ConvertWhile(fCompiler.context(), pos,
                                                    test.release(),
                                                    statement.release()), pos);
 }
@@ -1346,7 +1344,7 @@ DSLStatement Parser::switchStatement() {
         return {};
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(SwitchStatement::Convert(ThreadContext::Context(), pos,
+    return DSLStatement(SwitchStatement::Convert(fCompiler.context(), pos,
                                                  value.release(),
                                                  std::move(values),
                                                  std::move(caseBlocks)), pos);
@@ -1414,7 +1412,7 @@ dsl::DSLStatement Parser::forStatement() {
             range_of_at_least_one_char(firstSemicolonOffset + 1, secondSemicolon.fOffset),
             range_of_at_least_one_char(secondSemicolon.fOffset + 1, rparen.fOffset),
     };
-    return DSLStatement(ForStatement::Convert(ThreadContext::Context(), pos, loopPositions,
+    return DSLStatement(ForStatement::Convert(fCompiler.context(), pos, loopPositions,
                                               initializer.releaseIfPossible(),
                                               test.releaseIfPossible(),
                                               next.releaseIfPossible(),
@@ -1476,7 +1474,7 @@ DSLStatement Parser::discardStatement() {
         return {};
     }
     Position pos = this->position(start);
-    return DSLStatement(SkSL::DiscardStatement::Convert(ThreadContext::Context(), pos), pos);
+    return DSLStatement(SkSL::DiscardStatement::Convert(fCompiler.context(), pos), pos);
 }
 
 /* LBRACE statement* RBRACE */
@@ -1543,7 +1541,7 @@ bool Parser::operatorRight(Parser::AutoDepth& depth,
         return false;
     }
     Position pos = expr.position().rangeThrough(right.position());
-    expr = DSLExpression(BinaryExpression::Convert(ThreadContext::Context(), pos,
+    expr = DSLExpression(BinaryExpression::Convert(fCompiler.context(), pos,
                                                    expr.release(), op, right.release()), pos);
     return true;
 }
@@ -1629,7 +1627,7 @@ DSLExpression Parser::ternaryExpression() {
         return {};
     }
     Position pos = base.position().rangeThrough(falseExpr.position());
-    return DSLExpression(TernaryExpression::Convert(ThreadContext::Context(), pos, base.release(),
+    return DSLExpression(TernaryExpression::Convert(fCompiler.context(), pos, base.release(),
                                                     trueExpr.release(), falseExpr.release()), pos);
 }
 
@@ -1855,7 +1853,7 @@ DSLExpression Parser::unaryExpression() {
         return {};
     }
     Position pos = Position::Range(start.fOffset, expr.position().endOffset());
-    return DSLExpression(PrefixExpression::Convert(ThreadContext::Context(),
+    return DSLExpression(PrefixExpression::Convert(fCompiler.context(),
                                                    pos, op, expr.release()), pos);
 }
 
@@ -1901,7 +1899,7 @@ DSLExpression Parser::swizzle(Position pos,
     SkASSERT(swizzleMask.length() > 0);
     if (!base.type().isVector() && !base.type().isScalar()) {
         return DSLExpression(
-                FieldAccess::Convert(ThreadContext::Context(), pos, base.release(), swizzleMask),
+                FieldAccess::Convert(fCompiler.context(), pos, base.release(), swizzleMask),
                 pos);
     }
     int length = swizzleMask.length();
@@ -1945,12 +1943,12 @@ DSLExpression Parser::swizzle(Position pos,
     }
     SkASSERT(length >= 1 && length <= 4);
     components.resize(length);
-    return DSLExpression(Swizzle::Convert(ThreadContext::Context(), pos, maskPos,
+    return DSLExpression(Swizzle::Convert(fCompiler.context(), pos, maskPos,
                                           base.release(), std::move(components)), pos);
 }
 
 dsl::DSLExpression Parser::call(Position pos, dsl::DSLExpression base, ExpressionArray args) {
-    return DSLExpression(SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, base.release(),
+    return DSLExpression(SkSL::FunctionCall::Convert(fCompiler.context(), pos, base.release(),
                                                      std::move(args)), pos);
 }
 
@@ -1975,7 +1973,7 @@ DSLExpression Parser::suffix(DSLExpression base) {
             this->expect(Token::Kind::TK_RBRACKET, "']' to complete array access expression");
 
             Position pos = this->rangeFrom(base.position());
-            return DSLExpression(IndexExpression::Convert(ThreadContext::Context(), pos,
+            return DSLExpression(IndexExpression::Convert(fCompiler.context(), pos,
                                                           base.release(), index.release()), pos);
         }
         case Token::Kind::TK_DOT: {
@@ -2038,7 +2036,7 @@ DSLExpression Parser::suffix(DSLExpression base) {
                                         : Operator::Kind::MINUSMINUS;
             Position pos = this->rangeFrom(base.position());
             return DSLExpression(
-                    PostfixExpression::Convert(ThreadContext::Context(), pos, base.release(), op),
+                    PostfixExpression::Convert(fCompiler.context(), pos, base.release(), op),
                     pos);
         }
         default: {
@@ -2068,7 +2066,7 @@ DSLExpression Parser::term() {
                 i = 0;
             }
             Position pos = this->position(t);
-            return DSLExpression(SkSL::Literal::MakeInt(ThreadContext::Context(), pos, i), pos);
+            return DSLExpression(SkSL::Literal::MakeInt(fCompiler.context(), pos, i), pos);
         }
         case Token::Kind::TK_FLOAT_LITERAL: {
             SKSL_FLOAT f;
@@ -2076,14 +2074,14 @@ DSLExpression Parser::term() {
                 f = 0.0f;
             }
             Position pos = this->position(t);
-            return DSLExpression(SkSL::Literal::MakeFloat(ThreadContext::Context(), pos, f), pos);
+            return DSLExpression(SkSL::Literal::MakeFloat(fCompiler.context(), pos, f), pos);
         }
         case Token::Kind::TK_TRUE_LITERAL: // fall through
         case Token::Kind::TK_FALSE_LITERAL: {
             bool b;
             SkAssertResult(this->boolLiteral(&b));
             Position pos = this->position(t);
-            return DSLExpression(SkSL::Literal::MakeBool(ThreadContext::Context(), pos, b), pos);
+            return DSLExpression(SkSL::Literal::MakeBool(fCompiler.context(), pos, b), pos);
         }
         case Token::Kind::TK_LPAREN: {
             this->nextToken();

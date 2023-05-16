@@ -75,10 +75,6 @@ SkSL::Context& ThreadContext::Context() {
     return Compiler().context();
 }
 
-const SkSL::Modifiers* ThreadContext::Modifiers(const SkSL::Modifiers& modifiers) {
-    return Context().fModifiersPool->add(modifiers);
-}
-
 ThreadContext::RTAdjustData& ThreadContext::RTAdjustState() {
     return Instance().fRTAdjust;
 }
