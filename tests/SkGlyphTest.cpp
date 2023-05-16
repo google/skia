@@ -404,7 +404,7 @@ static sk_sp<SkDrawable> make_nested_sksl_drawable() {
     SkCanvas* canvas = recorder.beginRecording(rect);
 
     auto sksl_drawable = make_sksl_drawable();
-    sk_sp<SkPicture> sksl_picture{sksl_drawable->newPictureSnapshot()};
+    sk_sp<SkPicture> sksl_picture = sksl_drawable->makePictureSnapshot();
 
     // We need to ensure that the op count of our picture is larger than this threshold, so we
     // actually get a nested (embedded) picture, rather than just playing the ops back.

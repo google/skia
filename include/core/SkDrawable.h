@@ -99,13 +99,6 @@ public:
     sk_sp<SkPicture> makePictureSnapshot();
 
     /**
-     * Returns an SkPicture with the contents of this SkDrawable.
-     *
-     * DEPRECATED: Replace usage with makePictureSnapshot()
-     */
-    SkPicture* newPictureSnapshot();
-
-    /**
      *  Return a unique value for this instance. If two calls to this return the same value,
      *  it is presumed that calling the draw() method will render the same thing as well.
      *

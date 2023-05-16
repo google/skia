@@ -62,10 +62,6 @@ sk_sp<SkPicture> SkDrawable::makePictureSnapshot() {
     return this->onMakePictureSnapshot();
 }
 
-SkPicture* SkDrawable::newPictureSnapshot() {
-    return this->makePictureSnapshot().release();
-}
-
 uint32_t SkDrawable::getGenerationID() {
     if (0 == fGenerationID) {
         fGenerationID = next_generation_id();
