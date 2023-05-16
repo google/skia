@@ -21,6 +21,7 @@
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLType.h"
+#include "src/sksl/dsl/DSLVar.h"  // IWYU pragma: keep
 #include "src/sksl/ir/SkSLLayout.h"
 
 #include <cstddef>
@@ -38,12 +39,6 @@ class SymbolTable;
 enum class ProgramKind : int8_t;
 struct Module;
 struct Program;
-
-namespace dsl {
-struct DSLGlobalVar;
-struct DSLParameter;
-struct DSLVarBase;
-}
 
 /**
  * Consumes .sksl text and invokes DSL functions to instantiate the program.

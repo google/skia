@@ -8,27 +8,22 @@
 #ifndef SKSL_DSL_CORE
 #define SKSL_DSL_CORE
 
-#include "include/private/base/SkTArray.h"
+#include "src/sksl/SkSLPosition.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLProgramKind.h"
-#include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLVar.h"  // IWYU pragma: keep
 
 #include <memory>
 #include <string>
-#include <string_view>
 
 namespace SkSL {
 
 class Compiler;
 class ErrorReporter;
-struct Field;
-class Position;
 struct Program;
 struct ProgramSettings;
 
 namespace dsl {
 
-struct DSLModifiers;
+struct DSLGlobalVar;
 
 /**
  * Starts DSL output on the current thread using the specified compiler. This must be called
@@ -67,10 +62,6 @@ void SetErrorReporter(ErrorReporter* errorReporter);
  * Declares a global variable.
  */
 void Declare(DSLGlobalVar& var, Position pos = {});
-
-DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
-                             skia_private::TArray<Field> fields, std::string_view varName = "",
-                             int arraySize = 0, Position pos = {});
 
 } // namespace dsl
 

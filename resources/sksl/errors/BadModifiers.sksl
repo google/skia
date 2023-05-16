@@ -36,12 +36,10 @@ type 'float' does not support qualifier 'readonly writeonly'
 'inline' is not permitted here
 'noinline' is not permitted here
 'buffer' is not permitted here
-'const' variables must be initialized
 'in uniform' variables not permitted
 'readonly' and 'writeonly' qualifiers cannot be combined
 'uniform buffer' variables not permitted
 '$pure' is not permitted here
 'inline' is not permitted here
 'noinline' is not permitted here
-'const' variables must be initialized
 *%%*/

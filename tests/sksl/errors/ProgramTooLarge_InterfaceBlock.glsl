@@ -1,7 +1,6 @@
 ### Compilation failed:
 
-error: array size is too large
-error: 1: interface block type is not valid
+error: 1: array size is too large
 MyInterfaceBlock {
 ^^^^^^^^^^^^^^^^
-2 errors
+1 error

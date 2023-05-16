@@ -8,23 +8,18 @@
 #include "src/sksl/dsl/DSLCore.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLModifiersPool.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include <type_traits>
@@ -33,11 +28,7 @@
 
 using namespace skia_private;
 
-namespace SkSL {
-
-class Variable;
-
-namespace dsl {
+namespace SkSL::dsl {
 
 void Start(SkSL::Compiler* compiler, ProgramKind kind) {
     Start(compiler, kind, ProgramSettings());
@@ -109,36 +100,6 @@ public:
                     std::make_unique<SkSL::GlobalVarDeclaration>(std::move(stmt)));
         }
     }
-
-    static DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
-                                        TArray<Field> fields, std::string_view varName,
-                                        int arraySize, Position pos) {
-        // Build a struct type corresponding to the passed-in fields and array size.
-        const Context& context = ThreadContext::Context();
-        std::unique_ptr<Type> ownedType = Type::MakeStructType(context, pos, typeName,
-                                                               std::move(fields),
-                                                               /*interfaceBlock=*/true);
-        const SkSL::Type* type = context.fSymbolTable->add(std::move(ownedType));
-        if (arraySize > 0) {
-            type = &Array(type, arraySize).skslType();
-        }
-
-        // Create a global variable to attach our interface block to. (The variable doesn't actually
-        // get a program element, though; the interface block does instead.)
-        DSLGlobalVar var(modifiers, type, varName, DSLExpression(), pos);
-        if (SkSL::Variable* skslVar = DSLWriter::Var(var)) {
-            // Add an InterfaceBlock program element to the program.
-            if (std::unique_ptr<SkSL::InterfaceBlock> intf =
-                        SkSL::InterfaceBlock::Convert(context, pos, skslVar)) {
-                ThreadContext::ProgramElements().push_back(std::move(intf));
-                // Return a VariableReference to the global variable tied to the interface block.
-                return DSLExpression(var);
-            }
-        }
-
-        // The InterfaceBlock couldn't be created; return poison.
-        return DSLExpression(nullptr);
-    }
 };
 
 std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source) {
@@ -161,12 +122,4 @@ void Declare(DSLGlobalVar& var, Position pos) {
     DSLCore::Declare(var, pos);
 }
 
-DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
-                             TArray<Field> fields, std::string_view varName,
-                             int arraySize, Position pos) {
-    return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
-}
-
-} // namespace dsl
-
-} // namespace SkSL
+}  // namespace SkSL::dsl

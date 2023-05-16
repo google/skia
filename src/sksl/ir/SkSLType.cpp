@@ -1081,7 +1081,7 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     const ProgramSettings& settings = context.fConfig->fSettings;
     if (!expr->coercionCost(*this).isPossible(settings.fAllowNarrowingConversions)) {
         context.fErrors->error(pos, "expected '" + this->displayName() + "', but found '" +
-                expr->type().displayName() + "'");
+                                    expr->type().displayName() + "'");
         return nullptr;
     }
 

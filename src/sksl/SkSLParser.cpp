@@ -33,6 +33,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiers.h"
@@ -1163,10 +1164,20 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
             this->expect(Token::Kind::TK_RBRACKET, "']'");
         }
     }
-    dsl::InterfaceBlock(modifiers, this->text(typeName), std::move(fields), instanceName,
-                        size, this->position(typeName));
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    return true;
+
+    if (std::unique_ptr<SkSL::InterfaceBlock> ib = InterfaceBlock::Convert(ThreadContext::Context(),
+                                                                           this->position(typeName),
+                                                                           modifiers.fModifiers,
+                                                                           modifiers.fPosition,
+                                                                           this->text(typeName),
+                                                                           std::move(fields),
+                                                                           instanceName,
+                                                                           size)) {
+        ThreadContext::ProgramElements().push_back(std::move(ib));
+        return true;
+    }
+    return false;
 }
 
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */

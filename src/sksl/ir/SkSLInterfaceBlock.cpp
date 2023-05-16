@@ -17,9 +17,12 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include <cstddef>
 #include <cstdint>
+
+using namespace skia_private;
 
 namespace SkSL {
 
@@ -45,19 +48,19 @@ static std::optional<int> find_rt_adjust_index(SkSpan<const Field> fields) {
 
 std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
                                                         Position pos,
-                                                        Variable* variable) {
+                                                        const SkSL::Modifiers& modifiers,
+                                                        Position modifiersPos,
+                                                        std::string_view typeName,
+                                                        TArray<Field> fields,
+                                                        std::string_view varName,
+                                                        int arraySize) {
     if (SkSL::ProgramKind kind = context.fConfig->fKind; !ProgramConfig::IsFragment(kind) &&
                                                          !ProgramConfig::IsVertex(kind) &&
                                                          !ProgramConfig::IsCompute(kind)) {
         context.fErrors->error(pos, "interface blocks are not allowed in this kind of program");
         return nullptr;
     }
-    if (!variable->type().componentType().isInterfaceBlock()) {
-        context.fErrors->error(pos, "interface block type is not valid");
-        return nullptr;
-    }
     // Find sk_RTAdjust and error out if it's not of type `float4`.
-    SkSpan<const Field> fields = variable->type().componentType().fields();
     std::optional<int> rtAdjustIndex = find_rt_adjust_index(fields);
     if (rtAdjustIndex.has_value()) {
         const Field& rtAdjustField = fields[*rtAdjustIndex];
@@ -66,7 +69,40 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
             return nullptr;
         }
     }
-    return InterfaceBlock::Make(context, pos, variable, rtAdjustIndex);
+    // Build a struct type corresponding to the passed-in fields.
+    const Type* type = context.fSymbolTable->add(Type::MakeStructType(context,
+                                                                      pos,
+                                                                      typeName,
+                                                                      std::move(fields),
+                                                                      /*interfaceBlock=*/true));
+    // Array-ify the type if necessary.
+    if (arraySize > 0) {
+        arraySize = type->convertArraySize(context, pos, pos, arraySize);
+        if (!arraySize) {
+            return nullptr;
+        }
+        type = context.fSymbolTable->addArrayDimension(type, arraySize);
+    }
+    // Error-check the interface block as if it were being declared as a global variable.
+    VarDeclaration::ErrorCheck(context,
+                               pos,
+                               modifiersPos,
+                               modifiers,
+                               type,
+                               VariableStorage::kGlobal);
+    // Create a global variable for the Interface Block.
+    std::unique_ptr<SkSL::Variable> var = SkSL::Variable::Convert(context,
+                                                                  pos,
+                                                                  modifiersPos,
+                                                                  modifiers,
+                                                                  type,
+                                                                  pos,
+                                                                  varName,
+                                                                  VariableStorage::kGlobal);
+    return InterfaceBlock::Make(context,
+                                pos,
+                                context.fSymbolTable->takeOwnershipOfSymbol(std::move(var)),
+                                rtAdjustIndex);
 }
 
 std::unique_ptr<InterfaceBlock> InterfaceBlock::Make(const Context& context,

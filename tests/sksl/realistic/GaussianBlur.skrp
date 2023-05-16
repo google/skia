@@ -3,12 +3,6 @@
 error: 1: invalid type
 layout(binding=0) uniform sampler2D uTextureSampler_0_Stage1;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-error: 2: variables of type 'uniformBuffer' may not be uniform
-layout (binding=0) uniform uniformBuffer
-                           ^^^^^^^^^^^^^
-error: 2: layout qualifier 'binding' is not permitted here
-layout (binding=0) uniform uniformBuffer
-^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 2: interface blocks are not allowed in this kind of program
 layout (binding=0) uniform uniformBuffer
                            ^^^^^^^^^^^^^
@@ -354,4 +348,4 @@ void main()
 error: 133: unknown identifier 'sk_FragColor'
         sk_FragColor = output_Stage1 * outputCoverage_Stage0;
         ^^^^^^^^^^^^
-118 errors
+116 errors
