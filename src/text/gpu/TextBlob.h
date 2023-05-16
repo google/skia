@@ -151,14 +151,11 @@ private:
     Key fKey;
 };
 
-}  // namespace sktext::gpu
-
-namespace skgpu::ganesh {
 sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
                                   const sktext::GlyphRunList& glyphRunList,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint,
                                   SkStrikeDeviceInfo strikeDeviceInfo,
                                   sktext::StrikeForGPUCacheInterface* strikeCache);
-}  // namespace skgpu::ganesh
+}  // namespace sktext::gpu
 #endif  // sktext_gpu_TextBlob_DEFINED

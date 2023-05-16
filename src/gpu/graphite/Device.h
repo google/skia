@@ -218,6 +218,12 @@ private:
                          const SkPaint& paint,
                          sk_sp<SkRefCnt> subRunStorage);
 
+    sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
+                                                       const SkPaint& initialPaint,
+                                                       const SkPaint& drawingPaint) override;
+
+    void drawSlug(SkCanvas*, const sktext::gpu::Slug* slug, const SkPaint& drawingPaint) override;
+
     // Returns the Renderer to draw the shape in the given style. If SkStrokeRec is a
     // stroke-and-fill, this returns the Renderer used for the fill portion and it can be assumed
     // that Renderer::TessellatedStrokes() will be used for the stroke portion.
