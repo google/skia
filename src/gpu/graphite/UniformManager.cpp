@@ -616,6 +616,11 @@ void UniformManager::write(const SkPoint& point) {
     this->write(kType, &point);
 }
 
+void UniformManager::write(const SkPoint3& point3) {
+    static constexpr SkSLType kType = SkSLType::kFloat3;
+    this->write(kType, &point3);
+}
+
 void UniformManager::write(float f) {
     static constexpr SkSLType kType = SkSLType::kFloat;
     this->write(kType, &f);
@@ -659,6 +664,11 @@ void UniformManager::writeHalf(float f) {
 void UniformManager::writeHalf(const SkMatrix& mat) {
     static constexpr SkSLType kType = SkSLType::kHalf3x3;
     this->write(kType, &mat);
+}
+
+void UniformManager::writeHalf(const SkColor4f& unpremulColor) {
+    static constexpr SkSLType kType = SkSLType::kHalf4;
+    this->write(kType, &unpremulColor);
 }
 
 void UniformManager::writeHalfArray(SkSpan<const float> arr) {

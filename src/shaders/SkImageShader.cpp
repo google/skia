@@ -19,6 +19,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/core/SkYUVMath.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkLocalMatrixShader.h"
@@ -28,13 +29,14 @@
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/Image_YUVA_Graphite.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/TextureProxyView.h"
-
+#include "src/gpu/graphite/YUVATextureProxies.h"
 
 static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swizzle& swizzle) {
     if (swizzle == skgpu::Swizzle::RGBA()) {
@@ -424,6 +426,14 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
         builder->endBlock();
         return;
     }
+    if (as_IB(imageToDraw)->isYUVA()) {
+        return this->addYUVImageToKey(keyContext,
+                                      builder,
+                                      gatherer,
+                                      std::move(imageToDraw),
+                                      newSampling);
+    }
+
     skgpu::Mipmapped mipmapped = (newSampling.mipmap != SkMipmapMode::kNone)
                                      ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
 
@@ -468,6 +478,63 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
     }
 
     ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+    builder->endBlock();
+}
+
+void SkImageShader::addYUVImageToKey(const skgpu::graphite::KeyContext& keyContext,
+                                     skgpu::graphite::PaintParamsKeyBuilder* builder,
+                                     skgpu::graphite::PipelineDataGatherer* gatherer,
+                                     sk_sp<SkImage> imageToDraw,
+                                     SkSamplingOptions sampling) const {
+    using namespace skgpu::graphite;
+
+    SkASSERT(!imageToDraw->isAlphaOnly());
+    const YUVATextureProxies& yuvaProxies =
+            static_cast<Image_YUVA*>(imageToDraw.get())->yuvaProxies();
+    const SkYUVAInfo& yuvaInfo = yuvaProxies.yuvaInfo();
+
+    YUVImageShaderBlock::ImageData imgData(sampling, fTileModeX, fTileModeY, fSubset);
+    imgData.fImgSize = { (float)imageToDraw->width(), (float)imageToDraw->height() };
+    int textureIndex = 0;
+    for (int i = 0; i < 4; ++i) {
+        memset(&imgData.fChannelSelect[i], 0, sizeof(SkColor4f));
+    }
+    for (int plane = 0; plane < yuvaProxies.numPlanes(); ++plane) {
+        TextureProxyView view = yuvaProxies.makeView(plane);
+        for (int i = 0; i < yuvaInfo.numChannelsInPlane(plane); ++i) {
+            imgData.fTextureProxies[textureIndex] = view.refProxy();
+            auto [yuvPlane, yuvChannel] = yuvaProxies.yuvaLocations()[textureIndex];
+            // TODO: swizzle this based on readSwizzle
+            imgData.fChannelSelect[textureIndex][static_cast<int>(yuvChannel)] = 1.0f;
+            textureIndex++;
+        }
+    }
+    for (; textureIndex < 4; ++textureIndex) {
+        imgData.fTextureProxies[textureIndex] = imgData.fTextureProxies[0];
+    }
+    float yuvM[20];
+    SkColorMatrix_YUV2RGB(yuvaProxies.yuvaInfo().yuvColorSpace(), yuvM);
+    // We drop the fourth column entirely since the transformation
+    // should not depend on alpha. The fifth column is sent as a separate
+    // vector. The fourth row is also dropped entirely because alpha should
+    // never be modified.
+    SkASSERT(yuvM[3] == 0 && yuvM[8] == 0 && yuvM[13] == 0 && yuvM[18] == 1);
+    SkASSERT(yuvM[15] == 0 && yuvM[16] == 0 && yuvM[17] == 0 && yuvM[19] == 0);
+    imgData.fYUVtoRGBMatrix.setAll(
+        yuvM[ 0], yuvM[ 1], yuvM[ 2],
+        yuvM[ 5], yuvM[ 6], yuvM[ 7],
+        yuvM[10], yuvM[11], yuvM[12]
+    );
+    imgData.fYUVtoRGBTranslate = {yuvM[4], yuvM[9], yuvM[14]};
+
+    if (!fRaw) {
+        imgData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
+                                                imageToDraw->alphaType(),
+                                                keyContext.dstColorInfo().colorSpace(),
+                                                keyContext.dstColorInfo().alphaType());
+    }
+
+    YUVImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
     builder->endBlock();
 }
 #endif

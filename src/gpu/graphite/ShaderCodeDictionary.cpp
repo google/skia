@@ -806,10 +806,7 @@ static constexpr char kImageShaderName[] = "sk_image_shader";
 //--------------------------------------------------------------------------------------------------
 
 static constexpr Uniform kYUVImageShaderUniforms[] = {
-        { "imgSizeY",              SkSLType::kFloat2 },
-        { "imgSizeU",              SkSLType::kFloat2 },
-        { "imgSizeV",              SkSLType::kFloat2 },
-        { "imgSizeA",              SkSLType::kFloat2 },
+        { "imgSize",               SkSLType::kFloat2 },
         { "subset",                SkSLType::kFloat4 },
         { "tilemodeX",             SkSLType::kInt },
         { "tilemodeY",             SkSLType::kInt },
@@ -820,7 +817,8 @@ static constexpr Uniform kYUVImageShaderUniforms[] = {
         { "channelSelectU",        SkSLType::kHalf4 },
         { "channelSelectV",        SkSLType::kHalf4 },
         { "channelSelectA",        SkSLType::kHalf4 },
-        { "yuvToRGBTransform",     SkSLType::kFloat4x4 },
+        { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
+        { "yuvToRGBTranslate",     SkSLType::kFloat3 },
         // The next 6 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
