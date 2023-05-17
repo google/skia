@@ -495,25 +495,28 @@ void SkImageShader::addYUVImageToKey(const skgpu::graphite::KeyContext& keyConte
 
     YUVImageShaderBlock::ImageData imgData(sampling, fTileModeX, fTileModeY, fSubset);
     imgData.fImgSize = { (float)imageToDraw->width(), (float)imageToDraw->height() };
-    int textureIndex = 0;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {
         memset(&imgData.fChannelSelect[i], 0, sizeof(SkColor4f));
     }
-    for (int plane = 0; plane < yuvaProxies.numPlanes(); ++plane) {
-        TextureProxyView view = yuvaProxies.makeView(plane);
-        for (int i = 0; i < yuvaInfo.numChannelsInPlane(plane); ++i) {
-            imgData.fTextureProxies[textureIndex] = view.refProxy();
-            auto [yuvPlane, yuvChannel] = yuvaProxies.yuvaLocations()[textureIndex];
-            // TODO: swizzle this based on readSwizzle
-            imgData.fChannelSelect[textureIndex][static_cast<int>(yuvChannel)] = 1.0f;
-            textureIndex++;
+    int textureCount = 0;
+    SkYUVAInfo::YUVALocations yuvaLocations = yuvaProxies.yuvaLocations();
+    for (int locIndex = 0; locIndex < SkYUVAInfo::kYUVAChannelCount; ++locIndex) {
+        auto [yuvPlane, yuvChannel] = yuvaLocations[locIndex];
+        if (yuvPlane >= 0) {
+            SkASSERT(locIndex == textureCount);
+            TextureProxyView view = yuvaProxies.makeView(yuvPlane);
+            imgData.fTextureProxies[locIndex] = view.refProxy();
+            imgData.fChannelSelect[locIndex][static_cast<int>(yuvChannel)] = 1.0f;
+            ++textureCount;
         }
     }
-    for (; textureIndex < 4; ++textureIndex) {
-        imgData.fTextureProxies[textureIndex] = imgData.fTextureProxies[0];
+    SkASSERT(textureCount == 3 || textureCount == 4);
+    // If the format has no alpha, we still need to set the proxy to something
+    if (textureCount == 3) {
+        imgData.fTextureProxies[3] = imgData.fTextureProxies[0];
     }
     float yuvM[20];
-    SkColorMatrix_YUV2RGB(yuvaProxies.yuvaInfo().yuvColorSpace(), yuvM);
+    SkColorMatrix_YUV2RGB(yuvaInfo.yuvColorSpace(), yuvM);
     // We drop the fourth column entirely since the transformation
     // should not depend on alpha. The fifth column is sent as a separate
     // vector. The fourth row is also dropped entirely because alpha should
