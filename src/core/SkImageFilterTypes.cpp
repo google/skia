@@ -178,9 +178,10 @@ public:
                 const SkSurfaceProps* props = nullptr)
             : fSurface(nullptr)
             , fDstBounds(dstBounds) {
-        if (!fDstBounds.intersect(ctx.desiredOutput())) {
-            return;
-        }
+        // We don't intersect by ctx.desiredOutput() and only use the Context to make the surface.
+        // It is assumed the caller has already accounted for the desired output, or it's a
+        // situation where the desired output shouldn't apply (e.g. this surface will be transformed
+        // to align with the actual desired output via FilterResult metadata).
         fSurface = ctx.makeSurface(SkISize(fDstBounds.size()), props);
         if (!fSurface) {
             return;
@@ -730,13 +731,17 @@ FilterResult FilterResult::MakeFromPicture(const Context& ctx,
         return {};
     }
 
+    LayerSpace<SkIRect> dstBounds = ctx.mapping().paramToLayer(cullRect).roundOut();
+    if (!dstBounds.intersect(ctx.desiredOutput())) {
+        return {};
+    }
+
     // Given the standard usage of the picture image filter (i.e., to render content at a fixed
     // resolution that, most likely, differs from the screen's) disable LCD text by removing any
     // knowledge of the pixel geometry.
     // TODO: Should we just generally do this for layers with image filters? Or can we preserve it
     // for layers that are still axis-aligned?
     SkSurfaceProps props = ctx.surfaceProps().cloneWithPixelGeometry(kUnknown_SkPixelGeometry);
-    const LayerSpace<SkIRect> dstBounds = ctx.mapping().paramToLayer(cullRect).roundOut();
     AutoSurface surface{ctx, dstBounds, /*renderInParameterSpace=*/true, &props};
     if (surface) {
         surface->clipRect(SkRect(cullRect));
