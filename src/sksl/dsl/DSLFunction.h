@@ -17,6 +17,7 @@
 
 namespace SkSL {
 
+class Context;
 class ExpressionArray;
 class FunctionDeclaration;
 
@@ -39,6 +40,8 @@ public:
     void define(DSLStatement block, Position pos = {});
 
     void prototype();
+
+    void addParametersToSymbolTable(const Context& context);
 
     /**
      * Invokes the function with the given arguments.

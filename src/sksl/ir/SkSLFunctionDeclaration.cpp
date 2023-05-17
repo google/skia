@@ -494,13 +494,19 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     if (decl) {
         return decl;
     }
-    auto result = std::make_unique<FunctionDeclaration>(pos,
-                                                        context.fModifiersPool->add(*modifiers),
-                                                        name,
-                                                        std::move(finalParameters),
-                                                        returnType,
-                                                        context.fConfig->fIsBuiltinCode);
-    return context.fSymbolTable->add(std::move(result));
+    return context.fSymbolTable->add(
+            std::make_unique<FunctionDeclaration>(pos,
+                                                  context.fModifiersPool->add(*modifiers),
+                                                  name,
+                                                  std::move(finalParameters),
+                                                  returnType,
+                                                  context.fConfig->fIsBuiltinCode));
+}
+
+void FunctionDeclaration::addParametersToSymbolTable(const Context& context) {
+    for (Variable* param : fParameters) {
+        context.fSymbolTable->addWithoutOwnership(param);
+    }
 }
 
 std::string FunctionDeclaration::mangledName() const {

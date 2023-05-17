@@ -545,11 +545,7 @@ bool Parser::functionDeclarationEnd(Position start,
     const bool hasFunctionBody = !this->checkNext(Token::Kind::TK_SEMICOLON);
     if (hasFunctionBody) {
         AutoSymbolTable symbols(this);
-        for (DSLParameter* var : parameterPointers) {
-            if (!var->fName.empty()) {
-                this->addToSymbolTable(*var);
-            }
-        }
+        result.addParametersToSymbolTable(fCompiler.context());
         Token bodyStart = this->peek();
         std::optional<DSLStatement> body = this->block();
         if (!body) {
