@@ -168,28 +168,4 @@ sk_sp<SkImage> TextureFromAHardwareBufferWithData(GrDirectContext* dContext,
 
 }  // namespace SkImages
 
-#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES)
-
-sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuffer, SkAlphaType alphaType) {
-    return SkImages::DeferredFromAHardwareBuffer(hardwareBuffer, alphaType);
-}
-
-sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuffer,
-                                       SkAlphaType alphaType,
-                                       sk_sp<SkColorSpace> colorSpace,
-                                       GrSurfaceOrigin surfaceOrigin) {
-    return SkImages::DeferredFromAHardwareBuffer(
-            hardwareBuffer, alphaType, colorSpace, surfaceOrigin);
-}
-
-sk_sp<SkImage> MakeFromAHardwareBufferWithData(GrDirectContext* context,
-                                               const SkPixmap& pixmap,
-                                               AHardwareBuffer* hardwareBuffer,
-                                               GrSurfaceOrigin surfaceOrigin) {
-    return SkImages::TextureFromAHardwareBufferWithData(
-            context, pixmap, hardwareBuffer, surfaceOrigin);
-}
-
-#endif // SK_DISABLE_LEGACY_IMAGE_FACTORIES
-
 #endif // defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
