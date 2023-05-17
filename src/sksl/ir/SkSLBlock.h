@@ -39,12 +39,14 @@ public:
                              // Treated as a single statement by the debugger.
     };
 
-    Block(Position pos, StatementArray statements,
-          Kind kind = Kind::kBracedScope, const std::shared_ptr<SymbolTable> symbols = nullptr)
-    : INHERITED(pos, kIRNodeKind)
-    , fChildren(std::move(statements))
-    , fBlockKind(kind)
-    , fSymbolTable(std::move(symbols)) {}
+    Block(Position pos,
+          StatementArray statements,
+          Kind kind = Kind::kBracedScope,
+          const std::shared_ptr<SymbolTable> symbols = nullptr)
+            : INHERITED(pos, kIRNodeKind)
+            , fChildren(std::move(statements))
+            , fBlockKind(kind)
+            , fSymbolTable(std::move(symbols)) {}
 
     // Make is allowed to simplify compound statements. For a single-statement unscoped Block,
     // Make can return the Statement as-is. For an empty unscoped Block, Make can return Nop.
@@ -52,6 +54,13 @@ public:
                                            StatementArray statements,
                                            Kind kind = Kind::kBracedScope,
                                            std::shared_ptr<SymbolTable> symbols = nullptr);
+
+    // MakeCompoundStatement wraps two Statements into a single compound-statement Block.
+    // If either statement is empty, no Block will be created; the non-empty Statement is returned.
+    // If the first Statement is _already_ a compound-statement Block, the second statement will be
+    // appended to that block.
+    static std::unique_ptr<Statement> MakeCompoundStatement(std::unique_ptr<Statement> existing,
+                                                            std::unique_ptr<Statement> additional);
 
     // MakeBlock always makes a real Block object. This is important because many callers rely on
     // Blocks specifically; e.g. a function body must be a scoped Block, nothing else will do.
