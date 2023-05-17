@@ -63,7 +63,7 @@ private:
                                        fShowAnimationStats   = false,
                                        fShowUI               = false,
                                        fShowTrackerUI        = false,
-                                       fShowSlotManager      = true,
+                                       fShowSlotManager      = false,
                                        fDraggingProgress     = false,
                                        fPreferGlyphPaths     = false;
 };

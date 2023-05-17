@@ -320,7 +320,9 @@ private:
  */
 class SlotManager::SlottablePropertyObserver final : public skottie::PropertyObserver {
 public:
-    SlottablePropertyObserver(std::vector<SlotInfo> slotInfos) {
+    SlottablePropertyObserver(std::vector<SlotInfo> slotInfos,
+                              sk_sp<skottie::PropertyObserver> proxy)
+        : fProxy(proxy) {
         for (const auto &s : slotInfos) {
             switch (s.type) {
             case SlotType::kColor:
@@ -348,6 +350,9 @@ public:
                 fColorMap[node_name].push_back(c());
             }
         }
+        if (fProxy) {
+            fProxy->onColorProperty(node_name, c);
+        }
     }
 
     void onOpacityProperty(const char node_name[],
@@ -358,6 +363,9 @@ public:
                 fOpacityMap[node_name].push_back(o());
             }
         }
+        if (fProxy) {
+            fProxy->onOpacityProperty(node_name, o);
+        }
     }
 
     void onTextProperty(const char node_name[],
@@ -366,9 +374,29 @@ public:
         if (it != fTextMap.end()) {
             fTextMap[node_name].push_back(t());
         }
+        if (fProxy) {
+            fProxy->onTextProperty(node_name, t);
+        }
     }
 
-    // TODO(jmbetancourt): add support for onTransformProperty
+    void onTransformProperty(const char node_name[],
+                             const LazyHandle<skottie::TransformPropertyHandle>& t) override {
+        if (fProxy) {
+            fProxy->onTransformProperty(node_name, t);
+        }
+    }
+
+    void onEnterNode(const char node_name[], NodeType node_type) override {
+        if (fProxy) {
+            fProxy->onEnterNode(node_name, node_type);
+        }
+    }
+
+    void onLeavingNode(const char node_name[], NodeType node_type) override {
+        if (fProxy) {
+            fProxy->onLeavingNode(node_name, node_type);
+        }
+    }
 private:
     using SlotID = std::string;
 
@@ -379,13 +407,16 @@ private:
     std::unordered_map<SlotID, std::vector<std::unique_ptr<skottie::TextPropertyHandle>>>
         fTextMap;
 
+    sk_sp<skottie::PropertyObserver> fProxy;
+
     friend class SlotManager;
 };
 
-SlotManager::SlotManager(const SkString path, sk_sp<skresources::ResourceProvider> proxy) {
+SlotManager::SlotManager(const SkString path, sk_sp<skresources::ResourceProvider> rpProxy,
+                         sk_sp<skottie::PropertyObserver> poProxy) {
     parseSlotIDsFromFileName(path);
-    fResourceProvider = sk_make_sp<SlottableResourceProvider>(fSlotInfos, proxy);
-    fPropertyObserver = sk_make_sp<SlottablePropertyObserver>(fSlotInfos);
+    fResourceProvider = sk_make_sp<SlottableResourceProvider>(fSlotInfos, rpProxy);
+    fPropertyObserver = sk_make_sp<SlottablePropertyObserver>(fSlotInfos, poProxy);
 }
 
 // TODO: replace with parse from SkData (grab SkData from filename instead)

@@ -247,8 +247,9 @@ private:
 // Holds a pointer to a slot manager and the list of slots for the UI widget to track
 class SkottieSlide::SlotManagerWrapper {
 public:
-    SlotManagerWrapper(sk_sp<skresources::ResourceProvider> rp, SkString path)
-        : fSlotManager(sk_make_sp<skottie_utils::SlotManager>(path, std::move(rp)))
+    SlotManagerWrapper(SkString path, sk_sp<skresources::ResourceProvider> rp,
+                       sk_sp<skottie::PropertyObserver> po)
+        : fSlotManager(sk_make_sp<skottie_utils::SlotManager>(path, std::move(rp), std::move(po)))
     {}
 
 
@@ -489,19 +490,14 @@ void SkottieSlide::init() {
     auto text_tracker = sk_make_sp<TextTracker>(fTransformTracker);
 
     if (!fSlotManagerWrapper) {
-        fSlotManagerWrapper = std::make_unique<SlotManagerWrapper>(resource_provider, fPath);
+        fSlotManagerWrapper = std::make_unique<SlotManagerWrapper>(fPath, resource_provider, text_tracker);
     }
 
     builder.setLogger(logger)
-           .setPrecompInterceptor(std::move(precomp_interceptor));
+           .setPrecompInterceptor(std::move(precomp_interceptor))
+           .setResourceProvider(fSlotManagerWrapper->getResourceProvider())
+           .setPropertyObserver(fSlotManagerWrapper->getPropertyObserver());
 
-    if (fShowSlotManager) {
-        builder.setResourceProvider(fSlotManagerWrapper->getResourceProvider())
-               .setPropertyObserver(fSlotManagerWrapper->getPropertyObserver());
-    } else {
-        builder.setResourceProvider(std::move(resource_provider))
-               .setPropertyObserver(text_tracker);
-    }
     fAnimation = builder.makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
     fTimeBase       = 0; // force a time reset

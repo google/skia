@@ -143,7 +143,8 @@ enum SlotType {
 class SlotManager final : public SkRefCnt {
 
 public:
-    SlotManager(const SkString, sk_sp<skresources::ResourceProvider> = nullptr);
+    SlotManager(const SkString, sk_sp<skresources::ResourceProvider> = nullptr,
+                sk_sp<skottie::PropertyObserver> = nullptr);
 
     void setColorSlot(std::string, SkColor);
     void setOpacitySlot(std::string, SkScalar);
