@@ -258,15 +258,8 @@ std::unique_ptr<SkSL::Program> Compiler::releaseProgram(std::unique_ptr<std::str
                                                   std::move(fContext->fSymbolTable),
                                                   std::move(instance.fPool),
                                                   instance.fInterface);
-    bool success = false;
-    if (!this->finalize(*result)) {
-        // Do not return programs that failed to compile.
-    } else if (!this->optimize(*result)) {
-        // Do not return programs that failed to optimize.
-    } else {
-        // We have a successful program!
-        success = true;
-    }
+    bool success = this->finalize(*result) &&
+                   this->optimize(*result);
     if (pool) {
         pool->detachFromThread();
     }
