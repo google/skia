@@ -8,15 +8,18 @@
 #include "src/sksl/SkSLParser.h"
 
 #include "include/core/SkSpan.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLVersion.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -128,6 +131,72 @@ public:
 
 private:
     Parser* fParser;
+};
+
+class Parser::Checkpoint {
+public:
+    Checkpoint(Parser* p) : fParser(p) {
+        fPushbackCheckpoint = fParser->fPushback;
+        fLexerCheckpoint = fParser->fLexer.getCheckpoint();
+        fOldErrorReporter = &dsl::GetErrorReporter();
+        fOldEncounteredFatalError = fParser->fEncounteredFatalError;
+        SkASSERT(fOldErrorReporter);
+        dsl::SetErrorReporter(&fErrorReporter);
+    }
+
+    ~Checkpoint() {
+        SkASSERTF(!fOldErrorReporter, "Checkpoint was not accepted or rewound before destruction");
+    }
+
+    void accept() {
+        this->restoreErrorReporter();
+        // Parser errors should have been fatal, but we can encounter other errors like type
+        // mismatches despite accepting the parse. Forward those messages to the actual error
+        // handler now.
+        fErrorReporter.forwardErrors();
+    }
+
+    void rewind() {
+        this->restoreErrorReporter();
+        fParser->fPushback = fPushbackCheckpoint;
+        fParser->fLexer.rewindToCheckpoint(fLexerCheckpoint);
+        fParser->fEncounteredFatalError = fOldEncounteredFatalError;
+    }
+
+private:
+    class ForwardingErrorReporter : public ErrorReporter {
+    public:
+        void handleError(std::string_view msg, Position pos) override {
+            fErrors.push_back({std::string(msg), pos});
+        }
+
+        void forwardErrors() {
+            for (Error& error : fErrors) {
+                dsl::GetErrorReporter().error(error.fPos, error.fMsg);
+            }
+        }
+
+    private:
+        struct Error {
+            std::string fMsg;
+            Position fPos;
+        };
+
+        skia_private::TArray<Error> fErrors;
+    };
+
+    void restoreErrorReporter() {
+        SkASSERT(fOldErrorReporter);
+        dsl::SetErrorReporter(fOldErrorReporter);
+        fOldErrorReporter = nullptr;
+    }
+
+    Parser* fParser;
+    Token fPushbackCheckpoint;
+    SkSL::Lexer::Checkpoint fLexerCheckpoint;
+    ForwardingErrorReporter fErrorReporter;
+    ErrorReporter* fOldErrorReporter;
+    bool fOldEncounteredFatalError;
 };
 
 Parser::Parser(Compiler* compiler,
