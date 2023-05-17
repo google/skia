@@ -147,14 +147,15 @@ static int32_t next_image_filter_unique_id() {
 }
 
 SkImageFilter_Base::SkImageFilter_Base(sk_sp<SkImageFilter> const* inputs,
-                                       int inputCount, const SkRect* cropRect)
-        : fUsesSrcInput(false)
+                                       int inputCount, const SkRect* cropRect,
+                                       std::optional<bool> usesSrc)
+        : fUsesSrcInput(usesSrc.has_value() ? *usesSrc : false)
         , fCropRect(cropRect)
         , fUniqueID(next_image_filter_unique_id()) {
     fInputs.reset(inputCount);
 
     for (int i = 0; i < inputCount; ++i) {
-        if (!inputs[i] || as_IFB(inputs[i])->fUsesSrcInput) {
+        if (!usesSrc.has_value() && (!inputs[i] || as_IFB(inputs[i])->usesSource())) {
             fUsesSrcInput = true;
         }
         fInputs[i] = inputs[i];

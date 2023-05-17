@@ -745,4 +745,21 @@ FilterResult FilterResult::MakeFromPicture(const Context& ctx,
     return surface.snap();
 }
 
+FilterResult FilterResult::MakeFromShader(const Context& ctx,
+                                          sk_sp<SkShader> shader,
+                                          bool dither) {
+    if (!shader) {
+        return {};
+    }
+
+    AutoSurface surface{ctx, ctx.desiredOutput(), /*renderInParameterSpace=*/true};
+    if (surface) {
+        SkPaint paint;
+        paint.setShader(shader);
+        paint.setDither(dither);
+        surface->drawPaint(paint);
+    }
+    return surface.snap();
+}
+
 } // end namespace skif

@@ -16,6 +16,8 @@
 
 #include "src/core/SkImageFilterTypes.h"
 
+#include <optional>
+
 class GrFragmentProcessor;
 class GrRecordingContext;
 
@@ -102,6 +104,9 @@ public:
     // Returns true if this image filter graph transforms a source transparent black pixel to a
     // color other than transparent black.
     bool affectsTransparentBlack() const;
+
+    // Returns true if this image filter graph references the Context's source image.
+    bool usesSource() const { return fUsesSrcInput; }
 
     /**
      *  Most ImageFilters can natively handle scaling and translate components in the CTM. Only
@@ -195,8 +200,9 @@ protected:
         kYes = true
     };
 
+    // If 'usesSrc' is not provided, this filter uses the OR of all input's usesSource() values.
     SkImageFilter_Base(sk_sp<SkImageFilter> const* inputs, int inputCount,
-                       const SkRect* cropRect);
+                       const SkRect* cropRect, std::optional<bool> usesSrc = {});
 
     ~SkImageFilter_Base() override;
 

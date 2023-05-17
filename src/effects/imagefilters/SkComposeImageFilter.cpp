@@ -16,6 +16,7 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
 
+#include <optional>
 #include <utility>
 
 class SkMatrix;
@@ -26,7 +27,10 @@ namespace {
 class SkComposeImageFilter final : public SkImageFilter_Base {
 public:
     explicit SkComposeImageFilter(sk_sp<SkImageFilter> inputs[2])
-            : INHERITED(inputs, 2, nullptr) {
+            : INHERITED(inputs, 2, nullptr,
+                        // Compose only uses the source if the inner filter uses the source image.
+                        // Any outer reference to source is rebound to the result of the inner.
+                        inputs[1] ? as_IFB(inputs[1])->usesSource() : false) {
         SkASSERT(inputs[0].get());
         SkASSERT(inputs[1].get());
     }
