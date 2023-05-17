@@ -383,7 +383,7 @@ static bool find_existing_declaration(const Context& context,
                                       FunctionDeclaration** outExistingDecl) {
     auto invalidDeclDescription = [&]() -> std::string {
         TArray<Variable*> paramPtrs;
-        paramPtrs.reserve(parameters.size());
+        paramPtrs.reserve_exact(parameters.size());
         for (std::unique_ptr<Variable>& param : parameters) {
             paramPtrs.push_back(param.get());
         }
@@ -487,7 +487,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
         return nullptr;
     }
     TArray<Variable*> finalParameters;
-    finalParameters.reserve(parameters.size());
+    finalParameters.reserve_exact(parameters.size());
     for (std::unique_ptr<Variable>& param : parameters) {
         finalParameters.push_back(context.fSymbolTable->takeOwnershipOfSymbol(std::move(param)));
     }

@@ -149,7 +149,7 @@ public:
     }
 
     /**
-     * Ensures there is enough reserved space for n elements.
+     * Ensures there is enough reserved space for at least n elements.
      */
     void reserve(int n) {
         SkASSERT(n >= 0);
@@ -159,9 +159,19 @@ public:
     }
 
     /**
-     * Ensures there is enough reserved space for n additional elements. The is guaranteed at least
-     * until the array size grows above n and subsequently shrinks below n, any version of reset()
-     * is called, or reserve_back() is called again.
+     * Ensures there is enough reserved space for exactly n elements.
+     */
+    void reserve_exact(int n) {
+        SkASSERT(n >= 0);
+        if (n > this->size()) {
+            this->checkRealloc(n - this->size(), kExactFit);
+        }
+    }
+
+    /**
+     * Ensures there is enough reserved space for exactly n additional elements. This is guaranteed
+     * at least until the array size grows above n and subsequently shrinks below n, any version of
+     * reset() is called, or reserve_back() is called again.
      */
     void reserve_back(int n) {
         SkASSERT(n >= 0);

@@ -56,7 +56,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
     fPosition = pos;
 
     TArray<std::unique_ptr<Variable>> paramVars;
-    paramVars.reserve(params.size());
+    paramVars.reserve_exact(params.size());
     for (DSLParameter* param : params) {
         SkASSERT(!param->fInitialValue.hasValue());
         SkASSERT(!param->fDeclaration);
