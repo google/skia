@@ -615,13 +615,19 @@ bool Parser::parseInitializer(Position pos, DSLExpression* initializer) {
     return true;
 }
 
+void Parser::addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl) {
+    if (decl) {
+        ThreadContext::ProgramElements().push_back(
+                std::make_unique<SkSL::GlobalVarDeclaration>(std::move(decl)));
+    }
+}
+
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 void Parser::globalVarDeclarationEnd(Position pos,
                                      const dsl::DSLModifiers& mods,
                                      dsl::DSLType baseType,
                                      Token name) {
-    using namespace dsl;
     DSLType type = baseType;
     DSLExpression initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
@@ -630,10 +636,15 @@ void Parser::globalVarDeclarationEnd(Position pos,
     if (!this->parseInitializer(pos, &initializer)) {
         return;
     }
-    DSLGlobalVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
-                       this->position(name));
-    Declare(first);
-
+    this->addGlobalVarDeclaration(VarDeclaration::Convert(fCompiler.context(),
+                                                          this->rangeFrom(pos),
+                                                          mods.fPosition,
+                                                          mods.fModifiers,
+                                                          type.skslType(),
+                                                          this->position(name),
+                                                          this->text(name),
+                                                          VariableStorage::kGlobal,
+                                                          initializer.releaseIfPossible()));
     while (this->checkNext(Token::Kind::TK_COMMA)) {
         type = baseType;
         Token identifierName;
@@ -647,9 +658,16 @@ void Parser::globalVarDeclarationEnd(Position pos,
         if (!this->parseInitializer(pos, &anotherInitializer)) {
             return;
         }
-        DSLGlobalVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
-                          this->rangeFrom(identifierName));
-        Declare(next);
+        this->addGlobalVarDeclaration(
+                VarDeclaration::Convert(fCompiler.context(),
+                                        this->rangeFrom(identifierName),
+                                        mods.fPosition,
+                                        mods.fModifiers,
+                                        type.skslType(),
+                                        this->position(identifierName),
+                                        this->text(identifierName),
+                                        VariableStorage::kGlobal,
+                                        anotherInitializer.releaseIfPossible()));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
 }
@@ -660,7 +678,6 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
                                             const dsl::DSLModifiers& mods,
                                             dsl::DSLType baseType,
                                             Token name) {
-    using namespace dsl;
     DSLType type = baseType;
     DSLExpression initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
