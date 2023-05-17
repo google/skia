@@ -118,7 +118,6 @@ skia_sksl_sources = [
   "$_src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h",
   "$_src/sksl/codegen/SkSLVMCodeGenerator.cpp",
   "$_src/sksl/codegen/SkSLVMCodeGenerator.h",
-  "$_src/sksl/dsl/DSL.h",
   "$_src/sksl/dsl/DSLCore.cpp",
   "$_src/sksl/dsl/DSLCore.h",
   "$_src/sksl/dsl/DSLExpression.cpp",

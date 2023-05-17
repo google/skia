@@ -7,7 +7,6 @@ exports_files_legacy()
 skia_filegroup(
     name = "srcs",
     srcs = [
-        "DSL.h",
         "DSLCore.cpp",
         "DSLCore.h",
         "DSLExpression.cpp",
