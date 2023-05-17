@@ -319,47 +319,6 @@ public:
 #endif  // defined(SK_GANESH)
 
 #if defined(SK_GRAPHITE)
-    void fillVertexData(DrawWriter* dw,
-                        int offset, int count,
-                        int ssboIndex,
-                        SkSpan<const Glyph*> glyphs,
-                        SkScalar depth,
-                        const skgpu::graphite::Transform& toDevice) const {
-        auto quadData = [&]() {
-        return SkMakeZip(glyphs.subspan(offset, count),
-                         fLeftTop.subspan(offset, count));
-        };
-
-        // TODO: can't handle perspective right now
-        if (toDevice.type() == Transform::Type::kProjection) {
-            return;
-        }
-
-        DrawWriter::Vertices verts{*dw};
-        verts.reserve(6*count);
-        for (auto [glyph, leftTop]: quadData()) {
-            auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-            auto [l, t] = leftTop;
-            auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
-            SkV2 localCorners[4] = {{l, t}, {r, t}, {r, b}, {l, b}};
-            SkV4 devOut[4];
-            toDevice.mapPoints(localCorners, devOut, 4);
-            // TODO: Ganesh uses indices but that's not available with dynamic vertex data
-            // TODO: we should really use instances as well.
-            verts.append(6) << SkPoint{devOut[0].x, devOut[0].y} << depth << AtlasPt{al, at}  // L,T
-                            << ssboIndex
-                            << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
-                            << ssboIndex
-                            << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
-                            << ssboIndex
-                            << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
-                            << ssboIndex
-                            << SkPoint{devOut[2].x, devOut[2].y} << depth << AtlasPt{ar, ab}  // R,B
-                            << ssboIndex
-                            << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
-                            << ssboIndex;
-        }
-    }
     void fillInstanceData(DrawWriter* dw,
                           int offset, int count,
                           unsigned short flags,
