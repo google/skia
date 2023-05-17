@@ -281,9 +281,11 @@ private:
  * An implementation of ResourceProvider designed for Lottie template asset substitution (images,
  * audio, etc)
  */
-class SlotManager::SlottableResourceProvider final : public skresources::ResourceProvider {
+class SlotManager::SlottableResourceProvider final : public skresources::ResourceProviderProxyBase {
 public:
-    SlottableResourceProvider(std::vector<SlotInfo> slotInfos) {
+    SlottableResourceProvider(std::vector<SlotInfo> slotInfos,
+                              sk_sp<skresources::ResourceProvider> proxy)
+        : skresources::ResourceProviderProxyBase(std::move(proxy)) {
         for (const auto &s : slotInfos) {
             if (s.type == SlotType::kImage) {
                 fImageAssetMap[s.slotID] = sk_make_sp<ImageAssetProxy>();
@@ -293,11 +295,15 @@ public:
 
     // This implementation depends on slot ID being passed through id instead of asset ID when slots
     // are present
-    sk_sp<skresources::ImageAsset> loadImageAsset(const char /*resource_path*/[],
-                                                  const char /*name*/[],
+    sk_sp<skresources::ImageAsset> loadImageAsset(const char resource_path[],
+                                                  const char name[],
                                                   const char slot_name[]) const override {
         const auto it = fImageAssetMap.find(slot_name);
-        return it == fImageAssetMap.end() ? nullptr : it->second;
+        auto imageAssetProxy = it == fImageAssetMap.end() ? nullptr : it->second;
+        if (fProxy) {
+            imageAssetProxy->setImageAsset(fProxy->loadImageAsset(resource_path, name, slot_name));
+        }
+        return std::move(imageAssetProxy);
     }
 
 private:
@@ -376,9 +382,9 @@ private:
     friend class SlotManager;
 };
 
-SlotManager::SlotManager(const SkString path) {
+SlotManager::SlotManager(const SkString path, sk_sp<skresources::ResourceProvider> proxy) {
     parseSlotIDsFromFileName(path);
-    fResourceProvider = sk_make_sp<SlottableResourceProvider>(fSlotInfos);
+    fResourceProvider = sk_make_sp<SlottableResourceProvider>(fSlotInfos, proxy);
     fPropertyObserver = sk_make_sp<SlottablePropertyObserver>(fSlotInfos);
 }
 
@@ -433,6 +439,18 @@ void SlotManager::setImageSlot(std::string slotID, sk_sp<skresources::ImageAsset
     const auto it = fResourceProvider->fImageAssetMap.find(slotID);
     if (it != fResourceProvider->fImageAssetMap.end()) {
         fResourceProvider->fImageAssetMap[slotID]->setImageAsset(std::move(img));
+    }
+}
+
+// forwards onLoad to proxy resource provider
+void SlotManager::setImageSlot(std::string slotID, const char path[], const char name[],
+                               const char id[]) {
+    const auto it = fResourceProvider->fImageAssetMap.find(slotID);
+    if (it != fResourceProvider->fImageAssetMap.end()) {
+        fResourceProvider->fImageAssetMap[slotID]->setImageAsset(
+            fResourceProvider->fProxy
+            ? fResourceProvider->fProxy->loadImageAsset(path, name, id)
+            : nullptr);
     }
 }
 

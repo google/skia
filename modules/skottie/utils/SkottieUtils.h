@@ -143,12 +143,13 @@ enum SlotType {
 class SlotManager final : public SkRefCnt {
 
 public:
-    SlotManager(const SkString);
+    SlotManager(const SkString, sk_sp<skresources::ResourceProvider> = nullptr);
 
     void setColorSlot(std::string, SkColor);
     void setOpacitySlot(std::string, SkScalar);
     void setTextStringSlot(std::string, SkString);
     void setImageSlot(std::string, sk_sp<skresources::ImageAsset>);
+    void setImageSlot(std::string, const char[], const char[], const char[]);
 
     struct SlotInfo {
         std::string slotID;

@@ -248,8 +248,7 @@ private:
 class SkottieSlide::SlotManagerWrapper {
 public:
     SlotManagerWrapper(sk_sp<skresources::ResourceProvider> rp, SkString path)
-        : fSlotManager(sk_make_sp<skottie_utils::SlotManager>(path))
-        , fResourceProvider(std::move(rp))
+        : fSlotManager(sk_make_sp<skottie_utils::SlotManager>(path, std::move(rp)))
     {}
 
 
@@ -315,10 +314,7 @@ public:
             fSlotManager->setTextStringSlot(s.first.data(), SkString(s.second.data()));
         }
         for(const auto& s : fImageSlots) {
-            auto img = fResourceProvider->loadImageAsset("images/", s.second.c_str(), nullptr);
-            if (img) {
-                fSlotManager->setImageSlot(s.first.data(), std::move(img));
-            }
+            fSlotManager->setImageSlot(s.first.data(), "images/", s.second.c_str(), nullptr);
         }
     }
 
