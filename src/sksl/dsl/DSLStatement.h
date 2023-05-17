@@ -15,31 +15,25 @@
 #include <memory>
 #include <utility>
 
-namespace SkSL {
-
-class Expression;
-
-namespace dsl {
+namespace SkSL::dsl {
 
 class DSLExpression;
 
 class DSLStatement {
 public:
-    DSLStatement();
+    DSLStatement() = default;
+    ~DSLStatement() = default;
+
+    DSLStatement(DSLStatement&&) = default;
+    DSLStatement& operator=(DSLStatement&& other) = default;
+
+    DSLStatement(const DSLStatement&) = delete;
+    DSLStatement& operator=(const DSLStatement& other) = delete;
 
     DSLStatement(DSLExpression expr);
 
-    DSLStatement(DSLStatement&&) = default;
-
-    DSLStatement(std::unique_ptr<SkSL::Expression> expr);
-
     DSLStatement(std::unique_ptr<SkSL::Statement> stmt, Position pos);
-
     DSLStatement(std::unique_ptr<SkSL::Statement> stmt);
-
-    ~DSLStatement();
-
-    DSLStatement& operator=(DSLStatement&& other) = default;
 
     Position position() {
         SkASSERT(this->hasValue());
@@ -64,15 +58,8 @@ public:
 
 private:
     std::unique_ptr<SkSL::Statement> fStatement;
-
-    friend class DSLCore;
-    friend DSLStatement operator,(DSLStatement left, DSLStatement right);
 };
 
-DSLStatement operator,(DSLStatement left, DSLStatement right);
-
-} // namespace dsl
-
-} // namespace SkSL
+}  // namespace SkSL::dsl
 
 #endif

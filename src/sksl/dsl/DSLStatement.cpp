@@ -7,20 +7,14 @@
 
 #include "src/sksl/dsl/DSLStatement.h"
 
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
 
-namespace SkSL {
-
-namespace dsl {
-
-DSLStatement::DSLStatement() {}
+namespace SkSL::dsl {
 
 DSLStatement::DSLStatement(DSLExpression expr) {
     std::unique_ptr<SkSL::Expression> skslExpr = expr.release();
@@ -30,13 +24,8 @@ DSLStatement::DSLStatement(DSLExpression expr) {
     }
 }
 
-DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
-    : fStatement(SkSL::ExpressionStatement::Convert(ThreadContext::Context(), std::move(expr))) {
-    SkASSERT(this->hasValue());
-}
-
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
-    : fStatement(std::move(stmt)) {
+        : fStatement(std::move(stmt)) {
     SkASSERT(this->hasValue());
 }
 
@@ -47,17 +36,4 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt, Position pos)
     }
 }
 
-DSLStatement::~DSLStatement() {}
-
-DSLStatement operator,(DSLStatement left, DSLStatement right) {
-    Position pos = left.fStatement->fPosition;
-    StatementArray stmts;
-    stmts.reserve_back(2);
-    stmts.push_back(left.release());
-    stmts.push_back(right.release());
-    return DSLStatement(SkSL::Block::Make(pos, std::move(stmts), Block::Kind::kCompoundStatement));
-}
-
-} // namespace dsl
-
-} // namespace SkSL
+}  // namespace SkSL::dsl
