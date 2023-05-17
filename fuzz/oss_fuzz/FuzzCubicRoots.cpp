@@ -7,7 +7,7 @@
 
 #include "fuzz/Fuzz.h"
 
-void fuzz_CubicQuadRoots(Fuzz* f);
+void fuzz_CubicRoots(Fuzz* f);
 
 #if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
@@ -15,7 +15,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         return 0;
     }
     auto fuzz = Fuzz(SkData::MakeWithoutCopy(data, size));
-    fuzz_CubicQuadRoots(&fuzz);
+    fuzz_CubicRoots(&fuzz);
     return 0;
 }
 #endif
