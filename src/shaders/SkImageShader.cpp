@@ -534,7 +534,18 @@ void SkImageShader::addYUVImageToKey(const skgpu::graphite::KeyContext& keyConte
                                                 keyContext.dstColorInfo().alphaType());
     }
 
-    YUVImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+    // The YUV formats can encode their own origin including reflection and rotation,
+    // so we need to wrap our block in an additional local matrix transform.
+    SkMatrix originMatrix = yuvaInfo.originMatrix();
+    LocalMatrixShaderBlock::LMShaderData lmShaderData(originMatrix);
+
+    KeyContextWithLocalMatrix newContext(keyContext, originMatrix);
+
+    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
+
+        YUVImageShaderBlock::BeginBlock(newContext, builder, gatherer, &imgData);
+        builder->endBlock();
+
     builder->endBlock();
 }
 #endif
