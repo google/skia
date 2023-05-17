@@ -18,6 +18,7 @@ namespace SkSL {
 
 class Compiler;
 class ErrorReporter;
+struct Module;
 struct Program;
 struct ProgramSettings;
 
@@ -32,6 +33,14 @@ struct DSLGlobalVar;
 void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment);
 
 void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind, const SkSL::ProgramSettings& settings);
+
+/**
+ * Initializes the DSL for compiling modules (SkSL include files).
+ */
+void StartModule(SkSL::Compiler* compiler,
+                 SkSL::ProgramKind kind,
+                 const SkSL::ProgramSettings& settings,
+                 const SkSL::Module* parent);
 
 /**
  * Signals the end of DSL output. This must be called sometime between a call to Start() and the

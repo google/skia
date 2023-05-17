@@ -161,7 +161,6 @@ skia_filegroup(
         ":core_hdrs",
         "//src/sksl/analysis:private_hdrs",
         "//src/sksl/codegen:private_hdrs",
-        "//src/sksl/dsl:private_hdrs",
         "//src/sksl/ir:private_hdrs",
         "//src/sksl/tracing:private_hdrs",
         "//src/sksl/transform:private_hdrs",

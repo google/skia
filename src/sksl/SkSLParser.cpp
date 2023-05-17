@@ -19,7 +19,6 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLVar.h"
-#include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"

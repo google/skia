@@ -163,7 +163,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/sksl/codegen:core_srcs",
 				"//src/sksl/codegen:private_hdrs",
 				"//src/sksl/dsl:srcs",
-				"//src/sksl/dsl/priv:private_hdrs",
 				"//src/sksl/ir:ir_hdrs",
 				"//src/sksl/ir:ir_srcs",
 				"//src/sksl/tracing:private_hdrs",

@@ -12,7 +12,6 @@
 #   //src/sksl/analysis/BUILD.bazel
 #   //src/sksl/codegen/BUILD.bazel
 #   //src/sksl/dsl/BUILD.bazel
-#   //src/sksl/dsl/priv/BUILD.bazel
 #   //src/sksl/ir/BUILD.bazel
 #   //src/sksl/tracing/BUILD.bazel
 #   //src/sksl/transform/BUILD.bazel
@@ -33,7 +32,6 @@ _include = get_path_info("../include", "abspath")
 #  //src/sksl/codegen:core_srcs
 #  //src/sksl/codegen:private_hdrs
 #  //src/sksl/dsl:srcs
-#  //src/sksl/dsl/priv:private_hdrs
 #  //src/sksl/ir:ir_hdrs
 #  //src/sksl/ir:ir_srcs
 #  //src/sksl/tracing:private_hdrs
@@ -129,7 +127,6 @@ skia_sksl_sources = [
   "$_src/sksl/dsl/DSLType.cpp",
   "$_src/sksl/dsl/DSLType.h",
   "$_src/sksl/dsl/DSLVar.h",
-  "$_src/sksl/dsl/priv/DSL_priv.h",
   "$_src/sksl/ir/SkSLBinaryExpression.cpp",
   "$_src/sksl/ir/SkSLBinaryExpression.h",
   "$_src/sksl/ir/SkSLBlock.cpp",
