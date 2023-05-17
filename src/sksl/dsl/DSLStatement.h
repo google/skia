@@ -66,7 +66,6 @@ private:
     std::unique_ptr<SkSL::Statement> fStatement;
 
     friend class DSLCore;
-    friend class DSLWriter;
     friend DSLStatement operator,(DSLStatement left, DSLStatement right);
 };
 

@@ -88,22 +88,35 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVarBase& var) {
 }
 
 void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {
-    if (existing.fStatement->is<Block>()) {
-        SkSL::Block& block = existing.fStatement->as<Block>();
-        SkASSERT(!block.isScope());
-        block.children().push_back(Declaration(additional));
-    } else if (existing.fStatement->is<VarDeclaration>()) {
-        Position pos = existing.fStatement->fPosition;
-        StatementArray stmts;
-        stmts.reserve_back(2);
-        stmts.push_back(std::move(existing.fStatement));
-        stmts.push_back(Declaration(additional));
-        existing.fStatement = SkSL::Block::Make(pos, std::move(stmts),
-                                                Block::Kind::kCompoundStatement);
-    } else if (existing.fStatement->isEmpty()) {
+    std::unique_ptr<Statement> stmt = existing.releaseIfPossible();
+    if (!stmt || stmt->isEmpty()) {
         // If the variable declaration generated an error, we can end up with a Nop statement here.
-        existing.fStatement = Declaration(additional);
+        // Jettison the existing statement, and keep the new declaration.
+        existing = DSLStatement(Declaration(additional));
+        return;
     }
+
+    if (stmt->is<Block>()) {
+        SkSL::Block& block = stmt->as<Block>();
+        if (!block.isScope()) {
+            // The existing statement is a Block without curly braces; append the additional
+            // declaration to the end.
+            block.children().push_back(Declaration(additional));
+            existing = DSLStatement(std::move(stmt));
+            return;
+        }
+    }
+
+    // The statement was not a Block; create a compound-statement block to hold the existing
+    // statement alongside the additional one.
+    Position pos = stmt->fPosition;
+    StatementArray stmts;
+    stmts.reserve_back(2);
+    stmts.push_back(std::move(stmt));
+    stmts.push_back(Declaration(additional));
+    existing = DSLStatement(
+            SkSL::Block::Make(pos, std::move(stmts), Block::Kind::kCompoundStatement),
+            pos);
 }
 
 void DSLWriter::Reset() {
