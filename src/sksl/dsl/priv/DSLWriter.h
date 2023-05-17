@@ -50,11 +50,6 @@ public:
      * of it.
      */
     static void AddVarDeclaration(DSLStatement& existing, DSLVar& additional);
-
-    /**
-     * Clears any elements or symbols which have been output.
-     */
-    static void Reset();
 };
 
 } // namespace dsl

@@ -8,8 +8,6 @@
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
 #include "include/core/SkTypes.h"
-#include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLStatement.h"
@@ -17,17 +15,13 @@
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLNop.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
 #include <utility>
-#include <vector>
 
 namespace SkSL {
-
 namespace dsl {
 
 SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
@@ -90,15 +84,5 @@ void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {
                                                          Declaration(additional)));
 }
 
-void DSLWriter::Reset() {
-    SkSL::Context& context = ThreadContext::Context();
-
-    SymbolTable::Pop(&context.fSymbolTable);
-    SymbolTable::Push(&context.fSymbolTable);
-    ThreadContext::ProgramElements().clear();
-    context.fModifiersPool->clear();
-}
-
 } // namespace dsl
-
 } // namespace SkSL
