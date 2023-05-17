@@ -167,8 +167,7 @@ private:
 
     dsl::DSLType structDeclaration();
 
-    skia_private::TArray<dsl::DSLGlobalVar> structVarDeclaration(
-            Position start, const dsl::DSLModifiers& modifiers);
+    void structVarDeclaration(Position start, const dsl::DSLModifiers& modifiers);
 
     bool allowUnsizedArrays() {
         return ProgramConfig::IsCompute(fKind) || ProgramConfig::IsFragment(fKind) ||
