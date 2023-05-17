@@ -11,8 +11,6 @@
 #include "src/sksl/SkSLPosition.h"  // IWYU pragma: keep
 
 #include <cstdint>
-#include <memory>
-#include <string>
 
 namespace SkSL {
 
@@ -21,7 +19,6 @@ enum class ProgramKind : int8_t;
 class Compiler;
 class ErrorReporter;
 struct Module;
-struct Program;
 struct ProgramSettings;
 
 namespace dsl {
@@ -45,12 +42,6 @@ void StartModule(SkSL::Compiler* compiler,
  * termination of the thread.
  */
 void End();
-
-/**
- * Returns all global elements (functions and global variables) as a self-contained Program. The
- * optional source string is retained as the program's source.
- */
-std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source = nullptr);
 
 /**
  * Returns the ErrorReporter which will be notified of any errors that occur during compilation. The

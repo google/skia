@@ -15,7 +15,6 @@
 
 namespace SkSL {
 
-class Compiler;
 class Type;
 struct Modifiers;
 
@@ -114,10 +113,6 @@ private:
 
     friend DSLType Array(const DSLType& base, int count, Position pos);
     friend DSLType UnsizedArray(const DSLType& base, Position pos);
-    friend class DSLCore;
-    friend class DSLFunction;
-    friend class DSLWriter;
-    friend class SkSL::Compiler;
 };
 
 DSLType Array(const DSLType& base, int count, Position pos = {});

@@ -325,7 +325,7 @@ std::unique_ptr<Program> Parser::program() {
     this->declarations();
     std::unique_ptr<Program> result;
     if (!GetErrorReporter().errorCount()) {
-        result = dsl::ReleaseProgram(std::move(fText));
+        result = fCompiler.releaseProgram(std::move(fText));
     }
     errorReporter->setSource(std::string_view());
     End();

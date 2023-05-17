@@ -13,12 +13,15 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLInliner.h"
+#include "src/sksl/SkSLModifiersPool.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLParser.h"
+#include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLType.h"
@@ -62,8 +65,6 @@
 #endif
 
 namespace SkSL {
-
-class ModifiersPool;
 
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
 Compiler::OverrideFlag Compiler::sOptimizer = OverrideFlag::kDefault;
@@ -243,6 +244,35 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     this->resetErrors();
 
     return Parser(this, settings, kind, std::move(text)).program();
+}
+
+std::unique_ptr<SkSL::Program> Compiler::releaseProgram(std::unique_ptr<std::string> source) {
+    ThreadContext& instance = ThreadContext::Instance();
+    Pool* pool = instance.fPool.get();
+    auto result = std::make_unique<SkSL::Program>(std::move(source),
+                                                  std::move(instance.fConfig),
+                                                  fContext,
+                                                  std::move(instance.fProgramElements),
+                                                  std::move(instance.fSharedElements),
+                                                  std::move(instance.fModifiersPool),
+                                                  std::move(fContext->fSymbolTable),
+                                                  std::move(instance.fPool),
+                                                  instance.fInterface);
+    bool success = false;
+    if (!this->finalize(*result)) {
+        // Do not return programs that failed to compile.
+    } else if (!this->optimize(*result)) {
+        // Do not return programs that failed to optimize.
+    } else {
+        // We have a successful program!
+        success = true;
+    }
+    if (pool) {
+        pool->detachFromThread();
+    }
+    SkASSERT(instance.fProgramElements.empty());
+    SkASSERT(!fContext->fSymbolTable);
+    return success ? std::move(result) : nullptr;
 }
 
 std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {

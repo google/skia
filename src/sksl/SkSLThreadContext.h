@@ -30,12 +30,6 @@ class Variable;
 enum class ProgramKind : int8_t;
 struct Module;
 
-namespace dsl {
-
-class DSLCore;
-
-} // namespace dsl
-
 /**
  * Thread-safe class that tracks per-thread state associated with SkSL output.
  */
@@ -129,7 +123,7 @@ private:
     RTAdjustData fRTAdjust;
     Program::Interface fInterface;
 
-    friend class dsl::DSLCore;
+    friend class Compiler;
 };
 
 } // namespace SkSL
