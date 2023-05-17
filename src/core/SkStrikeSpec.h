@@ -31,18 +31,10 @@ class SkStrike;
 class SkStrikeCache;
 class SkSurfaceProps;
 struct SkPackedGlyphID;
-struct SkPoint;
 namespace sktext {
 class StrikeForGPU;
 class StrikeForGPUCacheInterface;
 }
-
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-namespace sktext::gpu {
-class SDFTControl;
-class SDFTMatrixRange;
-}
-#endif
 
 class SkStrikeSpec {
 public:
@@ -88,17 +80,6 @@ public:
 
     // Make a strike spec for PDF Vector strikes
     static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);
-
-#if (defined(SK_GANESH) || defined(SK_GRAPHITE)) && !defined(SK_DISABLE_SDF_TEXT)
-    // Create a strike spec for scaled distance field text.
-    static std::tuple<SkStrikeSpec, SkScalar, sktext::gpu::SDFTMatrixRange> MakeSDFT(
-            const SkFont& font,
-            const SkPaint& paint,
-            const SkSurfaceProps& surfaceProps,
-            const SkMatrix& deviceMatrix,
-            const SkPoint& textLocation,
-            const sktext::gpu::SDFTControl& control);
-#endif
 
     sk_sp<sktext::StrikeForGPU> findOrCreateScopedStrike(
             sktext::StrikeForGPUCacheInterface* cache) const;
