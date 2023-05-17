@@ -9,13 +9,22 @@
 #define sktext_gpu_SubRunAllocator_DEFINED
 
 #include "include/core/SkSpan.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMath.h"
+#include "include/private/base/SkTLogic.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 
 #include <algorithm>
+#include <array>
 #include <climits>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <limits>
 #include <memory>
+#include <new>
 #include <tuple>
 #include <utility>
 

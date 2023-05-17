@@ -8,14 +8,19 @@
 #ifndef sktext_gpu_StrikeCache_DEFINED
 #define sktext_gpu_StrikeCache_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkDescriptor.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
+
+#include <cstdint>
+
+struct SkPackedGlyphID;
 
 namespace sktext::gpu {
 
 class Glyph;
-class StrikeCache;
 
 // The TextStrike manages an SkArenaAlloc for Glyphs. The SkStrike is what actually creates
 // the mask. The TextStrike may outlive the generating SkStrike. However, it retains a copy

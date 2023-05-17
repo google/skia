@@ -7,19 +7,21 @@
 
 #include "src/core/SkStrikeCache.h"
 
-#include <cctype>
-
 #include "include/core/SkGraphics.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/core/SkTypeface.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
-#include "include/private/base/SkTemplates.h"
+#include "src/core/SkDescriptor.h"
 #include "src/core/SkStrike.h"
+#include "src/core/SkStrikeSpec.h"
 
-#if defined(SK_GANESH)
-#include "src/text/gpu/StrikeCache.h"
-#endif
+#include <algorithm>
+#include <utility>
+
+class SkScalerContext;
+struct SkFontMetrics;
 
 using namespace sktext;
 

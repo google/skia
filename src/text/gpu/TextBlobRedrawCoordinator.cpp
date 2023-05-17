@@ -7,11 +7,18 @@
 
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/text/GlyphRun.h"
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/SurfaceDrawContext.h"
-#endif
+
+#include <utility>
+
+class GrClip;
+class SkCanvas;
+class SkPaint;
 
 using namespace skia_private;
 

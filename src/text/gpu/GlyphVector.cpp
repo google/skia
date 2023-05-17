@@ -7,20 +7,27 @@
 
 #include "src/text/gpu/GlyphVector.h"
 
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/StrikeForGPU.h"
+#include "src/text/gpu/SubRunAllocator.h"
 
+#include <climits>
 #include <optional>
+#include <utility>
 
 class SkStrikeClient;
 
 using MaskFormat = skgpu::MaskFormat;
 
 namespace sktext::gpu {
+class Glyph;
+
 // -- GlyphVector ----------------------------------------------------------------------------------
 GlyphVector::GlyphVector(SkStrikePromise&& strikePromise, SkSpan<Variant> glyphs)
         : fStrikePromise{std::move(strikePromise)}

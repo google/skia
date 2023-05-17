@@ -8,41 +8,41 @@
 #ifndef sktext_gpu_TextBlob_DEFINED
 #define sktext_gpu_TextBlob_DEFINED
 
-#include <algorithm>
-#include <limits>
-
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/chromium/Slug.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <tuple>
+
+class SkCanvas;
 class SkMatrixProvider;
-class SkStrikeClient;
-class SkSurfaceProps;
-class SkTextBlob;
-class SkTextBlobRunIterator;
+struct SkPoint;
+struct SkStrikeDeviceInfo;
 
 namespace sktext {
 class GlyphRunList;
-    namespace gpu {
-    class Glyph;
-    class StrikeCache;
-    }
+class StrikeForGPUCacheInterface;
 }
 
-#if defined(SK_GANESH)  // Ganesh support
-#include "src/gpu/ganesh/GrColor.h"
-#include "src/gpu/ganesh/ops/GrOp.h"
-class GrAtlasManager;
-class GrDeferredUploadTarget;
-class GrMeshDrawTarget;
+#if defined(SK_GANESH)
+class GrClip;
 namespace skgpu::ganesh {
 class SurfaceDrawContext;
 }
 #endif
 
 namespace sktext::gpu {
+class Slug;
 
 // -- TextBlob -----------------------------------------------------------------------------------
 // A TextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing

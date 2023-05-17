@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkString.h"
-#include "src/base/SkSafeMath.h"
-#include "src/core/SkDistanceFieldGen.h"
-#include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
 #include "src/text/gpu/SDFMaskFilter.h"
+
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskFilterBase.h"
+
+class SkMatrix;
+class SkReadBuffer;
 
 #if !defined(SK_DISABLE_SDF_TEXT)
 

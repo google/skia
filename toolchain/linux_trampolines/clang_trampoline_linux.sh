@@ -90,6 +90,7 @@ supported_files_or_dirs=(
   "src/core/SkScalar.cpp"
   "src/core/SkStream.cpp"
   "src/core/SkString.cpp"
+  "src/core/SkStrike"
   "src/core/SkWriteBuffer.cpp"
   "src/core/SkWritePixelsRec.cpp"
   "src/core/SkYUVAInfo.cpp"
@@ -106,6 +107,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrSurfaceProxyView.cpp"
   "src/gpu/ganesh/GrTextureProxy.cpp"
   "src/gpu/ganesh/SkGr.cpp"
+  "src/text/"
 
   # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.
   "include/gen/"

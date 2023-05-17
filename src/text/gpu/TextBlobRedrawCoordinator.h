@@ -10,15 +10,32 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkThreadAnnotations.h"
 #include "src/base/SkSpinlock.h"
+#include "src/base/SkTInternalLList.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkTHash.h"
-#include "src/core/SkTextBlobPriv.h"
 #include "src/text/gpu/TextBlob.h"
 
-#include <functional>
+#include <cstddef>
+#include <cstdint>
 
+class GrClip;
 class GrTextBlobTestingPeer;
+class SkCanvas;
+class SkPaint;
+struct SkStrikeDeviceInfo;
+
+namespace sktext { class GlyphRunList; }
+
+#if defined(SK_GANESH)
+namespace skgpu::ganesh { class SurfaceDrawContext; }
+#endif
+
+#if defined(SK_GRAPHITE)
+namespace skgpu::graphite { class Device; }
+#endif
 
 namespace sktext::gpu {
 

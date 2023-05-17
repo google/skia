@@ -44,6 +44,7 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/chromium/Slug.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/SubRunAllocator.h"

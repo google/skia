@@ -10,26 +10,39 @@
 
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkDescriptor.h"
-#include "src/text/StrikeForGPU.h"
+#include "src/core/SkScalerContext.h"
 
+#include <memory>
 #include <tuple>
 
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-#include "src/text/gpu/SDFTControl.h"
-
-namespace sktext::gpu {
-class StrikeCache;
-class TextStrike;
-}
-#endif
-
 class SkFont;
+class SkGlyph;
+class SkMatrix;
 class SkPaint;
 class SkStrike;
 class SkStrikeCache;
 class SkSurfaceProps;
+struct SkPackedGlyphID;
+struct SkPoint;
+namespace sktext {
+class StrikeForGPU;
+class StrikeForGPUCacheInterface;
+}
+
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+namespace sktext::gpu {
+class SDFTControl;
+class SDFTMatrixRange;
+}
+#endif
 
 class SkStrikeSpec {
 public:
@@ -121,6 +134,7 @@ private:
 class SkBulkGlyphMetrics {
 public:
     explicit SkBulkGlyphMetrics(const SkStrikeSpec& spec);
+    ~SkBulkGlyphMetrics();
     SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
     const SkGlyph* glyph(SkGlyphID glyphID);
 

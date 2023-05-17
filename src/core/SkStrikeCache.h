@@ -8,19 +8,23 @@
 #ifndef SkStrikeCache_DEFINED
 #define SkStrikeCache_DEFINED
 
-#include "include/core/SkDrawable.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkLoadUserConfig.h" // IWYU pragma: keep
 #include "include/private/base/SkMutex.h"
-#include "src/base/SkSpinlock.h"
-#include "src/core/SkDescriptor.h"
-#include "src/core/SkStrikeSpec.h"
+#include "include/private/base/SkThreadAnnotations.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkTHash.h"
 #include "src/text/StrikeForGPU.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <memory>
 
-class SkStrike;
-class SkStrikePinner;
+class SkDescriptor;
+class SkStrikeSpec;
 class SkTraceMemoryDump;
+struct SkFontMetrics;
 
 //  SK_DEFAULT_FONT_CACHE_COUNT_LIMIT and SK_DEFAULT_FONT_CACHE_LIMIT can be set using -D on your
 //  compiler commandline, or by using the defines in SkUserConfig.h

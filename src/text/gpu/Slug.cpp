@@ -8,13 +8,15 @@
 #include "include/private/chromium/Slug.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <atomic>
+class SkData;
 
 namespace sktext::gpu {
-class Slug;
+
 sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 
 sk_sp<Slug> Slug::ConvertBlob(

@@ -7,20 +7,28 @@
 
 #include "src/core/SkStrikeSpec.h"
 
-#include "include/core/SkGraphics.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/text/StrikeForGPU.h"
+
+#include <utility>
+#include <vector>
+
+struct SkPoint;
 
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/text/gpu/SDFMaskFilter.h"
 #include "src/text/gpu/SDFTControl.h"
-#include "src/text/gpu/StrikeCache.h"
 #endif
 
 SkStrikeSpec::SkStrikeSpec(const SkDescriptor& descriptor, sk_sp<SkTypeface> typeface)
@@ -230,6 +238,8 @@ sk_sp<SkStrike> SkStrikeSpec::findOrCreateStrike(SkStrikeCache* cache) const {
 
 SkBulkGlyphMetrics::SkBulkGlyphMetrics(const SkStrikeSpec& spec)
     : fStrike{spec.findOrCreateStrike()} { }
+
+SkBulkGlyphMetrics::~SkBulkGlyphMetrics() = default;
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetrics::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
     fGlyphs.reset(glyphIDs.size());

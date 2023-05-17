@@ -4,11 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/text/gpu/StrikeCache.h"
 
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/text/gpu/Glyph.h"
-#include "src/text/gpu/StrikeCache.h"
 
 namespace sktext::gpu {
 

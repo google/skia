@@ -8,27 +8,38 @@
 #include "src/text/gpu/TextBlob.h"
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkTemplates.h"
-#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "include/private/chromium/Slug.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRectPriv.h"
+#include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/GlyphRun.h"
+#include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
+#include <memory>
+#include <utility>
+
+class SkMaskFilter;
+class SkStrikeClient;
+
 #if defined(SK_GANESH)  // Ganesh Support
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/Device_v1.h"
-#include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
 #if defined(SK_GRAPHITE)  // Graphite Support

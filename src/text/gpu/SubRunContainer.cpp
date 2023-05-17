@@ -7,33 +7,71 @@
 
 #include "src/text/gpu/SubRunContainer.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
 #include "include/private/base/SkOnce.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
-#include "src/core/SkDescriptor.h"
+#include "include/private/base/SkTLogic.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkZip.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkEnumerate.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMatrixProvider.h"
+#include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRectPriv.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
+#include "src/core/SkWriteBuffer.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/GlyphVector.h"
+#include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
-#if defined(SK_GANESH)  // Ganesh Support
+#include <algorithm>
+#include <climits>
+#include <cstdint>
+#include <initializer_list>
+#include <new>
+#include <optional>
+
+class GrRecordingContext;
+enum class SkScalerContextFlags : uint32_t;
+
+
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrClip.h"
-#include "src/gpu/ganesh/GrStyle.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
 #endif  // defined(SK_GANESH)
@@ -44,10 +82,6 @@ using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #endif
-
-#include <cinttypes>
-#include <cmath>
-#include <optional>
 
 using namespace skia_private;
 using namespace skglyph;

@@ -7,15 +7,23 @@
 
 #ifndef sktext_gpu_GlyphVector_DEFINED
 #define sktext_gpu_GlyphVector_DEFINED
+
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/text/StrikeForGPU.h"
-#include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/StrikeCache.h"
-#include "src/text/gpu/SubRunAllocator.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <optional>
+#include <tuple>
+
+class SkReadBuffer;
 class SkStrikeClient;
+class SkWriteBuffer;
+
 #if defined(SK_GANESH)
 class GrMeshDrawTarget;
 #endif
@@ -24,6 +32,8 @@ namespace skgpu::graphite { class Recorder; }
 #endif
 
 namespace sktext::gpu {
+class Glyph;
+class SubRunAllocator;
 
 // -- GlyphVector ----------------------------------------------------------------------------------
 // GlyphVector provides a way to delay the lookup of Glyphs until the code is running on the GPU

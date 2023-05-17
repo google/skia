@@ -7,15 +7,15 @@
 
 #include "src/text/StrikeForGPU.h"
 
-#include <memory>
-#include <utility>
-
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkStrikeSpec.h"
+
+#include <memory>
+#include <utility>
 
 namespace sktext {
 // -- SkStrikePromise ------------------------------------------------------------------------------

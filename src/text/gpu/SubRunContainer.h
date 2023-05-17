@@ -8,36 +8,42 @@
 #ifndef sktext_gpu_SubRunContainer_DEFINED
 #define sktext_gpu_SubRunContainer_DEFINED
 
-#include "include/core/SkPoint.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkDevice.h"
-#include "src/gpu/AtlasTypes.h"
+#include "include/private/base/SkAttributes.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
-class SkMatrix;
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <tuple>
+#include <utility>
+
+class SkCanvas;
 class SkMatrixProvider;
 class SkPaint;
 class SkReadBuffer;
 class SkStrikeClient;
 class SkWriteBuffer;
+struct SkIRect;
+struct SkPoint;
+struct SkStrikeDeviceInfo;
 
 namespace sktext {
 class GlyphRunList;
 class StrikeForGPUCacheInterface;
-    namespace gpu {
-    class Glyph;
-    class StrikeCache;
-    }
 }
 
-#if defined(SK_GANESH)  // Ganesh support
+namespace skgpu {
+enum class MaskFormat : int;
+}
+
+#if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
-class GrAtlasManager;
-class GrDeferredUploadTarget;
-class GrMeshDrawTarget;
 class GrClip;
+class GrMeshDrawTarget;
 namespace skgpu::ganesh {
 class SurfaceDrawContext;
 }
@@ -48,11 +54,8 @@ class SurfaceDrawContext;
 #include "src/gpu/graphite/geom/SubRunData.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
-namespace skgpu {
-enum class MaskFormat : int;
-}
-
 namespace skgpu::graphite {
+class Device;
 class DrawWriter;
 class Recorder;
 class Renderer;
@@ -61,6 +64,8 @@ class RendererProvider;
 #endif
 
 namespace sktext::gpu {
+class StrikeCache;
+
 // -- AtlasSubRun --------------------------------------------------------------------------------
 // AtlasSubRun is the API that AtlasTextOp uses to generate vertex data for drawing.
 //     There are three different ways AtlasSubRun is specialized.
