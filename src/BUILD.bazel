@@ -16,7 +16,6 @@ skia_filegroup(
     srcs = [
         "//src/android:srcs",
         "//src/base:srcs",
-        "//src/cityhash:srcs",
         "//src/codec:srcs",
         "//src/core:srcs",
         "//src/effects:srcs",
@@ -74,7 +73,6 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "//src/base:private_hdrs",
-        "//src/cityhash:private_hdrs",
         "//src/codec:private_hdrs",
         "//src/core:private_hdrs",
         "//src/effects:private_hdrs",

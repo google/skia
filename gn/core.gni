@@ -9,7 +9,6 @@
 #   //include/private/base/BUILD.bazel
 #   //include/private/chromium/BUILD.bazel
 #   //src/base/BUILD.bazel
-#   //src/cityhash/BUILD.bazel
 #   //src/core/BUILD.bazel
 #   //src/encode/BUILD.bazel
 #   //src/image/BUILD.bazel
@@ -130,8 +129,6 @@ skia_core_public = [
 #  //src/base:private_hdrs
 #  //src/base:skslc_srcs
 #  //src/base:srcs
-#  //src/cityhash:private_hdrs
-#  //src/cityhash:srcs
 #  //src/core:core_hdrs
 #  //src/core:core_skslc_hdrs
 #  //src/core:core_skslc_srcs
@@ -249,8 +246,6 @@ skia_core_sources = [
   "$_src/base/SkUtils.h",
   "$_src/base/SkVx.h",
   "$_src/base/SkZip.h",
-  "$_src/cityhash/city.cc",
-  "$_src/cityhash/city.h",
   "$_src/core/Sk4px.h",
   "$_src/core/SkAAClip.cpp",
   "$_src/core/SkAAClip.h",
