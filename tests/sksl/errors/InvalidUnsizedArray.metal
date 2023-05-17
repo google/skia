@@ -29,5 +29,5 @@ error: 23: unsized arrays are not permitted here
     ^^^^^^^
 error: 23: unsized arrays are not permitted here
     int[] i;
-    ^^^^^^^^
+    ^^^^^^^
 10 errors

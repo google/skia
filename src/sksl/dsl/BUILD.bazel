@@ -19,7 +19,6 @@ skia_filegroup(
         "DSLType.cpp",
         "DSLType.h",
         "DSLVar.h",
-        "//src/sksl/dsl/priv:srcs",
     ],
     visibility = ["//src/sksl:__pkg__"],
 )

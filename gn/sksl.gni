@@ -34,7 +34,6 @@ _include = get_path_info("../include", "abspath")
 #  //src/sksl/codegen:private_hdrs
 #  //src/sksl/dsl:srcs
 #  //src/sksl/dsl/priv:private_hdrs
-#  //src/sksl/dsl/priv:srcs
 #  //src/sksl/ir:ir_hdrs
 #  //src/sksl/ir:ir_srcs
 #  //src/sksl/tracing:private_hdrs
@@ -130,8 +129,6 @@ skia_sksl_sources = [
   "$_src/sksl/dsl/DSLType.cpp",
   "$_src/sksl/dsl/DSLType.h",
   "$_src/sksl/dsl/DSLVar.h",
-  "$_src/sksl/dsl/priv/DSLWriter.cpp",
-  "$_src/sksl/dsl/priv/DSLWriter.h",
   "$_src/sksl/dsl/priv/DSL_priv.h",
   "$_src/sksl/ir/SkSLBinaryExpression.cpp",
   "$_src/sksl/ir/SkSLBinaryExpression.h",

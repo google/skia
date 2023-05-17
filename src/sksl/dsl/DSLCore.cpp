@@ -15,8 +15,9 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/dsl/DSLExpression.h"
+#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/DSLVar.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
@@ -94,10 +95,19 @@ public:
     }
 
     static void Declare(DSLGlobalVar& var, Position pos) {
-        std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
-        if (stmt && !stmt->isEmpty()) {
+        std::unique_ptr<SkSL::Statement> decl =
+                VarDeclaration::Convert(ThreadContext::Context(),
+                                        var.fPosition,
+                                        var.fModifiersPos,
+                                        var.fModifiers,
+                                        var.fType.skslType(),
+                                        var.fNamePosition,
+                                        var.fName,
+                                        var.fStorage,
+                                        var.fInitialValue.releaseIfPossible());
+        if (decl) {
             ThreadContext::ProgramElements().push_back(
-                    std::make_unique<SkSL::GlobalVarDeclaration>(std::move(stmt)));
+                    std::make_unique<SkSL::GlobalVarDeclaration>(std::move(decl)));
         }
     }
 };

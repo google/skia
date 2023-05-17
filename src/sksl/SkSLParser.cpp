@@ -19,7 +19,6 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLVar.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -52,6 +51,8 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 #include <algorithm>
 #include <climits>
@@ -669,30 +670,46 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
     if (!this->parseInitializer(pos, &initializer)) {
         return {};
     }
-    DSLVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
-                 this->position(name));
-    DSLStatement result = DSLWriter::Declaration(first);
-
-    while (this->checkNext(Token::Kind::TK_COMMA)) {
+    std::unique_ptr<Statement> result = VarDeclaration::Convert(fCompiler.context(),
+                                                                this->rangeFrom(pos),
+                                                                mods.fPosition,
+                                                                mods.fModifiers,
+                                                                type.skslType(),
+                                                                this->position(name),
+                                                                this->text(name),
+                                                                VariableStorage::kLocal,
+                                                                initializer.releaseIfPossible());
+    for (;;) {
+        if (!this->checkNext(Token::Kind::TK_COMMA)) {
+            this->expect(Token::Kind::TK_SEMICOLON, "';'");
+            break;
+        }
         type = baseType;
         Token identifierName;
         if (!this->expectIdentifier(&identifierName)) {
-            return result;
+            break;
         }
         if (!this->parseArrayDimensions(pos, &type)) {
-            return result;
+            break;
         }
         DSLExpression anotherInitializer;
         if (!this->parseInitializer(pos, &anotherInitializer)) {
-            return result;
+            break;
         }
-        DSLVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
-                    this->rangeFrom(identifierName), this->position(identifierName));
-        DSLWriter::AddVarDeclaration(result, next);
+        std::unique_ptr<Statement> next =
+                VarDeclaration::Convert(fCompiler.context(),
+                                        this->rangeFrom(identifierName),
+                                        mods.fPosition,
+                                        mods.fModifiers,
+                                        type.skslType(),
+                                        this->position(identifierName),
+                                        this->text(identifierName),
+                                        VariableStorage::kLocal,
+                                        anotherInitializer.releaseIfPossible());
+
+        result = Block::MakeCompoundStatement(std::move(result), std::move(next));
     }
-    this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    result.setPosition(this->rangeFrom(pos));
-    return result;
+    return DSLStatement(std::move(result), this->rangeFrom(pos));
 }
 
 /* (varDeclarations | expressionStatement) */
