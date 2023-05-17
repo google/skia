@@ -882,6 +882,8 @@ TINT_SRCS = [
     "src/tint/ast/transform/zero_init_workgroup_memory.h",
     "src/tint/transform/manager.cc",
     "src/tint/transform/manager.h",
+    "src/tint/transform/transform.cc",
+    "src/tint/transform/transform.h",
 
     # From dawn/src/tint/BUILD.gn:libtint_ast_hdrs
     "src/tint/ast/accessor_expression.h",
