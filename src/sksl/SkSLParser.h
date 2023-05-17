@@ -285,8 +285,6 @@ private:
 
     std::shared_ptr<SymbolTable>& symbolTable();
 
-    void addToSymbolTable(dsl::DSLVarBase& var, Position pos = {});
-
     class Checkpoint {
     public:
         Checkpoint(Parser* p) : fParser(p) {

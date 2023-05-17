@@ -392,9 +392,35 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
     return true;
 }
 
-std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
-                                                   std::unique_ptr<Variable> var,
-                                                   std::unique_ptr<Expression> value) {
+std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
+                                                        Position overallPos,
+                                                        Position modifiersPos,
+                                                        const Modifiers& modifiers,
+                                                        const Type& type,
+                                                        Position namePos,
+                                                        std::string_view name,
+                                                        VariableStorage storage,
+                                                        std::unique_ptr<Expression> value) {
+    // Parameter declaration-statements do not exist in the grammar (unlike, say, K&R C).
+    SkASSERT(storage != VariableStorage::kParameter);
+
+    std::unique_ptr<Variable> var = Variable::Convert(context,
+                                                      overallPos,
+                                                      modifiersPos,
+                                                      modifiers,
+                                                      &type,
+                                                      namePos,
+                                                      name,
+                                                      storage);
+    if (!var) {
+        return nullptr;
+    }
+    return VarDeclaration::Convert(context, std::move(var), std::move(value));
+}
+
+std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
+                                                        std::unique_ptr<Variable> var,
+                                                        std::unique_ptr<Expression> value) {
     if (!ErrorCheckAndCoerce(context, *var, value)) {
         return nullptr;
     }
@@ -404,8 +430,8 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
         arraySize = baseType->columns();
         baseType = &baseType->componentType();
     }
-    std::unique_ptr<Statement> varDecl = VarDeclaration::Make(context, var.get(), baseType,
-                                                              arraySize, std::move(value));
+    std::unique_ptr<VarDeclaration> varDecl = VarDeclaration::Make(context, var.get(), baseType,
+                                                                   arraySize, std::move(value));
     if (!varDecl) {
         return nullptr;
     }
@@ -434,12 +460,15 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
         }
     }
 
-    context.fSymbolTable->takeOwnershipOfSymbol(std::move(var));
+    context.fSymbolTable->add(std::move(var));
     return varDecl;
 }
 
-std::unique_ptr<Statement> VarDeclaration::Make(const Context& context, Variable* var,
-        const Type* baseType, int arraySize, std::unique_ptr<Expression> value) {
+std::unique_ptr<VarDeclaration> VarDeclaration::Make(const Context& context,
+                                                     Variable* var,
+                                                     const Type* baseType,
+                                                     int arraySize,
+                                                     std::unique_ptr<Expression> value) {
     SkASSERT(!baseType->isArray());
     // function parameters cannot have variable declarations
     SkASSERT(var->storage() != Variable::Storage::kParameter);
@@ -464,7 +493,7 @@ std::unique_ptr<Statement> VarDeclaration::Make(const Context& context, Variable
 
     auto result = std::make_unique<VarDeclaration>(var, baseType, arraySize, std::move(value));
     var->setVarDeclaration(result.get());
-    return std::move(result);
+    return result;
 }
 
 }  // namespace SkSL

@@ -52,7 +52,6 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLVariable.h"
 
 #include <algorithm>
 #include <climits>
@@ -145,12 +144,6 @@ Parser::Parser(Compiler* compiler,
 
 std::shared_ptr<SymbolTable>& Parser::symbolTable() {
     return fCompiler.symbolTable();
-}
-
-void Parser::addToSymbolTable(DSLVarBase& var, Position pos) {
-    if (var.fVar) {
-        this->symbolTable()->addWithoutOwnership(var.fVar);
-    }
 }
 
 Token Parser::nextRawToken() {
@@ -640,7 +633,6 @@ void Parser::globalVarDeclarationEnd(Position pos,
     DSLGlobalVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
                        this->position(name));
     Declare(first);
-    this->addToSymbolTable(first);
 
     while (this->checkNext(Token::Kind::TK_COMMA)) {
         type = baseType;
@@ -658,7 +650,6 @@ void Parser::globalVarDeclarationEnd(Position pos,
         DSLGlobalVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
                           this->rangeFrom(identifierName));
         Declare(next);
-        this->addToSymbolTable(next, this->position(identifierName));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
 }
@@ -681,7 +672,6 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
     DSLVar first(mods, type, this->text(name), std::move(initializer), this->rangeFrom(pos),
                  this->position(name));
     DSLStatement result = DSLWriter::Declaration(first);
-    this->addToSymbolTable(first);
 
     while (this->checkNext(Token::Kind::TK_COMMA)) {
         type = baseType;
@@ -699,7 +689,6 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
         DSLVar next(mods, type, this->text(identifierName), std::move(anotherInitializer),
                     this->rangeFrom(identifierName), this->position(identifierName));
         DSLWriter::AddVarDeclaration(result, next);
-        this->addToSymbolTable(next, this->position(identifierName));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
     result.setPosition(this->rangeFrom(pos));

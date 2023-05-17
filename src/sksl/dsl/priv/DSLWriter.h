@@ -30,17 +30,12 @@ struct DSLVar;
 class DSLWriter {
 public:
     /**
-     * Returns the SkSL variable corresponding to a DSL var.
-     */
-    static SkSL::Variable* Var(DSLVarBase& var);
-
-    /**
      * Creates an SkSL variable corresponding to a DSLParameter.
      */
     static std::unique_ptr<SkSL::Variable> CreateParameterVar(DSLParameter& var);
 
     /**
-     * Returns the SkSL declaration corresponding to a DSLVar.
+     * Returns the SkSL declaration corresponding to a DSLVar, and adds it to the symbol table.
      */
     static std::unique_ptr<SkSL::Statement> Declaration(DSLVarBase& var);
 

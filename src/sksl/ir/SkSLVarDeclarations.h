@@ -17,6 +17,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace SkSL {
@@ -61,17 +62,32 @@ public:
     static void ErrorCheck(const Context& context, Position pos, Position modifiersPosition,
                            const Modifiers& modifiers, const Type* type, Variable::Storage storage);
 
-    // Does proper error checking and type coercion; reports errors via ErrorReporter.
-    static std::unique_ptr<Statement> Convert(const Context& context,
-                                              std::unique_ptr<Variable> var,
-                                              std::unique_ptr<Expression> value);
+    // For use when no Variable yet exists. The newly-created variable will be added to the active
+    // symbol table. Performs proper error checking and type coercion; reports errors via
+    // ErrorReporter.
+    static std::unique_ptr<VarDeclaration> Convert(const Context& context,
+                                                   Position overallPos,
+                                                   Position modifiersPos,
+                                                   const Modifiers& modifiers,
+                                                   const Type& type,
+                                                   Position namePos,
+                                                   std::string_view name,
+                                                   VariableStorage storage,
+                                                   std::unique_ptr<Expression> value);
 
-    // Reports errors via ASSERT.
-    static std::unique_ptr<Statement> Make(const Context& context,
-                                           Variable* var,
-                                           const Type* baseType,
-                                           int arraySize,
-                                           std::unique_ptr<Expression> value);
+    // For use when a Variable already exists. The passed-in variable will be added to the active
+    // symbol table. Performs proper error checking and type coercion; reports errors via
+    // ErrorReporter.
+    static std::unique_ptr<VarDeclaration> Convert(const Context& context,
+                                                   std::unique_ptr<Variable> var,
+                                                   std::unique_ptr<Expression> value);
+
+    // The symbol table is left as-is. Reports errors via ASSERT.
+    static std::unique_ptr<VarDeclaration> Make(const Context& context,
+                                                Variable* var,
+                                                const Type* baseType,
+                                                int arraySize,
+                                                std::unique_ptr<Expression> value);
     const Type& baseType() const {
         return fBaseType;
     }
