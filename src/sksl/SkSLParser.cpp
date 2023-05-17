@@ -148,8 +148,8 @@ std::shared_ptr<SymbolTable>& Parser::symbolTable() {
 }
 
 void Parser::addToSymbolTable(DSLVarBase& var, Position pos) {
-    if (SkSL::Variable* skslVar = DSLWriter::Var(var)) {
-        this->symbolTable()->addWithoutOwnership(skslVar);
+    if (var.fVar) {
+        this->symbolTable()->addWithoutOwnership(var.fVar);
     }
 }
 

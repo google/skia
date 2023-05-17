@@ -25,31 +25,25 @@ namespace SkSL {
 namespace dsl {
 
 SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
-    // fInitialized is true if we have attempted to create a var, whether or not we actually
-    // succeeded. If it's true, we don't want to try again, to avoid reporting the same error
-    // multiple times.
-    if (!var.fInitialized) {
-        // We haven't even attempted to create a var yet, so fVar and fDeclaration ought to be null
-        SkASSERT(!var.fVar);
-        SkASSERT(!var.fDeclaration);
+    SkASSERT(var.fStorage != SkSL::VariableStorage::kParameter);  // use CreateParameterVar instead
 
-        var.fInitialized = true;
-        std::unique_ptr<SkSL::Variable> skslvar = SkSL::Variable::Convert(ThreadContext::Context(),
-                                                                          var.fPosition,
-                                                                          var.fModifiersPos,
-                                                                          var.fModifiers,
-                                                                          &var.fType.skslType(),
-                                                                          var.fNamePosition,
-                                                                          var.fName,
-                                                                          var.fStorage);
-        if (var.fStorage != SkSL::VariableStorage::kParameter) {
-            var.fDeclaration = VarDeclaration::Convert(ThreadContext::Context(),
-                                                       std::move(skslvar),
-                                                       var.fInitialValue.releaseIfPossible());
-            if (var.fDeclaration) {
-                var.fVar = var.fDeclaration->as<VarDeclaration>().var();
-            }
-        }
+    // We haven't attempted to create a var yet; fVar and fDeclaration ought to be null.
+    SkASSERT(!var.fVar);
+    SkASSERT(!var.fDeclaration);
+
+    std::unique_ptr<SkSL::Variable> skslvar = SkSL::Variable::Convert(ThreadContext::Context(),
+                                                                      var.fPosition,
+                                                                      var.fModifiersPos,
+                                                                      var.fModifiers,
+                                                                      &var.fType.skslType(),
+                                                                      var.fNamePosition,
+                                                                      var.fName,
+                                                                      var.fStorage);
+    var.fDeclaration = VarDeclaration::Convert(ThreadContext::Context(),
+                                               std::move(skslvar),
+                                               var.fInitialValue.releaseIfPossible());
+    if (var.fDeclaration) {
+        var.fVar = var.fDeclaration->as<VarDeclaration>().var();
     }
     return var.fVar;
 }

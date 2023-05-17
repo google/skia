@@ -42,10 +42,6 @@ struct DSLVarBase {
 
     Position fModifiersPos;
     SkSL::Modifiers fModifiers;
-    // We only need to keep track of the type here so that we can create the SkSL::Variable. For
-    // predefined variables this field is unnecessary, so we don't bother tracking it and just set
-    // it to kVoid; in other words, you shouldn't generally be relying on this field to be correct.
-    // If you need to determine the variable's type, look at DSLWriter::Var(...)->type() instead.
     DSLType fType;
     std::unique_ptr<SkSL::Statement> fDeclaration;
     SkSL::Variable* fVar = nullptr;
@@ -54,7 +50,6 @@ struct DSLVarBase {
     DSLExpression fInitialValue;
     Position fPosition;
     VariableStorage fStorage;
-    bool fInitialized = false;
 };
 
 /**
