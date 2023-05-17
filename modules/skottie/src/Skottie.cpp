@@ -30,7 +30,7 @@
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
-#include "modules/sksg/include/SkSGScene.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
 #include "src/core/SkTraceEvent.h"
 
@@ -44,6 +44,16 @@
 namespace skottie {
 
 namespace internal {
+
+void SceneGraphRevalidator::setRoot(sk_sp<sksg::RenderNode> root) {
+    fRoot = std::move(root);
+}
+
+void SceneGraphRevalidator::revalidate() {
+    if (fRoot) {
+        fRoot->revalidate(nullptr, SkMatrix::I());
+    }
+}
 
 void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
                            const char fmt[], ...) const {
@@ -131,6 +141,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fMarkerObserver(std::move(mobserver))
     , fPrecompInterceptor(std::move(pi))
     , fExpressionManager(std::move(expressionmgr))
+    , fRevalidator(sk_make_sp<SceneGraphRevalidator>())
     , fStats(stats)
     , fCompSize(comp_size)
     , fDuration(duration)
@@ -153,7 +164,11 @@ AnimationBuilder::AnimationInfo AnimationBuilder::parse(const skjson::ObjectValu
     auto animators = ascope.release();
     fStats->fAnimatorCount = animators.size();
 
-    return { sksg::Scene::Make(std::move(root)), std::move(animators) };
+    // Point the revalidator to our final root, and perform initial revalidation.
+    fRevalidator->setRoot(root);
+    fRevalidator->revalidate();
+
+    return { std::move(root), std::move(animators) };
 }
 
 void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
@@ -211,7 +226,7 @@ bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c,
         fPropertyObserver->onColorProperty(node_name,
             [&]() {
                 dispatched = true;
-                return std::make_unique<ColorPropertyHandle>(c);
+                return std::make_unique<ColorPropertyHandle>(c, fRevalidator);
             });
     }
 
@@ -232,7 +247,7 @@ bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&
         fPropertyObserver->onOpacityProperty(node_name,
             [&]() {
                 dispatched = true;
-                return std::make_unique<OpacityPropertyHandle>(o);
+                return std::make_unique<OpacityPropertyHandle>(o, fRevalidator);
             });
     }
 
@@ -253,7 +268,7 @@ bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t,
         fPropertyObserver->onTextProperty(node_name,
             [&]() {
                 dispatched = true;
-                return std::make_unique<TextPropertyHandle>(t);
+                return std::make_unique<TextPropertyHandle>(t, fRevalidator);
             });
     }
 
@@ -267,7 +282,7 @@ bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter2D>
         fPropertyObserver->onTransformProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
-                return std::make_unique<TransformPropertyHandle>(t);
+                return std::make_unique<TransformPropertyHandle>(t, fRevalidator);
             });
     }
 
@@ -408,7 +423,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     fStats.fSceneParseTimeMS = std::chrono::duration<float, std::milli>{t2-t1}.count();
     fStats.fTotalLoadTimeMS  = std::chrono::duration<float, std::milli>{t2-t0}.count();
 
-    if (!ainfo.fScene && fLogger) {
+    if (!ainfo.fSceneRoot && fLogger) {
         fLogger->log(Logger::Level::kError, "Could not parse animation.\n");
     }
 
@@ -417,7 +432,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
         flags |= Animation::Flags::kRequiresTopLevelIsolation;
     }
 
-    return sk_sp<Animation>(new Animation(std::move(ainfo.fScene),
+    return sk_sp<Animation>(new Animation(std::move(ainfo.fSceneRoot),
                                           std::move(ainfo.fAnimators),
                                           std::move(version),
                                           size,
@@ -435,11 +450,11 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
                 : nullptr;
 }
 
-Animation::Animation(std::unique_ptr<sksg::Scene> scene,
+Animation::Animation(sk_sp<sksg::RenderNode> scene_root,
                      std::vector<sk_sp<internal::Animator>>&& animators,
                      SkString version, const SkSize& size,
                      double inPoint, double outPoint, double duration, double fps, uint32_t flags)
-    : fScene(std::move(scene))
+    : fSceneRoot(std::move(scene_root))
     , fAnimators(std::move(animators))
     , fVersion(std::move(version))
     , fSize(size)
@@ -458,7 +473,7 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
 void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderFlags) const {
     TRACE_EVENT0("skottie", TRACE_FUNC);
 
-    if (!fScene)
+    if (!fSceneRoot)
         return;
 
     SkAutoCanvasRestore restore(canvas, true);
@@ -479,13 +494,13 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
         canvas->saveLayer(srcR, nullptr);
     }
 
-    fScene->render(canvas);
+    fSceneRoot->render(canvas);
 }
 
 void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
     TRACE_EVENT0("skottie", TRACE_FUNC);
 
-    if (!fScene)
+    if (!fSceneRoot)
         return;
 
     // Per AE/Lottie semantics out_point is exclusive.
@@ -496,7 +511,7 @@ void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
         anim->seek(comp_time);
     }
 
-    fScene->revalidate(ic);
+    fSceneRoot->revalidate(ic, SkMatrix::I());
 }
 
 void Animation::seekFrameTime(double t, sksg::InvalidationController* ic) {

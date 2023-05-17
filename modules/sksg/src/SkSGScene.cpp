@@ -24,10 +24,6 @@ Scene::Scene(sk_sp<RenderNode> root) : fRoot(std::move(root)) {}
 Scene::~Scene() = default;
 
 void Scene::render(SkCanvas* canvas) const {
-    // Ensure the SG is revalidated.
-    // Note: this is a no-op if the scene has already been revalidated - e.g. in animate().
-    fRoot->revalidate(nullptr, SkMatrix::I());
-
     fRoot->render(canvas);
 }
 
