@@ -337,6 +337,8 @@ $pure half4 sk_yuv_image_shader(float2 coords,
             : $sample_image(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
                             $kReadSwizzleNormalRGBA, sA);
         sampleColor.a = dot(channelSelectA, sampleColorA);
+        // premul alpha
+        sampleColor.rgb *= sampleColor.a;
     }
 
     return sk_color_space_transform(sampleColor, csXformFlags, csXformSrcKind, csXformSrcCoeffs,
