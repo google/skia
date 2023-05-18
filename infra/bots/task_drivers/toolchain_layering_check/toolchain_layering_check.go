@@ -23,6 +23,7 @@ import (
 var (
 	// Required properties for this task.
 	cachePath = flag.String("cache_path", "/mnt/pd0/bazel_cache", "The path where the Bazel cache should live. This should be able to hold tens of GB at least.")
+	label     = flag.String("test_label", "", "The label of the Bazel target to test.")
 	config    = flag.String("test_config", "", "A custom configuration specified in //bazel/buildrc. This configuration potentially encapsulates many features and options.")
 	projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
 	taskId    = flag.String("task_id", "", "ID of this task.")
@@ -37,6 +38,14 @@ func main() {
 	// StartRun calls flag.Parse()
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
+
+	if *label == "" {
+		td.Fatal(ctx, fmt.Errorf("--test_label is required"))
+	}
+
+	if *config == "" {
+		td.Fatal(ctx, fmt.Errorf("--test_config is required"))
+	}
 
 	wd, err := os_steps.Abs(ctx, *workdir)
 	if err != nil {
@@ -53,10 +62,8 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	testLib := "//experimental/bazel_test/client:client_lib"
-
 	// This build should succeed
-	if err := bazelBuild(ctx, skiaDir, testLib, *config); err != nil {
+	if err := bazelBuild(ctx, skiaDir, *label, *config); err != nil {
 		td.Fatal(ctx, err)
 	}
 
@@ -68,7 +75,7 @@ func main() {
 		"SOURCE_INCLUDES_PRIVATE_HEADER",
 	}
 	for _, define := range definesToIncludeExtraHeaders {
-		if err := expectFailure(ctx, skiaDir, testLib, *config, define); err != nil {
+		if err := expectFailure(ctx, skiaDir, *label, *config, define); err != nil {
 			td.Fatal(ctx, err)
 		}
 	}

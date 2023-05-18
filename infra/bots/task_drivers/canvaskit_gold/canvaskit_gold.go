@@ -33,6 +33,7 @@ var (
 	taskId     = flag.String("task_id", "", "ID of this task.")
 	taskName   = flag.String("task_name", "", "Name of the task.")
 	workdir    = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
+	testLabel  = flag.String("test_label", "", "The label of the Bazel target to test.")
 	testConfig = flag.String("test_config", "", "The config name (defined in //bazel/buildrc), which indicates how CanvasKit should be compiled and tested.")
 	cross      = flag.String("cross", "", "[not yet supported] For use with cross-compiling.")
 	// goldctl data
@@ -70,6 +71,9 @@ func main() {
 			td.Fatal(ctx, err)
 		}
 	}
+	if *testLabel == "" {
+		td.Fatal(ctx, skerr.Fmt("Must specify --test_label"))
+	}
 	if *testConfig == "" {
 		td.Fatal(ctx, skerr.Fmt("Must specify --test_config"))
 	}
@@ -92,7 +96,7 @@ func main() {
 		}
 	}
 
-	if err := bazelTest(ctx, skiaDir, "//modules/canvaskit:canvaskit_js_tests", *testConfig,
+	if err := bazelTest(ctx, skiaDir, *testLabel, *testConfig,
 		"--config=linux_rbe", "--test_output=streamed", "--jobs="+strconv.Itoa(rbeJobs)); err != nil {
 		td.Fatal(ctx, err)
 	}
@@ -113,7 +117,7 @@ func main() {
 			"cpu_or_gpu_value": *cpuOrGPUValue,
 		},
 	}
-	if err := uploadDataToGold(ctx, skiaDir, conf); err != nil {
+	if err := uploadDataToGold(ctx, *testLabel, skiaDir, conf); err != nil {
 		td.Fatal(ctx, err)
 	}
 }
@@ -150,14 +154,18 @@ type goldctlConfig struct {
 	keys          map[string]string
 }
 
-func uploadDataToGold(ctx context.Context, checkoutDir string, cfg goldctlConfig) error {
+func uploadDataToGold(ctx context.Context, label, checkoutDir string, cfg goldctlConfig) error {
 	return td.Do(ctx, td.Props("Upload to Gold"), func(ctx context.Context) error {
 		zipExtractDir, err := os_steps.TempDir(ctx, "", "gold_outputs")
 		if err != nil {
 			return err
 		}
-		if err := extractZip(ctx, filepath.Join(checkoutDir, "bazel-testlogs", "modules", "canvaskit",
-			"canvaskit_js_tests", "test.outputs", "outputs.zip"), zipExtractDir); err != nil {
+
+		// Turn "//path/to:target" into "path/to/target".
+		labelBazelTestlogsPath := strings.ReplaceAll(label, "//", "")
+		labelBazelTestlogsPath = strings.ReplaceAll(label, ":", "/")
+
+		if err := extractZip(ctx, filepath.Join(checkoutDir, "bazel-testlogs", labelBazelTestlogsPath, "test.outputs", "outputs.zip"), zipExtractDir); err != nil {
 			return err
 		}
 

@@ -2136,14 +2136,16 @@ func (b *jobBuilder) runWasmGMTests() {
 // label or "target pattern" https://bazel.build/docs/build#specifying-build-targets
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 var shorthandToLabel = map[string]string{
-	"base":                       "//src:base",
-	"example_hello_world_dawn":   "//example:hello_world_dawn",
-	"example_hello_world_gl":     "//example:hello_world_gl",
-	"example_hello_world_vulkan": "//example:hello_world_vulkan",
-	"modules_canvaskit":          "//modules/canvaskit:canvaskit",
-	"skia_public":                "//:skia_public",
-	"skottie_tool_gpu":           "//modules/skottie:skottie_tool_gpu",
-	"tests":                      "//tests/...",
+	"base":                           "//src:base",
+	"example_hello_world_dawn":       "//example:hello_world_dawn",
+	"example_hello_world_gl":         "//example:hello_world_gl",
+	"example_hello_world_vulkan":     "//example:hello_world_vulkan",
+	"modules_canvaskit":              "//modules/canvaskit:canvaskit",
+	"modules_canvaskit_js_tests":     "//modules/canvaskit:canvaskit_js_tests",
+	"skia_public":                    "//:skia_public",
+	"skottie_tool_gpu":               "//modules/skottie:skottie_tool_gpu",
+	"tests":                          "//tests/...",
+	"experimental_bazel_test_client": "//experimental/bazel_test/client:client_lib",
 }
 
 // bazelBuild adds a task which builds the specified single-target label (//foo:bar) or
@@ -2201,13 +2203,18 @@ func (b *jobBuilder) bazelBuild() {
 }
 
 func (b *jobBuilder) bazelTest() {
-	taskdriverName, config, host, cross := b.parts.bazelTestParts()
+	taskdriverName, shorthand, config, host, cross := b.parts.bazelTestParts()
+	label, ok := shorthandToLabel[shorthand]
+	if !ok {
+		panic("unsupported Bazel label shorthand " + shorthand)
+	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
 		cmd := []string{"./" + taskdriverName,
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
 			"--task_name=" + b.Name,
+			"--test_label=" + label,
 			"--test_config=" + config,
 			"--workdir=.",
 		}

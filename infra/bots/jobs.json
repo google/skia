@@ -25,19 +25,19 @@
   {"name": "BazelBuild-tests-cpu_only-linux_x64"},
   {"name": "BazelBuild-tests-gl_ganesh-linux_x64"},
   {"name": "BazelBuild-tests-vulkan_ganesh-linux_x64"},
-  {"name": "BazelTest-canvaskit_gold-ck_full_cpu_release_chrome-linux_x64",
+  {"name": "BazelTest-canvaskit_gold-modules_canvaskit_js_tests-ck_full_cpu_release_chrome-linux_x64",
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
   },
-  {"name": "BazelTest-canvaskit_gold-ck_full_webgl2_release_chrome-linux_x64",
+  {"name": "BazelTest-canvaskit_gold-modules_canvaskit_js_tests-ck_full_webgl2_release_chrome-linux_x64",
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
   },
-  {"name": "BazelTest-cpu_tests-cpu_only_debug_rbe-linux_x64",
+  {"name": "BazelTest-cpu_tests-tests-cpu_only_debug_rbe-linux_x64",
     "cq_config": {"experimental": true}
   },
-  {"name": "BazelTest-cpu_tests-cpu_only_release_rbe-linux_x64",
+  {"name": "BazelTest-cpu_tests-tests-cpu_only_release_rbe-linux_x64",
     "cq_config": {"experimental": true}
   },
-  {"name": "BazelTest-toolchain_layering_check-release-linux_x64"},
+  {"name": "BazelTest-toolchain_layering_check-experimental_bazel_test_client-release-linux_x64"},
   {"name": "Build-Debian10-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian10-GCC-x86-Release-Docker"},
   {"name": "Build-Debian10-GCC-x86_64-Debug-Docker"},

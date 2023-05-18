@@ -13,6 +13,7 @@
     "BazelTest": {
       "keys": [
         "task_driver",
+        "label",
         "config",
         "host"
       ],
