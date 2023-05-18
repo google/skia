@@ -9,6 +9,7 @@
 #define skgpu_graphite_VulkanGraphicsPipeline_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 
 namespace skgpu::graphite {
@@ -22,12 +23,22 @@ public:
 
     ~VulkanGraphicsPipeline() override {}
 
+    VkPipeline pipeline() const { return fPipeline; }
+
+    VkPipelineLayout layout() const {
+        SkASSERT(fPipelineLayout != VK_NULL_HANDLE);
+        return fPipelineLayout;
+    }
+
 private:
     VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext
                            /* TODO: fill out argument list */)
         : GraphicsPipeline(sharedContext) { }
 
     void freeGpuData() override;
+
+    VkPipeline  fPipeline;
+    VkPipelineLayout  fPipelineLayout;
 };
 
 } // namespace skgpu::graphite

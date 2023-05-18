@@ -8,10 +8,15 @@
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 
 #include "include/core/SkSpan.h"
+#include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/PipelineUtils.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
@@ -19,9 +24,13 @@
 #include "src/gpu/graphite/vk/VulkanDescriptorPool.h"
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanTexture.h"
+#include "src/sksl/SkSLProgramKind.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 namespace skgpu::graphite {
 
@@ -89,11 +98,78 @@ sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture
 }
 
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
-        const RuntimeEffectDictionary*,
-        const GraphicsPipelineDesc&,
-        const RenderPassDesc&) {
-    // TODO: Generate shaders and depth-stencil state
+        const RuntimeEffectDictionary* runtimeDict,
+        const GraphicsPipelineDesc& pipelineDesc,
+        const RenderPassDesc& renderPassDesc) {
+    SkSL::Program::Interface vsInterface, fsInterface;
+    SkSL::ProgramSettings settings;
 
+    settings.fForceNoRTFlip = true; // TODO: Confirm
+
+    auto compiler = this->skslCompiler();
+    ShaderErrorHandler* errorHandler = fSharedContext->caps()->shaderErrorHandler();
+
+    const RenderStep* step =
+            fSharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
+
+    bool useShadingSsboIndex =
+            fSharedContext->caps()->storageBufferPreferred() && step->performsShading();
+
+    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(fSharedContext->caps(),
+                                              fSharedContext->shaderCodeDictionary(),
+                                              runtimeDict,
+                                              step,
+                                              pipelineDesc.paintParamsID(),
+                                              useShadingSsboIndex,
+                                              renderPassDesc.fWriteSwizzle);
+    const std::string& fsSkSL = fsSkSLInfo.fSkSL;
+    const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
+
+    bool hasFragment = !fsSkSL.empty();
+    std::string vsSPIRV, fsSPIRV;
+    VkShaderModule fsModule = VK_NULL_HANDLE, vsModule = VK_NULL_HANDLE;
+
+    if (hasFragment) {
+        if (!SkSLToSPIRV(compiler,
+                         fsSkSL,
+                         SkSL::ProgramKind::kGraphiteFragment,
+                         settings,
+                         &fsSPIRV,
+                         &fsInterface,
+                         errorHandler)) {
+            return {};
+        }
+
+        fsModule = createVulkanShaderModule(this->vulkanSharedContext(),
+                                            fsSPIRV,
+                                            VK_SHADER_STAGE_FRAGMENT_BIT);
+
+        if (!fsModule) {
+            return {};
+        }
+    }
+
+    if (!SkSLToSPIRV(compiler,
+                     GetSkSLVS(fSharedContext->caps()->resourceBindingRequirements(),
+                               step,
+                               useShadingSsboIndex,
+                               localCoordsNeeded),
+                     SkSL::ProgramKind::kGraphiteVertex,
+                     settings,
+                     &vsSPIRV,
+                     &vsInterface,
+                     errorHandler)) {
+        return {};
+    }
+
+    vsModule = createVulkanShaderModule(this->vulkanSharedContext(),
+                                        vsSPIRV,
+                                        VK_SHADER_STAGE_VERTEX_BIT);
+    if (!vsModule) {
+        return {};
+    }
+
+    // TODO: Generate depth-stencil state, blend info
     return VulkanGraphicsPipeline::Make(this->vulkanSharedContext());
 }
 

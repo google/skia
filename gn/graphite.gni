@@ -98,6 +98,8 @@ skia_graphite_sources = [
   "$_src/PipelineData.cpp",
   "$_src/PipelineData.h",
   "$_src/PipelineDataCache.h",
+  "$_src/PipelineUtils.cpp",
+  "$_src/PipelineUtils.h",
   "$_src/ProxyCache.cpp",
   "$_src/ProxyCache.h",
   "$_src/QueueManager.cpp",

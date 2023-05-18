@@ -34,6 +34,14 @@
     do {                                             \
         (RESULT) = VULKAN_CALL(IFACE, X);            \
     } while (false)
+namespace skgpu::graphite {
 
+class VulkanSharedContext;
+
+VkShaderModule createVulkanShaderModule(const VulkanSharedContext*,
+                                        const std::string& spirv,
+                                        VkShaderStageFlagBits);
+
+} // namespace skgpu::graphite
 
 #endif // skgpu_graphite_VulkanGraphiteUtilsPriv_DEFINED
