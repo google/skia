@@ -10,7 +10,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTo.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -18,7 +17,6 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLType.h"
-#include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
@@ -41,43 +39,33 @@ namespace SkSL::dsl {
 DSLFunction::DSLFunction(std::string_view name,
                          const DSLModifiers& modifiers,
                          const DSLType& returnType,
-                         SkSpan<DSLParameter*> parameters,
+                         TArray<std::unique_ptr<SkSL::Variable>> parameters,
                          Position pos) {
-    this->init(modifiers, returnType, name, parameters, pos);
+    this->init(modifiers, returnType, name, std::move(parameters), pos);
 }
 
 static bool is_intrinsic_in_module(const Context& context, std::string_view name) {
     return context.fConfig->fIsBuiltinCode && SkSL::FindIntrinsicKind(name) != kNotIntrinsic;
 }
 
-void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
-                       SkSpan<DSLParameter*> params, Position pos) {
-    fPosition = pos;
-
-    TArray<std::unique_ptr<Variable>> paramVars;
-    paramVars.reserve_exact(params.size());
-    for (DSLParameter* param : params) {
-        std::unique_ptr<SkSL::Variable> paramVar =
-                SkSL::Variable::Convert(ThreadContext::Context(),
-                                        param->fPosition,
-                                        param->fModifiersPos,
-                                        param->fModifiers,
-                                        param->fType,
-                                        param->fNamePosition,
-                                        param->fName,
-                                        VariableStorage::kParameter);
-        if (!paramVar) {
+void DSLFunction::init(DSLModifiers modifiers,
+                       const DSLType& returnType,
+                       std::string_view name,
+                       TArray<std::unique_ptr<SkSL::Variable>> params,
+                       Position pos) {
+    for (const std::unique_ptr<SkSL::Variable>& param : params) {
+        if (!param) {
+            // We failed to create one of the params; an error should already have been reported.
             return;
         }
-        paramVars.push_back(std::move(paramVar));
     }
-    SkASSERT(SkToSizeT(paramVars.size()) == params.size());
+    fPosition = pos;
     fDecl = SkSL::FunctionDeclaration::Convert(ThreadContext::Context(),
                                                pos,
                                                modifiers.fPosition,
                                                &modifiers.fModifiers,
                                                name,
-                                               std::move(paramVars),
+                                               std::move(params),
                                                pos,
                                                &returnType.skslType());
 }

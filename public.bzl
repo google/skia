@@ -1515,7 +1515,6 @@ BASE_SRCS_ALL = [
     "src/sksl/dsl/DSLStatement.h",
     "src/sksl/dsl/DSLType.cpp",
     "src/sksl/dsl/DSLType.h",
-    "src/sksl/dsl/DSLVar.h",
     "src/sksl/ir/SkSLBinaryExpression.cpp",
     "src/sksl/ir/SkSLBinaryExpression.h",
     "src/sksl/ir/SkSLBlock.cpp",

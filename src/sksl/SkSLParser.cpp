@@ -20,7 +20,6 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/DSLFunction.h"
-#include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -571,7 +570,7 @@ bool Parser::functionDeclarationEnd(Position start,
                                     DSLModifiers& modifiers,
                                     DSLType type,
                                     const Token& name) {
-    STArray<8, DSLParameter> parameters;
+    STArray<8, std::unique_ptr<Variable>> parameters;
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_RPAREN) {
         // `()` means no parameters at all.
@@ -580,12 +579,11 @@ bool Parser::functionDeclarationEnd(Position start,
         this->nextToken();
     } else {
         for (;;) {
-            size_t paramIndex = parameters.size();
-            std::optional<DSLParameter> parameter = this->parameter(paramIndex);
-            if (!parameter) {
+            std::unique_ptr<SkSL::Variable> param;
+            if (!this->parameter(&param)) {
                 return false;
             }
-            parameters.push_back(std::move(*parameter));
+            parameters.push_back(std::move(param));
             if (!this->checkNext(Token::Kind::TK_COMMA)) {
                 break;
             }
@@ -594,13 +592,8 @@ bool Parser::functionDeclarationEnd(Position start,
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
         return false;
     }
-    STArray<8, DSLParameter*> parameterPointers;
-    parameterPointers.reserve_back(parameters.size());
-    for (DSLParameter& param : parameters) {
-        parameterPointers.push_back(&param);
-    }
 
-    DSLFunction result(this->text(name), modifiers, type, parameterPointers,
+    DSLFunction result(this->text(name), modifiers, type, std::move(parameters),
                        this->rangeFrom(start));
 
     const bool hasFunctionBody = !this->checkNext(Token::Kind::TK_SEMICOLON);
@@ -932,12 +925,12 @@ void Parser::structVarDeclaration(Position start, const DSLModifiers& modifiers)
 }
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
-std::optional<DSLParameter> Parser::parameter(size_t paramIndex) {
+bool Parser::parameter(std::unique_ptr<SkSL::Variable>* outParam) {
     Position pos = this->position(this->peek());
     DSLModifiers modifiers = this->modifiers();
     DSLType type = this->type(&modifiers);
     if (!type.hasValue()) {
-        return std::nullopt;
+        return false;
     }
     Token name;
     std::string_view nameText;
@@ -949,14 +942,17 @@ std::optional<DSLParameter> Parser::parameter(size_t paramIndex) {
         namePos = this->rangeFrom(pos);
     }
     if (!this->parseArrayDimensions(pos, &type)) {
-        return std::nullopt;
+        return false;
     }
-    return DSLParameter{modifiers.fPosition,
-                        modifiers.fModifiers,
-                        &type.skslType(),
-                        namePos,
-                        nameText,
-                        this->rangeFrom(pos)};
+    *outParam = SkSL::Variable::Convert(fCompiler.context(),
+                                        this->rangeFrom(pos),
+                                        modifiers.fPosition,
+                                        modifiers.fModifiers,
+                                        &type.skslType(),
+                                        namePos,
+                                        nameText,
+                                        VariableStorage::kParameter);
+    return true;
 }
 
 /** EQ INT_LITERAL */

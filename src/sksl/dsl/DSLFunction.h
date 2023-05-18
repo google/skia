@@ -8,29 +8,33 @@
 #ifndef SKSL_DSL_FUNCTION
 #define SKSL_DSL_FUNCTION
 
-#include "include/core/SkSpan.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLStatement.h"
 
 #include <string_view>
+#include <memory>
 
 namespace SkSL {
 
 class Context;
 class ExpressionArray;
 class FunctionDeclaration;
+class Variable;
 
 namespace dsl {
 
 class DSLType;
 struct DSLModifiers;
-struct DSLParameter;
 
 class DSLFunction {
 public:
-    DSLFunction(std::string_view name, const DSLModifiers& modifiers, const DSLType& returnType,
-                SkSpan<DSLParameter*> parameters, Position pos = {});
+    DSLFunction(std::string_view name,
+                const DSLModifiers& modifiers,
+                const DSLType& returnType,
+                skia_private::TArray<std::unique_ptr<SkSL::Variable>> parameters,
+                Position pos = {});
 
     DSLFunction(SkSL::FunctionDeclaration* decl)
             : fDecl(decl) {}
@@ -49,8 +53,11 @@ public:
     DSLExpression call(ExpressionArray args, Position pos = {});
 
 private:
-    void init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
-              SkSpan<DSLParameter*> params, Position pos);
+    void init(DSLModifiers modifiers,
+              const DSLType& returnType,
+              std::string_view name,
+              skia_private::TArray<std::unique_ptr<SkSL::Variable>> params,
+              Position pos);
 
     SkSL::FunctionDeclaration* fDecl = nullptr;
     SkSL::Position fPosition;
