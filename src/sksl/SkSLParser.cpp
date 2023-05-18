@@ -940,18 +940,23 @@ std::optional<DSLParameter> Parser::parameter(size_t paramIndex) {
         return std::nullopt;
     }
     Token name;
-    std::string_view paramText;
-    Position paramPos;
+    std::string_view nameText;
+    Position namePos;
     if (this->checkIdentifier(&name)) {
-        paramText = this->text(name);
-        paramPos = this->position(name);
+        nameText = this->text(name);
+        namePos = this->position(name);
     } else {
-        paramPos = this->rangeFrom(pos);
+        namePos = this->rangeFrom(pos);
     }
     if (!this->parseArrayDimensions(pos, &type)) {
         return std::nullopt;
     }
-    return DSLParameter(modifiers, type, paramText, this->rangeFrom(pos), paramPos);
+    return DSLParameter{modifiers.fPosition,
+                        modifiers.fModifiers,
+                        &type.skslType(),
+                        namePos,
+                        nameText,
+                        this->rangeFrom(pos)};
 }
 
 /** EQ INT_LITERAL */

@@ -57,14 +57,12 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
     TArray<std::unique_ptr<Variable>> paramVars;
     paramVars.reserve_exact(params.size());
     for (DSLParameter* param : params) {
-        SkASSERT(!param->fInitialValue.hasValue());
-        SkASSERT(!param->fDeclaration);
         std::unique_ptr<SkSL::Variable> paramVar =
                 SkSL::Variable::Convert(ThreadContext::Context(),
                                         param->fPosition,
                                         param->fModifiersPos,
                                         param->fModifiers,
-                                        &param->fType.skslType(),
+                                        param->fType,
                                         param->fNamePosition,
                                         param->fName,
                                         VariableStorage::kParameter);
