@@ -52,22 +52,22 @@ class FakePropertyObserver : public PropertyObserver {
 public:
     void onOpacityProperty(const char node_name[],
                            const LazyHandle<OpacityPropertyHandle>& opacity_handle) override {
-        opacity_handle_.reset(opacity_handle().release());
+        opacity_handle_ = opacity_handle();
     }
 
     void onTransformProperty(const char node_name[],
                              const LazyHandle<TransformPropertyHandle>& transform_handle) override {
-        transform_handle_.reset(transform_handle().release());
+        transform_handle_ = transform_handle();
     }
 
     void onColorProperty(const char node_name[],
                          const LazyHandle<ColorPropertyHandle>& color_handle) override {
-        color_handle_.reset(color_handle().release());
+        color_handle_ = color_handle();
     }
 
     void onTextProperty(const char node_name[],
                         const LazyHandle<TextPropertyHandle>& text_handle) override {
-        text_handle_.reset(text_handle().release());
+        text_handle_ = text_handle();
     }
 
     std::unique_ptr<OpacityPropertyHandle> opacity_handle_;

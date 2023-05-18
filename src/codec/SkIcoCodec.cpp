@@ -23,6 +23,7 @@
 #include "modules/skcms/skcms.h"
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <utility>
 
 using namespace skia_private;
@@ -138,8 +139,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
 
     // Now will construct a candidate codec for each of the embedded images
     uint32_t bytesRead = kIcoDirectoryBytes + numImages * kIcoDirEntryBytes;
-    std::unique_ptr<TArray<std::unique_ptr<SkCodec>, true>> codecs(
-            new TArray<std::unique_ptr<SkCodec>, true>(numImages));
+    auto codecs = std::make_unique<TArray<std::unique_ptr<SkCodec>>>(numImages);
     for (uint32_t i = 0; i < numImages; i++) {
         uint32_t offset = directoryEntries[i].offset;
         uint32_t size = directoryEntries[i].size;
@@ -178,7 +178,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         }
 
         if (nullptr != codec) {
-            codecs->push_back().reset(codec.release());
+            codecs->push_back(std::move(codec));
         }
     }
 
@@ -191,7 +191,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
     size_t maxSize = 0;
     int maxIndex = 0;
     for (int i = 0; i < codecs->size(); i++) {
-        SkImageInfo info = codecs->operator[](i)->getInfo();
+        SkImageInfo info = codecs->at(i)->getInfo();
         size_t size = info.computeMinByteSize();
 
         if (size > maxSize) {
@@ -200,21 +200,21 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         }
     }
 
-    auto maxInfo = codecs->operator[](maxIndex)->getEncodedInfo().copy();
+    auto maxInfo = codecs->at(maxIndex)->getEncodedInfo().copy();
 
     *result = kSuccess;
-    return std::unique_ptr<SkCodec>(new SkIcoCodec(std::move(maxInfo), std::move(stream),
-                                    codecs.release()));
+    return std::unique_ptr<SkCodec>(
+            new SkIcoCodec(std::move(maxInfo), std::move(stream), std::move(codecs)));
 }
 
-SkIcoCodec::SkIcoCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
-                       TArray<std::unique_ptr<SkCodec>, true>* codecs)
-    // The source skcms_PixelFormat will not be used. The embedded
-    // codec's will be used instead.
-    : INHERITED(std::move(info), skcms_PixelFormat(), std::move(stream))
-    , fEmbeddedCodecs(codecs)
-    , fCurrCodec(nullptr)
-{}
+SkIcoCodec::SkIcoCodec(SkEncodedInfo&& info,
+                       std::unique_ptr<SkStream> stream,
+                       std::unique_ptr<TArray<std::unique_ptr<SkCodec>>> codecs)
+        // The source skcms_PixelFormat will not be used. The embedded
+        // codec's will be used instead.
+        : INHERITED(std::move(info), skcms_PixelFormat(), std::move(stream))
+        , fEmbeddedCodecs(std::move(codecs))
+        , fCurrCodec(nullptr) {}
 
 /*
  * Chooses the best dimensions given the desired scale
@@ -230,7 +230,7 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     float minError = ((float) (origWidth * origHeight)) - desiredSize + 1.0f;
     int32_t minIndex = -1;
     for (int32_t i = 0; i < fEmbeddedCodecs->size(); i++) {
-        auto dimensions = fEmbeddedCodecs->operator[](i)->dimensions();
+        auto dimensions = fEmbeddedCodecs->at(i)->dimensions();
         int width = dimensions.width();
         int height = dimensions.height();
         float error = SkTAbs(((float) (width * height)) - desiredSize);
@@ -241,7 +241,7 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     }
     SkASSERT(minIndex >= 0);
 
-    return fEmbeddedCodecs->operator[](minIndex)->dimensions();
+    return fEmbeddedCodecs->at(minIndex)->dimensions();
 }
 
 int SkIcoCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
@@ -249,7 +249,7 @@ int SkIcoCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
 
     // FIXME: Cache the index from onGetScaledDimensions?
     for (int i = startIndex; i < fEmbeddedCodecs->size(); i++) {
-        if (fEmbeddedCodecs->operator[](i)->dimensions() == requestedSize) {
+        if (fEmbeddedCodecs->at(i)->dimensions() == requestedSize) {
             return i;
         }
     }
@@ -281,7 +281,7 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
             break;
         }
 
-        SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index).get();
+        SkCodec* embeddedCodec = fEmbeddedCodecs->at(index).get();
         result = embeddedCodec->getPixels(dstInfo, dst, dstRowBytes, &opts);
         switch (result) {
             case kSuccess:
@@ -312,7 +312,7 @@ SkCodec::Result SkIcoCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
             break;
         }
 
-        SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index).get();
+        SkCodec* embeddedCodec = fEmbeddedCodecs->at(index).get();
         result = embeddedCodec->startScanlineDecode(dstInfo, &options);
         if (kSuccess == result) {
             fCurrCodec = embeddedCodec;
@@ -345,7 +345,7 @@ SkCodec::Result SkIcoCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
             break;
         }
 
-        SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index).get();
+        SkCodec* embeddedCodec = fEmbeddedCodecs->at(index).get();
         switch (embeddedCodec->startIncrementalDecode(dstInfo,
                 pixels, rowBytes, &options)) {
             case kSuccess:
