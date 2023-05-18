@@ -23,7 +23,6 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
-#include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -516,7 +515,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     AutoShaderCaps autoCaps(fContext, fCaps);
     ProgramSettings settings;
     settings.fUseMemoryPool = false;
-    dsl::Start(this, program.fConfig->fKind, settings);
+    ThreadContext::Start(this, program.fConfig->fKind, settings);
     ThreadContext::SetErrorReporter(&fErrorReporter);
     fContext->fSymbolTable = program.fSymbols;
 #ifdef SK_ENABLE_SPIRV_VALIDATION
@@ -533,7 +532,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     SPIRVCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
 #endif
-    dsl::End();
+    ThreadContext::End();
     return result;
 }
 

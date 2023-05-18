@@ -35,12 +35,28 @@ struct Module;
  */
 class ThreadContext {
 public:
-    ThreadContext(SkSL::Compiler* compiler,
-                  SkSL::ProgramKind kind,
-                  const SkSL::ProgramSettings& settings,
-                  const SkSL::Module* module,
-                  bool isModule);
     ~ThreadContext();
+
+    /**
+     * Initializes our thread-local state for compiling a program.
+     */
+    static void Start(SkSL::Compiler* compiler,
+                      SkSL::ProgramKind kind,
+                      const SkSL::ProgramSettings& settings);
+
+    /**
+     * Initializes our thread-local state for compiling a module (SkSL include files).
+     */
+    static void StartModule(SkSL::Compiler* compiler,
+                            SkSL::ProgramKind kind,
+                            const SkSL::ProgramSettings& settings,
+                            const SkSL::Module* parentModule);
+
+    /**
+     * Signals the end of compilation. This must be called sometime after a call to Start() and
+     * before the termination of the thread.
+     */
+    static void End();
 
     /**
      * Returns the Compiler used by DSL operations in the current thread.
@@ -100,9 +116,15 @@ public:
 
     static ThreadContext& Instance();
 
-    static void SetInstance(std::unique_ptr<ThreadContext> instance);
-
 private:
+    ThreadContext(SkSL::Compiler* compiler,
+                  SkSL::ProgramKind kind,
+                  const SkSL::ProgramSettings& settings,
+                  const SkSL::Module* module,
+                  bool isModule);
+
+    static void SetInstance(std::unique_ptr<ThreadContext>);
+
     class DefaultErrorReporter : public ErrorReporter {
         void handleError(std::string_view msg, Position pos) override;
     };

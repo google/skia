@@ -1506,8 +1506,6 @@ BASE_SRCS_ALL = [
     "src/sksl/codegen/SkSLVMCodeGenerator.h",
     "src/sksl/codegen/SkSLWGSLCodeGenerator.cpp",
     "src/sksl/codegen/SkSLWGSLCodeGenerator.h",
-    "src/sksl/dsl/DSLCore.cpp",
-    "src/sksl/dsl/DSLCore.h",
     "src/sksl/dsl/DSLExpression.cpp",
     "src/sksl/dsl/DSLExpression.h",
     "src/sksl/dsl/DSLFunction.cpp",

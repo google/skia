@@ -19,7 +19,6 @@
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -388,7 +387,7 @@ Position Parser::rangeFrom(Token start) {
 /* declaration* END_OF_FILE */
 std::unique_ptr<Program> Parser::program() {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
-    Start(&fCompiler, fKind, fSettings);
+    ThreadContext::Start(&fCompiler, fKind, fSettings);
     ThreadContext::SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
@@ -397,13 +396,13 @@ std::unique_ptr<Program> Parser::program() {
         result = fCompiler.releaseProgram(std::move(fText));
     }
     errorReporter->setSource(std::string_view());
-    End();
+    ThreadContext::End();
     return result;
 }
 
 std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parent) {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
-    StartModule(&fCompiler, fKind, fSettings, parent);
+    ThreadContext::StartModule(&fCompiler, fKind, fSettings, parent);
     ThreadContext::SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
@@ -413,7 +412,7 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
     result->fSymbols = this->symbolTable();
     result->fElements = std::move(ThreadContext::ProgramElements());
     errorReporter->setSource(std::string_view());
-    End();
+    ThreadContext::End();
     return result;
 }
 

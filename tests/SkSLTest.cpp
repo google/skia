@@ -36,10 +36,10 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
-#include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -346,8 +346,8 @@ static void test_clone(skiatest::Reporter* r,
         ERRORF(r, "%s", compiler.errorText().c_str());
         return;
     }
-    // Starting DSL allows us to get access to the ThreadContext::Settings
-    SkSL::dsl::Start(&compiler, SkSL::ProgramKind::kFragment, settings);
+    // We can't clone elements without a valid ThreadContext.
+    SkSL::ThreadContext::Start(&compiler, SkSL::ProgramKind::kFragment, settings);
     for (const std::unique_ptr<SkSL::ProgramElement>& element : program->fOwnedElements) {
         std::string original = element->description();
         std::string cloned = element->clone()->description();
@@ -355,7 +355,7 @@ static void test_clone(skiatest::Reporter* r,
                 "Mismatch after clone!\nOriginal: %s\nCloned: %s\n", original.c_str(),
                 cloned.c_str());
     }
-    SkSL::dsl::End();
+    SkSL::ThreadContext::End();
 }
 
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE

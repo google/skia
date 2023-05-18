@@ -64,6 +64,29 @@ ThreadContext::~ThreadContext() {
     }
 }
 
+void ThreadContext::Start(SkSL::Compiler* compiler,
+                          SkSL::ProgramKind kind,
+                          const SkSL::ProgramSettings& settings) {
+    ThreadContext::SetInstance(
+            std::unique_ptr<ThreadContext>(new ThreadContext(compiler,
+                                                             kind,
+                                                             settings,
+                                                             compiler->moduleForProgramKind(kind),
+                                                             /*isModule=*/false)));
+}
+
+void ThreadContext::StartModule(SkSL::Compiler* compiler,
+                          SkSL::ProgramKind kind,
+                          const SkSL::ProgramSettings& settings,
+                          const SkSL::Module* parent) {
+    ThreadContext::SetInstance(std::unique_ptr<ThreadContext>(
+            new ThreadContext(compiler, kind, settings, parent, /*isModule=*/true)));
+}
+
+void ThreadContext::End() {
+    ThreadContext::SetInstance(nullptr);
+}
+
 void ThreadContext::setupSymbolTable() {
     SkSL::Context& context = *fCompiler->fContext;
     SymbolTable::Push(&context.fSymbolTable, context.fConfig->fIsBuiltinCode);
@@ -93,17 +116,17 @@ void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, Posi
              (int)msg.length(), msg.data());
 }
 
-thread_local ThreadContext* instance = nullptr;
-
-ThreadContext& ThreadContext::Instance() {
-    SkASSERTF(instance, "dsl::Start() has not been called");
-    return *instance;
-}
+static thread_local ThreadContext* sInstance = nullptr;
 
 void ThreadContext::SetInstance(std::unique_ptr<ThreadContext> newInstance) {
-    SkASSERT((instance == nullptr) != (newInstance == nullptr));
-    delete instance;
-    instance = newInstance.release();
+    SkASSERT((sInstance == nullptr) != (newInstance == nullptr));
+    delete sInstance;
+    sInstance = newInstance.release();
+}
+
+ThreadContext& ThreadContext::Instance() {
+    SkASSERTF(sInstance, "ThreadContext::Start() has not been called");
+    return *sInstance;
 }
 
 } // namespace SkSL
