@@ -17,10 +17,10 @@ half cos(half2 a) { return 0; /* error: overloads a builtin (despite return type
 ^^^^^^^^^^^^^^^^^
 error: 14: functions 'float2 cos(half2 a)' and '$pure $genHType cos($genHType angle)' differ only in return type
 float2 cos(half2 a) { return 0; /* error: overloads a builtin (despite return type mismatch) */ }
-^^^^^^^^^^^^^^^^^^^
+^^^^^^
 error: 15: functions 'int cos(out half3 a)' and '$pure $genHType cos($genHType angle)' differ only in return type
 int cos(out half3 a) { return 0; /* error: overloads a builtin (despite return type mismatch) */ }
-^^^^^^^^^^^^^^^^^^^^
+^^^
 error: 17: duplicate definition of 'float pow(float x, float y)'
 float pow(float x, float y) { return 0; /* error: overloads a builtin */ }
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

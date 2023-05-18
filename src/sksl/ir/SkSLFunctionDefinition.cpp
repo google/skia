@@ -18,6 +18,7 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -341,6 +342,27 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
         using INHERITED = ProgramWriter;
     };
 
+    // We don't allow modules to define actual functions with intrinsic names. (Those should be
+    // reserved for actual intrinsics.)
+    if (function.isIntrinsic()) {
+        context.fErrors->error(function.fPosition,
+                               SkSL::String::printf("Intrinsic function '%.*s' should not have "
+                                                    "a definition",
+                                                    (int)function.name().size(),
+                                                    function.name().data()));
+        return nullptr;
+    }
+
+    // A function can't have more than one definition.
+    if (function.definition()) {
+        context.fErrors->error(function.fPosition,
+                               SkSL::String::printf("function '%s' was already defined",
+                                                    function.description().c_str()));
+        return nullptr;
+    }
+
+    // Run the function finalizer. This checks for illegal constructs and missing return statements,
+    // and also performs some simple code cleanup.
     Finalizer(context, function, pos).visitStatementPtr(body);
     if (function.isMain() && ProgramConfig::IsVertex(context.fConfig->fKind)) {
         append_rtadjust_fixup_to_vertex_main(context, function, body->as<Block>());
@@ -351,8 +373,6 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                                                 "' can exit without returning a value");
     }
 
-    SkASSERTF(!function.isIntrinsic(), "Intrinsic function '%.*s' should not have a definition",
-              (int)function.name().size(), function.name().data());
     return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
 }
 

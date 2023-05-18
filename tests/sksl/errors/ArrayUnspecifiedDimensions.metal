@@ -62,8 +62,8 @@ void unsized_in_parameter_f(S[]) {}
                                  ^^
 error: 24: functions may not return type 'int[]'
 int[] unsized_in_return_type_a() {}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^
 error: 25: functions may not return type 'S[]'
 S[]   unsized_in_return_type_b() {}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^
 22 errors

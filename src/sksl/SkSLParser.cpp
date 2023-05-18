@@ -19,7 +19,6 @@
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLFunction.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -31,6 +30,9 @@
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
@@ -568,10 +570,11 @@ bool Parser::declaration() {
 /* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
 bool Parser::functionDeclarationEnd(Position start,
                                     DSLModifiers& modifiers,
-                                    DSLType type,
+                                    DSLType returnType,
                                     const Token& name) {
-    STArray<8, std::unique_ptr<Variable>> parameters;
     Token lookahead = this->peek();
+    bool validParams = true;
+    STArray<8, std::unique_ptr<Variable>> parameters;
     if (lookahead.fKind == Token::Kind::TK_RPAREN) {
         // `()` means no parameters at all.
     } else if (lookahead.fKind == Token::Kind::TK_IDENTIFIER && this->text(lookahead) == "void") {
@@ -583,6 +586,7 @@ bool Parser::functionDeclarationEnd(Position start,
             if (!this->parameter(&param)) {
                 return false;
             }
+            validParams = validParams && param;
             parameters.push_back(std::move(param));
             if (!this->checkNext(Token::Kind::TK_COMMA)) {
                 break;
@@ -593,22 +597,66 @@ bool Parser::functionDeclarationEnd(Position start,
         return false;
     }
 
-    DSLFunction result(this->text(name), modifiers, type, std::move(parameters),
-                       this->rangeFrom(start));
-
-    const bool hasFunctionBody = !this->checkNext(Token::Kind::TK_SEMICOLON);
-    if (hasFunctionBody) {
-        AutoSymbolTable symbols(this);
-        result.addParametersToSymbolTable(fCompiler.context());
-        Token bodyStart = this->peek();
-        std::optional<DSLStatement> body = this->block();
-        if (!body) {
-            return false;
-        }
-        result.define(std::move(*body), this->rangeFrom(bodyStart));
-    } else {
-        result.prototype();
+    SkSL::FunctionDeclaration* decl = nullptr;
+    if (validParams) {
+        decl = SkSL::FunctionDeclaration::Convert(ThreadContext::Context(),
+                                                  this->rangeFrom(start),
+                                                  modifiers.fPosition,
+                                                  &modifiers.fModifiers,
+                                                  this->text(name),
+                                                  std::move(parameters),
+                                                  start,
+                                                  &returnType.skslType());
     }
+
+    if (this->checkNext(Token::Kind::TK_SEMICOLON)) {
+        return this->prototypeFunction(decl);
+    } else {
+        return this->defineFunction(decl);
+    }
+}
+
+bool Parser::prototypeFunction(SkSL::FunctionDeclaration* decl) {
+    if (!decl) {
+        return false;
+    }
+    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
+            decl->fPosition, decl, fCompiler.context().fConfig->fIsBuiltinCode));
+    return true;
+}
+
+bool Parser::defineFunction(SkSL::FunctionDeclaration* decl) {
+    // Create a symbol table for the function parameters.
+    const Context& context = fCompiler.context();
+    AutoSymbolTable symbols(this);
+    if (decl) {
+        decl->addParametersToSymbolTable(context);
+    }
+
+    // Parse the function body.
+    Token bodyStart = this->peek();
+    std::optional<DSLStatement> body = this->block();
+
+    // If there was a problem with the declarations or body, don't actually create a definition.
+    if (!decl || !body) {
+        return false;
+    }
+
+    std::unique_ptr<SkSL::Statement> block = body->release();
+    SkASSERT(block->is<Block>());
+    Position pos = this->rangeFrom(bodyStart);
+    block->fPosition = pos;
+
+    std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(context,
+                                                                               pos,
+                                                                               *decl,
+                                                                               std::move(block),
+                                                                               /*builtin=*/false);
+    if (!function) {
+        return false;
+    }
+    decl->setDefinition(function.get());
+    ThreadContext::ProgramElements().push_back(std::move(function));
     return true;
 }
 

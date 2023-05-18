@@ -31,6 +31,7 @@ namespace SkSL {
 class Compiler;
 class ErrorReporter;
 class Expression;
+class FunctionDeclaration;
 class SymbolTable;
 enum class ProgramKind : int8_t;
 struct Module;
@@ -148,8 +149,12 @@ private:
 
     bool functionDeclarationEnd(Position start,
                                 dsl::DSLModifiers& modifiers,
-                                dsl::DSLType type,
+                                dsl::DSLType returnType,
                                 const Token& name);
+
+    bool prototypeFunction(SkSL::FunctionDeclaration* decl);
+
+    bool defineFunction(SkSL::FunctionDeclaration* decl);
 
     struct VarDeclarationsPrefix {
         Position fPosition;
