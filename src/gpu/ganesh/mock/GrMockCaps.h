@@ -122,8 +122,9 @@ public:
         return {surfaceColorType, 1};
     }
 
-    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
-        return SurfaceReadPixelsSupport::kSupported;
+    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface* surface) const override {
+        return surface->isProtected() ? SurfaceReadPixelsSupport::kUnsupported
+                                      : SurfaceReadPixelsSupport::kSupported;
     }
 
     GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override {

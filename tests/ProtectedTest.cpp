@@ -9,6 +9,7 @@
 
 #if defined(SK_GANESH)
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -82,6 +83,10 @@ sk_sp<SkSurface> create_protected_sksurface(GrDirectContext* dContext,
         return nullptr;
     }
 
+    SkCanvas* canvas = surface->getCanvas();
+
+    canvas->clear(SkColors::kBlue);
+
     if (textureable) {
         GrBackendTexture backendTex = SkSurfaces::GetBackendTexture(
                 surface.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
@@ -117,6 +122,7 @@ void check_image_be_protection(SkImage* image,
 
 sk_sp<SkImage> create_protected_skimage(GrDirectContext* dContext,
                                         skiatest::Reporter* reporter,
+                                        SkColor4f color,
                                         bool isProtected) {
     const int kW = 8;
     const int kH = 8;
@@ -125,7 +131,7 @@ sk_sp<SkImage> create_protected_skimage(GrDirectContext* dContext,
 
     sk_sp<SkImage> image = sk_gpu_test::MakeBackendTextureImage(dContext,
                                                                 ii,
-                                                                SkColors::kBlue,
+                                                                color,
                                                                 GrMipmapped::kNo,
                                                                 GrRenderable::kNo,
                                                                 kTopLeft_GrSurfaceOrigin,
@@ -155,8 +161,16 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
         for (bool isProtected : { true, false }) {
             sk_sp<SkSurface> surface = create_protected_sksurface(dContext, reporter, textureable,
                                                                   isProtected);
+            if (!surface) {
+                continue;
+            }
 
             sk_sp<SkImage> image = surface->makeImageSnapshot();
+            if (!image) {
+                ERRORF(reporter, "Could not makeImageSnapshot from a %s surface.",
+                       isProtected ? "protected" : "unprotected");
+                continue;
+            }
 
             dContext->submit(/* syncCpu= */ true);
 
@@ -165,7 +179,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
     }
 
     for (bool isProtected : { true, false }) {
-        create_protected_skimage(dContext, reporter, isProtected);
+        create_protected_skimage(dContext, reporter, SkColors::kBlue, isProtected);
     }
 
     for (bool renderable : { true, false }) {
@@ -181,6 +195,78 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
             REPORTER_ASSERT(reporter, beTex.isValid());
             REPORTER_ASSERT(reporter, beTex.isProtected() == isProtected);
         }
+    }
+}
+
+// Verify that readPixels fails on protected surfaces
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_readPixelsFromSurfaces, reporter, ctxInfo,
+                                 CtsEnforcement::kNever) {
+    auto dContext = ctxInfo.directContext();
+
+    if (!context_supports_protected(dContext)) {
+        // Protected content not supported
+        return;
+    }
+
+    for (bool isProtected : { true, false }) {
+        sk_sp<SkSurface> surface = create_protected_sksurface(dContext, reporter,
+                                                              /* textureable= */ true,
+                                                              isProtected);
+        if (!surface) {
+            continue;
+        }
+
+        SkBitmap readback;
+        readback.allocPixels(surface->imageInfo());
+        REPORTER_ASSERT(reporter, isProtected != surface->readPixels(readback, 0, 0));
+    }
+}
+
+namespace {
+
+struct AsyncContext {
+    bool fCalled = false;
+    std::unique_ptr<const SkSurface::AsyncReadResult> fResult;
+};
+
+static void async_callback(void* c, std::unique_ptr<const SkSurface::AsyncReadResult> result) {
+    auto context = static_cast<AsyncContext*>(c);
+    context->fResult = std::move(result);
+    context->fCalled = true;
+}
+
+}  // anonymous namespace
+
+// Verify that asyncRescaleAndReadPixels fails on protected surfaces
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_asyncRescaleAndReadPixelsFromSurfaces, reporter, ctxInfo,
+                                 CtsEnforcement::kNever) {
+    auto dContext = ctxInfo.directContext();
+
+    if (!context_supports_protected(dContext)) {
+        // Protected content not supported
+        return;
+    }
+
+    for (bool isProtected : { true, false }) {
+        sk_sp<SkSurface> surface = create_protected_sksurface(dContext, reporter,
+                                                              /* textureable= */ true,
+                                                              isProtected);
+        if (!surface) {
+            continue;
+        }
+
+        AsyncContext cbContext;
+
+        surface->asyncRescaleAndReadPixels(surface->imageInfo(),
+                                           SkIRect::MakeWH(surface->width(), surface->height()),
+                                           SkSurface::RescaleGamma::kSrc,
+                                           SkSurface::RescaleMode::kNearest,
+                                           async_callback, &cbContext);
+        dContext->submit();
+        while (!cbContext.fCalled) {
+            dContext->checkAsyncWorkCompletion();
+        }
+        REPORTER_ASSERT(reporter, isProtected != SkToBool(cbContext.fResult));
     }
 }
 
