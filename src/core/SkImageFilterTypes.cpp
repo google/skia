@@ -7,6 +7,7 @@
 
 #include "src/core/SkImageFilterTypes.h"
 
+#include "include/core/SkImage.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
@@ -763,6 +764,49 @@ FilterResult FilterResult::MakeFromShader(const Context& ctx,
         paint.setShader(shader);
         paint.setDither(dither);
         surface->drawPaint(paint);
+    }
+    return surface.snap();
+}
+
+FilterResult FilterResult::MakeFromImage(const Context& ctx,
+                                         sk_sp<SkImage> image,
+                                         const SkRect& srcRect,
+                                         const ParameterSpace<SkRect>& dstRect,
+                                         const SkSamplingOptions& sampling) {
+    if (!image) {
+        return {};
+    }
+
+    // Check for direct conversion to an SkSpecialImage and then FilterResult. Eventually this
+    // whole function should be replaceable with:
+    //    FilterResult(fImage, fSrcRect, fDstRect).applyTransform(mapping.layerMatrix(), fSampling);
+    SkIRect srcSubset = RoundOut(srcRect);
+    if (SkRect::Make(srcSubset) == srcRect) {
+        // Construct an SkSpecialImage from the subset directly instead of drawing.
+        auto specialImage = SkSpecialImage::MakeFromImage(
+                ctx.getContext(), srcSubset, std::move(image), ctx.surfaceProps());
+
+        // Treat the srcRect's top left as "layer" space since we are folding the src->dst transform
+        // and the param->layer transform into a single transform step.
+        skif::FilterResult subset{std::move(specialImage),
+                                  skif::LayerSpace<SkIPoint>(srcSubset.topLeft())};
+        SkMatrix transform = SkMatrix::Concat(ctx.mapping().layerMatrix(),
+                                              SkMatrix::RectToRect(srcRect, SkRect(dstRect)));
+        return subset.applyTransform(ctx, skif::LayerSpace<SkMatrix>(transform), sampling);
+    }
+
+    // For now, draw the src->dst subset of image into a new image.
+    LayerSpace<SkIRect> dstBounds = ctx.mapping().paramToLayer(dstRect).roundOut();
+    if (!dstBounds.intersect(ctx.desiredOutput())) {
+        return {};
+    }
+
+    AutoSurface surface{ctx, dstBounds, /*renderInParameterSpace=*/true};
+    if (surface) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        surface->drawImageRect(image, srcRect, SkRect(dstRect), sampling, &paint,
+                               SkCanvas::kStrict_SrcRectConstraint);
     }
     return surface.snap();
 }

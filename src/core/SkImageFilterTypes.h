@@ -19,6 +19,7 @@
 
 class GrRecordingContext;
 enum GrSurfaceOrigin : int;
+class SkImage;
 class SkImageFilter;
 class SkImageFilterCache;
 class SkPicture;
@@ -668,6 +669,15 @@ public:
     static FilterResult MakeFromShader(const Context& ctx,
                                        sk_sp<SkShader> shader,
                                        bool dither);
+
+    // Converts image to a FilterResult. If 'srcRect' is pixel-aligned it does so without rendering.
+    // Otherwise it draws the src->dst sampling of 'image' into an optimally sized surface based
+    // on the context's desired output.
+    static FilterResult MakeFromImage(const Context& ctx,
+                                      sk_sp<SkImage> image,
+                                      const SkRect& srcRect,
+                                      const ParameterSpace<SkRect>& dstRect,
+                                      const SkSamplingOptions& sampling);
 
     // Bilinear is used as the default because it can be downgraded to nearest-neighbor when the
     // final transform is pixel-aligned, and chaining multiple bilinear samples and transforms is

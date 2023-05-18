@@ -198,7 +198,9 @@ public:
 
     /**
      *  Create a filter that draws the 'srcRect' portion of image into 'dstRect' using the given
-     *  filter quality. Similar to SkCanvas::drawImageRect. Returns null if 'image' is null.
+     *  filter quality. Similar to SkCanvas::drawImageRect. The returned image filter evaluates
+     *  to transparent black if 'image' is null.
+     *
      *  @param image    The image that is output by the filter, subset by 'srcRect'.
      *  @param srcRect  The source pixels sampled into 'dstRect'
      *  @param dstRect  The local rectangle to draw the image into.
@@ -209,7 +211,9 @@ public:
 
     /**
      *  Create a filter that draws the image using the given sampling.
-     *  Similar to SkCanvas::drawImage. Returns null if 'image' is null.
+     *  Similar to SkCanvas::drawImage. The returned image filter evaluates to transparent black if
+     *  'image' is null.
+     *
      *  @param image    The image that is output by the filter.
      *  @param sampling The sampling to use when drawing the image.
      */
@@ -223,7 +227,9 @@ public:
     }
 
     /**
-     *  Create a filter that draws the image using Mitchel cubic resampling.
+     *  Create a filter that draws the image using Mitchel cubic resampling. The returned image
+     *  filter evaluates to transparent black if 'image' is null.
+     *
      *  @param image    The image that is output by the filter.
      */
     static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image) {

@@ -2100,40 +2100,45 @@ DEF_TEST(ImageSourceBounds, reporter) {
                                                          SkImageFilter::kForward_MapDirection,
                                                          nullptr));
     REPORTER_ASSERT(reporter,
-                    input == source1->filterBounds(input, SkMatrix::I(),
-                                                   SkImageFilter::kReverse_MapDirection, &input));
+                    source1->filterBounds(input, SkMatrix::I(),
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
     SkMatrix scale(SkMatrix::Scale(2, 2));
     SkIRect scaledBounds = SkIRect::MakeWH(128, 128);
     REPORTER_ASSERT(reporter,
                     scaledBounds == source1->filterBounds(input, scale,
                                                           SkImageFilter::kForward_MapDirection,
                                                           nullptr));
-    REPORTER_ASSERT(reporter, input == source1->filterBounds(input, scale,
-                                                             SkImageFilter::kReverse_MapDirection,
-                                                             &input));
+    REPORTER_ASSERT(reporter,
+                    source1->filterBounds(input, scale,
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
 
-    // Specified src and dst rects.
+    // Specified src and dst rects (which are outside available pixels).
     SkRect src(SkRect::MakeXYWH(0.5, 0.5, 100.5, 100.5));
     SkRect dst(SkRect::MakeXYWH(-10.5, -10.5, 120.5, 120.5));
     sk_sp<SkImageFilter> source2(SkImageFilters::Image(image, src, dst,
                                                        SkSamplingOptions(SkFilterMode::kLinear,
                                                                          SkMipmapMode::kLinear)));
+
+    SkRect clippedSrc = src;
+    SkAssertResult(clippedSrc.intersect(SkRect::Make(image->dimensions())));
+    SkRect clippedDst = SkMatrix::RectToRect(src, dst).mapRect(clippedSrc);
+
     REPORTER_ASSERT(reporter,
-                    dst.roundOut() == source2->filterBounds(input, SkMatrix::I(),
-                                                            SkImageFilter::kForward_MapDirection,
-                                                            nullptr));
+                    clippedDst.roundOut() ==
+                    source2->filterBounds(input, SkMatrix::I(),
+                                          SkImageFilter::kForward_MapDirection, nullptr));
     REPORTER_ASSERT(reporter,
-                    input == source2->filterBounds(input, SkMatrix::I(),
-                                                   SkImageFilter::kReverse_MapDirection, &input));
-    scale.mapRect(&dst);
-    scale.mapRect(&src);
+                    source2->filterBounds(input, SkMatrix::I(),
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
+    scale.mapRect(&clippedDst);
+    scale.mapRect(&clippedSrc);
     REPORTER_ASSERT(reporter,
-                    dst.roundOut() == source2->filterBounds(input, scale,
-                                                            SkImageFilter::kForward_MapDirection,
-                                                            nullptr));
-    REPORTER_ASSERT(reporter, input == source2->filterBounds(input, scale,
-                                                             SkImageFilter::kReverse_MapDirection,
-                                                             &input));
+                    clippedDst.roundOut() ==
+                    source2->filterBounds(input, scale,
+                                          SkImageFilter::kForward_MapDirection, nullptr));
+    REPORTER_ASSERT(reporter,
+                    source2->filterBounds(input, scale,
+                                          SkImageFilter::kReverse_MapDirection, &input).isEmpty());
 }
 
 // Test SkPictureImageFilter::filterBounds.
