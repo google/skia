@@ -270,8 +270,10 @@ private:
     static_assert(::sk_is_trivially_relocatable<decltype(fRec)>::value);
 
 #ifdef SK_DEBUG
+          SkString& validate();
     const SkString& validate() const;
 #else
+          SkString& validate()       { return *this; }
     const SkString& validate() const { return *this; }
 #endif
 
