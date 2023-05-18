@@ -1153,6 +1153,7 @@ static std::unique_ptr<SkJpegMultiPictureParameters> find_mp_params(
 static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
                             size_t offset,
                             size_t size,
+                            bool base_image_has_hdrgm,
                             SkGainmapInfo* outInfo,
                             std::unique_ptr<SkStream>* outGainmapImageStream) {
     // Extract the SkData for this image.
@@ -1189,8 +1190,19 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
     }
 
     // Check if this image identifies itself as a gainmap.
+    bool did_populate_info = false;
     SkGainmapInfo info;
-    if (!xmp->getGainmapInfoHDRGM(&info) && !xmp->getGainmapInfoHDRGainMap(&info)) {
+
+    // Check for HDRGM only if the base image specified hdrgm:Version="1.0".
+    did_populate_info = base_image_has_hdrgm && xmp->getGainmapInfoHDRGM(&info);
+
+    // Next, check HDRGainMap. This does not require anything specific from the base image.
+    if (!did_populate_info) {
+        did_populate_info = xmp->getGainmapInfoHDRGainMap(&info);
+    }
+
+    // If none of the formats identified itself as a gainmap and populated |info| then fail.
+    if (!did_populate_info) {
         return false;
     }
 
@@ -1210,6 +1222,10 @@ bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
                                    std::unique_ptr<SkStream>* gainmapImageStream) {
     // The GContainer and APP15-based HDRGM formats require XMP metadata. Extract it now.
     std::unique_ptr<SkJpegXmp> xmp = get_xmp_metadata(fDecoderMgr.get());
+
+    // Set |base_image_has_hdrgm| to be true if the base image has HDRGM XMP metadata that includes
+    // the a Version 1.0 attribute.
+    const bool base_image_has_hdrgm = xmp && xmp->getGainmapInfoHDRGM(nullptr);
 
     // Attempt to locate the gainmap from the container XMP.
     size_t containerGainmapOffset = 0;
@@ -1238,6 +1254,7 @@ bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
             if (extract_gainmap(fDecoderMgr->getSourceMgr(),
                                 mpImageOffset,
                                 mpImageSize,
+                                base_image_has_hdrgm,
                                 info,
                                 gainmapImageStream)) {
                 // If the GContainer also suggested an offset and size, assert that we found the
@@ -1256,6 +1273,7 @@ bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
         if (extract_gainmap(fDecoderMgr->getSourceMgr(),
                             containerGainmapOffset,
                             containerGainmapSize,
+                            base_image_has_hdrgm,
                             info,
                             gainmapImageStream)) {
             return true;

@@ -460,6 +460,57 @@ DEF_TEST(AndroidCodec_xmpHdrgmAsFieldValue, r) {
     REPORTER_ASSERT(r, info.fDisplayRatioHdr == 16.f);
 }
 
+DEF_TEST(AndroidCodec_xmpHdrgmRequiresVersion, r) {
+    // Same as the above, except with Version being absent.
+    const char xmpData[] =
+            "http://ns.adobe.com/xap/1.0/\0"
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n"
+            "   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+            "            xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\">\n"
+            "      <rdf:Description rdf:about=\"\">\n"
+            "         <hdrgm:GainMapMax>3</hdrgm:GainMapMax>\n"
+            "         <hdrgm:HDRCapacityMax>4</hdrgm:HDRCapacityMax>\n"
+            "      </rdf:Description>\n"
+            "   </rdf:RDF>\n"
+            "</x:xmpmeta>\n";
+
+    std::vector<sk_sp<SkData>> app1Params;
+    app1Params.push_back(SkData::MakeWithoutCopy(xmpData, sizeof(xmpData) - 1));
+
+    auto xmp = SkJpegXmp::Make(app1Params);
+    REPORTER_ASSERT(r, xmp);
+
+    SkGainmapInfo info;
+    REPORTER_ASSERT(r, !xmp->getGainmapInfoHDRGM(&info));
+}
+
+DEF_TEST(AndroidCodec_xmpHdrgmRequiresHdrCapacityMax, r) {
+    // Same as the above, except with HDRCapacityMax being absent.
+    const char xmpData[] =
+            "http://ns.adobe.com/xap/1.0/\0"
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n"
+            "   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+            "            xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\">\n"
+            "      <rdf:Description rdf:about=\"\">\n"
+            "         <hdrgm:Version>1.0</hdrgm:Version>\n"
+            "         <hdrgm:GainMapMax>3</hdrgm:GainMapMax>\n"
+            "      </rdf:Description>\n"
+            "   </rdf:RDF>\n"
+            "</x:xmpmeta>\n";
+
+    std::vector<sk_sp<SkData>> app1Params;
+    app1Params.push_back(SkData::MakeWithoutCopy(xmpData, sizeof(xmpData) - 1));
+
+    auto xmp = SkJpegXmp::Make(app1Params);
+    REPORTER_ASSERT(r, xmp);
+
+    SkGainmapInfo info;
+    // The version check works.
+    REPORTER_ASSERT(r, xmp->getGainmapInfoHDRGM(nullptr));
+    // Populating the gainmap metadata doesn't.
+    REPORTER_ASSERT(r, !xmp->getGainmapInfoHDRGM(&info));
+}
+
 DEF_TEST(AndroidCodec_xmpHdrgmAsDescriptionPropertyAttributes, r) {
     // Expose HDRGM values as attributes on an rdf:Description node.
     const char xmpData[] =
@@ -495,6 +546,7 @@ DEF_TEST(AndroidCodec_xmpHdrgmList, r) {
             "            xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\">\n"
             "      <rdf:Description rdf:about=\"\"\n"
             "         hdrgm:Version=\"1.0\"\n"
+            "         hdrgm:HDRCapacityMax=\"4\"\n"
             "         hdrgm:GainMapMin=\"2.0\"\n"
             "         hdrgm:OffsetSDR=\"0.1\">\n"
             "         <hdrgm:GainMapMax>\n"

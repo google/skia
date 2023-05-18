@@ -746,6 +746,23 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     }
     const char* hdrgmPrefix = get_namespace_prefix(namespaces[0]);
 
+    // Require that hdrgm:Version="1.0" be present.
+    const char* version = get_attr(dom, node, hdrgmPrefix, "Version");
+    if (!version) {
+        SkCodecPrintf("Version attribute is absent.\n");
+        return false;
+    }
+    if (strcmp(version, "1.0") != 0) {
+        SkCodecPrintf("Version is \"%s\", not \"1.0\".\n", version);
+        return false;
+    }
+
+    // If |outGainmapInfo| was not specified, then this function only verifies that the
+    // Version field be 1.0. It does not verify that GainMapMax or HDRCapacityMax be present.
+    if (!outGainmapInfo) {
+        return true;
+    }
+
     // Initialize the parameters to their defaults.
     bool baseRenditionIsHDR = false;
     SkColor4f gainMapMin = {1.f, 1.f, 1.f, 1.f};
@@ -759,12 +776,18 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     // Read all parameters that are present.
     get_attr_bool(dom, node, hdrgmPrefix, "BaseRenditionIsHDR", &baseRenditionIsHDR);
     get_attr_float3(dom, node, hdrgmPrefix, "GainMapMin", &gainMapMin);
-    get_attr_float3(dom, node, hdrgmPrefix, "GainMapMax", &gainMapMax);
+    if (!get_attr_float3(dom, node, hdrgmPrefix, "GainMapMax", &gainMapMax)) {
+        SkCodecPrintf("GainMapMax attribute is absent.\n");
+        return false;
+    }
     get_attr_float3(dom, node, hdrgmPrefix, "Gamma", &gamma);
     get_attr_float3(dom, node, hdrgmPrefix, "OffsetSDR", &offsetSdr);
     get_attr_float3(dom, node, hdrgmPrefix, "OffsetHDR", &offsetHdr);
     get_attr_float(dom, node, hdrgmPrefix, "HDRCapacityMin", &hdrCapacityMin);
-    get_attr_float(dom, node, hdrgmPrefix, "HDRCapacityMax", &hdrCapacityMax);
+    if (!get_attr_float(dom, node, hdrgmPrefix, "HDRCapacityMax", &hdrCapacityMax)) {
+        SkCodecPrintf("HDRCapacityMax attribute is absent.\n");
+        return false;
+    }
 
     // Translate all parameters to SkGainmapInfo's expected format.
     const float kLog2 = sk_float_log(2.f);
