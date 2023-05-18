@@ -150,6 +150,9 @@ private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
                           const GrSurfaceProxy* src, const SkIRect& srcRect) const override {
+        if (src->isProtected() == GrProtected::kYes && dst->isProtected() != GrProtected::kYes) {
+            return false;
+        }
         return true;
     }
     GrBackendFormat onGetDefaultBackendFormat(GrColorType ct) const override {
