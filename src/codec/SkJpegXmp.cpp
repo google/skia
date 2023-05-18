@@ -746,6 +746,17 @@ bool SkJpegXmp::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     }
     const char* hdrgmPrefix = get_namespace_prefix(namespaces[0]);
 
+    // Require that hdrgm:Version="1.0" be present.
+    const char* version = get_attr(dom, node, hdrgmPrefix, "Version");
+    if (!version) {
+        SkCodecPrintf("Version attribute is absent.\n");
+        return false;
+    }
+    if (strcmp(version, "1.0") != 0) {
+        SkCodecPrintf("Version is \"%s\", not \"1.0\".\n", version);
+        return false;
+    }
+
     // Initialize the parameters to their defaults.
     bool baseRenditionIsHDR = false;
     SkColor4f gainMapMin = {1.f, 1.f, 1.f, 1.f};
