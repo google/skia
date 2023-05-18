@@ -29,6 +29,10 @@ static constexpr wgpu::TextureFormat kFormats[] = {
     wgpu::TextureFormat::R8Unorm,
     wgpu::TextureFormat::BGRA8Unorm,
     wgpu::TextureFormat::RGBA16Float,
+    wgpu::TextureFormat::R16Float,
+    wgpu::TextureFormat::RG8Unorm,
+    wgpu::TextureFormat::RGB10A2Unorm,
+    wgpu::TextureFormat::RG16Float,
 
     wgpu::TextureFormat::Stencil8,
     wgpu::TextureFormat::Depth32Float,
@@ -340,6 +344,68 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         }
     }
 
+    // Format: R16Float
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::R16Float)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: R16Float, Surface: kA16_float
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kA16_float_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            ctInfo.fReadSwizzle = skgpu::Swizzle("000r");
+            ctInfo.fWriteSwizzle = skgpu::Swizzle("a000");
+        }
+    }
+
+    // Format: RG8Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RG8Unorm)];
+        info->fFlags = FormatInfo::kTexturable_Flag;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RG8Unorm, Surface: kR8G8_unorm
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kR8G8_unorm_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: RGB10A2Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RGB10A2Unorm)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGB10A2Unorm, Surface: kRGBA_1010102
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGBA_1010102_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: RG16Float
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RG16Float)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RG16Float, Surface: kR16G16_float
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kR16G16_float_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
     /*
      * Non-color formats
      */
@@ -387,6 +453,10 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     this->setColorType(kGray_8_SkColorType,           { wgpu::TextureFormat::R8Unorm });
     this->setColorType(kR8_unorm_SkColorType,         { wgpu::TextureFormat::R8Unorm });
     this->setColorType(kRGBA_F16_SkColorType,         { wgpu::TextureFormat::RGBA16Float });
+    this->setColorType(kA16_float_SkColorType,        { wgpu::TextureFormat::R16Float });
+    this->setColorType(kR8G8_unorm_SkColorType,       { wgpu::TextureFormat::RG8Unorm });
+    this->setColorType(kRGBA_1010102_SkColorType,     { wgpu::TextureFormat::RGB10A2Unorm });
+    this->setColorType(kR16G16_float_SkColorType,     { wgpu::TextureFormat::RG16Float });
 }
 
 // static

@@ -96,7 +96,8 @@ private:
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    std::array<FormatInfo, 8> fFormatTable;
+    // Size here must match size of kFormats in DawnCaps.cpp
+    std::array<FormatInfo, 12> fFormatTable;
 
     static size_t GetFormatIndex(wgpu::TextureFormat format);
     const FormatInfo& getFormatInfo(wgpu::TextureFormat format) const {
