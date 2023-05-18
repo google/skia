@@ -11,6 +11,7 @@ load(
     "PATHOPS_TESTS",
     "PDF_TESTS",
 )
+load(":android.bzl", "skia_android_unit_test")
 
 skia_cc_library(
     name = "tests_base",
@@ -280,24 +281,95 @@ selects.config_setting_group(
     ],
 )
 
-# This target is known to build successfully for Android with the following Bazel invocations:
+# These targets can be run from a gLinux workstation. Example:
 #
-#     # For 64-bit ARM.
-#     $ bazel build //tests:known_good_android_ganesh_test \
-#           --config=for_android_arm64_with_rbe \
-#           --gpu_backend=gl_backend \
-#           --enable_gpu_test_utils
+# 1. Port-forward the ADB server from a Raspberry Pi that is connected to a Pixel 5:
 #
-#     # For 32-bit ARM.
-#     $ bazel build //tests:known_good_android_ganesh_test \
-#           --config=for_android_arm32_with_rbe \
-#           --gpu_backend=gl_backend \
-#           --enable_gpu_test_utils
+#     $ ssh -L 5037:localhost:5037 skia-rpi2-rack1-shelf1-036
 #
-# lovisolo@ has yet to test the resulting binaries on a physical Android device.
+# 2. Invoke Bazel as follows:
 #
-# Building this alias is equivalent to building //tests:text_blob_cache_test.
-alias(
-    name = "known_good_android_ganesh_test",
-    actual = ":TextBlobCacheTest",
+#     $ bazel test //tests:android_codec_test --config=pixel_5 --config=linux_rbe --test_output=streamed
+
+skia_android_unit_test(
+    name = "android_codec_test",
+    srcs = CODEC_TESTS,
+    flags = {
+        "include_decoder": [
+            "avif_decode_codec",
+            "gif_decode_codec",
+            "jpeg_decode_codec",
+            "jxl_decode_codec",
+            "png_decode_codec",
+            "raw_decode_codec",
+            "webp_decode_codec",
+        ],
+        "include_encoder": [
+            "jpeg_encode_codec",
+            "png_encode_codec",
+            "webp_encode_codec",
+        ],
+    },
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//:skia_internal",
+    ],
+)
+
+skia_android_unit_test(
+    name = "android_ganesh_test",
+    srcs = GANESH_TESTS,
+    requires_condition = "//src/gpu:has_gpu_backend",
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//:skia_internal",
+    ],
+)
+
+skia_android_unit_test(
+    name = "android_pathops_test",
+    srcs = PATHOPS_TESTS,
+    requires_resources_dir = True,
+    deps = [
+        ":pathops_tests_base",
+        "//:skia_internal",
+    ],
+)
+
+# Some test cases fail with --config=pixel_7.
+skia_android_unit_test(
+    name = "android_cpu_only_test",
+    srcs = CPU_ONLY_TESTS,
+    flags = {
+        "fontmgr_factory": ["custom_directory_fontmgr_factory"],
+        "enable_sksl": ["True"],
+        "enable_sksl_tracing": ["True"],
+        "include_decoder": [
+            "jpeg_decode_codec",
+            "png_decode_codec",
+        ],
+        "include_encoder": [
+            "png_encode_codec",
+        ],
+    },
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//:skia_internal",
+    ],
+)
+
+skia_android_unit_test(
+    name = "android_discardable_memory_test",
+    srcs = DISCARDABLE_MEMORY_POOL_TESTS,
+    flags = {
+        "enable_discardable_memory": ["True"],
+        "use_default_global_memory_pool": ["True"],
+    },
+    deps = [
+        ":tests_base",
+        "//:skia_internal",
+    ],
 )

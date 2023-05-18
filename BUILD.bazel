@@ -1,5 +1,6 @@
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
 load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
+load("//bazel:flags.bzl", "selects")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_objc_library")
 
 licenses(["notice"])
@@ -113,4 +114,28 @@ alias(
     name = "gazelle",
     actual = "//infra:gazelle",
     visibility = ["//visibility:public"],
+)
+
+# Convenience condition that is always true. This condition is satisfied if an arbitrarily chosen
+# boolean built-in flag (https://bazel.build/docs/user-manual#stamp) is either true or false.
+#
+# Inspired by
+# https://github.com/bazelbuild/bazel-skylib/blob/2f0bb4cec0297bb38f830a72fa8961bee057c3cd/lib/selects.bzl#L227.
+selects.config_setting_group(
+    name = "always_true",
+    match_any = [
+        ":always_true_0",
+        ":always_true_1",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "always_true_0",
+    values = {"stamp": "0"},
+)
+
+config_setting(
+    name = "always_true_1",
+    values = {"stamp": "1"},
 )

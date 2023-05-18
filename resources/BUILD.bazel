@@ -1,5 +1,19 @@
 load("//bazel:skia_rules.bzl", "skia_filegroup")
 
+# We export a known file inside the resources directory so that we can compute a path to said
+# directory from places that support "Make" variables[1], such as the "cmd" attribute[2] of a
+# genrule. For example, a genrule can compute the path to the resources directory from its "cmd"
+# attribute as follows:
+#
+#     $$(dirname $$(rootpath //resources:README))
+#
+# [1] https://bazel.build/reference/be/make-variables
+# [2] https://bazel.build/reference/be/general#genrule.cmd
+exports_files(
+    ["README"],
+    visibility = ["//tests:__pkg__"],
+)
+
 skia_filegroup(
     name = "resources",
     srcs = [

@@ -1,6 +1,4 @@
-"""
-This file contains macros that generate multiple test targets, one per file.
-"""
+"""This module contains macros to generate C++ test targets."""
 
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 
