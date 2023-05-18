@@ -9,7 +9,16 @@ skia_filegroup(
     srcs = [
         "SkAndroidFrameworkUtils.h",
         "SkAnimatedImage.h",
-        "SkImageAndroid.h",
-    ],
+        "SkImageAndroid.h",  # TODO(lovisolo): Delete after cl/532869131 lands.
+    ] + select({
+        "//src/gpu:has_gpu_backend": ["SkSurfaceAndroid.h"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//include:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = ["SkImageAndroid.h"],
     visibility = ["//include:__pkg__"],
 )
