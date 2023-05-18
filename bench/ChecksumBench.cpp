@@ -18,6 +18,7 @@
 enum ChecksumType {
     kMD5_ChecksumType,
     kHash_ChecksumType,
+    kWyhash_ChecksumType,
 };
 
 class ComputeChecksumBench : public Benchmark {
@@ -37,6 +38,7 @@ public:
         switch (fType) {
             case kMD5_ChecksumType: fName = "compute_md5"; break;
             case kHash_ChecksumType: fName = "compute_hash"; break;
+            case kWyhash_ChecksumType: fName = "compute_wyhash"; break;
         }
         fName.appendf("_%d", static_cast<int>(fBlockSize));
     }
@@ -73,6 +75,9 @@ public:
                     case kHash_ChecksumType:
                         result = SkOpts::hash(buf, fBlockSize, 0);
                         break;
+                    case kWyhash_ChecksumType:
+                        result = SkChecksum::Hash32(buf, fBlockSize);
+                        break;
                 }
             }
         }
@@ -95,3 +100,4 @@ DEF_BENCH( return new ComputeChecksumBench(kMD5_ChecksumType, 1024); )
     DEF_BENCH( return new ComputeChecksumBench(T, 1024); )
 
 DEF_CHECKSUM_BENCH(kHash_ChecksumType)
+DEF_CHECKSUM_BENCH(kWyhash_ChecksumType)

@@ -17,20 +17,14 @@
 #include <string_view>
 #include <type_traits>
 
-class SkChecksum {
-public:
-    SkChecksum() = default;
-    // Make noncopyable
-    SkChecksum(const SkChecksum&) = delete;
-    SkChecksum& operator=(const SkChecksum&) = delete;
-
+namespace SkChecksum {
     /**
      * uint32_t -> uint32_t hash, useful for when you're about to truncate this hash but you
      * suspect its low bits aren't well mixed.
      *
      * This is the Murmur3 finalizer.
      */
-    static uint32_t Mix(uint32_t hash) {
+    static inline uint32_t Mix(uint32_t hash) {
         hash ^= hash >> 16;
         hash *= 0x85ebca6b;
         hash ^= hash >> 13;
@@ -45,13 +39,32 @@ public:
      *
      *  This version is 2-lines cheaper than Mix, but seems to be sufficient for the font cache.
      */
-    static uint32_t CheapMix(uint32_t hash) {
+    static inline uint32_t CheapMix(uint32_t hash) {
         hash ^= hash >> 16;
         hash *= 0x85ebca6b;
         hash ^= hash >> 16;
         return hash;
     }
-};
+
+    /**
+     * This is a fast, high-quality 32-bit hash. We make no guarantees about this remaining stable
+     * over time, or being consistent across devices.
+     *
+     * For now, this is a 64-bit wyhash, truncated to 32-bits.
+     * See: https://github.com/wangyi-fudan/wyhash
+     */
+    uint32_t Hash32(const void* data, size_t bytes, uint32_t seed = 0);
+
+    /**
+     * This is a fast, high-quality 64-bit hash. We make no guarantees about this remaining stable
+     * over time, or being consistent across devices.
+     *
+     * For now, this is a 64-bit wyhash.
+     * See: https://github.com/wangyi-fudan/wyhash
+     */
+    uint64_t Hash64(const void* data, size_t bytes, uint64_t seed = 0);
+
+}  // namespace SkChecksum
 
 // SkGoodHash should usually be your first choice in hashing data.
 // It should be both reasonably fast and high quality.
