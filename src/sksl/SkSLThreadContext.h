@@ -84,7 +84,7 @@ public:
 
     /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified
-     * when any DSL errors occur.
+     * when any compilation errors occur.
      */
     static ErrorReporter& GetErrorReporter() {
         return *Context().fErrors;

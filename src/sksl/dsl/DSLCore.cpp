@@ -36,13 +36,4 @@ void End() {
     ThreadContext::SetInstance(nullptr);
 }
 
-ErrorReporter& GetErrorReporter() {
-    return ThreadContext::GetErrorReporter();
-}
-
-void SetErrorReporter(ErrorReporter* errorReporter) {
-    SkASSERT(errorReporter);
-    ThreadContext::SetErrorReporter(errorReporter);
-}
-
 }  // namespace SkSL::dsl

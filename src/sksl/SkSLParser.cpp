@@ -138,10 +138,10 @@ public:
     Checkpoint(Parser* p) : fParser(p) {
         fPushbackCheckpoint = fParser->fPushback;
         fLexerCheckpoint = fParser->fLexer.getCheckpoint();
-        fOldErrorReporter = &dsl::GetErrorReporter();
+        fOldErrorReporter = &ThreadContext::GetErrorReporter();
         fOldEncounteredFatalError = fParser->fEncounteredFatalError;
         SkASSERT(fOldErrorReporter);
-        dsl::SetErrorReporter(&fErrorReporter);
+        ThreadContext::SetErrorReporter(&fErrorReporter);
     }
 
     ~Checkpoint() {
@@ -172,7 +172,7 @@ private:
 
         void forwardErrors() {
             for (Error& error : fErrors) {
-                dsl::GetErrorReporter().error(error.fPos, error.fMsg);
+                ThreadContext::ReportError(error.fMsg, error.fPos);
             }
         }
 
@@ -187,7 +187,7 @@ private:
 
     void restoreErrorReporter() {
         SkASSERT(fOldErrorReporter);
-        dsl::SetErrorReporter(fOldErrorReporter);
+        ThreadContext::SetErrorReporter(fOldErrorReporter);
         fOldErrorReporter = nullptr;
     }
 
@@ -372,7 +372,7 @@ void Parser::error(Token token, std::string_view msg) {
 }
 
 void Parser::error(Position position, std::string_view msg) {
-    GetErrorReporter().error(position, msg);
+    ThreadContext::ReportError(msg, position);
 }
 
 Position Parser::rangeFrom(Position start) {
@@ -389,11 +389,11 @@ Position Parser::rangeFrom(Token start) {
 std::unique_ptr<Program> Parser::program() {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     Start(&fCompiler, fKind, fSettings);
-    SetErrorReporter(errorReporter);
+    ThreadContext::SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
     std::unique_ptr<Program> result;
-    if (!GetErrorReporter().errorCount()) {
+    if (!ThreadContext::GetErrorReporter().errorCount()) {
         result = fCompiler.releaseProgram(std::move(fText));
     }
     errorReporter->setSource(std::string_view());
@@ -404,7 +404,7 @@ std::unique_ptr<Program> Parser::program() {
 std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parent) {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     StartModule(&fCompiler, fKind, fSettings, parent);
-    SetErrorReporter(errorReporter);
+    ThreadContext::SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
     this->symbolTable()->takeOwnershipOfString(std::move(*fText));
