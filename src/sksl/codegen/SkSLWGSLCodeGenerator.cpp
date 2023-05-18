@@ -775,12 +775,19 @@ void WGSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
 void WGSLCodeGenerator::writeIfStatement(const IfStatement& s) {
     this->write("if (");
     this->writeExpression(*s.test(), Precedence::kTopLevel);
-    this->write(") ");
+    this->writeLine(") {");
+    fIndentation++;
     this->writeStatement(*s.ifTrue());
+    this->finishLine();
+    fIndentation--;
     if (s.ifFalse()) {
-        this->write("else ");
+        this->writeLine("} else {");
+        fIndentation++;
         this->writeStatement(*s.ifFalse());
+        this->finishLine();
+        fIndentation--;
     }
+    this->writeLine("}");
 }
 
 void WGSLCodeGenerator::writeReturnStatement(const ReturnStatement& s) {

@@ -1,6 +1,18 @@
 uniform half4 colorGreen, colorRed;
 
-void main() {
+noinline void unbraced() {
+    if (colorGreen.g == 1)
+        sk_FragColor = colorGreen;
+    else if (colorRed.r == 1)
+        if (colorRed.g == 0)
+            sk_FragColor = colorGreen;
+        else
+            sk_FragColor = colorRed;
+    else
+        sk_FragColor = colorRed;
+}
+
+noinline void braced() {
     if (colorGreen.g == 1) {
         sk_FragColor = colorGreen;
     } else if (colorRed.r == 1) {
@@ -12,4 +24,9 @@ void main() {
     } else {
         sk_FragColor = colorRed;
     }
+}
+
+void main() {
+    unbraced();
+    braced();
 }
