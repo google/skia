@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkShaderMaskFilter.h"
+#include "src/effects/SkShaderMaskFilterImpl.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
@@ -18,64 +18,22 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/effects/SkShaderMaskFilter.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/shaders/SkShaderBase.h"
 
 #include <cstdint>
 #include <cstring>
-#include <memory>
 #include <utility>
 
 class SkMatrix;
 
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-struct GrFPArgs;
-#endif
-
-class SkShaderMF : public SkMaskFilterBase {
-public:
-    SkShaderMF(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
-
-    SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
-
-    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                    SkIPoint* margin) const override;
-
-    void computeFastBounds(const SkRect& src, SkRect* dst) const override {
-        *dst = src;
-    }
-
-    bool asABlur(BlurRec*) const override { return false; }
-
-protected:
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&,
-                                                               const MatrixRec&) const override;
-    bool onHasFragmentProcessor() const override;
-#endif
-
-private:
-    SK_FLATTENABLE_HOOKS(SkShaderMF)
-
-    sk_sp<SkShader> fShader;
-
-    SkShaderMF(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const override;
-
-    friend class SkShaderMaskFilter;
-
-    using INHERITED = SkMaskFilter;
-};
-
-sk_sp<SkFlattenable> SkShaderMF::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkShaderMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     return SkShaderMaskFilter::Make(buffer.readShader());
 }
 
-void SkShaderMF::flatten(SkWriteBuffer& buffer) const {
+void SkShaderMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fShader.get());
 }
 
@@ -88,7 +46,7 @@ static void rect_memcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
     }
 }
 
-bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
+bool SkShaderMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
                             SkIPoint* margin) const {
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
@@ -133,24 +91,12 @@ bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#if defined(SK_GANESH)
-
-std::unique_ptr<GrFragmentProcessor>
-SkShaderMF::onAsFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
-    auto fp = as_SB(fShader)->asFragmentProcessor(args, mRec);
-    return GrFragmentProcessor::MulInputByChildAlpha(std::move(fp));
-}
-
-bool SkShaderMF::onHasFragmentProcessor() const {
-    return true;
-}
-
-#endif
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 sk_sp<SkMaskFilter> SkShaderMaskFilter::Make(sk_sp<SkShader> shader) {
-    return shader ? sk_sp<SkMaskFilter>(new SkShaderMF(std::move(shader))) : nullptr;
+    return shader ? sk_sp<SkMaskFilter>(new SkShaderMaskFilterImpl(std::move(shader))) : nullptr;
 }
 
-void SkShaderMaskFilter::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkShaderMF); }
+void SkShaderMaskFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkShaderMaskFilterImpl);
+    // Previous name
+    SkFlattenable::Register("SkShaderMF", SkShaderMaskFilterImpl::CreateProc);
+}

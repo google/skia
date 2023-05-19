@@ -27,30 +27,12 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <memory>
 
-#if defined(SK_GANESH)
-#include "include/private/base/SkTo.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-
-class GrClip;
-class GrRecordingContext;
-class GrStyledShape;
-enum class GrColorType;
-struct GrFPArgs;
-namespace skgpu {
-namespace ganesh {
-class SurfaceDrawContext;
-}
-}  // namespace skgpu
-#endif
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/text/gpu/SDFMaskFilter.h"
 #endif
 
 class SkRRect;
-enum SkAlphaType : int;
 struct SkDeserialProcs;
 
 SkMaskFilterBase::NinePatch::~NinePatch() {
@@ -90,18 +72,6 @@ static void blitClippedRect(SkBlitter* blitter, const SkIRect& rect, const SkIRe
         blitter->blitRect(r.left(), r.top(), r.width(), r.height());
     }
 }
-
-#if 0
-static void dump(const SkMask& mask) {
-    for (int y = mask.fBounds.top(); y < mask.fBounds.bottom(); ++y) {
-        for (int x = mask.fBounds.left(); x < mask.fBounds.right(); ++x) {
-            SkDebugf("%02X", *mask.getAddr8(x, y));
-        }
-        SkDebugf("\n");
-    }
-    SkDebugf("\n");
-}
-#endif
 
 static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
                               const SkIPoint& center, bool fillCenter,
@@ -333,50 +303,6 @@ SkMaskFilterBase::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
                                     const SkIRect& clipBounds, NinePatch*) const {
     return kUnimplemented_FilterReturn;
 }
-
-#if defined(SK_GANESH)
-std::unique_ptr<GrFragmentProcessor>
-SkMaskFilterBase::asFragmentProcessor(const GrFPArgs& args, const SkMatrix& ctm) const {
-    auto fp = this->onAsFragmentProcessor(args, MatrixRec(ctm));
-    SkASSERT(SkToBool(fp) == this->hasFragmentProcessor());
-    return fp;
-}
-bool SkMaskFilterBase::hasFragmentProcessor() const {
-    return this->onHasFragmentProcessor();
-}
-
-std::unique_ptr<GrFragmentProcessor>
-SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&, const MatrixRec&) const {
-    return nullptr;
-}
-bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }
-
-bool SkMaskFilterBase::canFilterMaskGPU(const GrStyledShape& shape,
-                                        const SkIRect& devSpaceShapeBounds,
-                                        const SkIRect& clipBounds,
-                                        const SkMatrix& ctm,
-                                        SkIRect* maskRect) const {
-    return false;
-}
-
-bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
-                                           skgpu::ganesh::SurfaceDrawContext*,
-                                           GrPaint&&,
-                                           const GrClip*,
-                                           const SkMatrix& viewMatrix,
-                                           const GrStyledShape&) const {
-    return false;
-}
-
-GrSurfaceProxyView SkMaskFilterBase::filterMaskGPU(GrRecordingContext*,
-                                                   GrSurfaceProxyView view,
-                                                   GrColorType srcColorType,
-                                                   SkAlphaType srcAlphaType,
-                                                   const SkMatrix& ctm,
-                                                   const SkIRect& maskRect) const {
-    return {};
-}
-#endif
 
 void SkMaskFilterBase::computeFastBounds(const SkRect& src, SkRect* dst) const {
     SkMask  srcM, dstM;

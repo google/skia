@@ -197,6 +197,8 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/GrFixedClip.h",
   "$_src/gpu/ganesh/GrFragmentProcessor.cpp",
   "$_src/gpu/ganesh/GrFragmentProcessor.h",
+  "$_src/gpu/ganesh/GrFragmentProcessors.cpp",
+  "$_src/gpu/ganesh/GrFragmentProcessors.h",
   "$_src/gpu/ganesh/GrGeometryProcessor.cpp",
   "$_src/gpu/ganesh/GrGeometryProcessor.h",
   "$_src/gpu/ganesh/GrGpu.cpp",

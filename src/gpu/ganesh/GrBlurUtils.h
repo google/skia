@@ -8,21 +8,14 @@
 #ifndef GrBlurUtils_DEFINED
 #define GrBlurUtils_DEFINED
 
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-
 class GrClip;
 class GrPaint;
 class GrRecordingContext;
-class GrRenderTarget;
 class GrStyledShape;
-class GrStyle;
-struct SkIRect;
 class SkMatrixProvider;
 class SkMaskFilter;
 class SkMatrix;
 class SkPaint;
-class SkPath;
-class SkPathEffect;
 namespace skgpu {
 namespace ganesh {
 class SurfaceDrawContext;

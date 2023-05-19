@@ -35,6 +35,7 @@ public:
 
     SkMask::Format getFormat() const override;
     bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*) const override;
+    SkMaskFilterBase::Type type() const override { return SkMaskFilterBase::Type::kTable; }
 
 protected:
     ~SkTableMaskFilterImpl() override;

@@ -97,6 +97,8 @@ CORE_FILES = [
     "GrFixedClip.h",
     "GrFragmentProcessor.cpp",
     "GrFragmentProcessor.h",
+    "GrFragmentProcessors.cpp",
+    "GrFragmentProcessors.h",
     "GrGeometryProcessor.cpp",
     "GrGeometryProcessor.h",
     "GrGpu.cpp",

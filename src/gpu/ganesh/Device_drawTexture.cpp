@@ -21,6 +21,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
+#include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -469,7 +470,7 @@ void draw_image(GrRecordingContext* rContext,
     // combining by not baking anything about the srcRect, dstRect, or ctm, into the texture
     // FP. In the future this should be an opaque optimization enabled by the combination of
     // GrDrawOp/GP and FP.
-    if (mf && as_MFB(mf)->hasFragmentProcessor()) {
+    if (GrFragmentProcessors::IsSupported(mf)) {
         mf = nullptr;
     }
 

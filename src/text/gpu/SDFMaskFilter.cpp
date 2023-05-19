@@ -31,7 +31,7 @@ public:
     //  This method is not exported to java.
     bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                     SkIPoint* margin) const override;
-
+    SkMaskFilterBase::Type type() const override { return SkMaskFilterBase::Type::kSDF; }
     void computeFastBounds(const SkRect&, SkRect*) const override;
 
 protected:

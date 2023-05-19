@@ -16,11 +16,6 @@
 #include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkMask.h"
 
-#if defined(SK_GANESH)
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/shaders/SkShaderBase.h"
-#endif
-
 class GrClip;
 struct GrFPArgs;
 class GrFragmentProcessor;
@@ -69,77 +64,15 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const = 0;
 
-#if defined(SK_GANESH)
-    /**
-     *  Returns a processor if the filter can be expressed a single-pass GrProcessor without
-     *  requiring an explicit input mask. Per-pixel, the effect receives the incoming mask's
-     *  coverage as the input color and outputs the filtered covereage value. This means that each
-     *  pixel's filtered coverage must only depend on the unfiltered mask value for that pixel and
-     *  not on surrounding values.
-     */
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args,
-                                                             const SkMatrix& ctm) const;
+    enum class Type {
+        kBlur,
+        kEmboss,
+        kSDF,
+        kShader,
+        kTable,
+    };
 
-    /**
-     *  Returns true iff asFragmentProcessor() will return a processor
-     */
-    bool hasFragmentProcessor() const;
-
-    /**
-     *  If asFragmentProcessor() fails the filter may be implemented on the GPU by a subclass
-     *  overriding filterMaskGPU (declared below). That code path requires constructing a
-     *  src mask as input. Since that is a potentially expensive operation, the subclass must also
-     *  override this function to indicate whether filterTextureMaskGPU would succeeed if the mask
-     *  were to be created.
-     *
-     *  'maskRect' returns the device space portion of the mask that the filter needs. The mask
-     *  passed into 'filterMaskGPU' should have the same extent as 'maskRect' but be
-     *  translated to the upper-left corner of the mask (i.e., (maskRect.fLeft, maskRect.fTop)
-     *  appears at (0, 0) in the mask).
-     *
-     * Logically, how this works is:
-     *    canFilterMaskGPU is called
-     *    if (it returns true)
-     *        the returned mask rect is used for quick rejecting
-     *            the mask rect is used to generate the mask
-     *            filterMaskGPU is called to filter the mask
-     *
-     * TODO: this should work as:
-     *    if (canFilterMaskGPU(devShape, ...)) // rect, rrect, drrect, path
-     *        filterMaskGPU(devShape, ...)
-     * this would hide the RRect special case and the mask generation
-     */
-    virtual bool canFilterMaskGPU(const GrStyledShape&,
-                                  const SkIRect& devSpaceShapeBounds,
-                                  const SkIRect& clipBounds,
-                                  const SkMatrix& ctm,
-                                  SkIRect* maskRect) const;
-
-    /**
-     *  Try to directly render the mask filter into the target. Returns true if drawing was
-     *  successful. If false is returned then paint is unmodified.
-     */
-    virtual bool directFilterMaskGPU(GrRecordingContext*,
-                                     skgpu::ganesh::SurfaceDrawContext*,
-                                     GrPaint&& paint,
-                                     const GrClip*,
-                                     const SkMatrix& viewMatrix,
-                                     const GrStyledShape& shape) const;
-
-    /**
-     * This function is used to implement filters that require an explicit src mask. It should only
-     * be called if canFilterMaskGPU returned true and the maskRect param should be the output from
-     * that call.
-     * Implementations are free to get the GrContext from the src texture in order to create
-     * additional textures and perform multiple passes.
-     */
-    virtual GrSurfaceProxyView filterMaskGPU(GrRecordingContext*,
-                                             GrSurfaceProxyView srcView,
-                                             GrColorType srcColorType,
-                                             SkAlphaType srcAlphaType,
-                                             const SkMatrix& ctm,
-                                             const SkIRect& maskRect) const;
-#endif
+    virtual Type type() const = 0;
 
     /**
      * The fast bounds function is used to enable the paint to be culled early
@@ -175,13 +108,6 @@ public:
 
 protected:
     SkMaskFilterBase() {}
-
-#if defined(SK_GANESH)
-    using MatrixRec = SkShaderBase::MatrixRec;
-    virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&,
-                                                                       const MatrixRec&) const;
-    virtual bool onHasFragmentProcessor() const;
-#endif
 
     enum FilterReturn {
         kFalse_FilterReturn,
