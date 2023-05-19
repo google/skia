@@ -15,7 +15,7 @@
 namespace SkSL {
 
 std::string Expression::description() const {
-    return this->description(OperatorPrecedence::kTopLevel);
+    return this->description(OperatorPrecedence::kExpression);
 }
 
 bool Expression::isIncomplete(const Context& context) const {

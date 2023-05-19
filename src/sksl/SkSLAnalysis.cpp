@@ -247,7 +247,7 @@ public:
                 VariableReference& varRef = expr.as<VariableReference>();
                 const Variable* var = varRef.variable();
                 auto fieldName = [&] {
-                    return fieldAccess ? fieldAccess->description(OperatorPrecedence::kTopLevel)
+                    return fieldAccess ? fieldAccess->description(OperatorPrecedence::kExpression)
                                        : std::string(var->name());
                 };
                 if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag)) {

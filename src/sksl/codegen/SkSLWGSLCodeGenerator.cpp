@@ -767,14 +767,14 @@ void WGSLCodeGenerator::writeBlock(const Block& b) {
 
 void WGSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
     if (Analysis::HasSideEffects(*s.expression())) {
-        this->writeExpression(*s.expression(), Precedence::kTopLevel);
+        this->writeExpression(*s.expression(), Precedence::kStatement);
         this->write(";");
     }
 }
 
 void WGSLCodeGenerator::writeIfStatement(const IfStatement& s) {
     this->write("if (");
-    this->writeExpression(*s.test(), Precedence::kTopLevel);
+    this->writeExpression(*s.test(), Precedence::kExpression);
     this->writeLine(") {");
     fIndentation++;
     this->writeStatement(*s.ifTrue());
@@ -794,7 +794,7 @@ void WGSLCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
     this->write("return");
     if (s.expression()) {
         this->write(" ");
-        this->writeExpression(*s.expression(), Precedence::kTopLevel);
+        this->writeExpression(*s.expression(), Precedence::kExpression);
     }
     this->write(";");
 }
@@ -812,7 +812,7 @@ void WGSLCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
 
     if (varDecl.value()) {
         this->write(" = ");
-        this->writeExpression(*varDecl.value(), Precedence::kTopLevel);
+        this->writeExpression(*varDecl.value(), Precedence::kExpression);
     } else if (isConst) {
         SkDEBUGFAILF("A let-declared constant must specify a value");
     }
@@ -1010,14 +1010,14 @@ void WGSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 void WGSLCodeGenerator::writeIndexExpression(const IndexExpression& i) {
     this->writeExpression(*i.base(), Precedence::kPostfix);
     this->write("[");
-    this->writeExpression(*i.index(), Precedence::kTopLevel);
+    this->writeExpression(*i.index(), Precedence::kExpression);
     this->write("]");
 }
 
 void WGSLCodeGenerator::writeLiteral(const Literal& l) {
     const Type& type = l.type();
     if (type.isFloat() || type.isBoolean()) {
-        this->write(l.description(OperatorPrecedence::kTopLevel));
+        this->write(l.description(OperatorPrecedence::kExpression));
         return;
     }
     SkASSERT(type.isInteger());

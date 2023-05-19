@@ -3361,7 +3361,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         }
         default:
             SkDEBUGFAILF("unsupported prefix expression: %s",
-                         p.description(OperatorPrecedence::kTopLevel).c_str());
+                         p.description(OperatorPrecedence::kExpression).c_str());
             return NA;
     }
 }
@@ -3386,7 +3386,7 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
         }
         default:
             SkDEBUGFAILF("unsupported postfix expression %s",
-                         p.description(OperatorPrecedence::kTopLevel).c_str());
+                         p.description(OperatorPrecedence::kExpression).c_str());
             return NA;
     }
 }

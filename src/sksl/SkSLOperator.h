@@ -71,8 +71,9 @@ enum class OperatorPrecedence : uint8_t {
     kLogicalOr      = 14,
     kTernary        = 15,
     kAssignment     = 16,
-    kSequence       = 17,
-    kTopLevel       = kSequence
+    kSequence       = 17,        // a comma-separated sequence
+    kExpression     = kSequence, // a top-level expression, anywhere in a statement
+    kStatement      = 18,        // a standalone expression-statement
 };
 
 class Operator {

@@ -171,7 +171,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
 
 std::string IndexExpression::description(OperatorPrecedence) const {
     return this->base()->description(OperatorPrecedence::kPostfix) + "[" +
-           this->index()->description(OperatorPrecedence::kTopLevel) + "]";
+           this->index()->description(OperatorPrecedence::kExpression) + "]";
 }
 
 }  // namespace SkSL

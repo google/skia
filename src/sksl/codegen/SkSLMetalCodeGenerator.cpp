@@ -622,14 +622,14 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
     const ExpressionArray& arguments = c.arguments();
     switch (kind) {
         case k_read_IntrinsicKind: {
-            this->writeExpression(*arguments[0], Precedence::kTopLevel);
+            this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".read(");
             this->writeExpression(*arguments[1], Precedence::kSequence);
             this->write(")");
             return true;
         }
         case k_write_IntrinsicKind: {
-            this->writeExpression(*arguments[0], Precedence::kTopLevel);
+            this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".write(");
             this->writeExpression(*arguments[2], Precedence::kSequence);
             this->write(", ");
@@ -638,12 +638,12 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             return true;
         }
         case k_width_IntrinsicKind: {
-            this->writeExpression(*arguments[0], Precedence::kTopLevel);
+            this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".get_width()");
             return true;
         }
         case k_height_IntrinsicKind: {
-            this->writeExpression(*arguments[0], Precedence::kTopLevel);
+            this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".get_height()");
             return true;
         }
@@ -1572,7 +1572,7 @@ void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
                 this->write(std::to_string(component));
             }
             this->write(")[");
-            this->writeExpression(*expr.index(), Precedence::kTopLevel);
+            this->writeExpression(*expr.index(), Precedence::kExpression);
             this->write("]]");
             return;
         }
@@ -1580,7 +1580,7 @@ void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 
     this->writeExpression(*expr.base(), Precedence::kPostfix);
     this->write("[");
-    this->writeExpression(*expr.index(), Precedence::kTopLevel);
+    this->writeExpression(*expr.index(), Precedence::kExpression);
     this->write("]");
 }
 
@@ -1977,7 +1977,7 @@ void MetalCodeGenerator::writePostfixExpression(const PostfixExpression& p,
 void MetalCodeGenerator::writeLiteral(const Literal& l) {
     const Type& type = l.type();
     if (type.isFloat()) {
-        this->write(l.description(OperatorPrecedence::kTopLevel));
+        this->write(l.description(OperatorPrecedence::kExpression));
         if (!l.type().highPrecision()) {
             this->write("h");
         }
@@ -1996,7 +1996,7 @@ void MetalCodeGenerator::writeLiteral(const Literal& l) {
         return;
     }
     SkASSERT(type.isBoolean());
-    this->write(l.description(OperatorPrecedence::kTopLevel));
+    this->write(l.description(OperatorPrecedence::kExpression));
 }
 
 void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration& f,
@@ -2457,7 +2457,7 @@ void MetalCodeGenerator::writeFields(SkSpan<const Field> fields,
 }
 
 void MetalCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
-    this->writeExpression(value, Precedence::kTopLevel);
+    this->writeExpression(value, Precedence::kExpression);
 }
 
 void MetalCodeGenerator::writeName(std::string_view name) {
@@ -2545,7 +2545,7 @@ void MetalCodeGenerator::writeBlock(const Block& b) {
 
 void MetalCodeGenerator::writeIfStatement(const IfStatement& stmt) {
     this->write("if (");
-    this->writeExpression(*stmt.test(), Precedence::kTopLevel);
+    this->writeExpression(*stmt.test(), Precedence::kExpression);
     this->write(") ");
     this->writeStatement(*stmt.ifTrue());
     if (stmt.ifFalse()) {
@@ -2558,7 +2558,7 @@ void MetalCodeGenerator::writeForStatement(const ForStatement& f) {
     // Emit loops of the form 'for(;test;)' as 'while(test)', which is probably how they started
     if (!f.initializer() && f.test() && !f.next()) {
         this->write("while (");
-        this->writeExpression(*f.test(), Precedence::kTopLevel);
+        this->writeExpression(*f.test(), Precedence::kExpression);
         this->write(") ");
         this->writeStatement(*f.statement());
         return;
@@ -2571,11 +2571,11 @@ void MetalCodeGenerator::writeForStatement(const ForStatement& f) {
         this->write("; ");
     }
     if (f.test()) {
-        this->writeExpression(*f.test(), Precedence::kTopLevel);
+        this->writeExpression(*f.test(), Precedence::kExpression);
     }
     this->write("; ");
     if (f.next()) {
-        this->writeExpression(*f.next(), Precedence::kTopLevel);
+        this->writeExpression(*f.next(), Precedence::kExpression);
     }
     this->write(") ");
     this->writeStatement(*f.statement());
@@ -2585,7 +2585,7 @@ void MetalCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->write("do ");
     this->writeStatement(*d.statement());
     this->write(" while (");
-    this->writeExpression(*d.test(), Precedence::kTopLevel);
+    this->writeExpression(*d.test(), Precedence::kExpression);
     this->write(");");
 }
 
@@ -2594,13 +2594,13 @@ void MetalCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) 
         // Don't emit dead expressions.
         return;
     }
-    this->writeExpression(*s.expression(), Precedence::kTopLevel);
+    this->writeExpression(*s.expression(), Precedence::kStatement);
     this->write(";");
 }
 
 void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     this->write("switch (");
-    this->writeExpression(*s.value(), Precedence::kTopLevel);
+    this->writeExpression(*s.value(), Precedence::kExpression);
     this->writeLine(") {");
     fIndentation++;
     for (const std::unique_ptr<Statement>& stmt : s.cases()) {
@@ -2640,7 +2640,7 @@ void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
         if (r.expression()) {
             if (r.expression()->type().matches(*fContext.fTypes.fHalf4)) {
                 this->write("_out.sk_FragColor = ");
-                this->writeExpression(*r.expression(), Precedence::kTopLevel);
+                this->writeExpression(*r.expression(), Precedence::kExpression);
                 this->writeLine(";");
             } else {
                 fContext.fErrors->error(r.fPosition,
@@ -2655,7 +2655,7 @@ void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write("return");
     if (r.expression()) {
         this->write(" ");
-        this->writeExpression(*r.expression(), Precedence::kTopLevel);
+        this->writeExpression(*r.expression(), Precedence::kExpression);
     }
     this->write(";");
 }
