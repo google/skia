@@ -1161,6 +1161,7 @@ func (b *jobBuilder) createDockerImage(wasm bool) string {
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
 		b.cache(CACHES_DOCKER...)
+		b.timeout(time.Hour)
 	})
 	return taskName
 }
