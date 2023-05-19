@@ -194,6 +194,22 @@ static wgpu::BlendFactor blend_coeff_to_dawn_blend(skgpu::BlendCoeff coeff) {
     SkUNREACHABLE;
 }
 
+static wgpu::BlendFactor blend_coeff_to_dawn_blend_for_alpha(skgpu::BlendCoeff coeff) {
+    switch (coeff) {
+        // Force all srcColor used in alpha slot to alpha version.
+        case skgpu::BlendCoeff::kSC:
+            return wgpu::BlendFactor::SrcAlpha;
+        case skgpu::BlendCoeff::kISC:
+            return wgpu::BlendFactor::OneMinusSrcAlpha;
+        case skgpu::BlendCoeff::kDC:
+            return wgpu::BlendFactor::DstAlpha;
+        case skgpu::BlendCoeff::kIDC:
+            return wgpu::BlendFactor::OneMinusDstAlpha;
+        default:
+            return blend_coeff_to_dawn_blend(coeff);
+    }
+}
+
 // TODO: share this w/ Ganesh Metal backend?
 static wgpu::BlendOperation blend_equation_to_dawn_blend_op(skgpu::BlendEquation equation) {
     static const wgpu::BlendOperation gTable[] = {
@@ -305,8 +321,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         blend.color.srcFactor = blend_coeff_to_dawn_blend(srcCoeff);
         blend.color.dstFactor = blend_coeff_to_dawn_blend(dstCoeff);
         blend.alpha.operation = blend_equation_to_dawn_blend_op(equation);
-        blend.alpha.srcFactor = blend_coeff_to_dawn_blend(srcCoeff);
-        blend.alpha.dstFactor = blend_coeff_to_dawn_blend(dstCoeff);
+        blend.alpha.srcFactor = blend_coeff_to_dawn_blend_for_alpha(srcCoeff);
+        blend.alpha.dstFactor = blend_coeff_to_dawn_blend_for_alpha(dstCoeff);
     }
 
     wgpu::ColorTargetState colorTarget;
