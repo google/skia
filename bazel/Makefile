@@ -6,7 +6,7 @@ generate:
 
 generate_go:
 	cd .. && bazelisk run //infra:gazelle -- update infra/bots/task_drivers modules/canvaskit/go \
-       bazel/exporter  bazel/deps_parser tools/gpu/gl/interface
+       bazel/exporter bazel/deps_parser tools/gpu/gl/interface tests/make_adb_test_tarball
 
 .PHONY: generate_cmake
 generate_cmake:
