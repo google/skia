@@ -10,7 +10,7 @@ struct _GlobalUniforms {
     colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _outParamHelper_0_out_params_are_distinct_bhh(x: ptr<function, f32>, _unused1: ptr<function, f32>) -> bool {
+fn _outParamHelper_1_out_params_are_distinct_bhh(x: ptr<function, f32>, _unused1: ptr<function, f32>) -> bool {
     var _var0: f32;
     var _var1: f32;
     var _return: bool = out_params_are_distinct_bhh(&_var0, &_var1);
@@ -25,7 +25,13 @@ fn out_params_are_distinct_bhh(x: ptr<function, f32>, y: ptr<function, f32>) -> 
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var x: f32 = 0.0;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_outParamHelper_0_out_params_are_distinct_bhh(&x, &x)));
+    var _skTemp0: vec4<f32>;
+    if _outParamHelper_1_out_params_are_distinct_bhh(&x, &x) {
+        _skTemp0 = _globalUniforms.colorGreen;
+    } else {
+        _skTemp0 = _globalUniforms.colorRed;
+    }
+    return _skTemp0;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

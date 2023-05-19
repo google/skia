@@ -65,7 +65,13 @@ fn test_mat4_b() -> bool {
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var _0_x: f32 = f32(_globalUniforms.colorWhite.x);
     _0_x = -_0_x;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((_0_x == -1.0 && test_iscalar_b()) && test_fvec_b()) && test_ivec_b()) && test_mat2_b()) && test_mat3_b()) && test_mat4_b()));
+    var _skTemp0: vec4<f32>;
+    if (((((_0_x == -1.0 && test_iscalar_b()) && test_fvec_b()) && test_ivec_b()) && test_mat2_b()) && test_mat3_b()) && test_mat4_b() {
+        _skTemp0 = _globalUniforms.colorGreen;
+    } else {
+        _skTemp0 = _globalUniforms.colorRed;
+    }
+    return _skTemp0;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

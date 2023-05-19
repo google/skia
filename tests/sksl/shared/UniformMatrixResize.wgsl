@@ -30,7 +30,13 @@ fn resizeMatrix_f22() -> mat2x2<f32> {
     return mat2x2f32_from_mat3x3f32(_globalUniforms.testMatrix3x3);
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(mat2x2f32_eq_mat2x2f32(resizeMatrix_f22(), mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0))) && mat3x3f32_eq_mat3x3f32(mat3x3f32_from_mat2x2f32(resizeMatrix_f22()), mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0)))));
+    var _skTemp0: vec4<f32>;
+    if mat2x2f32_eq_mat2x2f32(resizeMatrix_f22(), mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0))) && mat3x3f32_eq_mat3x3f32(mat3x3f32_from_mat2x2f32(resizeMatrix_f22()), mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0))) {
+        _skTemp0 = _globalUniforms.colorGreen;
+    } else {
+        _skTemp0 = _globalUniforms.colorRed;
+    }
+    return _skTemp0;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

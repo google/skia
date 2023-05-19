@@ -1,0 +1,20 @@
+uniform half4 colorWhite;
+
+noinline bool IsEqual(half4 x, half4 y) {
+    return x == y;
+}
+
+half4 main(float2 coords) {
+    half4 colorBlue  = colorWhite.00ba,
+          colorGreen = colorWhite.0g0a,
+          colorRed   = colorWhite.r00a;
+    half4 result;
+    result = !IsEqual(colorWhite, colorBlue)                                // takes true side
+               ? ( IsEqual(colorGreen, colorRed) ? colorRed : colorGreen)   // takes false side
+               : (!IsEqual(colorRed, colorGreen) ? colorBlue : colorWhite); // not taken
+
+    return  IsEqual(colorRed, colorBlue ) ? colorWhite :
+           !IsEqual(colorRed, colorGreen) ? result :     // is taken
+            IsEqual(colorRed, colorWhite) ? colorBlue :
+                                            colorRed;
+}

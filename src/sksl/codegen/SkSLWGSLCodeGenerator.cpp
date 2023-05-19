@@ -1094,6 +1094,16 @@ std::string WGSLCodeGenerator::assembleSwizzle(const Swizzle& swizzle) {
     return expr;
 }
 
+std::string WGSLCodeGenerator::writeScratchVar(const Type& type) {
+    std::string scratchVarName = "_skTemp" + std::to_string(fScratchCount++);
+    this->write("var ");
+    this->write(scratchVarName);
+    this->write(": ");
+    this->write(to_wgsl_type(type));
+    this->writeLine(";");
+    return scratchVarName;
+}
+
 std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression& t,
                                                          Precedence parentPrecedence) {
     std::string expr;
@@ -1106,6 +1116,7 @@ std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression
     // type. This can be represented with a call to the WGSL `select` intrinsic although it doesn't
     // support short-circuiting.
     if ((t.type().isScalar() || t.type().isVector()) &&
+        !Analysis::HasSideEffects(*t.test()) &&
         !Analysis::HasSideEffects(*t.ifTrue()) &&
         !Analysis::HasSideEffects(*t.ifFalse())) {
         expr += "select(";
@@ -1128,13 +1139,35 @@ std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression
             expr.push_back(')');
         }
     } else {
-        // TODO(skia:14082): WGSL does not support ternary expressions. To replicate the required
-        // short-circuting behavior we need to hoist the expression out into the surrounding block,
-        // convert it into an if statement that writes the result to a synthesized variable, and
-        // replace the original expression with a reference to that variable.
-        //
-        // Once hoisting is supported, we may want to use that for vector type expressions as well,
-        // since select above does a component-wise select
+        // WGSL does not support ternary expressions. Instead, we hoist the expression out into the
+        // surrounding block, convert it into an if statement, and write the result to a synthesized
+        // variable. Instead of the original expression, we return that variable.
+        expr = this->writeScratchVar(t.ifTrue()->type());
+
+        std::string testExpr = this->assembleExpression(*t.test(), Precedence::kExpression);
+        this->write("if ");
+        this->write(testExpr);
+        this->writeLine(" {");
+
+        ++fIndentation;
+        std::string trueExpr = this->assembleExpression(*t.ifTrue(), Precedence::kAssignment);
+        this->write(expr);
+        this->write(" = ");
+        this->write(trueExpr);
+        this->writeLine(";");
+        --fIndentation;
+
+        this->writeLine("} else {");
+
+        ++fIndentation;
+        std::string falseExpr = this->assembleExpression(*t.ifFalse(), Precedence::kAssignment);
+        this->write(expr);
+        this->write(" = ");
+        this->write(falseExpr);
+        this->writeLine(";");
+        --fIndentation;
+
+        this->writeLine("}");
     }
     return expr;
 }
@@ -1872,7 +1905,7 @@ std::string WGSLCodeGenerator::writeOutParamHelper(const FunctionCall& c,
     //
     // float _outParamHelper_0_originalFuncName(float _var0, float _var1, float& outParam) {
     std::string name =
-            "_outParamHelper_" + std::to_string(fSwizzleHelperCount++) + "_" + func.mangledName();
+            "_outParamHelper_" + std::to_string(fScratchCount++) + "_" + func.mangledName();
     auto separator = SkSL::String::Separator();
     this->write("fn ");
     this->write(name);
@@ -1940,8 +1973,7 @@ std::string WGSLCodeGenerator::writeOutParamHelper(const FunctionCall& c,
         std::string argExpr = inFlag ? this->assembleExpression(*args[i], Precedence::kAssignment)
                                      : std::string();
 
-        this->write("var ");
-        this->write("_var");
+        this->write("var _var");
         this->write(std::to_string(i));
         this->write(": ");
         this->write(to_wgsl_type(args[i]->type()));

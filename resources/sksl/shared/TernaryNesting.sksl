@@ -1,0 +1,16 @@
+uniform half4 colorWhite;
+
+half4 main(float2 coords) {
+    half4 colorBlue  = colorWhite.00ba,
+          colorGreen = colorWhite.0g0a,
+          colorRed   = colorWhite.r00a;
+    half4 result;
+    result = (colorWhite != colorBlue)                              // TRUE
+               ? (colorGreen == colorRed ? colorRed : colorGreen)   // FALSE
+               : (colorRed != colorGreen ? colorBlue : colorWhite); // in false branch
+
+    return colorRed == colorBlue  ? colorWhite :
+           colorRed != colorGreen ? result :     // TRUE
+           colorRed == colorWhite ? colorBlue :
+                                    colorRed;
+}

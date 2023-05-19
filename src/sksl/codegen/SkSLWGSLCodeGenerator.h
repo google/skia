@@ -221,6 +221,9 @@ private:
     // Synthesized helper functions for comparison operators that are not supported by WGSL.
     std::string assembleMatrixEqualityExpression(const Expression& left, const Expression& right);
 
+    // Writes a scratch variable into the program and returns its name (e.g. `_skTemp123`).
+    std::string writeScratchVar(const Type& type);
+
     // Generic recursive ProgramElement visitor.
     void writeProgramElement(const ProgramElement& e);
     void writeGlobalVarDeclaration(const GlobalVarDeclaration& d);
@@ -281,7 +284,7 @@ private:
     int fIndentation = 0;
     bool fAtLineStart = false;
 
-    int fSwizzleHelperCount = 0;
+    int fScratchCount = 0;
     StringStream fExtraFunctions;      // all internally synthesized helpers are written here
     skia_private::THashSet<std::string> fHelpers;  // all synthesized helper functions, by name
 };
