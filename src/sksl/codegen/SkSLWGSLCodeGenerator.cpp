@@ -525,6 +525,10 @@ void WGSLCodeGenerator::finishLine() {
 }
 
 std::string WGSLCodeGenerator::assembleName(std::string_view name) {
+    if (name.empty()) {
+        // WGSL doesn't allow anonymous function parameters.
+        return "_skAnonymous" + std::to_string(fScratchCount++);
+    }
     // Add underscore before name to avoid conflict with reserved words.
     return fReservedWords.contains(name) ? std::string("_") + std::string(name)
                                          : std::string(name);

@@ -1,0 +1,17 @@
+// TODO(skia:14082): This test is patterned after shared/FunctionAnonymousParameters.sksl, but WGSL
+// doesn't yet support struct-constructor expressions. This test can be removed once such
+// expressions work properly.
+
+uniform half4 colorGreen, colorRed;
+
+half4 fnGreen(bool b, float2) {
+    return colorGreen;
+}
+
+half4 fnRed(int, float f, half3x3) {
+    return colorRed;
+}
+
+half4 main(float2 coords) {
+    return bool(colorGreen.g) ? fnGreen(true, coords) : fnRed(123, 3.14, half3x3(0));
+}

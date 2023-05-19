@@ -1055,6 +1055,7 @@ skia_filegroup(
         "wgsl/CastMat4x4ToMat4x3.sksl",
         "wgsl/CastVec4ToMat2x2.sksl",
         "wgsl/Equality.sksl",
+        "wgsl/FunctionAnonymousParameters.sksl",
         "wgsl/FunctionCallDependencies.sksl",
         "wgsl/GlobalUniforms.sksl",
         "wgsl/IfStatement.sksl",
