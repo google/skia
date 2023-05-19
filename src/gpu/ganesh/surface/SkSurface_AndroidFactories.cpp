@@ -36,7 +36,6 @@
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/SkRenderEngineAbortf.h"
 #include "src/gpu/ganesh/Device_v1.h"
-#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -58,7 +57,7 @@
 #include <cstddef>
 #include <utility>
 
-#include <android/hardware_buffer.h>
+#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 
 namespace SkSurfaces {
 
@@ -137,5 +136,17 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(GrDirectContext* dContext,
 }
 
 }  // namespace SkSurfaces
+
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FACTORIES)
+sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* context,
+                                                    AHardwareBuffer* hardwareBuffer,
+                                                    GrSurfaceOrigin origin,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkSurfaceProps* surfaceProps,
+                                                    bool fromWindow) {
+    return SkSurfaces::WrapAndroidHardwareBuffer(
+            context, hardwareBuffer, origin, colorSpace, surfaceProps, fromWindow);
+}
+#endif
 
 #endif

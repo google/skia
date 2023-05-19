@@ -68,8 +68,6 @@
 #include <cstddef>
 #include <utility>
 
-#include <android/hardware_buffer.h>
-
 namespace SkImages {
 
 sk_sp<SkImage> DeferredFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at) {
