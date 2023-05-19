@@ -32,6 +32,7 @@ class BoundsManager;
 class Clip;
 class Context;
 class DrawContext;
+enum class DstReadRequirement;
 class Geometry;
 class PaintParams;
 class Recorder;
@@ -233,12 +234,12 @@ private:
     // return a retry error code? or does drawGeometry() handle all the fallbacks, knowing that
     // a particular shape type needs to be pre-chopped?
     // TODO: Move this into a RendererSelector object provided by the Context.
-    const Renderer* chooseRenderer(const Geometry&,
-                                   const Clip&,
+    const Renderer* chooseRenderer(const Transform& localToDevice,
+                                   const Geometry&,
                                    const SkStrokeRec&,
                                    bool requireMSAA) const;
 
-    bool needsFlushBeforeDraw(int numNewDraws) const;
+    bool needsFlushBeforeDraw(int numNewDraws, DstReadRequirement) const;
 
     Recorder* fRecorder;
     sk_sp<DrawContext> fDC;

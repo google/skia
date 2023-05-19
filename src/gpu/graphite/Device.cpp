@@ -945,9 +945,26 @@ void Device::drawGeometry(const Transform& localToDevice,
     SkASSERT(!SkToBool(paint.getPathEffect()) || (flags & DrawFlags::kIgnorePathEffect));
     SkASSERT(!SkToBool(paint.getMaskFilter()) || (flags & DrawFlags::kIgnoreMaskFilter));
 
-    // Check if we have room to record into the current list before determining clipping and order
+    const Renderer* renderer =
+            this->chooseRenderer(localToDevice, geometry, style, /*requireMSAA=*/false);
+    if (!renderer) {
+        SKGPU_LOG_W("Skipping draw with no supported renderer.");
+        return;
+    }
+
+    // Figure out what dst color requirements we have, if any.
+    DstReadRequirement dstReadReq = DstReadRequirement::kNone;
+    const SkBlenderBase* blender = as_BB(paint.getBlender());
+    if (blender) {
+        dstReadReq = GetDstReadRequirement(
+                recorder()->priv().caps(), blender->asBlendMode(), renderer->emitsCoverage());
+    }
+
+    // Decide if we have any reason to flush pending work. We only want to flush once, before
+    // calculating clipping, since otherwise clip operations for the current draw will be flushed.
     SkStrokeRec::Style styleType = style.getStyle();
-    if (this->needsFlushBeforeDraw(styleType == SkStrokeRec::kStrokeAndFill_Style ? 2 : 1)) {
+    const int numNewDraws = style.getStyle() == SkStrokeRec::kStrokeAndFill_Style ? 2 : 1;
+    if (this->needsFlushBeforeDraw(numNewDraws, dstReadReq)) {
         this->flushPendingWorkToRecorder();
     }
 
@@ -956,14 +973,6 @@ void Device::drawGeometry(const Transform& localToDevice,
             fColorDepthBoundsManager.get(), localToDevice, geometry, style, order.depth());
     if (clip.drawBounds().isEmptyNegativeOrNaN()) {
         // Clipped out, so don't record anything
-        return;
-    }
-    // Some Renderer decisions are based on estimated fill rate, which requires the clipped bounds.
-    // Since the fallbacks shouldn't change the bounds of the draw, it's okay to have evaluated the
-    // clip stack before calling ChooseRenderer.
-    const Renderer* renderer = this->chooseRenderer(geometry, clip, style, /*requireMSAA=*/false);
-    if (!renderer) {
-        SKGPU_LOG_W("Skipping draw with no supported renderer.");
         return;
     }
 
@@ -993,19 +1002,6 @@ void Device::drawGeometry(const Transform& localToDevice,
         primitiveBlender = nullptr;
     } else if (!SkToBool(primitiveBlender)) {
         primitiveBlender = SkBlender::Mode(SkBlendMode::kSrcOver);
-    }
-
-    // Figure out what dst color requirements we have, if any.
-    DstReadRequirement dstReadReq = DstReadRequirement::kNone;
-    const SkBlenderBase* blender = as_BB(paint.getBlender());
-    if (blender) {
-        dstReadReq = GetDstReadRequirement(
-                recorder()->priv().caps(), blender->asBlendMode(), renderer->emitsCoverage());
-    }
-
-    // If this paint needs to copy the dst surface for reading, flush pending work.
-    if (dstReadReq == DstReadRequirement::kTextureCopy) {
-        this->flushPendingWorkToRecorder();
     }
 
     // If a draw is not opaque, it must be drawn after the most recent draw it intersects with in
@@ -1068,8 +1064,8 @@ void Device::drawClipShape(const Transform& localToDevice,
     // A clip draw's state is almost fully defined by the ClipStack. The only thing we need
     // to account for is selecting a Renderer and tracking the stencil buffer usage.
     Geometry geometry{shape};
-    const Renderer* renderer = this->chooseRenderer(geometry,
-                                                    clip,
+    const Renderer* renderer = this->chooseRenderer(localToDevice,
+                                                    geometry,
                                                     DefaultFillStyle(),
                                                     /*requireMSAA=*/true);
     if (!renderer) {
@@ -1103,8 +1099,8 @@ void Device::drawClipShape(const Transform& localToDevice,
 
 // TODO: Currently all Renderers are always defined, but with config options and caps that may not
 // be the case, in which case chooseRenderer() will have to go through compatible choices.
-const Renderer* Device::chooseRenderer(const Geometry& geometry,
-                                       const Clip& clip,
+const Renderer* Device::chooseRenderer(const Transform& localToDevice,
+                                       const Geometry& geometry,
                                        const SkStrokeRec& style,
                                        bool requireMSAA) const {
     const RendererProvider* renderers = fRecorder->priv().rendererProvider();
@@ -1157,10 +1153,18 @@ const Renderer* Device::chooseRenderer(const Geometry& geometry,
         // would be pretty trivial to spin up.
         return renderers->convexTessellatedWedges();
     } else {
-        // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose between
-        // wedges curves consistently in Graphite and Ganesh.
-        const bool preferWedges = (shape.isPath() && shape.path().countVerbs() < 50) ||
-                                   clip.drawBounds().area() <= (256 * 256);
+        Rect drawBounds = localToDevice.mapRect(shape.bounds());
+        drawBounds.intersect(fClip.conservativeBounds());
+        const bool preferWedges =
+                // If the draw bounds don't intersect with the clip stack's conservative bounds,
+                // we'll be drawing a very small area at most, accounting for coverage, so just
+                // stick with drawing wedges in that case.
+                drawBounds.isEmptyNegativeOrNaN() ||
+
+                // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose
+                // between wedges curves consistently in Graphite and Ganesh.
+                (shape.isPath() && shape.path().countVerbs() < 50) ||
+                drawBounds.area() <= (256 * 256);
 
         if (preferWedges) {
             return renderers->stencilTessellatedWedges(shape.fillType());
@@ -1211,10 +1215,14 @@ void Device::flushPendingWorkToRecorder() {
     // drawn into the Device, and not just the currently accumulating pass.
 }
 
-bool Device::needsFlushBeforeDraw(int numNewDraws) const {
+bool Device::needsFlushBeforeDraw(int numNewDraws, DstReadRequirement dstReadReq) const {
     // Must also account for the elements in the clip stack that might need to be recorded.
     numNewDraws += fClip.maxDeferredClipDraws();
-    return (DrawList::kMaxDraws - fDC->pendingDrawCount()) < numNewDraws;
+    return
+            // Need flush if we don't have room to record into the current list.
+            (DrawList::kMaxDraws - fDC->pendingDrawCount()) < numNewDraws ||
+            // Need flush if this draw needs to copy the dst surface for reading.
+            dstReadReq == DstReadRequirement::kTextureCopy;
 }
 
 void Device::drawDevice(SkBaseDevice* device,
