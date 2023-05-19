@@ -216,21 +216,3 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
 }
 
 }  // namespace SkSurfaces
-
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FACTORIES)
-sk_sp<SkSurface> SkSurface::MakeGraphite(skgpu::graphite::Recorder* recorder,
-                                         const SkImageInfo& imageInfo,
-                                         skgpu::Mipmapped mipmapped,
-                                         const SkSurfaceProps* surfaceProps) {
-    return SkSurfaces::RenderTarget(recorder, imageInfo, mipmapped, surfaceProps);
-}
-
-sk_sp<SkSurface> SkSurface::MakeGraphiteFromBackendTexture(
-        skgpu::graphite::Recorder* recorder,
-        const skgpu::graphite::BackendTexture& tex,
-        SkColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        const SkSurfaceProps* props) {
-    return SkSurfaces::WrapBackendTexture(recorder, tex, colorType, colorSpace, props);
-}
-#endif

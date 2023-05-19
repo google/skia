@@ -57,9 +57,3 @@ sk_sp<SkSurface> Null(int width, int height) {
 }
 
 }
-
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FACTORIES)
-sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
-    return SkSurfaces::Null(width, height);
-}
-#endif
