@@ -77,7 +77,13 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     _8_m11 -= _7_m10;
     _0_ok = _0_ok && mat4x4f32_eq_mat4x4f32(_8_m11, mat4x4<f32>(vec4<f32>(9.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 9.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 9.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 9.0)));
     var _skTemp0: vec4<f32>;
-    if _0_ok && test_half_b() {
+    var _skTemp1: bool;
+    if _0_ok {
+        _skTemp1 = test_half_b();
+    } else {
+        _skTemp1 = false;
+    }
+    if _skTemp1 {
         _skTemp0 = _globalUniforms.colorGreen;
     } else {
         _skTemp0 = _globalUniforms.colorRed;

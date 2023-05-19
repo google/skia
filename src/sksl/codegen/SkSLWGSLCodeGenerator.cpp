@@ -883,6 +883,91 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const BinaryExpression& 
     const Expression& right = *b.right();
     Operator op = b.getOperator();
 
+    // If the operator is && or ||, we need to handle short-circuiting properly. Specifically, we
+    // sometimes need to emit extra statements to paper over functionality that WGSL lacks, like
+    // assignment in the middle of an expression. We need to guard those extra statements, to ensure
+    // that they don't occur if the expression evaluation is short-circuited. Converting the
+    // expression into an if-else block keeps the short-circuit property intact even when extra
+    // statements are involved.
+    // If the RHS doesn't have any side effects, then it's safe to just leave the expression as-is,
+    // since we know that any possible extra statements are non-side-effecting.
+    std::string expr;
+    if (op.kind() == OperatorKind::LOGICALAND && Analysis::HasSideEffects(right)) {
+        // Converts `left_expression && right_expression` into the following block:
+
+        // var _skTemp1: bool;
+        // [[ prepare left_expression ]]
+        // if left_expression {
+        //     [[ prepare right_expression ]]
+        //     _skTemp1 = right_expression;
+        // } else {
+        //     _skTemp1 = false;
+        // }
+
+        expr = this->writeScratchVar(b.type());
+
+        std::string leftExpr = this->assembleExpression(left, Precedence::kExpression);
+        this->write("if ");
+        this->write(leftExpr);
+        this->writeLine(" {");
+
+        ++fIndentation;
+        std::string rightExpr = this->assembleExpression(right, Precedence::kAssignment);
+        this->write(expr);
+        this->write(" = ");
+        this->write(rightExpr);
+        this->writeLine(";");
+        --fIndentation;
+
+        this->writeLine("} else {");
+
+        ++fIndentation;
+        this->write(expr);
+        this->writeLine(" = false;");
+        --fIndentation;
+
+        this->writeLine("}");
+        return expr;
+    }
+
+    if (op.kind() == OperatorKind::LOGICALOR && Analysis::HasSideEffects(right)) {
+        // Converts `left_expression || right_expression` into the following block:
+
+        // var _skTemp1: bool;
+        // [[ prepare left_expression ]]
+        // if left_expression {
+        //     _skTemp1 = true;
+        // } else {
+        //     [[ prepare right_expression ]]
+        //     _skTemp1 = right_expression;
+        // }
+
+        expr = this->writeScratchVar(b.type());
+
+        std::string leftExpr = this->assembleExpression(left, Precedence::kExpression);
+        this->write("if ");
+        this->write(leftExpr);
+        this->writeLine(" {");
+
+        ++fIndentation;
+        this->write(expr);
+        this->writeLine(" = true;");
+        --fIndentation;
+
+        this->writeLine("} else {");
+
+        ++fIndentation;
+        std::string rightExpr = this->assembleExpression(right, Precedence::kAssignment);
+        this->write(expr);
+        this->write(" = ");
+        this->write(rightExpr);
+        this->writeLine(";");
+        --fIndentation;
+
+        this->writeLine("}");
+        return expr;
+    }
+
     // The equality and comparison operators are only supported for scalar and vector types.
     if (op.isEquality() && !left.type().isScalar() && !left.type().isVector()) {
         if (left.type().isMatrix()) {
@@ -897,7 +982,6 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const BinaryExpression& 
 
     Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
-    std::string expr;
 
     // The equality operators ('=='/'!=') in WGSL apply component-wise to vectors and result in a
     // vector. We need to reduce the value to a boolean.

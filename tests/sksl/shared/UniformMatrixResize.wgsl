@@ -31,7 +31,13 @@ fn resizeMatrix_f22() -> mat2x2<f32> {
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp0: vec4<f32>;
-    if mat2x2f32_eq_mat2x2f32(resizeMatrix_f22(), mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0))) && mat3x3f32_eq_mat3x3f32(mat3x3f32_from_mat2x2f32(resizeMatrix_f22()), mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0))) {
+    var _skTemp1: bool;
+    if mat2x2f32_eq_mat2x2f32(resizeMatrix_f22(), mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0))) {
+        _skTemp1 = mat3x3f32_eq_mat3x3f32(mat3x3f32_from_mat2x2f32(resizeMatrix_f22()), mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0)));
+    } else {
+        _skTemp1 = false;
+    }
+    if _skTemp1 {
         _skTemp0 = _globalUniforms.colorGreen;
     } else {
         _skTemp0 = _globalUniforms.colorRed;
