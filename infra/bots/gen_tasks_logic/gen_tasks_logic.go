@@ -2219,10 +2219,12 @@ func (b *jobBuilder) bazelBuild() {
 			if labelAndSavedOutputDir.savedOutputDir != "" {
 				// We assume that builds which require storing a subset of //bazel-bin to CAS are Android
 				// builds. We want such builds to use RBE, and we want to download the built top-level
-				// artifacts.
+				// artifacts. Also, we need the adb_test runner to be cross-compiled to run on a Raspberry
+				// Pi.
 				cmd = append(cmd, "--bazel_arg=--config=linux_rbe")
 				cmd = append(cmd, "--bazel_arg=--jobs=100")
 				cmd = append(cmd, "--bazel_arg=--remote_download_toplevel")
+				cmd = append(cmd, "--bazel_arg=--adb_platform=linux_arm64")
 			} else {
 				// We want all Linux Bazel Builds to use RBE
 				cmd = append(cmd, "--bazel_arg=--config=for_linux_x64_with_rbe")
@@ -2306,15 +2308,15 @@ func (b *jobBuilder) bazelTest() {
 				"--test_config="+config)
 
 		case "bazel_test_precompiled":
-			// This task receives a subset of the //bazel-bin directory as a CAS input. We are going to run
-			// a Bazel-built binary (which might actually be a shell script) using the directory with the
-			// copied contents of //bazel-bin as the working directory. This emulates the environment
-			// expected by the Bazel-built binary when executed via "bazel run".
-			commandWorkDir := OUTPUT_BAZEL
-
-			// Compute the file to run based on the Bazel label (e.g. "//path/to:test" -> "path/to/test").
+			// Compute the file name of the test based on its Bazel label. The file name will be relative to
+			// the bazel-bin directory, which we receive a subset of as a CAS input.
 			command := strings.ReplaceAll(labelAndSavedOutputDir.label, "//", "")
 			command = strings.ReplaceAll(command, ":", "/")
+			command = filepath.Join(OUTPUT_BAZEL, command)
+
+			// The test's working directory will be its runfiles directory, which simulates the behavior of
+			// the "bazel run" command.
+			commandWorkDir := filepath.Join(command+".runfiles", "skia")
 
 			cmd = append(cmd,
 				"--command="+command,

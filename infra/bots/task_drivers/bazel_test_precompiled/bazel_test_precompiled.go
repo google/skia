@@ -24,8 +24,8 @@ var (
 	taskId         = flag.String("task_id", "", "ID of this task.")
 	taskName       = flag.String("task_name", "", "Name of the task.")
 	workdir        = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
-	command        = flag.String("command", "", "Command to run (e.g. a shell script in a directory with CAS inputs).")
-	commandWorkDir = flag.String("command_workdir", "", "Working directory for the command to run (e.g. a directory with CAS inputs).")
+	command        = flag.String("command", "", "Path to the command to run (e.g. a shell script in a directory with CAS inputs).")
+	commandWorkDir = flag.String("command_workdir", "", "Path to the working directory of the command to run (e.g. a directory with CAS inputs).")
 
 	// Optional flags.
 	commandArgs = common.NewMultiStringFlag("command_args", nil, "Any arguments to pass to the command to run. Optional.")
@@ -43,8 +43,8 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
+	commandAbs := filepath.Join(wd, *command)
 	commandWorkDirAbs := filepath.Join(wd, *commandWorkDir)
-	commandAbs := filepath.Join(commandWorkDirAbs, *command)
 
 	runCmd := &sk_exec.Command{
 		Name:       commandAbs,
