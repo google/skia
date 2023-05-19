@@ -24,15 +24,6 @@ class BackendTexture;
 }
 #endif
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-#include <android/hardware_buffer.h>
-class GrDirectContext;
-#endif
-
-#if defined(SK_GANESH) && defined(SK_METAL)
-#include "include/gpu/mtl/GrMtlTypes.h"
-#endif
-
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -50,7 +41,6 @@ class SkPaint;
 class SkSurface;
 class SkSurfaceCharacterization;
 enum GrSurfaceOrigin : int;
-enum SkColorType : int;
 enum class GrSemaphoresSubmitted : bool;
 struct GrFlushInfo;
 struct SkIRect;
@@ -58,7 +48,6 @@ struct SkISize;
 
 namespace skgpu {
 class MutableTextureState;
-enum class Budgeted : bool;
 }
 
 namespace skgpu::graphite {
@@ -838,113 +827,6 @@ public:
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
 #endif
 
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FACTORIES)
-    using RenderTargetReleaseProc = void (*)(ReleaseContext);
-
-    static sk_sp<SkSurface> MakeNull(int width, int height);
-    static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo,
-                                             void* pixels,
-                                             size_t rowBytes,
-                                             const SkSurfaceProps* surfaceProps = nullptr);
-    static sk_sp<SkSurface> MakeRasterDirect(const SkPixmap& pm,
-                                             const SkSurfaceProps* props = nullptr);
-    static sk_sp<SkSurface> MakeRasterDirectReleaseProc(
-            const SkImageInfo& imageInfo,
-            void* pixels,
-            size_t rowBytes,
-            void (*releaseProc)(void* pixels, void* context),
-            void* context,
-            const SkSurfaceProps* surfaceProps = nullptr);
-    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo,
-                                       size_t rowBytes,
-                                       const SkSurfaceProps* surfaceProps);
-    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo,
-                                       const SkSurfaceProps* props = nullptr);
-    static sk_sp<SkSurface> MakeRasterN32Premul(int width,
-                                                int height,
-                                                const SkSurfaceProps* surfaceProps = nullptr);
-
-#if defined(SK_GANESH)
-    static sk_sp<SkSurface> MakeFromBackendTexture(GrRecordingContext* context,
-                                                   const GrBackendTexture& backendTexture,
-                                                   GrSurfaceOrigin origin,
-                                                   int sampleCnt,
-                                                   SkColorType colorType,
-                                                   sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* surfaceProps,
-                                                   TextureReleaseProc textureReleaseProc = nullptr,
-                                                   ReleaseContext releaseContext = nullptr);
-    static sk_sp<SkSurface> MakeFromBackendRenderTarget(
-            GrRecordingContext* context,
-            const GrBackendRenderTarget& backendRenderTarget,
-            GrSurfaceOrigin origin,
-            SkColorType colorType,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkSurfaceProps* surfaceProps,
-            RenderTargetReleaseProc releaseProc = nullptr,
-            ReleaseContext releaseContext = nullptr);
-    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
-                                             skgpu::Budgeted budgeted,
-                                             const SkImageInfo& imageInfo,
-                                             int sampleCount,
-                                             GrSurfaceOrigin surfaceOrigin,
-                                             const SkSurfaceProps* surfaceProps,
-                                             bool shouldCreateWithMips = false);
-    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
-                                             skgpu::Budgeted budgeted,
-                                             const SkImageInfo& imageInfo,
-                                             int sampleCount,
-                                             const SkSurfaceProps* surfaceProps);
-    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
-                                             skgpu::Budgeted budgeted,
-                                             const SkImageInfo& imageInfo);
-    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
-                                             const SkSurfaceCharacterization& characterization,
-                                             skgpu::Budgeted budgeted);
-#endif  // defined(SK_GANESH)
-
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-    static sk_sp<SkSurface> MakeFromAHardwareBuffer(GrDirectContext* context,
-                                                    AHardwareBuffer* hardwareBuffer,
-                                                    GrSurfaceOrigin origin,
-                                                    sk_sp<SkColorSpace> colorSpace,
-                                                    const SkSurfaceProps* surfaceProps,
-                                                    bool fromWindow = false);
-#endif
-
-#if defined(SK_GRAPHITE)
-    static sk_sp<SkSurface> MakeGraphite(skgpu::graphite::Recorder*,
-                                         const SkImageInfo& imageInfo,
-                                         skgpu::Mipmapped = skgpu::Mipmapped::kNo,
-                                         const SkSurfaceProps* surfaceProps = nullptr);
-    static sk_sp<SkSurface> MakeGraphiteFromBackendTexture(skgpu::graphite::Recorder*,
-                                                           const skgpu::graphite::BackendTexture&,
-                                                           SkColorType colorType,
-                                                           sk_sp<SkColorSpace> colorSpace,
-                                                           const SkSurfaceProps* props);
-#endif  // defined(SK_GRAPHITE)
-
-#if defined(SK_GANESH) && defined(SK_METAL)
-    static sk_sp<SkSurface> MakeFromCAMetalLayer(GrRecordingContext* context,
-                                                 GrMTLHandle layer,
-                                                 GrSurfaceOrigin origin,
-                                                 int sampleCnt,
-                                                 SkColorType colorType,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 const SkSurfaceProps* surfaceProps,
-                                                 GrMTLHandle* drawable)
-            SK_API_AVAILABLE_CA_METAL_LAYER;
-    static sk_sp<SkSurface> MakeFromMTKView(GrRecordingContext* context,
-                                            GrMTLHandle mtkView,
-                                            GrSurfaceOrigin origin,
-                                            int sampleCnt,
-                                            SkColorType colorType,
-                                            sk_sp<SkColorSpace> colorSpace,
-                                            const SkSurfaceProps* surfaceProps)
-            SK_API_AVAILABLE(macos(10.11), ios(9.0));
-#endif  // defined(SK_GANESH) && defined(SK_METAL)
-
-#endif  // !defined(SK_DISABLE_LEGACY_SKSURFACE_FACTORIES)
 };
 
 #endif

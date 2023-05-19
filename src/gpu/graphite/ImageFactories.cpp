@@ -347,37 +347,3 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
 }
 
 }  // namespace SkImages
-
-#if !defined(SK_DISABLE_LEGACY_GRAPHITE_IMAGE_FACTORIES)
-sk_sp<SkImage> SkImage::MakeGraphitePromiseTexture(skgpu::graphite::Recorder* r,
-                                                     SkISize d,
-                                                     const skgpu::graphite::TextureInfo& ti,
-                                                     const SkColorInfo& ci,
-                                                     skgpu::graphite::Volatile v,
-                                                     GraphitePromiseImageFulfillProc ifp,
-                                                     GraphitePromiseImageReleaseProc irp,
-                                                     GraphitePromiseTextureReleaseProc trp,
-                                                     GraphitePromiseImageContext pic) {
-    return SkImages::PromiseTextureFrom(r, d, ti, ci, v, ifp, irp, trp, pic);
-}
-
-sk_sp<SkImage> SkImage::MakeGraphiteFromBackendTexture(
-        skgpu::graphite::Recorder* r,
-                                                     const skgpu::graphite::BackendTexture& bt,
-                                                     SkColorType ct,
-                                                     SkAlphaType at,
-                                                     sk_sp<SkColorSpace> cs,
-                                                     TextureReleaseProc trp,
-                                                     ReleaseContext rc) {
-    return SkImages::AdoptTextureFrom(r, bt, ct, at, cs, trp, rc);
-}
-
-sk_sp<SkImage> SkImage::MakeGraphiteFromYUVABackendTextures(
-        skgpu::graphite::Recorder* r,
-        const skgpu::graphite::YUVABackendTextures& ybt,
-        sk_sp<SkColorSpace> cs,
-        TextureReleaseProc trp,
-        ReleaseContext rc) {
-    return SkImages::TextureFromYUVATextures(r, ybt, cs, trp, rc);
-}
-#endif
