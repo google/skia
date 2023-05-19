@@ -1219,7 +1219,7 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
 
     // If none of the formats identified itself as a gainmap and populated |info| then fail.
     if (!did_populate_info) {
-        return true;
+        return false;
     }
 
     // This image is a gainmap. Populate its stream.
