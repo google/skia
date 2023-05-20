@@ -166,6 +166,16 @@ SkImageFilter_Base::~SkImageFilter_Base() {
     SkImageFilterCache::Get()->purgeByImageFilter(this);
 }
 
+std::pair<sk_sp<SkImageFilter>, std::optional<SkRect>>
+SkImageFilter_Base::Unflatten(SkReadBuffer& buffer) {
+    Common common;
+    if (!common.unflatten(buffer, 1)) {
+        return {nullptr, std::nullopt};
+    } else {
+        return {common.getInput(0), common.optionalCropRect()};
+    }
+}
+
 bool SkImageFilter_Base::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
     const int count = buffer.readInt();
     if (!buffer.validate(count >= 0)) {

@@ -278,7 +278,7 @@ static float draw_dag(SkCanvas* canvas, SkSurface* nodeSurface, const FilterNode
                          x, y + 0.5f * nodeResults->height(), line);         // left of child
         canvas->save();
         canvas->translate(x, y);
-        y = draw_dag(canvas, nodeSurface, node.fInputNodes[i]);
+        y += draw_dag(canvas, nodeSurface, node.fInputNodes[i]);
         canvas->restore();
     }
     return std::max(y, nodeResults->height() + textHeight + kPad);
