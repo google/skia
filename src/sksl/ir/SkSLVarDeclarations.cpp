@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include "include/core/SkSpan.h"
+#include "include/private/base/SkTo.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -23,7 +24,6 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 #include "src/sksl/ir/SkSLType.h"
 
-#include <cstddef>
 #include <string_view>
 
 namespace SkSL {
@@ -257,9 +257,9 @@ void VarDeclaration::ErrorCheck(const Context& context,
                 // It is an error for an unsized array to appear anywhere but the last member of a
                 // "buffer" block.
                 const auto& fields = baseType->fields();
-                const size_t illegalRangeEnd =
-                        fields.size() - ((modifiers.fFlags & Modifiers::kBuffer_Flag) ? 1 : 0);
-                for (size_t i = 0; i < illegalRangeEnd; ++i) {
+                const int illegalRangeEnd = SkToInt(fields.size()) -
+                                            ((modifiers.fFlags & Modifiers::kBuffer_Flag) ? 1 : 0);
+                for (int i = 0; i < illegalRangeEnd; ++i) {
                     if (fields[i].fType->isUnsizedArray()) {
                         context.fErrors->error(
                                 fields[i].fPosition,

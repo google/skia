@@ -81,6 +81,7 @@ sksl_error_tests = [
   "errors/DuplicateSkClockwise.sksl",
   "errors/DuplicateSymbol.rts",
   "errors/EmptyArray.rts",
+  "errors/EmptyBuffer.sksl",
   "errors/EmptyStruct.rts",
   "errors/ErrorsInDeadCode.rts",
   "errors/FloatRemainder.rts",

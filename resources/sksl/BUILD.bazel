@@ -242,6 +242,7 @@ skia_filegroup(
         "errors/DuplicateSkClockwise.sksl",
         "errors/DuplicateSymbol.rts",
         "errors/EmptyArray.rts",
+        "errors/EmptyBuffer.sksl",
         "errors/EmptyStruct.rts",
         "errors/ErrorsInDeadCode.rts",
         "errors/FloatRemainder.rts",
