@@ -23,7 +23,7 @@ public:
 
     static Position Range(int startOffset, int endOffset) {
         SkASSERT(startOffset <= endOffset);
-        SkASSERT(startOffset <= 0xFFFFFF);
+        SkASSERT(startOffset <= kMaxOffset);
         int length = endOffset - startOffset;
         Position result;
         result.fStartOffset = startOffset;
@@ -87,6 +87,8 @@ public:
     bool operator<=(const Position& other) const {
         return fStartOffset <= other.fStartOffset;
     }
+
+    static constexpr int kMaxOffset = 0x7FFFFF;
 
 private:
     int32_t fStartOffset : 24;

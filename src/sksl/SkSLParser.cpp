@@ -419,6 +419,15 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
 
 void Parser::declarations() {
     fEncounteredFatalError = false;
+
+    // If the program is longer than 8MB (Position::kMaxOffset), error reporting goes off the rails.
+    // At any rate, there's no good reason for a program to be this long.
+    if (fText->size() >= Position::kMaxOffset) {
+        this->error(Position(), "program is too large");
+        fEncounteredFatalError = true;
+        return;
+    }
+
     // Any #version directive must appear as the first thing in a file
     if (this->peek().fKind == Token::Kind::TK_DIRECTIVE) {
         this->directive(/*allowVersion=*/true);
