@@ -284,7 +284,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("gltestthreading", "gm", ALL, "stroketext")
 			skip("gltestthreading", "gm", ALL, "draw_image_set")
 
-			// Fail on Iris Xe.
+			// Fail on Iris Xe (skbug:13921)
+			skip("gltestthreading", "gm", ALL, "circular_arcs_stroke_and_fill_round")
 			skip("gltestthreading", "gm", ALL, "degeneratesegments")
 			skip("gltestthreading", "gm", ALL, "ovals")
 			skip("gltestthreading", "gm", ALL, "persp_images")
@@ -295,6 +296,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("gltestthreading", "gm", ALL, "yuv420_odd_dim_repeat")
 
 			skip("gltestthreading", "svg", ALL, "filters-conv-01-f.svg")
+			skip("gltestthreading", "svg", ALL, "filters-displace-01-f.svg")
 			skip("gltestthreading", "svg", ALL, "filters-offset-01-b.svg")
 			skip("gltestthreading", "svg", ALL, "gallardo.svg")
 			skip("gltestthreading", "svg", ALL, "masking-filter-01-f.svg")
@@ -1235,6 +1237,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Accessing an indexed swizzle can be trouble. (skia:14177)
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexLookup_GPU")
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")
+	}
+
+	if (b.gpu("RadeonR9M470X") && b.extraConfig("ANGLE")) {
+		// skbug:14293 - ANGLE D3D9 ES2 has flaky texture sampling that leads to fuzzy diff errors
+		skip(ALL, "tests", ALL, "FilterResult")
+		// skbug:13815 - Flaky failures on ANGLE D3D9 ES2
+		skip(ALL, "tests", ALL, "SkRuntimeEffectSimple_GPU")
 	}
 
 	if b.extraConfig("Vulkan") && b.gpu("RadeonVega6") {
