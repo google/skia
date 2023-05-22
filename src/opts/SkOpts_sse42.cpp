@@ -5,17 +5,4 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkOpts.h"
-
-#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-
-#define SK_OPTS_NS sse42
-#include "src/opts/SkChecksum_opts.h"
-
-namespace SkOpts {
-    void Init_sse42() {
-        hash_fn = sse42::hash_fn;
-    }
-}  // namespace SkOpts
-
-#endif // SK_ENABLE_OPTIMIZE_SIZE
+// Intentionally empty, to be cleaned up
