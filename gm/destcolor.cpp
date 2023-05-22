@@ -7,90 +7,27 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkTypes.h"
-#include "include/effects/SkImageFilters.h"
-#include "src/core/SkCanvasPriv.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrStyle.h"
-#include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
-
-namespace {
-
-class DestColorTestFP : public GrFragmentProcessor {
-public:
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child) {
-        return std::unique_ptr<GrFragmentProcessor>(new DestColorTestFP(std::move(child)));
-    }
-
-    std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return std::unique_ptr<GrFragmentProcessor>(new DestColorTestFP(*this));
-    }
-
-private:
-    DestColorTestFP(std::unique_ptr<GrFragmentProcessor> child)
-            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags) {
-        this->registerChild(std::move(child));
-    }
-
-    explicit DestColorTestFP(const DestColorTestFP& that)
-            : INHERITED(that) {}
-
-    const char* name() const override { return "DestColorTestFP"; }
-    void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const override {}
-    bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
-
-    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-        class Impl : public ProgramImpl {
-        public:
-            void emitCode(EmitArgs& args) override {
-                SkString result = this->invokeChild(0, args);
-                args.fFragBuilder->codeAppendf("return (half4(1) - (%s)).rgb1;", result.c_str());
-            }
-        };
-
-        return std::make_unique<Impl>();
-    }
-
-    using INHERITED = GrFragmentProcessor;
-};
-
-}  // namespace
 
 namespace skiagm {
 
-DEF_SIMPLE_GPU_GM_CAN_FAIL(destcolor, rContext, canvas, errorMsg, 640, 640) {
-    SkRect bounds = SkRect::MakeIWH(512, 512);
-
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
-    if (!sdc) {
-        *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
-        return DrawResult::kSkip;
-    }
-
+DEF_SIMPLE_GM(destcolor, canvas, 640, 640) {
     // Draw the mandrill.
-    SkPaint p;
-    p.setImageFilter(SkImageFilters::Image(GetResourceAsImage("images/mandrill_512.png"),
-                                           bounds, bounds, SkSamplingOptions()));
-    canvas->drawPaint(p);
+    canvas->drawImage(GetResourceAsImage("images/mandrill_512.png"), 0, 0);
 
-    // Now let's add our test FP on top. It reads back the original image and inverts it.
-    GrPaint invertPaint;
-    invertPaint.setColor4f(SK_PMColor4fWHITE);
-    invertPaint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
-    invertPaint.setColorFragmentProcessor(
-            DestColorTestFP::Make(GrFragmentProcessor::SurfaceColor()));
-    sdc->drawOval(/*clip*/ nullptr, std::move(invertPaint), GrAA::kYes, SkMatrix::I(),
-                  SkRect::MakeLTRB(128, 128, 640, 640), GrStyle::SimpleFill());
-
-    return DrawResult::kOk;
+    // Now let's add our test effect on top. It reads back the original image and inverts it.
+    auto [effect, error] = SkRuntimeEffect::MakeForBlender(SkString(R"(
+        half4 main(half4 src, half4 dst) {
+            return (half4(1) - dst).rgb1;
+        }
+    )"));
+    SkASSERT(effect);
+    SkPaint invertPaint;
+    invertPaint.setAntiAlias(true);
+    invertPaint.setBlender(effect->makeBlender(nullptr));
+    canvas->drawOval(SkRect::MakeLTRB(128, 128, 640, 640), invertPaint);
 }
 
 } // namespace skiagm
