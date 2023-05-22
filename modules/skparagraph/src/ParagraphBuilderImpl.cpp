@@ -121,7 +121,9 @@ void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderSty
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne) {
 #if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-    SkASSERT(!fTextIsFinalized);
+    // The very last placeholder is added automatically
+    // and only AFTER finalize() is called
+    SkASSERT(!fTextIsFinalized && !lastOne);
 #endif
     if (!fUtf8.isEmpty() && !lastOne) {
         // We keep the very last text style
@@ -170,8 +172,7 @@ void ParagraphBuilderImpl::finalize() {
     if (!fUtf8.isEmpty()) {
         this->endRunIfNeeded();
     }
-    // Add one fake placeholder with the rest of the text
-    this->addPlaceholder(PlaceholderStyle(), true);
+
 #if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     fTextIsFinalized = true;
 #endif
@@ -179,6 +180,7 @@ void ParagraphBuilderImpl::finalize() {
 
 std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     this->finalize();
+    // Add one fake placeholder with the rest of the text
     this->addPlaceholder(PlaceholderStyle(), true);
 
 #if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)

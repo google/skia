@@ -7628,3 +7628,38 @@ UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
     font.getTypeface()->getFamilyName(&fontFamily);
     REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
 }
+
+UNIX_ONLY_TEST(SkParagraph_SingleDummyPlaceholder, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    const char* text = "Single dummy placeholder";
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->placeholders().size() == 1);
+
+
+    size_t index = 0;
+    for (auto& line : impl->lines()) {
+        line.scanStyles(StyleType::kDecorations,
+                        [&index, reporter]
+                        (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+                            REPORTER_ASSERT(reporter, index == 0);
+                            REPORTER_ASSERT(reporter, style.getColor() == SK_ColorBLACK);
+                            ++index;
+                        });
+    }
+}
