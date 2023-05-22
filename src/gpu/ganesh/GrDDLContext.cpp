@@ -6,6 +6,7 @@
  */
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
@@ -101,7 +102,7 @@ private:
     private:
         struct DescHash {
             uint32_t operator()(CacheKey& desc) const {
-                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+                return SkChecksum::Hash32(desc.asKey(), desc.keyLength());
             }
         };
 

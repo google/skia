@@ -10,9 +10,9 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkOpts_spi.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkChecksum.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 
 #include <limits>
@@ -70,7 +70,7 @@ public:
 
     struct Hash {
         uint32_t operator()(const PaintParamsKey& k) const {
-            return SkOpts::hash_fn(k.fData.data(), k.fData.size_bytes(), 0);
+            return SkChecksum::Hash32(k.fData.data(), k.fData.size_bytes());
         }
     };
 

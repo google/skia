@@ -14,7 +14,7 @@
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkOnce.h"
 #include "src/base/SkTInternalLList.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTHash.h"
@@ -48,7 +48,7 @@ public:
             return v.fKey;
         }
         static uint32_t Hash(const Key& key) {
-            return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
+            return SkChecksum::Hash32(&key, sizeof(Key));
         }
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
     };

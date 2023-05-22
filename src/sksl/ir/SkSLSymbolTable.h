@@ -9,7 +9,7 @@
 #define SKSL_SYMBOLTABLE
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkOpts_spi.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
@@ -198,7 +198,7 @@ private:
     };
 
     static SymbolKey MakeSymbolKey(std::string_view name) {
-        return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
+        return SymbolKey{name, SkChecksum::Hash32(name.data(), name.size())};
     }
 
     Symbol* lookup(const SymbolKey& key) const;

@@ -292,6 +292,7 @@ skslc_deps = [
   "$_src/base/SkThreadID.cpp",
   "$_src/base/SkUTF.cpp",
   "$_src/base/SkUtils.cpp",
+  "$_src/core/SkChecksum.cpp",
   "$_src/core/SkCpu.cpp",
   "$_src/core/SkData.cpp",
   "$_src/core/SkMatrixInvert.cpp",

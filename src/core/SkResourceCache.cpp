@@ -11,10 +11,10 @@
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/chromium/SkDiscardableMemory.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkMipmap.h"
-#include "src/core/SkOpts.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -59,8 +59,8 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
     fSharedID_hi = (uint32_t)(sharedID >> 32);
     fNamespace = nameSpace;
     // skip unhashed fields when computing the hash
-    fHash = SkOpts::hash(this->as32() + kUnhashedLocal32s,
-                         (fCount32 - kUnhashedLocal32s) << 2);
+    fHash = SkChecksum::Hash32(this->as32() + kUnhashedLocal32s,
+                               (fCount32 - kUnhashedLocal32s) << 2);
 }
 
 #include "src/core/SkTHash.h"
