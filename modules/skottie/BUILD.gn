@@ -62,7 +62,6 @@ if (skia_enable_skottie) {
           "tests/Expression.cpp",
           "tests/Image.cpp",
           "tests/Keyframe.cpp",
-          "tests/PropertyObserver.cpp",
           "tests/Shaper.cpp",
           "tests/Text.cpp",
         ]

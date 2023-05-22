@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/sksg/include/SkSGScene.h"
 
 #include <memory>
 #include <vector>

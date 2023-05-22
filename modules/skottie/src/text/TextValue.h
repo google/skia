@@ -17,8 +17,6 @@ typedef TextPropertyValue TextValue;
 
 namespace internal {
 
-class AnimationBuilder;
-
 // Unlike other types, TextValue parsing requires access to an AnimationBuilder.
 bool Parse(const skjson::Value&, const AnimationBuilder&, TextValue*);
 

@@ -29,7 +29,7 @@ namespace skjson { class ObjectValue; }
 namespace sksg {
 
 class InvalidationController;
-class RenderNode;
+class Scene;
 
 } // namespace sksg
 
@@ -269,12 +269,12 @@ private:
         kRequiresTopLevelIsolation = 1 << 0, // Needs to draw into a layer due to layer blending.
     };
 
-    Animation(sk_sp<sksg::RenderNode>,
+    Animation(std::unique_ptr<sksg::Scene>,
               std::vector<sk_sp<internal::Animator>>&&,
               SkString ver, const SkSize& size,
               double inPoint, double outPoint, double duration, double fps, uint32_t flags);
 
-    const sk_sp<sksg::RenderNode>                fSceneRoot;
+    const std::unique_ptr<sksg::Scene>           fScene;
     const std::vector<sk_sp<internal::Animator>> fAnimators;
     const SkString                               fVersion;
     const SkSize                                 fSize;
