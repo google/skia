@@ -181,13 +181,13 @@ bool QueueManager::submitToGpu() {
         // We warn because this probably representative of a bad client state, where they don't
         // need to submit but didn't notice, but technically the submit itself is fine (no-op), so
         // we return true.
-        SKGPU_LOG_W("Submit called with no active command buffer!");
+        SKGPU_LOG_D("Submit called with no active command buffer!");
         return true;
     }
 
 #ifdef SK_DEBUG
     if (!fCurrentCommandBuffer->hasWork()) {
-        SKGPU_LOG_W("Submitting empty command buffer!");
+        SKGPU_LOG_D("Submitting empty command buffer!");
     }
 #endif
 
