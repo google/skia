@@ -2995,8 +2995,8 @@ def go_repositories():
     go_repository(
         name = "org_golang_x_sync",
         importpath = "golang.org/x/sync",
-        sum = "h1:5KslGYwFpkhGh+Q16bwMP3cOontH8FOep7tGV86Y7SQ=",
-        version = "v0.0.0-20210220032951-036812b2e83c",
+        sum = "h1:PUR+T4wwASmuSTYdKjYHI5TD22Wy5ogLU5qZCOLxBrI=",
+        version = "v0.2.0",
     )
     go_repository(
         name = "org_golang_x_sys",
@@ -3038,8 +3038,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:cv9696DGyNkMEcRF6UTzHRlL4R4ALhe9RVfHeljoMAM=",
-        version = "v0.0.0-20230519003840-b6ae2e881c8b",
+        sum = "h1:iNeziSaEFaRu/yjPfsk5IrujMsfcca4GL8KvjwjacoA=",
+        version = "v0.0.0-20230520021942-a17cd49ee1eb",
     )
     go_repository(
         name = "org_uber_go_atomic",
