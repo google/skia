@@ -1113,8 +1113,7 @@ func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
 			specs.PLACEHOLDER_ISOLATED_OUTDIR,
 			goos+"_"+goarch)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-		b.addToPATH("bazelisk")
+		b.usesBazel("linux_x64")
 		b.idempotent()
 		b.cas(CAS_TASK_DRIVERS)
 	})
@@ -1186,9 +1185,9 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(false))
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "bazelisk")
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 		b.cas(CAS_EMPTY)
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
+		b.usesBazel("linux_x64")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -1214,9 +1213,9 @@ func (b *jobBuilder) createPushBazelAppsFromWASMDockerImage() {
 		)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(true))
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "bazelisk")
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 		b.cas(CAS_EMPTY)
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
+		b.usesBazel("linux_x64")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -1400,8 +1399,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 			"--bazel_arg=--jobs=100",
 		)
 		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-		b.addToPATH("bazelisk")
+		b.usesBazel("linux_x64")
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
 	})
@@ -2207,6 +2205,7 @@ func (b *jobBuilder) bazelBuild() {
 		}
 		if host == "linux_x64" {
 			b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+			b.usesBazel("linux_x64")
 			// Use a built task_driver from CIPD instead of building it from scratch. The
 			// task_driver should not need to change often, so using a CIPD version should reduce
 			// build latency.
@@ -2238,10 +2237,6 @@ func (b *jobBuilder) bazelBuild() {
 		// TODO(lovisolo): Delete after publishing a new CIPD package.
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 
-		// TODO(kjlubick) I believe this bazelisk package is just the Linux one. To support
-		//   more hosts, we need to have platform-specific bazelisk binaries.
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-		b.addToPATH("bazelisk")
 		b.idempotent()
 		b.cas(CAS_BAZEL)
 		b.attempts(1)
@@ -2335,8 +2330,11 @@ func (b *jobBuilder) bazelTest() {
 
 		if host == "linux_x64" {
 			b.dep(b.buildTaskDrivers("linux", "amd64"))
+			b.usesBazel("linux_x64")
 		} else if host == "linux_arm64" {
 			b.dep(b.buildTaskDrivers("linux", "arm64"))
+			// The RPIs do not run Bazel directly, they have precompiled binary
+			// to run instead.
 		} else {
 			panic("unsupported Bazel host " + host)
 		}
@@ -2380,11 +2378,6 @@ func (b *jobBuilder) bazelTest() {
 		}
 
 		b.cmd(cmd...)
-
-		// TODO(kjlubick) I believe this bazelisk package is just the Linux one. To support
-		//   more hosts, we need to have platform-specific bazelisk binaries.
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-		b.addToPATH("bazelisk")
 		b.idempotent()
 		b.cas(CAS_BAZEL)
 		b.attempts(1)
