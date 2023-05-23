@@ -299,6 +299,9 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
         , fMemoryAlloc(alloc) {}
 
 void VulkanTexture::freeGpuData() {
+    // Need to delete any ImageViews first
+    fImageViews.clear();
+
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
     VULKAN_CALL(sharedContext->interface(), DestroyImage(sharedContext->device(), fImage, nullptr));
     skgpu::VulkanMemory::FreeImageMemory(sharedContext->memoryAllocator(), fMemoryAlloc);
@@ -366,5 +369,28 @@ VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout) {
     }
     return flags;
 }
+
+const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage) {
+    for (int i = 0; i < fImageViews.size(); ++i) {
+        if (fImageViews[i]->usage() == usage) {
+            return fImageViews[i].get();
+        }
+    }
+
+    auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
+    VulkanTextureInfo vkTexInfo;
+    this->textureInfo().getVulkanTextureInfo(&vkTexInfo);
+    int miplevels = this->textureInfo().mipmapped() == Mipmapped::kYes
+                    ? SkMipmap::ComputeLevelCount(this->dimensions().width(),
+                                                  this->dimensions().height()) + 1
+                    : 1;
+    auto imageView = VulkanImageView::Make(sharedContext,
+                                           fImage,
+                                           vkTexInfo.fFormat,
+                                           usage,
+                                           miplevels);
+    return fImageViews.push_back(std::move(imageView)).get();
+}
+
 
 } // namespace skgpu::graphite
