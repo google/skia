@@ -239,39 +239,42 @@ UNIX_ONLY_TEST(SkParagraph_SimpleParagraph, reporter) {
     }
 }
 
-UNIX_ONLY_TEST(SkParagraph_Rounding_OFF, reporter) {
+UNIX_ONLY_TEST(SkParagraph_Rounding_Off_LineBreaks, reporter) {
     // To be removed after migration.
     if (std::getenv("SKPARAGRAPH_REMOVE_ROUNDING_HACK") == nullptr) return;
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
-    const char* text = "abc";
+    const char* text = "AAAAAAAAAA";
     const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
     text_style.setColor(SK_ColorBLACK);
 
-    text_style.setFontSize(1.5f);
-    builder.pushStyle(text_style);
-    builder.addText(text, len);
-    builder.pop();
+    auto testFontSize = {1.5f, 10.0f/3, 10.0f/6, 10.0f};
+    for (auto fontSize : testFontSize) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        text_style.setFontSize(fontSize);
+        builder.pushStyle(text_style);
+        builder.addText(text, len);
+        builder.pop();
 
-    auto paragraph = builder.Build();
-    // Slightly wider than the max intrinsic width.
-    paragraph->layout(4.6f);
-    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+        auto paragraph = builder.Build();
+        paragraph->layout(SK_ScalarInfinity);
+        // Slightly wider than the max intrinsic width.
+        REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+        paragraph->layout(paragraph->getMaxIntrinsicWidth());
 
-    ParagraphImpl* impl = static_cast<ParagraphImpl*>(paragraph.get());
+        ParagraphImpl* impl = static_cast<ParagraphImpl*>(paragraph.get());
 
-    REPORTER_ASSERT(reporter, impl->lines().size() == 1);
-    auto& line = impl->lines()[0];
+        REPORTER_ASSERT(reporter, impl->lines().size() == 1);
+        auto& line = impl->lines()[0];
 
-    const LineMetrics metrics = line.getMetrics();
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(metrics.fWidth, 4.5f, EPSILON100));
+        const LineMetrics metrics = line.getMetrics();
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(metrics.fWidth, fontSize * len, EPSILON2));
+    }
 }
 
 UNIX_ONLY_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
