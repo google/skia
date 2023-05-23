@@ -35,6 +35,7 @@ skia_filegroup(
         "GrImageContext.h",
         "GrMockTypesPriv.h",
         "GrMtlTypesPriv.h",
+        "GrTextureGenerator.h",
         "GrTypesPriv.h",
     ] + select_multi(
         {

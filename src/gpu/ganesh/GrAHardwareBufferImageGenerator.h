@@ -7,8 +7,7 @@
 #ifndef GrAHardwareBufferImageGenerator_DEFINED
 #define GrAHardwareBufferImageGenerator_DEFINED
 
-#include "include/gpu/ganesh/GrTextureGenerator.h"
-
+#include "include/private/gpu/ganesh/GrTextureGenerator.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 class GrGpuResource;

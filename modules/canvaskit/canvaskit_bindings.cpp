@@ -75,7 +75,7 @@
 
 #ifdef ENABLE_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/ganesh/GrTextureGenerator.h"
+#include "include/gpu/ganesh/GrExternalTextureGenerator.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -856,10 +856,32 @@ void deleteJSTexture(SkImages::ReleaseContext rc) {
     delete ctx;
 }
 
-class WebGLTextureImageGenerator : public GrTextureGenerator {
+class ExternalWebGLTexture : public GrExternalTexture {
+public:
+  ExternalWebGLTexture(GrBackendTexture backendTexture, uint32_t textureHandle, EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context) :
+    fBackendTexture(backendTexture), fWebglHandle(context), fTextureHandle(textureHandle) {}
+
+  GrBackendTexture getBackendTexture() override {
+    return fBackendTexture;
+  }
+
+  void dispose() override {
+    textureCleanup.call<void>("deleteTexture", fWebglHandle, fTextureHandle);
+  }
+private:
+    GrBackendTexture fBackendTexture;
+
+    // This refers to which webgl context, i.e. which surface, owns the texture. We need this
+    // to route the deleteTexture to the right context.
+    uint32_t fWebglHandle;
+    // This refers to the index of the texture in the complete list of textures.
+    uint32_t fTextureHandle;
+};
+
+class WebGLTextureImageGenerator : public GrExternalTextureGenerator {
 public:
     WebGLTextureImageGenerator(SkImageInfo ii, JSObject callbackObj):
-            GrTextureGenerator(ii),
+            GrExternalTextureGenerator(ii),
             fCallback(callbackObj) {}
 
     ~WebGLTextureImageGenerator() override {
@@ -869,53 +891,26 @@ public:
         fCallback.call<void>("freeSrc");
     }
 
-protected:
-    GrSurfaceProxyView onGenerateTexture(GrRecordingContext* ctx,
-                                         const SkImageInfo& info,
-                                         GrMipmapped mipmapped,
-                                         GrImageTexGenPolicy texGenPolicy) override {
-        if (ctx->backend() != GrBackendApi::kOpenGL) {
-            return {};
-        }
+  std::unique_ptr<GrExternalTexture> generateExternalTexture(GrRecordingContext *ctx,
+                                                             GrMipMapped mipmapped) override {
+    GrGLTextureInfo glInfo;
 
-        GrGLTextureInfo glInfo;
-        // This callback is defined in webgl.js
-        glInfo.fID     = fCallback.call<uint32_t>("makeTexture");
-        // The format and target should match how we make the texture on the JS side
-        // See the implementation of the makeTexture function.
-        glInfo.fFormat = GR_GL_RGBA8;
-        glInfo.fTarget = GR_GL_TEXTURE_2D;
+    // This callback is defined in webgl.js
+    glInfo.fID     = fCallback.call<uint32_t>("makeTexture");
 
-        // In order to bind the image source to the texture, makeTexture has changed which
-        // texture is "in focus" for the WebGL context.
-        GrAsDirectContext(ctx)->resetContext(kTextureBinding_GrGLBackendState);
+    // The format and target should match how we make the texture on the JS side
+    // See the implementation of the makeTexture function.
+    glInfo.fFormat = GR_GL_RGBA8;
+    glInfo.fTarget = GR_GL_TEXTURE_2D;
 
-        static constexpr auto kMipmapped = GrMipmapped::kNo;
-        GrBackendTexture backendTexture(info.width(), info.height(), kMipmapped, glInfo);
+    GrBackendTexture backendTexture(fInfo.width(), fInfo.height(), mipmapped, glInfo);
 
-        const GrBackendFormat& format    = backendTexture.getBackendFormat();
-        const GrColorType      colorType = SkColorTypeToGrColorType(info.colorType());
-        if (!ctx->priv().caps()->areColorTypeAndFormatCompatible(colorType, format)) {
-            return {};
-        }
-
-        uint32_t webGLCtx = emscripten_webgl_get_current_context();
-        auto releaseCtx = new TextureReleaseContext{webGLCtx, glInfo.fID};
-        auto cleanupCallback = skgpu::RefCntedCallback::Make(deleteJSTexture, releaseCtx);
-
-        sk_sp<GrSurfaceProxy> proxy = ctx->priv().proxyProvider()->wrapBackendTexture(
-                backendTexture,
-                kBorrow_GrWrapOwnership,
-                GrWrapCacheable::kYes,
-                kRead_GrIOType,
-                std::move(cleanupCallback));
-        if (!proxy) {
-            return {};
-        }
-        static constexpr auto kOrigin = kTopLeft_GrSurfaceOrigin;
-        skgpu::Swizzle swizzle = ctx->priv().caps()->getReadSwizzle(format, colorType);
-        return GrSurfaceProxyView(std::move(proxy), kOrigin, swizzle);
-    }
+    // In order to bind the image source to the texture, makeTexture has changed which
+    // texture is "in focus" for the WebGL context.
+    GrAsDirectContext(ctx)->resetContext(kTextureBinding_GrGLBackendState);
+    return std::make_unique<ExternalWebGLTexture>(
+        backendTexture, glInfo.fID, emscripten_webgl_get_current_context());
+  }
 
 private:
     JSObject fCallback;
