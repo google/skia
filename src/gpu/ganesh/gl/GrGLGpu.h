@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -434,7 +433,7 @@ private:
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
-                return SkChecksum::Hash32(desc.asKey(), desc.keyLength());
+                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
             }
         };
 

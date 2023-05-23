@@ -10,7 +10,6 @@
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkThreadID.h"
 #include "src/base/SkHalf.h"
-#include "src/core/SkChecksum.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCpu.h"
@@ -544,7 +543,9 @@ namespace skvm {
     }
 
     uint64_t Builder::hash() const {
-        return SkChecksum::Hash64(fProgram.data(), fProgram.size() * sizeof(Instruction));
+        uint32_t lo = SkOpts::hash(fProgram.data(), fProgram.size() * sizeof(Instruction), 0),
+                 hi = SkOpts::hash(fProgram.data(), fProgram.size() * sizeof(Instruction), 1);
+        return (uint64_t)lo | (uint64_t)hi << 32;
     }
 
     bool operator!=(Ptr a, Ptr b) { return a.ix != b.ix; }
@@ -561,7 +562,7 @@ namespace skvm {
     }
 
     uint32_t InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
-        return SkChecksum::Hash32(&inst, sizeof(inst), seed);
+        return SkOpts::hash(&inst, sizeof(inst), seed);
     }
 
 

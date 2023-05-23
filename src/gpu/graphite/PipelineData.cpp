@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/PipelineData.h"
 
-#include "src/core/SkChecksum.h"
+#include "src/core/SkOpts.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu::graphite {
@@ -42,7 +42,7 @@ UniformDataBlock* UniformDataBlock::Make(const UniformDataBlock& other, SkArenaA
 }
 
 uint32_t UniformDataBlock::hash() const {
-    return SkChecksum::Hash32(fData.data(), fData.size());
+    return SkOpts::hash_fn(fData.data(), fData.size(), 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,13 +72,13 @@ uint32_t TextureDataBlock::hash() const {
 
     for (auto& d : fTextureData) {
         SamplerDesc samplerKey = std::get<1>(d);
-        hash = SkChecksum::Hash32(&samplerKey, sizeof(samplerKey), hash);
+        hash = SkOpts::hash_fn(&samplerKey, sizeof(samplerKey), hash);
 
         // Because the lifetime of the TextureDataCache is for just one Recording and the
         // TextureDataBlocks hold refs on their proxies, we can just use the proxy's pointer
         // for the hash here.
         uintptr_t proxy = reinterpret_cast<uintptr_t>(std::get<0>(d).get());
-        hash = SkChecksum::Hash32(&proxy, sizeof(proxy), hash);
+        hash = SkOpts::hash_fn(&proxy, sizeof(proxy), hash);
     }
 
     return hash;
