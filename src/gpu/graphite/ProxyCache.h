@@ -38,6 +38,8 @@ public:
 
     sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder*, const SkBitmap&, Mipmapped);
 
+    void purgeAll();
+
 #if GRAPHITE_TEST_UTILS
     int numCached() const;
     sk_sp<TextureProxy> find(const SkBitmap&, Mipmapped);
