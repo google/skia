@@ -1075,6 +1075,8 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     return kSuccess;
 }
 
+#if defined(SK_CODEC_DECODES_JPEG)
+
 // This function is declared in SkJpegInfo.h, used by SkPDF.
 bool SkGetJpegInfo(const void* data, size_t len,
                    SkISize* size,
@@ -1115,6 +1117,8 @@ bool SkGetJpegInfo(const void* data, size_t len,
     }
     return true;
 }
+
+#endif
 
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
 // Collect and parse the primary and extended XMP metadata.
