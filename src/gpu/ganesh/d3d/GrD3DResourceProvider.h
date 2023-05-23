@@ -10,6 +10,7 @@
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
@@ -106,7 +107,7 @@ private:
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
-                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+                return SkChecksum::Hash32(desc.asKey(), desc.keyLength());
             }
         };
 
@@ -144,8 +145,8 @@ private:
         typedef sk_sp<GrD3DDescriptorTable> DescTableValue;
         struct DescTableHash {
             uint32_t operator()(DescTableKey key) const {
-                return SkOpts::hash_fn(key.data(),
-                                       key.size()*sizeof(D3D12_CPU_DESCRIPTOR_HANDLE), 0);
+                return SkChecksum::Hash32(key.data(),
+                                          key.size() * sizeof(D3D12_CPU_DESCRIPTOR_HANDLE));
             }
         };
         SkLRUCache<DescTableKey, DescTableValue, DescTableHash> fMap;

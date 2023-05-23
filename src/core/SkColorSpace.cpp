@@ -7,10 +7,10 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/private/SkOpts_spi.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkColorSpacePriv.h"
 
 #include <cstring>
@@ -23,8 +23,8 @@ SkColorSpace::SkColorSpace(const skcms_TransferFunction& transferFn,
                            const skcms_Matrix3x3& toXYZD50)
         : fTransferFn(transferFn)
         , fToXYZD50(toXYZD50) {
-    fTransferFnHash = SkOpts::hash_fn(&fTransferFn, 7*sizeof(float), 0);
-    fToXYZD50Hash = SkOpts::hash_fn(&fToXYZD50, 9*sizeof(float), 0);
+    fTransferFnHash = SkChecksum::Hash32(&fTransferFn, 7*sizeof(float));
+    fToXYZD50Hash = SkChecksum::Hash32(&fToXYZD50, 9*sizeof(float));
 }
 
 static bool xyz_almost_equal(const skcms_Matrix3x3& mA, const skcms_Matrix3x3& mB) {

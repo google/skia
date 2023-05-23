@@ -10,6 +10,7 @@
 
 #include "src/gpu/ganesh/GrGpu.h"
 
+#include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
@@ -281,7 +282,7 @@ private:
 
     struct ProgramDescHash {
         uint32_t operator()(const GrProgramDesc& desc) const {
-            return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+            return SkChecksum::Hash32(desc.asKey(), desc.keyLength());
         }
     };
 

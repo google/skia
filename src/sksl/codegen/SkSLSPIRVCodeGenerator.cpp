@@ -9,8 +9,8 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkOpts_spi.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkChecksum.h"
 #include "src/sksl/GLSL.std.450.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -95,8 +95,8 @@ bool SPIRVCodeGenerator::Instruction::operator==(const SPIRVCodeGenerator::Instr
 struct SPIRVCodeGenerator::Instruction::Hash {
     uint32_t operator()(const SPIRVCodeGenerator::Instruction& key) const {
         uint32_t hash = key.fResultKind;
-        hash = SkOpts::hash_fn(&key.fOp, sizeof(key.fOp), hash);
-        hash = SkOpts::hash_fn(key.fWords.data(), key.fWords.size() * sizeof(int32_t), hash);
+        hash = SkChecksum::Hash32(&key.fOp, sizeof(key.fOp), hash);
+        hash = SkChecksum::Hash32(key.fWords.data(), key.fWords.size() * sizeof(int32_t), hash);
         return hash;
     }
 };

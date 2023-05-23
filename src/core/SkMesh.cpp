@@ -10,9 +10,9 @@
 #ifdef SK_ENABLE_SKSL
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/private/SkOpts_spi.h"
 #include "include/private/base/SkMath.h"
 #include "src/base/SkSafeMath.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -596,24 +596,24 @@ SkMeshSpecification::SkMeshSpecification(
         , fColorType(ct)
         , fColorSpace(std::move(cs))
         , fAlphaType(at) {
-    fHash = SkOpts::hash_fn(fVS->fSource->c_str(), fVS->fSource->size(), 0);
-    fHash = SkOpts::hash_fn(fFS->fSource->c_str(), fFS->fSource->size(), fHash);
+    fHash = SkChecksum::Hash32(fVS->fSource->c_str(), fVS->fSource->size(), 0);
+    fHash = SkChecksum::Hash32(fFS->fSource->c_str(), fFS->fSource->size(), fHash);
 
     // The attributes and varyings SkSL struct declarations are included in the program source.
     // However, the attribute offsets and types need to be included, the latter because the SkSL
     // struct definition has the GPU type but not the CPU data format.
     for (const auto& a : fAttributes) {
-        fHash = SkOpts::hash_fn(&a.offset, sizeof(a.offset), fHash);
-        fHash = SkOpts::hash_fn(&a.type,   sizeof(a.type),   fHash);
+        fHash = SkChecksum::Hash32(&a.offset, sizeof(a.offset), fHash);
+        fHash = SkChecksum::Hash32(&a.type,   sizeof(a.type),   fHash);
     }
 
-    fHash = SkOpts::hash_fn(&stride, sizeof(stride), fHash);
+    fHash = SkChecksum::Hash32(&stride, sizeof(stride), fHash);
 
     uint64_t csHash = fColorSpace ? fColorSpace->hash() : 0;
-    fHash = SkOpts::hash_fn(&csHash, sizeof(csHash), fHash);
+    fHash = SkChecksum::Hash32(&csHash, sizeof(csHash), fHash);
 
     auto atInt = static_cast<uint32_t>(fAlphaType);
-    fHash = SkOpts::hash_fn(&atInt, sizeof(atInt), fHash);
+    fHash = SkChecksum::Hash32(&atInt, sizeof(atInt), fHash);
 }
 
 size_t SkMeshSpecification::uniformSize() const {

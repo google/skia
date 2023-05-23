@@ -10,7 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -105,7 +105,7 @@ SkString SkDescriptor::dumpRec() const {
 uint32_t SkDescriptor::ComputeChecksum(const SkDescriptor* desc) {
     const uint32_t* ptr = (const uint32_t*)desc + 1;  // skip the checksum field
     size_t len = desc->fLength - sizeof(uint32_t);
-    return SkOpts::hash(ptr, len);
+    return SkChecksum::Hash32(ptr, len);
 }
 
 bool SkDescriptor::isValid() const {

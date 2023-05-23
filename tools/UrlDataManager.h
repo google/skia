@@ -11,7 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkString.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkTDynamicHash.h"
 
 #include <unordered_map>
@@ -77,7 +77,7 @@ private:
         }
 
         static uint32_t Hash(const SkData& key) {
-            return SkOpts::hash(key.bytes(), key.size());
+            return SkChecksum::Hash32(key.bytes(), key.size());
         }
     };
 
@@ -87,7 +87,7 @@ private:
         }
 
         static uint32_t Hash(const SkString& key) {
-            return SkOpts::hash(key.c_str(), strlen(key.c_str()));
+            return SkChecksum::Hash32(key.c_str(), strlen(key.c_str()));
         }
     };
 
