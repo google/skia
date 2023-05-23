@@ -557,6 +557,7 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     p.layout(300);
     const m = p.getLineMetrics(); // $ExpectType LineMetrics[]
     const n = CK.GlyphRunFlags.IsWhiteSpace === 1;
+    const o = p.unresolvedCodepoints(); // $ExpectType number[]
 }
 
 function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) {

@@ -447,6 +447,14 @@ std::vector<SkUnicode::Position> convertArrayU32(WASMPointerU32 array, size_t co
     return vec;
 }
 
+JSArray UnresolvedCodepoints(para::Paragraph& self) {
+    JSArray result = emscripten::val::array();
+    for (auto cp : self.unresolvedCodepoints()) {
+        result.call<void>("push", cp);
+    }
+    return result;
+}
+
 EMSCRIPTEN_BINDINGS(Paragraph) {
 
     class_<para::Paragraph>("Paragraph")
@@ -464,7 +472,8 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("_getRectsForRange", &GetRectsForRange)
         .function("getShapedLines", &GetShapedLines)
         .function("getWordBoundary", &para::Paragraph::getWordBoundary)
-        .function("layout", &para::Paragraph::layout);
+        .function("layout", &para::Paragraph::layout)
+        .function("unresolvedCodepoints", &UnresolvedCodepoints);
 
     class_<para::ParagraphBuilderImpl>("ParagraphBuilder")
             .class_function(

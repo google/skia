@@ -129,6 +129,9 @@ describe('Paragraph Behavior', function() {
         expect(flm.left).toBeCloseTo(13.818, 3);
         expect(flm.baseline).toBeCloseTo(21.141, 3);
 
+        const unresolvedGlyphs = paragraph.unresolvedCodepoints();
+        expect(unresolvedGlyphs.length).toEqual(0, unresolvedGlyphs);
+
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 

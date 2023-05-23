@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `Paragraph.unresolvedCodepoints` which allows clients to identify gaps in font coverage
+    more easily.
+
 ## [0.38.1] - 2023-05-02
 
 ### Removed

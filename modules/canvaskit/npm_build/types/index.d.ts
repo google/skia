@@ -998,6 +998,12 @@ export interface Paragraph extends EmbindObject<Paragraph> {
      * @param width
      */
     layout(width: number): void;
+
+    /**
+     * When called after shaping, returns the glyph IDs which were not matched
+     * by any of the provided fonts.
+     */
+    unresolvedCodepoints(): number[];
 }
 
 export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
