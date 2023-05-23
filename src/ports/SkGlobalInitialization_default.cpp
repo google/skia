@@ -132,6 +132,7 @@
         SkRegisterComposeImageFilterFlattenable();
         SkRegisterCropImageFilterFlattenable();
         SkRegisterDisplacementMapImageFilterFlattenable();
+        SkRegisterDropShadowImageFilterFlattenable();
         SkRegisterImageImageFilterFlattenable();
         SkRegisterLightingImageFilterFlattenables();
         SkRegisterMagnifierImageFilterFlattenable();
@@ -146,8 +147,6 @@
         SkRegisterShaderImageFilterFlattenable();
         SkRegisterTileImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
-
-        SkRegisterLegacyDropShadowImageFilterFlattenable();
     }
 
 #endif

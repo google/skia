@@ -130,12 +130,6 @@ public:
         return kSkImageFilter_Type;
     }
 
-    // TODO: CreateProcs for now-removed image filter subclasses need to hook into
-    // SK_IMAGEFILTER_UNFLATTEN_COMMON, so this temporarily exposes it for the case where there's a
-    // single input filter, and can be removed when the legacy CreateProcs are deleted.
-    static std::pair<sk_sp<SkImageFilter>, std::optional<SkRect>>
-    Unflatten(SkReadBuffer& buffer);
-
 protected:
     // DEPRECATED: Will be removed once cropping is handled by a standalone image filter
     class CropRect {
@@ -185,14 +179,6 @@ protected:
          *  of which may be NULL or a valid imagefilter.
          */
         bool unflatten(SkReadBuffer&, int expectedInputs);
-
-        std::optional<SkRect> optionalCropRect() const {
-            if (fCropRect.flags()) {
-                return fCropRect.rect();
-            } else {
-                return {};
-            }
-        }
 
         const SkRect* cropRect() const {
             return fCropRect.flags() != 0x0 ? &fCropRect.rect() : nullptr;
@@ -489,6 +475,7 @@ void SkRegisterColorFilterImageFilterFlattenable();
 void SkRegisterComposeImageFilterFlattenable();
 void SkRegisterCropImageFilterFlattenable();
 void SkRegisterDisplacementMapImageFilterFlattenable();
+void SkRegisterDropShadowImageFilterFlattenable();
 void SkRegisterImageImageFilterFlattenable();
 void SkRegisterLightingImageFilterFlattenables();
 void SkRegisterMagnifierImageFilterFlattenable();
@@ -502,9 +489,5 @@ void SkRegisterRuntimeImageFilterFlattenable();
 #endif
 void SkRegisterShaderImageFilterFlattenable();
 void SkRegisterTileImageFilterFlattenable();
-
-// TODO(michaelludwig): These filters no longer have dedicated implementations, so their
-// SkFlattenable create procs only need to remain to support old SkPictures.
-void SkRegisterLegacyDropShadowImageFilterFlattenable();
 
 #endif // SkImageFilter_Base_DEFINED
