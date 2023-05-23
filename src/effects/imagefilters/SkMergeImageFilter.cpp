@@ -163,7 +163,7 @@ private:
 
     MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
 
-    skif::FilterResult onFilterImage(const skif::Context& context) const override;
+    skif::FilterResult onFilterImage(const skif::Context& ctx) const override;
 
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping&,
