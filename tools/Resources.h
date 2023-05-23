@@ -13,6 +13,8 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkString.h"
 
+#include <string>
+
 class SkBitmap;
 class SkData;
 class SkStreamAsset;
@@ -25,6 +27,10 @@ void SetResourcePath(const char* );
 bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst);
 
 sk_sp<SkData> GetResourceAsData(const char* resource);
+
+inline sk_sp<SkData> GetResourceAsData(std::string resource) {
+    return GetResourceAsData(resource.c_str());
+}
 
 inline bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     return DecodeDataToBitmap(GetResourceAsData(resource), dst);

@@ -23,6 +23,8 @@
 #include "bench/SkSLBench.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkJpegDecoder.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
@@ -1332,6 +1334,11 @@ int main(int argc, char** argv) {
 #endif
     SetupCrashHandler();
     SkAutoGraphics ag;
+
+    // Our benchmarks only currently decode .png or .jpg files
+    SkCodecs::Register(SkPngDecoder::Decoder());
+    SkCodecs::Register(SkJpegDecoder::Decoder());
+
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
     CommonFlags::SetCtxOptions(&grContextOpts);

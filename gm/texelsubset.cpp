@@ -81,7 +81,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        GetResourceAsBitmap("images/mandrill_128.png", &fBitmap);
+        SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &fBitmap));
         // Make the bitmap non-square to detect any width/height confusion.
         fBitmap.extractSubset(&fBitmap, SkIRect::MakeSize(fBitmap.dimensions()).makeInset(0, 20));
         SkASSERT(fBitmap.dimensions() == kImageSize);

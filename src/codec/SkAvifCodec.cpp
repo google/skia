@@ -44,9 +44,14 @@ bool SkAvifCodec::IsAvif(const void* buffer, size_t bytesRead) {
 
 std::unique_ptr<SkCodec> SkAvifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                      Result* result) {
+    SkASSERT(result);
+    if (!stream) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
     AvifDecoder avifDecoder(avifDecoderCreate());
     if (avifDecoder == nullptr) {
-        *result = kInternalError;
+        *result = SkCodec::kInternalError;
         return nullptr;
     }
     avifDecoder->ignoreXMP = AVIF_TRUE;
@@ -71,13 +76,13 @@ std::unique_ptr<SkCodec> SkAvifCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
     avifResult res = avifDecoderSetIOMemory(avifDecoder.get(), data->bytes(), data->size());
     if (res != AVIF_RESULT_OK) {
-        *result = kInternalError;
+        *result = SkCodec::kInternalError;
         return nullptr;
     }
 
     res = avifDecoderParse(avifDecoder.get());
     if (res != AVIF_RESULT_OK) {
-        *result = kInvalidInput;
+        *result = SkCodec::kInvalidInput;
         return nullptr;
     }
 
@@ -237,3 +242,31 @@ SkCodec::Result SkAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
     *rowsDecoded = fAvifDecoder->image->height;
     return kSuccess;
 }
+
+namespace SkAvifDecoder {
+bool IsAvif(const void* data, size_t len) {
+    return SkAvifCodec::IsAvif(data, len);
+}
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    SkCodec::Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+    return SkAvifCodec::MakeFromStream(std::move(stream), outResult);
+}
+
+std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    if (!data) {
+        if (outResult) {
+            *outResult = SkCodec::kInvalidInput;
+        }
+        return nullptr;
+    }
+    return Decode(SkMemoryStream::Make(std::move(data)), outResult, nullptr);
+}
+}  // namespace SkAvifDecoder

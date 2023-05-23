@@ -5,19 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "src/codec/SkWuffsCodec.h"
-
+#include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
@@ -38,6 +39,7 @@
 #include <climits>
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -927,16 +929,21 @@ void SkWuffsCodec::updateNumFullyReceivedFrames() {
     }
 }
 
-// -------------------------------- SkWuffsCodec.h functions
+namespace SkGifDecoder {
 
-bool SkWuffsCodec_IsFormat(const void* buf, size_t bytesRead) {
+bool IsGif(const void* buf, size_t bytesRead) {
     constexpr const char* gif_ptr = "GIF8";
     constexpr size_t      gif_len = 4;
     return (bytesRead >= gif_len) && (memcmp(buf, gif_ptr, gif_len) == 0);
 }
 
-std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                     SkCodec::Result*          result) {
+std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream> stream,
+                                        SkCodec::Result*          result) {
+    SkASSERT(result);
+    if (!stream) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
     // Some clients (e.g. Android) need to be able to seek the stream, but may
     // not provide a seekable stream. Copy the stream to one that can seek.
     if (!stream->hasPosition() || !stream->hasLength()) {
@@ -1020,3 +1027,27 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
                                                      std::move(decoder), std::move(workbuf_ptr),
                                                      workbuf_len, imgcfg, iobuf));
 }
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    SkCodec::Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+    return MakeFromStream(std::move(stream), outResult);
+}
+
+std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    if (!data) {
+        if (outResult) {
+            *outResult = SkCodec::kInvalidInput;
+        }
+        return nullptr;
+    }
+    return Decode(SkMemoryStream::Make(std::move(data)), outResult, nullptr);
+}
+}  // namespace SkGifDecoder
+

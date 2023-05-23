@@ -4,18 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/codec/SkHeifCodec.h"
 
-#include "include/core/SkTypes.h"
-
-#ifdef SK_HAS_HEIF_LIBRARY
 #include "include/codec/SkCodec.h"
+#include "include/core/SkTypes.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkEndian.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkHeifCodec.h"
 
 #define FOURCC(c1, c2, c3, c4) \
     ((c1) << 24 | (c2) << 16 | (c3) << 8 | (c4))
@@ -145,16 +143,42 @@ static void releaseProc(const void* ptr, void* context) {
 }
 
 std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-        SkCodec::SelectionPolicy selectionPolicy, SkEncodedImageFormat format, Result* result) {
+        SkCodec::SelectionPolicy selectionPolicy, Result* result) {
+    SkASSERT(result);
+    if (!stream) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
     std::unique_ptr<HeifDecoder> heifDecoder(createHeifDecoder());
     if (heifDecoder == nullptr) {
-        *result = kInternalError;
+        *result = SkCodec::kInternalError;
+        return nullptr;
+    }
+
+    constexpr size_t bytesToRead = MinBufferedBytesNeeded();
+    char buffer[bytesToRead];
+    size_t bytesRead = stream->peek(buffer, bytesToRead);
+    if (0 == bytesRead) {
+        // It is possible the stream does not support peeking, but does support rewinding.
+        // Attempt to read() and pass the actual amount read to the decoder.
+        bytesRead = stream->read(buffer, bytesToRead);
+        if (!stream->rewind()) {
+            SkCodecPrintf("Encoded image data could not peek or rewind to determine format!\n");
+            *result = kCouldNotRewind;
+            return nullptr;
+        }
+    }
+
+    SkEncodedImageFormat format;
+    if (!SkHeifCodec::IsSupported(buffer, bytesRead, &format)) {
+        SkCodecPrintf("Failed to get format despite earlier detecting it");
+        *result = SkCodec::kInternalError;
         return nullptr;
     }
 
     HeifFrameInfo heifInfo;
     if (!heifDecoder->init(new SkHeifStreamWrapper(stream.release()), &heifInfo)) {
-        *result = kInvalidInput;
+        *result = SkCodec::kInvalidInput;
         return nullptr;
     }
 
@@ -185,7 +209,7 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> s
             /*bitsPerComponent*/ 8, std::move(profile), colorDepth);
     SkEncodedOrigin orientation = get_orientation(heifInfo);
 
-    *result = kSuccess;
+    *result = SkCodec::kSuccess;
     return std::unique_ptr<SkCodec>(new SkHeifCodec(
             std::move(info), heifDecoder.release(), orientation, frameCount > 1, format));
 }
@@ -512,4 +536,33 @@ bool SkHeifCodec::onSkipScanlines(int count) {
     return count == (int) fHeifDecoder->skipScanlines(count);
 }
 
-#endif // SK_HAS_HEIF_LIBRARY
+namespace SkHeifDecoder {
+bool IsHeif(const void* data, size_t len) {
+    return SkHeifCodec::IsSupported(data, len, nullptr);
+}
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext ctx) {
+    SkASSERT(ctx);
+    SkCodec::Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+    auto policy = static_cast<SkCodec::SelectionPolicy*>(ctx);
+    return SkHeifCodec::MakeFromStream(std::move(stream), *policy, outResult);
+}
+
+std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext ctx) {
+    if (!data) {
+        if (outResult) {
+            *outResult = SkCodec::kInvalidInput;
+        }
+        return nullptr;
+    }
+    return Decode(SkMemoryStream::Make(std::move(data)), outResult, ctx);
+}
+}  // namespace SkHeifDecoder
+

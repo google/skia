@@ -10,7 +10,9 @@
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
@@ -155,6 +157,11 @@ bool SkWbmpCodec::IsWbmp(const void* buffer, size_t bytesRead) {
 
 std::unique_ptr<SkCodec> SkWbmpCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                      Result* result) {
+    SkASSERT(result);
+    if (!stream) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
     SkISize size;
     if (!read_header(stream.get(), &size)) {
         // This already succeeded in IsWbmp, so this stream was corrupted in/
@@ -199,3 +206,31 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
     return kSuccess;
 }
+
+namespace SkWbmpDecoder {
+bool IsWbmp(const void* data, size_t len) {
+    return SkWbmpCodec::IsWbmp(data, len);
+}
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    SkCodec::Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+    return SkWbmpCodec::MakeFromStream(std::move(stream), outResult);
+}
+
+std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    if (!data) {
+        if (outResult) {
+            *outResult = SkCodec::kInvalidInput;
+        }
+        return nullptr;
+    }
+    return Decode(SkMemoryStream::Make(std::move(data)), outResult, nullptr);
+}
+}  // namespace SkWbmpDecoder

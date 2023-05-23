@@ -73,7 +73,6 @@ split_srcs_and_hdrs(
 DECODE_GIF_FILES = [
     "SkScalingCodec.h",
     "SkWuffsCodec.cpp",
-    "SkWuffsCodec.h",
 ]
 
 split_srcs_and_hdrs(
