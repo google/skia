@@ -15,6 +15,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkSpecialImage.h"
 
 class GrRecordingContext;
@@ -733,6 +734,8 @@ public:
     // tagging needs to be added).
     sk_sp<SkSpecialImage> imageAndOffset(const Context& ctx, SkIPoint* offset) const;
 
+    class Builder;
+
 private:
     // Renders this FilterResult into a new, but visually equivalent, image that fills 'dstBounds',
     // has default sampling, no color filter, and a transform that translates by only 'dstBounds's
@@ -767,6 +770,29 @@ private:
     // is processed by the image filter DAG, it can be further restricted by crop rects or the
     // implicit desired output at each node.
     LayerSpace<SkIRect>   fLayerBounds;
+};
+
+
+// A FilterResult::Builder is used to render one or more FilterResults or other sources into
+// a new FilterResult. It automatically aggregates the incoming bounds to minimize the output's
+// layer bounds.
+class FilterResult::Builder {
+public:
+    Builder(const Context& context) : fContext(context) {}
+
+    Builder& add(const FilterResult& input) {
+        fInputs.push_back(input);
+        return *this;
+    }
+
+    // Combine all added inputs by merging them with src-over blending into a single output.
+    FilterResult merge();
+
+private:
+    LayerSpace<SkIRect> outputBounds() const;
+
+    const Context& fContext; // Must outlive the builder
+    skia_private::STArray<1, FilterResult> fInputs;
 };
 
 // The context contains all necessary information to describe how the image filter should be
