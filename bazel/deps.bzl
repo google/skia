@@ -190,7 +190,7 @@ def git_repos_from_deps(ws = "@"):
     new_git_repository(
         name = "vulkan_tools",
         build_file = ws + "//bazel/external/vulkan_tools:BUILD.bazel",
-        commit = "695887a994ef9cc00a7aa3f9c00b31a56ea79534",
+        commit = "80b010b1e1b08c1f092fb2bfa337faadf8ea1ba3",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools",
     )
 
