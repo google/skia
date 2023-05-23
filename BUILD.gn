@@ -175,12 +175,6 @@ template("opts") {
 
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
-opts("crc32") {
-  enabled = current_cpu == "arm64"
-  sources = skia_opts.crc32_sources
-  cflags = [ "-march=armv8-a+crc" ]
-}
-
 opts("ssse3") {
   enabled = is_x86
   sources = skia_opts.ssse3_sources
@@ -188,24 +182,6 @@ opts("ssse3") {
     defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSSE3" ]
   } else {
     cflags = [ "-mssse3" ]
-    if (!is_win) {
-      cflags += [
-        "-fomit-frame-pointer",
-        "-momit-leaf-frame-pointer",
-      ]
-    } else {
-      cflags += [ "/Oy-" ]
-    }
-  }
-}
-
-opts("sse42") {
-  enabled = is_x86
-  sources = skia_opts.sse42_sources
-  if (!is_clang && is_win) {
-    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSE42" ]
-  } else {
-    cflags = [ "-msse4.2" ]
     if (!is_win) {
       cflags += [
         "-fomit-frame-pointer",
@@ -1479,7 +1455,6 @@ skia_component("skia") {
     ":android_utils",
     ":avif",
     ":avx",
-    ":crc32",
     ":fontmgr_factory",
     ":heif",
     ":hsw",
@@ -1490,7 +1465,6 @@ skia_component("skia") {
     ":raw",
     ":skvm_jit",
     ":skx",
-    ":sse42",
     ":ssse3",
     ":vello",
     ":webp_decode",
@@ -1676,9 +1650,7 @@ skia_static_library("pathkit") {
 
   deps = [
     ":avx",
-    ":crc32",
     ":hsw",
-    ":sse42",
     ":ssse3",
   ]
 
