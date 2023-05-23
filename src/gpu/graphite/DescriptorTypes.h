@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_Descriptors_DEFINED
-#define skgpu_graphite_Descriptors_DEFINED
+#ifndef skgpu_graphite_DescriptorTypes_DEFINED
+#define skgpu_graphite_DescriptorTypes_DEFINED
 
 namespace skgpu::graphite {
 
@@ -32,4 +32,4 @@ struct DescTypeAndCount {
 
 };  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_Descriptors_DEFINED
+#endif // skgpu_graphite_DescriptorTypes_DEFINED

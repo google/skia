@@ -11,7 +11,7 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/gpu/graphite/Descriptors.h"
+#include "src/gpu/graphite/DescriptorTypes.h"
 
 namespace skgpu::graphite {
 
