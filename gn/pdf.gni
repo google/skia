@@ -66,3 +66,7 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFUtils.h",
   "$_src/pdf/SkUUID.h",
 ]
+
+# TODO(kjlubick) fill in these placeholders
+skia_pdf_jpeginfo_lib = []
+skia_pdf_jpeginfo_none = []
