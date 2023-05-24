@@ -89,6 +89,8 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(physDevProperties);
     }
+
+    this->finishInitialization(contextOptions);
 }
 
 void VulkanCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
