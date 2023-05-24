@@ -17,8 +17,6 @@
 #include <cstring>
 #include <limits>
 
-
-
 DEF_TEST(DoubleNearlyZero, reporter) {
     REPORTER_ASSERT(reporter, sk_double_nearly_zero(0.));
     REPORTER_ASSERT(reporter, sk_double_nearly_zero(-0.));
@@ -130,4 +128,23 @@ DEF_TEST(BitCastDoubleRoundTrip, reporter) {
         double output = sk_bit_cast<double>(bits);
         REPORTER_ASSERT(reporter, !std::isfinite(output), "%.16f is not infinity", output);
     }
+}
+
+DEF_TEST(FMA, reporter) {
+    // 0b0'01111111111'00'0000000000'0000000000'0000000010'0000000000'0000000000
+    double over1 = 1+4.656612873e-10;
+
+    // 0b0'01111111110'11'1111111111'1111111111'1111111100'0000000000'0000000000
+    double under1 = 1-4.656612873e-10;
+
+    // Precision loss
+    //                         -------------- becomes 1; extra bits are rounded off.
+    double x = std::fma(1, -1, over1 * under1);
+
+    // Precision maintained
+    //                  ------------- becomes 1 - 2^-62; extra bits are maintained
+    double y = std::fma(over1, under1, -1);
+
+    REPORTER_ASSERT(reporter, x == 0);
+    REPORTER_ASSERT(reporter, y == -exp2(-62));
 }
