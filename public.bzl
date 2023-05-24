@@ -756,7 +756,6 @@ BASE_SRCS_ALL = [
     "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
     "src/effects/imagefilters/SkPictureImageFilter.cpp",
     "src/effects/imagefilters/SkRuntimeImageFilter.cpp",
-    "src/effects/imagefilters/SkRuntimeImageFilter.h",
     "src/effects/imagefilters/SkShaderImageFilter.cpp",
     "src/effects/imagefilters/SkTileImageFilter.cpp",
     "src/fonts/SkFontMgr_indirect.cpp",

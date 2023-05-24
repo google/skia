@@ -729,6 +729,69 @@ void FilterResult::draw(SkCanvas* canvas) const {
     }
 }
 
+sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
+                                       const SkSamplingOptions& xtraSampling,
+                                       SkEnumBitMask<ShaderFlags> flags) const {
+    if (!fImage) {
+        return nullptr;
+    }
+    // Even if flags don't force resolving the filter result to an axis-aligned image, if the
+    // extra sampling to be applied is not compatible with the accumulated transform and sampling,
+    // or if the logical image is cropped by the layer bounds, the FilterResult will need to be
+    // resolved to an image before we wrap it as an SkShader. When checking if cropped, we use the
+    // FilterResult's layer bounds instead of the context's desired output, assuming that the layer
+    // bounds reflect the bounds of the coords a parent shader will pass to eval().
+    const bool currentXformIsInteger = is_nearly_integer_translation(fTransform);
+    const bool nextXformIsInteger =
+            !(flags & ShaderFlags::kNonLinearSampling) &&
+            (!(flags & ShaderFlags::kSampleInParameterSpace) ||
+               is_nearly_integer_translation(LayerSpace<SkMatrix>(ctx.mapping().layerMatrix())));
+
+    SkSamplingOptions sampling = xtraSampling;
+    const bool needsResolve =
+            flags & ShaderFlags::kForceResolveInputs ||
+            !compatible_sampling(fSamplingOptions, currentXformIsInteger,
+                                 &sampling, nextXformIsInteger) ||
+            this->isCropped(LayerSpace<SkMatrix>(SkMatrix::I()), fLayerBounds);
+
+    // Downgrade to nearest-neighbor if the sequence of sampling doesn't do anything
+    if (sampling == kDefaultSampling && nextXformIsInteger &&
+        (needsResolve || currentXformIsInteger)) {
+        sampling = {};
+    }
+
+    sk_sp<SkShader> shader;
+    if (needsResolve) {
+        // The resolve takes care of fTransform (sans origin), fColorFilter, and fLayerBounds
+        auto [pixels, origin] = this->resolve(ctx, fLayerBounds);
+        if (pixels) {
+            shader = pixels->asShader(SkTileMode::kDecal, sampling,
+                                      SkMatrix::Translate(origin.x(), origin.y()));
+        }
+    } else {
+        // Since we didn't need to resolve, we know the content being sampled isn't cropped by
+        // fLayerBounds. fTransform and fColorFilter are handled in the shader directly.
+        shader = fImage->asShader(SkTileMode::kDecal, sampling, SkMatrix(fTransform));
+        if (shader && fColorFilter) {
+            shader = shader->makeWithColorFilter(fColorFilter);
+        }
+    }
+
+    if (shader && (flags & ShaderFlags::kSampleInParameterSpace)) {
+        // The FilterResult is meant to be sampled in layer space, but the shader this is feeding
+        // into is being sampled in parameter space. Add the inverse of the layerMatrix() (i.e.
+        // layer to parameter space) as a local matrix to convert from the parameter-space coords
+        // of the outer shader to the layer-space coords of the FilterResult).
+        SkMatrix layerToParam;
+        if (!ctx.mapping().layerMatrix().invert(&layerToParam)) {
+            return nullptr;
+        }
+        shader = shader->makeWithLocalMatrix(layerToParam);
+    }
+
+    return shader;
+}
+
 FilterResult FilterResult::MakeFromPicture(const Context& ctx,
                                            sk_sp<SkPicture> pic,
                                            ParameterSpace<SkRect> cullRect) {
@@ -818,13 +881,32 @@ FilterResult FilterResult::MakeFromImage(const Context& ctx,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // FilterResult::Builder
 
-LayerSpace<SkIRect> FilterResult::Builder::outputBounds() const {
-    SkASSERT(!fInputs.empty());
+FilterResult::Builder::Builder(const Context& context) : fContext(context) {}
+FilterResult::Builder::~Builder() = default;
 
-    // The union of all inputs' layer bounds
-    LayerSpace<SkIRect> output = fInputs[0].layerBounds();
-    for (int i = 1; i < fInputs.size(); ++i) {
-        output.join(fInputs[i].layerBounds());
+SkSpan<sk_sp<SkShader>> FilterResult::Builder::createInputShaders(
+        SkEnumBitMask<ShaderFlags> flags,
+        const SkSamplingOptions& sampling) {
+    fInputShaders.reserve(fInputs.size());
+    for (const FilterResult& input : fInputs) {
+        fInputShaders.push_back(input.asShader(fContext, sampling, flags));
+    }
+    return SkSpan<sk_sp<SkShader>>(fInputShaders);
+}
+
+LayerSpace<SkIRect> FilterResult::Builder::outputBounds(SkEnumBitMask<ShaderFlags> flags) const {
+    LayerSpace<SkIRect> output = LayerSpace<SkIRect>::Empty();
+    if (flags & ShaderFlags::kOutputFillsInputUnion) {
+        // The union of all inputs' layer bounds
+        if (fInputs.size() > 0) {
+            output = fInputs[0].layerBounds();
+            for (int i = 1; i < fInputs.size(); ++i) {
+                output.join(fInputs[i].layerBounds());
+            }
+        }
+    } else {
+        // Pessimistically assume output fills the full desired bounds
+        output = fContext.desiredOutput();
     }
 
     // Intersect against desired output now since a Builder never has to produce an image larger
@@ -835,6 +917,23 @@ LayerSpace<SkIRect> FilterResult::Builder::outputBounds() const {
     return output;
 }
 
+FilterResult FilterResult::Builder::drawShader(sk_sp<SkShader> shader,
+                                               SkEnumBitMask<ShaderFlags> flags,
+                                               const LayerSpace<SkIRect>& outputBounds) const {
+    SkASSERT(!outputBounds.isEmpty()); // Should have been rejected before we created shaders
+    if (!shader) {
+        return {};
+    }
+
+    AutoSurface surface{fContext, outputBounds, flags & ShaderFlags::kSampleInParameterSpace};
+    if (surface) {
+        SkPaint paint;
+        paint.setShader(std::move(shader));
+        surface->drawPaint(paint);
+    }
+    return surface.snap();
+}
+
 FilterResult FilterResult::Builder::merge() {
     if (fInputs.empty()) {
         return {};
@@ -842,7 +941,8 @@ FilterResult FilterResult::Builder::merge() {
         return fInputs[0];
     }
 
-    const LayerSpace<SkIRect> outputBounds = this->outputBounds();
+    const LayerSpace<SkIRect> outputBounds =
+            this->outputBounds(ShaderFlags::kOutputFillsInputUnion);
     AutoSurface surface{fContext, outputBounds, /*renderInParameterSpace=*/false};
     if (surface) {
         for (const FilterResult& input : fInputs) {

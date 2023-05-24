@@ -66,6 +66,67 @@ struct GrContextOptions;
 
 using namespace skif;
 
+// NOTE: Not in anonymous so that FilterResult can friend it for access to draw() and asShader()
+class FilterResultImageResolver {
+public:
+    enum class Method {
+        kImageAndOffset,
+        kShader,
+        kDrawToCanvas
+    };
+
+    FilterResultImageResolver(Method method) : fMethod(method) {}
+
+    const char* methodName() const {
+        switch (fMethod) {
+            case Method::kImageAndOffset: return "imageAndOffset";
+            case Method::kShader:         return "asShader";
+            case Method::kDrawToCanvas:   return "drawToCanvas";
+        }
+        SkUNREACHABLE;
+    }
+
+    std::pair<sk_sp<SkSpecialImage>, SkIPoint> resolve(const Context& ctx,
+                                                       const FilterResult& image) const {
+        if (fMethod == Method::kImageAndOffset) {
+            SkIPoint origin;
+            sk_sp<SkSpecialImage> resolved = image.imageAndOffset(ctx, &origin);
+            return {resolved, origin};
+        } else {
+            if (ctx.desiredOutput().isEmpty()) {
+                return {nullptr, {}};
+            }
+
+            auto surface = ctx.makeSurface(SkISize(ctx.desiredOutput().size()));
+            SkASSERT(surface);
+
+            SkCanvas* canvas = surface->getCanvas();
+            canvas->clear(SK_ColorTRANSPARENT);
+            canvas->translate(-ctx.desiredOutput().left(), -ctx.desiredOutput().top());
+
+            if (fMethod == Method::kShader) {
+                // asShader() does not apply a layer bounds crop since it assumes a parent shader
+                // will only be sampling within layer bounds. Filling a canvas with the shader thus
+                // requires a clip to the layer bounds.
+                canvas->clipIRect(SkIRect(image.layerBounds()));
+
+                SkPaint paint;
+                paint.setShader(image.asShader(ctx, FilterResult::kDefaultSampling,
+                                               FilterResult::ShaderFlags::kNone));
+                canvas->drawPaint(paint);
+            } else {
+                SkASSERT(fMethod == Method::kDrawToCanvas);
+                image.draw(canvas);
+            }
+
+            return {surface->makeImageSnapshot(), SkIPoint(ctx.desiredOutput().topLeft())};
+        }
+    }
+
+private:
+    Method fMethod;
+};
+
 namespace {
 
 // Parameters controlling the fuzziness matching of expected and actual images.
@@ -336,21 +397,35 @@ public:
                        const FilterResult& actual) {
         SkASSERT(expectedImage);
 
-        SkIPoint actualOrigin;
-        sk_sp<SkSpecialImage> actualImage = actual.imageAndOffset(ctx, &actualOrigin);
-
         SkBitmap expectedBM = this->readPixels(expectedImage);
-        SkBitmap actualBM = this->readPixels(actualImage.get()); // empty if actualImage is null
-        TArray<SkIPoint> badPixels;
-        if (!this->compareBitmaps(expectedBM, expectedOrigin, actualBM, actualOrigin, &badPixels)) {
-            this->logBitmaps(expectedBM, actualBM, badPixels);
-            return false;
-        }
 
-        return true;
+        // Resolve actual using all 3 methods to ensure they are approximately equal to the expected
+        // (which is used as a proxy for being approximately equal to each other).
+        return this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   FilterResultImageResolver::Method::kImageAndOffset) &&
+               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   FilterResultImageResolver::Method::kShader) &&
+               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   FilterResultImageResolver::Method::kDrawToCanvas);
     }
 
 private:
+
+    bool compareImages(const skif::Context& ctx, const SkBitmap& expected, SkIPoint expectedOrigin,
+                       const FilterResult& actual, FilterResultImageResolver::Method method) {
+        FilterResultImageResolver resolver{method};
+        auto [actualImage, actualOrigin] = resolver.resolve(ctx, actual);
+
+        SkBitmap actualBM = this->readPixels(actualImage.get()); // empty if actualImage is null
+        TArray<SkIPoint> badPixels;
+        if (!this->compareBitmaps(expected, expectedOrigin, actualBM, actualOrigin, &badPixels)) {
+            SkDebugf("FilterResult comparison failed for method %s\n", resolver.methodName());
+            this->logBitmaps(expected, actualBM, badPixels);
+            return false;
+        }
+        return true;
+    }
+
 
     bool compareBitmaps(const SkBitmap& expected,
                         SkIPoint expectedOrigin,

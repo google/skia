@@ -19,7 +19,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkRandom.h"
-#include "src/effects/imagefilters/SkRuntimeImageFilter.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

@@ -24,7 +24,6 @@ IMAGEFILTERS_FILES = [
     "SkMorphologyImageFilter.cpp",
     "SkPictureImageFilter.cpp",
     "SkRuntimeImageFilter.cpp",
-    "SkRuntimeImageFilter.h",
     "SkShaderImageFilter.cpp",
     "SkTileImageFilter.cpp",
 ]
