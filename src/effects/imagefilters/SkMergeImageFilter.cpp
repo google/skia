@@ -41,8 +41,7 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping&,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds,
-            VisitChildren) const override;
+            const skif::LayerSpace<SkIRect>& contentBounds) const override;
 
     skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping&,
@@ -80,7 +79,7 @@ skif::FilterResult SkMergeImageFilter::onFilterImage(const skif::Context& ctx) c
     const int inputCount = this->countInputs();
     skif::FilterResult::Builder builder{ctx};
     for (int i = 0; i < inputCount; ++i) {
-        builder.add(this->filterInput(i, ctx));
+        builder.add(this->getChildOutput(i, ctx));
     }
     return builder.merge();
 }
@@ -88,26 +87,36 @@ skif::FilterResult SkMergeImageFilter::onFilterImage(const skif::Context& ctx) c
 skif::LayerSpace<SkIRect> SkMergeImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds,
-        VisitChildren recurse) const {
-    if (this->countInputs() <= 0) {
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
+    const int inputCount = this->countInputs();
+    if (inputCount <= 0) {
         // A leaf, so no required input or recursion
         return skif::LayerSpace<SkIRect>::Empty();
-    } else if (recurse == VisitChildren::kNo) {
-        // Merging does not change what's required
-        return desiredOutput;
     } else {
-        return this->visitInputLayerBounds(mapping, desiredOutput, contentBounds);
+        // Union of all child input bounds so that one source image can provide for all of them.
+        skif::LayerSpace<SkIRect> merged =
+                this->getChildInputLayerBounds(0, mapping, desiredOutput, contentBounds);
+        for (int i = 1; i < inputCount; ++i) {
+            merged.join(this->getChildInputLayerBounds(i, mapping, desiredOutput, contentBounds));
+        }
+        return merged;
     }
 }
 
 skif::LayerSpace<SkIRect> SkMergeImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& contentBounds) const {
-    if (this->countInputs() <= 0) {
+    const int inputCount = this->countInputs();
+    if (inputCount <= 0) {
         return skif::LayerSpace<SkIRect>::Empty(); // Transparent black
     } else {
-        return this->visitOutputLayerBounds(mapping, contentBounds);
+        // Merge is src-over of all child outputs, so covers their union but no more
+        skif::LayerSpace<SkIRect> merged =
+                this->getChildOutputLayerBounds(0, mapping, contentBounds);
+        for (int i = 1; i < inputCount; ++i) {
+            merged.join(this->getChildOutputLayerBounds(i, mapping, contentBounds));
+        }
+        return merged;
     }
 }
 

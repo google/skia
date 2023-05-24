@@ -51,8 +51,7 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping&,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds,
-            VisitChildren) const override;
+            const skif::LayerSpace<SkIRect>& contentBounds) const override;
 
     skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping&,
@@ -109,8 +108,7 @@ skif::FilterResult SkPictureImageFilter::onFilterImage(const skif::Context& ctx)
 skif::LayerSpace<SkIRect> SkPictureImageFilter::onGetInputLayerBounds(
         const skif::Mapping&,
         const skif::LayerSpace<SkIRect>&,
-        const skif::LayerSpace<SkIRect>&,
-        VisitChildren) const {
+        const skif::LayerSpace<SkIRect>&) const {
     // This is a leaf filter, it requires no input and no further recursion
     return skif::LayerSpace<SkIRect>::Empty();
 }

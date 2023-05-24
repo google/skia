@@ -44,8 +44,7 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds,
-            VisitChildren recurse) const override;
+            const skif::LayerSpace<SkIRect>& contentBounds) const override;
 
     skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
@@ -116,20 +115,14 @@ void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 skif::FilterResult SkColorFilterImageFilter::onFilterImage(const Context& ctx) const {
-    skif::FilterResult childOutput = this->filterInput(0, ctx);
-    return childOutput.applyColorFilter(ctx, fColorFilter);
+    return this->getChildOutput(0, ctx).applyColorFilter(ctx, fColorFilter);
 }
 
 skif::LayerSpace<SkIRect> SkColorFilterImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds,
-        VisitChildren recurse) const {
-    if (recurse == VisitChildren::kNo) {
-        return desiredOutput;
-    } else {
-        return this->visitInputLayerBounds(mapping, desiredOutput, contentBounds);
-    }
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
+    return this->getChildInputLayerBounds(0, mapping, desiredOutput, contentBounds);
 }
 
 skif::LayerSpace<SkIRect> SkColorFilterImageFilter::onGetOutputLayerBounds(
@@ -141,7 +134,7 @@ skif::LayerSpace<SkIRect> SkColorFilterImageFilter::onGetOutputLayerBounds(
     if (as_CFB(fColorFilter)->affectsTransparentBlack()) {
         return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
     } else {
-        return this->visitOutputLayerBounds(mapping, contentBounds);
+        return this->getChildOutputLayerBounds(0, mapping, contentBounds);
     }
 }
 

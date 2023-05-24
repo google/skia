@@ -1971,6 +1971,14 @@ DEF_TEST(OffsetImageFilterBounds, reporter) {
     REPORTER_ASSERT(reporter, boundsForward == expectedForward);
 
     SkIRect expectedReverse = SkRect::Make(src).makeOffset(-srcOffset.fX, -srcOffset.fY).roundOut();
+
+    // TODO (skbug:10984) - Enable this intersection after content bounds propagate
+    // Intersect 'expectedReverse' with the source because we are passing &src in as the known
+    // input bounds, which is the bounds of non-transparent pixels that can be moved by the offset.
+    // While the ::Offset filter could show all pixels inside 'expectedReverse' given that 'src'
+    // is also the target device output of the filter, the required input can be made tighter.
+    // SkAssertResult(expectedReverse.intersect(src));
+
     SkIRect boundsReverse = offset->filterBounds(src, SkMatrix::I(),
                                                  SkImageFilter::kReverse_MapDirection, &src);
     REPORTER_ASSERT(reporter, boundsReverse == expectedReverse);

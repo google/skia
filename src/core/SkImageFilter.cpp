@@ -290,11 +290,9 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
             mapping, desiredBounds, contentBounds);
     // If we know what's actually going to be drawn into the layer, and we don't change transparent
     // black, then we can further restrict the layer to what the known content is
-    // TODO (michaelludwig) - This logic could be moved into visitInputLayerBounds() when an input
-    // filter is null. Additionally, once all filters are robust to FilterResults with tile modes,
-    // we can always restrict the required input by content bounds since any additional transparent
-    // black is handled when producing the output result and sampling outside the input image with
-    // a decal tile mode.
+    // TODO (michaelludwig) - Once all filters are robust to tiling and transparency-affecting
+    // FilterResults, there's no reason this can't always be applied, or be an expectation from the
+    // leaf filters.
     if (knownContentBounds && !this->affectsTransparentBlack()) {
         if (!requiredInput.intersect(contentBounds)) {
             // Nothing would be output by the filter, so return empty rect
@@ -472,83 +470,48 @@ SkIRect SkImageFilter_Base::onFilterNodeBounds(const SkIRect& src, const SkMatri
     return src;
 }
 
-skif::LayerSpace<SkIRect> SkImageFilter_Base::visitInputLayerBounds(
-        const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& desiredOutput,
+skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildInputLayerBounds(
+        int index,
+        const skif::Mapping& mapping,
+        const skif::LayerSpace<SkIRect>& desiredOutput,
         const skif::LayerSpace<SkIRect>& contentBounds) const {
-    if (this->countInputs() < 1) {
-        // TODO (michaelludwig) - if a filter doesn't have any inputs, it doesn't need any
-        // implicit source image, so arguably we could return an empty rect here. 'desiredOutput' is
-        // consistent with original behavior, so empty bounds may have unintended side effects
-        // but should be explored later. Of note is that right now an empty layer bounds assumes
-        // that there's no need to filter on restore, which is not the case for these filters.
+    // The required input for childFilter filter, or 'contentBounds' intersected with 'desiredOutput'
+    // if the filter is null and the source image is used (i.e. the identity filter).
+    const SkImageFilter* childFilter = this->getInput(index);
+    if (childFilter) {
+        return as_IFB(childFilter)->onGetInputLayerBounds(mapping, desiredOutput, contentBounds);
+    } else {
+        // TODO: The leaf bounds should be the contentBounds intersected with the desired output,
+        // but currently legacy filters often discard or replace the contentBounds with the
+        // desiredOutput. We also need to be robust to unbounded content (i.e. when it's unknown).
+        // See skbug.com/10984
         return desiredOutput;
     }
-
-    skif::LayerSpace<SkIRect> netInput;
-    for (int i = 0; i < this->countInputs(); ++i) {
-        const SkImageFilter* filter = this->getInput(i);
-        // The required input for this input filter, or 'targetOutput' if the filter is null and
-        // the source image is used (so must be sized to cover 'targetOutput').
-        // TODO (michaelludwig) - Right now contentBounds is applied conditionally at the end of
-        // the root getInputLayerBounds() based on affecting transparent black. Once that bit only
-        // changes output behavior, we can have the required bounds for a null input filter be the
-        // intersection of the desired output and the content bounds.
-        skif::LayerSpace<SkIRect> requiredInput =
-                filter ? as_IFB(filter)->onGetInputLayerBounds(mapping, desiredOutput,
-                                                               contentBounds)
-                       : desiredOutput;
-        // Accumulate with all other filters
-        if (i == 0) {
-            netInput = requiredInput;
-        } else {
-            netInput.join(requiredInput);
-        }
-    }
-    return netInput;
 }
 
-skif::LayerSpace<SkIRect> SkImageFilter_Base::visitOutputLayerBounds(
-        const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const {
-    if (this->countInputs() < 1) {
-        // TODO (michaelludwig) - if a filter doesn't have any inputs, it presumably is determining
-        // its output size from something other than the implicit source contentBounds, in which
-        // case it shouldn't be calling this helper function, so explore adding an unreachable test
-        return contentBounds;
-    }
-
-    skif::LayerSpace<SkIRect> netOutput;
-    for (int i = 0; i < this->countInputs(); ++i) {
-        const SkImageFilter* filter = this->getInput(i);
-        // The output for just this input filter, or 'contentBounds' if the filter is null and
-        // the source image is used (i.e. the identity filter applied to the source).
-        skif::LayerSpace<SkIRect> output =
-                filter ? as_IFB(filter)->onGetOutputLayerBounds(mapping, contentBounds)
+skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildOutputLayerBounds(
+        int index,
+        const skif::Mapping& mapping,
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
+    // The output for just childFilter filter, or 'contentBounds' if the filter is null and
+    // the source image is used (i.e. the identity filter applied to the source).
+    const SkImageFilter* childFilter = this->getInput(index);
+    return childFilter ? as_IFB(childFilter)->onGetOutputLayerBounds(mapping, contentBounds)
                        : contentBounds;
-        // Accumulate with all other filters
-        if (i == 0) {
-            netOutput = output;
-        } else {
-            netOutput.join(output);
-        }
-    }
-    return netOutput;
 }
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetInputLayerBounds(
         const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds, VisitChildren recurse) const {
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
     // Call old functions for now since they may have been overridden by a subclass that's not been
     // updated yet; eventually this will be a pure virtual and impls control visiting children
     SkIRect content = SkIRect(contentBounds);
     SkIRect input = this->onFilterNodeBounds(SkIRect(desiredOutput), mapping.layerMatrix(),
                                              kReverse_MapDirection, &content);
-    if (recurse == VisitChildren::kYes) {
-        SkIRect aggregate = this->onFilterBounds(input, mapping.layerMatrix(),
-                                                 kReverse_MapDirection, &input);
-        return skif::LayerSpace<SkIRect>(aggregate);
-    } else {
-        return skif::LayerSpace<SkIRect>(input);
-    }
+
+    SkIRect aggregate = this->onFilterBounds(input, mapping.layerMatrix(),
+                                             kReverse_MapDirection, &input);
+    return skif::LayerSpace<SkIRect>(aggregate);
 }
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
@@ -574,21 +537,9 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
     return skif::LayerSpace<SkIRect>(dst);
 }
 
-// TODO (michaelludwig): Remove filterInput() use as cleanup continues. IMO it's automatic calls
-// to mapContext() and onGetInputLayerBounds() obfuscates how the bounds request flows through
-// the DAG. Particularly once dry-runs are possible, the only place that needs to calculate the
-// required input / new context's desired output is in each filter's onFilterImage() impl.
-skif::FilterResult SkImageFilter_Base::filterInput(int index, const skif::Context& ctx) const {
+skif::FilterResult SkImageFilter_Base::getChildOutput(int index, const skif::Context& ctx) const {
     const SkImageFilter* input = this->getInput(index);
-    if (!input) {
-        // Null image filters late bind to the source image
-        return ctx.source();
-    }
-
-    skif::FilterResult result = as_IFB(input)->filterImage(this->mapContext(ctx));
-    SkASSERT(!result.image() || ctx.gpuBacked() == result.image()->isTextureBacked());
-
-    return result;
+    return input ? as_IFB(input)->filterImage(ctx) : ctx.source();
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index,
@@ -613,9 +564,13 @@ SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) c
     // We don't recurse through the child input filters because that happens automatically
     // as part of the filterImage() evaluation. In this case, we want the bounds for the
     // edge from this node to its children, without the effects of the child filters.
-    skif::LayerSpace<SkIRect> childOutput = this->onGetInputLayerBounds(
-            ctx.mapping(), ctx.desiredOutput(), ctx.desiredOutput(), VisitChildren::kNo);
-    return ctx.withNewDesiredOutput(childOutput);
+    // NOTE: mapContext() is only used by the legacy functions, which split input bounds into a
+    // non-recursing function (onFilterNodeBounds) and a recursing one. The new
+    // onGetInputLayerBounds() always recurses so just use onFilterNodeBounds directly.
+    SkIRect desiredOutput = SkIRect(ctx.desiredOutput());
+    SkIRect requiredInput = this->onFilterNodeBounds(desiredOutput, ctx.mapping().layerMatrix(),
+                                                     kReverse_MapDirection, &desiredOutput);
+    return ctx.withNewDesiredOutput(skif::LayerSpace<SkIRect>(requiredInput));
 }
 
 #if defined(SK_GANESH)

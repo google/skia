@@ -43,8 +43,7 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds,
-            VisitChildren recurse) const override;
+            const skif::LayerSpace<SkIRect>& contentBounds) const override;
 
     skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
@@ -53,8 +52,17 @@ private:
     // The crop rect is specified in floating point to allow cropping to partial local pixels,
     // that could become whole pixels in the layer-space image if the canvas is scaled.
     // For now it's always rounded to integer pixels as if it were non-AA.
-    skif::LayerSpace<SkIRect> cropRect(const skif::Mapping& mapping) const {
-        return mapping.paramToLayer(fCropRect).roundOut();
+    //
+    // The returned rect is intersected with 'outputBounds', which is either the desired or
+    // actual bounds of the child filter.
+    skif::LayerSpace<SkIRect> cropRect(const skif::Mapping& mapping,
+                                       const skif::LayerSpace<SkIRect>& outputBounds) const {
+        auto crop = mapping.paramToLayer(fCropRect).roundOut();
+        if (!crop.intersect(outputBounds)) {
+            return skif::LayerSpace<SkIRect>::Empty();
+        } else {
+            return crop;
+        }
     }
 
     skif::ParameterSpace<SkRect> fCropRect;
@@ -90,16 +98,14 @@ void SkCropImageFilter::flatten(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 skif::FilterResult SkCropImageFilter::onFilterImage(const skif::Context& context) const {
-    skif::LayerSpace<SkIRect> cropBounds = this->cropRect(context.mapping());
-    if (cropBounds.isEmpty()) {
-        // Don't bother evaluating the input filter if the crop wouldn't show anything
-        return {};
-    }
+    skif::LayerSpace<SkIRect> cropBounds =
+            this->cropRect(context.mapping(), context.desiredOutput());
+    skif::FilterResult childOutput =
+            this->getChildOutput(0, context.withNewDesiredOutput(cropBounds));
 
-    skif::FilterResult childOutput = this->filterInput(0, context);
-    // While filterInput() adjusts the context passed to our child filter to account for the
-    // crop rect and desired output, 'childOutput' does not necessarily fit that exactly. Calling
-    // applyCrop() ensures this is true, optimally avoiding rendering a new image if possible.
+    // While the child filter may have exactly matched the requested 'cropBounds', it's not
+    // necessarily the case, so applyCrop() ensures this is true while avoiding rendering a new
+    // when possible.
     return childOutput.applyCrop(context, cropBounds);
 }
 
@@ -112,41 +118,25 @@ skif::FilterResult SkCropImageFilter::onFilterImage(const skif::Context& context
 skif::LayerSpace<SkIRect> SkCropImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds,
-        VisitChildren recurse) const {
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
     // Assuming unbounded desired output, this filter only needs to process an image that's at most
-    // sized to our crop rect.
-    skif::LayerSpace<SkIRect> requiredInput = this->cropRect(mapping);
-    // But we can restrict the crop rect to just what's requested, since anything beyond that won't
-    // be rendered.
-    if (!requiredInput.intersect(desiredOutput)) {
-        // We wouldn't draw anything when filtering, so return empty bounds now to skip a layer.
-        return skif::LayerSpace<SkIRect>::Empty();
-    }
+    // sized to our crop rect, but we can restrict the crop rect to just what's requested since
+    // anything in the crop but outside 'desiredOutput' won't be visible.
+    skif::LayerSpace<SkIRect> requiredInput = this->cropRect(mapping, desiredOutput);
 
-    if (recurse == VisitChildren::kNo) {
-        return requiredInput;
-    } else {
-        // Our required input is the desired output for our child image filter.
-        return this->visitInputLayerBounds(mapping, requiredInput, contentBounds);
-    }
+    // Our required input is the desired output for our child image filter.
+    return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
 skif::LayerSpace<SkIRect> SkCropImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& contentBounds) const {
     // Assuming unbounded child content, our output is a decal-tiled image sized to our crop rect.
-    skif::LayerSpace<SkIRect> output = this->cropRect(mapping);
     // But the child output image is drawn into our output surface with its own decal tiling, which
     // may allow the output dimensions to be reduced.
-    skif::LayerSpace<SkIRect> childOutput = this->visitOutputLayerBounds(mapping, contentBounds);
-
-    if (output.intersect(childOutput)) {
-        return output;
-    } else {
-        // Nothing would be drawn into our crop rect, so nothing would be output.
-        return skif::LayerSpace<SkIRect>::Empty();
-    }
+    skif::LayerSpace<SkIRect> childOutput =
+            this->getChildOutputLayerBounds(0, mapping, contentBounds);
+    return this->cropRect(mapping, childOutput);
 }
 
 SkRect SkCropImageFilter::computeFastBounds(const SkRect& bounds) const {

@@ -59,12 +59,14 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds,
-            VisitChildren recurse) const override;
+            const skif::LayerSpace<SkIRect>& contentBounds) const override;
 
     skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& contentBounds) const override;
+
+    skif::LayerSpace<SkIRect> requiredInput(const skif::Mapping& mapping,
+                                            const skif::LayerSpace<SkIRect>& desiredOutput) const;
 
     skif::ParameterSpace<SkMatrix> fTransform;
     SkSamplingOptions fSampling;
@@ -138,7 +140,11 @@ void SkMatrixTransformImageFilter::flatten(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 skif::FilterResult SkMatrixTransformImageFilter::onFilterImage(const skif::Context& context) const {
-    skif::FilterResult childOutput = this->filterInput(0, context);
+    skif::LayerSpace<SkIRect> requiredInput =
+            this->requiredInput(context.mapping(), context.desiredOutput());
+    skif::FilterResult childOutput =
+            this->getChildOutput(0, context.withNewDesiredOutput(requiredInput));
+
     skif::LayerSpace<SkMatrix> transform = context.mapping().paramToLayer(fTransform);
     return childOutput.applyTransform(context, transform, fSampling);
 }
@@ -148,11 +154,9 @@ SkRect SkMatrixTransformImageFilter::computeFastBounds(const SkRect& src) const 
     return static_cast<const SkMatrix&>(fTransform).mapRect(bounds);
 }
 
-skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetInputLayerBounds(
+skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::requiredInput(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds,
-        VisitChildren recurse) const {
+        const skif::LayerSpace<SkIRect>& desiredOutput) const {
     // The required input for this filter to cover 'desiredOutput' is the smallest rectangle such
     // that after being transformed by the layer-space adjusted 'fTransform', it contains the output
     skif::LayerSpace<SkIRect> requiredInput;
@@ -165,19 +169,24 @@ skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetInputLayerBounds(
     if (fSampling != SkSamplingOptions()) {
         requiredInput.outset(skif::LayerSpace<SkISize>({1, 1}));
     }
+    return requiredInput;
+}
 
-    if (recurse == VisitChildren::kNo) {
-        return requiredInput;
-    } else {
-        // Our required input is the desired output for our child image filter.
-        return this->visitInputLayerBounds(mapping, requiredInput, contentBounds);
-    }
+
+skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetInputLayerBounds(
+        const skif::Mapping& mapping,
+        const skif::LayerSpace<SkIRect>& desiredOutput,
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
+    // Our required input is the desired output for our child image filter.
+    skif::LayerSpace<SkIRect> requiredInput = this->requiredInput(mapping, desiredOutput);
+    return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
 skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& contentBounds) const {
     // The output of this filter is the transformed bounds of its child's output.
-    skif::LayerSpace<SkIRect> childOutput = this->visitOutputLayerBounds(mapping, contentBounds);
+    skif::LayerSpace<SkIRect> childOutput =
+            this->getChildOutputLayerBounds(0, mapping, contentBounds);
     return mapping.paramToLayer(fTransform).mapRect(childOutput);
 }
