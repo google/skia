@@ -34,7 +34,10 @@ static sk_sp<SkImageFilter> make_filter() {
         }
     )")).effect;
     SkRuntimeShaderBuilder builder(std::move(effect));
-    return SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"", /*input=*/nullptr);
+    return SkImageFilters::RuntimeShader(builder,
+                                         /*sampleRadius=*/4,
+                                         /*childShaderName=*/"",
+                                         /*input=*/nullptr);
 }
 
 DEF_SIMPLE_GM_BG(rtif_distort, canvas, 500, 750, SK_ColorBLACK) {

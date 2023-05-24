@@ -358,6 +358,9 @@ public:
      *  by the SkRuntimeShaderBuilder. The shader is defined in the image filter's local coordinate
      *  system, so it will automatically be affected by SkCanvas' transform.
      *
+     *  This variant assumes that the runtime shader samples 'childShaderName' with the same input
+     *  coordinate passed to to shader.
+     *
      *  @param builder         The builder used to produce the runtime shader, that will in turn
      *                         fill the result image
      *  @param childShaderName The name of the child shader defined in the builder that will be
@@ -368,6 +371,22 @@ public:
      *                         shader. If null the implicit source image is used instead
      */
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                              std::string_view childShaderName,
+                                              sk_sp<SkImageFilter> input) {
+        return RuntimeShader(builder, /*sampleRadius=*/0.f, childShaderName, std::move(input));
+    }
+
+    /**
+     * As above, but 'sampleRadius' defines the sampling radius of 'childShaderName' relative to
+     * the runtime shader produced by 'builder'. If greater than 0, the coordinate passed to
+     * childShader.eval() will be up to 'sampleRadius' away (maximum absolute offset in 'x' or 'y')
+     * from the coordinate passed into the runtime shader.
+     *
+     * This allows Skia to provide sampleable values for the image filter without worrying about
+     * boundary conditions.
+    */
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                              SkScalar sampleRadius,
                                               std::string_view childShaderName,
                                               sk_sp<SkImageFilter> input);
 
@@ -387,6 +406,22 @@ public:
      *  @param inputCount       How many entries are present in 'childShaderNames' and 'inputs'.
      */
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                              std::string_view childShaderNames[],
+                                              const sk_sp<SkImageFilter> inputs[],
+                                              int inputCount) {
+        return RuntimeShader(builder, /*maxSampleRadius=*/0.f, childShaderNames,
+                             inputs, inputCount);
+    }
+
+    /**
+     * As above, but 'maxSampleRadius' defines the sampling limit on coordinates provided to all
+     * child shaders. Like the single-child variant with a sample radius, this can be used to
+     * inform Skia that the runtime shader guarantees that all dynamic children (defined in
+     * childShaderNames) will be evaluated with coordinates at most 'maxSampleRadius' away from the
+     * coordinate provided to the runtime shader itself.
+     */
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                              SkScalar maxSampleRadius,
                                               std::string_view childShaderNames[],
                                               const sk_sp<SkImageFilter> inputs[],
                                               int inputCount);

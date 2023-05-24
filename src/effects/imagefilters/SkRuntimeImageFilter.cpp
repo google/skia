@@ -19,15 +19,18 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkSpinlock.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSpecialImage.h"
@@ -47,16 +50,20 @@ public:
                          sk_sp<SkData> uniforms,
                          sk_sp<SkImageFilter> input)
             : INHERITED(&input, 1, /*cropRect=*/nullptr)
-            , fShaderBuilder(std::move(effect), std::move(uniforms)) {
+            , fShaderBuilder(std::move(effect), std::move(uniforms))
+            , fMaxSampleRadius(0.f) {
         std::string_view childName = fShaderBuilder.effect()->children().front().name;
         fChildShaderNames.push_back(SkString(childName));
     }
     SkRuntimeImageFilter(const SkRuntimeShaderBuilder& builder,
+                         float maxSampleRadius,
                          std::string_view childShaderNames[],
                          const sk_sp<SkImageFilter> inputs[],
                          int inputCount)
             : INHERITED(inputs, inputCount, /*cropRect=*/nullptr)
-            , fShaderBuilder(builder) {
+            , fShaderBuilder(builder)
+            , fMaxSampleRadius(maxSampleRadius) {
+        SkASSERT(maxSampleRadius >= 0.f);
         fChildShaderNames.reserve_back(inputCount);
         for (int i = 0; i < inputCount; i++) {
             fChildShaderNames.push_back(SkString(childShaderNames[i]));
@@ -70,6 +77,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
 
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
+
 private:
     friend void ::SkRegisterRuntimeImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkRuntimeImageFilter)
@@ -77,6 +87,8 @@ private:
     mutable SkSpinlock fShaderBuilderLock;
     mutable SkRuntimeShaderBuilder fShaderBuilder;
     STArray<1, SkString> fChildShaderNames;
+
+    float fMaxSampleRadius;
 
     using INHERITED = SkImageFilter_Base;
 };
@@ -95,6 +107,55 @@ sk_sp<SkImageFilter> SkMakeRuntimeImageFilter(sk_sp<SkRuntimeEffect> effect,
 
     return sk_sp<SkImageFilter>(
             new SkRuntimeImageFilter(std::move(effect), std::move(uniforms), std::move(input)));
+}
+
+sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                                   SkScalar sampleRadius,
+                                                   std::string_view childShaderName,
+                                                   sk_sp<SkImageFilter> input) {
+    // If no childShaderName is provided, check to see if we can implicitly assign it to the only
+    // child in the effect.
+    if (childShaderName.empty()) {
+        auto children = builder.effect()->children();
+        if (children.size() != 1) {
+            return nullptr;
+        }
+        childShaderName = children.front().name;
+    }
+
+    return SkImageFilters::RuntimeShader(builder, sampleRadius, &childShaderName, &input, 1);
+}
+
+sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
+                                                   SkScalar maxSampleRadius,
+                                                   std::string_view childShaderNames[],
+                                                   const sk_sp<SkImageFilter> inputs[],
+                                                   int inputCount) {
+    if (maxSampleRadius < 0.f) {
+        return nullptr; // invalid sample radius
+    }
+
+    auto child_is_shader = [](const SkRuntimeEffect::Child* child) {
+        return child && child->type == SkRuntimeEffect::ChildType::kShader;
+    };
+
+    for (int i = 0; i < inputCount; i++) {
+        std::string_view name = childShaderNames[i];
+        // All names must be non-empty, and present as a child shader in the effect:
+        if (name.empty() || !child_is_shader(builder.effect()->findChild(name))) {
+            return nullptr;
+        }
+
+        // We don't allow duplicates, either:
+        for (int j = 0; j < i; j++) {
+            if (name == childShaderNames[j]) {
+                return nullptr;
+            }
+        }
+    }
+
+    return sk_sp<SkImageFilter>(new SkRuntimeImageFilter(builder, maxSampleRadius, childShaderNames,
+                                                         inputs, inputCount));
 }
 
 void SkRegisterRuntimeImageFilterFlattenable() {
@@ -153,11 +214,16 @@ sk_sp<SkFlattenable> SkRuntimeImageFilter::CreateProc(SkReadBuffer& buffer) {
         }
     }
 
+    float maxSampleRadius = 0.f; // default before sampleRadius was exposed in the factory
+    if (!buffer.isVersionLT(SkPicturePriv::kRuntimeImageFilterSampleRadius)) {
+        maxSampleRadius = buffer.readScalar();
+    }
+
     if (!buffer.isValid()) {
         return nullptr;
     }
 
-    return SkImageFilters::RuntimeShader(builder, childShaderNames.data(),
+    return SkImageFilters::RuntimeShader(builder, maxSampleRadius, childShaderNames.data(),
                                          common.inputs(), common.inputCount());
 }
 
@@ -173,6 +239,8 @@ void SkRuntimeImageFilter::flatten(SkWriteBuffer& buffer) const {
         buffer.writeFlattenable(fShaderBuilder.children()[x].flattenable());
     }
     fShaderBuilderLock.release();
+
+    buffer.writeScalar(fMaxSampleRadius);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,47 +308,15 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     return surf->makeImageSnapshot();
 }
 
-static bool child_is_shader(const SkRuntimeEffect::Child* child) {
-    return child && child->type == SkRuntimeEffect::ChildType::kShader;
-}
-
-sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
-                                                   std::string_view childShaderName,
-                                                   sk_sp<SkImageFilter> input) {
-    // If no childShaderName is provided, check to see if we can implicitly assign it to the only
-    // child in the effect.
-    if (childShaderName.empty()) {
-        auto children = builder.effect()->children();
-        if (children.size() != 1) {
-            return nullptr;
-        }
-        childShaderName = children.front().name;
+SkIRect SkRuntimeImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                 MapDirection dir, const SkIRect* inputRect) const {
+    if (dir == kForward_MapDirection) {
+        return src; // Legacy onFilterNodeBounds() default value
     }
-
-    return SkImageFilters::RuntimeShader(builder, &childShaderName, &input, 1);
-}
-
-sk_sp<SkImageFilter> SkImageFilters::RuntimeShader(const SkRuntimeShaderBuilder& builder,
-                                                   std::string_view childShaderNames[],
-                                                   const sk_sp<SkImageFilter> inputs[],
-                                                   int inputCount) {
-    for (int i = 0; i < inputCount; i++) {
-        std::string_view name = childShaderNames[i];
-        // All names must be non-empty, and present as a child shader in the effect:
-        if (name.empty() || !child_is_shader(builder.effect()->findChild(name))) {
-            return nullptr;
-        }
-
-        // We don't allow duplicates, either:
-        for (int j = 0; j < i; j++) {
-            if (name == childShaderNames[j]) {
-                return nullptr;
-            }
-        }
-    }
-
-    return sk_sp<SkImageFilter>(new SkRuntimeImageFilter(builder, childShaderNames,
-                                                         inputs, inputCount));
+    // Runtime image filters require translation-only CTMs, so don't bother mapping the sample
+    // radius (note, once we switch to the new API, mapping is easy so this is a temp shortcut).
+    int sampleRadius = sk_float_ceil(fMaxSampleRadius);
+    return src.makeOutset(sampleRadius, sampleRadius);
 }
 
 #endif  // SK_ENABLE_SKSL
