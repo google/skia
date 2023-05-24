@@ -8,11 +8,11 @@
 #include <memory>
 
 #include "bench/Benchmark.h"
+#include "bench/GpuTools.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrDirectContext.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkRandom.h"
 
@@ -220,10 +220,7 @@ protected:
                 }
             }
             // Prevent any batching between composited "frames".
-            auto surface = canvas->getSurface();
-            if (surface) {
-                surface->flush();
-            }
+            skgpu::Flush(canvas->getSurface());
         }
         canvas->restore();
     }

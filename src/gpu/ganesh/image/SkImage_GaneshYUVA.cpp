@@ -145,7 +145,7 @@ GrSemaphoresSubmitted SkImage_GaneshYUVA::flush(GrDirectContext* dContext,
         proxies[i] = fYUVAProxies.proxy(i);
     }
     return dContext->priv().flushSurfaces(
-            {proxies, numProxies}, SkSurface::BackendSurfaceAccess::kNoAccess, info);
+            {proxies, numProxies}, SkSurfaces::BackendSurfaceAccess::kNoAccess, info);
 }
 
 bool SkImage_GaneshYUVA::onHasMipmaps() const {

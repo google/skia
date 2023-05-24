@@ -1024,7 +1024,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             sk_sp<SkImage> refImg(imageMaker(dContext));
 
             canvas->drawImage(refImg, 0, 0);
-            surface->flushAndSubmit();
+            dContext->flushAndSubmit(surface);
 
             refImg.reset(nullptr); // force a release of the image
         }
@@ -1036,7 +1036,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             canvas->drawImage(refImg, 0, 0);
             refImg.reset(nullptr); // force a release of the image
 
-            surface->flushAndSubmit();
+            dContext->flushAndSubmit(surface);
         }
 
         // Configure second context
@@ -1061,7 +1061,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
-            surface->flushAndSubmit();
+            otherCtx->flushAndSubmit(surface);
 
             testContext->makeCurrent();
             refImg.reset(nullptr); // force a release of the image
@@ -1081,7 +1081,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             otherTestContext->makeCurrent();
             // Sync is specifically here for vulkan to guarantee the command buffer will finish
             // which is when we call the ReleaseProc.
-            surface->flushAndSubmit(true);
+            otherCtx->flushAndSubmit(surface, true);
         }
 
         // Case #6: Verify that only one context can be using the image at a time

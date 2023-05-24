@@ -146,7 +146,7 @@ public:
 
         // Schedule the recorded commands and wait until the GPU has executed them.
         surface->getCanvas()->drawPaint(paint);
-        surface->flushAndSubmit(true);
+        fContext->flushAndSubmit(surface, true);
         fFrameCount++;
     }
 

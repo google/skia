@@ -151,7 +151,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     } else if (drawResult == skiagm::DrawResult::kSkip) {
         return result;
     }
-    surface->flushAndSubmit(true);
+    ctx->flushAndSubmit(surface, true);
 
     // Based on GPUSink::readBack
     SkBitmap bitmap;

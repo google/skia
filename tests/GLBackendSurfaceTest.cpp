@@ -118,7 +118,7 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
 
     REPORTER_ASSERT(reporter, surf);
     surf->getCanvas()->drawImage(wrappedImage, 0, 0);
-    surf->flushAndSubmit();
+    dContext->flushAndSubmit(surf);
     REPORTER_ASSERT(reporter, params_valid(*parameters, caps));
 
     // Test invalidating from the copy.

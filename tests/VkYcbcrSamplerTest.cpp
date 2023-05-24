@@ -77,8 +77,9 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
 
+    auto dContext = testHelper.directContext();
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
-            testHelper.directContext(),
+            dContext,
             skgpu::Budgeted::kNo,
             SkImageInfo::Make(kImageWidth, kImageHeight, kN32_SkColorType, kPremul_SkAlphaType));
     if (!surface) {
@@ -86,7 +87,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
     surface->getCanvas()->drawImage(srcImage, 0, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface);
 
     std::vector<uint8_t> readbackData(kImageWidth * kImageHeight * 4);
     if (!surface->readPixels(SkImageInfo::Make(kImageWidth, kImageHeight, kRGBA_8888_SkColorType,

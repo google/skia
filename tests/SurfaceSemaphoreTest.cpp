@@ -184,7 +184,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     info.fSignalSemaphores = semaphores.get();
     switch (flushType) {
         case FlushType::kSurface:
-            mainSurface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, info);
+            mainCtx->flush(mainSurface, SkSurfaces::BackendSurfaceAccess::kNoAccess, info);
             break;
         case FlushType::kImage:
             mainCtx->flush(blueImage, info);
@@ -271,14 +271,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest,
             ctx, skgpu::Budgeted::kNo, ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
 
     // Flush surface once without semaphores to make sure there is no peneding IO for it.
-    mainSurface->flushAndSubmit();
+    ctx->flushAndSubmit(mainSurface);
 
     GrBackendSemaphore semaphore;
     GrFlushInfo flushInfo;
     flushInfo.fNumSemaphores = 1;
     flushInfo.fSignalSemaphores = &semaphore;
     GrSemaphoresSubmitted submitted =
-            mainSurface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+            ctx->flush(mainSurface, SkSurfaces::BackendSurfaceAccess::kNoAccess, flushInfo);
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
     ctx->submit();
 

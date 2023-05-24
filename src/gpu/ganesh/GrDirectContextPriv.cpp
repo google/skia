@@ -41,10 +41,10 @@ using MaskFormat = skgpu::MaskFormat;
 #define RETURN_VALUE_IF_ABANDONED(value) if (this->context()->abandoned()) { return (value); }
 
 GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
-                                                    SkSpan<GrSurfaceProxy*> proxies,
-                                                    SkSurface::BackendSurfaceAccess access,
-                                                    const GrFlushInfo& info,
-                                                    const skgpu::MutableTextureState* newState) {
+        SkSpan<GrSurfaceProxy*> proxies,
+        SkSurfaces::BackendSurfaceAccess access,
+        const GrFlushInfo& info,
+        const skgpu::MutableTextureState* newState) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", this->context());
 

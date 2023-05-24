@@ -1896,8 +1896,8 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(OverbudgetFlush, reporter, ctxInfo) {
     drawToSurf(surf2.get());
 
     // Flush each surface once to ensure that their backing stores are allocated.
-    surf1->flushAndSubmit();
-    surf2->flushAndSubmit();
+    context->flushAndSubmit(surf1);
+    context->flushAndSubmit(surf2);
     REPORTER_ASSERT(reporter, overbudget());
     getFlushCountDelta();
 
@@ -1909,7 +1909,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(OverbudgetFlush, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, overbudget());
 
     // Make surf1 purgeable. Drawing to surf2 should flush.
-    surf1->flushAndSubmit();
+    context->flushAndSubmit(surf1);
     surf1.reset();
     drawToSurf(surf2.get());
     REPORTER_ASSERT(reporter, getFlushCountDelta());

@@ -36,6 +36,7 @@
 #ifdef CK_ENABLE_WEBGL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -121,7 +122,9 @@ class SkpDebugPlayer {
         // otherwise, its a frame at the top level.
         frames[fp]->drawTo(surface->getCanvas(), index);
       }
-      surface->flush();
+#ifdef CK_ENABLE_WEBGL
+      skgpu::ganesh::Flush(surface);
+#endif
     }
 
     // Draws to the end of the current frame.

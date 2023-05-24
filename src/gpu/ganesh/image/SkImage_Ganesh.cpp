@@ -247,7 +247,7 @@ GrSemaphoresSubmitted SkImage_Ganesh::flush(GrDirectContext* dContext,
 
     sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext);
     return dContext->priv().flushSurface(
-            proxy.get(), SkSurface::BackendSurfaceAccess::kNoAccess, info);
+            proxy.get(), SkSurfaces::BackendSurfaceAccess::kNoAccess, info);
 }
 
 bool SkImage_Ganesh::getExistingBackendTexture(GrBackendTexture* outTexture,

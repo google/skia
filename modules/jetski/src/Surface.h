@@ -52,7 +52,7 @@ private:
     SkCanvas* getCanvas() override;
     void flushAndSubmit() override;
 
-    ANativeWindow*                         fWindow;
+    ANativeWindow*                           fWindow;
     std::unique_ptr<skwindow::WindowContext> fWindowContext;
 };
 

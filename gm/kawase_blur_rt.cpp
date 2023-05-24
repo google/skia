@@ -115,7 +115,6 @@ public:
         canvas->drawImage(drawSurface->makeImageSnapshot(), input->width() / 4, 0,
                           SkSamplingOptions());
         canvas->translate(input->width() / 4, input->height() * 0.75);
-        drawSurface->flush();
 
         // And now we'll ping pong between our surfaces, to accumulate the result of various
         // offsets.

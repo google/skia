@@ -206,7 +206,7 @@ void D3D12WindowContext::onSwapBuffers() {
     SkSurface* surface = fSurfaces[fBufferIndex].get();
 
     GrFlushInfo info;
-    surface->flush(SkSurface::BackendSurfaceAccess::kPresent, info);
+    fContext->flush(surface, SkSurfaces::BackendSurfaceAccess::kPresent, info);
     fContext->submit();
 
     GR_D3D_CALL_ERRCHECK(fSwapChain->Present(1, 0));

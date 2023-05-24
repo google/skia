@@ -29,16 +29,11 @@ class SkPixmap;
 class SkSurface;
 class SkSurfaceCharacterization;
 enum GrSurfaceOrigin : int;
-enum class GrSemaphoresSubmitted : bool;
-namespace skgpu {
-class MutableTextureState;
-}
 namespace skgpu {
 namespace ganesh {
 class Device;
 }
 }  // namespace skgpu
-struct GrFlushInfo;
 struct SkIPoint;
 struct SkIRect;
 struct SkISize;
@@ -81,10 +76,6 @@ public:
                                            ReadPixelsContext context) override;
     bool onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
-    void onResolveMSAA() override;
-    GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access,
-                                  const GrFlushInfo& info,
-                                  const skgpu::MutableTextureState*) override;
     bool onWait(int numSemaphores,
                 const GrBackendSemaphore* waitSemaphores,
                 bool deleteSemaphoresAfterWait) override;
@@ -102,6 +93,7 @@ public:
     skgpu::ganesh::Device* getDevice();
     GrBackendTexture getBackendTexture(BackendHandleAccess);
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess);
+    void resolveMSAA();
 
 private:
     sk_sp<skgpu::ganesh::Device> fDevice;

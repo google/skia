@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "bench/GpuTools.h"
 #include "bench/SKPBench.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
 #include "tools/flags/CommandLineFlags.h"
 
 using namespace skia_private;
@@ -137,11 +140,10 @@ void SKPBench::drawPicture() {
     }
 
     for (int j = 0; j < fTileRects.size(); ++j) {
-        fSurfaces[j]->flush();
+        skgpu::Flush(fSurfaces[j].get());
     }
 }
 
-#include "src/gpu/ganesh/GrGpu.h"
 static void draw_pic_for_stats(SkCanvas* canvas,
                                GrDirectContext* dContext,
                                const SkPicture* picture,

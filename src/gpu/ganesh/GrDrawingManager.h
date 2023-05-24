@@ -157,7 +157,7 @@ public:
     static bool ProgramUnitTest(GrDirectContext*, int maxStages, int maxLevels);
 
     GrSemaphoresSubmitted flushSurfaces(SkSpan<GrSurfaceProxy*>,
-                                        SkSurface::BackendSurfaceAccess,
+                                        SkSurfaces::BackendSurfaceAccess,
                                         const GrFlushInfo&,
                                         const skgpu::MutableTextureState* newState);
 
@@ -182,7 +182,7 @@ public:
     // This is public so it can be called by an SkImage factory (in SkImages namespace).
     // It is not meant to be directly called in other situations.
     bool flush(SkSpan<GrSurfaceProxy*> proxies,
-               SkSurface::BackendSurfaceAccess access,
+               SkSurfaces::BackendSurfaceAccess access,
                const GrFlushInfo&,
                const skgpu::MutableTextureState* newState);
 

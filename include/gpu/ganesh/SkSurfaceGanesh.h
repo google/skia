@@ -186,6 +186,32 @@ SK_API GrBackendTexture GetBackendTexture(SkSurface*, BackendHandleAccess);
 */
 SK_API GrBackendRenderTarget GetBackendRenderTarget(SkSurface*, BackendHandleAccess);
 
+/** If a surface is a Ganesh-backed surface, is being drawn with MSAA, and there is a resolve
+    texture, this call will insert a resolve command into the stream of gpu commands. In order
+    for the resolve to actually have an effect, the work still needs to be flushed and submitted
+    to the GPU after recording the resolve command. If a resolve is not supported or the
+    SkSurface has no dirty work to resolve, then this call is a no-op.
+
+    This call is most useful when the SkSurface is created by wrapping a single sampled gpu
+    texture, but asking Skia to render with MSAA. If the client wants to use the wrapped texture
+    outside of Skia, the only way to trigger a resolve is either to call this command or use
+    GrDirectContext::flush.
+ */
+SK_API void ResolveMSAA(SkSurface* surface);
+inline void ResolveMSAA(sk_sp<SkSurface> surface) {
+    return ResolveMSAA(surface.get());
+}
+
 }  // namespace SkSurfaces
+
+namespace skgpu::ganesh {
+// Clients should strive to call GrDirectContext::flush directly. However, there exist some
+// places where the GrDirectContext is hard to find, these helpers allow for the flushing of the
+// provided surface. This is a no-op if the surface is nullptr or not GPU backed.
+SK_API GrSemaphoresSubmitted Flush(sk_sp<SkSurface>);
+SK_API GrSemaphoresSubmitted Flush(SkSurface*);
+SK_API void FlushAndSubmit(sk_sp<SkSurface>);
+SK_API void FlushAndSubmit(SkSurface*);
+}  // namespace skgpu::ganesh
 
 #endif

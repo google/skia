@@ -137,7 +137,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforce
         SkCanvas* dstCanvas = dst->getCanvas();
 
         dstCanvas->clear(SK_ColorRED);
-        dst->flushAndSubmit();
+        context->flushAndSubmit(dst);
 
         SkPaint gammaPaint;
         gammaPaint.setBlendMode(SkBlendMode::kSrc);
@@ -145,7 +145,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforce
                                          : SkColorFilters::SRGBToLinearGamma());
 
         dstCanvas->drawImage(img, 0, 0, SkSamplingOptions(), &gammaPaint);
-        dst->flushAndSubmit();
+        context->flushAndSubmit(dst);
 
         SkOpts::memset32(read.get(), 0, kBaseSize.fWidth * kBaseSize.fHeight);
         if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {

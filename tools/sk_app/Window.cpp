@@ -11,6 +11,11 @@
 #include "include/core/SkSurface.h"
 #include "tools/sk_app/WindowContext.h"
 
+#if defined(SK_GANESH)
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#endif
+
 namespace sk_app {
 
 Window::Window() {}
@@ -92,7 +97,9 @@ void Window::onPaint() {
     this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
     this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
 
-    backbuffer->flushAndSubmit();
+    if (auto dContext = this->directContext()) {
+        dContext->flushAndSubmit(backbuffer);
+    }
 
     fWindowContext->swapBuffers();
 }

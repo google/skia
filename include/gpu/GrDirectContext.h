@@ -36,6 +36,7 @@ class GrResourceProvider;
 class SkData;
 class SkImage;
 class SkPixmap;
+class SkSurface;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 enum SkColorType : int;
@@ -54,6 +55,10 @@ namespace skgpu {
 }
 namespace sktext { namespace gpu { class StrikeCache; } }
 namespace wgpu { class Device; } // IWYU pragma: keep
+
+namespace SkSurfaces {
+enum class BackendSurfaceAccess;
+}
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
@@ -408,9 +413,104 @@ public:
     void flush(sk_sp<const SkImage> image);
 
     /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
-        GPU.
-    */
+     *   GPU.
+     */
     void flushAndSubmit(sk_sp<const SkImage> image);
+
+    /** Issues pending SkSurface commands to the GPU-backed API objects and resolves any SkSurface
+     *  MSAA. A call to GrDirectContext::submit is always required to ensure work is actually sent
+     *  to the gpu. Some specific API details:
+     *      GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+     *          sync objects from the flush will not be valid until a submission occurs.
+     *
+     *      Vulkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+     *          buffer or encoder objects. However, these objects are not sent to the gpu until a
+     *          submission occurs.
+     *
+     *  The work that is submitted to the GPU will be dependent on the BackendSurfaceAccess that is
+     *  passed in.
+     *
+     *  If BackendSurfaceAccess::kNoAccess is passed in all commands will be issued to the GPU.
+     *
+     *  If BackendSurfaceAccess::kPresent is passed in and the backend API is not Vulkan, it is
+     *  treated the same as kNoAccess. If the backend API is Vulkan, the VkImage that backs the
+     *  SkSurface will be transferred back to its original queue. If the SkSurface was created by
+     *  wrapping a VkImage, the queue will be set to the queue which was originally passed in on
+     *  the GrVkImageInfo. Additionally, if the original queue was not external or foreign the
+     *  layout of the VkImage will be set to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR.
+     *
+     *  The GrFlushInfo describes additional options to flush. Please see documentation at
+     *  GrFlushInfo for more info.
+     *
+     *  If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
+     *  submitted to the gpu during the next submit call (it is possible Skia failed to create a
+     *  subset of the semaphores). The client should not wait on these semaphores until after submit
+     *  has been called, but must keep them alive until then. If a submit flag was passed in with
+     *  the flush these valid semaphores can we waited on immediately. If this call returns
+     *  GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
+     *  the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in
+     *  with the GrFlushInfo. Regardless of whether semaphores were submitted to the GPU or not, the
+     *  client is still responsible for deleting any initialized semaphores.
+     *  Regardless of semaphore submission the context will still be flushed. It should be
+     *  emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
+     *  happen. It simply means there were no semaphores submitted to the GPU. A caller should only
+     *  take this as a failure if they passed in semaphores to be submitted.
+     *
+     *  Pending surface commands are flushed regardless of the return result.
+     *
+     *  @param surface  The GPU backed surface to be flushed. Has no effect on a CPU-backed surface.
+     *  @param access  type of access the call will do on the backend object after flush
+     *  @param info    flush options
+     */
+    GrSemaphoresSubmitted flush(sk_sp<SkSurface> surface,
+                                SkSurfaces::BackendSurfaceAccess access,
+                                const GrFlushInfo& info);
+    GrSemaphoresSubmitted flush(SkSurface* surface,
+                                SkSurfaces::BackendSurfaceAccess access,
+                                const GrFlushInfo& info);
+
+    /**
+     *  Same as above except:
+     *
+     *  If a skgpu::MutableTextureState is passed in, at the end of the flush we will transition
+     *  the surface to be in the state requested by the skgpu::MutableTextureState. If the surface
+     *  (or SkImage or GrBackendSurface wrapping the same backend object) is used again after this
+     *  flush the state may be changed and no longer match what is requested here. This is often
+     *  used if the surface will be used for presenting or external use and the client wants backend
+     *  object to be prepped for that use. A finishedProc or semaphore on the GrFlushInfo will also
+     *  include the work for any requested state change.
+     *
+     *  If the backend API is Vulkan, the caller can set the skgpu::MutableTextureState's
+     *  VkImageLayout to VK_IMAGE_LAYOUT_UNDEFINED or queueFamilyIndex to VK_QUEUE_FAMILY_IGNORED to
+     *  tell Skia to not change those respective states.
+     *
+     *  @param surface  The GPU backed surface to be flushed. Has no effect on a CPU-backed surface.
+     *  @param info     flush options
+     *  @param newState optional state change request after flush
+     */
+    GrSemaphoresSubmitted flush(sk_sp<SkSurface> surface,
+                                const GrFlushInfo& info,
+                                const skgpu::MutableTextureState* newState = nullptr);
+    GrSemaphoresSubmitted flush(SkSurface* surface,
+                                const GrFlushInfo& info,
+                                const skgpu::MutableTextureState* newState = nullptr);
+
+    /** Call to ensure all reads/writes of the surface have been issued to the underlying 3D API.
+     *  Skia will correctly order its own draws and pixel operations. This must to be used to ensure
+     *  correct ordering when the surface backing store is accessed outside Skia (e.g. direct use of
+     *  the 3D API or a windowing system). This is equivalent to
+     *  calling ::flush with a default GrFlushInfo followed by ::submit(syncCpu).
+     *
+     *  Has no effect on a CPU-backed surface.
+     */
+    void flushAndSubmit(sk_sp<SkSurface> surface, bool syncCpu = false);
+
+    /**
+     * Flushes the given surface with the default GrFlushInfo.
+     *
+     *  Has no effect on a CPU-backed surface.
+     */
+    void flush(sk_sp<SkSurface> surface);
 
     /**
      * Submit outstanding work to the gpu from all previously un-submitted flushes. The return

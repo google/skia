@@ -229,7 +229,7 @@ private:
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
             SkSpan<GrSurfaceProxy*> proxies,
-            SkSurface::BackendSurfaceAccess access,
+            SkSurfaces::BackendSurfaceAccess access,
             const skgpu::MutableTextureState* newState) override;
 
     bool onSubmitToGpu(bool syncCpu) override;

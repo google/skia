@@ -50,7 +50,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
     // GrGLRenderTarget creation.
     for (int i = 0; i < 2; ++i) {
         surfs[i]->getCanvas()->clear(SK_ColorWHITE);
-        surfs[i]->flushAndSubmit();
+        dc->flushAndSubmit(surfs[i]);
     }
 
     auto drawWithStencilClip = [&](SkSurface& surf, SkColor color) {
@@ -65,11 +65,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
 
     // Use surfs[0] create to create a cached stencil buffer that is also sized for surfs[1].
     drawWithStencilClip(*surfs[0], SK_ColorRED);
-    surfs[0]->flushAndSubmit();
+    dc->flushAndSubmit(surfs[0]);
 
     // Make sure surf[1]'s FBO is bound but without using draws that would attach stencil.
     surfs[1]->getCanvas()->clear(SK_ColorGREEN);
-    surfs[1]->flushAndSubmit();
+    dc->flushAndSubmit(surfs[1]);
 
     // Now use stencil for clipping. We should now have the following properties:
     // 1) surf[1]'s FBO is already bound

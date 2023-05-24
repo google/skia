@@ -1165,13 +1165,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush,
     s->draw(ddl);
 
     GrFlushInfo flushInfo;
-    s->flush(SkSurface::BackendSurfaceAccess::kPresent, flushInfo);
+    context->flush(s, SkSurfaces::BackendSurfaceAccess::kPresent, flushInfo);
     context->submit();
 
     REPORTER_ASSERT(reporter, fulfillInfo.fFulfilled);
 
     // In order to receive the done callback with the low-level APIs we need to re-flush
-    s->flush();
+    context->flush(s);
     context->submit(true);
 
     REPORTER_ASSERT(reporter, fulfillInfo.fReleased);

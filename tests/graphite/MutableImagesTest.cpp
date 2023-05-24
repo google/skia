@@ -427,7 +427,7 @@ public:
 
         fMutatingSurface->getCanvas()->clear(kInitialColor);
 
-        fMutatingImg = fMutatingSurface->asImage();
+        fMutatingImg = SkSurfaces::AsImage(fMutatingSurface);
         REPORTER_ASSERT(fReporter, fMutatingImg);
 
         return fRecorder->snap();

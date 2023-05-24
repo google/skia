@@ -15,8 +15,8 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Image.h"
-#include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/YUVABackendTextures.h"
 #include "include/private/base/SkMutex.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -168,7 +168,7 @@ static sk_sp<SkImage> generate_picture_texture(skgpu::graphite::Recorder* record
 
     surface->getCanvas()->clear(SkColors::kTransparent);
     surface->getCanvas()->drawPicture(img->picture(), img->matrix(), img->paint());
-    return surface->asImage();
+    return SkSurfaces::AsImage(surface);
 }
 
 /*

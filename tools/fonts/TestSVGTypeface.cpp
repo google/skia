@@ -863,7 +863,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
                                    -bounds.fTop,
                                    font,
                                    paint);
-            surface->flushAndSubmit();
+
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = SkPngEncoder::Encode(nullptr, image.get(), {});
 
@@ -1085,7 +1085,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
                                    -bounds.fTop,
                                    font,
                                    paint);
-            surface->flushAndSubmit();
+
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = SkPngEncoder::Encode(nullptr, image.get(), {});
 

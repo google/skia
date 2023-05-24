@@ -417,13 +417,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest,
 
     // This should upload the image to a non mipped GrTextureProxy.
     surface->getCanvas()->drawImage(bmpImage, 0, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface);
 
     // Now set the filter quality to high so we use mip maps. We should find the non mipped texture
     // in the cache for the SkImage. Since the texture is 1x1 we should just use that texture
     // instead of trying to do a copy to a mipped texture.
     surface->getCanvas()->drawImage(bmpImage, 0, 0, SkSamplingOptions({1.0f/3, 1.0f/3}));
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface);
 }
 
 // Create a new render target and draw 'mipmapView' into it using the provided 'filter'.

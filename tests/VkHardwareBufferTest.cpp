@@ -318,8 +318,8 @@ sk_sp<SkSurface> EGLTestHelper::importHardwareBufferForWrite(skiatest::Reporter*
 }
 
 bool EGLTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
-                                                      sk_sp<SkSurface> surface) {
-    surface->flushAndSubmit();
+                                                   sk_sp<SkSurface> surface) {
+    skgpu::ganesh::FlushAndSubmit(surface);
 
     EGLDisplay eglDisplay = eglGetCurrentDisplay();
     EGLSyncKHR eglsync = fEGLCreateSyncKHR(eglDisplay, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
@@ -416,7 +416,7 @@ public:
 
     void releaseSurfaceToExternal(SkSurface* surface) override {
         skgpu::MutableTextureState newState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_EXTERNAL);
-        surface->flush({}, &newState);
+        fDirectContext->flush(surface, {}, &newState);
     }
 
     void cleanup() override {

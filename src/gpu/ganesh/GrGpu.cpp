@@ -681,7 +681,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 }
 
 void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
-                             SkSurface::BackendSurfaceAccess access,
+                             SkSurfaces::BackendSurfaceAccess access,
                              const GrFlushInfo& info,
                              const skgpu::MutableTextureState* newState) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -724,7 +724,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
     // time we have multiple proxies is if we are flushing a yuv SkImage which won't have state
     // updates anyways.
     SkASSERT(!newState || proxies.size() == 1);
-    SkASSERT(!newState || access == SkSurface::BackendSurfaceAccess::kNoAccess);
+    SkASSERT(!newState || access == SkSurfaces::BackendSurfaceAccess::kNoAccess);
     this->prepareSurfacesForBackendAccessAndStateUpdates(proxies, access, newState);
 }
 

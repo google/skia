@@ -548,8 +548,9 @@ void VulkanWindowContext::onSwapBuffers() {
     info.fNumSemaphores = 1;
     info.fSignalSemaphores = &beSemaphore;
     skgpu::MutableTextureState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
-    surface->flush(info, &presentState);
-    surface->recordingContext()->asDirectContext()->submit();
+    auto dContext = surface->recordingContext()->asDirectContext();
+    dContext->flush(surface, info, &presentState);
+    dContext->submit();
 
     // Submit present operation to present queue
     const VkPresentInfoKHR presentInfo =

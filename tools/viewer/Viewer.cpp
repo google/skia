@@ -7,6 +7,7 @@
 
 #include "tools/viewer/Viewer.h"
 
+#include "bench/GpuTools.h"
 #include "gm/gm.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
@@ -1708,7 +1709,7 @@ void Viewer::drawSlide(SkSurface* surface) {
 
     // Force a flush so we can time that, too
     fStatsLayer.beginTiming(fFlushTimer);
-    slideSurface->flushAndSubmit();
+    skgpu::FlushAndSubmit(slideSurface);
     fStatsLayer.endTiming(fFlushTimer);
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas

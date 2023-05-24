@@ -548,7 +548,7 @@ static sk_sp<SkSurface> create_surf(GrRecordingContext* rContext, int width, int
                                              kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
     sk_sp<SkSurface> surf = SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kYes, ii);
-    surf->flushAndSubmit();
+    skgpu::ganesh::FlushAndSubmit(surf);
     return surf;
 }
 

@@ -30,10 +30,9 @@
 #include <utility>
 
 class GrBackendSemaphore;
-class GrRecordingContext;
+class GrRecordingContext;  // IWYU pragma: keep
 class SkPaint;
 class SkSurfaceCharacterization;
-namespace skgpu { class MutableTextureState; }
 namespace skgpu { namespace graphite { class Recorder; } }
 
 SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
@@ -97,29 +96,6 @@ sk_sp<SkImage> SkSurface::makeImageSnapshot(const SkIRect& srcBounds) {
         return asSB(this)->onNewImageSnapshot(&bounds);
     }
 }
-
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/Log.h"
-
-sk_sp<SkImage> SkSurface::asImage() {
-    if (asSB(this)->fCachedImage) {
-        SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
-                    "unexpected results. Please use either the old _or_ new API.");
-    }
-
-    return asSB(this)->onAsImage();
-}
-
-sk_sp<SkImage> SkSurface::makeImageCopy(const SkIRect* subset,
-                                        skgpu::Mipmapped mipmapped) {
-    if (asSB(this)->fCachedImage) {
-        SKGPU_LOG_W("Intermingling makeImageSnapshot and makeImageCopy calls may produce "
-                    "unexpected results. Please use either the old _or_ new API.");
-    }
-
-    return asSB(this)->onMakeImageCopy(subset, mipmapped);
-}
-#endif
 
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
@@ -243,39 +219,48 @@ bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yO
     return asSB(this)->onDraw(std::move(ddl), { xOffset, yOffset });
 }
 
-#if defined(SK_GANESH)
-void SkSurface::resolveMSAA() {
-    asSB(this)->onResolveMSAA();
-}
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FLUSH) && !defined(SK_GANESH)
+void SkSurface::flush() {}
+void SkSurface::flushAndSubmit(bool syncCpu) {}
+#endif
 
-GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, const GrFlushInfo& flushInfo) {
-    return asSB(this)->onFlush(access, flushInfo, nullptr);
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FLUSH) && defined(SK_GANESH)
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+
+GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, const GrFlushInfo& info) {
+    auto dContext = GrAsDirectContext(this->recordingContext());
+    if (!dContext) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    return dContext->flush(this, access, info);
 }
 
 GrSemaphoresSubmitted SkSurface::flush(const GrFlushInfo& info,
                                        const skgpu::MutableTextureState* newState) {
-    return asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, info, newState);
+    auto dContext = GrAsDirectContext(this->recordingContext());
+    if (!dContext) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    return dContext->flush(this, info, newState);
 }
 
 void SkSurface::flush() {
-    this->flush({});
-}
-#else
-void SkSurface::flush() {} // Flush is a no-op for CPU surfaces
-
-void SkSurface::flushAndSubmit(bool syncCpu) {}
-
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_METHODS) && defined(SK_GANESH)
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
-
-GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess backendHandleAccess) {
-    return SkSurfaces::GetBackendTexture(this, backendHandleAccess);
+    this->flush(GrFlushInfo());
 }
 
-GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess backendHandleAccess) {
-    return SkSurfaces::GetBackendRenderTarget(this, backendHandleAccess);
+void SkSurface::flushAndSubmit(bool syncCpu) {
+    this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+
+    auto direct = GrAsDirectContext(this->recordingContext());
+    if (direct) {
+        direct->submit(syncCpu);
+    }
+}
+
+void SkSurface::resolveMSAA() {
+    SkSurfaces::ResolveMSAA(this);
 }
 #endif

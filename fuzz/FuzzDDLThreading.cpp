@@ -282,9 +282,7 @@ void DDLFuzzer::run() {
     });
     fRecordingTaskGroup.wait();
 
-    fGpuTaskGroup.add([=]{
-        fSurface->flushAndSubmit(/* syncCpu= */ true);
-    });
+    fGpuTaskGroup.add([=] { fContext->flushAndSubmit(fSurface, /* syncCpu= */ true); });
 
     fGpuTaskGroup.wait();
 

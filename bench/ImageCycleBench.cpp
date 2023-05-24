@@ -8,11 +8,13 @@
 #include <memory>
 
 #include "bench/Benchmark.h"
+#include "bench/GpuTools.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "src/base/SkRandom.h"
+
 
 /**
  * Draws a small set of small images multiple times each with no overlaps so that each image could
@@ -75,9 +77,7 @@ protected:
                 }
             }
             // Prevent any batching between "frames".
-            if (auto surf = canvas->getSurface()) {
-                surf->flushAndSubmit();
-            }
+            skgpu::FlushAndSubmit(canvas->getSurface());
         }
     }
 

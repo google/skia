@@ -31,6 +31,7 @@
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrClientMappedBufferManager.h"
@@ -43,6 +44,7 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
@@ -53,8 +55,10 @@
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/gpu/ganesh/mock/GrMockGpu.h"
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
+#include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkSurface_Base.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
@@ -455,8 +459,8 @@ GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
         return GrSemaphoresSubmitted::kNo;
     }
 
-    return this->drawingManager()->flushSurfaces({}, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                                 info, nullptr);
+    return this->drawingManager()->flushSurfaces(
+            {}, SkSurfaces::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
 bool GrDirectContext::submit(bool syncCpu) {
@@ -490,6 +494,62 @@ void GrDirectContext::flush(sk_sp<const SkImage> image) { this->flush(image, {})
 void GrDirectContext::flushAndSubmit(sk_sp<const SkImage> image) {
     this->flush(image, {});
     this->submit();
+}
+
+GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<SkSurface> surface,
+                                             SkSurfaces::BackendSurfaceAccess access,
+                                             const GrFlushInfo& info) {
+    return this->flush(surface.get(), access, info);
+}
+
+GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
+                                             SkSurfaces::BackendSurfaceAccess access,
+                                             const GrFlushInfo& info) {
+    if (!surface) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    auto sb = asSB(surface);
+    if (!sb->isGaneshBacked()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    auto gs = static_cast<SkSurface_Ganesh*>(surface);
+    SkASSERT(this->priv().matches(gs->getDevice()->recordingContext()->asDirectContext()));
+    GrRenderTargetProxy* rtp = gs->getDevice()->targetProxy();
+
+    return this->priv().flushSurface(rtp, access, info, nullptr);
+}
+
+GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<SkSurface> surface,
+                                             const GrFlushInfo& info,
+                                             const skgpu::MutableTextureState* newState) {
+    return this->flush(surface.get(), info, newState);
+}
+
+GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
+                                             const GrFlushInfo& info,
+                                             const skgpu::MutableTextureState* newState) {
+    if (!surface) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    auto sb = asSB(surface);
+    if (!sb->isGaneshBacked()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    auto gs = static_cast<SkSurface_Ganesh*>(surface);
+    SkASSERT(this->priv().matches(gs->getDevice()->recordingContext()->asDirectContext()));
+    GrRenderTargetProxy* rtp = gs->getDevice()->targetProxy();
+
+    return this->priv().flushSurface(
+            rtp, SkSurfaces::BackendSurfaceAccess::kNoAccess, info, newState);
+}
+
+void GrDirectContext::flushAndSubmit(sk_sp<SkSurface> surface, bool syncCpu) {
+    this->flush(surface.get(), SkSurfaces::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    this->submit(syncCpu);
+}
+
+void GrDirectContext::flush(sk_sp<SkSurface> surface) {
+    this->flush(surface.get(), GrFlushInfo(), nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -666,10 +726,8 @@ static bool update_texture_with_pixmaps(GrDirectContext* context,
 
     GrSurfaceProxy* p = surfaceContext.asSurfaceProxy();
     GrFlushInfo info;
-    context->priv().drawingManager()->flushSurfaces({&p, 1},
-                                                    SkSurface::BackendSurfaceAccess::kNoAccess,
-                                                    info,
-                                                    nullptr);
+    context->priv().drawingManager()->flushSurfaces(
+            {&p, 1}, SkSurfaces::BackendSurfaceAccess::kNoAccess, info, nullptr);
     return true;
 }
 

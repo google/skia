@@ -698,9 +698,8 @@ void SurfaceContext::asyncReadPixels(GrDirectContext* dContext,
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
 
-    dContext->priv().flushSurface(this->asSurfaceProxy(),
-                                  SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  flushInfo);
+    dContext->priv().flushSurface(
+            this->asSurfaceProxy(), SkSurfaces::BackendSurfaceAccess::kNoAccess, flushInfo);
 }
 
 void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
@@ -949,9 +948,8 @@ void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
     GrFlushInfo flushInfo;
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
-    dContext->priv().flushSurface(this->asSurfaceProxy(),
-                                  SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  flushInfo);
+    dContext->priv().flushSurface(
+            this->asSurfaceProxy(), SkSurfaces::BackendSurfaceAccess::kNoAccess, flushInfo);
 }
 
 sk_sp<GrRenderTask> SurfaceContext::copy(sk_sp<GrSurfaceProxy> src,

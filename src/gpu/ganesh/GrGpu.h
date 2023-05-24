@@ -396,7 +396,7 @@ public:
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
     void executeFlushInfo(SkSpan<GrSurfaceProxy*>,
-                          SkSurface::BackendSurfaceAccess access,
+                          SkSurfaces::BackendSurfaceAccess access,
                           const GrFlushInfo&,
                           const skgpu::MutableTextureState* newState);
 
@@ -831,7 +831,7 @@ private:
 
     virtual void prepareSurfacesForBackendAccessAndStateUpdates(
             SkSpan<GrSurfaceProxy*> proxies,
-            SkSurface::BackendSurfaceAccess access,
+            SkSurfaces::BackendSurfaceAccess access,
             const skgpu::MutableTextureState* newState) {}
 
     virtual bool onSubmitToGpu(bool syncCpu) = 0;

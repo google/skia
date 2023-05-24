@@ -105,7 +105,7 @@ sk_sp<SkImage> Image::makeColorTypeAndColorSpace(Recorder* recorder,
     }
 
     s->getCanvas()->drawImage(this, 0, 0);
-    return s->asImage();
+    return SkSurfaces::AsImage(s);
 }
 
 } // namespace skgpu::graphite

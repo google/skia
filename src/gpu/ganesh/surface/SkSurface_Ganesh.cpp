@@ -57,9 +57,6 @@ class GrBackendSemaphore;
 class SkCapabilities;
 class SkPaint;
 class SkPixmap;
-namespace skgpu {
-class MutableTextureState;
-}
 
 SkSurface_Ganesh::SkSurface_Ganesh(sk_sp<skgpu::ganesh::Device> device)
         : INHERITED(device->width(), device->height(), &device->surfaceProps())
@@ -82,7 +79,7 @@ skgpu::ganesh::Device* SkSurface_Ganesh::getDevice() { return fDevice.get(); }
 SkImageInfo SkSurface_Ganesh::imageInfo() const { return fDevice->imageInfo(); }
 
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Ganesh* surface,
-                                                      SkSurface::BackendHandleAccess access) {
+                                                      SkSurfaces::BackendHandleAccess access) {
     auto dContext = surface->recordingContext()->asDirectContext();
     if (!dContext) {
         return nullptr;
@@ -239,20 +236,7 @@ bool SkSurface_Ganesh::onCopyOnWrite(ContentChangeMode mode) {
 
 void SkSurface_Ganesh::onDiscard() { fDevice->discard(); }
 
-void SkSurface_Ganesh::onResolveMSAA() { fDevice->resolveMSAA(); }
-
-GrSemaphoresSubmitted SkSurface_Ganesh::onFlush(BackendSurfaceAccess access,
-                                                const GrFlushInfo& info,
-                                                const skgpu::MutableTextureState* newState) {
-    auto dContext = fDevice->recordingContext()->asDirectContext();
-    if (!dContext) {
-        return GrSemaphoresSubmitted::kNo;
-    }
-
-    GrRenderTargetProxy* rtp = fDevice->targetProxy();
-
-    return dContext->priv().flushSurface(rtp, access, info, newState);
-}
+void SkSurface_Ganesh::resolveMSAA() { fDevice->resolveMSAA(); }
 
 bool SkSurface_Ganesh::onWait(int numSemaphores,
                               const GrBackendSemaphore* waitSemaphores,
@@ -556,15 +540,6 @@ bool validate_backend_render_target(const GrCaps* caps,
     return true;
 }
 
-void SkSurface::flushAndSubmit(bool syncCpu) {
-    this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
-
-    auto direct = GrAsDirectContext(this->recordingContext());
-    if (direct) {
-        direct->submit(syncCpu);
-    }
-}
-
 namespace SkSurfaces {
 sk_sp<SkSurface> RenderTarget(GrRecordingContext* rContext,
                               const SkSurfaceCharacterization& c,
@@ -771,4 +746,58 @@ GrBackendRenderTarget GetBackendRenderTarget(SkSurface* surface, BackendHandleAc
     return static_cast<SkSurface_Ganesh*>(surface)->getBackendRenderTarget(access);
 }
 
+void ResolveMSAA(SkSurface* surface) {
+    if (!surface) {
+        return;
+    }
+    auto sb = asSB(surface);
+    if (!sb->isGaneshBacked()) {
+        return;
+    }
+    auto gs = static_cast<SkSurface_Ganesh*>(surface);
+    gs->resolveMSAA();
+}
+
 }  // namespace SkSurfaces
+
+namespace skgpu::ganesh {
+GrSemaphoresSubmitted Flush(SkSurface* surface) {
+    if (!surface) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    if (auto rContext = surface->recordingContext(); rContext != nullptr) {
+        return rContext->asDirectContext()->flush(surface, {});
+    }
+    return GrSemaphoresSubmitted::kNo;
+}
+
+GrSemaphoresSubmitted Flush(sk_sp<SkSurface> surface) {
+    if (!surface) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    if (auto rContext = surface->recordingContext(); rContext != nullptr) {
+        return rContext->asDirectContext()->flush(surface, {});
+    }
+    return GrSemaphoresSubmitted::kNo;
+}
+
+void FlushAndSubmit(SkSurface* surface) {
+    if (!surface) {
+        return;
+    }
+    if (auto rContext = surface->recordingContext(); rContext != nullptr) {
+        rContext->asDirectContext()->flushAndSubmit(surface);
+    }
+}
+
+void FlushAndSubmit(sk_sp<SkSurface> surface) {
+    if (!surface) {
+        return;
+    }
+    if (auto rContext = surface->recordingContext(); rContext != nullptr) {
+        rContext->asDirectContext()->flushAndSubmit(surface);
+    }
+}
+
+}  // namespace skgpu::ganesh
+

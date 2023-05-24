@@ -40,8 +40,6 @@ public:
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
-    sk_sp<SkImage> onAsImage() override;
-    sk_sp<SkImage> onMakeImageCopy(const SkIRect* subset, Mipmapped) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                      SkIRect srcRect,
@@ -61,26 +59,26 @@ public:
     sk_sp<const SkCapabilities> onCapabilities() override;
 
     TextureProxyView readSurfaceView() const;
-
-#if GRAPHITE_TEST_UTILS && defined(SK_GANESH)
-    // TODO: The long-term for the public API around surfaces and flushing/submitting will likely
-    // be replaced with explicit control over Recorders and submitting Recordings to the Context
-    // directly. For now, internal tools often rely on surface/canvas flushing to control what's
-    // being timed (nanobench or viewer's stats layer), so we flush any pending draws to a DrawPass.
-    // While this won't measure actual conversion of the task list to backend command buffers, that
-    // should be fairly negligible since most of the work is handled in DrawPass::Make().
-    // Additionally flushing pending work here ensures we don't batch across or clear prior recorded
-    // work when looping in a benchmark, as the controlling code expects.
-    GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access,
-                                  const GrFlushInfo&,
-                                  const skgpu::MutableTextureState*) override;
-#endif
-
+    sk_sp<SkImage> asImage() const;
+    sk_sp<SkImage> makeImageCopy(const SkIRect* subset, Mipmapped) const;
     TextureProxy* backingTextureProxy();
 
 private:
     sk_sp<Device> fDevice;
+
+    friend void Flush(SkSurface*);
 };
+
+// TODO: The long-term for the public API around surfaces and flushing/submitting will likely
+// be replaced with explicit control over Recorders and submitting Recordings to the Context
+// directly. For now, internal tools often rely on surface/canvas flushing to control what's
+// being timed (nanobench or viewer's stats layer), so we flush any pending draws to a DrawPass.
+// While this won't measure actual conversion of the task list to backend command buffers, that
+// should be fairly negligible since most of the work is handled in DrawPass::Make().
+// Additionally flushing pending work here ensures we don't batch across or clear prior recorded
+// work when looping in a benchmark, as the controlling code expects.
+void Flush(sk_sp<SkSurface> surface);
+void Flush(SkSurface* surface);
 
 } // namespace skgpu::graphite
 
