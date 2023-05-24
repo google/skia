@@ -21,12 +21,12 @@ class SkStreamAsset;
 /** SkTypeface implementation based on Google Fonts Fontations Rust libraries. */
 class SkTypeface_Fontations : public SkTypeface {
 public:
-    SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data);
+    SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data, uint32_t ttcIndex = 0);
 
     const fontations_ffi::BridgeFontRef& getBridgeFontRef() { return *fBridgeFontRef; }
 
 protected:
-    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         return sk_ref_sp(this);
     }
@@ -59,6 +59,8 @@ protected:
 
 private:
     sk_sp<SkData> fFontData;
+    // Incoming ttc index requested when this typeface was instantiated from data.
+    uint32_t fTtcIndex = 0;
     // fBridgeFontRef accesses the data in fFontData. fFontData needs to be kept around for the
     // lifetime of fBridgeFontRef to safely request parsed data.
     rust::Box<::fontations_ffi::BridgeFontRef> fBridgeFontRef;

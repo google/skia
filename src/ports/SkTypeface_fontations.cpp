@@ -22,17 +22,19 @@ sk_sp<SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
     return SkData::MakeFromStream(font_data.get(), font_data->getLength());
 }
 
-::rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<SkData> fontData,
-                                                                  uint32_t index = 0) {
+rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<SkData> fontData,
+                                                                  uint32_t index) {
     rust::Slice<const uint8_t> slice{fontData->bytes(), fontData->size()};
     return fontations_ffi::make_font_ref(slice, index);
 }
 }  // namespace
 
-SkTypeface_Fontations::SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data)
+SkTypeface_Fontations::SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data,
+                                             uint32_t ttcIndex)
         : SkTypeface(SkFontStyle(), true)
         , fFontData(streamToData(font_data))
-        , fBridgeFontRef(make_bridge_font_ref(fFontData)) {}
+        , fTtcIndex(ttcIndex)
+        , fBridgeFontRef(make_bridge_font_ref(fFontData, fTtcIndex)) {}
 
 int SkTypeface_Fontations::onGetUPEM() const {
     return fontations_ffi::units_per_em_or_zero(*fBridgeFontRef);
@@ -176,6 +178,11 @@ private:
     sk_sp<SkData> fFontData = nullptr;
     const fontations_ffi::BridgeFontRef& fBridgeFontRef;
 };
+
+std::unique_ptr<SkStreamAsset> SkTypeface_Fontations::onOpenStream(int* ttcIndex) const {
+    *ttcIndex = fTtcIndex;
+    return std::make_unique<SkMemoryStream>(fFontData);
+}
 
 std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContext(
         const SkScalerContextEffects& effects, const SkDescriptor* desc) const {
