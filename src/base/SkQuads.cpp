@@ -40,6 +40,33 @@ static bool close_to_linear(double A, double B) {
     return std::abs(A / B) < 1.0e-16;
 }
 
+double SkQuads::Discriminant(const double a, const double b, const double c) {
+    const double b2 = b * b;
+    const double ac = a * c;
+
+    // Calculate the rough discriminate which may suffer from a loss in precision due to b2 and
+    // ac being too close.
+    const double roughDiscriminant = b2 - ac;
+
+    // Check if b2 and ac were too close, and caused catastrophic cancellation. The
+    // roughDiscriminant should be good enough most of the time. If b2 and ac are very close to
+    // each other, then roughDiscriminant will be very small with most of the bits canceled
+    // making much smaller than roundOffCheck.
+    const double roundOffCheck = b2 + ac;
+    if (3 * std::abs(roughDiscriminant) >= roundOffCheck) {
+        return roughDiscriminant;
+    }
+
+    // Use the extra internal precision afforded by fma to calculate the rounding error for
+    // b^2 and ac.
+    const double b2RoundingError = std::fma(b, b, -b2);
+    const double acRoundingError = std::fma(a, c, -ac);
+
+    // Add the total rounding error back into the discriminant guess.
+    const double discriminant = (b2 - ac) + (b2RoundingError - acRoundingError);
+    return discriminant;
+}
+
 int SkQuads::RootsReal(const double A, const double B, const double C, double solution[2]) {
     if (close_to_linear(A, B)) {
         return solve_linear(B, C, solution);

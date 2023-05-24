@@ -13,9 +13,10 @@
 #include "tests/Test.h"
 
 #include <algorithm>
-#include <cstddef>
 #include <cfloat>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <string>
 
@@ -193,4 +194,22 @@ DEF_TEST(QuadRootsReal_NonFiniteNumbers, reporter) {
         SkQuads::RootsReal(0, 0, NAN, roots) == 0,
         "Nan constant"
     );
+}
+
+// Test the discriminant using
+// Use quadratics of the form F_n * x^2 - 2 * F_(n-1) * x + F_(n-2).
+//   This has a discriminant of F_(n-1)^2 - F_n * F_(n-2) = 1 if n is even else -1.
+DEF_TEST(QuadDiscriminant_Fibonacci, reporter) {
+    //            n,  n-1, n-2
+    int64_t F[] = {1,   1,   0};
+    // F_79 just fits in the 53 significant bits of a double.
+    for (int i = 2; i < 79; ++i) {
+        F[0] = F[1] + F[2];
+
+        const int expectedDiscriminant = i % 2 == 0 ? 1 : -1;
+        REPORTER_ASSERT(reporter, SkQuads::Discriminant(F[0], F[1], F[2]) == expectedDiscriminant);
+
+        F[2] = F[1];
+        F[1] = F[0];
+    }
 }
