@@ -746,8 +746,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		//   Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-TSAN_Vulkan
 		//   Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-DDL3_TSAN_Vulkan
 		if b.Name == "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-TSAN_Vulkan" ||
-		   b.Name == "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-TSAN_Vulkan" ||
-		   b.Name == "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-DDL3_TSAN_Vulkan" {
+			b.Name == "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-TSAN_Vulkan" ||
+			b.Name == "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-DDL3_TSAN_Vulkan" {
 			skip("_", "test", "_", "_")
 		}
 	}
@@ -1012,18 +1012,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
-	// Skip memory intensive tests on 32-bit bots.
-	if b.os("Win8") && b.arch("x86") {
-		skip(ALL, "image", "f16", ALL)
-		skip(ALL, "image", ALL, "abnormal.wbmp")
-		skip(ALL, "image", ALL, "interlaced1.png")
-		skip(ALL, "image", ALL, "interlaced2.png")
-		skip(ALL, "image", ALL, "interlaced3.png")
-		for _, rawExt := range r {
-			skip(ALL, "image", ALL, "."+rawExt)
-		}
-	}
-
 	if b.model("Nexus5", "Nexus5x", "JioNext") && b.gpu() {
 		// skia:5876
 		skip(ALL, "gm", ALL, "encode-platform")
@@ -1116,7 +1104,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchOs("Mac") && b.extraConfig("Metal") && (b.gpu("IntelIrisPlus") ||
-                                                      b.gpu("IntelHD6000")) {
+		b.gpu("IntelHD6000")) {
 		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_GPU")         // skia:14025
 		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_GPU") // skia:14025
 	}
@@ -1128,10 +1116,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU")               // skia:11919
-		skip(ALL, "tests", ALL, "SkSLMatrixEquality_GPU")                 // skia:11919
-		skip(ALL, "tests", ALL, "SkSLTemporaryIndexLookup_GPU")           // skia:14151
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexLookup_GPU")             // skia:14177
+		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU")     // skia:11919
+		skip(ALL, "tests", ALL, "SkSLMatrixEquality_GPU")       // skia:11919
+		skip(ALL, "tests", ALL, "SkSLTemporaryIndexLookup_GPU") // skia:14151
+		skip(ALL, "tests", ALL, "SkSLSwizzleIndexLookup_GPU")   // skia:14177
 	}
 
 	if b.matchGpu("Intel") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
@@ -1180,25 +1168,25 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RTX3060") ||
-									b.gpu("QuadroP400") ||
-									b.matchGpu("GTX[6-9]60") ||
-									b.matchGpu("Mali400") ||
-									b.matchGpu("Tegra3") ||
-									b.matchGpu("Radeon(R9|HD)")) {
-		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU")  // skia:13556
+		b.gpu("QuadroP400") ||
+		b.matchGpu("GTX[6-9]60") ||
+		b.matchGpu("Mali400") ||
+		b.matchGpu("Tegra3") ||
+		b.matchGpu("Radeon(R9|HD)")) {
+		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU") // skia:13556
 	}
 
 	if b.matchOs("Mac") && b.extraConfig("ANGLE") {
-		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU")  // https://anglebug.com/7525
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // Apple bug FB12055941
+		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU") // https://anglebug.com/7525
+		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")       // Apple bug FB12055941
 	}
 
 	if b.matchOs("Mac") && b.matchGpu("Intel") && !b.extraConfig("Metal") {
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // skia:14177
+		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU") // skia:14177
 	}
 
 	if b.matchOs("Win10") && b.gpu("IntelIris655") {
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")        // skia:14177
+		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU") // skia:14177
 	}
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
