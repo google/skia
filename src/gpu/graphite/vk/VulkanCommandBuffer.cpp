@@ -280,19 +280,127 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
                                           const Texture* colorTexture,
                                           const Texture* resolveTexture,
                                           const Texture* depthStencilTexture) {
-    // TODO: Implement the following:
-    // Get render pass descriptor
-    // Set up color attachment
-    // Set up depth/stencil attachment
-    // If needed, load MSAA from resolve
+    const static VkAttachmentLoadOp vkLoadOp[] {
+        VK_ATTACHMENT_LOAD_OP_LOAD,
+        VK_ATTACHMENT_LOAD_OP_CLEAR,
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE
+    };
+    static_assert((int)LoadOp::kLoad == 0);
+    static_assert((int)LoadOp::kClear == 1);
+    static_assert((int)LoadOp::kDiscard == 2);
+    static_assert(std::size(vkLoadOp) == kLoadOpCount);
 
-    // Return true despite not being fully completed to allow dm to run.
-    return true;
+    const static VkAttachmentStoreOp vkStoreOp[] {
+        VK_ATTACHMENT_STORE_OP_STORE,
+        VK_ATTACHMENT_STORE_OP_DONT_CARE
+    };
+    static_assert((int)StoreOp::kStore == 0);
+    static_assert((int)StoreOp::kDiscard == 1);
+    static_assert(std::size(vkStoreOp) == kStoreOpCount);
+
+    // Get render pass descriptor
+    VkRenderingInfoKHR renderingInfo;
+    memset(&renderingInfo, 0, sizeof(VkRenderingInfoKHR));
+    renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
+    renderingInfo.renderArea = {{ 0, 0 },
+                                { (unsigned int) colorTexture->dimensions().width(),
+                                  (unsigned int) colorTexture->dimensions().height() }};
+    renderingInfo.layerCount = 1;
+
+    // Set up color attachment
+    VkRenderingAttachmentInfoKHR colorAttachment;
+    auto& colorInfo = renderPassDesc.fColorAttachment;
+    if (colorTexture) {
+        memset(&colorAttachment, 0, sizeof(VkRenderingAttachmentInfoKHR));
+        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+        VulkanTexture* vulkanTexture =
+            const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(colorTexture));
+        colorAttachment.imageView =
+                vulkanTexture->getImageView(VulkanImageView::Usage::kAttachment)->imageView();
+        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.loadOp = vkLoadOp[static_cast<int>(colorInfo.fLoadOp)];
+        colorAttachment.storeOp = vkStoreOp[static_cast<int>(colorInfo.fStoreOp)];
+        memcpy(&colorAttachment.clearValue.color.float32,
+               &renderPassDesc.fClearColor,
+               4*sizeof(float));
+        vulkanTexture->setImageLayout(this, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, false);
+        // Set up resolve attachment
+        if (resolveTexture) {
+            SkASSERT(renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore);
+            // TODO: check Texture matches RenderPassDesc
+            vulkanTexture =
+                const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(resolveTexture));
+            colorAttachment.resolveImageView =
+                    vulkanTexture->getImageView(VulkanImageView::Usage::kAttachment)->imageView();
+            colorAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            SkASSERT(colorAttachment.storeOp == VK_ATTACHMENT_STORE_OP_DONT_CARE);
+            vulkanTexture->setImageLayout(this, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                          VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, false);
+        }
+
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &colorAttachment;
+        this->trackResource(sk_ref_sp(colorTexture));
+    }
+
+    // Set up depth/stencil attachments
+    VkRenderingAttachmentInfoKHR depthAttachment;
+    VkRenderingAttachmentInfoKHR stencilAttachment;
+    auto& depthStencilInfo = renderPassDesc.fDepthStencilAttachment;
+    if (depthStencilTexture) {
+        VulkanTexture* vulkanTexture =
+                const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(depthStencilTexture));
+        VkImageView imageView =
+                vulkanTexture->getImageView(VulkanImageView::Usage::kAttachment)->imageView();
+        VulkanTextureInfo vkTexInfo;
+        depthStencilTexture->textureInfo().getVulkanTextureInfo(&vkTexInfo);
+
+        if (VkFormatIsDepth(vkTexInfo.fFormat)) {
+            memset(&depthAttachment, 0, sizeof(VkRenderingAttachmentInfoKHR));
+            depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+            depthAttachment.imageView = imageView;
+            depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachment.loadOp = vkLoadOp[static_cast<int>(depthStencilInfo.fLoadOp)];
+            depthAttachment.storeOp = vkStoreOp[static_cast<int>(depthStencilInfo.fStoreOp)];
+            depthAttachment.clearValue.depthStencil.depth = renderPassDesc.fClearDepth;
+
+            renderingInfo.pDepthAttachment = &depthAttachment;
+        }
+
+        if (VkFormatIsStencil(vkTexInfo.fFormat)) {
+            memset(&stencilAttachment, 0, sizeof(VkRenderingAttachmentInfoKHR));
+            stencilAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+            stencilAttachment.imageView = imageView;
+            stencilAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            stencilAttachment.loadOp = vkLoadOp[static_cast<int>(depthStencilInfo.fLoadOp)];
+            stencilAttachment.storeOp = vkStoreOp[static_cast<int>(depthStencilInfo.fStoreOp)];
+            stencilAttachment.clearValue.depthStencil.stencil = renderPassDesc.fClearStencil;
+
+            renderingInfo.pStencilAttachment = &stencilAttachment;
+        }
+
+        vulkanTexture->setImageLayout(this, VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL,
+                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, false);
+        this->trackResource(sk_ref_sp(depthStencilTexture));
+    }
+
+    // TODO: If needed, load MSAA from resolve
+    // Only possible with RenderPass interface, not beginRendering()
+
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdBeginRendering(fPrimaryCommandBuffer, &renderingInfo));
+
+     return true;
 }
 
 void VulkanCommandBuffer::endRenderPass() {
     SkASSERT(fActive);
-    // TODO: Implement
+    VULKAN_CALL(fSharedContext->interface(), CmdEndRendering(fPrimaryCommandBuffer));
 }
 
 void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
