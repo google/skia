@@ -435,6 +435,18 @@ static bool setup_features(skgpu::VulkanGetProc getProc, VkInstance inst, VkPhys
         tailPNext = &ycbcrFeature->pNext;
     }
 
+    VkPhysicalDeviceDynamicRenderingFeaturesKHR* dynamicRenderingFeature = nullptr;
+    if (extensions->hasExtension(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, 1)) {
+        dynamicRenderingFeature = (VkPhysicalDeviceDynamicRenderingFeaturesKHR*)sk_malloc_throw(
+            sizeof(VkPhysicalDeviceDynamicRenderingFeaturesKHR));
+        dynamicRenderingFeature->sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
+        dynamicRenderingFeature->pNext = nullptr;
+        dynamicRenderingFeature->dynamicRendering = VK_TRUE;
+        *tailPNext = dynamicRenderingFeature;
+        tailPNext = &dynamicRenderingFeature->pNext;
+    }
+
     if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2, inst, VK_NULL_HANDLE);
         grVkGetPhysicalDeviceFeatures2(physDev, features);
