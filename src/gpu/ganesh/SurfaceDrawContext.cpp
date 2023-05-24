@@ -52,7 +52,6 @@
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrDisableColorXP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"

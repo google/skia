@@ -27,7 +27,6 @@
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrRect.h"
@@ -626,7 +625,7 @@ void draw_tiled_bitmap(GrRecordingContext* rContext,
                     // not bleed across the original clamped edges)
                     srcRect.roundOut(&iClampRect);
                 }
-                int outset = sampling.useCubic ? GrBicubicEffect::kFilterTexelPad : 1;
+                int outset = sampling.useCubic ? kBicubicFilterTexelPad : 1;
                 clamped_outset_with_offset(&iTileR, outset, &offset, iClampRect);
             }
 
@@ -785,7 +784,7 @@ void Device::drawImageQuad(const SkImage* image,
     if (!image->isTextureBacked()) {
         int tileFilterPad;
         if (sampling.useCubic) {
-            tileFilterPad = GrBicubicEffect::kFilterTexelPad;
+            tileFilterPad = kBicubicFilterTexelPad;
         } else if (sampling.filter == SkFilterMode::kLinear || sampling.isAniso()) {
             // Aniso will fallback to linear filtering in the tiling case.
             tileFilterPad = 1;
