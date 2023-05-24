@@ -275,7 +275,9 @@ skia_filegroup(
 
 skia_filegroup(
     name = "private_hdrs",
-    srcs = ["SkOSLibrary.h"] + select({
+    srcs = [
+        "SkOSLibrary.h",
+    ] + select({
         ":uses_freetype": [
             "SkFontHost_FreeType_common.h",
             "SkFontMgr_custom.h",

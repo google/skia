@@ -149,8 +149,12 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/pdf:pdf_hdrs",
 				"//src/pdf:pdf_srcs",
-			}}},
-	},
+			}},
+		{Var: "skia_pdf_jpeginfo_lib",
+			Rules: []string{"//src/pdf:jpeg_info_libjpeg"}},
+		{Var: "skia_pdf_jpeginfo_none",
+			Rules: []string{"//src/pdf:jpeg_info_none"}},
+	}},
 	{GNI: "gn/sksl.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_sksl_sources",
 			Rules: []string{

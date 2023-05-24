@@ -253,6 +253,4 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
     }
 }
 
-bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation);
-
 #endif // SkCodecPriv_DEFINED

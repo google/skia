@@ -38,6 +38,7 @@ supported_files_or_dirs=(
   "src/pathops/"
   "src/sksl/"
   "src/svg/"
+  "src/text/"
   "src/utils/"
   "tests/"
   "tools/debugger/"
@@ -109,7 +110,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrSurfaceProxyView.cpp"
   "src/gpu/ganesh/GrTextureProxy.cpp"
   "src/gpu/ganesh/SkGr.cpp"
-  "src/text/"
+  "src/pdf/SkJpeg"
 
   # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.
   "include/gen/"

@@ -3,13 +3,16 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
+ *
+ * This file can parse information from a JPEG without being able to decode
+ * it. This does not need Skia to be built with a JPEG library.
  */
 
 #include "src/pdf/SkJpegInfo.h"
 
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkSize.h"
 #include "include/private/base/SkTo.h"
-
-#ifndef SK_CODEC_DECODES_JPEG
 
 namespace {
 class JpegSegment {
@@ -125,4 +128,3 @@ bool SkGetJpegInfo(const void* data, size_t len,
     }
     return true;
 }
-#endif  // SK_CODEC_DECODES_JPEG

@@ -125,13 +125,6 @@ const gpuGNIFooter = `
 skia_gpu_private = skia_ganesh_private
 `
 
-// The footer written to gn/pdf.gni.
-const pdfGNIFooter = `
-# TODO(kjlubick) fill in these placeholders
-skia_pdf_jpeginfo_lib = []
-skia_pdf_jpeginfo_none = []
-`
-
 // The footer written to gn/utils.gni.
 const utilsGNIFooter = `
 # TODO(kjlubick) Update pdfium to use the individual target
@@ -143,7 +136,6 @@ skia_utils_sources = skia_utils_private + skia_utils_chromium
 var footerMap = map[string]string{
 	"gn/core.gni":                   coreGNIFooter,
 	"gn/gpu.gni":                    gpuGNIFooter,
-	"gn/pdf.gni":                    pdfGNIFooter,
 	"gn/sksl_tests.gni":             skslTestsFooter,
 	"gn/utils.gni":                  utilsGNIFooter,
 	"modules/skshaper/skshaper.gni": skshaperFooter,

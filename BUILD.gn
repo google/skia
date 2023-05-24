@@ -1281,12 +1281,6 @@ optional("pdf") {
   public_defines = [ "SK_SUPPORT_PDF" ]
 
   deps = [ "//third_party/zlib" ]
-  if (skia_use_libjpeg_turbo_decode) {
-    deps += [ ":jpeg_decode" ]
-  }
-  if (skia_use_libjpeg_turbo_encode) {
-    deps += [ ":jpeg_encode" ]
-  }
   public = skia_pdf_public
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
@@ -1296,6 +1290,22 @@ optional("pdf") {
   } else if (skia_use_icu && skia_use_sfntly) {
     deps += [ "//third_party/sfntly" ]
     defines = [ "SK_PDF_USE_SFNTLY" ]
+  }
+
+  if (skia_use_libjpeg_turbo_decode) {
+    deps += [
+      ":jpeg_decode",
+
+      # This is not a public_dep so we need to directly depend on it
+      # to use jpeg headers
+      "//third_party/libjpeg-turbo:libjpeg",
+    ]
+    sources += [ "src/pdf/SkJpegInfo_libjpegturbo.cpp" ]
+  } else {
+    sources += [ "src/pdf/SkJpegInfo_none.cpp" ]
+  }
+  if (skia_use_libjpeg_turbo_encode) {
+    deps += [ ":jpeg_encode" ]
   }
 }
 

@@ -20,7 +20,6 @@
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegConstants.h"
@@ -77,7 +76,8 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
             orientation);
 }
 
-static SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo) {
+namespace SkJpegPriv {
+SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo) {
     SkEncodedOrigin orientation;
     for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
         if (is_orientation_marker(marker, &orientation)) {
@@ -86,6 +86,7 @@ static SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo) {
     }
 
     return kDefault_SkEncodedOrigin;
+}
 }
 
 // A helper structure to convert jpeg_marker_struct (and similar representations) to.
@@ -297,7 +298,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
             return kInvalidInput;
         }
 
-        SkEncodedOrigin orientation = get_exif_orientation(dinfo);
+        SkEncodedOrigin orientation = SkJpegPriv::get_exif_orientation(dinfo);
         auto profile = read_color_profile(dinfo);
         if (profile) {
             auto type = profile->profile()->data_color_space;
@@ -1074,51 +1075,6 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
 
     return kSuccess;
 }
-
-#if defined(SK_CODEC_DECODES_JPEG)
-
-// This function is declared in SkJpegInfo.h, used by SkPDF.
-bool SkGetJpegInfo(const void* data, size_t len,
-                   SkISize* size,
-                   SkEncodedInfo::Color* colorType,
-                   SkEncodedOrigin* orientation) {
-    if (!SkJpegCodec::IsJpeg(data, len)) {
-        return false;
-    }
-
-    SkMemoryStream stream(data, len);
-    JpegDecoderMgr decoderMgr(&stream);
-    // libjpeg errors will be caught and reported here
-    skjpeg_error_mgr::AutoPushJmpBuf jmp(decoderMgr.errorMgr());
-    if (setjmp(jmp)) {
-        return false;
-    }
-    decoderMgr.init();
-    jpeg_decompress_struct* dinfo = decoderMgr.dinfo();
-    jpeg_save_markers(dinfo, kExifMarker, 0xFFFF);
-    jpeg_save_markers(dinfo, kICCMarker, 0xFFFF);
-    jpeg_save_markers(dinfo, kMpfMarker, 0xFFFF);
-    jpeg_save_markers(dinfo, kGainmapMarker, 0xFFFF);
-    if (JPEG_HEADER_OK != jpeg_read_header(dinfo, true)) {
-        return false;
-    }
-    SkEncodedInfo::Color encodedColorType;
-    if (!decoderMgr.getEncodedColor(&encodedColorType)) {
-        return false;  // Unable to interpret the color channels as colors.
-    }
-    if (colorType) {
-        *colorType = encodedColorType;
-    }
-    if (orientation) {
-        *orientation = get_exif_orientation(dinfo);
-    }
-    if (size) {
-        *size = {SkToS32(dinfo->image_width), SkToS32(dinfo->image_height)};
-    }
-    return true;
-}
-
-#endif
 
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
 // Collect and parse the primary and extended XMP metadata.
