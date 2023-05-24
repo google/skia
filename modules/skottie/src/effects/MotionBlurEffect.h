@@ -9,7 +9,6 @@
 #define SkottieMotionBlurEffect_DEFINED
 
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "modules/sksg/include/SkSGScene.h"
 
 namespace skottie {
 namespace internal {

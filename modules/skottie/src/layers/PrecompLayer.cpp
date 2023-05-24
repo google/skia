@@ -14,7 +14,6 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "modules/sksg/include/SkSGScene.h"
 #include "src/base/SkTLazy.h"
 #include "src/utils/SkJSON.h"
 

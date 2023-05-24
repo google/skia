@@ -102,7 +102,7 @@ struct TransformPropertyValue {
     bool operator!=(const TransformPropertyValue& other) const;
 };
 
-namespace internal { class AnimationBuilder; }
+namespace internal { class SceneGraphRevalidator; }
 
 /**
  * Property handles are adapters between user-facing AE model/values
@@ -111,14 +111,18 @@ namespace internal { class AnimationBuilder; }
 template <typename ValueT, typename NodeT>
 class SK_API PropertyHandle final {
 public:
-    explicit PropertyHandle(sk_sp<NodeT> node) : fNode(std::move(node)) {}
+    explicit PropertyHandle(sk_sp<NodeT>);
+    PropertyHandle(sk_sp<NodeT> node, sk_sp<internal::SceneGraphRevalidator> revalidator)
+        : fNode(std::move(node))
+        , fRevalidator(std::move(revalidator)) {}
     ~PropertyHandle();
 
     ValueT get() const;
     void set(const ValueT&);
 
 private:
-    const sk_sp<NodeT> fNode;
+    const sk_sp<NodeT>                           fNode;
+    const sk_sp<internal::SceneGraphRevalidator> fRevalidator;
 };
 
 namespace internal {
