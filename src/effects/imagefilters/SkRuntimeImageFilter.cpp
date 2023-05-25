@@ -82,6 +82,15 @@ private:
             const skif::Mapping&,
             const skif::LayerSpace<SkIRect>& contentBounds) const override;
 
+    skif::LayerSpace<SkIRect> applyMaxSampleRadius(
+            const skif::Mapping& mapping,
+            skif::LayerSpace<SkIRect> bounds) const {
+        skif::LayerSpace<SkISize> maxSampleRadius = mapping.paramToLayer(
+                skif::ParameterSpace<SkSize>({fMaxSampleRadius, fMaxSampleRadius})).ceil();
+        bounds.outset(maxSampleRadius);
+        return bounds;
+    }
+
     mutable SkSpinlock fRuntimeEffectLock;
     mutable SkRuntimeShaderBuilder fRuntimeEffectBuilder;
     STArray<1, SkString> fChildShaderNames;
@@ -230,9 +239,11 @@ skif::FilterResult SkRuntimeImageFilter::onFilterImage(const skif::Context& ctx)
     const int inputCount = this->countInputs();
     SkASSERT(inputCount == fChildShaderNames.size());
 
+    skif::Context inputCtx = ctx.withNewDesiredOutput(
+            this->applyMaxSampleRadius(ctx.mapping(), ctx.desiredOutput()));
     skif::FilterResult::Builder builder{ctx};
     for (int i = 0; i < inputCount; ++i) {
-        builder.add(this->getChildOutput(i, ctx));
+        builder.add(this->getChildOutput(i, inputCtx));
     }
     return builder.eval([&](SkSpan<sk_sp<SkShader>> inputs) {
         // lock the mutation of the builder and creation of the shader so that the builder's state
@@ -263,11 +274,8 @@ skif::LayerSpace<SkIRect> SkRuntimeImageFilter::onGetInputLayerBounds(
         return skif::LayerSpace<SkIRect>::Empty();
     } else {
         // Provide 'maxSampleRadius' pixels (in layer space) to the child shaders.
-        skif::LayerSpace<SkISize> maxSampleRadius = mapping.paramToLayer(
-                skif::ParameterSpace<SkSize>({fMaxSampleRadius, fMaxSampleRadius})).ceil();
-
-        skif::LayerSpace<SkIRect> requiredInput = desiredOutput;
-        requiredInput.outset(maxSampleRadius);
+        skif::LayerSpace<SkIRect> requiredInput =
+                this->applyMaxSampleRadius(mapping, desiredOutput);
 
         // Union of all child input bounds so that one source image can provide for all of them.
         skif::LayerSpace<SkIRect> merged =
