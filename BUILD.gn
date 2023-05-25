@@ -182,14 +182,6 @@ opts("ssse3") {
     defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSSE3" ]
   } else {
     cflags = [ "-mssse3" ]
-    if (!is_win) {
-      cflags += [
-        "-fomit-frame-pointer",
-        "-momit-leaf-frame-pointer",
-      ]
-    } else {
-      cflags += [ "/Oy-" ]
-    }
   }
 }
 
@@ -200,14 +192,6 @@ opts("avx") {
     cflags = [ "/arch:AVX" ]
   } else {
     cflags = [ "-mavx" ]
-    if (!is_win) {
-      cflags += [
-        "-fomit-frame-pointer",
-        "-momit-leaf-frame-pointer",
-      ]
-    } else {
-      cflags += [ "/Oy-" ]
-    }
     if (is_mac && is_debug) {
       cflags += [ "-fno-stack-check" ]  # Work around skia:9709
     }
@@ -221,14 +205,6 @@ opts("hsw") {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [ "-march=haswell" ]
-    if (!is_win) {
-      cflags += [
-        "-fomit-frame-pointer",
-        "-momit-leaf-frame-pointer",
-      ]
-    } else {
-      cflags += [ "/Oy-" ]
-    }
     if (is_mac && is_debug) {
       cflags += [ "-fno-stack-check" ]  # Work around skia:9709
     }
@@ -242,14 +218,6 @@ opts("skx") {
     cflags = [ "/arch:AVX512" ]
   } else {
     cflags = [ "-march=skylake-avx512" ]
-    if (!is_win) {
-      cflags += [
-        "-fomit-frame-pointer",
-        "-momit-leaf-frame-pointer",
-      ]
-    } else {
-      cflags += [ "/Oy-" ]
-    }
     if (is_mac && is_debug) {
       cflags += [ "-fno-stack-check" ]  # Work around skia:9709
     }
