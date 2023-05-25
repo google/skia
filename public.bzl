@@ -622,6 +622,8 @@ BASE_SRCS_ALL = [
     "src/core/SkRegion_path.cpp",
     "src/core/SkResourceCache.cpp",
     "src/core/SkResourceCache.h",
+    "src/core/SkRuntimeBlender.cpp",
+    "src/core/SkRuntimeBlender.h",
     "src/core/SkRuntimeEffect.cpp",
     "src/core/SkRuntimeEffectPriv.h",
     "src/core/SkSLTypeShared.cpp",

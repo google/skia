@@ -397,9 +397,10 @@ static inline bool skpaint_to_grpaint_impl(
 
             SkPMColor4f shaderInput = origColor.makeOpaque().premul();
             paintFP = GrFragmentProcessor::OverrideInput(std::move(paintFP), shaderInput);
-            paintFP = as_BB(primColorBlender)->asFragmentProcessor(std::move(paintFP),
-                                                                   /*dstFP=*/nullptr,
-                                                                   fpArgs);
+            paintFP = GrFragmentProcessors::Make(as_BB(primColorBlender),
+                                                 /*srcFP=*/std::move(paintFP),
+                                                 /*dstFP=*/nullptr,
+                                                 fpArgs);
             if (!paintFP) {
                 return false;
             }
@@ -442,9 +443,10 @@ static inline bool skpaint_to_grpaint_impl(
             grPaint->setColor4f(SK_PMColor4fWHITE);  // won't be used.
             if (blender_requires_shader(primColorBlender)) {
                 paintFP = GrFragmentProcessor::MakeColor(origColor.makeOpaque().premul());
-                paintFP = as_BB(primColorBlender)->asFragmentProcessor(std::move(paintFP),
-                                                                       /*dstFP=*/nullptr,
-                                                                       fpArgs);
+                paintFP = GrFragmentProcessors::Make(as_BB(primColorBlender),
+                                                     /*srcFP=*/std::move(paintFP),
+                                                     /*dstFP=*/nullptr,
+                                                     fpArgs);
                 if (!paintFP) {
                     return false;
                 }
@@ -512,10 +514,10 @@ static inline bool skpaint_to_grpaint_impl(
     } else {
         // Apply a custom blend against the surface color, and force the XP to kSrc so that the
         // computed result is applied directly to the canvas while still honoring the alpha.
-        paintFP = as_BB(skPaint.getBlender())->asFragmentProcessor(
-                std::move(paintFP),
-                GrFragmentProcessor::SurfaceColor(),
-                fpArgs);
+        paintFP = GrFragmentProcessors::Make(as_BB(skPaint.getBlender()),
+                                             std::move(paintFP),
+                                             GrFragmentProcessor::SurfaceColor(),
+                                             fpArgs);
         if (!paintFP) {
             return false;
         }

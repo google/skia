@@ -17,18 +17,10 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
-struct GrFPArgs;
-#endif
-
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
-
-#include <utility>
 
 sk_sp<SkBlender> SkBlender::Mode(SkBlendMode mode) {
 #define RETURN_SINGLETON_BLENDER(m)                            \
@@ -102,15 +94,6 @@ sk_sp<SkFlattenable> SkBlendModeBlender::CreateProc(SkReadBuffer& buffer) {
 void SkBlendModeBlender::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt((int)fMode);
 }
-
-#if defined(SK_GANESH)
-std::unique_ptr<GrFragmentProcessor> SkBlendModeBlender::asFragmentProcessor(
-        std::unique_ptr<GrFragmentProcessor> srcFP,
-        std::unique_ptr<GrFragmentProcessor> dstFP,
-        const GrFPArgs& fpArgs) const {
-    return GrBlendFragmentProcessor::Make(std::move(srcFP), std::move(dstFP), fMode);
-}
-#endif
 
 bool SkBlendModeBlender::onAppendStages(const SkStageRec& rec) const {
     SkBlendMode_AppendStages(fMode, rec.fPipeline);

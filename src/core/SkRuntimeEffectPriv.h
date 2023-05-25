@@ -8,13 +8,40 @@
 #ifndef SkRuntimeEffectPriv_DEFINED
 #define SkRuntimeEffectPriv_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkColorData.h"
-#include "src/core/SkVM.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTArray.h"
+#include "src/shaders/SkShaderBase.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <memory>
+#include <vector>
 
 #ifdef SK_ENABLE_SKSL
+#include "include/sksl/SkSLVersion.h"
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#endif
+
+#ifdef SK_ENABLE_SKVM
+#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#endif
+
+class SkArenaAlloc;
+class SkColorSpace;
+class SkData;
+class SkMatrix;
+class SkReadBuffer;
+class SkShader;
+class SkWriteBuffer;
+struct SkStageRec;
 
 namespace SkSL {
 class Context;
@@ -87,9 +114,36 @@ public:
     static sk_sp<const SkData> TransformUniforms(SkSpan<const SkRuntimeEffect::Uniform> uniforms,
                                                  sk_sp<const SkData> originalData,
                                                  const SkColorSpace* dstCS);
+    static SkSpan<const float> UniformsAsSpan(
+        SkSpan<const SkRuntimeEffect::Uniform> uniforms,
+        sk_sp<const SkData> originalData,
+        bool alwaysCopyIntoAlloc,
+        const SkColorSpace* destColorSpace,
+        SkArenaAlloc* alloc);
 
     static bool CanDraw(const SkCapabilities*, const SkSL::Program*);
     static bool CanDraw(const SkCapabilities*, const SkRuntimeEffect*);
+
+    static bool ReadChildEffects(SkReadBuffer& buffer,
+                                 const SkRuntimeEffect* effect,
+                                 skia_private::TArray<SkRuntimeEffect::ChildPtr>* children);
+    static void WriteChildEffects(SkWriteBuffer &buffer,
+                                  const std::vector<SkRuntimeEffect::ChildPtr> &children);
+
+#ifdef SK_ENABLE_SKVM
+    static std::vector<skvm::Val> MakeSkVMUniforms(skvm::Builder*,
+                                                   skvm::Uniforms*,
+                                                   size_t inputSize,
+                                                   const SkData& inputs);
+#endif
+
+#if defined(SK_GRAPHITE)
+static void AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPtr> children,
+                             SkSpan<const SkRuntimeEffect::Child> childInfo,
+                             const skgpu::graphite::KeyContext& keyContext,
+                             skgpu::graphite::PaintParamsKeyBuilder* builder,
+                             skgpu::graphite::PipelineDataGatherer* gatherer);
+#endif
 };
 
 // These internal APIs for creating runtime effects vary from the public API in two ways:
@@ -131,6 +185,73 @@ inline SkRuntimeEffect* SkMakeRuntimeEffect(
     }
     return result.effect.release();
 }
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+class RuntimeEffectRPCallbacks : public SkSL::RP::Callbacks {
+public:
+    RuntimeEffectRPCallbacks(const SkStageRec& s,
+                             const SkShaderBase::MatrixRec& m,
+                             SkSpan<const SkRuntimeEffect::ChildPtr> c,
+                             SkSpan<const SkSL::SampleUsage> u)
+            : fStage(s), fMatrix(m), fChildren(c), fSampleUsages(u) {}
+
+    bool appendShader(int index) override;
+    bool appendColorFilter(int index) override;
+    bool appendBlender(int index) override;
+
+    // TODO: If an effect calls these intrinsics more than once, we could cache and re-use the steps
+    // object(s), rather than re-creating them in the arena repeatedly.
+    void toLinearSrgb(const void* color) override;
+
+    void fromLinearSrgb(const void* color) override;
+
+private:
+    void applyColorSpaceXform(const SkColorSpaceXformSteps& tempXform, const void* color);
+
+    const SkStageRec& fStage;
+    const SkShaderBase::MatrixRec& fMatrix;
+    SkSpan<const SkRuntimeEffect::ChildPtr> fChildren;
+    SkSpan<const SkSL::SampleUsage> fSampleUsages;
+};
+#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
+#if defined(SK_ENABLE_SKVM)
+class RuntimeEffectVMCallbacks : public SkSL::SkVMCallbacks {
+public:
+    RuntimeEffectVMCallbacks(skvm::Builder* builder,
+                             skvm::Uniforms* uniforms,
+                             SkArenaAlloc* alloc,
+                             const std::vector<SkRuntimeEffect::ChildPtr>& children,
+                             const SkShaderBase::MatrixRec& mRec,
+                             skvm::Color inColor,
+                             const SkColorInfo& colorInfo)
+            : fBuilder(builder)
+            , fUniforms(uniforms)
+            , fAlloc(alloc)
+            , fChildren(children)
+            , fMRec(mRec)
+            , fInColor(inColor)
+            , fColorInfo(colorInfo) {}
+
+    skvm::Color sampleShader(int ix, skvm::Coord coord) override;
+
+    skvm::Color sampleColorFilter(int ix, skvm::Color color) override;
+
+    skvm::Color sampleBlender(int ix, skvm::Color src, skvm::Color dst) override;
+
+    skvm::Color toLinearSrgb(skvm::Color color) override;
+
+    skvm::Color fromLinearSrgb(skvm::Color color) override;
+
+    skvm::Builder* fBuilder;
+    skvm::Uniforms* fUniforms;
+    SkArenaAlloc* fAlloc;
+    const std::vector<SkRuntimeEffect::ChildPtr>& fChildren;
+    const SkShaderBase::MatrixRec& fMRec;
+    const skvm::Color fInColor;
+    const SkColorInfo& fColorInfo;
+};
+#endif  // defined(SK_ENABLE_SKVM)
 
 #endif  // SK_ENABLE_SKSL
 

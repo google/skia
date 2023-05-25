@@ -368,6 +368,8 @@ SKSL_FILES = [
     "SkFilterColorProgram.cpp",
     "SkFilterColorProgram.h",
     "SkRuntimeEffect.cpp",
+    "SkRuntimeBlender.cpp",
+    "SkRuntimeBlender.h",
     "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",
 ]

@@ -162,6 +162,7 @@ generate_cpp_files_for_headers(
         "src/core/SkDrawProcs.h",
         "src/core/SkMatrixPriv.h",
         "src/core/SkPathPriv.h",
+        "src/core/SkRuntimeEffectPriv.h",
         "src/encode/SkICCPriv.h",
         "src/encode/SkImageEncoderFns.h",
         "src/encode/SkImageEncoderPriv.h",

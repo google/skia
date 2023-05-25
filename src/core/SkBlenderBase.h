@@ -28,6 +28,10 @@ class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 }
 
+#define SK_ALL_BLENDERS(M) \
+    M(BlendMode)           \
+    M(Runtime)
+
 /**
  * Encapsulates a blend function, including non-public APIs.
  * Blends combine a source color (the result of our paint) and destination color (from the canvas)
@@ -58,17 +62,6 @@ public:
     }
 #endif
 
-#if defined(SK_GANESH)
-    /**
-     * Returns a GrFragmentProcessor that implements this blend for the GPU backend.
-     * The GrFragmentProcessor expects premultiplied inputs and returns a premultiplied output.
-     */
-    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            std::unique_ptr<GrFragmentProcessor> srcFP,
-            std::unique_ptr<GrFragmentProcessor> dstFP,
-            const GrFPArgs& fpArgs) const = 0;
-#endif
-
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 
 #if defined(SK_GRAPHITE)
@@ -78,7 +71,15 @@ public:
 #endif
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
-    Type getFlattenableType() const override { return GetFlattenableType(); }
+    SkFlattenable::Type getFlattenableType() const override { return GetFlattenableType(); }
+
+    enum class BlenderType {
+    #define M(type) k ## type,
+        SK_ALL_BLENDERS(M)
+    #undef M
+    };
+
+    virtual BlenderType type() const = 0;
 
 private:
 #if defined(SK_ENABLE_SKVM)
@@ -86,8 +87,6 @@ private:
                                   const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
                                   SkArenaAlloc* alloc) const = 0;
 #endif
-
-    using INHERITED = SkFlattenable;
 };
 
 inline SkBlenderBase* as_BB(SkBlender* blend) {

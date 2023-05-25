@@ -11,19 +11,19 @@
 #include "include/core/SkFlattenable.h"
 #include "src/core/SkBlenderBase.h"
 
-#include <memory>
 #include <optional>
 
-class GrFragmentProcessor;
 class SkReadBuffer;
 class SkWriteBuffer;
 enum class SkBlendMode;
-struct GrFPArgs;
 struct SkStageRec;
 
 class SkBlendModeBlender : public SkBlenderBase {
 public:
     SkBlendModeBlender(SkBlendMode mode) : fMode(mode) {}
+
+    BlenderType type() const override { return BlenderType::kBlendMode; }
+    SkBlendMode mode() const { return fMode; }
 
     SK_FLATTENABLE_HOOKS(SkBlendModeBlender)
 
@@ -31,13 +31,6 @@ private:
     using INHERITED = SkBlenderBase;
 
     std::optional<SkBlendMode> asBlendMode() const final { return fMode; }
-
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            std::unique_ptr<GrFragmentProcessor> srcFP,
-            std::unique_ptr<GrFragmentProcessor> dstFP,
-            const GrFPArgs& fpArgs) const override;
-#endif
 
 #if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext&,

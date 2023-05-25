@@ -8,11 +8,12 @@
 #ifndef SkRuntimeEffect_DEFINED
 #define SkRuntimeEffect_DEFINED
 
-#include "include/core/SkBlender.h"
-#include "include/core/SkColorFilter.h"
+#include "include/core/SkBlender.h"  // IWYU pragma: keep
+#include "include/core/SkColorFilter.h"  // IWYU pragma: keep
 #include "include/core/SkData.h"
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
@@ -20,33 +21,37 @@
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/base/SkTypeTraits.h"
 
-#include <string>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 #ifdef SK_ENABLE_SKSL
 
+#include "include/sksl/SkSLDebugTrace.h"
 #include "include/sksl/SkSLVersion.h"
 
 class GrRecordingContext;
 class SkFilterColorProgram;
 class SkImage;
-class SkRuntimeImageFilter;
+struct SkIPoint;
+struct SkImageInfo;
 
 namespace SkSL {
-class DebugTrace;
 class DebugTracePriv;
-class ErrorReporter;
 class FunctionDefinition;
 struct Program;
 enum class ProgramKind : int8_t;
 struct ProgramSettings;
 }  // namespace SkSL
-
-namespace skvm {
-class Program;
-}
 
 namespace SkSL::RP {
 class Program;

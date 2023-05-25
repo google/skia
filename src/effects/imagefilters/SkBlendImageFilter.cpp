@@ -42,12 +42,14 @@
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+
 #endif
 
 namespace {
@@ -329,7 +331,7 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
         SkSurfaceProps props{}; // default OK; blend-image filters don't render text
         GrFPArgs args(rContext, &info.colorInfo(), props);
 
-        fp = as_BB(fBlender)->asFragmentProcessor(std::move(fgFP), std::move(fp), args);
+        fp = GrFragmentProcessors::Make(as_BB(fBlender), std::move(fgFP), std::move(fp), args);
     }
 
     auto sfc = rContext->priv().makeSFC(

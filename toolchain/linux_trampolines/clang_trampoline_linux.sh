@@ -88,6 +88,7 @@ supported_files_or_dirs=(
   "src/core/SkReadPixelsRec.cpp"
   "src/core/SkRecorder.cpp"
   "src/core/SkRect.cpp"
+  "src/core/SkRuntime"
   "src/core/SkScalar.cpp"
   "src/core/SkStream.cpp"
   "src/core/SkString.cpp"
