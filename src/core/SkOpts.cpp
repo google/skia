@@ -11,11 +11,7 @@
 #include "src/core/SkOpts.h"
 
 #if defined(SK_ARM_HAS_NEON)
-    #if defined(SK_ARM_HAS_CRC32)
-        #define SK_OPTS_NS neon_and_crc32
-    #else
-        #define SK_OPTS_NS neon
-    #endif
+    #define SK_OPTS_NS neon
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
     #define SK_OPTS_NS skx
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2

@@ -144,8 +144,4 @@
     #define SK_ARM_HAS_NEON
 #endif
 
-#if defined(__ARM_FEATURE_CRC32)
-    #define SK_ARM_HAS_CRC32
-#endif
-
 #endif // SkFeatures_DEFINED
