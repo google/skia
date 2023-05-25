@@ -123,6 +123,7 @@ static const struct {
     { "mtlf16norm",            "gpu", "api=metal,color=f16norm" },
     { "mtlsrgba",              "gpu", "api=metal,color=srgba"},
     { "mtl1010102",            "gpu", "api=metal,color=1010102" },
+    { "mtl_dmsaa",             "gpu", "api=metal,dmsaa=true" },
     { "mtlmsaa4",              "gpu", "api=metal,samples=4" },
     { "mtlmsaa8",              "gpu", "api=metal,samples=8" },
     { "mtlddl",                "gpu", "api=metal,useDDLSink=true" },
