@@ -17,10 +17,6 @@
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSamplingPriv.h"
 
-#if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 //  Helper functions for tiling a large SkBitmap
 
@@ -119,14 +115,13 @@ void clamped_outset_with_offset(SkIRect* iRect, int outset, SkPoint* offset,
 namespace skgpu {
 
 // tileSize and clippedSubset are valid if true is returned
-bool ShouldTileImage(GrRecordingContext* context,
-                     SkIRect conservativeClipBounds,
-                     uint32_t /* imageID */,
+bool ShouldTileImage(SkIRect conservativeClipBounds,
                      const SkISize& imageSize,
                      const SkMatrix& ctm,
                      const SkMatrix& srcToDst,
                      const SkRect* src,
                      int maxTileSize,
+                     size_t cacheSize,
                      int* tileSize,
                      SkIRect* clippedSubset) {
     // if it's larger than the max tile size, then we have no choice but tiling.
@@ -143,23 +138,17 @@ bool ShouldTileImage(GrRecordingContext* context,
         return false;
     }
 
-#if defined(SK_GANESH)
     // At this point we know we could do the draw by uploading the entire bitmap as a texture.
     // However, if the texture would be large compared to the cache size and we don't require most
     // of it for this draw then tile to reduce the amount of upload and cache spill.
-    // NOTE: if the context is not a direct context, it doesn't have access to the resource cache,
-    // and theoretically, the resource cache's limits could be being changed on another thread, so
-    // even having access to just the limit wouldn't be a reliable test during recording here.
-    // Instead, we will just upload the entire image to be on the safe side and not tile.
-    auto direct = context->asDirectContext();
-    if (!direct) {
+    if (!cacheSize) {
+        // We don't have access to the cacheSize so we will just upload the entire image
+        // to be on the safe side and not tile.
         return false;
     }
 
-    // assumption here is that sw bitmap size is a good proxy for its size as
-    // a texture
+    // An assumption here is that sw bitmap size is a good proxy for its size as a texture
     size_t bmpSize = area * sizeof(SkPMColor);  // assume 32bit pixels
-    size_t cacheSize = direct->getResourceCacheLimit();
     if (bmpSize < cacheSize / 2) {
         return false;
     }
@@ -174,9 +163,6 @@ bool ShouldTileImage(GrRecordingContext* context,
                            sizeof(SkPMColor);  // assume 32bit pixels;
 
     return usedTileBytes * 2 < bmpSize;
-#else
-    return false;
-#endif
 }
 
 void DrawTiledBitmap(GrRecordingContext* rContext,
@@ -195,7 +181,7 @@ void DrawTiledBitmap(GrRecordingContext* rContext,
                      SkTileMode tileMode,
                      DrawImageProc drawImage) {
     if (sampling.isAniso()) {
-        sampling = SkSamplingPriv::AnisoFallback(/*imageIsMipped=*/false);
+        sampling = SkSamplingPriv::AnisoFallback(/* imageIsMipped= */ false);
     }
     SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
 

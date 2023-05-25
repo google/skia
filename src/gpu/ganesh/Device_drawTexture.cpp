@@ -530,17 +530,24 @@ void Device::drawImageQuad(const SkImage* image,
             tileFilterPad = 0;
         }
         int maxTileSize = fContext->maxTextureSize() - 2*tileFilterPad;
+        size_t cacheSize = 0;
+        if (auto dContext = fContext->asDirectContext(); dContext) {
+            // NOTE: if the context is not a direct context, it doesn't have access to the resource
+            // cache, and theoretically, the resource cache's limits could be being changed on
+            // another thread, so even having access to just the limit wouldn't be a reliable
+            // test during recording here.
+            cacheSize = dContext->getResourceCacheLimit();
+        }
         int tileSize;
         SkIRect clippedSubset;
-        if (skgpu::ShouldTileImage(fContext.get(),
-                                   clip ? clip->getConservativeBounds()
+        if (skgpu::ShouldTileImage(clip ? clip->getConservativeBounds()
                                         : SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
-                                   image->unique(),
                                    image->dimensions(),
                                    ctm,
                                    srcToDst,
                                    &src,
                                    maxTileSize,
+                                   cacheSize,
                                    &tileSize,
                                    &clippedSubset)) {
             // Extract pixels on the CPU, since we have to split into separate textures before

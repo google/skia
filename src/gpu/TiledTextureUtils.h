@@ -28,14 +28,13 @@ namespace skgpu::ganesh {
 
 namespace skgpu {
 
-bool ShouldTileImage(GrRecordingContext* context,
-                     SkIRect conservativeClipBounds,
-                     uint32_t /* imageID */,
+bool ShouldTileImage(SkIRect conservativeClipBounds,
                      const SkISize& imageSize,
                      const SkMatrix& ctm,
                      const SkMatrix& srcToDst,
                      const SkRect* src,
                      int maxTileSize,
+                     size_t cacheSize,
                      int* tileSize,
                      SkIRect* clippedSubset);
 
