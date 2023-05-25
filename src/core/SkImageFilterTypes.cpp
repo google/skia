@@ -706,11 +706,7 @@ void FilterResult::draw(SkCanvas* canvas) const {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-#if defined(SK_USE_LEGACY_MERGE_IMAGEFILTER)
-    paint.setBlendMode(SkBlendMode::kSrc);
-#else
     paint.setBlendMode(SkBlendMode::kSrcOver);
-#endif
     paint.setColorFilter(fColorFilter);
 
     canvas->concat(SkMatrix(fTransform)); // src's origin is embedded in fTransform
