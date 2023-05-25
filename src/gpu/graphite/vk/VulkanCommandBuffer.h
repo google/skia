@@ -12,6 +12,7 @@
 
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/DrawPass.h"
+#include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 
 namespace skgpu::graphite {
 
@@ -73,10 +74,18 @@ private:
 
     void addDrawPass(const DrawPass*);
 
+    // Track descriptor changes for binding prior to draw calls
+    void recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot);
+    void recordTextureAndSamplerDescSet(
+            const DrawPass&, const DrawPassCommands::BindTexturesAndSamplers&);
+
+    void bindTextureSamplers();
+    void bindUniformBuffers();
+    void syncDescriptorSets();
+
     // TODO: Populate the following methods to handle the possible commands in a draw pass.
     void bindGraphicsPipeline(const GraphicsPipeline*);
     void setBlendConstants(float* blendConstants);
-    void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
     void bindDrawBuffers(const BindBufferInfo& vertices,
                          const BindBufferInfo& instances,
                          const BindBufferInfo& indices,
@@ -85,7 +94,6 @@ private:
                            const Buffer* instanceBuffer, size_t instanceOffset);
     void bindIndexBuffer(const Buffer* indexBuffer, size_t offset);
     void bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset);
-    void bindTextureAndSamplers(const DrawPass&, const DrawPassCommands::BindTexturesAndSamplers&);
     void setScissor(unsigned int left, unsigned int top,
                     unsigned int width, unsigned int height);
 
@@ -153,6 +161,8 @@ private:
     // TODO: define what this is once we implement renderpasses.
     const void* fActiveRenderPass = nullptr;
 
+    const VulkanGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
+
     VkFence fSubmitFence = VK_NULL_HANDLE;
 
     // Tracking of memory barriers so that we can submit them all in a batch together.
@@ -162,6 +172,11 @@ private:
     VkPipelineStageFlags fSrcStageMask = 0;
     VkPipelineStageFlags fDstStageMask = 0;
 
+    // Track whether certain descriptor sets need to be bound
+    bool fBindUniformBuffers = false;
+    bool fBindTextureSamplers = false;
+    skia_private::TArray<BindBufferInfo> fUniformBuffersToBind;
+    VkDescriptorSet fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
 };
 
 } // namespace skgpu::graphite

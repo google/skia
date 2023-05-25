@@ -36,7 +36,7 @@ public:
 
     VkDescriptorSetLayout layout() const { return fDescLayout; }
 
-    VkDescriptorSet descriptorSet() { return fDescSet; }
+    const VkDescriptorSet* descriptorSet() { return &fDescSet; }
 
 private:
     void freeGpuData() override;
