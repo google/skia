@@ -74,9 +74,7 @@ fn get_path(
         let mut pen_dump = PathWrapperPen {
             path_wrapper: path_wrapper,
         };
-        assert!(scaler.has_outlines());
-        let result = scaler.outline(GlyphId::new(glyph_id), &mut pen_dump);
-        match result {
+        match scaler.outline(GlyphId::new(glyph_id), &mut pen_dump) {
             Ok(_) => true,
             _ => false,
         }
