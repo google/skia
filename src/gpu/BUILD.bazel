@@ -31,6 +31,8 @@ SHARED_FILES = [
     "SkBackingFit.h",
     "Swizzle.cpp",
     "Swizzle.h",
+    "TiledTextureUtils.cpp",
+    "TiledTextureUtils.h",
 ]
 
 split_srcs_and_hdrs(
