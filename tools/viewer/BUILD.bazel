@@ -37,6 +37,7 @@ cc_binary_with_flags(
         "TouchGesture.h",
         "Viewer.cpp",
         "Viewer.h",
+        "//bench:gpu_tools",
         "//gm:gm_subset",
         "//tools/flags",
         "//tools/flags:common_flags",

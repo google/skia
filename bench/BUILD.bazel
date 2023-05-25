@@ -1,0 +1,9 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "gpu_tools",
+    srcs = ["GpuTools.h"],
+    visibility = ["//tools/viewer:__pkg__"],
+)
