@@ -12,7 +12,7 @@
 #include "include/core/SkTypeface.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkScalerContext.h"
-#include "src/ports/fontations/gen/src/ffi.rs.h"
+#include "src/ports/fontations/src/ffi.rs.h"
 
 #include <memory>
 

@@ -24,8 +24,8 @@ def rust_cxx_bridge(name, src, deps = [], visibility = [], crate_features = []):
       visibility: Visibility of the generated sub-rules.
       crate_features: Feature flags to enable for codegen. See https://doc.rust-lang.org/cargo/reference/features.html.
     """
-    out_h = "gen/%s.h" % src
-    out_cc = "gen/%s.cc" % src
+    out_h = "%s.h" % src
+    out_cc = "%s.cc" % src
 
     run_cxxbridge_cmd(
         name = "%s/generated" % name,

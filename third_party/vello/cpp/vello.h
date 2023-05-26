@@ -6,6 +6,6 @@
 #ifndef THIRD_PARTY_VELLO_CPP_VELLO_H_
 #define THIRD_PARTY_VELLO_CPP_VELLO_H_
 
-#include "third_party/vello/gen/src/lib.rs.h"
+#include "third_party/vello/src/lib.rs.h"
 
 #endif  // THIRD_PARTY_VELLO_CPP_VELLO_H_
