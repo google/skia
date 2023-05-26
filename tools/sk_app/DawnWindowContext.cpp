@@ -117,7 +117,7 @@ void DawnWindowContext::setDisplayParams(const DisplayParams& params) {
 }
 
 wgpu::Device DawnWindowContext::createDevice(wgpu::BackendType type) {
-    fInstance->DiscoverDefaultAdapters();
+    fInstance->DiscoverDefaultPhysicalDevices();
     DawnProcTable backendProcs = dawn::native::GetProcs();
     dawnProcSetProcs(&backendProcs);
 

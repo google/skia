@@ -104,7 +104,7 @@ void GraphiteDawnWindowContext::setDisplayParams(const DisplayParams& params) {
 }
 
 wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
-    fInstance->DiscoverDefaultAdapters();
+    fInstance->DiscoverDefaultPhysicalDevices();
     DawnProcTable backendProcs = dawn::native::GetProcs();
     dawnProcSetProcs(&backendProcs);
 

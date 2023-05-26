@@ -27,7 +27,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     gOnce([&]{
         gInstance = std::make_unique<dawn::native::Instance>();
 
-        gInstance->DiscoverDefaultAdapters();
+        gInstance->DiscoverDefaultPhysicalDevices();
         DawnProcTable backendProcs = dawn::native::GetProcs();
         dawnProcSetProcs(&backendProcs);
 

@@ -120,9 +120,9 @@ public:
             wgpu::BackendType type;
 #if USE_OPENGL_BACKEND
             type = wgpu::BackendType::OpenGL;
-            dawn::native::opengl::AdapterDiscoveryOptions adapterOptions(
+            dawn::native::opengl::PhysicalDeviceDiscoveryOptions PhysicalDeviceOptions(
                     static_cast<WGPUBackendType>(type));
-            adapterOptions.getProc = reinterpret_cast<void*(*)(const char*)>(
+            PhysicalDeviceOptions.getProc = reinterpret_cast<void*(*)(const char*)>(
 #if defined(SK_BUILD_FOR_UNIX)
                 glXGetProcAddress
 #elif defined(SK_BUILD_FOR_MAC)
@@ -134,16 +134,16 @@ public:
 #else  // !USE_OPENGL_BACKEND
 #if defined(SK_BUILD_FOR_MAC)
             type = wgpu::BackendType::Metal;
-            dawn::native::metal::AdapterDiscoveryOptions adapterOptions;
+            dawn::native::metal::PhysicalDeviceDiscoveryOptions PhysicalDeviceOptions;
 #elif defined(SK_BUILD_FOR_WIN)
             type = wgpu::BackendType::D3D12;
-            dawn::native::d3d12::AdapterDiscoveryOptions adapterOptions;
+            dawn::native::d3d12::PhysicalDeviceDiscoveryOptions PhysicalDeviceOptions;
 #elif defined(SK_BUILD_FOR_UNIX) || (defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26)
             type = wgpu::BackendType::Vulkan;
-            dawn::native::vulkan::AdapterDiscoveryOptions adapterOptions;
+            dawn::native::vulkan::PhysicalDeviceDiscoveryOptions PhysicalDeviceOptions;
 #endif
 #endif  // USE_OPENGL_BACKEND
-            instance->DiscoverAdapters(&adapterOptions);
+            instance->DiscoverPhysicalDevices(&PhysicalDeviceOptions);
             device = createDevice(*instance, type);
             if (device) {
                 device.SetUncapturedErrorCallback(PrintDeviceError, 0);
