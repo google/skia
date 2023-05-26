@@ -31,7 +31,6 @@ skia_effects_public = [
   "$_include/effects/SkRuntimeEffect.h",
   "$_include/effects/SkShaderMaskFilter.h",
   "$_include/effects/SkStrokeAndFillPathEffect.h",
-  "$_include/effects/SkTableColorFilter.h",
   "$_include/effects/SkTableMaskFilter.h",
   "$_include/effects/SkTrimPathEffect.h",
 ]

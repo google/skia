@@ -72,10 +72,12 @@ class SkSurfaceProps;
 #include "src/core/SkVM.h"
 #endif
 
-class SkTable_ColorFilter final : public SkColorFilterBase {
+class SkTableColorFilter final : public SkColorFilterBase {
 public:
-    SkTable_ColorFilter(const uint8_t tableA[], const uint8_t tableR[],
-                        const uint8_t tableG[], const uint8_t tableB[]) {
+    SkTableColorFilter(const uint8_t tableA[],
+                       const uint8_t tableR[],
+                       const uint8_t tableG[],
+                       const uint8_t tableB[]) {
         fBitmap.allocPixels(SkImageInfo::MakeA8(256, 4));
         uint8_t *a = fBitmap.getAddr8(0,0),
                 *r = fBitmap.getAddr8(0,1),
@@ -148,12 +150,12 @@ public:
 
 private:
     friend void ::SkRegisterTableColorFilterFlattenable();
-    SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
+    SK_FLATTENABLE_HOOKS(SkTableColorFilter)
 
     SkBitmap fBitmap;
 };
 
-sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTableColorFilter::CreateProc(SkReadBuffer& buffer) {
     uint8_t argb[4*256];
     if (buffer.readByteArray(argb, sizeof(argb))) {
         return SkColorFilters::TableARGB(argb+0*256, argb+1*256, argb+2*256, argb+3*256);
@@ -286,10 +288,10 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
 }
 #endif
 
-GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                    GrRecordingContext* context,
-                                                    const GrColorInfo&,
-                                                    const SkSurfaceProps&) const {
+GrFPResult SkTableColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                   GrRecordingContext* context,
+                                                   const GrColorInfo&,
+                                                   const SkSurfaceProps&) const {
     auto cte = ColorTableEffect::Make(std::move(inputFP), context, fBitmap);
     return cte ? GrFPSuccess(std::move(cte)) : GrFPFailure(nullptr);
 }
@@ -298,9 +300,9 @@ GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentPr
 
 #if defined(SK_GRAPHITE)
 
-void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
+void SkTableColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
+                                  skgpu::graphite::PaintParamsKeyBuilder* builder,
+                                  skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
     sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), fBitmap);
@@ -324,7 +326,7 @@ void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorFilter> SkColorFilters::Table(const uint8_t table[256]) {
-    return sk_make_sp<SkTable_ColorFilter>(table, table, table, table);
+    return sk_make_sp<SkTableColorFilter>(table, table, table, table);
 }
 
 sk_sp<SkColorFilter> SkColorFilters::TableARGB(const uint8_t tableA[256],
@@ -335,9 +337,10 @@ sk_sp<SkColorFilter> SkColorFilters::TableARGB(const uint8_t tableA[256],
         return nullptr;
     }
 
-    return sk_make_sp<SkTable_ColorFilter>(tableA, tableR, tableG, tableB);
+    return sk_make_sp<SkTableColorFilter>(tableA, tableR, tableG, tableB);
 }
 
 void SkRegisterTableColorFilterFlattenable() {
-    SK_REGISTER_FLATTENABLE(SkTable_ColorFilter);
+    SK_REGISTER_FLATTENABLE(SkTableColorFilter);
+    SkFlattenable::Register("SkTable_ColorFilter", SkTableColorFilter::CreateProc);
 }

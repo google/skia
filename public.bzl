@@ -137,7 +137,6 @@ SKIA_PUBLIC_HDRS = [
     "include/effects/SkRuntimeEffect.h",
     "include/effects/SkShaderMaskFilter.h",
     "include/effects/SkStrokeAndFillPathEffect.h",
-    "include/effects/SkTableColorFilter.h",
     "include/effects/SkTableMaskFilter.h",
     "include/effects/SkTrimPathEffect.h",
     "include/encode/SkEncoder.h",
