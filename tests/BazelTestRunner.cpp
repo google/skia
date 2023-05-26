@@ -24,6 +24,8 @@
 #include "tools/gpu/TestContext.h"
 #endif
 
+static DEFINE_string(skip, "", "Space-separated list of test cases to skip.");
+
 class BazelReporter : public skiatest::Reporter {
 public:
     void reportFailed(const skiatest::Failure& failure) override {
@@ -126,6 +128,11 @@ int main(int argc, char** argv) {
     BazelReporter reporter;
     for (skiatest::Test test : skiatest::TestRegistry::Range()) {
         if (test.fTestType == skiatest::TestType::kCPU) {
+            if (FLAGS_skip.contains(test.fName)) {
+                SkDebugf("Skipping %s\n", test.fName);
+                continue;
+            }
+
             SkDebugf("Running %s\n", test.fName);
             test.cpu(&reporter);
             SkDebugf("\tDone\n");
@@ -145,6 +152,11 @@ int main(int argc, char** argv) {
     grCtxOptions.fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
     for (skiatest::Test test : skiatest::TestRegistry::Range()) {
         if (test.fTestType == skiatest::TestType::kGanesh) {
+            if (FLAGS_skip.contains(test.fName)) {
+                SkDebugf("Skipping %s\n", test.fName);
+                continue;
+            }
+
             SkDebugf("Running %s\n", test.fName);
             test.ganesh(&reporter, grCtxOptions);
             SkDebugf("\tDone\n");
