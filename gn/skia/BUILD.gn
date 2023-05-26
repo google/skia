@@ -180,6 +180,21 @@ config("default") {
     ldflags += [ "-static-libstdc++" ]
   }
 
+  if (show_includes) {
+    assert(is_clang, "show_includes requires clang to build.")
+    if (is_win) {
+      cflags += [
+        "/clang:-H",
+        "/clang:-fshow-skipped-includes",
+      ]
+    } else {
+      cflags += [
+        "-H",
+        "-fshow-skipped-includes",
+      ]
+    }
+  }
+
   if (is_ios) {
     if (target_cpu == "arm") {
       _arch_flags = [

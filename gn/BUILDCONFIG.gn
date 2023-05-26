@@ -33,6 +33,10 @@ declare_args() {
   ios_min_target = ""
   ios_use_simulator =
       target_os == "ios" && (target_cpu == "x86" || target_cpu == "x64")
+
+  # Enable -H, which prints the include tree during compilation.
+  # For use by external tools for analyzing include files.
+  show_includes = false
 }
 declare_args() {
   is_debug = !is_official_build
