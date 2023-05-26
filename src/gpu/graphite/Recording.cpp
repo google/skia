@@ -146,12 +146,12 @@ bool RecordingPriv::addCommands(Context* context,
         replayTarget = surfaceTexture->texture();
     }
 
+    for (size_t i = 0; i < fRecording->fExtraResourceRefs.size(); ++i) {
+        commandBuffer->trackResource(fRecording->fExtraResourceRefs[i]);
+    }
     if (!fRecording->fGraph->addCommands(
                 context, commandBuffer, {replayTarget, replayTranslation})) {
         return false;
-    }
-    for (size_t i = 0; i < fRecording->fExtraResourceRefs.size(); ++i) {
-        commandBuffer->trackResource(fRecording->fExtraResourceRefs[i]);
     }
     for (int i = 0; i < fRecording->fFinishedProcs.size(); ++i) {
         commandBuffer->addFinishedProc(std::move(fRecording->fFinishedProcs[i]));
