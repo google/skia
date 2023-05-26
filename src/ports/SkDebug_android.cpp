@@ -28,6 +28,7 @@ void SkDebugf(const char format[], ...) {
         va_copy(args2, args1);
         vprintf(format, args2);
         va_end(args2);
+        fflush(stdout);
     }
 
     __android_log_vprint(ANDROID_LOG_DEBUG, LOG_TAG, format, args1);
