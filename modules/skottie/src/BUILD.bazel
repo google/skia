@@ -22,6 +22,7 @@ skia_filegroup(
         "SkottiePriv.h",
         "SkottieProperty.cpp",
         "SkottieValue.h",
+        "SlotManager.cpp",
         "Transform.cpp",
         "Transform.h",
         "//modules/skottie/src/animator:srcs",

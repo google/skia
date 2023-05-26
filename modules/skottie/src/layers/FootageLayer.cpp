@@ -85,11 +85,11 @@ AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& defaultJImage) con
     const skjson::ObjectValue* jimage = &defaultJImage;
     const skjson::StringValue* slotID = defaultJImage["sid"];
     if (slotID) {
-        if (!(this->fSlotsRoot)) {
+        if (!(fSlotsRoot)) {
             this->log(Logger::Level::kWarning, nullptr,
                          "Slotid found but no slots were found in the json. Using default asset.");
         } else {
-            const skjson::ObjectValue* slot = (*(this->fSlotsRoot))[slotID->begin()];
+            const skjson::ObjectValue* slot = (*(fSlotsRoot))[slotID->begin()];
             if (!slot) {
                 this->log(Logger::Level::kWarning, nullptr,
                              "Specified slotID not found in 'slots'. Using default asset.");

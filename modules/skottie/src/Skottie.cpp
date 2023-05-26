@@ -142,6 +142,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fPrecompInterceptor(std::move(pi))
     , fExpressionManager(std::move(expressionmgr))
     , fRevalidator(sk_make_sp<SceneGraphRevalidator>())
+    , fSlotManager(sk_make_sp<SlotManager>(fRevalidator))
     , fStats(stats)
     , fCompSize(comp_size)
     , fDuration(duration)

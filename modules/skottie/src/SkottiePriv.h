@@ -15,6 +15,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/Font.h"
 #include "src/base/SkUTF.h"
@@ -259,6 +260,7 @@ private:
     sk_sp<PrecompInterceptor>    fPrecompInterceptor;
     sk_sp<ExpressionManager>     fExpressionManager;
     sk_sp<SceneGraphRevalidator> fRevalidator;
+    sk_sp<SlotManager>           fSlotManager;
     Animation::Builder::Stats*   fStats;
     const SkSize                 fCompSize;
     const float                  fDuration,
@@ -307,6 +309,7 @@ private:
     sk_sp<CustomFont::GlyphCompMapper>                         fCustomGlyphMapper;
     mutable skia_private::THashMap<SkString, FootageAssetInfo> fImageAssetCache;
 
+    // Handle to "slots" JSON Object, used to grab slot values while building
     const skjson::ObjectValue* fSlotsRoot;
 
     using INHERITED = SkNoncopyable;
