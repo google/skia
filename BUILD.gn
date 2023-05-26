@@ -192,9 +192,6 @@ opts("avx") {
     cflags = [ "/arch:AVX" ]
   } else {
     cflags = [ "-mavx" ]
-    if (is_mac && is_debug) {
-      cflags += [ "-fno-stack-check" ]  # Work around skia:9709
-    }
   }
 }
 
@@ -205,9 +202,6 @@ opts("hsw") {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [ "-march=haswell" ]
-    if (is_mac && is_debug) {
-      cflags += [ "-fno-stack-check" ]  # Work around skia:9709
-    }
   }
 }
 
@@ -218,9 +212,6 @@ opts("skx") {
     cflags = [ "/arch:AVX512" ]
   } else {
     cflags = [ "-march=skylake-avx512" ]
-    if (is_mac && is_debug) {
-      cflags += [ "-fno-stack-check" ]  # Work around skia:9709
-    }
   }
 }
 
