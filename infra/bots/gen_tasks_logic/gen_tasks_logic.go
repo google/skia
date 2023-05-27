@@ -2152,7 +2152,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"modules_canvaskit_js_tests":     {"//modules/canvaskit:canvaskit_js_tests", ""},
 	"skia_public":                    {"//:skia_public", ""},
 	"skottie_tool_gpu":               {"//modules/skottie:skottie_tool_gpu", ""},
-	"tests":                          {"//tests/...", ""},
+	"tests":                          {"//tests:linux_rbe_build", ""},
 	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
 
 	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use

@@ -1324,10 +1324,11 @@ optional("typeface_freetype") {
 }
 
 optional("typeface_fontations") {
+  public_defines = [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
   enabled = skia_use_fontations
   sources = [
     "src/ports/SkTypeface_fontations.cpp",
-    "src/ports/SkTypeface_fontations.h",
+    "src/ports/SkTypeface_fontations_priv.h",
   ]
 }
 

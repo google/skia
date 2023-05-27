@@ -196,6 +196,24 @@ skia_cpu_tests(
     tests = ["FCITest.cpp"],
 )
 
+skia_cc_library(
+    name = "fontations_tests_base",
+    testonly = True,
+    srcs = [
+    ],
+    deps = [":tests_base"],
+)
+
+skia_cpu_tests(
+    name = "fontations_tests",
+    flags = {
+        "use_fontations": ["True"],
+    },
+    harness = ":fontations_tests_base",
+    resources = ["//resources"],
+    tests = ["FontationsTest.cpp"],
+)
+
 # TODO(kjlubick, bungeman) This test probably won't pass on Windows. We'll need a mechanism for
 # running tests only on certain platforms. This probably can be achieved by expanding limit_to
 # to generate a test that is configured to run only on linux and one that will only run on Mac
@@ -371,5 +389,23 @@ skia_android_unit_test(
     deps = [
         ":tests_base",
         "//:skia_internal",
+    ],
+)
+
+# The set of all tests that can be compiled on Linux RBE
+test_suite(
+    name = "linux_rbe_build",
+    tests = [
+        ":codec_tests",
+        ":cpu_only_tests",
+        ":debugger_tests",
+        ":discardable_memory_tests",
+        ":ganesh_tests",
+        ":pathops_tests",
+        ":pdf_tests",
+        ":secondary_draw_context_tests",
+        ":svg_tests",
+        # TODO(https://crbug.com/skia/14342): Rust test does not build in RBE-environment.
+        #":fontations_tests",
     ],
 )

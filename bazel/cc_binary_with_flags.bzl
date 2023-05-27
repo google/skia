@@ -13,6 +13,7 @@ load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 
 _bool_flags = [
     "//bazel/common_config_settings:use_harfbuzz",
+    "//bazel/common_config_settings:use_fontations",
     "//bazel/common_config_settings:use_icu",
     "//src/gpu/ganesh/vk:enable_secondary_draw_context",
     "//src/gpu:enable_gpu_test_utils",

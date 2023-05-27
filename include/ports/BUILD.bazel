@@ -37,6 +37,11 @@ skia_filegroup(
         "@platforms//os:macos": ["SkTypeface_mac.h"],
         "@platforms//os:windows": ["SkTypeface_win.h"],
         "//conditions:default": [],
+    }) + select({
+        "//bazel/common_config_settings:use_fontations_true": [
+            "SkTypeface_fontations.h",
+        ],
+        "//conditions:default": [],
     }),
     visibility = ["//include:__pkg__"],
 )

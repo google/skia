@@ -35,6 +35,11 @@
 #include "src/ports/SkTypeface_win_dw.h"
 #endif
 
+// TODO(https://crbug.com/skia/14338): This needs to be set by Bazel rules.
+#ifdef SK_TYPEFACE_FACTORY_FONTATIONS
+#include "src/ports/SkTypeface_fontations_priv.h"
+#endif
+
 using namespace skia_private;
 
 SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
@@ -177,6 +182,9 @@ namespace {
 #endif
 #ifdef SK_TYPEFACE_FACTORY_FREETYPE
             { SkTypeface_FreeType::FactoryId, SkTypeface_FreeType::MakeFromStream },
+#endif
+#ifdef SK_TYPEFACE_FACTORY_FONTATIONS
+            { SkTypeface_Fontations::FactoryId, SkTypeface_Fontations::MakeFromStream },
 #endif
         }};
         return decoders.get();

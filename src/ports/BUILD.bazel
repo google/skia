@@ -297,7 +297,7 @@ skia_filegroup(
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:use_fontations_true": [
-            "SkTypeface_fontations.h",
+            "SkTypeface_fontations_priv.h",
         ],
         "//conditions:default": [],
     }),

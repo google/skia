@@ -186,6 +186,10 @@ fn make_font_ref<'a>(font_data: &'a [u8], index: u32) -> Box<BridgeFontRef<'a>> 
     Box::new(BridgeFontRef(make_font_ref_internal(font_data, index).ok()))
 }
 
+fn font_ref_is_valid(bridge_font_ref: &BridgeFontRef) -> bool {
+    bridge_font_ref.0.is_some()
+}
+
 struct BridgeFontRef<'a>(Option<FontRef<'a>>);
 
 struct BridgeLocalizedStrings<'a> {
@@ -220,6 +224,14 @@ mod ffi {
 
         type BridgeFontRef<'a>;
         unsafe fn make_font_ref<'a>(font_data: &'a [u8], index: u32) -> Box<BridgeFontRef<'a>>;
+        // Returns whether BridgeFontRef is a valid font containing at
+        // least a valid sfnt structure from which tables can be
+        // accessed. This is what instantiation in make_font_ref checks
+        // for. (see FontRef::new in read_fonts's lib.rs). Implemented
+        // by returning whether the option is Some() and thus whether a
+        // FontRef instantiation succeeded and a table directory was
+        // accessible.
+        fn font_ref_is_valid(bridge_font_ref: &BridgeFontRef) -> bool;
 
         fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16;
         fn get_path(

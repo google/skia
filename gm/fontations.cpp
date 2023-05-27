@@ -7,9 +7,11 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "src/ports/SkTypeface_fontations.h"
+#include "include/ports/SkTypeface_fontations.h"
 #include "tools/Resources.h"
 
 namespace skiagm {
@@ -73,8 +75,8 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        std::unique_ptr<SkStreamAsset> fontStream = GetResourceAsStream(kTestFontName);
-        fTypeface = sk_sp<SkTypeface>(new SkTypeface_Fontations(std::move(fontStream)));
+        fTypeface =
+                SkTypeface_Make_Fontations(GetResourceAsStream(kTestFontName), SkFontArguments());
     }
 
     SkString onShortName() override { return SkString("typeface_fontations"); }
