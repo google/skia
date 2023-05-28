@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_TextureInfo_DEFINED
 #define skgpu_graphite_TextureInfo_DEFINED
 
+#include "include/core/SkString.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 
 #ifdef SK_DAWN
@@ -98,6 +99,8 @@ public:
         return true;
     }
 #endif
+
+    SkString toString() const;
 
 private:
 #ifdef SK_DAWN

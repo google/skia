@@ -179,7 +179,10 @@ sk_sp<TextureProxy> TextureProxy::MakeStorage(const Caps* caps,
 #ifdef SK_DEBUG
 void TextureProxy::validateTexture(const Texture* texture) {
     SkASSERT(this->isFullyLazy() || fDimensions == texture->dimensions());
-    SkASSERT(fInfo == texture->textureInfo());
+    SkASSERTF(fInfo == texture->textureInfo(),
+              "proxy->fInfo[%s] != texture->fInfo[%s]",
+              fInfo.toString().c_str(),
+              texture->textureInfo().toString().c_str());
 }
 #endif
 

@@ -237,6 +237,9 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
     SkColorInfo info(ct, kPremul_SkAlphaType, std::move(cs));
 
     if (!validate_backend_texture(caps, backendTex, info)) {
+        SKGPU_LOG_E("validate_backend_texture failed: backendTex.info = %s; colorType = %d",
+                    backendTex.info().toString().c_str(),
+                    info.colorType());
         return nullptr;
     }
 

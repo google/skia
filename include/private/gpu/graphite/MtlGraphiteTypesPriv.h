@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_MtlGraphiteTypesPriv_DEFINED
 #define skgpu_graphite_MtlGraphiteTypesPriv_DEFINED
 
+#include "include/core/SkString.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 
@@ -61,6 +62,14 @@ struct MtlTextureSpec {
                fUsage == that.fUsage &&
                fStorageMode == that.fStorageMode &&
                fFramebufferOnly == that.fFramebufferOnly;
+    }
+
+    SkString toString() const {
+        return SkStringPrintf("format=%u,usage=0x%04X,storageMode=%d,framebufferOnly=%d",
+                              fFormat,
+                              fUsage,
+                              fStorageMode,
+                              fFramebufferOnly);
     }
 
     MtlPixelFormat fFormat;

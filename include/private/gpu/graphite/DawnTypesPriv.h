@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_DawnTypesPriv_DEFINED
 #define skgpu_graphite_DawnTypesPriv_DEFINED
 
+#include "include/core/SkString.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 
 namespace skgpu::graphite {
@@ -23,6 +24,10 @@ struct DawnTextureSpec {
     bool operator==(const DawnTextureSpec& that) const {
         return fUsage == that.fUsage &&
                fFormat == that.fFormat;
+    }
+
+    SkString toString() const {
+        return SkStringPrintf("format=0x%08X,usage=0x%08X", fFormat, fUsage);
     }
 
     wgpu::TextureFormat fFormat;
