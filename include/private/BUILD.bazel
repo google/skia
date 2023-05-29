@@ -25,6 +25,7 @@ skia_filegroup(
         "SkGainmapInfo.h",
         "SkGainmapShader.h",
         "SkIDChangeListener.h",
+        "SkJpegMetadataDecoder.h",
         "SkPathRef.h",
         "SkShadowFlags.h",
         "SkWeakRefCnt.h",

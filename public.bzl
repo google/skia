@@ -239,6 +239,7 @@ BASE_SRCS_ALL = [
     "include/private/SkGainmapInfo.h",
     "include/private/SkGainmapShader.h",
     "include/private/SkIDChangeListener.h",
+    "include/private/SkJpegMetadataDecoder.h",
     "include/private/SkPathRef.h",
     "include/private/SkSLDefines.h",
     "include/private/SkSLSampleUsage.h",

@@ -59,7 +59,6 @@ static constexpr uint8_t kXMPExtendedSig[] = {
 
 // EXIF segment marker and signature.
 static constexpr uint32_t kExifMarker = kJpegMarkerAPP0 + 1;
-static constexpr uint32_t kExifHeaderSize = 14;
 constexpr uint8_t kExifSig[] = {'E', 'x', 'i', 'f', '\0'};
 
 // MPF segment marker and signature.
