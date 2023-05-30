@@ -1055,7 +1055,6 @@ skia_filegroup(
         "wgsl/CastMat4x4ToMat4x3.sksl",
         "wgsl/CastVec4ToMat2x2.sksl",
         "wgsl/Equality.sksl",
-        "wgsl/FunctionAnonymousParameters.sksl",
         "wgsl/FunctionCallDependencies.sksl",
         "wgsl/GlobalUniforms.sksl",
         "wgsl/IfStatement.sksl",
@@ -1072,6 +1071,7 @@ skia_filegroup(
 
         # Shared tests that are supported so far:
         "shared/ConstantIf.sksl",
+        "shared/FunctionAnonymousParameters.sksl",
         "shared/HelloWorld.sksl",
         "shared/InoutParameters.sksl",
         "shared/InoutParamsAreDistinct.sksl",
