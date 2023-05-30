@@ -283,7 +283,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         }
     }
 
-
+    // TODO(crbug.com/dawn/1856): Support storage binding for compute shader in Dawn.
     // Format: R8Unorm
     {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::R8Unorm)];
@@ -361,10 +361,11 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         }
     }
 
+    // TODO(crbug.com/dawn/1856): Support storage binding for compute shader in Dawn.
     // Format: RG8Unorm
     {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RG8Unorm)];
-        info->fFlags = FormatInfo::kTexturable_Flag;
+        info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;

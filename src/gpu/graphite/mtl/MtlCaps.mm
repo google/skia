@@ -580,7 +580,7 @@ void MtlCaps::initFormatTable() {
     // Format: RG8Unorm
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG8Unorm)];
-        info->fFlags = FormatInfo::kTexturable_Flag;
+        info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;
