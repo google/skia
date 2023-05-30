@@ -48,12 +48,36 @@ double SkQuads::Discriminant(const double a, const double b, const double c) {
     // ac being too close.
     const double roughDiscriminant = b2 - ac;
 
-    // Check if b2 and ac were too close, and caused catastrophic cancellation. The
-    // roughDiscriminant should be good enough most of the time. If b2 and ac are very close to
-    // each other, then roughDiscriminant will be very small with most of the bits canceled
-    // making much smaller than roundOffCheck.
-    const double roundOffCheck = b2 + ac;
-    if (3 * std::abs(roughDiscriminant) >= roundOffCheck) {
+    // We would like the calculated discriminant to have a relative error of 2-bits or less. For
+    // doubles, this means the relative error is <= E = 3*2^-53. This gives a relative error
+    // bounds of:
+    //
+    //     |D - D~| / |D| <= E,
+    //
+    // where D = B*B - AC, and D~ is the floating point approximation of D.
+    // Define the following equations
+    //     B2 = B*B,
+    //     B2~ = B2(1 + eB2), where eB2 is the floating point round off,
+    //     AC = A*C,
+    //     AC~ = AC(1 + eAC), where eAC is the floating point round off, and
+    //     D~ = B2~ - AC~.
+    //  We can now rewrite the above bounds as
+    //
+    //     |B2 - AC - (B2~ - AC~)| / |B2 - AC| = |B2 - AC - B2~ + AC~| / |B2 - AC| <= E.
+    //
+    //  Substituting B2~ and AC~, and canceling terms gives
+    //
+    //     |eAC * AC - eB2 * B2| / |B2 - AC| <= max(|eAC|, |eBC|) * (|AC| + |B2|) / |B2 - AC|.
+    //
+    //  We know that B2 is always positive, if AC is negative, then there is no cancellation
+    //  problem, and max(|eAC|, |eBC|) <= 2^-53, thus
+    //
+    //     2^-53 * (AC + B2) / |B2 - AC| <= 3 * 2^-53. Leading to
+    //     AC + B2 <= 3 * |B2 - AC|.
+    //
+    // If 3 * |B2 - AC| >= AC + B2 holds, then the roughDiscriminant has 2-bits of rounding error
+    // or less and can be used.
+    if (3 * std::abs(roughDiscriminant) >= b2 + ac) {
         return roughDiscriminant;
     }
 
