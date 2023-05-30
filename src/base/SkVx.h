@@ -19,7 +19,7 @@
 // and alignment and is safe to use across translation units freely.
 // (Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.)
 
-// Please try to keep this file independent of Skia headers.
+#include "include/private/base/SkFeatures.h"
 #include <algorithm>         // std::min, std::max
 #include <cassert>           // assert()
 #include <cmath>             // ceilf, floorf, truncf, roundf, sqrtf, etc.
@@ -40,9 +40,9 @@
 #endif
 
 #if SKVX_USE_SIMD
-    #if defined(__SSE__) || defined(__AVX__) || defined(__AVX2__)
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
         #include <immintrin.h>
-    #elif defined(__ARM_NEON)
+    #elif defined(SK_ARM_HAS_NEON)
         #include <arm_neon.h>
     #elif defined(__wasm_simd128__)
         #include <wasm_simd128.h>
@@ -455,21 +455,21 @@ SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<
 }
 SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
     // Specializations inline here so they can generalize what types the apply to.
-#if SKVX_USE_SIMD && defined(__AVX2__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     if constexpr (N*sizeof(T) == 32) {
         return bit_pun<Vec<N,T>>(_mm256_blendv_epi8(bit_pun<__m256i>(e),
                                                     bit_pun<__m256i>(t),
                                                     bit_pun<__m256i>(cond)));
     }
 #endif
-#if SKVX_USE_SIMD && defined(__SSE4_1__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
     if constexpr (N*sizeof(T) == 16) {
         return bit_pun<Vec<N,T>>(_mm_blendv_epi8(bit_pun<__m128i>(e),
                                                  bit_pun<__m128i>(t),
                                                  bit_pun<__m128i>(cond)));
     }
 #endif
-#if SKVX_USE_SIMD && defined(__ARM_NEON)
+#if SKVX_USE_SIMD && defined(SK_ARM_HAS_NEON)
     if constexpr (N*sizeof(T) == 16) {
         return bit_pun<Vec<N,T>>(vbslq_u8(bit_pun<uint8x16_t>(cond),
                                           bit_pun<uint8x16_t>(t),
@@ -489,17 +489,17 @@ SIT  bool any(const Vec<1,T>& x) { return x.val != 0; }
 SINT bool any(const Vec<N,T>& x) {
     // For any(), the _mm_testz intrinsics are correct and don't require comparing 'x' to 0, so it's
     // lower latency compared to _mm_movemask + _mm_compneq on plain SSE.
-#if SKVX_USE_SIMD && defined(__AVX2__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     if constexpr (N*sizeof(T) == 32) {
         return !_mm256_testz_si256(bit_pun<__m256i>(x), _mm256_set1_epi32(-1));
     }
 #endif
-#if SKVX_USE_SIMD && defined(__SSE_4_1__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
     if constexpr (N*sizeof(T) == 16) {
         return !_mm_testz_si128(bit_pun<__m128i>(x), _mm_set1_epi32(-1));
     }
 #endif
-#if SKVX_USE_SIMD && defined(__SSE__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     if constexpr (N*sizeof(T) == 16) {
         // On SSE, movemask checks only the MSB in each lane, which is fine if the lanes were set
         // directly from a comparison op (which sets all bits to 1 when true), but skvx::Vec<>
@@ -527,7 +527,7 @@ SIT  bool all(const Vec<1,T>& x) { return x.val != 0; }
 SINT bool all(const Vec<N,T>& x) {
 // Unlike any(), we have to respect the lane layout, or we'll miss cases where a
 // true lane has a mix of 0 and 1 bits.
-#if SKVX_USE_SIMD && defined(__SSE__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     // Unfortunately, the _mm_testc intrinsics don't let us avoid the comparison to 0 for all()'s
     // correctness, so always just use the plain SSE version.
     if constexpr (N == 4 && sizeof(T) == 4) {
@@ -647,12 +647,12 @@ SI Vec<1,int> lrint(const Vec<1,float>& x) {
     return (int)lrintf(x.val);
 }
 SIN Vec<N,int> lrint(const Vec<N,float>& x) {
-#if SKVX_USE_SIMD && defined(__AVX__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
     if constexpr (N == 8) {
         return bit_pun<Vec<N,int>>(_mm256_cvtps_epi32(bit_pun<__m256>(x)));
     }
 #endif
-#if SKVX_USE_SIMD && defined(__SSE__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     if constexpr (N == 4) {
         return bit_pun<Vec<N,int>>(_mm_cvtps_epi32(bit_pun<__m128>(x)));
     }
@@ -689,12 +689,6 @@ SI Vec<1,uint16_t> to_half(const Vec<1,float>&    x) { return   to_half_finite_f
 SI Vec<1,float>  from_half(const Vec<1,uint16_t>& x) { return from_half_finite_ftz(x); }
 
 SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
-#if SKVX_USE_SIMD && defined(__F16C__)
-    if constexpr (N == 8) {
-        return bit_pun<Vec<N,uint16_t>>(_mm256_cvtps_ph(bit_pun<__m256>(x),
-                                                        _MM_FROUND_TO_NEAREST_INT));
-    }
-#endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
     if constexpr (N == 4) {
         return bit_pun<Vec<N,uint16_t>>(vcvt_f16_f32(bit_pun<float32x4_t>(x)));
@@ -709,11 +703,6 @@ SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
 }
 
 SIN Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
-#if SKVX_USE_SIMD && defined(__F16C__)
-    if constexpr (N == 8) {
-        return bit_pun<Vec<N,float>>(_mm256_cvtph_ps(bit_pun<__m128i>(x)));
-    }
-#endif
 #if SKVX_USE_SIMD && defined(__aarch64__)
     if constexpr (N == 4) {
         return bit_pun<Vec<N,float>>(vcvt_f32_f16(bit_pun<float16x4_t>(x)));
@@ -744,13 +733,13 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
 // saturated_add(x,y) sums values and clamps to the maximum value instead of overflowing.
 SINT std::enable_if_t<std::is_unsigned_v<T>, Vec<N,T>> saturated_add(const Vec<N,T>& x,
                                                                      const Vec<N,T>& y) {
-#if SKVX_USE_SIMD && (defined(__SSE__) || defined(__ARM_NEON))
+#if SKVX_USE_SIMD && (SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1 || defined(SK_ARM_HAS_NEON))
     // Both SSE and ARM have 16-lane saturated adds, so use intrinsics for those and recurse down
     // or join up to take advantage.
     if constexpr (N == 16 && sizeof(T) == 1) {
-        #if defined(__SSE__)
+        #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
         return bit_pun<Vec<N,T>>(_mm_adds_epu8(bit_pun<__m128i>(x), bit_pun<__m128i>(y)));
-        #else  // __ARM_NEON
+        #else  // SK_ARM_HAS_NEON
         return bit_pun<Vec<N,T>>(vqaddq_u8(bit_pun<uint8x16_t>(x), bit_pun<uint8x16_t>(y)));
         #endif
     } else if constexpr (N < 16 && sizeof(T) == 1) {
@@ -791,7 +780,7 @@ public:
     }
 
     Vec<4, uint32_t> divide(const Vec<4, uint32_t>& numerator) const {
-#if SKVX_USE_SIMD && defined(__ARM_NEON)
+#if SKVX_USE_SIMD && defined(SK_ARM_HAS_NEON)
         uint64x2_t hi = vmull_n_u32(vget_high_u32(to_vext(numerator)), fDivisorFactor);
         uint64x2_t lo = vmull_n_u32(vget_low_u32(to_vext(numerator)),  fDivisorFactor);
 
@@ -811,7 +800,7 @@ private:
 
 SIN Vec<N,uint16_t> mull(const Vec<N,uint8_t>& x,
                          const Vec<N,uint8_t>& y) {
-#if SKVX_USE_SIMD && defined(__ARM_NEON)
+#if SKVX_USE_SIMD && defined(SK_ARM_HAS_NEON)
     // With NEON we can do eight u8*u8 -> u16 in one instruction, vmull_u8 (read, mul-long).
     if constexpr (N == 8) {
         return to_vec<8,uint16_t>(vmull_u8(to_vext(x), to_vext(y)));
@@ -827,7 +816,7 @@ SIN Vec<N,uint16_t> mull(const Vec<N,uint8_t>& x,
 
 SIN Vec<N,uint32_t> mull(const Vec<N,uint16_t>& x,
                          const Vec<N,uint16_t>& y) {
-#if SKVX_USE_SIMD && defined(__ARM_NEON)
+#if SKVX_USE_SIMD && defined(SK_ARM_HAS_NEON)
     // NEON can do four u16*u16 -> u32 in one instruction, vmull_u16
     if constexpr (N == 4) {
         return to_vec<4,uint32_t>(vmull_u16(to_vext(x), to_vext(y)));
@@ -843,7 +832,7 @@ SIN Vec<N,uint32_t> mull(const Vec<N,uint16_t>& x,
 
 SIN Vec<N,uint16_t> mulhi(const Vec<N,uint16_t>& x,
                           const Vec<N,uint16_t>& y) {
-#if SKVX_USE_SIMD && defined(__SSE__)
+#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     // Use _mm_mulhi_epu16 for 8xuint16_t and join or split to get there.
     if constexpr (N == 8) {
         return bit_pun<Vec<8,uint16_t>>(_mm_mulhi_epu16(bit_pun<__m128i>(x), bit_pun<__m128i>(y)));
@@ -924,7 +913,7 @@ SINT void strided_load4(const T* v,
     strided_load4(v, a.lo, b.lo, c.lo, d.lo);
     strided_load4(v + 4*(N/2), a.hi, b.hi, c.hi, d.hi);
 }
-#if SKVX_USE_SIMD && defined(__ARM_NEON)
+#if SKVX_USE_SIMD && defined(SK_ARM_HAS_NEON)
 #define IMPL_LOAD4_TRANSPOSED(N, T, VLD) \
 SI void strided_load4(const T* v, \
                       Vec<N,T>& a, \
@@ -953,7 +942,7 @@ IMPL_LOAD4_TRANSPOSED(16, int8_t, vld4q_s8)
 IMPL_LOAD4_TRANSPOSED(4, float, vld4q_f32)
 #undef IMPL_LOAD4_TRANSPOSED
 
-#elif SKVX_USE_SIMD && defined(__SSE__)
+#elif SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
 
 SI void strided_load4(const float* v,
                       Vec<4,float>& a,
@@ -984,7 +973,7 @@ SINT void strided_load2(const T* v, Vec<N,T>& a, Vec<N,T>& b) {
     strided_load2(v, a.lo, b.lo);
     strided_load2(v + 2*(N/2), a.hi, b.hi);
 }
-#if SKVX_USE_SIMD && defined(__ARM_NEON)
+#if SKVX_USE_SIMD && defined(SK_ARM_HAS_NEON)
 #define IMPL_LOAD2_TRANSPOSED(N, T, VLD) \
 SI void strided_load2(const T* v, Vec<N,T>& a, Vec<N,T>& b) { \
     auto mat = VLD(v); \
