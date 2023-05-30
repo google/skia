@@ -740,7 +740,6 @@ BASE_SRCS_ALL = [
     "src/effects/SkTrimPE.h",
     "src/effects/SkTrimPathEffect.cpp",
     "src/effects/imagefilters/SkAlphaThresholdImageFilter.cpp",
-    "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
     "src/effects/imagefilters/SkBlendImageFilter.cpp",
     "src/effects/imagefilters/SkBlurImageFilter.cpp",
     "src/effects/imagefilters/SkColorFilterImageFilter.cpp",

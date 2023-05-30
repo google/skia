@@ -731,7 +731,8 @@ void FilterResult::draw(SkCanvas* canvas) const {
 
 sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
                                        const SkSamplingOptions& xtraSampling,
-                                       SkEnumBitMask<ShaderFlags> flags) const {
+                                       SkEnumBitMask<ShaderFlags> flags,
+                                       const LayerSpace<SkIRect>& sampleBounds) const {
     if (!fImage) {
         return nullptr;
     }
@@ -752,7 +753,7 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
             flags & ShaderFlags::kForceResolveInputs ||
             !compatible_sampling(fSamplingOptions, currentXformIsInteger,
                                  &sampling, nextXformIsInteger) ||
-            this->isCropped(LayerSpace<SkMatrix>(SkMatrix::I()), fLayerBounds);
+            this->isCropped(LayerSpace<SkMatrix>(SkMatrix::I()), sampleBounds);
 
     // Downgrade to nearest-neighbor if the sequence of sampling doesn't do anything
     if (sampling == kDefaultSampling && nextXformIsInteger &&
@@ -886,22 +887,33 @@ FilterResult::Builder::~Builder() = default;
 
 SkSpan<sk_sp<SkShader>> FilterResult::Builder::createInputShaders(
         SkEnumBitMask<ShaderFlags> flags,
-        const SkSamplingOptions& sampling) {
+        const SkSamplingOptions& sampling,
+        const LayerSpace<SkIRect>& outputBounds) {
     fInputShaders.reserve(fInputs.size());
-    for (const FilterResult& input : fInputs) {
-        fInputShaders.push_back(input.asShader(fContext, sampling, flags));
+    for (const SampledFilterResult& input : fInputs) {
+        // Assume the input shader will be evaluated once per pixel in the output unless otherwise
+        // specified when the FilterResult was added to the builder.
+        auto sampleBounds = input.fSampleBounds ? *input.fSampleBounds : outputBounds;
+        fInputShaders.push_back(input.fImage.asShader(fContext, sampling, flags, sampleBounds));
     }
     return SkSpan<sk_sp<SkShader>>(fInputShaders);
 }
 
-LayerSpace<SkIRect> FilterResult::Builder::outputBounds(SkEnumBitMask<ShaderFlags> flags) const {
+LayerSpace<SkIRect> FilterResult::Builder::outputBounds(
+        SkEnumBitMask<ShaderFlags> flags,
+        std::optional<LayerSpace<SkIRect>> explicitOutput) const {
+    // Explicit bounds should only be provided if-and-only-if kExplicitOutputBounds flag is set.
+    SkASSERT(explicitOutput.has_value() == (flags & ShaderFlags::kExplicitOutputBounds));
+
     LayerSpace<SkIRect> output = LayerSpace<SkIRect>::Empty();
-    if (flags & ShaderFlags::kOutputFillsInputUnion) {
+    if (flags & ShaderFlags::kExplicitOutputBounds) {
+        output = *explicitOutput;
+    } else if (flags & ShaderFlags::kOutputFillsInputUnion) {
         // The union of all inputs' layer bounds
         if (fInputs.size() > 0) {
-            output = fInputs[0].layerBounds();
+            output = fInputs[0].fImage.layerBounds();
             for (int i = 1; i < fInputs.size(); ++i) {
-                output.join(fInputs[i].layerBounds());
+                output.join(fInputs[i].fImage.layerBounds());
             }
         }
     } else {
@@ -938,16 +950,18 @@ FilterResult FilterResult::Builder::merge() {
     if (fInputs.empty()) {
         return {};
     } else if (fInputs.size() == 1) {
-        return fInputs[0];
+        SkASSERT(!fInputs[0].fSampleBounds.has_value());
+        return fInputs[0].fImage;
     }
 
     const LayerSpace<SkIRect> outputBounds =
-            this->outputBounds(ShaderFlags::kOutputFillsInputUnion);
+            this->outputBounds(ShaderFlags::kOutputFillsInputUnion, std::nullopt);
     AutoSurface surface{fContext, outputBounds, /*renderInParameterSpace=*/false};
     if (surface) {
-        for (const FilterResult& input : fInputs) {
+        for (const SampledFilterResult& input : fInputs) {
+            SkASSERT(!input.fSampleBounds.has_value());
             surface->save();
-            input.draw(surface.canvas());
+            input.fImage.draw(surface.canvas());
             surface->restore();
         }
     }

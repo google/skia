@@ -1448,7 +1448,7 @@ DEF_TEST(ImageFilterMatrixConvolutionTest, reporter) {
 
 static void test_xfermode_cropped_input(SkSurface* surf, skiatest::Reporter* reporter) {
     auto canvas = surf->getCanvas();
-    canvas->clear(0);
+    canvas->clear(SK_ColorRED);
 
     SkBitmap bitmap;
     bitmap.allocN32Pixels(1, 1);
@@ -1473,20 +1473,28 @@ static void test_xfermode_cropped_input(SkSurface* surf, skiatest::Reporter* rep
     paint.setImageFilter(std::move(xfermodeNoFg));
     canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);   // drawSprite
 
+    // xfermodeNoFg is a src-over blend between a green image and a transparent black image,
+    // so should just be green.
     uint32_t pixel;
     SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
     surf->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
+    // xfermodeNoBg is the reverse of the above, but because it's src-over the final blend
+    // between transparent black and green is still green.
+    canvas->clear(SK_ColorRED); // should be overwritten
     paint.setImageFilter(std::move(xfermodeNoBg));
     canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);   // drawSprite
     surf->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
+    // xfermodeNoFgNoBg is a src-over blend of two empty images, so should produce no change
+    // to the image.
+    canvas->clear(SK_ColorRED); // should not be overwritten
     paint.setImageFilter(std::move(xfermodeNoFgNoBg));
     canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);   // drawSprite
     surf->readPixels(info, &pixel, 4, 0, 0);
-    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+    REPORTER_ASSERT(reporter, pixel == SK_ColorRED);
 }
 
 DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
@@ -1821,7 +1829,7 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrRecordingConte
         clipBounds.setXYWH(0, 0, 170, 100);
         subset.setXYWH(0, 0, 160, 90);
 
-        filter = SkImageFilters::Blend(SkBlendMode::kSrc, nullptr);
+        filter = SkImageFilters::Blend(SkBlendMode::kSrcOver, nullptr);
         result = sourceImage->makeWithFilter(rContext, filter.get(), subset, clipBounds,
                                              &outSubset, &offset);
         REPORTER_ASSERT(reporter, result);
@@ -1935,8 +1943,11 @@ DEF_TEST(XfermodeImageFilterBounds, reporter) {
     expectedBounds[static_cast<int>(SkBlendMode::kDst)] = background_rect;
     expectedBounds[static_cast<int>(SkBlendMode::kSrcIn)] = intersection;
     expectedBounds[static_cast<int>(SkBlendMode::kDstIn)] = intersection;
+    expectedBounds[static_cast<int>(SkBlendMode::kSrcOut)] = foreground_rect;
+    expectedBounds[static_cast<int>(SkBlendMode::kDstOut)] = background_rect;
     expectedBounds[static_cast<int>(SkBlendMode::kSrcATop)] = background_rect;
     expectedBounds[static_cast<int>(SkBlendMode::kDstATop)] = foreground_rect;
+    expectedBounds[static_cast<int>(SkBlendMode::kModulate)] = intersection;
 
     // The value of this variable doesn't matter because we use inputs with fixed bounds.
     SkIRect src = SkIRect::MakeXYWH(11, 22, 33, 44);

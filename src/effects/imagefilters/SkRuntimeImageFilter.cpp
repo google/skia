@@ -243,7 +243,10 @@ skif::FilterResult SkRuntimeImageFilter::onFilterImage(const skif::Context& ctx)
             this->applyMaxSampleRadius(ctx.mapping(), ctx.desiredOutput()));
     skif::FilterResult::Builder builder{ctx};
     for (int i = 0; i < inputCount; ++i) {
-        builder.add(this->getChildOutput(i, inputCtx));
+        // Record the input context's desired output as the sample bounds for the child shaders
+        // since the runtime shader can go up to max sample radius away from its desired output
+        // (which is the default sample bounds if we didn't override it here).
+        builder.add(this->getChildOutput(i, inputCtx), inputCtx.desiredOutput());
     }
     return builder.eval([&](SkSpan<sk_sp<SkShader>> inputs) {
         // lock the mutation of the builder and creation of the shader so that the builder's state

@@ -72,6 +72,7 @@ public:
     enum class Method {
         kImageAndOffset,
         kShader,
+        kClippedShader,
         kDrawToCanvas
     };
 
@@ -81,6 +82,7 @@ public:
         switch (fMethod) {
             case Method::kImageAndOffset: return "imageAndOffset";
             case Method::kShader:         return "asShader";
+            case Method::kClippedShader:  return "asShaderClipped";
             case Method::kDrawToCanvas:   return "drawToCanvas";
         }
         SkUNREACHABLE;
@@ -104,15 +106,23 @@ public:
             canvas->clear(SK_ColorTRANSPARENT);
             canvas->translate(-ctx.desiredOutput().left(), -ctx.desiredOutput().top());
 
-            if (fMethod == Method::kShader) {
-                // asShader() does not apply a layer bounds crop since it assumes a parent shader
-                // will only be sampling within layer bounds. Filling a canvas with the shader thus
-                // requires a clip to the layer bounds.
-                canvas->clipIRect(SkIRect(image.layerBounds()));
+            if (fMethod == Method::kShader || fMethod == Method::kClippedShader) {
+                skif::LayerSpace<SkIRect> sampleBounds;
+                if (fMethod == Method::kShader) {
+                    // asShader() applies layer bounds by resolving automatically
+                    // (e.g. kDrawToCanvas), if sampleBounds is larger than the layer bounds. Since
+                    // we want to test the unclipped shader version, pass in layerBounds() for
+                    // sampleBounds and add a clip to the canvas instead.
+                    canvas->clipIRect(SkIRect(image.layerBounds()));
+                    sampleBounds = image.layerBounds();
+                } else {
+                    sampleBounds = ctx.desiredOutput();
+                }
 
                 SkPaint paint;
                 paint.setShader(image.asShader(ctx, FilterResult::kDefaultSampling,
-                                               FilterResult::ShaderFlags::kNone));
+                                               FilterResult::ShaderFlags::kNone,
+                                               sampleBounds));
                 canvas->drawPaint(paint);
             } else {
                 SkASSERT(fMethod == Method::kDrawToCanvas);
@@ -405,6 +415,8 @@ public:
                                    FilterResultImageResolver::Method::kImageAndOffset) &&
                this->compareImages(ctx, expectedBM, expectedOrigin, actual,
                                    FilterResultImageResolver::Method::kShader) &&
+               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   FilterResultImageResolver::Method::kClippedShader) &&
                this->compareImages(ctx, expectedBM, expectedOrigin, actual,
                                    FilterResultImageResolver::Method::kDrawToCanvas);
     }

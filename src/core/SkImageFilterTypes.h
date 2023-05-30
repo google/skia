@@ -19,6 +19,8 @@
 #include "src/core/SkEnumBitMask.h"
 #include "src/core/SkSpecialImage.h"
 
+#include <optional>
+
 class GrRecordingContext;
 enum GrSurfaceOrigin : int;
 class SkImage;
@@ -744,8 +746,11 @@ public:
         kSampleInParameterSpace = 1 << 0,
         kForceResolveInputs     = 1 << 1,
         kNonLinearSampling      = 1 << 2,
-        kOutputFillsInputUnion  = 1 << 3
-        // TODO: Add options for input intersection, first input only, and explicitly provided.
+        kOutputFillsInputUnion  = 1 << 3,
+        kExplicitOutputBounds   = 1 << 4
+        // TODO: Add options for input intersection, first input only, if needed. If it turns out
+        // union is only used for merge() and all other cases are fills-desired-output vs. explicit
+        // then maybe that flag goes away and eval() relies on optional.has_value().
     };
     SK_DECL_BITMASK_OPS_FRIENDS(ShaderFlags)
 
@@ -769,9 +774,11 @@ private:
 
     // Returns the FilterResult as a shader, ideally without resolving to an axis-aligned image.
     // 'xtraSampling' is the sampling that any parent shader applies to the FilterResult.
+    // 'sampleBounds' is the bounding box of coords the shader will be evaluated at by any parent.
     sk_sp<SkShader> asShader(const Context& ctx,
                              const SkSamplingOptions& xtraSampling,
-                             SkEnumBitMask<ShaderFlags> flags) const;
+                             SkEnumBitMask<ShaderFlags> flags,
+                             const LayerSpace<SkIRect>& sampleBounds) const;
 
     // The effective image of a FilterResult is 'fImage' sampled by 'fSamplingOptions' and
     // respecting 'fTileMode' (on the SkSpecialImage's subset), transformed by 'fTransform',
@@ -802,8 +809,16 @@ public:
     Builder(const Context& context);
     ~Builder();
 
-    Builder& add(const FilterResult& input) {
-        fInputs.push_back(input);
+    // If 'sampleBounds' is not provided, it defaults to the output bounds calculated for eval()
+    // (generally the Context's desired output but could be restricted based on the ShaderFlags).
+    //
+    // If it is provided, it represents the bounding box of possible coords 'input' will be sampled
+    // at by the shader created from eval(). This can be useful to provide when the shader does non
+    // trivial sampling since it may avoid having to resolve a FilterResult to an image.
+    //
+    // 'sampleBounds' must be left empty for merge().
+    Builder& add(const FilterResult& input, std::optional<LayerSpace<SkIRect>> sampleBounds = {}) {
+        fInputs.push_back({input, sampleBounds});
         return *this;
     }
 
@@ -820,31 +835,45 @@ public:
     // The length of the span will equal the number of FilterResults added to the builder. If an
     // input FilterResult was fully transparent, its corresponding shader will be null. 'ShaderFn'
     // should return a null shader its output would be fully transparent.
+    //
+    // By default, the returned FilterResult will fill the Context's desired image. The 'flags' can
+    // optionally restrict this to other common bounds (e.g. union of inputs), or specify that
+    // explicit bounds are provided. If ShaderFlags::kExplicitOutputBounds is present, then the
+    // bounds must be set in 'explicitOutput'. In all cases, the layer bounds of the FilterResult
+    // are restricted by the builder's context's desired output.
     template <typename ShaderFn>
     FilterResult eval(ShaderFn shaderFn,
                       SkEnumBitMask<ShaderFlags> flags,
+                      std::optional<LayerSpace<SkIRect>> explicitOutput = {},
                       const SkSamplingOptions& xtraSampling = kDefaultSampling) {
-        auto outputBounds = this->outputBounds(flags);
+        auto outputBounds = this->outputBounds(flags, explicitOutput);
         if (outputBounds.isEmpty()) {
             return {};
         }
 
-        auto inputShaders = this->createInputShaders(flags, xtraSampling);
+        auto inputShaders = this->createInputShaders(flags, xtraSampling, outputBounds);
         return this->drawShader(shaderFn(inputShaders), flags, outputBounds);
     }
 
 private:
-    SkSpan<sk_sp<SkShader>> createInputShaders(SkEnumBitMask<ShaderFlags> flags,
-                                               const SkSamplingOptions& sampling);
+    struct SampledFilterResult {
+        FilterResult fImage;
+        std::optional<LayerSpace<SkIRect>> fSampleBounds;
+    };
 
-    LayerSpace<SkIRect> outputBounds(SkEnumBitMask<ShaderFlags> flags) const;
+    SkSpan<sk_sp<SkShader>> createInputShaders(SkEnumBitMask<ShaderFlags> flags,
+                                               const SkSamplingOptions& sampling,
+                                               const LayerSpace<SkIRect>& outputBounds);
+
+    LayerSpace<SkIRect> outputBounds(SkEnumBitMask<ShaderFlags> flags,
+                                     std::optional<LayerSpace<SkIRect>> explicitOutput) const;
 
     FilterResult drawShader(sk_sp<SkShader> shader,
                             SkEnumBitMask<ShaderFlags> flags,
                             const LayerSpace<SkIRect>& outputBounds) const;
 
     const Context& fContext; // Must outlive the builder
-    skia_private::STArray<1, FilterResult> fInputs;
+    skia_private::STArray<1, SampledFilterResult> fInputs;
     // Lazily created once all inputs are collected, but parallels fInputs.
     skia_private::STArray<1, sk_sp<SkShader>> fInputShaders;
 };
