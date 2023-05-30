@@ -2298,6 +2298,7 @@ SKOTTIE_LIB_HDRS = [
     "modules/skottie/include/ExternalLayer.h",
     "modules/skottie/include/Skottie.h",
     "modules/skottie/include/SkottieProperty.h",
+    "modules/skottie/include/SlotManager.h",
 ]
 
 # We omit SkottieTool and SkottieTest as they are not needed for production code.
@@ -2379,6 +2380,7 @@ SKOTTIE_LIB_SRCS = [
     "modules/skottie/src/SkottiePriv.h",
     "modules/skottie/src/SkottieProperty.cpp",
     "modules/skottie/src/SkottieValue.h",
+    "modules/skottie/src/SlotManager.cpp",
     "modules/skottie/src/text/Font.cpp",
     "modules/skottie/src/text/Font.h",
     "modules/skottie/src/text/RangeSelector.cpp",
