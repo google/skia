@@ -230,11 +230,11 @@ bool GrDrawingManager::submitToGpu(bool syncToCpu) {
 
 bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
 #if GR_FLUSH_TIME_OP_SPEW
-    SkDebugf("Flushing %d opsTasks\n", fDAG.count());
-    for (int i = 0; i < fDAG.count(); ++i) {
+    SkDebugf("Flushing %d opsTasks\n", fDAG.size());
+    for (int i = 0; i < fDAG.size(); ++i) {
         if (fDAG[i]) {
             SkString label;
-            label.printf("task %d/%d", i, fDAG.count());
+            label.printf("task %d/%d", i, fDAG.size());
             fDAG[i]->dump(label, {}, true, true);
         }
     }
