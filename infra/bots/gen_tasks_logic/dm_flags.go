@@ -376,6 +376,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				if b.matchGpu("Intel") {
 					// anglebug.com/5588
 					skip(ALL, "test", ALL, "SkSLIntrinsicFloor_GPU")
+					// Debug-ANGLE-All on Intel frequently timeout, and the FilterResult test suite
+					// produces many test cases, that are multiplied by the number of configs (of
+					// which ANGLE has many variations). There is not a lot of value gained by
+					// running these if they are the source of long 'dm' time on Xe hardware given
+					// many other bots are executing them.
+					skip(ALL, "test", ALL, "FilterResult")
 				}
 			} else if b.matchOs("Mac") {
 				configs = []string{"angle_mtl_es2", "angle_mtl_es3"}
