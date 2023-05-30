@@ -1946,7 +1946,7 @@ void MetalCodeGenerator::writePrefixExpression(const PrefixExpression& p,
         // Transform the unary "-" on a matrix type to a multiplication by -1.
         this->write(p.type().componentType().highPrecision() ? "(-1.0 * "
                                                              : "(-1.0h * ");
-        this->writeExpression(*p.operand(), Precedence::kPrefix);
+        this->writeExpression(*p.operand(), Precedence::kMultiplicative);
         this->write(")");
         return;
     }
