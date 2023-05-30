@@ -62,6 +62,24 @@ fn test_mat4_b() -> bool {
     x = (-1.0 * x);
     return mat4x4f32_eq_mat4x4f32(x, negated);
 }
+fn test_hmat2_b() -> bool {
+    let negated: mat2x2<f32> = mat2x2<f32>(vec2<f32>(-1.0, -2.0), vec2<f32>(-3.0, -4.0));
+    var x: mat2x2<f32> = mat2x2<f32>(_globalUniforms.testMatrix2x2);
+    x = (-1.0 * x);
+    return mat2x2f32_eq_mat2x2f32(x, negated);
+}
+fn test_hmat3_b() -> bool {
+    let negated: mat3x3<f32> = mat3x3<f32>(vec3<f32>(-1.0, -2.0, -3.0), vec3<f32>(-4.0, -5.0, -6.0), vec3<f32>(-7.0, -8.0, -9.0));
+    var x: mat3x3<f32> = mat3x3<f32>(_globalUniforms.testMatrix3x3);
+    x = (-1.0 * x);
+    return mat3x3f32_eq_mat3x3f32(x, negated);
+}
+fn test_hmat4_b() -> bool {
+    let negated: mat4x4<f32> = mat4x4<f32>(vec4<f32>(-1.0, -2.0, -3.0, -4.0), vec4<f32>(-5.0, -6.0, -7.0, -8.0), vec4<f32>(-9.0, -10.0, -11.0, -12.0), vec4<f32>(-13.0, -14.0, -15.0, -16.0));
+    var x: mat4x4<f32> = mat4x4<f32>(_globalUniforms.testMatrix4x4);
+    x = (-1.0 * x);
+    return mat4x4f32_eq_mat4x4f32(x, negated);
+}
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var _0_x: f32 = f32(_globalUniforms.colorWhite.x);
     _0_x = -_0_x;
@@ -72,33 +90,51 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp4: bool;
     var _skTemp5: bool;
     var _skTemp6: bool;
+    var _skTemp7: bool;
+    var _skTemp8: bool;
+    var _skTemp9: bool;
     if _0_x == -1.0 {
-        _skTemp6 = test_iscalar_b();
+        _skTemp9 = test_iscalar_b();
+    } else {
+        _skTemp9 = false;
+    }
+    if _skTemp9 {
+        _skTemp8 = test_fvec_b();
+    } else {
+        _skTemp8 = false;
+    }
+    if _skTemp8 {
+        _skTemp7 = test_ivec_b();
+    } else {
+        _skTemp7 = false;
+    }
+    if _skTemp7 {
+        _skTemp6 = test_mat2_b();
     } else {
         _skTemp6 = false;
     }
     if _skTemp6 {
-        _skTemp5 = test_fvec_b();
+        _skTemp5 = test_mat3_b();
     } else {
         _skTemp5 = false;
     }
     if _skTemp5 {
-        _skTemp4 = test_ivec_b();
+        _skTemp4 = test_mat4_b();
     } else {
         _skTemp4 = false;
     }
     if _skTemp4 {
-        _skTemp3 = test_mat2_b();
+        _skTemp3 = test_hmat2_b();
     } else {
         _skTemp3 = false;
     }
     if _skTemp3 {
-        _skTemp2 = test_mat3_b();
+        _skTemp2 = test_hmat3_b();
     } else {
         _skTemp2 = false;
     }
     if _skTemp2 {
-        _skTemp1 = test_mat4_b();
+        _skTemp1 = test_hmat4_b();
     } else {
         _skTemp1 = false;
     }

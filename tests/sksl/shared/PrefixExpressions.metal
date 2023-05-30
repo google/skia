@@ -22,6 +22,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok = ok && all(mask == uint2(0u));
     half one = _uniforms.colorGreen.x;
     half4x4 m = half4x4(one);
-    _out.sk_FragColor = ok ? (-1.0 * m) * -_uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ok ? (-1.0h * m) * -_uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
