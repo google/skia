@@ -234,7 +234,7 @@ $pure half4 $cubic_filter_image(float2 pos,
                                 float4 subset,
                                 int tileModeX,
                                 int tileModeY,
-                                float4x4 coeffs,
+                                half4x4 coeffs,
                                 int readSwizzle,
                                 sampler2D s) {
     // Determine pos's fractional offset f between texel centers.
@@ -244,11 +244,11 @@ $pure half4 $cubic_filter_image(float2 pos,
     // Snap to texel centers to prevent sampling neighboring texels.
     pos = floor(pos) + 0.5;
 
-    float4 wx = coeffs * float4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);
-    float4 wy = coeffs * float4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);
-    float4 color = float4(0);
+    half4 wx = coeffs * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);
+    half4 wy = coeffs * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);
+    half4 color = half4(0);
     for (int y = 0; y < 4; ++y) {
-        float4 rowColor = float4(0);
+        half4 rowColor = half4(0);
         for (int x = 0; x < 4; ++x) {
             rowColor += wx[x] * $sample_image(pos + float2(x, y), imgSize, subset,
                                               tileModeX, tileModeY, $kFilterModeNearest,
@@ -256,7 +256,10 @@ $pure half4 $cubic_filter_image(float2 pos,
         }
         color += wy[y] * rowColor;
     }
-    return half4(color);
+    // Bicubic can send colors out of range, so clamp to get them back in gamut, assuming premul.
+    color.a = saturate(color.a);
+    color.rgb = clamp(color.rgb, half3(0.0), color.aaa);
+    return color;
 }
 
 $pure half4 sk_image_shader(float2 coords,
@@ -266,7 +269,7 @@ $pure half4 sk_image_shader(float2 coords,
                             int tileModeY,
                             int filterMode,
                             int useCubic,
-                            float4x4 cubicCoeffs,
+                            half4x4 cubicCoeffs,
                             int readSwizzle,
                             int csXformFlags,
                             int csXformSrcKind,
@@ -290,7 +293,7 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 int tileModeY,
                                 int filterMode,
                                 int useCubic,
-                                float4x4 cubicCoeffs,
+                                half4x4 cubicCoeffs,
                                 half4 channelSelectY,
                                 half4 channelSelectU,
                                 half4 channelSelectV,

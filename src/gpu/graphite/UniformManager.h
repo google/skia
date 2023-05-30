@@ -95,6 +95,7 @@ public:
 
     void writeHalf(float f);
     void writeHalf(const SkMatrix&);
+    void writeHalf(const SkM44&);
     void writeHalf(const SkColor4f&);
     void writeHalfArray(SkSpan<const float>);
 

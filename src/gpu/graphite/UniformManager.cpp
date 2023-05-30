@@ -666,6 +666,11 @@ void UniformManager::writeHalf(const SkMatrix& mat) {
     this->write(kType, &mat);
 }
 
+void UniformManager::writeHalf(const SkM44& mat) {
+    static constexpr SkSLType kType = SkSLType::kHalf4x4;
+    this->write(kType, &mat);
+}
+
 void UniformManager::writeHalf(const SkColor4f& unpremulColor) {
     static constexpr SkSLType kType = SkSLType::kHalf4;
     this->write(kType, &unpremulColor);

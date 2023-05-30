@@ -790,7 +790,7 @@ static constexpr Uniform kImageShaderUniforms[] = {
         { "tilemodeY",             SkSLType::kInt },
         { "filterMode",            SkSLType::kInt },
         { "useCubic",              SkSLType::kInt },
-        { "cubicCoeffs",           SkSLType::kFloat4x4 },
+        { "cubicCoeffs",           SkSLType::kHalf4x4 },
         { "readSwizzle",           SkSLType::kInt },
         // The next 6 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
@@ -837,7 +837,7 @@ static constexpr Uniform kYUVImageShaderUniforms[] = {
         { "tilemodeY",             SkSLType::kInt },
         { "filterMode",            SkSLType::kInt },
         { "useCubic",              SkSLType::kInt },
-        { "cubicCoeffs",           SkSLType::kFloat4x4 },
+        { "cubicCoeffs",           SkSLType::kHalf4x4 },
         { "channelSelectY",        SkSLType::kHalf4 },
         { "channelSelectU",        SkSLType::kHalf4 },
         { "channelSelectV",        SkSLType::kHalf4 },
