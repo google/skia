@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 
-# Recipe module for Skia Swarming compile.
+# Recipe module for compiling Skia when we need to get a full Skia checkout.
 
 PYTHON_VERSION_COMPATIBILITY = "PY3"
 

@@ -14,6 +14,8 @@ import sys
 target = sys.argv[1]
 output = sys.argv[2]
 
+print("Invoking bazelisk from ", os.getcwd())
+
 # Forward the remaining args to the bazel invocation
 subprocess.run(["bazelisk", "build", target ] + sys.argv[3:], check=True)
 

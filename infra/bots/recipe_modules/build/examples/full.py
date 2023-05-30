@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
+PYTHON_VERSION_COMPATIBILITY = 'PY3'
 
 DEPS = [
   'build',
@@ -71,14 +71,15 @@ TEST_BUILDERS = [
   'Build-Debian10-EMCC-wasm-Release-PathKit',
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-arm64-Debug-iOS',
-  "Build-Mac-Clang-arm64-Debug-Graphite_Dawn",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoGpu",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoPrecompile",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Metal",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoGpu",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoPrecompile",
-  "Build-Mac-Clang-arm64-Release-Graphite_Metal",
-  "Build-Mac-Clang-arm64-Release-Graphite_Dawn",
+  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoGpu',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoPrecompile',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Metal',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoGpu',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoPrecompile',
+  'Build-Mac-Clang-arm64-Release-Graphite_Metal',
+  'Build-Mac-Clang-arm64-Release-Graphite_Dawn',
+  'Build-Mac-Clang-x86_64-Release-Graphite_Metal_Vello',
   'Build-Mac-Xcode11.4.1-arm64-Debug-iOS',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
   'Build-Mac-Clang-x86_64-Debug-Metal',
@@ -88,7 +89,7 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Release-Graphite_Vulkan',
   'Build-Win-Clang-x86_64-Release-Direct3D',
   'Build-Win-Clang-x86_64-Release-Shared',
-  "Build-Win-Clang-x86_64-Release-Dawn",
+  'Build-Win-Clang-x86_64-Release-Dawn',
   'Build-Win-Clang-x86_64-Release-Vulkan',
 ]
 
