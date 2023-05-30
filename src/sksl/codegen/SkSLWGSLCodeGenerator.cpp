@@ -972,6 +972,20 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const BinaryExpression& 
         return expr;
     }
 
+    // Assignment is only supported at the top level in WGSL. Inside a nested expression, we split
+    // the assignment out into a separate expression, and return a dereferenced pointer to the
+    // computed value.
+    if (op.isAssignment() && parentPrecedence != Precedence::kStatement) {
+        expr = this->writeScratchPtr(left);
+        std::string rightExpr = this->assembleExpression(right, Precedence::kAssignment);
+
+        this->write(expr);
+        this->write(op.operatorName());
+        this->write(rightExpr);
+        this->writeLine(";");
+        return expr;
+    }
+
     // The equality and comparison operators are only supported for scalar and vector types.
     if (op.isEquality() && !left.type().isScalar() && !left.type().isVector()) {
         if (left.type().isMatrix()) {
@@ -1190,6 +1204,17 @@ std::string WGSLCodeGenerator::writeScratchVar(const Type& type) {
     this->write(to_wgsl_type(type));
     this->writeLine(";");
     return scratchVarName;
+}
+
+std::string WGSLCodeGenerator::writeScratchPtr(const Expression& lvalue) {
+    std::string lvalueExpr = this->assembleExpression(lvalue, Precedence::kAssignment);
+    std::string scratchVarName = "_skTemp" + std::to_string(fScratchCount++);
+    this->write("let ");
+    this->write(scratchVarName);
+    this->write(" = &(");
+    this->write(lvalueExpr);
+    this->writeLine(");");
+    return "(*" + scratchVarName + ")";
 }
 
 std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression& t,
