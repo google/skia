@@ -36,7 +36,7 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/CtsEnforcement.h"

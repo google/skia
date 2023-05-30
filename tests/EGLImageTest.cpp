@@ -39,7 +39,7 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/CtsEnforcement.h"

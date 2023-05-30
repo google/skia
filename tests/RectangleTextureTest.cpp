@@ -43,7 +43,7 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/TestUtils.h"
 #include "tools/gpu/ProxyUtils.h"

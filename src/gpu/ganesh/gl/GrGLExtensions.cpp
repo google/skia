@@ -6,7 +6,7 @@
  */
 
 #include "include/gpu/gl/GrGLExtensions.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #include "src/base/SkTSearch.h"

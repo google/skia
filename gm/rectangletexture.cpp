@@ -34,7 +34,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 #include <algorithm>
 #include <cstdint>

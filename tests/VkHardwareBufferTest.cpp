@@ -27,7 +27,7 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"

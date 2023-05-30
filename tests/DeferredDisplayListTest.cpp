@@ -52,7 +52,7 @@ struct GrContextOptions;
 
 #ifdef SK_GL
 #include "include/gpu/gl/GrGLTypes.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #endif
 
 #ifdef SK_VULKAN

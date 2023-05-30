@@ -75,7 +75,7 @@ class GrSemaphore;
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #endif
 #ifdef SK_METAL

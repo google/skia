@@ -8,7 +8,7 @@
 #include "include/core/SkScalar.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/Swizzle.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 GrGLTextureParameters::SamplerOverriddenState::SamplerOverriddenState()
         // These are the OpenGL defaults.

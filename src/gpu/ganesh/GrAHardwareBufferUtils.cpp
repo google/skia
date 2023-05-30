@@ -26,7 +26,7 @@
 
 #ifdef SK_GL
 #include "include/gpu/gl/GrGLTypes.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #endif
 

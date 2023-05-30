@@ -68,7 +68,7 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLContext.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "tools/gpu/gl/GLTestContext.h"
 #endif

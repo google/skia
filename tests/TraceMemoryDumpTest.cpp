@@ -18,7 +18,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLBuffer.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"

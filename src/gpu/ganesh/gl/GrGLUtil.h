@@ -13,7 +13,7 @@
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 class SkMatrix;
 

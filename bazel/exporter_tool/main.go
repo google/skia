@@ -306,7 +306,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/gl:core_srcs",
 				"//src/gpu/ganesh/gl/builders:builder_hdrs",
 				"//src/gpu/ganesh/gl/builders:builder_srcs",
-				"//src/gpu/gl:gl_hdrs",
 			}},
 		{Var: "skia_null_gpu_sources",
 			Rules: []string{

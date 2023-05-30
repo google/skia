@@ -88,7 +88,7 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 #include <webgl/webgl1.h>
 #endif // CK_ENABLE_WEBGL
