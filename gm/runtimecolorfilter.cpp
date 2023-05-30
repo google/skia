@@ -169,7 +169,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
     auto makePaint = [&](bool useCF, bool useShader) {
         SkPaint paint;
         paint.setColorFilter(useCF ? colorfilter : nullptr);
-        paint.setShader(useShader ? atlas->makeShader(SkSamplingOptions{}) : nullptr);
+        paint.setShader(useShader ? atlas->makeShader(SkFilterMode::kNearest) : nullptr);
         return paint;
     };
 
@@ -192,7 +192,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
                           &kColor,
                           1,
                           SkBlendMode::kModulate,
-                          SkSamplingOptions{},
+                          SkFilterMode::kNearest,
                           nullptr,
                           &paint);
     };

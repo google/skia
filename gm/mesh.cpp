@@ -698,7 +698,7 @@ protected:
                         colors,
                         /*rowBytes=*/8);
         fShader = SkImages::RasterFromPixmapCopy(pixmap)->makeShader(
-                SkTileMode::kClamp, SkTileMode::kClamp, SkSamplingOptions{SkFilterMode::kLinear});
+                SkTileMode::kClamp, SkTileMode::kClamp, SkFilterMode::kLinear);
     }
 
     SkString onShortName() override { return SkString("mesh_updates"); }

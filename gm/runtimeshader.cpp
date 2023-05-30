@@ -727,11 +727,11 @@ static sk_sp<SkImage> normal_map_image() {
 }
 
 static sk_sp<SkShader> normal_map_image_shader() {
-    return normal_map_image()->makeShader(SkSamplingOptions{});
+    return normal_map_image()->makeShader(SkFilterMode::kNearest);
 }
 
 static sk_sp<SkShader> normal_map_raw_image_shader() {
-    return normal_map_image()->makeRawShader(SkSamplingOptions{});
+    return normal_map_image()->makeRawShader(SkFilterMode::kNearest);
 }
 
 static sk_sp<SkImage> normal_map_unpremul_image() {
@@ -750,11 +750,11 @@ static sk_sp<SkImage> normal_map_unpremul_image() {
 }
 
 static sk_sp<SkShader> normal_map_unpremul_image_shader() {
-    return normal_map_unpremul_image()->makeShader(SkSamplingOptions{});
+    return normal_map_unpremul_image()->makeShader(SkFilterMode::kNearest);
 }
 
 static sk_sp<SkShader> normal_map_raw_unpremul_image_shader() {
-    return normal_map_unpremul_image()->makeRawShader(SkSamplingOptions{});
+    return normal_map_unpremul_image()->makeRawShader(SkFilterMode::kNearest);
 }
 
 static sk_sp<SkShader> lit_shader(sk_sp<SkShader> normals) {
@@ -906,7 +906,7 @@ DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
     }
 
     auto image     = GetResourceAsImage("images/mandrill_128.png");
-    auto imgShader = image->makeShader(SkSamplingOptions{});
+    auto imgShader = image->makeShader(SkFilterMode::kNearest);
 
     auto r = SkRect::MakeWH(image->width(), image->height());
 

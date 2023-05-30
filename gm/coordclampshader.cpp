@@ -24,7 +24,7 @@ DEF_SIMPLE_GM(coordclampshader, canvas, 1074, 795) {
     image = image->makeSubset(nullptr, SkIRect::MakeWH(image->width(), image->height() - 1));
     image = image->withDefaultMipmaps();
 
-    auto imageShader = image->makeShader(SkSamplingOptions{SkFilterMode::kLinear});
+    auto imageShader = image->makeShader(SkFilterMode::kLinear);
 
     SkPaint paint;
 

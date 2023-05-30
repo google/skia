@@ -235,12 +235,12 @@ protected:
         auto mshader = mandrill->makeShader(
                 SkTileMode::kRepeat,
                 SkTileMode::kRepeat,
-                SkSamplingOptions{},
+                SkFilterMode::kNearest,
                 SkMatrix::RotateDeg(45, {128, 128})); // rotate about center
         auto eshader = example5->makeShader(
                 SkTileMode::kRepeat,
                 SkTileMode::kRepeat,
-                SkSamplingOptions{},
+                SkFilterMode::kNearest,
                 SkMatrix::Scale(2, 2)); // make same size as mandrill and...
         // ... rotate about center
         eshader = eshader->makeWithLocalMatrix(SkMatrix::RotateDeg(45, {128, 128}));

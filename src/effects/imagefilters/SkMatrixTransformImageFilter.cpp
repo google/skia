@@ -89,7 +89,7 @@ sk_sp<SkImageFilter> SkImageFilters::Offset(SkScalar dx, SkScalar dy,
     // is roughly equivalent to using nearest-neighbor sampling with the translation matrix.
     sk_sp<SkImageFilter> offset = SkImageFilters::MatrixTransform(
             SkMatrix::Translate(dx, dy),
-            SkSamplingOptions{SkFilterMode::kNearest},
+            SkFilterMode::kNearest,
             std::move(input));
     // The legacy 'cropRect' applies only to the output of the offset filter.
     if (cropRect) {

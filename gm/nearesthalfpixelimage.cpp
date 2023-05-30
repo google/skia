@@ -78,7 +78,7 @@ DEF_SIMPLE_GM_CAN_FAIL(nearest_half_pixel_image, canvas, errorMsg, 264, 235) {
         SkPaint paint;
         paint.setAlpha(alpha);
         if (shader) {
-            paint.setShader(image->makeShader(SkSamplingOptions{}));
+            paint.setShader(image->makeShader(SkFilterMode::kNearest));
         }
         if (doX) {
             c->scale(mirror ? -1 : 1, kOffAxisScale);
@@ -91,7 +91,7 @@ DEF_SIMPLE_GM_CAN_FAIL(nearest_half_pixel_image, canvas, errorMsg, 264, 235) {
         if (shader) {
             c->drawRect(SkRect::Make(image->dimensions()), paint);
         } else {
-            c->drawImage(image, 0, 0, SkSamplingOptions{}, &paint);
+            c->drawImage(image, 0, 0, SkFilterMode::kNearest, &paint);
         }
         c->restore();
     };

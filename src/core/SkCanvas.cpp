@@ -940,7 +940,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
             // infect blurs and other filters with large kernels.
             SkPaint imageFill;
             imageFill.setShader(srcImage->asShader(SkTileMode::kClamp,
-                                                   SkSamplingOptions{SkFilterMode::kLinear},
+                                                   SkFilterMode::kLinear,
                                                    SkMatrix::Translate(srcSubset.topLeft())));
             intermediateDevice->drawPaint(imageFill);
             filterInput = intermediateDevice->snapSpecial();

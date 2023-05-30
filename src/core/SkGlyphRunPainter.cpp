@@ -367,9 +367,7 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
 
                 // Draw the bitmap using the rect from the scaled cache, and not the source
                 // rectangle for the glyph.
-                bitmapDevice->drawBitmap(
-                        bm, translate, nullptr, SkSamplingOptions{SkFilterMode::kLinear},
-                        paint);
+                bitmapDevice->drawBitmap(bm, translate, nullptr, SkFilterMode::kLinear, paint);
             }
         }
 

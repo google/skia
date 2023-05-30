@@ -89,6 +89,6 @@ static sk_sp<SkImage> overdraw_text_grid(bool useCTM) {
 DEF_SIMPLE_GM_BG(overdraw_text_xform, canvas, 512, 512, SK_ColorBLACK) {
     SkPaint imgPaint;
     imgPaint.setColor(SK_ColorWHITE);
-    canvas->drawImage(overdraw_text_grid(false),   0, 0, SkSamplingOptions{}, &imgPaint);
-    canvas->drawImage(overdraw_text_grid( true), 256, 0, SkSamplingOptions{}, &imgPaint);
+    canvas->drawImage(overdraw_text_grid(false),   0, 0, SkFilterMode::kNearest, &imgPaint);
+    canvas->drawImage(overdraw_text_grid( true), 256, 0, SkFilterMode::kNearest, &imgPaint);
 }

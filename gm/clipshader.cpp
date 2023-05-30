@@ -24,8 +24,7 @@ DEF_SIMPLE_GM(clipshadermatrix, canvas, 145, 128) {
     // Hard edged oval clip
     clipSurface->getCanvas()->drawOval(SkRect::MakeXYWH(0, 10, 64, 44), SkPaint{});
     auto clipShader = clipSurface->makeImageSnapshot()->makeShader(
-            SkTileMode::kDecal, SkTileMode::kDecal,
-            SkSamplingOptions{SkFilterMode::kLinear});
+            SkTileMode::kDecal, SkTileMode::kDecal, SkFilterMode::kLinear);
 
     canvas->translate(5, 0);
     for (auto tx : {0.f, 68.5f}) {

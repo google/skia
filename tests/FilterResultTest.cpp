@@ -1117,34 +1117,34 @@ DEF_TEST_SUITE(CompatibleSamplingConcatsTransforms, r) {
     TestCase(r, "linear + linear combine")
             .source({0, 0, 8, 8}, SkColors::kGreen)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kDeferredImage)
+                            SkFilterMode::kLinear, Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kDeferredImage)
+                            SkFilterMode::kLinear, Expect::kDeferredImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "equiv. bicubics combine")
             .source({0, 0, 8, 8}, SkColors::kGreen)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "linear + bicubic becomes bicubic")
             .source({0, 0, 8, 8}, SkColors::kGreen)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kDeferredImage)
+                            SkFilterMode::kLinear, Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "bicubic + linear becomes bicubic")
             .source({0, 0, 8, 8}, SkColors::kGreen)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kDeferredImage,
-                            /*expectedSampling=*/SkSamplingOptions{SkCubicResampler::Mitchell()})
+                            SkFilterMode::kLinear, Expect::kDeferredImage,
+                            /*expectedSampling=*/SkCubicResampler::Mitchell())
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "aniso picks max level to combine")
@@ -1167,7 +1167,7 @@ DEF_TEST_SUITE(CompatibleSamplingConcatsTransforms, r) {
     TestCase(r, "linear + aniso becomes aniso")
             .source({0, 0, 8, 8}, SkColors::kGreen)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kDeferredImage)
+                            SkFilterMode::kLinear, Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
                             SkSamplingOptions::Aniso(2.f), Expect::kDeferredImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
@@ -1177,7 +1177,7 @@ DEF_TEST_SUITE(CompatibleSamplingConcatsTransforms, r) {
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
                             SkSamplingOptions::Aniso(4.f), Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kDeferredImage,
+                            SkFilterMode::kLinear, Expect::kDeferredImage,
                             /*expectedSampling=*/SkSamplingOptions::Aniso(4.f))
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
@@ -1189,31 +1189,31 @@ DEF_TEST_SUITE(IncompatibleSamplingResolvesImages, r) {
     TestCase(r, "different bicubics do not combine")
             .source({0, 0, 8, 8}, SkColors::kBlue)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::CatmullRom()}, Expect::kNewImage)
+                            SkCubicResampler::CatmullRom(), Expect::kNewImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "nearest + linear do not combine")
             .source({0, 0, 8, 8}, SkColors::kBlue)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kNearest}, Expect::kDeferredImage)
+                            SkFilterMode::kNearest, Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kNewImage)
+                            SkFilterMode::kLinear, Expect::kNewImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "linear + nearest do not combine")
             .source({0, 0, 8, 8}, SkColors::kBlue)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kLinear}, Expect::kDeferredImage)
+                            SkFilterMode::kLinear, Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kNearest}, Expect::kNewImage)
+                            SkFilterMode::kNearest, Expect::kNewImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "bicubic + aniso do not combine")
             .source({0, 0, 8, 8}, SkColors::kBlue)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
                             SkSamplingOptions::Aniso(4.f), Expect::kNewImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
@@ -1223,15 +1223,15 @@ DEF_TEST_SUITE(IncompatibleSamplingResolvesImages, r) {
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
                             SkSamplingOptions::Aniso(4.f), Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kNewImage)
+                            SkCubicResampler::Mitchell(), Expect::kNewImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "nearest + nearest do not combine")
             .source({0, 0, 8, 8}, SkColors::kBlue)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kNearest}, Expect::kDeferredImage)
+                            SkFilterMode::kNearest, Expect::kDeferredImage)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkFilterMode::kNearest}, Expect::kNewImage)
+                            SkFilterMode::kNearest, Expect::kNewImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 }
 
@@ -1241,19 +1241,19 @@ DEF_TEST_SUITE(IntegerOffsetIgnoresNearestSampling, r) {
     TestCase(r, "integer translate+NN then bicubic combines")
             .source({0, 0, 8, 8}, SkColors::kCyan)
             .applyTransform(SkMatrix::Translate(2, 2),
-                            SkSamplingOptions{SkFilterMode::kNearest}, Expect::kDeferredImage,
+                            SkFilterMode::kNearest, Expect::kDeferredImage,
                             FilterResult::kDefaultSampling)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 
     TestCase(r, "bicubic then integer translate+NN combines")
             .source({0, 0, 8, 8}, SkColors::kCyan)
             .applyTransform(SkMatrix::RotateDeg(2.f, {4.f, 4.f}),
-                            SkSamplingOptions{SkCubicResampler::Mitchell()}, Expect::kDeferredImage)
+                            SkCubicResampler::Mitchell(), Expect::kDeferredImage)
             .applyTransform(SkMatrix::Translate(2, 2),
-                            SkSamplingOptions{SkFilterMode::kNearest}, Expect::kDeferredImage,
-                            /*expectedSampling=*/SkSamplingOptions{SkCubicResampler::Mitchell()})
+                            SkFilterMode::kNearest, Expect::kDeferredImage,
+                            /*expectedSampling=*/SkCubicResampler::Mitchell())
             .run(/*requestedOutput=*/{0, 0, 16, 16});
 }
 
