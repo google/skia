@@ -77,3 +77,8 @@ skia_effects_sources = [
   "$_src/shaders/gradients/SkSweepGradient.cpp",
   "$_src/shaders/gradients/SkTwoPointConicalGradient.cpp",
 ]
+
+# TODO(kjlubick) Fill this in with the actual files after they are used
+skia_colorfilters_sources = []
+skia_colorfilters_sksl_sources = []
+skia_colorfilters_nosksl_sources = []

@@ -119,6 +119,14 @@ declare_args() {
   skia_enable_skshaper_tests = skia_enable_skshaper
 }`
 
+// The footer written to gn/effects.gni.
+const effectsGNIFooter = `
+# TODO(kjlubick) Fill this in with the actual files after they are used
+skia_colorfilters_sources = []
+skia_colorfilters_sksl_sources = []
+skia_colorfilters_nosksl_sources = []
+`
+
 // The footer written to gn/gpu.gni.
 const gpuGNIFooter = `
 # TODO(kjlubick) Update clients to use the targets with updated names
@@ -135,6 +143,7 @@ skia_utils_sources = skia_utils_private + skia_utils_chromium
 // Map of GNI file names to footer text to be appended to the end of the file.
 var footerMap = map[string]string{
 	"gn/core.gni":                   coreGNIFooter,
+	"gn/effects.gni":                effectsGNIFooter,
 	"gn/gpu.gni":                    gpuGNIFooter,
 	"gn/sksl_tests.gni":             skslTestsFooter,
 	"gn/utils.gni":                  utilsGNIFooter,
