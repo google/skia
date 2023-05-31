@@ -1,6 +1,7 @@
 """This module defines the skia_android_unit_test macro."""
 
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
 load(":adb_test.bzl", "adb_test")
 load(":skia_test_wrapper_with_cmdline_flags.bzl", "skia_test_wrapper_with_cmdline_flags")
 
@@ -131,13 +132,14 @@ def skia_android_unit_test(
         name = name,
         archive = archive,
         test_runner = test_runner,
-        device = select(
-            {
-                "//bazel/devices:pixel_5": "pixel_5",
-                "//bazel/devices:pixel_7": "pixel_7",
-                "//conditions:default": "unknown",
-            },
-        ),
+        device = select(dict(
+            [
+                ("//bazel/devices:%s" % device_name, device_name)
+                for device_name in ANDROID_DEVICES
+            ] + [
+                ("//conditions:default", "unknown"),
+            ],
+        )),
         tags = ["no-remote"],  # Incompatible with RBE because it requires an Android device.
         target_compatible_with = select({
             "//bazel/devices:has_android_device": [],
