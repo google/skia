@@ -20,11 +20,6 @@ vec4 main() {
     --f;
     ok = ok && f == 0.5;
     ok = ok && !(colorGreen.x == 1.0);
-    uint val = uint(colorGreen.x);
-    uvec2 mask = uvec2(val, ~val);
-    ivec2 imask = ivec2(~mask);
-    mask = ~mask & uvec2(~imask);
-    ok = ok && mask == uvec2(0u);
     ok = ok && -1.0 == -colorGreen.y;
     ok = ok && vec4(0.0, -1.0, 0.0, -1.0) == -colorGreen;
     ok = ok && mat2(-1.0, -2.0, -3.0, -4.0) == -testMatrix2x2;

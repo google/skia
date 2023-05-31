@@ -1,7 +1,7 @@
 uniform half4 colorGreen, colorRed;
 uniform float2x2 testMatrix2x2;
 
-half4 main(float2 c) {
+half4 main(float2) {
     bool ok = true;
 
     // Prefix ++ and -- (scalar int).
@@ -24,17 +24,6 @@ half4 main(float2 c) {
 
     // Prefix '!'
     ok = ok && !(colorGreen.r == 1.0);
-
-    // Unary bitwise negation '~' (scalar):
-    uint val = uint(colorGreen.r);  // 0
-    uint2 mask = uint2(val, ~val);
-
-    // Unary bitwise negation '~' (vector, uint):
-    int2 imask = int2(~mask);
-
-    // Unary bitwise negation '~' (vector, int):
-    mask = ~mask & uint2(~imask);
-    ok = ok && (mask == uint2(0));
 
     // Prefix '-' (scalar, vector, matrix float)
     ok = ok && (-1 == -colorGreen.g);
