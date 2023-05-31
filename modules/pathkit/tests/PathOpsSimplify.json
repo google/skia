@@ -6300,7 +6300,7 @@
   "expectSuccess": "yes",
   "expectMatch": "yes",
   "succeeded": true,
-  "out": [[0, "0x43160000", "0x4248023c"]],
+  "out": [],
   "fillTypeOut": "kEvenOdd_FillType"
 },
 "testTriangle2": {

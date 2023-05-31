@@ -8,6 +8,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/pathops/SkAddIntersections.h"
@@ -146,14 +147,72 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* writer) {
     return true;
 }
 
+static bool path_is_trivial(const SkPath& path) {
+    SkPath::Iter iter(path, true);
+
+    SkPath::Verb verb;
+    SkPoint points[4];
+
+    class Trivializer {
+        SkPoint prevPt{0,0};
+        SkVector prevVec{0,0};
+    public:
+        void moveTo(const SkPoint& currPt) {
+            prevPt = currPt;
+            prevVec = {0, 0};
+        }
+        bool addTrivialContourPoint(const SkPoint& currPt) {
+            if (currPt == prevPt) {
+                return true;
+            }
+            // There are more numericaly stable ways of determining if many points are co-linear.
+            // However, this mirrors SkPath's Convexicator for consistency.
+            SkVector currVec = currPt - prevPt;
+            if (SkPoint::CrossProduct(prevVec, currVec) != 0) {
+                return false;
+            }
+            prevVec = currVec;
+            prevPt = currPt;
+            return true;
+        }
+    } triv;
+
+    while ((verb = iter.next(points)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                triv.moveTo(points[0]);
+                break;
+            case SkPath::kCubic_Verb:
+                if (!triv.addTrivialContourPoint(points[3])) { return false; }
+                [[fallthrough]];
+            case SkPath::kConic_Verb:
+            case SkPath::kQuad_Verb:
+                if (!triv.addTrivialContourPoint(points[2])) { return false; }
+                [[fallthrough]];
+            case SkPath::kLine_Verb:
+                if (!triv.addTrivialContourPoint(points[1])) { return false; }
+                if (!triv.addTrivialContourPoint(points[0])) { return false; }
+                break;
+            case SkPath::kClose_Verb:
+            case SkPath::kDone_Verb:
+                break;
+        }
+    }
+    return true;
+}
+
 // FIXME : add this as a member of SkPath
 bool SimplifyDebug(const SkPath& path, SkPath* result
         SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     SkPathFillType fillType = path.isInverseFillType() ? SkPathFillType::kInverseEvenOdd
             : SkPathFillType::kEvenOdd;
+
     if (path.isConvex()) {
-        if (result != &path) {
+        // If the path is trivially convex, simplify to empty.
+        if (path_is_trivial(path)) {
+            result->reset();
+        } else if (result != &path) {
             *result = path;
         }
         result->setFillType(fillType);
