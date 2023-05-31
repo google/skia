@@ -9,7 +9,7 @@
 #define SkMatrixColorFilter_DEFINED
 
 #include "include/core/SkFlattenable.h"
-#include "src/core/SkColorFilterBase.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <cstdint>
 

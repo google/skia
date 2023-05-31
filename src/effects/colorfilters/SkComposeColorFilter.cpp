@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkComposeColorFilter.h"
+#include "src/effects/colorfilters/SkComposeColorFilter.h"
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <utility>
 struct SkStageRec;

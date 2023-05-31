@@ -12,7 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
 #include "modules/skcms/skcms.h"
-#include "src/core/SkColorFilterBase.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 class SkColorSpace;
 class SkReadBuffer;

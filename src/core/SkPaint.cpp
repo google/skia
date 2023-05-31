@@ -21,12 +21,12 @@
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlenderBase.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPathEffectBase.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <utility>
 

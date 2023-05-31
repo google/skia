@@ -11,11 +11,11 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkDebug.h"
-#include "include/private/base/SkSpan_impl.h"
-#include "src/core/SkColorFilterBase.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <vector>
 

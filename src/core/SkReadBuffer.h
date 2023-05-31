@@ -24,13 +24,13 @@
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
 #include "src/core/SkBlenderBase.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkTHash.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>

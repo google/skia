@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkWorkingFormatColorFilter.h"
+#include "src/effects/colorfilters/SkWorkingFormatColorFilter.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
@@ -16,12 +16,12 @@
 #include "include/private/base/SkAssert.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <utility>
 

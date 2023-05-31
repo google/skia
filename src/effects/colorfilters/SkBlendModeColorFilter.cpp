@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkBlendModeColorFilter.h"
+#include "src/effects/colorfilters/SkBlendModeColorFilter.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
@@ -14,7 +14,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkBlendModePriv.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
@@ -24,6 +23,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"

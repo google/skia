@@ -9,9 +9,9 @@
 #include "include/core/SkImage.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRecordDraw.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/utils/SkPatchUtils.h"
 
 void SkRecordDraw(const SkRecord& record,

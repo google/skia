@@ -1452,6 +1452,7 @@ skia_component("skia") {
   sources += skia_core_sources
   sources += skia_utils_sources
   sources += skia_effects_sources
+  sources += skia_colorfilters_sources
   sources += skia_effects_imagefilter_sources
   sources += skia_codec_core
   sources += skia_codec_decode_bmp
@@ -1479,11 +1480,14 @@ skia_component("skia") {
   if (skia_enable_sksl) {
     deps += [ ":minify_sksl" ]
     sources += skia_sksl_sources
+    sources += skia_colorfilters_sksl_sources
 
     if (skia_enable_sksl_tracing) {
       defines += [ "SKSL_ENABLE_TRACING" ]
       sources += skia_sksl_tracing_sources
     }
+  } else {
+    sources += skia_colorfilters_nosksl_sources
   }
 
   if (skia_build_for_debugger) {

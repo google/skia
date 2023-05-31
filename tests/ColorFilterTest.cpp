@@ -25,10 +25,10 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkRandom.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 

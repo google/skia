@@ -10,8 +10,8 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

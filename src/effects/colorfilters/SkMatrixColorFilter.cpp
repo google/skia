@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkMatrixColorFilter.h"
+#include "src/effects/colorfilters/SkMatrixColorFilter.h"
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkRefCnt.h"
@@ -13,12 +13,12 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <array>
 #include <cstring>

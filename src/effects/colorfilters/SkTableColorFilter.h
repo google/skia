@@ -10,7 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkFlattenable.h"
 #include "include/private/base/SkDebug.h"
-#include "src/core/SkColorFilterBase.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <cstdint>
 

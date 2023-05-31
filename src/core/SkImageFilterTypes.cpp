@@ -11,11 +11,11 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialSurface.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 namespace skif {
 

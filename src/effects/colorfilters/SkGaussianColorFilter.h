@@ -9,7 +9,7 @@
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkColorFilterBase.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

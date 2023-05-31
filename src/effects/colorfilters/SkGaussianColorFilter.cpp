@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "src/utils/SkGaussianColorFilter.h"
+#include "src/effects/colorfilters/SkGaussianColorFilter.h"
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"

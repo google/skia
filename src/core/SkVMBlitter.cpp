@@ -10,7 +10,6 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkChecksum.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
@@ -20,6 +19,7 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkVMBlitter.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkColorFilterShader.h"
 
 #include <cinttypes>

@@ -8,30 +8,44 @@
 #ifndef SkColorFilterBase_DEFINED
 #define SkColorFilterBase_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkVM_fwd.h"
+#include "include/private/base/SkAttributes.h"
 
-#include <memory>
-#include <tuple>
+#include <cstddef>
 
-class GrColorInfo;
-class GrFragmentProcessor;
-class GrRecordingContext;
-class SkArenaAlloc;
-class SkBitmap;
-class SkColorInfo;
 class SkColorSpace;
 class SkRuntimeEffect;
-class SkSurfaceProps;
+enum class SkBlendMode;
+struct SkDeserialProcs;
 struct SkStageRec;
-using GrFPResult = std::tuple<bool, std::unique_ptr<GrFragmentProcessor>>;
 
+#if defined(SK_GRAPHITE)
 namespace skgpu::graphite {
 class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 }
+#endif
+
+#if defined(SK_ENABLE_SKVM)
+#include "include/core/SkImageInfo.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkVM_fwd.h"
+#endif
+
+#define SK_ALL_COLOR_FILTERS(M) \
+    M(BlendMode)                \
+    M(ColorSpaceXform)          \
+    M(Compose)                  \
+    M(Gaussian)                 \
+    M(Matrix)                   \
+    M(Runtime)                  \
+    M(Table)                    \
+    M(WorkingFormat)
 
 #define SK_ALL_COLOR_FILTERS(M) \
     M(BlendMode)                \

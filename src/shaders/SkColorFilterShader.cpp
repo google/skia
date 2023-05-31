@@ -8,11 +8,11 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkColorFilterShader.h"
 
 #if defined(SK_GANESH)

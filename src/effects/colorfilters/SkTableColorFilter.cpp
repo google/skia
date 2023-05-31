@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/effects/SkTableColorFilter.h"
+#include "src/effects/colorfilters/SkTableColorFilter.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
@@ -14,13 +14,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <cstdint>
 
