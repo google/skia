@@ -356,10 +356,22 @@ skia_android_unit_test(
     ],
 )
 
-# Some test cases fail with --config=pixel_7.
 skia_android_unit_test(
     name = "android_cpu_only_test",
     srcs = CPU_ONLY_TESTS,
+    # TODO(lovisolo): We might want to extract these --skip flags into a separate file.
+    extra_args = select({
+        "//bazel/devices:pixel_5": [
+            "--skip",
+            "DrawText_dashout",
+            "FontHostStream",
+            "LegacyMakeTypeface",
+            "TextBlob_getIntercepts",
+            "TextBlob_iter",
+            "glyphs_to_unichars",
+        ],
+        "//conditions:default": [],
+    }),
     flags = {
         "fontmgr_factory": ["custom_directory_fontmgr_factory"],
         "enable_sksl": ["True"],

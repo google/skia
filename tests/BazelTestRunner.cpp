@@ -152,6 +152,17 @@ int main(int argc, char** argv) {
     gSkDebugToStdOut = true;
 #endif
 
+    if (argc < 2) {
+        SkDebugf("Test runner invoked with no arguments.\n");
+    } else {
+        std::ostringstream oss;
+        oss << "Test runner invoked with arguments:";
+        for (int i = 1; i < argc; i++) {
+            oss << " " << argv[i];
+        }
+        SkDebugf("%s\n", oss.str().c_str());
+    }
+
     CommandLineFlags::Parse(argc, argv);
 
     BazelReporter reporter;

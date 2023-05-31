@@ -131,7 +131,7 @@ adb_test = rule(
                 "Test runner script that calls the compiled C++ binary with any necessary " +
                 "command-line arguments. This script will be executed on the Android device."
             ),
-            allow_single_file = [".sh"],
+            allow_single_file = True,
             mandatory = True,
         ),
         "archive": attr.label(

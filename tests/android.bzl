@@ -1,8 +1,8 @@
 """This module defines the skia_android_unit_test macro."""
 
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
-load("//bazel:remove_indentation.bzl", "remove_indentation")
 load(":adb_test.bzl", "adb_test")
+load(":skia_binary_with_cmdline_flags_test.bzl", "skia_binary_with_cmdline_flags_test")
 
 def skia_test(
         name,
@@ -16,16 +16,15 @@ def skia_test(
         size = None):
     """Defines a generic Skia C++ unit test.
 
-    This macro produces a <name>_binary C++ binary and a <name>.sh wrapper script that runs the
+    This macro produces a <name>_binary C++ binary and a <name> wrapper script that runs the
     binary with the desired command-line arguments (see the extra_args and requires_resources_dir
-    arguments). The <name>.sh wrapper script is exposed as a Bazel test target via the sh_target
-    rule.
+    arguments).
 
     The reason why we place command-line arguments in a wrapper script is that it makes it easier
     to run a Bazel-built skia_test outside of Bazel. This is useful e.g. for CI jobs where we want
     to perform test compilation and execution as different steps on different hardware (e.g.
     compile on a GCE machine, run tests on a Skolo device). In this scenario, the test could be
-    executed outside of Bazel by simply running the <name>.sh script without any arguments. See the
+    executed outside of Bazel by simply running the <name> script without any arguments. See the
     skia_android_unit_test macro for an example.
 
     Note: The srcs attribute must explicitly include a test runner (e.g.
@@ -66,42 +65,12 @@ def skia_test(
         testonly = True,  # Needed to gain access to test-only files.
     )
 
-    test_runner = "%s.sh" % name
-
-    test_args = ([
-        "--resourcePath",
-        "$$(realpath $$(dirname $(rootpath //resources:README)))",
-    ] if requires_resources_dir else []) + extra_args
-
-    # This test runner might run on Android devices, which might not have a /bin/bash binary.
-    test_runner_template = remove_indentation("""
-        #!/bin/sh
-        $(rootpath {test_binary}) {test_args}
-    """)
-
-    # TODO(lovisolo): This should be an actual rule. This will allow us to select() the arguments
-    #                 based on the device (e.g. for device-specific --skip flags to skip tests).
-    native.genrule(
-        name = "%s_runner" % name,
-        srcs = [test_binary] + (
-            # The script template computes the path to //resources under the runfiles tree via
-            # $$(dirname $(rootpath //resources:README)), so we need to list //resources:README
-            # here explicitly. This file was chosen arbitrarily; there is nothing special about it.
-            ["//resources", "//resources:README"] if requires_resources_dir else []
-        ),
-        outs = [test_runner],
-        cmd = "echo '%s' > $@" % test_runner_template.format(
-            test_binary = test_binary,
-            test_args = "\\\n    ".join(test_args),
-        ),
-        testonly = True,
-    )
-
-    native.sh_test(
+    skia_binary_with_cmdline_flags_test(
         name = name,
+        test_binary = test_binary,
+        requires_resources_dir = requires_resources_dir,
+        extra_args = extra_args,
         size = size,
-        srcs = [test_runner],
-        data = [test_binary] + (["//resources"] if requires_resources_dir else []),
         tags = tags,
     )
 
@@ -130,16 +99,16 @@ def skia_android_unit_test(
     - It produces a <name>.tar.gz archive containing the Android binary, a minimal launcher script
       that invokes the binary with the necessary command-line arguments, and any static resources
       needed by the test, such as fonts and images under //resources.
-    - It produces a <name>.sh test runner script that extracts the tarball into the device via
-      `adb`, sets up the device, runs the test, cleans up and pipes through the test's exit code.
+    - It produces a <name> test runner script that extracts the tarball into the device via `adb`,
+      sets up the device, runs the test, cleans up and pipes through the test's exit code.
 
     For CI jobs, rather than invoking "bazel test" on a Raspberry Pi attached to the Android device
     under test, we compile and run the test in two separate tasks:
 
     - A build task running on a GCE machine compiles the test on RBE with Bazel and stores the
-      <name>.tar.gz and <name>.sh output files to CAS.
-    - A test task running on a Skolo Raspberry Pi downloads <name>.tar.gz and <name>.sh from CAS
-      and executes <name>.sh *outside of Bazel*.
+      <name>.tar.gz and <name> output files to CAS.
+    - A test task running on a Skolo Raspberry Pi downloads <name>.tar.gz and <name> from CAS and
+      executes <name> *outside of Bazel*.
 
     The reason why we don't want to run Bazel on a Raspberry Pi is due to its constrained
     resources.
@@ -172,8 +141,11 @@ def skia_android_unit_test(
             to the path to said directory.
     """
 
+    test_runner = "%s_cpp_test" % name
+    test_binary = "%s_cpp_test_binary" % name  # Produced by the skia_test macro.
+
     skia_test(
-        name = "%s_cpp_test" % name,
+        name = test_runner,
         srcs = select({
             requires_condition: srcs + ["//tests:BazelTestRunner.cpp"],
             "//conditions:default": ["//tests:BazelNoopRunner.cpp"],
@@ -193,9 +165,6 @@ def skia_android_unit_test(
         ],
         size = "large",  # Can take several minutes.
     )
-
-    test_binary = "%s_cpp_test_binary" % name
-    test_runner = "%s_cpp_test.sh" % name
 
     archive = "%s_archive" % name
     archive_srcs = [test_runner, test_binary] + (
