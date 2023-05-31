@@ -146,6 +146,11 @@ struct ProgramConfig {
                 kind == ProgramKind::kMeshFragment);
     }
 
+    static bool IsRuntimeShader(ProgramKind kind) {
+        return (kind == ProgramKind::kRuntimeShader ||
+                kind == ProgramKind::kPrivateRuntimeShader);
+    }
+
     static bool AllowsPrivateIdentifiers(ProgramKind kind) {
         return (kind != ProgramKind::kRuntimeColorFilter &&
                 kind != ProgramKind::kRuntimeShader &&

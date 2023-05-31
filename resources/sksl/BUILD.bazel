@@ -1072,6 +1072,8 @@ skia_filegroup(
         "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
 
         # Shared tests that are supported so far:
+        "runtime/GlobalVariables.rts",
+        "runtime/GLSLTypeNames.rts",
         "shared/ArrayConstructors.sksl",
         "shared/ArrayFollowedByScalar.sksl",
         "shared/ArrayIndexTypes.sksl",

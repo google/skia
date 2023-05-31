@@ -642,6 +642,21 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
 void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     SkASSERT(main.declaration().isMain());
 
+#if defined(SKSL_STANDALONE)
+    if (ProgramConfig::IsRuntimeShader(fProgram.fConfig->fKind)) {
+        // Synthesize a basic entrypoint which just calls straight through to main.
+        // This is only used by skslc and just needs to pass the WGSL validator; Skia won't ever
+        // emit functions like this.
+        this->writeLine("@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> "
+                                     "@location(0) vec4<f32> {");
+        ++fIndentation;
+        this->writeLine("return main(_coords);");
+        --fIndentation;
+        this->writeLine("}");
+        return;
+    }
+#endif
+
     // The input and output parameters for a vertex/fragment stage entry point function have the
     // FSIn/FSOut/VSIn/VSOut struct types that have been synthesized in generateCode(). An entry
     // point always has the same signature and acts as a trampoline to the user-defined main
