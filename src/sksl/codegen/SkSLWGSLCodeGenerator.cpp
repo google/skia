@@ -1286,6 +1286,15 @@ std::string WGSLCodeGenerator::writeScratchVar(const Type& type) {
 }
 
 std::string WGSLCodeGenerator::writeScratchPtr(const Expression& lvalue) {
+    if (lvalue.is<Swizzle>()) {
+        // We can't take the address of a swizzle in WGSL. Instead, we take the address of the inner
+        // expression and tack on the swizzle to the returned expression. i.e., getting a scratch
+        // pointer to `foo.xy` would take the address of `foo` and return `(*_skTemp123).xy` as
+        // the substitute expression.
+        const Swizzle& swizzle = lvalue.as<Swizzle>();
+        return this->writeScratchPtr(*swizzle.base()) + "." +
+               Swizzle::MaskString(swizzle.components());
+    }
     std::string lvalueExpr = this->assembleExpression(lvalue, Precedence::kAssignment);
     std::string scratchVarName = "_skTemp" + std::to_string(fScratchCount++);
     this->write("let ");

@@ -30,6 +30,14 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok = ok && f == 1.5;
     f--;
     ok = ok && f == 0.5;
+    float2 f2 = float2(0.5);
+    f2.x++;
+    ok = ok && f2.x++ == 1.5;
+    ok = ok && f2.x == 2.5;
+    ok = ok && f2.x-- == 2.5;
+    ok = ok && f2.x == 1.5;
+    f2.x--;
+    ok = ok && f2.x == 0.5;
     _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

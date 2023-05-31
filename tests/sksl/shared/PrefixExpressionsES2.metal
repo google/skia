@@ -39,6 +39,13 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok = ok && --f == 1.5;
     --f;
     ok = ok && f == 0.5;
+    float2 f2 = float2(0.5);
+    ++f2.x;
+    ok = ok && f2.x == 1.5;
+    ok = ok && ++f2.x == 2.5;
+    ok = ok && --f2.x == 1.5;
+    --f2.x;
+    ok = ok && f2.x == 0.5;
     ok = ok && !(_uniforms.colorGreen.x == 1.0h);
     ok = ok && -1.0h == -_uniforms.colorGreen.y;
     ok = ok && all(half4(0.0h, -1.0h, 0.0h, -1.0h) == -_uniforms.colorGreen);

@@ -22,6 +22,15 @@ half4 main(float2) {
     --f;
     ok = ok && (f == 0.5);
 
+    // Prefix ++ and -- (vector-component float).
+    float2 f2 = float2(0.5);
+    ++f2.x;
+    ok = ok && (f2.x == 1.5);
+    ok = ok && (++f2.x == 2.5);
+    ok = ok && (--f2.x == 1.5);
+    --f2.x;
+    ok = ok && (f2.x == 0.5);
+
     // Prefix '!'
     ok = ok && !(colorGreen.r == 1.0);
 

@@ -133,16 +133,73 @@ float4 main(float2 _24)
         _98 = false;
     }
     ok = _98;
-    float4 _99 = 0.0f.xxxx;
-    if (_98)
+    float2 f2 = 0.5f.xx;
+    f2.x += 1.0f;
+    bool _112 = false;
+    if (ok)
     {
-        _99 = _10_colorGreen;
+        float _109 = f2.x;
+        f2.x = _109 + 1.0f;
+        _112 = _109 == 1.5f;
     }
     else
     {
-        _99 = _10_colorRed;
+        _112 = false;
     }
-    return _99;
+    ok = _112;
+    bool _118 = false;
+    if (_112)
+    {
+        _118 = f2.x == 2.5f;
+    }
+    else
+    {
+        _118 = false;
+    }
+    ok = _118;
+    bool _125 = false;
+    if (_118)
+    {
+        float _122 = f2.x;
+        f2.x = _122 - 1.0f;
+        _125 = _122 == 2.5f;
+    }
+    else
+    {
+        _125 = false;
+    }
+    ok = _125;
+    bool _131 = false;
+    if (_125)
+    {
+        _131 = f2.x == 1.5f;
+    }
+    else
+    {
+        _131 = false;
+    }
+    ok = _131;
+    f2.x -= 1.0f;
+    bool _141 = false;
+    if (ok)
+    {
+        _141 = f2.x == 0.5f;
+    }
+    else
+    {
+        _141 = false;
+    }
+    ok = _141;
+    float4 _142 = 0.0f.xxxx;
+    if (_141)
+    {
+        _142 = _10_colorGreen;
+    }
+    else
+    {
+        _142 = _10_colorRed;
+    }
+    return _142;
 }
 
 void frag_main()
