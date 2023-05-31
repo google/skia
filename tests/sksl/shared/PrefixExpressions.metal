@@ -4,12 +4,23 @@ using namespace metal;
 struct Uniforms {
     half4 colorGreen;
     half4 colorRed;
+    float2x2 testMatrix2x2;
 };
 struct Inputs {
 };
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
+
+thread bool operator==(const float2x2 left, const float2x2 right);
+thread bool operator!=(const float2x2 left, const float2x2 right);
+thread bool operator==(const float2x2 left, const float2x2 right) {
+    return all(left[0] == right[0]) &&
+           all(left[1] == right[1]);
+}
+thread bool operator!=(const float2x2 left, const float2x2 right) {
+    return !(left == right);
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
@@ -34,8 +45,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     int2 imask = int2(~mask);
     mask = ~mask & uint2(~imask);
     ok = ok && all(mask == uint2(0u));
-    half one = _uniforms.colorGreen.x;
-    half4x4 m = half4x4(one);
-    _out.sk_FragColor = ok ? (-1.0h * m) * -_uniforms.colorGreen : _uniforms.colorRed;
+    ok = ok && -1.0h == -_uniforms.colorGreen.y;
+    ok = ok && all(half4(0.0h, -1.0h, 0.0h, -1.0h) == -_uniforms.colorGreen);
+    ok = ok && float2x2(float2(-1.0, -2.0), float2(-3.0, -4.0)) == (-1.0 * _uniforms.testMatrix2x2);
+    int2 iv = int2(i, -i);
+    ok = ok && -i == -5;
+    ok = ok && all(-iv == int2(-5, 5));
+    _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

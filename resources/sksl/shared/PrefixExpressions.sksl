@@ -1,4 +1,5 @@
 uniform half4 colorGreen, colorRed;
+uniform float2x2 testMatrix2x2;
 
 half4 main(float2 c) {
     bool ok = true;
@@ -35,9 +36,15 @@ half4 main(float2 c) {
     mask = ~mask & uint2(~imask);
     ok = ok && (mask == uint2(0));
 
-    half one = half(colorGreen.r);
-    half4x4 m = half4x4(one); // identity
+    // Prefix '-' (scalar, vector, matrix float)
+    ok = ok && (-1 == -colorGreen.g);
+    ok = ok && (half4(0, -1, 0, -1) == -colorGreen);
+    ok = ok && (float2x2(-1, -2, -3, -4) == -testMatrix2x2);
 
-    // prefix '-'
-    return ok ? -m * -colorGreen : colorRed;
+    // Prefix '-' (scalar, vector int)
+    int2 iv = int2(i, -i);  // (5, -5)
+    ok = ok && (-i == -5);
+    ok = ok && (-iv == int2(-5, 5));
+
+    return ok ? colorGreen : colorRed;
 }

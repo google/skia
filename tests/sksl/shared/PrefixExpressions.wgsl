@@ -8,10 +8,12 @@ struct FSOut {
 struct _GlobalUniforms {
     colorGreen: vec4<f32>,
     colorRed: vec4<f32>,
+    testMatrix2x2: mat2x2<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn mat4x4f32_diagonal(x: f32) -> mat4x4<f32> {
-    return mat4x4<f32>(x, 0.0, 0.0, 0.0, 0.0, x, 0.0, 0.0, 0.0, 0.0, x, 0.0, 0.0, 0.0, 0.0, x);
+fn mat2x2f32_eq_mat2x2f32(left: mat2x2<f32>, right: mat2x2<f32>) -> bool {
+    return all(left[0] == right[0]) &&
+           all(left[1] == right[1]);
 }
 fn main(c: vec2<f32>) -> vec4<f32> {
     var ok: bool = true;
@@ -71,9 +73,13 @@ fn main(c: vec2<f32>) -> vec4<f32> {
     var imask: vec2<i32> = vec2<i32>(~mask);
     mask = ~mask & vec2<u32>(~imask);
     ok = ok && all(mask == vec2<u32>(0u));
-    var one: f32 = _globalUniforms.colorGreen.x;
-    var m: mat4x4<f32> = mat4x4f32_diagonal(one);
-    return select(_globalUniforms.colorRed, (-1.0 * m) * -_globalUniforms.colorGreen, vec4<bool>(ok));
+    ok = ok && -1.0 == -_globalUniforms.colorGreen.y;
+    ok = ok && all(vec4<f32>(0.0, -1.0, 0.0, -1.0) == -_globalUniforms.colorGreen);
+    ok = ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(-1.0, -2.0), vec2<f32>(-3.0, -4.0)), (-1.0 * _globalUniforms.testMatrix2x2));
+    var iv: vec2<i32> = vec2<i32>(i, -i);
+    ok = ok && -i == -5;
+    ok = ok && all(-iv == vec2<i32>(-5, 5));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

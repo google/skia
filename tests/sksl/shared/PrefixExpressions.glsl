@@ -2,6 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
+uniform mat2 testMatrix2x2;
 vec4 main() {
     bool ok = true;
     int i = 5;
@@ -24,7 +25,11 @@ vec4 main() {
     ivec2 imask = ivec2(~mask);
     mask = ~mask & uvec2(~imask);
     ok = ok && mask == uvec2(0u);
-    float one = colorGreen.x;
-    mat4 m = mat4(one);
-    return ok ? -m * -colorGreen : colorRed;
+    ok = ok && -1.0 == -colorGreen.y;
+    ok = ok && vec4(0.0, -1.0, 0.0, -1.0) == -colorGreen;
+    ok = ok && mat2(-1.0, -2.0, -3.0, -4.0) == -testMatrix2x2;
+    ivec2 iv = ivec2(i, -i);
+    ok = ok && -i == -5;
+    ok = ok && -iv == ivec2(-5, 5);
+    return ok ? colorGreen : colorRed;
 }
