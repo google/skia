@@ -1610,10 +1610,7 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
 void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     this->writeExpression(*swizzle.base(), Precedence::kPostfix);
     this->write(".");
-    for (int c : swizzle.components()) {
-        SkASSERT(c >= 0 && c <= 3);
-        this->write(&("x\0y\0z\0w\0"[c * 2]));
-    }
+    this->write(Swizzle::MaskString(swizzle.components()));
 }
 
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,

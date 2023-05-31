@@ -83,6 +83,9 @@ public:
 
     std::string description(OperatorPrecedence) const override;
 
+    // Converts an array of swizzle components into a string.
+    static std::string MaskString(const ComponentArray& inComponents);
+
 private:
     Swizzle(Position pos, const Type* type, std::unique_ptr<Expression> base,
             const ComponentArray& components)

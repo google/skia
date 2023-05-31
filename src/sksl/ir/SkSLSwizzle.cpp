@@ -108,7 +108,7 @@ static char mask_char(int8_t component) {
     }
 }
 
-static std::string mask_string(const ComponentArray& components) {
+std::string Swizzle::MaskString(const ComponentArray& components) {
     std::string result;
     for (int8_t component : components) {
         result += mask_char(component);
@@ -292,15 +292,15 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              ComponentArray inComponents) {
     Position maskPos = rawMaskPos.valid() ? rawMaskPos : pos;
     if (!validate_swizzle_domain(inComponents)) {
-        context.fErrors->error(maskPos, "invalid swizzle mask '" + mask_string(inComponents) + "'");
+        context.fErrors->error(maskPos, "invalid swizzle mask '" + MaskString(inComponents) + "'");
         return nullptr;
     }
 
     const Type& baseType = base->type().scalarTypeForLiteral();
 
     if (!baseType.isVector() && !baseType.isScalar()) {
-        context.fErrors->error(
-                pos, "cannot swizzle value of type '" + baseType.displayName() + "'");
+        context.fErrors->error(pos, "cannot swizzle value of type '" +
+                                    baseType.displayName() + "'");
         return nullptr;
     }
 
@@ -308,8 +308,8 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         Position errorPos = rawMaskPos.valid() ? Position::Range(maskPos.startOffset() + 4,
                                                                  maskPos.endOffset())
                                                : pos;
-        context.fErrors->error(errorPos,
-                "too many components in swizzle mask '" + mask_string(inComponents) + "'");
+        context.fErrors->error(errorPos, "too many components in swizzle mask '" +
+                                         MaskString(inComponents) + "'");
         return nullptr;
     }
 
@@ -360,11 +360,10 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 [[fallthrough]];
             default:
                 // The swizzle component references a field that doesn't exist in the base type.
-                context.fErrors->error(
-                        Position::Range(maskPos.startOffset() + i,
-                                        maskPos.startOffset() + i + 1),
-                        String::printf("invalid swizzle component '%c'",
-                                       mask_char(inComponents[i])));
+                context.fErrors->error(Position::Range(maskPos.startOffset() + i,
+                                                       maskPos.startOffset() + i + 1),
+                                       String::printf("invalid swizzle component '%c'",
+                                                      mask_char(inComponents[i])));
                 return nullptr;
         }
     }
@@ -540,11 +539,8 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
 }
 
 std::string Swizzle::description(OperatorPrecedence) const {
-    std::string result = this->base()->description(OperatorPrecedence::kPostfix) + ".";
-    for (int x : this->components()) {
-        result += "xyzw"[x];
-    }
-    return result;
+    return this->base()->description(OperatorPrecedence::kPostfix) + "." +
+           MaskString(this->components());
 }
 
 }  // namespace SkSL
