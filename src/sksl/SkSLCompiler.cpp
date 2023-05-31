@@ -607,19 +607,25 @@ bool Compiler::toMetal(Program& program, std::string* out) {
 
 #if defined(SK_ENABLE_WGSL_VALIDATION)
 static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl) {
+    // Verify that the WGSL we produced is valid.
     tint::Source::File srcFile("", wgsl);
     tint::Program program(tint::reader::wgsl::Parse(&srcFile));
-    if (program.Diagnostics().count() > 0) {
-        tint::diag::Formatter diagFormatter;
-        std::string diagOutput = diagFormatter.format(program.Diagnostics());
-#if defined(SKSL_STANDALONE)
-        reporter.error(Position(), diagOutput);
-#else
-        SkDEBUGFAILF("%s", diagOutput.c_str());
-#endif
-        return false;
+    if (program.Diagnostics().empty()) {
+        return true;
     }
-    return true;
+
+    // The program isn't valid WGSL. In debug, report the error via SkDEBUGFAIL. We also append the
+    // generated program for ease of debugging.
+    tint::diag::Formatter diagFormatter;
+    std::string diagOutput = diagFormatter.format(program.Diagnostics());
+    diagOutput += "\n";
+    diagOutput += wgsl;
+#if defined(SKSL_STANDALONE)
+    reporter.error(Position(), diagOutput);
+#else
+    SkDEBUGFAILF("%s", diagOutput.c_str());
+#endif
+    return false;
 }
 #endif  // defined(SK_ENABLE_WGSL_VALIDATION)
 
