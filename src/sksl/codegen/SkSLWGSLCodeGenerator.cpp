@@ -1141,26 +1141,47 @@ std::string WGSLCodeGenerator::assembleLiteral(const Literal& l) {
 
 std::string WGSLCodeGenerator::assemblePrefixExpression(const PrefixExpression& p,
                                                         Precedence parentPrecedence) {
-    // The only prefix expression that WGSL supports is unary negation (!,-,~). We make some
-    // assumptions about the input IR when translating prefix expressions:
-    //   1. A unary '+' is treated as NOP.
-    //   2. Prefix increment ('++x') and decrement ('--x') expressions must be rewritten in terms of
-    //      a postfix increment statement and assignment to a temporary variable to hold the result
-    //      (WGSL only supports a postfix increment statement, which is not an expression).
-    //
-    //      TODO(skia:14082): The following assertions may be hit until the proposed transforms have
-    //      been implemented. The IR should be transformed such that prefix increment/decrement
-    //      expressions never appear in the IR.
+    // Unary + does nothing, so we omit it from the output.
     Operator op = p.getOperator();
-    if (op.kind() == Operator::Kind::PLUSPLUS || op.kind() == Operator::Kind::MINUSMINUS) {
-        fContext.fErrors->error(p.fPosition,
-                                "prefix '++' and '--' not yet supported in WGSL backend");
-        return {};
-    }
-
     if (op.kind() == Operator::Kind::PLUS) {
         return this->assembleExpression(*p.operand(), Precedence::kPrefix);
     }
+
+    // Preincrement/decrement has no direct equivalent in WGSL; instead, we use a scratch pointer
+    // and emit a separate stand-alone statement to increment the lvalue.
+    if (op.kind() == Operator::Kind::PLUSPLUS || op.kind() == Operator::Kind::MINUSMINUS) {
+        std::string operand = this->writeScratchPtr(*p.operand());
+
+        // Generate `(*lvalue) += type(1, 1, 1...)`
+        std::string stmt = operand;
+        stmt += (op.kind() == Operator::Kind::PLUSPLUS) ? " += " : " -= ";
+        stmt += to_wgsl_type(p.operand()->type());
+        stmt.push_back('(');
+
+        auto separator = SkSL::String::Separator();
+        for (int slots = p.operand()->type().slotCount(); slots > 0; --slots) {
+            stmt += separator();
+            stmt += "1";
+        }
+
+        stmt.push_back(')');
+
+        if (parentPrecedence == Precedence::kStatement) {
+            // At the statement level, emit the increment directly.
+            return stmt;
+        } else {
+            // At the expression level, emit the increment as a separate statement, and return the
+            // (dereferenced) pointer as the expression.
+            this->write(stmt);
+            this->writeLine(";");
+            return operand;
+        }
+    }
+
+    // WGSL natively supports unary negation/not expressions (!,~,-).
+    SkASSERT(op.kind() == OperatorKind::LOGICALNOT ||
+             op.kind() == OperatorKind::BITWISENOT ||
+             op.kind() == OperatorKind::MINUS);
 
     // The unary negation operator only applies to scalars and vectors. For other mathematical
     // objects (such as matrices) we can express it as a multiplication by -1.

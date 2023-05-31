@@ -1,7 +1,82 @@
 store_src_rg                   c = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  ok = 0xFFFFFFFF
+copy_constant                  i = 0x00000005 (7.006492e-45)
+add_imm_int                    i += 0x00000001
+copy_2_slots_unmasked          $0..1 = ok, i
+cmpeq_imm_int                  $1 = equal($1, 0x00000006)
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             ok = $0
+store_condition_mask           $40 = CondMask
+copy_slot_unmasked             $41 = ok
+copy_constant                  $0 = 0
+merge_condition_mask           CondMask = $40 & $41
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 0 at #20)
+copy_slot_unmasked             $1 = i
+add_imm_int                    $1 += 0x00000001
+copy_slot_masked               i = Mask($1)
+cmpeq_imm_int                  $1 = equal($1, 0x00000007)
+copy_slot_masked               $0 = Mask($1)
+label                          label 0
+load_condition_mask            CondMask = $40
+copy_slot_unmasked             ok = $0
+store_condition_mask           $40 = CondMask
+copy_slot_unmasked             $41 = ok
+copy_constant                  $0 = 0
+merge_condition_mask           CondMask = $40 & $41
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 1 at #33)
+copy_slot_unmasked             $1 = i
+add_imm_int                    $1 += 0xFFFFFFFF
+copy_slot_masked               i = Mask($1)
+cmpeq_imm_int                  $1 = equal($1, 0x00000006)
+copy_slot_masked               $0 = Mask($1)
+label                          label 0x00000001
+load_condition_mask            CondMask = $40
+copy_slot_unmasked             ok = $0
+add_imm_int                    i += 0xFFFFFFFF
+copy_2_slots_unmasked          $0..1 = ok, i
+cmpeq_imm_int                  $1 = equal($1, 0x00000005)
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             ok = $0
+copy_constant                  f = 0x3F000000 (0.5)
+add_imm_float                  f += 0x3F800000 (1.0)
 copy_slot_unmasked             $0 = ok
+copy_slot_unmasked             $1 = f
+cmpeq_imm_float                $1 = equal($1, 0x3FC00000 (1.5))
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             ok = $0
+store_condition_mask           $40 = CondMask
+copy_slot_unmasked             $41 = ok
+copy_constant                  $0 = 0
+merge_condition_mask           CondMask = $40 & $41
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 2 at #58)
+copy_slot_unmasked             $1 = f
+add_imm_float                  $1 += 0x3F800000 (1.0)
+copy_slot_masked               f = Mask($1)
+cmpeq_imm_float                $1 = equal($1, 0x40200000 (2.5))
+copy_slot_masked               $0 = Mask($1)
+label                          label 0x00000002
+load_condition_mask            CondMask = $40
+copy_slot_unmasked             ok = $0
+store_condition_mask           $40 = CondMask
+copy_slot_unmasked             $41 = ok
+copy_constant                  $0 = 0
+merge_condition_mask           CondMask = $40 & $41
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 3 at #71)
+copy_slot_unmasked             $1 = f
+add_imm_float                  $1 += 0xBF800000 (-1.0)
+copy_slot_masked               f = Mask($1)
+cmpeq_imm_float                $1 = equal($1, 0x3FC00000 (1.5))
+copy_slot_masked               $0 = Mask($1)
+label                          label 0x00000003
+load_condition_mask            CondMask = $40
+copy_slot_unmasked             ok = $0
+add_imm_float                  f += 0xBF800000 (-1.0)
+copy_slot_unmasked             $0 = ok
+copy_slot_unmasked             $1 = f
+cmpeq_imm_float                $1 = equal($1, 0x3F000000 (0.5))
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             ok = $0
 copy_uniform                   $1 = colorGreen(0)
 cmpeq_imm_float                $1 = equal($1, 0x3F800000 (1.0))
 bitwise_xor_imm_int            $1 ^= 0xFFFFFFFF
@@ -43,7 +118,7 @@ store_condition_mask           $40 = CondMask
 copy_slot_unmasked             $41 = ok
 copy_4_uniforms                $0..3 = colorRed
 merge_condition_mask           CondMask = $40 & $41
-branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 0 at #61)
+branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 4 at #136)
 copy_4_slots_unmasked          $8..11 = m(0..3)
 copy_4_slots_unmasked          $12..15 = m(4..7)
 copy_4_slots_unmasked          $16..19 = m(8..11)
@@ -58,6 +133,6 @@ splat_4_constants              $28..31 = 0x80000000 (-0.0)
 bitwise_xor_4_ints             $24..27 ^= $28..31
 matrix_multiply_4              mat1x4($4..7) = mat4x4($8..23) * mat1x4($24..27)
 copy_4_slots_masked            $0..3 = Mask($4..7)
-label                          label 0
+label                          label 0x00000004
 load_condition_mask            CondMask = $40
 load_src                       src.rgba = $0..3

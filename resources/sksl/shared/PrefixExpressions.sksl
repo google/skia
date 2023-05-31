@@ -3,20 +3,41 @@ uniform half4 colorGreen, colorRed;
 half4 main(float2 c) {
     bool ok = true;
 
-    // prefix '!'
+    // Prefix ++ and -- (scalar int).
+    int i = 5;
+    ++i;
+    ok = ok && (i == 6);
+    ok = ok && (++i == 7);
+    ok = ok && (--i == 6);
+    --i;
+    ok = ok && (i == 5);
+
+    // Prefix ++ and -- (scalar float).
+    float f = 0.5;
+    ++f;
+    ok = ok && (f == 1.5);
+    ok = ok && (++f == 2.5);
+    ok = ok && (--f == 1.5);
+    --f;
+    ok = ok && (f == 0.5);
+
+    // Prefix '!'
     ok = ok && !(colorGreen.r == 1.0);
 
-    uint val = uint(colorGreen.r);  // 0
     // Unary bitwise negation '~' (scalar):
+    uint val = uint(colorGreen.r);  // 0
     uint2 mask = uint2(val, ~val);
+
     // Unary bitwise negation '~' (vector, uint):
     int2 imask = int2(~mask);
+
     // Unary bitwise negation '~' (vector, int):
     mask = ~mask & uint2(~imask);
     ok = ok && (mask == uint2(0));
 
     half one = half(colorGreen.r);
     half4x4 m = half4x4(one); // identity
+
     // prefix '-'
     return ok ? -m * -colorGreen : colorRed;
 }
