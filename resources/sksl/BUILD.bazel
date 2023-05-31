@@ -1070,6 +1070,11 @@ skia_filegroup(
         "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
 
         # Shared tests that are supported so far:
+        "shared/ArrayConstructors.sksl",
+        "shared/ArrayFollowedByScalar.sksl",
+        "shared/ArrayIndexTypes.sksl",
+        "shared/ArrayTypes.sksl",
+        "shared/ConstArray.sksl",
         "shared/ConstantIf.sksl",
         "shared/FunctionAnonymousParameters.sksl",
         "shared/HelloWorld.sksl",
@@ -1084,6 +1089,7 @@ skia_filegroup(
         "shared/OutParamsAreDistinct.sksl",
         "shared/OutParamsFunctionCallInArgument.sksl",
         "shared/PrefixExpressions.sksl",
+        "shared/StructArrayFollowedByScalar.sksl",
         "shared/Structs.sksl",
         "shared/TernaryComplexNesting.sksl",
         "shared/TernaryExpression.sksl",

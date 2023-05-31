@@ -836,6 +836,7 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
         case Expression::Kind::kConstructorCompound:
             return this->assembleConstructorCompound(e.as<ConstructorCompound>(), parentPrecedence);
 
+        case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat:
