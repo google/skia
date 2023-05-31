@@ -29,10 +29,10 @@ struct SkRect;
     its top, it is considered empty.
 */
 struct SK_API SkIRect {
-    int32_t fLeft;   //!< smaller x-axis bounds
-    int32_t fTop;    //!< smaller y-axis bounds
-    int32_t fRight;  //!< larger x-axis bounds
-    int32_t fBottom; //!< larger y-axis bounds
+    int32_t fLeft   = 0; //!< smaller x-axis bounds
+    int32_t fTop    = 0; //!< smaller y-axis bounds
+    int32_t fRight  = 0; //!< larger x-axis bounds
+    int32_t fBottom = 0; //!< larger y-axis bounds
 
     /** Returns constructed SkIRect set to (0, 0, 0, 0).
         Many other rectangles are empty; if left is equal to or greater than right,
@@ -581,10 +581,10 @@ struct SK_API SkIRect {
     its top, it is considered empty.
 */
 struct SK_API SkRect {
-    SkScalar fLeft;   //!< smaller x-axis bounds
-    SkScalar fTop;    //!< smaller y-axis bounds
-    SkScalar fRight;  //!< larger x-axis bounds
-    SkScalar fBottom; //!< larger y-axis bounds
+    SkScalar fLeft   = 0; //!< smaller x-axis bounds
+    SkScalar fTop    = 0; //!< smaller y-axis bounds
+    SkScalar fRight  = 0; //!< larger x-axis bounds
+    SkScalar fBottom = 0; //!< larger y-axis bounds
 
     /** Returns constructed SkRect set to (0, 0, 0, 0).
         Many other rectangles are empty; if left is equal to or greater than right,

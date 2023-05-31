@@ -334,8 +334,11 @@ GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::ganesh::SurfaceDrawCont
             auto isect = skvx::bit_pun<skvx::float4>(isectRRect.rect());
             auto rectToLocalSize = (local - skvx::shuffle<2,3,0,1>(local)) /
                                    (rect - skvx::shuffle<2,3,0,1>(rect));
-            fHeadInstance->fLocalCoords.fRect =
-                    skvx::bit_pun<SkRect>((isect - rect) * rectToLocalSize + local);
+            auto localCoordsRect = (isect - rect) * rectToLocalSize + local;
+            fHeadInstance->fLocalCoords.fRect.setLTRB(localCoordsRect.x(),
+                                                      localCoordsRect.y(),
+                                                      localCoordsRect.z(),
+                                                      localCoordsRect.w());
         }
 
         // Update the round rect.

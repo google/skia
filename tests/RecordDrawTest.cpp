@@ -153,8 +153,8 @@ DEF_TEST(RecordDraw_BasicBounds, r) {
         recorder.drawRect(SkRect::MakeWH(320, 240), SkPaint());
     recorder.restore();
 
-    AutoTMalloc<SkRect> bounds(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, bounds);
+    AutoTArray<SkRect> bounds(record.count());
+    SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, bounds.data());
 
     for (int i = 0; i < record.count(); i++) {
         REPORTER_ASSERT(r, sloppy_rect_eq(SkRect::MakeWH(400, 480), bounds[i]));
@@ -191,9 +191,9 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // draw/clip (0,0,20,40) with the 20px offset drop shadow along the x-axis (20,0,40,40).
     // The saveLayer and restore match the output bounds of the drop shadow filter, instead of
     // expanding to fill the entire picture.
-    AutoTMalloc<SkRect> bounds(record.count());
+    AutoTArray<SkRect> bounds(record.count());
     AutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds.data(), meta);
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(0, 0, 40, 40)));
@@ -216,9 +216,9 @@ DEF_TEST(RecordDraw_Metadata, r) {
         recorder.restore();
     recorder.restore();
 
-    AutoTMalloc<SkRect> bounds(record.count());
+    AutoTArray<SkRect> bounds(record.count());
     AutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds.data(), meta);
 
     REPORTER_ASSERT(r, !meta[0].isDraw);  // saveLayer (not a draw, but its restore will be)
     REPORTER_ASSERT(r, !meta[1].isDraw);  //   clip
@@ -246,8 +246,8 @@ DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
     recorder.drawRect(SkRect::MakeLTRB(20, 20, 30, 30), SkPaint());
     recorder.restore();
 
-    AutoTMalloc<SkRect> bounds(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds);
+    AutoTArray<SkRect> bounds(record.count());
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds.data());
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(10, 10, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(20, 20, 30, 30)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(10, 10, 40, 40)));
