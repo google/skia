@@ -57,7 +57,7 @@ static long ImageFilter_Blend(JNIEnv* env, jobject, jint bm, jlong background, j
 
 static long ImageFilter_Image(JNIEnv* env, jobject, jlong native_image) {
     auto image = sk_ref_sp(reinterpret_cast<SkImage*>(native_image));
-    auto filter = SkImageFilters::Image(std::move(image));
+    auto filter = SkImageFilters::Image(std::move(image), SkFilterMode::kLinear);
     return reinterpret_cast<jlong>(filter.release());
 }
 

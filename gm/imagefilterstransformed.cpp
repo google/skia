@@ -76,8 +76,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
-        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle,
+                                                            SkFilterMode::kLinear));
+        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard,
+                                                                SkFilterMode::kLinear));
         sk_sp<SkImageFilter> filters[] = {
             SkImageFilters::Blur(12, 0, nullptr),
             SkImageFilters::DropShadow(0, 15, 8, 0, SK_ColorGREEN, nullptr),
@@ -319,7 +321,7 @@ DEF_GM(return new ImageFilterComposedTransform();)
 // Tests SkImageFilters::Image under tricky matrices (mirrors and perspective)
 DEF_SIMPLE_GM(imagefilter_transformed_image, canvas, 256, 256) {
     sk_sp<SkImage> image = GetResourceAsImage("images/color_wheel.png");
-    sk_sp<SkImageFilter> imageFilter = SkImageFilters::Image(image);
+    sk_sp<SkImageFilter> imageFilter = SkImageFilters::Image(image, SkFilterMode::kLinear);
 
     const SkRect imageRect = SkRect::MakeIWH(image->width(), image->height());
 

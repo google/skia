@@ -24,7 +24,7 @@ DEF_SIMPLE_GM(crbug_905548, canvas, 100, 200) {
     }
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawCircle(50, 50, 45, SkPaint());
-    auto imageSource = SkImageFilters::Image(surface->makeImageSnapshot());
+    auto imageSource = SkImageFilters::Image(surface->makeImageSnapshot(), SkFilterMode::kNearest);
 
     auto blurred = SkImageFilters::Blur(15, 15, imageSource);
     auto eroded = SkImageFilters::Erode(0, 0, blurred);

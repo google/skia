@@ -80,7 +80,7 @@ static sk_sp<SkImage> make_img() {
 }
 
 DEF_SIMPLE_GM_BG(imagemagnifier_cropped, canvas, WIDTH_HEIGHT, WIDTH_HEIGHT, SK_ColorBLACK) {
-    sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(make_img()));
+    sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(make_img(), SkFilterMode::kNearest));
 
     // Crop out a 16 pixel ring around the result
     const SkIRect cropRect = SkIRect::MakeXYWH(16, 16, WIDTH_HEIGHT-32, WIDTH_HEIGHT-32);

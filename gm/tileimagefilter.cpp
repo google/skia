@@ -74,7 +74,7 @@ protected:
                                                   SkIntToScalar(i * 4),
                                                   SkIntToScalar(image->width() - i * 12),
                                                   SkIntToScalar(image->height()) - i * 12);
-                sk_sp<SkImageFilter> tileInput(SkImageFilters::Image(image));
+                sk_sp<SkImageFilter> tileInput(SkImageFilters::Image(image, SkFilterMode::kLinear));
                 sk_sp<SkImageFilter> filter(SkImageFilters::Tile(srcRect, dstRect,
                                                                  std::move(tileInput)));
                 canvas->save();

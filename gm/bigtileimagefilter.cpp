@@ -67,7 +67,8 @@ protected:
             SkPaint p;
 
             const SkRect bound = SkRect::MakeIWH(kWidth, kHeight);
-            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fRedImage));
+            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fRedImage,
+                                                                   SkFilterMode::kLinear));
 
             sk_sp<SkImageFilter> tif(SkImageFilters::Tile(
                     SkRect::MakeIWH(kBitmapSize, kBitmapSize), SkRect::MakeIWH(kWidth, kHeight),

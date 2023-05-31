@@ -78,8 +78,10 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
-        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
-        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle,
+                                                            SkFilterMode::kLinear));
+        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard,
+                                                                SkFilterMode::kLinear));
 
         SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
         SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10),
@@ -104,10 +106,10 @@ protected:
             SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
             SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
             SkImageFilters::Shader(SkPerlinNoiseShader::MakeFractalNoise(
-                    SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
+                   SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
             SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
             SkImageFilters::SpotLitDiffuse(spotLocation, spotTarget, spotExponent,
-                                           cutoffAngle, white, surfaceScale, kd, nullptr),
+                                          cutoffAngle, white, surfaceScale, kd, nullptr),
         };
 
         SkVector scales[] = {

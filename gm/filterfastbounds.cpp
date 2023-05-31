@@ -268,7 +268,8 @@ protected:
         }
 
         sk_sp<SkImage> image(surface->makeImageSnapshot());
-        sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(std::move(image)));
+        sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(std::move(image),
+                                                               SkFilterMode::kLinear));
         TArray<SkPaint> bmsPaints;
         create_paints(&bmsPaints, std::move(imageSource));
 

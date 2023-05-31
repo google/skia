@@ -227,16 +227,6 @@ public:
     }
 
     /**
-     *  Create a filter that draws the image using Mitchel cubic resampling. The returned image
-     *  filter evaluates to transparent black if 'image' is null.
-     *
-     *  @param image    The image that is output by the filter.
-     */
-    static sk_sp<SkImageFilter> Image(sk_sp<SkImage> image) {
-        return Image(std::move(image), SkSamplingOptions({1/3.0f, 1/3.0f}));
-    }
-
-    /**
      *  Create a filter that mimics a zoom/magnifying lens effect.
      *  DEPRECATED: This factory does not accept enough parameters to fully specify the zoom effect,
                     and derives the zoom based on the internal allocation size of a saveLayer. This

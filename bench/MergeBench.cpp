@@ -71,8 +71,9 @@ protected:
         SkRect r = fIsSmall ? SkRect::MakeWH(FILTER_WIDTH_SMALL, FILTER_HEIGHT_SMALL) :
                               SkRect::MakeWH(FILTER_WIDTH_LARGE, FILTER_HEIGHT_LARGE);
         SkPaint paint;
-        paint.setImageFilter(SkImageFilters::Merge(SkImageFilters::Image(fCheckerboard),
-                                                   SkImageFilters::Image(fImage)));
+        paint.setImageFilter(SkImageFilters::Merge(
+                SkImageFilters::Image(fCheckerboard, SkFilterMode::kNearest),
+                SkImageFilters::Image(fImage, SkFilterMode::kNearest)));
         for (int i = 0; i < loops; i++) {
             canvas->drawRect(r, paint);
         }

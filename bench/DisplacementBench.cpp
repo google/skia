@@ -96,7 +96,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        sk_sp<SkImageFilter> displ(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> displ(SkImageFilters::Image(fCheckerboard, SkFilterMode::kLinear));
         // No displacement effect
         paint.setImageFilter(SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kG,
                                                              0.0f, std::move(displ), nullptr));
@@ -121,7 +121,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        sk_sp<SkImageFilter> displ(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> displ(SkImageFilters::Image(fCheckerboard, SkFilterMode::kLinear));
         // Displacement, with 1 alpha component (which isn't pre-multiplied)
         paint.setImageFilter(SkImageFilters::DisplacementMap(SkColorChannel::kB, SkColorChannel::kA,
                                                              16.0f, std::move(displ), nullptr));
@@ -145,7 +145,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        sk_sp<SkImageFilter> displ(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> displ(SkImageFilters::Image(fCheckerboard, SkFilterMode::kLinear));
         // Displacement, with 2 non-alpha components
         paint.setImageFilter(SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kB,
                                                              32.0f, std::move(displ), nullptr));

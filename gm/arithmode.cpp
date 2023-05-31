@@ -87,8 +87,8 @@ class ArithmodeGM : public skiagm::GM {
 
         sk_sp<SkImage> src = make_src(WW, HH);
         sk_sp<SkImage> dst = make_dst(WW, HH);
-        sk_sp<SkImageFilter> srcFilter = SkImageFilters::Image(src);
-        sk_sp<SkImageFilter> dstFilter = SkImageFilters::Image(dst);
+        sk_sp<SkImageFilter> srcFilter = SkImageFilters::Image(src, {SkFilterMode::kLinear});
+        sk_sp<SkImageFilter> dstFilter = SkImageFilters::Image(dst, {SkFilterMode::kLinear});
 
         constexpr SkScalar one = SK_Scalar1;
         constexpr SkScalar K[] = {

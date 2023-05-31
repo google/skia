@@ -44,7 +44,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         {
-            sk_sp<SkImageFilter> bitmapSource(SkImageFilters::Image(fImage));
+            sk_sp<SkImageFilter> bitmapSource(SkImageFilters::Image(fImage, SkFilterMode::kLinear));
             sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorRED,
                                                                   SkBlendMode::kSrcIn));
             sk_sp<SkImageFilter> blur(SkImageFilters::Blur(4.0f, 4.0f, std::move(bitmapSource)));

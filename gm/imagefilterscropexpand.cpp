@@ -42,7 +42,8 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
     sk_sp<SkImage> gradientCircle(make_gradient_circle(64, 64));
     auto checkerboard = make_checkerboard();
 
-    sk_sp<SkImageFilter> gradientCircleSource(SkImageFilters::Image(std::move(gradientCircle)));
+    sk_sp<SkImageFilter> gradientCircleSource(SkImageFilters::Image(std::move(gradientCircle),
+                                                                    SkFilterMode::kLinear));
     sk_sp<SkImageFilter> noopCropped(SkImageFilters::Offset(0, 0, nullptr, &cropRect));
     // This color matrix saturates the green component but only partly increases the opacity.
     // For the opaque checkerboard, the opacity boost doesn't matter but it does impact the

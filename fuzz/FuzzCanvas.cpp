@@ -637,7 +637,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             }
         }
         case 9:
-            return SkImageFilters::Image(make_fuzz_image(fuzz));
+            return SkImageFilters::Image(make_fuzz_image(fuzz), SkCubicResampler::Mitchell());
         case 10: {
             sk_sp<SkImage> image = make_fuzz_image(fuzz);
             SkRect srcRect, dstRect;

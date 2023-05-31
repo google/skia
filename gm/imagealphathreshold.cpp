@@ -199,7 +199,7 @@ DEF_SIMPLE_GM_BG(imagealphathreshold_image, canvas, WIDTH * 2, HEIGHT, SK_ColorB
     region.setRects(rects, 2);
 
     SkPaint filterPaint;
-    sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(image));
+    sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(image, SkFilterMode::kLinear));
     filterPaint.setImageFilter(SkImageFilters::AlphaThreshold(region, 0.2f, 0.7f,
                                                               std::move(imageSource)));
 

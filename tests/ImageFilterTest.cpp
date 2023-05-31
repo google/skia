@@ -168,7 +168,8 @@ public:
         }
         {
             sk_sp<SkImage> gradientImage(make_gradient_circle(64, 64).asImage());
-            sk_sp<SkImageFilter> gradientSource(SkImageFilters::Image(std::move(gradientImage)));
+            sk_sp<SkImageFilter> gradientSource(SkImageFilters::Image(std::move(gradientImage),
+                                                                      SkFilterMode::kNearest));
 
             this->addFilter("displacement map",
                     SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kB, 20.0f,
@@ -524,7 +525,7 @@ DEF_TEST(ImageFilter, reporter) {
             // 3 ) large negative specular exponent value
             SkScalar specularExponent = -1000;
 
-            sk_sp<SkImageFilter> bmSrc(SkImageFilters::Image(std::move(image)));
+            sk_sp<SkImageFilter> bmSrc(SkImageFilters::Image(std::move(image), {}));
             SkPaint paint;
             paint.setImageFilter(SkImageFilters::SpotLitSpecular(
                     location, target, specularExponent, 180,
@@ -1082,7 +1083,7 @@ static void test_imagefilter_merge_result_size(skiatest::Reporter* reporter,
     greenBM.allocN32Pixels(20, 20);
     greenBM.eraseColor(SK_ColorGREEN);
     sk_sp<SkImage> greenImage(greenBM.asImage());
-    sk_sp<SkImageFilter> source(SkImageFilters::Image(std::move(greenImage)));
+    sk_sp<SkImageFilter> source(SkImageFilters::Image(std::move(greenImage), {}));
     sk_sp<SkImageFilter> merge(SkImageFilters::Merge(source, source));
 
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(rContext, 1));
@@ -1693,7 +1694,7 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10)));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
-    sk_sp<SkImageFilter> filter(SkImageFilters::Image(std::move(image)));
+    sk_sp<SkImageFilter> filter(SkImageFilters::Image(std::move(image), SkFilterMode::kNearest));
 
     sk_sp<SkData> data(filter->serialize());
     sk_sp<SkImageFilter> unflattenedFilter = SkImageFilter::Deserialize(data->data(), data->size());
@@ -1744,7 +1745,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
         return;
     }
 
-    sk_sp<SkImageFilter> largeSource(SkImageFilters::Image(std::move(largeImage)));
+    sk_sp<SkImageFilter> largeSource(SkImageFilters::Image(std::move(largeImage), {}));
     if (!largeSource) {
         ERRORF(reporter, "Failed to create large SkImageSource.");
         return;
@@ -2111,7 +2112,7 @@ DEF_TEST(DisplacementMapBounds, reporter) {
 DEF_TEST(ImageSourceBounds, reporter) {
     sk_sp<SkImage> image(make_gradient_circle(64, 64).asImage());
     // Default src and dst rects.
-    sk_sp<SkImageFilter> source1(SkImageFilters::Image(image));
+    sk_sp<SkImageFilter> source1(SkImageFilters::Image(image, SkFilterMode::kNearest));
     SkIRect imageBounds = SkIRect::MakeWH(64, 64);
     SkIRect input(SkIRect::MakeXYWH(10, 20, 30, 40));
     REPORTER_ASSERT(reporter,

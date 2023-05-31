@@ -89,7 +89,8 @@ protected:
         };
 
         int x = 0, y = 0;
-        sk_sp<SkImageFilter> background(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> background(SkImageFilters::Image(fCheckerboard,
+                                                              SkFilterMode::kNearest));
         for (size_t i = 0; i < std::size(gModes); i++) {
             paint.setImageFilter(SkImageFilters::Blend(gModes[i], background));
             DrawClippedBitmap(canvas, fBitmap, paint, x, y);
@@ -119,7 +120,8 @@ protected:
                                          SkIntToScalar(fBitmap.height() + 4));
         // Test offsets on SrcMode (uses fixed-function blend)
         sk_sp<SkImage> bitmapImage(fBitmap.asImage());
-        sk_sp<SkImageFilter> foreground(SkImageFilters::Image(std::move(bitmapImage)));
+        sk_sp<SkImageFilter> foreground(SkImageFilters::Image(std::move(bitmapImage),
+                                                              SkFilterMode::kNearest));
         sk_sp<SkImageFilter> offsetForeground(SkImageFilters::Offset(4, -4, foreground));
         sk_sp<SkImageFilter> offsetBackground(SkImageFilters::Offset(4, 4, background));
         paint.setImageFilter(SkImageFilters::Blend(

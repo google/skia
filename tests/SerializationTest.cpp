@@ -308,9 +308,11 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                                     bool shouldSucceed,
                                     skiatest::Reporter* reporter) {
     sk_sp<SkImage> validImage(validBitmap.asImage());
-    sk_sp<SkImageFilter> validBitmapSource(SkImageFilters::Image(std::move(validImage)));
+    sk_sp<SkImageFilter> validBitmapSource(SkImageFilters::Image(std::move(validImage),
+                                                                 SkFilterMode::kNearest));
     sk_sp<SkImage> invalidImage(invalidBitmap.asImage());
-    sk_sp<SkImageFilter> invalidBitmapSource(SkImageFilters::Image(std::move(invalidImage)));
+    sk_sp<SkImageFilter> invalidBitmapSource(SkImageFilters::Image(std::move(invalidImage),
+                                                                   SkFilterMode::kNearest));
     sk_sp<SkImageFilter> xfermodeImageFilter(
         SkImageFilters::Blend(SkBlendMode::kSrcOver,
                               std::move(invalidBitmapSource),

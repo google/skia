@@ -258,7 +258,7 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     // image; otherwise the mask filter will apply late (incorrectly) and none of the original
     // image will be visible.
     sk_sp<SkImageFilter> edgeBlend = SkImageFilters::Blend(SkBlendMode::kSrcOver,
-            SkImageFilters::Image(image), edgeDetector);
+            SkImageFilters::Image(image, SkFilterMode::kNearest), edgeDetector);
 
     SkPaint testMaskPaint;
     testMaskPaint.setMaskFilter(maskFilter);

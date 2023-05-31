@@ -59,7 +59,7 @@ protected:
                                                  i * 8,
                                                  image->width() - i * 8,
                                                  image->height() - i * 12);
-            sk_sp<SkImageFilter> tileInput(SkImageFilters::Image(image));
+            sk_sp<SkImageFilter> tileInput(SkImageFilters::Image(image, SkFilterMode::kNearest));
             SkScalar dx = SkIntToScalar(i*5);
             SkScalar dy = SkIntToScalar(i*10);
             paint.setImageFilter(SkImageFilters::Offset(dx, dy, std::move(tileInput), &cropRect));

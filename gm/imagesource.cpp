@@ -61,7 +61,7 @@ protected:
 
         {
             // Draw an unscaled bitmap.
-            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fImage));
+            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fImage, SkFilterMode::kNearest));
             fill_rect_filtered(canvas, clipRect, std::move(imageSource));
             canvas->translate(SkIntToScalar(100), 0);
         }
