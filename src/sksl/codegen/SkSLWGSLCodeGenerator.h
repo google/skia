@@ -48,6 +48,7 @@ class Literal;
 class MemoryLayout;
 class OutputStream;
 class Position;
+class PostfixExpression;
 class PrefixExpression;
 class ProgramElement;
 class ReturnStatement;
@@ -193,6 +194,7 @@ private:
     std::string assembleFunctionCall(const FunctionCall&);
     std::string assembleIndexExpression(const IndexExpression& i);
     std::string assembleLiteral(const Literal& l);
+    std::string assemblePostfixExpression(const PostfixExpression& p, Precedence parentPrecedence);
     std::string assemblePrefixExpression(const PrefixExpression& p, Precedence parentPrecedence);
     std::string assembleSwizzle(const Swizzle& swizzle);
     std::string assembleTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);

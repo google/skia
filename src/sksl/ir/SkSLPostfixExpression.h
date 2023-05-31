@@ -29,9 +29,9 @@ public:
     inline static constexpr Kind kIRNodeKind = Kind::kPostfix;
 
     PostfixExpression(Position pos, std::unique_ptr<Expression> operand, Operator op)
-        : INHERITED(pos, kIRNodeKind, &operand->type())
-        , fOperand(std::move(operand))
-        , fOperator(op) {}
+            : INHERITED(pos, kIRNodeKind, &operand->type())
+            , fOperand(std::move(operand))
+            , fOperator(op) {}
 
     // Creates an SkSL postfix expression; uses the ErrorReporter to report errors.
     static std::unique_ptr<Expression> Convert(const Context& context,
