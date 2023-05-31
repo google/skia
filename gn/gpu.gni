@@ -364,6 +364,8 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/effects/GrBitmapTextGeoProc.h",
   "$_src/gpu/ganesh/effects/GrBlendFragmentProcessor.cpp",
   "$_src/gpu/ganesh/effects/GrBlendFragmentProcessor.h",
+  "$_src/gpu/ganesh/effects/GrColorTableEffect.cpp",
+  "$_src/gpu/ganesh/effects/GrColorTableEffect.h",
   "$_src/gpu/ganesh/effects/GrConvexPolyEffect.cpp",
   "$_src/gpu/ganesh/effects/GrConvexPolyEffect.h",
   "$_src/gpu/ganesh/effects/GrCoverageSetOpXP.cpp",

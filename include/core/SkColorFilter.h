@@ -8,12 +8,18 @@
 #ifndef SkColorFilter_DEFINED
 #define SkColorFilter_DEFINED
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
+
+#include <cstddef>
+#include <cstdint>
 
 class SkColorMatrix;
 class SkColorSpace;
+enum class SkBlendMode;
+struct SkDeserialProcs;
 
 /**
 *  ColorFilters are optional objects in the drawing pipeline. When present in

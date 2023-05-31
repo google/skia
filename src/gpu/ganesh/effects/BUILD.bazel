@@ -14,6 +14,8 @@ EFFECTS_FILES = [
     "GrBitmapTextGeoProc.h",
     "GrBlendFragmentProcessor.cpp",
     "GrBlendFragmentProcessor.h",
+    "GrColorTableEffect.cpp",
+    "GrColorTableEffect.h",
     "GrConvexPolyEffect.cpp",
     "GrConvexPolyEffect.h",
     "GrCoverageSetOpXP.cpp",

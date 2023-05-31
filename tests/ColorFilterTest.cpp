@@ -163,6 +163,8 @@ struct FailureColorFilter final : public SkColorFilterBase {
     }
 #endif
 
+    SkColorFilterBase::Type type() const override { return SkColorFilterBase::Type::kNoop; }
+
     bool appendStages(const SkStageRec&, bool) const override { return false; }
 
     // Only created here, should never be flattened / unflattened.

@@ -21,7 +21,6 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkRandom.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
@@ -31,6 +30,7 @@
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
@@ -524,8 +524,8 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
     }
     auto filter = SkOverdrawColorFilter::MakeWithSkColors(colors);
     SkSurfaceProps props; // default props for testing
-    auto [success, fp] = as_CFB(filter)->asFragmentProcessor(/*inputFP=*/nullptr, d->context(),
-                                                             GrColorInfo{}, props);
+    auto [success, fp] = GrFragmentProcessors::Make(
+            d->context(), filter.get(), /*inputFP=*/nullptr, GrColorInfo{}, props);
     SkASSERT(success);
     return std::move(fp);
 }
