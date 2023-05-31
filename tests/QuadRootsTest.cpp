@@ -213,3 +213,55 @@ DEF_TEST(QuadDiscriminant_Fibonacci, reporter) {
         F[1] = F[0];
     }
 }
+
+DEF_TEST(QuadRoots_Basic, reporter) {
+    {
+        // (x - 1) (x - 1) normal quadratic form A = 1, B = 2, C =1.
+        auto [discriminant, r0, r1] = SkQuads::Roots(1, -0.5 * -2, 1);
+        REPORTER_ASSERT(reporter, discriminant == 0);
+        REPORTER_ASSERT(reporter, r0 == 1 && r1 == 1);
+    }
+
+    {
+        // (x + 2) (x + 2) normal quadratic form A = 1, B = 4, C = 4.
+        auto [discriminant, r0, r1] = SkQuads::Roots(1, -0.5 * 4, 4);
+        REPORTER_ASSERT(reporter, discriminant == 0);
+        REPORTER_ASSERT(reporter, r0 == -2 && r1 == -2);
+    }
+}
+
+// Test the roots using
+// Use quadratics of the form F_n * x^2 - 2 * F_(n-1) * x + F_(n-2).
+// The roots are (F_(n–1) ± 1)/F_n if n is even otherwise there are no roots.
+DEF_TEST(QuadRoots_Fibonacci, reporter) {
+    //            n,  n-1, n-2
+    int64_t F[] = {1,   1,   0};
+    // F_79 just fits in the 53 significant bits of a double.
+    for (int i = 2; i < 79; ++i) {
+        F[0] = F[1] + F[2];
+
+        const int expectedDiscriminant = i % 2 == 0 ? 1 : -1;
+        auto [discriminant, r0, r1] = SkQuads::Roots(F[0], F[1], F[2]);
+        REPORTER_ASSERT(reporter, discriminant == expectedDiscriminant);
+
+        // There are only real roots when i is even.
+        if (i % 2 == 0) {
+        const double expectedLittle = ((double)F[1] - 1) / F[0];
+        const double expectedBig = ((double)F[1] + 1) / F[0];
+            if (r0 <= r1) {
+                REPORTER_ASSERT(reporter, r0 == expectedLittle);
+                REPORTER_ASSERT(reporter, r1 == expectedBig);
+            } else {
+                REPORTER_ASSERT(reporter, r1 == expectedLittle);
+                REPORTER_ASSERT(reporter, r0 == expectedBig);
+            }
+        } else {
+            REPORTER_ASSERT(reporter, std::isnan(r0));
+            REPORTER_ASSERT(reporter, std::isnan(r1));
+        }
+
+        F[2] = F[1];
+        F[1] = F[0];
+    }
+}
+

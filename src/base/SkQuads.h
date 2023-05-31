@@ -29,6 +29,32 @@ public:
      */
     static double Discriminant(double A, double B, double C);
 
+    struct RootResult {
+        double discriminant;
+        double root0;
+        double root1;
+    };
+
+    /**
+     * Calculate the roots of a quadratic.
+     * Given
+     *    A*t^2 -2*B*t + C = 0,
+     * calculate the roots.
+     *
+     * This does not try to detect a linear configuration of the equation, or detect if the two
+     * roots are the same. It returns the discriminant and the two roots.
+     *
+     * Not this uses a different form the quadratic equation to reduce rounding error. Give
+     * standard A, B, C. You can call this root finder with:
+     *    Roots(A, -0.5*B, C)
+     * to find the roots of A*x^2 + B*x + C.
+     *
+     * The method used to calculate the roots is from
+     *    "On the Cost of Floating-Point Computation Without Extra-Precise Arithmetic"
+     * by W. Kahan.
+     */
+    static RootResult Roots(double A, double B, double C);
+
     /**
      * Puts up to 2 real solutions to the equation
      *   A*t^2 + B*t + C = 0
