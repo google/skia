@@ -1,9 +1,9 @@
-"""This module defines the skia_binary_with_cmdline_flags_test rule."""
+"""This module defines the skia_test_wrapper_with_cmdline_flags rule."""
 
 load("//bazel:remove_indentation.bzl", "remove_indentation")
 
 # https://bazel.build/rules/lib/builtins/ctx
-def _skia_binary_with_cmdline_flags_test_impl(ctx):
+def _skia_test_wrapper_with_cmdline_flags_impl(ctx):
     test_args = ([
         "--resourcePath",
         "$(dirname $(realpath $(rootpath %s)))" % ctx.attr._arbitrary_file_in_resources_dir.label,
@@ -36,16 +36,13 @@ def _skia_binary_with_cmdline_flags_test_impl(ctx):
         runfiles = runfiles,
     )]
 
-skia_binary_with_cmdline_flags_test = rule(
-    doc = """Runs a C++ test binary with any necessary command-line flags.
-
-    This test rule produces a wrapper script that invokes a C++ test with a predetermined set of
-    command-line flags.
+skia_test_wrapper_with_cmdline_flags = rule(
+    doc = """Produces a script that invokes a Skia C++ test with a fixed set of command-line flags.
 
     The reason why we use a custom rule rather than a genrule is that we wish to select() the
     extra_args attribute based e.g. on the device under test and various build settings.
     """,
-    implementation = _skia_binary_with_cmdline_flags_test_impl,
+    implementation = _skia_test_wrapper_with_cmdline_flags_impl,
     attrs = {
         "test_binary": attr.label(
             mandatory = True,
@@ -71,5 +68,4 @@ skia_binary_with_cmdline_flags_test = rule(
             allow_single_file = True,
         ),
     },
-    test = True,
 )

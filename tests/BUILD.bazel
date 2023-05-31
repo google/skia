@@ -11,7 +11,7 @@ load(
     "PATHOPS_TESTS",
     "PDF_TESTS",
 )
-load(":android.bzl", "skia_android_unit_test")
+load(":skia_android_unit_test.bzl", "skia_android_unit_test")
 
 skia_cc_library(
     name = "tests_base",
