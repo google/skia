@@ -42,7 +42,6 @@ split_srcs_and_hdrs(
 
 CORE_FILES = [
     "GrAHardwareBufferUtils.h",
-    "GrRectanizer.h",
     "ShaderErrorHandler.cpp",
     "SkRenderEngineAbortf.h",
 ]

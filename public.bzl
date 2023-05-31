@@ -787,7 +787,6 @@ BASE_SRCS_ALL = [
     "src/gpu/DitherUtils.h",
     "src/gpu/GpuTypesPriv.h",
     "src/gpu/GrAHardwareBufferUtils.h",
-    "src/gpu/GrRectanizer.h",
     "src/gpu/KeyBuilder.h",
     "src/gpu/MutableTextureStateRef.h",
     "src/gpu/Rectanizer.h",
