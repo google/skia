@@ -77,7 +77,7 @@ DEF_TEST(SkRasterPipelineOpts_Sin, r) {
     using F = SK_OPTS_NS::F;
 
     constexpr float Pi = SK_ScalarPI;
-    constexpr float kTolerance = 0.00175f;
+    constexpr float kTolerance = 0.000875f;
     for (float rad = -5*Pi; rad <= 5*Pi; rad += 0.1f) {
         F result = SK_OPTS_NS::sin_(rad);
         F expected = sk_float_sin(rad);
@@ -91,7 +91,7 @@ DEF_TEST(SkRasterPipelineOpts_Cos, r) {
     using F = SK_OPTS_NS::F;
 
     constexpr float Pi = SK_ScalarPI;
-    constexpr float kTolerance = 0.00175f;
+    constexpr float kTolerance = 0.000875f;
     for (float rad = -5*Pi; rad <= 5*Pi; rad += 0.1f) {
         F result = SK_OPTS_NS::cos_(rad);
         F expected = sk_float_cos(rad);

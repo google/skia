@@ -1487,27 +1487,31 @@ SI F clamp_ex(F v, F limit) {
     return min(max(inclusiveZ, v), inclusiveL);
 }
 
-// Bhaskara I's sine approximation
-// 16x(pi - x) / (5*pi^2 - 4x(pi - x)
-// ... divide by 4
-// 4x(pi - x) / 5*pi^2/4 - x(pi - x)
-//
-// This is a good approximation only for 0 <= x <= pi, so we use symmetries to get
-// radians into that range first.
-SI F sin_(F v) {
-    constexpr float Pi = SK_ScalarPI;
-    F x = fract(v * (0.5f/Pi)) * (2*Pi);
-    I32 neg = x > Pi;
-    x = if_then_else(neg, x - Pi, x);
-
-    F pair = x * (Pi - x);
-    x = 4.0f * pair / ((5*Pi*Pi/4) - pair);
-    x = if_then_else(neg, -x, x);
-    return x;
+// Polynomial approximation of degree 5 for sin(x * 2 * pi) in the range [-1/4, 1/4]
+// Adapted from https://github.com/google/swiftshader/blob/master/docs/Sin-Cos-Optimization.pdf
+SI F sin5q_(F x) {
+    // A * x + B * x^3 + C * x^5
+    // Exact at x = 0, 1/12, 1/6, 1/4, and their negatives,
+    // which correspond to x * 2 * pi = 0, pi/6, pi/3, pi/2
+    constexpr float A = 6.28230858f;
+    constexpr float B = -41.1693687f;
+    constexpr float C = 74.4388885f;
+    F x2 = x * x;
+    return x * mad(mad(x2, C, B), x2, A);
 }
 
-SI F cos_(F v) {
-    return sin_(v + (SK_ScalarPI/2));
+SI F sin_(F x) {
+    constexpr float one_over_pi2 = 1 / (2 * SK_FloatPI);
+    x = mad(x, -one_over_pi2, 0.25f);
+    x = 0.25f - abs_(x - floor_(x + 0.5f));
+    return sin5q_(x);
+}
+
+SI F cos_(F x) {
+    constexpr float one_over_pi2 = 1 / (2 * SK_FloatPI);
+    x *= one_over_pi2;
+    x = 0.25f - abs_(x - floor_(x + 0.5f));
+    return sin5q_(x);
 }
 
 /*  "GENERATING ACCURATE VALUES FOR THE TANGENT FUNCTION"
@@ -1532,7 +1536,7 @@ SI F cos_(F v) {
                 1 - tan(x')
  */
 SI F tan_(F x) {
-    constexpr float Pi = SK_ScalarPI;
+    constexpr float Pi = SK_FloatPI;
     // periodic between -pi/2 ... pi/2
     // shift to 0...Pi, scale 1/Pi to get into 0...1, then fract, scale-up, shift-back
     x = fract((1/Pi)*x + 0.5f) * Pi - (Pi/2);
@@ -1582,7 +1586,7 @@ SI F atan_(F x) {
     I32 flip = (x > 1.0f);
     x = if_then_else(flip, 1/x, x);
     x = approx_atan_unit(x);
-    x = if_then_else(flip, SK_ScalarPI/2 - x, x);
+    x = if_then_else(flip, SK_FloatPI/2 - x, x);
     x = if_then_else(neg, -x, x);
     return x;
 }
@@ -1598,13 +1602,13 @@ SI F asin_(F x) {
     const float c1 = -0.2121144f;
     const float c0 = 1.5707288f;
     F poly = mad(x, mad(x, mad(x, c3, c2), c1), c0);
-    x = SK_ScalarPI/2 - sqrt_(1 - x) * poly;
+    x = SK_FloatPI/2 - sqrt_(1 - x) * poly;
     x = if_then_else(neg, -x, x);
     return x;
 }
 
 SI F acos_(F x) {
-    return SK_ScalarPI/2 - asin_(x);
+    return SK_FloatPI/2 - asin_(x);
 }
 
 /*  Use identity atan(x) = pi/2 - atan(1/x) for x > 1
@@ -1621,12 +1625,12 @@ SI F atan2_(F y0, F x0) {
     arg = if_then_else(neg, -arg, arg);
 
     F r = approx_atan_unit(arg);
-    r = if_then_else(flip, SK_ScalarPI/2 - r, r);
+    r = if_then_else(flip, SK_FloatPI/2 - r, r);
     r = if_then_else(neg, -r, r);
 
     // handle quadrant distinctions
-    r = if_then_else((y0 >= 0) & (x0  < 0), r + SK_ScalarPI, r);
-    r = if_then_else((y0  < 0) & (x0 <= 0), r - SK_ScalarPI, r);
+    r = if_then_else((y0 >= 0) & (x0  < 0), r + SK_FloatPI, r);
+    r = if_then_else((y0  < 0) & (x0 <= 0), r - SK_FloatPI, r);
     // Note: we don't try to handle 0,0 or infinities
     return r;
 }
