@@ -955,8 +955,10 @@ void VulkanCaps::DepthStencilFormatInfo::init(const skgpu::VulkanInterface* inte
     memset(&fFormatProperties, 0, sizeof(VkFormatProperties));
     VULKAN_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &fFormatProperties));
 
-    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    fSupportedSampleCounts.initSampleCounts(interface, physDev, properties, format, usageFlags);
+    if (this->isDepthStencilSupported(fFormatProperties.optimalTilingFeatures)) {
+        VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        fSupportedSampleCounts.initSampleCounts(interface, physDev, properties, format, usageFlags);
+    }
 }
 
 bool VulkanCaps::DepthStencilFormatInfo::isDepthStencilSupported(VkFormatFeatureFlags flags) const {
