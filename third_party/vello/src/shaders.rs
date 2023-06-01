@@ -18,17 +18,11 @@ impl Shader {
     }
 
     pub fn bindings(&self) -> Vec<ffi::BindType> {
-        self.0.bindings
-            .iter()
-            .map(|t| t.into())
-            .collect()
+        self.0.bindings.iter().map(|t| t.into()).collect()
     }
 
     pub fn workgroup_buffers(&self) -> Vec<ffi::WorkgroupBufferInfo> {
-        self.0.workgroup_buffers
-            .iter()
-            .map(|t| t.into())
-            .collect()
+        self.0.workgroup_buffers.iter().map(|t| t.into()).collect()
     }
 
     #[cfg(feature = "wgsl")]
@@ -45,7 +39,7 @@ impl Shader {
 macro_rules! decl_shader {
     ($name:ident, $field:tt) => {
         const $name: Shader = Shader(&vello_shaders::SHADERS.$field);
-    }
+    };
 }
 
 decl_shader!(BACKDROP, backdrop);

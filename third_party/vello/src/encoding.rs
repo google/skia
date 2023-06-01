@@ -29,18 +29,23 @@ impl Encoding {
         Encoding { encoding }
     }
 
-    pub fn is_empty(self: &Encoding) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.encoding.is_empty()
     }
 
+    pub fn reset(&mut self) {
+        self.encoding.reset(/*is_fragment=*/ false);
+    }
+
     pub fn fill(
-        self: &mut Encoding,
+        &mut self,
         style: ffi::Fill,
         transform: ffi::Affine,
         brush: &ffi::Brush,
         path_iter: Pin<&mut ffi::PathIterator>,
     ) {
-        self.encoding.encode_transform(Transform::from_kurbo(&transform.into()));
+        self.encoding
+            .encode_transform(Transform::from_kurbo(&transform.into()));
         self.encoding.encode_linewidth(match style {
             ffi::Fill::NonZero => -1.0,
             ffi::Fill::EvenOdd => -2.0,
@@ -52,36 +57,35 @@ impl Encoding {
     }
 
     pub fn stroke(
-        self: &mut Encoding,
+        &mut self,
         style: &ffi::Stroke,
         transform: ffi::Affine,
         brush: &ffi::Brush,
         path_iter: Pin<&mut ffi::PathIterator>,
     ) {
-        self.encoding.encode_transform(Transform::from_kurbo(&transform.into()));
+        self.encoding
+            .encode_transform(Transform::from_kurbo(&transform.into()));
         self.encoding.encode_linewidth(style.width);
         if self.encode_path(path_iter, /*is_fill=*/ false) {
             self.encoding.encode_brush(&Brush::from(brush), 1.0)
         }
     }
 
-    pub fn begin_clip(
-        self: &mut Encoding,
-        transform: ffi::Affine,
-        path_iter: Pin<&mut ffi::PathIterator>,
-    ) {
-        self.encoding.encode_transform(Transform::from_kurbo(&transform.into()));
+    pub fn begin_clip(&mut self, transform: ffi::Affine, path_iter: Pin<&mut ffi::PathIterator>) {
+        self.encoding
+            .encode_transform(Transform::from_kurbo(&transform.into()));
         self.encoding.encode_linewidth(-1.0);
         self.encode_path(path_iter, /*is_fill=*/ true);
-        self.encoding.encode_begin_clip(Mix::Clip.into(), /*alpha=*/ 1.0);
+        self.encoding
+            .encode_begin_clip(Mix::Clip.into(), /*alpha=*/ 1.0);
     }
 
-    pub fn end_clip(self: &mut Encoding) {
+    pub fn end_clip(&mut self) {
         self.encoding.encode_end_clip();
     }
 
     pub fn prepare_render(
-        self: &Encoding,
+        &self,
         width: u32,
         height: u32,
         background: &ffi::Color,

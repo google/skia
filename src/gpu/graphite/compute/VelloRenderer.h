@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkStrokeRec.h"
 #include "src/gpu/graphite/compute/VelloComputeSteps.h"
 #include "third_party/vello/cpp/vello.h"
 
@@ -20,7 +21,6 @@ namespace skgpu::graphite {
 
 class Caps;
 class DispatchGroup;
-class StrokeStyle;
 class Recorder;
 class TextureProxy;
 class Transform;
@@ -34,6 +34,8 @@ class VelloScene final {
 public:
     VelloScene();
 
+    void reset();
+
     void solidFill(const SkPath&,
                    const SkColor4f&,
                    const SkPathFillType,
@@ -41,7 +43,7 @@ public:
 
     void solidStroke(const SkPath&,
                      const SkColor4f&,
-                     const StrokeStyle&,
+                     float width,
                      const Transform& transform);
 
     void pushClipLayer(const SkPath& shape, const Transform& transform);
@@ -49,6 +51,10 @@ public:
 
 private:
     friend class VelloRenderer;
+
+    // Disallow copy
+    VelloScene(const VelloScene&) = delete;
+    VelloScene& operator=(const VelloScene&) = delete;
 
     ::rust::Box<::vello_cpp::Encoding> fEncoding;
     SkDEBUGCODE(int fLayers = 0;)

@@ -157,6 +157,10 @@ private:
 
 VelloScene::VelloScene() : fEncoding(vello_cpp::new_encoding()) {}
 
+void VelloScene::reset() {
+    fEncoding->reset();
+}
+
 void VelloScene::solidFill(const SkPath& shape,
                            const SkColor4f& fillColor,
                            const SkPathFillType fillType,
@@ -170,11 +174,11 @@ void VelloScene::solidFill(const SkPath& shape,
 
 void VelloScene::solidStroke(const SkPath& shape,
                              const SkColor4f& fillColor,
-                             const StrokeStyle& style,
+                             float width,
                              const Transform& t) {
     // Vello currently only supports round stroke styles
     PathIter iter(shape, t);
-    fEncoding->stroke({style.width()},
+    fEncoding->stroke({width},
                       to_vello_affine(t),
                       {vello_cpp::BrushKind::Solid, {to_vello_color(fillColor)}},
                       iter);
