@@ -273,6 +273,19 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
         return nullptr;
     }
 
+    // TODO(b/285189802): The default sizes for the bump buffers (~97MB) exceed Graphite's resource
+    // budget if multiple passes are necessary per frame (250MB, see ResouceCache.h). We shrink
+    // them by half here as a crude reduction which seems to be enough for a 4k x 4k atlas render
+    // even in dense situations (e.g. paris-30k). We need to come up with a better approach
+    // to accurately predict the sizes for these buffers based on the scene encoding and our
+    // resource budget.
+    //
+    // The following numbers amount to ~48MB
+    const size_t bin_data_size = bufferSizes.bin_data / 2;
+    const size_t tiles_size = bufferSizes.tiles / 2;
+    const size_t segments_size = bufferSizes.segments / 2;
+    const size_t ptcl_size = bufferSizes.ptcl / 2;
+
     // See the comments in VelloComputeSteps.h for an explanation of the logic here.
 
     builder.assignSharedBuffer(configBuf, kVelloSlot_ConfigUniform);
@@ -316,7 +329,7 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
 
     // draw_leaf
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.draw_monoids), kVelloSlot_DrawMonoid);
-    builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.bin_data), kVelloSlot_InfoBinData);
+    builder.assignSharedBuffer(bufMgr->getStorage(bin_data_size), kVelloSlot_InfoBinData);
     // A clip input buffer must still get bound even if the encoding doesn't contain any clips
     builder.assignSharedBuffer(bufMgr->getStorage(std::max(1u, bufferSizes.clip_inps)),
                                kVelloSlot_ClipInput);
@@ -353,18 +366,18 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
 
     // tile_alloc
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.paths), kVelloSlot_Path);
-    builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.tiles), kVelloSlot_Tile);
+    builder.assignSharedBuffer(bufMgr->getStorage(tiles_size), kVelloSlot_Tile);
     builder.appendStep(&fTileAlloc, placeholder, 0, to_wg_size(dispatchInfo.tile_alloc));
 
     // path_coarse
-    builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.segments), kVelloSlot_Segments);
+    builder.assignSharedBuffer(bufMgr->getStorage(segments_size), kVelloSlot_Segments);
     builder.appendStep(&fPathCoarseFull, placeholder, 0, to_wg_size(dispatchInfo.path_coarse));
 
     // backdrop
     builder.appendStep(&fBackdropDyn, placeholder, 0, to_wg_size(dispatchInfo.backdrop));
 
     // coarse
-    builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.ptcl), kVelloSlot_PTCL);
+    builder.assignSharedBuffer(bufMgr->getStorage(ptcl_size), kVelloSlot_PTCL);
     builder.appendStep(&fCoarse, placeholder, 0, to_wg_size(dispatchInfo.coarse));
 
     // fine
