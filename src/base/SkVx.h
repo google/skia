@@ -77,21 +77,75 @@ SI D bit_pun(const S&);
 
 // All Vec have the same simple memory layout, the same as `T vec[N]`.
 template <int N, typename T>
-struct alignas(N*sizeof(T)) VecStorage {
-    SKVX_ALWAYS_INLINE VecStorage() = default;
-    SKVX_ALWAYS_INLINE VecStorage(T s) : lo(s), hi(s) {}
+struct alignas(N*sizeof(T)) Vec {
+    static_assert((N & (N-1)) == 0,        "N must be a power of 2.");
+    static_assert(sizeof(T) >= alignof(T), "What kind of unusual T is this?");
+
+    // Methods belong here in the class declaration of Vec only if:
+    //   - they must be here, like constructors or operator[];
+    //   - they'll definitely never want a specialized implementation.
+    // Other operations on Vec should be defined outside the type.
+
+    SKVX_ALWAYS_INLINE Vec() = default;
+    SKVX_ALWAYS_INLINE Vec(T s) : lo(s), hi(s) {}
+
+    // NOTE: Vec{x} produces x000..., whereas Vec(x) produces xxxx.... since this constructor fills
+    // unspecified lanes with 0s, whereas the single T constructor fills all lanes with the value.
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
+        T vals[N] = {0};
+        memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)N)*sizeof(T));
+
+        this->lo = Vec<N/2,T>::Load(vals +   0);
+        this->hi = Vec<N/2,T>::Load(vals + N/2);
+    }
+
+    SKVX_ALWAYS_INLINE T  operator[](int i) const { return i<N/2 ? this->lo[i] : this->hi[i-N/2]; }
+    SKVX_ALWAYS_INLINE T& operator[](int i)       { return i<N/2 ? this->lo[i] : this->hi[i-N/2]; }
+
+    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
+        Vec v;
+        memcpy(&v, ptr, sizeof(Vec));
+        return v;
+    }
+    SKVX_ALWAYS_INLINE void store(void* ptr) const {
+        memcpy(ptr, this, sizeof(Vec));
+    }
 
     Vec<N/2,T> lo, hi;
 };
 
+// We have specializations for N == 1 (the base-case), as well as 2 and 4, where we add helpful
+// constructors and swizzle accessors.
 template <typename T>
-struct VecStorage<4,T> {
-    SKVX_ALWAYS_INLINE VecStorage() = default;
-    SKVX_ALWAYS_INLINE VecStorage(T s) : lo(s), hi(s) {}
-    SKVX_ALWAYS_INLINE VecStorage(T x, T y, T z, T w) : lo(x,y), hi(z, w) {}
-    SKVX_ALWAYS_INLINE VecStorage(Vec<2,T> xy, T z, T w) : lo(xy), hi(z,w) {}
-    SKVX_ALWAYS_INLINE VecStorage(T x, T y, Vec<2,T> zw) : lo(x,y), hi(zw) {}
-    SKVX_ALWAYS_INLINE VecStorage(Vec<2,T> xy, Vec<2,T> zw) : lo(xy), hi(zw) {}
+struct alignas(4*sizeof(T)) Vec<4,T> {
+    static_assert(sizeof(T) >= alignof(T), "What kind of unusual T is this?");
+
+    SKVX_ALWAYS_INLINE Vec() = default;
+    SKVX_ALWAYS_INLINE Vec(T s) : lo(s), hi(s) {}
+    SKVX_ALWAYS_INLINE Vec(T x, T y, T z, T w) : lo(x,y), hi(z,w) {}
+    SKVX_ALWAYS_INLINE Vec(Vec<2,T> xy, T z, T w) : lo(xy), hi(z,w) {}
+    SKVX_ALWAYS_INLINE Vec(T x, T y, Vec<2,T> zw) : lo(x,y), hi(zw) {}
+    SKVX_ALWAYS_INLINE Vec(Vec<2,T> xy, Vec<2,T> zw) : lo(xy), hi(zw) {}
+
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
+        T vals[4] = {0};
+        memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)4)*sizeof(T));
+
+        this->lo = Vec<2,T>::Load(vals + 0);
+        this->hi = Vec<2,T>::Load(vals + 2);
+    }
+
+    SKVX_ALWAYS_INLINE T  operator[](int i) const { return i<2 ? this->lo[i] : this->hi[i-2]; }
+    SKVX_ALWAYS_INLINE T& operator[](int i)       { return i<2 ? this->lo[i] : this->hi[i-2]; }
+
+    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
+        Vec v;
+        memcpy(&v, ptr, sizeof(Vec));
+        return v;
+    }
+    SKVX_ALWAYS_INLINE void store(void* ptr) const {
+        memcpy(ptr, this, sizeof(Vec));
+    }
 
     SKVX_ALWAYS_INLINE Vec<2,T>& xy() { return lo; }
     SKVX_ALWAYS_INLINE Vec<2,T>& zw() { return hi; }
@@ -115,10 +169,32 @@ struct VecStorage<4,T> {
 };
 
 template <typename T>
-struct VecStorage<2,T> {
-    SKVX_ALWAYS_INLINE VecStorage() = default;
-    SKVX_ALWAYS_INLINE VecStorage(T s) : lo(s), hi(s) {}
-    SKVX_ALWAYS_INLINE VecStorage(T x, T y) : lo(x), hi(y) {}
+struct alignas(2*sizeof(T)) Vec<2,T> {
+    static_assert(sizeof(T) >= alignof(T), "What kind of unusual T is this?");
+
+    SKVX_ALWAYS_INLINE Vec() = default;
+    SKVX_ALWAYS_INLINE Vec(T s) : lo(s), hi(s) {}
+    SKVX_ALWAYS_INLINE Vec(T x, T y) : lo(x), hi(y) {}
+
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
+        T vals[2] = {0};
+        memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)2)*sizeof(T));
+
+        this->lo = Vec<1,T>::Load(vals + 0);
+        this->hi = Vec<1,T>::Load(vals + 1);
+    }
+
+    SKVX_ALWAYS_INLINE T  operator[](int i) const { return i<1 ? this->lo[i] : this->hi[i-1]; }
+    SKVX_ALWAYS_INLINE T& operator[](int i)       { return i<1 ? this->lo[i] : this->hi[i-1]; }
+
+    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
+        Vec v;
+        memcpy(&v, ptr, sizeof(Vec));
+        return v;
+    }
+    SKVX_ALWAYS_INLINE void store(void* ptr) const {
+        memcpy(ptr, this, sizeof(Vec));
+    }
 
     SKVX_ALWAYS_INLINE T& x() { return lo.val; }
     SKVX_ALWAYS_INLINE T& y() { return hi.val; }
@@ -136,50 +212,12 @@ struct VecStorage<2,T> {
     Vec<1,T> lo, hi;
 };
 
-template <int N, typename T>
-struct alignas(N*sizeof(T)) Vec : public VecStorage<N,T> {
-    static_assert((N & (N-1)) == 0,        "N must be a power of 2.");
-    static_assert(sizeof(T) >= alignof(T), "What kind of unusual T is this?");
-
-    // Methods belong here in the class declaration of Vec only if:
-    //   - they must be here, like constructors or operator[];
-    //   - they'll definitely never want a specialized implementation.
-    // Other operations on Vec should be defined outside the type.
-
-    SKVX_ALWAYS_INLINE Vec() = default;
-
-    using VecStorage<N,T>::VecStorage;
-
-    // NOTE: Vec{x} produces x000..., whereas Vec(x) produces xxxx.... since this constructor fills
-    // unspecified lanes with 0s, whereas the single T constructor fills all lanes with the value.
-    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
-        T vals[N] = {0};
-        memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)N)*sizeof(T));
-
-        this->lo = Vec<N/2,T>::Load(vals +   0);
-        this->hi = Vec<N/2,T>::Load(vals + N/2);
-    }
-
-    SKVX_ALWAYS_INLINE T  operator[](int i) const { return i<N/2 ? this->lo[i] : this->hi[i-N/2]; }
-    SKVX_ALWAYS_INLINE T& operator[](int i)       { return i<N/2 ? this->lo[i] : this->hi[i-N/2]; }
-
-    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
-        Vec v;
-        memcpy(&v, ptr, sizeof(Vec));
-        return v;
-    }
-    SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        memcpy(ptr, this, sizeof(Vec));
-    }
-};
-
 template <typename T>
 struct Vec<1,T> {
     T val;
 
     SKVX_ALWAYS_INLINE Vec() = default;
-
-    Vec(T s) : val(s) {}
+    SKVX_ALWAYS_INLINE Vec(T s) : val(s) {}
 
     SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) : val(xs.size() ? *xs.begin() : 0) {}
 
