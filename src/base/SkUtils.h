@@ -32,7 +32,6 @@ namespace SkHexadecimalDigits {
 template <typename T, typename P>
 static SK_ALWAYS_INLINE T sk_unaligned_load(const P* ptr) {
     static_assert(std::is_trivially_copyable<T>::value);
-    static_assert(std::is_trivially_copyable<P>::value);
     T val;
     memcpy(&val, ptr, sizeof(val));
     return val;
@@ -41,7 +40,6 @@ static SK_ALWAYS_INLINE T sk_unaligned_load(const P* ptr) {
 template <typename T, typename P>
 static SK_ALWAYS_INLINE void sk_unaligned_store(P* ptr, T val) {
     static_assert(std::is_trivially_copyable<T>::value);
-    static_assert(std::is_trivially_copyable<P>::value);
     memcpy(ptr, &val, sizeof(val));
 }
 
@@ -49,6 +47,8 @@ static SK_ALWAYS_INLINE void sk_unaligned_store(P* ptr, T val) {
 template <typename Dst, typename Src>
 static SK_ALWAYS_INLINE Dst sk_bit_cast(const Src& src) {
     static_assert(sizeof(Dst) == sizeof(Src));
+    static_assert(std::is_trivially_copyable<Dst>::value);
+    static_assert(std::is_trivially_copyable<Src>::value);
     return sk_unaligned_load<Dst>(&src);
 }
 
