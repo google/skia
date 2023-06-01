@@ -67,8 +67,8 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             auto gather = [](const uint32_t* ptr, skvx::Vec<8,uint32_t> ix) {
             #if 1
                 // Drop into AVX2 intrinsics for vpgatherdd.
-                return skvx::bit_pun<skvx::Vec<8,uint32_t>>(
-                        _mm256_i32gather_epi32((const int*)ptr, skvx::bit_pun<__m256i>(ix), 4));
+                return sk_bit_cast<skvx::Vec<8,uint32_t>>(
+                        _mm256_i32gather_epi32((const int*)ptr, sk_bit_cast<__m256i>(ix), 4));
             #else
                 // Portable version... sometimes I don't trust vpgatherdd.
                 return skvx::Vec<8,uint32_t>{
@@ -85,9 +85,9 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         #if 1
             // We'll use _mm256_maddubs_epi16() to lerp much like in the SSSE3 code.
             auto lerp_x = [&](skvx::Vec<8,uint32_t> L, skvx::Vec<8,uint32_t> R) {
-                __m256i l = skvx::bit_pun<__m256i>(L),
-                        r = skvx::bit_pun<__m256i>(R),
-                       wr = skvx::bit_pun<__m256i>(wx),
+                __m256i l = sk_bit_cast<__m256i>(L),
+                        r = sk_bit_cast<__m256i>(R),
+                       wr = sk_bit_cast<__m256i>(wx),
                        wl = _mm256_sub_epi8(_mm256_set1_epi8(16), wr);
 
                 // Interlace l,r bytewise and line them up with their weights, then lerp.
@@ -108,8 +108,8 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
                 __m256i abcd = _mm256_permute2x128_si256(lo, hi, 0x20),
                         efgh = _mm256_permute2x128_si256(lo, hi, 0x31);
 
-                return skvx::join(skvx::bit_pun<skvx::Vec<16,uint16_t>>(abcd),
-                                  skvx::bit_pun<skvx::Vec<16,uint16_t>>(efgh));
+                return skvx::join(sk_bit_cast<skvx::Vec<16,uint16_t>>(abcd),
+                                  sk_bit_cast<skvx::Vec<16,uint16_t>>(efgh));
             };
 
             skvx::Vec<32, uint16_t> top = lerp_x(tl, tr),
@@ -118,7 +118,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         #else
             // Treat 32-bit pixels as 4 8-bit values, and expand to 16-bit for room to multiply.
             auto to_16x4 = [](auto v) -> skvx::Vec<32, uint16_t> {
-                return skvx::cast<uint16_t>(skvx::bit_pun<skvx::Vec<32, uint8_t>>(v));
+                return skvx::cast<uint16_t>(sk_bit_cast<skvx::Vec<32, uint8_t>>(v));
             };
 
             // Sum up weighted sample pixels.  The naive, redundant math would be,
@@ -146,7 +146,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             }
 
             // Pack back to 8-bit channels, undoing to_16x4().
-            return skvx::bit_pun<skvx::Vec<8,uint32_t>>(skvx::cast<uint8_t>(sum));
+            return sk_bit_cast<skvx::Vec<8,uint32_t>>(skvx::cast<uint8_t>(sum));
         };
 
         while (count >= 8) {
@@ -156,11 +156,11 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             count  -= 8;
         }
         if (count > 0) {
-            __m256i active = skvx::bit_pun<__m256i>( count > skvx::Vec<8,int>{0,1,2,3, 4,5,6,7} ),
+            __m256i active = sk_bit_cast<__m256i>( count > skvx::Vec<8,int>{0,1,2,3, 4,5,6,7} ),
                     coords = _mm256_maskload_epi32((const int*)xy, active),
                     pixels;
 
-            bilerp(skvx::bit_pun<skvx::Vec<8,uint32_t>>(coords)).store(&pixels);
+            bilerp(sk_bit_cast<skvx::Vec<8,uint32_t>>(coords)).store(&pixels);
             _mm256_maskstore_epi32((int*)colors, active, pixels);
 
             sk_msan_mark_initialized(colors, colors+count,

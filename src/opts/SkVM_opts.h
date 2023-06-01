@@ -17,8 +17,8 @@ template <int N>
 static inline skvx::Vec<N,int> gather32(const int* ptr, const skvx::Vec<N,int>& ix) {
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     if constexpr (N == 8) {
-        return skvx::bit_pun<skvx::Vec<N,int>>(
-                _mm256_i32gather_epi32(ptr, skvx::bit_pun<__m256i>(ix), 4));
+        return sk_bit_cast<skvx::Vec<N,int>>(
+                _mm256_i32gather_epi32(ptr, sk_bit_cast<__m256i>(ix), 4));
     }
 #endif
     // Try to recurse on specializations, falling back on standard scalar map()-based impl.

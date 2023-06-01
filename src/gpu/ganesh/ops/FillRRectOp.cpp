@@ -329,9 +329,9 @@ GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::ganesh::SurfaceDrawCont
 
         if (fHeadInstance->fLocalCoords.fType == LocalCoords::Type::kRect) {
             // Update the local rect.
-            auto rect = skvx::bit_pun<skvx::float4>(fHeadInstance->fRRect.rect());
-            auto local = skvx::bit_pun<skvx::float4>(fHeadInstance->fLocalCoords.fRect);
-            auto isect = skvx::bit_pun<skvx::float4>(isectRRect.rect());
+            auto rect = sk_bit_cast<skvx::float4>(fHeadInstance->fRRect.rect());
+            auto local = sk_bit_cast<skvx::float4>(fHeadInstance->fLocalCoords.fRect);
+            auto isect = sk_bit_cast<skvx::float4>(isectRRect.rect());
             auto rectToLocalSize = (local - skvx::shuffle<2,3,0,1>(local)) /
                                    (rect - skvx::shuffle<2,3,0,1>(rect));
             auto localCoordsRect = (isect - rect) * rectToLocalSize + local;

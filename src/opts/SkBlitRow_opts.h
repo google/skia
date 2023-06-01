@@ -191,11 +191,11 @@ inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, Sk
 
         // (src * invA + (color << 8) + 128) >> 8
         // Should all fit in 16 bits.
-        U8 s = skvx::bit_pun<U8>(src),
+        U8 s = sk_bit_cast<U8>(src),
            a = U8(invA);
-        U16 c = skvx::cast<uint16_t>(skvx::bit_pun<U8>(U32(color))),
+        U16 c = skvx::cast<uint16_t>(sk_bit_cast<U8>(U32(color))),
             d = (mull(s,a) + (c << 8) + 128)>>8;
-        return skvx::bit_pun<U32>(skvx::cast<uint8_t>(d));
+        return sk_bit_cast<U32>(skvx::cast<uint8_t>(d));
     };
 
     while (count >= N) {

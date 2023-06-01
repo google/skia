@@ -106,9 +106,9 @@ AI float quadratic_p4(float precision,
                       const SkPoint pts[],
                       const VectorXform& vectorXform = VectorXform()) {
     return quadratic_p4(precision,
-                        skvx::bit_pun<skvx::float2>(pts[0]),
-                        skvx::bit_pun<skvx::float2>(pts[1]),
-                        skvx::bit_pun<skvx::float2>(pts[2]),
+                        sk_bit_cast<skvx::float2>(pts[0]),
+                        sk_bit_cast<skvx::float2>(pts[1]),
+                        sk_bit_cast<skvx::float2>(pts[2]),
                         vectorXform);
 }
 
@@ -144,10 +144,10 @@ AI float cubic_p4(float precision,
                   const SkPoint pts[],
                   const VectorXform& vectorXform = VectorXform()) {
     return cubic_p4(precision,
-                    skvx::bit_pun<skvx::float2>(pts[0]),
-                    skvx::bit_pun<skvx::float2>(pts[1]),
-                    skvx::bit_pun<skvx::float2>(pts[2]),
-                    skvx::bit_pun<skvx::float2>(pts[3]),
+                    sk_bit_cast<skvx::float2>(pts[0]),
+                    sk_bit_cast<skvx::float2>(pts[1]),
+                    sk_bit_cast<skvx::float2>(pts[2]),
+                    sk_bit_cast<skvx::float2>(pts[3]),
                     vectorXform);
 }
 
@@ -236,9 +236,9 @@ AI float conic_p2(float precision,
                   float w,
                   const VectorXform& vectorXform = VectorXform()) {
     return conic_p2(precision,
-                    skvx::bit_pun<skvx::float2>(pts[0]),
-                    skvx::bit_pun<skvx::float2>(pts[1]),
-                    skvx::bit_pun<skvx::float2>(pts[2]),
+                    sk_bit_cast<skvx::float2>(pts[0]),
+                    sk_bit_cast<skvx::float2>(pts[1]),
+                    sk_bit_cast<skvx::float2>(pts[2]),
                     w,
                     vectorXform);
 }

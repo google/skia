@@ -88,8 +88,8 @@ public:
     AI void setTopLeft(float2 topLeft) { fVals.xy() = topLeft; }
     AI void setBotRight(float2 botRight) { fVals.zw() = -botRight; }
 
-    AI SkRect asSkRect() const { return skvx::bit_pun<SkRect>(this->ltrb()); }
-    AI SkIRect asSkIRect() const { return skvx::bit_pun<SkIRect>(skvx::cast<int>(this->ltrb())); }
+    AI SkRect asSkRect() const { return sk_bit_cast<SkRect>(this->ltrb()); }
+    AI SkIRect asSkIRect() const { return sk_bit_cast<SkIRect>(skvx::cast<int>(this->ltrb())); }
 
     AI bool isEmptyNegativeOrNaN() const {
         return !all(fVals.xy() + fVals.zw() < 0);  // !([l-r, r-b] < 0) == ([w, h] <= 0)
@@ -146,7 +146,7 @@ public:
 private:
     AI static float4 NegateBotRight(float4 vals) {  // Returns [vals.xy, -vals.zw].
         using uint4 = skvx::uint4;
-        return skvx::bit_pun<float4>(skvx::bit_pun<uint4>(vals) ^ uint4(0, 0, 1u << 31, 1u << 31));
+        return sk_bit_cast<float4>(sk_bit_cast<uint4>(vals) ^ uint4(0, 0, 1u << 31, 1u << 31));
     }
 
     AI Rect(float4 vals) : fVals(vals) {}  // vals.zw must already be negated.

@@ -360,7 +360,7 @@ using mask2 = skvx::Vec<2, uint32_t>;
 
 static inline mask2 float2_is_finite(const float2& x) {
     const mask2 exp_mask = mask2(0xFF << 23);
-    return (skvx::bit_pun<mask2>(x) & exp_mask) != exp_mask;
+    return (sk_bit_cast<mask2>(x) & exp_mask) != exp_mask;
 }
 
 static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* blitter,

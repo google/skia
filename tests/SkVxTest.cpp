@@ -7,6 +7,7 @@
 
 #include "include/core/SkPoint.h"
 #include "src/base/SkRandom.h"
+#include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
 #include "tests/Test.h"
 
@@ -171,7 +172,7 @@ DEF_TEST(SkVx_xy, r) {
     REPORTER_ASSERT(r, all(f == float2(8,6)));
     f = f.yx();
     REPORTER_ASSERT(r, all(f == float2(6,8)));
-    REPORTER_ASSERT(r, bit_pun<SkPoint>(f) == SkPoint::Make(6,8));
+    REPORTER_ASSERT(r, sk_bit_cast<SkPoint>(f) == SkPoint::Make(6,8));
     SkPoint p;
     f.store(&p);
     REPORTER_ASSERT(r, p == SkPoint::Make(6,8));
