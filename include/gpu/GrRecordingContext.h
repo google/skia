@@ -8,26 +8,27 @@
 #ifndef GrRecordingContext_DEFINED
 #define GrRecordingContext_DEFINED
 
+#include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h" // IWYU pragma: keep
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrContext_Base.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 
-#if GR_GPU_STATS && GR_TEST_UTILS
 #include <map>
+#include <memory>
 #include <string>
-#endif
 
 class GrAuditTrail;
-class GrBackendFormat;
+class GrContextThreadSafeProxy;
+class GrDirectContext;
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
-class GrMemoryPool;
 class GrProgramDesc;
 class GrProgramInfo;
 class GrProxyProvider;
 class GrRecordingContextPriv;
-class GrSurfaceProxy;
 class GrThreadSafeCache;
 class SkArenaAlloc;
 class SkCapabilities;
@@ -38,17 +39,9 @@ class SubRunAllocator;
 class TextBlobRedrawCoordinator;
 }
 
-#if GR_TEST_UTILS
-class SkString;
-#endif
-
 class GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;
-
-    SK_API GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
-        return INHERITED::defaultBackendFormat(ct, renderable);
-    }
 
     /**
      * Reports whether the GrDirectContext associated with this GrRecordingContext is abandoned.
@@ -56,7 +49,7 @@ public:
      * device/context has been disconnected before reporting the status. If so, calling this
      * method will transition the GrDirectContext to the abandoned state.
      */
-    bool abandoned() override { return INHERITED::abandoned(); }
+    bool abandoned() override { return GrImageContext::abandoned(); }
 
     /*
      * Can a SkSurface be created with the given color type. To check whether MSAA is supported
@@ -96,7 +89,7 @@ public:
      * is not supported at all.
      */
     SK_API int maxSurfaceSampleCountForColorType(SkColorType colorType) const {
-        return INHERITED::maxSurfaceSampleCountForColorType(colorType);
+        return GrImageContext::maxSurfaceSampleCountForColorType(colorType);
     }
 
     SK_API sk_sp<const SkCapabilities> skCapabilities() const;
@@ -275,8 +268,6 @@ private:
 #if GR_TEST_UTILS
     int fSuppressWarningMessages = 0;
 #endif
-
-    using INHERITED = GrImageContext;
 };
 
 /**

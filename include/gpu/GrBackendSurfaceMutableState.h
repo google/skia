@@ -10,6 +10,12 @@
 
 #include "include/gpu/MutableTextureState.h"
 
+#ifdef SK_VULKAN
+#include "include/private/gpu/vk/SkiaVulkan.h"
+
+#include <cstdint>
+#endif
+
 class GrBackendSurfaceMutableState : public skgpu::MutableTextureState {
 public:
     GrBackendSurfaceMutableState() = default;

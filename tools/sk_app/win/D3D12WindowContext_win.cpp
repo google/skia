@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"

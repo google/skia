@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAInfo.h"
 #ifdef SK_GANESH
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #endif
 #ifdef SK_GRAPHITE

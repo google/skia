@@ -7,12 +7,17 @@
 
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 
-#include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/ShaderErrorHandler.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
-#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
-#include "src/gpu/ganesh/effects/GrSkSLFP.h"
+
+#include <utility>
+
+enum SkColorType : int;
 
 GrContext_Base::GrContext_Base(sk_sp<GrContextThreadSafeProxy> proxy)
         : fThreadSafeProxy(std::move(proxy)) {
