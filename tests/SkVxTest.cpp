@@ -56,7 +56,6 @@ DEF_TEST(SkVx, r) {
     REPORTER_ASSERT(r, min(float4{1,2,3,4}) == 1);
     REPORTER_ASSERT(r, max(float4{1,2,3,4}) == 4);
 
-    REPORTER_ASSERT(r, all(int4{1,2,3,4,5} == int4{1,2,3,4}));
     REPORTER_ASSERT(r, all(int4{1,2,3,4}   == int4{1,2,3,4}));
     REPORTER_ASSERT(r, all(int4{1,2,3}     == int4{1,2,3,0}));
     REPORTER_ASSERT(r, all(int4{1,2}       == int4{1,2,0,0}));

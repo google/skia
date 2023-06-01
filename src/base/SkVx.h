@@ -20,6 +20,7 @@
 // (Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.)
 
 #include "include/private/base/SkFeatures.h"
+#include "src/base/SkUtils.h"
 #include <algorithm>         // std::min, std::max
 #include <cassert>           // assert()
 #include <cmath>             // ceilf, floorf, truncf, roundf, sqrtf, etc.
@@ -72,9 +73,6 @@ struct alignas(N*sizeof(T)) Vec;
 template <int... Ix, int N, typename T>
 SI Vec<sizeof...(Ix),T> shuffle(const Vec<N,T>&);
 
-template <typename D, typename S>
-SI D bit_pun(const S&);
-
 // All Vec have the same simple memory layout, the same as `T vec[N]`.
 template <int N, typename T>
 struct alignas(N*sizeof(T)) Vec {
@@ -93,6 +91,7 @@ struct alignas(N*sizeof(T)) Vec {
     // unspecified lanes with 0s, whereas the single T constructor fills all lanes with the value.
     SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
         T vals[N] = {0};
+        assert(xs.size() <= (size_t)N);
         memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)N)*sizeof(T));
 
         this->lo = Vec<N/2,T>::Load(vals +   0);
@@ -103,12 +102,10 @@ struct alignas(N*sizeof(T)) Vec {
     SKVX_ALWAYS_INLINE T& operator[](int i)       { return i<N/2 ? this->lo[i] : this->hi[i-N/2]; }
 
     SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
-        Vec v;
-        memcpy(&v, ptr, sizeof(Vec));
-        return v;
+        return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        memcpy(ptr, this, sizeof(Vec));
+        sk_unaligned_store(ptr, *this);
     }
 
     Vec<N/2,T> lo, hi;
@@ -129,6 +126,7 @@ struct alignas(4*sizeof(T)) Vec<4,T> {
 
     SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
         T vals[4] = {0};
+        assert(xs.size() <= (size_t)4);
         memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)4)*sizeof(T));
 
         this->lo = Vec<2,T>::Load(vals + 0);
@@ -139,12 +137,10 @@ struct alignas(4*sizeof(T)) Vec<4,T> {
     SKVX_ALWAYS_INLINE T& operator[](int i)       { return i<2 ? this->lo[i] : this->hi[i-2]; }
 
     SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
-        Vec v;
-        memcpy(&v, ptr, sizeof(Vec));
-        return v;
+        return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        memcpy(ptr, this, sizeof(Vec));
+        sk_unaligned_store(ptr, *this);
     }
 
     SKVX_ALWAYS_INLINE Vec<2,T>& xy() { return lo; }
@@ -162,8 +158,8 @@ struct alignas(4*sizeof(T)) Vec<4,T> {
     SKVX_ALWAYS_INLINE T w() const { return hi.hi.val; }
 
     // Exchange-based swizzles. These should take 1 cycle on NEON and 3 (pipelined) cycles on SSE.
-    SKVX_ALWAYS_INLINE Vec<4,T> yxwz() const { return shuffle<1,0,3,2>(bit_pun<Vec<4,T>>(*this)); }
-    SKVX_ALWAYS_INLINE Vec<4,T> zwxy() const { return shuffle<2,3,0,1>(bit_pun<Vec<4,T>>(*this)); }
+    SKVX_ALWAYS_INLINE Vec<4,T> yxwz() const { return shuffle<1,0,3,2>(*this); }
+    SKVX_ALWAYS_INLINE Vec<4,T> zwxy() const { return shuffle<2,3,0,1>(*this); }
 
     Vec<2,T> lo, hi;
 };
@@ -178,6 +174,7 @@ struct alignas(2*sizeof(T)) Vec<2,T> {
 
     SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
         T vals[2] = {0};
+        assert(xs.size() <= (size_t)2);
         memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)2)*sizeof(T));
 
         this->lo = Vec<1,T>::Load(vals + 0);
@@ -188,12 +185,10 @@ struct alignas(2*sizeof(T)) Vec<2,T> {
     SKVX_ALWAYS_INLINE T& operator[](int i)       { return i<1 ? this->lo[i] : this->hi[i-1]; }
 
     SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
-        Vec v;
-        memcpy(&v, ptr, sizeof(Vec));
-        return v;
+        return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        memcpy(ptr, this, sizeof(Vec));
+        sk_unaligned_store(ptr, *this);
     }
 
     SKVX_ALWAYS_INLINE T& x() { return lo.val; }
@@ -203,11 +198,8 @@ struct alignas(2*sizeof(T)) Vec<2,T> {
     SKVX_ALWAYS_INLINE T y() const { return hi.val; }
 
     // This exchange-based swizzle should take 1 cycle on NEON and 3 (pipelined) cycles on SSE.
-    SKVX_ALWAYS_INLINE Vec<2,T> yx() const { return shuffle<1,0>(bit_pun<Vec<2,T>>(*this)); }
-
-    SKVX_ALWAYS_INLINE Vec<4,T> xyxy() const {
-        return Vec<4,T>(bit_pun<Vec<2,T>>(*this), bit_pun<Vec<2,T>>(*this));
-    }
+    SKVX_ALWAYS_INLINE Vec<2,T> yx() const { return shuffle<1,0>(*this); }
+    SKVX_ALWAYS_INLINE Vec<4,T> xyxy() const { return Vec<4,T>(*this, *this); }
 
     Vec<1,T> lo, hi;
 };
@@ -219,27 +211,24 @@ struct Vec<1,T> {
     SKVX_ALWAYS_INLINE Vec() = default;
     SKVX_ALWAYS_INLINE Vec(T s) : val(s) {}
 
-    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) : val(xs.size() ? *xs.begin() : 0) {}
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) : val(xs.size() ? *xs.begin() : 0) {
+        assert(xs.size() <= (size_t)1);
+    }
 
-    SKVX_ALWAYS_INLINE T  operator[](int) const { return val; }
-    SKVX_ALWAYS_INLINE T& operator[](int)       { return val; }
+    SKVX_ALWAYS_INLINE T  operator[](int i) const { assert(i == 0); return val; }
+    SKVX_ALWAYS_INLINE T& operator[](int i)       { assert(i == 0); return val; }
 
     SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
-        Vec v;
-        memcpy(&v, ptr, sizeof(Vec));
-        return v;
+        return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        memcpy(ptr, this, sizeof(Vec));
+        sk_unaligned_store(ptr, *this);
     }
 };
 
 template <typename D, typename S>
 SI D bit_pun(const S& s) {
-    static_assert(sizeof(D) == sizeof(S));
-    D d;
-    memcpy(&d, &s, sizeof(D));
-    return d;
+    return sk_bit_cast<D>(s);
 }
 
 // Translate from a value type T to its corresponding Mask, the result of a comparison.
