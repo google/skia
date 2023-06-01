@@ -119,25 +119,10 @@ declare_args() {
   skia_enable_skshaper_tests = skia_enable_skshaper
 }`
 
-// The footer written to gn/gpu.gni.
-const gpuGNIFooter = `
-# TODO(kjlubick) Update clients to use the targets with updated names
-skia_gpu_private = skia_ganesh_private
-`
-
-// The footer written to gn/utils.gni.
-const utilsGNIFooter = `
-# TODO(kjlubick) Update pdfium to use the individual target
-# instead of the monolithic ones.
-skia_utils_sources = skia_utils_private + skia_utils_chromium
-`
-
 // Map of GNI file names to footer text to be appended to the end of the file.
 var footerMap = map[string]string{
 	"gn/core.gni":                   coreGNIFooter,
-	"gn/gpu.gni":                    gpuGNIFooter,
 	"gn/sksl_tests.gni":             skslTestsFooter,
-	"gn/utils.gni":                  utilsGNIFooter,
 	"modules/skshaper/skshaper.gni": skshaperFooter,
 }
 

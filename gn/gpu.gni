@@ -1120,6 +1120,3 @@ skia_shared_mtl_sources = [
   "$_src/gpu/mtl/MtlUtils.mm",
   "$_src/gpu/mtl/MtlUtilsPriv.h",
 ]
-
-# TODO(kjlubick) Update clients to use the targets with updated names
-skia_gpu_private = skia_ganesh_private
