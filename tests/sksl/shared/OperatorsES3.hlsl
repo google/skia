@@ -129,16 +129,8 @@ float4 main(float2 _24)
     {
         _140 = false;
     }
-    float4 _141 = 0.0f.xxxx;
-    if (_140)
-    {
-        _141 = _10_colorGreen;
-    }
-    else
-    {
-        _141 = _10_colorRed;
-    }
-    return _141;
+    bool4 _142 = _140.xxxx;
+    return float4(_142.x ? _10_colorGreen.x : _10_colorRed.x, _142.y ? _10_colorGreen.y : _10_colorRed.y, _142.z ? _10_colorGreen.z : _10_colorRed.z, _142.w ? _10_colorGreen.w : _10_colorRed.w);
 }
 
 void frag_main()

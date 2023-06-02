@@ -31,67 +31,43 @@ float4 main(float2 _35)
     {
         float4 _74 = _54;
         float4 _75 = _62;
-        float4 _77 = 0.0f.xxxx;
-        if (IsEqual_bh4h4(_74, _75))
-        {
-            _77 = _62;
-        }
-        else
-        {
-            _77 = _54;
-        }
-        _70 = _77;
+        bool4 _77 = IsEqual_bh4h4(_74, _75).xxxx;
+        _70 = float4(_77.x ? _62.x : _54.x, _77.y ? _62.y : _54.y, _77.z ? _62.z : _54.z, _77.w ? _62.w : _54.w);
     }
     else
     {
-        float4 _83 = _62;
-        float4 _84 = _54;
-        float4 _86 = 0.0f.xxxx;
-        if (!IsEqual_bh4h4(_83, _84))
-        {
-            _86 = _46;
-        }
-        else
-        {
-            _86 = _11_colorWhite;
-        }
-        _70 = _86;
+        float4 _80 = _62;
+        float4 _81 = _54;
+        bool4 _83 = (!IsEqual_bh4h4(_80, _81)).xxxx;
+        _70 = float4(_83.x ? _46.x : _11_colorWhite.x, _83.y ? _46.y : _11_colorWhite.y, _83.z ? _46.z : _11_colorWhite.z, _83.w ? _46.w : _11_colorWhite.w);
     }
     float4 result = _70;
-    float4 _94 = _62;
-    float4 _95 = _46;
-    float4 _97 = 0.0f.xxxx;
-    if (IsEqual_bh4h4(_94, _95))
+    float4 _88 = _62;
+    float4 _89 = _46;
+    float4 _91 = 0.0f.xxxx;
+    if (IsEqual_bh4h4(_88, _89))
     {
-        _97 = _11_colorWhite;
+        _91 = _11_colorWhite;
     }
     else
     {
-        float4 _104 = _62;
-        float4 _105 = _54;
-        float4 _107 = 0.0f.xxxx;
-        if (!IsEqual_bh4h4(_104, _105))
+        float4 _98 = _62;
+        float4 _99 = _54;
+        float4 _101 = 0.0f.xxxx;
+        if (!IsEqual_bh4h4(_98, _99))
         {
-            _107 = _70;
+            _101 = _70;
         }
         else
         {
-            float4 _111 = _62;
-            float4 _114 = _11_colorWhite;
-            float4 _116 = 0.0f.xxxx;
-            if (IsEqual_bh4h4(_111, _114))
-            {
-                _116 = _46;
-            }
-            else
-            {
-                _116 = _62;
-            }
-            _107 = _116;
+            float4 _105 = _62;
+            float4 _108 = _11_colorWhite;
+            bool4 _110 = IsEqual_bh4h4(_105, _108).xxxx;
+            _101 = float4(_110.x ? _46.x : _62.x, _110.y ? _46.y : _62.y, _110.z ? _46.z : _62.z, _110.w ? _46.w : _62.w);
         }
-        _97 = _107;
+        _91 = _101;
     }
-    return _97;
+    return _91;
 }
 
 void frag_main()

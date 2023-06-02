@@ -32,16 +32,8 @@ float4 main(float2 _58)
     float _62 = 10.0f;
     bar_vf(_62);
     x = _62;
-    float4 _67 = 0.0f.xxxx;
-    if (_62 == 200.0f)
-    {
-        _67 = _12_colorGreen;
-    }
-    else
-    {
-        _67 = _12_colorRed;
-    }
-    return _67;
+    bool4 _68 = (_62 == 200.0f).xxxx;
+    return float4(_68.x ? _12_colorGreen.x : _12_colorRed.x, _68.y ? _12_colorGreen.y : _12_colorRed.y, _68.z ? _12_colorGreen.z : _12_colorRed.z, _68.w ? _12_colorGreen.w : _12_colorRed.w);
 }
 
 void frag_main()

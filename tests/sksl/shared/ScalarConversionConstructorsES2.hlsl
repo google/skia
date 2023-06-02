@@ -34,16 +34,8 @@ float4 main(float2 _24)
     bool _61 = _39 != 0;
     bool b2 = _61;
     bool b3 = _45;
-    float4 _79 = 0.0f.xxxx;
-    if (((((((((_10_colorGreen.y + _48) + _50) + float(_53)) + float(_39)) + float(_56)) + float(_59)) + float(_61)) + float(_45)) == 9.0f)
-    {
-        _79 = _10_colorGreen;
-    }
-    else
-    {
-        _79 = _10_colorRed;
-    }
-    return _79;
+    bool4 _80 = (((((((((_10_colorGreen.y + _48) + _50) + float(_53)) + float(_39)) + float(_56)) + float(_59)) + float(_61)) + float(_45)) == 9.0f).xxxx;
+    return float4(_80.x ? _10_colorGreen.x : _10_colorRed.x, _80.y ? _10_colorGreen.y : _10_colorRed.y, _80.z ? _10_colorGreen.z : _10_colorRed.z, _80.w ? _10_colorGreen.w : _10_colorRed.w);
 }
 
 void frag_main()

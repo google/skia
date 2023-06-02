@@ -32,7 +32,6 @@ OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpMemberDecorate %S 0 Offset 0
-OpDecorate %52 RelaxedPrecision
 %float = OpTypeFloat 32
 %int = OpTypeInt 32 1
 %int_2 = OpConstant %int 2
@@ -57,16 +56,15 @@ OpDecorate %52 RelaxedPrecision
 %int_0 = OpConstant %int 0
 %_ptr_PushConstant__arr_float_int_2 = OpTypePointer PushConstant %_arr_float_int_2
 %_ptr_Uniform__arr_float_int_2_0 = OpTypePointer Uniform %_arr_float_int_2_0
-%_ptr_Function_v4float = OpTypePointer Function %v4float
+%v4bool = OpTypeVector %bool 4
 %float_1 = OpConstant %float 1
-%49 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%47 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %float_0 = OpConstant %float 0
-%51 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%49 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %main = OpFunction %void None %21
 %22 = OpLabel
 %s1 = OpVariable %_ptr_Function_S Function
 %s2 = OpVariable %_ptr_Function_S Function
-%43 = OpVariable %_ptr_Function_v4float Function
 %27 = OpAccessChain %_ptr_PushConstant__arr_float_int_2 %3 %int_0
 %29 = OpLoad %_arr_float_int_2 %27
 %30 = OpCompositeConstruct %S %29
@@ -82,17 +80,9 @@ OpStore %s2 %35
 %40 = OpCompositeExtract %float %34 1
 %41 = OpFOrdEqual %bool %39 %40
 %42 = OpLogicalAnd %bool %41 %38
-OpSelectionMerge %47 None
-OpBranchConditional %42 %45 %46
-%45 = OpLabel
-OpStore %43 %49
-OpBranch %47
-%46 = OpLabel
-OpStore %43 %51
-OpBranch %47
-%47 = OpLabel
-%52 = OpLoad %v4float %43
-OpStore %sk_FragColor %52
+%44 = OpCompositeConstruct %v4bool %42 %42 %42 %42
+%45 = OpSelect %v4float %44 %47 %49
+OpStore %sk_FragColor %45
 OpReturn
 OpFunctionEnd
 

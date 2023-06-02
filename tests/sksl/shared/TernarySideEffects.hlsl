@@ -124,44 +124,28 @@ float4 main(float2 _24)
     }
     bool b = true;
     b = false;
-    bool _127 = false;
-    if (false)
-    {
-        _127 = false;
-    }
-    else
-    {
-        _127 = false;
-    }
+    bool _127 = false ? false : false;
     bool c = _127;
-    float4 _132 = 0.0f.xxxx;
+    float4 _128 = 0.0f.xxxx;
     if (_127)
     {
-        _132 = _10_colorRed;
+        _128 = _10_colorRed;
     }
     else
     {
-        bool _150 = false;
+        bool _146 = false;
         if (x == 8.0f)
         {
-            _150 = y == 17.0f;
+            _146 = y == 17.0f;
         }
         else
         {
-            _150 = false;
+            _146 = false;
         }
-        float4 _151 = 0.0f.xxxx;
-        if (_150)
-        {
-            _151 = _10_colorGreen;
-        }
-        else
-        {
-            _151 = _10_colorRed;
-        }
-        _132 = _151;
+        bool4 _148 = _146.xxxx;
+        _128 = float4(_148.x ? _10_colorGreen.x : _10_colorRed.x, _148.y ? _10_colorGreen.y : _10_colorRed.y, _148.z ? _10_colorGreen.z : _10_colorRed.z, _148.w ? _10_colorGreen.w : _10_colorRed.w);
     }
-    return _132;
+    return _128;
 }
 
 void frag_main()

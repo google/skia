@@ -24,26 +24,9 @@ float4 main(float2 _24)
     float4 _57 = color;
     float4 _58 = float4(_56.w, _56.y, _56.x, _56.z);
     color = _58;
-    float _64 = 0.0f;
-    if (_58.w <= 1.0f)
-    {
-        _64 = _58.z;
-    }
-    else
-    {
-        _64 = 0.0f;
-    }
-    color.x += _64;
-    float4 _76 = 0.0f.xxxx;
-    if (all(bool4(color.x == float4(1.0f, 1.0f, 0.25f, 1.0f).x, color.y == float4(1.0f, 1.0f, 0.25f, 1.0f).y, color.z == float4(1.0f, 1.0f, 0.25f, 1.0f).z, color.w == float4(1.0f, 1.0f, 0.25f, 1.0f).w)))
-    {
-        _76 = _10_colorGreen;
-    }
-    else
-    {
-        _76 = _10_colorRed;
-    }
-    return _76;
+    color.x += ((_58.w <= 1.0f) ? _58.z : 0.0f);
+    bool4 _72 = all(bool4(color.x == float4(1.0f, 1.0f, 0.25f, 1.0f).x, color.y == float4(1.0f, 1.0f, 0.25f, 1.0f).y, color.z == float4(1.0f, 1.0f, 0.25f, 1.0f).z, color.w == float4(1.0f, 1.0f, 0.25f, 1.0f).w)).xxxx;
+    return float4(_72.x ? _10_colorGreen.x : _10_colorRed.x, _72.y ? _10_colorGreen.y : _10_colorRed.y, _72.z ? _10_colorGreen.z : _10_colorRed.z, _72.w ? _10_colorGreen.w : _10_colorRed.w);
 }
 
 void frag_main()

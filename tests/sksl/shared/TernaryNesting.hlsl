@@ -22,59 +22,35 @@ float4 main(float2 _24)
     float4 _59 = 0.0f.xxxx;
     if (any(bool4(_10_colorWhite.x != _36.x, _10_colorWhite.y != _36.y, _10_colorWhite.z != _36.z, _10_colorWhite.w != _36.w)))
     {
-        float4 _65 = 0.0f.xxxx;
-        if (all(bool4(_44.x == _52.x, _44.y == _52.y, _44.z == _52.z, _44.w == _52.w)))
-        {
-            _65 = _52;
-        }
-        else
-        {
-            _65 = _44;
-        }
-        _59 = _65;
+        bool4 _65 = all(bool4(_44.x == _52.x, _44.y == _52.y, _44.z == _52.z, _44.w == _52.w)).xxxx;
+        _59 = float4(_65.x ? _52.x : _44.x, _65.y ? _52.y : _44.y, _65.z ? _52.z : _44.z, _65.w ? _52.w : _44.w);
     }
     else
     {
-        float4 _72 = 0.0f.xxxx;
-        if (any(bool4(_52.x != _44.x, _52.y != _44.y, _52.z != _44.z, _52.w != _44.w)))
-        {
-            _72 = _36;
-        }
-        else
-        {
-            _72 = _10_colorWhite;
-        }
-        _59 = _72;
+        bool4 _69 = any(bool4(_52.x != _44.x, _52.y != _44.y, _52.z != _44.z, _52.w != _44.w)).xxxx;
+        _59 = float4(_69.x ? _36.x : _10_colorWhite.x, _69.y ? _36.y : _10_colorWhite.y, _69.z ? _36.z : _10_colorWhite.z, _69.w ? _36.w : _10_colorWhite.w);
     }
     float4 result = _59;
-    float4 _82 = 0.0f.xxxx;
+    float4 _76 = 0.0f.xxxx;
     if (all(bool4(_52.x == _36.x, _52.y == _36.y, _52.z == _36.z, _52.w == _36.w)))
     {
-        _82 = _10_colorWhite;
+        _76 = _10_colorWhite;
     }
     else
     {
-        float4 _90 = 0.0f.xxxx;
+        float4 _84 = 0.0f.xxxx;
         if (any(bool4(_52.x != _44.x, _52.y != _44.y, _52.z != _44.z, _52.w != _44.w)))
         {
-            _90 = _59;
+            _84 = _59;
         }
         else
         {
-            float4 _98 = 0.0f.xxxx;
-            if (all(bool4(_52.x == _10_colorWhite.x, _52.y == _10_colorWhite.y, _52.z == _10_colorWhite.z, _52.w == _10_colorWhite.w)))
-            {
-                _98 = _36;
-            }
-            else
-            {
-                _98 = _52;
-            }
-            _90 = _98;
+            bool4 _92 = all(bool4(_52.x == _10_colorWhite.x, _52.y == _10_colorWhite.y, _52.z == _10_colorWhite.z, _52.w == _10_colorWhite.w)).xxxx;
+            _84 = float4(_92.x ? _36.x : _52.x, _92.y ? _36.y : _52.y, _92.z ? _36.z : _52.z, _92.w ? _36.w : _52.w);
         }
-        _82 = _90;
+        _76 = _84;
     }
-    return _82;
+    return _76;
 }
 
 void frag_main()

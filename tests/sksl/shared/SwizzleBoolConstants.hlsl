@@ -48,16 +48,8 @@ float4 main(float2 _24)
     result = bool4(false, false, _60, true);
     bool4 _105 = bool4(false, true, true, _77);
     result = _105;
-    float4 _107 = 0.0f.xxxx;
-    if (any(_105))
-    {
-        _107 = _10_colorGreen;
-    }
-    else
-    {
-        _107 = _10_colorRed;
-    }
-    return _107;
+    bool4 _107 = any(_105).xxxx;
+    return float4(_107.x ? _10_colorGreen.x : _10_colorRed.x, _107.y ? _10_colorGreen.y : _10_colorRed.y, _107.z ? _10_colorGreen.z : _10_colorRed.z, _107.w ? _10_colorGreen.w : _10_colorRed.w);
 }
 
 void frag_main()

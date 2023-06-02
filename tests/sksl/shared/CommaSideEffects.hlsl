@@ -62,16 +62,8 @@ float4 main(float2 _34)
     {
         _82 = false;
     }
-    float4 _83 = 0.0f.xxxx;
-    if (_82)
-    {
-        _83 = _11_colorGreen;
-    }
-    else
-    {
-        _83 = _11_colorRed;
-    }
-    return _83;
+    bool4 _83 = _82.xxxx;
+    return float4(_83.x ? _11_colorGreen.x : _11_colorRed.x, _83.y ? _11_colorGreen.y : _11_colorRed.y, _83.z ? _11_colorGreen.z : _11_colorRed.z, _83.w ? _11_colorGreen.w : _11_colorRed.w);
 }
 
 void frag_main()

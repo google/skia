@@ -298,16 +298,8 @@ float4 main(float2 _242)
         _483 = false;
     }
     ok = _483;
-    float4 _484 = 0.0f.xxxx;
-    if (_483)
-    {
-        _484 = _32_colorGreen;
-    }
-    else
-    {
-        _484 = _32_colorRed;
-    }
-    return _484;
+    bool4 _484 = _483.xxxx;
+    return float4(_484.x ? _32_colorGreen.x : _32_colorRed.x, _484.y ? _32_colorGreen.y : _32_colorRed.y, _484.z ? _32_colorGreen.z : _32_colorRed.z, _484.w ? _32_colorGreen.w : _32_colorRed.w);
 }
 
 void frag_main()

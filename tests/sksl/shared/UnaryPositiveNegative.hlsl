@@ -194,16 +194,8 @@ float4 main(float2 _233)
     {
         _278 = false;
     }
-    float4 _279 = 0.0f.xxxx;
-    if (_278)
-    {
-        _279 = _19_colorGreen;
-    }
-    else
-    {
-        _279 = _19_colorRed;
-    }
-    return _279;
+    bool4 _279 = _278.xxxx;
+    return float4(_279.x ? _19_colorGreen.x : _19_colorRed.x, _279.y ? _19_colorGreen.y : _19_colorRed.y, _279.z ? _19_colorGreen.z : _19_colorRed.z, _279.w ? _19_colorGreen.w : _19_colorRed.w);
 }
 
 void frag_main()
