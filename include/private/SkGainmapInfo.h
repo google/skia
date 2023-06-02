@@ -34,6 +34,8 @@
  *  In the above math, log() is a natural logarithm and exp() is natural exponentiation. Note,
  *  however, that the base used for the log() and exp() functions does not affect the results of
  *  the computation (it cancels out, as long as the same base is used throughout).
+ *
+ *  This product includes Gain Map technology under license by Adobe.
  */
 struct SkGainmapInfo {
     /**
