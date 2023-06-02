@@ -105,7 +105,8 @@ struct alignas(N*sizeof(T)) Vec {
         return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        sk_unaligned_store(ptr, *this);
+        // Note: Calling sk_unaligned_store produces slightly worse code here, for some reason
+        memcpy(ptr, this, sizeof(Vec));
     }
 
     Vec<N/2,T> lo, hi;
@@ -140,7 +141,7 @@ struct alignas(4*sizeof(T)) Vec<4,T> {
         return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        sk_unaligned_store(ptr, *this);
+        memcpy(ptr, this, sizeof(Vec));
     }
 
     SKVX_ALWAYS_INLINE Vec<2,T>& xy() { return lo; }
@@ -188,7 +189,7 @@ struct alignas(2*sizeof(T)) Vec<2,T> {
         return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        sk_unaligned_store(ptr, *this);
+        memcpy(ptr, this, sizeof(Vec));
     }
 
     SKVX_ALWAYS_INLINE T& x() { return lo.val; }
@@ -222,7 +223,7 @@ struct Vec<1,T> {
         return sk_unaligned_load<Vec>(ptr);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
-        sk_unaligned_store(ptr, *this);
+        memcpy(ptr, this, sizeof(Vec));
     }
 };
 
