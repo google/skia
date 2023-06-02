@@ -1,21 +1,35 @@
-### Compilation failed:
-
-error: 6: unsupported lvalue type
-    z[0].v = float2(0, 1);
-    ^^^^^^
-error: 7: unsupported lvalue type
-    z[1].v = float2(2, 1);
-    ^^^^^^
-error: 12: unsupported lvalue type
-    x[0] = float2( 0, 0);
-    ^^^^
-error: 13: unsupported lvalue type
-    x[1] = float2( 1, 0);
-    ^^^^
-error: 15: unsupported lvalue type
-    y[0] = float2( 0, 1);
-    ^^^^
-error: 16: unsupported lvalue type
-    y[1] = float2(-1, 2);
-    ^^^^
-6 errors
+struct FSIn {
+    @builtin(front_facing) sk_Clockwise: bool,
+    @builtin(position) sk_FragCoord: vec4<f32>,
+};
+struct FSOut {
+    @location(0) sk_FragColor: vec4<f32>,
+};
+fn _outParamHelper_0_initialize_vS(z: ptr<function, array<S, 2>>) {
+    var _var0: array<S, 2>;
+    initialize_vS(&_var0);
+    (*z) = _var0;
+}
+struct S {
+    v: vec2<f32>,
+};
+fn initialize_vS(z: ptr<function, array<S, 2>>) {
+    (*z)[0].v = vec2<f32>(0.0, 1.0);
+    (*z)[1].v = vec2<f32>(2.0, 1.0);
+}
+fn main(coords: vec2<f32>) -> vec4<f32> {
+    var x: array<vec2<f32>, 2>;
+    x[0] = vec2<f32>(0.0);
+    x[1] = vec2<f32>(1.0, 0.0);
+    var y: array<vec2<f32>, 2>;
+    y[0] = vec2<f32>(0.0, 1.0);
+    y[1] = vec2<f32>(-1.0, 2.0);
+    var z: array<S, 2>;
+    _outParamHelper_0_initialize_vS(&z);
+    return vec4<f32>(f32(x[0].x * x[0].y + z[0].v.x), f32(x[1].x - x[1].y * z[0].v.y), f32((y[0].x / y[0].y) / z[1].v.x), f32(y[1].x + y[1].y * z[1].v.y));
+}
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+    var _stageOut: FSOut;
+    _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+    return _stageOut;
+}

@@ -12,7 +12,9 @@ struct _GlobalUniforms {
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn main() -> vec4<f32> {
-    return vec4<f32>(f32(_globalUniforms._array[_globalUniforms.idx][_globalUniforms.idx]), f32(_globalUniforms.vector[_globalUniforms.idx + 1]), f32(_globalUniforms.matrix[_globalUniforms.idx][_globalUniforms.idx + 1]), 1.0);
+    let _skTemp0 = _globalUniforms.idx + 1;
+    let _skTemp1 = _globalUniforms.idx + 1;
+    return vec4<f32>(f32(_globalUniforms._array[_globalUniforms.idx][_globalUniforms.idx]), f32(_globalUniforms.vector[_skTemp0]), f32(_globalUniforms.matrix[_globalUniforms.idx][_skTemp1]), 1.0);
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

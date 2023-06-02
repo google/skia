@@ -1,9 +1,19 @@
-### Compilation failed:
-
-error: 7: unsupported lvalue type
+struct VSIn {
+    @builtin(instance_index) sk_InstanceID: u32,
+    @builtin(vertex_index) sk_VertexID: u32,
+};
+struct VSOut {
+    @builtin(position) sk_Position: vec4<f32>,
+};
+/* unsupported */ var<private> sk_PointSize: f32;
+fn main(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
+    var x: f32 = f32(i32(_stageIn.sk_VertexID));
+    var y: f32 = f32(i32(_stageIn.sk_InstanceID));
     sk_PointSize = x;
-    ^^^^^^^^^^^^
-error: 8: unsupported lvalue type
-    sk_Position = float4(x, y, 1, 1);
-    ^^^^^^^^^^^
-2 errors
+    (*_stageOut).sk_Position = vec4<f32>(x, y, 1.0, 1.0);
+}
+@vertex fn vertexMain(_stageIn: VSIn) -> VSOut {
+    var _stageOut: VSOut;
+    main(_stageIn, &_stageOut);
+    return _stageOut;
+}

@@ -60,6 +60,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -967,8 +968,25 @@ std::unique_ptr<WGSLCodeGenerator::LValue> WGSLCodeGenerator::makeLValue(const E
         return std::make_unique<PointerLValue>(
                 this->variableReferenceNameForLValue(e.as<VariableReference>()));
     }
+    if (e.is<FieldAccess>()) {
+        return std::make_unique<PointerLValue>(this->assembleFieldAccess(e.as<FieldAccess>()));
+    }
+    if (e.is<IndexExpression>()) {
+        const IndexExpression& idx = e.as<IndexExpression>();
+        if (idx.base()->type().isVector()) {
+            // Rewrite indexed-swizzle accesses like `myVec.zyx[i]` into an index onto `myVec`.
+            std::unique_ptr<Expression> rewrite = Transform::RewriteIndexedSwizzle(fContext, idx);
 
-    // TODO(johnstiles): support more lvalue types
+            // TODO(johnstiles): WGSL disallows pointer-access to individual vector components;
+            // this is a form of swizzled lvalue. For now, treat as unsupported.
+        } else {
+            return std::make_unique<PointerLValue>(this->assembleIndexExpression(idx));
+        }
+    }
+    if (e.is<Swizzle>()) {
+        // TODO(johnstiles): add support for swizzled lvalues. For now, treat as unsupported.
+    }
+
     fContext.fErrors->error(e.fPosition, "unsupported lvalue type");
     return nullptr;
 }
@@ -1297,8 +1315,13 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& c,
 }
 
 std::string WGSLCodeGenerator::assembleIndexExpression(const IndexExpression& i) {
-    return this->assembleExpression(*i.base(), Precedence::kPostfix) + "[" +
-           this->assembleExpression(*i.index(), Precedence::kExpression) + "]";
+    // Put the index value into a let-expression. (We skip this step if it's extremely simple--a
+    // constant, or a variable--just to avoid bloating the output.)
+    std::string idx = this->assembleExpression(*i.index(), Precedence::kExpression);
+    if (!Analysis::IsCompileTimeConstant(*i.index()) && !i.index()->is<VariableReference>()) {
+        idx = this->writeScratchLet(idx);
+    }
+    return this->assembleExpression(*i.base(), Precedence::kPostfix) + "[" + idx + "]";
 }
 
 std::string WGSLCodeGenerator::assembleLiteral(const Literal& l) {
