@@ -16,7 +16,6 @@
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/AtlasTypes.h"
-#include "src/gpu/RectanizerSkyline.h"
 
 namespace skgpu::graphite {
 
