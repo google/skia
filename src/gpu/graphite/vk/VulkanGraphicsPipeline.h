@@ -28,6 +28,9 @@ public:
     inline static constexpr unsigned int kUniformBufferDescSetIndex = 0;
     inline static constexpr unsigned int kTextureBindDescSetIndex = 1;
 
+    inline static constexpr unsigned int kVertexBufferIndex = 0;
+    inline static constexpr unsigned int kInstanceBufferIndex = 1;
+    inline static constexpr unsigned int kNumInputBuffers = 2;
 
     static sk_sp<VulkanGraphicsPipeline> Make(const VulkanSharedContext*
                                               /* TODO: fill out argument list */);

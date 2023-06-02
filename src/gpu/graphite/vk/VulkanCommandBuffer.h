@@ -92,6 +92,7 @@ private:
                          const BindBufferInfo& indirect);
     void bindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
                            const Buffer* instanceBuffer, size_t instanceOffset);
+    void bindInputBuffer(const Buffer* buffer, VkDeviceSize offset, uint32_t binding);
     void bindIndexBuffer(const Buffer* indexBuffer, size_t offset);
     void bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset);
     void setScissor(unsigned int left, unsigned int top,
@@ -177,6 +178,14 @@ private:
     bool fBindTextureSamplers = false;
     skia_private::TArray<BindBufferInfo> fUniformBuffersToBind;
     VkDescriptorSet fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
+
+    VkBuffer fBoundInputBuffers[VulkanGraphicsPipeline::kNumInputBuffers];
+    size_t fBoundInputBufferOffsets[VulkanGraphicsPipeline::kNumInputBuffers];
+
+    VkBuffer fBoundIndexBuffer = VK_NULL_HANDLE;
+    VkBuffer fBoundIndirectBuffer = VK_NULL_HANDLE;
+    size_t fBoundIndexBufferOffset = 0;
+    size_t fBoundIndirectBufferOffset = 0;
 };
 
 } // namespace skgpu::graphite
