@@ -17,6 +17,11 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
+#ifdef SK_ENABLE_SKSL
+#include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkRuntimeEffectPriv.h"
+#endif
+
 namespace skif {
 
 namespace {
@@ -59,7 +64,7 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> extract_subset(
         LayerSpace<SkIPoint> origin,
         const LayerSpace<SkIRect>& dstBounds) {
     LayerSpace<SkIRect> imageBounds(SkIRect::MakeXYWH(origin.x(), origin.y(),
-                                    image->width(), image->height()));
+                                                      image->width(), image->height()));
     if (!imageBounds.intersect(dstBounds)) {
         return {nullptr, {}};
     }
@@ -76,6 +81,131 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> extract_subset(
 
     return {image->makeSubset(subset), imageBounds.topLeft()};
 }
+
+void decompose_transform(const SkMatrix& transform, SkPoint representativePoint,
+                         SkMatrix* postScaling, SkMatrix* scaling) {
+    SkSize scale;
+    if (transform.decomposeScale(&scale, postScaling)) {
+        *scaling = SkMatrix::Scale(scale.fWidth, scale.fHeight);
+    } else {
+        // Perspective, which has a non-uniform scaling effect on the filter. Pick a single scale
+        // factor that best matches where the filter will be evaluated.
+        SkScalar approxScale = SkMatrixPriv::DifferentialAreaScale(transform, representativePoint);
+        if (SkScalarIsFinite(approxScale) && !SkScalarNearlyZero(approxScale)) {
+            // Now take the sqrt to go from an area scale factor to a scaling per X and Y
+            approxScale = SkScalarSqrt(approxScale);
+        } else {
+            // The point was behind the W = 0 plane, so don't factor out any scale.
+            approxScale = 1.f;
+        }
+        *postScaling = transform;
+        postScaling->preScale(SkScalarInvert(approxScale), SkScalarInvert(approxScale));
+        *scaling = SkMatrix::Scale(approxScale, approxScale);
+    }
+}
+
+#ifdef SK_ENABLE_SKSL
+
+// Returns true if decal tiling an image with 'imageBounds' subject to 'transform', limited to
+// the un-transformed 'sampleBounds' would exhibit significantly different visual quality from
+// drawing the image with clamp tiling and limited geometrically to 'imageBounds'.
+//
+// Non-nearest-neighbor sampling across the image boundary with decal tiling introduces transparency
+// If the transform's scale factor is near identity, the width of this transparent interpolation is
+// visually consistent with the 1px anti-aliased edge produced by a SkCanvas::drawImage operation.
+// If the scale factor is non-identity, the transparent ramp can get progressively smaller or larger
+// as the relative size of a texel changes vs. the pixel size. While technically expected of decal
+// tiling, it produces inconsistent rendering vs. when the transformed image is resolved to the
+// actual layer resolution and then sampled by an image filter shader.
+bool decal_tiling_differs_from_aa(const LayerSpace<SkMatrix> transform,
+                                  const LayerSpace<SkIRect> imageBounds,
+                                  const LayerSpace<SkIRect> sampleBounds,
+                                  const SkSamplingOptions& sampling) {
+    static constexpr SkSamplingOptions kNearestNeighbor = {};
+    static constexpr SkSize kHalfPixel = {0.5f, 0.5f};
+    static constexpr SkSize kCubicRadius = {1.5f, 1.5f};
+
+    if (sampling == kNearestNeighbor) {
+        // There's no interpolating between two samples, so the size of texels doesn't matter.
+        return false;
+    }
+
+    LayerSpace<SkSize> expectedSampleRadius{sampling.useCubic ? kCubicRadius : kHalfPixel};
+    LayerSpace<SkSize> sampleRadius = transform.mapSize(expectedSampleRadius);
+
+    LayerSpace<SkRect> bufferedSampleBounds{sampleBounds};
+    // First inset by half a pixel to account for where the dst sample coords actually are
+    bufferedSampleBounds.inset(LayerSpace<SkSize>(kHalfPixel));
+    // Then outset by the mapped radius
+    bufferedSampleBounds.outset(sampleRadius);
+
+    // If the sample bounds (including implicit samples from interpolation) are contained by the
+    // transformed 'imageBounds', then the sampling would not access texels outside the image bounds
+    if (SkRectPriv::QuadContainsRect(SkMatrix(transform),
+                                     SkIRect(imageBounds),
+                                     SkIRect(bufferedSampleBounds.roundOut()))) {
+        return false;
+    }
+
+    // The decal sampling would be visible, but we only care if the width of the interpolation is
+    // significantly different from an identity-scale.
+    return !SkScalarNearlyEqual(sampleRadius.width(), expectedSampleRadius.width(), 0.1f) ||
+           !SkScalarNearlyEqual(sampleRadius.height(), expectedSampleRadius.height(), 0.1f);
+}
+
+// The returned shader includes the transform as a local matrix.
+sk_sp<SkShader> apply_decal(
+        const LayerSpace<SkMatrix>& transform,
+        sk_sp<SkSpecialImage> image,
+        const LayerSpace<SkIRect>& sampleBounds,
+        const SkSamplingOptions& sampling) {
+    LayerSpace<SkIRect> imageBounds{image->dimensions()};
+    if (!decal_tiling_differs_from_aa(transform, imageBounds, sampleBounds, sampling)) {
+        // Decal the image as part of its sampling and apply the full transform afterwards
+        return image->asShader(SkTileMode::kDecal, sampling, SkMatrix(transform));
+    }
+
+    // Otherwise we need to apply the decal in a coordinate space that matches the resolution of
+    // the layer space. If the transform preserves rectangles, map the image bounds by the transform
+    // so we can apply it before we evaluate the shader. Otherwise decompose the transform into
+    // a non-scaling post-decal transform and a scaling pre-decal transform.
+    const SkMatrix& m(transform);
+    SkMatrix postDecal, preDecal;
+    if (m.rectStaysRect()) {
+        postDecal = SkMatrix::I();
+        preDecal = m;
+    } else {
+        auto representativePoint = LayerSpace<SkRect>(imageBounds).center();
+        decompose_transform(m, SkPoint(representativePoint), &postDecal, &preDecal);
+    }
+
+    // TODO(skbug:12784) - As part of fully supporting subsets in image shaders, it probably makes
+    // sense to share the subset tiling logic that's in GrTextureEffect as dedicated SkShaders.
+    // Graphite can then add those to its program as-needed vs. always doing shader-based tiling,
+    // and CPU can have raster-pipeline tiling applied more flexibly than at the bitmap level. At
+    // that point, this effect is redundant and can be replaced with the decal-subset shader.
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform shader image;"
+        "uniform float4 decalBounds;"
+
+        "half4 main(float2 coord) {"
+            "half4 d = half4(decalBounds - coord.xyxy) * half4(-1, -1, 1, 1);"
+            "d = saturate(d + 0.5);"
+            "return (d.x*d.y*d.z*d.w) * image.eval(coord);"
+        "}");
+
+    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
+    builder.child("image") = image->asShader(SkTileMode::kClamp, sampling, preDecal);
+    builder.uniform("decalBounds") = preDecal.mapRect(SkRect::Make(SkIRect(imageBounds)));
+
+    sk_sp<SkShader> decalShader = builder.makeShader();
+    if (decalShader && !postDecal.isIdentity()) {
+        decalShader = decalShader->makeWithLocalMatrix(postDecal);
+    }
+    return decalShader;
+}
+
+#endif
 
 bool fills_layer_bounds(const SkColorFilter* colorFilter) {
     return colorFilter && as_CFB(colorFilter)->affectsTransparentBlack();
@@ -182,7 +312,6 @@ SkIRect RoundIn(SkRect r) { return r.makeOutset(kRoundEpsilon, kRoundEpsilon).ro
 bool Mapping::decomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                            const skif::ParameterSpace<SkPoint>& representativePt) {
     SkMatrix remainder, layer;
-    SkSize decomposed;
     using MatrixCapability = SkImageFilter_Base::MatrixCapability;
     MatrixCapability capability =
             filter ? as_IFB(filter)->getCTMCapability() : MatrixCapability::kComplex;
@@ -195,27 +324,10 @@ bool Mapping::decomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
         // ctm is. In both cases, the layer space can be equivalent to device space.
         remainder = SkMatrix::I();
         layer = ctm;
-    } else if (ctm.decomposeScale(&decomposed, &remainder)) {
+    } else {
         // This case implies some amount of sampling post-filtering, either due to skew or rotation
         // in the original matrix. As such, keep the layer matrix as simple as possible.
-        layer = SkMatrix::Scale(decomposed.fWidth, decomposed.fHeight);
-    } else {
-        // Perspective, which has a non-uniform scaling effect on the filter. Pick a single scale
-        // factor that best matches where the filter will be evaluated.
-        SkScalar scale = SkMatrixPriv::DifferentialAreaScale(ctm, SkPoint(representativePt));
-        if (SkScalarIsFinite(scale) && !SkScalarNearlyZero(scale)) {
-            // Now take the sqrt to go from an area scale factor to a scaling per X and Y
-            // FIXME: It would be nice to be able to choose a non-uniform scale.
-            scale = SkScalarSqrt(scale);
-        } else {
-            // The representative point was behind the W = 0 plane, so don't factor out any scale.
-            // NOTE: This makes remainder and layer the same as the MatrixCapability::Translate case
-            scale = 1.f;
-        }
-
-        remainder = ctm;
-        remainder.preScale(SkScalarInvert(scale), SkScalarInvert(scale));
-        layer = SkMatrix::Scale(scale, scale);
+        decompose_transform(ctm, SkPoint(representativePt), &remainder, &layer);
     }
 
     SkMatrix invRemainder;
@@ -441,8 +553,8 @@ bool FilterResult::isCropped(const LayerSpace<SkMatrix>& xtraTransform,
     if (!fillsLayerBounds) {
         // When that's not the case, 'fLayerBounds' may still be important if it crops the
         // edges of the original transformed image itself.
-        LayerSpace<SkIRect> imageBounds = fTransform.mapRect(
-                    LayerSpace<SkIRect>{SkIRect::MakeWH(fImage->width(), fImage->height())});
+        LayerSpace<SkIRect> imageBounds =
+            fTransform.mapRect(LayerSpace<SkIRect>{fImage->dimensions()});
         fillsLayerBounds = !fLayerBounds.contains(imageBounds);
     }
 
@@ -715,7 +827,6 @@ void FilterResult::draw(SkCanvas* canvas) const {
     paint.setBlendMode(SkBlendMode::kSrcOver);
     paint.setColorFilter(fColorFilter);
 
-    canvas->concat(SkMatrix(fTransform)); // src's origin is embedded in fTransform
 
     // If we are an integer translate, the default bilinear sampling *should* be equivalent to
     // nearest-neighbor. Going through the direct image-drawing path tends to detect this
@@ -728,9 +839,19 @@ void FilterResult::draw(SkCanvas* canvas) const {
     }
 
     if (fills_layer_bounds(fColorFilter.get())) {
-        paint.setShader(fImage->asShader(SkTileMode::kDecal, sampling, SkMatrix::I()));
+#ifdef SK_ENABLE_SKSL
+        // apply_decal consumes the transform, so we don't modify the canvas
+        paint.setShader(apply_decal(fTransform, fImage, fLayerBounds, sampling));
+#else
+        // Decal tiling might be distorted if transform has a high scale factor, but this is a rare
+        // scenario that requires rendering an intermediate image to fix without SkSL, so accept the
+        // potential distortion.
+        paint.setShader(fImage->asShader(SkTileMode::kDecal, sampling, SkMatrix(fTransform)));
+#endif
+        // Fill the canvas with the shader, relying on it to do the transform
         canvas->drawPaint(paint);
     } else {
+        canvas->concat(SkMatrix(fTransform)); // src's origin is embedded in fTransform
         fImage->draw(canvas, 0.f, 0.f, sampling, &paint);
     }
 }
@@ -778,7 +899,11 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
     } else {
         // Since we didn't need to resolve, we know the content being sampled isn't cropped by
         // fLayerBounds. fTransform and fColorFilter are handled in the shader directly.
+#ifdef SK_ENABLE_SKSL
+        shader = apply_decal(fTransform, fImage, sampleBounds, sampling);
+#else
         shader = fImage->asShader(SkTileMode::kDecal, sampling, SkMatrix(fTransform));
+#endif
         if (shader && fColorFilter) {
             shader = shader->makeWithColorFilter(fColorFilter);
         }

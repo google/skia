@@ -388,6 +388,7 @@ public:
     void join(const LayerSpace<SkIRect>& r) { fData.join(r.fData); }
     void offset(const LayerSpace<IVector>& v) { fData.offset(SkIVector(v)); }
     void outset(const LayerSpace<SkISize>& delta) { fData.outset(delta.width(), delta.height()); }
+    void inset(const LayerSpace<SkISize>& delta) { fData.inset(delta.width(), delta.height()); }
 
 private:
     SkIRect fData;
@@ -435,6 +436,7 @@ public:
     void join(const LayerSpace<SkRect>& r) { fData.join(r.fData); }
     void offset(const LayerSpace<Vector>& v) { fData.offset(SkVector(v)); }
     void outset(const LayerSpace<SkSize>& delta) { fData.outset(delta.width(), delta.height()); }
+    void inset(const LayerSpace<SkSize>& delta) { fData.inset(delta.width(), delta.height()); }
 
     LayerSpace<SkPoint> clamp(LayerSpace<SkPoint> pt) const {
         return LayerSpace<SkPoint>(SkPoint::Make(SkTPin(pt.x(), fData.fLeft, fData.fRight),
