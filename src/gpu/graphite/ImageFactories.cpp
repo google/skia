@@ -141,6 +141,64 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
     return sk_make_sp<Image>(kNeedNewImageUniqueID, view, colorInfo);
 }
 
+SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
+                                             const YUVABackendTextureInfo& backendTextureInfo,
+                                             sk_sp<SkColorSpace> imageColorSpace,
+                                             skgpu::graphite::Volatile isVolatile,
+                                             GraphitePromiseImageYUVAFulfillProc fulfillProc,
+                                             GraphitePromiseImageReleaseProc imageReleaseProc,
+                                             GraphitePromiseTextureReleaseProc textureReleaseProc,
+                                             GraphitePromiseImageContext imageContext,
+                                             GraphitePromiseTextureContext textureContexts[]) {
+    // Our contract is that we will always call the _image_ release proc even on failure.
+    // We use the helper to convey the imageContext, so we need to ensure Make doesn't fail.
+    imageReleaseProc = imageReleaseProc ? imageReleaseProc : [](void*) {};
+    auto releaseHelper = skgpu::RefCntedCallback::Make(imageReleaseProc, imageContext);
+
+    if (!backendTextureInfo.isValid()) {
+        return nullptr;
+    }
+
+    if (!recorder) {
+        SKGPU_LOG_W("Null Recorder");
+        return nullptr;
+    }
+
+    SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
+    int numPlanes = backendTextureInfo.yuvaInfo().planeDimensions(planeDimensions);
+
+    SkAlphaType at =
+            backendTextureInfo.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+    SkImageInfo info = SkImageInfo::Make(
+            backendTextureInfo.yuvaInfo().dimensions(),
+            kRGBA_8888_SkColorType, at, imageColorSpace);
+    if (!SkImageInfoIsValid(info)) {
+        SKGPU_LOG_W("Invalid SkImageInfo");
+        return nullptr;
+    }
+
+    // Make a lazy proxy for each plane
+    sk_sp<TextureProxy> proxies[4];
+    for (int p = 0; p < numPlanes; ++p) {
+        proxies[p] = Image_YUVA::MakePromiseImageLazyProxy(planeDimensions[p],
+                                                           backendTextureInfo.planeTextureInfo(p),
+                                                           isVolatile,
+                                                           fulfillProc,
+                                                           releaseHelper,
+                                                           textureContexts[p],
+                                                           textureReleaseProc);
+        if (!proxies[p]) {
+            return nullptr;
+        }
+    }
+
+    YUVATextureProxies yuvaTextureProxies(recorder, backendTextureInfo.yuvaInfo(), proxies);
+    SkASSERT(yuvaTextureProxies.isValid());
+    return sk_make_sp<Image_YUVA>(kNeedNewImageUniqueID,
+                                  std::move(yuvaTextureProxies),
+                                  std::move(imageColorSpace));
+}
+
 sk_sp<SkImage> SubsetTextureFrom(skgpu::graphite::Recorder* recorder,
                                  const SkImage* img,
                                  const SkIRect& subset,

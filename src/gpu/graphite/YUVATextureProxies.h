@@ -18,6 +18,10 @@ class YUVATextureProxies {
 public:
     YUVATextureProxies() = default;
 
+    /** Assumes all planes are sampled with a default "rgba" swizzle. */
+    YUVATextureProxies(const Recorder*,
+                       const SkYUVAInfo&,
+                       sk_sp<TextureProxy>[SkYUVAInfo::kMaxPlanes]);
     /**
      * When uploading pixmaps to textures it is important that we account for how the original
      * pixmaps' channels are swizzled into the texture during upload. This will compute a swizzle

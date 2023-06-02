@@ -408,7 +408,7 @@ sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> threadSafe
         return nullptr;
     }
 
-    // Make a lazy proxy for each plane and wrap in a view.
+    // Make a lazy proxy for each plane
     sk_sp<GrSurfaceProxy> proxies[4];
     for (int i = 0; i < n; ++i) {
         proxies[i] =

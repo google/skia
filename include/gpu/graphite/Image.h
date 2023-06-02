@@ -18,6 +18,7 @@ namespace skgpu::graphite {
     class BackendTexture;
     class Recorder;
     class TextureInfo;
+    class YUVABackendTextureInfo;
     class YUVABackendTextures;
     enum class Volatile : bool;
 }
@@ -25,14 +26,19 @@ namespace skgpu::graphite {
 namespace SkImages {
 using TextureReleaseProc = void (*)(ReleaseContext);
 
-// Passed to both fulfill and imageRelease
+// Passed to both non-YUVA fulfill and imageRelease
 using GraphitePromiseImageContext = void*;
+// Passed to YUVA fulfill
+using GraphitePromiseTextureContext = void*;
 // Returned from fulfill and passed into textureRelease
 using GraphitePromiseTextureReleaseContext = void*;
 
 using GraphitePromiseImageFulfillProc =
         std::tuple<skgpu::graphite::BackendTexture, GraphitePromiseTextureReleaseContext> (*)(
                 GraphitePromiseImageContext);
+using GraphitePromiseImageYUVAFulfillProc =
+        std::tuple<skgpu::graphite::BackendTexture, GraphitePromiseTextureReleaseContext> (*)(
+                GraphitePromiseTextureContext);
 using GraphitePromiseImageReleaseProc = void (*)(GraphitePromiseImageContext);
 using GraphitePromiseTextureReleaseProc = void (*)(GraphitePromiseTextureReleaseContext);
 
@@ -100,7 +106,8 @@ SK_API sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder*,
     @param textureInfo    structural information for the promised gpu texture
     @param colorInfo      color type, alpha type and colorSpace information for the image
     @param isVolatile     volatility of the promise image
-    @param fulfill        function called to get the actual backend texture
+    @param fulfill        function called to get the actual backend texture,
+                          and the instance for the GraphitePromiseTextureReleaseProc
     @param imageRelease   function called when any image-centric data can be deleted
     @param textureRelease function called when the backend texture can be deleted
     @param imageContext   state passed to fulfill and imageRelease
@@ -115,6 +122,41 @@ SK_API sk_sp<SkImage> PromiseTextureFrom(skgpu::graphite::Recorder*,
                                          GraphitePromiseImageReleaseProc,
                                          GraphitePromiseTextureReleaseProc,
                                          GraphitePromiseImageContext);
+
+/** This is similar to 'PromiseTextureFrom' but it creates a GPU-backed SkImage from YUV[A] data.
+    The source data may be planar (i.e. spread across multiple textures). In
+    the extreme Y, U, V, and A are all in different planes and thus the image is specified by
+    four textures. 'backendTextureInfo' describes the planar arrangement, texture formats,
+    and conversion to RGB. Separate 'fulfill' and 'textureRelease' calls are made for each texture.
+    Each texture has its own GraphitePromiseTextureContext. The GraphitePromiseImageReleaseProc
+    will be made even on failure. 'textureContexts' has one entry for each of the up to four
+    textures, as indicated by 'backendTextureInfo'. Currently the mipmapped property of
+    'backendTextureInfo' is ignored. However, in the near future it will be required that if it is
+    kYes then the fulfillProc must return a mip mapped texture for each plane in order to
+    successfully draw the image.
+    @param recorder            the recorder that will capture the commands creating the image
+    @param backendTextureInfo  info about the promised yuva gpu texture(s)
+    @param imageColorSpace     range of colors; may be nullptr
+    @param isVolatile          volatility of the promise image
+    @param fulfill             function called to get the actual backend texture for
+                               a given GraphitePromiseTextureContext, and the instance
+                               for the GraphitePromiseTextureReleaseProc
+    @param imageRelease        function called when any image-centric data can be deleted
+    @param textureRelease      function called when the backend texture can be deleted
+    @param imageContext        state passed to imageRelease
+    @param textureContexts     states passed to fulfill and textureRelease
+    @return                    created SkImage, or nullptr
+*/
+SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder*,
+                                             const skgpu::graphite::YUVABackendTextureInfo&,
+                                             sk_sp<SkColorSpace> imageColorSpace,
+                                             skgpu::graphite::Volatile,
+                                             GraphitePromiseImageYUVAFulfillProc,
+                                             GraphitePromiseImageReleaseProc,
+                                             GraphitePromiseTextureReleaseProc,
+                                             GraphitePromiseImageContext imageContext,
+                                             GraphitePromiseTextureContext textureContexts[]);
+
 
 /** Returns an SkImage backed by a Graphite texture, using the provided Recorder for creation
     and uploads if necessary. The returned SkImage respects the required image properties'
