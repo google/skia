@@ -60,6 +60,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -995,7 +996,13 @@ std::unique_ptr<WGSLCodeGenerator::LValue> WGSLCodeGenerator::makeLValue(const E
     if (e.is<IndexExpression>()) {
         const IndexExpression& idx = e.as<IndexExpression>();
         if (idx.base()->type().isVector()) {
-            return std::make_unique<VectorComponentLValue>(this->assembleIndexExpression(idx));
+            if (std::unique_ptr<Expression> rewrite =
+                        Transform::RewriteIndexedSwizzle(fContext, idx)) {
+                return std::make_unique<VectorComponentLValue>(
+                        this->assembleExpression(*rewrite, Precedence::kAssignment));
+            } else {
+                return std::make_unique<VectorComponentLValue>(this->assembleIndexExpression(idx));
+            }
         } else {
             return std::make_unique<PointerLValue>(this->assembleIndexExpression(idx));
         }

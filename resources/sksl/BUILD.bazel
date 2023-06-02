@@ -1104,6 +1104,8 @@ skia_filegroup(
         "shared/PrefixExpressionsES3.sksl",
         "shared/StructArrayFollowedByScalar.sksl",
         "shared/Structs.sksl",
+        "shared/SwizzleIndexLookup.sksl",
+        "shared/SwizzleIndexStore.sksl",
         "shared/TernaryComplexNesting.sksl",
         "shared/TernaryExpression.sksl",
         "shared/TernaryNesting.sksl",
