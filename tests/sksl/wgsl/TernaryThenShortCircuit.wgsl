@@ -10,32 +10,32 @@ struct _GlobalUniforms {
     colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _outParamHelper_2_Increment_ii(y: ptr<function, i32>) -> i32 {
+fn _outParamHelper_4_Increment_ii(y: ptr<function, i32>) -> i32 {
     var _var0: i32 = (*y);
     var _return: i32 = Increment_ii(&_var0);
     (*y) = _var0;
     return _return;
 }
-fn _outParamHelper_5_Increment_ii(y: ptr<function, i32>) -> i32 {
+fn _outParamHelper_10_Increment_ii(y: ptr<function, i32>) -> i32 {
     var _var0: i32 = (*y);
     var _return: i32 = Increment_ii(&_var0);
     (*y) = _var0;
     return _return;
 }
-fn _outParamHelper_8_Increment_ii(y: ptr<function, i32>) -> i32 {
+fn _outParamHelper_16_Increment_ii(y: ptr<function, i32>) -> i32 {
     var _var0: i32 = (*y);
     var _return: i32 = Increment_ii(&_var0);
     (*y) = _var0;
     return _return;
 }
-fn _outParamHelper_10_Increment_ii(_2_y: ptr<function, i32>) -> i32 {
+fn _outParamHelper_20_Increment_ii(_2_y: ptr<function, i32>) -> i32 {
     var _var0: i32 = (*_2_y);
     var _return: i32 = Increment_ii(&_var0);
     (*_2_y) = _var0;
     return _return;
 }
 fn Increment_ii(y: ptr<function, i32>) -> i32 {
-    (*y) += 1;
+    (*y) = (*y) + 1;
     return (*y);
 }
 fn True_b() -> bool {
@@ -50,14 +50,17 @@ fn TrueFalse_b() -> bool {
     var _skTemp0: bool;
     var _skTemp1: bool;
     if x == 1 {
-        _skTemp1 = True_b();
+        let _skTemp2 = True_b();
+        _skTemp1 = _skTemp2;
     } else {
-        _skTemp1 = False_b();
+        let _skTemp3 = False_b();
+        _skTemp1 = _skTemp3;
     }
     if _skTemp1 {
         _skTemp0 = true;
     } else {
-        _skTemp0 = _outParamHelper_2_Increment_ii(&y) == 3;
+        let _skTemp5 = _outParamHelper_4_Increment_ii(&y);
+        _skTemp0 = _skTemp5 == 3;
     }
     if (_skTemp0) {
         {
@@ -72,19 +75,22 @@ fn TrueFalse_b() -> bool {
 fn FalseTrue_b() -> bool {
     var x: i32 = 1;
     var y: i32 = 1;
-    var _skTemp3: bool;
-    var _skTemp4: bool;
+    var _skTemp6: bool;
+    var _skTemp7: bool;
     if x == 2 {
-        _skTemp4 = True_b();
+        let _skTemp8 = True_b();
+        _skTemp7 = _skTemp8;
     } else {
-        _skTemp4 = False_b();
+        let _skTemp9 = False_b();
+        _skTemp7 = _skTemp9;
     }
-    if _skTemp4 {
-        _skTemp3 = true;
+    if _skTemp7 {
+        _skTemp6 = true;
     } else {
-        _skTemp3 = _outParamHelper_5_Increment_ii(&y) == 2;
+        let _skTemp11 = _outParamHelper_10_Increment_ii(&y);
+        _skTemp6 = _skTemp11 == 2;
     }
-    if (_skTemp3) {
+    if (_skTemp6) {
         {
             return x == 1 && y == 2;
         }
@@ -97,19 +103,22 @@ fn FalseTrue_b() -> bool {
 fn FalseFalse_b() -> bool {
     var x: i32 = 1;
     var y: i32 = 1;
-    var _skTemp6: bool;
-    var _skTemp7: bool;
+    var _skTemp12: bool;
+    var _skTemp13: bool;
     if x == 2 {
-        _skTemp7 = True_b();
+        let _skTemp14 = True_b();
+        _skTemp13 = _skTemp14;
     } else {
-        _skTemp7 = False_b();
+        let _skTemp15 = False_b();
+        _skTemp13 = _skTemp15;
     }
-    if _skTemp7 {
-        _skTemp6 = true;
+    if _skTemp13 {
+        _skTemp12 = true;
     } else {
-        _skTemp6 = _outParamHelper_8_Increment_ii(&y) == 3;
+        let _skTemp17 = _outParamHelper_16_Increment_ii(&y);
+        _skTemp12 = _skTemp17 == 3;
     }
-    if (_skTemp6) {
+    if (_skTemp12) {
         {
             return false;
         }
@@ -122,13 +131,15 @@ fn FalseFalse_b() -> bool {
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var _0_TrueTrue: bool;
     var _2_y: i32 = 1;
-    var _skTemp9: bool;
-    if True_b() {
-        _skTemp9 = true;
+    var _skTemp18: bool;
+    let _skTemp19 = True_b();
+    if _skTemp19 {
+        _skTemp18 = true;
     } else {
-        _skTemp9 = _outParamHelper_10_Increment_ii(&_2_y) == 2;
+        let _skTemp21 = _outParamHelper_20_Increment_ii(&_2_y);
+        _skTemp18 = _skTemp21 == 2;
     }
-    if (_skTemp9) {
+    if (_skTemp18) {
         {
             _0_TrueTrue = _2_y == 1;
         }
@@ -137,31 +148,34 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
             _0_TrueTrue = false;
         }
     }
-    var _skTemp11: vec4<f32>;
-    var _skTemp12: bool;
-    var _skTemp13: bool;
-    var _skTemp14: bool;
+    var _skTemp22: vec4<f32>;
+    var _skTemp23: bool;
+    var _skTemp24: bool;
+    var _skTemp25: bool;
     if _0_TrueTrue {
-        _skTemp14 = TrueFalse_b();
+        let _skTemp26 = TrueFalse_b();
+        _skTemp25 = _skTemp26;
     } else {
-        _skTemp14 = false;
+        _skTemp25 = false;
     }
-    if _skTemp14 {
-        _skTemp13 = FalseTrue_b();
+    if _skTemp25 {
+        let _skTemp27 = FalseTrue_b();
+        _skTemp24 = _skTemp27;
     } else {
-        _skTemp13 = false;
+        _skTemp24 = false;
     }
-    if _skTemp13 {
-        _skTemp12 = FalseFalse_b();
+    if _skTemp24 {
+        let _skTemp28 = FalseFalse_b();
+        _skTemp23 = _skTemp28;
     } else {
-        _skTemp12 = false;
+        _skTemp23 = false;
     }
-    if _skTemp12 {
-        _skTemp11 = _globalUniforms.colorGreen;
+    if _skTemp23 {
+        _skTemp22 = _globalUniforms.colorGreen;
     } else {
-        _skTemp11 = _globalUniforms.colorRed;
+        _skTemp22 = _globalUniforms.colorRed;
     }
-    return _skTemp11;
+    return _skTemp22;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

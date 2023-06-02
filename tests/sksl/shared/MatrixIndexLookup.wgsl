@@ -25,14 +25,13 @@ fn test3x3_b() -> bool {
                             return false;
                         }
                     }
-                    expected += 3.0;
+                    expected = expected + 3.0;
                 }
             } else {
                 break;
             }
             continuing {
-                let _skTemp0 = &(index);
-                (*_skTemp0) += i32(1);
+                index = index + i32(1);
             }
         }
     }
@@ -51,33 +50,34 @@ fn test4x4_b() -> bool {
                             return false;
                         }
                     }
-                    expected += 4.0;
+                    expected = expected + 4.0;
                 }
             } else {
                 break;
             }
             continuing {
-                let _skTemp1 = &(index);
-                (*_skTemp1) += i32(1);
+                index = index + i32(1);
             }
         }
     }
     return true;
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
-    var _skTemp2: vec4<f32>;
-    var _skTemp3: bool;
-    if test3x3_b() {
-        _skTemp3 = test4x4_b();
+    var _skTemp0: vec4<f32>;
+    var _skTemp1: bool;
+    let _skTemp2 = test3x3_b();
+    if _skTemp2 {
+        let _skTemp3 = test4x4_b();
+        _skTemp1 = _skTemp3;
     } else {
-        _skTemp3 = false;
+        _skTemp1 = false;
     }
-    if _skTemp3 {
-        _skTemp2 = _globalUniforms.colorGreen;
+    if _skTemp1 {
+        _skTemp0 = _globalUniforms.colorGreen;
     } else {
-        _skTemp2 = _globalUniforms.colorRed;
+        _skTemp0 = _globalUniforms.colorRed;
     }
-    return _skTemp2;
+    return _skTemp0;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

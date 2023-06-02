@@ -32,8 +32,10 @@ fn resizeMatrix_f22() -> mat2x2<f32> {
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;
-    if mat2x2f32_eq_mat2x2f32(resizeMatrix_f22(), mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0))) {
-        _skTemp1 = mat3x3f32_eq_mat3x3f32(mat3x3f32_from_mat2x2f32(resizeMatrix_f22()), mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0)));
+    let _skTemp2 = resizeMatrix_f22();
+    if mat2x2f32_eq_mat2x2f32(_skTemp2, mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0))) {
+        let _skTemp3 = resizeMatrix_f22();
+        _skTemp1 = mat3x3f32_eq_mat3x3f32(mat3x3f32_from_mat2x2f32(_skTemp3), mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0)));
     } else {
         _skTemp1 = false;
     }

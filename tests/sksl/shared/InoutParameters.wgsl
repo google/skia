@@ -46,7 +46,7 @@ fn outParameterWriteIndirect_vh4(c: ptr<function, vec4<f32>>) {
     _outParamHelper_0_outParameterWrite_vh4(&(*c));
 }
 fn inoutParameterWrite_vh4(x: ptr<function, vec4<f32>>) {
-    (*x) *= (*x);
+    (*x) = (*x) * (*x);
 }
 fn inoutParameterWriteIndirect_vh4(x: ptr<function, vec4<f32>>) {
     _outParamHelper_1_inoutParameterWrite_vh4(&(*x));

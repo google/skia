@@ -20,15 +20,13 @@ fn main(xy: vec2<f32>) -> vec4<f32> {
                                                         loop {
                                                             if d < 10 {
                                                                 {
-                                                                    let _skTemp0 = &(i);
-                                                                    (*_skTemp0) += i32(1);
+                                                                    i = i + i32(1);
                                                                 }
                                                             } else {
                                                                 break;
                                                             }
                                                             continuing {
-                                                                let _skTemp1 = &(d);
-                                                                (*_skTemp1) += i32(1);
+                                                                d = d + i32(1);
                                                             }
                                                         }
                                                     }
@@ -37,8 +35,7 @@ fn main(xy: vec2<f32>) -> vec4<f32> {
                                                 break;
                                             }
                                             continuing {
-                                                let _skTemp2 = &(c);
-                                                (*_skTemp2) += i32(1);
+                                                c = c + i32(1);
                                             }
                                         }
                                     }
@@ -47,8 +44,7 @@ fn main(xy: vec2<f32>) -> vec4<f32> {
                                 break;
                             }
                             continuing {
-                                let _skTemp3 = &(b);
-                                (*_skTemp3) += i32(1);
+                                b = b + i32(1);
                             }
                         }
                     }
@@ -57,8 +53,7 @@ fn main(xy: vec2<f32>) -> vec4<f32> {
                 break;
             }
             continuing {
-                let _skTemp4 = &(a);
-                (*_skTemp4) += i32(1);
+                a = a + i32(1);
             }
         }
     }

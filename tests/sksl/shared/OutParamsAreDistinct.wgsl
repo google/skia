@@ -26,7 +26,8 @@ fn out_params_are_distinct_bhh(x: ptr<function, f32>, y: ptr<function, f32>) -> 
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var x: f32 = 0.0;
     var _skTemp0: vec4<f32>;
-    if _outParamHelper_1_out_params_are_distinct_bhh(&x, &x) {
+    let _skTemp2 = _outParamHelper_1_out_params_are_distinct_bhh(&x, &x);
+    if _skTemp2 {
         _skTemp0 = _globalUniforms.colorGreen;
     } else {
         _skTemp0 = _globalUniforms.colorRed;

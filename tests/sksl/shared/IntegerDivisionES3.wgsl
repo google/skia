@@ -27,9 +27,8 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
                                     loop {
                                         if _0_x >= y {
                                             {
-                                                let _skTemp0 = &(_1_result);
-                                                (*_skTemp0) += i32(1);
-                                                _0_x -= y;
+                                                _1_result = _1_result + i32(1);
+                                                _0_x = _0_x - y;
                                             }
                                         } else {
                                             break;
@@ -45,8 +44,7 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
                                 break;
                             }
                             continuing {
-                                let _skTemp1 = &(y);
-                                (*_skTemp1) += i32(1);
+                                y = y + i32(1);
                             }
                         }
                     }
@@ -55,8 +53,7 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
                 break;
             }
             continuing {
-                let _skTemp2 = &(x);
-                (*_skTemp2) += i32(1);
+                x = x + i32(1);
             }
         }
     }

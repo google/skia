@@ -16,16 +16,18 @@ fn _outParamHelper_1_out_param_func2_ih(testArray: ptr<function, array<f32, 2>>)
     (*testArray)[0] = _var0;
     return _return;
 }
-fn _outParamHelper_2_out_param_func2_ih(testArray: ptr<function, array<f32, 2>>) -> i32 {
+fn _outParamHelper_3_out_param_func2_ih(testArray: ptr<function, array<f32, 2>>) -> i32 {
     var _var0: f32;
     var _return: i32 = out_param_func2_ih(&_var0);
     (*testArray)[0] = _var0;
     return _return;
 }
 fn _outParamHelper_0_out_param_func1_vh(testArray: ptr<function, array<f32, 2>>) {
-    var _var0: f32 = (*testArray)[_outParamHelper_1_out_param_func2_ih(&(*testArray))];
+    let _skTemp2 = _outParamHelper_1_out_param_func2_ih(&(*testArray));
+    var _var0: f32 = (*testArray)[_skTemp2];
     out_param_func1_vh(&_var0);
-    (*testArray)[_outParamHelper_2_out_param_func2_ih(&(*testArray))] = _var0;
+    let _skTemp4 = _outParamHelper_3_out_param_func2_ih(&(*testArray));
+    (*testArray)[_skTemp4] = _var0;
 }
 fn out_param_func1_vh(v: ptr<function, f32>) {
     (*v) = _globalUniforms.colorGreen.y;

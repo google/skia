@@ -42,11 +42,11 @@ fn test_half_b() -> bool {
     ok = ok && mat2x2f32_eq_mat2x2f32(m3, mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(3.0, 4.0)));
     var m4: mat2x2<f32> = mat2x2f32_diagonal(6.0);
     ok = ok && mat2x2f32_eq_mat2x2f32(m4, mat2x2<f32>(vec2<f32>(6.0, 0.0), vec2<f32>(0.0, 6.0)));
-    m3 *= m4;
+    m3 = m3 * m4;
     ok = ok && mat2x2f32_eq_mat2x2f32(m3, mat2x2<f32>(vec2<f32>(6.0, 12.0), vec2<f32>(18.0, 24.0)));
     var m5: mat2x2<f32> = mat2x2f32_diagonal(m1[1].y);
     ok = ok && mat2x2f32_eq_mat2x2f32(m5, mat2x2<f32>(vec2<f32>(4.0, 0.0), vec2<f32>(0.0, 4.0)));
-    m1 += m5;
+    m1 = m1 + m5;
     ok = ok && mat2x2f32_eq_mat2x2f32(m1, mat2x2<f32>(vec2<f32>(5.0, 2.0), vec2<f32>(3.0, 8.0)));
     var m7: mat2x2<f32> = mat2x2<f32>(vec2<f32>(5.0, 6.0), vec2<f32>(7.0, 8.0));
     ok = ok && mat2x2f32_eq_mat2x2f32(m7, mat2x2<f32>(vec2<f32>(5.0, 6.0), vec2<f32>(7.0, 8.0)));
@@ -55,7 +55,7 @@ fn test_half_b() -> bool {
     var m10: mat4x4<f32> = mat4x4f32_diagonal(11.0);
     ok = ok && mat4x4f32_eq_mat4x4f32(m10, mat4x4<f32>(vec4<f32>(11.0, 0.0, 0.0, 0.0), vec4<f32>(0.0, 11.0, 0.0, 0.0), vec4<f32>(0.0, 0.0, 11.0, 0.0), vec4<f32>(0.0, 0.0, 0.0, 11.0)));
     var m11: mat4x4<f32> = mat4x4<f32>(vec4<f32>(20.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 20.0));
-    m11 -= m10;
+    m11 = m11 - m10;
     ok = ok && mat4x4f32_eq_mat4x4f32(m11, mat4x4<f32>(vec4<f32>(9.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 9.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 9.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 9.0)));
     return ok;
 }
@@ -66,20 +66,21 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var _2_m3: mat2x2<f32> = _1_m1;
     _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(_2_m3, mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(3.0, 4.0)));
     let _3_m4: mat2x2<f32> = mat2x2f32_diagonal(6.0);
-    _2_m3 *= _3_m4;
+    _2_m3 = _2_m3 * _3_m4;
     _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(_2_m3, mat2x2<f32>(vec2<f32>(6.0, 12.0), vec2<f32>(18.0, 24.0)));
     var _4_m5: mat2x2<f32> = mat2x2f32_diagonal(_1_m1[1].y);
     _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(_4_m5, mat2x2<f32>(vec2<f32>(4.0, 0.0), vec2<f32>(0.0, 4.0)));
-    _1_m1 += _4_m5;
+    _1_m1 = _1_m1 + _4_m5;
     _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(_1_m1, mat2x2<f32>(vec2<f32>(5.0, 2.0), vec2<f32>(3.0, 8.0)));
     let _7_m10: mat4x4<f32> = mat4x4f32_diagonal(11.0);
     var _8_m11: mat4x4<f32> = mat4x4<f32>(vec4<f32>(20.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 20.0));
-    _8_m11 -= _7_m10;
+    _8_m11 = _8_m11 - _7_m10;
     _0_ok = _0_ok && mat4x4f32_eq_mat4x4f32(_8_m11, mat4x4<f32>(vec4<f32>(9.0, 20.0, 20.0, 20.0), vec4<f32>(20.0, 9.0, 20.0, 20.0), vec4<f32>(20.0, 20.0, 9.0, 20.0), vec4<f32>(20.0, 20.0, 20.0, 9.0)));
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;
     if _0_ok {
-        _skTemp1 = test_half_b();
+        let _skTemp2 = test_half_b();
+        _skTemp1 = _skTemp2;
     } else {
         _skTemp1 = false;
     }

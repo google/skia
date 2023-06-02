@@ -18,80 +18,47 @@ fn mat2x2f32_eq_mat2x2f32(left: mat2x2<f32>, right: mat2x2<f32>) -> bool {
 fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     var ok: bool = true;
     var i: i32 = 5;
-    let _skTemp1 = &(i);
-    (*_skTemp1) += i32(1);
+    i = i + i32(1);
     ok = ok && i == 6;
+    var _skTemp1: bool;
+    if ok {
+        i = i + i32(1);
+        _skTemp1 = i == 7;
+    } else {
+        _skTemp1 = false;
+    }
+    ok = _skTemp1;
     var _skTemp2: bool;
     if ok {
-        let _skTemp3 = &(i);
-        (*_skTemp3) += i32(1);
-        _skTemp2 = (*_skTemp3) == 7;
+        i = i - i32(1);
+        _skTemp2 = i == 6;
     } else {
         _skTemp2 = false;
     }
     ok = _skTemp2;
+    i = i - i32(1);
+    ok = ok && i == 5;
+    var f: f32 = 0.5;
+    f = f + f32(1);
+    ok = ok && f == 1.5;
+    var _skTemp3: bool;
+    if ok {
+        f = f + f32(1);
+        _skTemp3 = f == 2.5;
+    } else {
+        _skTemp3 = false;
+    }
+    ok = _skTemp3;
     var _skTemp4: bool;
     if ok {
-        let _skTemp5 = &(i);
-        (*_skTemp5) -= i32(1);
-        _skTemp4 = (*_skTemp5) == 6;
+        f = f - f32(1);
+        _skTemp4 = f == 1.5;
     } else {
         _skTemp4 = false;
     }
     ok = _skTemp4;
-    let _skTemp6 = &(i);
-    (*_skTemp6) -= i32(1);
-    ok = ok && i == 5;
-    var f: f32 = 0.5;
-    let _skTemp7 = &(f);
-    (*_skTemp7) += f32(1);
-    ok = ok && f == 1.5;
-    var _skTemp8: bool;
-    if ok {
-        let _skTemp9 = &(f);
-        (*_skTemp9) += f32(1);
-        _skTemp8 = (*_skTemp9) == 2.5;
-    } else {
-        _skTemp8 = false;
-    }
-    ok = _skTemp8;
-    var _skTemp10: bool;
-    if ok {
-        let _skTemp11 = &(f);
-        (*_skTemp11) -= f32(1);
-        _skTemp10 = (*_skTemp11) == 1.5;
-    } else {
-        _skTemp10 = false;
-    }
-    ok = _skTemp10;
-    let _skTemp12 = &(f);
-    (*_skTemp12) -= f32(1);
+    f = f - f32(1);
     ok = ok && f == 0.5;
-    var f2: vec2<f32> = vec2<f32>(0.5);
-    let _skTemp13 = &(f2);
-    (*_skTemp13).x += f32(1);
-    ok = ok && f2.x == 1.5;
-    var _skTemp14: bool;
-    if ok {
-        let _skTemp15 = &(f2);
-        (*_skTemp15).x += f32(1);
-        _skTemp14 = (*_skTemp15).x == 2.5;
-    } else {
-        _skTemp14 = false;
-    }
-    ok = _skTemp14;
-    var _skTemp16: bool;
-    if ok {
-        let _skTemp17 = &(f2);
-        (*_skTemp17).x -= f32(1);
-        _skTemp16 = (*_skTemp17).x == 1.5;
-    } else {
-        _skTemp16 = false;
-    }
-    ok = _skTemp16;
-    let _skTemp18 = &(f2);
-    (*_skTemp18).x -= f32(1);
-    ok = ok && f2.x == 0.5;
     ok = ok && !(_globalUniforms.colorGreen.x == 1.0);
     ok = ok && -1.0 == -_globalUniforms.colorGreen.y;
     ok = ok && all(vec4<f32>(0.0, -1.0, 0.0, -1.0) == -_globalUniforms.colorGreen);

@@ -17,9 +17,8 @@ fn TrueFalse_b() -> bool {
     if x == 1 {
         _skTemp0 = true;
     } else {
-        let _skTemp1 = &(y);
-        (*_skTemp1) += 1;
-        _skTemp0 = (*_skTemp1) == 3;
+        y = y + 1;
+        _skTemp0 = y == 3;
     }
     if (_skTemp0) {
         {
@@ -34,15 +33,14 @@ fn TrueFalse_b() -> bool {
 fn FalseTrue_b() -> bool {
     var x: i32 = 1;
     var y: i32 = 1;
-    var _skTemp2: bool;
+    var _skTemp1: bool;
     if x == 2 {
-        _skTemp2 = true;
+        _skTemp1 = true;
     } else {
-        let _skTemp3 = &(y);
-        (*_skTemp3) += 1;
-        _skTemp2 = (*_skTemp3) == 2;
+        y = y + 1;
+        _skTemp1 = y == 2;
     }
-    if (_skTemp2) {
+    if (_skTemp1) {
         {
             return x == 1 && y == 2;
         }
@@ -55,15 +53,14 @@ fn FalseTrue_b() -> bool {
 fn FalseFalse_b() -> bool {
     var x: i32 = 1;
     var y: i32 = 1;
-    var _skTemp4: bool;
+    var _skTemp2: bool;
     if x == 2 {
-        _skTemp4 = true;
+        _skTemp2 = true;
     } else {
-        let _skTemp5 = &(y);
-        (*_skTemp5) += 1;
-        _skTemp4 = (*_skTemp5) == 3;
+        y = y + 1;
+        _skTemp2 = y == 3;
     }
-    if (_skTemp4) {
+    if (_skTemp2) {
         {
             return false;
         }
@@ -73,37 +70,40 @@ fn FalseFalse_b() -> bool {
         }
     }
 }
-fn main(_skAnonymous6: vec2<f32>) -> vec4<f32> {
+fn main(_skAnonymous3: vec2<f32>) -> vec4<f32> {
     var _0_TrueTrue: bool;
     var _2_y: i32 = 1;
     {
         _0_TrueTrue = _2_y == 1;
     }
-    var _skTemp7: vec4<f32>;
-    var _skTemp8: bool;
-    var _skTemp9: bool;
-    var _skTemp10: bool;
+    var _skTemp4: vec4<f32>;
+    var _skTemp5: bool;
+    var _skTemp6: bool;
+    var _skTemp7: bool;
     if _0_TrueTrue {
-        _skTemp10 = TrueFalse_b();
+        let _skTemp8 = TrueFalse_b();
+        _skTemp7 = _skTemp8;
     } else {
-        _skTemp10 = false;
+        _skTemp7 = false;
     }
-    if _skTemp10 {
-        _skTemp9 = FalseTrue_b();
+    if _skTemp7 {
+        let _skTemp9 = FalseTrue_b();
+        _skTemp6 = _skTemp9;
     } else {
-        _skTemp9 = false;
+        _skTemp6 = false;
     }
-    if _skTemp9 {
-        _skTemp8 = FalseFalse_b();
+    if _skTemp6 {
+        let _skTemp10 = FalseFalse_b();
+        _skTemp5 = _skTemp10;
     } else {
-        _skTemp8 = false;
+        _skTemp5 = false;
     }
-    if _skTemp8 {
-        _skTemp7 = _globalUniforms.colorGreen;
+    if _skTemp5 {
+        _skTemp4 = _globalUniforms.colorGreen;
     } else {
-        _skTemp7 = _globalUniforms.colorRed;
+        _skTemp4 = _globalUniforms.colorRed;
     }
-    return _skTemp7;
+    return _skTemp4;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;
