@@ -520,6 +520,102 @@ private:
     std::string fName;
 };
 
+class WGSLCodeGenerator::SwizzleLValue : public WGSLCodeGenerator::LValue {
+public:
+    // `name` must be a WGSL expression with no side-effects that points to a WGSL vector.
+    SwizzleLValue(std::string name, const Type& t, const ComponentArray& c)
+            : fName(std::move(name))
+            , fType(t)
+            , fComponents(c) {
+        // If the component array doesn't cover the entire value, we need to create masks for
+        // writing back into the lvalue. For example, if the type is vec4 and the component array
+        // holds `zx`, a GLSL assignment would look like:
+        //     name.zx = new_value;
+        //
+        // The equivalent WGSL assignment statement would look like:
+        //     name = vec4<f32>(new_value, name.xw).yzxw;
+        //
+        // This replaces name.zy with new_value.xy, and leaves name.xw at their original values.
+        // By convention, we always put the new value first and the original values second; it might
+        // be possible to find better arrangements which simplify the assignment overall, but we
+        // don't attempt this.
+        int fullSlotCount = fType.slotCount();
+        SkASSERT(fullSlotCount <= 4);
+
+        // First, see which components are used.
+        // The assignment swizzle must not reuse components.
+        bool used[4] = {};
+        for (int8_t component : fComponents) {
+            SkASSERT(!used[component]);
+            used[component] = true;
+        }
+
+        // Any untouched components will need to be fetched from the original value.
+        for (int index = 0; index < fullSlotCount; ++index) {
+            if (!used[index]) {
+                fUntouchedComponents.push_back(index);
+            }
+        }
+
+        // The reintegration swizzle needs to move the components back into their proper slots.
+        // First, place the new-value components into the proper slots.
+        fReintegrationSwizzle.resize(fullSlotCount);
+        for (int index = 0; index < fComponents.size(); ++index) {
+            fReintegrationSwizzle[fComponents[index]] = index;
+        }
+        // Then, refill the untouched slots with the original values.
+        int originalValueComponentIndex = fComponents.size();
+        for (int index = 0; index < fullSlotCount; ++index) {
+            if (!used[index]) {
+                fReintegrationSwizzle[index] = originalValueComponentIndex++;
+            }
+        }
+    }
+
+    std::string getPointer() override {
+        return "";
+    }
+
+    std::string load() override {
+        return fName + "." + Swizzle::MaskString(fComponents);
+    }
+
+    std::string store(const std::string& value) override {
+        // `variable = `
+        std::string result = fName;
+        result += " = ";
+
+        if (fUntouchedComponents.empty()) {
+            // `(new_value).wzyx;`
+            result += '(';
+            result += value;
+            result += ").";
+            result += Swizzle::MaskString(fReintegrationSwizzle);
+        } else {
+            // `vec4<f32>((new_value), `
+            result += to_wgsl_type(fType);
+            result += "((";
+            result += value;
+            result += "), ";
+
+            // `variable.yz).xzwy;`
+            result += fName;
+            result += '.';
+            result += Swizzle::MaskString(fUntouchedComponents);
+            result += ").";
+            result += Swizzle::MaskString(fReintegrationSwizzle);
+        }
+        return result + ';';
+    }
+
+private:
+    std::string fName;
+    const Type& fType;
+    ComponentArray fComponents;
+    ComponentArray fUntouchedComponents;
+    ComponentArray fReintegrationSwizzle;
+};
+
 bool WGSLCodeGenerator::generateCode() {
     // The resources of a WGSL program are structured in the following way:
     // - Vertex and fragment stage attribute inputs and outputs are bundled
@@ -996,6 +1092,7 @@ std::unique_ptr<WGSLCodeGenerator::LValue> WGSLCodeGenerator::makeLValue(const E
     if (e.is<IndexExpression>()) {
         const IndexExpression& idx = e.as<IndexExpression>();
         if (idx.base()->type().isVector()) {
+            // Rewrite indexed-swizzle accesses like `myVec.zyx[i]` into an index onto `myVec`.
             if (std::unique_ptr<Expression> rewrite =
                         Transform::RewriteIndexedSwizzle(fContext, idx)) {
                 return std::make_unique<VectorComponentLValue>(
@@ -1012,8 +1109,10 @@ std::unique_ptr<WGSLCodeGenerator::LValue> WGSLCodeGenerator::makeLValue(const E
         if (swizzle.components().size() == 1) {
             return std::make_unique<VectorComponentLValue>(this->assembleSwizzle(swizzle));
         } else {
-            // TODO(johnstiles): add support for multi-component swizzled lvalues. For now, treat as
-            // unsupported.
+            return std::make_unique<SwizzleLValue>(
+                    this->assembleExpression(*swizzle.base(), Precedence::kAssignment),
+                    swizzle.base()->type(),
+                    swizzle.components());
         }
     }
 

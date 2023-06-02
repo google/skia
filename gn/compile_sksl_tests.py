@@ -32,6 +32,7 @@ def executeWorklist(input, worklist):
     except subprocess.CalledProcessError as err:
         if err.returncode != 1:
             print("### " + input + " skslc error:\n")
+            #print("$ lldb out/Debug/skslc -- " + worklist.name + "\n\n")
             print("\n".join(err.output.decode('utf-8', errors='ignore').splitlines()))
             sys.exit(err.returncode)
         pass  # Compile errors (exit code 1) are expected and normal in test code
