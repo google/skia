@@ -141,7 +141,8 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
     }
 
     SkASSERT(!requiredProps.fMipmapped || view.proxy()->mipmapped() == skgpu::Mipmapped::kYes);
-    return sk_make_sp<skgpu::graphite::Image>(std::move(view),
+    return sk_make_sp<skgpu::graphite::Image>(kNeedNewImageUniqueID,
+                                              std::move(view),
                                               colorInfo.makeColorType(ct));
 }
 

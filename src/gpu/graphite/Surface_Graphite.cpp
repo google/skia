@@ -64,7 +64,9 @@ sk_sp<SkImage> Surface::asImage() const {
         return nullptr;
     }
 
-    return sk_sp<Image>(new Image(std::move(srcView), this->imageInfo().colorInfo()));
+    return sk_sp<Image>(new Image(kNeedNewImageUniqueID,
+                                  std::move(srcView),
+                                  this->imageInfo().colorInfo()));
 }
 
 sk_sp<SkImage> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped) const {
@@ -78,7 +80,9 @@ sk_sp<SkImage> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped
         return nullptr;
     }
 
-    return sk_sp<Image>(new Image(std::move(srcView), this->imageInfo().colorInfo()));
+    return sk_sp<Image>(new Image(kNeedNewImageUniqueID,
+                                  std::move(srcView),
+                                  this->imageInfo().colorInfo()));
 }
 
 void Surface::onWritePixels(const SkPixmap& pixmap, int x, int y) {

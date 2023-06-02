@@ -31,12 +31,6 @@ Image::Image(uint32_t uniqueID,
     , fTextureProxyView(std::move(view)) {
 }
 
-Image::Image(TextureProxyView view,
-             const SkColorInfo& info)
-    : Image_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), kNeedNewImageUniqueID)
-    , fTextureProxyView(std::move(view)) {
-}
-
 Image::~Image() {}
 
 sk_sp<SkImage> Image::onMakeSubset(Recorder* recorder,

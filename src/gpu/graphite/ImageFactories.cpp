@@ -91,7 +91,7 @@ sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(ct, backendTex.info());
     TextureProxyView view(std::move(proxy), swizzle);
-    return sk_make_sp<skgpu::graphite::Image>(view, info);
+    return sk_make_sp<skgpu::graphite::Image>(kNeedNewImageUniqueID, view, info);
 }
 
 sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
@@ -138,7 +138,7 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(colorInfo.colorType(), textureInfo);
     TextureProxyView view(std::move(proxy), swizzle);
-    return sk_make_sp<Image>(view, colorInfo);
+    return sk_make_sp<Image>(kNeedNewImageUniqueID, view, colorInfo);
 }
 
 sk_sp<SkImage> SubsetTextureFrom(skgpu::graphite::Recorder* recorder,
