@@ -19,7 +19,18 @@ namespace skgpu::graphite {
 class Recorder;
 
 /**
- * SubRunData contains all the data we need to render AtlasSubRuns
+ * SubRunData represents an AtlasSubRun subspan for which per-pixel coverage data comes from a
+ * persistent glyph atlas texture.
+ *
+ * The bounds() represent the bounds of the entire AtlasSubRun and does not directly map to the
+ * local coordinates of this particular subspan. Rather, the dimensions and offset coordinates of a
+ * subspan are defined in a coordinate space that is partially transformed by a decomposition of
+ * the local-to-device matrix computed by the AtlasSubRun per instance. The transform of the draw is
+ * the rest of the decomposed transform (often only a translation) that maps this intermediate space
+ * to the device-space coordinates of the draw.
+ *
+ * The local coordinates used in shading are derived by transforming the final device coordinates
+ * using the inverse of the local-to-device matrix.
  */
 class SubRunData {
 public:

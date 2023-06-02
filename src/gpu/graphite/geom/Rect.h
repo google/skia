@@ -16,7 +16,7 @@ namespace skgpu::graphite {
 #define AI SK_ALWAYS_INLINE
 
 /**
- * SIMD rect implementation. Vales are stored internally in the form: [left, top, -right, -bot].
+ * SIMD rect implementation. Values are stored internally in the form: [left, top, -right, -bot].
  *
  * Some operations (e.g., intersect, inset) may return a negative or empty rect
  * (negative meaning, left >= right or top >= bot).

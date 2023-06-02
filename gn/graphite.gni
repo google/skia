@@ -164,6 +164,7 @@ skia_graphite_sources = [
   "$_src/compute/ComputeStep.h",
   "$_src/compute/DispatchGroup.cpp",
   "$_src/compute/DispatchGroup.h",
+  "$_src/geom/AtlasShape.h",
   "$_src/geom/BoundsManager.h",
   "$_src/geom/EdgeAAQuad.h",
   "$_src/geom/Geometry.h",
