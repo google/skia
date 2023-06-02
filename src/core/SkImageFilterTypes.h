@@ -349,9 +349,9 @@ public:
     bool isEmpty() const { return fData.isEmpty(); }
     bool isZero() const { return fData.isZero(); }
 
-    LayerSpace<SkISize> round() const { return LayerSpace<SkISize>(fData.toRound()); }
-    LayerSpace<SkISize> ceil() const { return LayerSpace<SkISize>(fData.toCeil()); }
-    LayerSpace<SkISize> floor() const { return LayerSpace<SkISize>(fData.toFloor()); }
+    LayerSpace<SkISize> round() const;
+    LayerSpace<SkISize> ceil() const;
+    LayerSpace<SkISize> floor() const;
 
 private:
     SkSize fData;
@@ -470,13 +470,11 @@ public:
     // SkIRect has large floating point values.
     LayerSpace<SkIRect> mapRect(const LayerSpace<SkIRect>& r) const;
 
-    LayerSpace<SkPoint> mapPoint(const LayerSpace<SkPoint>& p) const {
-        return LayerSpace<SkPoint>(fData.mapPoint(SkPoint(p)));
-    }
+    LayerSpace<SkPoint> mapPoint(const LayerSpace<SkPoint>& p) const;
 
-    LayerSpace<Vector> mapVector(const LayerSpace<Vector>& v) const {
-        return LayerSpace<Vector>(Vector(fData.mapVector(v.x(), v.y())));
-    }
+    LayerSpace<Vector> mapVector(const LayerSpace<Vector>& v) const;
+
+    LayerSpace<SkSize> mapSize(const LayerSpace<SkSize>& s) const;
 
     LayerSpace<SkMatrix>& preConcat(const LayerSpace<SkMatrix>& m) {
         fData = SkMatrix::Concat(fData, m.fData);
@@ -577,6 +575,8 @@ public:
     }
 
 private:
+    friend class LayerSpace<SkMatrix>; // for map()
+
     // The image filter process decomposes the total CTM into layerToDev * paramToLayer and uses the
     // param-to-layer matrix to define the layer-space coordinate system. Depending on how it's
     // decomposed, either the layer matrix or the device matrix could be the identity matrix (but
