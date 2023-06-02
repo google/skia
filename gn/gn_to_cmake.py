@@ -296,7 +296,7 @@ def WriteActionForEach(out, target, project, sources, synthetic_dependencies):
   all_outputs = target.properties.get('outputs', [])
   inputs = target.properties.get('sources', [])
   # TODO: consider expanding 'output_patterns' instead.
-  outputs_per_input = len(all_outputs) / len(inputs)
+  outputs_per_input = int(len(all_outputs) / len(inputs))
   for count, source in enumerate(inputs):
     source_abs_path = project.GetAbsolutePath(source)
 
