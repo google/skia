@@ -68,8 +68,16 @@ float4 main(float2 _45)
     float4 _128 = v;
     float4 _129 = float4(_127.z, _127.y, _127.x, _128.w);
     v = _129;
-    bool4 _134 = all(bool4(_129.x == 1.0f.xxxx.x, _129.y == 1.0f.xxxx.y, _129.z == 1.0f.xxxx.z, _129.w == 1.0f.xxxx.w)).xxxx;
-    return float4(_134.x ? _11_colorGreen.x : _11_colorRed.x, _134.y ? _11_colorGreen.y : _11_colorRed.y, _134.z ? _11_colorGreen.z : _11_colorRed.z, _134.w ? _11_colorGreen.w : _11_colorRed.w);
+    float4 _134 = 0.0f.xxxx;
+    if (all(bool4(_129.x == 1.0f.xxxx.x, _129.y == 1.0f.xxxx.y, _129.z == 1.0f.xxxx.z, _129.w == 1.0f.xxxx.w)))
+    {
+        _134 = _11_colorGreen;
+    }
+    else
+    {
+        _134 = _11_colorRed;
+    }
+    return _134;
 }
 
 void frag_main()

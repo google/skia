@@ -40,8 +40,16 @@ float4 main(float2 _53)
     {
         _76 = false;
     }
-    bool4 _77 = _76.xxxx;
-    return float4(_77.x ? _12_colorGreen.x : _12_colorRed.x, _77.y ? _12_colorGreen.y : _12_colorRed.y, _77.z ? _12_colorGreen.z : _12_colorRed.z, _77.w ? _12_colorGreen.w : _12_colorRed.w);
+    float4 _77 = 0.0f.xxxx;
+    if (_76)
+    {
+        _77 = _12_colorGreen;
+    }
+    else
+    {
+        _77 = _12_colorRed;
+    }
+    return _77;
 }
 
 void frag_main()

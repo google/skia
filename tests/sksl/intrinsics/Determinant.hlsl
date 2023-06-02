@@ -15,8 +15,16 @@ struct SPIRV_Cross_Output
 
 float4 main(float2 _25)
 {
-    bool4 _36 = (determinant(_10_testMatrix2x2) == (-2.0f)).xxxx;
-    return float4(_36.x ? _10_colorGreen.x : _10_colorRed.x, _36.y ? _10_colorGreen.y : _10_colorRed.y, _36.z ? _10_colorGreen.z : _10_colorRed.z, _36.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _35 = 0.0f.xxxx;
+    if (determinant(_10_testMatrix2x2) == (-2.0f))
+    {
+        _35 = _10_colorGreen;
+    }
+    else
+    {
+        _35 = _10_colorRed;
+    }
+    return _35;
 }
 
 void frag_main()

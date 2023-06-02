@@ -78,8 +78,16 @@ float4 main(float2 _24)
         _123 = false;
     }
     ok.w = _123;
-    bool4 _128 = all(ok).xxxx;
-    return float4(_128.x ? _10_colorGreen.x : _10_colorRed.x, _128.y ? _10_colorGreen.y : _10_colorRed.y, _128.z ? _10_colorGreen.z : _10_colorRed.z, _128.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _128 = 0.0f.xxxx;
+    if (all(ok))
+    {
+        _128 = _10_colorGreen;
+    }
+    else
+    {
+        _128 = _10_colorRed;
+    }
+    return _128;
 }
 
 void frag_main()

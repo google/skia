@@ -36,8 +36,16 @@ float4 main(float2 _60)
     float4 _65 = float4(0.0f, 1.0f, 2.0f, 3.0f);
     func_vh4(_65);
     result = _65;
-    bool4 _72 = all(bool4(_65.x == float4(2.0f, 3.0f, 0.0f, 5.0f).x, _65.y == float4(2.0f, 3.0f, 0.0f, 5.0f).y, _65.z == float4(2.0f, 3.0f, 0.0f, 5.0f).z, _65.w == float4(2.0f, 3.0f, 0.0f, 5.0f).w)).xxxx;
-    return float4(_72.x ? _12_colorGreen.x : _12_colorRed.x, _72.y ? _12_colorGreen.y : _12_colorRed.y, _72.z ? _12_colorGreen.z : _12_colorRed.z, _72.w ? _12_colorGreen.w : _12_colorRed.w);
+    float4 _72 = 0.0f.xxxx;
+    if (all(bool4(_65.x == float4(2.0f, 3.0f, 0.0f, 5.0f).x, _65.y == float4(2.0f, 3.0f, 0.0f, 5.0f).y, _65.z == float4(2.0f, 3.0f, 0.0f, 5.0f).z, _65.w == float4(2.0f, 3.0f, 0.0f, 5.0f).w)))
+    {
+        _72 = _12_colorGreen;
+    }
+    else
+    {
+        _72 = _12_colorRed;
+    }
+    return _72;
 }
 
 void frag_main()

@@ -59,8 +59,16 @@ float4 main(float2 _123)
     bool2 _186 = bool2(true, true);
     bool3 _187 = bool3(true, true, true);
     int4 _188 = int4(1, 1, 1, 1);
-    bool4 _190 = check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3i4(_171, _172, _173, _174, _175, _176, _177, _178, _179, _180, _181, _182, _183, _184, _185, _186, _187, _188).xxxx;
-    return float4(_190.x ? _11_colorGreen.x : _11_colorRed.x, _190.y ? _11_colorGreen.y : _11_colorRed.y, _190.z ? _11_colorGreen.z : _11_colorRed.z, _190.w ? _11_colorGreen.w : _11_colorRed.w);
+    float4 _190 = 0.0f.xxxx;
+    if (check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3i4(_171, _172, _173, _174, _175, _176, _177, _178, _179, _180, _181, _182, _183, _184, _185, _186, _187, _188))
+    {
+        _190 = _11_colorGreen;
+    }
+    else
+    {
+        _190 = _11_colorRed;
+    }
+    return _190;
 }
 
 void frag_main()

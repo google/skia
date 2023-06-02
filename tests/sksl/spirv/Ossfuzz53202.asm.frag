@@ -18,8 +18,9 @@ OpDecorate %sk_FragColor Index 0
 OpDecorate %colorR RelaxedPrecision
 OpDecorate %colorGreen RelaxedPrecision
 OpDecorate %_arr_float_int_2 ArrayStride 16
-OpDecorate %47 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
+OpDecorate %49 RelaxedPrecision
+OpDecorate %50 RelaxedPrecision
+OpDecorate %51 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -43,7 +44,7 @@ OpDecorate %48 RelaxedPrecision
 %int_1 = OpConstant %int 1
 %_ptr_Function_float = OpTypePointer Function %float
 %int_0 = OpConstant %int 0
-%v4bool = OpTypeVector %bool 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
 %_entrypoint_v = OpFunction %void None %15
 %16 = OpLabel
 %17 = OpFunctionCall %v4float %main
@@ -54,6 +55,7 @@ OpFunctionEnd
 %19 = OpLabel
 %_0_ok = OpVariable %_ptr_Function_int Function
 %_1_d = OpVariable %_ptr_Function__arr_float_int_2 Function
+%44 = OpVariable %_ptr_Function_v4float Function
 %29 = OpCompositeConstruct %_arr_float_int_2 %float_0 %float_1
 OpStore %_1_d %29
 OpBranch %30
@@ -73,9 +75,17 @@ OpBranch %30
 %34 = OpLabel
 %41 = OpLoad %int %_0_ok
 %43 = OpIEqual %bool %41 %int_0
-%45 = OpCompositeConstruct %v4bool %43 %43 %43 %43
-%47 = OpLoad %v4float %colorGreen
-%48 = OpLoad %v4float %colorR
-%46 = OpSelect %v4float %45 %47 %48
-OpReturnValue %46
+OpSelectionMerge %48 None
+OpBranchConditional %43 %46 %47
+%46 = OpLabel
+%49 = OpLoad %v4float %colorGreen
+OpStore %44 %49
+OpBranch %48
+%47 = OpLabel
+%50 = OpLoad %v4float %colorR
+OpStore %44 %50
+OpBranch %48
+%48 = OpLabel
+%51 = OpLoad %v4float %44
+OpReturnValue %51
 OpFunctionEnd

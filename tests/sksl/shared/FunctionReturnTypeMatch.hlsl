@@ -366,8 +366,16 @@ float4 main(float2 _122)
     {
         _337 = false;
     }
-    bool4 _338 = _337.xxxx;
-    return float4(_338.x ? _31_colorGreen.x : _31_colorRed.x, _338.y ? _31_colorGreen.y : _31_colorRed.y, _338.z ? _31_colorGreen.z : _31_colorRed.z, _338.w ? _31_colorGreen.w : _31_colorRed.w);
+    float4 _338 = 0.0f.xxxx;
+    if (_337)
+    {
+        _338 = _31_colorGreen;
+    }
+    else
+    {
+        _338 = _31_colorRed;
+    }
+    return _338;
 }
 
 void frag_main()

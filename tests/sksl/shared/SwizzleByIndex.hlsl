@@ -28,8 +28,16 @@ float4 main(float2 _24)
     float _60 = _10_testInputs[_47.w];
     float _RESERVED_IDENTIFIER_FIXUP_5_w = _60;
     float4 _61 = float4(_51, _54, _57, _60);
-    bool4 _67 = all(bool4(_61.x == float4(-1.25f, -1.25f, -1.25f, 0.0f).x, _61.y == float4(-1.25f, -1.25f, -1.25f, 0.0f).y, _61.z == float4(-1.25f, -1.25f, -1.25f, 0.0f).z, _61.w == float4(-1.25f, -1.25f, -1.25f, 0.0f).w)).xxxx;
-    return float4(_67.x ? _10_colorGreen.x : _10_colorRed.x, _67.y ? _10_colorGreen.y : _10_colorRed.y, _67.z ? _10_colorGreen.z : _10_colorRed.z, _67.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _67 = 0.0f.xxxx;
+    if (all(bool4(_61.x == float4(-1.25f, -1.25f, -1.25f, 0.0f).x, _61.y == float4(-1.25f, -1.25f, -1.25f, 0.0f).y, _61.z == float4(-1.25f, -1.25f, -1.25f, 0.0f).z, _61.w == float4(-1.25f, -1.25f, -1.25f, 0.0f).w)))
+    {
+        _67 = _10_colorGreen;
+    }
+    else
+    {
+        _67 = _10_colorRed;
+    }
+    return _67;
 }
 
 void frag_main()

@@ -3274,11 +3274,11 @@ SpvId SPIRVCodeGenerator::writeLogicalOr(const Expression& left, const Expressio
 
 SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, OutputStream& out) {
     const Type& type = t.type();
-    if ((type.isScalar() || type.isVector()) &&
-        Analysis::IsTrivialExpression(*t.ifTrue()) &&
-        Analysis::IsTrivialExpression(*t.ifFalse())) {
-        // Both true and false are trivial; we can just use OpSelect.
-        SpvId test = this->vectorize(*t.test(), type.slotCount(), out);
+    SpvId test = this->writeExpression(*t.test(), out);
+    if (t.ifTrue()->type().columns() == 1 &&
+        Analysis::IsCompileTimeConstant(*t.ifTrue()) &&
+        Analysis::IsCompileTimeConstant(*t.ifFalse())) {
+        // both true and false are constants, can just use OpSelect
         SpvId result = this->nextId(nullptr);
         SpvId trueId = this->writeExpression(*t.ifTrue(), out);
         SpvId falseId = this->writeExpression(*t.ifFalse(), out);
@@ -3291,7 +3291,6 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
 
     // was originally using OpPhi to choose the result, but for some reason that is crashing on
     // Adreno. Switched to storing the result in a temp variable as glslang does.
-    SpvId test = this->writeExpression(*t.test(), out);
     SpvId var = this->nextId(nullptr);
     this->writeInstruction(SpvOpVariable, this->getPointerType(type, SpvStorageClassFunction),
                            var, SpvStorageClassFunction, fVariableBuffer);

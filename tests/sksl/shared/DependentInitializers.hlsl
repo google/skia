@@ -17,8 +17,16 @@ float4 main(float2 _24)
     float x = 0.5f;
     float _31 = 0.5f * 2.0f;
     float y = _31;
-    bool4 _35 = (_31 == 1.0f).xxxx;
-    return float4(_35.x ? _10_colorGreen.x : _10_colorRed.x, _35.y ? _10_colorGreen.y : _10_colorRed.y, _35.z ? _10_colorGreen.z : _10_colorRed.z, _35.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _34 = 0.0f.xxxx;
+    if (_31 == 1.0f)
+    {
+        _34 = _10_colorGreen;
+    }
+    else
+    {
+        _34 = _10_colorRed;
+    }
+    return _34;
 }
 
 void frag_main()

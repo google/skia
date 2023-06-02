@@ -35,8 +35,16 @@ float4 main(float2 _40)
     float _42 = 0.0f;
     bool _43 = out_params_are_distinct_from_global_bh(_42);
     x = _42;
-    bool4 _46 = _43.xxxx;
-    return float4(_46.x ? _14_colorGreen.x : _14_colorRed.x, _46.y ? _14_colorGreen.y : _14_colorRed.y, _46.z ? _14_colorGreen.z : _14_colorRed.z, _46.w ? _14_colorGreen.w : _14_colorRed.w);
+    float4 _45 = 0.0f.xxxx;
+    if (_43)
+    {
+        _45 = _14_colorGreen;
+    }
+    else
+    {
+        _45 = _14_colorRed;
+    }
+    return _45;
 }
 
 void frag_main()

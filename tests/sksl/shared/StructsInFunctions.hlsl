@@ -177,8 +177,16 @@ float4 main(float2 _65)
         _250 = false;
     }
     bool valid = _250;
-    bool4 _251 = _250.xxxx;
-    return float4(_251.x ? _14_colorGreen.x : _14_colorRed.x, _251.y ? _14_colorGreen.y : _14_colorRed.y, _251.z ? _14_colorGreen.z : _14_colorRed.z, _251.w ? _14_colorGreen.w : _14_colorRed.w);
+    float4 _251 = 0.0f.xxxx;
+    if (_250)
+    {
+        _251 = _14_colorGreen;
+    }
+    else
+    {
+        _251 = _14_colorRed;
+    }
+    return _251;
 }
 
 void frag_main()

@@ -27,8 +27,9 @@ OpMemberDecorate %_UniformBuffer 2 MatrixStride 16
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %181 RelaxedPrecision
-OpDecorate %184 RelaxedPrecision
+OpDecorate %183 RelaxedPrecision
+OpDecorate %186 RelaxedPrecision
+OpDecorate %187 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -94,6 +95,7 @@ OpFunctionEnd
 %26 = OpLabel
 %f4 = OpVariable %_ptr_Function_v4float Function
 %ok = OpVariable %_ptr_Function_bool Function
+%176 = OpVariable %_ptr_Function_v4float Function
 %29 = OpAccessChain %_ptr_Uniform_mat2v2float %10 %int_2
 %33 = OpLoad %mat2v2float %29
 %34 = OpCompositeExtract %float %33 0 0
@@ -228,11 +230,19 @@ OpBranch %145
 %145 = OpLabel
 %175 = OpPhi %bool %false %112 %174 %144
 OpStore %ok %175
-%176 = OpCompositeConstruct %v4bool %175 %175 %175 %175
-%178 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%181 = OpLoad %v4float %178
-%182 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
-%184 = OpLoad %v4float %182
-%177 = OpSelect %v4float %176 %181 %184
-OpReturnValue %177
+OpSelectionMerge %179 None
+OpBranchConditional %175 %177 %178
+%177 = OpLabel
+%180 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%183 = OpLoad %v4float %180
+OpStore %176 %183
+OpBranch %179
+%178 = OpLabel
+%184 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
+%186 = OpLoad %v4float %184
+OpStore %176 %186
+OpBranch %179
+%179 = OpLabel
+%187 = OpLoad %v4float %176
+OpReturnValue %187
 OpFunctionEnd

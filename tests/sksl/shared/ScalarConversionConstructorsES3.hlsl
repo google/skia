@@ -49,8 +49,16 @@ float4 main(float2 _24)
     bool _83 = _46 != 0u;
     bool b3 = _83;
     bool b4 = _52;
-    bool4 _115 = ((((((((((((((((_10_colorGreen.y + _55) + _57) + _59) + float(_62)) + float(_39)) + float(_65)) + float(_67)) + float(_70)) + float(_72)) + float(_46)) + float(_75)) + float(_79)) + float(_81)) + float(_83)) + float(_52)) == 16.0f).xxxx;
-    return float4(_115.x ? _10_colorGreen.x : _10_colorRed.x, _115.y ? _10_colorGreen.y : _10_colorRed.y, _115.z ? _10_colorGreen.z : _10_colorRed.z, _115.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _114 = 0.0f.xxxx;
+    if ((((((((((((((((_10_colorGreen.y + _55) + _57) + _59) + float(_62)) + float(_39)) + float(_65)) + float(_67)) + float(_70)) + float(_72)) + float(_46)) + float(_75)) + float(_79)) + float(_81)) + float(_83)) + float(_52)) == 16.0f)
+    {
+        _114 = _10_colorGreen;
+    }
+    else
+    {
+        _114 = _10_colorRed;
+    }
+    return _114;
 }
 
 void frag_main()

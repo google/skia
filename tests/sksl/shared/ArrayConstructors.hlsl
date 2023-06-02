@@ -20,8 +20,16 @@ float4 main(float2 _24)
     float2 test2[2] = _42;
     float4x4 _54[1] = { float4x4(float4(16.0f, 0.0f, 0.0f, 0.0f), float4(0.0f, 16.0f, 0.0f, 0.0f), float4(0.0f, 0.0f, 16.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 16.0f)) };
     float4x4 test3[1] = _54;
-    bool4 _72 = (((test1[3] + test2[1].y) + test3[0][3].w) == 24.0f).xxxx;
-    return float4(_72.x ? _10_colorGreen.x : _10_colorRed.x, _72.y ? _10_colorGreen.y : _10_colorRed.y, _72.z ? _10_colorGreen.z : _10_colorRed.z, _72.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _71 = 0.0f.xxxx;
+    if (((test1[3] + test2[1].y) + test3[0][3].w) == 24.0f)
+    {
+        _71 = _10_colorGreen;
+    }
+    else
+    {
+        _71 = _10_colorRed;
+    }
+    return _71;
 }
 
 void frag_main()

@@ -46,9 +46,27 @@ void vert_main()
     float r = _77;
     float t = (float(_45) * 0.0625f) - _63;
     float b = (float(_53) * 0.0625f) + _63;
+    float _92 = 0.0f;
+    if (0 == (gl_VertexIndex % 2))
+    {
+        _92 = _73;
+    }
+    else
+    {
+        _92 = _77;
+    }
     float2 vertexpos = 0.0f.xx;
-    vertexpos.x = float(_22) + ((0 == (gl_VertexIndex % 2)) ? _73 : _77);
-    vertexpos.y = float(y) + ((0 == (gl_VertexIndex / 2)) ? t : b);
+    vertexpos.x = float(_22) + _92;
+    float _104 = 0.0f;
+    if (0 == (gl_VertexIndex / 2))
+    {
+        _104 = t;
+    }
+    else
+    {
+        _104 = b;
+    }
+    vertexpos.y = float(y) + _104;
     vcoord_Stage0.x = float((0 == (gl_VertexIndex % 2)) ? (-1) : 1);
     vcoord_Stage0.y = float((0 == (gl_VertexIndex / 2)) ? (-1) : 1);
     gl_Position = float4(vertexpos.x, vertexpos.y, 0.0f, 1.0f);

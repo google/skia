@@ -23,8 +23,16 @@ float4 main(float2 _24)
     check = _55;
     int _65 = _55 + int(any(bool2(_10_colorGreen.yx.x != _10_colorRed.xy.x, _10_colorGreen.yx.y != _10_colorRed.xy.y)));
     check = _65;
-    bool4 _68 = (_65 == 0).xxxx;
-    return float4(_68.x ? _10_colorGreen.x : _10_colorRed.x, _68.y ? _10_colorGreen.y : _10_colorRed.y, _68.z ? _10_colorGreen.z : _10_colorRed.z, _68.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _67 = 0.0f.xxxx;
+    if (_65 == 0)
+    {
+        _67 = _10_colorGreen;
+    }
+    else
+    {
+        _67 = _10_colorRed;
+    }
+    return _67;
 }
 
 void frag_main()

@@ -27,72 +27,83 @@ float4 blend_hslc_h4h2h4h4(float2 _47, float4 _48, float4 _49)
     float3 sda = _63;
     float3 _69 = _49.xyz * _48.w;
     float3 dsa = _69;
-    bool3 _75 = (_47.x != 0.0f).xxx;
-    float3 _76 = float3(_75.x ? _69.x : _63.x, _75.y ? _69.y : _63.y, _75.z ? _69.z : _63.z);
-    float3 l = _76;
-    bool3 _81 = (_47.x != 0.0f).xxx;
-    float3 _82 = float3(_81.x ? _63.x : _69.x, _81.y ? _63.y : _69.y, _81.z ? _63.z : _69.z);
-    float3 r = _82;
+    float3 _74 = 0.0f.xxx;
+    if (_47.x != 0.0f)
+    {
+        _74 = _69;
+    }
+    else
+    {
+        _74 = _63;
+    }
+    float3 l = _74;
+    float3 _83 = 0.0f.xxx;
+    if (_47.x != 0.0f)
+    {
+        _83 = _63;
+    }
+    else
+    {
+        _83 = _69;
+    }
+    float3 r = _83;
     if (_47.y != 0.0f)
     {
-        float _91 = _76.x;
-        float _92 = _76.y;
-        float _93 = _76.z;
-        float _89 = min(min(_91, _92), _93);
-        float _RESERVED_IDENTIFIER_FIXUP_2_mn = _89;
-        float _95 = max(max(_91, _92), _93);
-        float _RESERVED_IDENTIFIER_FIXUP_3_mx = _95;
-        float3 _98 = 0.0f.xxx;
-        if (_95 > _89)
+        float _94 = min(min(_74.x, _74.y), _74.z);
+        float _RESERVED_IDENTIFIER_FIXUP_2_mn = _94;
+        float _100 = max(max(_74.x, _74.y), _74.z);
+        float _RESERVED_IDENTIFIER_FIXUP_3_mx = _100;
+        float3 _103 = 0.0f.xxx;
+        if (_100 > _94)
         {
-            float3 _104 = _82;
-            _98 = ((_76 - _89.xxx) * blend_color_saturation_Qhh3(_104)) * (1.0f / (_95 - _89));
+            float3 _109 = _83;
+            _103 = ((_74 - _94.xxx) * blend_color_saturation_Qhh3(_109)) * (1.0f / (_100 - _94));
         }
         else
         {
-            _98 = 0.0f.xxx;
+            _103 = 0.0f.xxx;
         }
-        l = _98;
+        l = _103;
         r = _69;
     }
-    float _114 = dot(float3(0.300000011920928955078125f, 0.589999973773956298828125f, 0.10999999940395355224609375f), r);
-    float _RESERVED_IDENTIFIER_FIXUP_4_lum = _114;
-    float3 _126 = (_114 - dot(float3(0.300000011920928955078125f, 0.589999973773956298828125f, 0.10999999940395355224609375f), l)).xxx + l;
-    float3 _RESERVED_IDENTIFIER_FIXUP_5_result = _126;
-    float _130 = _126.x;
-    float _131 = _126.y;
-    float _132 = _126.z;
-    float _128 = min(min(_130, _131), _132);
-    float _RESERVED_IDENTIFIER_FIXUP_6_minComp = _128;
-    float _134 = max(max(_130, _131), _132);
-    float _RESERVED_IDENTIFIER_FIXUP_7_maxComp = _134;
-    bool _140 = false;
-    if (_128 < 0.0f)
+    float _119 = dot(float3(0.300000011920928955078125f, 0.589999973773956298828125f, 0.10999999940395355224609375f), r);
+    float _RESERVED_IDENTIFIER_FIXUP_4_lum = _119;
+    float3 _131 = (_119 - dot(float3(0.300000011920928955078125f, 0.589999973773956298828125f, 0.10999999940395355224609375f), l)).xxx + l;
+    float3 _RESERVED_IDENTIFIER_FIXUP_5_result = _131;
+    float _135 = _131.x;
+    float _136 = _131.y;
+    float _137 = _131.z;
+    float _133 = min(min(_135, _136), _137);
+    float _RESERVED_IDENTIFIER_FIXUP_6_minComp = _133;
+    float _139 = max(max(_135, _136), _137);
+    float _RESERVED_IDENTIFIER_FIXUP_7_maxComp = _139;
+    bool _145 = false;
+    if (_133 < 0.0f)
     {
-        _140 = _114 != _128;
+        _145 = _119 != _133;
     }
     else
     {
-        _140 = false;
+        _145 = false;
     }
-    if (_140)
+    if (_145)
     {
-        float3 _143 = _114.xxx;
-        _RESERVED_IDENTIFIER_FIXUP_5_result = _143 + ((_126 - _143) * (_114 / ((_114 - _128) + _kGuardedDivideEpsilon)));
+        float3 _148 = _119.xxx;
+        _RESERVED_IDENTIFIER_FIXUP_5_result = _148 + ((_131 - _148) * (_119 / ((_119 - _133) + _kGuardedDivideEpsilon)));
     }
-    bool _155 = false;
-    if (_134 > _57)
+    bool _160 = false;
+    if (_139 > _57)
     {
-        _155 = _134 != _114;
+        _160 = _139 != _119;
     }
     else
     {
-        _155 = false;
+        _160 = false;
     }
-    if (_155)
+    if (_160)
     {
-        float3 _159 = _114.xxx;
-        _RESERVED_IDENTIFIER_FIXUP_5_result = _159 + (((_RESERVED_IDENTIFIER_FIXUP_5_result - _159) * (_57 - _114)) * (1.0f / ((_134 - _114) + _kGuardedDivideEpsilon)));
+        float3 _164 = _119.xxx;
+        _RESERVED_IDENTIFIER_FIXUP_5_result = _164 + (((_RESERVED_IDENTIFIER_FIXUP_5_result - _164) * (_57 - _119)) * (1.0f / ((_139 - _119) + _kGuardedDivideEpsilon)));
     }
     return float4((((_RESERVED_IDENTIFIER_FIXUP_5_result + _49.xyz) - _69) + _48.xyz) - _63, (_48.w + _49.w) - _57);
 }
@@ -100,10 +111,10 @@ float4 blend_hslc_h4h2h4h4(float2 _47, float4 _48, float4 _49)
 void frag_main()
 {
     _kGuardedDivideEpsilon = false ? 9.9999999392252902907785028219223e-09f : 0.0f;
-    float2 _192 = float2(1.0f, 0.0f);
-    float4 _198 = _18_src;
-    float4 _202 = _18_dst;
-    sk_FragColor = blend_hslc_h4h2h4h4(_192, _198, _202);
+    float2 _197 = float2(1.0f, 0.0f);
+    float4 _203 = _18_src;
+    float4 _207 = _18_dst;
+    sk_FragColor = blend_hslc_h4h2h4h4(_197, _203, _207);
 }
 
 SPIRV_Cross_Output main()

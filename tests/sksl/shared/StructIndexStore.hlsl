@@ -126,8 +126,16 @@ float4 main(float2 _24)
         _190 = false;
     }
     bool ok = _190;
-    bool4 _192 = _190.xxxx;
-    return float4(_192.x ? _10_colorGreen.x : _10_colorRed.x, _192.y ? _10_colorGreen.y : _10_colorRed.y, _192.z ? _10_colorGreen.z : _10_colorRed.z, _192.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _191 = 0.0f.xxxx;
+    if (_190)
+    {
+        _191 = _10_colorGreen;
+    }
+    else
+    {
+        _191 = _10_colorRed;
+    }
+    return _191;
 }
 
 void frag_main()

@@ -30,8 +30,16 @@ float4 main(float2 _41)
 {
     int _43 = 7;
     int _44 = 10;
-    bool4 _47 = verify_const_globals_bii(_43, _44).xxxx;
-    return float4(_47.x ? _11_colorGreen.x : _11_colorRed.x, _47.y ? _11_colorGreen.y : _11_colorRed.y, _47.z ? _11_colorGreen.z : _11_colorRed.z, _47.w ? _11_colorGreen.w : _11_colorRed.w);
+    float4 _46 = 0.0f.xxxx;
+    if (verify_const_globals_bii(_43, _44))
+    {
+        _46 = _11_colorGreen;
+    }
+    else
+    {
+        _46 = _11_colorRed;
+    }
+    return _46;
 }
 
 void frag_main()

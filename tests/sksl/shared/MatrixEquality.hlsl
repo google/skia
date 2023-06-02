@@ -484,8 +484,16 @@ float4 main(float2 _27)
         _566 = false;
     }
     _RESERVED_IDENTIFIER_FIXUP_0_ok = _566;
-    bool4 _567 = _566.xxxx;
-    return float4(_567.x ? _10_colorGreen.x : _10_colorRed.x, _567.y ? _10_colorGreen.y : _10_colorRed.y, _567.z ? _10_colorGreen.z : _10_colorRed.z, _567.w ? _10_colorGreen.w : _10_colorRed.w);
+    float4 _567 = 0.0f.xxxx;
+    if (_566)
+    {
+        _567 = _10_colorGreen;
+    }
+    else
+    {
+        _567 = _10_colorRed;
+    }
+    return _567;
 }
 
 void frag_main()

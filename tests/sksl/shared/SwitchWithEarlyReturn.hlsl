@@ -399,8 +399,16 @@ float4 main(float2 _189)
     {
         _263 = false;
     }
-    bool4 _265 = _263.xxxx;
-    return float4(_265.x ? _24_colorGreen.x : _24_colorRed.x, _265.y ? _24_colorGreen.y : _24_colorRed.y, _265.z ? _24_colorGreen.z : _24_colorRed.z, _265.w ? _24_colorGreen.w : _24_colorRed.w);
+    float4 _264 = 0.0f.xxxx;
+    if (_263)
+    {
+        _264 = _24_colorGreen;
+    }
+    else
+    {
+        _264 = _24_colorRed;
+    }
+    return _264;
 }
 
 void frag_main()
