@@ -60,7 +60,6 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -484,6 +483,28 @@ public:
 
     std::string getPointer() override {
         return std::string("&(") + fName + std::string(")");
+    }
+
+    std::string load() override {
+        return fName;
+    }
+
+    std::string store(const std::string& value) override {
+        return fName + " = " + value + ";";
+    }
+
+private:
+    std::string fName;
+};
+
+class WGSLCodeGenerator::VectorComponentLValue : public WGSLCodeGenerator::LValue {
+public:
+    // `name` must be a WGSL expression with no side-effects that points to a single component of a
+    // WGSL vector.
+    VectorComponentLValue(std::string name) : fName(std::move(name)) {}
+
+    std::string getPointer() override {
+        return "";
     }
 
     std::string load() override {
@@ -974,17 +995,19 @@ std::unique_ptr<WGSLCodeGenerator::LValue> WGSLCodeGenerator::makeLValue(const E
     if (e.is<IndexExpression>()) {
         const IndexExpression& idx = e.as<IndexExpression>();
         if (idx.base()->type().isVector()) {
-            // Rewrite indexed-swizzle accesses like `myVec.zyx[i]` into an index onto `myVec`.
-            std::unique_ptr<Expression> rewrite = Transform::RewriteIndexedSwizzle(fContext, idx);
-
-            // TODO(johnstiles): WGSL disallows pointer-access to individual vector components;
-            // this is a form of swizzled lvalue. For now, treat as unsupported.
+            return std::make_unique<VectorComponentLValue>(this->assembleIndexExpression(idx));
         } else {
             return std::make_unique<PointerLValue>(this->assembleIndexExpression(idx));
         }
     }
     if (e.is<Swizzle>()) {
-        // TODO(johnstiles): add support for swizzled lvalues. For now, treat as unsupported.
+        const Swizzle& swizzle = e.as<Swizzle>();
+        if (swizzle.components().size() == 1) {
+            return std::make_unique<VectorComponentLValue>(this->assembleSwizzle(swizzle));
+        } else {
+            // TODO(johnstiles): add support for multi-component swizzled lvalues. For now, treat as
+            // unsupported.
+        }
     }
 
     fContext.fErrors->error(e.fPosition, "unsupported lvalue type");

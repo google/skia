@@ -191,6 +191,7 @@ private:
     // Synthesizes an LValue for an expression.
     class LValue;
     class PointerLValue;
+    class VectorComponentLValue;
     std::unique_ptr<LValue> makeLValue(const Expression& e);
 
     std::string variableReferenceNameForLValue(const VariableReference& r);

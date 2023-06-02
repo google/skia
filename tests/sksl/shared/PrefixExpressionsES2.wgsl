@@ -59,6 +59,27 @@ fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     ok = _skTemp4;
     f = f - f32(1);
     ok = ok && f == 0.5;
+    var f2: vec2<f32> = vec2<f32>(0.5);
+    f2.x = f2.x + f32(1);
+    ok = ok && f2.x == 1.5;
+    var _skTemp5: bool;
+    if ok {
+        f2.x = f2.x + f32(1);
+        _skTemp5 = f2.x == 2.5;
+    } else {
+        _skTemp5 = false;
+    }
+    ok = _skTemp5;
+    var _skTemp6: bool;
+    if ok {
+        f2.x = f2.x - f32(1);
+        _skTemp6 = f2.x == 1.5;
+    } else {
+        _skTemp6 = false;
+    }
+    ok = _skTemp6;
+    f2.x = f2.x - f32(1);
+    ok = ok && f2.x == 0.5;
     ok = ok && !(_globalUniforms.colorGreen.x == 1.0);
     ok = ok && -1.0 == -_globalUniforms.colorGreen.y;
     ok = ok && all(vec4<f32>(0.0, -1.0, 0.0, -1.0) == -_globalUniforms.colorGreen);

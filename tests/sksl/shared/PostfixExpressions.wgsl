@@ -60,6 +60,30 @@ fn main(c: vec2<f32>) -> vec4<f32> {
     ok = ok && f == 1.5;
     f = f - f32(1);
     ok = ok && f == 0.5;
+    var f2: vec2<f32> = vec2<f32>(0.5);
+    f2.x = f2.x + f32(1);
+    var _skTemp8: bool;
+    if ok {
+        let _skTemp9 = f2.x;
+        f2.x = f2.x + f32(1);
+        _skTemp8 = _skTemp9 == 1.5;
+    } else {
+        _skTemp8 = false;
+    }
+    ok = _skTemp8;
+    ok = ok && f2.x == 2.5;
+    var _skTemp10: bool;
+    if ok {
+        let _skTemp11 = f2.x;
+        f2.x = f2.x - f32(1);
+        _skTemp10 = _skTemp11 == 2.5;
+    } else {
+        _skTemp10 = false;
+    }
+    ok = _skTemp10;
+    ok = ok && f2.x == 1.5;
+    f2.x = f2.x - f32(1);
+    ok = ok && f2.x == 0.5;
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

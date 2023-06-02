@@ -133,8 +133,65 @@ float4 main(float2 _24)
         _98 = false;
     }
     ok = _98;
-    bool4 _100 = _98.xxxx;
-    return float4(_100.x ? _10_colorGreen.x : _10_colorRed.x, _100.y ? _10_colorGreen.y : _10_colorRed.y, _100.z ? _10_colorGreen.z : _10_colorRed.z, _100.w ? _10_colorGreen.w : _10_colorRed.w);
+    float2 f2 = 0.5f.xx;
+    f2.x += 1.0f;
+    bool _112 = false;
+    if (ok)
+    {
+        float _109 = f2.x;
+        f2.x = _109 + 1.0f;
+        _112 = _109 == 1.5f;
+    }
+    else
+    {
+        _112 = false;
+    }
+    ok = _112;
+    bool _118 = false;
+    if (_112)
+    {
+        _118 = f2.x == 2.5f;
+    }
+    else
+    {
+        _118 = false;
+    }
+    ok = _118;
+    bool _125 = false;
+    if (_118)
+    {
+        float _122 = f2.x;
+        f2.x = _122 - 1.0f;
+        _125 = _122 == 2.5f;
+    }
+    else
+    {
+        _125 = false;
+    }
+    ok = _125;
+    bool _131 = false;
+    if (_125)
+    {
+        _131 = f2.x == 1.5f;
+    }
+    else
+    {
+        _131 = false;
+    }
+    ok = _131;
+    f2.x -= 1.0f;
+    bool _141 = false;
+    if (ok)
+    {
+        _141 = f2.x == 0.5f;
+    }
+    else
+    {
+        _141 = false;
+    }
+    ok = _141;
+    bool4 _143 = _141.xxxx;
+    return float4(_143.x ? _10_colorGreen.x : _10_colorRed.x, _143.y ? _10_colorGreen.y : _10_colorRed.y, _143.z ? _10_colorGreen.z : _10_colorRed.z, _143.w ? _10_colorGreen.w : _10_colorRed.w);
 }
 
 void frag_main()
