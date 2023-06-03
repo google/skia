@@ -1177,6 +1177,15 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
         return expr;
     }
 
+    // Handle comma-expressions.
+    if (op.kind() == OperatorKind::COMMA) {
+        // The result from the left-expression is ignored, but its side effects must occur.
+        this->assembleExpression(left, Precedence::kStatement);
+
+        // Evaluate the right side normally.
+        return this->assembleExpression(right, parentPrecedence);
+    }
+
     // Handle assignment-expressions.
     if (op.isAssignment()) {
         std::unique_ptr<LValue> lvalue = this->makeLValue(left);
