@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/AtlasTypes.h"
+#include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -1226,8 +1227,8 @@ void Device::flushPendingWorkToRecorder() {
     // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
 
     // push any pending uploads from the atlasmanager
-    auto atlasManager = fRecorder->priv().atlasManager();
-    if (!fDC->recordTextUploads(atlasManager)) {
+    auto textAtlasManager = fRecorder->priv().atlasProvider()->textAtlasManager();
+    if (!fDC->recordTextUploads(textAtlasManager)) {
         SKGPU_LOG_E("AtlasManager uploads have failed -- may see invalid results.");
     }
 

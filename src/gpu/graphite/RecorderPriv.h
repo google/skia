@@ -54,7 +54,7 @@ public:
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }
     UploadBufferManager* uploadBufferManager() { return fRecorder->fUploadBufferManager.get(); }
 
-    AtlasManager* atlasManager() { return fRecorder->fAtlasManager.get(); }
+    AtlasProvider* atlasProvider() { return fRecorder->fAtlasProvider.get(); }
     TokenTracker* tokenTracker() { return fRecorder->fTokenTracker.get(); }
     sktext::gpu::StrikeCache* strikeCache() { return fRecorder->fStrikeCache.get(); }
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {

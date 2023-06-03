@@ -33,7 +33,7 @@ class TextBlobRedrawCoordinator;
 
 namespace skgpu::graphite {
 
-class AtlasManager;
+class AtlasProvider;
 class BackendTexture;
 class Caps;
 class Context;
@@ -185,7 +185,7 @@ private:
     std::vector<Device*> fTrackedDevices;
 
     uint32_t fRecorderID;  // Needed for MessageBox handling for text
-    std::unique_ptr<AtlasManager> fAtlasManager;
+    std::unique_ptr<AtlasProvider> fAtlasProvider;
     std::unique_ptr<TokenTracker> fTokenTracker;
     std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
     std::unique_ptr<sktext::gpu::TextBlobRedrawCoordinator> fTextBlobCache;

@@ -22,6 +22,8 @@ skia_graphite_public = [
 ]
 
 skia_graphite_sources = [
+  "$_src/AtlasProvider.cpp",
+  "$_src/AtlasProvider.h",
   "$_src/AttachmentTypes.h",
   "$_src/Attribute.h",
   "$_src/BackendSemaphore.cpp",
