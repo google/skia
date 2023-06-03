@@ -1,5 +1,5 @@
-var<private> gInitialized: f32;
-var<private> gInitializedFromOther: f32;
+const gInitialized: f32 = -1.0;
+var<private> gInitializedFromOther: f32 = 1.0;
 var<private> gUninitialized: f32;
 fn init_globals_v() {
     gUninitialized = 1.0;

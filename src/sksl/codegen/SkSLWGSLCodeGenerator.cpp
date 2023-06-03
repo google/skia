@@ -1355,9 +1355,10 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& c,
 
 std::string WGSLCodeGenerator::assembleIndexExpression(const IndexExpression& i) {
     // Put the index value into a let-expression. (We skip this step if it's extremely simple--a
-    // constant, or a variable--just to avoid bloating the output.)
+    // constant-expression or a variable. This is actually important, because constant-expression
+    // indexes could appear on an const-initializer at global scope.)
     std::string idx = this->assembleExpression(*i.index(), Precedence::kExpression);
-    if (!Analysis::IsCompileTimeConstant(*i.index()) && !i.index()->is<VariableReference>()) {
+    if (!Analysis::IsConstantExpression(*i.index()) && !i.index()->is<VariableReference>()) {
         idx = this->writeScratchLet(idx);
     }
     return this->assembleExpression(*i.base(), Precedence::kPostfix) + "[" + idx + "]";
@@ -2075,8 +2076,20 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
     }
 
     // TODO(skia:13092): Implement workgroup variable decoration
-    this->write("var<private> ");
-    this->writeVariableDecl(var.type(), var.name(), Delimiter::kSemicolon);
+    std::string initializer;
+    if (d.varDeclaration().value()) {
+        // We assume here that the initial-value expression will not emit any helper statements.
+        // Initial-value expressions are required to pass IsConstantExpression, which limits the
+        // blast radius to constructors, literals, and other constant values/variables.
+        initializer += " = ";
+        initializer += this->assembleExpression(*d.varDeclaration().value(),
+                                                Precedence::kAssignment);
+    }
+    this->write((var.modifiers().fFlags & Modifiers::kConst_Flag) ? "const " : "var<private> ");
+    this->write(this->assembleName(var.name()));
+    this->write(": " + to_wgsl_type(var.type()));
+    this->write(initializer);
+    this->writeLine(";");
 }
 
 void WGSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
