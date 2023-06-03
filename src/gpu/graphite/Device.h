@@ -23,6 +23,7 @@ class SkStrokeRec;
 
 namespace skgpu::graphite {
 
+class PathAtlas;
 class BoundsManager;
 class Clip;
 class Context;
@@ -226,15 +227,21 @@ private:
     // stroke-and-fill, this returns the Renderer used for the fill portion and it can be assumed
     // that Renderer::TessellatedStrokes() will be used for the stroke portion.
     //
+    // Depending on the preferred anti-aliasing quality and platform capabilities (such as compute
+    // shader support), an atlas handler for path rendering may be returned alongside the chosen
+    // Renderer. In that case, all fill, stroke, and stroke-and-fill styles should be rendered with
+    // a single recorded AtlasShape draw and the shape data should be added to the provided atlas
+    // handler to be scheduled for a coverage mask render.
+    //
     // TODO: Renderers may have fallbacks (e.g. pre-chop large paths, or convert stroke to fill).
     // Are those handled inside ChooseRenderer() where it can modify the shape, stroke? or does it
     // return a retry error code? or does drawGeometry() handle all the fallbacks, knowing that
     // a particular shape type needs to be pre-chopped?
     // TODO: Move this into a RendererSelector object provided by the Context.
-    const Renderer* chooseRenderer(const Transform& localToDevice,
-                                   const Geometry&,
-                                   const SkStrokeRec&,
-                                   bool requireMSAA) const;
+    std::pair<const Renderer*, PathAtlas*> chooseRenderer(const Transform& localToDevice,
+                                                          const Geometry&,
+                                                          const SkStrokeRec&,
+                                                          bool requireMSAA) const;
 
     bool needsFlushBeforeDraw(int numNewDraws, DstReadRequirement) const;
 

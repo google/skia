@@ -13,6 +13,7 @@
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -20,6 +21,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawPass.h"
+#include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RenderPassTask.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -122,6 +124,21 @@ bool DrawContext::recordUpload(Recorder* recorder,
                                          levels,
                                          dstRect,
                                          std::move(condContext));
+}
+
+void DrawContext::recordPathAtlasDispatches(Recorder* recorder) {
+#ifdef SK_ENABLE_VELLO_SHADERS
+    ComputePathAtlas* pathAtlas = recorder->priv().atlasProvider()->computePathAtlas();
+    if (!pathAtlas) {
+        // Platform doesn't support compute
+        return;
+    }
+    auto dispatchGroup = pathAtlas->recordDispatches(recorder);
+    if (dispatchGroup) {
+        fDispatchGroups.push_back(std::move(dispatchGroup));
+    }
+    pathAtlas->reset();
+#endif  // SK_ENABLE_VELLO_SHADERS
 }
 
 void DrawContext::snapDrawPass(Recorder* recorder) {

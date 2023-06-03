@@ -80,6 +80,9 @@ public:
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
 
+    // Record ComputePathAtlas dispatches and clear the atlas contents for new post-flush work.
+    void recordPathAtlasDispatches(Recorder*);
+
     // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or
     // appended DrawPasses from a child SDC. A new DrawList is started to record subsequent drawing
