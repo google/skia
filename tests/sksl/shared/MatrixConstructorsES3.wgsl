@@ -11,9 +11,6 @@ struct _GlobalUniforms {
     testMatrix2x2: mat2x2<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn vec4f32_from_mat2x2f32(x: mat2x2<f32>) -> vec4<f32> {
-    return vec4<f32>(x[0].xy, x[1].xy);
-}
 fn mat2x3f32_from_vec4f32_vec2f32(x0: vec4<f32>, x1: vec2<f32>) -> mat2x3<f32> {
     return mat2x3<f32>(vec3<f32>(x0.xyz), vec3<f32>(x0.w, x1.xy));
 }
@@ -30,7 +27,7 @@ fn mat4x3f32_from_f32_vec4f32_vec4f32_vec3f32(x0: f32, x1: vec4<f32>, x2: vec4<f
     return mat4x3<f32>(vec3<f32>(x0, x1.xy), vec3<f32>(x1.zw, x2.x), vec3<f32>(x2.yzw), vec3<f32>(x3.xyz));
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
-    var f4: vec4<f32> = vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2);
+    var f4: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
     let _skTemp0 = mat2x3f32_from_vec4f32_vec2f32(f4, f4.xy);
     let _skTemp1 = mat2x3<f32>(vec3<f32>(1.0, 2.0, 3.0), vec3<f32>(4.0, 1.0, 2.0));
     var ok: bool = (all(_skTemp0[0] == _skTemp1[0]) && all(_skTemp0[1] == _skTemp1[1]));

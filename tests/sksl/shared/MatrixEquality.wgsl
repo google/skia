@@ -12,9 +12,6 @@ struct _GlobalUniforms {
     testMatrix3x3: mat3x3<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn vec4f32_from_mat2x2f32(x: mat2x2<f32>) -> vec4<f32> {
-    return vec4<f32>(x[0].xy, x[1].xy);
-}
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var _0_ok: bool = true;
     let _skTemp0 = _globalUniforms.testMatrix2x2;
@@ -104,9 +101,9 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     let _skTemp56 = mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one));
     let _skTemp57 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
     _0_ok = _0_ok && (all(_skTemp56[0] == _skTemp57[0]) && all(_skTemp56[1] == _skTemp57[1]));
-    _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_2_one) == vec4<f32>(1.0, 2.0, 3.0, 4.0));
-    _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_2_one) == vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)));
-    _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_1_zero) == vec4<f32>(0.0));
+    _0_ok = _0_ok && all(vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one) == vec4<f32>(1.0, 2.0, 3.0, 4.0));
+    _0_ok = _0_ok && all(vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one) == vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])));
+    _0_ok = _0_ok && all(vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_1_zero) == vec4<f32>(0.0));
     var _5_m: mat3x3<f32> = mat3x3<f32>(vec3<f32>(_2_one, _3_two, 3.0), vec3<f32>(4.0, 5.0, 6.0), vec3<f32>(7.0, 8.0, _4_nine));
     _0_ok = _0_ok && all(_5_m[0] == vec3<f32>(1.0, 2.0, 3.0));
     _0_ok = _0_ok && all(_5_m[1] == vec3<f32>(4.0, 5.0, 6.0));
