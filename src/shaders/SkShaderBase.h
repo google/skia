@@ -9,6 +9,7 @@
 #define SkShaderBase_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSamplingOptions.h"
@@ -484,5 +485,6 @@ void SkRegisterColorShaderFlattenable();
 void SkRegisterComposeShaderFlattenable();
 void SkRegisterCoordClampShaderFlattenable();
 void SkRegisterEmptyShaderFlattenable();
+void SkRegisterPerlinNoiseShaderFlattenable();
 
 #endif // SkShaderBase_DEFINED

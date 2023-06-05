@@ -7,16 +7,27 @@
 
 #include "src/gpu/ganesh/GrDefaultGeoProcFactory.h"
 
-#include "include/core/SkRefCnt.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkRandom.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
+
+#include <memory>
+
+struct GrShaderCaps;
 
 /*
  * The default Geometry Processor simply takes position and multiplies it by the uniform view

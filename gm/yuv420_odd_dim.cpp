@@ -14,6 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"

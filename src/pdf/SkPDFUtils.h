@@ -17,6 +17,7 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/utils/SkFloatToDecimal.h"
 
+class SkBitmap;
 class SkMatrix;
 class SkPDFArray;
 struct SkRect;

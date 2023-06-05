@@ -71,7 +71,7 @@
         SkRegisterRadialGradientShaderFlattenable();
         SkRegisterSweepGradientShaderFlattenable();
         SkRegisterTwoPointConicalGradientShaderFlattenable();
-        SkPerlinNoiseShader::RegisterFlattenables();
+        SkRegisterPerlinNoiseShaderFlattenable();
         SkShaderBase::RegisterFlattenables();
 
         // Color filters.

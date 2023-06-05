@@ -11,6 +11,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
 #include "tools/ToolUtils.h"
 
 // Exercises RSX text blobs + shader with various local matrix combinations.

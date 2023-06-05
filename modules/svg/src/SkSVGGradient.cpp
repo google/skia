@@ -4,9 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "include/private/base/SkTPin.h"
 #include "modules/svg/include/SkSVGGradient.h"
+
+#include "include/core/SkTileMode.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGStop.h"
 #include "modules/svg/include/SkSVGValue.h"

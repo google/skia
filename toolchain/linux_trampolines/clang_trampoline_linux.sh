@@ -104,6 +104,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrBlurUtils.cpp"
   "src/gpu/ganesh/GrCaps.cpp"
   "src/gpu/ganesh/GrContext_Base.cpp"
+  "src/gpu/ganesh/GrDefaultGeoProcFactory.cpp"
   "src/gpu/ganesh/GrDirectContext.cpp"
   "src/gpu/ganesh/GrFragmentProcessors.cpp"
   "src/gpu/ganesh/GrImageContext.cpp"
