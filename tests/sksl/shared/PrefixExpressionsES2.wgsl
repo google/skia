@@ -79,7 +79,7 @@ fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     ok = ok && !(_globalUniforms.colorGreen.x == 1.0);
     ok = ok && -1.0 == -_globalUniforms.colorGreen.y;
     ok = ok && all(vec4<f32>(0.0, -1.0, 0.0, -1.0) == -_globalUniforms.colorGreen);
-    let _skTemp7 = mat2x2<f32>(vec2<f32>(-1.0, -2.0), vec2<f32>(-3.0, -4.0));
+    let _skTemp7 = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
     let _skTemp8 = (-1.0 * _globalUniforms.testMatrix2x2);
     ok = ok && (all(_skTemp7[0] == _skTemp8[0]) && all(_skTemp7[1] == _skTemp8[1]));
     var iv: vec2<i32> = vec2<i32>(i, -i);

@@ -231,11 +231,6 @@ private:
     std::string assembleConstructorMatrixResize(const ConstructorMatrixResize& ctor,
                                                 Precedence parentPrecedence);
 
-    // Matrix constructor helpers.
-    bool isMatrixConstructorHelperNeeded(const ConstructorCompound& c);
-    std::string getMatrixConstructorHelper(const AnyConstructor& c);
-    void writeMatrixFromScalarAndVectorArgs(const AnyConstructor& ctor, int columns, int rows);
-
     // Synthesized helper functions for comparison operators that are not supported by WGSL.
     std::string assembleMatrixEqualityExpression(const Expression& left, const Expression& right);
 
@@ -312,8 +307,7 @@ private:
     bool fAtLineStart = false;
 
     int fScratchCount = 0;
-    StringStream fExtraFunctions;      // all internally synthesized helpers are written here
-    skia_private::THashSet<std::string> fHelpers;  // all synthesized helper functions, by name
+    StringStream fExtraFunctions;  // all internally synthesized helpers are written here
 };
 
 }  // namespace SkSL
