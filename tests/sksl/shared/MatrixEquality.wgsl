@@ -12,12 +12,6 @@ struct _GlobalUniforms {
     testMatrix3x3: mat3x3<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn mat3x3f32_from_mat2x2f32(x0: mat2x2<f32>) -> mat3x3<f32> {
-    return mat3x3<f32>(vec3<f32>(x0[0].xy, 0.0), vec3<f32>(x0[1].xy, 0.0), vec3<f32>(0.0, 0.0, 1.0));
-}
-fn mat2x2f32_from_mat3x3f32(x0: mat3x3<f32>) -> mat2x2<f32> {
-    return mat2x2<f32>(vec2<f32>(x0[0].xy), vec2<f32>(x0[1].xy));
-}
 fn vec4f32_from_mat2x2f32(x: mat2x2<f32>) -> vec4<f32> {
     return vec4<f32>(x[0].xy, x[1].xy);
 }
@@ -78,32 +72,38 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     let _skTemp33 = mat2x2<f32>(0.0, 0.0, 0.0, 0.0);
     _0_ok = _0_ok && !(all(_skTemp32[0] == _skTemp33[0]) && all(_skTemp32[1] == _skTemp33[1]));
     let _skTemp34 = mat3x3<f32>(vec3<f32>(_2_one, _1_zero, _1_zero), vec3<f32>(_1_zero, _2_one, _1_zero), vec3<f32>(_1_zero, _1_zero, _2_one));
-    let _skTemp35 = mat3x3f32_from_mat2x2f32(mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
-    _0_ok = _0_ok && (all(_skTemp34[0] == _skTemp35[0]) && all(_skTemp34[1] == _skTemp35[1]) && all(_skTemp34[2] == _skTemp35[2]));
-    let _skTemp36 = mat3x3<f32>(vec3<f32>(_4_nine, _1_zero, _1_zero), vec3<f32>(_1_zero, _4_nine, _1_zero), vec3<f32>(_1_zero, _1_zero, _2_one));
-    let _skTemp37 = mat3x3f32_from_mat2x2f32(mat2x2<f32>(9.0, 0.0, 0.0, 9.0));
-    _0_ok = _0_ok && (all(_skTemp36[0] == _skTemp37[0]) && all(_skTemp36[1] == _skTemp37[1]) && all(_skTemp36[2] == _skTemp37[2]));
-    let _skTemp38 = mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one);
-    let _skTemp39 = mat3x3f32_from_mat2x2f32(mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
-    _0_ok = _0_ok && (all(_skTemp38[0] == _skTemp39[0]) && all(_skTemp38[1] == _skTemp39[1]) && all(_skTemp38[2] == _skTemp39[2]));
-    let _skTemp40 = mat3x3<f32>(vec3<f32>(_4_nine, 0.0, 0.0), vec3<f32>(0.0, _4_nine, 0.0), vec3<f32>(0.0, 0.0, _2_one));
-    let _skTemp41 = mat3x3f32_from_mat2x2f32(mat2x2<f32>(9.0, 0.0, 0.0, 9.0));
-    _0_ok = _0_ok && (all(_skTemp40[0] == _skTemp41[0]) && all(_skTemp40[1] == _skTemp41[1]) && all(_skTemp40[2] == _skTemp41[2]));
-    let _skTemp42 = mat2x2f32_from_mat3x3f32(mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one));
-    let _skTemp43 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && (all(_skTemp42[0] == _skTemp43[0]) && all(_skTemp42[1] == _skTemp43[1]));
-    let _skTemp44 = mat2x2f32_from_mat3x3f32(mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one));
-    let _skTemp45 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && (all(_skTemp44[0] == _skTemp45[0]) && all(_skTemp44[1] == _skTemp45[1]));
-    let _skTemp46 = mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one));
-    let _skTemp47 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && (all(_skTemp46[0] == _skTemp47[0]) && all(_skTemp46[1] == _skTemp47[1]));
-    let _skTemp48 = mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one));
-    let _skTemp49 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && (all(_skTemp48[0] == _skTemp49[0]) && all(_skTemp48[1] == _skTemp49[1]));
-    let _skTemp50 = mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one));
+    let _skTemp35 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
+    let _skTemp36 = mat3x3<f32>(_skTemp35[0][0], _skTemp35[0][1], 0.0, _skTemp35[1][0], _skTemp35[1][1], 0.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp34[0] == _skTemp36[0]) && all(_skTemp34[1] == _skTemp36[1]) && all(_skTemp34[2] == _skTemp36[2]));
+    let _skTemp37 = mat3x3<f32>(vec3<f32>(_4_nine, _1_zero, _1_zero), vec3<f32>(_1_zero, _4_nine, _1_zero), vec3<f32>(_1_zero, _1_zero, _2_one));
+    let _skTemp38 = mat2x2<f32>(9.0, 0.0, 0.0, 9.0);
+    let _skTemp39 = mat3x3<f32>(_skTemp38[0][0], _skTemp38[0][1], 0.0, _skTemp38[1][0], _skTemp38[1][1], 0.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp37[0] == _skTemp39[0]) && all(_skTemp37[1] == _skTemp39[1]) && all(_skTemp37[2] == _skTemp39[2]));
+    let _skTemp40 = mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one);
+    let _skTemp41 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
+    let _skTemp42 = mat3x3<f32>(_skTemp41[0][0], _skTemp41[0][1], 0.0, _skTemp41[1][0], _skTemp41[1][1], 0.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp40[0] == _skTemp42[0]) && all(_skTemp40[1] == _skTemp42[1]) && all(_skTemp40[2] == _skTemp42[2]));
+    let _skTemp43 = mat3x3<f32>(vec3<f32>(_4_nine, 0.0, 0.0), vec3<f32>(0.0, _4_nine, 0.0), vec3<f32>(0.0, 0.0, _2_one));
+    let _skTemp44 = mat2x2<f32>(9.0, 0.0, 0.0, 9.0);
+    let _skTemp45 = mat3x3<f32>(_skTemp44[0][0], _skTemp44[0][1], 0.0, _skTemp44[1][0], _skTemp44[1][1], 0.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp43[0] == _skTemp45[0]) && all(_skTemp43[1] == _skTemp45[1]) && all(_skTemp43[2] == _skTemp45[2]));
+    let _skTemp46 = mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one);
+    let _skTemp47 = mat2x2<f32>(_skTemp46[0][0], _skTemp46[0][1], _skTemp46[1][0], _skTemp46[1][1]);
+    let _skTemp48 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp47[0] == _skTemp48[0]) && all(_skTemp47[1] == _skTemp48[1]));
+    let _skTemp49 = mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one);
+    let _skTemp50 = mat2x2<f32>(_skTemp49[0][0], _skTemp49[0][1], _skTemp49[1][0], _skTemp49[1][1]);
     let _skTemp51 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
     _0_ok = _0_ok && (all(_skTemp50[0] == _skTemp51[0]) && all(_skTemp50[1] == _skTemp51[1]));
+    let _skTemp52 = mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one));
+    let _skTemp53 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp52[0] == _skTemp53[0]) && all(_skTemp52[1] == _skTemp53[1]));
+    let _skTemp54 = mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one));
+    let _skTemp55 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp54[0] == _skTemp55[0]) && all(_skTemp54[1] == _skTemp55[1]));
+    let _skTemp56 = mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one));
+    let _skTemp57 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
+    _0_ok = _0_ok && (all(_skTemp56[0] == _skTemp57[0]) && all(_skTemp56[1] == _skTemp57[1]));
     _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_2_one) == vec4<f32>(1.0, 2.0, 3.0, 4.0));
     _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_2_one) == vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)));
     _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_1_zero) == vec4<f32>(0.0));

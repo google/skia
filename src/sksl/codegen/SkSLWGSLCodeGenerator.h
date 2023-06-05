@@ -228,13 +228,12 @@ private:
                                                   Precedence parentPrecedence);
     std::string assembleConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
                                                   Precedence parentPrecedence);
-    std::string assembleConstructorMatrixResize(const ConstructorMatrixResize& c,
+    std::string assembleConstructorMatrixResize(const ConstructorMatrixResize& ctor,
                                                 Precedence parentPrecedence);
 
     // Matrix constructor helpers.
     bool isMatrixConstructorHelperNeeded(const ConstructorCompound& c);
     std::string getMatrixConstructorHelper(const AnyConstructor& c);
-    void writeMatrixFromMatrixArgs(const Type& sourceMatrix, int columns, int rows);
     void writeMatrixFromScalarAndVectorArgs(const AnyConstructor& ctor, int columns, int rows);
 
     // Synthesized helper functions for comparison operators that are not supported by WGSL.

@@ -62,7 +62,6 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <optional>
@@ -1878,13 +1877,31 @@ std::string WGSLCodeGenerator::assembleConstructorDiagonalMatrix(const Construct
     return expr + ')';
 }
 
-std::string WGSLCodeGenerator::assembleConstructorMatrixResize(const ConstructorMatrixResize& c,
+std::string WGSLCodeGenerator::assembleConstructorMatrixResize(const ConstructorMatrixResize& ctor,
                                                                Precedence parentPrecedence) {
-    std::string expr = this->getMatrixConstructorHelper(c);
-    expr.push_back('(');
-    expr += this->assembleExpression(*c.argument(), Precedence::kSequence);
-    expr.push_back(')');
-    return expr;
+    std::string source = this->writeScratchLet(this->assembleExpression(*ctor.argument(),
+                                                                        Precedence::kSequence));
+    int columns = ctor.type().columns();
+    int rows = ctor.type().rows();
+    int sourceColumns = ctor.argument()->type().columns();
+    int sourceRows = ctor.argument()->type().rows();
+    auto separator = String::Separator();
+    std::string expr = to_wgsl_type(ctor.type()) + '(';
+
+    for (int c = 0; c < columns; ++c) {
+        for (int r = 0; r < rows; ++r) {
+            expr += separator();
+            if (c < sourceColumns && r < sourceRows) {
+                String::appendf(&expr, "%s[%d][%d]", source.c_str(), c, r);
+            } else if (r == c) {
+                expr += "1.0";
+            } else {
+                expr += "0.0";
+            }
+        }
+    }
+
+    return expr + ')';
 }
 
 bool WGSLCodeGenerator::isMatrixConstructorHelperNeeded(const ConstructorCompound& c) {
@@ -1961,69 +1978,11 @@ std::string WGSLCodeGenerator::getMatrixConstructorHelper(const AnyConstructor& 
 
         fExtraFunctions.printf(") -> %s {\n    return %s(", typeName.c_str(), typeName.c_str());
 
-        if (args.size() == 1 && args.front()->type().isMatrix()) {
-            this->writeMatrixFromMatrixArgs(args.front()->type(), columns, rows);
-        } else {
-            this->writeMatrixFromScalarAndVectorArgs(c, columns, rows);
-        }
+        this->writeMatrixFromScalarAndVectorArgs(c, columns, rows);
 
         fExtraFunctions.writeText(");\n}\n");
     }
     return name;
-}
-
-// Assembles a matrix by resizing another matrix named `x0`.
-// Cells that don't exist in the source matrix will be populated with identity-matrix values.
-void WGSLCodeGenerator::writeMatrixFromMatrixArgs(const Type& sourceMatrix, int columns, int rows) {
-    SkASSERT(rows <= 4);
-    SkASSERT(columns <= 4);
-
-    const char* separator = "";
-    std::string matrixType = to_wgsl_type(sourceMatrix.componentType());
-    for (int c = 0; c < columns; ++c) {
-        fExtraFunctions.printf("%svec%d<%s>(", separator, rows, matrixType.c_str());
-        separator = "), ";
-
-        // Determine how many values to take from the source matrix for this row.
-        int swizzleLength = 0;
-        if (c < sourceMatrix.columns()) {
-            swizzleLength = std::min<>(rows, sourceMatrix.rows());
-        }
-
-        // Emit all the values from the source matrix row.
-        bool firstItem;
-        switch (swizzleLength) {
-            case 0:
-                firstItem = true;
-                break;
-            case 1:
-                firstItem = false;
-                fExtraFunctions.printf("x0[%d].x", c);
-                break;
-            case 2:
-                firstItem = false;
-                fExtraFunctions.printf("x0[%d].xy", c);
-                break;
-            case 3:
-                firstItem = false;
-                fExtraFunctions.printf("x0[%d].xyz", c);
-                break;
-            case 4:
-                firstItem = false;
-                fExtraFunctions.printf("x0[%d].xyzw", c);
-                break;
-            default:
-                SkUNREACHABLE;
-        }
-
-        // Emit the placeholder identity-matrix cells.
-        for (int r = swizzleLength; r < rows; ++r) {
-            fExtraFunctions.printf("%s%s", firstItem ? "" : ", ", (r == c) ? "1.0" : "0.0");
-            firstItem = false;
-        }
-    }
-
-    fExtraFunctions.writeText(")");
 }
 
 // Assembles a matrix of type by concatenating an arbitrary mix of scalar and vector values, named
