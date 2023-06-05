@@ -27,10 +27,6 @@ struct _GlobalUniforms {
     colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn mat2x2f32_eq_mat2x2f32(left: mat2x2<f32>, right: mat2x2<f32>) -> bool {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
 fn main() -> vec4<f32> {
     var ok: bool = true;
     ok = ok && _globalUniforms.f1 == _globalUniforms.f2;
@@ -49,14 +45,30 @@ fn main() -> vec4<f32> {
     ok = ok && any(_globalUniforms.hv1 != _globalUniforms.hv3);
     ok = ok && any(_globalUniforms.v1 != vec2<f32>(_globalUniforms.hv3));
     ok = ok && any(vec2<f32>(_globalUniforms.hv1) != _globalUniforms.v3);
-    ok = ok && mat2x2f32_eq_mat2x2f32(_globalUniforms.m1, _globalUniforms.m2);
-    ok = ok && mat2x2f32_eq_mat2x2f32(_globalUniforms.hm1, _globalUniforms.hm2);
-    ok = ok && mat2x2f32_eq_mat2x2f32(_globalUniforms.m1, mat2x2<f32>(_globalUniforms.hm2));
-    ok = ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_globalUniforms.hm1), _globalUniforms.m2);
-    ok = ok && !mat2x2f32_eq_mat2x2f32(_globalUniforms.m1, _globalUniforms.m3);
-    ok = ok && !mat2x2f32_eq_mat2x2f32(_globalUniforms.hm1, _globalUniforms.hm3);
-    ok = ok && !mat2x2f32_eq_mat2x2f32(_globalUniforms.m1, mat2x2<f32>(_globalUniforms.hm3));
-    ok = ok && !mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_globalUniforms.hm1), _globalUniforms.m3);
+    let _skTemp0 = _globalUniforms.m1;
+    let _skTemp1 = _globalUniforms.m2;
+    ok = ok && (all(_skTemp0[0] == _skTemp1[0]) && all(_skTemp0[1] == _skTemp1[1]));
+    let _skTemp2 = _globalUniforms.hm1;
+    let _skTemp3 = _globalUniforms.hm2;
+    ok = ok && (all(_skTemp2[0] == _skTemp3[0]) && all(_skTemp2[1] == _skTemp3[1]));
+    let _skTemp4 = _globalUniforms.m1;
+    let _skTemp5 = mat2x2<f32>(_globalUniforms.hm2);
+    ok = ok && (all(_skTemp4[0] == _skTemp5[0]) && all(_skTemp4[1] == _skTemp5[1]));
+    let _skTemp6 = mat2x2<f32>(_globalUniforms.hm1);
+    let _skTemp7 = _globalUniforms.m2;
+    ok = ok && (all(_skTemp6[0] == _skTemp7[0]) && all(_skTemp6[1] == _skTemp7[1]));
+    let _skTemp8 = _globalUniforms.m1;
+    let _skTemp9 = _globalUniforms.m3;
+    ok = ok && !(all(_skTemp8[0] == _skTemp9[0]) && all(_skTemp8[1] == _skTemp9[1]));
+    let _skTemp10 = _globalUniforms.hm1;
+    let _skTemp11 = _globalUniforms.hm3;
+    ok = ok && !(all(_skTemp10[0] == _skTemp11[0]) && all(_skTemp10[1] == _skTemp11[1]));
+    let _skTemp12 = _globalUniforms.m1;
+    let _skTemp13 = mat2x2<f32>(_globalUniforms.hm3);
+    ok = ok && !(all(_skTemp12[0] == _skTemp13[0]) && all(_skTemp12[1] == _skTemp13[1]));
+    let _skTemp14 = mat2x2<f32>(_globalUniforms.hm1);
+    let _skTemp15 = _globalUniforms.m3;
+    ok = ok && !(all(_skTemp14[0] == _skTemp15[0]) && all(_skTemp14[1] == _skTemp15[1]));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

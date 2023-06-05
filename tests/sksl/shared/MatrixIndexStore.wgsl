@@ -12,17 +12,6 @@ struct _GlobalUniforms {
     testMatrix4x4: mat4x4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn mat3x3f32_eq_mat3x3f32(left: mat3x3<f32>, right: mat3x3<f32>) -> bool {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
-fn mat4x4f32_eq_mat4x4f32(left: mat4x4<f32>, right: mat4x4<f32>) -> bool {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
 fn test3x3_b() -> bool {
     var matrix: mat3x3<f32>;
     var values: vec3<f32> = vec3<f32>(1.0, 2.0, 3.0);
@@ -42,7 +31,9 @@ fn test3x3_b() -> bool {
             }
         }
     }
-    return mat3x3f32_eq_mat3x3f32(matrix, _globalUniforms.testMatrix3x3);
+    let _skTemp0 = matrix;
+    let _skTemp1 = _globalUniforms.testMatrix3x3;
+    return (all(_skTemp0[0] == _skTemp1[0]) && all(_skTemp0[1] == _skTemp1[1]) && all(_skTemp0[2] == _skTemp1[2]));
 }
 fn test4x4_b() -> bool {
     var matrix: mat4x4<f32>;
@@ -63,24 +54,26 @@ fn test4x4_b() -> bool {
             }
         }
     }
-    return mat4x4f32_eq_mat4x4f32(matrix, _globalUniforms.testMatrix4x4);
+    let _skTemp2 = matrix;
+    let _skTemp3 = _globalUniforms.testMatrix4x4;
+    return (all(_skTemp2[0] == _skTemp3[0]) && all(_skTemp2[1] == _skTemp3[1]) && all(_skTemp2[2] == _skTemp3[2]) && all(_skTemp2[3] == _skTemp3[3]));
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
-    var _skTemp0: vec4<f32>;
-    var _skTemp1: bool;
-    let _skTemp2 = test3x3_b();
-    if _skTemp2 {
-        let _skTemp3 = test4x4_b();
-        _skTemp1 = _skTemp3;
+    var _skTemp4: vec4<f32>;
+    var _skTemp5: bool;
+    let _skTemp6 = test3x3_b();
+    if _skTemp6 {
+        let _skTemp7 = test4x4_b();
+        _skTemp5 = _skTemp7;
     } else {
-        _skTemp1 = false;
+        _skTemp5 = false;
     }
-    if _skTemp1 {
-        _skTemp0 = _globalUniforms.colorGreen;
+    if _skTemp5 {
+        _skTemp4 = _globalUniforms.colorGreen;
     } else {
-        _skTemp0 = _globalUniforms.colorRed;
+        _skTemp4 = _globalUniforms.colorRed;
     }
-    return _skTemp0;
+    return _skTemp4;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

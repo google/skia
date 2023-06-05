@@ -10,27 +10,23 @@ struct _GlobalUniforms {
     colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn mat4x4f32_eq_mat4x4f32(left: mat4x4<f32>, right: mat4x4<f32>) -> bool {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
 const SEVEN: i32 = 7;
 const TEN: i32 = 10;
 const MATRIXFIVE: mat4x4<f32> = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
 fn verify_const_globals_biih44(seven: i32, ten: i32, matrixFive: mat4x4<f32>) -> bool {
-    return (seven == 7 && ten == 10) && mat4x4f32_eq_mat4x4f32(matrixFive, mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0));
+    let _skTemp0 = matrixFive;
+    let _skTemp1 = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
+    return (seven == 7 && ten == 10) && (all(_skTemp0[0] == _skTemp1[0]) && all(_skTemp0[1] == _skTemp1[1]) && all(_skTemp0[2] == _skTemp1[2]) && all(_skTemp0[3] == _skTemp1[3]));
 }
 fn main(xy: vec2<f32>) -> vec4<f32> {
-    var _skTemp0: vec4<f32>;
-    let _skTemp1 = verify_const_globals_biih44(SEVEN, TEN, MATRIXFIVE);
-    if _skTemp1 {
-        _skTemp0 = _globalUniforms.colorGreen;
+    var _skTemp2: vec4<f32>;
+    let _skTemp3 = verify_const_globals_biih44(SEVEN, TEN, MATRIXFIVE);
+    if _skTemp3 {
+        _skTemp2 = _globalUniforms.colorGreen;
     } else {
-        _skTemp0 = _globalUniforms.colorRed;
+        _skTemp2 = _globalUniforms.colorRed;
     }
-    return _skTemp0;
+    return _skTemp2;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

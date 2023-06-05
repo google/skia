@@ -2103,36 +2103,24 @@ void WGSLCodeGenerator::writeMatrixFromScalarAndVectorArgs(const AnyConstructor&
 
 std::string WGSLCodeGenerator::assembleMatrixEqualityExpression(const Expression& left,
                                                                 const Expression& right) {
-    const Type& leftType = left.type();
-    const Type& rightType = right.type();
-    SkASSERT(leftType.isMatrix());
-    SkASSERT(rightType.isMatrix());
-    SkASSERT(leftType.rows() == rightType.rows());
-    SkASSERT(leftType.columns() == rightType.columns());
+    SkASSERT(left.type().isMatrix());
+    SkASSERT(right.type().isMatrix());
+    SkASSERT(left.type().rows() == right.type().rows());
+    SkASSERT(left.type().columns() == right.type().columns());
+    int columns = left.type().columns();
 
-    std::string name = String::printf("%s_eq_%s",
-                                      to_mangled_wgsl_type_name(leftType).c_str(),
-                                      to_mangled_wgsl_type_name(rightType).c_str());
-    if (!fHelpers.contains(name)) {
-        fHelpers.add(name);
-        fExtraFunctions.printf("fn %s(left: %s, right: %s) -> bool {\n    return ",
-                               name.c_str(),
-                               to_wgsl_type(leftType).c_str(),
-                               to_wgsl_type(rightType).c_str());
-        const char* separator = "";
-        for (int i = 0; i < leftType.columns(); ++i) {
-            fExtraFunctions.printf("%sall(left[%d] == right[%d])", separator, i, i);
-            separator = " &&\n           ";
-        }
-        fExtraFunctions.printf(";\n}\n");
+    std::string leftVar = this->writeScratchLet(this->assembleExpression(left,
+                                                                         Precedence::kAssignment));
+    std::string rightVar = this->writeScratchLet(this->assembleExpression(right,
+                                                                          Precedence::kAssignment));
+    std::string expr;
+    const char* separator = "(";
+    for (int i = 0; i < columns; ++i) {
+        String::appendf(&expr, "%sall(%s[%d] == %s[%d])",
+                        separator, leftVar.c_str(), i, rightVar.c_str(), i);
+        separator = " && ";
     }
-    std::string expr = name;
-    expr.push_back('(');
-    expr += this->assembleExpression(left, Precedence::kSequence);
-    expr += ", ";
-    expr += this->assembleExpression(right, Precedence::kSequence);
-    expr.push_back(')');
-    return expr;
+    return expr + ')';
 }
 
 void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {

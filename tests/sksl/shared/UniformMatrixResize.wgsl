@@ -14,15 +14,6 @@ struct _GlobalUniforms {
 fn mat2x2f32_from_mat3x3f32(x0: mat3x3<f32>) -> mat2x2<f32> {
     return mat2x2<f32>(vec2<f32>(x0[0].xy), vec2<f32>(x0[1].xy));
 }
-fn mat2x2f32_eq_mat2x2f32(left: mat2x2<f32>, right: mat2x2<f32>) -> bool {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-fn mat3x3f32_eq_mat3x3f32(left: mat3x3<f32>, right: mat3x3<f32>) -> bool {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
 fn mat3x3f32_from_mat2x2f32(x0: mat2x2<f32>) -> mat3x3<f32> {
     return mat3x3<f32>(vec3<f32>(x0[0].xy, 0.0), vec3<f32>(x0[1].xy, 0.0), vec3<f32>(0.0, 0.0, 1.0));
 }
@@ -33,9 +24,13 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;
     let _skTemp2 = resizeMatrix_f22();
-    if mat2x2f32_eq_mat2x2f32(_skTemp2, mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0))) {
-        let _skTemp3 = resizeMatrix_f22();
-        _skTemp1 = mat3x3f32_eq_mat3x3f32(mat3x3f32_from_mat2x2f32(_skTemp3), mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0)));
+    let _skTemp3 = _skTemp2;
+    let _skTemp4 = mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(4.0, 5.0));
+    if (all(_skTemp3[0] == _skTemp4[0]) && all(_skTemp3[1] == _skTemp4[1])) {
+        let _skTemp5 = resizeMatrix_f22();
+        let _skTemp6 = mat3x3f32_from_mat2x2f32(_skTemp5);
+        let _skTemp7 = mat3x3<f32>(vec3<f32>(1.0, 2.0, 0.0), vec3<f32>(4.0, 5.0, 0.0), vec3<f32>(0.0, 0.0, 1.0));
+        _skTemp1 = (all(_skTemp6[0] == _skTemp7[0]) && all(_skTemp6[1] == _skTemp7[1]) && all(_skTemp6[2] == _skTemp7[2]));
     } else {
         _skTemp1 = false;
     }

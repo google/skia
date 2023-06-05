@@ -11,10 +11,6 @@ struct _GlobalUniforms {
     testMatrix2x2: mat2x2<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn mat2x2f32_eq_mat2x2f32(left: mat2x2<f32>, right: mat2x2<f32>) -> bool {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
 fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     var ok: bool = true;
     var i: i32 = 5;
@@ -83,7 +79,9 @@ fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     ok = ok && !(_globalUniforms.colorGreen.x == 1.0);
     ok = ok && -1.0 == -_globalUniforms.colorGreen.y;
     ok = ok && all(vec4<f32>(0.0, -1.0, 0.0, -1.0) == -_globalUniforms.colorGreen);
-    ok = ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(-1.0, -2.0), vec2<f32>(-3.0, -4.0)), (-1.0 * _globalUniforms.testMatrix2x2));
+    let _skTemp7 = mat2x2<f32>(vec2<f32>(-1.0, -2.0), vec2<f32>(-3.0, -4.0));
+    let _skTemp8 = (-1.0 * _globalUniforms.testMatrix2x2);
+    ok = ok && (all(_skTemp7[0] == _skTemp8[0]) && all(_skTemp7[1] == _skTemp8[1]));
     var iv: vec2<i32> = vec2<i32>(i, -i);
     ok = ok && -i == -5;
     ok = ok && all(-iv == vec2<i32>(-5, 5));
