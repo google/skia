@@ -13,7 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkEncodedInfo.h"
-#include "src/codec/SkColorTable.h"
+#include "src/codec/SkColorPalette.h"
 
 #ifdef SK_PRINT_CODEC_MESSAGES
     #define SkCodecPrintf SkDebugf
@@ -104,7 +104,7 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, bool srcIsOpaque) {
 /*
  * If there is a color table, get a pointer to the colors, otherwise return nullptr
  */
-static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
+static inline const SkPMColor* get_color_ptr(SkColorPalette* colorTable) {
      return nullptr != colorTable ? colorTable->readColors() : nullptr;
 }
 

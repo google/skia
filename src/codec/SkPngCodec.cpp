@@ -22,7 +22,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkColorTable.h"
+#include "src/codec/SkColorPalette.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
 #include "src/core/SkOpts.h"
@@ -269,7 +269,7 @@ static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedA
     return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
 }
 
-// Note: SkColorTable claims to store SkPMColors, which is not necessarily the case here.
+// Note: SkColorPalette claims to store SkPMColors, which is not necessarily the case here.
 bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
 
     int numColors;
@@ -331,7 +331,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
         SkOpts::memset32(colorTable + numColors, lastColor, maxColors - numColors);
     }
 
-    fColorTable.reset(new SkColorTable(colorTable, maxColors));
+    fColorTable.reset(new SkColorPalette(colorTable, maxColors));
     return true;
 }
 
@@ -1259,4 +1259,3 @@ std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
     return Decode(SkMemoryStream::Make(std::move(data)), outResult, ctx);
 }
 }  // namespace SkPngDecoder
-

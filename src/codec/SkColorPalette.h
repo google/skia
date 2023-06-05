@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkColorTable_DEFINED
-#define SkColorTable_DEFINED
+#ifndef SkColorPalette_DEFINED
+#define SkColorPalette_DEFINED
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 
-/** \class SkColorTable
+/** \class SkColorPalette
 
-    SkColorTable holds an array SkPMColors (premultiplied 32-bit colors) used by
+    SkColorPalette holds an array of SkPMColors (premultiplied 32-bit colors) used by
     8-bit bitmaps, where the bitmap bytes are interpreted as indices into the colortable.
 
-    SkColorTable is thread-safe.
+    SkColorPalette is thread-safe.
 */
-class SkColorTable : public SkRefCnt {
+class SkColorPalette : public SkRefCnt {
 public:
-    /** Copy up to 256 colors into a new SkColorTable.
+    /** Copy up to 256 colors into a new SkColorPalette.
      */
-    SkColorTable(const SkPMColor colors[], int count);
-    ~SkColorTable() override;
+    SkColorPalette(const SkPMColor colors[], int count);
+    ~SkColorPalette() override;
 
     /** Returns the number of colors in the table.
      */

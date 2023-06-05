@@ -12,7 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkBmpBaseCodec.h"
-#include "src/codec/SkColorTable.h"
+#include "src/codec/SkColorPalette.h"
 #include "src/codec/SkSwizzler.h"
 
 #include <cstddef>
@@ -89,7 +89,7 @@ private:
      */
     void decodeIcoMask(SkStream* stream, const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
 
-    sk_sp<SkColorTable>         fColorTable;
+    sk_sp<SkColorPalette>       fColorTable;
     // fNumColors is the number specified in the header, or 0 if not present in the header.
     const uint32_t              fNumColors;
     const uint32_t              fBytesPerColor;

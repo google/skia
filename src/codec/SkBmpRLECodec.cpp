@@ -115,7 +115,7 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         // Set the color table
-        fColorTable.reset(new SkColorTable(colorTable, maxColors));
+        fColorTable.reset(new SkColorPalette(colorTable, maxColors));
     }
 
     // Check that we have not read past the pixel array offset
