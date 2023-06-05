@@ -1584,10 +1584,6 @@ std::string WGSLCodeGenerator::writeNontrivialScratchLet(const Expression& expr,
 std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression& t,
                                                          Precedence parentPrecedence) {
     std::string expr;
-    bool needParens = Precedence::kTernary >= parentPrecedence;
-    if (needParens) {
-        expr.push_back('(');
-    }
 
     // The trivial case is when neither branch has side effects and evaluate to a scalar or vector
     // type. This can be represented with a call to the WGSL `select` intrinsic although it doesn't
@@ -1596,6 +1592,11 @@ std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression
         !Analysis::HasSideEffects(*t.test()) &&
         !Analysis::HasSideEffects(*t.ifTrue()) &&
         !Analysis::HasSideEffects(*t.ifFalse())) {
+
+        bool needParens = Precedence::kTernary >= parentPrecedence;
+        if (needParens) {
+            expr.push_back('(');
+        }
         expr += "select(";
         expr += this->assembleExpression(*t.ifFalse(), Precedence::kTernary);
         expr += ", ";
