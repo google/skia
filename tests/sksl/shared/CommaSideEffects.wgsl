@@ -12,11 +12,6 @@ struct _GlobalUniforms {
     colorBlack: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _outParamHelper_0_setToColorBlack_vh4(d: ptr<function, vec4<f32>>) {
-    var _var0: vec4<f32>;
-    setToColorBlack_vh4(&_var0);
-    (*d) = _var0;
-}
 fn setToColorBlack_vh4(x: ptr<function, vec4<f32>>) {
     (*x) = _globalUniforms.colorBlack;
 }
@@ -27,7 +22,9 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var d: vec4<f32>;
     b = _globalUniforms.colorRed;
     c = _globalUniforms.colorGreen;
-    _outParamHelper_0_setToColorBlack_vh4(&d);
+    var _skTemp0: vec4<f32>;
+    setToColorBlack_vh4(&_skTemp0);
+    d = _skTemp0;
     a = _globalUniforms.colorWhite;
     a = a * a;
     b = b * b;

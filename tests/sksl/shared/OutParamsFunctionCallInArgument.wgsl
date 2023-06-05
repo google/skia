@@ -10,27 +10,6 @@ struct _GlobalUniforms {
     colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _outParamHelper_1_out_param_func2_ih(testArray: ptr<function, array<f32, 2>>) -> i32 {
-    var _var0: f32;
-    var _return: i32 = out_param_func2_ih(&_var0);
-    (*testArray)[0] = _var0;
-    return _return;
-}
-fn _outParamHelper_4_out_param_func2_ih(testArray: ptr<function, array<f32, 2>>) -> i32 {
-    var _var0: f32;
-    var _return: i32 = out_param_func2_ih(&_var0);
-    (*testArray)[0] = _var0;
-    return _return;
-}
-fn _outParamHelper_0_out_param_func1_vh(testArray: ptr<function, array<f32, 2>>) {
-    let _skTemp2 = _outParamHelper_1_out_param_func2_ih(&(*testArray));
-    let _skTemp3 = _skTemp2;
-    var _var0: f32 = (*testArray)[_skTemp3];
-    out_param_func1_vh(&_var0);
-    let _skTemp5 = _outParamHelper_4_out_param_func2_ih(&(*testArray));
-    let _skTemp6 = _skTemp5;
-    (*testArray)[_skTemp6] = _var0;
-}
 fn out_param_func1_vh(v: ptr<function, f32>) {
     (*v) = _globalUniforms.colorGreen.y;
 }
@@ -40,7 +19,13 @@ fn out_param_func2_ih(v: ptr<function, f32>) -> i32 {
 }
 fn main(c: vec2<f32>) -> vec4<f32> {
     var testArray: array<f32, 2>;
-    _outParamHelper_0_out_param_func1_vh(&testArray);
+    var _skTemp0: f32;
+    let _skTemp1 = out_param_func2_ih(&_skTemp0);
+    testArray[0] = _skTemp0;
+    let _skTemp2 = _skTemp1;
+    var _skTemp3: f32 = testArray[_skTemp2];
+    out_param_func1_vh(&_skTemp3);
+    testArray[_skTemp2] = _skTemp3;
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(testArray[0] == 1.0 && testArray[1] == 1.0));
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

@@ -8,63 +8,6 @@ struct _GlobalUniforms {
     uFloat: f32,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _outParamHelper_0_one_out_param_vh(h: ptr<function, f32>) {
-    var _var0: f32;
-    one_out_param_vh(&_var0);
-    (*h) = _var0;
-}
-fn _outParamHelper_1_one_out_param_vh(x: ptr<function, f32>) {
-    var _var0: f32;
-    one_out_param_vh(&_var0);
-    (*x) = _var0;
-}
-fn _outParamHelper_2_one_out_param_indirect_vh(x: ptr<function, f32>) {
-    var _var0: f32;
-    one_out_param_indirect_vh(&_var0);
-    (*x) = _var0;
-}
-fn _outParamHelper_3_various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, _var0: f32, x: ptr<function, f32>, _unused2: ptr<function, f32>) {
-    var _var1: f32;
-    var _var2: f32 = (*x);
-    various_parameter_types_vhhh(_stageOut, _var0, &_var1, &_var2);
-    (*x) = _var1;
-    (*x) = _var2;
-}
-fn _outParamHelper_4_various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, _var0: f32, v: ptr<function, vec4<f32>>, _unused2: ptr<function, vec4<f32>>) {
-    var _var1: f32;
-    var _var2: f32 = (*v).x;
-    various_parameter_types_vhhh(_stageOut, _var0, &_var1, &_var2);
-    (*v).x = _var1;
-    (*v).x = _var2;
-}
-fn _outParamHelper_5_various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, _var0: f32, v: ptr<function, vec4<f32>>, _unused2: ptr<function, vec4<f32>>) {
-    var _var1: f32;
-    var _var2: f32 = (*v).y;
-    various_parameter_types_vhhh(_stageOut, _var0, &_var1, &_var2);
-    (*v).y = _var1;
-    (*v).y = _var2;
-}
-fn _outParamHelper_6_various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, _var0: f32, v: ptr<function, vec4<f32>>, _unused2: ptr<function, vec4<f32>>) {
-    var _var1: f32;
-    var _var2: f32 = (*v).y;
-    various_parameter_types_vhhh(_stageOut, _var0, &_var1, &_var2);
-    (*v).x = _var1;
-    (*v).y = _var2;
-}
-fn _outParamHelper_7_various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, _var0: f32, s: ptr<function, S>, x: ptr<function, f32>) {
-    var _var1: f32;
-    var _var2: f32 = (*x);
-    various_parameter_types_vhhh(_stageOut, _var0, &_var1, &_var2);
-    (*s).v.x = _var1;
-    (*x) = _var2;
-}
-fn _outParamHelper_8_various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, _var0: f32, s: ptr<function, S>, x: ptr<function, f32>) {
-    var _var1: f32;
-    var _var2: f32 = (*x);
-    various_parameter_types_vhhh(_stageOut, _var0, &_var1, &_var2);
-    (*s).v.y = _var1;
-    (*x) = _var2;
-}
 fn various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, a: f32, b: ptr<function, f32>, c: ptr<function, f32>) {
     (*_stageOut).sk_FragColor = vec4<f32>(a, (*b), (*c), _globalUniforms.uFloat);
     (*b) = a;
@@ -74,23 +17,53 @@ fn one_out_param_vh(h: ptr<function, f32>) {
     (*h) = 2.0;
 }
 fn one_out_param_indirect_vh(h: ptr<function, f32>) {
-    _outParamHelper_0_one_out_param_vh(&(*h));
+    var _skTemp0: f32;
+    one_out_param_vh(&_skTemp0);
+    (*h) = _skTemp0;
 }
 struct S {
     v: vec4<f32>,
 };
 fn main(_stageOut: ptr<function, FSOut>) {
     var x: f32 = 1.0;
-    _outParamHelper_1_one_out_param_vh(&x);
-    _outParamHelper_2_one_out_param_indirect_vh(&x);
-    _outParamHelper_3_various_parameter_types_vhhh(_stageOut, x + 1.0, &x, &x);
+    var _skTemp1: f32;
+    one_out_param_vh(&_skTemp1);
+    x = _skTemp1;
+    var _skTemp2: f32;
+    one_out_param_indirect_vh(&_skTemp2);
+    x = _skTemp2;
+    var _skTemp3: f32;
+    var _skTemp4: f32 = x;
+    various_parameter_types_vhhh(_stageOut, x + 1.0, &_skTemp3, &_skTemp4);
+    x = _skTemp3;
+    x = _skTemp4;
     var v: vec4<f32>;
-    _outParamHelper_4_various_parameter_types_vhhh(_stageOut, x + 1.0, &v, &v);
-    _outParamHelper_5_various_parameter_types_vhhh(_stageOut, x + 1.0, &v, &v);
-    _outParamHelper_6_various_parameter_types_vhhh(_stageOut, x + 1.0, &v, &v);
+    var _skTemp5: f32;
+    var _skTemp6: f32 = v.x;
+    various_parameter_types_vhhh(_stageOut, x + 1.0, &_skTemp5, &_skTemp6);
+    v.x = _skTemp5;
+    v.x = _skTemp6;
+    var _skTemp7: f32;
+    var _skTemp8: f32 = v.y;
+    various_parameter_types_vhhh(_stageOut, x + 1.0, &_skTemp7, &_skTemp8);
+    v.y = _skTemp7;
+    v.y = _skTemp8;
+    var _skTemp9: f32;
+    var _skTemp10: f32 = v.y;
+    various_parameter_types_vhhh(_stageOut, x + 1.0, &_skTemp9, &_skTemp10);
+    v.x = _skTemp9;
+    v.y = _skTemp10;
     var s: S;
-    _outParamHelper_7_various_parameter_types_vhhh(_stageOut, x + 1.0, &s, &x);
-    _outParamHelper_8_various_parameter_types_vhhh(_stageOut, x + 1.0, &s, &x);
+    var _skTemp11: f32;
+    var _skTemp12: f32 = x;
+    various_parameter_types_vhhh(_stageOut, x + 1.0, &_skTemp11, &_skTemp12);
+    s.v.x = _skTemp11;
+    x = _skTemp12;
+    var _skTemp13: f32;
+    var _skTemp14: f32 = x;
+    various_parameter_types_vhhh(_stageOut, x + 1.0, &_skTemp13, &_skTemp14);
+    s.v.y = _skTemp13;
+    x = _skTemp14;
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
     var _stageOut: FSOut;

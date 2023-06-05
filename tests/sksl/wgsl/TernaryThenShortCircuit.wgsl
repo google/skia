@@ -10,30 +10,6 @@ struct _GlobalUniforms {
     colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _outParamHelper_4_Increment_ii(y: ptr<function, i32>) -> i32 {
-    var _var0: i32 = (*y);
-    var _return: i32 = Increment_ii(&_var0);
-    (*y) = _var0;
-    return _return;
-}
-fn _outParamHelper_10_Increment_ii(y: ptr<function, i32>) -> i32 {
-    var _var0: i32 = (*y);
-    var _return: i32 = Increment_ii(&_var0);
-    (*y) = _var0;
-    return _return;
-}
-fn _outParamHelper_16_Increment_ii(y: ptr<function, i32>) -> i32 {
-    var _var0: i32 = (*y);
-    var _return: i32 = Increment_ii(&_var0);
-    (*y) = _var0;
-    return _return;
-}
-fn _outParamHelper_20_Increment_ii(_2_y: ptr<function, i32>) -> i32 {
-    var _var0: i32 = (*_2_y);
-    var _return: i32 = Increment_ii(&_var0);
-    (*_2_y) = _var0;
-    return _return;
-}
 fn Increment_ii(y: ptr<function, i32>) -> i32 {
     (*y) = (*y) + 1;
     return (*y);
@@ -59,7 +35,9 @@ fn TrueFalse_b() -> bool {
     if _skTemp1 {
         _skTemp0 = true;
     } else {
-        let _skTemp5 = _outParamHelper_4_Increment_ii(&y);
+        var _skTemp4: i32 = y;
+        let _skTemp5 = Increment_ii(&_skTemp4);
+        y = _skTemp4;
         _skTemp0 = _skTemp5 == 3;
     }
     if (_skTemp0) {
@@ -87,7 +65,9 @@ fn FalseTrue_b() -> bool {
     if _skTemp7 {
         _skTemp6 = true;
     } else {
-        let _skTemp11 = _outParamHelper_10_Increment_ii(&y);
+        var _skTemp10: i32 = y;
+        let _skTemp11 = Increment_ii(&_skTemp10);
+        y = _skTemp10;
         _skTemp6 = _skTemp11 == 2;
     }
     if (_skTemp6) {
@@ -115,7 +95,9 @@ fn FalseFalse_b() -> bool {
     if _skTemp13 {
         _skTemp12 = true;
     } else {
-        let _skTemp17 = _outParamHelper_16_Increment_ii(&y);
+        var _skTemp16: i32 = y;
+        let _skTemp17 = Increment_ii(&_skTemp16);
+        y = _skTemp16;
         _skTemp12 = _skTemp17 == 3;
     }
     if (_skTemp12) {
@@ -136,7 +118,9 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     if _skTemp19 {
         _skTemp18 = true;
     } else {
-        let _skTemp21 = _outParamHelper_20_Increment_ii(&_2_y);
+        var _skTemp20: i32 = _2_y;
+        let _skTemp21 = Increment_ii(&_skTemp20);
+        _2_y = _skTemp20;
         _skTemp18 = _skTemp21 == 2;
     }
     if (_skTemp18) {

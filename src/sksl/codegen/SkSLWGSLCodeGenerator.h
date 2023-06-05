@@ -10,10 +10,8 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLOperator.h"
-#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
 #include <cstdint>
@@ -60,7 +58,6 @@ class Swizzle;
 class TernaryExpression;
 class Type;
 class VarDeclaration;
-class Variable;
 class VariableReference;
 struct Modifiers;
 struct Program;
@@ -208,7 +205,7 @@ private:
                                          const Type& resultType,
                                          Precedence parentPrecedence);
     std::string assembleFieldAccess(const FieldAccess& f);
-    std::string assembleFunctionCall(const FunctionCall& c, Precedence parentPrecedence);
+    std::string assembleFunctionCall(const FunctionCall& call, Precedence parentPrecedence);
     std::string assembleIndexExpression(const IndexExpression& i);
     std::string assembleLiteral(const Literal& l);
     std::string assemblePostfixExpression(const PostfixExpression& p, Precedence parentPrecedence);
@@ -235,7 +232,7 @@ private:
     std::string assembleMatrixEqualityExpression(const Expression& left, const Expression& right);
 
     // Writes a scratch variable into the program and returns its name (e.g. `_skTemp123`).
-    std::string writeScratchVar(const Type& type);
+    std::string writeScratchVar(const Type& type, const std::string& value = "");
 
     // Writes a scratch let-variable into the program, gives it the value of `expr`, and returns its
     // name (e.g. `_skTemp123`).
@@ -283,31 +280,17 @@ private:
     std::string functionDependencyArgs(const FunctionDeclaration&);
     bool writeFunctionDependencyParams(const FunctionDeclaration&);
 
-    // Generate an out-parameter helper function for the given call and return its name.
-    std::string writeOutParamHelper(const FunctionCall&,
-                                    const ExpressionArray& args,
-                                    const skia_private::TArray<VariableReference*>& outVars);
-
     // Stores the disallowed identifier names.
     skia_private::THashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
     int fPipelineInputCount = 0;
     bool fDeclaredUniformsStruct = false;
 
-    // Out-parameters to functions are declared as pointers. While we process the arguments to a
-    // out-parameter helper function, we need to temporarily track that they are re-declared as
-    // pointer-parameters in the helper, so that expression-tree processing can know to correctly
-    // dereference them when the variable is referenced. The contents of this set are expected to
-    // be uniquely scoped for each out-param helper and will be cleared every time a new out-param
-    // helper function has been emitted.
-    skia_private::THashSet<const Variable*> fOutParamArgVars;
-
     // Output processing state.
     int fIndentation = 0;
     bool fAtLineStart = false;
 
     int fScratchCount = 0;
-    StringStream fExtraFunctions;  // all internally synthesized helpers are written here
 };
 
 }  // namespace SkSL
