@@ -18,6 +18,8 @@
 
 class SkColorMatrix;
 class SkColorSpace;
+class SkColorTable;
+
 enum class SkBlendMode;
 struct SkDeserialProcs;
 
@@ -118,6 +120,11 @@ public:
                                           const uint8_t tableR[256],
                                           const uint8_t tableG[256],
                                           const uint8_t tableB[256]);
+
+    /**
+     * Create a table colorfilter that holds a ref to the shared color table.
+     */
+    static sk_sp<SkColorFilter> Table(sk_sp<SkColorTable> table);
 
     /**
      *  Create a colorfilter that multiplies the RGB channels by one color, and

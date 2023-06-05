@@ -1,0 +1,1 @@
+Added a new public type, `SkColorTable`, to own the lookup tables passed into `SkColorFilters::Table`, which allows clients and the returned `SkColorFilter` to share the table memory instead of having to duplicate it in any wrapper types that lazily create Skia representations.

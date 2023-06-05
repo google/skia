@@ -33,6 +33,7 @@ skia_filegroup(
         "SkColorFilter.h",
         "SkColorPriv.h",
         "SkColorSpace.h",
+        "SkColorTable.h",
         "SkColorType.h",
         "SkContourMeasure.h",
         "SkCoverageMode.h",

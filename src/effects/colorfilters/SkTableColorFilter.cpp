@@ -7,10 +7,9 @@
 
 #include "src/effects/colorfilters/SkTableColorFilter.h"
 
-#include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorTable.h"
 #include "include/core/SkFlattenable.h"
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "src/base/SkArenaAlloc.h"
@@ -18,11 +17,10 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <cstdint>
+#include <utility>
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/Image_Graphite.h"
@@ -41,22 +39,6 @@ class PipelineDataGatherer;
 #include "src/core/SkVM.h"
 #endif
 
-SkTableColorFilter::SkTableColorFilter(const uint8_t tableA[],
-                                       const uint8_t tableR[],
-                                       const uint8_t tableG[],
-                                       const uint8_t tableB[]) {
-    fBitmap.allocPixels(SkImageInfo::MakeA8(256, 4));
-    uint8_t *a = fBitmap.getAddr8(0, 0), *r = fBitmap.getAddr8(0, 1), *g = fBitmap.getAddr8(0, 2),
-            *b = fBitmap.getAddr8(0, 3);
-    for (int i = 0; i < 256; i++) {
-        a[i] = tableA ? tableA[i] : i;
-        r[i] = tableR ? tableR[i] : i;
-        g[i] = tableG ? tableG[i] : i;
-        b[i] = tableB ? tableB[i] : i;
-    }
-    fBitmap.setImmutable();
-}
-
 bool SkTableColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     SkRasterPipeline* p = rec.fPipeline;
     if (!shaderIsOpaque) {
@@ -64,10 +46,10 @@ bool SkTableColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque
     }
 
     SkRasterPipeline_TablesCtx* tables = rec.fAlloc->make<SkRasterPipeline_TablesCtx>();
-    tables->a = fBitmap.getAddr8(0, 0);
-    tables->r = fBitmap.getAddr8(0, 1);
-    tables->g = fBitmap.getAddr8(0, 2);
-    tables->b = fBitmap.getAddr8(0, 3);
+    tables->a = fTable->alphaTable();
+    tables->r = fTable->redTable();
+    tables->g = fTable->greenTable();
+    tables->b = fTable->blueTable();
     p->append(SkRasterPipelineOp::byte_tables, tables);
 
     bool definitelyOpaque = shaderIsOpaque && tables->a[0xff] == 0xff;
@@ -90,24 +72,20 @@ skvm::Color SkTableColorFilter::onProgram(skvm::Builder* p,
     };
 
     c = unpremul(c);
-    c.a = apply_table_to_component(c.a, fBitmap.getAddr8(0, 0));
-    c.r = apply_table_to_component(c.r, fBitmap.getAddr8(0, 1));
-    c.g = apply_table_to_component(c.g, fBitmap.getAddr8(0, 2));
-    c.b = apply_table_to_component(c.b, fBitmap.getAddr8(0, 3));
+    c.a = apply_table_to_component(c.a, fTable->alphaTable());
+    c.r = apply_table_to_component(c.r, fTable->redTable());
+    c.g = apply_table_to_component(c.g, fTable->greenTable());
+    c.b = apply_table_to_component(c.b, fTable->blueTable());
     return premul(c);
 }
 #endif
 
 void SkTableColorFilter::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeByteArray(fBitmap.getAddr8(0, 0), 4 * 256);
+    fTable->flatten(buffer);
 }
 
 sk_sp<SkFlattenable> SkTableColorFilter::CreateProc(SkReadBuffer& buffer) {
-    uint8_t argb[4*256];
-    if (buffer.readByteArray(argb, sizeof(argb))) {
-        return SkColorFilters::TableARGB(argb+0*256, argb+1*256, argb+2*256, argb+3*256);
-    }
-    return nullptr;
+    return SkColorFilters::Table(SkColorTable::Deserialize(buffer));
 }
 
 #if defined(SK_GRAPHITE)
@@ -117,7 +95,8 @@ void SkTableColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
-    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), fBitmap);
+    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(),
+                                                                this->bitmap());
     if (!proxy) {
         SKGPU_LOG_W("Couldn't create TableColorFilter's table");
 
@@ -138,18 +117,21 @@ void SkTableColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorFilter> SkColorFilters::Table(const uint8_t table[256]) {
-    return sk_make_sp<SkTableColorFilter>(table, table, table, table);
+    return SkColorFilters::Table(SkColorTable::Make(table));
 }
 
 sk_sp<SkColorFilter> SkColorFilters::TableARGB(const uint8_t tableA[256],
                                                const uint8_t tableR[256],
                                                const uint8_t tableG[256],
                                                const uint8_t tableB[256]) {
-    if (!tableA && !tableR && !tableG && !tableB) {
+    return SkColorFilters::Table(SkColorTable::Make(tableA, tableR, tableG, tableB));
+}
+
+sk_sp<SkColorFilter> SkColorFilters::Table(sk_sp<SkColorTable> table) {
+    if (!table) {
         return nullptr;
     }
-
-    return sk_make_sp<SkTableColorFilter>(tableA, tableR, tableG, tableB);
+    return sk_make_sp<SkTableColorFilter>(std::move(table));
 }
 
 void SkRegisterTableColorFilterFlattenable() {
