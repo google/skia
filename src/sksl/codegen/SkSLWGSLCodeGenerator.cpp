@@ -901,6 +901,12 @@ void WGSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kBlock:
             this->writeBlock(s.as<Block>());
             break;
+        case Statement::Kind::kBreak:
+            this->writeLine("break;");
+            break;
+        case Statement::Kind::kContinue:
+            this->writeLine("continue;");
+            break;
         case Statement::Kind::kExpression:
             this->writeExpressionStatement(*s.as<ExpressionStatement>().expression());
             break;
@@ -909,6 +915,9 @@ void WGSLCodeGenerator::writeStatement(const Statement& s) {
             break;
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
+            break;
+        case Statement::Kind::kNop:
+            this->writeLine(";");
             break;
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());

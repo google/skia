@@ -1071,9 +1071,13 @@ skia_filegroup(
         "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
 
         # Shared tests that are supported so far:
+        "runtime/LoopFloat.rts",
+        "runtime/LoopInt.rts",
         "runtime/GlobalVariables.rts",
         "runtime/GLSLTypeNames.rts",
+        "runtime/LargeProgram_BlocklessLoops.rts",
         "runtime/LargeProgram_FlatLoop.rts",
+        "runtime/LargeProgram_Functions.rts",
         "runtime/LargeProgram_NestedLoops.rts",
         "runtime/LargeProgram_SplitLoops.rts",
         "runtime/LargeProgram_ZeroIterFor.rts",
@@ -1085,6 +1089,7 @@ skia_filegroup(
         "shared/CommaSideEffects.sksl",
         "shared/ConstArray.sksl",
         "shared/ConstantIf.sksl",
+        "shared/ForLoopMultipleInit.sksl",
         "shared/FunctionAnonymousParameters.sksl",
         "shared/HelloWorld.sksl",
         "shared/InoutParameters.sksl",
@@ -1123,8 +1128,10 @@ skia_filegroup(
         "shared/TernaryNesting.sksl",
         "shared/TernaryTrueFalseOptimization.sksl",
         "shared/UnaryPositiveNegative.sksl",
+        "shared/UnusedVariables.sksl",
         "shared/UniformMatrixResize.sksl",
         "shared/VectorConstructors.sksl",
         "shared/VertexID.vert",
+        "shared/WhileLoopControlFlow.sksl",
     ],
 )
