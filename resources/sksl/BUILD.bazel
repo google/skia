@@ -1088,6 +1088,7 @@ skia_filegroup(
         "shared/CommaMixedTypes.sksl",
         "shared/CommaSideEffects.sksl",
         "shared/ConstArray.sksl",
+        "shared/ConstGlobal.sksl",
         "shared/ConstantIf.sksl",
         "shared/ForLoopMultipleInit.sksl",
         "shared/FunctionAnonymousParameters.sksl",

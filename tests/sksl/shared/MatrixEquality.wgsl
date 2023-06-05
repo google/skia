@@ -21,14 +21,8 @@ fn mat3x3f32_eq_mat3x3f32(left: mat3x3<f32>, right: mat3x3<f32>) -> bool {
            all(left[1] == right[1]) &&
            all(left[2] == right[2]);
 }
-fn mat2x2f32_diagonal(x: f32) -> mat2x2<f32> {
-    return mat2x2<f32>(x, 0.0, 0.0, x);
-}
 fn mat3x3f32_from_mat2x2f32(x0: mat2x2<f32>) -> mat3x3<f32> {
     return mat3x3<f32>(vec3<f32>(x0[0].xy, 0.0), vec3<f32>(x0[1].xy, 0.0), vec3<f32>(0.0, 0.0, 1.0));
-}
-fn mat3x3f32_diagonal(x: f32) -> mat3x3<f32> {
-    return mat3x3<f32>(x, 0.0, 0.0, 0.0, x, 0.0, 0.0, 0.0, x);
 }
 fn mat2x2f32_from_mat3x3f32(x0: mat3x3<f32>) -> mat2x2<f32> {
     return mat2x2<f32>(vec2<f32>(x0[0].xy), vec2<f32>(x0[1].xy));
@@ -40,7 +34,7 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var _0_ok: bool = true;
     _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(_globalUniforms.testMatrix2x2, mat2x2<f32>(vec2<f32>(1.0, 2.0), vec2<f32>(3.0, 4.0)));
     _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(_globalUniforms.testMatrix3x3, mat3x3<f32>(vec3<f32>(1.0, 2.0, 3.0), vec3<f32>(4.0, 5.0, 6.0), vec3<f32>(7.0, 8.0, 9.0)));
-    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(_globalUniforms.testMatrix2x2, mat2x2f32_diagonal(100.0));
+    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(_globalUniforms.testMatrix2x2, mat2x2<f32>(100.0, 0.0, 0.0, 100.0));
     _0_ok = _0_ok && !mat3x3f32_eq_mat3x3f32(_globalUniforms.testMatrix3x3, mat3x3<f32>(vec3<f32>(9.0, 8.0, 7.0), vec3<f32>(6.0, 5.0, 4.0), vec3<f32>(3.0, 2.0, 1.0)));
     var _1_zero: f32 = f32(_globalUniforms.colorGreen.x);
     var _2_one: f32 = f32(_globalUniforms.colorGreen.y);
@@ -48,25 +42,27 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var _4_nine: f32 = 9.0 * _2_one;
     _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one)), mat2x2<f32>(vec2<f32>(1.0, 0.0), vec2<f32>(0.0, 1.0)));
     _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_2_one)), mat2x2<f32>(vec2<f32>(1.0, 0.0), vec2<f32>(0.0, 1.0)));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(_2_one), mat2x2f32_diagonal(1.0));
-    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(_2_one), mat2x2f32_diagonal(0.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(-_2_one), mat2x2f32_diagonal(-1.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(_1_zero), mat2x2f32_diagonal(-0.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32((-1.0 * mat2x2f32_diagonal(-_2_one)), mat2x2f32_diagonal(1.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32((-1.0 * mat2x2f32_diagonal(_1_zero)), mat2x2f32_diagonal(-0.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(_2_one), mat2x2<f32>(vec2<f32>(1.0, 0.0), vec2<f32>(0.0, 1.0)));
-    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(_3_two), mat2x2<f32>(vec2<f32>(1.0, 0.0), vec2<f32>(0.0, 1.0)));
-    _0_ok = _0_ok && !!mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(_2_one), mat2x2f32_diagonal(1.0));
-    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(mat2x2f32_diagonal(_2_one), mat2x2f32_diagonal(0.0));
-    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3<f32>(vec3<f32>(_2_one, _1_zero, _1_zero), vec3<f32>(_1_zero, _2_one, _1_zero), vec3<f32>(_1_zero, _1_zero, _2_one)), mat3x3f32_from_mat2x2f32(mat2x2f32_diagonal(1.0)));
-    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3<f32>(vec3<f32>(_4_nine, _1_zero, _1_zero), vec3<f32>(_1_zero, _4_nine, _1_zero), vec3<f32>(_1_zero, _1_zero, _2_one)), mat3x3f32_from_mat2x2f32(mat2x2f32_diagonal(9.0)));
-    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3f32_diagonal(_2_one), mat3x3f32_from_mat2x2f32(mat2x2f32_diagonal(1.0)));
-    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3<f32>(vec3<f32>(_4_nine, 0.0, 0.0), vec3<f32>(0.0, _4_nine, 0.0), vec3<f32>(0.0, 0.0, _2_one)), mat3x3f32_from_mat2x2f32(mat2x2f32_diagonal(9.0)));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_from_mat3x3f32(mat3x3f32_diagonal(_2_one)), mat2x2f32_diagonal(1.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_from_mat3x3f32(mat3x3f32_diagonal(_2_one)), mat2x2f32_diagonal(1.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one)), mat2x2f32_diagonal(1.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one)), mat2x2f32_diagonal(1.0));
-    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one)), mat2x2f32_diagonal(1.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_2_one, 0.0, 0.0, _2_one), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_2_one, 0.0, 0.0, _2_one), mat2x2<f32>(0.0, 0.0, 0.0, 0.0));
+    let _skTemp0 = -_2_one;
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_skTemp0, 0.0, 0.0, _skTemp0), mat2x2<f32>(-1.0, 0.0, 0.0, -1.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_1_zero, 0.0, 0.0, _1_zero), mat2x2<f32>(-0.0, 0.0, 0.0, -0.0));
+    let _skTemp1 = -_2_one;
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32((-1.0 * mat2x2<f32>(_skTemp1, 0.0, 0.0, _skTemp1)), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32((-1.0 * mat2x2<f32>(_1_zero, 0.0, 0.0, _1_zero)), mat2x2<f32>(-0.0, 0.0, 0.0, -0.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_2_one, 0.0, 0.0, _2_one), mat2x2<f32>(vec2<f32>(1.0, 0.0), vec2<f32>(0.0, 1.0)));
+    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_3_two, 0.0, 0.0, _3_two), mat2x2<f32>(vec2<f32>(1.0, 0.0), vec2<f32>(0.0, 1.0)));
+    _0_ok = _0_ok && !!mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_2_one, 0.0, 0.0, _2_one), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && !mat2x2f32_eq_mat2x2f32(mat2x2<f32>(_2_one, 0.0, 0.0, _2_one), mat2x2<f32>(0.0, 0.0, 0.0, 0.0));
+    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3<f32>(vec3<f32>(_2_one, _1_zero, _1_zero), vec3<f32>(_1_zero, _2_one, _1_zero), vec3<f32>(_1_zero, _1_zero, _2_one)), mat3x3f32_from_mat2x2f32(mat2x2<f32>(1.0, 0.0, 0.0, 1.0)));
+    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3<f32>(vec3<f32>(_4_nine, _1_zero, _1_zero), vec3<f32>(_1_zero, _4_nine, _1_zero), vec3<f32>(_1_zero, _1_zero, _2_one)), mat3x3f32_from_mat2x2f32(mat2x2<f32>(9.0, 0.0, 0.0, 9.0)));
+    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one), mat3x3f32_from_mat2x2f32(mat2x2<f32>(1.0, 0.0, 0.0, 1.0)));
+    _0_ok = _0_ok && mat3x3f32_eq_mat3x3f32(mat3x3<f32>(vec3<f32>(_4_nine, 0.0, 0.0), vec3<f32>(0.0, _4_nine, 0.0), vec3<f32>(0.0, 0.0, _2_one)), mat3x3f32_from_mat2x2f32(mat2x2<f32>(9.0, 0.0, 0.0, 9.0)));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_from_mat3x3f32(mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one)), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2f32_from_mat3x3f32(mat3x3<f32>(_2_one, 0.0, 0.0, 0.0, _2_one, 0.0, 0.0, 0.0, _2_one)), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one)), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one)), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && mat2x2f32_eq_mat2x2f32(mat2x2<f32>(vec2<f32>(_2_one, _1_zero), vec2<f32>(_1_zero, _2_one)), mat2x2<f32>(1.0, 0.0, 0.0, 1.0));
     _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_2_one) == vec4<f32>(1.0, 2.0, 3.0, 4.0));
     _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_2_one) == vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)));
     _0_ok = _0_ok && all(vec4<f32>(vec4f32_from_mat2x2f32(_globalUniforms.testMatrix2x2)) * vec4<f32>(_1_zero) == vec4<f32>(0.0));

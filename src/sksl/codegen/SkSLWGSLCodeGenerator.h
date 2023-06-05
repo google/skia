@@ -247,6 +247,11 @@ private:
     // name (e.g. `_skTemp123`).
     std::string writeScratchLet(const std::string& expr);
 
+    // Converts `expr` into a string and returns a scratch let-variable associated with the
+    // expression. Compile-time constants and plain variable references will return the expression
+    // directly and omit the let-variable.
+    std::string writeNontrivialScratchLet(const Expression& expr, Precedence parentPrecedence);
+
     // Generic recursive ProgramElement visitor.
     void writeProgramElement(const ProgramElement& e);
     void writeGlobalVarDeclaration(const GlobalVarDeclaration& d);

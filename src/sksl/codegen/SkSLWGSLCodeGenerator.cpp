@@ -1462,13 +1462,8 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& c,
 }
 
 std::string WGSLCodeGenerator::assembleIndexExpression(const IndexExpression& i) {
-    // Put the index value into a let-expression. (We skip this step if it's extremely simple--a
-    // constant-expression or a variable. This is actually important, because constant-expression
-    // indexes could appear on an const-initializer at global scope.)
-    std::string idx = this->assembleExpression(*i.index(), Precedence::kExpression);
-    if (!Analysis::IsConstantExpression(*i.index()) && !i.index()->is<VariableReference>()) {
-        idx = this->writeScratchLet(idx);
-    }
+    // Put the index value into a let-expression.
+    std::string idx = this->writeNontrivialScratchLet(*i.index(), Precedence::kExpression);
     return this->assembleExpression(*i.base(), Precedence::kPostfix) + "[" + idx + "]";
 }
 
@@ -1607,6 +1602,14 @@ std::string WGSLCodeGenerator::writeScratchLet(const std::string& expr) {
     this->write(expr);
     this->writeLine(";");
     return scratchVarName;
+}
+
+std::string WGSLCodeGenerator::writeNontrivialScratchLet(const Expression& expr,
+                                                         Precedence parentPrecedence) {
+    std::string result = this->assembleExpression(expr, parentPrecedence);
+    return (Analysis::IsConstantExpression(expr) || expr.is<VariableReference>())
+                   ? result
+                   : this->writeScratchLet(result);
 }
 
 std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression& t,
@@ -1856,30 +1859,23 @@ std::string WGSLCodeGenerator::assembleConstructorDiagonalMatrix(const Construct
     SkASSERT(type.isMatrix());
     SkASSERT(c.argument()->type().isScalar());
 
-    // Generate a helper so that the argument expression gets evaluated once.
-    std::string name = String::printf("%s_diagonal", to_mangled_wgsl_type_name(type).c_str());
-    if (!fHelpers.contains(name)) {
-        fHelpers.add(name);
+    // Evaluate the inner-expression, creating a scratch variable if necessary.
+    std::string inner = this->writeNontrivialScratchLet(*c.argument(), Precedence::kAssignment);
 
-        std::string typeName = to_wgsl_type(type);
-        fExtraFunctions.printf("fn %s(x: %s) -> %s {\n",
-                               name.c_str(),
-                               to_wgsl_type(c.argument()->type()).c_str(),
-                               typeName.c_str());
-        fExtraFunctions.printf("    return %s(", typeName.c_str());
-        auto separator = String::Separator();
-        for (int col = 0; col < type.columns(); ++col) {
-            for (int row = 0; row < type.rows(); ++row) {
-                fExtraFunctions.printf("%s%s", separator().c_str(), (col == row) ? "x" : "0.0");
+    // Assemble a diagonal-matrix expression.
+    std::string expr = to_wgsl_type(type) + '(';
+    auto separator = String::Separator();
+    for (int col = 0; col < type.columns(); ++col) {
+        for (int row = 0; row < type.rows(); ++row) {
+            expr += separator();
+            if (col == row) {
+                expr += inner;
+            } else {
+                expr += "0.0";
             }
         }
-        fExtraFunctions.printf(");\n}\n");
     }
-    std::string expr = name;
-    expr.push_back('(');
-    expr += this->assembleExpression(*c.argument(), Precedence::kSequence);
-    expr.push_back(')');
-    return expr;
+    return expr + ')';
 }
 
 std::string WGSLCodeGenerator::assembleConstructorMatrixResize(const ConstructorMatrixResize& c,

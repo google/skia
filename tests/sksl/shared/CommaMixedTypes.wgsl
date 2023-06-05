@@ -10,9 +10,6 @@ struct _GlobalUniforms {
     unknownInput: f32,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn mat2x2f32_diagonal(x: f32) -> mat2x2<f32> {
-    return mat2x2<f32>(x, 0.0, 0.0, x);
-}
 fn main(coords: vec2<f32>) -> vec4<f32> {
     var result: vec4<f32>;
     result.x = _globalUniforms.colorGreen.x;
