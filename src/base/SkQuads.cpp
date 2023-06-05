@@ -113,30 +113,32 @@ SkQuads::RootResult SkQuads::Roots(double A, double B, double C) {
     return {discriminant, NAN, NAN};
 }
 
+static double zero_if_tiny(double x) {
+    return sk_double_nearly_zero(x) ? 0 : x;
+}
+
 int SkQuads::RootsReal(const double A, const double B, const double C, double solution[2]) {
+
     if (close_to_linear(A, B)) {
         return solve_linear(B, C, solution);
     }
-    // If A is zero (e.g. B was nan and thus close_to_linear was false), we will
-    // temporarily have infinities rolling about, but will catch that when checking
-    // p2 - q.
-    const double p = sk_ieee_double_divide(B, 2 * A);
-    const double q = sk_ieee_double_divide(C, A);
-    /* normal form: x^2 + px + q = 0 */
-    const double p2 = p * p;
-    if (!std::isfinite(p2 - q) ||
-        (!sk_double_nearly_zero(p2 - q) && p2 < q)) {
+
+    SkASSERT(A != 0);
+    auto [discriminant, root0, root1] = Roots(A, -0.5 * B, C);
+
+    // Handle invariants to mesh with existing code from here on.
+    if (!std::isfinite(discriminant) || discriminant < 0) {
         return 0;
     }
-    double sqrt_D = 0;
-    if (p2 > q) {
-        sqrt_D = sqrt(p2 - q);
-    }
-    solution[0] = sqrt_D - p;
-    solution[1] = -sqrt_D - p;
-    if (sk_double_nearly_zero(sqrt_D) ||
-        sk_doubles_nearly_equal_ulps(solution[0], solution[1])) {
+
+    const double r0 = zero_if_tiny(root0);
+    const double r1 = zero_if_tiny(root1);
+
+    if (sk_doubles_nearly_equal_ulps(r0, r1)) {
+        solution[0] = r0;
         return 1;
     }
+
+    solution[0] = r0; solution[1] = r1;
     return 2;
 }
