@@ -606,26 +606,32 @@ bool Compiler::toMetal(Program& program, std::string* out) {
 }
 
 #if defined(SK_ENABLE_WGSL_VALIDATION)
-static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl) {
+static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std::string* warnings) {
     // Verify that the WGSL we produced is valid.
     tint::Source::File srcFile("", wgsl);
     tint::Program program(tint::reader::wgsl::Parse(&srcFile));
-    if (program.Diagnostics().empty()) {
-        return true;
+
+    if (program.Diagnostics().contains_errors()) {
+        // The program isn't valid WGSL. In debug, report the error via SkDEBUGFAIL. We also append
+        // the generated program for ease of debugging.
+        tint::diag::Formatter diagFormatter;
+        std::string diagOutput = diagFormatter.format(program.Diagnostics());
+        diagOutput += "\n";
+        diagOutput += wgsl;
+#if defined(SKSL_STANDALONE)
+        reporter.error(Position(), diagOutput);
+#else
+        SkDEBUGFAILF("%s", diagOutput.c_str());
+#endif
+        return false;
     }
 
-    // The program isn't valid WGSL. In debug, report the error via SkDEBUGFAIL. We also append the
-    // generated program for ease of debugging.
-    tint::diag::Formatter diagFormatter;
-    std::string diagOutput = diagFormatter.format(program.Diagnostics());
-    diagOutput += "\n";
-    diagOutput += wgsl;
-#if defined(SKSL_STANDALONE)
-    reporter.error(Position(), diagOutput);
-#else
-    SkDEBUGFAILF("%s", diagOutput.c_str());
-#endif
-    return false;
+    if (!program.Diagnostics().empty()) {
+        // The program contains warnings. Report them as-is.
+        tint::diag::Formatter diagFormatter;
+        *warnings = diagFormatter.format(program.Diagnostics());
+    }
+    return true;
 }
 #endif  // defined(SK_ENABLE_WGSL_VALIDATION)
 
@@ -638,7 +644,13 @@ bool Compiler::toWGSL(Program& program, OutputStream& out) {
     bool result = cg.generateCode();
     if (result) {
         std::string wgslString = wgsl.str();
-        result = validate_wgsl(this->errorReporter(), wgslString);
+        std::string warnings;
+        result = validate_wgsl(this->errorReporter(), wgslString, &warnings);
+        if (!warnings.empty()) {
+            out.writeText("/*\n\n");
+            out.writeString(warnings);
+            out.writeText("*/\n\n");
+        }
         out.writeString(wgslString);
     }
 #else
