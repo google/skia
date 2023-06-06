@@ -212,6 +212,7 @@ GANESH_TESTS = [
     "ApplyGammaTest.cpp",
     "BackendAllocationTest.cpp",
     "BackendSurfaceMutableStateTest.cpp",
+    "BigImageTest.cpp",
     "BlendTest.cpp",
     "BlurTest.cpp",
     "BulkRectTest.cpp",

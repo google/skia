@@ -32,6 +32,12 @@
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
 
+#if GR_TEST_UTILS
+// GrContextOptions::fMaxTextureSizeOverride exists but doesn't allow for changing the
+// maxTextureSize on the fly.
+int gOverrideMaxTextureSize = 0;
+#endif
+
 using namespace skia_private;
 
 namespace {
@@ -529,7 +535,13 @@ void Device::drawImageQuad(const SkImage* image,
         } else {
             tileFilterPad = 0;
         }
+
         int maxTileSize = fContext->maxTextureSize() - 2*tileFilterPad;
+#if GR_TEST_UTILS
+        if (gOverrideMaxTextureSize) {
+            maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
+        }
+#endif
         size_t cacheSize = 0;
         if (auto dContext = fContext->asDirectContext(); dContext) {
             // NOTE: if the context is not a direct context, it doesn't have access to the resource
