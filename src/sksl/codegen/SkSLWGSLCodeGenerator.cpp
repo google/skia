@@ -31,6 +31,7 @@
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -875,6 +876,9 @@ void WGSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kContinue:
             this->writeLine("continue;");
             break;
+        case Statement::Kind::kDo:
+            this->writeDoStatement(s.as<DoStatement>());
+            break;
         case Statement::Kind::kExpression:
             this->writeExpressionStatement(*s.as<ExpressionStatement>().expression());
             break;
@@ -930,6 +934,32 @@ void WGSLCodeGenerator::writeExpressionStatement(const Expression& expr) {
     // The final result of the expression will be a variable, let-reference, or an expression with
     // no side effects (`foo + bar`). Discarding this result is safe, as the program never uses it.
     (void)this->assembleExpression(expr, Precedence::kStatement);
+}
+
+void WGSLCodeGenerator::writeDoStatement(const DoStatement& s) {
+    // Generate a loop structure like this:
+    //   loop {
+    //       body-statement;
+    //       continuing {
+    //           break if !(test-expression);
+    //       }
+    //   }
+
+    this->writeLine("loop {");
+    fIndentation++;
+    this->writeStatement(*s.statement());
+    this->finishLine();
+
+    this->writeLine("continuing {");
+    fIndentation++;
+    std::string testExpr = this->assembleExpression(*s.test(), Precedence::kExpression);
+    this->write("break if !(");
+    this->write(testExpr);
+    this->writeLine(");");
+    fIndentation--;
+    this->writeLine("}");
+    fIndentation--;
+    this->writeLine("}");
 }
 
 void WGSLCodeGenerator::writeForStatement(const ForStatement& s) {

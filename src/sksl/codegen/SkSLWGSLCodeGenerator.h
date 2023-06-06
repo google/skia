@@ -34,6 +34,7 @@ class Context;
 class ConstructorCompound;
 class ConstructorDiagonalMatrix;
 class ConstructorMatrixResize;
+class DoStatement;
 class Expression;
 struct Field;
 class FieldAccess;
@@ -179,6 +180,7 @@ private:
     void writeStatement(const Statement& s);
     void writeStatements(const StatementArray& statements);
     void writeBlock(const Block& b);
+    void writeDoStatement(const DoStatement& expr);
     void writeExpressionStatement(const Expression& expr);
     void writeForStatement(const ForStatement& s);
     void writeIfStatement(const IfStatement& s);
