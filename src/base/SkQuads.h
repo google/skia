@@ -52,6 +52,9 @@ public:
      * The method used to calculate the roots is from
      *    "On the Cost of Floating-Point Computation Without Extra-Precise Arithmetic"
      * by W. Kahan.
+     *
+     * If the roots are imaginary then nan is returned.
+     * If the roots can't be represented as double then inf is returned.
      */
     static RootResult Roots(double A, double B, double C);
 
