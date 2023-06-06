@@ -1,30 +1,37 @@
 struct FSIn {
-    @builtin(front_facing) sk_Clockwise: bool,
+  @builtin(front_facing) sk_Clockwise: bool,
 };
 struct FSOut {
-    @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f32>,
 };
 struct _GlobalUniforms {
-    uFloat: f32,
+  uFloat: f32,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, a: f32, b: ptr<function, f32>, c: ptr<function, f32>) {
+  {
     (*_stageOut).sk_FragColor = vec4<f32>(a, (*b), (*c), _globalUniforms.uFloat);
     (*b) = a;
     (*c) = _globalUniforms.uFloat;
+  }
 }
 fn one_out_param_vh(h: ptr<function, f32>) {
+  {
     (*h) = 2.0;
+  }
 }
 fn one_out_param_indirect_vh(h: ptr<function, f32>) {
+  {
     var _skTemp0: f32;
     one_out_param_vh(&_skTemp0);
     (*h) = _skTemp0;
+  }
 }
 struct S {
-    v: vec4<f32>,
+  v: vec4<f32>,
 };
 fn main(_stageOut: ptr<function, FSOut>) {
+  {
     var x: f32 = 1.0;
     var _skTemp1: f32;
     one_out_param_vh(&_skTemp1);
@@ -64,9 +71,10 @@ fn main(_stageOut: ptr<function, FSOut>) {
     various_parameter_types_vhhh(_stageOut, x + 1.0, &_skTemp13, &_skTemp14);
     s.v.y = _skTemp13;
     x = _skTemp14;
+  }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
-    var _stageOut: FSOut;
-    main(&_stageOut);
-    return _stageOut;
+  var _stageOut: FSOut;
+  main(&_stageOut);
+  return _stageOut;
 }

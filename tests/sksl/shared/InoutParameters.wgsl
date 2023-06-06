@@ -1,31 +1,40 @@
 struct FSIn {
-    @builtin(front_facing) sk_Clockwise: bool,
-    @builtin(position) sk_FragCoord: vec4<f32>,
+  @builtin(front_facing) sk_Clockwise: bool,
+  @builtin(position) sk_FragCoord: vec4<f32>,
 };
 struct FSOut {
-    @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f32>,
 };
 struct _GlobalUniforms {
-    colorGreen: vec4<f32>,
+  colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn outParameterWrite_vh4(x: ptr<function, vec4<f32>>) {
+  {
     (*x) = _globalUniforms.colorGreen;
+  }
 }
 fn outParameterWriteIndirect_vh4(c: ptr<function, vec4<f32>>) {
+  {
     var _skTemp0: vec4<f32>;
     outParameterWrite_vh4(&_skTemp0);
     (*c) = _skTemp0;
+  }
 }
 fn inoutParameterWrite_vh4(x: ptr<function, vec4<f32>>) {
+  {
     (*x) = (*x) * (*x);
+  }
 }
 fn inoutParameterWriteIndirect_vh4(x: ptr<function, vec4<f32>>) {
+  {
     var _skTemp1: vec4<f32> = (*x);
     inoutParameterWrite_vh4(&_skTemp1);
     (*x) = _skTemp1;
+  }
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
+  {
     var c: vec4<f32>;
     var _skTemp2: vec4<f32>;
     outParameterWrite_vh4(&_skTemp2);
@@ -40,9 +49,10 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     inoutParameterWriteIndirect_vh4(&_skTemp5);
     c = _skTemp5;
     return c;
+  }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
-    var _stageOut: FSOut;
-    _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
-    return _stageOut;
+  var _stageOut: FSOut;
+  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  return _stageOut;
 }

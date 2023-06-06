@@ -1,35 +1,36 @@
 struct FSIn {
-    @builtin(front_facing) sk_Clockwise: bool,
-    @builtin(position) sk_FragCoord: vec4<f32>,
+  @builtin(front_facing) sk_Clockwise: bool,
+  @builtin(position) sk_FragCoord: vec4<f32>,
 };
 struct FSOut {
-    @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f32>,
 };
 struct _GlobalUniforms {
-    colorGreen: vec4<f32>,
-    colorRed: vec4<f32>,
-    testMatrix2x2: mat2x2<f32>,
+  colorGreen: vec4<f32>,
+  colorRed: vec4<f32>,
+  testMatrix2x2: mat2x2<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
+  {
     var ok: bool = true;
     var i: i32 = 5;
     i = i + i32(1);
     ok = ok && i == 6;
     var _skTemp1: bool;
     if ok {
-        i = i + i32(1);
-        _skTemp1 = i == 7;
+      i = i + i32(1);
+      _skTemp1 = i == 7;
     } else {
-        _skTemp1 = false;
+      _skTemp1 = false;
     }
     ok = _skTemp1;
     var _skTemp2: bool;
     if ok {
-        i = i - i32(1);
-        _skTemp2 = i == 6;
+      i = i - i32(1);
+      _skTemp2 = i == 6;
     } else {
-        _skTemp2 = false;
+      _skTemp2 = false;
     }
     ok = _skTemp2;
     i = i - i32(1);
@@ -39,18 +40,18 @@ fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     ok = ok && f == 1.5;
     var _skTemp3: bool;
     if ok {
-        f = f + f32(1);
-        _skTemp3 = f == 2.5;
+      f = f + f32(1);
+      _skTemp3 = f == 2.5;
     } else {
-        _skTemp3 = false;
+      _skTemp3 = false;
     }
     ok = _skTemp3;
     var _skTemp4: bool;
     if ok {
-        f = f - f32(1);
-        _skTemp4 = f == 1.5;
+      f = f - f32(1);
+      _skTemp4 = f == 1.5;
     } else {
-        _skTemp4 = false;
+      _skTemp4 = false;
     }
     ok = _skTemp4;
     f = f - f32(1);
@@ -60,18 +61,18 @@ fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     ok = ok && f2.x == 1.5;
     var _skTemp5: bool;
     if ok {
-        f2.x = f2.x + f32(1);
-        _skTemp5 = f2.x == 2.5;
+      f2.x = f2.x + f32(1);
+      _skTemp5 = f2.x == 2.5;
     } else {
-        _skTemp5 = false;
+      _skTemp5 = false;
     }
     ok = _skTemp5;
     var _skTemp6: bool;
     if ok {
-        f2.x = f2.x - f32(1);
-        _skTemp6 = f2.x == 1.5;
+      f2.x = f2.x - f32(1);
+      _skTemp6 = f2.x == 1.5;
     } else {
-        _skTemp6 = false;
+      _skTemp6 = false;
     }
     ok = _skTemp6;
     f2.x = f2.x - f32(1);
@@ -86,9 +87,10 @@ fn main(_skAnonymous0: vec2<f32>) -> vec4<f32> {
     ok = ok && -i == -5;
     ok = ok && all(-iv == vec2<i32>(-5, 5));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
+  }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
-    var _stageOut: FSOut;
-    _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
-    return _stageOut;
+  var _stageOut: FSOut;
+  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  return _stageOut;
 }

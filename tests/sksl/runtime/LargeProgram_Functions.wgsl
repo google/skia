@@ -1,4 +1,5 @@
 fn d_vi(i: ptr<function, i32>) {
+  {
     (*i) = (*i) + i32(1);
     (*i) = (*i) + i32(1);
     (*i) = (*i) + i32(1);
@@ -9,8 +10,10 @@ fn d_vi(i: ptr<function, i32>) {
     (*i) = (*i) + i32(1);
     (*i) = (*i) + i32(1);
     (*i) = (*i) + i32(1);
+  }
 }
 fn c_vi(i: ptr<function, i32>) {
+  {
     var _skTemp0: i32 = (*i);
     d_vi(&_skTemp0);
     (*i) = _skTemp0;
@@ -41,8 +44,10 @@ fn c_vi(i: ptr<function, i32>) {
     var _skTemp9: i32 = (*i);
     d_vi(&_skTemp9);
     (*i) = _skTemp9;
+  }
 }
 fn b_vi(i: ptr<function, i32>) {
+  {
     var _skTemp10: i32 = (*i);
     c_vi(&_skTemp10);
     (*i) = _skTemp10;
@@ -73,8 +78,10 @@ fn b_vi(i: ptr<function, i32>) {
     var _skTemp19: i32 = (*i);
     c_vi(&_skTemp19);
     (*i) = _skTemp19;
+  }
 }
 fn a_vi(i: ptr<function, i32>) {
+  {
     var _skTemp20: i32 = (*i);
     b_vi(&_skTemp20);
     (*i) = _skTemp20;
@@ -105,14 +112,17 @@ fn a_vi(i: ptr<function, i32>) {
     var _skTemp29: i32 = (*i);
     b_vi(&_skTemp29);
     (*i) = _skTemp29;
+  }
 }
 fn main(xy: vec2<f32>) -> vec4<f32> {
+  {
     var i: i32 = 0;
     var _skTemp30: i32 = i;
     a_vi(&_skTemp30);
     i = _skTemp30;
     return vec4<f32>(0.0);
+  }
 }
 @fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-    return main(_coords);
+  return main(_coords);
 }

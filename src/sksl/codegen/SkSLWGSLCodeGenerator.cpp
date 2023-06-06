@@ -636,7 +636,7 @@ void WGSLCodeGenerator::write(std::string_view s) {
     }
     if (fAtLineStart) {
         for (int i = 0; i < fIndentation; i++) {
-            fOut->writeText("    ");
+            fOut->writeText("  ");
         }
     }
     fOut->writeText(std::string(s).c_str());
@@ -732,8 +732,13 @@ void WGSLCodeGenerator::writeBuiltinIODecl(const Type& type,
 
 void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->writeFunctionDeclaration(f.declaration());
-    this->write(" ");
+    this->writeLine(" {");
+
+    ++fIndentation;
     this->writeBlock(f.body()->as<Block>());
+    --fIndentation;
+
+    this->writeLine("}");
 
     if (f.declaration().isMain()) {
         // We just emitted the user-defined main function. Next, we generate a program entry point
@@ -2114,7 +2119,7 @@ void WGSLCodeGenerator::writeNonBlockUniformsForTests() {
                     this->write("struct _GlobalUniforms {\n");
                     fDeclaredUniformsStruct = true;
                 }
-                this->write("    ");
+                this->write("  ");
                 this->writeVariableDecl(var.type(), var.mangledName(), Delimiter::kComma);
             }
         }

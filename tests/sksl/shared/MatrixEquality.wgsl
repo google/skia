@@ -1,18 +1,19 @@
 struct FSIn {
-    @builtin(front_facing) sk_Clockwise: bool,
-    @builtin(position) sk_FragCoord: vec4<f32>,
+  @builtin(front_facing) sk_Clockwise: bool,
+  @builtin(position) sk_FragCoord: vec4<f32>,
 };
 struct FSOut {
-    @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f32>,
 };
 struct _GlobalUniforms {
-    colorGreen: vec4<f32>,
-    colorRed: vec4<f32>,
-    testMatrix2x2: mat2x2<f32>,
-    testMatrix3x3: mat3x3<f32>,
+  colorGreen: vec4<f32>,
+  colorRed: vec4<f32>,
+  testMatrix2x2: mat2x2<f32>,
+  testMatrix3x3: mat3x3<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn main(coords: vec2<f32>) -> vec4<f32> {
+  {
     var _0_ok: bool = true;
     let _skTemp0 = _globalUniforms.testMatrix2x2;
     let _skTemp1 = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);
@@ -119,9 +120,10 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     _0_ok = _0_ok && _5_m[2].y == 8.0;
     _0_ok = _0_ok && _5_m[2].z == 9.0;
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_0_ok));
+  }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
-    var _stageOut: FSOut;
-    _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
-    return _stageOut;
+  var _stageOut: FSOut;
+  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  return _stageOut;
 }

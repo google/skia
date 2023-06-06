@@ -1,16 +1,17 @@
 struct FSIn {
-    @builtin(front_facing) sk_Clockwise: bool,
-    @builtin(position) sk_FragCoord: vec4<f32>,
+  @builtin(front_facing) sk_Clockwise: bool,
+  @builtin(position) sk_FragCoord: vec4<f32>,
 };
 struct FSOut {
-    @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f32>,
 };
 struct _GlobalUniforms {
-    colorGreen: vec4<f32>,
-    colorRed: vec4<f32>,
+  colorGreen: vec4<f32>,
+  colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn test_half_b() -> bool {
+  {
     var ok: bool = true;
     var m1: mat2x2<f32> = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);
     let _skTemp0 = m1;
@@ -55,8 +56,10 @@ fn test_half_b() -> bool {
     let _skTemp20 = mat4x4<f32>(9.0, 20.0, 20.0, 20.0, 20.0, 9.0, 20.0, 20.0, 20.0, 20.0, 9.0, 20.0, 20.0, 20.0, 20.0, 9.0);
     ok = ok && (all(_skTemp19[0] == _skTemp20[0]) && all(_skTemp19[1] == _skTemp20[1]) && all(_skTemp19[2] == _skTemp20[2]) && all(_skTemp19[3] == _skTemp20[3]));
     return ok;
+  }
 }
 fn test_comma_b() -> bool {
+  {
     var x: mat2x2<f32>;
     var y: mat2x2<f32>;
     x = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);
@@ -64,8 +67,10 @@ fn test_comma_b() -> bool {
     let _skTemp21 = x;
     let _skTemp22 = y;
     return (all(_skTemp21[0] == _skTemp22[0]) && all(_skTemp21[1] == _skTemp22[1]));
+  }
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
+  {
     var _0_ok: bool = true;
     var _1_m1: mat2x2<f32> = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);
     let _skTemp23 = _1_m1;
@@ -99,26 +104,27 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp37: bool;
     var _skTemp38: bool;
     if _0_ok {
-        let _skTemp39 = test_half_b();
-        _skTemp38 = _skTemp39;
+      let _skTemp39 = test_half_b();
+      _skTemp38 = _skTemp39;
     } else {
-        _skTemp38 = false;
+      _skTemp38 = false;
     }
     if _skTemp38 {
-        let _skTemp40 = test_comma_b();
-        _skTemp37 = _skTemp40;
+      let _skTemp40 = test_comma_b();
+      _skTemp37 = _skTemp40;
     } else {
-        _skTemp37 = false;
+      _skTemp37 = false;
     }
     if _skTemp37 {
-        _skTemp36 = _globalUniforms.colorGreen;
+      _skTemp36 = _globalUniforms.colorGreen;
     } else {
-        _skTemp36 = _globalUniforms.colorRed;
+      _skTemp36 = _globalUniforms.colorRed;
     }
     return _skTemp36;
+  }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
-    var _stageOut: FSOut;
-    _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
-    return _stageOut;
+  var _stageOut: FSOut;
+  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  return _stageOut;
 }

@@ -1,18 +1,21 @@
 struct FSIn {
-    @builtin(front_facing) sk_Clockwise: bool,
-    @builtin(position) sk_FragCoord: vec4<f32>,
+  @builtin(front_facing) sk_Clockwise: bool,
+  @builtin(position) sk_FragCoord: vec4<f32>,
 };
 struct FSOut {
-    @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f32>,
 };
 struct S {
-    v: vec2<f32>,
+  v: vec2<f32>,
 };
 fn initialize_vS(z: ptr<function, array<S, 2>>) {
+  {
     (*z)[0].v = vec2<f32>(0.0, 1.0);
     (*z)[1].v = vec2<f32>(2.0, 1.0);
+  }
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
+  {
     var x: array<vec2<f32>, 2>;
     x[0] = vec2<f32>(0.0);
     x[1] = vec2<f32>(1.0, 0.0);
@@ -24,9 +27,10 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     initialize_vS(&_skTemp0);
     z = _skTemp0;
     return vec4<f32>(f32(x[0].x * x[0].y + z[0].v.x), f32(x[1].x - x[1].y * z[0].v.y), f32((y[0].x / y[0].y) / z[1].v.x), f32(y[1].x + y[1].y * z[1].v.y));
+  }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
-    var _stageOut: FSOut;
-    _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
-    return _stageOut;
+  var _stageOut: FSOut;
+  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  return _stageOut;
 }
