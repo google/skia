@@ -145,3 +145,8 @@ int SkQuads::RootsReal(const double A, const double B, const double C, double so
 
     return roots;
 }
+
+double SkQuads::EvalAt(double A, double B, double C, double t) {
+    // Use fused-multiply-add to reduce the amount of round-off error between terms.
+    return std::fma(std::fma(A, t, B), t, C);
+}

@@ -66,11 +66,7 @@ public:
      * Evaluates the quadratic function with the 3 provided coefficients and the
      * provided variable.
      */
-    static double EvalAt(double A, double B, double C, double t) {
-        return A * t * t +
-               B * t +
-               C;
-    }
+    static double EvalAt(double A, double B, double C, double t);
 };
 
 #endif
