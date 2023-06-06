@@ -8,6 +8,8 @@
 #include "src/base/SkBezierCurves.h"
 
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkQuads.h"
 
 #include <cstddef>
 
@@ -108,4 +110,39 @@ std::array<double, 4> SkBezierCubic::ConvertToPolynomial(const double curve[8], 
     results[3] = P(0);
     return results;
 }
+
+SkSpan<const double> SkBezierCubic::Intersect(double AX, double BX, double CX,
+                                              double AY, double BY, double CY,
+                                              double y, double intersectionsStorage[2]) {
+    auto [discriminant, r0, r1] = SkQuads::Roots(AY, BY, CY - y);
+
+    int intersectionCount = 0;
+
+    // Pin to 0 or 1 if within half a float ulp of 0 or 1.
+    auto pinTRange = [] (double t) {
+        // The ULPs around 0 are tiny compared to the ULPs around 1. Shift to 1 to use the same
+        // size ULPs.
+        if (sk_double_to_float(t + 1.0) == 1.0f) {
+            return 0.0;
+        } else if (sk_double_to_float(t) == 1.0f) {
+            return 1.0;
+        }
+        return t;
+    };
+
+    // Round the roots to the nearest float to generate the values t. Valid t's are on the
+    // domain [0, 1].
+    const double t0 = pinTRange(r0);
+    if (0 <= t0 && t0 <= 1) {
+        intersectionsStorage[intersectionCount++] = SkQuads::EvalAt(AX, -2 * BX, CX, t0);
+    }
+
+    const double t1 = pinTRange(r1);
+    if (0 <= t1 && t1 <= 1) {
+        intersectionsStorage[intersectionCount++] = SkQuads::EvalAt(AX, -2 * BX, CX, t1);
+    }
+
+    return SkSpan{intersectionsStorage, intersectionCount};
+}
+
 
