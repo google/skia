@@ -30,6 +30,30 @@ rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<SkData> fo
     rust::Slice<const uint8_t> slice{fontData->bytes(), fontData->size()};
     return fontations_ffi::make_font_ref(slice, index);
 }
+
+static_assert(sizeof(fontations_ffi::SkiaDesignCoordinate) ==
+                      sizeof(SkFontArguments::VariationPosition::Coordinate) &&
+              sizeof(fontations_ffi::SkiaDesignCoordinate::axis) ==
+                      sizeof(SkFontArguments::VariationPosition::Coordinate::axis) &&
+              sizeof(fontations_ffi::SkiaDesignCoordinate::value) ==
+                      sizeof(SkFontArguments::VariationPosition::Coordinate::value) &&
+              offsetof(fontations_ffi::SkiaDesignCoordinate, axis) ==
+                      offsetof(SkFontArguments::VariationPosition::Coordinate, axis) &&
+              offsetof(fontations_ffi::SkiaDesignCoordinate, value) ==
+                      offsetof(SkFontArguments::VariationPosition::Coordinate, value) &&
+              "Struct fontations_ffi::SkiaDesignCoordinate must match "
+              "SkFontArguments::VariationPosition::Coordinate.");
+
+rust::Box<fontations_ffi::BridgeNormalizedCoords> make_normalized_coords(
+        fontations_ffi::BridgeFontRef const& bridgeFontRef, const SkFontArguments& args) {
+    SkFontArguments::VariationPosition variationPosition = args.getVariationDesignPosition();
+    // Cast is safe because of static_assert matching the structs above.
+    rust::Slice<const fontations_ffi::SkiaDesignCoordinate> coordinates(
+            reinterpret_cast<const fontations_ffi::SkiaDesignCoordinate*>(
+                    variationPosition.coordinates),
+            variationPosition.coordinateCount);
+    return resolve_into_normalized_coords(bridgeFontRef, coordinates);
+}
 }  // namespace
 
 SK_API sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsset> fontData,
@@ -38,17 +62,17 @@ SK_API sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsse
 }
 
 SkTypeface_Fontations::SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data,
-                                             uint32_t ttcIndex)
+                                             const SkFontArguments& args)
         : SkTypeface(SkFontStyle(), true)
         , fFontData(streamToData(font_data))
-        , fTtcIndex(ttcIndex)
-        , fBridgeFontRef(make_bridge_font_ref(fFontData, fTtcIndex)) {}
+        , fTtcIndex(args.getCollectionIndex())
+        , fBridgeFontRef(make_bridge_font_ref(fFontData, fTtcIndex))
+        , fBridgeNormalizedCoords(make_normalized_coords(*fBridgeFontRef, args)) {}
 
 sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
                                                         const SkFontArguments& args) {
     // TODO(crbug.com/skia/14337): Handle more than the collection index.
-    sk_sp<SkTypeface_Fontations> probeTypeface(
-            new SkTypeface_Fontations(std::move(stream), args.getCollectionIndex()));
+    sk_sp<SkTypeface_Fontations> probeTypeface(new SkTypeface_Fontations(std::move(stream), args));
     return probeTypeface->hasValidBridgeFontRef() ? probeTypeface : nullptr;
 }
 
@@ -122,8 +146,10 @@ public:
                               const SkScalerContextEffects& effects,
                               const SkDescriptor* desc)
             : SkScalerContext(face, effects, desc)
-            , fBridgeFontRef(static_cast<SkTypeface_Fontations*>(this->getTypeface())
-                                     ->getBridgeFontRef()) {
+            , fBridgeFontRef(
+                      static_cast<SkTypeface_Fontations*>(this->getTypeface())->getBridgeFontRef())
+            , fBridgeNormalizedCoords(static_cast<SkTypeface_Fontations*>(this->getTypeface())
+                                              ->getBridgeNormalizedCoords()) {
         fRec.getSingleMatrix(&fMatrix);
         this->forceGenerateImageFromPath();
     }
@@ -165,8 +191,11 @@ protected:
         }
         fontations_ffi::SkPathWrapper pathWrapper;
 
-        if (!fontations_ffi::get_path(
-                    fBridgeFontRef, glyph.getGlyphID(), scale.y(), pathWrapper)) {
+        if (!fontations_ffi::get_path(fBridgeFontRef,
+                                      glyph.getGlyphID(),
+                                      scale.y(),
+                                      fBridgeNormalizedCoords,
+                                      pathWrapper)) {
             return false;
         }
 
@@ -197,6 +226,7 @@ private:
     SkMatrix fMatrix;
     sk_sp<SkData> fFontData = nullptr;
     const fontations_ffi::BridgeFontRef& fBridgeFontRef;
+    const fontations_ffi::BridgeNormalizedCoords& fBridgeNormalizedCoords;
 };
 
 std::unique_ptr<SkStreamAsset> SkTypeface_Fontations::onOpenStream(int* ttcIndex) const {
