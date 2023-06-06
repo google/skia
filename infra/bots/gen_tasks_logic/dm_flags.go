@@ -855,10 +855,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
-	if !b.matchOs("Win", "Mac", "Debian11") {
-		skip(ALL, "test", ALL, "BigImageTest_Ganesh")
-	}
-
 	if b.matchOs("Win", "Mac") {
 		// WIC and CG fail on arithmetic jpegs
 		skip(ALL, "image", "gen_platf", "testimgari.jpg")
