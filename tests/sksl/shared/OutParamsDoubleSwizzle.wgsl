@@ -10,13 +10,13 @@ struct _GlobalUniforms {
     colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn tricky_h2hhh2h(x: f32, y: f32, color: ptr<function, vec2<f32>>, z: f32) -> vec2<f32> {
-    (*color) = (*color).yx;
+fn swizzle_lvalue_h2hhh2h(x: f32, y: f32, color: ptr<function, vec2<f32>>, z: f32) -> vec2<f32> {
+    (*color) = ((*color)).yx;
     return vec2<f32>(x + y, z);
 }
 fn func_vh4(color: ptr<function, vec4<f32>>) {
     var _skTemp0: vec2<f32> = (*color).xz;
-    let _skTemp1 = tricky_h2hhh2h(1.0, 2.0, &_skTemp0, 5.0);
+    let _skTemp1 = swizzle_lvalue_h2hhh2h(1.0, 2.0, &_skTemp0, 5.0);
     (*color) = vec4<f32>((_skTemp0), (*color).yw).xzyw;
     var t: vec2<f32> = _skTemp1;
     (*color) = vec4<f32>((t), (*color).xz).zxwy;

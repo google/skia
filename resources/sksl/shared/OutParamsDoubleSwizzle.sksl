@@ -2,13 +2,13 @@
 
 uniform half4 colorGreen, colorRed;
 
-half2 tricky(half x, half y, inout half2 color, half z) {
-    color.xy = color.yx;
+half2 swizzle_lvalue(half x, half y, inout half2 color, half z) {
+    color.yx = color.xy;
     return half2(x + y, z);
 }
 
 void func(inout half4 color) {
-    half2 t = tricky(1, 2, color.rb, 5);
+    half2 t = swizzle_lvalue(1, 2, color.rb, 5);
     color.ga = t;
 }
 

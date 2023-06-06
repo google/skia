@@ -2,12 +2,12 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-vec2 tricky_h2hhh2h(float x, float y, inout vec2 color, float z) {
-    color = color.yx;
+vec2 swizzle_lvalue_h2hhh2h(float x, float y, inout vec2 color, float z) {
+    color.yx = color;
     return vec2(x + y, z);
 }
 void func_vh4(inout vec4 color) {
-    vec2 t = tricky_h2hhh2h(1.0, 2.0, color.xz, 5.0);
+    vec2 t = swizzle_lvalue_h2hhh2h(1.0, 2.0, color.xz, 5.0);
     color.yw = t;
 }
 vec4 main() {
