@@ -131,14 +131,17 @@ int SkQuads::RootsReal(const double A, const double B, const double C, double so
         return 0;
     }
 
-    const double r0 = zero_if_tiny(root0);
-    const double r1 = zero_if_tiny(root1);
-
-    if (sk_doubles_nearly_equal_ulps(r0, r1)) {
-        solution[0] = r0;
-        return 1;
+    int roots = 0;
+    if (const double r0 = zero_if_tiny(root0); std::isfinite(r0)) {
+        solution[roots++] = r0;
+    }
+    if (const double r1 = zero_if_tiny(root1); std::isfinite(r1)) {
+        solution[roots++] = r1;
     }
 
-    solution[0] = r0; solution[1] = r1;
-    return 2;
+    if (roots == 2 && sk_doubles_nearly_equal_ulps(solution[0], solution[1])) {
+        roots = 1;
+    }
+
+    return roots;
 }

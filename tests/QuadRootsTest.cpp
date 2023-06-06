@@ -148,6 +148,11 @@ DEF_TEST(QuadRootsReal_ActualQuadratics, reporter) {
                        // One solution is 0, the other is so close to zero it returns
                        // true for sk_double_nearly_zero, so it is collapsed into one.
                        {0});
+
+    testQuadRootsReal(reporter, "Very small A B, very large C",
+                      0x1p-1055, 0x1.3000006p-1044, -0x1.c000008p+1009,
+                      // The roots are not in the range of doubles.
+                      {});
 }
 
 DEF_TEST(QuadRootsReal_Linear, reporter) {
