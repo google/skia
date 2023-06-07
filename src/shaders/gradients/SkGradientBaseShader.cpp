@@ -413,6 +413,66 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
     }
 }
 
+void SkGradientBaseShader::AppendInterpolatedToDstStages(SkRasterPipeline* p,
+                                                         SkArenaAlloc* alloc,
+                                                         bool colorsAreOpaque,
+                                                         const Interpolation& interpolation,
+                                                         const SkColorSpace* intermediateColorSpace,
+                                                         const SkColorSpace* dstColorSpace) {
+    using ColorSpace = Interpolation::ColorSpace;
+    bool colorIsPremul = static_cast<bool>(interpolation.fInPremul);
+
+    // If we interpolated premul colors in any of the special color spaces, we need to unpremul
+    if (colorIsPremul && !colorsAreOpaque) {
+        switch (interpolation.fColorSpace) {
+            case ColorSpace::kLab:
+            case ColorSpace::kOKLab:
+                p->append(SkRasterPipelineOp::unpremul);
+                colorIsPremul = false;
+                break;
+            case ColorSpace::kLCH:
+            case ColorSpace::kOKLCH:
+            case ColorSpace::kHSL:
+            case ColorSpace::kHWB:
+                p->append(SkRasterPipelineOp::unpremul_polar);
+                colorIsPremul = false;
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Convert colors in exotic spaces back to their intermediate SkColorSpace
+    switch (interpolation.fColorSpace) {
+        case ColorSpace::kLab:   p->append(SkRasterPipelineOp::css_lab_to_xyz);           break;
+        case ColorSpace::kOKLab: p->append(SkRasterPipelineOp::css_oklab_to_linear_srgb); break;
+        case ColorSpace::kLCH:   p->append(SkRasterPipelineOp::css_hcl_to_lab);
+                                 p->append(SkRasterPipelineOp::css_lab_to_xyz);           break;
+        case ColorSpace::kOKLCH: p->append(SkRasterPipelineOp::css_hcl_to_lab);
+                                 p->append(SkRasterPipelineOp::css_oklab_to_linear_srgb); break;
+        case ColorSpace::kHSL:   p->append(SkRasterPipelineOp::css_hsl_to_srgb);          break;
+        case ColorSpace::kHWB:   p->append(SkRasterPipelineOp::css_hwb_to_srgb);          break;
+        default: break;
+    }
+
+    // Now transform from intermediate to destination color space.
+    // See comments in GrGradientShader.cpp about the decisions here.
+    if (!dstColorSpace) {
+        dstColorSpace = sk_srgb_singleton();
+    }
+    SkAlphaType intermediateAlphaType = colorIsPremul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
+    // TODO(skia:13108): Get dst alpha type correctly
+    SkAlphaType dstAlphaType = kPremul_SkAlphaType;
+
+    if (colorsAreOpaque) {
+        intermediateAlphaType = dstAlphaType = kUnpremul_SkAlphaType;
+    }
+
+    alloc->make<SkColorSpaceXformSteps>(
+                 intermediateColorSpace, intermediateAlphaType, dstColorSpace, dstAlphaType)
+            ->apply(p);
+}
+
 bool SkGradientBaseShader::appendStages(const SkStageRec& rec,
                                         const SkShaders::MatrixRec& mRec) const {
     SkRasterPipeline* p = rec.fPipeline;
@@ -456,59 +516,8 @@ bool SkGradientBaseShader::appendStages(const SkStageRec& rec,
     // Transform all of the colors to destination color space, possibly premultiplied
     SkColor4fXformer xformedColors(this, rec.fDstCS);
     AppendGradientFillStages(p, alloc, xformedColors.fColors.begin(), fPositions, fColorCount);
-
-    using ColorSpace = Interpolation::ColorSpace;
-    bool colorIsPremul = this->interpolateInPremul();
-
-    // If we interpolated premul colors in any of the special color spaces, we need to unpremul
-    if (colorIsPremul && !fColorsAreOpaque) {
-        switch (fInterpolation.fColorSpace) {
-            case ColorSpace::kLab:
-            case ColorSpace::kOKLab:
-                p->append(SkRasterPipelineOp::unpremul);
-                colorIsPremul = false;
-                break;
-            case ColorSpace::kLCH:
-            case ColorSpace::kOKLCH:
-            case ColorSpace::kHSL:
-            case ColorSpace::kHWB:
-                p->append(SkRasterPipelineOp::unpremul_polar);
-                colorIsPremul = false;
-                break;
-            default:
-                break;
-        }
-    }
-
-    // Convert colors in exotic spaces back to their intermediate SkColorSpace
-    switch (fInterpolation.fColorSpace) {
-        case ColorSpace::kLab:   p->append(SkRasterPipelineOp::css_lab_to_xyz);           break;
-        case ColorSpace::kOKLab: p->append(SkRasterPipelineOp::css_oklab_to_linear_srgb); break;
-        case ColorSpace::kLCH:   p->append(SkRasterPipelineOp::css_hcl_to_lab);
-                                 p->append(SkRasterPipelineOp::css_lab_to_xyz);           break;
-        case ColorSpace::kOKLCH: p->append(SkRasterPipelineOp::css_hcl_to_lab);
-                                 p->append(SkRasterPipelineOp::css_oklab_to_linear_srgb); break;
-        case ColorSpace::kHSL:   p->append(SkRasterPipelineOp::css_hsl_to_srgb);          break;
-        case ColorSpace::kHWB:   p->append(SkRasterPipelineOp::css_hwb_to_srgb);          break;
-        default: break;
-    }
-
-    // Now transform from intermediate to destination color space.
-    // See comments in GrGradientShader.cpp about the decisions here.
-    SkColorSpace* dstColorSpace = rec.fDstCS ? rec.fDstCS : sk_srgb_singleton();
-    SkAlphaType intermediateAlphaType = colorIsPremul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
-    // TODO(skia:13108): Get dst alpha type correctly
-    SkAlphaType dstAlphaType = kPremul_SkAlphaType;
-
-    if (fColorsAreOpaque) {
-        intermediateAlphaType = dstAlphaType = kUnpremul_SkAlphaType;
-    }
-
-    alloc->make<SkColorSpaceXformSteps>(xformedColors.fIntermediateColorSpace.get(),
-                                        intermediateAlphaType,
-                                        dstColorSpace,
-                                        dstAlphaType)
-            ->apply(p);
+    AppendInterpolatedToDstStages(p, alloc, fColorsAreOpaque, fInterpolation,
+                                  xformedColors.fIntermediateColorSpace.get(), rec.fDstCS);
 
     if (decal_ctx) {
         p->append(SkRasterPipelineOp::check_decal_mask, decal_ctx);

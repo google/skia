@@ -167,6 +167,13 @@ public:
                                          const SkScalar* positions,
                                          int count);
 
+    static void AppendInterpolatedToDstStages(SkRasterPipeline* p,
+                                              SkArenaAlloc* alloc,
+                                              bool colorsAreOpaque,
+                                              const Interpolation& interpolation,
+                                              const SkColorSpace* intermediateColorSpace,
+                                              const SkColorSpace* dstColorSpace);
+
     SkScalar getPos(int i) const {
         SkASSERT(i < fColorCount);
         return fPositions ? fPositions[i] : SkIntToScalar(i) / (fColorCount - 1);
