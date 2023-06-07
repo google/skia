@@ -1,5 +1,6 @@
 var<private> f: f32;
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var fv: vec4<f32> = vec4<f32>(f);
     return fv;

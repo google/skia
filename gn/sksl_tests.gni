@@ -405,6 +405,7 @@ sksl_wgsl_tests = [
   "runtime/LargeProgram_ZeroIterFor.rts",
   "runtime/LoopFloat.rts",
   "runtime/LoopInt.rts",
+  "runtime/QualifierOrder.rts",
   "shared/ArrayConstructors.sksl",
   "shared/ArrayFollowedByScalar.sksl",
   "shared/ArrayIndexTypes.sksl",

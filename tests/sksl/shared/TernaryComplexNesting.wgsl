@@ -9,12 +9,15 @@ struct _GlobalUniforms {
   colorWhite: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn IsEqual_bh4h4(x: vec4<f32>, y: vec4<f32>) -> bool {
+fn IsEqual_bh4h4(_skParam0: vec4<f32>, _skParam1: vec4<f32>) -> bool {
+  let x = _skParam0;
+  let y = _skParam1;
   {
     return all(x == y);
   }
 }
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var colorBlue: vec4<f32> = vec4<f32>(0.0, 0.0, _globalUniforms.colorWhite.zw);
     var colorGreen: vec4<f32> = vec4<f32>(0.0, _globalUniforms.colorWhite.y, 0.0, _globalUniforms.colorWhite.w);

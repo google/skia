@@ -5,7 +5,8 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
-fn main(xy: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let xy = _skParam0;
   {
     return vec4<f32>(0.0, 1.0, 0.0, 1.0);
   }

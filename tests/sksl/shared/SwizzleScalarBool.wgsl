@@ -9,7 +9,8 @@ struct _GlobalUniforms {
   unknownInput: f32,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var b: bool = bool(_globalUniforms.unknownInput);
     var b4: vec4<bool> = vec4<bool>(b);

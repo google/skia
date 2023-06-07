@@ -13,14 +13,18 @@ struct _GlobalUniforms {
 const SEVEN: i32 = 7;
 const TEN: i32 = 10;
 const MATRIXFIVE: mat4x4<f32> = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
-fn verify_const_globals_biih44(seven: i32, ten: i32, matrixFive: mat4x4<f32>) -> bool {
+fn verify_const_globals_biih44(_skParam0: i32, _skParam1: i32, _skParam2: mat4x4<f32>) -> bool {
+  let seven = _skParam0;
+  let ten = _skParam1;
+  let matrixFive = _skParam2;
   {
     let _skTemp0 = matrixFive;
     let _skTemp1 = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
     return (seven == 7 && ten == 10) && (all(_skTemp0[0] == _skTemp1[0]) && all(_skTemp0[1] == _skTemp1[1]) && all(_skTemp0[2] == _skTemp1[2]) && all(_skTemp0[3] == _skTemp1[3]));
   }
 }
-fn main(xy: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let xy = _skParam0;
   {
     var _skTemp2: vec4<f32>;
     let _skTemp3 = verify_const_globals_biih44(SEVEN, TEN, MATRIXFIVE);

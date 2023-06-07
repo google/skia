@@ -95,7 +95,8 @@ fn test_hmat4_b() -> bool {
     return (all(_skTemp10[0] == _skTemp11[0]) && all(_skTemp10[1] == _skTemp11[1]) && all(_skTemp10[2] == _skTemp11[2]) && all(_skTemp10[3] == _skTemp11[3]));
   }
 }
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var _0_x: f32 = f32(_globalUniforms.colorWhite.x);
     _0_x = -_0_x;

@@ -10,12 +10,14 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn shouldLoop_bh4(value: vec4<f32>) -> bool {
+fn shouldLoop_bh4(_skParam0: vec4<f32>) -> bool {
+  let value = _skParam0;
   {
     return any(value != _globalUniforms.colorGreen);
   }
 }
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var result: vec4<f32> = _globalUniforms.colorRed;
     loop {

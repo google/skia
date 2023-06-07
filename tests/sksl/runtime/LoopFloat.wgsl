@@ -4,7 +4,8 @@ struct _GlobalUniforms {
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 const kZero: f32 = 0.0;
-fn return_loop_ff(five: f32) -> f32 {
+fn return_loop_ff(_skParam0: f32) -> f32 {
+  let five = _skParam0;
   {
     {
       var i: f32 = kZero;
@@ -29,7 +30,8 @@ fn return_loop_ff(five: f32) -> f32 {
   }
 }
 const kTen: f32 = 10.0;
-fn continue_loop_ff(five: f32) -> f32 {
+fn continue_loop_ff(_skParam0: f32) -> f32 {
+  let five = _skParam0;
   {
     var sum: f32 = 0.0;
     {
@@ -55,7 +57,8 @@ fn continue_loop_ff(five: f32) -> f32 {
     return sum;
   }
 }
-fn break_loop_ff(five: f32) -> f32 {
+fn break_loop_ff(_skParam0: f32) -> f32 {
+  let five = _skParam0;
   {
     var sum: f32 = 0.0;
     let kOne: f32 = 1.0;
@@ -229,7 +232,8 @@ fn loop_operator_eq_b() -> bool {
     return all(result == vec4<f32>(9.0, 9.0, 9.0, 1.0));
   }
 }
-fn main(pos: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let pos = _skParam0;
   {
     let _skTemp0 = clamp(pos.x, f32(_globalUniforms.colorGreen.y), f32(_globalUniforms.colorGreen.w));
     var five: f32 = _skTemp0 * 5.0;

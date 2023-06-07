@@ -98,7 +98,8 @@ fn test4x4_b() -> bool {
     return true;
   }
 }
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var _skTemp2: vec4<f32>;
     var _skTemp3: bool;

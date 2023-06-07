@@ -6,7 +6,8 @@ fn init_globals_v() {
     gUninitialized = 1.0;
   }
 }
-fn main(xy: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let xy = _skParam0;
   {
     init_globals_v();
     return vec4<f32>(0.0, gInitializedFromOther, 0.0, gUninitialized);

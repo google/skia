@@ -24,6 +24,7 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -63,6 +64,7 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
@@ -731,12 +733,33 @@ void WGSLCodeGenerator::writeBuiltinIODecl(const Type& type,
 }
 
 void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    const FunctionDeclaration& decl = f.declaration();
     fHasUnconditionalReturn = false;
     fConditionalScopeDepth = 0;
 
-    this->writeFunctionDeclaration(f.declaration());
+    this->writeFunctionDeclaration(decl);
     this->writeLine(" {");
     ++fIndentation;
+
+    // The parameters were given generic names like `_skParam1`, because WGSL parameters don't have
+    // storage and are immutable. If mutability is required, we create variables here; otherwise, we
+    // create properly-named `let` aliases.
+    for (size_t index = 0; index < decl.parameters().size(); ++index) {
+        const Variable& param = *decl.parameters()[index];
+        if (!param.name().empty()) {
+            const ProgramUsage::VariableCounts counts = fProgram.fUsage->get(param);
+            // Variables which are never written-to don't need dedicated storage and can use `let`.
+            // Out-parameters are passed as pointers; the pointer itself is never modified, so it
+            // doesn't need a dedicated variable and can use `let`.
+            this->write(((param.modifiers().fFlags & Modifiers::kOut_Flag) || counts.fWrite == 0)
+                                ? "let "
+                                : "var ");
+            this->write(this->assembleName(param.mangledName()));
+            this->write(" = _skParam");
+            this->write(std::to_string(index));
+            this->writeLine(";");
+        }
+    }
 
     this->writeBlock(f.body()->as<Block>());
 
@@ -758,30 +781,31 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
 }
 
-void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
+void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl) {
     this->write("fn ");
-    this->write(f.mangledName());
+    this->write(decl.mangledName());
     this->write("(");
     auto separator = SkSL::String::Separator();
-    if (this->writeFunctionDependencyParams(f)) {
+    if (this->writeFunctionDependencyParams(decl)) {
         separator();  // update the separator as parameters have been written
     }
-    for (const Variable* param : f.parameters()) {
+    for (size_t index = 0; index < decl.parameters().size(); ++index) {
+        const Variable& param = *decl.parameters()[index];
         this->write(separator());
-        this->write(this->assembleName(param->mangledName()));
+        this->write("_skParam" + std::to_string(index));
         this->write(": ");
 
         // Declare an "out" function parameter as a pointer.
-        if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
-            this->write(to_ptr_type(param->type()));
+        if (param.modifiers().fFlags & Modifiers::kOut_Flag) {
+            this->write(to_ptr_type(param.type()));
         } else {
-            this->write(to_wgsl_type(param->type()));
+            this->write(to_wgsl_type(param.type()));
         }
     }
     this->write(")");
-    if (!f.returnType().isVoid()) {
+    if (!decl.returnType().isVoid()) {
         this->write(" -> ");
-        this->write(to_wgsl_type(f.returnType()));
+        this->write(to_wgsl_type(decl.returnType()));
     }
 }
 

@@ -1069,6 +1069,7 @@ skia_filegroup(
         "runtime/LargeProgram_NestedLoops.rts",
         "runtime/LargeProgram_SplitLoops.rts",
         "runtime/LargeProgram_ZeroIterFor.rts",
+        "runtime/QualifierOrder.rts",
         "inliner/DoWhileTestCannotBeInlined.sksl",
         "shared/ArrayConstructors.sksl",
         "shared/ArrayFollowedByScalar.sksl",

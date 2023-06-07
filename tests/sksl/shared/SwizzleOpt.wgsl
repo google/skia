@@ -11,7 +11,8 @@ struct _GlobalUniforms {
   testInputs: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn fn_hh4(v: vec4<f32>) -> f32 {
+fn fn_hh4(_skParam0: vec4<f32>) -> f32 {
+  let v = _skParam0;
   {
     {
       var x: i32 = 1;
@@ -31,7 +32,8 @@ fn fn_hh4(v: vec4<f32>) -> f32 {
   }
   return f32();
 }
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var v: vec4<f32> = _globalUniforms.testInputs;
     v = vec4<f32>(0.0, v.zyx);

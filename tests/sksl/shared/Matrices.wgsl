@@ -69,7 +69,8 @@ fn test_comma_b() -> bool {
     return (all(_skTemp21[0] == _skTemp22[0]) && all(_skTemp21[1] == _skTemp22[1]));
   }
 }
-fn main(coords: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
   {
     var _0_ok: bool = true;
     var _1_m1: mat2x2<f32> = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);

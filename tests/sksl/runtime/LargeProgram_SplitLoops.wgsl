@@ -1,4 +1,5 @@
-fn d_vi(i: ptr<function, i32>) {
+fn d_vi(_skParam0: ptr<function, i32>) {
+  let i = _skParam0;
   {
     {
       var x: i32 = 0;
@@ -15,7 +16,8 @@ fn d_vi(i: ptr<function, i32>) {
     }
   }
 }
-fn c_vi(i: ptr<function, i32>) {
+fn c_vi(_skParam0: ptr<function, i32>) {
+  let i = _skParam0;
   {
     {
       var x: i32 = 0;
@@ -34,7 +36,8 @@ fn c_vi(i: ptr<function, i32>) {
     }
   }
 }
-fn b_vi(i: ptr<function, i32>) {
+fn b_vi(_skParam0: ptr<function, i32>) {
+  let i = _skParam0;
   {
     {
       var x: i32 = 0;
@@ -53,7 +56,8 @@ fn b_vi(i: ptr<function, i32>) {
     }
   }
 }
-fn a_vi(i: ptr<function, i32>) {
+fn a_vi(_skParam0: ptr<function, i32>) {
+  let i = _skParam0;
   {
     {
       var x: i32 = 0;
@@ -72,7 +76,8 @@ fn a_vi(i: ptr<function, i32>) {
     }
   }
 }
-fn main(xy: vec2<f32>) -> vec4<f32> {
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let xy = _skParam0;
   {
     var i: i32 = 0;
     var _skTemp3: i32 = i;
