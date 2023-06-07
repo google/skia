@@ -58,23 +58,20 @@ fn test_loop_if_b() -> bool {
     {
       var x: i32 = 0;
       loop {
-        if x <= 1 {
-          {
-            if (_globalUniforms.colorGreen.y == 0.0) {
-              {
-                return false;
-              }
-            } else {
-              {
-                return true;
-              }
+        {
+          if (_globalUniforms.colorGreen.y == 0.0) {
+            {
+              return false;
+            }
+          } else {
+            {
+              return true;
             }
           }
-        } else {
-          break;
         }
         continuing {
           x = x + i32(1);
+          break if !(x <= 1);
         }
       }
     }

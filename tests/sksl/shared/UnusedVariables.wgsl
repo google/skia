@@ -29,15 +29,12 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     {
       var x: i32 = 0;
       loop {
-        if x < 1 {
-          {
-            continue;
-          }
-        } else {
-          break;
+        {
+          continue;
         }
         continuing {
           x = x + i32(1);
+          break if !(x < 1);
         }
       }
     }

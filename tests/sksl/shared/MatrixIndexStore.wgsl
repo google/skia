@@ -19,16 +19,13 @@ fn test3x3_b() -> bool {
     {
       var index: i32 = 0;
       loop {
-        if index < 3 {
-          {
-            matrix[index] = values;
-            values = values + 3.0;
-          }
-        } else {
-          break;
+        {
+          matrix[index] = values;
+          values = values + 3.0;
         }
         continuing {
           index = index + i32(1);
+          break if !(index < 3);
         }
       }
     }
@@ -44,16 +41,13 @@ fn test4x4_b() -> bool {
     {
       var index: i32 = 0;
       loop {
-        if index < 4 {
-          {
-            matrix[index] = values;
-            values = values + 4.0;
-          }
-        } else {
-          break;
+        {
+          matrix[index] = values;
+          values = values + 4.0;
         }
         continuing {
           index = index + i32(1);
+          break if !(index < 4);
         }
       }
     }

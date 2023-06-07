@@ -5,49 +5,37 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     {
       var a: i32 = 0;
       loop {
-        if a < 10 {
-          {
-            var b: i32 = 0;
-            loop {
-              if b < 10 {
+        {
+          var b: i32 = 0;
+          loop {
+            {
+              var c: i32 = 0;
+              loop {
                 {
-                  var c: i32 = 0;
+                  var d: i32 = 0;
                   loop {
-                    if c < 10 {
-                      {
-                        var d: i32 = 0;
-                        loop {
-                          if d < 10 {
-                            i = i + i32(1);
-                          } else {
-                            break;
-                          }
-                          continuing {
-                            d = d + i32(1);
-                          }
-                        }
-                      }
-                    } else {
-                      break;
-                    }
+                    i = i + i32(1);
                     continuing {
-                      c = c + i32(1);
+                      d = d + i32(1);
+                      break if !(d < 10);
                     }
                   }
                 }
-              } else {
-                break;
-              }
-              continuing {
-                b = b + i32(1);
+                continuing {
+                  c = c + i32(1);
+                  break if !(c < 10);
+                }
               }
             }
+            continuing {
+              b = b + i32(1);
+              break if !(b < 10);
+            }
           }
-        } else {
-          break;
         }
         continuing {
           a = a + i32(1);
+          break if !(a < 10);
         }
       }
     }

@@ -10,19 +10,16 @@ fn return_loop_ff(_skParam0: f32) -> f32 {
     {
       var i: f32 = kZero;
       loop {
-        if i < 10.0 {
-          {
-            if (i == five) {
-              {
-                return i;
-              }
+        {
+          if (i == five) {
+            {
+              return i;
             }
           }
-        } else {
-          break;
         }
         continuing {
           i = i + f32(1);
+          break if !(i < 10.0);
         }
       }
     }
@@ -37,20 +34,17 @@ fn continue_loop_ff(_skParam0: f32) -> f32 {
     {
       var i: f32 = 0.0;
       loop {
-        if i < kTen {
-          {
-            if (i < five) {
-              {
-                continue;
-              }
+        {
+          if (i < five) {
+            {
+              continue;
             }
-            sum = sum + i;
           }
-        } else {
-          break;
+          sum = sum + i;
         }
         continuing {
           i = i + f32(1);
+          break if !(i < kTen);
         }
       }
     }
@@ -65,20 +59,17 @@ fn break_loop_ff(_skParam0: f32) -> f32 {
     {
       var i: f32 = 0.0;
       loop {
-        if i < 10.0 {
-          {
-            if (i > five) {
-              {
-                break;
-              }
+        {
+          if (i > five) {
+            {
+              break;
             }
-            sum = sum + i;
           }
-        } else {
-          break;
+          sum = sum + i;
         }
         continuing {
           i = i + kOne;
+          break if !(i < 10.0);
         }
       }
     }
@@ -91,15 +82,12 @@ fn float_loop_f() -> f32 {
     {
       var i: f32 = 0.123;
       loop {
-        if i < 0.6 {
-          {
-            sum = sum + i;
-          }
-        } else {
-          break;
+        {
+          sum = sum + i;
         }
         continuing {
           i = i + 0.111;
+          break if !(i < 0.6);
         }
       }
     }
@@ -112,15 +100,12 @@ fn loop_operator_le_b() -> bool {
     {
       var i: f32 = 1.0;
       loop {
-        if i <= 3.0 {
-          {
-            result = vec4<f32>(result.yzw, i);
-          }
-        } else {
-          break;
+        {
+          result = vec4<f32>(result.yzw, i);
         }
         continuing {
           i = i + f32(1);
+          break if !(i <= 3.0);
         }
       }
     }
@@ -133,15 +118,12 @@ fn loop_operator_lt_b() -> bool {
     {
       var i: f32 = 1.0;
       loop {
-        if i < 4.0 {
-          {
-            result = vec4<f32>(result.yzw, i);
-          }
-        } else {
-          break;
+        {
+          result = vec4<f32>(result.yzw, i);
         }
         continuing {
           i = i + f32(1);
+          break if !(i < 4.0);
         }
       }
     }
@@ -154,15 +136,12 @@ fn loop_operator_ge_b() -> bool {
     {
       var i: f32 = 3.0;
       loop {
-        if i >= 1.0 {
-          {
-            result = vec4<f32>(result.yzw, i);
-          }
-        } else {
-          break;
+        {
+          result = vec4<f32>(result.yzw, i);
         }
         continuing {
           i = i - f32(1);
+          break if !(i >= 1.0);
         }
       }
     }
@@ -175,15 +154,12 @@ fn loop_operator_gt_b() -> bool {
     {
       var i: f32 = 3.0;
       loop {
-        if i > 0.0 {
-          {
-            result = vec4<f32>(result.yzw, i);
-          }
-        } else {
-          break;
+        {
+          result = vec4<f32>(result.yzw, i);
         }
         continuing {
           i = i - f32(1);
+          break if !(i > 0.0);
         }
       }
     }
@@ -196,15 +172,12 @@ fn loop_operator_ne_b() -> bool {
     {
       var i: f32 = 1.0;
       loop {
-        if i < 4.0 {
-          {
-            result = vec4<f32>(result.yzw, i);
-          }
-        } else {
-          break;
+        {
+          result = vec4<f32>(result.yzw, i);
         }
         continuing {
           i = i + f32(1);
+          break if !(i < 4.0);
         }
       }
     }
@@ -217,15 +190,12 @@ fn loop_operator_eq_b() -> bool {
     {
       var i: f32 = 1.0;
       loop {
-        if i == 1.0 {
-          {
-            result = vec4<f32>(result.yzw, i);
-          }
-        } else {
-          break;
+        {
+          result = vec4<f32>(result.yzw, i);
         }
         continuing {
           i = i + f32(1);
+          break if !(i == 1.0);
         }
       }
     }

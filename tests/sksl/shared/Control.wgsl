@@ -41,23 +41,20 @@ fn main(_stageOut: ptr<function, FSOut>) {
     {
       var i: i32 = 0;
       loop {
-        if i < 10 {
-          {
-            if (i % 2 == 1) {
-              break;
+        {
+          if (i % 2 == 1) {
+            break;
+          } else {
+            if (i > 100) {
+              return ;
             } else {
-              if (i > 100) {
-                return ;
-              } else {
-                continue;
-              }
+              continue;
             }
           }
-        } else {
-          break;
         }
         continuing {
           i = i + i32(1);
+          break if !(i < 10);
         }
       }
     }

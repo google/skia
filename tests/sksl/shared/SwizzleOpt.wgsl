@@ -17,15 +17,12 @@ fn fn_hh4(_skParam0: vec4<f32>) -> f32 {
     {
       var x: i32 = 1;
       loop {
-        if x <= 2 {
-          {
-            return v.x;
-          }
-        } else {
-          break;
+        {
+          return v.x;
         }
         continuing {
           x = x + i32(1);
+          break if !(x <= 2);
         }
       }
     }

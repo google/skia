@@ -19,20 +19,17 @@ fn test3x3_b() -> bool {
     {
       var index: i32 = 0;
       loop {
-        if index < 3 {
-          {
-            if (any(matrix[index] != expected)) {
-              {
-                return false;
-              }
+        {
+          if (any(matrix[index] != expected)) {
+            {
+              return false;
             }
-            expected = expected + 3.0;
           }
-        } else {
-          break;
+          expected = expected + 3.0;
         }
         continuing {
           index = index + i32(1);
+          break if !(index < 3);
         }
       }
     }
@@ -46,20 +43,17 @@ fn test4x4_b() -> bool {
     {
       var index: i32 = 0;
       loop {
-        if index < 4 {
-          {
-            if (any(matrix[index] != expected)) {
-              {
-                return false;
-              }
+        {
+          if (any(matrix[index] != expected)) {
+            {
+              return false;
             }
-            expected = expected + 4.0;
           }
-        } else {
-          break;
+          expected = expected + 4.0;
         }
         continuing {
           index = index + i32(1);
+          break if !(index < 4);
         }
       }
     }

@@ -19,36 +19,30 @@ fn test3x3_b() -> bool {
     {
       var c: i32 = 0;
       loop {
-        if c < 3 {
+        {
           {
-            {
-              var r: i32 = 0;
-              loop {
-                if r < 3 {
-                  {
-                    let _skTemp0 = vec3<i32>(2, 1, 0)[r];
-                    vec[_skTemp0] = _globalUniforms.testMatrix3x3[c][r];
-                  }
-                } else {
-                  break;
-                }
-                continuing {
-                  r = r + i32(1);
-                }
-              }
-            }
-            if (any(vec != expected)) {
+            var r: i32 = 0;
+            loop {
               {
-                return false;
+                let _skTemp0 = vec3<i32>(2, 1, 0)[r];
+                vec[_skTemp0] = _globalUniforms.testMatrix3x3[c][r];
+              }
+              continuing {
+                r = r + i32(1);
+                break if !(r < 3);
               }
             }
-            expected = expected + 3.0;
           }
-        } else {
-          break;
+          if (any(vec != expected)) {
+            {
+              return false;
+            }
+          }
+          expected = expected + 3.0;
         }
         continuing {
           c = c + i32(1);
+          break if !(c < 3);
         }
       }
     }
@@ -62,36 +56,30 @@ fn test4x4_b() -> bool {
     {
       var c: i32 = 0;
       loop {
-        if c < 4 {
+        {
           {
-            {
-              var r: i32 = 0;
-              loop {
-                if r < 4 {
-                  {
-                    let _skTemp1 = vec4<i32>(3, 2, 1, 0)[r];
-                    vec[_skTemp1] = _globalUniforms.testMatrix4x4[c][r];
-                  }
-                } else {
-                  break;
-                }
-                continuing {
-                  r = r + i32(1);
-                }
-              }
-            }
-            if (any(vec != expected)) {
+            var r: i32 = 0;
+            loop {
               {
-                return false;
+                let _skTemp1 = vec4<i32>(3, 2, 1, 0)[r];
+                vec[_skTemp1] = _globalUniforms.testMatrix4x4[c][r];
+              }
+              continuing {
+                r = r + i32(1);
+                break if !(r < 4);
               }
             }
-            expected = expected + 4.0;
           }
-        } else {
-          break;
+          if (any(vec != expected)) {
+            {
+              return false;
+            }
+          }
+          expected = expected + 4.0;
         }
         continuing {
           c = c + i32(1);
+          break if !(c < 4);
         }
       }
     }
