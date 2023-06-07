@@ -9,8 +9,11 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/private/SkColorData.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"
@@ -22,6 +25,7 @@
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/gradients/GrGradientBitmapCache.h"
+#include "src/shaders/gradients/SkGradientBaseShader.h"
 
 using namespace skia_private;
 
@@ -830,6 +834,14 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
         return nullptr;
     }
 
+    // If interpolation space is different than destination, wrap the colorizer in a conversion.
+    // This also handles any final premultiplication, etc.
+    colorizer = make_interpolated_to_dst(std::move(colorizer),
+                                         shader.fInterpolation,
+                                         xformedColors.fIntermediateColorSpace.get(),
+                                         *args.fDstColorInfo,
+                                         allOpaque);
+
     // All tile modes are supported (unless something was added to SkShader)
     std::unique_ptr<GrFragmentProcessor> gradient;
     switch(shader.getTileMode()) {
@@ -841,15 +853,34 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
             gradient = make_tiled_gradient(args, std::move(colorizer), std::move(layout),
                                            /* mirror */ true, allOpaque);
             break;
-        case SkTileMode::kClamp:
+        case SkTileMode::kClamp: {
             // For the clamped mode, the border colors are the first and last colors, corresponding
             // to t=0 and t=1, because SkGradientBaseShader enforces that by adding color stops as
             // appropriate. If there is a hard stop, this grabs the expected outer colors for the
             // border.
+
+            // However, we need to finish converting to destination color space. (These are still
+            // in the interpolated color space).
+            SkPMColor4f borderColors[2] = { colors[0], colors[shader.fColorCount - 1] };
+            SkArenaAlloc alloc(/*firstHeapAllocation=*/0);
+            SkRasterPipeline p(&alloc);
+            SkRasterPipeline_MemoryCtx ctx = { borderColors, 0 };
+
+            p.append(SkRasterPipelineOp::load_f32, &ctx);
+            SkGradientBaseShader::AppendInterpolatedToDstStages(
+                    &p,
+                    &alloc,
+                    allOpaque,
+                    shader.fInterpolation,
+                    xformedColors.fIntermediateColorSpace.get(),
+                    args.fDstColorInfo->colorSpace());
+            p.append(SkRasterPipelineOp::store_f32, &ctx);
+            p.run(0, 0, 2, 1);
+
             gradient = make_clamped_gradient(std::move(colorizer), std::move(layout),
-                                             colors[0], colors[shader.fColorCount - 1],
-                                             allOpaque);
+                                             borderColors[0], borderColors[1], allOpaque);
             break;
+        }
         case SkTileMode::kDecal:
             // Even if the gradient colors are opaque, the decal borders are transparent so
             // disable that optimization
@@ -859,13 +890,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
             break;
     }
 
-    // If interpolation space is different than destination, wrap the colorizer in a conversion.
-    // This also handles any final premultiplication, etc.
-    return make_interpolated_to_dst(std::move(gradient),
-                                    shader.fInterpolation,
-                                    xformedColors.fIntermediateColorSpace.get(),
-                                    *args.fDstColorInfo,
-                                    allOpaque);
+    return gradient;
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
