@@ -1,3 +1,11 @@
+/*
+
+:46:3 warning: code is unreachable
+  return bool();
+  ^^^^^^
+
+*/
+
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,
@@ -43,6 +51,7 @@ fn test_else_b() -> bool {
       }
     }
   }
+  return bool();
 }
 fn test_loop_if_b() -> bool {
   {

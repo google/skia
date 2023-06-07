@@ -731,13 +731,24 @@ void WGSLCodeGenerator::writeBuiltinIODecl(const Type& type,
 }
 
 void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    fHasUnconditionalReturn = false;
+    fConditionalScopeDepth = 0;
+
     this->writeFunctionDeclaration(f.declaration());
     this->writeLine(" {");
-
     ++fIndentation;
-    this->writeBlock(f.body()->as<Block>());
-    --fIndentation;
 
+    this->writeBlock(f.body()->as<Block>());
+
+    // If fConditionalScopeDepth isn't zero, we have an unbalanced +1 or -1 when updating the depth.
+    SkASSERT(fConditionalScopeDepth == 0);
+    if (!fHasUnconditionalReturn && !f.declaration().returnType().isVoid()) {
+        this->write("return ");
+        this->write(to_wgsl_type(f.declaration().returnType()));
+        this->writeLine("();");
+    }
+
+    --fIndentation;
     this->writeLine("}");
 
     if (f.declaration().isMain()) {
@@ -950,6 +961,8 @@ void WGSLCodeGenerator::writeDoStatement(const DoStatement& s) {
     //       }
     //   }
 
+    ++fConditionalScopeDepth;
+
     this->writeLine("loop {");
     fIndentation++;
     this->writeStatement(*s.statement());
@@ -965,6 +978,8 @@ void WGSLCodeGenerator::writeDoStatement(const DoStatement& s) {
     this->writeLine("}");
     fIndentation--;
     this->writeLine("}");
+
+    --fConditionalScopeDepth;
 }
 
 void WGSLCodeGenerator::writeForStatement(const ForStatement& s) {
@@ -985,6 +1000,8 @@ void WGSLCodeGenerator::writeForStatement(const ForStatement& s) {
     // The outer scope is necessary to prevent the initializer-variable from leaking out into the
     // rest of the code. In practice, the generated code actually tends to be scoped even more
     // deeply, as the body-statement almost always contributes an extra block.
+
+    ++fConditionalScopeDepth;
 
     if (s.initializer()) {
         this->writeLine("{");
@@ -1038,9 +1055,13 @@ void WGSLCodeGenerator::writeForStatement(const ForStatement& s) {
         fIndentation--;
         this->writeLine("}");
     }
+
+    --fConditionalScopeDepth;
 }
 
 void WGSLCodeGenerator::writeIfStatement(const IfStatement& s) {
+    ++fConditionalScopeDepth;
+
     std::string testExpr = this->assembleExpression(*s.test(), Precedence::kExpression);
     this->write("if (");
     this->write(testExpr);
@@ -1057,9 +1078,13 @@ void WGSLCodeGenerator::writeIfStatement(const IfStatement& s) {
         fIndentation--;
     }
     this->writeLine("}");
+
+    --fConditionalScopeDepth;
 }
 
 void WGSLCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
+    fHasUnconditionalReturn |= (fConditionalScopeDepth == 0);
+
     std::string expr = s.expression()
                                ? this->assembleExpression(*s.expression(), Precedence::kExpression)
                                : std::string();

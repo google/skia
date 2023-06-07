@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: :14:1 error: missing return at end of function
-fn fn_hh4(v: vec4<f32>) -> f32 {
-^^
-
-
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,
@@ -36,6 +29,7 @@ fn fn_hh4(v: vec4<f32>) -> f32 {
       }
     }
   }
+  return f32();
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
   {
@@ -72,5 +66,3 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
-
-1 error

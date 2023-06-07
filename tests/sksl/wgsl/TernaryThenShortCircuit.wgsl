@@ -1,3 +1,19 @@
+/*
+
+:60:3 warning: code is unreachable
+  return bool();
+  ^^^^^^
+
+:93:3 warning: code is unreachable
+  return bool();
+  ^^^^^^
+
+:126:3 warning: code is unreachable
+  return bool();
+  ^^^^^^
+
+*/
+
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,
@@ -57,6 +73,7 @@ fn TrueFalse_b() -> bool {
       }
     }
   }
+  return bool();
 }
 fn FalseTrue_b() -> bool {
   {
@@ -89,6 +106,7 @@ fn FalseTrue_b() -> bool {
       }
     }
   }
+  return bool();
 }
 fn FalseFalse_b() -> bool {
   {
@@ -121,6 +139,7 @@ fn FalseFalse_b() -> bool {
       }
     }
   }
+  return bool();
 }
 fn main(coords: vec2<f32>) -> vec4<f32> {
   {
