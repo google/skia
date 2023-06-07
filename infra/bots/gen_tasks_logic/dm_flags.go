@@ -1077,11 +1077,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLStructFieldFolding_GPU") // skia:13393
 	}
 
-	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx Vulkan
-		skip(ALL, "tests", ALL, "SkSLInoutParameters_GPU")   // skia:12869
-		skip(ALL, "tests", ALL, "SkSLOutParams_GPU")         // skia:11919
-		skip(ALL, "tests", ALL, "SkSLOutParamsTricky_GPU")   // skia:11919
-		skip(ALL, "tests", ALL, "SkSLOutParamsNoInline_GPU") // skia:11919
+	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") {        // disable broken tests on Adreno 5/6xx Vulkan
+		skip(ALL, "tests", ALL, "SkSLInoutParameters_GPU")          // skia:12869
+		skip(ALL, "tests", ALL, "SkSLOutParams_GPU")                // skia:11919
+		skip(ALL, "tests", ALL, "SkSLOutParamsDoubleSwizzle_GPU")   // skia:11919
+		skip(ALL, "tests", ALL, "SkSLOutParamsNoInline_GPU")        // skia:11919
 		skip(ALL, "tests", ALL, "SkSLOutParamsFunctionCallInArgument")
 	}
 
