@@ -80,11 +80,18 @@ void dumpFamilyAndPostscriptName(SkCanvas* canvas,
 
 class FontationsTypefaceGM : public GM {
 public:
+    enum class TypefaceConstruction {
+        kMakeWithFontArguments,
+        kCloneWithFontArguments,
+    };
     FontationsTypefaceGM(const char* testName,
                          const char* testFontFilename,
                          std::initializer_list<SkFontArguments::VariationPosition::Coordinate>
-                                 specifiedVariations)
-            : fTestName(testName), fTestFontFilename(testFontFilename) {
+                                 specifiedVariations,
+                         TypefaceConstruction construction = TypefaceConstruction::kMakeWithFontArguments)
+            : fTestName(testName)
+            , fTestFontFilename(testFontFilename)
+            , fConstruction(construction) {
         this->setBGColor(SK_ColorWHITE);
         fVariationPosition.coordinateCount = specifiedVariations.size();
         fCoordinates = std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(
@@ -98,9 +105,16 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fTestTypeface = SkTypeface_Make_Fontations(
+        if (fConstruction == TypefaceConstruction::kMakeWithFontArguments) {
+          fTestTypeface = SkTypeface_Make_Fontations(
                 GetResourceAsStream(fTestFontFilename),
                 SkFontArguments().setVariationDesignPosition(fVariationPosition));
+        } else {
+          fTestTypeface = SkTypeface_Make_Fontations(GetResourceAsStream(fTestFontFilename),
+                                                     SkFontArguments())
+                                  ->makeClone(SkFontArguments().setVariationDesignPosition(
+                                          fVariationPosition));
+        }
         fReportTypeface =
                 SkTypeface_Make_Fontations(GetResourceAsStream(kReportFontName), SkFontArguments());
     }
@@ -158,6 +172,7 @@ private:
     sk_sp<SkTypeface> fReportTypeface;
     SkFontArguments::VariationPosition fVariationPosition;
     std::unique_ptr<SkFontArguments::VariationPosition::Coordinate[]> fCoordinates;
+    TypefaceConstruction fConstruction;
 };
 
 namespace {
@@ -167,11 +182,14 @@ SkFourByteTag constexpr operator"" _t(const char* tagName, size_t size) {
 }
 }  // namespace
 DEF_GM(return new FontationsTypefaceGM("roboto", "fonts/Roboto-Regular.ttf", {});)
-DEF_GM(return new FontationsTypefaceGM("distortable_light",
-                                       "fonts/Distortable.ttf",
-                                       {{"wght"_t, 0.5f}});)
-DEF_GM(return new FontationsTypefaceGM("distortable_bold",
-                                       "fonts/Distortable.ttf",
-                                       {{"wght"_t, 2.0f}});)
+DEF_GM(return new FontationsTypefaceGM(
+                      "distortable_light",
+                      "fonts/Distortable.ttf",
+                      {{"wght"_t, 0.5f}}))
+DEF_GM(return new FontationsTypefaceGM(
+        "distortable_bold",
+        "fonts/Distortable.ttf",
+        {{"wght"_t, 2.0f}},
+        FontationsTypefaceGM::TypefaceConstruction::kCloneWithFontArguments);)
 
 }  // namespace skiagm

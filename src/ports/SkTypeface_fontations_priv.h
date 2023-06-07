@@ -21,7 +21,7 @@ class SkStreamAsset;
 /** SkTypeface implementation based on Google Fonts Fontations Rust libraries. */
 class SkTypeface_Fontations : public SkTypeface {
 public:
-    SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data, const SkFontArguments& args);
+    SkTypeface_Fontations(sk_sp<SkData> fontData, const SkFontArguments&);
 
     bool hasValidBridgeFontRef() const;
     const fontations_ffi::BridgeFontRef& getBridgeFontRef() { return *fBridgeFontRef; }
@@ -29,16 +29,15 @@ public:
         return *fBridgeNormalizedCoords;
     }
 
-    static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('f','n','t','a');
+    static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('f', 'n', 't', 'a');
 
+    static sk_sp<SkTypeface> MakeFromData(sk_sp<SkData> fontData, const SkFontArguments&);
     static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&);
 
     struct Register { Register(); };
 protected:
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
-    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        return sk_ref_sp(this);
-    }
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects& effects,
                                                            const SkDescriptor* desc) const override;
     void onFilterRec(SkScalerContextRec*) const override;

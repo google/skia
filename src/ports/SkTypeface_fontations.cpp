@@ -26,7 +26,7 @@ sk_sp<SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
 }
 
 rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<SkData> fontData,
-                                                                  uint32_t index) {
+                                                                uint32_t index) {
     rust::Slice<const uint8_t> slice{fontData->bytes(), fontData->size()};
     return fontations_ffi::make_font_ref(slice, index);
 }
@@ -61,18 +61,21 @@ SK_API sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsse
     return SkTypeface_Fontations::MakeFromStream(std::move(fontData), args);
 }
 
-SkTypeface_Fontations::SkTypeface_Fontations(std::unique_ptr<SkStreamAsset> font_data,
-                                             const SkFontArguments& args)
+SkTypeface_Fontations::SkTypeface_Fontations(sk_sp<SkData> fontData, const SkFontArguments& args)
         : SkTypeface(SkFontStyle(), true)
-        , fFontData(streamToData(font_data))
+        , fFontData(fontData)
         , fTtcIndex(args.getCollectionIndex())
         , fBridgeFontRef(make_bridge_font_ref(fFontData, fTtcIndex))
         , fBridgeNormalizedCoords(make_normalized_coords(*fBridgeFontRef, args)) {}
 
 sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
                                                         const SkFontArguments& args) {
-    // TODO(crbug.com/skia/14337): Handle more than the collection index.
-    sk_sp<SkTypeface_Fontations> probeTypeface(new SkTypeface_Fontations(std::move(stream), args));
+    return MakeFromData(streamToData(stream), args);
+}
+
+sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
+                                                      const SkFontArguments& args) {
+    sk_sp<SkTypeface_Fontations> probeTypeface(new SkTypeface_Fontations(data, args));
     return probeTypeface->hasValidBridgeFontRef() ? probeTypeface : nullptr;
 }
 
@@ -109,7 +112,7 @@ int SkTypeface_Fontations::onCountGlyphs() const {
 }
 
 bool SkTypeface_Fontations::hasValidBridgeFontRef() const {
-  return fontations_ffi::font_ref_is_valid(*fBridgeFontRef);
+    return fontations_ffi::font_ref_is_valid(*fBridgeFontRef);
 }
 
 void SkTypeface_Fontations::onFilterRec(SkScalerContextRec* rec) const {
@@ -126,7 +129,8 @@ public:
         if (!fontations_ffi::localized_name_next(*fBridgeLocalizedStrings, localizedName)) {
             return false;
         }
-        localized_string->fString = SkString(localizedName.string.data(), localizedName.string.size());
+        localized_string->fString =
+                SkString(localizedName.string.data(), localizedName.string.size());
         localized_string->fLanguage =
                 SkString(localizedName.language.data(), localizedName.language.size());
         return true;
@@ -232,6 +236,10 @@ private:
 std::unique_ptr<SkStreamAsset> SkTypeface_Fontations::onOpenStream(int* ttcIndex) const {
     *ttcIndex = fTtcIndex;
     return std::make_unique<SkMemoryStream>(fFontData);
+}
+
+sk_sp<SkTypeface> SkTypeface_Fontations::onMakeClone(const SkFontArguments& args) const {
+    return MakeFromData(fFontData, args);
 }
 
 std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContext(
