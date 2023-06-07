@@ -11,7 +11,6 @@
 #include "include/core/SkScalar.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
-#include "src/shaders/SkShaderBase.h"
 
 #include <array>
 #include <memory>

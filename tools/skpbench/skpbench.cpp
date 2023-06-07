@@ -699,7 +699,7 @@ static sk_sp<SkPicture> create_warmup_skp() {
 
     // Use a perlin shader to warmup the GPU.
     SkPaint perlin;
-    perlin.setShader(SkPerlinNoiseShader::MakeTurbulence(0.1f, 0.1f, 1, 0, nullptr));
+    perlin.setShader(SkShaders::MakeTurbulence(0.1f, 0.1f, 1, 0, nullptr));
     recording->drawRect(bounds, perlin);
 
     return recorder.finishRecordingAsPicture();

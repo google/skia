@@ -9,41 +9,203 @@
 #define SkShaderBase_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkNoncopyable.h"
-#include "src/base/SkTLazy.h"
-#include "src/core/SkEffectPriv.h"
-#include "src/core/SkMask.h"
-#include "src/core/SkVM_fwd.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <optional>
 #include <tuple>
 
-class GrFragmentProcessor;
-struct GrFPArgs;
 class SkArenaAlloc;
 class SkColorSpace;
 class SkImage;
-struct SkImageInfo;
-class SkPaint;
-class SkRasterPipeline;
 class SkRuntimeEffect;
-class SkStageUpdater;
-class SkUpdatableShader;
+class SkWriteBuffer;
+enum SkColorType : int;
+enum class SkTileMode;
+struct SkDeserialProcs;
+struct SkStageRec;
 
+#if defined(SK_GRAPHITE)
 namespace skgpu::graphite {
 class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 }
-
-#if defined(SK_GANESH)
-using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
 #endif
+
+#if defined(SK_ENABLE_SKVM)
+#include "include/core/SkImageInfo.h"
+#include "src/core/SkVM.h"
+#endif
+
+namespace SkShaders {
+/**
+ * This is used to accumulate matrices, starting with the CTM, when building up
+ * SkRasterPipeline, SkVM, and GrFragmentProcessor by walking the SkShader tree. It avoids
+ * adding a matrix multiply for each individual matrix. It also handles the reverse matrix
+ * concatenation order required by Android Framework, see b/256873449.
+ *
+ * This also tracks the dubious concept of a "total matrix", which includes all the matrices
+ * encountered during traversal to the current shader, including ones that have already been
+ * applied. The total matrix represents the transformation from the current shader's coordinate
+ * space to device space. It is dubious because it doesn't account for SkShaders that manipulate
+ * the coordinates passed to their children, which may not even be representable by a matrix.
+ *
+ * The total matrix is used for mipmap level selection and a filter downgrade optimizations in
+ * SkImageShader and sizing of the SkImage created by SkPictureShader. If we can remove usages
+ * of the "total matrix" and if Android Framework could be updated to not use backwards local
+ * matrix concatenation this could just be replaced by a simple SkMatrix or SkM44 passed down
+ * during traversal.
+ */
+class MatrixRec {
+public:
+    MatrixRec() = default;
+
+    explicit MatrixRec(const SkMatrix& ctm);
+
+    /**
+     * Returns a new MatrixRec that represents the existing total and pending matrix
+     * pre-concat'ed with m.
+     */
+    MatrixRec SK_WARN_UNUSED_RESULT concat(const SkMatrix& m) const;
+
+    /**
+     * Appends a mul by the inverse of the pending local matrix to the pipeline. 'postInv' is an
+     * additional matrix to post-apply to the inverted pending matrix. If the pending matrix is
+     * not invertible the std::optional result won't have a value and the pipeline will be
+     * unmodified.
+     */
+    std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(const SkStageRec& rec,
+                                                         const SkMatrix& postInv = {}) const;
+
+#if defined(SK_ENABLE_SKVM)
+    /**
+     * Muls local by the inverse of the pending matrix. 'postInv' is an additional matrix to
+     * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
+     * std::optional result won't have a value and the Builder will be unmodified.
+     */
+    std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(skvm::Builder*,
+                                                         skvm::Coord* local,  // inout
+                                                         skvm::Uniforms*,
+                                                         const SkMatrix& postInv = {}) const;
+#endif
+
+    /**
+     * FP matrices work differently than SkRasterPipeline and SkVM. The starting coordinates
+     * provided to the root SkShader's FP are already in local space. So we never apply the inverse
+     * CTM. This returns the inverted pending local matrix with the provided postInv matrix
+     * applied after it. If the pending local matrix cannot be inverted, the boolean is false.
+     */
+    std::tuple<SkMatrix, bool> applyForFragmentProcessor(const SkMatrix& postInv) const;
+
+    /**
+     * A parent FP may need to create a FP for its child by calling
+     * SkShaderBase::asFragmentProcessor() and then pass the result to the apply() above.
+     * This comes up when the parent needs to ensure pending matrices are applied before the
+     * child because the parent is going to manipulate the coordinates *after* any pending
+     * matrix and pass the resulting coords to the child. This function gets a MatrixRec that
+     * reflects the state after this MatrixRec has bee applied but it does not apply it!
+     * Example:
+     * auto childFP = fChild->asFragmentProcessor(args, mrec.applied());
+     * childFP = MakeAWrappingFPThatModifiesChildsCoords(std::move(childFP));
+     * auto [success, parentFP] = mrec.apply(std::move(childFP));
+     */
+    MatrixRec applied() const;
+
+    /** Call to indicate that the mapping from shader to device space is not known. */
+    void markTotalMatrixInvalid() { fTotalMatrixIsValid = false; }
+
+    /** Marks the CTM as already applied; can avoid re-seeding the shader unnecessarily. */
+    void markCTMApplied() { fCTMApplied = true; }
+
+    /**
+     * Indicates whether the total matrix of a MatrixRec passed to a SkShader actually
+     * represents the full transform between that shader's coordinate space and device space.
+     */
+    bool totalMatrixIsValid() const { return fTotalMatrixIsValid; }
+
+    /**
+     * Gets the total transform from the current shader's space to device space. This may or
+     * may not be valid. Shaders should avoid making decisions based on this matrix if
+     * totalMatrixIsValid() is false.
+     */
+    SkMatrix totalMatrix() const { return SkMatrix::Concat(fCTM, fTotalLocalMatrix); }
+
+    /** Gets the inverse of totalMatrix(), if invertible. */
+    bool SK_WARN_UNUSED_RESULT totalInverse(SkMatrix* out) const {
+        return this->totalMatrix().invert(out);
+    }
+
+    /** Is there a transform that has not yet been applied by a parent shader? */
+    bool hasPendingMatrix() const {
+        return (!fCTMApplied && !fCTM.isIdentity()) || !fPendingLocalMatrix.isIdentity();
+    }
+
+    /** When generating raster pipeline, have the device coordinates been seeded? */
+    bool rasterPipelineCoordsAreSeeded() const { return fCTMApplied; }
+
+private:
+    MatrixRec(const SkMatrix& ctm,
+              const SkMatrix& totalLocalMatrix,
+              const SkMatrix& pendingLocalMatrix,
+              bool totalIsValid,
+              bool ctmApplied)
+            : fCTM(ctm)
+            , fTotalLocalMatrix(totalLocalMatrix)
+            , fPendingLocalMatrix(pendingLocalMatrix)
+            , fTotalMatrixIsValid(totalIsValid)
+            , fCTMApplied(ctmApplied) {}
+
+    const SkMatrix fCTM;
+
+    // Concatenation of all local matrices, including those already applied.
+    const SkMatrix fTotalLocalMatrix;
+
+    // The accumulated local matrices from walking down the shader hierarchy that have NOT yet
+    // been incorporated into the SkRasterPipeline.
+    const SkMatrix fPendingLocalMatrix;
+
+    bool fTotalMatrixIsValid = true;
+
+    // Tracks whether the CTM has already been applied (and in raster pipeline whether the
+    // device coords have been seeded.)
+    bool fCTMApplied = false;
+};
+
+}  // namespace SkShaders
+
+#define SK_ALL_SHADERS(M) \
+    M(Blend)              \
+    M(CTM)                \
+    M(Color)              \
+    M(Color4)             \
+    M(ColorFilter)        \
+    M(CoordClamp)         \
+    M(Empty)              \
+    M(GradientBase)       \
+    M(Image)              \
+    M(LocalMatrix)        \
+    M(PerlinNoise)        \
+    M(Picture)            \
+    M(Runtime)            \
+    M(Transform)          \
+    M(TriColor)           \
+    M(UpdatableColor)
+
+#define SK_ALL_GRADIENTS(M) \
+    M(Conical)              \
+    M(Linear)               \
+    M(Radial)               \
+    M(Sweep)
 
 class SkShaderBase : public SkShader {
 public:
@@ -58,13 +220,19 @@ public:
      */
     virtual bool isConstant() const { return false; }
 
+    enum class ShaderType {
+#define M(type) k##type,
+        SK_ALL_SHADERS(M)
+#undef M
+    };
+
+    virtual ShaderType type() const = 0;
+
     enum class GradientType {
         kNone,
-        kColor,
-        kLinear,
-        kRadial,
-        kSweep,
-        kConical
+#define M(type) k##type,
+        SK_ALL_GRADIENTS(M)
+#undef M
     };
 
     /**
@@ -181,164 +349,11 @@ public:
     };
 
     /**
-     * This is used to accumulate matrices, starting with the CTM, when building up
-     * SkRasterPipeline, SkVM, and GrFragmentProcessor by walking the SkShader tree. It avoids
-     * adding a matrix multiply for each individual matrix. It also handles the reverse matrix
-     * concatenation order required by Android Framework, see b/256873449.
-     *
-     * This also tracks the dubious concept of a "total matrix", which includes all the matrices
-     * encountered during traversal to the current shader, including ones that have already been
-     * applied. The total matrix represents the transformation from the current shader's coordinate
-     * space to device space. It is dubious because it doesn't account for SkShaders that manipulate
-     * the coordinates passed to their children, which may not even be representable by a matrix.
-     *
-     * The total matrix is used for mipmap level selection and a filter downgrade optimizations in
-     * SkImageShader and sizing of the SkImage created by SkPictureShader. If we can remove usages
-     * of the "total matrix" and if Android Framework could be updated to not use backwards local
-     * matrix concatenation this could just be replaced by a simple SkMatrix or SkM44 passed down
-     * during traversal.
-     */
-    class MatrixRec {
-    public:
-        MatrixRec() = default;
-
-        explicit MatrixRec(const SkMatrix& ctm);
-
-        /**
-         * Returns a new MatrixRec that represents the existing total and pending matrix
-         * pre-concat'ed with m.
-         */
-        MatrixRec SK_WARN_UNUSED_RESULT concat(const SkMatrix& m) const;
-
-        /**
-         * Appends a mul by the inverse of the pending local matrix to the pipeline. 'postInv' is an
-         * additional matrix to post-apply to the inverted pending matrix. If the pending matrix is
-         * not invertible the std::optional result won't have a value and the pipeline will be
-         * unmodified.
-         */
-        std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(const SkStageRec& rec,
-                                                             const SkMatrix& postInv = {}) const;
-
-#if defined(SK_ENABLE_SKVM)
-        /**
-         * Muls local by the inverse of the pending matrix. 'postInv' is an additional matrix to
-         * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
-         * std::optional result won't have a value and the Builder will be unmodified.
-         */
-        std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(skvm::Builder*,
-                                                             skvm::Coord* local,  // inout
-                                                             skvm::Uniforms*,
-                                                             const SkMatrix& postInv = {}) const;
-#endif
-#if defined(SK_GANESH)
-        /**
-         * Produces an FP that muls its input coords by the inverse of the pending matrix and then
-         * samples the passed FP with those coordinates. 'postInv' is an additional matrix to
-         * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
-         * GrFPResult's bool will be false and the passed FP will be returned to the caller in the
-         * GrFPResult.
-         */
-        GrFPResult SK_WARN_UNUSED_RESULT apply(std::unique_ptr<GrFragmentProcessor>,
-                                               const SkMatrix& postInv = {}) const;
-        /**
-         * A parent FP may need to create a FP for its child by calling
-         * SkShaderBase::asFragmentProcessor() and then pass the result to the apply() above.
-         * This comes up when the parent needs to ensure pending matrices are applied before the
-         * child because the parent is going to manipulate the coordinates *after* any pending
-         * matrix and pass the resulting coords to the child. This function gets a MatrixRec that
-         * reflects the state after this MatrixRec has bee applied but it does not apply it!
-         * Example:
-         * auto childFP = fChild->asFragmentProcessor(args, mrec.applied());
-         * childFP = MakeAWrappingFPThatModifiesChildsCoords(std::move(childFP));
-         * auto [success, parentFP] = mrec.apply(std::move(childFP));
-         */
-        MatrixRec applied() const;
-#endif
-
-        /** Call to indicate that the mapping from shader to device space is not known. */
-        void markTotalMatrixInvalid() { fTotalMatrixIsValid = false; }
-
-        /** Marks the CTM as already applied; can avoid re-seeding the shader unnecessarily. */
-        void markCTMApplied() { fCTMApplied = true; }
-
-        /**
-         * Indicates whether the total matrix of a MatrixRec passed to a SkShader actually
-         * represents the full transform between that shader's coordinate space and device space.
-         */
-        bool totalMatrixIsValid() const { return fTotalMatrixIsValid; }
-
-        /**
-         * Gets the total transform from the current shader's space to device space. This may or
-         * may not be valid. Shaders should avoid making decisions based on this matrix if
-         * totalMatrixIsValid() is false.
-         */
-        SkMatrix totalMatrix() const { return SkMatrix::Concat(fCTM, fTotalLocalMatrix); }
-
-        /** Gets the inverse of totalMatrix(), if invertible. */
-        bool SK_WARN_UNUSED_RESULT totalInverse(SkMatrix* out) const {
-            return this->totalMatrix().invert(out);
-        }
-
-        /** Is there a transform that has not yet been applied by a parent shader? */
-        bool hasPendingMatrix() const {
-            return (!fCTMApplied && !fCTM.isIdentity()) || !fPendingLocalMatrix.isIdentity();
-        }
-
-        /** When generating raster pipeline, have the device coordinates been seeded? */
-        bool rasterPipelineCoordsAreSeeded() const { return fCTMApplied; }
-
-    private:
-        MatrixRec(const SkMatrix& ctm,
-                  const SkMatrix& totalLocalMatrix,
-                  const SkMatrix& pendingLocalMatrix,
-                  bool totalIsValid,
-                  bool ctmApplied)
-                : fCTM(ctm)
-                , fTotalLocalMatrix(totalLocalMatrix)
-                , fPendingLocalMatrix(pendingLocalMatrix)
-                , fTotalMatrixIsValid(totalIsValid)
-                , fCTMApplied(ctmApplied) {}
-
-        const SkMatrix fCTM;
-
-        // Concatenation of all local matrices, including those already applied.
-        const SkMatrix fTotalLocalMatrix;
-
-        // The accumulated local matrices from walking down the shader hierarchy that have NOT yet
-        // been incorporated into the SkRasterPipeline.
-        const SkMatrix fPendingLocalMatrix;
-
-        bool fTotalMatrixIsValid = true;
-
-        // Tracks whether the CTM has already been applied (and in raster pipeline whether the
-        // device coords have been seeded.)
-        bool fCTMApplied = false;
-    };
-
-    /**
      * Make a context using the memory provided by the arena.
      *
      * @return pointer to context or nullptr if can't be created
      */
     Context* makeContext(const ContextRec&, SkArenaAlloc*) const;
-
-#if defined(SK_GANESH)
-    /**
-     * Call on the root SkShader to produce a GrFragmentProcessor.
-     *
-     * The returned GrFragmentProcessor expects an unpremultiplied input color and produces a
-     * premultiplied output.
-     */
-    std::unique_ptr<GrFragmentProcessor> asRootFragmentProcessor(const GrFPArgs&,
-                                                                 const SkMatrix& ctm) const;
-    /**
-     * Virtualized implementation of above. Any pending matrix in the MatrixRec should be applied
-     * to the coords if the SkShader uses its coordinates. This can be done by calling
-     * MatrixRec::apply() to wrap a GrFragmentProcessor in a GrMatrixEffect.
-     */
-    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
-                                                                     const MatrixRec&) const;
-#endif
 
     /**
      *  If the shader can represent its "average" luminance in a single color, return true and
@@ -363,7 +378,7 @@ public:
      * in r,g MatrixRec::apply() must be called (unless the shader doesn't require it's input
      * coords). The default impl creates shadercontext and calls that (not very efficient).
      */
-    virtual bool appendStages(const SkStageRec&, const MatrixRec&) const;
+    virtual bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const;
 
     bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
                                                    const SkMatrix* localMatrix,
@@ -415,7 +430,7 @@ public:
                                 skvm::Coord device,
                                 skvm::Coord local,
                                 skvm::Color paint,
-                                const MatrixRec&,
+                                const SkShaders::MatrixRec&,
                                 const SkColorInfo& dst,
                                 skvm::Uniforms*,
                                 SkArenaAlloc*) const = 0;
@@ -466,7 +481,7 @@ protected:
     static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
 #endif
 
-    using INHERITED = SkShader;
+    friend class SkShaders::MatrixRec;
 };
 inline SkShaderBase* as_SB(SkShader* shader) {
     return static_cast<SkShaderBase*>(shader);
@@ -480,9 +495,9 @@ inline const SkShaderBase* as_SB(const sk_sp<SkShader>& shader) {
     return static_cast<SkShaderBase*>(shader.get());
 }
 
+void SkRegisterBlendShaderFlattenable();
 void SkRegisterColor4ShaderFlattenable();
 void SkRegisterColorShaderFlattenable();
-void SkRegisterComposeShaderFlattenable();
 void SkRegisterCoordClampShaderFlattenable();
 void SkRegisterEmptyShaderFlattenable();
 void SkRegisterPerlinNoiseShaderFlattenable();

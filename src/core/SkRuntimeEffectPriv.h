@@ -15,7 +15,6 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
-#include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -31,17 +30,24 @@
 #endif
 
 #ifdef SK_ENABLE_SKVM
+#include "include/core/SkImageInfo.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #endif
 
 class SkArenaAlloc;
+class SkCapabilities;
 class SkColorSpace;
 class SkData;
 class SkMatrix;
 class SkReadBuffer;
 class SkShader;
 class SkWriteBuffer;
+struct SkColorSpaceXformSteps;
 struct SkStageRec;
+
+namespace SkShaders {
+class MatrixRec;
+}
 
 namespace SkSL {
 class Context;
@@ -49,8 +55,13 @@ class Variable;
 struct Program;
 }
 
-class SkCapabilities;
-struct SkColorSpaceXformSteps;
+#if defined(SK_GRAPHITE)
+namespace skgpu::graphite {
+class KeyContext;
+class PaintParamsKeyBuilder;
+class PipelineDataGatherer;
+}  // namespace skgpu::graphite
+#endif
 
 class SkRuntimeEffectPriv {
 public:
@@ -190,7 +201,7 @@ inline SkRuntimeEffect* SkMakeRuntimeEffect(
 class RuntimeEffectRPCallbacks : public SkSL::RP::Callbacks {
 public:
     RuntimeEffectRPCallbacks(const SkStageRec& s,
-                             const SkShaderBase::MatrixRec& m,
+                             const SkShaders::MatrixRec& m,
                              SkSpan<const SkRuntimeEffect::ChildPtr> c,
                              SkSpan<const SkSL::SampleUsage> u)
             : fStage(s), fMatrix(m), fChildren(c), fSampleUsages(u) {}
@@ -209,7 +220,7 @@ private:
     void applyColorSpaceXform(const SkColorSpaceXformSteps& tempXform, const void* color);
 
     const SkStageRec& fStage;
-    const SkShaderBase::MatrixRec& fMatrix;
+    const SkShaders::MatrixRec& fMatrix;
     SkSpan<const SkRuntimeEffect::ChildPtr> fChildren;
     SkSpan<const SkSL::SampleUsage> fSampleUsages;
 };
@@ -222,7 +233,7 @@ public:
                              skvm::Uniforms* uniforms,
                              SkArenaAlloc* alloc,
                              const std::vector<SkRuntimeEffect::ChildPtr>& children,
-                             const SkShaderBase::MatrixRec& mRec,
+                             const SkShaders::MatrixRec& mRec,
                              skvm::Color inColor,
                              const SkColorInfo& colorInfo)
             : fBuilder(builder)
@@ -247,7 +258,7 @@ public:
     skvm::Uniforms* fUniforms;
     SkArenaAlloc* fAlloc;
     const std::vector<SkRuntimeEffect::ChildPtr>& fChildren;
-    const SkShaderBase::MatrixRec& fMRec;
+    const SkShaders::MatrixRec& fMRec;
     const skvm::Color fInColor;
     const SkColorInfo& fColorInfo;
 };

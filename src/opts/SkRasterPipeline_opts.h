@@ -2185,7 +2185,7 @@ STAGE(css_oklab_to_linear_srgb, NoCtx) {
 
 // Skia stores all polar colors with hue in the first component, so this "LCH -> Lab" transform
 // actually takes "HCL". This is also used to do the same polar transform for OkHCL to OkLAB.
-// See similar comments & logic in SkGradientShaderBase.cpp.
+// See similar comments & logic in SkGradientBaseShader.cpp.
 STAGE(css_hcl_to_lab, NoCtx) {
     F H = r,
       C = g,

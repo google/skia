@@ -5,15 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "src/shaders/SkColorShader.h"
+
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
-#include "src/base/SkArenaAlloc.h"
-#include "src/base/SkUtils.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/private/base/SkTPin.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -22,100 +27,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
-/** \class SkColorShader
-    A Shader that represents a single color. In general, this effect can be
-    accomplished by just using the color field on the paint, but if an
-    actual shader object is needed, this provides that feature.
-*/
-class SkColorShader : public SkShaderBase {
-public:
-    /** Create a ColorShader that ignores the color in the paint, and uses the
-        specified color. Note: like all shaders, at draw time the paint's alpha
-        will be respected, and is applied to the specified color.
-    */
-    explicit SkColorShader(SkColor c);
-
-    bool isOpaque() const override;
-    bool isConstant() const override { return true; }
-
-    GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
-
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
-                                                             const MatrixRec&) const override;
-#endif
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
-
-private:
-    friend void ::SkRegisterColorShaderFlattenable();
-    SK_FLATTENABLE_HOOKS(SkColorShader)
-
-    void flatten(SkWriteBuffer&) const override;
-
-    bool onAsLuminanceColor(SkColor* lum) const override {
-        *lum = fColor;
-        return true;
-    }
-
-    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
-
-#if defined(SK_ENABLE_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const MatrixRec&,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc*) const override;
-#endif
-
-    SkColor fColor;
-};
-
-class SkColor4Shader : public SkShaderBase {
-public:
-    SkColor4Shader(const SkColor4f&, sk_sp<SkColorSpace>);
-
-    bool isOpaque()   const override { return fColor.isOpaque(); }
-    bool isConstant() const override { return true; }
-
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
-                                                             const MatrixRec&) const override;
-#endif
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
-
-private:
-    friend void ::SkRegisterColor4ShaderFlattenable();
-    SK_FLATTENABLE_HOOKS(SkColor4Shader)
-
-    void flatten(SkWriteBuffer&) const override;
-    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
-
-#if defined(SK_ENABLE_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const MatrixRec&,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc*) const override;
-#endif
-
-    sk_sp<SkColorSpace> fColorSpace;
-    const SkColor4f     fColor;
-};
+#include <utility>
 
 SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
 
@@ -129,21 +41,6 @@ sk_sp<SkFlattenable> SkColorShader::CreateProc(SkReadBuffer& buffer) {
 
 void SkColorShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor(fColor);
-}
-
-SkShaderBase::GradientType SkColorShader::asGradient(GradientInfo* info,
-                                                     SkMatrix* localMatrix) const {
-    if (info) {
-        if (info->fColors && info->fColorCount >= 1) {
-            info->fColors[0] = fColor;
-        }
-        info->fColorCount = 1;
-        info->fTileMode = SkTileMode::kRepeat;
-    }
-    if (localMatrix) {
-        *localMatrix = SkMatrix::I();
-    }
-    return GradientType::kColor;
 }
 
 SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)
@@ -173,7 +70,7 @@ void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-bool SkColorShader::appendStages(const SkStageRec& rec, const MatrixRec&) const {
+bool SkColorShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const {
     SkColor4f color = SkColor4f::FromColor(fColor);
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                            rec.fDstCS,          kUnpremul_SkAlphaType).apply(color.vec());
@@ -181,7 +78,7 @@ bool SkColorShader::appendStages(const SkStageRec& rec, const MatrixRec&) const 
     return true;
 }
 
-bool SkColor4Shader::appendStages(const SkStageRec& rec, const MatrixRec&) const {
+bool SkColor4Shader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const {
     SkColor4f color = fColor;
     SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
                            rec.fDstCS,        kUnpremul_SkAlphaType).apply(color.vec());
@@ -194,7 +91,7 @@ skvm::Color SkColorShader::program(skvm::Builder* p,
                                    skvm::Coord /*device*/,
                                    skvm::Coord /*local*/,
                                    skvm::Color /*paint*/,
-                                   const MatrixRec&,
+                                   const SkShaders::MatrixRec&,
                                    const SkColorInfo& dst,
                                    skvm::Uniforms* uniforms,
                                    SkArenaAlloc*) const {
@@ -208,7 +105,7 @@ skvm::Color SkColor4Shader::program(skvm::Builder* p,
                                     skvm::Coord /*device*/,
                                     skvm::Coord /*local*/,
                                     skvm::Color /*paint*/,
-                                    const MatrixRec&,
+                                    const SkShaders::MatrixRec&,
                                     const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms,
                                     SkArenaAlloc*) const {
@@ -218,30 +115,6 @@ skvm::Color SkColor4Shader::program(skvm::Builder* p,
     return p->uniformColor(color, uniforms);
 }
 #endif  // defined(SK_ENABLE_SKVM)
-
-#if defined(SK_GANESH)
-
-#include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrColorSpaceXform.h"
-#include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/SkGr.h"
-
-std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const GrFPArgs& args,
-                                                                        const MatrixRec&) const {
-    return GrFragmentProcessor::MakeColor(SkColorToPMColor4f(fColor, *args.fDstColorInfo));
-}
-
-std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const GrFPArgs& args,
-                                                                         const MatrixRec&) const {
-    SkColorSpaceXformSteps steps{ fColorSpace.get(),                kUnpremul_SkAlphaType,
-                                  args.fDstColorInfo->colorSpace(), kUnpremul_SkAlphaType };
-    SkColor4f color = fColor;
-    steps.apply(color.vec());
-    return GrFragmentProcessor::MakeColor(color.premul());
-}
-
-#endif
 
 #if defined(SK_GRAPHITE)
 void SkColorShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
@@ -264,14 +137,39 @@ void SkColor4Shader::addToKey(const skgpu::graphite::KeyContext& keyContext,
 }
 #endif
 
-sk_sp<SkShader> SkShaders::Color(SkColor color) { return sk_make_sp<SkColorShader>(color); }
+SkUpdatableColorShader::SkUpdatableColorShader(SkColorSpace* cs)
+        : fSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType, cs, kUnpremul_SkAlphaType} {}
 
-sk_sp<SkShader> SkShaders::Color(const SkColor4f& color, sk_sp<SkColorSpace> space) {
-    if (!SkScalarsAreFinite(color.vec(), 4)) {
-        return nullptr;
-    }
-    return sk_make_sp<SkColor4Shader>(color, std::move(space));
+#if defined(SK_ENABLE_SKVM)
+skvm::Color SkUpdatableColorShader::program(skvm::Builder* builder,
+                                            skvm::Coord device,
+                                            skvm::Coord local,
+                                            skvm::Color paint,
+                                            const SkShaders::MatrixRec&,
+                                            const SkColorInfo& dst,
+                                            skvm::Uniforms* uniforms,
+                                            SkArenaAlloc* alloc) const {
+    skvm::Uniform color = uniforms->pushPtr(fValues);
+    skvm::F32 r = builder->arrayF(color, 0);
+    skvm::F32 g = builder->arrayF(color, 1);
+    skvm::F32 b = builder->arrayF(color, 2);
+    skvm::F32 a = builder->arrayF(color, 3);
+
+    return {r, g, b, a};
 }
+#endif
+
+void SkUpdatableColorShader::updateColor(SkColor c) const {
+    SkColor4f c4 = SkColor4f::FromColor(c);
+    fSteps.apply(c4.vec());
+    auto cp4 = c4.premul();
+    fValues[0] = cp4.fR;
+    fValues[1] = cp4.fG;
+    fValues[2] = cp4.fB;
+    fValues[3] = cp4.fA;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkRegisterColor4ShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkColor4Shader);
@@ -280,3 +178,14 @@ void SkRegisterColor4ShaderFlattenable() {
 void SkRegisterColorShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkColorShader);
 }
+
+namespace SkShaders {
+sk_sp<SkShader> Color(SkColor color) { return sk_make_sp<SkColorShader>(color); }
+
+sk_sp<SkShader> Color(const SkColor4f& color, sk_sp<SkColorSpace> space) {
+    if (!SkScalarsAreFinite(color.vec(), 4)) {
+        return nullptr;
+    }
+    return sk_make_sp<SkColor4Shader>(color, std::move(space));
+}
+}  // namespace SkShaders

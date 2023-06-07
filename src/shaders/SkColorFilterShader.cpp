@@ -5,26 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkShader.h"
-#include "include/core/SkString.h"
-#include "src/base/SkArenaAlloc.h"
-#include "src/core/SkRasterPipeline.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkVM.h"
-#include "src/core/SkWriteBuffer.h"
-#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkColorFilterShader.h"
 
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrFragmentProcessors.h"
-#endif
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkShader.h"
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkEffectPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
+
+#include <utility>
 
 SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader,
                                          float alpha,
@@ -56,7 +55,8 @@ void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fFilter.get());
 }
 
-bool SkColorFilterShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
+bool SkColorFilterShader::appendStages(const SkStageRec& rec,
+                                       const SkShaders::MatrixRec& mRec) const {
     if (!as_SB(fShader)->appendStages(rec, mRec)) {
         return false;
     }
@@ -74,7 +74,7 @@ skvm::Color SkColorFilterShader::program(skvm::Builder* p,
                                          skvm::Coord device,
                                          skvm::Coord local,
                                          skvm::Color paint,
-                                         const MatrixRec& mRec,
+                                         const SkShaders::MatrixRec& mRec,
                                          const SkColorInfo& dst,
                                          skvm::Uniforms* uniforms,
                                          SkArenaAlloc* alloc) const {
@@ -96,29 +96,6 @@ skvm::Color SkColorFilterShader::program(skvm::Builder* p,
     return fFilter->program(p,c, dst, uniforms,alloc);
 }
 #endif
-#if defined(SK_GANESH)
-/////////////////////////////////////////////////////////////////////
-
-std::unique_ptr<GrFragmentProcessor>
-SkColorFilterShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
-    auto shaderFP = as_SB(fShader)->asFragmentProcessor(args, mRec);
-    if (!shaderFP) {
-        return nullptr;
-    }
-
-    // TODO I guess, but it shouldn't come up as used today.
-    SkASSERT(fAlpha == 1.0f);
-
-    auto [success, fp] = GrFragmentProcessors::Make(args.fContext,
-                                                    fFilter.get(),
-                                                    std::move(shaderFP),
-                                                    *args.fDstColorInfo,
-                                                    args.fSurfaceProps);
-    // If the filter FP could not be created, we still want to return the shader FP, so checking
-    // success can be omitted here.
-    return std::move(fp);
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -137,14 +114,4 @@ void SkColorFilterShader::addToKey(const skgpu::graphite::KeyContext& keyContext
     builder->endBlock();
 }
 
-#endif // SK_ENABLE_SKSL
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkShader> SkShader::makeWithColorFilter(sk_sp<SkColorFilter> filter) const {
-    SkShader* base = const_cast<SkShader*>(this);
-    if (!filter) {
-        return sk_ref_sp(base);
-    }
-    return sk_make_sp<SkColorFilterShader>(sk_ref_sp(base), 1.0f, std::move(filter));
-}
+#endif  // SK_ENABLE_SKSL

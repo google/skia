@@ -97,19 +97,28 @@ protected:
         resizeMatrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
 
         sk_sp<SkImageFilter> filters[] = {
-            SkImageFilters::Blur(SkIntToScalar(4), SkIntToScalar(4), nullptr),
-            SkImageFilters::DropShadow(5, 10, 3, 3, SK_ColorYELLOW, nullptr),
-            SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kR, 12,
-                                            std::move(gradient), checkerboard),
-            SkImageFilters::Dilate(1, 1, checkerboard),
-            SkImageFilters::Erode(1, 1, checkerboard),
-            SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
-            SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
-            SkImageFilters::Shader(SkPerlinNoiseShader::MakeFractalNoise(
-                   SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
-            SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
-            SkImageFilters::SpotLitDiffuse(spotLocation, spotTarget, spotExponent,
-                                          cutoffAngle, white, surfaceScale, kd, nullptr),
+                SkImageFilters::Blur(SkIntToScalar(4), SkIntToScalar(4), nullptr),
+                SkImageFilters::DropShadow(5, 10, 3, 3, SK_ColorYELLOW, nullptr),
+                SkImageFilters::DisplacementMap(SkColorChannel::kR,
+                                                SkColorChannel::kR,
+                                                12,
+                                                std::move(gradient),
+                                                checkerboard),
+                SkImageFilters::Dilate(1, 1, checkerboard),
+                SkImageFilters::Erode(1, 1, checkerboard),
+                SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
+                SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
+                SkImageFilters::Shader(SkShaders::MakeFractalNoise(
+                        SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
+                SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
+                SkImageFilters::SpotLitDiffuse(spotLocation,
+                                               spotTarget,
+                                               spotExponent,
+                                               cutoffAngle,
+                                               white,
+                                               surfaceScale,
+                                               kd,
+                                               nullptr),
         };
 
         SkVector scales[] = {

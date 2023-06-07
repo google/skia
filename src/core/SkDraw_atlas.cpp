@@ -36,6 +36,7 @@
 #include "src/core/SkScan.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkVMBlitter.h"
+#include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/SkTransformShader.h"
 
@@ -44,7 +45,6 @@
 #include <utility>
 
 class SkBlitter;
-class SkColorSpace;
 enum class SkBlendMode;
 
 #if defined(SK_ENABLE_SKVM)
@@ -76,48 +76,6 @@ static void load_color(SkRasterPipeline_UniformColorCtx* ctx, const float rgba[]
     ctx->rgba[2] = SkScalarRoundToInt(rgba[2]*255); ctx->b = rgba[2];
     ctx->rgba[3] = SkScalarRoundToInt(rgba[3]*255); ctx->a = rgba[3];
 }
-
-class UpdatableColorShader : public SkShaderBase {
-public:
-    explicit UpdatableColorShader(SkColorSpace* cs)
-        : fSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType, cs, kUnpremul_SkAlphaType} {}
-#if defined(SK_ENABLE_SKVM)
-    skvm::Color program(skvm::Builder* builder,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const MatrixRec&,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc* alloc) const override {
-        skvm::Uniform color = uniforms->pushPtr(fValues);
-        skvm::F32 r = builder->arrayF(color, 0);
-        skvm::F32 g = builder->arrayF(color, 1);
-        skvm::F32 b = builder->arrayF(color, 2);
-        skvm::F32 a = builder->arrayF(color, 3);
-
-        return {r, g, b, a};
-    }
-#endif
-
-    void updateColor(SkColor c) const {
-        SkColor4f c4 = SkColor4f::FromColor(c);
-        fSteps.apply(c4.vec());
-        auto cp4 = c4.premul();
-        fValues[0] = cp4.fR;
-        fValues[1] = cp4.fG;
-        fValues[2] = cp4.fB;
-        fValues[3] = cp4.fA;
-    }
-
-private:
-    // For serialization.  This will never be called.
-    Factory getFactory() const override { return nullptr; }
-    const char* getTypeName() const override { return nullptr; }
-
-    SkColorSpaceXformSteps fSteps;
-    mutable float fValues[4];
-};
 
 void SkDraw::drawAtlas(const SkRSXform xform[],
                        const SkRect textures[],
@@ -203,10 +161,10 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
     };
 
     if (!rpblit()) {
-        UpdatableColorShader* colorShader = nullptr;
+        SkUpdatableColorShader* colorShader = nullptr;
         sk_sp<SkShader> shader;
         if (colors) {
-            colorShader = alloc.make<UpdatableColorShader>(fDst.colorSpace());
+            colorShader = alloc.make<SkUpdatableColorShader>(fDst.colorSpace());
             shader = SkShaders::Blend(std::move(blender),
                                       sk_ref_sp(colorShader),
                                       sk_ref_sp(transformShader));

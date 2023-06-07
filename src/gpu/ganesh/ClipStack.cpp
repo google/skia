@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSWMaskHelper.h"
@@ -1301,8 +1302,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
         static const GrColorInfo kCoverageColorInfo{GrColorType::kUnknown, kPremul_SkAlphaType,
                                                     nullptr};
         GrFPArgs args(rContext, &kCoverageColorInfo, sdc->surfaceProps());
-        clipFP = as_SB(cs.shader())->asRootFragmentProcessor(args,
-                                                             fMatrixProvider->localToDevice());
+        clipFP = GrFragmentProcessors::Make(cs.shader(), args, fMatrixProvider->localToDevice());
         if (clipFP) {
             // The initial input is the coverage from the geometry processor, so this ensures it
             // is multiplied properly with the alpha of the clip shader.

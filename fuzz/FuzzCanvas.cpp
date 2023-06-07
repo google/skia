@@ -328,13 +328,17 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             }
             fuzz->nextRange(&numOctaves, 2, 7);
             if (turbulence) {
-                return SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY,
-                                                           numOctaves, seed,
-                                                           useTileSize ? &tileSize : nullptr);
+                return SkShaders::MakeTurbulence(baseFrequencyX,
+                                                 baseFrequencyY,
+                                                 numOctaves,
+                                                 seed,
+                                                 useTileSize ? &tileSize : nullptr);
             } else {
-                return SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY,
-                                                             numOctaves, seed,
-                                                             useTileSize ? &tileSize : nullptr);
+                return SkShaders::MakeFractalNoise(baseFrequencyX,
+                                                   baseFrequencyY,
+                                                   numOctaves,
+                                                   seed,
+                                                   useTileSize ? &tileSize : nullptr);
             }
         }
         default:

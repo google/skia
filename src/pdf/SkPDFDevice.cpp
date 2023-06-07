@@ -48,6 +48,7 @@
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "src/shaders/SkColorShader.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkClipStackUtils.h"
 
@@ -1174,18 +1175,11 @@ static void populate_graphic_state_entry_from_paint(
     if (shader) {
         // note: we always present the alpha as 1 for the shader, knowing that it will be
         //       accounted for when we create our newGraphicsState (below)
-        if (as_SB(shader)->asGradient() == SkShaderBase::GradientType::kColor) {
+        if (as_SB(shader)->type() == SkShaderBase::ShaderType::kColor) {
+            auto colorShader = static_cast<SkColorShader*>(shader);
             // We don't have to set a shader just for a color.
-            SkShaderBase::GradientInfo gradientInfo;
-            SkColor gradientColor = SK_ColorBLACK;
-            gradientInfo.fColors = &gradientColor;
-            gradientInfo.fColorOffsets = nullptr;
-            gradientInfo.fColorCount = 1;
-            SkAssertResult(as_SB(shader)->asGradient(&gradientInfo) ==
-                           SkShaderBase::GradientType::kColor);
-            color = SkColor4f::FromColor(gradientColor);
-            entry->fColor ={color.fR, color.fG, color.fB, 1};
-
+            color = SkColor4f::FromColor(colorShader->color());
+            entry->fColor = {color.fR, color.fG, color.fB, 1};
         } else {
             // PDF positions patterns relative to the initial transform, so
             // we need to apply the current transform to the shader parameters.

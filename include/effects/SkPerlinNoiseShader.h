@@ -50,38 +50,4 @@ SK_API sk_sp<SkShader> MakeTurbulence(SkScalar baseFrequencyX, SkScalar baseFreq
                                       const SkISize* tileSize = nullptr);
 }  // namespace SkShaders
 
-// TODO(kjlubick) Remove this class when clients have been migrated
-class SK_API SkPerlinNoiseShader {
-public:
-    /**
-     *  This will construct Perlin noise of the given type (Fractal Noise or Turbulence).
-     *
-     *  Both base frequencies (X and Y) have a usual range of (0..1) and must be non-negative.
-     *
-     *  The number of octaves provided should be fairly small, with a limit of 255 enforced.
-     *  Each octave doubles the frequency, so 10 octaves would produce noise from
-     *  baseFrequency * 1, * 2, * 4, ..., * 512, which quickly yields insignificantly small
-     *  periods and resembles regular unstructured noise rather than Perlin noise.
-     *
-     *  If tileSize isn't NULL or an empty size, the tileSize parameter will be used to modify
-     *  the frequencies so that the noise will be tileable for the given tile size. If tileSize
-     *  is NULL or an empty size, the frequencies will be used as is without modification.
-     */
-    static sk_sp<SkShader> MakeFractalNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                            int numOctaves, SkScalar seed,
-                                            const SkISize* tileSize = nullptr) {
-        return SkShaders::MakeFractalNoise(baseFrequencyX, baseFrequencyY,
-                                           numOctaves, seed, tileSize);
-    }
-    static sk_sp<SkShader> MakeTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                          int numOctaves, SkScalar seed,
-                                          const SkISize* tileSize = nullptr) {
-        return SkShaders::MakeTurbulence(baseFrequencyX, baseFrequencyY,
-                                           numOctaves, seed, tileSize);
-    }
-
-private:
-    SkPerlinNoiseShader() = delete;
-};
-
 #endif

@@ -10,6 +10,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTypeface.h"
 #include "src/base/SkSafeMath.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"

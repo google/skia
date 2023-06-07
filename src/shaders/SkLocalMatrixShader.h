@@ -8,12 +8,22 @@
 #ifndef SkLocalMatrixShader_DEFINED
 #define SkLocalMatrixShader_DEFINED
 
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTypes.h"
 #include "src/shaders/SkShaderBase.h"
 
-class GrFragmentProcessor;
+#include <type_traits>
+#include <utility>
+
 class SkArenaAlloc;
+class SkImage;
+class SkReadBuffer;
+class SkWriteBuffer;
+enum class SkTileMode;
+struct SkStageRec;
 
 class SkLocalMatrixShader final : public SkShaderBase {
 public:
@@ -31,11 +41,8 @@ public:
             : fLocalMatrix(localMatrix), fWrappedShader(std::move(wrapped)) {}
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
+    ShaderType type() const override { return ShaderType::kLocalMatrix; }
 
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
-                                                             const MatrixRec&) const override;
-#endif
 #if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
@@ -49,6 +56,9 @@ public:
         return fWrappedShader;
     }
 
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
+    sk_sp<SkShader> wrappedShader() const { return fWrappedShader; }
+
 protected:
     void flatten(SkWriteBuffer&) const override;
 
@@ -58,14 +68,14 @@ protected:
 
     SkImage* onIsAImage(SkMatrix* matrix, SkTileMode* mode) const override;
 
-    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
+    bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
 #if defined(SK_ENABLE_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
                         skvm::Color paint,
-                        const MatrixRec&,
+                        const SkShaders::MatrixRec&,
                         const SkColorInfo& dst,
                         skvm::Uniforms* uniforms,
                         SkArenaAlloc*) const override;
@@ -76,8 +86,45 @@ private:
 
     SkMatrix fLocalMatrix;
     sk_sp<SkShader> fWrappedShader;
+};
 
-    using INHERITED = SkShaderBase;
+/**
+ *  Replaces the CTM when used. Created to support clipShaders, which have to be evaluated
+ *  using the CTM that was present at the time they were specified (which may be different
+ *  from the CTM at the time something is drawn through the clip.
+ */
+class SkCTMShader final : public SkShaderBase {
+public:
+    SkCTMShader(sk_sp<SkShader> proxy, const SkMatrix& ctm);
+
+    GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
+
+    ShaderType type() const override { return ShaderType::kCTM; }
+
+    const SkMatrix& ctm() const { return fCTM; }
+    sk_sp<SkShader> proxyShader() const { return fProxyShader; }
+
+protected:
+    void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
+
+    bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const override;
+
+#if defined(SK_ENABLE_SKVM)
+    skvm::Color program(skvm::Builder* p,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const SkShaders::MatrixRec& mRec,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc* alloc) const override;
+#endif
+
+private:
+    SK_FLATTENABLE_HOOKS(SkCTMShader)
+
+    sk_sp<SkShader> fProxyShader;
+    SkMatrix fCTM;
 };
 
 #endif

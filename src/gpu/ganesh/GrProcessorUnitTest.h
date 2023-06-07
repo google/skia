@@ -20,13 +20,14 @@
 
 #include <tuple>
 
-class SkMatrix;
 class GrCaps;
-class GrProxyProvider;
+class GrFragmentProcessor;
+class GrGeometryProcessor;
 class GrProcessorTestData;
+class GrProxyProvider;
 class GrTexture;
 class GrXPFactory;
-class GrGeometryProcessor;
+class SkMatrix;
 
 namespace GrProcessorUnitTest {
 

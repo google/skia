@@ -320,10 +320,9 @@ void GradientShaderBlocks::BeginBlock(const KeyContext& keyContext,
                 add_conical_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
             }
             break;
-        case SkShaderBase::GradientType::kColor:
         case SkShaderBase::GradientType::kNone:
         default:
-            SkASSERT(0);
+            SkDEBUGFAIL("Expected a gradient shader, but it wasn't one.");
             break;
     }
 

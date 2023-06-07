@@ -7,13 +7,21 @@
 
 #include "include/private/SkGainmapShader.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkGainmapInfo.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkImageInfoPriv.h"
+
+#include <cstdint>
 
 #ifdef SK_ENABLE_SKSL
 static constexpr char gGainmapSKSL[] =

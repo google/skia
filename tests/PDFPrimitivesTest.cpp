@@ -481,7 +481,7 @@ DEF_TEST(fuzz875632f0, reporter) {
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kDarken);
-    paint.setShader(SkPerlinNoiseShader::MakeFractalNoise(0, 0, 2, 0, nullptr));
+    paint.setShader(SkShaders::MakeFractalNoise(0, 0, 2, 0, nullptr));
     paint.setColor4f(SkColor4f{0, 0, 0 ,0});
 
     canvas->drawPath(SkPath(), paint);

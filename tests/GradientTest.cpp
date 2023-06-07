@@ -33,6 +33,7 @@
 #include "src/base/SkTLazy.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
+#include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tests/Test.h"
 
@@ -105,11 +106,7 @@ static void none_gradproc(skiatest::Reporter* reporter, const GradRec&, const Gr
 
 static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec, const GradRec&) {
     sk_sp<SkShader> s(SkShaders::Color(rec.fColors[0]));
-    REPORTER_ASSERT(reporter, SkShaderBase::GradientType::kColor == as_SB(s)->asGradient());
-
-    SkShaderBase::GradientInfo info;
-    as_SB(s)->asGradient(&info);
-    REPORTER_ASSERT(reporter, 1 == info.fColorCount);
+    REPORTER_ASSERT(reporter, SkShaderBase::GradientType::kNone == as_SB(s)->asGradient());
 }
 
 static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
@@ -446,7 +443,7 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
     auto context = GrDirectContext::MakeMock(&options);
 
     GrFPArgs args(context.get(), &dstColorInfo, props);
-    as_SB(gradient)->asRootFragmentProcessor(args, SkMatrix::I());
+    GrFragmentProcessors::Make(gradient.get(), args, SkMatrix::I());
 }
 
 // "Interesting" fuzzer values.

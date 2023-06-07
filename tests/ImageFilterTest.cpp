@@ -256,7 +256,7 @@ public:
         }
         {
             sk_sp<SkImageFilter> paintFilter(SkImageFilters::Shader(
-                    SkPerlinNoiseShader::MakeTurbulence(SK_Scalar1, SK_Scalar1, 1, 0)));
+                    SkShaders::MakeTurbulence(SK_Scalar1, SK_Scalar1, 1, 0)));
 
             this->addFilter("paint and blur", SkImageFilters::Blur(
                     kBlurSigma, kBlurSigma,  std::move(paintFilter), cropRect));

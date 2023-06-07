@@ -7,9 +7,17 @@
 
 #include "src/shaders/SkBitmapProcShader.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBitmapProcState.h"
-#include "src/core/SkPaintPriv.h"
+
+#include <algorithm>
+#include <cstdint>
+
+enum class SkTileMode;
 
 class BitmapProcShaderContext : public SkShaderBase::Context {
 public:

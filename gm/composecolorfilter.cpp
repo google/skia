@@ -108,7 +108,7 @@ DEF_SIMPLE_GM(composeCFIF, canvas, 604, 200) {
     // ways (direct and via ::Compose). This ensures the use (or non-use in this case) of the source
     // image is the same across both means of composition.
     auto cf = MakeTintColorFilter(0xff300000, 0xffa00000, /*useSkSL=*/false);
-    auto shader = SkPerlinNoiseShader::MakeTurbulence(0.01f, 0.01f, 2, 0.f);
+    auto shader = SkShaders::MakeTurbulence(0.01f, 0.01f, 2, 0.f);
 
     auto shaderIF = SkImageFilters::Shader(shader, SkImageFilters::Dither::kNo);
     auto directCompose = SkImageFilters::ColorFilter(cf, shaderIF);

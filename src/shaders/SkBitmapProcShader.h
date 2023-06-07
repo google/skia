@@ -7,10 +7,12 @@
 #ifndef SkBitmapProcShader_DEFINED
 #define SkBitmapProcShader_DEFINED
 
-#include "src/core/SkImagePriv.h"
+#include "include/core/SkSamplingOptions.h"
 #include "src/shaders/SkShaderBase.h"
 
+class SkArenaAlloc;
 class SkImage_Base;
+enum class SkTileMode;
 
 class SkBitmapProcLegacyShader : public SkShaderBase {
 private:

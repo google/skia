@@ -505,7 +505,7 @@ DEF_TEST(EmbossPerlinCrash, reporter) {
         { 1, 1, 1 }, 0, 127, 127
     };
     p.setMaskFilter(SkEmbossMaskFilter::Make(1, light));
-    p.setShader(SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f));
+    p.setShader(SkShaders::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f));
 
     sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     surface->getCanvas()->drawPaint(p);

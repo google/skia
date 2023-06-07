@@ -386,6 +386,8 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/effects/GrModulateAtlasCoverageEffect.h",
   "$_src/gpu/ganesh/effects/GrOvalEffect.cpp",
   "$_src/gpu/ganesh/effects/GrOvalEffect.h",
+  "$_src/gpu/ganesh/effects/GrPerlinNoise2Effect.cpp",
+  "$_src/gpu/ganesh/effects/GrPerlinNoise2Effect.h",
   "$_src/gpu/ganesh/effects/GrPorterDuffXferProcessor.cpp",
   "$_src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h",
   "$_src/gpu/ganesh/effects/GrRRectEffect.cpp",

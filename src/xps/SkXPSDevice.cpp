@@ -49,6 +49,7 @@
 #include "src/image/SkImage_Base.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/sfnt/SkTTCFHeader.h"
+#include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkClipStackUtils.h"
@@ -976,22 +977,16 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     }
 
     //Gradient shaders.
-    SkShaderBase::GradientInfo info;
-    SkShaderBase::GradientType gradientType = as_SB(shader)->asGradient(&info);
+    auto shaderBase = as_SB(shader);
 
-    if (gradientType == SkShaderBase::GradientType::kNone) {
-        //Nothing to see, move along.
-
-    } else if (gradientType == SkShaderBase::GradientType::kColor) {
-        SkASSERT(1 == info.fColorCount);
-        SkColor color;
-        info.fColors = &color;
-        as_SB(shader)->asGradient(&info);
+    if (shaderBase->type() == SkShaderBase::ShaderType::kColor) {
+        auto colorShader = static_cast<const SkColorShader*>(shader);
         SkAlpha alpha = skPaint.getAlpha();
-        HR(this->createXpsSolidColorBrush(color, alpha, brush));
+        HR(this->createXpsSolidColorBrush(colorShader->color(), alpha, brush));
         return S_OK;
-
-    } else {
+    } else if (shaderBase->type() == SkShaderBase::ShaderType::kGradientBase) {
+        SkShaderBase::GradientInfo info;
+        SkShaderBase::GradientType gradientType = shaderBase->asGradient(&info);
         if (info.fColorCount == 0) {
             const SkColor color = skPaint.getColor();
             HR(this->createXpsSolidColorBrush(color, 0xFF, brush));
@@ -1003,7 +998,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         AutoTArray<SkScalar> colorOffsets(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
-        as_SB(shader)->asGradient(&info, &localMatrix);
+        shaderBase->asGradient(&info, &localMatrix);
 
         if (1 == info.fColorCount) {
             SkColor color = info.fColors[0];

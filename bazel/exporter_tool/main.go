@@ -67,6 +67,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/opts:private_hdrs",
 				"//src/shaders:shader_hdrs",
 				"//src/shaders:shader_srcs",
+				"//src/shaders:sksl_hdrs",
+				"//src/shaders:sksl_srcs",
 				"//src/text:text_hdrs",
 				"//src/text:text_srcs",
 			}},

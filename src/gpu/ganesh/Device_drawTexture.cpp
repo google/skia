@@ -361,7 +361,8 @@ void draw_image(GrRecordingContext* rContext,
             std::move(fp), image->imageInfo().colorInfo(), sdc->colorInfo());
     if (image->isAlphaOnly()) {
         if (const auto* shader = as_SB(paint.getShader())) {
-            auto shaderFP = shader->asRootFragmentProcessor(
+            auto shaderFP = GrFragmentProcessors::Make(
+                    shader,
                     GrFPArgs(rContext, &sdc->colorInfo(), sdc->surfaceProps()),
                     matrixProvider.localToDevice());
             if (!shaderFP) {

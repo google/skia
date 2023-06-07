@@ -42,9 +42,8 @@ private:
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
         SkPaint paint;
-        paint.setShader(SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY,
-                                                              numOctaves, seed,
-                                                              stitchTiles ? &fSize : nullptr));
+        paint.setShader(SkShaders::MakeFractalNoise(
+                baseFrequencyX, baseFrequencyY, numOctaves, seed, stitchTiles ? &fSize : nullptr));
         for (int i = 0; i < loops; i++) {
             this->drawClippedRect(canvas, x, y, paint);
         }

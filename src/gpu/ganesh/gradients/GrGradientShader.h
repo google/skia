@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/shaders/gradients/SkGradientShaderBase.h"
+#include "src/shaders/gradients/SkGradientBaseShader.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
 
 #if GR_TEST_UTILS
@@ -18,15 +18,15 @@
 #endif
 
 namespace GrGradientShader {
-    std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& shader,
-                                                        const GrFPArgs& args,
-                                                        const SkShaderBase::MatrixRec&,
-                                                        std::unique_ptr<GrFragmentProcessor> layout,
-                                                        const SkMatrix* overrideMatrix = nullptr);
-
-    std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
+std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& shader,
                                                     const GrFPArgs& args,
-                                                    const SkShaderBase::MatrixRec&);
+                                                    const SkShaders::MatrixRec&,
+                                                    std::unique_ptr<GrFragmentProcessor> layout,
+                                                    const SkMatrix* overrideMatrix = nullptr);
+
+std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
+                                                const GrFPArgs& args,
+                                                const SkShaders::MatrixRec&);
 
 #if GR_TEST_UTILS
     /** Helper struct that stores (and populates) parameters to construct a random gradient.

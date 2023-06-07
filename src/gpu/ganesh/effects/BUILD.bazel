@@ -36,6 +36,8 @@ EFFECTS_FILES = [
     "GrModulateAtlasCoverageEffect.h",
     "GrOvalEffect.cpp",
     "GrOvalEffect.h",
+    "GrPerlinNoise2Effect.cpp",
+    "GrPerlinNoise2Effect.h",
     "GrPorterDuffXferProcessor.cpp",
     "GrPorterDuffXferProcessor.h",
     "GrRRectEffect.cpp",

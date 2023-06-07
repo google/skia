@@ -52,6 +52,7 @@
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkTHash.h"
 #include "src/image/SkImage_Base.h"
+#include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/text/GlyphRun.h"
 #include "src/xml/SkXMLWriter.h"
@@ -437,11 +438,17 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
 void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader,
                                                           const SkPaint& paint,
                                                           Resources* resources) {
+    SkASSERT(shader);
+    if (as_SB(shader)->type() == SkShaderBase::ShaderType::kColor) {
+        auto colorShader = static_cast<const SkColorShader*>(shader);
+        resources->fPaintServer = svg_color(colorShader->color());
+        return;
+    }
+
     SkShaderBase::GradientInfo grInfo;
     const auto gradient_type = as_SB(shader)->asGradient(&grInfo);
 
-    if (gradient_type != SkShaderBase::GradientType::kColor &&
-        gradient_type != SkShaderBase::GradientType::kLinear) {
+    if (gradient_type != SkShaderBase::GradientType::kLinear) {
         // TODO: other gradient support
         return;
     }
@@ -458,9 +465,8 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
     SkASSERT(grInfo.fColorCount <= grOffsets.count());
 
     SkASSERT(grColors.size() > 0);
-    resources->fPaintServer = gradient_type == SkShaderBase::GradientType::kColor
-            ? svg_color(grColors[0])
-            : SkStringPrintf("url(#%s)", addLinearGradientDef(grInfo, shader, localMatrix).c_str());
+    resources->fPaintServer =
+            SkStringPrintf("url(#%s)", addLinearGradientDef(grInfo, shader, localMatrix).c_str());
 }
 
 void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
@@ -608,7 +614,9 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     const SkShader* shader = paint.getShader();
     SkASSERT(shader);
 
-    if (as_SB(shader)->asGradient() != SkShaderBase::GradientType::kNone) {
+    auto shaderType = as_SB(shader)->type();
+    if (shaderType == SkShaderBase::ShaderType::kColor ||
+        shaderType == SkShaderBase::ShaderType::kGradientBase) {
         this->addGradientShaderResources(shader, paint, resources);
     } else if (shader->isAImage()) {
         this->addImageShaderResources(shader, paint, resources);

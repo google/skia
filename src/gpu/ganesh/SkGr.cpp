@@ -373,7 +373,7 @@ static inline bool skpaint_to_grpaint_impl(
             paintFP = std::move(*shaderFP);
         } else {
             if (const SkShaderBase* shader = as_SB(skPaint.getShader())) {
-                paintFP = shader->asFragmentProcessor(fpArgs, SkShaderBase::MatrixRec(ctm));
+                paintFP = GrFragmentProcessors::Make(shader, fpArgs, ctm);
                 if (paintFP == nullptr) {
                     return false;
                 }

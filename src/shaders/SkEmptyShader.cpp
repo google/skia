@@ -5,52 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "src/shaders/SkShaderBase.h"
+#include "src/shaders/SkEmptyShader.h"
 
 #include "include/core/SkFlattenable.h"
-#include "src/core/SkVM.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
 
-/**
- *  \class SkEmptyShader
- *  A Shader that always draws nothing. Its createContext always returns nullptr.
- */
-class SkEmptyShader : public SkShaderBase {
-public:
-    SkEmptyShader() {}
-
-protected:
-    void flatten(SkWriteBuffer& buffer) const override {
-        // Do nothing.
-        // We just don't want to fall through to SkShader::flatten(),
-        // which will write data we don't care to serialize or decode.
-    }
-
-    bool appendStages(const SkStageRec&, const MatrixRec&) const override { return false; }
-
-#if defined(SK_ENABLE_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord,
-                        skvm::Coord,
-                        skvm::Color,
-                        const MatrixRec&,
-                        const SkColorInfo&,
-                        skvm::Uniforms*,
-                        SkArenaAlloc*) const override;
-#endif
-
-private:
-    friend void ::SkRegisterEmptyShaderFlattenable();
-    SK_FLATTENABLE_HOOKS(SkEmptyShader)
-
-    using INHERITED = SkShaderBase;
-};
+class SkReadBuffer;
 
 #if defined(SK_ENABLE_SKVM)
 skvm::Color SkEmptyShader::program(skvm::Builder*,
                                    skvm::Coord,
                                    skvm::Coord,
                                    skvm::Color,
-                                   const MatrixRec&,
+                                   const SkShaders::MatrixRec&,
                                    const SkColorInfo&,
                                    skvm::Uniforms*,
                                    SkArenaAlloc*) const {

@@ -144,6 +144,8 @@ skia_core_public = [
 #  //src/opts:private_hdrs
 #  //src/shaders:shader_hdrs
 #  //src/shaders:shader_srcs
+#  //src/shaders:sksl_hdrs
+#  //src/shaders:sksl_srcs
 #  //src/text:text_hdrs
 #  //src/text:text_srcs
 skia_core_sources = [
@@ -627,22 +629,32 @@ skia_core_sources = [
   "$_src/opts/SkVM_opts.h",
   "$_src/shaders/SkBitmapProcShader.cpp",
   "$_src/shaders/SkBitmapProcShader.h",
+  "$_src/shaders/SkBlendShader.cpp",
+  "$_src/shaders/SkBlendShader.h",
   "$_src/shaders/SkColorFilterShader.cpp",
   "$_src/shaders/SkColorFilterShader.h",
   "$_src/shaders/SkColorShader.cpp",
-  "$_src/shaders/SkComposeShader.cpp",
+  "$_src/shaders/SkColorShader.h",
   "$_src/shaders/SkCoordClampShader.cpp",
+  "$_src/shaders/SkCoordClampShader.h",
   "$_src/shaders/SkEmptyShader.cpp",
+  "$_src/shaders/SkEmptyShader.h",
   "$_src/shaders/SkGainmapShader.cpp",
   "$_src/shaders/SkImageShader.cpp",
   "$_src/shaders/SkImageShader.h",
   "$_src/shaders/SkLocalMatrixShader.cpp",
   "$_src/shaders/SkLocalMatrixShader.h",
-  "$_src/shaders/SkPerlinNoiseShader.cpp",
+  "$_src/shaders/SkPerlinNoiseShaderImpl.cpp",
+  "$_src/shaders/SkPerlinNoiseShaderImpl.h",
+  "$_src/shaders/SkRuntimeShader.cpp",
+  "$_src/shaders/SkRuntimeShader.h",
   "$_src/shaders/SkShader.cpp",
+  "$_src/shaders/SkShaderBase.cpp",
   "$_src/shaders/SkShaderBase.h",
   "$_src/shaders/SkTransformShader.cpp",
   "$_src/shaders/SkTransformShader.h",
+  "$_src/shaders/SkTriColorShader.cpp",
+  "$_src/shaders/SkTriColorShader.h",
   "$_src/text/GlyphRun.cpp",
   "$_src/text/GlyphRun.h",
   "$_src/text/StrikeForGPU.cpp",

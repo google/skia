@@ -24,9 +24,14 @@ class SkData;
 class SkMaskFilter;
 class SkMatrix;
 class SkSurfaceProps;
+class SkShader;
 struct GrFPArgs;
 
 using GrFPResult = std::tuple<bool, std::unique_ptr<GrFragmentProcessor>>;
+
+namespace SkShaders {
+class MatrixRec;
+}
 
 namespace GrFragmentProcessors {
 /**
@@ -58,6 +63,17 @@ std::unique_ptr<GrFragmentProcessor> Make(const SkMaskFilter*,
 
 bool IsSupported(const SkMaskFilter*);
 
+/**
+ * Call on the root SkShader to produce a GrFragmentProcessor.
+ *
+ * The returned GrFragmentProcessor expects an unpremultiplied input color and produces a
+ * premultiplied output.
+ */
+std::unique_ptr<GrFragmentProcessor> Make(const SkShader*, const GrFPArgs&, const SkMatrix& ctm);
+std::unique_ptr<GrFragmentProcessor> Make(const SkShader*,
+                                          const GrFPArgs&,
+                                          const SkShaders::MatrixRec&);
+
 // TODO(kjlubick, brianosman) remove this after all related effects have been migrated
 GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
                           const char* name,
@@ -66,6 +82,6 @@ GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
                           std::unique_ptr<GrFragmentProcessor> destColorFP,
                           SkSpan<const SkRuntimeEffect::ChildPtr> children,
                           const GrFPArgs& childArgs);
-}
+}  // namespace GrFragmentProcessors
 
 #endif

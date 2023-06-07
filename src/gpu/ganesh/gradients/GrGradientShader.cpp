@@ -450,7 +450,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     // and removing these stops at the beginning, it makes optimizing the remaining color stops
     // simpler.
 
-    // SkGradientShaderBase guarantees that pos[0] == 0 by adding a default value.
+    // SkGradientBaseShader guarantees that pos[0] == 0 by adding a default value.
     bool bottomHardStop = SkScalarNearlyEqual(positions[0], positions[1]);
     // The same is true for pos[end] == 1
     bool topHardStop = SkScalarNearlyEqual(positions[count - 2], positions[count - 1]);
@@ -733,7 +733,7 @@ static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
     //    Our final goal is to emit premul colors, but under certain conditions we don't need to do
     //    anything to achieve that: i.e. its interpolating already premul colors (inputPremul) or
     //    all the colors have a = 1, in which case premul is a no op. Note that this allOpaque check
-    //    is more permissive than SkGradientShaderBase's isOpaque(), since we can optimize away the
+    //    is more permissive than SkGradientBaseShader's isOpaque(), since we can optimize away the
     //    make-premul op for two point conical gradients (which report false for isOpaque).
     SkAlphaType intermediateAlphaType = inputPremul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
     SkAlphaType dstAlphaType = kPremul_SkAlphaType;
@@ -752,11 +752,29 @@ static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
 
 namespace GrGradientShader {
 
+/**
+ * Produces an FP that muls its input coords by the inverse of the pending matrix and then
+ * samples the passed FP with those coordinates. 'postInv' is an additional matrix to
+ * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
+ * GrFPResult's bool will be false and the passed FP will be returned to the caller in the
+ * GrFPResult.
+ */
+static GrFPResult apply_matrix(std::unique_ptr<GrFragmentProcessor> fp,
+                               const SkShaders::MatrixRec& rec,
+                               const SkMatrix& postInv) {
+    auto [total, ok] = rec.applyForFragmentProcessor(postInv);
+    if (!ok) {
+        return {false, std::move(fp)};
+    }
+    // GrMatrixEffect returns 'fp' if total worked out to identity.
+    return {true, GrMatrixEffect::Make(total, std::move(fp))};
+}
+
 // Combines the colorizer and layout with an appropriately configured top-level effect based on the
 // gradient's tile mode
-std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& shader,
+std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& shader,
                                                     const GrFPArgs& args,
-                                                    const SkShaderBase::MatrixRec& mRec,
+                                                    const SkShaders::MatrixRec& mRec,
                                                     std::unique_ptr<GrFragmentProcessor> layout,
                                                     const SkMatrix* overrideMatrix) {
     // No shader is possible if a layout couldn't be created, e.g. a layout-specific Make() returned
@@ -766,12 +784,12 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     }
 
     // Some two-point conical gradients use a custom matrix here. Otherwise, use
-    // SkGradientShaderBase's matrix;
+    // SkGradientBaseShader's matrix;
     if (!overrideMatrix) {
         overrideMatrix = &shader.getGradientMatrix();
     }
     bool success;
-    std::tie(success, layout) = mRec.apply(std::move(layout), *overrideMatrix);
+    std::tie(success, layout) = apply_matrix(std::move(layout), mRec, *overrideMatrix);
     if (!success) {
         return nullptr;
     }
@@ -825,7 +843,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
             break;
         case SkTileMode::kClamp:
             // For the clamped mode, the border colors are the first and last colors, corresponding
-            // to t=0 and t=1, because SkGradientShaderBase enforces that by adding color stops as
+            // to t=0 and t=1, because SkGradientBaseShader enforces that by adding color stops as
             // appropriate. If there is a hard stop, this grabs the expected outer colors for the
             // border.
             gradient = make_clamped_gradient(std::move(colorizer), std::move(layout),
@@ -852,7 +870,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
 
 std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
                                                 const GrFPArgs& args,
-                                                const SkShaderBase::MatrixRec& mRec) {
+                                                const SkShaders::MatrixRec& mRec) {
     // We add a tiny delta to t. When gradient stops are set up so that a hard stop in a vertically
     // or horizontally oriented gradient falls exactly at a column or row of pixel centers we can
     // get slightly different interpolated t values along the column/row. By adding the delta

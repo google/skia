@@ -25,7 +25,6 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkNoDestructor.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -33,7 +32,6 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkFilterColorProgram.h"
 #include "src/core/SkLRUCache.h"
-#include "src/core/SkPicturePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
@@ -44,6 +42,7 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/effects/colorfilters/SkRuntimeColorFilter.h"
 #include "src/shaders/SkLocalMatrixShader.h"
+#include "src/shaders/SkRuntimeShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -66,7 +65,6 @@
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 
 #include <algorithm>
-#include <tuple>
 
 class SkColorSpace;
 struct SkIPoint;
@@ -77,10 +75,6 @@ struct SkIPoint;
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #endif
 
@@ -293,7 +287,7 @@ bool RuntimeEffectRPCallbacks::appendShader(int index) {
             return as_SB(shader)->appendStages(fStage, fMatrix);
         }
         // For a non-passthrough sample, we need to explicitly mark the total-matrix as invalid.
-        SkShaderBase::MatrixRec nonPassthroughMatrix = fMatrix;
+        SkShaders::MatrixRec nonPassthroughMatrix = fMatrix;
         nonPassthroughMatrix.markTotalMatrixInvalid();
         return as_SB(shader)->appendStages(fStage, nonPassthroughMatrix);
     }
@@ -382,14 +376,6 @@ static bool flattenable_is_valid_as_child(const SkFlattenable* f) {
 
 SkRuntimeEffect::ChildPtr::ChildPtr(sk_sp<SkFlattenable> f) : fChild(std::move(f)) {
     SkASSERT(flattenable_is_valid_as_child(fChild.get()));
-}
-
-static sk_sp<SkSL::DebugTracePriv> make_debug_trace(SkRuntimeEffect* effect,
-                                                    const SkIPoint& coord) {
-    auto debugTrace = sk_make_sp<SkSL::DebugTracePriv>();
-    debugTrace->setSource(effect->source());
-    debugTrace->setTraceCoord(coord);
-    return debugTrace;
 }
 
 static ChildType child_type(const SkSL::Type& type) {
@@ -947,248 +933,6 @@ skvm::Color RuntimeEffectVMCallbacks::fromLinearSrgb(skvm::Color color) {
 
 #endif  // defined(SK_ENABLE_SKVM)
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-using UniformsCallback = SkRuntimeEffectPriv::UniformsCallback;
-
-class SkRTShader : public SkShaderBase {
-public:
-    SkRTShader(sk_sp<SkRuntimeEffect> effect,
-               sk_sp<SkSL::DebugTracePriv> debugTrace,
-               sk_sp<const SkData> uniforms,
-               SkSpan<SkRuntimeEffect::ChildPtr> children)
-            : fEffect(std::move(effect))
-            , fDebugTrace(std::move(debugTrace))
-            , fUniformData(std::move(uniforms))
-            , fChildren(children.begin(), children.end()) {}
-
-    SkRTShader(sk_sp<SkRuntimeEffect> effect,
-               sk_sp<SkSL::DebugTracePriv> debugTrace,
-               UniformsCallback uniformsCallback,
-               SkSpan<SkRuntimeEffect::ChildPtr> children)
-            : fEffect(std::move(effect))
-            , fDebugTrace(std::move(debugTrace))
-            , fUniformsCallback(std::move(uniformsCallback))
-            , fChildren(children.begin(), children.end()) {}
-
-    SkRuntimeEffect::TracedShader makeTracedClone(const SkIPoint& coord) {
-        sk_sp<SkRuntimeEffect> unoptimized = fEffect->makeUnoptimizedClone();
-        sk_sp<SkSL::DebugTracePriv> debugTrace = make_debug_trace(unoptimized.get(), coord);
-        auto debugShader = sk_make_sp<SkRTShader>(
-                unoptimized, debugTrace, this->uniformData(nullptr), SkSpan(fChildren));
-
-        return SkRuntimeEffect::TracedShader{std::move(debugShader), std::move(debugTrace)};
-    }
-
-    bool isOpaque() const override { return fEffect->alwaysOpaque(); }
-
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args,
-                                                             const MatrixRec& mRec) const override {
-        if (!SkRuntimeEffectPriv::CanDraw(args.fContext->priv().caps(), fEffect.get())) {
-            return nullptr;
-        }
-
-        sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
-                fEffect->uniforms(),
-                this->uniformData(args.fDstColorInfo->colorSpace()),
-                args.fDstColorInfo->colorSpace());
-        SkASSERT(uniforms);
-
-        bool success;
-        std::unique_ptr<GrFragmentProcessor> fp;
-        std::tie(success, fp) = GrFragmentProcessors::make_effect_fp(fEffect,
-                                                                     "runtime_shader",
-                                                                     std::move(uniforms),
-                                                                     /*inputFP=*/nullptr,
-                                                                     /*destColorFP=*/nullptr,
-                                                                     SkSpan(fChildren),
-                                                                     args);
-        if (!success) {
-            return nullptr;
-        }
-
-        std::tie(success, fp) = mRec.apply(std::move(fp));
-        if (!success) {
-            return nullptr;
-        }
-        return fp;
-    }
-#endif
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
-        using namespace skgpu::graphite;
-
-        sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
-                fEffect->uniforms(),
-                this->uniformData(keyContext.dstColorInfo().colorSpace()),
-                keyContext.dstColorInfo().colorSpace());
-        SkASSERT(uniforms);
-
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
-                                       { fEffect, std::move(uniforms) });
-
-        SkRuntimeEffectPriv::AddChildrenToKey(fChildren, fEffect->children(), keyContext, builder,
-                                              gatherer);
-
-        builder->endBlock();
-    }
-#endif
-
-    bool appendStages(const SkStageRec& rec, const MatrixRec& mRec) const override {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-        if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
-            // SkRP has support for many parts of #version 300 already, but for now, we restrict its
-            // usage in runtime effects to just #version 100.
-            return false;
-        }
-        if (const SkSL::RP::Program* program = fEffect->getRPProgram(fDebugTrace.get())) {
-            std::optional<MatrixRec> newMRec = mRec.apply(rec);
-            if (!newMRec.has_value()) {
-                return false;
-            }
-            SkSpan<const float> uniforms = SkRuntimeEffectPriv::UniformsAsSpan(
-                    fEffect->uniforms(),
-                    this->uniformData(rec.fDstCS),
-                    /*alwaysCopyIntoAlloc=*/fUniformData == nullptr,
-                    rec.fDstCS,
-                    rec.fAlloc);
-            RuntimeEffectRPCallbacks callbacks(rec, *newMRec, fChildren, fEffect->fSampleUsages);
-            bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks, uniforms);
-            return success;
-        }
-#endif
-        return false;
-    }
-
-#if defined(SK_ENABLE_SKVM)
-    skvm::Color program(skvm::Builder* p,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const MatrixRec& mRec,
-                        const SkColorInfo& colorInfo,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc* alloc) const override {
-        if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
-            return {};
-        }
-
-        sk_sp<const SkData> inputs =
-                SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
-                                                       this->uniformData(colorInfo.colorSpace()),
-                                                       colorInfo.colorSpace());
-        SkASSERT(inputs);
-
-        // Ensure any pending transform is applied before running the runtime shader's code, which
-        // gets to use and manipulate the coordinates.
-        std::optional<MatrixRec> newMRec = mRec.apply(p, &local, uniforms);
-        if (!newMRec.has_value()) {
-            return {};
-        }
-        // We could omit this for children that are only sampled with passthrough coords.
-        newMRec->markTotalMatrixInvalid();
-
-        RuntimeEffectVMCallbacks callbacks(p,
-                                           uniforms,
-                                           alloc,
-                                           fChildren,
-                                           *newMRec,
-                                           paint,
-                                           colorInfo);
-        std::vector<skvm::Val> uniform = SkRuntimeEffectPriv::MakeSkVMUniforms(
-                p, uniforms, fEffect->uniformSize(), *inputs);
-
-        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, fDebugTrace.get(),
-                                   SkSpan(uniform), device, local, paint, paint, &callbacks);
-    }
-#endif
-
-    void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeString(fEffect->source().c_str());
-        buffer.writeDataAsByteArray(this->uniformData(nullptr).get());
-        SkRuntimeEffectPriv::WriteChildEffects(buffer, fChildren);
-    }
-
-    SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }
-
-    SK_FLATTENABLE_HOOKS(SkRTShader)
-
-private:
-    enum Flags {
-        kHasLegacyLocalMatrix_Flag = 1 << 1,
-    };
-
-    sk_sp<const SkData> uniformData(const SkColorSpace* dstCS) const {
-        if (fUniformData) {
-            return fUniformData;
-        }
-
-        // We want to invoke the uniforms-callback each time a paint occurs.
-        SkASSERT(fUniformsCallback);
-        sk_sp<const SkData> uniforms = fUniformsCallback({dstCS});
-        SkASSERT(uniforms && uniforms->size() == fEffect->uniformSize());
-        return uniforms;
-    }
-
-    sk_sp<SkRuntimeEffect> fEffect;
-    sk_sp<SkSL::DebugTracePriv> fDebugTrace;
-    sk_sp<const SkData> fUniformData;
-    UniformsCallback fUniformsCallback;
-    std::vector<SkRuntimeEffect::ChildPtr> fChildren;
-};
-
-sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
-    if (!buffer.validate(buffer.allowSkSL())) {
-        return nullptr;
-    }
-
-    SkString sksl;
-    buffer.readString(&sksl);
-    sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
-
-    SkTLazy<SkMatrix> localM;
-    if (buffer.isVersionLT(SkPicturePriv::kNoShaderLocalMatrix)) {
-        uint32_t flags = buffer.read32();
-        if (flags & kHasLegacyLocalMatrix_Flag) {
-            buffer.readMatrix(localM.init());
-        }
-    }
-
-    auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForShader, std::move(sksl));
-#if !SK_LENIENT_SKSL_DESERIALIZATION
-    if (!buffer.validate(effect != nullptr)) {
-        return nullptr;
-    }
-#endif
-
-    STArray<4, SkRuntimeEffect::ChildPtr> children;
-    if (!SkRuntimeEffectPriv::ReadChildEffects(buffer, effect.get(), &children)) {
-        return nullptr;
-    }
-
-#if SK_LENIENT_SKSL_DESERIALIZATION
-    if (!effect) {
-        // If any children were SkShaders, return the first one. This is a reasonable fallback.
-        for (int i = 0; i < children.size(); i++) {
-            if (children[i].shader()) {
-                SkDebugf("Serialized SkSL failed to compile. Replacing shader with child %d.\n", i);
-                return sk_ref_sp(children[i].shader());
-            }
-        }
-
-        // We don't know what to do, so just return nullptr (but *don't* poison the buffer).
-        SkDebugf("Serialized SkSL failed to compile. Ignoring/dropping SkSL shader.\n");
-        return nullptr;
-    }
-#endif
-
-    return effect->makeShader(std::move(uniforms), SkSpan(children), localM.getMaybeNull());
-}
-
 sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(const SkRuntimeEffect* effect,
                                                         UniformsCallback uniformsCallback,
                                                         SkSpan<SkRuntimeEffect::ChildPtr> children,
@@ -1202,11 +946,11 @@ sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(const SkRuntimeEffect* e
     if (!uniformsCallback) {
         return nullptr;
     }
-    return SkLocalMatrixShader::MakeWrapped<SkRTShader>(localMatrix,
-                                                        sk_ref_sp(effect),
-                                                        /*debugTrace=*/nullptr,
-                                                        std::move(uniformsCallback),
-                                                        children);
+    return SkLocalMatrixShader::MakeWrapped<SkRuntimeShader>(localMatrix,
+                                                             sk_ref_sp(effect),
+                                                             /*debugTrace=*/nullptr,
+                                                             std::move(uniformsCallback),
+                                                             children);
 }
 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
@@ -1235,11 +979,11 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
     if (uniforms->size() != this->uniformSize()) {
         return nullptr;
     }
-    return SkLocalMatrixShader::MakeWrapped<SkRTShader>(localMatrix,
-                                                        sk_ref_sp(this),
-                                                        /*debugTrace=*/nullptr,
-                                                        std::move(uniforms),
-                                                        children);
+    return SkLocalMatrixShader::MakeWrapped<SkRuntimeShader>(localMatrix,
+                                                             sk_ref_sp(this),
+                                                             /*debugTrace=*/nullptr,
+                                                             std::move(uniforms),
+                                                             children);
 }
 
 sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
@@ -1340,8 +1084,8 @@ SkRuntimeEffect::TracedShader SkRuntimeEffect::MakeTraced(sk_sp<SkShader> shader
     if (!effect) {
         return TracedShader{nullptr, nullptr};
     }
-    // An SkShader with an attached SkRuntimeEffect must be an SkRTShader.
-    SkRTShader* rtShader = static_cast<SkRTShader*>(shader.get());
+    // An SkShader with an attached SkRuntimeEffect must be an SkRuntimeShader.
+    SkRuntimeShader* rtShader = static_cast<SkRuntimeShader*>(shader.get());
     return rtShader->makeTracedClone(traceCoord);
 }
 
@@ -1384,9 +1128,12 @@ SkBlender* SkRuntimeEffect::ChildPtr::blender() const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkRuntimeEffect::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkRuntimeColorFilter);
-    SK_REGISTER_FLATTENABLE(SkRTShader);
     SK_REGISTER_FLATTENABLE(SkRuntimeBlender);
+    SK_REGISTER_FLATTENABLE(SkRuntimeColorFilter);
+    SK_REGISTER_FLATTENABLE(SkRuntimeShader);
+
+    // Previous name
+    SkFlattenable::Register("SkRTShader", SkRuntimeShader::CreateProc);
 }
 
 SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)

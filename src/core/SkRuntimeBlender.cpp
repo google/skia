@@ -81,7 +81,7 @@ bool SkRuntimeBlender::onAppendStages(const SkStageRec& rec) const {
                 /*alwaysCopyIntoAlloc=*/false,
                 rec.fDstCS,
                 rec.fAlloc);
-        SkShaderBase::MatrixRec matrix(SkMatrix::I());
+        SkShaders::MatrixRec matrix(SkMatrix::I());
         matrix.markCTMApplied();
         RuntimeEffectRPCallbacks callbacks(rec, matrix, fChildren, fEffect->fSampleUsages);
         bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks, uniforms);
@@ -110,7 +110,7 @@ skvm::Color SkRuntimeBlender::onProgram(skvm::Builder* p, skvm::Color src, skvm:
                                                                         colorInfo.colorSpace());
     SkASSERT(inputs);
 
-    SkShaderBase::MatrixRec mRec(SkMatrix::I());
+    SkShaders::MatrixRec mRec(SkMatrix::I());
     mRec.markTotalMatrixInvalid();
     RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, mRec, src, colorInfo);
     std::vector<skvm::Val> uniform = SkRuntimeEffectPriv::MakeSkVMUniforms(p,

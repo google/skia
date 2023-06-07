@@ -35,10 +35,16 @@ sk_sp<SkShader> noise_shader(Type type,
                              bool stitchTiles,
                              SkISize size) {
     return (type == Type::kFractalNoise)
-        ? SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
-                                                seed, stitchTiles ? &size : nullptr)
-        : SkPerlinNoiseShader::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
-                                              seed, stitchTiles ? &size : nullptr);
+                   ? SkShaders::MakeFractalNoise(baseFrequencyX,
+                                                 baseFrequencyY,
+                                                 numOctaves,
+                                                 seed,
+                                                 stitchTiles ? &size : nullptr)
+                   : SkShaders::MakeTurbulence(baseFrequencyX,
+                                               baseFrequencyY,
+                                               numOctaves,
+                                               seed,
+                                               stitchTiles ? &size : nullptr);
 }
 
 class PerlinNoiseGM : public skiagm::GM {

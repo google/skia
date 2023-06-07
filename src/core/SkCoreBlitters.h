@@ -8,14 +8,25 @@
 #ifndef SkCoreBlitters_DEFINED
 #define SkCoreBlitters_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkBlitter_A8.h"
-#include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 
+#include <cstdint>
+
+class SkArenaAlloc;
+class SkMatrix;
+class SkRasterPipeline;
+class SkShader;
 class SkSurfaceProps;
+struct SkIRect;
+struct SkMask;
 
 class SkRasterBlitter : public SkBlitter {
 public:

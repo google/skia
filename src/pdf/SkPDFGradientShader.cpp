@@ -758,7 +758,6 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
                 transformPoints[1] = transformPoints[0];
                 transformPoints[1].fX += SK_Scalar1;
                 break;
-            case SkShaderBase::GradientType::kColor:
             case SkShaderBase::GradientType::kNone:
             default:
                 return SkPDFIndirectReference();

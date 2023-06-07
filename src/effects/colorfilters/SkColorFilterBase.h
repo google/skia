@@ -47,16 +47,6 @@ class PipelineDataGatherer;
     M(Table)                    \
     M(WorkingFormat)
 
-#define SK_ALL_COLOR_FILTERS(M) \
-    M(BlendMode)                \
-    M(ColorSpaceXform)          \
-    M(Compose)                  \
-    M(Gaussian)                 \
-    M(Matrix)                   \
-    M(Runtime)                  \
-    M(Table)                    \
-    M(WorkingFormat)
-
 class SkColorFilterBase : public SkColorFilter {
 public:
     SK_WARN_UNUSED_RESULT

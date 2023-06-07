@@ -8,6 +8,8 @@
 #ifndef SkVMBlitter_DEFINED
 #define SkVMBlitter_DEFINED
 
+#include "include/core/SkBlender.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkTLazy.h"

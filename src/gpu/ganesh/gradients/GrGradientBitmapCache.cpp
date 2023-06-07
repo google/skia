@@ -13,7 +13,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/shaders/gradients/SkGradientShaderBase.h"
+#include "src/shaders/gradients/SkGradientBaseShader.h"
 
 #include <functional>
 
@@ -135,7 +135,7 @@ void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScal
 
     p.append(SkRasterPipelineOp::seed_shader);
     p.append_matrix(&alloc, SkMatrix::Scale(1.0f / bitmap->width(), 1.0f));
-    SkGradientShaderBase::AppendGradientFillStages(&p, &alloc, colors, positions, count);
+    SkGradientBaseShader::AppendGradientFillStages(&p, &alloc, colors, positions, count);
     p.append_store(bitmap->colorType(), &ctx);
     p.run(0, 0, bitmap->width(), 1);
 }

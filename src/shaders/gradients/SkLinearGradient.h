@@ -8,17 +8,21 @@
 #ifndef SkLinearGradient_DEFINED
 #define SkLinearGradient_DEFINED
 
-#include "src/shaders/gradients/SkGradientShaderBase.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPoint.h"
+#include "src/shaders/gradients/SkGradientBaseShader.h"
 
-class SkLinearGradient final : public SkGradientShaderBase {
+class SkArenaAlloc;
+class SkMatrix;
+class SkRasterPipeline;
+class SkReadBuffer;
+class SkWriteBuffer;
+
+class SkLinearGradient final : public SkGradientBaseShader {
 public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
-                                                             const MatrixRec&) const override;
-#endif
 #if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
@@ -43,7 +47,7 @@ private:
     class LinearGradient4fContext;
 
     friend class SkGradientShader;
-    using INHERITED = SkGradientShaderBase;
+    using INHERITED = SkGradientBaseShader;
     const SkPoint fStart;
     const SkPoint fEnd;
 };

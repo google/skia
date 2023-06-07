@@ -65,10 +65,9 @@ DEF_TEST(ComposeShaderSingle, reporter) {
     srcBitmap.eraseColor(SK_ColorRED);
     SkCanvas canvas(srcBitmap);
     SkPaint p;
-    p.setShader(
-        SkShaders::Blend(SkBlendMode::kClear,
-        SkShaders::Empty(),
-        SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f)));
+    p.setShader(SkShaders::Blend(SkBlendMode::kClear,
+                                 SkShaders::Empty(),
+                                 SkShaders::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f)));
     SkRRect rr;
     SkVector rd[] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
     rr.setRectRadii({0, 0, 0, 0}, rd);

@@ -5,7 +5,7 @@ REG_FIDDLE(skpaint_perlin, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);
     SkPaint paint;
-    paint.setShader(SkPerlinNoiseShader::MakeFractalNoise(0.05f, 0.05f, 4, 0.0f, nullptr));
+    paint.setShader(SkShaders::MakeFractalNoise(0.05f, 0.05f, 4, 0.0f, nullptr));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

@@ -7,25 +7,36 @@
 
 #include "src/shaders/SkImageShader.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/private/base/SkMath.h"
+#include "modules/skcms/skcms.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkEffectPriv.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
+#include "src/core/SkImagePriv.h"
 #include "src/core/SkMipmapAccessor.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkVM.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/core/SkYUVMath.h"
 #include "src/image/SkImage_Base.h"
-#include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkLocalMatrixShader.h"
-#include "src/shaders/SkTransformShader.h"
 
 #if defined(SK_GRAPHITE)
+#include "src/core/SkYUVMath.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/Image_Graphite.h"
@@ -56,6 +67,20 @@ static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swiz
     }
 }
 #endif
+
+#if defined(SK_ENABLE_SKVM)
+#include "src/core/SkVM.h"
+#endif
+
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
+#include "src/shaders/SkBitmapProcShader.h"
+#endif
+
+#include <optional>
+#include <tuple>
+#include <utility>
+
+class SkColorSpace;
 
 SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
 #if 0
@@ -98,12 +123,11 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 #endif
 }
 
-// TODO: currently this only *always* used in asFragmentProcessor(), which is excluded on no-gpu
-// builds. No-gpu builds only use needs_subset() in asserts, so release+no-gpu doesn't use it, which
-// can cause builds to fail if unused warnings are treated as errors.
-[[maybe_unused]] static bool needs_subset(SkImage* img, const SkRect& subset) {
+#if defined(SK_DEBUG)
+static bool needs_subset(SkImage* img, const SkRect& subset) {
     return subset != SkRect::Make(img->dimensions());
 }
+#endif
 
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
                              const SkRect& subset,
@@ -367,48 +391,6 @@ sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
                                                            clampAsIfUnpremul);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined(SK_GANESH)
-
-#include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/ganesh/image/GrImageUtils.h"
-
-std::unique_ptr<GrFragmentProcessor>
-SkImageShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
-    SkTileMode tileModes[2] = {fTileModeX, fTileModeY};
-    const SkRect* subset = needs_subset(fImage.get(), fSubset) ? &fSubset : nullptr;
-    auto fp = skgpu::ganesh::AsFragmentProcessor(
-            args.fContext, fImage, fSampling, tileModes, SkMatrix::I(), subset);
-    if (!fp) {
-        return nullptr;
-    }
-
-    bool success;
-    std::tie(success, fp) = mRec.apply(std::move(fp));
-    if (!success) {
-        return nullptr;
-    }
-
-    if (!fRaw) {
-        fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                           fImage->colorSpace(),
-                                           fImage->alphaType(),
-                                           args.fDstColorInfo->colorSpace(),
-                                           kPremul_SkAlphaType);
-
-        if (fImage->isAlphaOnly()) {
-            fp = GrBlendFragmentProcessor::Make<SkBlendMode::kDstIn>(std::move(fp), nullptr);
-        }
-    }
-
-    return fp;
-}
-
-#endif
-
 #if defined(SK_GRAPHITE)
 
 void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
@@ -554,7 +536,6 @@ void SkImageShader::addYUVImageToKey(const skgpu::graphite::KeyContext& keyConte
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "src/core/SkImagePriv.h"
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
                                            SkTileMode tmx, SkTileMode tmy,
@@ -658,7 +639,7 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
     return SkSamplingOptions(filter, sampling.mipmap);
 }
 
-bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
+bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const {
     SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
 
     // We only support certain sampling options in stages so far
@@ -943,7 +924,7 @@ skvm::Color SkImageShader::program(skvm::Builder* p,
                                    skvm::Coord device,
                                    skvm::Coord origLocal,
                                    skvm::Color paint,
-                                   const MatrixRec& mRec,
+                                   const SkShaders::MatrixRec& mRec,
                                    const SkColorInfo& dst,
                                    skvm::Uniforms* uniforms,
                                    SkArenaAlloc* alloc) const {

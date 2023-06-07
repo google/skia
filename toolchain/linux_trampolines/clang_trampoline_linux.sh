@@ -36,6 +36,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/surface/"
   "src/image/"
   "src/pathops/"
+  "src/shaders/"
   "src/sksl/"
   "src/svg/"
   "src/text/"
@@ -117,6 +118,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrSurfaceProxyView.cpp"
   "src/gpu/ganesh/GrTextureProxy.cpp"
   "src/gpu/ganesh/SkGr.cpp"
+  "src/gpu/ganesh/effects/GrPerlinNoise2Effect.cpp"
   "src/pdf/SkJpeg"
 
   # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.
