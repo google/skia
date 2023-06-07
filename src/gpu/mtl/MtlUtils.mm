@@ -9,6 +9,7 @@
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/gpu/PipelineUtils.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
@@ -149,19 +150,6 @@ size_t MtlFormatBytesPerBlock(MTLPixelFormat mtlFormat) {
     }
 }
 
-// Print the source code for all shaders generated.
-#ifdef SK_PRINT_SKSL_SHADERS
-static const bool gPrintSKSL = true;
-#else
-static const bool gPrintSKSL = false;
-#endif
-
-#ifdef SK_PRINT_NATIVE_SHADERS
-static const bool gPrintMSL = true;
-#else
-static const bool gPrintMSL = false;
-#endif
-
 bool SkSLToMSL(SkSL::Compiler* compiler,
                const std::string& sksl,
                SkSL::ProgramKind programKind,
@@ -182,13 +170,13 @@ bool SkSLToMSL(SkSL::Compiler* compiler,
         return false;
     }
 
-    if (gPrintSKSL || gPrintMSL) {
+    if (gPrintSKSL || gPrintBackendSL) {
         SkShaderUtils::PrintShaderBanner(programKind);
         if (gPrintSKSL) {
             SkDebugf("SKSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
-        if (gPrintMSL) {
+        if (gPrintBackendSL) {
             SkDebugf("MSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*msl));
         }

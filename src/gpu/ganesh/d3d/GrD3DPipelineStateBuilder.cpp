@@ -13,6 +13,7 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/ganesh/GrAutoLocaleSetter.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPersistentCacheUtils.h"
@@ -72,10 +73,6 @@ SkSL::Compiler* GrD3DPipelineStateBuilder::shaderCompiler() const {
 void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }
-
-// Print the source code for all shaders generated.
-static const bool gPrintSKSL = false;
-static const bool gPrintHLSL = false;
 
 static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
                                            const std::string& hlsl,
@@ -154,13 +151,13 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(SkSL::ProgramKind k
     }
     *outInterface = program->fInterface;
 
-    if (gPrintSKSL || gPrintHLSL) {
+    if (skgpu::gPrintSKSL || skgpu::gPrintBackendSL) {
         SkShaderUtils::PrintShaderBanner(kind);
-        if (gPrintSKSL) {
+        if (skgpu::gPrintSKSL) {
             SkDebugf("SKSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
-        if (gPrintHLSL) {
+        if (skgpu::gPrintBackendSL) {
             SkDebugf("HLSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*outHLSL));
         }

@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
@@ -66,18 +67,14 @@ bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              std::string* outSPIRV,
                              SkSL::Program::Interface* outInterface) {
     TRACE_EVENT0("skia.shaders", "CompileVkShaderModule");
-    auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
-    std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
-            vk_shader_stage_to_skiasl_kind(stage), shaderString, settings);
-    if (!program) {
-        errorHandler->compileError(shaderString.c_str(),
-                                   gpu->shaderCompiler()->errorText().c_str());
-        return false;
-    }
-    *outInterface = program->fInterface;
-    if (!gpu->shaderCompiler()->toSPIRV(*program, outSPIRV)) {
-        errorHandler->compileError(shaderString.c_str(),
-                                   gpu->shaderCompiler()->errorText().c_str());
+    skgpu::ShaderErrorHandler* errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
+    if (!skgpu::SkSLToSPIRV(gpu->shaderCompiler(),
+                            shaderString,
+                            vk_shader_stage_to_skiasl_kind(stage),
+                            settings,
+                            outSPIRV,
+                            outInterface,
+                            errorHandler)) {
         return false;
     }
 

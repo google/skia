@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_PipelineUtils_DEFINED
-#define skgpu_graphite_PipelineUtils_DEFINED
+#ifndef skgpu_PipelineUtils_DEFINED
+#define skgpu_PipelineUtils_DEFINED
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -16,13 +16,18 @@
 
 
 // This file houses utilities to be shared across pipelines of different backend types.
-namespace skgpu::graphite {
+namespace skgpu {
 
 // Print the source code for all shaders generated.
 #ifdef SK_PRINT_SKSL_SHADERS
 static constexpr bool gPrintSKSL  = true;
 #else
 static constexpr bool gPrintSKSL  = false;
+#endif
+#ifdef SK_PRINT_NATIVE_SHADERS
+static const bool gPrintBackendSL = true;
+#else
+static const bool gPrintBackendSL = false;
 #endif
 
 // SkSL->SPIR-V is only needed by Dawn + Vulkan backends, but seeing as this is a small wrapper
@@ -35,6 +40,6 @@ bool SkSLToSPIRV(SkSL::Compiler*,
                  SkSL::Program::Interface*,
                  ShaderErrorHandler*);
 
-} // namespace skgpu::graphite
+} // namespace skgpu
 
-#endif // skgpu_graphite_PipelineUtils_DEFINED
+#endif // skgpu_PipelineUtils_DEFINED

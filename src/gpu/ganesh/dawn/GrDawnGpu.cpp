@@ -13,6 +13,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/base/SkRectMemcpy.h"
+#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -1005,28 +1006,21 @@ std::string GrDawnGpu::SkSLToSPIRV(const char* shaderString,
                                    SkSL::ProgramKind kind,
                                    uint32_t rtFlipOffset,
                                    SkSL::Program::Interface* interface) {
-    auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::ProgramSettings settings;
     settings.fRTFlipOffset = rtFlipOffset;
     settings.fRTFlipBinding = 0;
     settings.fRTFlipSet = 0;
-    std::unique_ptr<SkSL::Program> program = this->shaderCompiler()->convertProgram(
-        kind,
-        shaderString,
-        settings);
-    if (!program) {
-        errorHandler->compileError(shaderString, this->shaderCompiler()->errorText().c_str());
+    std::string outSPIRV;
+    if (!skgpu::SkSLToSPIRV(this->shaderCompiler(),
+                            {shaderString},
+                            kind,
+                            settings,
+                            &outSPIRV,
+                            interface,
+                            this->getContext()->priv().getShaderErrorHandler())) {
         return "";
     }
-    if (interface) {
-        *interface = program->fInterface;
-    }
-    std::string code;
-    if (!this->shaderCompiler()->toSPIRV(*program, &code)) {
-        errorHandler->compileError(shaderString, this->shaderCompiler()->errorText().c_str());
-        return "";
-    }
-    return code;
+    return outSPIRV;
 }
 
 wgpu::ShaderModule GrDawnGpu::createShaderModule(const std::string& spirvSource) {
