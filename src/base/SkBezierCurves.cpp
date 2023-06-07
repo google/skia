@@ -10,6 +10,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkPoint_impl.h"
+#include "src/base/SkCubics.h"
 #include "src/base/SkQuads.h"
 
 #include <cstddef>
@@ -119,6 +120,10 @@ struct Point {
     double x, y;
 };
 
+Point operator- (Point a) {
+    return {-a.x, -a.y};
+}
+
 Point operator+ (Point a, Point b) {
     return {a.x + b.x, a.y + b.y};
 }
@@ -130,7 +135,55 @@ Point operator- (Point a, Point b) {
 Point operator* (double s, Point a) {
     return {s * a.x, s * a.y};
 }
+
+// Pin to 0 or 1 if within half a float ulp of 0 or 1.
+double pinTRange(double t) {
+    // The ULPs around 0 are tiny compared to the ULPs around 1. Shift to 1 to use the same
+    // size ULPs.
+    if (sk_double_to_float(t + 1.0) == 1.0f) {
+        return 0.0;
+    } else if (sk_double_to_float(t) == 1.0f) {
+        return 1.0;
+    }
+    return t;
+}
 }  // namespace
+
+SkSpan<const float>
+SkBezierCubic::IntersectWithHorizontalLine(
+        SkSpan<const SkPoint> controlPoints, float yIntercept, float* intersectionStorage) {
+    SkASSERT(controlPoints.size() >= 4);
+    const Point P0 = controlPoints[0],
+                P1 = controlPoints[1],
+                P2 = controlPoints[2],
+                P3 = controlPoints[3];
+
+    const Point A =   -P0 + 3*P1 - 3*P2 + P3,
+                B =  3*P0 - 6*P1 + 3*P2,
+                C = -3*P0 + 3*P1,
+                D =    P0;
+
+    return Intersect(A.x, B.x, C.x, D.x, A.y, B.y, C.y, D.y, yIntercept, intersectionStorage);
+}
+
+SkSpan<const float>
+SkBezierCubic::Intersect(double AX, double BX, double CX, double DX,
+                         double AY, double BY, double CY, double DY,
+                         float toIntersect, float intersectionsStorage[3]) {
+    double roots[3];
+    SkSpan<double> ts = SkSpan(roots,
+                               SkCubics::RootsReal(AY, BY, CY, DY - toIntersect, roots));
+
+    int intersectionCount = 0;
+    for (double t : ts) {
+        const double pinnedT = pinTRange(t);
+        if (0 <= pinnedT && pinnedT <= 1) {
+            intersectionsStorage[intersectionCount++] = SkCubics::EvalAt(AX, BX, CX, DX, pinnedT);
+        }
+    }
+
+    return {intersectionsStorage, intersectionCount};
+}
 
 SkSpan<const float>
 SkBezierQuad::IntersectWithHorizontalLine(SkSpan<const SkPoint> controlPoints, float yIntercept,
@@ -157,19 +210,6 @@ SkSpan<const float> SkBezierQuad::Intersect(
     auto [discriminant, r0, r1] = SkQuads::Roots(AY, BY, CY - yIntercept);
 
     int intersectionCount = 0;
-
-    // Pin to 0 or 1 if within half a float ulp of 0 or 1.
-    auto pinTRange = [] (double t) {
-        // The ULPs around 0 are tiny compared to the ULPs around 1. Shift to 1 to use the same
-        // size ULPs.
-        if (sk_double_to_float(t + 1.0) == 1.0f) {
-            return 0.0;
-        } else if (sk_double_to_float(t) == 1.0f) {
-            return 1.0;
-        }
-        return t;
-    };
-
     // Round the roots to the nearest float to generate the values t. Valid t's are on the
     // domain [0, 1].
     const double t0 = pinTRange(r0);
@@ -184,3 +224,4 @@ SkSpan<const float> SkBezierQuad::Intersect(
 
     return SkSpan{intersectionStorage, intersectionCount};
 }
+
