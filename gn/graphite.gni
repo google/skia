@@ -9,6 +9,7 @@ _include = get_path_info("../include/gpu/graphite", "abspath")
 _include_private = get_path_info("../include/private/gpu/graphite", "abspath")
 
 skia_graphite_public = [
+  "$_include/BackendSemaphore.h",
   "$_include/BackendTexture.h",
   "$_include/Context.h",
   "$_include/ContextOptions.h",
@@ -23,6 +24,7 @@ skia_graphite_public = [
 skia_graphite_sources = [
   "$_src/AttachmentTypes.h",
   "$_src/Attribute.h",
+  "$_src/BackendSemaphore.cpp",
   "$_src/BackendTexture.cpp",
   "$_src/Buffer.cpp",
   "$_src/Buffer.h",

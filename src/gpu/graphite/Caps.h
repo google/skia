@@ -163,6 +163,9 @@ public:
 
     bool protectedSupport() const { return fProtectedSupport; }
 
+    // Supports BackendSemaphores
+    bool semaphoreSupport() const { return fSemaphoreSupport; }
+
     // Returns whether storage buffers are supported.
     bool storageBufferSupport() const { return fStorageBufferSupport; }
 
@@ -252,6 +255,7 @@ protected:
 
     bool fClampToBorderSupport = true;
     bool fProtectedSupport = false;
+    bool fSemaphoreSupport = false;
     bool fStorageBufferSupport = false;
     bool fStorageBufferPreferred = false;
     bool fDrawBufferCanBeMapped = true;
