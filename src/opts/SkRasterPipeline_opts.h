@@ -5014,6 +5014,7 @@ STAGE_PP(swap_src_dst, NoCtx) {
     }                                                    \
     SI U16 name##_channel(U16 s, U16 d, U16 sa, U16 da)
 
+#if defined(SK_USE_INACCURATE_DIV255_IN_BLEND)
     BLEND_MODE(clear)    { return 0; }
     BLEND_MODE(srcatop)  { return div255( s*da + d*inv(sa) ); }
     BLEND_MODE(dstatop)  { return div255( d*sa + s*inv(da) ); }
@@ -5028,6 +5029,22 @@ STAGE_PP(swap_src_dst, NoCtx) {
     BLEND_MODE(plus_)    { return min(s+d, 255); }
     BLEND_MODE(screen)   { return s + d - div255( s*d ); }
     BLEND_MODE(xor_)     { return div255( s*inv(da) + d*inv(sa) ); }
+#else
+    BLEND_MODE(clear)    { return 0; }
+    BLEND_MODE(srcatop)  { return div255( s*da + d*inv(sa) ); }
+    BLEND_MODE(dstatop)  { return div255( d*sa + s*inv(da) ); }
+    BLEND_MODE(srcin)    { return div255_accurate( s*da ); }
+    BLEND_MODE(dstin)    { return div255_accurate( d*sa ); }
+    BLEND_MODE(srcout)   { return div255_accurate( s*inv(da) ); }
+    BLEND_MODE(dstout)   { return div255_accurate( d*inv(sa) ); }
+    BLEND_MODE(srcover)  { return s + div255_accurate( d*inv(sa) ); }
+    BLEND_MODE(dstover)  { return d + div255_accurate( s*inv(da) ); }
+    BLEND_MODE(modulate) { return div255_accurate( s*d ); }
+    BLEND_MODE(multiply) { return div255( s*inv(da) + d*inv(sa) + s*d ); }
+    BLEND_MODE(plus_)    { return min(s+d, 255); }
+    BLEND_MODE(screen)   { return s + d - div255_accurate( s*d ); }
+    BLEND_MODE(xor_)     { return div255( s*inv(da) + d*inv(sa) ); }
+#endif
 #undef BLEND_MODE
 
 // The same logic applied to color, and srcover for alpha.
