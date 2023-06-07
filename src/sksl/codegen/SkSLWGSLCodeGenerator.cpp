@@ -916,6 +916,9 @@ void WGSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kContinue:
             this->writeLine("continue;");
             break;
+        case Statement::Kind::kDiscard:
+            this->writeLine("discard;");
+            break;
         case Statement::Kind::kDo:
             this->writeDoStatement(s.as<DoStatement>());
             break;
