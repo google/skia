@@ -14,6 +14,11 @@ noinline void keepAlive(inout half h) {}
 noinline void keepAlive(inout float f) {}
 noinline void keepAlive(inout int i) {}
 
+void assignToFunctionParameter(int x, inout float y) {
+    x = 1;
+    y = 1;
+}
+
 half4 main(float2 coords) {
     /* assign to scalar */               int i; i = 0;
     /* assign to vector */               int4 i4; i4 = int4(1,2,3,4);
@@ -31,6 +36,8 @@ half4 main(float2 coords) {
 
     /* assign to global var */           globalVar = half4(0);
     /* assign to global struct */        globalStruct.f = 0;
+
+    /* assign to function parameter */   assignToFunctionParameter(0, f3x3[0][0]);
 
 // Not allowed in ES2
 //  /* assign to array idx by lookup */  ai[0] = 0; ai[ai[0]] = 0;

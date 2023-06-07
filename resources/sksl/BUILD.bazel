@@ -1074,6 +1074,7 @@ skia_filegroup(
         "shared/ArrayFollowedByScalar.sksl",
         "shared/ArrayIndexTypes.sksl",
         "shared/ArrayTypes.sksl",
+        "shared/Assignment.sksl",
         "shared/CommaMixedTypes.sksl",
         "shared/CommaSideEffects.sksl",
         "shared/ConstArray.sksl",

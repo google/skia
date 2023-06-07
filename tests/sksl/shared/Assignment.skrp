@@ -66,6 +66,12 @@ splat_2_constants              $0..1 = 0x40A00000 (5.0)
 swizzle_copy_2_slots_masked    (s.ah4[2]).yw = Mask($0..1)
 splat_4_constants              globalVar = 0
 copy_constant                  globalStruct.f = 0
+copy_constant                  x₁ = 0
+copy_slot_unmasked             y = f3x3(0)
+copy_constant                  x₁ = 0x00000001 (1.401298e-45)
+copy_constant                  y = 0x3F800000 (1.0)
+copy_slot_unmasked             f3x3(0) = y
+label                          label 0
 copy_constant                  l = 0
 copy_constant                  l = 0
 copy_2_slots_unmasked          $0..1 = ai[0], ai4[0](0)
@@ -81,36 +87,36 @@ copy_slot_unmasked             repeat = $0
 copy_slot_unmasked             repeat = $0
 copy_slot_unmasked             f = af4[0](0)
 copy_slot_unmasked             af4[0](0) = f
-label                          label 0
+label                          label 0x00000001
 copy_slot_unmasked             h = ah3x3[0](0)
 copy_slot_unmasked             ah3x3[0](0) = h
-label                          label 0x00000001
+label                          label 0x00000002
 copy_slot_unmasked             i₁ = i
 copy_slot_unmasked             i = i₁
-label                          label 0x00000002
+label                          label 0x00000003
 copy_slot_unmasked             i₁ = i4(1)
 copy_slot_unmasked             i4(1) = i₁
-label                          label 0x00000003
+label                          label 0x00000004
 copy_slot_unmasked             i₁ = ai[0]
 copy_slot_unmasked             ai[0] = i₁
-label                          label 0x00000004
+label                          label 0x00000005
 copy_slot_unmasked             i₁ = ai4[0](0)
 copy_slot_unmasked             ai4[0](0) = i₁
-label                          label 0x00000005
+label                          label 0x00000006
 copy_slot_unmasked             h = x(1)
 copy_slot_unmasked             x(1) = h
-label                          label 0x00000006
+label                          label 0x00000007
 copy_slot_unmasked             f = s.f
 copy_slot_unmasked             s.f = f
-label                          label 0x00000007
+label                          label 0x00000008
 copy_slot_unmasked             h = l
 copy_slot_unmasked             l = h
-label                          label 0x00000008
+label                          label 0x00000009
 copy_slot_unmasked             f = f3x3(0)
 copy_slot_unmasked             f3x3(0) = f
-label                          label 0x00000009
+label                          label 0x0000000A
 copy_slot_unmasked             f = repeat
 copy_slot_unmasked             repeat = f
-label                          label 0x0000000A
+label                          label 0x0000000B
 copy_4_uniforms                $0..3 = colorGreen
 load_src                       src.rgba = $0..3

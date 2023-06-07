@@ -15,6 +15,10 @@ void keepAlive_vf(inout float f) {
 }
 void keepAlive_vi(inout int i) {
 }
+void assignToFunctionParameter_vif(int x, inout float y) {
+    x = 1;
+    y = 1.0;
+}
 vec4 main() {
     int i = 0;
     ivec4 i4 = ivec4(1, 2, 3, 4);
@@ -38,6 +42,7 @@ vec4 main() {
     s.ah4[2].yw = vec2(5.0);
     globalVar = vec4(0.0);
     globalStruct.f = 0.0;
+    assignToFunctionParameter_vif(0, f3x3[0].x);
     float l;
     l = 0.0;
     ai[0] += ai4[0].x;
