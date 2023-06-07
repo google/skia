@@ -20,13 +20,12 @@ BackendTexture::BackendTexture(const BackendTexture& that) {
 }
 
 BackendTexture& BackendTexture::operator=(const BackendTexture& that) {
-    bool valid = this->isValid();
     if (!that.isValid()) {
         fInfo = {};
         return *this;
-    } else if (valid && this->backend() != that.backend()) {
-        valid = false;
     }
+    // We shouldn't be mixing backends.
+    SkASSERT(!this->isValid() || this->backend() == that.backend());
     fDimensions = that.fDimensions;
     fInfo = that.fInfo;
 
@@ -44,11 +43,11 @@ BackendTexture& BackendTexture::operator=(const BackendTexture& that) {
 #endif
 #ifdef SK_VULKAN
         case BackendApi::kVulkan:
-            // TODO: Actually fill this out
+            fVkImage = that.fVkImage;
             break;
 #endif
         default:
-            SK_ABORT("Unsupport Backend");
+            SK_ABORT("Unsupported Backend");
     }
     return *this;
 }
@@ -82,11 +81,13 @@ bool BackendTexture::operator==(const BackendTexture& that) const {
 #endif
 #ifdef SK_VULKAN
         case BackendApi::kVulkan:
-            // TODO: Actually fill this out
-            return false;
+            if (fVkImage != that.fVkImage) {
+                return false;
+            }
+            break;
 #endif
         default:
-            SK_ABORT("Unsupport Backend");
+            SK_ABORT("Unsupported Backend");
     }
     return true;
 }
