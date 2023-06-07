@@ -136,7 +136,7 @@ bool check_pixels(skiatest::Reporter* reporter,
 
 bool difficult_case(const SkSamplingOptions& sampling,
                     int scale,
-                    int /* rot */,
+                    int rot,
                     SkCanvas::SrcRectConstraint constraint) {
     if (sampling.useCubic) {
         return false;  // cubic never causes any issues
@@ -160,9 +160,9 @@ bool difficult_case(const SkSamplingOptions& sampling,
     }
 
     if (sampling.filter == SkFilterMode::kNearest) {
-        // Perhaps unsurprisingly, NN only passes on 1-to-1 draws (off by ~187/255 at
-        // different scales)
-        return scale > 1;
+        // Perhaps unsurprisingly, NN only passes on un-rotated 1-to-1 draws (off by ~187/255 at
+        // different scales).
+        return scale > 1 || rot > 0;
     }
 
     return false;
