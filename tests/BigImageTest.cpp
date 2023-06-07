@@ -10,7 +10,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -36,8 +38,6 @@ struct GrContextOptions;
 #include <functional>
 #include <initializer_list>
 
-class SkImage;
-
 extern int gOverrideMaxTextureSize;
 extern std::atomic<int> gNumTilesDrawn;
 
@@ -45,22 +45,28 @@ namespace {
 
 constexpr bool kWriteOutImages = false;
 
-sk_sp<SkImage> make_big_bitmap_image(int size, int desiredLineWidth, int desiredDepth) {
+// Create a bitmap w/ a white border around the edge (to test strict constraints) and
+// a Hilbert curve inside of that (so the effects of (mis) sampling are evident).
+sk_sp<SkImage> make_big_bitmap_image(int imgSize, int whiteBandWidth,
+                                     int desiredLineWidth, int desiredDepth) {
+    const int kPad = desiredLineWidth;
+
     SkBitmap bm;
 
-    bm.allocN32Pixels(size, size, /* isOpaque= */ true);
+    bm.allocN32Pixels(imgSize, imgSize, /* isOpaque= */ true);
+
+    bm.eraseColor(SK_ColorWHITE);
+    bm.erase(SK_ColorDKGRAY, { whiteBandWidth, whiteBandWidth,
+                               imgSize-whiteBandWidth, imgSize-whiteBandWidth });
 
     SkCanvas canvas(bm);
+    int desiredDrawSize = imgSize - 2 * kPad - 2 * whiteBandWidth;
+    ToolUtils::HilbertGenerator gen(desiredDrawSize, desiredLineWidth, desiredDepth);
 
-    canvas.clear(SK_ColorDKGRAY);
-
-    ToolUtils::HilbertGenerator gen(/* desiredSize= */ size - 2 * desiredLineWidth,
-                                    desiredLineWidth,
-                                    desiredDepth);
-
-    canvas.translate(desiredLineWidth, size - desiredLineWidth);
+    canvas.translate(kPad + whiteBandWidth, imgSize - kPad - whiteBandWidth);
     gen.draw(&canvas);
 
+    bm.setImmutable();
     return bm.asImage();
 }
 
@@ -78,12 +84,26 @@ const char* get_sampling_str(const SkSamplingOptions& sampling) {
     }
 }
 
+const char* get_constraint_name(SkCanvas::SrcRectConstraint constraint) {
+    switch (constraint) {
+        case SkCanvas::kFast_SrcRectConstraint:   return "fast";
+        case SkCanvas::kStrict_SrcRectConstraint: return "strict";
+    }
+
+    SkUNREACHABLE;
+}
+
 void potentially_write_to_png(const char* directory, const SkSamplingOptions& sampling,
-                              int scale, const SkBitmap& bm) {
+                              int scale, int rot, SkCanvas::SrcRectConstraint constraint,
+                              const SkBitmap& bm) {
     if constexpr(kWriteOutImages) {
         SkString filename;
-        filename.appendf("//%s//%s-%d.png",
-                         directory, get_sampling_str(sampling), scale);
+        filename.appendf("//%s//%s-%d-%d-%s.png",
+                         directory,
+                         get_sampling_str(sampling),
+                         scale,
+                         rot,
+                         get_constraint_name(constraint));
 
         SkFILEWStream file(filename.c_str());
         SkAssertResult(file.isValid());
@@ -96,18 +116,56 @@ bool check_pixels(skiatest::Reporter* reporter,
                   const SkBitmap& expected,
                   const SkBitmap& actual,
                   const SkSamplingOptions& sampling,
-                  int scale) {
-    static const float kTols[4] = { 0.004f, 0.004f, 0.004f, 0.004f };
+                  int scale,
+                  int rot,
+                  SkCanvas::SrcRectConstraint constraint) {
+    static const float kTols[4]    = { 0.004f, 0.004f, 0.004f, 0.004f };   // ~ 1/255
+    static const float kRotTols[4] = { 0.024f, 0.024f, 0.024f, 0.024f };   // ~ 6/255
 
     auto error = std::function<ComparePixmapsErrorReporter>(
             [&](int x, int y, const float diffs[4]) {
                 SkASSERT(x >= 0 && y >= 0);
-                ERRORF(reporter, "%s %d: mismatch at %d, %d (%f, %f, %f %f)",
-                       get_sampling_str(sampling), scale,
+                ERRORF(reporter, "%s %d %d %s: mismatch at %d, %d (%f, %f, %f %f)",
+                       get_sampling_str(sampling), scale, rot,
+                       get_constraint_name(constraint),
                        x, y, diffs[0], diffs[1], diffs[2], diffs[3]);
             });
 
-    return ComparePixels(expected.pixmap(), actual.pixmap(), kTols, error);
+    return ComparePixels(expected.pixmap(), actual.pixmap(), rot ? kRotTols : kTols, error);
+}
+
+bool difficult_case(const SkSamplingOptions& sampling,
+                    int scale,
+                    int /* rot */,
+                    SkCanvas::SrcRectConstraint constraint) {
+    if (sampling.useCubic) {
+        return false;  // cubic never causes any issues
+    }
+
+    if (constraint == SkCanvas::kStrict_SrcRectConstraint &&
+            (sampling.mipmap != SkMipmapMode::kNone || sampling.filter == SkFilterMode::kLinear)) {
+        // linear-filtered strict big image drawing is currently broken (b/286239467). The issue
+        // is that the strict constraint is propagated to the child tiles which breaks the
+        // interpolation expected in the middle of the large image.
+        // Note that strict mipmapping is auto-downgraded to strict linear sampling.
+        return true;
+    }
+
+    if (sampling.mipmap == SkMipmapMode::kLinear) {
+        // Mipmapping is broken for anything other that 1-to-1 draws (b/286256104). The issue
+        // is that the mipmaps are created for each tile individually so the higher levels differ
+        // from what would be generated with the entire image. Mipmapped draws are off by ~20/255
+        // at 4x and ~64/255 at 8x)
+        return scale > 1;
+    }
+
+    if (sampling.filter == SkFilterMode::kNearest) {
+        // Perhaps unsurprisingly, NN only passes on 1-to-1 draws (off by ~187/255 at
+        // different scales)
+        return scale > 1;
+    }
+
+    return false;
 }
 
 } // anonymous namespace
@@ -132,61 +190,88 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Ganesh,
         return;
     }
 
+    static const int kWhiteBandWidth = 4;
     sk_sp<SkImage> img = make_big_bitmap_image(kImageSize,
+                                               kWhiteBandWidth,
                                                /* desiredLineWidth= */ 16,
                                                /* desiredDepth= */ 7);
+    const SkRect srcRect = SkRect::MakeIWH(img->width(), img->height()).makeInset(kWhiteBandWidth,
+                                                                                  kWhiteBandWidth);
 
     const SkSamplingOptions kSamplingOptions[] = {
         SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone),
         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone),
+        // Note that Mipmapping gets auto-disabled with a strict-constraint
         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
         SkSamplingOptions(SkCubicResampler::CatmullRom()),
     };
 
     for (auto sampling : kSamplingOptions) {
         for (int scale : { 1, 4, 8 }) {
+            for (int rot : { 0, 45 }) {
+                for (auto constraint : { SkCanvas::kStrict_SrcRectConstraint,
+                                         SkCanvas::kFast_SrcRectConstraint }) {
+                    if (difficult_case(sampling, scale, rot, constraint)) {
+                        continue;
+                    }
+                    SkRect destRect = SkRect::MakeWH(srcRect.width()/scale, srcRect.height()/scale);
 
-            if (scale > 1 && !sampling.useCubic && (sampling.filter == SkFilterMode::kNearest ||
-                                                    sampling.mipmap == SkMipmapMode::kLinear)) {
-                // Currently NN and Mipmapping only match up for 1-to-1 draws
-                continue;
+                    SkMatrix m = SkMatrix::RotateDeg(rot, destRect.center());
+                    SkIRect rotatedRect = m.mapRect(destRect).roundOut();
+                    rotatedRect.outset(2, 2);   // outset to capture the constraint's effect
+
+                    auto destII = SkImageInfo::Make(rotatedRect.width(), rotatedRect.height(),
+                                                    kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+                    SkBitmap expected, actual;
+                    expected.allocPixels(destII);
+                    actual.allocPixels(destII);
+
+                    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext,
+                                                                        skgpu::Budgeted::kNo,
+                                                                        destII);
+                    SkCanvas* canvas = surface->getCanvas();
+
+                    canvas->translate(-rotatedRect.fLeft, -rotatedRect.fTop);
+                    if (sampling.useCubic || sampling.filter != SkFilterMode::kNearest) {
+                        // NN sampling doesn't deal well w/ the (0.5, 0.5) offset but the other
+                        // sampling modes need it to exercise strict vs. fast constraint
+                        // in non-rotated draws
+                        canvas->translate(0.5f, 0.5f);
+                    }
+                    canvas->concat(m);
+
+                    // First, draw w/o tiling
+                    gOverrideMaxTextureSize = 0;
+                    gNumTilesDrawn.store(0, std::memory_order_relaxed);
+
+                    canvas->clear(SK_ColorBLACK);
+                    canvas->drawImageRect(img, srcRect, destRect, sampling, nullptr, constraint);
+                    SkAssertResult(surface->readPixels(expected, 0, 0));
+                    REPORTER_ASSERT(reporter, gNumTilesDrawn.load(std::memory_order_acquire) == 0);
+
+                    // Then, force 4x4 tiling
+                    gOverrideMaxTextureSize = kOverrideMaxTextureSize;
+
+                    canvas->clear(SK_ColorBLACK);
+                    canvas->drawImageRect(img, srcRect, destRect, sampling, nullptr, constraint);
+                    SkAssertResult(surface->readPixels(actual, 0, 0));
+                    REPORTER_ASSERT(reporter,
+                                    gNumTilesDrawn.load(std::memory_order_acquire) ==
+                                                                                kExpectedNumTiles);
+
+                    REPORTER_ASSERT(reporter, check_pixels(reporter, expected, actual,
+                                                           sampling, scale, rot, constraint));
+
+                    potentially_write_to_png("expected", sampling, scale, rot, constraint,
+                                             expected);
+                    potentially_write_to_png("actual", sampling, scale, rot, constraint,
+                                             actual);
+                }
             }
-
-            auto destII = SkImageInfo::Make(kImageSize/scale, kImageSize/scale,
-                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-
-            SkBitmap expected, actual;
-            expected.allocPixels(destII);
-            actual.allocPixels(destII);
-
-            SkRect destRect = SkRect::MakeWH(destII.width(), destII.height());
-            sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo,
-                                                                destII);
-            SkCanvas* canvas = surface->getCanvas();
-
-            // First, draw w/o tiling
-            gOverrideMaxTextureSize = 0;
-            gNumTilesDrawn.store(0, std::memory_order_relaxed);
-
-            canvas->drawImageRect(img, destRect, sampling);
-            SkAssertResult(surface->readPixels(expected, 0, 0));
-            REPORTER_ASSERT(reporter, gNumTilesDrawn.load(std::memory_order_acquire) == 0);
-
-            potentially_write_to_png("expected", sampling, scale, expected);
-
-            // Then, force 4x4 tiling
-            gOverrideMaxTextureSize = kOverrideMaxTextureSize;
-
-            canvas->drawImageRect(img, destRect, sampling);
-            SkAssertResult(surface->readPixels(actual, 0, 0));
-            REPORTER_ASSERT(reporter,
-                            gNumTilesDrawn.load(std::memory_order_acquire) == kExpectedNumTiles);
-
-            potentially_write_to_png("actual", sampling, scale, actual);
-
-            REPORTER_ASSERT(reporter, check_pixels(reporter, expected, actual, sampling, scale));
         }
     }
 }
+
 
 #endif // SK_GANESH
