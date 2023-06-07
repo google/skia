@@ -18,22 +18,21 @@ fn verify_const_globals_biih44(_skParam0: i32, _skParam1: i32, _skParam2: mat4x4
   let ten = _skParam1;
   let matrixFive = _skParam2;
   {
-    let _skTemp0 = matrixFive;
-    let _skTemp1 = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
-    return (seven == 7 && ten == 10) && (all(_skTemp0[0] == _skTemp1[0]) && all(_skTemp0[1] == _skTemp1[1]) && all(_skTemp0[2] == _skTemp1[2]) && all(_skTemp0[3] == _skTemp1[3]));
+    let _skTemp0 = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
+    return (seven == 7 && ten == 10) && (all(matrixFive[0] == _skTemp0[0]) && all(matrixFive[1] == _skTemp0[1]) && all(matrixFive[2] == _skTemp0[2]) && all(matrixFive[3] == _skTemp0[3]));
   }
 }
 fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   let xy = _skParam0;
   {
-    var _skTemp2: vec4<f32>;
-    let _skTemp3 = verify_const_globals_biih44(SEVEN, TEN, MATRIXFIVE);
-    if _skTemp3 {
-      _skTemp2 = _globalUniforms.colorGreen;
+    var _skTemp1: vec4<f32>;
+    let _skTemp2 = verify_const_globals_biih44(SEVEN, TEN, MATRIXFIVE);
+    if _skTemp2 {
+      _skTemp1 = _globalUniforms.colorGreen;
     } else {
-      _skTemp2 = _globalUniforms.colorRed;
+      _skTemp1 = _globalUniforms.colorRed;
     }
-    return _skTemp2;
+    return _skTemp1;
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

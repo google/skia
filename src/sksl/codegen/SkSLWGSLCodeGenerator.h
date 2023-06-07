@@ -231,7 +231,16 @@ private:
                                                 Precedence parentPrecedence);
 
     // Synthesized helper functions for comparison operators that are not supported by WGSL.
-    std::string assembleMatrixEqualityExpression(const Expression& left, const Expression& right);
+    std::string assembleEqualityExpression(const Type& left,
+                                           const std::string& leftName,
+                                           const Type& right,
+                                           const std::string& rightName,
+                                           Operator op,
+                                           Precedence parentPrecedence);
+    std::string assembleEqualityExpression(const Expression& left,
+                                           const Expression& right,
+                                           Operator op,
+                                           Precedence parentPrecedence);
 
     // Writes a scratch variable into the program and returns its name (e.g. `_skTemp123`).
     std::string writeScratchVar(const Type& type, const std::string& value = "");

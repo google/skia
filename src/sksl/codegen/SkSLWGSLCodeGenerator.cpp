@@ -1414,32 +1414,12 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
         return lvalue->load();
     }
 
-    // The equality and comparison operators are only supported for scalar and vector types.
-    if (op.isEquality() && !left.type().isScalar() && !left.type().isVector()) {
-        if (left.type().isMatrix()) {
-            return (op.kind() == OperatorKind::NEQ)
-                           ? std::string("!") + this->assembleMatrixEqualityExpression(left, right)
-                           : this->assembleMatrixEqualityExpression(left, right);
-        }
-
-        // TODO(skia:13092): Synthesize helper functions for structs and arrays.
-        return {};
+    if (op.isEquality()) {
+        return this->assembleEqualityExpression(left, right, op, parentPrecedence);
     }
 
     Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
-
-    // The equality operators ('=='/'!=') in WGSL apply component-wise to vectors and result in a
-    // vector. We need to reduce the value to a boolean.
-    if (left.type().isVector()) {
-        if (op.kind() == Operator::Kind::EQEQ) {
-            expr = "all";
-            needParens = true;
-        } else if (op.kind() == Operator::Kind::NEQ) {
-            expr = "any";
-            needParens = true;
-        }
-    }
 
     if (needParens) {
         expr.push_back('(');
@@ -1724,9 +1704,16 @@ std::string WGSLCodeGenerator::writeScratchLet(const std::string& expr) {
 std::string WGSLCodeGenerator::writeNontrivialScratchLet(const Expression& expr,
                                                          Precedence parentPrecedence) {
     std::string result = this->assembleExpression(expr, parentPrecedence);
-    return (Analysis::IsConstantExpression(expr) || expr.is<VariableReference>())
-                   ? result
-                   : this->writeScratchLet(result);
+
+    if (expr.is<VariableReference>() || expr.is<Literal>()) {
+        // Variables and literals are trivial; adding a let-declaration won't simplify anything.
+        return result;
+    }
+    if (expr.type().isVector() && Analysis::IsConstantExpression(expr)) {
+        // Compile-time constant vectors are also considered trivial; they're short and sweet.
+        return result;
+    }
+    return this->writeScratchLet(result);
 }
 
 std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression& t,
@@ -1975,26 +1962,113 @@ std::string WGSLCodeGenerator::assembleConstructorMatrixResize(const Constructor
     return expr + ')';
 }
 
-std::string WGSLCodeGenerator::assembleMatrixEqualityExpression(const Expression& left,
-                                                                const Expression& right) {
-    SkASSERT(left.type().isMatrix());
-    SkASSERT(right.type().isMatrix());
-    SkASSERT(left.type().rows() == right.type().rows());
-    SkASSERT(left.type().columns() == right.type().columns());
-    int columns = left.type().columns();
+std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
+                                                          const std::string& leftName,
+                                                          const Type& right,
+                                                          const std::string& rightName,
+                                                          Operator op,
+                                                          Precedence parentPrecedence) {
+    SkASSERT(op.kind() == OperatorKind::EQEQ || op.kind() == OperatorKind::NEQ);
 
-    std::string leftVar = this->writeScratchLet(this->assembleExpression(left,
-                                                                         Precedence::kAssignment));
-    std::string rightVar = this->writeScratchLet(this->assembleExpression(right,
-                                                                          Precedence::kAssignment));
     std::string expr;
-    const char* separator = "(";
-    for (int i = 0; i < columns; ++i) {
-        String::appendf(&expr, "%sall(%s[%d] == %s[%d])",
-                        separator, leftVar.c_str(), i, rightVar.c_str(), i);
-        separator = " && ";
+    bool isEqual = (op.kind() == Operator::Kind::EQEQ);
+    const char* const combiner = isEqual ? " && " : " || ";
+
+    if (left.isMatrix()) {
+        // Each matrix column must be compared as if it were an individual vector.
+        SkASSERT(right.isMatrix());
+        SkASSERT(left.rows() == right.rows());
+        SkASSERT(left.columns() == right.columns());
+        int columns = left.columns();
+        const Type& vecType = left.componentType().toCompound(fContext,
+                                                              /*columns=*/left.rows(),
+                                                              /*rows=*/1);
+        const char* separator = "(";
+        for (int index = 0; index < columns; ++index) {
+            expr += separator;
+            std::string suffix = '[' + std::to_string(index) + ']';
+            expr += this->assembleEqualityExpression(vecType, leftName + suffix,
+                                                     vecType, rightName + suffix,
+                                                     op, Precedence::kLogicalAnd);
+            separator = combiner;
+        }
+        return expr + ')';
     }
-    return expr + ')';
+
+    if (left.isArray()) {
+        SkASSERT(right.matches(left));
+        const Type& indexedType = left.componentType();
+        const char* separator = "(";
+        for (int index = 0; index < left.columns(); ++index) {
+            expr += separator;
+            std::string suffix = '[' + std::to_string(index) + ']';
+            expr += this->assembleEqualityExpression(indexedType, leftName + suffix,
+                                                     indexedType, rightName + suffix,
+                                                     op, Precedence::kLogicalAnd);
+            separator = combiner;
+        }
+        return expr + ')';
+    }
+
+    if (left.isStruct()) {
+        // Recursively compare every field in the struct.
+        SkASSERT(right.matches(left));
+        SkSpan<const Field> fields = left.fields();
+
+        const char* separator = "(";
+        for (const Field& field : fields) {
+            expr += separator;
+            expr += this->assembleEqualityExpression(
+                            *field.fType, leftName + '.' + std::string(field.fName),
+                            *field.fType, rightName + '.' + std::string(field.fName),
+                            op, Precedence::kLogicalAnd);
+            separator = combiner;
+        }
+        return expr + ')';
+    }
+
+    if (left.isVector()) {
+        // Compare vectors via `all(x == y)` or `any(x != y)`.
+        SkASSERT(right.isVector());
+        SkASSERT(left.slotCount() == right.slotCount());
+
+        expr += isEqual ? "all(" : "any(";
+        expr += leftName;
+        expr += op.operatorName();
+        expr += rightName;
+        return expr + ')';
+    }
+
+    // Compare scalars via `x == y`.
+    SkASSERT(right.isScalar());
+    if (Precedence::kEquality >= parentPrecedence) {
+        expr = '(';
+    }
+    expr += leftName;
+    expr += op.operatorName();
+    expr += rightName;
+    if (Precedence::kEquality >= parentPrecedence) {
+        expr += ')';
+    }
+    return expr;
+}
+
+std::string WGSLCodeGenerator::assembleEqualityExpression(const Expression& left,
+                                                          const Expression& right,
+                                                          Operator op,
+                                                          Precedence parentPrecedence) {
+    std::string leftName, rightName;
+    if (left.type().isScalar() || left.type().isVector()) {
+        // WGSL supports scalar and vector comparisons natively. We know the expressions will only
+        // be emitted once, so there isn't a benefit to creating a let-declaration.
+        leftName = this->assembleExpression(left, Precedence::kAssignment);
+        rightName = this->assembleExpression(right, Precedence::kAssignment);
+    } else {
+        leftName = this->writeNontrivialScratchLet(left, Precedence::kAssignment);
+        rightName = this->writeNontrivialScratchLet(right, Precedence::kAssignment);
+    }
+    return this->assembleEqualityExpression(left.type(), leftName, right.type(), rightName,
+                                            op, parentPrecedence);
 }
 
 void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
