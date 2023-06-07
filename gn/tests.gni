@@ -21,6 +21,7 @@ tests_sources = [
   "$_tests/BackendSurfaceMutableStateTest.cpp",
   "$_tests/BadIcoTest.cpp",
   "$_tests/BezierCurveTest.cpp",
+  "$_tests/BigImageTest.cpp",
   "$_tests/BitSetTest.cpp",
   "$_tests/BitmapCopyTest.cpp",
   "$_tests/BitmapGetColorTest.cpp",

@@ -855,6 +855,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
+	if !b.matchOs("Win", "Debian11", "Ubuntu18") {
+		// This test requires a decent max texture size so just run it on the desktops.
+		// The OS list should include Mac but Mac10.13 doesn't work correctly.
+		skip(ALL, "test", ALL, "BigImageTest_Ganesh")
+	}
+
 	if b.matchOs("Win", "Mac") {
 		// WIC and CG fail on arithmetic jpegs
 		skip(ALL, "image", "gen_platf", "testimgari.jpg")

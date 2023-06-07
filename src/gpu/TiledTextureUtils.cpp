@@ -17,6 +17,10 @@
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSamplingPriv.h"
 
+#if GR_TEST_UTILS
+std::atomic<int>  gNumTilesDrawn{0};
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 //  Helper functions for tiling a large SkBitmap
 
@@ -188,6 +192,10 @@ void DrawTiledBitmap(GrRecordingContext* rContext,
     int nx = bitmap.width() / tileSize;
     int ny = bitmap.height() / tileSize;
 
+#if GR_TEST_UTILS
+    gNumTilesDrawn.store(0, std::memory_order_relaxed);
+#endif
+
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
             SkRect tileR;
@@ -225,9 +233,9 @@ void DrawTiledBitmap(GrRecordingContext* rContext,
                 clamped_outset_with_offset(&iTileR, outset, &offset, iClampRect);
             }
 
-            // We must subset as a bitmap and then turn into an SkImage if we want caching to work.
-            // Image subsets always make a copy of the pixels and lose the association with the
-            // original's SkPixelRef.
+            // We must subset as a bitmap and then turn it into an SkImage if we want caching to
+            // work. Image subsets always make a copy of the pixels and lose the association with
+            // the original's SkPixelRef.
             if (SkBitmap subsetBmp; bitmap.extractSubset(&subsetBmp, iTileR)) {
                 auto image = SkMakeImageFromRasterBitmap(subsetBmp, kNever_SkCopyPixelsMode);
 
@@ -265,6 +273,10 @@ void DrawTiledBitmap(GrRecordingContext* rContext,
                           constraint,
                           sampling,
                           tileMode);
+
+#if GR_TEST_UTILS
+                (void)gNumTilesDrawn.fetch_add(+1, std::memory_order_relaxed);
+#endif
             }
         }
     }
