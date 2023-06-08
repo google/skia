@@ -418,7 +418,7 @@ bool SkRuntimeEffectPriv::ReadChildEffects(SkReadBuffer& buffer,
     }
 
     children->clear();
-    children->reserve_back(childCount);
+    children->reserve_exact(childCount);
 
     for (size_t i = 0; i < childCount; i++) {
         sk_sp<SkFlattenable> obj(buffer.readRawFlattenable());

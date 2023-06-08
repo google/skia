@@ -490,7 +490,7 @@ void ParagraphImpl::buildClusterTable() {
         fCodeUnitProperties[fRuns.back().textRange().end] |= SkUnicode::CodeUnitFlags::kGraphemeStart;
         fCodeUnitProperties[fRuns.back().textRange().end] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
     }
-    fClusters.reserve_back(cluster_count);
+    fClusters.reserve_exact(fClusters.size() + cluster_count);
 
     // Walk through all the run in the direction of input text
     for (auto& run : fRuns) {

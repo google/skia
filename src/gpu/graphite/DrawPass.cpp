@@ -643,7 +643,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
                                 const RuntimeEffectDictionary* runtimeDict,
                                 const RenderPassDesc& renderPassDesc) {
-    fFullPipelines.reserve_back(fPipelineDescs.size());
+    fFullPipelines.reserve(fFullPipelines.size() + fPipelineDescs.size());
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs) {
         auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(runtimeDict,
                                                                        pipelineDesc,
@@ -672,7 +672,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         }
     }
 
-    fSamplers.reserve_back(fSamplerDescs.size());
+    fSamplers.reserve(fSamplers.size() + fSamplerDescs.size());
     for (int i = 0; i < fSamplerDescs.size(); ++i) {
         sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
                 fSamplerDescs[i].samplingOptions(),

@@ -31,7 +31,7 @@ private:
     void onDraw(int loops, SkCanvas* canvas) override {
         auto context = canvas->recordingContext()->asDirectContext();
 
-        fBackendTextures.reserve_back(loops);
+        fBackendTextures.reserve_exact(fBackendTextures.size() + loops);
 
         static const int kSize = 16;
         for (int i = 0; i < loops; ++i) {

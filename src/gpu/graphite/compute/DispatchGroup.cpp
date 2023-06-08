@@ -24,7 +24,7 @@ namespace skgpu::graphite {
 DispatchGroup::~DispatchGroup() = default;
 
 bool DispatchGroup::prepareResources(ResourceProvider* resourceProvider) {
-    fPipelines.reserve_back(fPipelineDescs.size());
+    fPipelines.reserve(fPipelines.size() + fPipelineDescs.size());
     for (const ComputePipelineDesc& desc : fPipelineDescs) {
         auto pipeline = resourceProvider->findOrCreateComputePipeline(desc);
         if (!pipeline) {

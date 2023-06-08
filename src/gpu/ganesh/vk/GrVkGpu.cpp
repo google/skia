@@ -899,8 +899,8 @@ static size_t fill_in_compressed_regions(GrStagingBufferManager* stagingBufferMa
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    regions->reserve_back(numMipLevels);
-    individualMipOffsets->reserve_back(numMipLevels);
+    regions->reserve_exact(regions->size() + numMipLevels);
+    individualMipOffsets->reserve_exact(individualMipOffsets->size() + numMipLevels);
 
     size_t bytesPerBlock = skgpu::VkFormatBytesPerBlock(vkFormat);
 

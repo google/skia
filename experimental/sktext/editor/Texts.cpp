@@ -52,7 +52,7 @@ void EditableText::paint(SkCanvas* canvas) {
 
 TArray<DecoratedBlock> EditableText::mergeSelectionIntoDecorations() {
     TArray<DecoratedBlock> merged;
-    merged.reserve_back(fDecorations.size() + fSelection->count());
+    merged.reserve_exact(fDecorations.size() + fSelection->count());
 
     size_t indexDecor = 0ul;                        // index in fDecorations
     size_t decorPos = 0ul;

@@ -366,7 +366,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             if (StreamRemainingLengthIsBelow(stream, size)) {
                 return false;
             }
-            fPictures.reserve_back(SkToInt(size));
+            fPictures.reserve_exact(SkToInt(size));
 
             for (uint32_t i = 0; i < size; i++) {
                 auto pic = SkPicture::MakeFromStreamPriv(stream, &procs,

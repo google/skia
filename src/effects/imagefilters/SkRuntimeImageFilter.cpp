@@ -50,7 +50,7 @@ public:
             , fRuntimeEffectBuilder(builder)
             , fMaxSampleRadius(maxSampleRadius) {
         SkASSERT(maxSampleRadius >= 0.f);
-        fChildShaderNames.reserve_back(inputCount);
+        fChildShaderNames.reserve_exact(inputCount);
         for (int i = 0; i < inputCount; i++) {
             fChildShaderNames.push_back(SkString(childShaderNames[i]));
         }

@@ -730,9 +730,9 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     }
 
     fLastClipStackGenID = SK_InvalidUniqueID;
-    fDeferredProxies.reserve_back(addlDeferredProxyCount);
-    fSampledProxies.reserve_back(addlProxyCount);
-    fOpChains.reserve_back(addlOpChainCount);
+    fDeferredProxies.reserve_exact(fDeferredProxies.size() + addlDeferredProxyCount);
+    fSampledProxies.reserve_exact(fSampledProxies.size() + addlProxyCount);
+    fOpChains.reserve_exact(fOpChains.size() + addlOpChainCount);
     for (const auto& toMerge : mergingNodes) {
         for (GrRenderTask* renderTask : toMerge->dependents()) {
             renderTask->replaceDependency(toMerge.get(), this);

@@ -253,7 +253,7 @@ public:
 
     // Helper functions for TopoSortBench & TopoSortTest
     static void AllocNodes(skia_private::TArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
-        graph->reserve_back(num);
+        graph->reserve_exact(graph->size() + num);
 
         for (int i = 0; i < num; ++i) {
             graph->push_back(sk_sp<TopoTestNode>(new TopoTestNode(i)));

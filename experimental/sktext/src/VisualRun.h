@@ -25,16 +25,16 @@ class VisualRun {
             SkASSERT(false);
             return;
         }
-        fPositions.reserve_back(positions.size());
+        fPositions.reserve_exact(positions.size());
         runOffset -= SkPoint::Make(positions[0].fX, - fLineBaseLine);
         for (auto& pos : positions) {
             fPositions.emplace_back(pos + runOffset);
         }
-        fGlyphs.reserve_back(glyphs.size());
+        fGlyphs.reserve_exact(glyphs.size());
         for (auto glyph : glyphs) {
             fGlyphs.emplace_back(glyph);
         }
-        fClusters.reserve_back(clusters.size());
+        fClusters.reserve_exact(clusters.size());
         for (auto cluster : clusters) {
             fClusters.emplace_back(SkToU16(cluster));
         }
