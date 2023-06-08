@@ -45,10 +45,9 @@ public:
     TArray() : fOwnMemory(true), fCapacity{0} {}
 
     /**
-     * Creates an empty array that will preallocate space for reserveCount
-     * elements.
+     * Creates an empty array that will preallocate space for reserveCount elements.
      */
-    explicit TArray(int reserveCount) : TArray() { this->reserve_back(reserveCount); }
+    explicit TArray(int reserveCount) : TArray() { this->reserve_exact(reserveCount); }
 
     /**
      * Copies one array to another. The new array will be heap allocated.
@@ -149,7 +148,9 @@ public:
     }
 
     /**
-     * Ensures there is enough reserved space for at least n elements.
+     * Ensures there is enough reserved space for at least n elements. This is guaranteed at least
+     * until the array size grows above n and subsequently shrinks below n, any version of reset()
+     * is called, or reserve() is called again.
      */
     void reserve(int n) {
         SkASSERT(n >= 0);
@@ -159,24 +160,13 @@ public:
     }
 
     /**
-     * Ensures there is enough reserved space for exactly n elements.
+     * Ensures there is enough reserved space for exactly n elements. The same capacity guarantees
+     * as above apply.
      */
     void reserve_exact(int n) {
         SkASSERT(n >= 0);
         if (n > this->size()) {
             this->checkRealloc(n - this->size(), kExactFit);
-        }
-    }
-
-    /**
-     * Ensures there is enough reserved space for exactly n additional elements. This is guaranteed
-     * at least until the array size grows above n and subsequently shrinks below n, any version of
-     * reset() is called, or reserve_back() is called again.
-     */
-    void reserve_back(int n) {
-        SkASSERT(n >= 0);
-        if (n > 0) {
-            this->checkRealloc(n, kExactFit);
         }
     }
 
@@ -662,7 +652,7 @@ public:
         : STArray{data.begin(), SkToInt(data.size())} {}
 
     explicit STArray(int reserveCount)
-        : STArray() { this->reserve_back(reserveCount); }
+        : STArray() { this->reserve_exact(reserveCount); }
 
     STArray(const STArray& that)
         : STArray() { *this = that; }

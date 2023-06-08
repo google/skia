@@ -353,18 +353,18 @@ template<typename Array> static void test_reserve(skiatest::Reporter* reporter) 
 
         // Test setting reserve after constructor.
         Array array2;
-        array2.reserve_back(reserveCount);
+        array2.reserve(reserveCount);
         test_array_reserve(reporter, &array2, reserveCount);
 
         // Test increasing reserve after constructor.
         Array array3(reserveCount/2);
-        array3.reserve_back(reserveCount);
+        array3.reserve(reserveCount);
         test_array_reserve(reporter, &array3, reserveCount);
 
         // Test setting reserve on non-empty array.
         Array array4;
         array4.push_back_n(reserveCount);
-        array4.reserve_back(reserveCount);
+        array4.reserve(2 * reserveCount);
         array4.pop_back_n(reserveCount);
         test_array_reserve(reporter, &array4, 2 * reserveCount);
     }
