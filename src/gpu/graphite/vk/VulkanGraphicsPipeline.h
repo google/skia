@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 
@@ -41,7 +42,9 @@ public:
                                               SkSpan<const Attribute> instanceAttrs,
                                               VkShaderModule fragShader,
                                               DepthStencilSettings,
-                                              PrimitiveType);
+                                              PrimitiveType,
+                                              int numTexturesAndSamplers,
+                                              const BlendInfo&);
 
     ~VulkanGraphicsPipeline() override {}
 
