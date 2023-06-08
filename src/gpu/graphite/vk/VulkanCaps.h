@@ -76,6 +76,10 @@ public:
         return fShouldPersistentlyMapCpuToGpuBuffers;
     }
 
+    uint32_t maxVertexAttributes() const {
+        return fMaxVertexAttributes;
+    }
+
 private:
     enum VkVendor {
         kAMD_VkVendor             = 4098,
@@ -200,6 +204,8 @@ private:
 
     DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat);
     const DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat) const;
+
+    uint32_t fMaxVertexAttributes;
 
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;

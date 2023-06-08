@@ -165,15 +165,12 @@ sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         return {};
     }
 
-    // for now, clean up shader modules
-    VULKAN_CALL(this->vulkanSharedContext()->interface(),
-                DestroyShaderModule(this->vulkanSharedContext()->device(), vsModule, nullptr));
-    VULKAN_CALL(this->vulkanSharedContext()->interface(),
-                DestroyShaderModule(this->vulkanSharedContext()->device(), fsModule, nullptr));
-
-
     // TODO: Generate depth-stencil state, blend info
-    return VulkanGraphicsPipeline::Make(this->vulkanSharedContext());
+    return VulkanGraphicsPipeline::Make(this->vulkanSharedContext(),
+                                        vsModule,
+                                        step->vertexAttributes(),
+                                        step->instanceAttributes(),
+                                        fsModule);
 }
 
 sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
