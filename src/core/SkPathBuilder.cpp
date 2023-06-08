@@ -73,10 +73,8 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
 }
 
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
-    // TODO(skia:14372): this code is reserving much more space than was originally intended.
-    // We should fix this after confirming that the performance isn't affected significantly.
-    fPts.reserve_exact(  Sk32_sat_add(Sk32_sat_add(fPts.size(),   fPts.size()), extraPtCount));
-    fVerbs.reserve_exact(Sk32_sat_add(Sk32_sat_add(fVerbs.size(), fVerbs.size()), extraVbCount));
+    fPts.reserve_exact(Sk32_sat_add(fPts.size(), extraPtCount));
+    fVerbs.reserve_exact(Sk32_sat_add(fVerbs.size(), extraVbCount));
 }
 
 SkRect SkPathBuilder::computeBounds() const {
