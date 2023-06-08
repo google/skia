@@ -24,6 +24,7 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkAlphaRuns.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitter_A8.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"
@@ -32,7 +33,6 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkVMBlitter.h"
-#include "src/core/SkXfermodeInterpretation.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>
@@ -696,11 +696,11 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     if (auto mode = paint->asBlendMode()) {
         // We have the most fast-paths for SrcOver, so see if we can act like SrcOver.
         if (mode.value() != SkBlendMode::kSrcOver) {
-            switch (SkInterpretXfermode(*paint, SkColorTypeIsAlwaysOpaque(device.colorType()))) {
-                case kSrcOver_SkXfermodeInterpretation:
+            switch (CheckFastPath(*paint, SkColorTypeIsAlwaysOpaque(device.colorType()))) {
+                case SkBlendFastPath::kSrcOver:
                     paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
                     break;
-                case kSkipDrawing_SkXfermodeInterpretation:
+                case SkBlendFastPath::kSkipDrawing:
                     return alloc->make<SkNullBlitter>();
                 default:
                     break;

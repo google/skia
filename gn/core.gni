@@ -586,8 +586,6 @@ skia_core_sources = [
   "$_src/core/SkWritePixelsRec.h",
   "$_src/core/SkWriter32.cpp",
   "$_src/core/SkWriter32.h",
-  "$_src/core/SkXfermodeInterpretation.cpp",
-  "$_src/core/SkXfermodeInterpretation.h",
   "$_src/core/SkYUVAInfo.cpp",
   "$_src/core/SkYUVAInfoLocation.h",
   "$_src/core/SkYUVAPixmaps.cpp",

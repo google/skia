@@ -701,8 +701,6 @@ BASE_SRCS_ALL = [
     "src/core/SkWritePixelsRec.h",
     "src/core/SkWriter32.cpp",
     "src/core/SkWriter32.h",
-    "src/core/SkXfermodeInterpretation.cpp",
-    "src/core/SkXfermodeInterpretation.h",
     "src/core/SkYUVAInfo.cpp",
     "src/core/SkYUVAInfoLocation.h",
     "src/core/SkYUVAPixmaps.cpp",

@@ -344,8 +344,6 @@ CORE_FILES = [
     "SkWritePixelsRec.h",
     "SkWriter32.cpp",
     "SkWriter32.h",
-    "SkXfermodeInterpretation.cpp",
-    "SkXfermodeInterpretation.h",
     "SkYUVAInfo.cpp",
     "SkYUVAInfoLocation.h",
     "SkYUVAPixmaps.cpp",
