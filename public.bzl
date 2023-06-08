@@ -349,8 +349,6 @@ BASE_SRCS_ALL = [
     "src/base/SkZip.h",
     "src/codec/SkJpegConstants.h",
     "src/codec/SkPixmapUtils.cpp",
-    "src/codec/SkPixmapUtilsPriv.h",
-    "src/codec/SkStubHeifDecoderAPI.h",
     "src/core/Sk4px.h",
     "src/core/SkAAClip.cpp",
     "src/core/SkAAClip.h",
@@ -1795,6 +1793,67 @@ NO_ENCODE_WEBP_SRCS = [
     "src/encode/SkWebpEncoder_none.cpp",
 ]
 
+CODEC_SRCS_LIMITED = [
+    "src/codec/SkAndroidCodec.cpp",
+    "src/codec/SkAndroidCodecAdapter.cpp",
+    "src/codec/SkAndroidCodecAdapter.h",
+    "src/codec/SkBmpBaseCodec.cpp",
+    "src/codec/SkBmpBaseCodec.h",
+    "src/codec/SkBmpCodec.cpp",
+    "src/codec/SkBmpCodec.h",
+    "src/codec/SkBmpMaskCodec.cpp",
+    "src/codec/SkBmpMaskCodec.h",
+    "src/codec/SkPixmapUtilsPriv.h",
+    "src/codec/SkBmpRLECodec.cpp",
+    "src/codec/SkBmpRLECodec.h",
+    "src/codec/SkBmpStandardCodec.cpp",
+    "src/codec/SkBmpStandardCodec.h",
+    "src/codec/SkCodec.cpp",
+    "src/codec/SkCodecImageGenerator.cpp",
+    "src/codec/SkCodecImageGenerator.h",
+    "src/codec/SkCodecPriv.h",
+    "src/codec/SkColorPalette.cpp",
+    "src/codec/SkColorPalette.h",
+    "src/codec/SkEncodedInfo.cpp",
+    "src/codec/SkFrameHolder.h",
+    "src/codec/SkJpegCodec.cpp",
+    "src/codec/SkJpegCodec.h",
+    "src/codec/SkJpegDecoderMgr.cpp",
+    "src/codec/SkJpegDecoderMgr.h",
+    "src/codec/SkJpegPriv.h",
+    "src/codec/SkJpegSourceMgr.cpp",
+    "src/codec/SkJpegSourceMgr.h",
+    "src/codec/SkJpegUtility.cpp",
+    "src/codec/SkJpegUtility.h",
+    "src/codec/SkMasks.cpp",
+    "src/codec/SkMasks.h",
+    "src/codec/SkMaskSwizzler.cpp",
+    "src/codec/SkMaskSwizzler.h",
+    "src/codec/SkParseEncodedOrigin.cpp",
+    "src/codec/SkParseEncodedOrigin.h",
+    "src/codec/SkPngPriv.h",
+    "src/codec/SkSampledCodec.cpp",
+    "src/codec/SkSampledCodec.h",
+    "src/codec/SkScalingCodec.h",
+    "src/codec/SkSampler.cpp",
+    "src/codec/SkSampler.h",
+    "src/codec/SkSwizzler.cpp",
+    "src/codec/SkSwizzler.h",
+    "src/codec/SkWbmpCodec.cpp",
+    "src/codec/SkWbmpCodec.h",
+    "src/codec/SkWuffsCodec.cpp",
+    "src/codec/SkWuffsCodec.h",
+]
+
+CODEC_SRCS_ALL = CODEC_SRCS_LIMITED + [
+    "src/codec/SkIcoCodec.cpp",
+    "src/codec/SkIcoCodec.h",
+    "src/codec/SkPngCodec.cpp",
+    "src/codec/SkPngCodec.h",
+    "src/codec/SkWebpCodec.cpp",
+    "src/codec/SkWebpCodec.h",
+]
+
 TEXTUAL_HDRS = [
     "src/sksl/generated/sksl_compute.minified.sksl",
     "src/sksl/generated/sksl_compute.unoptimized.sksl",
@@ -2625,6 +2684,21 @@ SVG_LIB_SRCS = [
     "modules/svg/src/SkSVGTransformableNode.cpp",
     "modules/svg/src/SkSVGUse.cpp",
     "modules/svg/src/SkSVGValue.cpp",
+]
+
+################################################################################
+## xml_lib
+################################################################################
+
+XML_SRCS = [
+    "src/xml/SkDOM.cpp",
+    "src/xml/SkXMLParser.cpp",
+    "src/xml/SkXMLWriter.cpp",
+]
+XML_HDRS = [
+    "src/xml/SkDOM.h",
+    "src/xml/SkXMLParser.h",
+    "src/xml/SkXMLWriter.h",
 ]
 
 ################################################################################
