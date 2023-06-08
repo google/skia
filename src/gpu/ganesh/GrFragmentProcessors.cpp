@@ -490,7 +490,6 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkBlendShader* 
     auto fpB = Make(shader->src().get(), args, mRec);
     if (!fpA || !fpB) {
         // This is unexpected. Both src and dst shaders should be valid. Just fail.
-        SkDEBUGFAIL("Both src and dst shaders in blend should be valid but are not.");
         return nullptr;
     }
     return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), shader->mode());
