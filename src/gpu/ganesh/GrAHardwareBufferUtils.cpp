@@ -466,6 +466,18 @@ static GrBackendTexture make_vk_backend_texture(
             }
         }
     }
+
+    // Fallback to use any available memory type for AHB
+    //
+    // For external memory import, compatible memory types are decided by the Vulkan driver since
+    // the memory has been allocated externally. There are usually special requirements against
+    // external memory. e.g. AHB allocated with CPU R/W often usage bits is only importable for
+    // non-device-local heap on some AMD systems.
+    if (!foundHeap && hwbProps.memoryTypeBits) {
+        typeIndex = ffs(hwbProps.memoryTypeBits) - 1;
+        foundHeap = true;
+    }
+
     if (!foundHeap) {
         VK_CALL(DestroyImage(device, image, nullptr));
         return GrBackendTexture();
