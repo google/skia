@@ -75,7 +75,7 @@ public:
     constexpr SkSpan(const SkSpan& o) = default;
     template<size_t N> constexpr SkSpan(T(&a)[N]) : SkSpan(a, N) { }
     template<typename Container>
-    constexpr SkSpan(Container& c) : SkSpan(std::data(c), std::size(c)) { }
+    constexpr SkSpan(Container&& c) : SkSpan(std::data(c), std::size(c)) { }
     SkSpan(std::initializer_list<T> il SK_CHECK_IL_LIFETIME)
             : SkSpan(std::data(il), std::size(il)) {}
 
@@ -119,11 +119,7 @@ private:
 };
 
 template <typename Container>
-SkSpan(Container&) ->
-        SkSpan<std::remove_pointer_t<decltype(std::data(std::declval<Container&>()))>>;
-
-template <typename T>
-SkSpan(std::initializer_list<T>) ->
-    SkSpan<std::remove_pointer_t<decltype(std::data(std::declval<std::initializer_list<T>>()))>>;
+SkSpan(Container&&) ->
+        SkSpan<std::remove_pointer_t<decltype(std::data(std::declval<Container>()))>>;
 
 #endif  // SkSpan_DEFINED
