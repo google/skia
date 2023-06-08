@@ -223,10 +223,9 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
     // Convert our reordered argument list to an actual array of expressions, with the new order and
     // any new inner swizzles that need to be applied.
     ExpressionArray newArgs;
-    newArgs.reserve_back(swizzleSize);
+    newArgs.reserve_exact(swizzleSize);
     for (const ReorderedArgument& reorderedArg : reorderedArgs) {
-        std::unique_ptr<Expression> newArg =
-                baseArguments[reorderedArg.fArgIndex]->clone();
+        std::unique_ptr<Expression> newArg = baseArguments[reorderedArg.fArgIndex]->clone();
 
         if (reorderedArg.fComponents.empty()) {
             newArgs.push_back(std::move(newArg));
@@ -399,7 +398,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     //
     // The constructor will have at most three arguments: { base expr, constant 0, constant 1 }
     ExpressionArray constructorArgs;
-    constructorArgs.reserve_back(3);
+    constructorArgs.reserve_exact(3);
     constructorArgs.push_back(std::move(expr));
 
     // Apply another swizzle to shuffle the constants into the correct place. Any constant values we

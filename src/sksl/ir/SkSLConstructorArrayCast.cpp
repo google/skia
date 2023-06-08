@@ -28,7 +28,7 @@ static std::unique_ptr<Expression> cast_constant_array(const Context& context,
     // Create a ConstructorArray(...) which typecasts each argument inside.
     auto inputArgs = constCtor->as<ConstructorArray>().argumentSpan();
     ExpressionArray typecastArgs;
-    typecastArgs.reserve_back(inputArgs.size());
+    typecastArgs.reserve_exact(inputArgs.size());
     for (std::unique_ptr<Expression>& arg : inputArgs) {
         Position argPos = arg->fPosition;
         if (arg->type().isScalar()) {

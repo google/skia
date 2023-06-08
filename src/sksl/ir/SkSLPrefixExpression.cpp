@@ -105,7 +105,7 @@ static ExpressionArray negate_operands(const Context& context,
                                        Position pos,
                                        const ExpressionArray& array) {
     ExpressionArray replacement;
-    replacement.reserve_back(array.size());
+    replacement.reserve_exact(array.size());
     for (const std::unique_ptr<Expression>& expr : array) {
         // The logic below is very similar to `negate_operand`, but with different ownership rules.
         if (std::unique_ptr<Expression> simplified = simplify_negation(context, pos, *expr)) {

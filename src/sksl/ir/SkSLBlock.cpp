@@ -91,7 +91,7 @@ std::unique_ptr<Statement> Block::MakeCompoundStatement(std::unique_ptr<Statemen
     // statements inside of it.
     Position pos = existing->fPosition.rangeThrough(additional->fPosition);
     StatementArray stmts;
-    stmts.reserve_back(2);
+    stmts.reserve_exact(2);
     stmts.push_back(std::move(existing));
     stmts.push_back(std::move(additional));
     return Block::Make(pos, std::move(stmts), Block::Kind::kCompoundStatement);
@@ -99,7 +99,7 @@ std::unique_ptr<Statement> Block::MakeCompoundStatement(std::unique_ptr<Statemen
 
 std::unique_ptr<Statement> Block::clone() const {
     StatementArray cloned;
-    cloned.reserve_back(this->children().size());
+    cloned.reserve_exact(this->children().size());
     for (const std::unique_ptr<Statement>& stmt : this->children()) {
         cloned.push_back(stmt->clone());
     }

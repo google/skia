@@ -1538,11 +1538,11 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
     // Allocate buffers for branch targets and labels; these are needed to convert labels into
     // actual offsets into the pipeline and fix up branches.
     TArray<SkRasterPipeline_BranchCtx*> branchContexts;
-    branchContexts.reserve_back(fNumLabels);
+    branchContexts.reserve_exact(fNumLabels);
     TArray<int> labelOffsets;
     labelOffsets.push_back_n(fNumLabels, -1);
     TArray<int> branchGoesToLabel;
-    branchGoesToLabel.reserve_back(fNumLabels);
+    branchGoesToLabel.reserve_exact(fNumLabels);
 
     auto resetBasePointer = [&]() {
         // Whenever we hand off control to another shader, we have to assume that it might overwrite
@@ -1683,7 +1683,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
     };
 
     // Write each BuilderOp to the pipeline array.
-    pipeline->reserve_back(fInstructions.size());
+    pipeline->reserve_exact(pipeline->size() + fInstructions.size());
     for (const Instruction& inst : fInstructions) {
         auto SlotA    = [&]() { return &slots.values[N * inst.fSlotA]; };
         auto SlotB    = [&]() { return &slots.values[N * inst.fSlotB]; };
@@ -2247,7 +2247,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
 TArray<std::string> build_unique_slot_name_list(const DebugTracePriv* debugTrace) {
     TArray<std::string> slotName;
     if (debugTrace) {
-        slotName.reserve_back(debugTrace->fSlotInfo.size());
+        slotName.reserve_exact(debugTrace->fSlotInfo.size());
 
         // The map consists of <variable name, <source position, unique name>>.
         THashMap<std::string_view, THashMap<int, std::string>> uniqueNameMap;

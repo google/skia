@@ -260,7 +260,7 @@ static std::unique_ptr<Expression> splat_scalar(const Context& context,
     if (type.isMatrix()) {
         int numSlots = type.slotCount();
         ExpressionArray splatMatrix;
-        splatMatrix.reserve_back(numSlots);
+        splatMatrix.reserve_exact(numSlots);
         for (int index = 0; index < numSlots; ++index) {
             splatMatrix.push_back(scalar.clone());
         }

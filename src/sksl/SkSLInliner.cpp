@@ -171,7 +171,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
     };
     auto argList = [&](const ExpressionArray& originalArgs) -> ExpressionArray {
         ExpressionArray args;
-        args.reserve_back(originalArgs.size());
+        args.reserve_exact(originalArgs.size());
         for (const std::unique_ptr<Expression>& arg : originalArgs) {
             args.push_back(expr(arg));
         }
@@ -325,7 +325,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
     };
     auto blockStmts = [&](const Block& block) {
         StatementArray result;
-        result.reserve_back(block.children().size());
+        result.reserve_exact(block.children().size());
         for (const std::unique_ptr<Statement>& child : block.children()) {
             result.push_back(stmt(child));
         }
@@ -424,7 +424,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
         case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
             StatementArray cases;
-            cases.reserve_back(ss.cases().size());
+            cases.reserve_exact(ss.cases().size());
             for (const std::unique_ptr<Statement>& switchCaseStmt : ss.cases()) {
                 const SwitchCase& sc = switchCaseStmt->as<SwitchCase>();
                 if (sc.isDefault()) {
@@ -499,7 +499,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
                             arguments.size() +       // Function argument temp-vars
                             body.children().size();  // Inlined code
 
-    inlineStatements.reserve_back(expectedStmtCount);
+    inlineStatements.reserve_exact(expectedStmtCount);
 
     std::unique_ptr<Expression> resultExpr;
     if (returnComplexity > Analysis::ReturnComplexity::kSingleSafeReturn &&

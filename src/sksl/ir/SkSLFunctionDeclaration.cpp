@@ -575,7 +575,7 @@ bool FunctionDeclaration::determineFinalTypes(const ExpressionArray& arguments,
     SkSpan<Variable* const> parameters = this->parameters();
     SkASSERT(SkToSizeT(arguments.size()) == parameters.size());
 
-    outParameterTypes->reserve_back(arguments.size());
+    outParameterTypes->reserve_exact(arguments.size());
     int genericIndex = -1;
     for (int i = 0; i < arguments.size(); i++) {
         // Non-generic parameters are final as-is.

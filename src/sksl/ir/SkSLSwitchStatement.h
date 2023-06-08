@@ -31,12 +31,14 @@ class SwitchStatement final : public Statement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kSwitch;
 
-    SwitchStatement(Position pos, std::unique_ptr<Expression> value,
-                    StatementArray cases, std::shared_ptr<SymbolTable> symbols)
-        : INHERITED(pos, kIRNodeKind)
-        , fValue(std::move(value))
-        , fCases(std::move(cases))
-        , fSymbols(std::move(symbols)) {}
+    SwitchStatement(Position pos,
+                    std::unique_ptr<Expression> value,
+                    StatementArray cases,
+                    std::shared_ptr<SymbolTable> symbols)
+            : INHERITED(pos, kIRNodeKind)
+            , fValue(std::move(value))
+            , fCases(std::move(cases))
+            , fSymbols(std::move(symbols)) {}
 
     // Create a `switch` statement with an array of case-values and case-statements.
     // Coerces case values to the proper type and reports an error if cases are duplicated.

@@ -1292,8 +1292,8 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
         case kGLSL_STD_450_IntrinsicOpcodeKind: {
             SpvId result = this->nextId(&c.type());
             TArray<SpvId> argumentIds;
+            argumentIds.reserve_exact(arguments.size());
             std::vector<TempVar> tempVars;
-            argumentIds.reserve_back(arguments.size());
             for (int i = 0; i < arguments.size(); i++) {
                 argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
             }
@@ -1315,8 +1315,8 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             }
             SpvId result = this->nextId(&c.type());
             TArray<SpvId> argumentIds;
+            argumentIds.reserve_exact(arguments.size());
             std::vector<TempVar> tempVars;
-            argumentIds.reserve_back(arguments.size());
             for (int i = 0; i < arguments.size(); i++) {
                 argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
             }
@@ -1368,7 +1368,7 @@ TArray<SpvId> SPIRVCodeGenerator::vectorize(const ExpressionArray& args, OutputS
         }
     }
     TArray<SpvId> result;
-    result.reserve_back(args.size());
+    result.reserve_exact(args.size());
     for (const auto& arg : args) {
         result.push_back(this->vectorize(*arg, vectorSize, out));
     }
@@ -1425,7 +1425,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kSubpassLoad_SpecialIntrinsic: {
             SpvId img = this->writeExpression(*arguments[0], out);
             ExpressionArray args;
-            args.reserve_back(2);
+            args.reserve_exact(2);
             args.push_back(Literal::MakeInt(fContext, Position(), /*value=*/0));
             args.push_back(Literal::MakeInt(fContext, Position(), /*value=*/0));
             ConstructorCompound ctor(Position(), *fContext.fTypes.fInt2, std::move(args));
@@ -1614,7 +1614,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kSaturate_SpecialIntrinsic: {
             SkASSERT(arguments.size() == 1);
             ExpressionArray finalArgs;
-            finalArgs.reserve_back(3);
+            finalArgs.reserve_exact(3);
             finalArgs.push_back(arguments[0]->clone());
             finalArgs.push_back(Literal::MakeFloat(fContext, Position(), /*value=*/0));
             finalArgs.push_back(Literal::MakeFloat(fContext, Position(), /*value=*/1));
@@ -1748,7 +1748,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     // Temp variables are used to write back out-parameters after the function call is complete.
     std::vector<TempVar> tempVars;
     TArray<SpvId> argumentIds;
-    argumentIds.reserve_back(arguments.size());
+    argumentIds.reserve_exact(arguments.size());
     for (int i = 0; i < arguments.size(); i++) {
         SpvId samplerId = NA;
         argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out, &samplerId));

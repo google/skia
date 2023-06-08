@@ -33,7 +33,7 @@ namespace SkSL {
 
 std::unique_ptr<Statement> SwitchStatement::clone() const {
     StatementArray cases;
-    cases.reserve_back(this->cases().size());
+    cases.reserve_exact(this->cases().size());
     for (const std::unique_ptr<Statement>& stmt : this->cases()) {
         cases.push_back(stmt->clone());
     }
@@ -87,7 +87,7 @@ static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray*
             Block& block = stmt->as<Block>();
 
             StatementArray blockStmts;
-            blockStmts.reserve_back(block.children().size());
+            blockStmts.reserve_exact(block.children().size());
             for (std::unique_ptr<Statement>& blockStmt : block.children()) {
                 move_all_but_break(blockStmt, &blockStmts);
             }
@@ -144,7 +144,7 @@ std::unique_ptr<Statement> SwitchStatement::BlockForCase(StatementArray* cases,
     // We fell off the bottom of the switch or encountered a break. We know the range of statements
     // that we need to move over, and we know it's safe to do so.
     StatementArray caseStmts;
-    caseStmts.reserve_back(std::distance(startIter, iter) + 1);
+    caseStmts.reserve_exact(std::distance(startIter, iter) + 1);
 
     // We can move over most of the statements as-is.
     while (startIter != iter) {

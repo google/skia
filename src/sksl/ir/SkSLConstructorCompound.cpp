@@ -123,7 +123,7 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
         // be flattened out.
         if (fields > args.size()) {
             ExpressionArray flattened;
-            flattened.reserve_back(fields);
+            flattened.reserve_exact(fields);
             for (std::unique_ptr<Expression>& arg : args) {
                 // For non-ConstructorCompound fields, move them over as-is.
                 if (!arg->is<ConstructorCompound>()) {
@@ -162,7 +162,7 @@ std::unique_ptr<Expression> ConstructorCompound::MakeFromConstants(const Context
                                                                    const double value[]) {
     int numSlots = returnType.slotCount();
     ExpressionArray array;
-    array.reserve_back(numSlots);
+    array.reserve_exact(numSlots);
     for (int index = 0; index < numSlots; ++index) {
         array.push_back(Literal::Make(pos, value[index], &returnType.componentType()));
     }

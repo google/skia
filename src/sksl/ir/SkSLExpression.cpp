@@ -40,7 +40,7 @@ bool Expression::isIncomplete(const Context& context) const {
 
 ExpressionArray ExpressionArray::clone() const {
     ExpressionArray cloned;
-    cloned.reserve_back(this->size());
+    cloned.reserve_exact(this->size());
     for (const std::unique_ptr<Expression>& expr : *this) {
         cloned.push_back(expr ? expr->clone() : nullptr);
     }
