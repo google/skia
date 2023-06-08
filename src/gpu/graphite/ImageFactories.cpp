@@ -307,36 +307,6 @@ sk_sp<SkImage> TextureFromImage(skgpu::graphite::Recorder* recorder,
     return ig->makeTextureImage(recorder, requiredProps);
 }
 
-sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
-                                       const YUVABackendTextures& yuvaTextures,
-                                       sk_sp<SkColorSpace> imageColorSpace,
-                                       TextureReleaseProc releaseP,
-                                       ReleaseContext releaseC) {
-    auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
-    if (!recorder) {
-        return nullptr;
-    }
-
-    int numPlanes = yuvaTextures.yuvaInfo().numPlanes();
-    TextureProxyView textureProxyViews[SkYUVAInfo::kMaxPlanes];
-    for (int plane = 0; plane < numPlanes; ++plane) {
-        sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(
-                yuvaTextures.planeTexture(plane));
-        if (!texture) {
-            SKGPU_LOG_W("Texture creation failed");
-            return nullptr;
-        }
-        texture->setReleaseCallback(releaseHelper);
-
-        sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
-        textureProxyViews[plane] = TextureProxyView(std::move(proxy));
-    }
-    YUVATextureProxies yuvaProxies(recorder, yuvaTextures.yuvaInfo(), textureProxyViews);
-    SkASSERT(yuvaProxies.isValid());
-    return sk_make_sp<Image_YUVA>(
-            kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
-}
-
 sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
                                       const SkYUVAPixmaps& pixmaps,
                                       SkImage::RequiredProperties requiredProps,
@@ -403,5 +373,58 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
     return sk_make_sp<Image_YUVA>(
             kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
 }
+
+sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
+                                       const YUVABackendTextures& yuvaTextures,
+                                       sk_sp<SkColorSpace> imageColorSpace,
+                                       TextureReleaseProc releaseP,
+                                       ReleaseContext releaseC) {
+    auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
+    if (!recorder) {
+        return nullptr;
+    }
+
+    int numPlanes = yuvaTextures.yuvaInfo().numPlanes();
+    TextureProxyView textureProxyViews[SkYUVAInfo::kMaxPlanes];
+    for (int plane = 0; plane < numPlanes; ++plane) {
+        sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(
+                yuvaTextures.planeTexture(plane));
+        if (!texture) {
+            SKGPU_LOG_W("Texture creation failed");
+            return nullptr;
+        }
+        texture->setReleaseCallback(releaseHelper);
+
+        sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
+        textureProxyViews[plane] = TextureProxyView(std::move(proxy));
+    }
+    YUVATextureProxies yuvaProxies(recorder, yuvaTextures.yuvaInfo(), textureProxyViews);
+    SkASSERT(yuvaProxies.isValid());
+    return sk_make_sp<Image_YUVA>(
+            kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
+}
+
+sk_sp<SkImage> TextureFromYUVAImages(Recorder* recorder,
+                                     const SkYUVAInfo& yuvaInfo,
+                                     SkSpan<const sk_sp<SkImage>> images,
+                                     sk_sp<SkColorSpace> imageColorSpace) {
+    int numPlanes = yuvaInfo.numPlanes();
+    if ((size_t) numPlanes > images.size()) {
+        return nullptr;
+    }
+    TextureProxyView textureProxyViews[SkYUVAInfo::kMaxPlanes];
+    for (int plane = 0; plane < numPlanes; ++plane) {
+        if (as_IB(images[plane])->type() != SkImage_Base::Type::kGraphite) {
+            return nullptr;
+        }
+
+        textureProxyViews[plane] = static_cast<Image*>(images[plane].get())->textureProxyView();
+    }
+    YUVATextureProxies yuvaProxies(recorder, yuvaInfo, textureProxyViews);
+    SkASSERT(yuvaProxies.isValid());
+    return sk_make_sp<Image_YUVA>(
+            kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
+}
+
 
 }  // namespace SkImages
