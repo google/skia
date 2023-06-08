@@ -253,40 +253,44 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Ganesh,
                                          /* desiredLineWidth= */ 16,
                                          /* desiredDepth= */ 7);
 
-        for (auto sampling : kSamplingOptions) {
-            for (int scale : { 1, 4, 8 }) {
-                for (int rot : { 0, 45 }) {
+        for (int scale : { 1 , 4, 8 }) {
+            for (int rot : { 0, 45 }) {
+                SkRect destRect = SkRect::MakeWH(srcRect.width()/scale,
+                                                 srcRect.height()/scale);
+
+                SkMatrix m = SkMatrix::RotateDeg(rot, destRect.center());
+                SkIRect rotatedRect = m.mapRect(destRect).roundOut();
+                rotatedRect.outset(2, 2);   // outset to capture the constraint's effect
+
+                auto destII = SkImageInfo::Make(rotatedRect.width(),
+                                                rotatedRect.height(),
+                                                kRGBA_8888_SkColorType,
+                                                kPremul_SkAlphaType);
+
+                SkBitmap expected, actual;
+                expected.allocPixels(destII);
+                actual.allocPixels(destII);
+
+                sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext,
+                                                                    skgpu::Budgeted::kNo,
+                                                                    destII);
+
+                for (auto sampling : kSamplingOptions) {
                     for (auto constraint : { SkCanvas::kStrict_SrcRectConstraint,
                                              SkCanvas::kFast_SrcRectConstraint }) {
                         if (difficult_case(sampling, scale, rot, constraint)) {
                             continue;
                         }
-                        SkRect destRect = SkRect::MakeWH(srcRect.width()/scale,
-                                                         srcRect.height()/scale);
 
-                        SkMatrix m = SkMatrix::RotateDeg(rot, destRect.center());
-                        SkIRect rotatedRect = m.mapRect(destRect).roundOut();
-                        rotatedRect.outset(2, 2);   // outset to capture the constraint's effect
-
-                        auto destII = SkImageInfo::Make(rotatedRect.width(),
-                                                        rotatedRect.height(),
-                                                        kRGBA_8888_SkColorType,
-                                                        kPremul_SkAlphaType);
-
-                        SkBitmap expected, actual;
-                        expected.allocPixels(destII);
-                        actual.allocPixels(destII);
-
-                        sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext,
-                                                                            skgpu::Budgeted::kNo,
-                                                                            destII);
                         SkCanvas* canvas = surface->getCanvas();
+
+                        SkAutoCanvasRestore acr(canvas, /* doSave= */ true);
 
                         canvas->translate(-rotatedRect.fLeft, -rotatedRect.fTop);
                         if (sampling.useCubic || sampling.filter != SkFilterMode::kNearest) {
-                            // NN sampling doesn't deal well w/ the (0.5, 0.5) offset but the other
-                            // sampling modes need it to exercise strict vs. fast constraint
-                            // in non-rotated draws
+                            // NN sampling doesn't deal well w/ the (0.5, 0.5) offset but the
+                            // other sampling modes need it to exercise strict vs. fast
+                            // constraint in non-rotated draws
                             canvas->translate(0.5f, 0.5f);
                         }
                         canvas->concat(m);
