@@ -11,7 +11,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStrokeRec.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"

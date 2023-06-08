@@ -13,7 +13,6 @@
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/gpu/BufferWriter.h"

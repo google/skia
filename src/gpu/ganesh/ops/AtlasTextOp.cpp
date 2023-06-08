@@ -12,7 +12,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"

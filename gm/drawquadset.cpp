@@ -25,7 +25,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"

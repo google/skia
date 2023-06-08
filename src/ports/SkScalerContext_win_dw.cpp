@@ -29,7 +29,6 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMaskGamma.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerContext.h"
 #include "src/ports/SkScalerContext_win_dw.h"

@@ -11,7 +11,6 @@
 #include "include/core/SkColor.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkBlitter_A8.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
