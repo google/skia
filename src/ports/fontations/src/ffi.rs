@@ -5,7 +5,7 @@ use cxx;
 use font_types::{GlyphId, Pen};
 use read_fonts::{FileRef, FontRef, ReadError, TableProvider};
 use skrifa::{
-    instance::{Location, LocationRef, Size},
+    instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
     scale::Context,
     string::{LocalizedStrings, StringId},
@@ -86,9 +86,14 @@ fn get_path(
     })
 }
 
-fn advance_width_or_zero(font_ref: &BridgeFontRef, size: f32, glyph_id: u16) -> f32 {
+fn advance_width_or_zero(
+    font_ref: &BridgeFontRef,
+    size: f32,
+    coords: &BridgeNormalizedCoords,
+    glyph_id: u16,
+) -> f32 {
     font_ref.0.as_ref().map_or(0.0, |f| {
-        GlyphMetrics::new(f, Size::new(size), LocationRef::default())
+        GlyphMetrics::new(f, Size::new(size), coords.0.coords())
             .advance_width(GlyphId::new(glyph_id))
             .unwrap_or(0.0)
     })
@@ -118,9 +123,13 @@ fn convert_metrics(skrifa_metrics: &Metrics) -> ffi::Metrics {
     }
 }
 
-fn get_skia_metrics(font_ref: &BridgeFontRef, size: f32) -> ffi::Metrics {
+fn get_skia_metrics(
+    font_ref: &BridgeFontRef,
+    size: f32,
+    coords: &BridgeNormalizedCoords,
+) -> ffi::Metrics {
     font_ref.0.as_ref().map_or(ffi::Metrics::default(), |f| {
-        let fontations_metrics = Metrics::new(f, Size::new(size), LocationRef::default());
+        let fontations_metrics = Metrics::new(f, Size::new(size), coords.0.coords());
         convert_metrics(&fontations_metrics)
     })
 }
@@ -280,9 +289,18 @@ mod ffi {
             coords: &BridgeNormalizedCoords,
             path_wrapper: Pin<&mut SkPathWrapper>,
         ) -> bool;
-        fn advance_width_or_zero(font_ref: &BridgeFontRef, size: f32, glyph_id: u16) -> f32;
+        fn advance_width_or_zero(
+            font_ref: &BridgeFontRef,
+            size: f32,
+            coords: &BridgeNormalizedCoords,
+            glyph_id: u16,
+        ) -> f32;
         fn units_per_em_or_zero(font_ref: &BridgeFontRef) -> u16;
-        fn get_skia_metrics(font_ref: &BridgeFontRef, size: f32) -> Metrics;
+        fn get_skia_metrics(
+            font_ref: &BridgeFontRef,
+            size: f32,
+            coords: &BridgeNormalizedCoords,
+        ) -> Metrics;
         fn num_glyphs(font_ref: &BridgeFontRef) -> u16;
         fn family_name(font_ref: &BridgeFontRef) -> String;
         fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool;

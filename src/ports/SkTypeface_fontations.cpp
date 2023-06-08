@@ -169,7 +169,7 @@ protected:
         }
         float x_advance = 0.0f;
         x_advance = fontations_ffi::advance_width_or_zero(
-                fBridgeFontRef, scale.y(), glyph->getGlyphID());
+                fBridgeFontRef, scale.y(), fBridgeNormalizedCoords, glyph->getGlyphID());
         // TODO(drott): y-advance?
         const SkVector advance = remainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
         glyph->fAdvanceX = SkScalarToFloat(advance.fX);
@@ -209,8 +209,8 @@ protected:
     }
 
     void generateFontMetrics(SkFontMetrics* out_metrics) override {
-        fontations_ffi::Metrics metrics =
-                fontations_ffi::get_skia_metrics(fBridgeFontRef, fMatrix.getScaleY());
+        fontations_ffi::Metrics metrics = fontations_ffi::get_skia_metrics(
+                fBridgeFontRef, fMatrix.getScaleY(), fBridgeNormalizedCoords);
         out_metrics->fTop = -metrics.top;
         out_metrics->fAscent = -metrics.ascent;
         out_metrics->fDescent = -metrics.descent;
