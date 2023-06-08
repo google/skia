@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 
 namespace skgpu::graphite {
@@ -38,7 +39,9 @@ public:
                                               VkShaderModule vertexShader,
                                               SkSpan<const Attribute> vertexAttrs,
                                               SkSpan<const Attribute> instanceAttrs,
-                                              VkShaderModule fragShader);
+                                              VkShaderModule fragShader,
+                                              DepthStencilSettings,
+                                              PrimitiveType);
 
     ~VulkanGraphicsPipeline() override {}
 

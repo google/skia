@@ -170,7 +170,9 @@ sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
                                         vsModule,
                                         step->vertexAttributes(),
                                         step->instanceAttributes(),
-                                        fsModule);
+                                        fsModule,
+                                        step->depthStencilSettings(),
+                                        step->primitiveType());
 }
 
 sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
