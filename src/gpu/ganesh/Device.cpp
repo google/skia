@@ -49,7 +49,6 @@
 #include "include/private/chromium/Slug.h"  // IWYU pragma: keep
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawBase.h"
 #include "src/core/SkImageFilterCache.h"
@@ -85,6 +84,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
@@ -581,7 +581,7 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
     GrPaint grPaint;
     grPaint.setColor4f(dstColor);
     if (mode != SkBlendMode::kSrcOver) {
-        grPaint.setXPFactory(SkBlendMode_AsXPFactory(mode));
+        grPaint.setXPFactory(GrXPFactory::FromBlendMode(mode));
     }
 
     if (clip) {

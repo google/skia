@@ -8,19 +8,27 @@
 #ifndef GrXferProcessor_DEFINED
 #define GrXferProcessor_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/Blend.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorAnalysis.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
-class GrGLSLXPFragmentBuilder;
+#include <memory>
+
 class GrGLSLProgramDataManager;
+class GrGLSLXPFragmentBuilder;
+enum class GrClampType;
+enum class SkBlendMode;
+namespace skgpu { class KeyBuilder; }
 struct GrShaderCaps;
-namespace skgpu {
-    class KeyBuilder;
-}
+
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
  * required after a pixel has been written, before it can be safely read again.
@@ -46,7 +54,7 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
  * color, and for applying any coverage. It does this by emitting fragment shader code and
  * controlling the fixed-function blend state. When dual-source blending is available, it may also
- * write a seconday fragment shader output color. GrXferProcessor has two modes of operation:
+ * write a secondary fragment shader output color. GrXferProcessor has two modes of operation:
  *
  * Dst read: When allowed by the backend API, or when supplied a texture of the destination, the
  * GrXferProcessor may read the destination color. While operating in this mode, the subclass only
@@ -239,6 +247,8 @@ public:
                                                     const GrProcessorAnalysisCoverage&,
                                                     const GrCaps&,
                                                     GrClampType);
+
+    static const GrXPFactory* FromBlendMode(SkBlendMode);
 
 protected:
     constexpr GrXPFactory() {}

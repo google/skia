@@ -30,6 +30,7 @@
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
@@ -1181,7 +1182,7 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, filter, mm);
         GrPaint paint;
         paint.setColor4f(color);
-        paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
+        paint.setXPFactory(GrXPFactory::FromBlendMode(blendMode));
 
         std::unique_ptr<GrFragmentProcessor> fp;
         const auto& caps = *context->priv().caps();

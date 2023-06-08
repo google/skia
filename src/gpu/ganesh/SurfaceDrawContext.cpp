@@ -50,6 +50,7 @@
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrTracing.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
@@ -596,7 +597,7 @@ void SurfaceDrawContext::drawTexture(const GrClip* clip,
         fp = GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(fp), nullptr);
         paint.setColorFragmentProcessor(std::move(fp));
         if (blendMode != SkBlendMode::kSrcOver) {
-            paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
+            paint.setXPFactory(GrXPFactory::FromBlendMode(blendMode));
         }
         this->fillRectToRect(clip, std::move(paint), GrAA::kYes, viewMatrix, dstRect, srcRect);
         return;

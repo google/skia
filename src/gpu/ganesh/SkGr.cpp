@@ -25,7 +25,6 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkPaintPriv.h"
@@ -45,6 +44,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/shaders/SkShaderBase.h"
@@ -507,7 +507,7 @@ static inline bool skpaint_to_grpaint_impl(
         // on the GrPaint to also be null (also kSrcOver).
         SkASSERT(!grPaint->getXPFactory());
         if (bm.value() != SkBlendMode::kSrcOver) {
-            grPaint->setXPFactory(SkBlendMode_AsXPFactory(bm.value()));
+            grPaint->setXPFactory(GrXPFactory::FromBlendMode(bm.value()));
         }
     } else {
         // Apply a custom blend against the surface color, and force the XP to kSrc so that the
@@ -519,7 +519,7 @@ static inline bool skpaint_to_grpaint_impl(
         if (!paintFP) {
             return false;
         }
-        grPaint->setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
+        grPaint->setXPFactory(GrXPFactory::FromBlendMode(SkBlendMode::kSrc));
     }
 
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {

@@ -117,6 +117,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrSurfaceProxy.cpp"
   "src/gpu/ganesh/GrSurfaceProxyView.cpp"
   "src/gpu/ganesh/GrTextureProxy.cpp"
+  "src/gpu/ganesh/GrXferProcessor.cpp"
   "src/gpu/ganesh/SkGr.cpp"
   "src/gpu/ganesh/effects/GrPerlinNoise2Effect.cpp"
   "src/pdf/SkJpeg"
