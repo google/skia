@@ -50,8 +50,6 @@ extern std::atomic<int> gNumTilesDrawn;
 
 namespace {
 
-constexpr bool kWriteOutImages = false;
-
 // Draw a white border around the edge (to test strict constraints) and
 // a Hilbert curve inside of that (so the effects of (mis) sampling are evident).
  void draw(SkCanvas* canvas, int imgSize, int whiteBandWidth,
@@ -120,29 +118,31 @@ const char* get_sampling_str(const SkSamplingOptions& sampling) {
     }
 }
 
-const char* get_constraint_name(SkCanvas::SrcRectConstraint constraint) {
-    switch (constraint) {
-        case SkCanvas::kFast_SrcRectConstraint:   return "fast";
-        case SkCanvas::kStrict_SrcRectConstraint: return "strict";
-    }
+SkString create_label(const char* generator,
+                      const SkSamplingOptions& sampling,
+                      int scale,
+                      int rot,
+                      SkCanvas::SrcRectConstraint constraint,
+                      int numTiles) {
+    SkString label;
+    label.appendf("%s-%s-%d-%d-%s-%d",
+                  generator,
+                  get_sampling_str(sampling),
+                  scale,
+                  rot,
+                  constraint == SkCanvas::kFast_SrcRectConstraint ? "fast" : "strict",
+                  numTiles);
+    return label;
+ }
 
-    SkUNREACHABLE;
-}
-
-void potentially_write_to_png(const char* directory, const char* generator,
-                              const SkSamplingOptions& sampling, int scale, int rot,
-                              SkCanvas::SrcRectConstraint constraint, int numTiles,
+void potentially_write_to_png(const char* directory,
+                              const SkString& label,
                               const SkBitmap& bm) {
+    constexpr bool kWriteOutImages = false;
+
     if constexpr(kWriteOutImages) {
         SkString filename;
-        filename.appendf("//%s//%s-%s-%d-%d-%s-%d.png",
-                         directory,
-                         generator,
-                         get_sampling_str(sampling),
-                         scale,
-                         rot,
-                         get_constraint_name(constraint),
-                         numTiles);
+        filename.appendf("//%s//%s.png", directory, label.c_str());
 
         SkFILEWStream file(filename.c_str());
         SkAssertResult(file.isValid());
@@ -154,22 +154,16 @@ void potentially_write_to_png(const char* directory, const char* generator,
 bool check_pixels(skiatest::Reporter* reporter,
                   const SkBitmap& expected,
                   const SkBitmap& actual,
-                  const char* generator,
-                  const SkSamplingOptions& sampling,
-                  int scale,
-                  int rot,
-                  SkCanvas::SrcRectConstraint constraint,
-                  int numTiles) {
+                  const SkString& label,
+                  int rot) {
     static const float kTols[4]    = { 0.008f, 0.008f, 0.008f, 0.008f };   // ~ 2/255
     static const float kRotTols[4] = { 0.024f, 0.024f, 0.024f, 0.024f };   // ~ 6/255
 
     auto error = std::function<ComparePixmapsErrorReporter>(
             [&](int x, int y, const float diffs[4]) {
                 SkASSERT(x >= 0 && y >= 0);
-                ERRORF(reporter, "%s %s %d %d %s %d: mismatch at %d, %d (%f, %f, %f %f)",
-                       generator, get_sampling_str(sampling), scale, rot,
-                       get_constraint_name(constraint), numTiles,
-                       x, y, diffs[0], diffs[1], diffs[2], diffs[3]);
+                ERRORF(reporter, "%s: mismatch at %d, %d (%f, %f, %f %f)",
+                       label.c_str(), x, y, diffs[0], diffs[1], diffs[2], diffs[3]);
             });
 
     return ComparePixels(expected.pixmap(), actual.pixmap(), rot ? kRotTols : kTols, error);
@@ -319,6 +313,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Ganesh,
                                 continue;
                             }
 
+                            SkString label = create_label(gen.fTag, sampling, scale, rot,
+                                                          constraint, numDesiredTiles);
+
                             SkCanvas* canvas = surface->getCanvas();
 
                             SkAutoCanvasRestore acr(canvas, /* doSave= */ true);
@@ -359,13 +356,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Ganesh,
                                             numDesiredTiles, actualNumTiles);
 
                             REPORTER_ASSERT(reporter, check_pixels(reporter, expected, actual,
-                                                                   gen.fTag, sampling, scale, rot,
-                                                                   constraint, numDesiredTiles));
+                                                                   label, rot));
 
-                            potentially_write_to_png("expected", gen.fTag, sampling, scale, rot,
-                                                     constraint, numDesiredTiles, expected);
-                            potentially_write_to_png("actual", gen.fTag, sampling, scale, rot,
-                                                     constraint, numDesiredTiles, actual);
+                            potentially_write_to_png("expected", label, expected);
+                            potentially_write_to_png("actual", label, actual);
                         }
                     }
                 }
