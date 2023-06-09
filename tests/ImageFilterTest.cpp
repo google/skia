@@ -2111,7 +2111,7 @@ DEF_TEST(DisplacementMapBounds, reporter) {
     // reported output bounds.
     SkIRect input(SkIRect::MakeXYWH(20, 30, 40, 50));
 
-    // 'input' is the desired output, which directly constraints the displacement component in this
+    // 'input' is the desired output, which directly constrains the displacement component in this
     // specific filter graph.
     SkIRect actualInput = displace->filterBounds(input, SkMatrix::I(),
                                                  SkImageFilter::kReverse_MapDirection);
