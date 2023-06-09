@@ -123,7 +123,6 @@
      *  SK_DISABLE_EFFECT_SERIALIZATION, or modify/replace this file as needed.
      */
     void SkFlattenable::PrivateInitializer::InitImageFilters() {
-        SkRegisterAlphaThresholdImageFilterFlattenable();
         SkRegisterBlendImageFilterFlattenable();
         SkRegisterBlurImageFilterFlattenable();
         SkRegisterColorFilterImageFilterFlattenable();

@@ -126,15 +126,6 @@ static sk_sp<SkImageFilter> matrix_factory(sk_sp<SkImage> auxImage, const SkIRec
     return SkImageFilters::MatrixTransform(matrix, SkSamplingOptions(SkFilterMode::kLinear), nullptr);
 }
 
-static sk_sp<SkImageFilter> alpha_threshold_factory(sk_sp<SkImage> auxImage,
-                                                    const SkIRect* cropRect) {
-    // Centered cross with higher opacity
-    SkRegion region(SkIRect::MakeLTRB(30, 45, 70, 55));
-    region.op(SkIRect::MakeLTRB(45, 30, 55, 70), SkRegion::kUnion_Op);
-
-    return SkImageFilters::AlphaThreshold(region, 1.f, .2f, nullptr, cropRect);
-}
-
 static sk_sp<SkImageFilter> lighting_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     // Must convert the RGB values of the source to alpha, since that is what the lighting filters
     // use to estimate their normals. This color matrix changes the color to white and the alpha
@@ -209,7 +200,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(1980, 860); }
+    SkISize onISize() override { return SkISize::Make(1840, 860); }
 
     void onOnceBeforeDraw() override {
         SkImageInfo info = SkImageInfo::MakeN32(100, 100, kUnpremul_SkAlphaType);
@@ -240,7 +231,6 @@ protected:
             blend_factory,
             convolution_factory,
             matrix_factory,
-            alpha_threshold_factory,
             lighting_factory,
             tile_factory
         };
@@ -253,10 +243,9 @@ protected:
             "Erode",
             "Displacement",
             "Arithmetic",
-            "Xfer Mode", // "blend"
+            "Blend",
             "Convolution",
             "Matrix Xform",
-            "Alpha Threshold",
             "Lighting",
             "Tile"
         };

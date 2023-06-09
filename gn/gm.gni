@@ -213,7 +213,6 @@ gm_sources = [
   "$_gm/image.cpp",
   "$_gm/image_pict.cpp",
   "$_gm/image_shader.cpp",
-  "$_gm/imagealphathreshold.cpp",
   "$_gm/imageblur.cpp",
   "$_gm/imageblur2.cpp",
   "$_gm/imageblurclampmode.cpp",

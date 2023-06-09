@@ -747,7 +747,6 @@ BASE_SRCS_ALL = [
     "src/effects/colorfilters/SkTableColorFilter.h",
     "src/effects/colorfilters/SkWorkingFormatColorFilter.cpp",
     "src/effects/colorfilters/SkWorkingFormatColorFilter.h",
-    "src/effects/imagefilters/SkAlphaThresholdImageFilter.cpp",
     "src/effects/imagefilters/SkBlendImageFilter.cpp",
     "src/effects/imagefilters/SkBlurImageFilter.cpp",
     "src/effects/imagefilters/SkColorFilterImageFilter.cpp",

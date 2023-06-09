@@ -95,7 +95,7 @@ class PrecompileImageFilters {
 public:
     static sk_sp<PrecompileImageFilter> Blur();
     static sk_sp<PrecompileImageFilter> Image();
-    // TODO: AlphaThreshold, Arithmetic, Blend (2 kinds), ColorFilter, Compose, DisplacementMap,
+    // TODO: Arithmetic, Blend (2 kinds), ColorFilter, Compose, DisplacementMap,
     // DropShadow, DropShadowOnly, Magnifier, MatrixConvolution, MatrixTransform, Merge, Offset,
     // Picture, Runtime, Shader, Tile, Dilate, Erode, DistantLitDiffuse, PointLitDiffuse,
     // SpotLitDiffuse, DistantLitSpecular, PointLitSpecular, SpotLitSpecular

@@ -5,7 +5,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 IMAGEFILTERS_FILES = [
-    "SkAlphaThresholdImageFilter.cpp",
     "SkBlendImageFilter.cpp",
     "SkBlurImageFilter.cpp",
     "SkColorFilterImageFilter.cpp",
