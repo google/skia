@@ -32,18 +32,16 @@ int num_channels(uint32_t ChannelMasks) {
 
 YUVABackendTextureInfo::YUVABackendTextureInfo(const Recorder* recorder,
                                                const SkYUVAInfo& yuvaInfo,
-                                               SkSpan<const TextureInfo> textureInfo,
+                                               const TextureInfo textureInfo[kMaxPlanes],
                                                Mipmapped mipmapped)
         : fYUVAInfo(yuvaInfo)
         , fMipmapped(mipmapped) {
-    int numPlanes = yuvaInfo.numPlanes();
-    if (!yuvaInfo.isValid() ||
-        numPlanes == 0 ||
-        (size_t)numPlanes > textureInfo.size()) {
+    if (!yuvaInfo.isValid()) {
         *this = {};
         SkASSERT(!this->isValid());
         return;
     }
+    int numPlanes = yuvaInfo.numPlanes();
     for (int i = 0; i < numPlanes; ++i) {
         int numRequiredChannels = yuvaInfo.numChannelsInPlane(i);
         SkASSERT(numRequiredChannels > 0);
@@ -79,7 +77,7 @@ SkYUVAInfo::YUVALocations YUVABackendTextureInfo::toYUVALocations() const {
 
 YUVABackendTextures::YUVABackendTextures(const Recorder* recorder,
                                          const SkYUVAInfo& yuvaInfo,
-                                         SkSpan<const BackendTexture> textures)
+                                         const BackendTexture textures[kMaxPlanes])
         : fYUVAInfo(yuvaInfo) {
     if (!yuvaInfo.isValid()) {
         SkASSERT(!this->isValid());
@@ -87,11 +85,6 @@ YUVABackendTextures::YUVABackendTextures(const Recorder* recorder,
     }
     SkISize planeDimensions[kMaxPlanes];
     int numPlanes = yuvaInfo.planeDimensions(planeDimensions);
-    if (numPlanes == 0 || (size_t)numPlanes > textures.size()) {
-        fYUVAInfo = {};
-        SkASSERT(!this->isValid());
-        return;
-    }
     for (int i = 0; i < numPlanes; ++i) {
         int numRequiredChannels = yuvaInfo.numChannelsInPlane(i);
         SkASSERT(numRequiredChannels > 0);

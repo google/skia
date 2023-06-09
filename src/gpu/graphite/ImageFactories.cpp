@@ -192,9 +192,7 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder
         }
     }
 
-    YUVATextureProxies yuvaTextureProxies(recorder,
-                                          backendTextureInfo.yuvaInfo(),
-                                          SkSpan<sk_sp<TextureProxy>>(proxies));
+    YUVATextureProxies yuvaTextureProxies(recorder, backendTextureInfo.yuvaInfo(), proxies);
     SkASSERT(yuvaTextureProxies.isValid());
     return sk_make_sp<Image_YUVA>(kNeedNewImageUniqueID,
                                   std::move(yuvaTextureProxies),
@@ -370,9 +368,7 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
         }
     }
 
-    YUVATextureProxies yuvaProxies(recorder,
-                                   pixmapsToUpload->yuvaInfo(),
-                                   SkSpan<TextureProxyView>(views));
+    YUVATextureProxies yuvaProxies(recorder, pixmapsToUpload->yuvaInfo(), views);
     SkASSERT(yuvaProxies.isValid());
     return sk_make_sp<Image_YUVA>(
             kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
@@ -402,9 +398,7 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
         sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
         textureProxyViews[plane] = TextureProxyView(std::move(proxy));
     }
-    YUVATextureProxies yuvaProxies(recorder,
-                                   yuvaTextures.yuvaInfo(),
-                                   SkSpan<TextureProxyView>(textureProxyViews));
+    YUVATextureProxies yuvaProxies(recorder, yuvaTextures.yuvaInfo(), textureProxyViews);
     SkASSERT(yuvaProxies.isValid());
     return sk_make_sp<Image_YUVA>(
             kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
@@ -426,10 +420,11 @@ sk_sp<SkImage> TextureFromYUVAImages(Recorder* recorder,
 
         textureProxyViews[plane] = static_cast<Image*>(images[plane].get())->textureProxyView();
     }
-    YUVATextureProxies yuvaProxies(recorder, yuvaInfo, SkSpan<TextureProxyView>(textureProxyViews));
+    YUVATextureProxies yuvaProxies(recorder, yuvaInfo, textureProxyViews);
     SkASSERT(yuvaProxies.isValid());
     return sk_make_sp<Image_YUVA>(
             kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
 }
+
 
 }  // namespace SkImages

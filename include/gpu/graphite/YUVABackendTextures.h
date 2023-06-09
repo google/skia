@@ -39,7 +39,7 @@ public:
      */
     YUVABackendTextureInfo(const Recorder*,
                            const SkYUVAInfo&,
-                           SkSpan<const TextureInfo>,
+                           const TextureInfo[kMaxPlanes],
                            Mipmapped);
 
     bool operator==(const YUVABackendTextureInfo&) const;
@@ -97,7 +97,7 @@ public:
      */
     YUVABackendTextures(const Recorder*,
                         const SkYUVAInfo&,
-                        SkSpan<const BackendTexture>);
+                        const BackendTexture[kMaxPlanes]);
 
     SkSpan<const BackendTexture> planeTextures() const {
         return SkSpan<const BackendTexture>(fPlaneTextures);

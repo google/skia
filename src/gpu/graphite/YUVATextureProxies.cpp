@@ -17,10 +17,10 @@ namespace skgpu::graphite {
 
 YUVATextureProxies::YUVATextureProxies(const Recorder* recorder,
                                        const SkYUVAInfo& yuvaInfo,
-                                       SkSpan<sk_sp<TextureProxy>> proxies)
+                                       sk_sp<TextureProxy> proxies[SkYUVAInfo::kMaxPlanes])
         : fYUVAInfo(yuvaInfo) {
     int n = yuvaInfo.numPlanes();
-    if (n == 0 || (size_t)n > proxies.size()) {
+    if (n == 0) {
         *this = {};
         SkASSERT(!this->isValid());
         return;
@@ -52,11 +52,11 @@ YUVATextureProxies::YUVATextureProxies(const Recorder* recorder,
 
 YUVATextureProxies::YUVATextureProxies(const Recorder* recorder,
                                        const SkYUVAInfo& yuvaInfo,
-                                       SkSpan<TextureProxyView> views)
+                                       TextureProxyView views[SkYUVAInfo::kMaxPlanes])
         : fYUVAInfo(yuvaInfo) {
     uint32_t pixmapChannelMasks[SkYUVAInfo::kMaxPlanes];
     int n = yuvaInfo.numPlanes();
-    if (n == 0 || (size_t)n > views.size()) {
+    if (n == 0) {
         *this = {};
         SkASSERT(!this->isValid());
         return;
