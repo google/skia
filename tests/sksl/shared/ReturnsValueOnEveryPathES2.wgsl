@@ -43,7 +43,7 @@ fn for_inside_body_b() -> bool {
         }
         continuing {
           x = x + i32(1);
-          break if !(x <= 10);
+          break if x > 10;
         }
       }
     }
@@ -59,7 +59,7 @@ fn after_for_body_b() -> bool {
         }
         continuing {
           x = x + i32(1);
-          break if !(x <= 10);
+          break if x > 10;
         }
       }
     }
@@ -80,7 +80,7 @@ fn for_with_double_sided_conditional_return_b() -> bool {
         }
         continuing {
           x = x + i32(1);
-          break if !(x <= 10);
+          break if x > 10;
         }
       }
     }

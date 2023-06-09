@@ -984,11 +984,14 @@ void WGSLCodeGenerator::writeDoStatement(const DoStatement& s) {
     //   loop {
     //       body-statement;
     //       continuing {
-    //           break if !(test-expression);
+    //           break if inverted-test-expression;
     //       }
     //   }
 
     ++fConditionalScopeDepth;
+
+    std::unique_ptr<Expression> invertedTestExpr = PrefixExpression::Make(
+            fContext, s.test()->fPosition, OperatorKind::LOGICALNOT, s.test()->clone());
 
     this->writeLine("loop {");
     fIndentation++;
@@ -997,10 +1000,10 @@ void WGSLCodeGenerator::writeDoStatement(const DoStatement& s) {
 
     this->writeLine("continuing {");
     fIndentation++;
-    std::string testExpr = this->assembleExpression(*s.test(), Precedence::kExpression);
-    this->write("break if !(");
-    this->write(testExpr);
-    this->writeLine(");");
+    std::string breakIfExpr = this->assembleExpression(*invertedTestExpr, Precedence::kExpression);
+    this->write("break if ");
+    this->write(breakIfExpr);
+    this->writeLine(";");
     fIndentation--;
     this->writeLine("}");
     fIndentation--;
@@ -1042,7 +1045,7 @@ void WGSLCodeGenerator::writeForStatement(const ForStatement& s) {
             //         body-statement;
             //         continuing {
             //             next-expression;
-            //             break if !(test-expression);
+            //             break if inverted-test-expression;
             //         }
             //     }
 
@@ -1057,10 +1060,14 @@ void WGSLCodeGenerator::writeForStatement(const ForStatement& s) {
             }
 
             if (s.test()) {
-                std::string testExpr = this->assembleExpression(*s.test(), Precedence::kExpression);
-                this->write("break if !(");
-                this->write(testExpr);
-                this->writeLine(");");
+                std::unique_ptr<Expression> invertedTestExpr = PrefixExpression::Make(
+                        fContext, s.test()->fPosition, OperatorKind::LOGICALNOT, s.test()->clone());
+
+                std::string breakIfExpr =
+                        this->assembleExpression(*invertedTestExpr, Precedence::kExpression);
+                this->write("break if ");
+                this->write(breakIfExpr);
+                this->writeLine(";");
             }
 
             --fIndentation;

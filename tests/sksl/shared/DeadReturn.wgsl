@@ -71,7 +71,7 @@ fn test_loop_if_b() -> bool {
         }
         continuing {
           x = x + i32(1);
-          break if !(x <= 1);
+          break if x > 1;
         }
       }
     }

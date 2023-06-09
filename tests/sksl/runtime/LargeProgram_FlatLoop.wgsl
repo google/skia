@@ -499,7 +499,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
         }
         continuing {
           a = a + i32(1);
-          break if !(a < 100);
+          break if a >= 100;
         }
       }
     }

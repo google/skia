@@ -32,7 +32,7 @@ fn test3x3_b() -> bool {
               }
               continuing {
                 r = r + i32(1);
-                break if !(r < 3);
+                break if r >= 3;
               }
             }
           }
@@ -40,7 +40,7 @@ fn test3x3_b() -> bool {
         }
         continuing {
           c = c + i32(1);
-          break if !(c < 3);
+          break if c >= 3;
         }
       }
     }
@@ -67,7 +67,7 @@ fn test4x4_b() -> bool {
               }
               continuing {
                 r = r + i32(1);
-                break if !(r < 4);
+                break if r >= 4;
               }
             }
           }
@@ -75,7 +75,7 @@ fn test4x4_b() -> bool {
         }
         continuing {
           c = c + i32(1);
-          break if !(c < 4);
+          break if c >= 4;
         }
       }
     }

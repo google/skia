@@ -59,21 +59,21 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
                     }
                     continuing {
                       k = k + i32(1);
-                      break if !(k < 3);
+                      break if k >= 3;
                     }
                   }
                 }
               }
               continuing {
                 j = j + i32(1);
-                break if !(j < 3);
+                break if j >= 3;
               }
             }
           }
         }
         continuing {
           i = i + i32(1);
-          break if !(i < 3);
+          break if i >= 3;
         }
       }
     }

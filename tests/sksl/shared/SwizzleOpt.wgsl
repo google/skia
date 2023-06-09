@@ -22,7 +22,7 @@ fn fn_hh4(_skParam0: vec4<f32>) -> f32 {
         }
         continuing {
           x = x + i32(1);
-          break if !(x <= 2);
+          break if x > 2;
         }
       }
     }

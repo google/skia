@@ -25,7 +25,7 @@ fn test_return_b() -> bool {
         return true;
       }
       continuing {
-        break if !(false);
+        break if true;
       }
     }
   }
@@ -38,7 +38,7 @@ fn test_break_b() -> bool {
         break;
       }
       continuing {
-        break if !(false);
+        break if true;
       }
     }
     return true;
@@ -51,7 +51,7 @@ fn test_continue_b() -> bool {
         continue;
       }
       continuing {
-        break if !(false);
+        break if true;
       }
     }
     return true;
@@ -73,7 +73,7 @@ fn test_if_return_b() -> bool {
         continue;
       }
       continuing {
-        break if !(false);
+        break if true;
       }
     }
     return false;
@@ -94,7 +94,7 @@ fn test_if_break_b() -> bool {
         }
       }
       continuing {
-        break if !(false);
+        break if true;
       }
     }
     return true;
@@ -115,7 +115,7 @@ fn test_else_b() -> bool {
         }
       }
       continuing {
-        break if !(false);
+        break if true;
       }
     }
   }
@@ -136,7 +136,7 @@ fn test_loop_break_b() -> bool {
         }
         continuing {
           x = x + i32(1);
-          break if !(x <= 1);
+          break if x > 1;
         }
       }
     }

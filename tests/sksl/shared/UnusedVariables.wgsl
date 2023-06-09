@@ -34,7 +34,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
         }
         continuing {
           x = x + i32(1);
-          break if !(x < 1);
+          break if x >= 1;
         }
       }
     }

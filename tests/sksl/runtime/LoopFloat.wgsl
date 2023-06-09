@@ -19,7 +19,7 @@ fn return_loop_ff(_skParam0: f32) -> f32 {
         }
         continuing {
           i = i + f32(1);
-          break if !(i < 10.0);
+          break if i >= 10.0;
         }
       }
     }
@@ -44,7 +44,7 @@ fn continue_loop_ff(_skParam0: f32) -> f32 {
         }
         continuing {
           i = i + f32(1);
-          break if !(i < kTen);
+          break if i >= kTen;
         }
       }
     }
@@ -69,7 +69,7 @@ fn break_loop_ff(_skParam0: f32) -> f32 {
         }
         continuing {
           i = i + kOne;
-          break if !(i < 10.0);
+          break if i >= 10.0;
         }
       }
     }
@@ -87,7 +87,7 @@ fn float_loop_f() -> f32 {
         }
         continuing {
           i = i + 0.111;
-          break if !(i < 0.6);
+          break if i >= 0.6;
         }
       }
     }
@@ -105,7 +105,7 @@ fn loop_operator_le_b() -> bool {
         }
         continuing {
           i = i + f32(1);
-          break if !(i <= 3.0);
+          break if i > 3.0;
         }
       }
     }
@@ -123,7 +123,7 @@ fn loop_operator_lt_b() -> bool {
         }
         continuing {
           i = i + f32(1);
-          break if !(i < 4.0);
+          break if i >= 4.0;
         }
       }
     }
@@ -141,7 +141,7 @@ fn loop_operator_ge_b() -> bool {
         }
         continuing {
           i = i - f32(1);
-          break if !(i >= 1.0);
+          break if i < 1.0;
         }
       }
     }
@@ -159,7 +159,7 @@ fn loop_operator_gt_b() -> bool {
         }
         continuing {
           i = i - f32(1);
-          break if !(i > 0.0);
+          break if i <= 0.0;
         }
       }
     }
@@ -177,7 +177,7 @@ fn loop_operator_ne_b() -> bool {
         }
         continuing {
           i = i + f32(1);
-          break if !(i < 4.0);
+          break if i >= 4.0;
         }
       }
     }
@@ -195,7 +195,7 @@ fn loop_operator_eq_b() -> bool {
         }
         continuing {
           i = i + f32(1);
-          break if !(i == 1.0);
+          break if i != 1.0;
         }
       }
     }

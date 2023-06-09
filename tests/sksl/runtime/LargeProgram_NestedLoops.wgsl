@@ -22,28 +22,28 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
                           }
                           continuing {
                             d = d + i32(1);
-                            break if !(d < 10);
+                            break if d >= 10;
                           }
                         }
                       }
                     }
                     continuing {
                       c = c + i32(1);
-                      break if !(c < 10);
+                      break if c >= 10;
                     }
                   }
                 }
               }
               continuing {
                 b = b + i32(1);
-                break if !(b < 10);
+                break if b >= 10;
               }
             }
           }
         }
         continuing {
           a = a + i32(1);
-          break if !(a < 10);
+          break if a >= 10;
         }
       }
     }

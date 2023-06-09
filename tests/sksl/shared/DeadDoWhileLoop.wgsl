@@ -11,7 +11,7 @@ fn main(_stageOut: ptr<function, FSOut>) {
         (*_stageOut).sk_FragColor = vec4<f32>(1.0);
       }
       continuing {
-        break if !(false);
+        break if true;
       }
     }
   }

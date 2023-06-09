@@ -19,7 +19,7 @@ fn return_loop_ii(_skParam0: i32) -> i32 {
         }
         continuing {
           i = i + i32(1);
-          break if !(i < 10);
+          break if i >= 10;
         }
       }
     }
@@ -44,7 +44,7 @@ fn continue_loop_ii(_skParam0: i32) -> i32 {
         }
         continuing {
           i = i + i32(1);
-          break if !(i < kTen);
+          break if i >= kTen;
         }
       }
     }
@@ -69,7 +69,7 @@ fn break_loop_ii(_skParam0: i32) -> i32 {
         }
         continuing {
           i = i + kOne;
-          break if !(i < 10);
+          break if i >= 10;
         }
       }
     }
@@ -87,7 +87,7 @@ fn loop_operator_le_b() -> bool {
         }
         continuing {
           i = i + i32(1);
-          break if !(i <= 3);
+          break if i > 3;
         }
       }
     }
@@ -105,7 +105,7 @@ fn loop_operator_lt_b() -> bool {
         }
         continuing {
           i = i + i32(1);
-          break if !(i < 4);
+          break if i >= 4;
         }
       }
     }
@@ -123,7 +123,7 @@ fn loop_operator_ge_b() -> bool {
         }
         continuing {
           i = i - i32(1);
-          break if !(i >= 1);
+          break if i < 1;
         }
       }
     }
@@ -141,7 +141,7 @@ fn loop_operator_gt_b() -> bool {
         }
         continuing {
           i = i - i32(1);
-          break if !(i > 0);
+          break if i <= 0;
         }
       }
     }
@@ -159,7 +159,7 @@ fn loop_operator_ne_b() -> bool {
         }
         continuing {
           i = i + i32(1);
-          break if !(i != 4);
+          break if i == 4;
         }
       }
     }
@@ -177,7 +177,7 @@ fn loop_operator_eq_b() -> bool {
         }
         continuing {
           i = i + i32(1);
-          break if !(i == 1);
+          break if i != 1;
         }
       }
     }

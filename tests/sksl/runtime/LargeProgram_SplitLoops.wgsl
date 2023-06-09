@@ -7,7 +7,7 @@ fn d_vi(_skParam0: ptr<function, i32>) {
         (*i) = (*i) + i32(1);
         continuing {
           x = x + i32(1);
-          break if !(x < 10);
+          break if x >= 10;
         }
       }
     }
@@ -24,7 +24,7 @@ fn c_vi(_skParam0: ptr<function, i32>) {
         (*i) = _skTemp0;
         continuing {
           x = x + i32(1);
-          break if !(x < 10);
+          break if x >= 10;
         }
       }
     }
@@ -41,7 +41,7 @@ fn b_vi(_skParam0: ptr<function, i32>) {
         (*i) = _skTemp1;
         continuing {
           x = x + i32(1);
-          break if !(x < 10);
+          break if x >= 10;
         }
       }
     }
@@ -58,7 +58,7 @@ fn a_vi(_skParam0: ptr<function, i32>) {
         (*i) = _skTemp2;
         continuing {
           x = x + i32(1);
-          break if !(x < 10);
+          break if x >= 10;
         }
       }
     }

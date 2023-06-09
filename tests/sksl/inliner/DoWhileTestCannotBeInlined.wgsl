@@ -26,7 +26,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
       }
       continuing {
         let _skTemp0 = shouldLoop_bh4(result);
-        break if !(_skTemp0);
+        break if !_skTemp0;
       }
     }
     return result;

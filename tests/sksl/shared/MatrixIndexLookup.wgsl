@@ -29,7 +29,7 @@ fn test3x3_b() -> bool {
         }
         continuing {
           index = index + i32(1);
-          break if !(index < 3);
+          break if index >= 3;
         }
       }
     }
@@ -53,7 +53,7 @@ fn test4x4_b() -> bool {
         }
         continuing {
           index = index + i32(1);
-          break if !(index < 4);
+          break if index >= 4;
         }
       }
     }
