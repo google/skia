@@ -76,8 +76,6 @@ public:
     template<size_t N> constexpr SkSpan(T(&a)[N]) : SkSpan(a, N) { }
     template<typename Container>
     constexpr SkSpan(Container& c) : SkSpan(std::data(c), std::size(c)) { }
-    template<typename Container>
-    constexpr SkSpan(const Container& c) : SkSpan<const T>(std::data(c), std::size(c)) { }
     SkSpan(std::initializer_list<T> il SK_CHECK_IL_LIFETIME)
             : SkSpan(std::data(il), std::size(il)) {}
 
