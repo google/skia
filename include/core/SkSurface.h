@@ -23,16 +23,16 @@
 
 class GrBackendSemaphore;
 class GrBackendTexture;
+class GrDeferredDisplayList;
 class GrRecordingContext;
+class GrSurfaceCharacterization;
+enum GrSurfaceOrigin : int;
 class SkBitmap;
 class SkCanvas;
 class SkCapabilities;
 class SkColorSpace;
-class SkDeferredDisplayList;
 class SkPaint;
 class SkSurface;
-class SkSurfaceCharacterization;
-enum GrSurfaceOrigin : int;
 struct SkIRect;
 struct SkISize;
 
@@ -170,13 +170,13 @@ public:
     /** Is this surface compatible with the provided characterization?
 
         This method can be used to determine if an existing SkSurface is a viable destination
-        for an SkDeferredDisplayList.
+        for an GrDeferredDisplayList.
 
         @param characterization  The characterization for which a compatibility check is desired
         @return                  true if this surface is compatible with the characterization;
                                  false otherwise
     */
-    bool isCompatible(const SkSurfaceCharacterization& characterization) const;
+    bool isCompatible(const GrSurfaceCharacterization& characterization) const;
 
     /** Returns pixel count in each row; may be zero or greater.
 
@@ -614,9 +614,9 @@ public:
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait = true);
 
-    /** Initializes SkSurfaceCharacterization that can be used to perform GPU back-end
+    /** Initializes GrSurfaceCharacterization that can be used to perform GPU back-end
         processing in a separate thread. Typically this is used to divide drawing
-        into multiple tiles. SkDeferredDisplayListRecorder records the drawing commands
+        into multiple tiles. GrDeferredDisplayListRecorder records the drawing commands
         for each tile.
 
         Return true if SkSurface supports characterization. raster surface returns false.
@@ -626,27 +626,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Surface_characterize
     */
-    bool characterize(SkSurfaceCharacterization* characterization) const;
-
-    /** Draws the deferred display list created via a SkDeferredDisplayListRecorder.
-        If the deferred display list is not compatible with this SkSurface, the draw is skipped
-        and false is return.
-
-        The xOffset and yOffset parameters are experimental and, if not both zero, will cause
-        the draw to be ignored.
-        When implemented, if xOffset or yOffset are non-zero, the DDL will be drawn offset by that
-        amount into the surface.
-
-        @param deferredDisplayList  drawing commands
-        @param xOffset              x-offset at which to draw the DDL
-        @param yOffset              y-offset at which to draw the DDL
-        @return                     false if deferredDisplayList is not compatible
-
-        example: https://fiddle.skia.org/c/@Surface_draw_2
-    */
-    bool draw(sk_sp<const SkDeferredDisplayList> deferredDisplayList,
-              int xOffset = 0,
-              int yOffset = 0);
+    bool characterize(GrSurfaceCharacterization* characterization) const;
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps* surfaceProps);
@@ -681,6 +661,12 @@ public:
 
 #if !defined(SK_DISABLE_LEGACY_SKSURFACE_AS_IMAGE) && defined(SK_GRAPHITE)
     sk_sp<SkImage> asImage();
+#endif
+
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_DISPLAYLIST)
+    bool draw(sk_sp<const GrDeferredDisplayList> deferredDisplayList,
+              int xOffset = 0,
+              int yOffset = 0);
 #endif
 
 };

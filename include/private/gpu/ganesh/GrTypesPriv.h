@@ -465,7 +465,7 @@ constexpr static int kGrInternalTextureFlagsMask = static_cast<int>(
 // require that both the surface and proxy have matching values for this flag. Instead we require
 // if the proxy has it set then the surface must also have it set. All other flags listed here must
 // match on the proxy and surface.
-// TODO: Add back kFramebufferOnly flag here once we update SkSurfaceCharacterization to take it
+// TODO: Add back kFramebufferOnly flag here once we update GrSurfaceCharacterization to take it
 // as a flag. skbug.com/10672
 constexpr static int kGrInternalRenderTargetFlagsMask = static_cast<int>(
         GrInternalSurfaceFlags::kGLRTFBOIDIs0 |

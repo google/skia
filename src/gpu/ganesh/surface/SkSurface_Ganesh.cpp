@@ -10,13 +10,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -26,6 +23,8 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTo.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkSurfacePriv.h"
@@ -244,7 +243,7 @@ bool SkSurface_Ganesh::onWait(int numSemaphores,
     return fDevice->wait(numSemaphores, waitSemaphores, deleteSemaphoresAfterWait);
 }
 
-bool SkSurface_Ganesh::onCharacterize(SkSurfaceCharacterization* characterization) const {
+bool SkSurface_Ganesh::onCharacterize(GrSurfaceCharacterization* characterization) const {
     auto direct = fDevice->recordingContext()->asDirectContext();
     if (!direct) {
         return false;
@@ -281,11 +280,11 @@ bool SkSurface_Ganesh::onCharacterize(SkSurfaceCharacterization* characterizatio
             format,
             readSurfaceView.origin(),
             numSamples,
-            SkSurfaceCharacterization::Textureable(SkToBool(readSurfaceView.asTextureProxy())),
-            SkSurfaceCharacterization::MipMapped(mipmapped),
-            SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
-            SkSurfaceCharacterization::VkRTSupportsInputAttachment(vkRTSupportsInputAttachment),
-            SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+            GrSurfaceCharacterization::Textureable(SkToBool(readSurfaceView.asTextureProxy())),
+            GrSurfaceCharacterization::MipMapped(mipmapped),
+            GrSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
+            GrSurfaceCharacterization::VkRTSupportsInputAttachment(vkRTSupportsInputAttachment),
+            GrSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
             isProtected,
             this->props());
     return true;
@@ -326,7 +325,7 @@ void SkSurface_Ganesh::onDraw(SkCanvas* canvas,
     }
 }
 
-bool SkSurface_Ganesh::onIsCompatible(const SkSurfaceCharacterization& characterization) const {
+bool SkSurface_Ganesh::onIsCompatible(const GrSurfaceCharacterization& characterization) const {
     auto direct = fDevice->recordingContext()->asDirectContext();
     if (!direct) {
         return false;
@@ -394,7 +393,7 @@ bool SkSurface_Ganesh::onIsCompatible(const SkSurfaceCharacterization& character
            characterization.surfaceProps() == fDevice->surfaceProps();
 }
 
-bool SkSurface_Ganesh::onDraw(sk_sp<const SkDeferredDisplayList> ddl, SkIPoint offset) {
+bool SkSurface_Ganesh::draw(sk_sp<const GrDeferredDisplayList> ddl) {
     if (!ddl || !this->isCompatible(ddl->characterization())) {
         return false;
     }
@@ -406,7 +405,7 @@ bool SkSurface_Ganesh::onDraw(sk_sp<const SkDeferredDisplayList> ddl, SkIPoint o
 
     GrSurfaceProxyView view = fDevice->readSurfaceView();
 
-    direct->priv().createDDLTask(std::move(ddl), view.asRenderTargetProxyRef(), offset);
+    direct->priv().createDDLTask(std::move(ddl), view.asRenderTargetProxyRef());
     return true;
 }
 
@@ -542,7 +541,7 @@ bool validate_backend_render_target(const GrCaps* caps,
 
 namespace SkSurfaces {
 sk_sp<SkSurface> RenderTarget(GrRecordingContext* rContext,
-                              const SkSurfaceCharacterization& c,
+                              const GrSurfaceCharacterization& c,
                               skgpu::Budgeted budgeted) {
     if (!rContext || !c.isValid()) {
         return nullptr;
@@ -801,3 +800,12 @@ void FlushAndSubmit(sk_sp<SkSurface> surface) {
 
 }  // namespace skgpu::ganesh
 
+#if !defined(SK_DISABLE_LEGACY_SKSURFACE_DISPLAYLIST)
+
+bool SkSurface::draw(sk_sp<const GrDeferredDisplayList> ddl, int xOffset, int yOffset) {
+    if (xOffset != 0 || yOffset != 0) {
+        return false;
+    }
+    return skgpu::ganesh::DrawDDL(this, ddl);
+}
+#endif

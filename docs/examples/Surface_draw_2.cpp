@@ -8,16 +8,16 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(16);
     sk_sp<SkSurface> gpuSurface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64));
-    SkSurfaceCharacterization characterization;
+    GrSurfaceCharacterization characterization;
     if (!gpuSurface->characterize(&characterization)) {
          canvas->drawString("characterization unsupported", 20, 40, paint);
          return;
     }
     // start of threadable work
-    SkDeferredDisplayListRecorder recorder(characterization);
+    GrDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* subCanvas = recorder.getCanvas();
     subCanvas->clear(SK_ColorGREEN);
-    sk_sp<SkDeferredDisplayList> displayList = recorder.detach();
+    sk_sp<GrDeferredDisplayList> displayList = recorder.detach();
     // end of threadable work
     gpuSurface->draw(displayList);
     sk_sp<SkImage> img = gpuSurface->makeImageSnapshot();

@@ -7,7 +7,6 @@
 
 #include "bench/BigPath.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
@@ -17,6 +16,7 @@
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -260,7 +260,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext,
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
-    SkSurfaceCharacterization dstCharacterization;
+    GrSurfaceCharacterization dstCharacterization;
     SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
     SkIRect viewport = dstSurface->imageInfo().bounds();
@@ -327,7 +327,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext,
 
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
-        dstSurface->draw(tiles.composeDDL());
+        skgpu::ganesh::DrawDDL(dstSurface, tiles.composeDDL());
         dContext->flushAndSubmit(dstSurface);
     }
 

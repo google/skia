@@ -25,6 +25,7 @@
 #define GR_PATH_RENDERER_SPEW 0
 
 class GrArenas;
+class GrDeferredDisplayList;
 class GrGpuBuffer;
 class GrOnFlushCallbackObject;
 class GrOpFlushState;
@@ -35,7 +36,6 @@ class GrResourceAllocator;
 class GrSemaphore;
 class GrSurfaceProxyView;
 class GrTextureResolveRenderTask;
-class SkDeferredDisplayList;
 namespace skgpu {
 namespace ganesh {
 class OpsTask;
@@ -174,10 +174,9 @@ public:
     skgpu::ganesh::OpsTask* getLastOpsTask(const GrSurfaceProxy*) const;
     void setLastRenderTask(const GrSurfaceProxy*, GrRenderTask*);
 
-    void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
-    void createDDLTask(sk_sp<const SkDeferredDisplayList>,
-                       sk_sp<GrRenderTargetProxy> newDest,
-                       SkIPoint offset);
+    void moveRenderTasksToDDL(GrDeferredDisplayList* ddl);
+    void createDDLTask(sk_sp<const GrDeferredDisplayList>,
+                       sk_sp<GrRenderTargetProxy> newDest);
 
     // This is public so it can be called by an SkImage factory (in SkImages namespace).
     // It is not meant to be directly called in other situations.

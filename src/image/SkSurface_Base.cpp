@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
+#include "include/core/SkColorSpace.h" // IWYU pragma: keep
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
@@ -24,7 +25,6 @@
 #include <memory>
 
 class GrRecordingContext;
-class SkColorSpace;
 class SkPaint;
 class SkSurfaceProps;
 namespace skgpu { namespace graphite { class Recorder; } }

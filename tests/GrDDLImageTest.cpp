@@ -14,7 +14,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -22,6 +21,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -58,7 +58,7 @@ DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLe
 
         // Texture image:
         auto surf = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, ii);
-        SkSurfaceCharacterization sc;
+        GrSurfaceCharacterization sc;
         REPORTER_ASSERT(reporter, surf->characterize(&sc));
         GrBackendTexture tex = dContext->createBackendTexture(ii.width(),
                                                               ii.height(),

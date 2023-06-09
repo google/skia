@@ -13,8 +13,6 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
-#include "include/core/SkDeferredDisplayList.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -23,7 +21,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
@@ -35,6 +32,9 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
+#include "include/private/chromium/GrDeferredDisplayListRecorder.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkMessageBus.h"
@@ -178,13 +178,13 @@ public:
         fDst = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
         SkAssertResult(fDst);
 
-        SkSurfaceCharacterization characterization;
+        GrSurfaceCharacterization characterization;
         SkAssertResult(fDst->characterize(&characterization));
 
-        fRecorder1 = std::make_unique<SkDeferredDisplayListRecorder>(characterization);
+        fRecorder1 = std::make_unique<GrDeferredDisplayListRecorder>(characterization);
         this->ddlCanvas1()->clear(SkColors::kWhite);
 
-        fRecorder2 = std::make_unique<SkDeferredDisplayListRecorder>(characterization);
+        fRecorder2 = std::make_unique<GrDeferredDisplayListRecorder>(characterization);
         this->ddlCanvas2()->clear(SkColors::kWhite);
 
         fDst->getCanvas()->clear(SkColors::kWhite);
@@ -203,9 +203,9 @@ public:
 
     SkCanvas* liveCanvas() { return fDst ? fDst->getCanvas() : nullptr; }
     SkCanvas* ddlCanvas1() { return fRecorder1 ? fRecorder1->getCanvas() : nullptr; }
-    sk_sp<SkDeferredDisplayList> snap1() {
+    sk_sp<GrDeferredDisplayList> snap1() {
         if (fRecorder1) {
-            sk_sp<SkDeferredDisplayList> tmp = fRecorder1->detach();
+            sk_sp<GrDeferredDisplayList> tmp = fRecorder1->detach();
             fRecorder1 = nullptr;
             return tmp;
         }
@@ -213,9 +213,9 @@ public:
         return nullptr;
     }
     SkCanvas* ddlCanvas2() { return fRecorder2 ? fRecorder2->getCanvas() : nullptr; }
-    sk_sp<SkDeferredDisplayList> snap2() {
+    sk_sp<GrDeferredDisplayList> snap2() {
         if (fRecorder2) {
-            sk_sp<SkDeferredDisplayList> tmp = fRecorder2->detach();
+            sk_sp<GrDeferredDisplayList> tmp = fRecorder2->detach();
             fRecorder2 = nullptr;
             return tmp;
         }
@@ -427,14 +427,14 @@ public:
         return this->checkImage(reporter, fDst);
     }
 
-    bool checkImage(skiatest::Reporter* reporter, sk_sp<SkDeferredDisplayList> ddl) {
+    bool checkImage(skiatest::Reporter* reporter, sk_sp<GrDeferredDisplayList> ddl) {
         sk_sp<SkSurface> tmp =
                 SkSurfaces::RenderTarget(fDContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
         if (!tmp) {
             return false;
         }
 
-        if (!tmp->draw(std::move(ddl))) {
+        if (!skgpu::ganesh::DrawDDL(tmp, std::move(ddl))) {
             return false;
         }
 
@@ -465,8 +465,8 @@ private:
     GrThreadSafeCache::IsNewerBetter fIsNewerBetter;
 
     sk_sp<SkSurface> fDst;
-    std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
-    std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder2;
+    std::unique_ptr<GrDeferredDisplayListRecorder> fRecorder1;
+    std::unique_ptr<GrDeferredDisplayListRecorder> fRecorder2;
 };
 
 class GrThreadSafeVertexTestOp : public GrDrawOp {
@@ -1092,12 +1092,12 @@ static void test_6(GrDirectContext* dContext, skiatest::Reporter* reporter,
     TestHelper helper(dContext);
 
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
     REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
@@ -1141,12 +1141,12 @@ static void test_7(GrDirectContext* dContext, skiatest::Reporter* reporter,
     TestHelper helper(dContext);
 
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     (helper.*addAccess)(helper.ddlCanvas2(), 2*kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
     REPORTER_ASSERT(reporter, (helper.*check)(nullptr, 2*kImageWH,
                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
@@ -1196,7 +1196,7 @@ static void test_8(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
@@ -1211,7 +1211,7 @@ static void test_8(GrDirectContext* dContext, skiatest::Reporter* reporter,
 
     dContext->abandonContext(); // This should exercise dropAllRefs
 
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 
@@ -1247,7 +1247,7 @@ static void test_9(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
@@ -1262,7 +1262,7 @@ static void test_9(GrDirectContext* dContext, skiatest::Reporter* reporter,
 
     dContext->releaseResourcesAndAbandonContext(); // This should hit dropAllRefs
 
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 
@@ -1304,7 +1304,7 @@ static void test_10(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
@@ -1313,7 +1313,7 @@ static void test_10(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     (helper.*addAccess)(helper.ddlCanvas2(), 2*kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), 2*kImageWH,
                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 2, kNoID));
 
@@ -1428,7 +1428,7 @@ static void test_12(GrDirectContext* dContext, skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
@@ -1481,7 +1481,7 @@ static void test_13(GrDirectContext* dContext, skiatest::Reporter* reporter,
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     auto firstTime = skgpu::StdSteadyClock::now();
@@ -1491,7 +1491,7 @@ static void test_13(GrDirectContext* dContext, skiatest::Reporter* reporter,
 
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), 2*kImageWH,
                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
 
     ddl1 = nullptr;
     ddl2 = nullptr;
@@ -1572,7 +1572,7 @@ static void test_15(GrDirectContext* dContext, skiatest::Reporter* reporter,
     (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
@@ -1592,7 +1592,7 @@ static void test_15(GrDirectContext* dContext, skiatest::Reporter* reporter,
     (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, kNoID, false, false);
     REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
@@ -1640,7 +1640,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts,
     helper.addVertAccess(helper.ddlCanvas1(), kImageWH, kNoID, false, false, &op1);
     REPORTER_ASSERT(reporter, helper.checkVert(helper.ddlCanvas1(), kImageWH,
                                                /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
-    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    sk_sp<GrDeferredDisplayList> ddl1 = helper.snap1();
 
     {
         REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
@@ -1651,7 +1651,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts,
     helper.addVertAccess(helper.ddlCanvas2(), kImageWH, kNoID, /* failLookup */ true, false, &op2);
     REPORTER_ASSERT(reporter, helper.checkVert(helper.ddlCanvas2(), kImageWH,
                                                /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
-    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    sk_sp<GrDeferredDisplayList> ddl2 = helper.snap2();
 
     REPORTER_ASSERT(reporter, op1->vertexData() != op2->vertexData());
 

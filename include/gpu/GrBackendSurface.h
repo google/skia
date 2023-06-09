@@ -62,7 +62,7 @@ class SkString;
 
 #if !defined(SK_GANESH)
 
-// SkSurfaceCharacterization always needs a minimal version of this
+// GrSurfaceCharacterization always needs a minimal version of this
 class SK_API GrBackendFormat {
 public:
     bool isValid() const { return false; }

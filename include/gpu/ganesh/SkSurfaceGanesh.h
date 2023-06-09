@@ -18,7 +18,7 @@ class GrBackendRenderTarget;
 class GrBackendTexture;
 class GrRecordingContext;
 class SkColorSpace;
-class SkSurfaceCharacterization;
+class GrSurfaceCharacterization;
 class SkSurfaceProps;
 enum SkColorType : int;
 namespace skgpu {
@@ -93,7 +93,7 @@ inline sk_sp<SkSurface> RenderTarget(GrRecordingContext* context,
     @return                  SkSurface if all parameters are valid; otherwise, nullptr
 */
 SK_API sk_sp<SkSurface> RenderTarget(GrRecordingContext* context,
-                                     const SkSurfaceCharacterization& characterization,
+                                     const GrSurfaceCharacterization& characterization,
                                      skgpu::Budgeted budgeted);
 
 /** Wraps a GPU-backed texture into SkSurface. Caller must ensure the texture is

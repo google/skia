@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"

@@ -59,7 +59,7 @@ sk_sp<skgpu::ganesh::Device> GrRecordingContextPriv::createDevice(
                                        init);
 }
 
-void GrRecordingContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
+void GrRecordingContextPriv::moveRenderTasksToDDL(GrDeferredDisplayList* ddl) {
     this->context()->drawingManager()->moveRenderTasksToDDL(ddl);
 }
 

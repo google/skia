@@ -9,8 +9,6 @@
 #include "fuzz/FuzzCommon.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkDeferredDisplayList.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkSize.h"
@@ -22,6 +20,8 @@
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkThreadID.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
+#include "include/private/chromium/GrDeferredDisplayListRecorder.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -112,7 +112,7 @@ private:
     GrDirectContext* fContext = nullptr;
     AutoTArray<PromiseImageInfo> fPromiseImages{kPromiseImageCount};
     sk_sp<SkSurface> fSurface;
-    SkSurfaceCharacterization fSurfaceCharacterization;
+    GrSurfaceCharacterization fSurfaceCharacterization;
     std::unique_ptr<SkExecutor> fGpuExecutor = SkExecutor::MakeFIFOThreadPool(1, false);
     std::unique_ptr<SkExecutor> fRecordingExecutor =
         SkExecutor::MakeFIFOThreadPool(kRecordingThreadCount, false);
@@ -253,7 +253,7 @@ void DDLFuzzer::initPromiseImage(int index) {
 
 void DDLFuzzer::recordAndPlayDDL() {
     SkASSERT(!this->isOnGPUThread() && !this->isOnMainThread());
-    SkDeferredDisplayListRecorder recorder(fSurfaceCharacterization);
+    GrDeferredDisplayListRecorder recorder(fSurfaceCharacterization);
     SkCanvas* canvas = recorder.getCanvas();
     // Draw promise images in a strip
     for (int i = 0; i < kPromiseImagesPerDDL; i++) {
@@ -264,9 +264,9 @@ void DDLFuzzer::recordAndPlayDDL() {
         fPromiseImages[j].fDrawn = true;
         canvas->drawImage(fPromiseImages[j].fImage, xOffset, 0);
     }
-    sk_sp<SkDeferredDisplayList> ddl = recorder.detach();
+    sk_sp<GrDeferredDisplayList> ddl = recorder.detach();
     fGpuTaskGroup.add([=, ddl{std::move(ddl)}]{
-        bool success = fSurface->draw(std::move(ddl));
+        bool success = skgpu::ganesh::DrawDDL(fSurface, std::move(ddl));
         if (!success) {
             fFuzz->signalBug();
         }

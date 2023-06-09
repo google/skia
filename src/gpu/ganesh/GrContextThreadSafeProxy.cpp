@@ -5,15 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include <memory>
-
 #include "include/gpu/GrContextThreadSafeProxy.h"
-#include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 
-#include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
@@ -22,6 +20,8 @@
 #ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #endif
+
+#include <memory>
 
 static int32_t next_id() {
     static std::atomic<int32_t> nextID{1};
@@ -48,7 +48,7 @@ void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
     fPipelineBuilder = std::move(pipelineBuilder);
 }
 
-SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
+GrSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      size_t cacheMaxResourceBytes,
                                      const SkImageInfo& ii, const GrBackendFormat& backendFormat,
                                      int sampleCnt, GrSurfaceOrigin origin,
@@ -126,15 +126,15 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 #endif
     }
 
-    return SkSurfaceCharacterization(
+    return GrSurfaceCharacterization(
             sk_ref_sp<GrContextThreadSafeProxy>(this),
             cacheMaxResourceBytes, ii, backendFormat,
             origin, sampleCnt,
-            SkSurfaceCharacterization::Textureable(isTextureable),
-            SkSurfaceCharacterization::MipMapped(isMipMapped),
-            SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
-            SkSurfaceCharacterization::VkRTSupportsInputAttachment(vkRTSupportsInputAttachment),
-            SkSurfaceCharacterization::VulkanSecondaryCBCompatible(forVulkanSecondaryCommandBuffer),
+            GrSurfaceCharacterization::Textureable(isTextureable),
+            GrSurfaceCharacterization::MipMapped(isMipMapped),
+            GrSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
+            GrSurfaceCharacterization::VkRTSupportsInputAttachment(vkRTSupportsInputAttachment),
+            GrSurfaceCharacterization::VulkanSecondaryCBCompatible(forVulkanSecondaryCommandBuffer),
             isProtected,
             surfaceProps);
 }

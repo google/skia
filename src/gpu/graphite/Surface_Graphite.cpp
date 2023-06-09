@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/Surface_Graphite.h"
 
 #include "include/core/SkCapabilities.h"
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"

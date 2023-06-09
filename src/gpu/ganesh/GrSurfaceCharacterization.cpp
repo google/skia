@@ -5,18 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkSurfaceCharacterization.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 
-#if defined(SK_GANESH)
+#include "include/core/SkColorSpace.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #endif
 
 #ifdef SK_DEBUG
-void SkSurfaceCharacterization::validate() const {
+void GrSurfaceCharacterization::validate() const {
     const GrCaps* caps = fContextInfo->priv().caps();
 
     GrColorType grCT = SkColorTypeToGrColorType(this->colorType());
@@ -39,7 +42,7 @@ void SkSurfaceCharacterization::validate() const {
 #endif
 
 
-bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& other) const {
+bool GrSurfaceCharacterization::operator==(const GrSurfaceCharacterization& other) const {
     if (!this->isValid() || !other.isValid()) {
         return false;
     }
@@ -61,18 +64,18 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
            fSurfaceProps == other.fSurfaceProps;
 }
 
-SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, int height) const {
+GrSurfaceCharacterization GrSurfaceCharacterization::createResized(int width, int height) const {
     const GrCaps* caps = fContextInfo->priv().caps();
     if (!caps) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
     if (width <= 0 || height <= 0 || width > caps->maxRenderTargetSize() ||
         height > caps->maxRenderTargetSize()) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
-    return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
+    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
                                      fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
                                      fVkRTSupportsInputAttachment,
@@ -80,47 +83,47 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
                                      fIsProtected, fSurfaceProps);
 }
 
-SkSurfaceCharacterization SkSurfaceCharacterization::createColorSpace(
+GrSurfaceCharacterization GrSurfaceCharacterization::createColorSpace(
                                                                      sk_sp<SkColorSpace> cs) const {
     if (!this->isValid()) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
-    return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
+    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeColorSpace(std::move(cs)), fBackendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
                                      fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
-SkSurfaceCharacterization SkSurfaceCharacterization::createBackendFormat(
+GrSurfaceCharacterization GrSurfaceCharacterization::createBackendFormat(
                                                     SkColorType colorType,
                                                     const GrBackendFormat& backendFormat) const {
     if (!this->isValid()) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
     SkImageInfo newII = fImageInfo.makeColorType(colorType);
 
-    return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes, newII, backendFormat,
+    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes, newII, backendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
                                      fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
-SkSurfaceCharacterization SkSurfaceCharacterization::createFBO0(bool usesGLFBO0) const {
+GrSurfaceCharacterization GrSurfaceCharacterization::createFBO0(bool usesGLFBO0) const {
     if (!this->isValid()) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
     // We can't create an FBO0 characterization that is textureable or has any non-gl specific flags
     if (fIsTextureable == Textureable::kYes ||
         fVkRTSupportsInputAttachment == VkRTSupportsInputAttachment::kYes ||
         fVulkanSecondaryCBCompatible == VulkanSecondaryCBCompatible::kYes) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
-    return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
+    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo, fBackendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped,
                                      usesGLFBO0 ? UsesGLFBO0::kYes : UsesGLFBO0::kNo,
@@ -128,7 +131,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createFBO0(bool usesGLFBO0)
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
-bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex) const {
+bool GrSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex) const {
     if (!this->isValid() || !backendTex.isValid()) {
         return false;
     }
@@ -177,6 +180,3 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
 
     return true;
 }
-
-
-#endif

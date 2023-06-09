@@ -1,53 +1,47 @@
 /*
- * Copyright 2017 Google Inc.
+ * Copyright 2023 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "include/core/SkDeferredDisplayListRecorder.h"
+#include "include/private/chromium/GrDeferredDisplayListRecorder.h"
 
-#include "include/core/SkDeferredDisplayList.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
-#include "src/core/SkMessageBus.h"
-
-#if !defined(SK_GANESH)
-SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization&) {}
-
-SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {}
-
-bool SkDeferredDisplayListRecorder::init() { return false; }
-
-SkCanvas* SkDeferredDisplayListRecorder::getCanvas() { return nullptr; }
-
-sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() { return nullptr; }
-
-#else
-
-#include "include/core/SkPromiseImageTexture.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/GrYUVABackendTextures.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/Device.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
-#include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
+#include "src/gpu/ganesh/GrSurface.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
 
-SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceCharacterization& c)
+#include <functional>
+#include <utility>
+
+class GrResourceProvider;
+
+GrDeferredDisplayListRecorder::GrDeferredDisplayListRecorder(const GrSurfaceCharacterization& c)
         : fCharacterization(c) {
     if (fCharacterization.isValid()) {
         fContext = GrRecordingContextPriv::MakeDDL(fCharacterization.refContextInfo());
     }
 }
 
-SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
+GrDeferredDisplayListRecorder::~GrDeferredDisplayListRecorder() {
     if (fContext) {
         auto proxyProvider = fContext->priv().proxyProvider();
 
@@ -64,7 +58,7 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
     }
 }
 
-bool SkDeferredDisplayListRecorder::init() {
+bool GrDeferredDisplayListRecorder::init() {
     SkASSERT(fContext);
     SkASSERT(!fTargetProxy);
     SkASSERT(!fLazyProxyData);
@@ -74,8 +68,8 @@ bool SkDeferredDisplayListRecorder::init() {
         return false;
     }
 
-    fLazyProxyData = sk_sp<SkDeferredDisplayList::LazyProxyData>(
-                                                    new SkDeferredDisplayList::LazyProxyData);
+    fLazyProxyData = sk_sp<GrDeferredDisplayList::LazyProxyData>(
+                                                    new GrDeferredDisplayList::LazyProxyData);
 
     auto proxyProvider = fContext->priv().proxyProvider();
     const GrCaps* caps = fContext->priv().caps();
@@ -127,7 +121,7 @@ bool SkDeferredDisplayListRecorder::init() {
         surfaceFlags |= GrInternalSurfaceFlags::kVkRTSupportsInputAttachment;
     }
 
-    // FIXME: Why do we use GrMipmapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?
+    // FIXME: Why do we use GrMipmapped::kNo instead of GrSurfaceCharacterization::fIsMipMapped?
     static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipmapped::kNo,
                                                                GrTextureType::k2D};
     const GrProxyProvider::TextureInfo* optionalTextureInfo = nullptr;
@@ -176,7 +170,7 @@ bool SkDeferredDisplayListRecorder::init() {
     return SkToBool(fSurface.get());
 }
 
-SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
+SkCanvas* GrDeferredDisplayListRecorder::getCanvas() {
     if (!fContext) {
         return nullptr;
     }
@@ -188,7 +182,7 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
     return fSurface->getCanvas();
 }
 
-sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
+sk_sp<GrDeferredDisplayList> GrDeferredDisplayListRecorder::detach() {
     if (!fContext || !fTargetProxy) {
         return nullptr;
     }
@@ -199,7 +193,7 @@ sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
         canvas->restoreToCount(0);
     }
 
-    auto ddl = sk_sp<SkDeferredDisplayList>(new SkDeferredDisplayList(fCharacterization,
+    auto ddl = sk_sp<GrDeferredDisplayList>(new GrDeferredDisplayList(fCharacterization,
                                                                       std::move(fTargetProxy),
                                                                       std::move(fLazyProxyData)));
 
@@ -212,7 +206,7 @@ sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
 }
 
 #ifndef SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
+sk_sp<SkImage> GrDeferredDisplayListRecorder::makePromiseTexture(
         const GrBackendFormat& backendFormat,
         int width,
         int height,
@@ -240,7 +234,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                         textureContext);
 }
 
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
+sk_sp<SkImage> GrDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         const GrYUVABackendTextureInfo& backendTextureInfo,
         sk_sp<SkColorSpace> imageColorSpace,
         PromiseImageTextureFulfillProc textureFulfillProc,
@@ -257,5 +251,3 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
                                             textureContexts);
 }
 #endif // !SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API
-
-#endif

@@ -119,8 +119,8 @@ public:
 
 protected:
     friend class GrRecordingContextPriv;    // for hidden functions
-    friend class SkDeferredDisplayList;     // for OwnedArenas
-    friend class SkDeferredDisplayListPriv; // for ProgramData
+    friend class GrDeferredDisplayList;     // for OwnedArenas
+    friend class GrDeferredDisplayListPriv; // for ProgramData
 
     // Like Arenas, but preserves ownership of the underlying pools.
     class OwnedArenas {

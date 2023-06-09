@@ -40,8 +40,8 @@ skia_filegroup(
         "SkCubicMap.h",
         "SkData.h",
         "SkDataTable.h",
-        "SkDeferredDisplayList.h",
-        "SkDeferredDisplayListRecorder.h",
+        "SkDeferredDisplayList.h",  # TODO(kjlubick) remove this shim
+        "SkDeferredDisplayListRecorder.h",  # TODO(kjlubick) remove this shim
         "SkDocument.h",
         "SkDrawable.h",
         "SkEncodedImageFormat.h",  # TODO(kjlubick) remove this shim
@@ -96,7 +96,7 @@ skia_filegroup(
         "SkString.h",
         "SkStrokeRec.h",
         "SkSurface.h",
-        "SkSurfaceCharacterization.h",
+        "SkSurfaceCharacterization.h",  # TODO(kjlubick) remove this shim
         "SkSurfaceProps.h",
         "SkSwizzle.h",
         "SkTextBlob.h",

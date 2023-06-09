@@ -11,7 +11,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h" // IWYU pragma: keep
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
@@ -32,7 +31,7 @@
 class GrBackendSemaphore;
 class GrRecordingContext;  // IWYU pragma: keep
 class SkPaint;
-class SkSurfaceCharacterization;
+class GrSurfaceCharacterization;
 namespace skgpu { namespace graphite { class Recorder; } }
 
 SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
@@ -203,20 +202,12 @@ bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores
     return asSB(this)->onWait(numSemaphores, waitSemaphores, deleteSemaphoresAfterWait);
 }
 
-bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const {
+bool SkSurface::characterize(GrSurfaceCharacterization* characterization) const {
     return asConstSB(this)->onCharacterize(characterization);
 }
 
-bool SkSurface::isCompatible(const SkSurfaceCharacterization& characterization) const {
+bool SkSurface::isCompatible(const GrSurfaceCharacterization& characterization) const {
     return asConstSB(this)->onIsCompatible(characterization);
-}
-
-bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset) {
-    if (xOffset != 0 || yOffset != 0) {
-        return false; // the offsets currently aren't supported
-    }
-
-    return asSB(this)->onDraw(std::move(ddl), { xOffset, yOffset });
 }
 
 #if !defined(SK_DISABLE_LEGACY_SKSURFACE_FLUSH) && !defined(SK_GANESH)

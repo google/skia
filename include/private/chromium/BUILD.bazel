@@ -16,7 +16,10 @@ skia_filegroup(
 skia_filegroup(
     name = "gpu_private_hdrs",
     srcs = [
+        "GrDeferredDisplayList.h",
+        "GrDeferredDisplayListRecorder.h",
         "GrSlug.h",
+        "GrSurfaceCharacterization.h",
     ],
 )
 
@@ -43,6 +46,9 @@ skia_filegroup(
         ":discardable_memory_hdrs",
         ":shared_private_hdrs",
     ] + select({
+        "//src/gpu:has_gpu_backend": [":gpu_private_hdrs"],
+        "//conditions:default": [],
+    }) + select({
         "//src/gpu:vulkan_backend": [":vk_chromium_hdrs"],
         "//conditions:default": [],
     }),

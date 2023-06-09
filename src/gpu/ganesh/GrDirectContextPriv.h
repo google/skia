@@ -25,7 +25,7 @@ class GrRenderTargetProxy;
 class GrSemaphore;
 class GrSurfaceProxy;
 
-class SkDeferredDisplayList;
+class GrDeferredDisplayList;
 class SkTaskGroup;
 
 /** Class that adds methods to GrDirectContext that are only intended for use internal to Skia.
@@ -100,9 +100,8 @@ public:
     }
 #endif
 
-    void createDDLTask(sk_sp<const SkDeferredDisplayList>,
-                       sk_sp<GrRenderTargetProxy> newDest,
-                       SkIPoint offset);
+    void createDDLTask(sk_sp<const GrDeferredDisplayList>,
+                       sk_sp<GrRenderTargetProxy> newDest);
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&);
 

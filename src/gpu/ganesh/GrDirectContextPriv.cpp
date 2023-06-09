@@ -9,10 +9,10 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
@@ -67,10 +67,9 @@ GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
     return this->context()->drawingManager()->flushSurfaces(proxies, access, info, newState);
 }
 
-void GrDirectContextPriv::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
-                                        sk_sp<GrRenderTargetProxy> newDest,
-                                        SkIPoint offset) {
-    this->context()->drawingManager()->createDDLTask(std::move(ddl), std::move(newDest), offset);
+void GrDirectContextPriv::createDDLTask(sk_sp<const GrDeferredDisplayList> ddl,
+                                        sk_sp<GrRenderTargetProxy> newDest) {
+    this->context()->drawingManager()->createDDLTask(std::move(ddl), std::move(newDest));
 }
 
 bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {

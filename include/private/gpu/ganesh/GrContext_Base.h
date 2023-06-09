@@ -42,7 +42,7 @@ public:
     /*
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
      * It is guaranteed that this backend format will be the one used by the GrContext
-     * SkColorType and SkSurfaceCharacterization-based createBackendTexture methods.
+     * SkColorType and GrSurfaceCharacterization-based createBackendTexture methods.
      *
      * The caller should check that the returned format is valid.
      */

@@ -11,7 +11,6 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkImageGenerator.h"
@@ -20,7 +19,6 @@
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
@@ -30,6 +28,8 @@
 #include "include/ports/SkImageGeneratorNDK.h"
 #include "include/ports/SkImageGeneratorWIC.h"
 #include "include/private/base/SkTLogic.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "include/utils/SkNullCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "modules/skcms/skcms.h"
@@ -1785,7 +1785,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // We have to do this here bc characterization can hit the SkGpuDevice's thread guard (i.e.,
     // leaving it until the DDLTileHelper ctor will result in multiple threads trying to use the
     // same context (this thread and the gpuThread - which will be uploading textures)).
-    SkSurfaceCharacterization dstCharacterization;
+    GrSurfaceCharacterization dstCharacterization;
     SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
     auto size = src.size();
@@ -1845,7 +1845,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // the tiles' rendering. Additionally, bc we're aliasing the tiles' backend textures,
     // there is nothing in the DAG to automatically force the required order.
     gpuTaskGroup->add([dstSurface, ddl = tiles.composeDDL()]() {
-                          dstSurface->draw(ddl);
+                          skgpu::ganesh::DrawDDL(dstSurface, ddl);
                       });
 
     // This should be the only explicit flush for the entire DDL draw.

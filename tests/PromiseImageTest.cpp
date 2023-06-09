@@ -11,7 +11,6 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
@@ -29,6 +28,7 @@
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/chromium/GrDeferredDisplayListRecorder.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -406,11 +406,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
         int fFulfillCount = 0;
         int fReleaseCount = 0;
     } counts;
-    auto fulfill = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto fulfill = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fFulfillCount;
         return sk_sp<SkPromiseImageTexture>();
     };
-    auto release = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto release = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fReleaseCount;
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;

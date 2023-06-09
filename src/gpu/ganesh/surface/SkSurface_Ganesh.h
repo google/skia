@@ -18,23 +18,22 @@
 #include "src/image/SkSurface_Base.h"
 
 class GrBackendSemaphore;
+class GrDeferredDisplayList;
 class GrRecordingContext;
+class GrSurfaceCharacterization;
 class SkCanvas;
 class SkCapabilities;
 class SkColorSpace;
-class SkDeferredDisplayList;
 class SkImage;
 class SkPaint;
 class SkPixmap;
 class SkSurface;
-class SkSurfaceCharacterization;
 enum GrSurfaceOrigin : int;
 namespace skgpu {
 namespace ganesh {
 class Device;
 }
 }  // namespace skgpu
-struct SkIPoint;
 struct SkIRect;
 struct SkISize;
 
@@ -79,14 +78,13 @@ public:
     bool onWait(int numSemaphores,
                 const GrBackendSemaphore* waitSemaphores,
                 bool deleteSemaphoresAfterWait) override;
-    bool onCharacterize(SkSurfaceCharacterization*) const override;
-    bool onIsCompatible(const SkSurfaceCharacterization&) const override;
+    bool onCharacterize(GrSurfaceCharacterization*) const override;
+    bool onIsCompatible(const GrSurfaceCharacterization&) const override;
     void onDraw(SkCanvas* canvas,
                 SkScalar x,
                 SkScalar y,
                 const SkSamplingOptions&,
                 const SkPaint* paint) override;
-    bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
     sk_sp<const SkCapabilities> onCapabilities() override;
 
@@ -94,6 +92,7 @@ public:
     GrBackendTexture getBackendTexture(BackendHandleAccess);
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess);
     void resolveMSAA();
+    bool draw(sk_sp<const GrDeferredDisplayList>);
 
 private:
     sk_sp<skgpu::ganesh::Device> fDevice;

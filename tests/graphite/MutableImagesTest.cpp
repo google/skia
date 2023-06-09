@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendTexture.h"
