@@ -133,6 +133,9 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
                                                    &fDrawableHandle);
         } else {
             id<CAMetalDrawable> currentDrawable = [fMetalLayer nextDrawable];
+            if (currentDrawable == nil) {
+                return nullptr;
+            }
 
             GrMtlTextureInfo fbInfo;
             fbInfo.fTexture.retain(currentDrawable.texture);
