@@ -62,6 +62,7 @@ IR_FILES = [
     "SkSLIndexExpression.h",
     "SkSLInterfaceBlock.cpp",
     "SkSLInterfaceBlock.h",
+    "SkSLIRHelpers.h",
     "SkSLIRNode.h",
     "SkSLLayout.cpp",
     "SkSLLayout.h",

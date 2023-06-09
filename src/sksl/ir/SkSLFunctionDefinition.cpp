@@ -12,7 +12,6 @@
 #include "include/private/SkSLDefines.h"
 #include "src/base/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -22,15 +21,12 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
-#include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFieldSymbol.h"
-#include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLIRHelpers.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
-#include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 #include "src/sksl/ir/SkSLType.h"
@@ -50,70 +46,48 @@ namespace SkSL {
 static void append_rtadjust_fixup_to_vertex_main(const Context& context,
                                                  const FunctionDeclaration& decl,
                                                  Block& body) {
-    using OwnerKind = SkSL::FieldAccess::OwnerKind;
-
     // If this program uses RTAdjust...
     ThreadContext::RTAdjustData& rtAdjust = ThreadContext::RTAdjustState();
     if (rtAdjust.fVar || rtAdjust.fInterfaceBlock) {
         // ...append a line to the end of the function body which fixes up sk_Position.
-        const FieldSymbol& skPositionField = context.fSymbolTable->find(Compiler::POSITION_NAME)
-                                                                 ->as<FieldSymbol>();
+        struct AppendRTAdjustFixupHelper : public IRHelpers {
+            AppendRTAdjustFixupHelper(const Context& ctx, ThreadContext::RTAdjustData& rt)
+                    : IRHelpers(ctx)
+                    , fRTAdjust(rt) {
+                fSkPositionField = &fContext.fSymbolTable->find(Compiler::POSITION_NAME)
+                                                         ->as<FieldSymbol>();
+            }
 
-        auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
-            return VariableReference::Make(Position(), var);
-        };
-        auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
-            return FieldAccess::Make(context, Position(), Ref(var), idx,
-                                     OwnerKind::kAnonymousInterfaceBlock);
-        };
-        auto Pos = [&]() -> std::unique_ptr<Expression> {
-            return Field(&skPositionField.owner(), skPositionField.fieldIndex());
-        };
-        auto Adjust = [&]() -> std::unique_ptr<Expression> {
-            return rtAdjust.fInterfaceBlock ? Field(rtAdjust.fInterfaceBlock, rtAdjust.fFieldIndex)
-                                            : Ref(rtAdjust.fVar);
-        };
-        auto Swizzle = [&](std::unique_ptr<Expression> base,
-                           ComponentArray c) -> std::unique_ptr<Expression> {
-            return Swizzle::Make(context, Position(), std::move(base), std::move(c));
-        };
-        auto Binary = [&](std::unique_ptr<Expression> l,
-                          Operator op,
-                          std::unique_ptr<Expression> r) -> std::unique_ptr<Expression> {
-            return BinaryExpression::Make(context, Position(), std::move(l), op, std::move(r));
-        };
-        auto Mul = [&](std::unique_ptr<Expression> l, std::unique_ptr<Expression> r) {
-            return Binary(std::move(l), OperatorKind::STAR, std::move(r));
-        };
-        auto Add = [&](std::unique_ptr<Expression> l, std::unique_ptr<Expression> r) {
-            return Binary(std::move(l), OperatorKind::PLUS, std::move(r));
-        };
-        auto Assign = [&](std::unique_ptr<Expression> l, std::unique_ptr<Expression> r) {
-            SkAssertResult(Analysis::UpdateVariableRefKind(l.get(), VariableRefKind::kWrite));
-            return ExpressionStatement::Make(context,
-                                             Binary(std::move(l), OperatorKind::EQ, std::move(r)));
-        };
-        auto CtorXY0W = [&](std::unique_ptr<Expression> xy, std::unique_ptr<Expression> w) {
-            ExpressionArray args;
-            args.push_back(std::move(xy));
-            args.push_back(Literal::MakeFloat(Position(), 0.0f, context.fTypes.fFloat.get()));
-            args.push_back(std::move(w));
-            return ConstructorCompound::Make(context, Position(), *context.fTypes.fFloat4,
-                                             std::move(args));
+            std::unique_ptr<Expression> Pos() const {
+                return Field(&fSkPositionField->owner(), fSkPositionField->fieldIndex());
+            }
+
+            std::unique_ptr<Expression> Adjust() const {
+                return fRTAdjust.fInterfaceBlock
+                               ? Field(fRTAdjust.fInterfaceBlock, fRTAdjust.fFieldIndex)
+                               : Ref(fRTAdjust.fVar);
+            }
+
+            std::unique_ptr<Statement> makeFixupStmt() const {
+                // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
+                //                      0,
+                //                      sk_Position.w);
+                return Assign(
+                   Pos(),
+                   CtorXYZW(Add(Mul(Swizzle(Pos(),    {SwizzleComponent::X, SwizzleComponent::Y}),
+                                    Swizzle(Adjust(), {SwizzleComponent::X, SwizzleComponent::Z})),
+                                Mul(Swizzle(Pos(),    {SwizzleComponent::W, SwizzleComponent::W}),
+                                    Swizzle(Adjust(), {SwizzleComponent::Y, SwizzleComponent::W}))),
+                            Float(0.0),
+                            Swizzle(Pos(), {SwizzleComponent::W})));
+            }
+
+            const FieldSymbol* fSkPositionField;
+            ThreadContext::RTAdjustData& fRTAdjust;
         };
 
-        // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
-        //                      0,
-        //                      sk_Position.w);
-        auto fixupStmt = Assign(
-                Pos(),
-                CtorXY0W(Add(Mul(Swizzle(Pos(),    {SwizzleComponent::X, SwizzleComponent::Y}),
-                                 Swizzle(Adjust(), {SwizzleComponent::X, SwizzleComponent::Z})),
-                             Mul(Swizzle(Pos(),    {SwizzleComponent::W, SwizzleComponent::W}),
-                                 Swizzle(Adjust(), {SwizzleComponent::Y, SwizzleComponent::W}))),
-                         Swizzle(Pos(), {SwizzleComponent::W})));
-
-        body.children().push_back(std::move(fixupStmt));
+        AppendRTAdjustFixupHelper helper(context, rtAdjust);
+        body.children().push_back(helper.makeFixupStmt());
     }
 }
 
