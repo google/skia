@@ -855,9 +855,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
-	if !b.matchOs("Win", "Debian11", "Ubuntu18") {
+	if !b.matchOs("Win", "Debian11", "Ubuntu18") || b.gpu("IntelIris655", "IntelIris540") {
 		// This test requires a decent max texture size so just run it on the desktops.
 		// The OS list should include Mac but Mac10.13 doesn't work correctly.
+		// The IntelIris655 and IntelIris540 GPUs don't work correctly in the Vk backend
 		skip(ALL, "test", ALL, "BigImageTest_Ganesh")
 	}
 
