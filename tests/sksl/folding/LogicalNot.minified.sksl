@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;half4 main(float2 a){bool b=true;b=b&&colorGreen.y>=colorGreen.x;b=b&&colorGreen.y>colorGreen.x;b=b&&colorGreen.z<=colorGreen.y;b=b&&colorGreen.z<colorGreen.y;b=b&&colorGreen.y>=colorGreen.w;b=b&&colorGreen.x<=colorGreen.z;b=b&&colorGreen.y!=colorGreen.x;b=b&&colorGreen.y==colorGreen.w;return b?colorGreen:colorRed;}

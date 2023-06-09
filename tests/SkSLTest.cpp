@@ -526,6 +526,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, CastFolding,                     "folding/
 SKSL_TEST(CPU | GPU,     kApiLevel_T, IntFoldingES2,                   "folding/IntFoldingES2.rts")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      IntFoldingES3,                   "folding/IntFoldingES3.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, FloatFolding,                    "folding/FloatFolding.rts")
+SKSL_TEST(CPU | GPU,     kNextRelease,LogicalNot,                      "folding/LogicalNot.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, MatrixFoldingES2,                "folding/MatrixFoldingES2.rts")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      MatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, MatrixNoOpFolding,               "folding/MatrixNoOpFolding.rts")

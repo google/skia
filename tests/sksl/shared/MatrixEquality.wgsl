@@ -34,13 +34,13 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp6 = vec2<f32>(_2_one);
     let _skTemp7 = mat2x2<f32>(_2_one, _1_zero, _skTemp6[0], _skTemp6[1]);
     let _skTemp8 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && !(all(_skTemp7[0] == _skTemp8[0]) && all(_skTemp7[1] == _skTemp8[1]));
+    _0_ok = _0_ok && (any(_skTemp7[0] != _skTemp8[0]) || any(_skTemp7[1] != _skTemp8[1]));
     let _skTemp9 = mat2x2<f32>(_2_one, 0.0, 0.0, _2_one);
     let _skTemp10 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
     _0_ok = _0_ok && (all(_skTemp9[0] == _skTemp10[0]) && all(_skTemp9[1] == _skTemp10[1]));
     let _skTemp11 = mat2x2<f32>(_2_one, 0.0, 0.0, _2_one);
     let _skTemp12 = mat2x2<f32>(0.0, 0.0, 0.0, 0.0);
-    _0_ok = _0_ok && !(all(_skTemp11[0] == _skTemp12[0]) && all(_skTemp11[1] == _skTemp12[1]));
+    _0_ok = _0_ok && (any(_skTemp11[0] != _skTemp12[0]) || any(_skTemp11[1] != _skTemp12[1]));
     let _skTemp13 = -_2_one;
     let _skTemp14 = mat2x2<f32>(_skTemp13, 0.0, 0.0, _skTemp13);
     let _skTemp15 = mat2x2<f32>(-1.0, 0.0, 0.0, -1.0);
@@ -60,10 +60,10 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     _0_ok = _0_ok && (all(_skTemp23[0] == _skTemp24[0]) && all(_skTemp23[1] == _skTemp24[1]));
     let _skTemp25 = mat2x2<f32>(_3_two, 0.0, 0.0, _3_two);
     let _skTemp26 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && !(all(_skTemp25[0] == _skTemp26[0]) && all(_skTemp25[1] == _skTemp26[1]));
+    _0_ok = _0_ok && (any(_skTemp25[0] != _skTemp26[0]) || any(_skTemp25[1] != _skTemp26[1]));
     let _skTemp27 = mat2x2<f32>(_2_one, 0.0, 0.0, _2_one);
     let _skTemp28 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && !(any(_skTemp27[0] != _skTemp28[0]) || any(_skTemp27[1] != _skTemp28[1]));
+    _0_ok = _0_ok && (all(_skTemp27[0] == _skTemp28[0]) && all(_skTemp27[1] == _skTemp28[1]));
     let _skTemp29 = mat2x2<f32>(_2_one, 0.0, 0.0, _2_one);
     let _skTemp30 = mat2x2<f32>(0.0, 0.0, 0.0, 0.0);
     _0_ok = _0_ok && (any(_skTemp29[0] != _skTemp30[0]) || any(_skTemp29[1] != _skTemp30[1]));

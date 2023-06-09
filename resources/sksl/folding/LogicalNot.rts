@@ -1,0 +1,17 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    bool ok;
+    ok =       !false;
+    ok = ok && !!true;
+    ok = ok && !(colorGreen.g <  colorGreen.r);
+    ok = ok && !(colorGreen.g <= colorGreen.r);
+    ok = ok && !(colorGreen.b >  colorGreen.g);
+    ok = ok && !(colorGreen.b >= colorGreen.g);
+    ok = ok && !(colorGreen.g <  colorGreen.a);
+    ok = ok && !(colorGreen.r >  colorGreen.b);
+    ok = ok && !(colorGreen.g == colorGreen.r);
+    ok = ok && !(colorGreen.g != colorGreen.a);
+
+    return ok ? colorGreen : colorRed;
+}

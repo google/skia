@@ -25,84 +25,84 @@ float4 main(float2 _24)
         _40 = false;
     }
     ok = _40;
-    bool _48 = false;
+    bool _47 = false;
     if (_40)
     {
-        _48 = !(_10_colorGreen.x == 1.0f);
+        _47 = _10_colorGreen.x != 1.0f;
     }
     else
     {
-        _48 = false;
+        _47 = false;
     }
-    ok = _48;
-    bool _61 = false;
-    if (_48)
+    ok = _47;
+    bool _60 = false;
+    if (_47)
     {
-        _61 = all(bool2(_10_colorGreen.yx.x == _10_colorRed.xy.x, _10_colorGreen.yx.y == _10_colorRed.xy.y));
-    }
-    else
-    {
-        _61 = false;
-    }
-    ok = _61;
-    bool _73 = false;
-    if (_61)
-    {
-        _73 = !any(bool2(_10_colorGreen.yx.x != _10_colorRed.xy.x, _10_colorGreen.yx.y != _10_colorRed.xy.y));
+        _60 = all(bool2(_10_colorGreen.yx.x == _10_colorRed.xy.x, _10_colorGreen.yx.y == _10_colorRed.xy.y));
     }
     else
     {
-        _73 = false;
+        _60 = false;
     }
-    ok = _73;
-    bool _94 = false;
-    if (_73)
+    ok = _60;
+    bool _71 = false;
+    if (_60)
     {
-        bool _93 = false;
+        _71 = all(bool2(_10_colorGreen.yx.x == _10_colorRed.xy.x, _10_colorGreen.yx.y == _10_colorRed.xy.y));
+    }
+    else
+    {
+        _71 = false;
+    }
+    ok = _71;
+    bool _92 = false;
+    if (_71)
+    {
+        bool _91 = false;
         if (all(bool2(_10_colorGreen.yx.x == _10_colorRed.xy.x, _10_colorGreen.yx.y == _10_colorRed.xy.y)))
         {
-            _93 = true;
+            _91 = true;
         }
         else
         {
-            _93 = _10_colorGreen.w != _10_colorRed.w;
+            _91 = _10_colorGreen.w != _10_colorRed.w;
         }
-        _94 = _93;
+        _92 = _91;
     }
     else
     {
-        _94 = false;
+        _92 = false;
     }
-    ok = _94;
-    bool _115 = false;
-    if (_94)
+    ok = _92;
+    bool _113 = false;
+    if (_92)
     {
-        bool _114 = false;
+        bool _112 = false;
         if (any(bool2(_10_colorGreen.yx.x != _10_colorRed.xy.x, _10_colorGreen.yx.y != _10_colorRed.xy.y)))
         {
-            _114 = _10_colorGreen.w == _10_colorRed.w;
+            _112 = _10_colorGreen.w == _10_colorRed.w;
         }
         else
         {
-            _114 = false;
+            _112 = false;
         }
-        _115 = _114;
+        _113 = _112;
     }
     else
     {
-        _115 = false;
+        _113 = false;
     }
-    ok = _115;
-    float4 _116 = 0.0f.xxxx;
-    if (_115)
+    ok = _113;
+    float4 _114 = 0.0f.xxxx;
+    if (_113)
     {
-        _116 = _10_colorGreen;
+        _114 = _10_colorGreen;
     }
     else
     {
-        _116 = _10_colorRed;
+        _114 = _10_colorRed;
     }
-    return _116;
+    return _114;
 }
 
 void frag_main()

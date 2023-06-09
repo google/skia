@@ -2,7 +2,6 @@
 
 void no_condition() { for (int i = 0;;i++) {} }
 
-void unary_cond_op()   { for (int i = 0; !(i > 1); ++i) {} }
 void implict_cond_op() { for (int i = 1; bool(i); --i) {} }
 void complex_cond_op() { for (int i = 0; i < 1 && i < 2; ++i) {} }
 
@@ -17,7 +16,6 @@ void cond_param_val(int p) { for (int i = 0; i < p; ++i) {} }
 
 /*%%*
 missing condition
-invalid condition
 invalid condition
 expected loop index on left hand side of condition
 expected loop index on left hand side of condition

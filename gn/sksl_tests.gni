@@ -784,6 +784,7 @@ sksl_folding_tests = [
   "folding/FloatFolding.rts",
   "folding/IntFoldingES2.rts",
   "folding/IntFoldingES3.sksl",
+  "folding/LogicalNot.rts",
   "folding/MatrixFoldingES2.rts",
   "folding/MatrixFoldingES3.sksl",
   "folding/MatrixNoOpFolding.rts",

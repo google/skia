@@ -26,7 +26,7 @@ vec4 main() {
     ok = ok && --f2.x == 1.5;
     --f2.x;
     ok = ok && f2.x == 0.5;
-    ok = ok && !(colorGreen.x == 1.0);
+    ok = ok && colorGreen.x != 1.0;
     ok = ok && -1.0 == -colorGreen.y;
     ok = ok && vec4(0.0, -1.0, 0.0, -1.0) == -colorGreen;
     ok = ok && mat2(-1.0, -2.0, -3.0, -4.0) == -testMatrix2x2;

@@ -46,7 +46,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok = ok && --f2.x == 1.5;
     --f2.x;
     ok = ok && f2.x == 0.5;
-    ok = ok && !(_uniforms.colorGreen.x == 1.0h);
+    ok = ok && _uniforms.colorGreen.x != 1.0h;
     ok = ok && -1.0h == -_uniforms.colorGreen.y;
     ok = ok && all(half4(0.0h, -1.0h, 0.0h, -1.0h) == -_uniforms.colorGreen);
     ok = ok && float2x2(float2(-1.0, -2.0), float2(-3.0, -4.0)) == (-1.0 * _uniforms.testMatrix2x2);

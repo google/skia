@@ -77,7 +77,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     ok = _skTemp5;
     f2.x = f2.x - f32(1);
     ok = ok && f2.x == 0.5;
-    ok = ok && !(_globalUniforms.colorGreen.x == 1.0);
+    ok = ok && _globalUniforms.colorGreen.x != 1.0;
     ok = ok && -1.0 == -_globalUniforms.colorGreen.y;
     ok = ok && all(vec4<f32>(0.0, -1.0, 0.0, -1.0) == -_globalUniforms.colorGreen);
     let _skTemp6 = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);

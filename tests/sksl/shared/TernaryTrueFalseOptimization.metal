@@ -15,9 +15,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     bool ok = true;
     ok = ok && _uniforms.colorGreen.y == 1.0h;
-    ok = ok && !(_uniforms.colorGreen.x == 1.0h);
+    ok = ok && _uniforms.colorGreen.x != 1.0h;
     ok = ok && all(_uniforms.colorGreen.yx == _uniforms.colorRed.xy);
-    ok = ok && !any(_uniforms.colorGreen.yx != _uniforms.colorRed.xy);
+    ok = ok && all(_uniforms.colorGreen.yx == _uniforms.colorRed.xy);
     ok = ok && (all(_uniforms.colorGreen.yx == _uniforms.colorRed.xy) || _uniforms.colorGreen.w != _uniforms.colorRed.w);
     ok = ok && (any(_uniforms.colorGreen.yx != _uniforms.colorRed.xy) && _uniforms.colorGreen.w == _uniforms.colorRed.w);
     _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
