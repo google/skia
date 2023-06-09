@@ -10,6 +10,7 @@
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -173,7 +174,7 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
 namespace skiagm {
 
 DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 306) {
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
     if (!sdc) {
         *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;

@@ -9,24 +9,18 @@
 #define SkCanvasPriv_DEFINED
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkNoncopyable.h"
 
+#include <cstddef>
+
+class SkBaseDevice;
+class SkImageFilter;
+class SkMatrix;
+class SkPaint;
 class SkReadBuffer;
 class SkWriteBuffer;
-
-#if GR_TEST_UTILS && defined(SK_GANESH)
-namespace skgpu::ganesh {
-class SurfaceDrawContext;
-class SurfaceFillContext;
-}  // namespace skgpu::ganesh
-#endif
-
-// This declaration must match the one in SkDeferredDisplayList.h
-#if defined(SK_GANESH)
-class GrRenderTargetProxy;
-#else
-using GrRenderTargetProxy = SkRefCnt;
-#endif // defined(SK_GANESH)
+struct SkRect;
 
 #if GRAPHITE_TEST_UTILS
 namespace skgpu::graphite {
@@ -67,15 +61,9 @@ public:
         canvas->internal_private_resetClip();
     }
 
-    static SkBaseDevice* TopDevice(SkCanvas* canvas) {
+    static SkBaseDevice* TopDevice(const SkCanvas* canvas) {
         return canvas->topDevice();
     }
-
-#if GR_TEST_UTILS && defined(SK_GANESH)
-    static skgpu::ganesh::SurfaceDrawContext* TopDeviceSurfaceDrawContext(SkCanvas*);
-    static skgpu::ganesh::SurfaceFillContext* TopDeviceSurfaceFillContext(SkCanvas*);
-#endif
-    static GrRenderTargetProxy* TopDeviceTargetProxy(SkCanvas*);
 
 #if GRAPHITE_TEST_UTILS
     static skgpu::graphite::TextureProxy* TopDeviceGraphiteTargetProxy(SkCanvas*);

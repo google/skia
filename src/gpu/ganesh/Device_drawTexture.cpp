@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/Device_v1.h"
+#include "src/gpu/ganesh/Device.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"

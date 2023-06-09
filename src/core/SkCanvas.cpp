@@ -72,7 +72,7 @@
 #if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/Device_v1.h"
+#include "src/gpu/ganesh/Device.h"
 #include "src/utils/SkTestCanvas.h"
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 #   include "src/gpu/ganesh/GrRenderTarget.h"
@@ -1723,19 +1723,17 @@ SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
 
+// TODO(kjlubick) remove after migrating Android
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_GANESH)
 
+#include "include/android/SkCanvasAndroid.h"
+
 SkIRect SkCanvas::topLayerBounds() const {
-    return this->topDevice()->getGlobalBounds();
+    return skgpu::ganesh::TopLayerBounds(this);
 }
 
 GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
-    auto proxy = SkCanvasPriv::TopDeviceTargetProxy(const_cast<SkCanvas*>(this));
-    if (!proxy) {
-        return {};
-    }
-    const GrRenderTarget* renderTarget = proxy->peekRenderTarget();
-    return renderTarget ? renderTarget->getBackendRenderTarget() : GrBackendRenderTarget();
+    return skgpu::ganesh::TopLayerBackendRenderTarget(this);
 }
 #endif
 

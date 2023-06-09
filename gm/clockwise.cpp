@@ -23,6 +23,7 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -259,7 +260,7 @@ class ClockwiseGM : public GpuGM {
 };
 
 DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
     if (!sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;

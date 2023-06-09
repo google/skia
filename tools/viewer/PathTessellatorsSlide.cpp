@@ -12,6 +12,7 @@
 #if defined(SK_GANESH)
 
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -193,7 +194,7 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
     auto ctx = canvas->recordingContext();
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
 
     SkString error;
     if (!sdc || !ctx) {

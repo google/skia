@@ -16,6 +16,7 @@
 #include "src/base/SkRectMemcpy.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -211,7 +212,7 @@ protected:
     }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
         if (!sdc) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;

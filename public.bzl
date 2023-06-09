@@ -233,6 +233,7 @@ SKIA_PUBLIC_HDRS = [
 # All platform-independent sources and private headers.
 BASE_SRCS_ALL = [
     "include/android/SkImageAndroid.h",
+    "include/android/SkCanvasAndroid.h",
     "include/core/SkOpenTypeSVGDecoder.h",
     "include/private/SkBitmaskEnum.h",
     "include/private/SkColorData.h",
@@ -806,7 +807,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/ClipStack.h",
     "src/gpu/ganesh/Device.cpp",
     "src/gpu/ganesh/Device_drawTexture.cpp",
-    "src/gpu/ganesh/Device_v1.h",
+    "src/gpu/ganesh/Device.h",
     "src/gpu/ganesh/GrAHardwareBufferImageGenerator.cpp",
     "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h",
     "src/gpu/ganesh/GrAHardwareBufferUtils.cpp",
@@ -835,6 +836,8 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/GrBufferUpdateRenderTask.h",
     "src/gpu/ganesh/GrCaps.cpp",
     "src/gpu/ganesh/GrCaps.h",
+    "src/gpu/ganesh/GrCanvas.cpp",
+    "src/gpu/ganesh/GrCanvas.h",
     "src/gpu/ganesh/GrClientMappedBufferManager.cpp",
     "src/gpu/ganesh/GrClientMappedBufferManager.h",
     "src/gpu/ganesh/GrClip.h",

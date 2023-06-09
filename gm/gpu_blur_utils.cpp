@@ -13,6 +13,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -193,7 +194,7 @@ static GM::DrawResult run(GrRecordingContext* rContext, SkCanvas* canvas,  SkStr
         return DrawResult::kSkip;
     }
 
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
     if (!sdc) {
         *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
@@ -377,7 +378,7 @@ static DrawResult do_very_large_blur_gm(GrRecordingContext* rContext,
                                         SkString* errorMsg,
                                         GrSurfaceProxyView src,
                                         SkIRect srcB) {
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
     if (!sdc) {
         *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;

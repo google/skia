@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/gpu/ganesh/Device.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
@@ -64,7 +65,6 @@
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/ClipStack.h"
-#include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -104,10 +104,8 @@
 #include <utility>
 
 class GrBackendSemaphore;
-enum class SkFilterMode;
 struct GrShaderCaps;
 struct SkDrawShadowRec;
-struct SkSamplingOptions;
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 

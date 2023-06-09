@@ -8,30 +8,80 @@
 #ifndef skgpu_v1_Device_DEFINED
 #define skgpu_v1_Device_DEFINED
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkImageFilterTypes.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/ganesh/ClipStack.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/text/gpu/SDFTControl.h"
 
+#include <cstddef>
+#include <memory>
+#include <utility>
+
+class GrBackendSemaphore;
+class GrClip;
+class GrRecordingContext;
+class GrRenderTargetProxy;
+class GrSurfaceProxy;
 class SkBitmap;
+class SkBlender;
+class SkColorSpace;
+class SkDrawable;
+class SkImageFilterCache;
 class SkLatticeIter;
+class SkMatrix;
+class SkMesh;
+class SkPaint;
+class SkPath;
+class SkPixmap;
+class SkRRect;
 class SkRegion;
 class SkSpecialImage;
-class SkSurface;
+class SkSurfaceProps;
 class SkSurface_Ganesh;
 class SkVertices;
+enum SkAlphaType : int;
+enum class GrAA : bool;
+enum class GrColorType;
+enum class SkBackingFit;
+enum class SkBlendMode;
+struct SkDrawShadowRec;
+struct SkISize;
+struct SkPoint;
+struct SkRSXform;
+namespace skgpu { enum class Budgeted : bool; }
+namespace sktext {
+class GlyphRunList;
+namespace gpu {
+    class Slug;
+}}
+
 
 namespace skgpu::ganesh {
 
 class SurfaceContext;
 class SurfaceFillContext;
+class SurfaceDrawContext;
 
 /**
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class Device final : public SkBaseDevice  {
+class Device final : public SkBaseDevice {
 public:
     enum class InitContents {
         kClear,

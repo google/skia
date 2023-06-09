@@ -38,7 +38,7 @@ class SkStrikeClient;
 #if defined(SK_GANESH)  // Ganesh Support
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/Device_v1.h"
+#include "src/gpu/ganesh/Device.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #endif
 

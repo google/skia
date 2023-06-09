@@ -18,6 +18,7 @@
 #include "include/core/SkRect.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 static sk_sp<SkShader> make_shader() {
@@ -62,7 +63,7 @@ protected:
         SkPaint interruptPaint;
         interruptPaint.setShader(make_shader());
 
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
         if (sdc) {
             // Tell the skgpu::ganesh::SurfaceDrawContext to not reset its draw op list on a
             // fullscreen clear.

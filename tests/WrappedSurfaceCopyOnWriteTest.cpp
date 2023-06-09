@@ -25,8 +25,8 @@
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
@@ -68,7 +68,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(WrappedSurfaceCopyOnWrite,
     };
 
     auto surfaceProxyID = [&](const sk_sp<SkSurface>& surf) {
-        GrRenderTargetProxy* rtp = SkCanvasPriv::TopDeviceTargetProxy(surf->getCanvas());
+        GrRenderTargetProxy* rtp = skgpu::ganesh::TopDeviceTargetProxy(surf->getCanvas());
         return rtp->uniqueID();
     };
 

@@ -19,7 +19,7 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/SkBackingFit.h"
-#include "src/gpu/ganesh/Device_v1.h"
+#include "src/gpu/ganesh/Device.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"

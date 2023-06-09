@@ -7,12 +7,19 @@
 
 #include "src/core/SkCanvasPriv.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/core/SkDevice.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 #include "src/core/SkWriter32.h"
 
-#include <locale>
+#include <cstdint>
+
+class SkPaint;
 
 SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
                                                  const SkPaint* paint, const SkRect& bounds)
@@ -100,48 +107,6 @@ void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[]
     *totalDstClipCount = dstClipCount;
     *totalMatrixCount = maxMatrixIndex + 1;
 }
-
-#if GR_TEST_UTILS && defined(SK_GANESH)
-
-#include "src/gpu/ganesh/Device_v1.h"
-
-skgpu::ganesh::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
-    if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
-        return gpuDevice->surfaceDrawContext();
-    }
-
-    return nullptr;
-}
-
-skgpu::ganesh::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
-    if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
-        return gpuDevice->surfaceFillContext();
-    }
-
-    return nullptr;
-}
-
-#endif // GR_TEST_UTILS && defined(SK_GANESH)
-
-
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/Device_v1.h"
-
-GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
-    if (auto gpuDevice = canvas->topDevice()->asGaneshDevice()) {
-        return gpuDevice->targetProxy();
-    }
-
-    return nullptr;
-}
-
-#else // defined(SK_GANESH)
-
-GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
-    return nullptr;
-}
-
-#endif // defined(SK_GANESH)
 
 #if GRAPHITE_TEST_UTILS
 #include "src/gpu/graphite/Device.h"

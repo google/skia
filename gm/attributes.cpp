@@ -12,6 +12,7 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
@@ -280,7 +281,7 @@ class AttributesGM : public GpuGM {
 };
 
 DrawResult AttributesGM::onDraw(GrRecordingContext* rc, SkCanvas* canvas, SkString* errorMsg) {
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
     if (!sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;

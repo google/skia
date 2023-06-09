@@ -12,7 +12,8 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/RefCntedCallback.h"
-#include "src/gpu/ganesh/Device_v1.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/Device.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/text/gpu/SDFTControl.h"
 

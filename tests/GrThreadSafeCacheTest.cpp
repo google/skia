@@ -37,7 +37,6 @@
 #include "include/private/base/SkMalloc.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRandom.h"
-#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
@@ -45,6 +44,7 @@
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrDefaultGeoProcFactory.h"
@@ -244,7 +244,7 @@ public:
                                      wh, failLookup, failFillingIn, id, &fStats);
         SkASSERT(view);
 
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
 
         sdc->drawTexture(nullptr,
                          view,
@@ -668,7 +668,7 @@ void TestHelper::addVertAccess(SkCanvas* canvas,
                                bool failLookup, bool failFillingIn,
                                GrThreadSafeVertexTestOp** createdOp) {
     auto rContext = canvas->recordingContext();
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
 
     GrOp::Owner op = GrThreadSafeVertexTestOp::Make(rContext, &fStats,
                                                     wh, id,

@@ -19,6 +19,7 @@
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
@@ -119,7 +120,7 @@ protected:
     DrawResult onDraw(GrRecordingContext* rContext,
                       SkCanvas* canvas,
                       SkString* errorMsg) override {
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
         if (!sdc) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;

@@ -48,6 +48,8 @@ ignorelist = [
   'include/third_party/skcms',
   # Used by Jetski and Graphite
   'Surface.h',
+  # Used by Ganesh and Graphite
+  'Device.h',
   # Temporary shims
   'SkEncodedImageFormat.h',
   'SkICC.h',
