@@ -350,6 +350,8 @@ BASE_SRCS_ALL = [
     "src/base/SkZip.h",
     "src/codec/SkJpegConstants.h",
     "src/codec/SkPixmapUtils.cpp",
+    "src/codec/SkPixmapUtilsPriv.h",  # TODO(kjlubick) delete
+    "src/codec/SkStubHeifDecoderAPI.h",  # TODO(kjlubick) delete
     "src/core/Sk4px.h",
     "src/core/SkAAClip.cpp",
     "src/core/SkAAClip.h",
