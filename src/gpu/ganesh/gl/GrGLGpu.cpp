@@ -3222,7 +3222,10 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
                                                    sizeof(vdata),
                                                    GrGpuBufferType::kVertex,
                                                    kStatic_GrAccessPattern);
-        fCopyProgramArrayBuffer->updateData(vdata, /*offset=*/0, sizeof(vdata), /*preserve=*/false);
+        if (fCopyProgramArrayBuffer) {
+            fCopyProgramArrayBuffer->updateData(
+                    vdata, /*offset=*/0, sizeof(vdata), /*preserve=*/false);
+        }
     }
     if (!fCopyProgramArrayBuffer) {
         return false;
