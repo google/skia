@@ -109,6 +109,7 @@ public:
     // V96: SkImageFilters::Magnifier updated with more complete parameters
     // V97: SkImageFilters::RuntimeShader takes a sample radius
     // V98: Merged SkImageFilters::Blend and ::Arithmetic implementations
+    // V99: Remove legacy Magnifier filter
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -128,6 +129,7 @@ public:
         kRevampMagnifierFilter              = 96,
         kRuntimeImageFilterSampleRadius     = 97,
         kCombineBlendArithmeticFilters      = 98,
+        kRemoveLegacyMagnifierFilter        = 99,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -152,7 +154,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kCombineBlendArithmeticFilters
+        kCurrent_Version = kRemoveLegacyMagnifierFilter
     };
 };
 
