@@ -36,6 +36,8 @@ if (skia_use_system_zlib) {
         defines += [ "ARMV8_OS_ANDROID" ]  # also compatible with v7
       } else if (is_linux || is_chromeos) {
         defines += [ "ARMV8_OS_LINUX" ]
+      } else if (is_mac) {
+        defines += [ "ARMV8_OS_MACOS" ]
       } else if (is_fuchsia) {
         defines += [ "ARMV8_OS_FUCHSIA" ]
       } else if (is_win) {
@@ -86,7 +88,7 @@ if (skia_use_system_zlib) {
       # for ARMv8-a+crc and letting runtime cpu detection select the correct
       # function.
       if (!is_win && !is_clang) {
-        cflags_c = [ "-march=armv8-a+crc" ]
+        cflags_c = [ "-march=armv8-a+aes+crc" ]
       }
     }
 
@@ -136,7 +138,7 @@ if (skia_use_system_zlib) {
     if (use_x86_x64_optimizations) {
       defines = [
         "CRC32_SIMD_SSE42_PCLMUL",
-        "DEFLATE_FILL_WINDOW_SSE2",
+        "DEFLATE_SLIDE_HASH_SSE2",
       ]
       if (!is_win || is_clang) {
         cflags = [
@@ -146,7 +148,6 @@ if (skia_use_system_zlib) {
       }
       sources = [
         "../externals/zlib/crc_folding.c",
-        "../externals/zlib/fill_window_sse.c",
       ]
     }
   }
