@@ -1,6 +1,6 @@
 {
   "name": "canvaskit-wasm",
-  "version": "0.38.1",
+  "version": "0.38.2",
   "description": "A WASM version of Skia's Canvas API",
   "main": "bin/canvaskit.js",
   "homepage": "https://github.com/google/skia/tree/main/modules/canvaskit",
@@ -48,6 +48,7 @@
       "import": "./bin/canvaskit.js",
       "types": "./types/index.d.ts"
     },
+    "./bin/canvaskit.wasm": "./bin/canvaskit.wasm",
     "./bin/full/canvaskit": {
       "require": "./bin/full/canvaskit.js",
       "import": "./bin/full/canvaskit.js",
@@ -58,6 +59,7 @@
       "import": "./bin/full/canvaskit.js",
       "types": "./types/index.d.ts"
     },
+    "./bin/full/canvaskit.wasm": "./bin/full/canvaskit.wasm",
     "./bin/profiling/canvaskit": {
       "require": "./bin/profiling/canvaskit.js",
       "import": "./bin/profiling/canvaskit.js",
@@ -67,6 +69,7 @@
       "require": "./bin/profiling/canvaskit.js",
       "import": "./bin/profiling/canvaskit.js",
       "types": "./types/index.d.ts"
-    }
+    },
+    "./bin/profiling/canvaskit.wasm": "./bin/profiling/canvaskit.wasm"
   }
 }

@@ -6,9 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.2] - 2023-06-09
+
 ### Added
  - `Paragraph.unresolvedCodepoints` which allows clients to identify gaps in font coverage
     more easily.
+
+### Fixed
+ - `.wasm` files are now exported in the npm package.json
 
 ## [0.38.1] - 2023-05-02
 
