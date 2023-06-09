@@ -818,9 +818,16 @@ public:
     // at by the shader created from eval(). This can be useful to provide when the shader does non
     // trivial sampling since it may avoid having to resolve a FilterResult to an image.
     //
-    // 'sampleBounds' must be left empty for merge().
-    Builder& add(const FilterResult& input, std::optional<LayerSpace<SkIRect>> sampleBounds = {}) {
-        fInputs.push_back({input, sampleBounds});
+    // The 'inputFlags' are per-input flags that are OR'ed with the ShaderFlag mask passed to
+    // eval() to control how 'input' is converted to an SkShader. 'inputSampling' specifies the
+    // sampling options to use on the input's image when sampled by the final shader created in eval
+    //
+    // 'sampleBounds', 'inputFlags' and 'inputSampling' must not be used with merge().
+    Builder& add(const FilterResult& input,
+                 std::optional<LayerSpace<SkIRect>> sampleBounds = {},
+                 SkEnumBitMask<ShaderFlags> inputFlags = ShaderFlags::kNone,
+                 const SkSamplingOptions& inputSampling = kDefaultSampling) {
+        fInputs.push_back({input, sampleBounds, inputFlags, inputSampling});
         return *this;
     }
 
@@ -846,14 +853,13 @@ public:
     template <typename ShaderFn>
     FilterResult eval(ShaderFn shaderFn,
                       SkEnumBitMask<ShaderFlags> flags,
-                      std::optional<LayerSpace<SkIRect>> explicitOutput = {},
-                      const SkSamplingOptions& xtraSampling = kDefaultSampling) {
+                      std::optional<LayerSpace<SkIRect>> explicitOutput = {}) {
         auto outputBounds = this->outputBounds(flags, explicitOutput);
         if (outputBounds.isEmpty()) {
             return {};
         }
 
-        auto inputShaders = this->createInputShaders(flags, xtraSampling, outputBounds);
+        auto inputShaders = this->createInputShaders(flags, outputBounds);
         return this->drawShader(shaderFn(inputShaders), flags, outputBounds);
     }
 
@@ -861,10 +867,11 @@ private:
     struct SampledFilterResult {
         FilterResult fImage;
         std::optional<LayerSpace<SkIRect>> fSampleBounds;
+        SkEnumBitMask<ShaderFlags> fFlags;
+        SkSamplingOptions fSampling;
     };
 
     SkSpan<sk_sp<SkShader>> createInputShaders(SkEnumBitMask<ShaderFlags> flags,
-                                               const SkSamplingOptions& sampling,
                                                const LayerSpace<SkIRect>& outputBounds);
 
     LayerSpace<SkIRect> outputBounds(SkEnumBitMask<ShaderFlags> flags,

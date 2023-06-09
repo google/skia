@@ -549,15 +549,13 @@ skif::FilterResult SkMagnifierImageFilter::onFilterImage(const skif::Context& co
 #ifdef SK_ENABLE_SKSL
     using ShaderFlags = skif::FilterResult::ShaderFlags;
     skif::FilterResult::Builder builder{context};
-    builder.add(this->getChildOutput(
-            0, context.withNewDesiredOutput(visibleLensBounds.roundOut())));
+    builder.add(this->getChildOutput(0, context.withNewDesiredOutput(visibleLensBounds.roundOut())),
+                {}, ShaderFlags::kNonLinearSampling, fSampling);
     return builder.eval([&](SkSpan<sk_sp<SkShader>> inputs) {
             // If the input resolved to a null shader, the magnified output will be transparent too
             return inputs[0] ? make_magnifier_shader(inputs[0], lensBounds, zoomXform, inset)
                              : nullptr;
-        },
-        ShaderFlags::kExplicitOutputBounds | ShaderFlags::kNonLinearSampling,
-        lensBounds.roundOut(), fSampling);
+        }, ShaderFlags::kExplicitOutputBounds, lensBounds.roundOut());
 #endif
 }
 

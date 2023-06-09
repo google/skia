@@ -2100,12 +2100,28 @@ DEF_TEST(DisplacementMapBounds, reporter) {
     sk_sp<SkImageFilter> displace(SkImageFilters::DisplacementMap(SkColorChannel::kR,
                                                                   SkColorChannel::kB,
                                                                   20.0f, nullptr, tiling));
+
+    // The filter graph rooted at 'displace' uses the dynamic source image for the displacement
+    // component of ::DisplacementMap, modifying the color component produced by the ::Tile. The
+    // output of the tiling filter will be 'tilingBounds', regardless of its input, so 'floodBounds'
+    // has no effect on the output. Since 'tiling' doesn't reference any dynamic source image, it
+    // also will not affect the required input bounds. The displacement map is sampled 1-to-1
+    // with the output pixels, and covers the output unless the color's output makes that impossible
+    // and the output is a subset of the desired output. Thus, the displacement can impact the
+    // reported output bounds.
     SkIRect input(SkIRect::MakeXYWH(20, 30, 40, 50));
-    // Expected: union(floodBounds, outset(input, 10))
-    SkIRect expected(SkIRect::MakeXYWH(10, 20, 60, 70));
-    REPORTER_ASSERT(reporter,
-                    expected == displace->filterBounds(input, SkMatrix::I(),
-                                                       SkImageFilter::kReverse_MapDirection));
+
+    // 'input' is the desired output, which directly constraints the displacement component in this
+    // specific filter graph.
+    SkIRect actualInput = displace->filterBounds(input, SkMatrix::I(),
+                                                 SkImageFilter::kReverse_MapDirection);
+    REPORTER_ASSERT(reporter, input == actualInput);
+
+    // 'input' is the content bounds, which don't affect output bounds because it's only referenced
+    // by the displacement component and not the color component.
+    SkIRect actualOutput = displace->filterBounds(input, SkMatrix::I(),
+                                                  SkImageFilter::kForward_MapDirection);
+    REPORTER_ASSERT(reporter, tilingBounds.makeOutset(10, 10) == actualOutput);
 }
 
 // Test SkImageSource::filterBounds.
