@@ -29,7 +29,6 @@ skia_filegroup(
         "SkPathRef.h",
         "SkShadowFlags.h",
         "SkWeakRefCnt.h",
-        "SkXmp.h",
         ":sksl_private_hdrs",
         "//include/private/base:private_hdrs",
         "//include/private/chromium:private_hdrs",

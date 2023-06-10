@@ -169,7 +169,6 @@ CPU_ONLY_TESTS = [
     "SkSLDebugTraceTest.cpp",
     "SkVMTest.cpp",
     "SkVxTest.cpp",
-    "SkXmpTest.cpp",
     "Skbug6389.cpp",
     "SortTest.cpp",
     "SrcOverTest.cpp",

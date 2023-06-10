@@ -30,7 +30,6 @@ CORE_FILES = [
     "SkSampler.h",
     "SkSwizzler.cpp",
     "SkSwizzler.h",
-    "SkXmp.cpp",
 ]
 
 split_srcs_and_hdrs(
@@ -205,9 +204,9 @@ selects.config_setting_group(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":core_srcs",
         ":decode_android_srcs",
         ":decode_bmp_srcs",
+        ":core_srcs",
     ] + select_multi(
         {
             ":avif_decode_codec": [":decode_avif_srcs"],
@@ -225,9 +224,9 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        ":core_hdrs",
         ":decode_android_hdrs",
         ":decode_bmp_hdrs",
+        ":core_hdrs",
     ] + select({
         ":needs_jpeg_priv": ["SkJpegPriv.h"],  # used by src/encode/SkJPEGWriteUtility
         "//conditions:default": [],

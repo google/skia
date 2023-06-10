@@ -159,7 +159,6 @@ skia_core_sources = [
   "$_include/private/SkPathRef.h",
   "$_include/private/SkShadowFlags.h",
   "$_include/private/SkWeakRefCnt.h",
-  "$_include/private/SkXmp.h",
   "$_include/private/base/SingleOwner.h",
   "$_include/private/base/SkAPI.h",
   "$_include/private/base/SkAlign.h",
