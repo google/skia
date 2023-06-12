@@ -180,6 +180,37 @@ fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool {
     }
 }
 
+/// Implements the behavior expected for `SkTypeface::getTableData`, compare
+/// documentation for this method and the FreeType implementation in Skia.
+/// * If the target data array is empty, do not copy any data into it, but
+///   return the size of the table.
+/// * If the target data buffer is shorted than from offset to the end of the
+///   table, truncate the data.
+/// * If offset is longer than the table's length, return 0.
+fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut [u8]) -> usize {
+    let table_data = font_ref
+        .with_font(|f| f.table_data(Tag::from_be_bytes(tag.to_be_bytes())))
+        .unwrap_or_default();
+    let table_data = table_data.as_ref();
+    // Remaining table data size measured from offset to end, or 0 if offset is
+    // too large.
+    let mut to_copy_length = table_data.len().saturating_sub(offset);
+    match data.len() {
+        0 => to_copy_length,
+        _ => {
+            to_copy_length = to_copy_length.min(data.len());
+            let table_offset_data = table_data
+                .get(offset..offset + to_copy_length)
+                .unwrap_or_default();
+            data.get_mut(..table_offset_data.len())
+                .map_or(0, |data_slice| {
+                    data_slice.copy_from_slice(table_offset_data);
+                    data_slice.len()
+                })
+        }
+    }
+}
+
 fn make_font_ref_internal<'a>(font_data: &'a [u8], index: u32) -> Result<FontRef<'a>, ReadError> {
     match FileRef::new(font_data) {
         Ok(file_ref) => match file_ref {
@@ -293,6 +324,8 @@ mod ffi {
         fn num_glyphs(font_ref: &BridgeFontRef) -> u16;
         fn family_name(font_ref: &BridgeFontRef) -> String;
         fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool;
+
+        fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut [u8]) -> usize;
 
         type BridgeLocalizedStrings<'a>;
         unsafe fn get_localized_strings<'a>(
