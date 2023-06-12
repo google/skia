@@ -1806,7 +1806,6 @@ CODEC_SRCS_LIMITED = [
     "src/codec/SkBmpCodec.h",
     "src/codec/SkBmpMaskCodec.cpp",
     "src/codec/SkBmpMaskCodec.h",
-    "src/codec/SkPixmapUtilsPriv.h",
     "src/codec/SkBmpRLECodec.cpp",
     "src/codec/SkBmpRLECodec.h",
     "src/codec/SkBmpStandardCodec.cpp",
