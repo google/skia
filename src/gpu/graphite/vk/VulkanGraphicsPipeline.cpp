@@ -9,6 +9,7 @@
 
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/Attribute.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
@@ -78,11 +79,7 @@ static void setup_vertex_input_state(
         const SkSpan<const Attribute>& instanceAttrs,
         VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
         skia_private::STArray<2, VkVertexInputBindingDescription, true>* bindingDescs,
-        skia_private::STArray<16, VkVertexInputAttributeDescription>* attributeDescs,
-        uint32_t maxVertexAttributes) {
-    uint32_t totalAttributeCount = vertexAttrs.size() + instanceAttrs.size();
-    SkASSERT(totalAttributeCount <= maxVertexAttributes);
-
+        skia_private::STArray<16, VkVertexInputAttributeDescription>* attributeDescs) {
     // Setup attribute & binding descriptions
     int attribIndex = 0;
     size_t vertexAttributeOffset = 0;
@@ -443,13 +440,16 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     skia_private::STArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     skia_private::STArray<16, VkVertexInputAttributeDescription> attributeDescs;
-
+    if (vertexAttrs.size() + instanceAttrs.size() >
+        sharedContext->vulkanCaps().maxVertexAttributes()) {
+        SKGPU_LOG_W("Requested more than the supported number of vertex attributes");
+        return nullptr;
+    }
     setup_vertex_input_state(vertexAttrs,
                              instanceAttrs,
                              &vertexInputInfo,
                              &bindingDescs,
-                             &attributeDescs,
-                             sharedContext->vulkanCaps().maxVertexAttributes());
+                             &attributeDescs);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
