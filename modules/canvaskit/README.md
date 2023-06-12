@@ -9,7 +9,7 @@ To build with GN, you need to have followed the instructions to download Skia an
 <https://skia.org/user/download>.
 
 To compile CanvasKit, you will first need to [download and activate `emscripten`][1] using the
-script in `//bin/activate-emsdk` (or `//bin/git-sync-deps` which also calls activate-emsdk).
+script in `//bin/activate-emsdk` (or `//tools/git-sync-deps` which also calls activate-emsdk).
 This places the associated files in `//third_party/externals/emsdk` and the GN[2] build scripts
 will use those by default.
 The compile.sh script automates the default GN settings; users are free to set their own. If users
