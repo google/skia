@@ -78,11 +78,6 @@ namespace SkRecords { class Draw; }
 class GrBackendRenderTarget;
 #endif
 
-// TODO:
-// This is not ideal but Chrome is depending on a forward decl of GrSlug here.
-// It should be removed once Chrome has migrated to sktext::gpu::Slug.
-using GrSlug = sktext::gpu::Slug;
-
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.

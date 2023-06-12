@@ -18,7 +18,6 @@ skia_filegroup(
     srcs = [
         "GrDeferredDisplayList.h",
         "GrDeferredDisplayListRecorder.h",
-        "GrSlug.h",
         "GrSurfaceCharacterization.h",
     ],
 )

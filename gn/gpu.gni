@@ -574,7 +574,6 @@ skia_ganesh_private = [
 skia_gpu_chromium_public = [
   "$_include/private/chromium/GrDeferredDisplayList.h",
   "$_include/private/chromium/GrDeferredDisplayListRecorder.h",
-  "$_include/private/chromium/GrSlug.h",
   "$_include/private/chromium/GrSurfaceCharacterization.h",
 ]
 

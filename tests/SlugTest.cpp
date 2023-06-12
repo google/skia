@@ -29,7 +29,7 @@
 
 struct GrContextOptions;
 
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrSlug_empty,
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_empty,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {

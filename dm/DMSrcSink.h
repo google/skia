@@ -410,7 +410,7 @@ private:
     sk_gpu_test::MemoryCache                          fMemoryCache;
 };
 
-// Wrap a gpu canvas in one that routes all text draws through GrSlugs.
+// Wrap a gpu canvas in one that routes all text draws through Slugs.
 // Note that text blobs that have an RSXForm aren't converted.
 class GPUSlugSink : public GPUSink {
 public:
