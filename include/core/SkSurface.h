@@ -23,7 +23,6 @@
 
 class GrBackendSemaphore;
 class GrBackendTexture;
-class GrDeferredDisplayList;
 class GrRecordingContext;
 class GrSurfaceCharacterization;
 enum GrSurfaceOrigin : int;
@@ -661,12 +660,6 @@ public:
 
 #if !defined(SK_DISABLE_LEGACY_SKSURFACE_AS_IMAGE) && defined(SK_GRAPHITE)
     sk_sp<SkImage> asImage();
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_DISPLAYLIST)
-    bool draw(sk_sp<const GrDeferredDisplayList> deferredDisplayList,
-              int xOffset = 0,
-              int yOffset = 0);
 #endif
 
 };

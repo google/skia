@@ -799,13 +799,3 @@ void FlushAndSubmit(sk_sp<SkSurface> surface) {
 }
 
 }  // namespace skgpu::ganesh
-
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_DISPLAYLIST)
-
-bool SkSurface::draw(sk_sp<const GrDeferredDisplayList> ddl, int xOffset, int yOffset) {
-    if (xOffset != 0 || yOffset != 0) {
-        return false;
-    }
-    return skgpu::ganesh::DrawDDL(this, ddl);
-}
-#endif
