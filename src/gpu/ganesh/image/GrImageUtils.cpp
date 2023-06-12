@@ -30,6 +30,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTextureGenerator.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCachedData.h"
@@ -135,7 +136,7 @@ static GrSurfaceOrigin get_origin(const SkImage_Lazy* img) {
 static GrSurfaceProxyView texture_proxy_view_from_planes(GrRecordingContext* ctx,
                                                          const SkImage_Lazy* img,
                                                          skgpu::Budgeted budgeted) {
-    SkYUVAPixmapInfo::SupportedDataTypes supportedDataTypes(*ctx);
+    auto supportedDataTypes = SupportedTextureFormats(*ctx);
     SkYUVAPixmaps yuvaPixmaps;
     sk_sp<SkCachedData> dataStorage = img->getPlanes(supportedDataTypes, &yuvaPixmaps);
     if (!dataStorage) {
@@ -688,6 +689,31 @@ GrSurfaceProxyView FindOrMakeCachedMipmappedView(GrRecordingContext* rContext,
     // TODO: If we move listeners up from SkImage_Lazy to SkImage_Base then add one here.
     proxyProvider->assignUniqueKeyToProxy(mipmappedKey, copy.asTextureProxy());
     return copy;
+}
+
+using DataType = SkYUVAPixmapInfo::DataType;
+
+SkYUVAPixmapInfo::SupportedDataTypes SupportedTextureFormats(const GrImageContext& context) {
+    SkYUVAPixmapInfo::SupportedDataTypes dataTypes;
+    const auto isValid = [&context](DataType dt, int n) {
+        return context.defaultBackendFormat(SkYUVAPixmapInfo::DefaultColorTypeForDataType(dt, n),
+                                            GrRenderable::kNo).isValid();
+    };
+     for (int n = 1; n <= 4; ++n) {
+        if (isValid(DataType::kUnorm8, n)) {
+            dataTypes.enableDataType(DataType::kUnorm8, n);
+        }
+        if (isValid(DataType::kUnorm16, n)) {
+            dataTypes.enableDataType(DataType::kUnorm16, n);
+        }
+        if (isValid(DataType::kFloat16, n)) {
+            dataTypes.enableDataType(DataType::kFloat16, n);
+        }
+        if (isValid(DataType::kUnorm10_Unorm2, n)) {
+            dataTypes.enableDataType(DataType::kUnorm10_Unorm2, n);
+        }
+    }
+     return dataTypes;
 }
 
 }  // namespace skgpu::ganesh

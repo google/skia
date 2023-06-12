@@ -22,6 +22,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/DDLPromiseImageHelper.h"
@@ -265,7 +266,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext,
 
     SkIRect viewport = dstSurface->imageInfo().bounds();
 
-    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADataTypes(*dContext);
+    auto supportedYUVADataTypes = skgpu::ganesh::SupportedTextureFormats(*dContext);
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADataTypes);
     sk_sp<SkPicture> newSKP = promiseImageHelper.recreateSKP(dContext, inputPicture);
     if (!newSKP) {

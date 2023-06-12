@@ -17,37 +17,6 @@
 #include <cstdint>
 #include <utility>
 
-#if defined(SK_GANESH)
-#include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrImageContext.h"
-#endif
-
-
-SkYUVAPixmapInfo::SupportedDataTypes::SupportedDataTypes(const GrImageContext& context) {
-#if defined(SK_GANESH)
-    for (int n = 1; n <= 4; ++n) {
-        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm8, n),
-                                         GrRenderable::kNo).isValid()) {
-            this->enableDataType(DataType::kUnorm8, n);
-        }
-        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm16, n),
-                                         GrRenderable::kNo).isValid()) {
-            this->enableDataType(DataType::kUnorm16, n);
-        }
-        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kFloat16, n),
-                                         GrRenderable::kNo).isValid()) {
-            this->enableDataType(DataType::kFloat16, n);
-        }
-        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm10_Unorm2, n),
-                                         GrRenderable::kNo).isValid()) {
-            this->enableDataType(DataType::kUnorm10_Unorm2, n);
-        }
-    }
-#endif
-}
-
 void SkYUVAPixmapInfo::SupportedDataTypes::enableDataType(DataType type, int numChannels) {
     if (numChannels < 1 || numChannels > 4) {
         return;

@@ -10,6 +10,7 @@
 #include "include/core/SkRefCnt.h"
 
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/SkGr.h"
@@ -21,6 +22,7 @@
 
 class GrCaps;
 class GrFragmentProcessor;
+class GrImageContext;
 class GrRecordingContext;
 class SkImage;
 class SkImage_Lazy;
@@ -123,6 +125,9 @@ std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(GrRecordingCo
 GrSurfaceProxyView FindOrMakeCachedMipmappedView(GrRecordingContext*,
                                                  GrSurfaceProxyView,
                                                  uint32_t imageUniqueID);
+
+/** Init based on texture formats supported by the context. */
+SkYUVAPixmapInfo::SupportedDataTypes SupportedTextureFormats(const GrImageContext&);
 
 }  // namespace skgpu::ganesh
 #endif
