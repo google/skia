@@ -55,7 +55,7 @@ fn break_loop_ii(_skParam0: i32) -> i32 {
   let five = _skParam0;
   {
     var sum: i32 = 0;
-    let kOne: i32 = 1;
+    const kOne: i32 = 1;
     {
       var i: i32 = 0;
       loop {

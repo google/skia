@@ -301,6 +301,7 @@ private:
     int fIndentation = 0;
     bool fAtLineStart = false;
     bool fHasUnconditionalReturn = false;
+    bool fAtFunctionScope = false;
     int fConditionalScopeDepth = 0;
 
     int fScratchCount = 0;

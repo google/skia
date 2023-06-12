@@ -37,7 +37,7 @@ fn test_ivec_b() -> bool {
 }
 fn test_mat2_b() -> bool {
   {
-    let negated: mat2x2<f32> = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
+    const negated: mat2x2<f32> = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
     var x: mat2x2<f32> = _globalUniforms.testMatrix2x2;
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]));
@@ -45,7 +45,7 @@ fn test_mat2_b() -> bool {
 }
 fn test_mat3_b() -> bool {
   {
-    let negated: mat3x3<f32> = mat3x3<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0);
+    const negated: mat3x3<f32> = mat3x3<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0);
     var x: mat3x3<f32> = _globalUniforms.testMatrix3x3;
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]) && all(x[2] == negated[2]));
@@ -53,7 +53,7 @@ fn test_mat3_b() -> bool {
 }
 fn test_mat4_b() -> bool {
   {
-    let negated: mat4x4<f32> = mat4x4<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0, -11.0, -12.0, -13.0, -14.0, -15.0, -16.0);
+    const negated: mat4x4<f32> = mat4x4<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0, -11.0, -12.0, -13.0, -14.0, -15.0, -16.0);
     var x: mat4x4<f32> = _globalUniforms.testMatrix4x4;
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]) && all(x[2] == negated[2]) && all(x[3] == negated[3]));
@@ -61,7 +61,7 @@ fn test_mat4_b() -> bool {
 }
 fn test_hmat2_b() -> bool {
   {
-    let negated: mat2x2<f32> = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
+    const negated: mat2x2<f32> = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
     var x: mat2x2<f32> = mat2x2<f32>(_globalUniforms.testMatrix2x2);
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]));
@@ -69,7 +69,7 @@ fn test_hmat2_b() -> bool {
 }
 fn test_hmat3_b() -> bool {
   {
-    let negated: mat3x3<f32> = mat3x3<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0);
+    const negated: mat3x3<f32> = mat3x3<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0);
     var x: mat3x3<f32> = mat3x3<f32>(_globalUniforms.testMatrix3x3);
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]) && all(x[2] == negated[2]));
@@ -77,7 +77,7 @@ fn test_hmat3_b() -> bool {
 }
 fn test_hmat4_b() -> bool {
   {
-    let negated: mat4x4<f32> = mat4x4<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0, -11.0, -12.0, -13.0, -14.0, -15.0, -16.0);
+    const negated: mat4x4<f32> = mat4x4<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0, -11.0, -12.0, -13.0, -14.0, -15.0, -16.0);
     var x: mat4x4<f32> = mat4x4<f32>(_globalUniforms.testMatrix4x4);
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]) && all(x[2] == negated[2]) && all(x[3] == negated[3]));
