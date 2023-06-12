@@ -60,31 +60,6 @@ class GrD3DResourceState;
 class SkString;
 #endif
 
-#if !defined(SK_GANESH)
-
-// GrSurfaceCharacterization always needs a minimal version of this
-class SK_API GrBackendFormat {
-public:
-    bool isValid() const { return false; }
-};
-
-// SkSurface and SkImage rely on a minimal version of these always being available
-class SK_API GrBackendTexture {
-public:
-    GrBackendTexture() {}
-
-    bool isValid() const { return false; }
-};
-
-class SK_API GrBackendRenderTarget {
-public:
-    GrBackendRenderTarget() {}
-
-    bool isValid() const { return false; }
-    bool isFramebufferOnly() const { return false; }
-};
-#else
-
 class SK_API GrBackendFormat {
 public:
     // Creates an invalid backend format.
@@ -661,7 +636,5 @@ private:
 #endif
     sk_sp<skgpu::MutableTextureStateRef> fMutableState;
 };
-
-#endif
 
 #endif
