@@ -56,6 +56,7 @@ known_good_builds:
 	bazelisk build //modules/skottie:skottie_tool_cpu
 	bazelisk build //modules/skottie:skottie_tool_gpu
 	bazelisk build //modules/canvaskit:canvaskit --config=ck_full_webgl2_release
+	bazelisk build //modules/pathkit:pathkit --config=ck_full_webgl2_release
 
 rbe_known_good_builds:
 	bazelisk build //:skia_public --config=for_linux_x64_with_rbe --remote_download_minimal
@@ -73,6 +74,8 @@ rbe_known_good_builds:
 	## TODO(kjlubick) CanvasKit in release mode (i.e. with Closure) requires
 	## https://github.com/emscripten-core/emscripten/pull/16640 to land
 	bazelisk build //modules/canvaskit:canvaskit --config=linux_rbe \
+		--config=ck_full_webgl2_debug --remote_download_minimal
+	bazelisk build //modules/pathkit:pathkit --config=linux_rbe \
 		--config=ck_full_webgl2_debug --remote_download_minimal
 
 rbe_known_good_tests:

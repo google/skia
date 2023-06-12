@@ -23,7 +23,7 @@
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPathPriv.h"
 
-#include <emscripten/emscripten.h>
+#include <emscripten.h>
 #include <emscripten/bind.h>
 
 using namespace emscripten;
@@ -34,7 +34,6 @@ static const int QUAD = 2;
 static const int CONIC = 3;
 static const int CUBIC = 4;
 static const int CLOSE = 5;
-
 
 
 // Just for self-documenting purposes where the main thing being returned is an
