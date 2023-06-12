@@ -121,6 +121,7 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_wgsl_tests_sources",
     srcs = [
+        ":sksl_blend_tests",
         ":sksl_wgsl_tests",
     ],
     visibility = ["//tools/skslc:__pkg__"],

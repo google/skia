@@ -52,6 +52,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -1274,6 +1275,9 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
         case Expression::Kind::kPostfix:
             return this->assemblePostfixExpression(e.as<PostfixExpression>(), parentPrecedence);
 
+        case Expression::Kind::kSetting:
+            return this->assembleExpression(*e.as<Setting>().toLiteral(fContext), parentPrecedence);
+
         case Expression::Kind::kSwizzle:
             return this->assembleSwizzle(e.as<Swizzle>());
 
@@ -2133,7 +2137,7 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
                                                 Precedence::kAssignment);
     }
     this->write((var.modifiers().fFlags & Modifiers::kConst_Flag) ? "const " : "var<private> ");
-    this->write(this->assembleName(var.name()));
+    this->write(this->assembleName(var.mangledName()));
     this->write(": " + to_wgsl_type(var.type()));
     this->write(initializer);
     this->writeLine(";");

@@ -638,6 +638,7 @@ static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std:
 bool Compiler::toWGSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toWGSL");
     AutoSource as(this, *program.fSource);
+    AutoShaderCaps autoCaps(fContext, fCaps);
 #ifdef SK_ENABLE_WGSL_VALIDATION
     StringStream wgsl;
     WGSLCodeGenerator cg(fContext.get(), &program, &wgsl);
