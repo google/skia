@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_YUVATextureProxies_DEFINED
 #define skgpu_graphite_YUVATextureProxies_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/graphite/TextureProxyView.h"
@@ -21,7 +22,7 @@ public:
     /** Assumes all planes are sampled with a default "rgba" swizzle. */
     YUVATextureProxies(const Recorder*,
                        const SkYUVAInfo&,
-                       sk_sp<TextureProxy>[SkYUVAInfo::kMaxPlanes]);
+                       SkSpan<sk_sp<TextureProxy>>);
     /**
      * When uploading pixmaps to textures it is important that we account for how the original
      * pixmaps' channels are swizzled into the texture during upload. This will compute a swizzle
@@ -29,7 +30,7 @@ public:
      */
     YUVATextureProxies(const Recorder*,
                        const SkYUVAInfo&,
-                       TextureProxyView[SkYUVAInfo::kMaxPlanes]);
+                       SkSpan<TextureProxyView>);
 
     YUVATextureProxies(const YUVATextureProxies&) = default;
     YUVATextureProxies(YUVATextureProxies&&) = default;
@@ -46,8 +47,8 @@ public:
 
     TextureProxy* proxy(int i) const { return fProxies[i].get(); }
 
-    const std::array<sk_sp<TextureProxy>, SkYUVAInfo::kMaxPlanes>& proxies() const {
-        return fProxies;
+    SkSpan<const sk_sp<TextureProxy>> proxies() const {
+        return SkSpan<const sk_sp<TextureProxy>>(fProxies);
     }
 
     sk_sp<TextureProxy> refProxy(int i) const { return fProxies[i]; }

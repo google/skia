@@ -39,7 +39,7 @@ public:
      */
     YUVABackendTextureInfo(const Recorder*,
                            const SkYUVAInfo&,
-                           const TextureInfo[kMaxPlanes],
+                           SkSpan<const TextureInfo>,
                            Mipmapped);
 
     bool operator==(const YUVABackendTextureInfo&) const;
@@ -95,6 +95,10 @@ public:
      * indicated by the SkYUVAInfo. This will produce an invalid result (return false from
      * isValid()) if the passed texture formats' channels don't agree with SkYUVAInfo.
      */
+    YUVABackendTextures(const Recorder*,
+                        const SkYUVAInfo&,
+                        SkSpan<const BackendTexture>);
+    //*** deprecated ***
     YUVABackendTextures(const Recorder*,
                         const SkYUVAInfo&,
                         const BackendTexture[kMaxPlanes]);
