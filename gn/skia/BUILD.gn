@@ -534,6 +534,8 @@ config("warnings") {
       "-Wno-old-style-cast",
       "-Wno-newline-eof",
       "-Wno-padded",
+      "-Wno-return-std-move-in-c++11",  # we no longer support C++11, and don't
+                                        # need C++11-only performance warnings
       "-Wno-shadow-field-in-constructor",
       "-Wno-shadow-uncaptured-local",
       "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0

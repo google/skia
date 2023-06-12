@@ -84,6 +84,7 @@ WARNINGS = [
     "-Wno-old-style-cast",
     "-Wno-padded",
     "-Wno-psabi",  # noisy
+    "-Wno-return-std-move-in-c++11",
     "-Wno-shadow-field-in-constructor",
     "-Wno-shadow-uncaptured-local",
     "-Wno-undefined-func-template",
