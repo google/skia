@@ -15,6 +15,7 @@
 #include "src/xml/SkDOM.h"
 
 #include <string>
+#include <tuple>
 
 SkJpegXmp::SkJpegXmp() = default;
 
