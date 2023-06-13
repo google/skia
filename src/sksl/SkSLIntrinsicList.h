@@ -58,7 +58,6 @@
     SKSL_INTRINSIC(fwidth)           \
     SKSL_INTRINSIC(greaterThanEqual) \
     SKSL_INTRINSIC(greaterThan)      \
-    SKSL_INTRINSIC(textureHeight)    \
     SKSL_INTRINSIC(intBitsToFloat)   \
     SKSL_INTRINSIC(inversesqrt)      \
     SKSL_INTRINSIC(inverse)          \
@@ -90,7 +89,6 @@
     SKSL_INTRINSIC(packUnorm4x8)     \
     SKSL_INTRINSIC(pow)              \
     SKSL_INTRINSIC(radians)          \
-    SKSL_INTRINSIC(textureRead)      \
     SKSL_INTRINSIC(reflect)          \
     SKSL_INTRINSIC(refract)          \
     SKSL_INTRINSIC(roundEven)        \
@@ -109,6 +107,10 @@
     SKSL_INTRINSIC(subpassLoad)      \
     SKSL_INTRINSIC(tanh)             \
     SKSL_INTRINSIC(tan)              \
+    SKSL_INTRINSIC(textureHeight)    \
+    SKSL_INTRINSIC(textureRead)      \
+    SKSL_INTRINSIC(textureWidth)     \
+    SKSL_INTRINSIC(textureWrite)     \
     SKSL_INTRINSIC(toLinearSrgb)     \
     SKSL_INTRINSIC(transpose)        \
     SKSL_INTRINSIC(trunc)            \
@@ -119,9 +121,7 @@
     SKSL_INTRINSIC(unpackSnorm4x8)   \
     SKSL_INTRINSIC(unpackUnorm2x16)  \
     SKSL_INTRINSIC(unpackUnorm4x8)   \
-    SKSL_INTRINSIC(textureWidth)     \
-    SKSL_INTRINSIC(workgroupBarrier) \
-    SKSL_INTRINSIC(textureWrite)
+    SKSL_INTRINSIC(workgroupBarrier)
 
 namespace SkSL {
 
