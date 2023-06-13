@@ -1,0 +1,13 @@
+/*#pragma settings CannotUseFragCoord*/
+
+noinline float4 func1() {
+    return sk_Clockwise ? sk_FragCoord : half4(0);
+}
+
+noinline float4 func2() {
+    return sk_Clockwise ? half4(0) : sk_FragCoord;
+}
+
+void main() {
+    sk_FragColor = half4(func1() + func2());
+}

@@ -701,6 +701,7 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_settings_tests",
     srcs = [
+        "glsl/BuiltinVariableSetup.sksl",
         "glsl/TypePrecision.sksl",
         "inliner/ExponentialGrowth.sksl",
         "inliner/InlinerCanBeDisabled.sksl",

@@ -1160,6 +1160,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
 void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fSetupFragPosition = false;
     fSetupFragCoordWorkaround = false;
+    fSetupClockwise = false;
 
     this->writeFunctionDeclaration(f.declaration());
     this->writeLine(" {");
