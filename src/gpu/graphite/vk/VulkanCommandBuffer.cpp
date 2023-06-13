@@ -747,34 +747,53 @@ void VulkanCommandBuffer::setScissor(unsigned int left, unsigned int top, unsign
     // TODO: Implement
 }
 
-void VulkanCommandBuffer::draw(PrimitiveType type,
+void VulkanCommandBuffer::draw(PrimitiveType,
                                unsigned int baseVertex,
                                unsigned int vertexCount) {
     SkASSERT(fActiveRenderPass);
     this->syncDescriptorSets();
-    // TODO: Implement
+    // TODO: set primitive type via dynamic state if available
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdDraw(fPrimaryCommandBuffer,
+                        vertexCount,
+                        /*instanceCount=*/0,
+                        baseVertex,
+                        /*firstInstance=*/0));
 }
 
-void VulkanCommandBuffer::drawIndexed(PrimitiveType type,
+void VulkanCommandBuffer::drawIndexed(PrimitiveType,
                                       unsigned int baseIndex,
                                       unsigned int indexCount,
                                       unsigned int baseVertex) {
     SkASSERT(fActiveRenderPass);
     this->syncDescriptorSets();
-    // TODO: Implement
+    // TODO: set primitive type via dynamic state if available
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdDrawIndexed(fPrimaryCommandBuffer,
+                               indexCount,
+                               /*instanceCount=*/0,
+                               baseIndex,
+                               baseVertex,
+                               /*firstInstance=*/0));
 }
 
-void VulkanCommandBuffer::drawInstanced(PrimitiveType type,
+void VulkanCommandBuffer::drawInstanced(PrimitiveType,
                                         unsigned int baseVertex,
                                         unsigned int vertexCount,
                                         unsigned int baseInstance,
                                         unsigned int instanceCount) {
     SkASSERT(fActiveRenderPass);
     this->syncDescriptorSets();
-    // TODO: Implement
+    // TODO: set primitive type via dynamic state if available
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdDraw(fPrimaryCommandBuffer,
+                        vertexCount,
+                        instanceCount,
+                        baseVertex,
+                        baseInstance));
 }
 
-void VulkanCommandBuffer::drawIndexedInstanced(PrimitiveType type,
+void VulkanCommandBuffer::drawIndexedInstanced(PrimitiveType,
                                                unsigned int baseIndex,
                                                unsigned int indexCount,
                                                unsigned int baseVertex,
@@ -782,19 +801,42 @@ void VulkanCommandBuffer::drawIndexedInstanced(PrimitiveType type,
                                                unsigned int instanceCount) {
     SkASSERT(fActiveRenderPass);
     this->syncDescriptorSets();
-    // TODO: Implement
+    // TODO: set primitive type via dynamic state if available
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdDrawIndexed(fPrimaryCommandBuffer,
+                               indexCount,
+                               instanceCount,
+                               baseIndex,
+                               baseVertex,
+                               baseInstance));
 }
 
-void VulkanCommandBuffer::drawIndirect(PrimitiveType type) {
+void VulkanCommandBuffer::drawIndirect(PrimitiveType) {
     SkASSERT(fActiveRenderPass);
     this->syncDescriptorSets();
-    // TODO: Implement
+    // TODO: set primitive type via dynamic state if available
+    // Currently we can only support doing one indirect draw operation at a time,
+    // so stride is irrelevant.
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdDrawIndirect(fPrimaryCommandBuffer,
+                                fBoundIndirectBuffer,
+                                fBoundIndirectBufferOffset,
+                                /*drawCount=*/1,
+                                /*stride=*/0));
 }
 
-void VulkanCommandBuffer::drawIndexedIndirect(PrimitiveType type) {
+void VulkanCommandBuffer::drawIndexedIndirect(PrimitiveType) {
     SkASSERT(fActiveRenderPass);
     this->syncDescriptorSets();
-    // TODO: Implement
+    // TODO: set primitive type via dynamic state if available
+    // Currently we can only support doing one indirect draw operation at a time,
+    // so stride is irrelevant.
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdDrawIndexedIndirect(fPrimaryCommandBuffer,
+                                       fBoundIndirectBuffer,
+                                       fBoundIndirectBufferOffset,
+                                       /*drawCount=*/1,
+                                       /*stride=*/0));
 }
 
 bool VulkanCommandBuffer::onAddComputePass(const DispatchGroupList&) { return false; }
