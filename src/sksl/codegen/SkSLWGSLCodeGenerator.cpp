@@ -1500,6 +1500,59 @@ std::string WGSLCodeGenerator::assembleSimpleIntrinsic(std::string_view intrinsi
     return this->writeScratchLet(expr);
 }
 
+std::string WGSLCodeGenerator::assembleVectorizedIntrinsic(std::string_view intrinsicName,
+                                                           const FunctionCall& call) {
+    SkASSERT(!call.type().isVoid());
+
+    // Invoke the function, passing each function argument.
+    std::string expr = std::string(intrinsicName);
+    expr.push_back('(');
+
+    const ExpressionArray& args = call.arguments();
+    auto separator = SkSL::String::Separator();
+    bool arg0IsVector = args[0]->type().isVector();
+    for (int index = 0; index < args.size(); ++index) {
+        expr += separator();
+
+        bool vectorize = arg0IsVector && args[index]->type().isScalar();
+        if (vectorize) {
+            expr += to_wgsl_type(args[0]->type());
+            expr.push_back('(');
+        }
+
+        expr += this->assembleExpression(*args[index], Precedence::kSequence);
+
+        if (vectorize) {
+            expr.push_back(')');
+        }
+    }
+    expr.push_back(')');
+
+    return this->writeScratchLet(expr);
+}
+
+std::string WGSLCodeGenerator::assembleUnaryOpIntrinsic(Operator op,
+                                                        const FunctionCall& call,
+                                                        Precedence parentPrecedence) {
+    SkASSERT(!call.type().isVoid());
+
+    bool needParens = Precedence::kPrefix >= parentPrecedence;
+
+    std::string expr;
+    if (needParens) {
+        expr.push_back('(');
+    }
+
+    expr += op.operatorName();
+    expr += this->assembleExpression(*call.arguments()[0], Precedence::kPrefix);
+
+    if (needParens) {
+        expr.push_back(')');
+    }
+
+    return expr;
+}
+
 std::string WGSLCodeGenerator::assembleBinaryOpIntrinsic(Operator op,
                                                          const FunctionCall& call,
                                                          Precedence parentPrecedence) {
@@ -1529,13 +1582,22 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                                                      Precedence parentPrecedence) {
     const ExpressionArray& arguments = call.arguments();
     switch (kind) {
-        // GLSL includes scalar versions of some geometric intrinsics that aren't included in WGSL
+        case k_atan_IntrinsicKind: {
+            const char* name = (arguments.size() == 1) ? "atan" : "atan2";
+            return this->assembleSimpleIntrinsic(name, call);
+        }
+        case k_clamp_IntrinsicKind:
+            return this->assembleVectorizedIntrinsic("clamp", call);
+
         case k_dot_IntrinsicKind: {
             if (arguments[0]->type().columns() == 1) {
                 return this->assembleBinaryOpIntrinsic(OperatorKind::STAR, call, parentPrecedence);
             }
             return this->assembleSimpleIntrinsic("dot", call);
         }
+        case k_equal_IntrinsicKind:
+            return this->assembleBinaryOpIntrinsic(OperatorKind::EQEQ, call, parentPrecedence);
+
         case k_faceforward_IntrinsicKind: {
             if (arguments[0]->type().columns() == 1) {
                 // (select(-1.0, 1.0, (I * Nref) < 0) * N)
@@ -1549,13 +1611,6 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             }
             return this->assembleSimpleIntrinsic("faceForward", call);
         }
-        case k_normalize_IntrinsicKind: {
-            const char* name = arguments[0]->type().columns() == 1 ? "sign" : "normalize";
-            return this->assembleSimpleIntrinsic(name, call);
-        }
-        case k_equal_IntrinsicKind:
-            return this->assembleBinaryOpIntrinsic(OperatorKind::EQEQ, call, parentPrecedence);
-
         case k_greaterThan_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::GT, call, parentPrecedence);
 
@@ -1568,11 +1623,33 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_lessThanEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::LTEQ, call, parentPrecedence);
 
+        case k_max_IntrinsicKind:
+            return this->assembleVectorizedIntrinsic("max", call);
+
+        case k_min_IntrinsicKind:
+            return this->assembleVectorizedIntrinsic("min", call);
+
+        case k_normalize_IntrinsicKind: {
+            const char* name = arguments[0]->type().isScalar() ? "sign" : "normalize";
+            return this->assembleSimpleIntrinsic(name, call);
+        }
+        case k_not_IntrinsicKind:
+            return this->assembleUnaryOpIntrinsic(OperatorKind::LOGICALNOT, call, parentPrecedence);
+
         case k_notEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::NEQ, call, parentPrecedence);
 
+        case k_acos_IntrinsicKind:
+        case k_asin_IntrinsicKind:
+        case k_ceil_IntrinsicKind:
+        case k_cos_IntrinsicKind:
+        case k_degrees_IntrinsicKind:
+        case k_floor_IntrinsicKind:
+        case k_radians_IntrinsicKind:
+        case k_sin_IntrinsicKind:
+        case k_tan_IntrinsicKind:
         default:
-            return "";
+            return this->assembleSimpleIntrinsic(call.function().name(), call);
     }
 }
 

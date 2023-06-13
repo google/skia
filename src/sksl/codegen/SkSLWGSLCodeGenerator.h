@@ -223,9 +223,14 @@ private:
                                       IntrinsicKind kind,
                                       Precedence parentPrecedence);
     std::string assembleSimpleIntrinsic(std::string_view intrinsicName, const FunctionCall& call);
+    std::string assembleUnaryOpIntrinsic(Operator op,
+                                         const FunctionCall& call,
+                                         Precedence parentPrecedence);
     std::string assembleBinaryOpIntrinsic(Operator op,
                                           const FunctionCall& call,
                                           Precedence parentPrecedence);
+    std::string assembleVectorizedIntrinsic(std::string_view intrinsicName,
+                                            const FunctionCall& call);
 
     // Constructor expressions
     std::string assembleAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
