@@ -8,21 +8,12 @@
 #ifndef SlotManager_DEFINED
 #define SlotManager_DEFINED
 
-#include "include/core/SkColor.h"
-#include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkTHash.h"
+#include "modules/skresources/include/SkResources.h"
+#include "modules/sksg/include/SkSGNode.h"
 
 namespace skjson {
 class ObjectValue;
-}
-
-namespace skresources {
-class ImageAsset;
-}
-
-namespace sksg {
-class Node;
 }
 namespace skottie {
 
@@ -36,10 +27,10 @@ using namespace skia_private;
 class SK_API SlotManager final : public SkRefCnt {
 
 public:
+
     using SlotID = SkString;
 
     SlotManager(sk_sp<skottie::internal::SceneGraphRevalidator>);
-    ~SlotManager() override;
 
     void setColorSlot(SlotID, SkColor);
     void setImageSlot(SlotID, sk_sp<skresources::ImageAsset>);
@@ -47,7 +38,7 @@ public:
     //TODO: surface Text value options
 
     SkColor getColorSlot(SlotID) const;
-    sk_sp<const skresources::ImageAsset> getImageSlot(SlotID) const;
+    sk_sp<skresources::ImageAsset> getImageSlot(SlotID) const;
     SkScalar getScalarSlot(SlotID) const;
 
     struct SlotInfo {
@@ -61,10 +52,9 @@ public:
 private:
 
     // pass value to the SlotManager for manipulation and node for invalidation
-    void trackColorValue(SlotID, SkColor*, sk_sp<sksg::Node>);
-    sk_sp<skresources::ImageAsset> trackImageValue(SlotID, sk_sp<skresources::ImageAsset>,
-                                                   sk_sp<sksg::Node>);
-    void trackScalarValue(SlotID, SkScalar*, sk_sp<sksg::Node>);
+    void trackColorValue(SlotID,    SkColor*,                       sk_sp<sksg::Node>);
+    void trackImageValue(SlotID,    sk_sp<skresources::ImageAsset>, sk_sp<sksg::Node>);
+    void trackScalarValue(SlotID,   SkScalar*,                      sk_sp<sksg::Node>);
 
     TArray<SlotInfo> fSlotInfos;
 
@@ -75,13 +65,12 @@ private:
         sk_sp<sksg::Node> node;
     };
 
-    class ImageAssetProxy;
     template <typename T>
     using SlotMap = THashMap<SlotID, TArray<ValuePair<T>>>;
 
-    SlotMap<SkColor*>               fColorMap;
-    SlotMap<SkScalar*>              fScalarMap;
-    SlotMap<sk_sp<ImageAssetProxy>> fImageMap;
+    SlotMap<SkColor*>                       fColorMap;
+    SlotMap<SkScalar*>                      fScalarMap;
+    SlotMap<sk_sp<skresources::ImageAsset>> fImageMap;
 
     const sk_sp<skottie::internal::SceneGraphRevalidator> fRevalidator;
 
