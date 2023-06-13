@@ -345,6 +345,10 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
                         sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                         planeRelContext);
             }
+            break;
+        case Type::kFromImages:
+            // Not supported in Ganesh
+            return false;
     }
     return fYUVImage[idx] != nullptr;
 }
@@ -379,7 +383,7 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
             fYUVImage[idx] = SkImages::DeferredFromGenerator(std::move(generator));
             break;
         }
-        case Type::kFromTextures:
+        case Type::kFromTextures: {
             if (!recorder) {
                 return false;
             }
@@ -419,6 +423,44 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
                     sk_gpu_test::ManagedGraphiteTexture::ImageReleaseProc,
                     imageRelContext);
             break;
+        }
+        case Type::kFromImages: {
+            if (!recorder) {
+                return false;
+            }
+            if (fMipmapped == skgpu::Mipmapped::kYes) {
+                // If this becomes necessary we should invoke SkMipmapBuilder here to make mip
+                // maps from our src data (and then pass a pixmaps array to initialize the planar
+                // textures.
+                return false;
+            }
+            sk_sp<SkImage> planeImgs[SkYUVAInfo::kMaxPlanes];
+            for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
+                sk_sp<sk_gpu_test::ManagedGraphiteTexture> mbet =
+                        sk_gpu_test::ManagedGraphiteTexture::MakeFromPixmap(recorder,
+                                                                            fPixmaps.plane(i),
+                                                                            skgpu::Mipmapped::kNo,
+                                                                            skgpu::Renderable::kNo,
+                                                                            skgpu::Protected::kNo);
+                if (!mbet) {
+                    return false;
+                }
+                planeImgs[i] = SkImages::AdoptTextureFrom(recorder,
+                                                          mbet->texture(),
+                                                          fPixmaps.plane(i).colorType(),
+                                                          fPixmaps.plane(i).alphaType(),
+                                                          fColorSpace,
+                                                          ManagedGraphiteTexture::ImageReleaseProc,
+                                                          mbet->releaseContext());
+            }
+
+            fYUVImage[idx] = SkImages::TextureFromYUVAImages(
+                    recorder,
+                    fPixmaps.yuvaInfo(),
+                    planeImgs,
+                    fColorSpace);
+            break;
+        }
     }
     return fYUVImage[idx] != nullptr;
 }

@@ -425,6 +425,11 @@ sk_sp<SkImage> TextureFromYUVAImages(Recorder* recorder,
         }
 
         textureProxyViews[plane] = static_cast<Image*>(images[plane].get())->textureProxyView();
+        // YUVATextureProxies expects to sample from the red channel for single-channel textures, so
+        // reset the swizzle for alpha-only textures to compensate for that
+        if (images[plane]->isAlphaOnly()) {
+            textureProxyViews[plane] = textureProxyViews[plane].makeSwizzle(skgpu::Swizzle("aaaa"));
+        }
     }
     YUVATextureProxies yuvaProxies(recorder, yuvaInfo, SkSpan<TextureProxyView>(textureProxyViews));
     SkASSERT(yuvaProxies.isValid());
