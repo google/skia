@@ -274,3 +274,12 @@ size_t SkTypeface_Fontations::onGetTableData(SkFontTableTag tag,
     // If data is nullptr, the Rust side doesn't see a length limit.
     return std::min(copied, length);
 }
+
+int SkTypeface_Fontations::onGetTableTags(SkFontTableTag tags[]) const {
+    uint16_t numTables = fontations_ffi::table_tags(*fBridgeFontRef, rust::Slice<uint32_t>());
+    if (!tags) {
+      return numTables;
+    }
+    rust::Slice<uint32_t> copyToTags(tags, numTables);
+    return fontations_ffi::table_tags(*fBridgeFontRef, copyToTags);
+}

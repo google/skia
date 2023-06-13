@@ -122,3 +122,18 @@ DEF_TEST(Fontations_TableData, reporter) {
     REPORTER_ASSERT(reporter,
                     testTypeface->getTableData(nonExistantTag, kTestOffset, 0, nullptr) == 0);
 }
+
+DEF_TEST(Fontations_TableTags, reporter) {
+    constexpr size_t kNumTags = 11;
+    SkFourByteTag tagsBuffer[kNumTags] = {0};
+    sk_sp<SkTypeface> testTypeface(
+            SkTypeface_Make_Fontations(GetResourceAsStream(kFontResource), SkFontArguments()));
+    SkFourByteTag firstTag = SkSetFourByteTag('O', 'S', '/', '2');
+    SkFourByteTag lastTag = SkSetFourByteTag('p', 'o', 's', 't');
+
+    REPORTER_ASSERT(reporter, testTypeface->getTableTags(nullptr) == kNumTags);
+
+    REPORTER_ASSERT(reporter, testTypeface->getTableTags(tagsBuffer) == kNumTags);
+    REPORTER_ASSERT(reporter, tagsBuffer[0] == firstTag);
+    REPORTER_ASSERT(reporter, tagsBuffer[kNumTags - 1] == lastTag);
+}

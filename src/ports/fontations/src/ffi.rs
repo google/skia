@@ -211,6 +211,22 @@ fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut [u8]
     }
 }
 
+fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16 {
+    return font_ref
+        .with_font(|f| {
+            let table_directory = &f.table_directory;
+            let table_tags_iter = table_directory
+                .table_records()
+                .iter()
+                .map(|table| u32::from_be_bytes(table.tag.get().into_bytes()));
+            tags.iter_mut()
+                .zip(table_tags_iter)
+                .for_each(|(out_tag, table_tag)| *out_tag = table_tag);
+            Some(table_directory.num_tables())
+        })
+        .unwrap_or_default();
+}
+
 fn make_font_ref_internal<'a>(font_data: &'a [u8], index: u32) -> Result<FontRef<'a>, ReadError> {
     match FileRef::new(font_data) {
         Ok(file_ref) => match file_ref {
@@ -326,6 +342,7 @@ mod ffi {
         fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool;
 
         fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut [u8]) -> usize;
+        fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16;
 
         type BridgeLocalizedStrings<'a>;
         unsafe fn get_localized_strings<'a>(
