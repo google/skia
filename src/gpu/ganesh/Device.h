@@ -24,7 +24,6 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/ganesh/ClipStack.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
@@ -61,7 +60,6 @@ enum class GrAA : bool;
 enum class GrColorType;
 enum class SkBackingFit;
 enum class SkBlendMode;
-enum class SkTileMode;
 struct SkDrawShadowRec;
 struct SkISize;
 struct SkPoint;
@@ -306,27 +304,10 @@ private:
 
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
-    void drawImageQuad(const SkImage*,
-                       const SkRect* src,
-                       const SkRect* dst,
-                       const SkPoint dstClip[4],
-                       SkCanvas::QuadAAFlags aaFlags,
-                       const SkMatrix* preViewMatrix,
-                       const SkSamplingOptions&,
-                       const SkPaint&,
-                       SkCanvas::SrcRectConstraint);
-
-    void drawEdgeAAImage(const SkMatrixProvider& matrixProvider,
-                         const SkPaint& paint,
-                         const SkImage* image,
-                         const SkRect& src,
-                         const SkRect& dst,
-                         const SkPoint dstClip[4],
-                         const SkMatrix& srcToDst,
-                         SkCanvas::QuadAAFlags canvasAAFlags,
-                         SkCanvas::SrcRectConstraint constraint,
-                         SkSamplingOptions sampling,
-                         SkTileMode tm) override;
+    void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
+                       const SkPoint dstClip[4], SkCanvas::QuadAAFlags aaFlags,
+                       const SkMatrix* preViewMatrix, const SkSamplingOptions&,
+                       const SkPaint&, SkCanvas::SrcRectConstraint);
 
     // FIXME(michaelludwig) - Should be removed in favor of using drawImageQuad with edge flags to
     // for every element in the SkLatticeIter.

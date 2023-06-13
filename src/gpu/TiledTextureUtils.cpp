@@ -14,23 +14,11 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "src/base/SkSafeMath.h"
-#include "src/core/SkDevice.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSamplingPriv.h"
 
 #if GR_TEST_UTILS
 std::atomic<int>  gNumTilesDrawn{0};
-#endif
-
-#if defined(SK_GANESH)
-#include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
-#include "src/gpu/ganesh/Device.h"
-#endif
-
-#if defined(SK_GRAPHITE)
-#include "include/gpu/graphite/Image.h"
-#include "src/gpu/graphite/Device.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -126,41 +114,20 @@ void clamped_outset_with_offset(SkIRect* iRect, int outset, SkPoint* offset,
     }
 }
 
-sk_sp<SkImage> make_texture_backed(SkBaseDevice* base, const SkBitmap& bm) {
-
-    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bm, kNever_SkCopyPixelsMode);
-
-#if defined(SK_GANESH)
-    if (skgpu::ganesh::Device* device = base->asGaneshDevice()) {
-        if (GrDirectContext* dContext = GrAsDirectContext(device->recordingContext())) {
-            return SkImages::TextureFromImage(dContext, image.get());
-        }
-    }
-#endif
-
-#if defined(SK_GRAPHITE)
-    if (skgpu::graphite::Device* device = base->asGraphiteDevice()) {
-        return SkImages::TextureFromImage(device->recorder(), image.get(), {});
-    }
-#endif
-
-    return image;
-}
-
 } // anonymous namespace
 
 namespace skgpu {
 
 // tileSize and clippedSubset are valid if true is returned
-bool TiledTextureUtils::ShouldTileImage(SkIRect conservativeClipBounds,
-                                        const SkISize& imageSize,
-                                        const SkMatrix& ctm,
-                                        const SkMatrix& srcToDst,
-                                        const SkRect* src,
-                                        int maxTileSize,
-                                        size_t cacheSize,
-                                        int* tileSize,
-                                        SkIRect* clippedSubset) {
+bool ShouldTileImage(SkIRect conservativeClipBounds,
+                     const SkISize& imageSize,
+                     const SkMatrix& ctm,
+                     const SkMatrix& srcToDst,
+                     const SkRect* src,
+                     int maxTileSize,
+                     size_t cacheSize,
+                     int* tileSize,
+                     SkIRect* clippedSubset) {
     // if it's larger than the max tile size, then we have no choice but tiling.
     if (imageSize.width() > maxTileSize || imageSize.height() > maxTileSize) {
         *clippedSubset = determine_clipped_src_rect(conservativeClipBounds, ctm,
@@ -202,18 +169,21 @@ bool TiledTextureUtils::ShouldTileImage(SkIRect conservativeClipBounds,
     return usedTileBytes * 2 < bmpSize;
 }
 
-void TiledTextureUtils::DrawTiledBitmap(SkBaseDevice* device,
-                                        const SkBitmap& bitmap,
-                                        int tileSize,
-                                        const SkMatrixProvider& matrixProvider,
-                                        const SkMatrix& srcToDst,
-                                        const SkRect& srcRect,
-                                        const SkIRect& clippedSrcIRect,
-                                        const SkPaint& paint,
-                                        SkCanvas::QuadAAFlags origAAFlags,
-                                        SkCanvas::SrcRectConstraint constraint,
-                                        SkSamplingOptions sampling,
-                                        SkTileMode tileMode) {
+void DrawTiledBitmap(GrRecordingContext* rContext,
+                     skgpu::ganesh::SurfaceDrawContext* sdc,
+                     const GrClip* clip,
+                     const SkBitmap& bitmap,
+                     int tileSize,
+                     const SkMatrixProvider& matrixProvider,
+                     const SkMatrix& srcToDst,
+                     const SkRect& srcRect,
+                     const SkIRect& clippedSrcIRect,
+                     const SkPaint& paint,
+                     SkCanvas::QuadAAFlags origAAFlags,
+                     SkCanvas::SrcRectConstraint constraint,
+                     SkSamplingOptions sampling,
+                     SkTileMode tileMode,
+                     DrawImageProc drawImage) {
     if (sampling.isAniso()) {
         sampling = SkSamplingPriv::AnisoFallback(/* imageIsMipped= */ false);
     }
@@ -245,10 +215,7 @@ void TiledTextureUtils::DrawTiledBitmap(SkBaseDevice* device,
             SkVector offset = SkPoint::Make(SkIntToScalar(iTileR.fLeft),
                                             SkIntToScalar(iTileR.fTop));
             SkRect rectToDraw = tileR;
-            if (!srcToDst.mapRect(&rectToDraw)) {
-                continue;
-            }
-
+            srcToDst.mapRect(&rectToDraw);
             if (sampling.filter != SkFilterMode::kNearest || sampling.useCubic) {
                 SkIRect iClampRect;
 
@@ -270,12 +237,7 @@ void TiledTextureUtils::DrawTiledBitmap(SkBaseDevice* device,
             // work. Image subsets always make a copy of the pixels and lose the association with
             // the original's SkPixelRef.
             if (SkBitmap subsetBmp; bitmap.extractSubset(&subsetBmp, iTileR)) {
-                // By creating a gpu-backed image here we'll never recurse into this (tiled) drawing
-                // path.
-                sk_sp<SkImage> image = make_texture_backed(device, subsetBmp);
-                if (!image) {
-                    continue;
-                }
+                auto image = SkMakeImageFromRasterBitmap(subsetBmp, kNever_SkCopyPixelsMode);
 
                 unsigned aaFlags = SkCanvas::kNone_QuadAAFlags;
                 // Preserve the original edge AA flags for the exterior tile edges.
@@ -297,17 +259,20 @@ void TiledTextureUtils::DrawTiledBitmap(SkBaseDevice* device,
                 tileR.offset(-offset.fX, -offset.fY);
                 SkMatrix offsetSrcToDst = srcToDst;
                 offsetSrcToDst.preTranslate(offset.fX, offset.fY);
-                device->drawEdgeAAImage(matrixProvider,
-                                        paint,
-                                        image.get(),
-                                        tileR,
-                                        rectToDraw,
-                                        /* dstClip= */ nullptr,
-                                        offsetSrcToDst,
-                                        static_cast<SkCanvas::QuadAAFlags>(aaFlags),
-                                        constraint,
-                                        sampling,
-                                        tileMode);
+                drawImage(rContext,
+                          sdc,
+                          clip,
+                          matrixProvider,
+                          paint,
+                          image.get(),
+                          tileR,
+                          rectToDraw,
+                          nullptr,
+                          offsetSrcToDst,
+                          static_cast<SkCanvas::QuadAAFlags>(aaFlags),
+                          constraint,
+                          sampling,
+                          tileMode);
 
 #if GR_TEST_UTILS
                 (void)gNumTilesDrawn.fetch_add(+1, std::memory_order_relaxed);
