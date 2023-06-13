@@ -27,7 +27,6 @@ SkScalar from_font_units(SkScalar scaled, uint16_t emSize) {
     }
 }
 
-#if !defined(SK_IGNORE_PDF_DW_FIX)
 SkScalar find_mode_or_0(SkSpan<const SkScalar> advances) {
     if (advances.empty()) {
         return 0;
@@ -52,7 +51,6 @@ SkScalar find_mode_or_0(SkSpan<const SkScalar> advances) {
     }
     return currentCount > currentModeCount ? currentAdvance : currentModeAdvance;
 }
-#endif
 
 } // namespace
 
@@ -102,7 +100,6 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     // C++20 = make_unique_for_overwrite<SkScalar[]>(glyphs.size());
     auto advances = std::unique_ptr<SkScalar[]>(new SkScalar[glyphs.size()]);
 
-#if !defined(SK_IGNORE_PDF_DW_FIX)
     // Find the pdf integer mode (most common pdf integer advance).
     // Unfortunately, poppler enforces DW (default width) must be an integer,
     // so only consider integer pdf advances when finding the mode.
@@ -116,9 +113,6 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     std::sort(advances.get(), advances.get() + numIntAdvances);
     int32_t modeAdvance = (int32_t)find_mode_or_0(SkSpan(advances.get(), numIntAdvances));
     *defaultAdvance = modeAdvance;
-#else
-    *defaultAdvance = 0;
-#endif
 
     // Pre-convert to pdf advances.
     for (size_t i = 0; i < glyphs.size(); ++i) {
@@ -128,12 +122,10 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     for (size_t i = 0; i < glyphs.size(); ++i) {
         SkScalar advance = advances[i];
 
-#if !defined(SK_IGNORE_PDF_DW_FIX)
         // a. Skipping don't cares or defaults is a win (trivial)
         if (advance == modeAdvance) {
             continue;
         }
-#endif
 
         // b. 2+ repeats create run as long as possible, else start range
         {
@@ -161,12 +153,10 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
             for (; j < glyphs.size(); ++j) {
                 advance = advances[j];
 
-#if !defined(SK_IGNORE_PDF_DW_FIX)
                 // c. end range if default seen
                 if (advance == modeAdvance) {
                     break;
                 }
-#endif
 
                 int dontCares = glyphs[j]->getGlyphID() - glyphs[j - 1]->getGlyphID() - 1;
                 // d. end range if 4+ don't cares
