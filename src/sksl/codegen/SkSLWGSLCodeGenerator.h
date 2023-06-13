@@ -45,12 +45,15 @@ class FunctionDefinition;
 class GlobalVarDeclaration;
 class IfStatement;
 class IndexExpression;
+enum IntrinsicKind : int8_t;
 class Literal;
 class MemoryLayout;
+struct Modifiers;
 class OutputStream;
 class Position;
 class PostfixExpression;
 class PrefixExpression;
+struct Program;
 class ProgramElement;
 class ReturnStatement;
 class Statement;
@@ -60,8 +63,6 @@ class TernaryExpression;
 class Type;
 class VarDeclaration;
 class VariableReference;
-struct Modifiers;
-struct Program;
 
 /**
  * Convert a Program into WGSL code.
@@ -216,6 +217,15 @@ private:
     std::string assembleTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
     std::string assembleVariableReference(const VariableReference& r);
     std::string assembleName(std::string_view name);
+
+    // Intrinsic helper functions.
+    std::string assembleIntrinsicCall(const FunctionCall& call,
+                                      IntrinsicKind kind,
+                                      Precedence parentPrecedence);
+    std::string assembleSimpleIntrinsic(std::string_view intrinsicName, const FunctionCall& call);
+    std::string assembleBinaryOpIntrinsic(Operator op,
+                                          const FunctionCall& call,
+                                          Precedence parentPrecedence);
 
     // Constructor expressions
     std::string assembleAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
