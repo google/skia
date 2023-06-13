@@ -275,6 +275,7 @@ tests_sources = [
   "$_tests/SkUTFTest.cpp",
   "$_tests/SkVMTest.cpp",
   "$_tests/SkVxTest.cpp",
+  "$_tests/SkXmpTest.cpp",
   "$_tests/Skbug12214.cpp",
   "$_tests/Skbug5221.cpp",
   "$_tests/Skbug6389.cpp",
@@ -472,4 +473,7 @@ ganesh_tests_sources = [
 
 tests_sources += ganesh_tests_sources
 
-jpeg_gainmap_tests_sources = [ "$_tests/JpegGainmapTest.cpp" ]
+jpeg_gainmap_tests_sources = [
+  "$_tests/JpegGainmapTest.cpp",
+  "$_tests/SkJpegXmpTest.cpp",
+]
