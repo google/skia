@@ -231,7 +231,6 @@ CORE_FILES = [
     "SkPoint.cpp",
     "SkPoint3.cpp",
     "SkPointPriv.h",
-    "SkPromiseImageTexture.cpp",
     "SkPtrRecorder.cpp",
     "SkPtrRecorder.h",
     "SkQuadClipper.cpp",

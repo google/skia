@@ -16,6 +16,7 @@
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "include/private/chromium/GrDeferredDisplayListRecorder.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
+#include "include/private/chromium/SkImageChromium.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -122,7 +123,7 @@ sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrRecordingContext
         return nullptr;
     }
 
-    // Here we are, unfortunately, aliasing the backend texture held by the SkPromiseImageTexture.
+    // Here we are, unfortunately, aliasing the backend texture held by the GrPromiseImageTexture.
     // Both the tile's destination surface and the promise image used to draw the tile will be
     // backed by the same backendTexture - unbeknownst to Ganesh.
     return SkSurfaces::WrapBackendTexture(rContext,

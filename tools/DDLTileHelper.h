@@ -87,7 +87,7 @@ public:
         SkIRect                   fPaddingOutsets;   // random padding for the output surface
         GrSurfaceCharacterization fPlaybackChar;     // characterization for the tile's dst surface
 
-        // The callback context holds (via its SkPromiseImageTexture) the backend texture
+        // The callback context holds (via its GrPromiseImageTexture) the backend texture
         // that is both wrapped in 'fTileSurface' and backs this tile's promise image
         // (i.e., the one returned by 'makePromiseImage').
         sk_sp<PromiseImageCallbackContext> fCallbackContext;

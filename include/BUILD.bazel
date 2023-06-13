@@ -97,5 +97,6 @@ generate_cpp_files_for_headers(
         "include/private/SkIDChangeListener.h",
         "include/private/SkWeakRefCnt.h",
         "include/private/gpu/ganesh/GrTextureGenerator.h",
+        "include/private/chromium/SkImageChromium.h",
     ],
 )

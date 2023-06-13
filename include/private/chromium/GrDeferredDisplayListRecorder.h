@@ -21,7 +21,7 @@ class GrYUVABackendTextureInfo;
 class SkCanvas;
 class SkColorSpace;
 class SkImage;
-class SkPromiseImageTexture;
+class GrPromiseImageTexture;
 class SkSurface;
 enum SkAlphaType : int;
 enum SkColorType : int;
@@ -56,7 +56,7 @@ public:
 
     using PromiseImageTextureContext = void*;
     using PromiseImageTextureFulfillProc =
-            sk_sp<SkPromiseImageTexture> (*)(PromiseImageTextureContext);
+            sk_sp<GrPromiseImageTexture> (*)(PromiseImageTextureContext);
     using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
 
 #ifndef SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API

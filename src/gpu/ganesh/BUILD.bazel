@@ -151,6 +151,7 @@ CORE_FILES = [
     "GrProgramDesc.h",
     "GrProgramInfo.cpp",
     "GrProgramInfo.h",
+    "GrPromiseImageTexture.cpp",
     "GrProxyProvider.cpp",
     "GrProxyProvider.h",
     "GrRecordingContext.cpp",

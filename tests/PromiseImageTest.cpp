@@ -14,7 +14,6 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -25,10 +24,11 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/chromium/GrDeferredDisplayListRecorder.h"
+#include "include/private/chromium/GrPromiseImageTexture.h"
+#include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -55,14 +55,14 @@ struct PromiseTextureChecker {
     explicit PromiseTextureChecker(const GrBackendTexture& tex,
                                    skiatest::Reporter* reporter,
                                    bool shared)
-            : fTexture(SkPromiseImageTexture::Make(tex)), fReporter(reporter), fShared(shared) {}
-    sk_sp<SkPromiseImageTexture> fTexture;
+            : fTexture(GrPromiseImageTexture::Make(tex)), fReporter(reporter), fShared(shared) {}
+    sk_sp<GrPromiseImageTexture> fTexture;
     skiatest::Reporter* fReporter;
     bool fShared;
     int fFulfillCount = 0;
     int fReleaseCount = 0;
 
-    static sk_sp<SkPromiseImageTexture> Fulfill(void* self) {
+    static sk_sp<GrPromiseImageTexture> Fulfill(void* self) {
         auto checker = static_cast<PromiseTextureChecker*>(self);
         checker->fFulfillCount++;
         return checker->fTexture;
@@ -408,7 +408,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
     } counts;
     auto fulfill = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fFulfillCount;
-        return sk_sp<SkPromiseImageTexture>();
+        return sk_sp<GrPromiseImageTexture>();
     };
     auto release = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fReleaseCount;

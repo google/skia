@@ -16,7 +16,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
@@ -25,6 +24,8 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/private/chromium/GrPromiseImageTexture.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -363,11 +364,11 @@ sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
     /**
      * This class is the lazy instantiation callback for promise images. It manages calling the
      * client's Fulfill and Release procs. It attempts to reuse a GrTexture instance in
-     * cases where the client provides the same SkPromiseImageTexture as Fulfill results for
+     * cases where the client provides the same GrPromiseImageTexture as Fulfill results for
      * multiple SkImages. The created GrTexture is given a key based on a unique ID associated with
-     * the SkPromiseImageTexture.
+     * the GrPromiseImageTexture.
      *
-     * A key invalidation message is installed on the SkPromiseImageTexture so that the GrTexture
+     * A key invalidation message is installed on the GrPromiseImageTexture so that the GrTexture
      * is deleted once it can no longer be used to instantiate a proxy.
      */
     class PromiseLazyInstantiateCallback {
@@ -417,7 +418,7 @@ sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
             }
 
             SkImages::PromiseImageTextureContext textureContext = fReleaseHelper->context();
-            sk_sp<SkPromiseImageTexture> promiseTexture = fFulfillProc(textureContext);
+            sk_sp<GrPromiseImageTexture> promiseTexture = fFulfillProc(textureContext);
 
             if (!promiseTexture) {
                 fFulfillProcFailed = true;
