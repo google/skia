@@ -738,7 +738,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTexture, reporter, context) {
                 layout(binding = 0) writeonly texture2D dest;
 
                 void main() {
-                    write(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
+                    textureWrite(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
                 }
             )";
         }
@@ -845,8 +845,8 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
                 layout(binding = 1) writeonly texture2D dest;
 
                 void main() {
-                    half4 color = read(src, sk_LocalInvocationID.xy);
-                    write(dest, sk_LocalInvocationID.xy, color);
+                    half4 color = textureRead(src, sk_LocalInvocationID.xy);
+                    textureWrite(dest, sk_LocalInvocationID.xy, color);
                 }
             )";
         }
@@ -991,7 +991,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, 
                 layout(binding = 0) writeonly texture2D dest;
 
                 void main() {
-                    write(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
+                    textureWrite(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
                 }
             )";
         }
@@ -1035,8 +1035,8 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, 
                 layout(binding = 1) writeonly texture2D dest;
 
                 void main() {
-                    half4 color = read(src, sk_LocalInvocationID.xy);
-                    write(dest, sk_LocalInvocationID.xy, color);
+                    half4 color = textureRead(src, sk_LocalInvocationID.xy);
+                    textureWrite(dest, sk_LocalInvocationID.xy, color);
                 }
             )";
         }

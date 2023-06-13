@@ -7,7 +7,7 @@ half4 desaturate(half4 color) {
 }
 
 void main() {
-    if (sk_GlobalInvocationID.x < width(src) && sk_GlobalInvocationID.y < height(src)) {
-        write(dest, sk_GlobalInvocationID.xy, desaturate(read(src, sk_GlobalInvocationID.xy)));
+    if (sk_GlobalInvocationID.x < textureWidth(src) && sk_GlobalInvocationID.y < textureHeight(src)) {
+        textureWrite(dest, sk_GlobalInvocationID.xy, desaturate(textureRead(src, sk_GlobalInvocationID.xy)));
     }
 }

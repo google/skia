@@ -12,8 +12,8 @@ void main() {
     needs_all_access(dest);                         // BAD
     needs_all_access(multipurpose);                 // OK
 
-    read(dest, sk_GlobalInvocationID.xy);           // BAD
-    write(src, sk_GlobalInvocationID.xy, half4(1)); // BAD
+    textureRead(dest, sk_GlobalInvocationID.xy);           // BAD
+    textureWrite(src, sk_GlobalInvocationID.xy, half4(1)); // BAD
 
     overload(src);     //  OK: overload(readonly texture2D t)      exists
     overload(src, 1);  // BAD: overload(readonly texture2D t, int) missing
@@ -23,34 +23,34 @@ void main() {
 
 void function_param_honors_all_access(texture2D t) {
     needs_all_access(t);                          // OK
-    width(t);                                     // OK
-    read(t, sk_GlobalInvocationID.xy);            // OK
-    write(t, sk_GlobalInvocationID.xy, half4(1)); // OK
+    textureWidth(t);                                     // OK
+    textureRead(t, sk_GlobalInvocationID.xy);            // OK
+    textureWrite(t, sk_GlobalInvocationID.xy, half4(1)); // OK
 }
 
 void function_param_honors_readonly(readonly texture2D t) {
     needs_all_access(t);                          // BAD
-    width(t);                                     // OK
-    read(t, sk_GlobalInvocationID.xy);            // OK
-    write(t, sk_GlobalInvocationID.xy, half4(1)); // BAD
+    textureWidth(t);                                     // OK
+    textureRead(t, sk_GlobalInvocationID.xy);            // OK
+    textureWrite(t, sk_GlobalInvocationID.xy, half4(1)); // BAD
 }
 
 void function_param_honors_writeonly(writeonly texture2D t) {
     needs_all_access(t);                          // BAD
-    width(t);                                     // OK
-    read(t, sk_GlobalInvocationID.xy);            // BAD
-    write(t, sk_GlobalInvocationID.xy, half4(1)); // OK
+    textureWidth(t);                                     // OK
+    textureRead(t, sk_GlobalInvocationID.xy);            // BAD
+    textureWrite(t, sk_GlobalInvocationID.xy, half4(1)); // OK
 }
 
 /*%%*
 expected 'texture2D', but found 'readonlyTexture2D'
 expected 'texture2D', but found 'writeonlyTexture2D'
-no match for read(writeonlyTexture2D, uint2)
-no match for write(readonlyTexture2D, uint2, half4)
+no match for textureRead(writeonlyTexture2D, uint2)
+no match for textureWrite(readonlyTexture2D, uint2, half4)
 no match for overload(readonlyTexture2D, int)
 no match for overload(writeonlyTexture2D)
 expected 'texture2D', but found 'readonlyTexture2D'
-no match for write(readonlyTexture2D, uint2, half4)
+no match for textureWrite(readonlyTexture2D, uint2, half4)
 expected 'texture2D', but found 'writeonlyTexture2D'
-no match for read(writeonlyTexture2D, uint2)
+no match for textureRead(writeonlyTexture2D, uint2)
 *%%*/

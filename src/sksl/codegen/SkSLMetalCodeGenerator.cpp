@@ -621,14 +621,14 @@ void MetalCodeGenerator::writeArgumentList(const ExpressionArray& arguments) {
 bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind) {
     const ExpressionArray& arguments = c.arguments();
     switch (kind) {
-        case k_read_IntrinsicKind: {
+        case k_textureRead_IntrinsicKind: {
             this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".read(");
             this->writeExpression(*arguments[1], Precedence::kSequence);
             this->write(")");
             return true;
         }
-        case k_write_IntrinsicKind: {
+        case k_textureWrite_IntrinsicKind: {
             this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".write(");
             this->writeExpression(*arguments[2], Precedence::kSequence);
@@ -637,12 +637,12 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write(")");
             return true;
         }
-        case k_width_IntrinsicKind: {
+        case k_textureWidth_IntrinsicKind: {
             this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".get_width()");
             return true;
         }
-        case k_height_IntrinsicKind: {
+        case k_textureHeight_IntrinsicKind: {
             this->writeExpression(*arguments[0], Precedence::kExpression);
             this->write(".get_height()");
             return true;
