@@ -310,22 +310,22 @@ private:
                        const SkRect* src,
                        const SkRect* dst,
                        const SkPoint dstClip[4],
-                       SkCanvas::QuadAAFlags aaFlags,
+                       SkCanvas::QuadAAFlags,
                        const SkMatrix* preViewMatrix,
                        const SkSamplingOptions&,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint);
 
-    void drawEdgeAAImage(const SkMatrixProvider& matrixProvider,
-                         const SkPaint& paint,
-                         const SkImage* image,
+    void drawEdgeAAImage(const SkImage*,
                          const SkRect& src,
                          const SkRect& dst,
                          const SkPoint dstClip[4],
+                         SkCanvas::QuadAAFlags,
+                         const SkSamplingOptions&,
+                         const SkPaint&,
+                         SkCanvas::SrcRectConstraint,
+                         const SkMatrixProvider&,
                          const SkMatrix& srcToDst,
-                         SkCanvas::QuadAAFlags canvasAAFlags,
-                         SkCanvas::SrcRectConstraint constraint,
-                         SkSamplingOptions sampling,
                          SkTileMode tm) override;
 
     // FIXME(michaelludwig) - Should be removed in favor of using drawImageQuad with edge flags to

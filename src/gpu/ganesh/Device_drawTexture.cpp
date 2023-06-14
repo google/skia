@@ -299,16 +299,16 @@ bool can_disable_mipmap(const SkMatrix& viewM, const SkMatrix& localM) {
 
 namespace skgpu::ganesh {
 
-void Device::drawEdgeAAImage(const SkMatrixProvider& matrixProvider,
-                             const SkPaint& paint,
-                             const SkImage* image,
+void Device::drawEdgeAAImage(const SkImage* image,
                              const SkRect& src,
                              const SkRect& dst,
                              const SkPoint dstClip[4],
-                             const SkMatrix& srcToDst,
                              SkCanvas::QuadAAFlags canvasAAFlags,
+                             const SkSamplingOptions& sampling,
+                             const SkPaint& paint,
                              SkCanvas::SrcRectConstraint constraint,
-                             SkSamplingOptions sampling,
+                             const SkMatrixProvider& matrixProvider,
+                             const SkMatrix& srcToDst,
                              SkTileMode tm) {
     GrRecordingContext* rContext = fContext.get();
     SurfaceDrawContext* sdc = fSurfaceDrawContext.get();
@@ -477,16 +477,16 @@ void Device::drawSpecial(SkSpecialImage* special,
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
     SkMatrixProvider matrixProvider(localToDevice);
-    this->drawEdgeAAImage(matrixProvider,
-                          paint,
-                          &image,
+    this->drawEdgeAAImage(&image,
                           src,
                           dst,
                           /* dstClip= */nullptr,
-                          srcToDst,
                           aaFlags,
-                          SkCanvas::kStrict_SrcRectConstraint,
                           sampling,
+                          paint,
+                          SkCanvas::kStrict_SrcRectConstraint,
+                          matrixProvider,
+                          srcToDst,
                           SkTileMode::kClamp);
 }
 
@@ -584,16 +584,16 @@ void Device::drawImageQuad(const SkImage* image,
         }
     }
 
-    this->drawEdgeAAImage(matrixProvider,
-                          paint,
-                          image,
+    this->drawEdgeAAImage(image,
                           src,
                           dst,
                           dstClip,
-                          srcToDst,
                           aaFlags,
-                          constraint,
                           sampling,
+                          paint,
+                          constraint,
+                          matrixProvider,
+                          srcToDst,
                           SkTileMode::kClamp);
 }
 

@@ -264,16 +264,16 @@ void TiledTextureUtils::DrawTiledBitmap(SkBaseDevice* device,
                 tileR.offset(-offset.fX, -offset.fY);
                 SkMatrix offsetSrcToDst = srcToDst;
                 offsetSrcToDst.preTranslate(offset.fX, offset.fY);
-                device->drawEdgeAAImage(matrixProvider,
-                                        paint,
-                                        image.get(),
+                device->drawEdgeAAImage(image.get(),
                                         tileR,
                                         rectToDraw,
                                         /* dstClip= */ nullptr,
-                                        offsetSrcToDst,
                                         static_cast<SkCanvas::QuadAAFlags>(aaFlags),
-                                        constraint,
                                         sampling,
+                                        paint,
+                                        constraint,
+                                        matrixProvider,
+                                        offsetSrcToDst,
                                         tileMode);
 
 #if GR_TEST_UTILS

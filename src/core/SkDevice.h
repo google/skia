@@ -521,16 +521,16 @@ private:
     // could, almost, be replaced with a drawEdgeAAImageSet call for the tiled bitmap draw use
     // case but the extra tilemode requirement and the intermediate parameter processing (e.g.,
     // trying to alter the SrcRectConstraint) currently block that.
-    virtual void drawEdgeAAImage(const SkMatrixProvider&,
-                                 const SkPaint&,
-                                 const SkImage*,
+    virtual void drawEdgeAAImage(const SkImage*,
                                  const SkRect& src,
                                  const SkRect& dst,
                                  const SkPoint dstClip[4],
-                                 const SkMatrix& srcToDst,
                                  SkCanvas::QuadAAFlags,
+                                 const SkSamplingOptions&,
+                                 const SkPaint&,
                                  SkCanvas::SrcRectConstraint,
-                                 SkSamplingOptions,
+                                 const SkMatrixProvider&,
+                                 const SkMatrix& srcToDst,
                                  SkTileMode) {}
 
     friend class SkNoPixelsDevice;
