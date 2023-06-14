@@ -304,10 +304,10 @@ void Device::drawEdgeAAImage(const SkImage* image,
                              const SkRect& dst,
                              const SkPoint dstClip[4],
                              SkCanvas::QuadAAFlags canvasAAFlags,
+                             const SkMatrix& localToDevice,
                              const SkSamplingOptions& sampling,
                              const SkPaint& paint,
                              SkCanvas::SrcRectConstraint constraint,
-                             const SkMatrixProvider& matrixProvider,
                              const SkMatrix& srcToDst,
                              SkTileMode tm) {
     GrRecordingContext* rContext = fContext.get();
@@ -315,7 +315,6 @@ void Device::drawEdgeAAImage(const SkImage* image,
     const GrClip* clip = this->clip();
 
     GrQuadAAFlags aaFlags = SkToGrQuadAAFlags(canvasAAFlags);
-    const SkMatrix& ctm(matrixProvider.localToDevice());
     auto ib = as_IB(image);
     if (tm == SkTileMode::kClamp && !ib->isYUVA() && can_use_draw_texture(paint, sampling)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
@@ -328,7 +327,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
         info = info.makeColorType(ct);
         draw_texture(sdc,
                      clip,
-                     ctm,
+                     localToDevice,
                      paint,
                      sampling.filter,
                      src,
@@ -369,7 +368,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
         restrictToSubset && sampling.mipmap == SkMipmapMode::kNone && coordsAllInsideSrcRect &&
         !ib->isYUVA()) {
         SkMatrix combinedMatrix;
-        combinedMatrix.setConcat(ctm, srcToDst);
+        combinedMatrix.setConcat(localToDevice, srcToDst);
         if (can_ignore_linear_filtering_subset(src, combinedMatrix, sdc->numSamples())) {
             restrictToSubset = false;
         }
@@ -395,7 +394,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
             auto shaderFP = GrFragmentProcessors::Make(
                     shader,
                     GrFPArgs(rContext, &sdc->colorInfo(), sdc->surfaceProps()),
-                    matrixProvider.localToDevice());
+                    localToDevice);
             if (!shaderFP) {
                 return;
             }
@@ -411,7 +410,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
     if (!SkPaintToGrPaintReplaceShader(rContext,
                                        sdc->colorInfo(),
                                        paint,
-                                       ctm,
+                                       localToDevice,
                                        std::move(fp),
                                        sdc->surfaceProps(),
                                        &grPaint)) {
@@ -428,10 +427,11 @@ void Device::drawEdgeAAImage(const SkImage* image,
                 GrMapRectPoints(dst, src, dstClip, srcClipPoints, 4);
                 srcClip = srcClipPoints;
             }
-            sdc->fillQuadWithEdgeAA(clip, std::move(grPaint), aaFlags, ctm, dstClip, srcClip);
+            sdc->fillQuadWithEdgeAA(clip, std::move(grPaint), aaFlags, localToDevice,
+                                    dstClip, srcClip);
         } else {
             // Provide explicit texture coords when possible, otherwise rely on texture matrix
-            sdc->fillRectWithEdgeAA(clip, std::move(grPaint), aaFlags, ctm, dst,
+            sdc->fillRectWithEdgeAA(clip, std::move(grPaint), aaFlags, localToDevice, dst,
                                     canUseTextureCoordsAsLocalCoords ? &src : nullptr);
         }
     } else {
@@ -449,7 +449,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
         }
 
         GrBlurUtils::drawShapeWithMaskFilter(
-                rContext, sdc, clip, shape, std::move(grPaint), ctm, mf);
+                rContext, sdc, clip, shape, std::move(grPaint), localToDevice, mf);
     }
 }
 
@@ -476,16 +476,15 @@ void Device::drawSpecial(SkSpecialImage* special,
                          special->colorInfo());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
-    SkMatrixProvider matrixProvider(localToDevice);
     this->drawEdgeAAImage(&image,
                           src,
                           dst,
                           /* dstClip= */nullptr,
                           aaFlags,
+                          localToDevice,
                           sampling,
                           paint,
                           SkCanvas::kStrict_SrcRectConstraint,
-                          matrixProvider,
                           srcToDst,
                           SkTileMode::kClamp);
 }
@@ -570,12 +569,12 @@ void Device::drawImageQuad(const SkImage* image,
                 skgpu::TiledTextureUtils::DrawTiledBitmap(this,
                                                           bm,
                                                           tileSize,
-                                                          matrixProvider,
                                                           srcToDst,
                                                           src,
                                                           clippedSubset,
                                                           paint,
                                                           aaFlags,
+                                                          ctm,
                                                           constraint,
                                                           sampling,
                                                           tileMode);
@@ -589,10 +588,10 @@ void Device::drawImageQuad(const SkImage* image,
                           dst,
                           dstClip,
                           aaFlags,
+                          ctm,
                           sampling,
                           paint,
                           constraint,
-                          matrixProvider,
                           srcToDst,
                           SkTileMode::kClamp);
 }

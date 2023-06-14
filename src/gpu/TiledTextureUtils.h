@@ -43,12 +43,12 @@ public:
     static void DrawTiledBitmap(SkBaseDevice*,
                                 const SkBitmap&,
                                 int tileSize,
-                                const SkMatrixProvider&,
                                 const SkMatrix& srcToDst,
                                 const SkRect& srcRect,
                                 const SkIRect& clippedSrcIRect,
                                 const SkPaint& paint,
                                 SkCanvas::QuadAAFlags origAAFlags,
+                                const SkMatrix& localToDevice,
                                 SkCanvas::SrcRectConstraint constraint,
                                 SkSamplingOptions sampling,
                                 SkTileMode tileMode);

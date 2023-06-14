@@ -526,10 +526,10 @@ private:
                                  const SkRect& dst,
                                  const SkPoint dstClip[4],
                                  SkCanvas::QuadAAFlags,
+                                 const SkMatrix& localToDevice,
                                  const SkSamplingOptions&,
                                  const SkPaint&,
                                  SkCanvas::SrcRectConstraint,
-                                 const SkMatrixProvider&,
                                  const SkMatrix& srcToDst,
                                  SkTileMode) {}
 
