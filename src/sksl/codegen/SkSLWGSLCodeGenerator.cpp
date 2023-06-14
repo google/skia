@@ -56,6 +56,8 @@
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
+#include "src/sksl/ir/SkSLSwitchCase.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -66,7 +68,9 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
+#include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <string>
@@ -945,12 +949,14 @@ void WGSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
+        case Statement::Kind::kSwitch:
+            this->writeSwitchStatement(s.as<SwitchStatement>());
+            break;
+        case Statement::Kind::kSwitchCase:
+            SkDEBUGFAIL("switch-case statements should only be present inside a switch");
+            break;
         case Statement::Kind::kVarDeclaration:
             this->writeVarDeclaration(s.as<VarDeclaration>());
-            break;
-        default:
-            SkDEBUGFAILF("unsupported statement (kind: %d) %s",
-                         static_cast<int>(s.kind()), s.description().c_str());
             break;
     }
 }
@@ -1174,6 +1180,129 @@ void WGSLCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
     this->write("return ");
     this->write(expr);
     this->write(";");
+}
+
+void WGSLCodeGenerator::writeSwitchCaseList(SkSpan<const SwitchCase* const> cases) {
+    auto separator = SkSL::String::Separator();
+    for (const SwitchCase* const sc : cases) {
+        this->write(separator());
+        if (sc->isDefault()) {
+            this->write("default");
+        } else {
+            this->write(std::to_string(sc->value()));
+        }
+    }
+}
+
+void WGSLCodeGenerator::writeSwitchCases(SkSpan<const SwitchCase* const> cases) {
+    if (!cases.empty()) {
+        // Only the last switch-case should have a non-empty statement.
+        SkASSERT(std::all_of(cases.begin(), std::prev(cases.end()), [](const SwitchCase* sc) {
+            return sc->statement()->isEmpty();
+        }));
+
+        // Emit the cases in a comma-separated list.
+        this->write("case ");
+        this->writeSwitchCaseList(cases);
+        this->writeLine(" {");
+        ++fIndentation;
+
+        // Emit the switch-case body.
+        this->writeStatement(*cases.back()->statement());
+        this->finishLine();
+
+        --fIndentation;
+        this->writeLine("}");
+    }
+}
+
+void WGSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    // WGSL supports the `switch` statement in a limited capacity. A default case must always be
+    // specified. Each switch-case must be scoped inside braces. Fallthrough is not supported; a
+    // trailing break is implied at the end of each switch-case block. (Explicit breaks are also
+    // allowed.)  One minor improvement over a traditional switch is that switch-cases take a list
+    // of values to match, instead of a single value:
+    //   case 1, 2       { foo(); }
+    //   case 3, default { bar(); }
+    //
+    // We will use the native WGSL switch statement for any switch-cases in the SkSL which can be
+    // made to conform to these limitations. The remaining cases which cannot conform will be
+    // emulated with if-else blocks (similar to our GLSL ES2 switch-statement emulation path). This
+    // should give us good performance in the common case, since most switches naturally conform.
+
+    // First, let's emit the switch itself.
+    std::string valueExpr = this->writeNontrivialScratchLet(*s.value(), Precedence::kExpression);
+    this->write("switch ");
+    this->write(valueExpr);
+    this->writeLine(" {");
+    ++fIndentation;
+
+    // Now let's go through the switch-cases, and emit the ones that don't fall through.
+    TArray<const SwitchCase*> nativeCases;
+    TArray<const SwitchCase*> fallthroughCases;
+    bool previousCaseFellThrough = false;
+    bool foundNativeDefault = false;
+    [[maybe_unused]] bool foundFallthroughDefault = false;
+
+    const int lastSwitchCaseIdx = s.cases().size() - 1;
+    for (int index = 0; index <= lastSwitchCaseIdx; ++index) {
+        const SwitchCase& sc = s.cases()[index]->as<SwitchCase>();
+
+        if (sc.statement()->isEmpty()) {
+            // This is a `case X:` that immediately falls through to the next case.
+            // If we aren't already falling through, we can handle this via a comma-separated list.
+            if (previousCaseFellThrough) {
+                fallthroughCases.push_back(&sc);
+                foundFallthroughDefault |= sc.isDefault();
+            } else {
+                nativeCases.push_back(&sc);
+                foundNativeDefault |= sc.isDefault();
+            }
+            continue;
+        }
+
+        if (index == lastSwitchCaseIdx || Analysis::SwitchCaseContainsUnconditionalExit(sc)) {
+            // This is a `case X:` that never falls through.
+            if (previousCaseFellThrough) {
+                // Because the previous case fell through, we can't use a native switch-case here,
+                // but at least we're no longer falling through blocks.
+                fallthroughCases.push_back(&sc);
+                foundFallthroughDefault |= sc.isDefault();
+                previousCaseFellThrough = false;
+            } else {
+                // Emit a native switch-case block with a comma-separated case list.
+                nativeCases.push_back(&sc);
+                foundNativeDefault |= sc.isDefault();
+                this->writeSwitchCases(nativeCases);
+                nativeCases.clear();
+            }
+            continue;
+        }
+
+        // This case falls through, so it will need to be handled via emulation.
+        fallthroughCases.push_back(&sc);
+        foundFallthroughDefault |= sc.isDefault();
+        previousCaseFellThrough = true;
+    }
+
+    // Finish out the remaining native switch-cases.
+    this->writeSwitchCases(nativeCases);
+    nativeCases.clear();
+
+    // WGSL requires a default case.
+    if (!foundNativeDefault) {
+        this->writeLine("case default {}");
+    }
+
+    if (!fallthroughCases.empty()) {
+        // TODO: emulate fallthrough with if-else statements
+        this->write("// cases missing due to fallthrough: ");
+        this->writeSwitchCaseList(fallthroughCases);
+        this->finishLine();
+    }
+
+    --fIndentation;
+    this->writeLine("}");
 }
 
 void WGSLCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {

@@ -58,6 +58,8 @@ class ProgramElement;
 class ReturnStatement;
 class Statement;
 class StructDefinition;
+class SwitchCase;
+class SwitchStatement;
 class Swizzle;
 class TernaryExpression;
 class Type;
@@ -186,6 +188,9 @@ private:
     void writeForStatement(const ForStatement& s);
     void writeIfStatement(const IfStatement& s);
     void writeReturnStatement(const ReturnStatement& s);
+    void writeSwitchStatement(const SwitchStatement& s);
+    void writeSwitchCases(SkSpan<const SwitchCase* const> cases);
+    void writeSwitchCaseList(SkSpan<const SwitchCase* const> cases);
     void writeVarDeclaration(const VarDeclaration& varDecl);
 
     // Synthesizes an LValue for an expression.

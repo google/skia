@@ -113,13 +113,13 @@ int NodeCountUpToLimit(const FunctionDefinition& function, int limit);
  * Finds unconditional exits from a switch-case. Returns true if this statement unconditionally
  * causes an exit from this switch (via continue, break or return).
  */
-bool SwitchCaseContainsUnconditionalExit(Statement& stmt);
+bool SwitchCaseContainsUnconditionalExit(const Statement& stmt);
 
 /**
  * Finds conditional exits from a switch-case. Returns true if this statement contains a
  * conditional that wraps a potential exit from the switch (via continue, break or return).
  */
-bool SwitchCaseContainsConditionalExit(Statement& stmt);
+bool SwitchCaseContainsConditionalExit(const Statement& stmt);
 
 std::unique_ptr<ProgramUsage> GetUsage(const Program& program);
 std::unique_ptr<ProgramUsage> GetUsage(const Module& module);
