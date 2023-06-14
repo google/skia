@@ -585,9 +585,11 @@ export interface Camera {
 /**
  * CanvasKit is built with Emscripten and Embind. Embind adds the following methods to all objects
  * that are exposed with it.
+ * This _type field is necessary for the TypeScript compiler to differentiate
+ * between opaque types such as Shader and ColorFilter. It doesn't exist at runtime.
  */
-export interface EmbindObject<T extends EmbindObject<T>> {
-    clone(): T;
+export interface EmbindObject<T extends string> {
+    _type: T;
     delete(): void;
     deleteLater(): void;
     isAliasOf(other: any): boolean;
@@ -660,7 +662,7 @@ export interface FontStyle {
 /**
  * See GrDirectContext.h for more on this class.
  */
-export interface GrDirectContext extends EmbindObject<GrDirectContext> {
+export interface GrDirectContext extends EmbindObject<"GrDirectContext"> {
     getResourceCacheLimitBytes(): number;
     getResourceCacheUsageBytes(): number;
     releaseResourcesAndAbandonContext(): void;
@@ -953,7 +955,7 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
  * See Paragraph.h for more information on this class. This is only available if Paragraph has
  * been compiled in.
  */
-export interface Paragraph extends EmbindObject<Paragraph> {
+export interface Paragraph extends EmbindObject<"Paragraph"> {
     didExceedMaxLines(): boolean;
     getAlphabeticBaseline(): number;
 
@@ -1006,7 +1008,7 @@ export interface Paragraph extends EmbindObject<Paragraph> {
     unresolvedCodepoints(): number[];
 }
 
-export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
+export interface ParagraphBuilder extends EmbindObject<"ParagraphBuilder"> {
     /**
      * Pushes the information required to leave an open space.
      * @param width
@@ -1157,7 +1159,7 @@ export interface SkSLUniform {
 /**
  * See SkAnimatedImage.h for more information on this class.
  */
-export interface AnimatedImage extends EmbindObject<AnimatedImage> {
+export interface AnimatedImage extends EmbindObject<"AnimatedImage"> {
     /**
      * Returns the length of the current frame in ms.
      */
@@ -1202,7 +1204,7 @@ export interface AnimatedImage extends EmbindObject<AnimatedImage> {
 /**
  * See SkCanvas.h for more information on this class.
  */
-export interface Canvas extends EmbindObject<Canvas> {
+export interface Canvas extends EmbindObject<"Canvas"> {
     /**
      * Fills the current clip with the given color using Src BlendMode.
      * This has the effect of replacing all pixels contained by clip with color.
@@ -1704,9 +1706,9 @@ export interface Canvas extends EmbindObject<Canvas> {
 /**
  * See SkColorFilter.h for more on this class. The objects are opaque.
  */
-export type ColorFilter = EmbindObject<ColorFilter>;
+export type ColorFilter = EmbindObject<"ColorFilter">;
 
-export interface ContourMeasureIter extends EmbindObject<ContourMeasureIter> {
+export interface ContourMeasureIter extends EmbindObject<"ContourMeasureIter"> {
     /**
      *  Iterates through contours in path, returning a contour-measure object for each contour
      *  in the path. Returns null when it is done.
@@ -1716,7 +1718,7 @@ export interface ContourMeasureIter extends EmbindObject<ContourMeasureIter> {
     next(): ContourMeasure | null;
 }
 
-export interface ContourMeasure extends EmbindObject<ContourMeasure> {
+export interface ContourMeasure extends EmbindObject<"ContourMeasure"> {
     /**
      * Returns the given position and tangent line for the distance on the given contour.
      * The return value is 4 floats in this order: posX, posY, vecX, vecY.
@@ -1755,7 +1757,7 @@ export interface FontMetrics {
 /**
  * See SkFont.h for more on this class.
  */
-export interface Font extends EmbindObject<Font> {
+export interface Font extends EmbindObject<"Font"> {
     /**
      * Returns the FontMetrics for this font.
      */
@@ -1906,7 +1908,7 @@ export interface Font extends EmbindObject<Font> {
 /**
  * See SkFontMgr.h for more details
  */
-export interface FontMgr extends EmbindObject<FontMgr> {
+export interface FontMgr extends EmbindObject<"FontMgr"> {
     /**
      * Return the number of font families loaded in this manager. Useful for debugging.
      */
@@ -1922,7 +1924,7 @@ export interface FontMgr extends EmbindObject<FontMgr> {
 /**
  * See SkImage.h for more information on this class.
  */
-export interface Image extends EmbindObject<Image> {
+export interface Image extends EmbindObject<"Image"> {
     /**
      * Encodes this image's pixels to the specified format and returns them. Must be built with
      * the specified codec. If the options are unspecified, sensible defaults will be
@@ -2008,7 +2010,7 @@ export interface Image extends EmbindObject<Image> {
 /**
  * See ImageFilter.h for more on this class. The objects are opaque.
  */
-export type ImageFilter = EmbindObject<ImageFilter>;
+export type ImageFilter = EmbindObject<"ImageFilter">;
 
 export interface ImageInfo {
     alphaType: AlphaType;
@@ -2044,12 +2046,12 @@ export interface FilterOptions {
 /**
  * See SkMaskFilter.h for more on this class. The objects are opaque.
  */
-export type MaskFilter = EmbindObject<MaskFilter>;
+export type MaskFilter = EmbindObject<"MaskFilter">;
 
 /**
  * See SkPaint.h for more information on this class.
  */
-export interface Paint extends EmbindObject<Paint> {
+export interface Paint extends EmbindObject<"Paint"> {
     /**
      * Returns a copy of this paint.
      */
@@ -2200,7 +2202,7 @@ export interface Paint extends EmbindObject<Paint> {
 /**
  * See SkPath.h for more information on this class.
  */
-export interface Path extends EmbindObject<Path> {
+export interface Path extends EmbindObject<"Path"> {
     /**
      * Appends arc to Path, as the start of new contour. Arc added is part of ellipse
      * bounded by oval, from startAngle through sweepAngle. Both startAngle and
@@ -2658,7 +2660,7 @@ export interface Path extends EmbindObject<Path> {
 /**
  * See SkPathEffect.h for more on this class. The objects are opaque.
  */
-export type PathEffect = EmbindObject<PathEffect>;
+export type PathEffect = EmbindObject<"PathEffect">;
 
 /**
  * See SkPicture.h for more information on this class.
@@ -2666,7 +2668,7 @@ export type PathEffect = EmbindObject<PathEffect>;
  * Of note, SkPicture is *not* what is colloquially thought of as a "picture" (what we
  * call a bitmap). An SkPicture is a series of draw commands.
  */
-export interface SkPicture extends EmbindObject<SkPicture> {
+export interface SkPicture extends EmbindObject<"SkPicture"> {
     /**
      *  Returns a new shader that will draw with this picture.
      *
@@ -2690,7 +2692,7 @@ export interface SkPicture extends EmbindObject<SkPicture> {
     serialize(): Uint8Array | null;
 }
 
-export interface PictureRecorder extends EmbindObject<PictureRecorder> {
+export interface PictureRecorder extends EmbindObject<"PictureRecorder"> {
     /**
      * Returns a canvas on which to draw. When done drawing, call finishRecordingAsPicture()
      *
@@ -2707,7 +2709,7 @@ export interface PictureRecorder extends EmbindObject<PictureRecorder> {
 /**
  * See SkRuntimeEffect.h for more details.
  */
-export interface RuntimeEffect extends EmbindObject<RuntimeEffect> {
+export interface RuntimeEffect extends EmbindObject<"RuntimeEffect"> {
     /**
      * Returns a shader executed using the given uniform data.
      * @param uniforms
@@ -2753,9 +2755,9 @@ export interface RuntimeEffect extends EmbindObject<RuntimeEffect> {
 /**
  * See SkShader.h for more on this class. The objects are opaque.
  */
-export type Shader = EmbindObject<Shader>;
+export type Shader = EmbindObject<"Shader">;
 
-export interface Surface extends EmbindObject<Surface> {
+export interface Surface extends EmbindObject<"Surface"> {
     /**
      * A convenient way to draw exactly once on the canvas associated with this surface.
      * This requires an environment where a global function called requestAnimationFrame is
@@ -2887,12 +2889,12 @@ export interface Surface extends EmbindObject<Surface> {
 /**
  * See SkTextBlob.h for more on this class. The objects are opaque.
  */
-export type TextBlob = EmbindObject<TextBlob>;
+export type TextBlob = EmbindObject<"TextBlob">;
 
 /**
  * See SkTypeface.h for more on this class. The objects are opaque.
  */
-export interface Typeface extends EmbindObject<Typeface> {
+export interface Typeface extends EmbindObject<"Typeface"> {
     /**
      * Retrieves the glyph ids for each code point in the provided string. Note that glyph IDs
      * are typeface-dependent; different faces may have different ids for the same code point.
@@ -2907,7 +2909,7 @@ export interface Typeface extends EmbindObject<Typeface> {
 /**
  * See SkVertices.h for more on this class.
  */
-export interface Vertices extends EmbindObject<Vertices> {
+export interface Vertices extends EmbindObject<"Vertices"> {
     /**
      * Return the bounding area for the vertices.
      * @param outputArray - if provided, the bounding box will be copied into this array instead of
@@ -2921,7 +2923,7 @@ export interface Vertices extends EmbindObject<Vertices> {
     uniqueID(): number;
 }
 
-export interface SkottieAnimation extends EmbindObject<SkottieAnimation> {
+export interface SkottieAnimation extends EmbindObject<"SkottieAnimation"> {
     /**
      * Returns the animation duration in seconds.
      */
@@ -3045,7 +3047,7 @@ export interface TonalColorsOutput {
     spot: Color;
 }
 
-export interface TypefaceFontProvider extends EmbindObject<TypefaceFontProvider> {
+export interface TypefaceFontProvider extends EmbindObject<"TypefaceFontProvider"> {
     /**
      * Registers a given typeface with the given family name (ignoring whatever name the
      * typface has for itself).
@@ -3058,7 +3060,7 @@ export interface TypefaceFontProvider extends EmbindObject<TypefaceFontProvider>
 /**
  * See FontCollection.h in SkParagraph for more details
  */
-export interface FontCollection extends EmbindObject<FontCollection> {
+export interface FontCollection extends EmbindObject<"FontCollection"> {
     /**
      * Enable fallback to dynamically discovered fonts for characters that are not handled
      * by the text style's fonts.
@@ -3757,7 +3759,7 @@ export interface PathEffectFactory {
 /**
  * See RuntimeEffect.h for more details.
  */
-export interface DebugTrace extends EmbindObject<DebugTrace> {
+export interface DebugTrace extends EmbindObject<"DebugTrace"> {
     writeTrace(): string;
 }
 
@@ -4277,7 +4279,7 @@ export type BlendMode = EmbindEnumEntity;
 export type BlurStyle = EmbindEnumEntity;
 export type ClipOp = EmbindEnumEntity;
 export type ColorChannel = EmbindEnumEntity;
-export type ColorSpace = EmbindObject<ColorSpace>;
+export type ColorSpace = EmbindObject<"ColorSpace">;
 export type ColorType = EmbindEnumEntity;
 export type EncodedImageFormat = EmbindEnumEntity;
 export type FillType = EmbindEnumEntity;

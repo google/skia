@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - `EmbindObject` has been updated to allow TypeScript to differentiate between opaque
+   types such as Shader, ColorFilter, et cetera.
+
 ## [0.38.2] - 2023-06-09
 
 ### Added
