@@ -16,8 +16,24 @@ fn switch_with_continue_in_while_loop_bi(_skParam0: i32) -> bool {
     var val: i32 = 0;
     var i: i32 = 0;
     switch x {
-      case default {}
-      // cases missing due to fallthrough: 1, default
+      case 1, default {
+        var _skTemp0: bool = false;
+        if x == 1 {
+          loop {
+            if i < 10 {
+              {
+                i = i + i32(1);
+                val = val + i32(1);
+                continue;
+              }
+            } else {
+              break;
+            }
+          }
+          // fallthrough
+        }
+        val = val + i32(1);
+      }
     }
     return val == 11;
   }
@@ -55,8 +71,23 @@ fn switch_with_break_in_do_while_loop_bi(_skParam0: i32) -> bool {
     var val: i32 = 0;
     var i: i32 = 0;
     switch x {
-      case default {}
-      // cases missing due to fallthrough: 1, default
+      case 1, default {
+        var _skTemp1: bool = false;
+        if x == 1 {
+          loop {
+            {
+              i = i + i32(1);
+              val = val + i32(1);
+              break;
+            }
+            continuing {
+              break if i >= 10;
+            }
+          }
+          // fallthrough
+        }
+        val = val + i32(1);
+      }
     }
     return val == 2;
   }
@@ -67,8 +98,23 @@ fn switch_with_continue_in_do_while_loop_bi(_skParam0: i32) -> bool {
     var val: i32 = 0;
     var i: i32 = 0;
     switch x {
-      case default {}
-      // cases missing due to fallthrough: 1, default
+      case 1, default {
+        var _skTemp2: bool = false;
+        if x == 1 {
+          loop {
+            {
+              i = i + i32(1);
+              val = val + i32(1);
+              continue;
+            }
+            continuing {
+              break if i >= 10;
+            }
+          }
+          // fallthrough
+        }
+        val = val + i32(1);
+      }
     }
     return val == 11;
   }
@@ -106,51 +152,67 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var _0_val: i32 = 0;
     var _1_i: i32 = 0;
     switch x {
-      case default {}
-      // cases missing due to fallthrough: 1, default
+      case 1, default {
+        var _skTemp3: bool = false;
+        if x == 1 {
+          loop {
+            if _1_i < 10 {
+              {
+                _1_i = _1_i + i32(1);
+                _0_val = _0_val + i32(1);
+                break;
+              }
+            } else {
+              break;
+            }
+          }
+          // fallthrough
+        }
+        _0_val = _0_val + i32(1);
+      }
     }
-    var _skTemp0: vec4<f32>;
-    var _skTemp1: bool;
-    var _skTemp2: bool;
-    var _skTemp3: bool;
-    var _skTemp4: bool;
+    var _skTemp4: vec4<f32>;
     var _skTemp5: bool;
+    var _skTemp6: bool;
+    var _skTemp7: bool;
+    var _skTemp8: bool;
+    var _skTemp9: bool;
     if _0_val == 2 {
-      let _skTemp6 = switch_with_continue_in_while_loop_bi(x);
-      _skTemp5 = _skTemp6;
+      let _skTemp10 = switch_with_continue_in_while_loop_bi(x);
+      _skTemp9 = _skTemp10;
+    } else {
+      _skTemp9 = false;
+    }
+    if _skTemp9 {
+      let _skTemp11 = while_loop_with_break_in_switch_bi(x);
+      _skTemp8 = _skTemp11;
+    } else {
+      _skTemp8 = false;
+    }
+    if _skTemp8 {
+      let _skTemp12 = switch_with_break_in_do_while_loop_bi(x);
+      _skTemp7 = _skTemp12;
+    } else {
+      _skTemp7 = false;
+    }
+    if _skTemp7 {
+      let _skTemp13 = switch_with_continue_in_do_while_loop_bi(x);
+      _skTemp6 = _skTemp13;
+    } else {
+      _skTemp6 = false;
+    }
+    if _skTemp6 {
+      let _skTemp14 = do_while_loop_with_break_in_switch_bi(x);
+      _skTemp5 = _skTemp14;
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp7 = while_loop_with_break_in_switch_bi(x);
-      _skTemp4 = _skTemp7;
+      _skTemp4 = _globalUniforms.colorGreen;
     } else {
-      _skTemp4 = false;
+      _skTemp4 = _globalUniforms.colorRed;
     }
-    if _skTemp4 {
-      let _skTemp8 = switch_with_break_in_do_while_loop_bi(x);
-      _skTemp3 = _skTemp8;
-    } else {
-      _skTemp3 = false;
-    }
-    if _skTemp3 {
-      let _skTemp9 = switch_with_continue_in_do_while_loop_bi(x);
-      _skTemp2 = _skTemp9;
-    } else {
-      _skTemp2 = false;
-    }
-    if _skTemp2 {
-      let _skTemp10 = do_while_loop_with_break_in_switch_bi(x);
-      _skTemp1 = _skTemp10;
-    } else {
-      _skTemp1 = false;
-    }
-    if _skTemp1 {
-      _skTemp0 = _globalUniforms.colorGreen;
-    } else {
-      _skTemp0 = _globalUniforms.colorRed;
-    }
-    return _skTemp0;
+    return _skTemp4;
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

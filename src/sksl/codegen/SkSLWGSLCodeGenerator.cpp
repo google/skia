@@ -1216,6 +1216,77 @@ void WGSLCodeGenerator::writeSwitchCases(SkSpan<const SwitchCase* const> cases) 
     }
 }
 
+void WGSLCodeGenerator::writeEmulatedSwitchFallthroughCases(SkSpan<const SwitchCase* const> cases,
+                                                            std::string_view switchValue) {
+    // There's no need for fallthrough handling unless we actually have multiple case blocks.
+    if (cases.size() < 2) {
+        this->writeSwitchCases(cases);
+        return;
+    }
+
+    // Match against the entire case group.
+    this->write("case ");
+    this->writeSwitchCaseList(cases);
+    this->writeLine(" {");
+    ++fIndentation;
+
+    std::string fallthroughVar = this->writeScratchVar(*fContext.fTypes.fBool, "false");
+    const size_t secondToLastCaseIndex = cases.size() - 2;
+    const size_t lastCaseIndex = cases.size() - 1;
+
+    for (size_t index = 0; index < cases.size(); ++index) {
+        const SwitchCase& sc = *cases[index];
+        if (index < lastCaseIndex) {
+            // The default case must come last in SkSL, and this case isn't the last one, so it
+            // can't possibly be the default.
+            SkASSERT(!sc.isDefault());
+
+            this->write("if ");
+            if (index > 0) {
+                this->write(fallthroughVar);
+                this->write(" || ");
+            }
+            this->write(switchValue);
+            this->write(" == ");
+            this->write(std::to_string(sc.value()));
+            this->writeLine(" {");
+            fIndentation++;
+
+            // We write the entire case-block statement here, and then set `switchFallthrough`
+            // to 1. If the case-block had a break statement in it, we break out of the outer
+            // for-loop entirely, meaning the `switchFallthrough` assignment never occurs, nor
+            // does any code after it inside the switch. We've forbidden `continue` statements
+            // inside switch case-blocks entirely, so we don't need to consider their effect on
+            // control flow; see the Finalizer in FunctionDefinition::Convert.
+            this->writeStatement(*sc.statement());
+            this->finishLine();
+
+            if (index < secondToLastCaseIndex) {
+                // Set a variable to indicate falling through to the next block. The very last
+                // case-block is reached by process of elimination and doesn't need this
+                // variable, so we don't actually need to set it if we are on the second-to-last
+                // case block.
+                this->write(fallthroughVar);
+                this->write(" = true;  ");
+            }
+            this->writeLine("// fallthrough");
+
+            fIndentation--;
+            this->writeLine("}");
+        } else {
+            // This is the final case. Since it's always last, we can just dump in the code.
+            // (If we didn't match any of the other values, we must have matched this one by
+            // process of elimination. If we did match one of the other values, we either hit a
+            // `break` statement earlier--and won't get this far--or we're falling through.)
+            this->writeStatement(*sc.statement());
+            this->finishLine();
+        }
+    }
+
+    --fIndentation;
+    this->writeLine("}");
+}
+
 void WGSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     // WGSL supports the `switch` statement in a limited capacity. A default case must always be
     // specified. Each switch-case must be scoped inside braces. Fallthrough is not supported; a
@@ -1264,15 +1335,21 @@ void WGSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         if (index == lastSwitchCaseIdx || Analysis::SwitchCaseContainsUnconditionalExit(sc)) {
             // This is a `case X:` that never falls through.
             if (previousCaseFellThrough) {
-                // Because the previous case fell through, we can't use a native switch-case here,
-                // but at least we're no longer falling through blocks.
+                // Because the previous cases fell through, we can't use a native switch-case here.
                 fallthroughCases.push_back(&sc);
                 foundFallthroughDefault |= sc.isDefault();
+
+                this->writeEmulatedSwitchFallthroughCases(fallthroughCases, valueExpr);
+                fallthroughCases.clear();
+
+                // Fortunately, we're no longer falling through blocks, so we might be able to use a
+                // native switch-case list again.
                 previousCaseFellThrough = false;
             } else {
                 // Emit a native switch-case block with a comma-separated case list.
                 nativeCases.push_back(&sc);
                 foundNativeDefault |= sc.isDefault();
+
                 this->writeSwitchCases(nativeCases);
                 nativeCases.clear();
             }
@@ -1285,20 +1362,16 @@ void WGSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         previousCaseFellThrough = true;
     }
 
-    // Finish out the remaining native switch-cases.
+    // Finish out the remaining switch-cases.
     this->writeSwitchCases(nativeCases);
     nativeCases.clear();
 
-    // WGSL requires a default case.
-    if (!foundNativeDefault) {
-        this->writeLine("case default {}");
-    }
+    this->writeEmulatedSwitchFallthroughCases(fallthroughCases, valueExpr);
+    fallthroughCases.clear();
 
-    if (!fallthroughCases.empty()) {
-        // TODO: emulate fallthrough with if-else statements
-        this->write("// cases missing due to fallthrough: ");
-        this->writeSwitchCaseList(fallthroughCases);
-        this->finishLine();
+    // WGSL requires a default case.
+    if (!foundNativeDefault && !foundFallthroughDefault) {
+        this->writeLine("case default {}");
     }
 
     --fIndentation;
