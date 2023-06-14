@@ -1062,6 +1062,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLCommaSideEffects_GPU")
 		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES2_GPU")
 		skip(ALL, "tests", ALL, "SkSLIntrinsicClampFloat_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_GPU")
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexLookup_GPU") // skia:14177
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")  // skia:14177
 	}
