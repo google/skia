@@ -1305,7 +1305,7 @@ void make_interpolated_to_dst(const skgpu::graphite::KeyContext& keyContext,
                               skgpu::graphite::PaintParamsKeyBuilder* builder,
                               skgpu::graphite::PipelineDataGatherer* gatherer,
                               const skgpu::graphite::GradientShaderBlocks::GradientData& gradData,
-                              const SkGradientBaseShader::Interpolation& interp,
+                              const SkGradientShader::Interpolation& interp,
                               SkColorSpace* intermediateCS) {
     using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
     using namespace skgpu::graphite;
