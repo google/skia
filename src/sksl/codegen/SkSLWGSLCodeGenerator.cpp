@@ -1710,15 +1710,15 @@ std::string WGSLCodeGenerator::assembleVectorizedIntrinsic(std::string_view intr
     std::string expr = std::string(intrinsicName);
     expr.push_back('(');
 
-    const ExpressionArray& args = call.arguments();
     auto separator = SkSL::String::Separator();
-    bool arg0IsVector = args[0]->type().isVector();
+    const ExpressionArray& args = call.arguments();
+    bool returnsVector = call.type().isVector();
     for (int index = 0; index < args.size(); ++index) {
         expr += separator();
 
-        bool vectorize = arg0IsVector && args[index]->type().isScalar();
+        bool vectorize = returnsVector && args[index]->type().isScalar();
         if (vectorize) {
-            expr += to_wgsl_type(args[0]->type());
+            expr += to_wgsl_type(call.type());
             expr.push_back('(');
         }
 
@@ -1788,8 +1788,6 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             const char* name = (arguments.size() == 1) ? "atan" : "atan2";
             return this->assembleSimpleIntrinsic(name, call);
         }
-        case k_clamp_IntrinsicKind:
-            return this->assembleVectorizedIntrinsic("clamp", call);
 
         case k_dot_IntrinsicKind: {
             if (arguments[0]->type().columns() == 1) {
@@ -1828,12 +1826,19 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_lessThanEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::LTEQ, call, parentPrecedence);
 
-        case k_max_IntrinsicKind:
-            return this->assembleVectorizedIntrinsic("max", call);
-
-        case k_min_IntrinsicKind:
-            return this->assembleVectorizedIntrinsic("min", call);
-
+        case k_mix_IntrinsicKind: {
+            const char* name = arguments[2]->type().componentType().isBoolean() ? "select" : "mix";
+            return this->assembleVectorizedIntrinsic(name, call);
+        }
+        case k_mod_IntrinsicKind: {
+            // WGSL has no intrinsic equivalent to `mod`. Synthesize `x - y * floor(x / y)`.
+            std::string arg0 = this->writeNontrivialScratchLet(*arguments[0],
+                                                               Precedence::kAdditive);
+            std::string arg1 = this->writeNontrivialScratchLet(*arguments[1],
+                                                               Precedence::kAdditive);
+            return this->writeScratchLet(arg0 + " - " + arg1 + " * floor(" +
+                                         arg0 + " / " + arg1 + ")");
+        }
         case k_normalize_IntrinsicKind: {
             const char* name = arguments[0]->type().isScalar() ? "sign" : "normalize";
             return this->assembleSimpleIntrinsic(name, call);
@@ -1844,6 +1849,14 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_notEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::NEQ, call, parentPrecedence);
 
+        case k_clamp_IntrinsicKind:
+        case k_max_IntrinsicKind:
+        case k_min_IntrinsicKind:
+        case k_smoothstep_IntrinsicKind:
+        case k_step_IntrinsicKind:
+            return this->assembleVectorizedIntrinsic(call.function().name(), call);
+
+        case k_abs_IntrinsicKind:
         case k_acos_IntrinsicKind:
         case k_asin_IntrinsicKind:
         case k_ceil_IntrinsicKind:
@@ -1852,10 +1865,12 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_exp_IntrinsicKind:
         case k_exp2_IntrinsicKind:
         case k_floor_IntrinsicKind:
+        case k_fract_IntrinsicKind:
         case k_log_IntrinsicKind:
         case k_log2_IntrinsicKind:
         case k_radians_IntrinsicKind:
         case k_pow_IntrinsicKind:
+        case k_sign_IntrinsicKind:
         case k_sin_IntrinsicKind:
         case k_sqrt_IntrinsicKind:
         case k_tan_IntrinsicKind:
