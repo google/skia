@@ -28,46 +28,31 @@ namespace skgpu::ganesh {
 
 namespace skgpu {
 
-bool ShouldTileImage(SkIRect conservativeClipBounds,
-                     const SkISize& imageSize,
-                     const SkMatrix& ctm,
-                     const SkMatrix& srcToDst,
-                     const SkRect* src,
-                     int maxTileSize,
-                     size_t cacheSize,
-                     int* tileSize,
-                     SkIRect* clippedSubset);
+class TiledTextureUtils {
+public:
+    static bool ShouldTileImage(SkIRect conservativeClipBounds,
+                                const SkISize& imageSize,
+                                const SkMatrix& ctm,
+                                const SkMatrix& srcToDst,
+                                const SkRect* src,
+                                int maxTileSize,
+                                size_t cacheSize,
+                                int* tileSize,
+                                SkIRect* clippedSubset);
 
-typedef void (*DrawImageProc)(GrRecordingContext* rContext,
-                              skgpu::ganesh::SurfaceDrawContext* sdc,
-                              const GrClip* clip,
-                              const SkMatrixProvider& matrixProvider,
-                              const SkPaint& paint,
-                              const SkImage* image,
-                              const SkRect& src,
-                              const SkRect& dst,
-                               const SkPoint dstClip[4],
-                              const SkMatrix& srcToDst,
-                              SkCanvas::QuadAAFlags aaFlags,
-                              SkCanvas::SrcRectConstraint constraint,
-                              SkSamplingOptions sampling,
-                              SkTileMode tm);
-
-void DrawTiledBitmap(GrRecordingContext* rContext,
-                     skgpu::ganesh::SurfaceDrawContext* sdc,
-                     const GrClip* clip,
-                     const SkBitmap& bitmap,
-                     int tileSize,
-                     const SkMatrixProvider& matrixProvider,
-                     const SkMatrix& srcToDst,
-                     const SkRect& srcRect,
-                     const SkIRect& clippedSrcIRect,
-                     const SkPaint& paint,
-                     SkCanvas::QuadAAFlags origAAFlags,
-                     SkCanvas::SrcRectConstraint constraint,
-                     SkSamplingOptions sampling,
-                     SkTileMode tileMode,
-                     DrawImageProc drawImageFn);
+    static void DrawTiledBitmap(SkBaseDevice*,
+                                const SkBitmap&,
+                                int tileSize,
+                                const SkMatrixProvider&,
+                                const SkMatrix& srcToDst,
+                                const SkRect& srcRect,
+                                const SkIRect& clippedSrcIRect,
+                                const SkPaint& paint,
+                                SkCanvas::QuadAAFlags origAAFlags,
+                                SkCanvas::SrcRectConstraint constraint,
+                                SkSamplingOptions sampling,
+                                SkTileMode tileMode);
+};
 
 } // namespace skgpu
 

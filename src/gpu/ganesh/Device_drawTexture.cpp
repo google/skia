@@ -268,21 +268,52 @@ void draw_texture(skgpu::ganesh::SurfaceDrawContext* sdc,
     }
 }
 
-// Assumes srcRect and dstRect have already been optimized to fit the proxy.
-void draw_image(GrRecordingContext* rContext,
-                skgpu::ganesh::SurfaceDrawContext* sdc,
-                const GrClip* clip,
-                const SkMatrixProvider& matrixProvider,
-                const SkPaint& paint,
-                const SkImage* image,
-                const SkRect& src,
-                const SkRect& dst,
-                const SkPoint dstClip[4],
-                const SkMatrix& srcToDst,
-                SkCanvas::QuadAAFlags canvasAAFlags,
-                SkCanvas::SrcRectConstraint constraint,
-                SkSamplingOptions sampling,
-                SkTileMode tm = SkTileMode::kClamp) {
+SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
+    SkFilterMode filter = sampling.filter;
+    if (sampling.isAniso() || sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
+        // if we were "fancier" than just bilerp, only do bilerp
+        filter = SkFilterMode::kLinear;
+    }
+    return filter;
+}
+
+bool can_disable_mipmap(const SkMatrix& viewM, const SkMatrix& localM) {
+    SkMatrix matrix;
+    matrix.setConcat(viewM, localM);
+    // We bias mipmap lookups by -0.5. That means our final LOD is >= 0 until
+    // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
+    // 0.5?
+    //
+    // Want:  0       = log2(1/s) - 0.5
+    //        0.5     = log2(1/s)
+    //        2^0.5   = 1/s
+    //        1/2^0.5 = s
+    //        2^0.5/2 = s
+    return matrix.getMinScale() >= SK_ScalarRoot2Over2;
+}
+
+} // anonymous namespace
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::ganesh {
+
+void Device::drawEdgeAAImage(const SkMatrixProvider& matrixProvider,
+                             const SkPaint& paint,
+                             const SkImage* image,
+                             const SkRect& src,
+                             const SkRect& dst,
+                             const SkPoint dstClip[4],
+                             const SkMatrix& srcToDst,
+                             SkCanvas::QuadAAFlags canvasAAFlags,
+                             SkCanvas::SrcRectConstraint constraint,
+                             SkSamplingOptions sampling,
+                             SkTileMode tm) {
+    GrRecordingContext* rContext = fContext.get();
+    SurfaceDrawContext* sdc = fSurfaceDrawContext.get();
+    const GrClip* clip = this->clip();
+
     GrQuadAAFlags aaFlags = SkToGrQuadAAFlags(canvasAAFlags);
     const SkMatrix& ctm(matrixProvider.localToDevice());
     auto ib = as_IB(image);
@@ -422,36 +453,6 @@ void draw_image(GrRecordingContext* rContext,
     }
 }
 
-SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
-    SkFilterMode filter = sampling.filter;
-    if (sampling.isAniso() || sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
-        // if we were "fancier" than just bilerp, only do bilerp
-        filter = SkFilterMode::kLinear;
-    }
-    return filter;
-}
-
-bool can_disable_mipmap(const SkMatrix& viewM, const SkMatrix& localM) {
-    SkMatrix matrix;
-    matrix.setConcat(viewM, localM);
-    // We bias mipmap lookups by -0.5. That means our final LOD is >= 0 until
-    // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
-    // 0.5?
-    //
-    // Want:  0       = log2(1/s) - 0.5
-    //        0.5     = log2(1/s)
-    //        2^0.5   = 1/s
-    //        1/2^0.5 = s
-    //        2^0.5/2 = s
-    return matrix.getMinScale() >= SK_ScalarRoot2Over2;
-}
-
-} // anonymous namespace
-
-//////////////////////////////////////////////////////////////////////////////
-
-namespace skgpu::ganesh {
-
 void Device::drawSpecial(SkSpecialImage* special,
                          const SkMatrix& localToDevice,
                          const SkSamplingOptions& origSampling,
@@ -476,19 +477,17 @@ void Device::drawSpecial(SkSpecialImage* special,
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
     SkMatrixProvider matrixProvider(localToDevice);
-    draw_image(fContext.get(),
-               fSurfaceDrawContext.get(),
-               this->clip(),
-               matrixProvider,
-               paint,
-               &image,
-               src,
-               dst,
-               nullptr,
-               srcToDst,
-               aaFlags,
-               SkCanvas::kStrict_SrcRectConstraint,
-               sampling);
+    this->drawEdgeAAImage(matrixProvider,
+                          paint,
+                          &image,
+                          src,
+                          dst,
+                          /* dstClip= */nullptr,
+                          srcToDst,
+                          aaFlags,
+                          SkCanvas::kStrict_SrcRectConstraint,
+                          sampling,
+                          SkTileMode::kClamp);
 }
 
 void Device::drawImageQuad(const SkImage* image,
@@ -553,54 +552,49 @@ void Device::drawImageQuad(const SkImage* image,
         }
         int tileSize;
         SkIRect clippedSubset;
-        if (skgpu::ShouldTileImage(clip ? clip->getConservativeBounds()
-                                        : SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
-                                   image->dimensions(),
-                                   ctm,
-                                   srcToDst,
-                                   &src,
-                                   maxTileSize,
-                                   cacheSize,
-                                   &tileSize,
-                                   &clippedSubset)) {
+        if (skgpu::TiledTextureUtils::ShouldTileImage(
+                clip ? clip->getConservativeBounds()
+                    : SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
+                image->dimensions(),
+                ctm,
+                srcToDst,
+                &src,
+                maxTileSize,
+                cacheSize,
+                &tileSize,
+                &clippedSubset)) {
             // Extract pixels on the CPU, since we have to split into separate textures before
             // sending to the GPU if tiling.
             if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
                 // This is the funnel for all paths that draw tiled bitmaps/images.
-                skgpu::DrawTiledBitmap(fContext.get(),
-                                       fSurfaceDrawContext.get(),
-                                       clip,
-                                       bm,
-                                       tileSize,
-                                       matrixProvider,
-                                       srcToDst,
-                                       src,
-                                       clippedSubset,
-                                       paint,
-                                       aaFlags,
-                                       constraint,
-                                       sampling,
-                                       tileMode,
-                                       draw_image);
+                skgpu::TiledTextureUtils::DrawTiledBitmap(this,
+                                                          bm,
+                                                          tileSize,
+                                                          matrixProvider,
+                                                          srcToDst,
+                                                          src,
+                                                          clippedSubset,
+                                                          paint,
+                                                          aaFlags,
+                                                          constraint,
+                                                          sampling,
+                                                          tileMode);
                 return;
             }
         }
     }
 
-    draw_image(fContext.get(),
-               fSurfaceDrawContext.get(),
-               clip,
-               matrixProvider,
-               paint,
-               image,
-               src,
-               dst,
-               dstClip,
-               srcToDst,
-               aaFlags,
-               constraint,
-               sampling);
-    return;
+    this->drawEdgeAAImage(matrixProvider,
+                          paint,
+                          image,
+                          src,
+                          dst,
+                          dstClip,
+                          srcToDst,
+                          aaFlags,
+                          constraint,
+                          sampling,
+                          SkTileMode::kClamp);
 }
 
 void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
