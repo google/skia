@@ -2666,6 +2666,11 @@ STAGE(gather_1010102, const SkRasterPipeline_GatherCtx* ctx) {
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
     from_1010102(gather(ptr, ix), &r,&g,&b,&a);
 }
+STAGE(gather_1010102_xr, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    from_1010102_xr(gather(ptr, ix), &r,&g,&b,&a);
+}
 STAGE(store_1010102, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 
