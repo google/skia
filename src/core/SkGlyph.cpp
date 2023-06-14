@@ -14,17 +14,16 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/base/SkBezierCurves.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
 #include "src/text/StrikeForGPU.h"
 
 #include <cstring>
@@ -457,30 +456,24 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
 
     // Handle all the different verbs for the path.
     SkPoint pts[4];
-    auto addLine = [&](SkScalar offset) {
+    auto addLine = [&expandGap, &pts](SkScalar offset) {
         SkScalar t = sk_ieee_float_divide(offset - pts[0].fY, pts[1].fY - pts[0].fY);
         if (0 <= t && t < 1) {   // this handles divide by zero above
             expandGap(pts[0].fX + t * (pts[1].fX - pts[0].fX));
         }
     };
 
-    auto addQuad = [&](SkScalar offset) {
-        double intersectionsStorage[2];
-        const SkPoint pA = pts[0] - pts[1] * 2 + pts[2];
-        // Remember we are generating the polynomial in the form A*t^2 -2*B*t + C, so the factor
-        // of 2 is not needed and the term is negated. This term for a Bézier curve is usually
-        // 2(p1-p0).
-        const SkPoint pB = pts[0] - pts[1];
-        const SkPoint pC = pts[0];
-        auto intersections =
-                SkBezierCubic::Intersect(pA.fX, pB.fX, pC.fX,
-                                         pA.fY, pB.fY, pC.fY, offset, intersectionsStorage);
-        for (double x : intersections) {
-            expandGap(SkDoubleToScalar(x));
+    auto addQuad = [&expandGap, &pts](SkScalar offset) {
+        SkDQuad quad;
+        quad.set(pts);
+        double roots[2];
+        int count = quad.horizontalIntersect(offset, roots);
+        while (--count >= 0) {
+            expandGap(quad.ptAtT(roots[count]).asSkPoint().fX);
         }
     };
 
-    auto addCubic = [&](SkScalar offset) {
+    auto addCubic = [&expandGap, &pts](SkScalar offset) {
         SkDCubic cubic;
         cubic.set(pts);
         double roots[3];

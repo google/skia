@@ -7,7 +7,6 @@
 #ifndef SkBezierCurves_DEFINED
 #define SkBezierCurves_DEFINED
 
-#include "include/private/base/SkSpan_impl.h"
 #include <array>
 
 /**
@@ -59,24 +58,6 @@ public:
      * the x or y values.
      */
     static std::array<double, 4> ConvertToPolynomial(const double curve[8], bool yValues);
-
-    /**
-     * Given
-     *    AY*t^2 -2*BY*t + CY = 0 and AX*t^2 - 2*BX*t + CX = 0,
-     *
-     * Find the t where AY*t^2 - 2*BY*t + CY - y = 0, then return AX*t^2 + - 2*BX*t + CX
-     * where t is on [0, 1].
-     *
-     * - y - is the height of the line which intersects the quadratic.
-     * - intersectionsStorage - is the array to hold the return data pointed to in the span.
-     *
-     * Returns a span with the intersections of y, and the quadratic formed by A, B,
-     * and C.
-     */
-    static SkSpan<const double> Intersect(
-            double AX, double BX, double CX,
-            double AY, double BY, double CY, double y,
-            double intersectionsStorage[2]);
 };
 
 #endif
