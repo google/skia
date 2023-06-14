@@ -128,8 +128,10 @@ protected:
 
         sk_sp<SkImageFilter> cfOffset(SkImageFilters::ColorFilter(cf, std::move(offset)));
 
-        sk_sp<SkImageFilter> erodeX(SkImageFilters::Erode(8, 0, nullptr, &cropRect));
-        sk_sp<SkImageFilter> erodeY(SkImageFilters::Erode(0, 8, nullptr, &cropRect));
+        // These are composed with an outer erode along the other axis, so don't add a cropRect to
+        // them or it will interfere with the second filter evaluation.
+        sk_sp<SkImageFilter> erodeX(SkImageFilters::Erode(8, 0, nullptr));
+        sk_sp<SkImageFilter> erodeY(SkImageFilters::Erode(0, 8, nullptr));
 
         sk_sp<SkImageFilter> filters[] = {
             nullptr,
