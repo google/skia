@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `EmbindObject` has been updated to allow TypeScript to differentiate between opaque
    types such as Shader, ColorFilter, et cetera.
 
+### Changed
+- `MakeSWCanvasSurface` now allows passing an `OffscreenCanvas` element.
+
 ## [0.38.2] - 2023-06-09
 
 ### Added

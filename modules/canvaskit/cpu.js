@@ -8,8 +8,9 @@
     // Takes in an html id or a canvas element
     CanvasKit.MakeSWCanvasSurface = function(idOrElement) {
       var canvas = idOrElement;
-      if (canvas.tagName !== 'CANVAS') {
-        // TODO(nifong): unit test
+      var isHTMLCanvas = typeof HTMLCanvasElement !== 'undefined' && canvas instanceof HTMLCanvasElement;
+      var isOffscreenCanvas = typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas;
+      if (!isHTMLCanvas && !isOffscreenCanvas) {
         canvas = document.getElementById(idOrElement);
         if (!canvas) {
           throw 'Canvas with id ' + idOrElement + ' was not found';
