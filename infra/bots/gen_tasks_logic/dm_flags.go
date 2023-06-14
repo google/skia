@@ -1154,6 +1154,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("Dawn") {
 		// skia:13922: WGSL does not support case fallthrough in switch statements.
 		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthroughAndVarDecls_GPU")
 		skip(ALL, "tests", ALL, "SkSLSwitchWithLoops_GPU")
 	}
 
@@ -1162,6 +1163,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLSwitch_GPU")
 		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_GPU")
 		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_GPU")
+		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthroughAndVarDecls_GPU")
 		skip(ALL, "tests", ALL, "SkSLSwitchWithLoops_GPU")
 		skip(ALL, "tests", ALL, "SkSLSwitchCaseFolding_GPU")
 		skip(ALL, "tests", ALL, "SkSLLoopFloat_GPU")

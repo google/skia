@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 #include <forward_list>
@@ -207,7 +208,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
                 context.fErrors->error(sc->fPosition, "duplicate default case");
             } else {
                 context.fErrors->error(sc->fPosition, "duplicate case value '" +
-                                                  std::to_string(sc->value()) + "'");
+                                                      std::to_string(sc->value()) + "'");
             }
         }
         return nullptr;
@@ -269,8 +270,14 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
     }
 
     // The switch couldn't be optimized away; emit it normally.
-    return std::make_unique<SwitchStatement>(pos, std::move(value), std::move(cases),
-                                             std::move(symbolTable));
+    auto stmt = std::make_unique<SwitchStatement>(pos, std::move(value), std::move(cases),
+                                                  std::move(symbolTable));
+
+    // If a switch-case has variable declarations at its top level, we want to create a scoped block
+    // around the switch, then move the variable declarations out of the switch body and into the
+    // outer scope. This prevents scoping issues in backends which don't offer a native switch.
+    // (skia:14375)
+    return Transform::HoistSwitchVarDeclarationsAtTopLevel(context, std::move(stmt));
 }
 
 }  // namespace SkSL

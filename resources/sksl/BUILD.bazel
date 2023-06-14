@@ -710,6 +710,7 @@ skia_filegroup(
         "shared/Switch.sksl",
         "shared/SwitchDefaultOnly.sksl",
         "shared/SwitchWithFallthrough.sksl",
+        "shared/SwitchWithFallthroughAndVarDecls.sksl",
         "shared/SwitchWithLoops.sksl",
         "shared/SwitchWithLoopsES3.sksl",
         "workarounds/AbsInt.sksl",
