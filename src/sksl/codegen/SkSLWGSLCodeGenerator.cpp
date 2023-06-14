@@ -1617,6 +1617,9 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_greaterThanEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::GTEQ, call, parentPrecedence);
 
+        case k_inversesqrt_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("inverseSqrt", call);
+
         case k_lessThan_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::LT, call, parentPrecedence);
 
@@ -1644,9 +1647,15 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_ceil_IntrinsicKind:
         case k_cos_IntrinsicKind:
         case k_degrees_IntrinsicKind:
+        case k_exp_IntrinsicKind:
+        case k_exp2_IntrinsicKind:
         case k_floor_IntrinsicKind:
+        case k_log_IntrinsicKind:
+        case k_log2_IntrinsicKind:
         case k_radians_IntrinsicKind:
+        case k_pow_IntrinsicKind:
         case k_sin_IntrinsicKind:
+        case k_sqrt_IntrinsicKind:
         case k_tan_IntrinsicKind:
         default:
             return this->assembleSimpleIntrinsic(call.function().name(), call);
