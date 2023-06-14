@@ -98,10 +98,6 @@ public:
     YUVABackendTextures(const Recorder*,
                         const SkYUVAInfo&,
                         SkSpan<const BackendTexture>);
-    //*** deprecated ***
-    YUVABackendTextures(const Recorder*,
-                        const SkYUVAInfo&,
-                        const BackendTexture[kMaxPlanes]);
 
     SkSpan<const BackendTexture> planeTextures() const {
         return SkSpan<const BackendTexture>(fPlaneTextures);

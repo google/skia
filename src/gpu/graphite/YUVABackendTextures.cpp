@@ -108,32 +108,6 @@ YUVABackendTextures::YUVABackendTextures(const Recorder* recorder,
     SkASSERT(this->isValid());
 }
 
-YUVABackendTextures::YUVABackendTextures(const Recorder* recorder,
-                                         const SkYUVAInfo& yuvaInfo,
-                                         const BackendTexture textures[kMaxPlanes])
-        : fYUVAInfo(yuvaInfo) {
-    if (!yuvaInfo.isValid()) {
-        SkASSERT(!this->isValid());
-        return;
-    }
-    SkISize planeDimensions[kMaxPlanes];
-    int numPlanes = yuvaInfo.planeDimensions(planeDimensions);
-    for (int i = 0; i < numPlanes; ++i) {
-        int numRequiredChannels = yuvaInfo.numChannelsInPlane(i);
-        SkASSERT(numRequiredChannels > 0);
-        fPlaneChannelMasks[i] = recorder->priv().caps()->channelMask(textures[i].info());
-        if (!textures[i].isValid() ||
-            textures[i].dimensions() != planeDimensions[i] ||
-            textures[i].backend() != textures[0].backend() ||
-            num_channels(fPlaneChannelMasks[i]) < numRequiredChannels) {
-            SkASSERT(!this->isValid());
-            return;
-        }
-        fPlaneTextures[i] = textures[i];
-    }
-    SkASSERT(this->isValid());
-}
-
 SkYUVAInfo::YUVALocations YUVABackendTextures::toYUVALocations() const {
     auto result = fYUVAInfo.toYUVALocations(fPlaneChannelMasks.data());
     SkDEBUGCODE(int numPlanes;)
