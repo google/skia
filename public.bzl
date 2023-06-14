@@ -82,6 +82,7 @@ SKIA_PUBLIC_HDRS = [
     "include/core/SkPixmap.h",
     "include/core/SkPoint.h",
     "include/core/SkPoint3.h",
+    "include/core/SkPromiseImageTexture.h",  # TODO(kjlubick) remove this shim
     "include/core/SkRRect.h",
     "include/core/SkRSXform.h",
     "include/core/SkRasterHandleAllocator.h",
