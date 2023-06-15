@@ -18,6 +18,8 @@
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanTexture.h"
 
+#define SK_DISABLE_VULKAN_RENDERING
+
 using namespace skia_private;
 
 namespace skgpu::graphite {
@@ -428,8 +430,10 @@ void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                 break;
             }
             case DrawPassCommands::Type::kBindUniformBuffer: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto bub = static_cast<DrawPassCommands::BindUniformBuffer*>(cmdPtr);
                 this->recordBufferBindingInfo(bub->fInfo, bub->fSlot);
+#endif
                 break;
             }
             case DrawPassCommands::Type::kBindDrawBuffers: {
@@ -439,8 +443,10 @@ void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                 break;
             }
             case DrawPassCommands::Type::kBindTexturesAndSamplers: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto bts = static_cast<DrawPassCommands::BindTexturesAndSamplers*>(cmdPtr);
                 this->recordTextureAndSamplerDescSet(*drawPass, *bts);
+#endif
                 break;
             }
             case DrawPassCommands::Type::kSetScissor: {
@@ -450,26 +456,33 @@ void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                 break;
             }
             case DrawPassCommands::Type::kDraw: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto draw = static_cast<DrawPassCommands::Draw*>(cmdPtr);
                 this->draw(draw->fType, draw->fBaseVertex, draw->fVertexCount);
+#endif
                 break;
             }
             case DrawPassCommands::Type::kDrawIndexed: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto draw = static_cast<DrawPassCommands::DrawIndexed*>(cmdPtr);
                 this->drawIndexed(
                         draw->fType, draw->fBaseIndex, draw->fIndexCount, draw->fBaseVertex);
+#endif
                 break;
             }
             case DrawPassCommands::Type::kDrawInstanced: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto draw = static_cast<DrawPassCommands::DrawInstanced*>(cmdPtr);
                 this->drawInstanced(draw->fType,
                                     draw->fBaseVertex,
                                     draw->fVertexCount,
                                     draw->fBaseInstance,
                                     draw->fInstanceCount);
+#endif
                 break;
             }
             case DrawPassCommands::Type::kDrawIndexedInstanced: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto draw = static_cast<DrawPassCommands::DrawIndexedInstanced*>(cmdPtr);
                 this->drawIndexedInstanced(draw->fType,
                                            draw->fBaseIndex,
@@ -477,16 +490,21 @@ void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                                            draw->fBaseVertex,
                                            draw->fBaseInstance,
                                            draw->fInstanceCount);
+#endif
                 break;
             }
             case DrawPassCommands::Type::kDrawIndirect: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto draw = static_cast<DrawPassCommands::DrawIndirect*>(cmdPtr);
                 this->drawIndirect(draw->fType);
+#endif
                 break;
             }
             case DrawPassCommands::Type::kDrawIndexedIndirect: {
+#ifndef SK_DISABLE_VULKAN_RENDERING
                 auto draw = static_cast<DrawPassCommands::DrawIndexedIndirect*>(cmdPtr);
                 this->drawIndexedIndirect(draw->fType);
+#endif
                 break;
             }
         }
